@@ -29,8 +29,10 @@
 #include "Model/MapFormat.h"
 #include "Model/World.h"
 
+#include <kdl/result.h>
 #include <kdl/string_compare.h>
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -73,13 +75,13 @@ namespace TrenchBroom {
             map.addOrUpdateAttribute("classname", "worldspawn");
 
             Model::BrushBuilder builder(&map, worldBounds);
-            Model::Brush* brush1 = builder.createCube(64.0, "none");
+            Model::Brush* brush1 = kdl::get_value(builder.createCube(64.0, "none")).release();
             for (auto* face : brush1->faces()) {
                 face->setColor(Color(1.0f, 2.0f, 3.0f));
             }
             map.defaultLayer()->addChild(brush1);
 
-            Model::Brush* brush2 = builder.createCube(64.0, "none");
+            Model::Brush* brush2 = kdl::get_value(builder.createCube(64.0, "none")).release();
             map.defaultLayer()->addChild(brush2);
 
             std::stringstream str;
@@ -122,7 +124,7 @@ R"(// entity 0
             map.addOrUpdateAttribute("classname", "worldspawn");
 
             Model::BrushBuilder builder(&map, worldBounds);
-            Model::Brush* brush1 = builder.createCube(64.0, "none");
+            Model::Brush* brush1 = kdl::get_value(builder.createCube(64.0, "none")).release();
             for (auto* face : brush1->faces()) {
                 face->setSurfaceValue(32.0f);
             }
@@ -161,7 +163,7 @@ R"(// entity 0
             map.addOrUpdateAttribute("classname", "worldspawn");
 
             Model::BrushBuilder builder(&map, worldBounds);
-            Model::Brush* brush = builder.createCube(64.0, "none");
+            Model::Brush* brush = kdl::get_value(builder.createCube(64.0, "none")).release();
             map.defaultLayer()->addChild(brush);
 
             std::stringstream str;
@@ -197,7 +199,7 @@ R"(// entity 0
             map.addChild(layer);
 
             Model::BrushBuilder builder(&map, worldBounds);
-            Model::Brush* brush = builder.createCube(64.0, "none");
+            Model::Brush* brush = kdl::get_value(builder.createCube(64.0, "none")).release();
             layer->addChild(brush);
 
             std::stringstream str;
@@ -241,7 +243,7 @@ R"(// entity 0
             map.defaultLayer()->addChild(group);
 
             Model::BrushBuilder builder(&map, worldBounds);
-            Model::Brush* brush = builder.createCube(64.0, "none");
+            Model::Brush* brush = kdl::get_value(builder.createCube(64.0, "none")).release();
             group->addChild(brush);
 
             std::stringstream str;
@@ -287,7 +289,7 @@ R"(// entity 0
             layer->addChild(group);
 
             Model::BrushBuilder builder(&map, worldBounds);
-            Model::Brush* brush = builder.createCube(64.0, "none");
+            Model::Brush* brush = kdl::get_value(builder.createCube(64.0, "none")).release();
             group->addChild(brush);
 
             std::stringstream str;
@@ -344,7 +346,7 @@ R"(// entity 0
             outer->addChild(inner);
 
             Model::BrushBuilder builder(&map, worldBounds);
-            Model::Brush* brush = builder.createCube(64.0, "none");
+            Model::Brush* brush = kdl::get_value(builder.createCube(64.0, "none")).release();
             inner->addChild(brush);
 
             std::stringstream str;
@@ -402,10 +404,10 @@ R"(// entity 0
 
             Model::BrushBuilder builder(&map, worldBounds);
 
-            Model::Brush* worldBrush = builder.createCube(64.0, "some");
+            Model::Brush* worldBrush = kdl::get_value(builder.createCube(64.0, "some")).release();
             Model::Group* outer = map.createGroup("Outer Group");
             Model::Group* inner = map.createGroup("Inner Group");
-            Model::Brush* innerBrush = builder.createCube(64.0, "none");
+            Model::Brush* innerBrush = kdl::get_value(builder.createCube(64.0, "none")).release();
 
             inner->addChild(innerBrush);
             outer->addChild(inner);
@@ -461,7 +463,7 @@ R"(// entity 0
 
             Model::World map(Model::MapFormat::Standard);
             Model::BrushBuilder builder(&map, worldBounds);
-            Model::Brush* brush = builder.createCube(64.0, "none");
+            Model::Brush* brush = kdl::get_value(builder.createCube(64.0, "none")).release();
 
             std::stringstream str;
             NodeWriter writer(map, str);

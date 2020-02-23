@@ -48,6 +48,8 @@
 #include "View/VertexHandleManager.h"
 
 #include <kdl/memory_utils.h>
+#include <kdl/overload.h>
+#include <kdl/result.h>
 #include <kdl/set_temp.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_set.h>
@@ -272,12 +274,20 @@ namespace TrenchBroom {
                 auto document = kdl::mem_lock(m_document);
                 auto game = document->game();
                 const Model::BrushBuilder builder(document->world(), document->worldBounds(), game->defaultFaceAttribs());
-                auto* brush = builder.createBrush(polyhedron, document->currentTextureName());
-                brush->cloneFaceAttributesFrom(document->selectedNodes().brushes());
+                auto result = builder.createBrush(polyhedron, document->currentTextureName());
+                kdl::visit_result(kdl::overload {
+                    [&](std::unique_ptr<Model::Brush>&& brush) {
+                        brush->cloneFaceAttributesFrom(document->selectedNodes().brushes());
 
-                const Transaction transaction(document, "CSG Convex Merge");
-                deselectAll();
-                document->addNode(brush, document->currentParent());
+                        const Transaction transaction(document, "CSG Convex Merge");
+                        deselectAll();
+                        document->addNode(brush.release(), document->currentParent());
+                    },
+                    [&](const GeometryException& e) {
+                        document->error() << "CSG convex merge failed: " << e.what();
+                    }
+                }, std::move(result));
+                
             }
 
             virtual H getHandlePosition(const Model::Hit& hit) const {

@@ -27,6 +27,10 @@
 #include "Model/MapFormat.h"
 #include "Model/World.h"
 
+#include <kdl/result.h>
+
+#include <memory>
+
 namespace TrenchBroom {
     namespace Model {
         TEST(TaggingTest, testTagBrush) {
@@ -34,8 +38,10 @@ namespace TrenchBroom {
             World world{MapFormat::Standard};
 
             BrushBuilder builder{&world, worldBounds};
-            Brush* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
+            auto result = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
+            ASSERT_TRUE(result.is_success());
 
+            auto* brush = kdl::get_value(std::move(result)).release();
             world.defaultLayer()->addChild(brush);
 
             Tag tag1{"tag1", {}};

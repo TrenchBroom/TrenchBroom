@@ -28,6 +28,10 @@
 #include "View/MapDocumentTest.h"
 #include "View/MapDocument.h"
 
+#include <kdl/result.h>
+
+#include <memory>
+
 namespace TrenchBroom {
     namespace View {
         class SelectionTest : public MapDocumentTest {};
@@ -47,13 +51,13 @@ namespace TrenchBroom {
             const vm::bbox3 brushBounds(vm::vec3(-32.0, -32.0, -32.0),
                                     vm::vec3(+32.0, +32.0, +32.0));
 
-            Model::Brush* brush = builder.createCuboid(brushBounds, "texture");
+            Model::Brush* brush = kdl::get_value(builder.createCuboid(brushBounds, "texture")).release();
             document->addNode(brush, group);
 
             const vm::bbox3 selectionBounds(vm::vec3(-16.0, -16.0, -48.0),
                                         vm::vec3(+16.0, +16.0, +48.0));
 
-            Model::Brush* selectionBrush = builder.createCuboid(selectionBounds, "texture");
+            Model::Brush* selectionBrush = kdl::get_value(builder.createCuboid(selectionBounds, "texture")).release();
             document->addNode(selectionBrush, layer);
 
             document->select(selectionBrush);
@@ -77,13 +81,13 @@ namespace TrenchBroom {
             const vm::bbox3 brushBounds(vm::vec3(-32.0, -32.0, -32.0),
                                     vm::vec3(+32.0, +32.0, +32.0));
 
-            Model::Brush* brush = builder.createCuboid(brushBounds, "texture");
+            Model::Brush* brush = kdl::get_value(builder.createCuboid(brushBounds, "texture")).release();
             document->addNode(brush, group);
 
             const vm::bbox3 selectionBounds(vm::vec3(-48.0, -48.0, -48.0),
                                         vm::vec3(+48.0, +48.0, +48.0));
 
-            Model::Brush* selectionBrush = builder.createCuboid(selectionBounds, "texture");
+            Model::Brush* selectionBrush = kdl::get_value(builder.createCuboid(selectionBounds, "texture")).release();
             document->addNode(selectionBrush, layer);
 
             document->select(selectionBrush);

@@ -307,7 +307,7 @@ namespace TrenchBroom {
         m_geometry(nullptr),
         m_transparent(false),
         m_brushRendererBrushCache(std::make_unique<Renderer::BrushRendererBrushCache>()) {}
-        
+
         kdl::result<void, GeometryException> Brush::initialize(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) {
             addFaces(faces);
             return buildGeometry(worldBounds);
@@ -1188,10 +1188,10 @@ namespace TrenchBroom {
             brushes.reserve(result.size());
 
             for (const auto& geometry : result) {
-                try {
-                    auto* brush = createBrush(factory, worldBounds, defaultTextureName, geometry, subtrahends);
-                    brushes.push_back(brush);
-                } catch (const GeometryException&) {}
+                auto createResult = createBrush(factory, worldBounds, defaultTextureName, geometry, subtrahends);
+                if (createResult.is_success()) {
+                    brushes.push_back(kdl::get_value(createResult));
+                }
             }
 
             return brushes;
@@ -1223,7 +1223,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        Brush* Brush::createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<Brush*>& subtrahends) const {
+        kdl::result<Brush*, GeometryException> Brush::createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<Brush*>& subtrahends) const {
             std::vector<BrushFace*> faces(0);
             faces.reserve(geometry.faceCount());
 
@@ -1240,12 +1240,14 @@ namespace TrenchBroom {
                 faces.push_back(factory.createFace(p0, p1, p2, attribs));
             }
 
-            auto* brush = factory.createBrush(worldBounds, faces);
-            brush->cloneFaceAttributesFrom(this);
-            for (const auto* subtrahend : subtrahends) {
-                brush->cloneInvertedFaceAttributesFrom(subtrahend);
-            }
-            return brush;
+            auto result = factory.createBrush(worldBounds, faces);
+            return kdl::map_result([&](std::unique_ptr<Brush>&& brush) {
+                brush->cloneFaceAttributesFrom(this);
+                for (const auto* subtrahend : subtrahends) {
+                    brush->cloneInvertedFaceAttributesFrom(subtrahend);
+                }
+                return brush.release();
+            }, std::move(result));
         }
 
         void Brush::updateFacesFromGeometry(const vm::bbox3& /* worldBounds */, const BrushGeometry& brushGeometry) {

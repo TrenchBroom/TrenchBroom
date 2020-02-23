@@ -29,6 +29,10 @@
 #include "Model/Entity.h"
 #include "Model/Brush.h"
 
+#include <kdl/result.h>
+
+#include <memory>
+
 namespace TrenchBroom {
     namespace Model {
         class EditorContextTest : public ::testing::Test {
@@ -62,7 +66,7 @@ namespace TrenchBroom {
 
             std::tuple<Entity*, Brush*> createTopLevelBrushEntity() {
                 BrushBuilder builder(world, worldBounds);
-                auto* brush = builder.createCube(32.0, "sometex");
+                auto* brush = kdl::get_value(builder.createCube(32.0, "sometex")).release();
                 auto* entity = world->createEntity();
                 entity->addChild(brush);
                 world->defaultLayer()->addChild(entity);
@@ -71,7 +75,7 @@ namespace TrenchBroom {
 
             Brush* createTopLevelBrush() {
                 BrushBuilder builder(world, worldBounds);
-                auto* brush = builder.createCube(32.0, "sometex");
+                auto* brush = kdl::get_value(builder.createCube(32.0, "sometex")).release();
                 world->defaultLayer()->addChild(brush);
                 return brush;
             }
@@ -86,7 +90,7 @@ namespace TrenchBroom {
 
             std::tuple<Group*, Brush*> createGroupedBrush() {
                 BrushBuilder builder(world, worldBounds);
-                auto* brush = builder.createCube(32.0, "sometex");
+                auto* brush = kdl::get_value(builder.createCube(32.0, "sometex")).release();
                 auto* group = world->createGroup("somegroup");
 
                 group->addChild(brush);
@@ -108,7 +112,7 @@ namespace TrenchBroom {
 
             std::tuple<Group*, Entity*, Brush*> createGroupedBrushEntity() {
                 BrushBuilder builder(world, worldBounds);
-                auto* brush = builder.createCube(32.0, "sometex");
+                auto* brush = kdl::get_value(builder.createCube(32.0, "sometex")).release();
                 auto* entity = world->createEntity();
                 auto* group = world->createGroup("somegroup");
 
@@ -121,7 +125,7 @@ namespace TrenchBroom {
 
             std::tuple<Group*, Group*, Brush*> createdNestedGroupedBrush() {
                 BrushBuilder builder(world, worldBounds);
-                auto* innerBrush = builder.createCube(32.0, "sometex");
+                auto* innerBrush = kdl::get_value(builder.createCube(32.0, "sometex")).release();
                 auto* innerGroup = world->createGroup("inner");
                 auto* outerGroup = world->createGroup("outer");
 

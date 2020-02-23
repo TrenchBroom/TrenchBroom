@@ -20,10 +20,14 @@
 #ifndef TrenchBroom_ModelFactory
 #define TrenchBroom_ModelFactory
 
+#include "Exceptions.h"
 #include "FloatType.h"
+
+#include <kdl/result_forward.h>
 
 #include <vecmath/forward.h>
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -47,7 +51,7 @@ namespace TrenchBroom {
             Layer* createLayer(const std::string& name) const;
             Group* createGroup(const std::string& name) const;
             Entity* createEntity() const;
-            Brush* createBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const;
+            kdl::result<std::unique_ptr<Brush>, GeometryException> createBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const;
 
             BrushFace* createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const;
             BrushFace* createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const;
@@ -57,7 +61,7 @@ namespace TrenchBroom {
             virtual Layer* doCreateLayer(const std::string& name) const = 0;
             virtual Group* doCreateGroup(const std::string& name) const = 0;
             virtual Entity* doCreateEntity() const = 0;
-            virtual Brush* doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const = 0;
+            virtual kdl::result<std::unique_ptr<Brush>, GeometryException> doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const = 0;
             virtual BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const = 0;
             virtual BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const = 0;
         };

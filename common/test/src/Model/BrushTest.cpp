@@ -38,6 +38,7 @@
 
 #include <kdl/collection_utils.h>
 #include <kdl/result.h>
+#include <kdl/overload.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/vec.h>
@@ -862,7 +863,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            auto brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
+            auto brush = kdl::get_value(builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom"));
 
             const vm::vec3 p1(-32.0, -32.0, -32.0);
             const vm::vec3 p2(-32.0, -32.0, +32.0);
@@ -878,27 +879,25 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, newVertexPositions.size());
             ASSERT_VEC_EQ(p9, newVertexPositions[0]);
 
-            assertTexture("left", brush, p1, p2, p4, p3);
-            assertTexture("right", brush, p5, p7, p6);
-            assertTexture("right", brush, p6, p7, p9);
-            assertTexture("front", brush, p1, p5, p6, p2);
-            assertTexture("back", brush, p3, p4, p7);
-            assertTexture("back", brush, p4, p9, p7);
-            assertTexture("top", brush, p2, p6, p9, p4);
-            assertTexture("bottom", brush, p1, p3, p7, p5);
+            assertTexture("left", brush.get(), p1, p2, p4, p3);
+            assertTexture("right", brush.get(), p5, p7, p6);
+            assertTexture("right", brush.get(), p6, p7, p9);
+            assertTexture("front", brush.get(), p1, p5, p6, p2);
+            assertTexture("back", brush.get(), p3, p4, p7);
+            assertTexture("back", brush.get(), p4, p9, p7);
+            assertTexture("top", brush.get(), p2, p6, p9, p4);
+            assertTexture("bottom", brush.get(), p1, p3, p7, p5);
 
             newVertexPositions = brush->moveVertices(worldBounds, newVertexPositions, p8 - p9);
             ASSERT_EQ(1u, newVertexPositions.size());
             ASSERT_VEC_EQ(p8, newVertexPositions[0]);
 
-            assertTexture("left", brush, p1, p2, p4, p3);
-            assertTexture("right", brush, p5, p7, p8, p6);
-            assertTexture("front", brush, p1, p5, p6, p2);
-            assertTexture("back", brush, p3, p4, p8, p7);
-            assertTexture("top", brush, p2, p6, p8, p4);
-            assertTexture("bottom", brush, p1, p3, p7, p5);
-            
-            delete brush;
+            assertTexture("left", brush.get(), p1, p2, p4, p3);
+            assertTexture("right", brush.get(), p5, p7, p8, p6);
+            assertTexture("front", brush.get(), p1, p5, p6, p2);
+            assertTexture("back", brush.get(), p3, p4, p8, p7);
+            assertTexture("top", brush.get(), p2, p6, p8, p4);
+            assertTexture("bottom", brush.get(), p1, p3, p7, p5);
         }
 
         TEST(BrushTest, moveTetrahedronVertexToOpposideSide) {
@@ -914,15 +913,13 @@ namespace TrenchBroom {
             points.push_back(top);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(points, "some_texture");
+            auto brush = kdl::get_value(builder.createBrush(points, "some_texture"));
 
             std::vector<vm::vec3> newVertexPositions = brush->moveVertices(worldBounds, std::vector<vm::vec3>(1, top), vm::vec3(0.0, 0.0, -32.0));
             ASSERT_EQ(1u, newVertexPositions.size());
             ASSERT_VEC_EQ(vm::vec3(0.0, 0.0, -16.0), newVertexPositions[0]);
 
             ASSERT_TRUE(brush->fullySpecified());
-
-            delete brush;
         }
 
         TEST(BrushTest, moveEdge) {
@@ -930,7 +927,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
+            auto brush = kdl::get_value(builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom"));
 
             const vm::vec3 p1(-32.0, -32.0, -32.0);
             const vm::vec3 p2(-32.0, -32.0, +32.0);
@@ -943,26 +940,26 @@ namespace TrenchBroom {
             const vm::vec3 p1_2(-32.0, -32.0, -16.0);
             const vm::vec3 p2_2(-32.0, -32.0, +48.0);
 
-            assertTexture("left", brush, p1, p2, p4, p3);
-            assertTexture("right", brush, p5, p7, p8, p6);
-            assertTexture("front", brush, p1, p5, p6, p2);
-            assertTexture("back", brush, p3, p4, p8, p7);
-            assertTexture("top", brush, p2, p6, p8, p4);
-            assertTexture("bottom", brush, p1, p3, p7, p5);
+            assertTexture("left", brush.get(), p1, p2, p4, p3);
+            assertTexture("right", brush.get(), p5, p7, p8, p6);
+            assertTexture("front", brush.get(), p1, p5, p6, p2);
+            assertTexture("back", brush.get(), p3, p4, p8, p7);
+            assertTexture("top", brush.get(), p2, p6, p8, p4);
+            assertTexture("bottom", brush.get(), p1, p3, p7, p5);
 
             const vm::segment3 edge(p1, p2);
             std::vector<vm::segment3> newEdgePositions = brush->moveEdges(worldBounds, std::vector<vm::segment3>(1, edge), p1_2 - p1);
             ASSERT_EQ(1u, newEdgePositions.size());
             ASSERT_EQ(vm::segment3(p1_2, p2_2), newEdgePositions[0]);
 
-            assertTexture("left", brush, p1_2, p2_2, p4, p3);
-            assertTexture("right", brush, p5, p7, p8, p6);
-            assertTexture("front", brush, p1_2, p5, p6, p2_2);
-            assertTexture("back", brush, p3, p4, p8, p7);
-            assertTexture("top", brush, p2_2, p6, p8);
-            assertTexture("top", brush, p2_2, p8, p4);
-            assertTexture("bottom", brush, p1_2, p3, p5);
-            assertTexture("bottom", brush, p3, p7, p5);
+            assertTexture("left", brush.get(), p1_2, p2_2, p4, p3);
+            assertTexture("right", brush.get(), p5, p7, p8, p6);
+            assertTexture("front", brush.get(), p1_2, p5, p6, p2_2);
+            assertTexture("back", brush.get(), p3, p4, p8, p7);
+            assertTexture("top", brush.get(), p2_2, p6, p8);
+            assertTexture("top", brush.get(), p2_2, p8, p4);
+            assertTexture("bottom", brush.get(), p1_2, p3, p5);
+            assertTexture("bottom", brush.get(), p3, p7, p5);
 
             ASSERT_TRUE(brush->canMoveEdges(worldBounds, newEdgePositions, p1 - p1_2));
 
@@ -970,14 +967,12 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, newEdgePositions.size());
             ASSERT_EQ(edge, newEdgePositions[0]);
 
-            assertTexture("left", brush, p1, p2, p4, p3);
-            assertTexture("right", brush, p5, p7, p8, p6);
-            assertTexture("front", brush, p1, p5, p6, p2);
-            assertTexture("back", brush, p3, p4, p8, p7);
-            assertTexture("top", brush, p2, p6, p8, p4);
-            assertTexture("bottom", brush, p1, p3, p7, p5);
-
-            delete brush;
+            assertTexture("left", brush.get(), p1, p2, p4, p3);
+            assertTexture("right", brush.get(), p5, p7, p8, p6);
+            assertTexture("front", brush.get(), p1, p5, p6, p2);
+            assertTexture("back", brush.get(), p3, p4, p8, p7);
+            assertTexture("top", brush.get(), p2, p6, p8, p4);
+            assertTexture("bottom", brush.get(), p1, p3, p7, p5);
         }
 
         TEST(BrushTest, moveFace) {
@@ -985,7 +980,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(64.0, "asdf");
+            auto brush = kdl::get_value(builder.createCube(64.0, "asdf"));
 
             std::vector<vm::vec3> vertexPositions(4);
             vertexPositions[0] = vm::vec3(-32.0, -32.0, +32.0);
@@ -1009,8 +1004,6 @@ namespace TrenchBroom {
             ASSERT_EQ(4u, newFacePositions[0].vertices().size());
             for (size_t i = 0; i < 4; ++i)
                 ASSERT_TRUE(newFacePositions[0].hasVertex(face.vertices()[i]));
-
-            delete brush;
         }
 
         class UVLockTest : public ::testing::TestWithParam<MapFormat> {
@@ -1023,7 +1016,7 @@ namespace TrenchBroom {
             Assets::Texture testTexture("testTexture", 64, 64);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(64.0, "");
+            auto brush = kdl::get_value(builder.createCube(64.0, ""));
             for (auto* face : brush->faces()) {
                 face->setTexture(&testTexture);
             }
@@ -1092,7 +1085,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName);
+            auto brush = kdl::get_value(builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName));
 
             std::vector<vm::vec3> vertexPositions(4);
             vertexPositions[0] = vm::vec3(-64.0, -64.0, -16.0);
@@ -1103,7 +1096,6 @@ namespace TrenchBroom {
             const vm::polygon3 face(vertexPositions);
 
             ASSERT_FALSE(brush->canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, face), vm::vec3(0.0, 128.0, 0.0)));
-            delete brush;
         }
 
         static void assertCanMoveEdges(const Brush* brush, const std::vector<vm::segment3> edges, const vm::vec3 delta) {
@@ -1249,11 +1241,11 @@ namespace TrenchBroom {
                 baseQuadVertexPositions);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
+            auto brush = kdl::get_value(builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName));
 
-            assertCanMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -127.0));
-            assertCanNotMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -128.0)); // Onto the base quad plane
-            assertCanMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -129.0)); // Through the other side of the base quad
+            assertCanMoveVertex(brush.get(), peakPosition, vm::vec3(0.0, 0.0, -127.0));
+            assertCanNotMoveVertex(brush.get(), peakPosition, vm::vec3(0.0, 0.0, -128.0)); // Onto the base quad plane
+            assertCanMoveVertex(brush.get(), peakPosition, vm::vec3(0.0, 0.0, -129.0)); // Through the other side of the base quad
 
             // More detailed testing of the last assertion
             {
@@ -1282,11 +1274,9 @@ namespace TrenchBroom {
                 delete brushClone;
             }
 
-            assertCanMoveVertex(brush, peakPosition, vm::vec3(256.0, 0.0, -127.0));
-            assertCanNotMoveVertex(brush, peakPosition, vm::vec3(256.0, 0.0, -128.0)); // Onto the base quad plane
-            assertCanMoveVertex(brush, peakPosition, vm::vec3(256.0, 0.0, -129.0)); // Flips the normal of the base quad, without moving through it
-
-            delete brush;
+            assertCanMoveVertex(brush.get(), peakPosition, vm::vec3(256.0, 0.0, -127.0));
+            assertCanNotMoveVertex(brush.get(), peakPosition, vm::vec3(256.0, 0.0, -128.0)); // Onto the base quad plane
+            assertCanMoveVertex(brush.get(), peakPosition, vm::vec3(256.0, 0.0, -129.0)); // Flips the normal of the base quad, without moving through it
         }
 
         TEST(BrushTest, movePointRemainingPolyhedron) {
@@ -1307,13 +1297,11 @@ namespace TrenchBroom {
             };
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
+            auto brush = kdl::get_value(builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName));
 
-            assertMovingVertexDeletes(brush, peakPosition, vm::vec3(0.0, 0.0, -65.0)); // Move inside the remaining cuboid
-            assertCanMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -63.0)); // Slightly above the top of the cuboid is OK
-            assertCanNotMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -129.0)); // Through and out the other side is disallowed
-
-            delete brush;
+            assertMovingVertexDeletes(brush.get(), peakPosition, vm::vec3(0.0, 0.0, -65.0)); // Move inside the remaining cuboid
+            assertCanMoveVertex(brush.get(), peakPosition, vm::vec3(0.0, 0.0, -63.0)); // Slightly above the top of the cuboid is OK
+            assertCanNotMoveVertex(brush.get(), peakPosition, vm::vec3(0.0, 0.0, -129.0)); // Through and out the other side is disallowed
         }
 
         // "Move edge" tests
@@ -1326,21 +1314,19 @@ namespace TrenchBroom {
             const vm::segment3 edge(vm::vec3(-128, 0, -128), vm::vec3(-128, 0, +128));
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(128, Model::BrushFaceAttributes::NoTextureName);
+            auto brush = kdl::get_value(builder.createCube(128, Model::BrushFaceAttributes::NoTextureName));
             ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge.start()));
             ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge.end()));
 
             ASSERT_EQ(10u, brush->vertexCount());
 
-            assertCanMoveEdges(brush, std::vector<vm::segment3>{edge}, vm::vec3(+63, 0, 0));
-            assertCanNotMoveEdges(brush, std::vector<vm::segment3>{edge}, vm::vec3(+64, 0, 0)); // On the side of the cube
-            assertCanNotMoveEdges(brush, std::vector<vm::segment3>{edge}, vm::vec3(+128, 0, 0)); // Center of the cube
+            assertCanMoveEdges(brush.get(), std::vector<vm::segment3>{edge}, vm::vec3(+63, 0, 0));
+            assertCanNotMoveEdges(brush.get(), std::vector<vm::segment3>{edge}, vm::vec3(+64, 0, 0)); // On the side of the cube
+            assertCanNotMoveEdges(brush.get(), std::vector<vm::segment3>{edge}, vm::vec3(+128, 0, 0)); // Center of the cube
 
-            assertCanMoveVertices(brush, asVertexList(std::vector<vm::segment3>{edge}), vm::vec3(+63, 0, 0));
-            assertCanMoveVertices(brush, asVertexList(std::vector<vm::segment3>{edge}), vm::vec3(+64, 0, 0));
-            assertCanMoveVertices(brush, asVertexList(std::vector<vm::segment3>{edge}), vm::vec3(+128, 0, 0));
-
-            delete brush;
+            assertCanMoveVertices(brush.get(), asVertexList(std::vector<vm::segment3>{edge}), vm::vec3(+63, 0, 0));
+            assertCanMoveVertices(brush.get(), asVertexList(std::vector<vm::segment3>{edge}), vm::vec3(+64, 0, 0));
+            assertCanMoveVertices(brush.get(), asVertexList(std::vector<vm::segment3>{edge}), vm::vec3(+128, 0, 0));
         }
 
         // Same as above, but moving 2 edges
@@ -1354,7 +1340,7 @@ namespace TrenchBroom {
             const std::vector<vm::segment3> movingEdges{edge1, edge2};
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(128, Model::BrushFaceAttributes::NoTextureName);
+            auto brush = kdl::get_value(builder.createCube(128, Model::BrushFaceAttributes::NoTextureName));
             ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge1.start()));
             ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge1.end()));
             ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge2.start()));
@@ -1362,15 +1348,13 @@ namespace TrenchBroom {
 
             ASSERT_EQ(12u, brush->vertexCount());
 
-            assertCanMoveEdges(brush, movingEdges, vm::vec3(+63, 0, 0));
-            assertCanNotMoveEdges(brush, movingEdges, vm::vec3(+64, 0, 0)); // On the side of the cube
-            assertCanNotMoveEdges(brush, movingEdges, vm::vec3(+128, 0, 0)); // Center of the cube
+            assertCanMoveEdges(brush.get(), movingEdges, vm::vec3(+63, 0, 0));
+            assertCanNotMoveEdges(brush.get(), movingEdges, vm::vec3(+64, 0, 0)); // On the side of the cube
+            assertCanNotMoveEdges(brush.get(), movingEdges, vm::vec3(+128, 0, 0)); // Center of the cube
 
-            assertCanMoveVertices(brush, asVertexList(movingEdges), vm::vec3(+63, 0, 0));
-            assertCanMoveVertices(brush, asVertexList(movingEdges), vm::vec3(+64, 0, 0));
-            assertCanMoveVertices(brush, asVertexList(movingEdges), vm::vec3(+128, 0, 0));
-
-            delete brush;
+            assertCanMoveVertices(brush.get(), asVertexList(movingEdges), vm::vec3(+63, 0, 0));
+            assertCanMoveVertices(brush.get(), asVertexList(movingEdges), vm::vec3(+64, 0, 0));
+            assertCanMoveVertices(brush.get(), asVertexList(movingEdges), vm::vec3(+128, 0, 0));
         }
 
         // "Move polygon" tests
@@ -1389,11 +1373,9 @@ namespace TrenchBroom {
             };
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
+            auto brush = kdl::get_value(builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName));
 
-            assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
-
-            delete brush;
+            assertCanNotMoveTopFaceBeyond127UnitsDown(brush.get());
         }
 
         TEST(BrushTest, movePolygonRemainingEdge) {
@@ -1411,11 +1393,9 @@ namespace TrenchBroom {
             };
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
+            auto brush = kdl::get_value(builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName));
 
-            assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
-
-            delete brush;
+            assertCanNotMoveTopFaceBeyond127UnitsDown(brush.get());
         }
 
         TEST(BrushTest, movePolygonRemainingPolygon) {
@@ -1423,11 +1403,9 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(128.0, Model::BrushFaceAttributes::NoTextureName);
+            auto brush = kdl::get_value(builder.createCube(128.0, Model::BrushFaceAttributes::NoTextureName));
 
-            assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
-
-            delete brush;
+            assertCanNotMoveTopFaceBeyond127UnitsDown(brush.get());
         }
 
         TEST(BrushTest, movePolygonRemainingPolygon2) {
@@ -1447,12 +1425,10 @@ namespace TrenchBroom {
                     vm::vec3(-64.0, +64.0, +64.0)};
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
+            auto brush = kdl::get_value(builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName));
             ASSERT_EQ(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), brush->logicalBounds());
 
-            assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
-
-            delete brush;
+            assertCanNotMoveTopFaceBeyond127UnitsDown(brush.get());
         }
 
         TEST(BrushTest, movePolygonRemainingPolygon_DisallowVertexCombining) {
@@ -1482,16 +1458,14 @@ namespace TrenchBroom {
             const vm::vec3 topFaceNormal(sqrt(2.0) / 2.0, 0.0, sqrt(2.0) / 2.0);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
+            auto brush = kdl::get_value(builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName));
 
             BrushFace* topFace = brush->findFace(topFaceNormal);
             ASSERT_NE(nullptr, topFace);
 
-            assertCanMoveFace(brush, topFace, vm::vec3(0, 0, -127));
-            assertCanMoveFace(brush, topFace, vm::vec3(0, 0, -128)); // Merge 2 verts of the moving polygon with 2 in the remaining polygon, should be allowed
-            assertCanNotMoveFace(brush, topFace, vm::vec3(0, 0, -129));
-
-            delete brush;
+            assertCanMoveFace(brush.get(), topFace, vm::vec3(0, 0, -127));
+            assertCanMoveFace(brush.get(), topFace, vm::vec3(0, 0, -128)); // Merge 2 verts of the moving polygon with 2 in the remaining polygon, should be allowed
+            assertCanNotMoveFace(brush.get(), topFace, vm::vec3(0, 0, -129));
         }
 
         TEST(BrushTest, movePolygonRemainingPolyhedron) {
@@ -1529,24 +1503,22 @@ namespace TrenchBroom {
                 cubeBottomFace);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
+            auto brush = kdl::get_value(builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName));
 
             // Try to move the top face down along the Z axis
-            assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
-            assertCanNotMoveTopFace(brush, vm::vec3(0.0, 0.0, -257.0)); // Move top through the polyhedron and out the bottom
+            assertCanNotMoveTopFaceBeyond127UnitsDown(brush.get());
+            assertCanNotMoveTopFace(brush.get(), vm::vec3(0.0, 0.0, -257.0)); // Move top through the polyhedron and out the bottom
 
             // Move the smaller top polygon as 4 separate vertices
-            assertCanMoveVertices(brush, smallerTopPolygon, vm::vec3(0, 0, -127));
-            assertMovingVerticesDeletes(brush, smallerTopPolygon, vm::vec3(0, 0, -128));
-            assertMovingVerticesDeletes(brush, smallerTopPolygon, vm::vec3(0, 0, -129));
-            assertCanNotMoveVertices(brush, smallerTopPolygon, vm::vec3(0, 0, -257)); // Move through the polyhedron and out the bottom
+            assertCanMoveVertices(brush.get(), smallerTopPolygon, vm::vec3(0, 0, -127));
+            assertMovingVerticesDeletes(brush.get(), smallerTopPolygon, vm::vec3(0, 0, -128));
+            assertMovingVerticesDeletes(brush.get(), smallerTopPolygon, vm::vec3(0, 0, -129));
+            assertCanNotMoveVertices(brush.get(), smallerTopPolygon, vm::vec3(0, 0, -257)); // Move through the polyhedron and out the bottom
 
             // Move top face along the X axis
-            assertCanMoveTopFace(brush, vm::vec3(32.0, 0.0, 0.0));
-            assertCanMoveTopFace(brush, vm::vec3(256, 0.0, 0.0));
-            assertCanMoveTopFace(brush, vm::vec3(-32.0, -32.0, 0.0)); // Causes face merging and a vert to be deleted at z=-64
-
-            delete brush;
+            assertCanMoveTopFace(brush.get(), vm::vec3(32.0, 0.0, 0.0));
+            assertCanMoveTopFace(brush.get(), vm::vec3(256, 0.0, 0.0));
+            assertCanMoveTopFace(brush.get(), vm::vec3(-32.0, -32.0, 0.0)); // Causes face merging and a vert to be deleted at z=-64
         }
 
         TEST(BrushTest, moveTwoFaces) {
@@ -1587,16 +1559,14 @@ namespace TrenchBroom {
                 bottomRightPolygon);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
+            auto brush = kdl::get_value(builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName));
 
             EXPECT_TRUE(brush->hasFace(vm::polygon3(leftPolygon)));
             EXPECT_TRUE(brush->hasFace(vm::polygon3(bottomPolygon)));
             EXPECT_TRUE(brush->hasFace(vm::polygon3(bottomRightPolygon)));
 
-            assertCanMoveFaces(brush, std::vector<vm::polygon3>{ vm::polygon3(leftPolygon), vm::polygon3(bottomPolygon) }, vm::vec3(0, 0, 63));
-            assertCanNotMoveFaces(brush, std::vector<vm::polygon3>{ vm::polygon3(leftPolygon), vm::polygon3(bottomPolygon) }, vm::vec3(0, 0, 64)); // Merges B and C
-
-            delete brush;
+            assertCanMoveFaces(brush.get(), std::vector<vm::polygon3>{ vm::polygon3(leftPolygon), vm::polygon3(bottomPolygon) }, vm::vec3(0, 0, 63));
+            assertCanNotMoveFaces(brush.get(), std::vector<vm::polygon3>{ vm::polygon3(leftPolygon), vm::polygon3(bottomPolygon) }, vm::vec3(0, 0, 64)); // Merges B and C
         }
 
         // "Move polyhedron" tests
@@ -1609,7 +1579,7 @@ namespace TrenchBroom {
             const vm::segment3 edge(vm::vec3(-128, 0, -256), vm::vec3(-128, 0, 0));
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(128, Model::BrushFaceAttributes::NoTextureName);
+            auto brush = kdl::get_value(builder.createCube(128, Model::BrushFaceAttributes::NoTextureName));
             ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge.start()));
             ASSERT_NE(nullptr, brush->addVertex(worldBounds, edge.end()));
 
@@ -1636,21 +1606,19 @@ namespace TrenchBroom {
                     cubeBack->polygon(),
             };
 
-            assertCanMoveFaces(brush, movingFaces, vm::vec3(32, 0, 0)); // away from `edge`
-            assertCanMoveFaces(brush, movingFaces, vm::vec3(-63, 0, 0)); // towards `edge`, not touching
-            assertCanMoveFaces(brush, movingFaces, vm::vec3(-64, 0, 0)); // towards `edge`, touching
-            assertCanMoveFaces(brush, movingFaces, vm::vec3(-65, 0, 0)); // towards `edge`, covering
+            assertCanMoveFaces(brush.get(), movingFaces, vm::vec3(32, 0, 0)); // away from `edge`
+            assertCanMoveFaces(brush.get(), movingFaces, vm::vec3(-63, 0, 0)); // towards `edge`, not touching
+            assertCanMoveFaces(brush.get(), movingFaces, vm::vec3(-64, 0, 0)); // towards `edge`, touching
+            assertCanMoveFaces(brush.get(), movingFaces, vm::vec3(-65, 0, 0)); // towards `edge`, covering
 
             // Move the cube down 64 units, so the top vertex of `edge` is on the same plane as `cubeTop`
             // This will turn `cubeTop` from a quad into a pentagon
-            assertCanNotMoveFaces(brush, movingFaces, vm::vec3(0, 0, -64));
-            assertCanMoveVertices(brush, asVertexList(movingFaces), vm::vec3(0, 0, -64));
+            assertCanNotMoveFaces(brush.get(), movingFaces, vm::vec3(0, 0, -64));
+            assertCanMoveVertices(brush.get(), asVertexList(movingFaces), vm::vec3(0, 0, -64));
 
             // Make edge poke through the top face
-            assertCanNotMoveFaces(brush, movingFaces, vm::vec3(-192, 0, -128));
-            assertCanNotMoveVertices(brush, asVertexList(movingFaces), vm::vec3(-192, 0, -128));
-
-            delete brush;
+            assertCanNotMoveFaces(brush.get(), movingFaces, vm::vec3(-192, 0, -128));
+            assertCanNotMoveVertices(brush.get(), asVertexList(movingFaces), vm::vec3(-192, 0, -128));
         }
 
         TEST(BrushTest, moveFaceFailure) {
@@ -1687,7 +1655,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(points, "asdf");
+            auto brush = kdl::get_value(builder.createBrush(points, "asdf"));
 
             std::vector<vm::vec3> topFacePos;
             topFacePos.push_back(p1);
@@ -1763,7 +1731,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(oldPositions, "texture");
+            auto brush = kdl::get_value(builder.createBrush(oldPositions, "texture"));
 
             const std::vector<vm::vec3d> result = brush->moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
@@ -1835,7 +1803,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(oldPositions, "texture");
+            auto brush = kdl::get_value(builder.createBrush(oldPositions, "texture"));
 
             const std::vector<vm::vec3d> result = brush->moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
@@ -1906,7 +1874,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(oldPositions, "texture");
+            auto brush = kdl::get_value(builder.createBrush(oldPositions, "texture"));
 
             const std::vector<vm::vec3d> result = brush->moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
@@ -1975,7 +1943,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(oldPositions, "texture");
+            auto brush = kdl::get_value(builder.createBrush(oldPositions, "texture"));
 
             const std::vector<vm::vec3d> result = brush->moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
@@ -2042,7 +2010,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(oldPositions, "texture");
+            auto brush = kdl::get_value(builder.createBrush(oldPositions, "texture"));
 
             const std::vector<vm::vec3d> result = brush->moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
@@ -2107,7 +2075,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(oldPositions, "texture");
+            auto brush = kdl::get_value(builder.createBrush(oldPositions, "texture"));
 
             const std::vector<vm::vec3d> result = brush->moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
             ASSERT_EQ(0u, result.size());
@@ -2171,7 +2139,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(oldPositions, "texture");
+            auto brush = kdl::get_value(builder.createBrush(oldPositions, "texture"));
 
             const std::vector<vm::vec3d> result = brush->moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
@@ -2238,7 +2206,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(oldPositions, "texture");
+            auto brush = kdl::get_value(builder.createBrush(oldPositions, "texture"));
 
             const std::vector<vm::vec3d> result = brush->moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
             ASSERT_EQ(0u, result.size());
@@ -2301,7 +2269,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(oldPositions, "texture");
+            auto brush = kdl::get_value(builder.createBrush(oldPositions, "texture"));
 
             const std::vector<vm::vec3d> result = brush->moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p7 - p8);
             ASSERT_EQ(1u, result.size());
@@ -2365,7 +2333,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(oldPositions, "texture");
+            auto brush = kdl::get_value(builder.createBrush(oldPositions, "texture"));
 
             const std::vector<vm::vec3d> result = brush->moveVertices(worldBounds, std::vector<vm::vec3d>(1, p7), p8 - p7);
             ASSERT_EQ(1u, result.size());
@@ -2430,7 +2398,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(oldPositions, "texture");
+            auto brush = kdl::get_value(builder.createBrush(oldPositions, "texture"));
 
             const std::vector<vm::vec3d> result = brush->moveVertices(worldBounds, std::vector<vm::vec3d>(1, p6), p9 - p6);
             ASSERT_EQ(1u, result.size());
@@ -2495,7 +2463,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(oldPositions, "texture");
+            auto brush = kdl::get_value(builder.createBrush(oldPositions, "texture"));
 
             const std::vector<vm::vec3d> result = brush->moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
@@ -2562,7 +2530,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(oldPositions, "texture");
+            auto brush = kdl::get_value(builder.createBrush(oldPositions, "texture"));
 
             const std::vector<vm::vec3d> result = brush->moveVertices(worldBounds, std::vector<vm::vec3d>(1, p9), p10 - p9);
             ASSERT_EQ(0u, result.size());
@@ -2617,7 +2585,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createBrush(oldPositions, "texture");
+            auto brush = kdl::get_value(builder.createBrush(oldPositions, "texture"));
 
             for (size_t i = 0; i < oldPositions.size(); ++i) {
                 for (size_t j = 0; j < oldPositions.size(); ++j) {
@@ -2637,10 +2605,10 @@ namespace TrenchBroom {
             const std::string defaultTexture("default");
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* minuend = builder.createCuboid(vm::bbox3(vm::vec3(-32.0, -16.0, -32.0), vm::vec3(32.0, 16.0, 32.0)), minuendTexture);
-            Brush* subtrahend = builder.createCuboid(vm::bbox3(vm::vec3(-16.0, -32.0, -64.0), vm::vec3(16.0, 32.0, 0.0)), subtrahendTexture);
+            auto minuend = kdl::get_value(builder.createCuboid(vm::bbox3(vm::vec3(-32.0, -16.0, -32.0), vm::vec3(32.0, 16.0, 32.0)), minuendTexture));
+            auto subtrahend = kdl::get_value(builder.createCuboid(vm::bbox3(vm::vec3(-16.0, -32.0, -64.0), vm::vec3(16.0, 32.0, 0.0)), subtrahendTexture));
 
-            const std::vector<Brush*> result = minuend->subtract(world, worldBounds, defaultTexture, subtrahend);
+            const std::vector<Brush*> result = minuend->subtract(world, worldBounds, defaultTexture, subtrahend.get());
             ASSERT_EQ(3u, result.size());
 
             Brush* left = nullptr;
@@ -2709,8 +2677,6 @@ namespace TrenchBroom {
             ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_z())->textureName());
             ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::neg_z())->textureName());
 
-            delete minuend;
-            delete subtrahend;
             kdl::col_delete_all(result);
         }
 
@@ -2723,10 +2689,10 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush1Bounds.intersects(brush2Bounds));
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush1 = builder.createCuboid(brush1Bounds, "texture");
-            Brush* brush2 = builder.createCuboid(brush2Bounds, "texture");
+            auto brush1 = kdl::get_value(builder.createCuboid(brush1Bounds, "texture"));
+            auto brush2 = kdl::get_value(builder.createCuboid(brush2Bounds, "texture"));
 
-            std::vector<Brush*> result = brush1->subtract(world, worldBounds, "texture", brush2);
+            std::vector<Brush*> result = brush1->subtract(world, worldBounds, "texture", brush2.get());
             ASSERT_EQ(1u, result.size());
 
             Brush* subtraction = result.at(0);
@@ -2744,10 +2710,10 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush1Bounds.intersects(brush2Bounds));
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush1 = builder.createCuboid(brush1Bounds, "texture");
-            Brush* brush2 = builder.createCuboid(brush2Bounds, "texture");
+            auto brush1 = kdl::get_value(builder.createCuboid(brush1Bounds, "texture"));
+            auto brush2 = kdl::get_value(builder.createCuboid(brush2Bounds, "texture"));
 
-            std::vector<Brush*> result = brush1->subtract(world, worldBounds, "texture", brush2);
+            std::vector<Brush*> result = brush1->subtract(world, worldBounds, "texture", brush2.get());
             ASSERT_EQ(0u, result.size());
 
             kdl::col_delete_all(result);
@@ -3279,7 +3245,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* brush = builder.createCube(64.0, "asdf");
+            auto brush = kdl::get_value(builder.createCube(64.0, "asdf"));
 
 
             brush->removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, +32.0, +32.0)));
@@ -3338,8 +3304,6 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush->canRemoveVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(-32.0, +32.0, -32.0))));
             ASSERT_FALSE(brush->canRemoveVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(-32.0, +32.0, +32.0))));
             ASSERT_FALSE(brush->canRemoveVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, -32.0, -32.0))));
-
-            delete brush;
         }
 
 
@@ -3366,7 +3330,7 @@ namespace TrenchBroom {
                         toRemove.push_back(vertices[j]);
                         toRemove.push_back(vertices[k]);
 
-                        Brush* brush = builder.createBrush(vertices, "asdf");
+                        auto brush = kdl::get_value(builder.createBrush(vertices, "asdf"));
                         ASSERT_TRUE(brush->canRemoveVertices(worldBounds, toRemove));
                         brush->removeVertices(worldBounds, toRemove);
 
@@ -3375,8 +3339,6 @@ namespace TrenchBroom {
                                 ASSERT_TRUE(brush->hasVertex(vertices[l]));
                             }
                         }
-
-                        delete brush;
                     }
                 }
             }
@@ -3387,7 +3349,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
             const BrushBuilder builder(&world, worldBounds);
 
-            Brush* cube = builder.createCube(128.0, "");
+            auto cube = kdl::get_value(builder.createCube(128.0, ""));
             BrushSnapshot* snapshot = nullptr;
 
             // Temporarily set a texture on `cube`, take a snapshot, then clear the texture
@@ -3422,7 +3384,6 @@ namespace TrenchBroom {
             }
 
             delete snapshot;
-            delete cube;
         }
 
         TEST(BrushTest, resizePastWorldBounds) {
@@ -3430,7 +3391,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
             const BrushBuilder builder(&world, worldBounds);
 
-            Model::Brush* brush1 = builder.createBrush(std::vector<vm::vec3>{vm::vec3(64, -64, 16), vm::vec3(64, 64, 16), vm::vec3(64, -64, -16), vm::vec3(64, 64, -16), vm::vec3(48, 64, 16), vm::vec3(48, 64, -16)}, "texture");
+            auto brush1 = kdl::get_value(builder.createBrush(std::vector<vm::vec3>{vm::vec3(64, -64, 16), vm::vec3(64, 64, 16), vm::vec3(64, -64, -16), vm::vec3(64, 64, -16), vm::vec3(48, 64, 16), vm::vec3(48, 64, -16)}, "texture"));
 
             Model::BrushFace* rightFace = brush1->findFace(vm::vec3(1, 0, 0));
             ASSERT_NE(nullptr, rightFace);
@@ -3444,7 +3405,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
             const BrushBuilder builder(&world, worldBounds);
 
-            Model::Brush* brush1 = builder.createCube(128.0, "texture");
+            auto brush1 = kdl::get_value(builder.createCube(128.0, "texture"));
 
             std::vector<vm::vec3> allVertexPositions;
             for (const auto* vertex : brush1->vertices()) {
@@ -3606,7 +3567,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
             const BrushBuilder builder(&world, worldBounds);
 
-            Model::Brush *brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
+            auto brush1 = kdl::get_value(builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture"));
             EXPECT_TRUE(brush1->canExpand(worldBounds, 6, true));
             EXPECT_TRUE(brush1->expand(worldBounds, 6, true));
 
@@ -3621,7 +3582,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
             const BrushBuilder builder(&world, worldBounds);
 
-            Model::Brush *brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
+            auto brush1 = kdl::get_value(builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture"));
             EXPECT_TRUE(brush1->canExpand(worldBounds, -32, true));
             EXPECT_TRUE(brush1->expand(worldBounds, -32, true));
 
@@ -3636,7 +3597,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
             const BrushBuilder builder(&world, worldBounds);
 
-            Model::Brush *brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
+            auto brush1 = kdl::get_value(builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture"));
             EXPECT_FALSE(brush1->canExpand(worldBounds, -64, true));
             EXPECT_FALSE(brush1->expand(worldBounds, -64, true));
         }

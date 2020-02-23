@@ -57,10 +57,13 @@
 #include "View/VertexTool.h"
 #include "View/VertexToolController.h"
 
+#include <kdl/overload.h>
+#include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/util.h>
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -213,18 +216,23 @@ namespace TrenchBroom {
                     tallVertices.push_back(maxPlane.project_point(vertex->position()));
                 }
 
-                Model::Brush* tallBrush = brushBuilder.createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName);
-                tallBrushes.push_back(tallBrush);
+                auto result = brushBuilder.createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName);
+                kdl::visit_result(kdl::overload {
+                    [&](std::unique_ptr<Model::Brush>&& brush) { tallBrushes.push_back(brush.release()); },
+                    [&](GeometryException&& error) { document->error() << "Could not create selection brush: " << error.what(); }
+                }, std::move(result));
             }
 
-            Transaction transaction(document, "Select Tall");
-            document->deleteObjects();
+            if (!tallBrushes.empty()) {
+                Transaction transaction(document, "Select Tall");
+                document->deleteObjects();
 
-            Model::CollectContainedNodesVisitor<std::vector<Model::Brush*>::const_iterator> visitor(std::begin(tallBrushes), std::end(tallBrushes), document->editorContext());
-            document->world()->acceptAndRecurse(visitor);
-            document->select(visitor.nodes());
+                Model::CollectContainedNodesVisitor<std::vector<Model::Brush*>::const_iterator> visitor(std::begin(tallBrushes), std::end(tallBrushes), document->editorContext());
+                document->world()->acceptAndRecurse(visitor);
+                document->select(visitor.nodes());
 
-            kdl::vec_clear_and_delete(tallBrushes);
+                kdl::vec_clear_and_delete(tallBrushes);
+            }
         }
 
         void MapView2D::doFocusCameraOnSelection(const bool animate) {

@@ -28,6 +28,10 @@
 #include "View/MapDocument.h"
 
 #include <kdl/memory_utils.h>
+#include <kdl/overload.h>
+#include <kdl/result.h>
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace View {
@@ -44,9 +48,17 @@ namespace TrenchBroom {
             if (m_polyhedron->closed()) {
                 auto document = kdl::mem_lock(m_document);
                 const auto game = document->game();
+                
                 const Model::BrushBuilder builder(document->world(), document->worldBounds(), game->defaultFaceAttribs());
-                Model::Brush* brush = builder.createBrush(*m_polyhedron, document->currentTextureName());
-                updateBrush(brush);
+                auto result = builder.createBrush(*m_polyhedron, document->currentTextureName());
+                kdl::visit_result(kdl::overload {
+                    [&](std::unique_ptr<Model::Brush> brush) {
+                        updateBrush(brush.release());
+                    },
+                    [&](GeometryException&& error) {
+                        document->error() << "Could not update brush: " << error.what();
+                    }
+                }, std::move(result));
             } else {
                 updateBrush(nullptr);
             }

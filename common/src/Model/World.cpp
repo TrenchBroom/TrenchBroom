@@ -31,6 +31,7 @@
 #include "Model/ModelFactoryImpl.h"
 #include "Model/TagVisitor.h"
 
+#include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/bbox_io.h>
@@ -391,7 +392,7 @@ namespace TrenchBroom {
             return m_factory->createEntity();
         }
 
-        Brush* World::doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {
+        kdl::result<std::unique_ptr<Brush>, GeometryException> World::doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {
             return m_factory->createBrush(worldBounds, faces);
         }
 

@@ -37,6 +37,7 @@
 #include "Model/Polyhedron.h"
 #include "Model/World.h"
 
+#include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/forward.h>
@@ -439,7 +440,7 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            const Brush* cube = builder.createCube(128.0, "");
+            const auto cube = kdl::get_value(builder.createCube(128.0, "")).release();
             const std::vector<BrushFace*>& faces = cube->faces();
 
             for (size_t i = 0; i < faces.size(); ++i) {
@@ -460,7 +461,7 @@ namespace TrenchBroom {
             World world(MapFormat::Valve);
 
             BrushBuilder builder(&world, worldBounds);
-            const Brush* cube = builder.createCube(128.0, "");
+            const auto cube = kdl::get_value(builder.createCube(128.0, ""));
             const std::vector<BrushFace*>& faces = cube->faces();
 
             for (size_t i = 0; i < faces.size(); ++i) {
@@ -469,10 +470,8 @@ namespace TrenchBroom {
                 checkTextureLockForFace(face, true);
             }
 
-            checkTextureLockOffWithVerticalFlip(cube);
-            checkTextureLockOffWithScale(cube);
-
-            delete cube;
+            checkTextureLockOffWithVerticalFlip(cube.get());
+            checkTextureLockOffWithScale(cube.get());
         }
 
         TEST(BrushFaceTest, testBrushFaceSnapshot) {
@@ -481,7 +480,7 @@ namespace TrenchBroom {
             World world(MapFormat::Valve);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush* cube = builder.createCube(128.0, "");
+            auto cube = kdl::get_value(builder.createCube(128.0, "")).release();
 
             BrushFace* topFace = cube->findFace(vm::vec3(0.0, 0.0, 1.0));
             ASSERT_NE(nullptr, topFace);
@@ -510,7 +509,6 @@ namespace TrenchBroom {
             ASSERT_EQ(0.0, topFace->rotation());
 
             delete snapshot;
-            delete cube;
         }
 
         // https://github.com/kduske/TrenchBroom/issues/2001

@@ -120,6 +120,8 @@
 #include <kdl/collection_utils.h>
 #include <kdl/map_utils.h>
 #include <kdl/memory_utils.h>
+#include <kdl/overload.h>
+#include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/polygon.h>
@@ -1105,17 +1107,22 @@ namespace TrenchBroom {
 
         bool MapDocument::createBrush(const std::vector<vm::vec3>& points) {
             Model::BrushBuilder builder(m_world.get(), m_worldBounds, m_game->defaultFaceAttribs());
-            Model::Brush* brush = builder.createBrush(points, currentTextureName());
-            if (!brush->fullySpecified()) {
-                delete brush;
-                return false;
-            }
-
-            Transaction transaction(this, "Create Brush");
-            deselectAll();
-            addNode(brush, currentParent());
-            select(brush);
-            return true;
+            auto result = builder.createBrush(points, currentTextureName());
+            return kdl::visit_result(kdl::overload {
+                [&](std::unique_ptr<Model::Brush>&& brushPtr) {
+                    auto* brush = brushPtr.release();
+                    
+                    Transaction transaction(this, "Create Brush");
+                    deselectAll();
+                    addNode(brush, currentParent());
+                    select(brush);
+                    return true;
+                },
+                [&](GeometryException&& e) {
+                    error() << "Could not create brush: " << e.what();
+                    return false;
+                }
+            }, std::move(result));
         }
 
         bool MapDocument::csgConvexMerge() {
@@ -1144,28 +1151,38 @@ namespace TrenchBroom {
             }
 
             const Model::BrushBuilder builder(m_world.get(), m_worldBounds, m_game->defaultFaceAttribs());
-            auto* brush = builder.createBrush(polyhedron, currentTextureName());
-            brush->cloneFaceAttributesFrom(selectedNodes().brushes());
+            auto result = builder.createBrush(polyhedron, currentTextureName());
+            return kdl::visit_result(kdl::overload {
+                [&](std::unique_ptr<Model::Brush>&& brushPtr) {
+                    auto* brush = brushPtr.release();
+                    
+                    brush->cloneFaceAttributesFrom(selectedNodes().brushes());
 
-            // The nodelist is either empty or contains only brushes.
-            const auto toRemove = selectedNodes().nodes();
+                    // The nodelist is either empty or contains only brushes.
+                    const auto toRemove = selectedNodes().nodes();
 
-            // We could be merging brushes that have different parents; use the parent of the first brush.
-            Model::Node* parent = nullptr;
-            if (!selectedNodes().brushes().empty()) {
-                parent = selectedNodes().brushes().front()->parent();
-            } else if (!selectedBrushFaces().empty()) {
-                parent = selectedBrushFaces().front()->brush()->parent();
-            } else {
-                parent = currentParent();
-            }
+                    // We could be merging brushes that have different parents; use the parent of the first brush.
+                    Model::Node* parent = nullptr;
+                    if (!selectedNodes().brushes().empty()) {
+                        parent = selectedNodes().brushes().front()->parent();
+                    } else if (!selectedBrushFaces().empty()) {
+                        parent = selectedBrushFaces().front()->brush()->parent();
+                    } else {
+                        parent = currentParent();
+                    }
 
-            const Transaction transaction(this, "CSG Convex Merge");
-            deselectAll();
-            addNode(brush, parent);
-            removeNodes(toRemove);
-            select(brush);
-            return true;
+                    const Transaction transaction(this, "CSG Convex Merge");
+                    deselectAll();
+                    addNode(brush, parent);
+                    removeNodes(toRemove);
+                    select(brush);
+                    return true;
+                },
+                [&](GeometryException&& e) {
+                    error() << "Could not create brush: " << e.what();
+                    return false;
+                }
+            }, std::move(result));
         }
 
         bool MapDocument::csgSubtract() {

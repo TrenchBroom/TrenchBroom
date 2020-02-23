@@ -21,6 +21,7 @@
 
 #include "Ensure.h"
 #include "Exceptions.h"
+#include "Logger.h"
 #include "Macros.h"
 #include "Assets/Palette.h"
 #include "Assets/EntityModel.h"
@@ -57,11 +58,14 @@
 #include "Model/Layer.h"
 #include "Model/World.h"
 
+#include <kdl/overload.h>
+#include <kdl/result.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -130,9 +134,16 @@ namespace TrenchBroom {
                 auto world = std::make_unique<World>(format);
 
                 const Model::BrushBuilder builder(world.get(), worldBounds, defaultFaceAttribs());
-                auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName);
-                world->defaultLayer()->addChild(brush);
-
+                auto result = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName);
+                kdl::visit_result(kdl::overload {
+                    [&](std::unique_ptr<Model::Brush>&& brush) {
+                        world->defaultLayer()->addChild(brush.release());
+                    },
+                    [&](GeometryException&& error) {
+                        logger.error() << "Could not create default brush: " << error.what();
+                    }
+                }, std::move(result));
+                
                 if (format == MapFormat::Valve || format == MapFormat::Quake2_Valve) {
                     world->addOrUpdateAttribute(AttributeNames::ValveVersion, "220");
                 }

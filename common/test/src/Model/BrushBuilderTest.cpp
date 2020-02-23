@@ -25,6 +25,9 @@
 #include "Model/MapFormat.h"
 #include "Model/World.h"
 
+#include <kdl/result.h>
+
+#include <memory>
 #include <string>
 
 namespace TrenchBroom {
@@ -34,7 +37,10 @@ namespace TrenchBroom {
             World world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            const Brush* cube = builder.createCube(128.0, "someName");
+            auto result = builder.createCube(128.0, "someName");
+            ASSERT_TRUE(result.is_success());
+            
+            auto cube = kdl::get_value(std::move(result));
             ASSERT_TRUE(cube != nullptr);
             ASSERT_EQ(vm::bbox3d(-64.0, +64.0), cube->logicalBounds());
 
@@ -44,8 +50,6 @@ namespace TrenchBroom {
             for (size_t i = 0; i < faces.size(); ++i) {
                 ASSERT_EQ(std::string("someName"), faces[i]->textureName());
             }
-
-            delete cube;
         }
 
         TEST(BrushBuilderTest, createCubeDefaults) {
@@ -62,7 +66,10 @@ namespace TrenchBroom {
             defaultAttribs.setColor(Color(255, 255, 255, 255));
 
             BrushBuilder builder(&world, worldBounds, defaultAttribs);
-            const Brush* cube = builder.createCube(128.0, "someName");
+            auto result = builder.createCube(128.0, "someName");
+            ASSERT_TRUE(result.is_success());
+            
+            auto cube = kdl::get_value(std::move(result));
             ASSERT_TRUE(cube != nullptr);
             ASSERT_EQ(vm::bbox3d(-64.0, +64.0), cube->logicalBounds());
 
@@ -79,8 +86,6 @@ namespace TrenchBroom {
                 ASSERT_EQ(0.1f, faces[i]->surfaceValue());
                 ASSERT_EQ(Color(255, 255, 255, 255), faces[i]->color());
             }
-
-            delete cube;
         }
     }
 }

@@ -29,10 +29,13 @@
 #include "Model/MapFormat.h"
 #include "Model/World.h"
 
+#include <kdl/result.h>
+
 #include <vecmath/polygon.h>
 #include <vecmath/segment.h>
 
 #include <cmath>
+#include <memory>
 
 namespace TrenchBroom {
     namespace View {
@@ -189,18 +192,17 @@ namespace TrenchBroom {
             ASSERT_EQ(pointOnGrid, pointOffGrid + grid05.moveDeltaForPoint(pointOffGrid, inputDelta));
         }
 
-        static Model::Brush* makeCube128() {
+        static std::unique_ptr<Model::Brush> makeCube128() {
             Assets::Texture texture("testTexture", 64, 64);
             Model::World world(Model::MapFormat::Standard);
             Model::BrushBuilder builder(&world, worldBounds);
-            Model::Brush* cube = builder.createCube(128.0, "");
-            return cube;
+            return kdl::get_value(builder.createCube(128.0, ""));
         }
 
         TEST(GridTest, moveDeltaForFace) {
             const auto grid16 = Grid(4);
 
-            Model::Brush* cube = makeCube128();
+            auto cube = makeCube128();
             Model::BrushFace* topFace = cube->findFace(vm::vec3::pos_z());
 
             ASSERT_DOUBLE_EQ(64.0, topFace->boundsCenter().z());
@@ -209,14 +211,12 @@ namespace TrenchBroom {
             ASSERT_EQ(vm::vec3(0,0,48), grid16.moveDelta(topFace, vm::vec3(0, 0, 63)));
             ASSERT_EQ(vm::vec3(0,0,64), grid16.moveDelta(topFace, vm::vec3(0, 0, 64)));
             ASSERT_EQ(vm::vec3(0,0,64), grid16.moveDelta(topFace, vm::vec3(0, 0, 65)));
-
-            delete cube;
         }
 
         TEST(GridTest, moveDeltaForFace_SubInteger) {
             const auto grid05 = Grid(-1);
 
-            Model::Brush* cube = makeCube128();
+            auto cube = makeCube128();
             Model::BrushFace* topFace = cube->findFace(vm::vec3::pos_z());
 
             ASSERT_DOUBLE_EQ(64.0, topFace->boundsCenter().z());
@@ -225,8 +225,6 @@ namespace TrenchBroom {
             ASSERT_EQ(vm::vec3(0,0,1.5), grid05.moveDelta(topFace, vm::vec3(0, 0, 1.9)));
             ASSERT_EQ(vm::vec3(0,0,2), grid05.moveDelta(topFace, vm::vec3(0, 0, 2)));
             ASSERT_EQ(vm::vec3(0,0,2), grid05.moveDelta(topFace, vm::vec3(0, 0, 2.1)));
-
-            delete cube;
         }
     }
 }

@@ -66,13 +66,9 @@ namespace TrenchBroom {
             return new Entity();
         }
 
-        Brush* ModelFactoryImpl::doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {
+        kdl::result<std::unique_ptr<Brush>, GeometryException> ModelFactoryImpl::doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {
             assert(m_format != MapFormat::Unknown);
-
-            auto createResult = Brush::create(worldBounds, faces);
-            kdl::visit_error([](const GeometryException& e) { throw e; }, createResult);
-
-            return kdl::get_value(std::move(createResult)).release();
+            return Brush::create(worldBounds, faces);
         }
 
         BrushFace* ModelFactoryImpl::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {

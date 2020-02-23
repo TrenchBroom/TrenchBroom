@@ -19,6 +19,10 @@
 
 #include "ModelFactory.h"
 
+#include "Model/Brush.h"
+
+#include <kdl/result.h>
+
 namespace TrenchBroom {
     namespace Model {
         ModelFactory::~ModelFactory() {}
@@ -43,7 +47,7 @@ namespace TrenchBroom {
             return doCreateEntity();
         }
 
-        Brush* ModelFactory::createBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {
+        kdl::result<std::unique_ptr<Brush>, GeometryException> ModelFactory::createBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {
             return doCreateBrush(worldBounds, faces);
         }
 
