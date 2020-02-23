@@ -113,8 +113,8 @@ namespace kdl {
         }
 
         /**
-         * Applies the given visitor to the given result result and returns the result returned by the visitor.
-         * The value or error contained in the given result result is passed to the visitor by const lvalue reference.
+         * Applies the given visitor to the given result and returns the result returned by the visitor.
+         * The value or error contained in the given result is passed to the visitor by const lvalue reference.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
@@ -148,9 +148,9 @@ namespace kdl {
         }
         
         /**
-         * Applies the given visitor to the error contained given result result and returns the result returned by the
+         * Applies the given visitor to the error contained given result and returns the result returned by the
          * visitor, or throws an exception if the given result does not contain an error.
-         * The error contained in the given result result is passed to the visitor by const lvalue reference.
+         * The error contained in the given result is passed to the visitor by const lvalue reference.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
@@ -169,9 +169,9 @@ namespace kdl {
         }
         
         /**
-         * Applies the given visitor to the error contained given result result and returns the result returned by the
+         * Applies the given visitor to the error contained given result and returns the result returned by the
          * visitor, or throws an exception if the given result does not contain an error.
-         * The error contained in the given result result is passed to the visitor by rvalue reference.
+         * The error contained in the given result is passed to the visitor by rvalue reference.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
@@ -190,12 +190,12 @@ namespace kdl {
         }
 
         /**
-         * Applies the given function to the given result and returns a new result with the result type of the
+         * Applies the given function to the given result and returns a new result with the result of the
          * given function as its value type.
          *
          * If the given result contains a value, the function is applied to it and the result of applying the function
          * is returned wrapped in a result.
-         * If the given result contains an error, that error is returned as is.
+         * If the given result contains an error, the error is copied into the returned result.
          *
          * The value is passed to the mapping function by const lvalue reference.
 
@@ -213,12 +213,12 @@ namespace kdl {
         }
         
         /**
-         * Applies the given function to the given result and returns a new result with the result type of the
+         * Applies the given function to the given result and returns a new result with the result of the
          * given function as its value type.
          *
          * If the given result contains a value, the function is applied to it and the result of applying the function
          * is returned wrapped in a result.
-         * If the given result contains an error, that error is returned as is.
+         * If the given result contains an error, the error is moved into the returned result.
          *
          * The value is passed to the mapping function by rvalue reference.
          *
@@ -376,9 +376,9 @@ namespace kdl {
         }
         
         /**
-         * Applies the given visitor to the error contained given result result and returns the result returned by the
+         * Applies the given visitor to the error contained given result and returns the result returned by the
          * visitor, or throws an exception if the given result does not contain an error.
-         * The error contained in the given result result is passed to the visitor by const lvalue reference.
+         * The error contained in the given result is passed to the visitor by const lvalue reference.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
@@ -397,9 +397,9 @@ namespace kdl {
         }
         
         /**
-         * Applies the given visitor to the error contained given result result and returns the result returned by the
+         * Applies the given visitor to the error contained given result and returns the result returned by the
          * visitor, or throws an exception if the given result does not contain an error.
-         * The error contained in the given result result is passed to the visitor by rvalue reference.
+         * The error contained in the given result is passed to the visitor by rvalue reference.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
@@ -418,12 +418,12 @@ namespace kdl {
         }
 
         /**
-         * Applies the given function to given result and returns a new result with the result type of
+         * Applies the given function to given result and returns a new result with the result of
          * the given function as its value type.
          *
          * If the given result contains a reference, the function is applied to it and the result of applying the
          * function is returned wrapped in a result.
-         * If the given result contains an error, that error is returned as is.
+         * If the given result contains an error, the error is copied into the returned result.
          *
          * The reference is passed to the mapping function by const lvalue reference.
 
@@ -441,12 +441,12 @@ namespace kdl {
         }
         
         /**
-         * Applies the given function to the given result and returns a new result with the result type of
+         * Applies the given function to the given result and returns a new result with the result of
          * the given function as its value type.
          *
          * If the given result contains a reference, the function is applied to it and the result of applying the
          * function is returned wrapped in a result.
-         * If the given result contains an error, that error is returned as is.
+         * If the given result contains an error, the error is moved into the returned result.
          *
          * The reference is passed to the mapping function by rvalue reference.
          *
@@ -535,7 +535,7 @@ namespace kdl {
         }
 
         /**
-         * Applies the given visitor to the given result result and returns the result returned by the visitor.
+         * Applies the given visitor to the given result and returns the result returned by the visitor.
          * If the given result is successful, then the visitor is called without any arguments.
          * Otherwise, the error contained in the given result is passed to the visitor by const lvalue reference.
          *
@@ -580,7 +580,7 @@ namespace kdl {
         }
         
         /**
-         * Applies the given visitor to the error contained given result result and returns the result returned by the
+         * Applies the given visitor to the error contained given result and returns the result returned by the
          * visitor, or throws an exception if the given result does not contain an error.
          * The error contained in the given result result is passed to the visitor by const lvalue reference.
          *
@@ -619,6 +619,44 @@ namespace kdl {
                 visitor,
                 []() -> R { throw bad_result_access(); }
             }, std::move(result));
+        }
+        
+        /**
+         * Calls the given function if the given result is successful and returns a new result with the result of
+         * the given function as its value type.
+         *
+         * If the given result contains an error, the error is copied into the returned result.
+         *
+         * @tparam F the type of the function to apply
+         * @param f the function to apply
+         * @param result_ the result to map
+         */
+        template <typename F>
+        friend auto map_result(F&& f, const result& result_) {
+            using R = std::invoke_result_t<F>;
+            return visit_result(kdl::overload {
+                [&]()              { return result<R, Errors...>::success(f()); },
+                [] (const auto& e) { return result<R, Errors...>::error(e); }
+            }, result_);
+        }
+        
+        /**
+         * Calls the given function if the given result is successful and returns a new result with the result of
+         * the given function as its value type.
+         *
+         * If the given result contains an error, the error is moved into the returned result.
+         *
+         * @tparam F the type of the function to apply
+         * @param f the function to apply
+         * @param result_ the result to map
+         */
+        template <typename F>
+        friend auto map_result(F&& f, result&& result_) {
+            using R = std::invoke_result_t<F>;
+            return visit_result(kdl::overload {
+                [&]()         { return result<R, Errors...>::success(f()); },
+                [] (auto&& e) { return result<R, Errors...>::error(std::move(e)); }
+            }, std::move(result_));
         }
 
         /**
@@ -739,8 +777,8 @@ namespace kdl {
         }
         
         /**
-         * Applies the given visitor to the given result result and returns the result returned by the visitor.
-         * The value or error contained in the given result result is passed to the visitor by const lvalue reference.
+         * Applies the given visitor to the given result and returns the result returned by the visitor.
+         * The value or error contained in the given result is passed to the visitor by const lvalue reference.
          * If the given result is successful but does not contain a value, the given visitor is called without any
          * arguments.
          *
@@ -786,9 +824,9 @@ namespace kdl {
         }
         
         /**
-         * Applies the given visitor to the error contained given result result and returns the result returned by the
+         * Applies the given visitor to the error contained given result and returns the result returned by the
          * visitor, or throws an exception if the given result does not contain an error.
-         * The error contained in the given result result is passed to the visitor by const lvalue reference.
+         * The error contained in the given result is passed to the visitor by const lvalue reference.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
@@ -808,9 +846,9 @@ namespace kdl {
         }
         
         /**
-         * Applies the given visitor to the error contained given result result and returns the result returned by the
+         * Applies the given visitor to the error contained given result and returns the result returned by the
          * visitor, or throws an exception if the given result does not contain an error.
-         * The error contained in the given result result is passed to the visitor by rvalue reference.
+         * The error contained in the given result is passed to the visitor by rvalue reference.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
@@ -827,6 +865,67 @@ namespace kdl {
                 [](value_type&&) -> R { throw bad_result_access(); },
                 []() -> R             { throw bad_result_access(); }
             }, std::move(result));
+        }
+        
+        /**
+         * Applies the given function to the given result and returns a new result with the result of the
+         * given function as its value type.
+         *
+         * If the given result contains a value, the function is applied to it and the result of applying the function
+         * is returned wrapped in a result.
+         * If the given result does not contain a value, the function is called without any arguments and the result of
+         * is returned wrapped in a result.
+         * If the given result contains an error, the error is copied into the returned result.
+         *
+         * Therefore, the given function must have two overloads: One that accepts no parameters and one that accepts
+         * `const value_type&`.
+         *
+         * The value is passed to the mapping function by const lvalue reference.
+         *
+         * @tparam F the type of the function to apply
+         * @param f the function to apply
+         * @param result_ the result to map
+         */
+        template <typename F>
+        friend auto map_result(F&& f, const result& result_) {
+            using R = std::invoke_result_t<F, Value>;
+            return visit_result(kdl::overload {
+                [&]()                    { return result<R, Errors...>::success(f()); },
+                [&](const value_type& v) { return result<R, Errors...>::success(f(v)); },
+                [] (const auto& e)       { return result<R, Errors...>::error(e); }
+            }, result_);
+        }
+        
+        /**
+         * Applies the given function to the given result and returns a new result with the result of the
+         * given function as its value type.
+         *
+         * If the given result contains a value, the function is applied to it and the result of applying the function
+         * is returned wrapped in a result.
+         * If the given result does not contain a value, the function is called without any arguments and the result of
+         * is returned wrapped in a result.
+         * If the given result contains an error, the error is moved into the returned result.
+         *
+         * Therefore, the given function must have two overloads: One that accepts no parameters and one that accepts
+         * `value_type&&`.
+         *
+         * The value is passed to the mapping function by rvalue reference.
+         *
+         * The given function can move the value out of the given result, so care must be taken not to
+         * use the given result afterwards, as it will be in a moved-from state.
+
+         * @tparam F the type of the function to apply
+         * @param f the function to apply
+         * @param result_ the result to map
+         */
+        template <typename F>
+        friend auto map_result(F&& f, result&& result_) {
+            using R = std::invoke_result_t<F, Value>;
+            return visit_result(kdl::overload {
+                [&]()               { return result<R, Errors...>::success(f()); },
+                [&](value_type&& v) { return result<R, Errors...>::success(f(std::move(v))); },
+                [] (const auto& e)  { return result<R, Errors...>::error(e); }
+            }, std::move(result_));
         }
 
         /**

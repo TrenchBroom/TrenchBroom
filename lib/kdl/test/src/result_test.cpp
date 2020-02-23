@@ -34,6 +34,14 @@ namespace kdl {
         return true;
     }
 
+    struct MoveOnly {
+        MoveOnly() = default;
+        MoveOnly(const MoveOnly&) = delete;
+        MoveOnly& operator=(const MoveOnly&) = delete;
+        MoveOnly(MoveOnly&&) noexcept = default;
+        MoveOnly& operator=(MoveOnly&&) noexcept = default;
+    };
+    
     struct Counter {
         std::size_t copies = 0u;
         std::size_t moves = 0u;
@@ -208,17 +216,21 @@ namespace kdl {
      */
     template <typename FromResult, typename ToValueType, typename V>
     void test_map_const_lvalue_ref(V&& v) {
-        auto from = FromResult::success(std::forward<V>(v));
+        auto from_success = FromResult::success(std::forward<V>(v));
         
-        const auto to = map_result([](const typename FromResult::value_type& x) { return static_cast<ToValueType>(x); }, from);
-        ASSERT_TRUE(to.is_success());
-        ASSERT_FALSE(to.is_error());
-        ASSERT_EQ(to.is_success(), to);
+        auto to_success = map_result([](const typename FromResult::value_type& x) { return static_cast<ToValueType>(x); }, from_success);
+        ASSERT_TRUE(to_success.is_success());
+        ASSERT_FALSE(to_success.is_error());
 
         ASSERT_TRUE(visit_result(overload {
             [](const ToValueType&) { return true; },
             [](const auto&) { return false; }
-        }, to));
+        }, to_success));
+        
+        auto from_error = FromResult::error(Error1{});
+        auto to_error = map_result([](const typename FromResult::value_type& x) { return static_cast<ToValueType>(x); }, from_error);
+        ASSERT_FALSE(to_error.is_success());
+        ASSERT_TRUE(to_error.is_error());
     }
     
     /**
@@ -226,24 +238,48 @@ namespace kdl {
      */
     template <typename FromResult, typename ToValueType, typename V>
     void test_map_rvalue_ref(V&& v) {
-        auto from = FromResult::success(std::forward<V>(v));
-        const auto to = map_result([](typename FromResult::value_type&& x) { return std::move(static_cast<ToValueType>(x)); }, std::move(from));
-        ASSERT_TRUE(to.is_success());
-        ASSERT_FALSE(to.is_error());
-        ASSERT_EQ(to.is_success(), to);
+        auto from_success = FromResult::success(std::forward<V>(v));
+        const auto to_success = map_result([](typename FromResult::value_type&& x) { return std::move(static_cast<ToValueType>(x)); }, std::move(from_success));
+        ASSERT_TRUE(to_success.is_success());
+        ASSERT_FALSE(to_success.is_error());
 
         ASSERT_TRUE(visit_result(overload {
             [](const ToValueType&) { return true; },
             [](const auto&) { return false; }
-        }, to));
+        }, to_success));
 
         ToValueType y;
         visit_result(overload {
             [&] (ToValueType&& x) { y = x; },
             [] (auto&&) {}
-        }, std::move(to));
+        }, std::move(to_success));
         
         ASSERT_EQ(0u, y.copies);
+        
+        auto from_error = FromResult::error(Error1{});
+        const auto to_error = map_result([](typename FromResult::value_type&& x) { return std::move(static_cast<ToValueType>(x)); }, std::move(from_error));
+        ASSERT_FALSE(to_error.is_success());
+        ASSERT_TRUE(to_error.is_error());
+    }
+    
+    template <typename FromResult, typename ToValueType>
+    void test_map_const_lvalue_ref() {
+        auto from = FromResult::success();
+        ToValueType t;
+        const auto to = map_result([&]() { return std::move(t); }, from);
+        ASSERT_TRUE(to.is_success());
+        ASSERT_FALSE(to.is_error());
+        ASSERT_EQ(to.is_success(), from.is_success());
+    }
+    
+    template <typename FromResult, typename ToValueType>
+    void test_map_rvalue_ref() {
+        auto from = FromResult::success();
+        ToValueType t;
+        const auto to = map_result([&]() { return std::move(t); }, std::move(from));
+        ASSERT_TRUE(to.is_success());
+        ASSERT_FALSE(to.is_error());
+        ASSERT_EQ(to.is_success(), from.is_success());
     }
     
     /**
@@ -512,6 +548,14 @@ namespace kdl {
         test_visit_error_const_lvalue_ref_with_opt_value<const result<void, Error1, Error2>>(Error1{});
         test_visit_error_const_lvalue_ref_with_opt_value<result<void, Error1, Error2>>(Error1{});
         test_visit_error_rvalue_ref_with_opt_value<result<void, Counter, Error2>>(Counter{});
+    }
+    
+    TEST(void_result_test, map) {
+        test_map_const_lvalue_ref<const result<void, Error1, Error2>, float>();
+        test_map_const_lvalue_ref<result<void, Error1, Error2>, float>();
+        test_map_const_lvalue_ref<const result<void, Error1, Error2>, MoveOnly>();
+        test_map_const_lvalue_ref<result<void, Error1, Error2>, MoveOnly>();
+        test_map_rvalue_ref<result<void, Error1, Error2>, MoveOnly>();
     }
     
     TEST(opt_result_test, constructor) {
