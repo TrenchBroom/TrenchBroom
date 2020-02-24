@@ -1213,10 +1213,8 @@ namespace TrenchBroom {
                     }
                     toRemove.push_back(minuend);
                 } else {
-                    kdl::visit_error(kdl::overload {
-                        [&](const GeometryException& e) {
-                            error() << "Could subtract brushes: " << e.what();
-                        }
+                    kdl::visit_error([&](const GeometryException& e) {
+                        error() << "Could subtract brushes: " << e.what();
                     }, result);
                     
                     transaction.cancel();
