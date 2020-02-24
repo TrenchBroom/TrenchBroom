@@ -993,12 +993,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, face), vm::vec3(-16.0, -16.0, 0.0)));
 
             auto result = brush->moveFaces(worldBounds, std::vector<vm::polygon3>(1, face), vm::vec3(-16.0, -16.0, 0.0));
-            ASSERT_TRUE(result.is_success());
-            
-            std::vector<vm::polygon3> newFacePositions = kdl::visit_result(kdl::overload{
-                [](std::vector<vm::polygon3>&& v) { return std::move(v); },
-                [](auto&&)                        { return std::vector<vm::polygon3>{}; }
-            }, std::move(result));
+            auto newFacePositions = kdl::get_value(std::move(result));
             
             ASSERT_EQ(1u, newFacePositions.size());
             ASSERT_TRUE(newFacePositions[0].hasVertex(vm::vec3(-48.0, -48.0, +32.0)));
@@ -1007,12 +1002,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(newFacePositions[0].hasVertex(vm::vec3(+16.0, -48.0, +32.0)));
 
             result = brush->moveFaces(worldBounds, newFacePositions, vm::vec3(16.0, 16.0, 0.0));
-            ASSERT_TRUE(result.is_success());
-            
-            newFacePositions = kdl::visit_result(kdl::overload{
-                [](std::vector<vm::polygon3>&& v) { return std::move(v); },
-                [](auto&&)                        { return std::vector<vm::polygon3>{}; }
-            }, std::move(result));
+            newFacePositions = kdl::get_value(std::move(result));
 
             ASSERT_EQ(1u, newFacePositions.size());
             ASSERT_EQ(4u, newFacePositions[0].vertices().size());
@@ -1147,13 +1137,7 @@ namespace TrenchBroom {
 
             Brush* brushClone = brush->clone(worldBounds);
             auto result = brushClone->moveFaces(worldBounds, movingFaces, delta);
-            ASSERT_TRUE(result.is_success());
-            
-            const std::vector<vm::polygon3> movedFaces = kdl::visit_result(kdl::overload{
-                [](std::vector<vm::polygon3>&& v) { return std::move(v); },
-                [](auto&&)                        { return std::vector<vm::polygon3>{}; }
-            }, std::move(result));
-
+            const auto movedFaces = kdl::get_value(std::move(result));
             ASSERT_EQ(expectedMovedFaces, movedFaces);
 
             delete brushClone;

@@ -954,8 +954,8 @@ namespace TrenchBroom {
             std::vector<vm::vec3> vertexPositions;
             vm::polygon3::get_vertices(std::begin(facePositions), std::end(facePositions), std::back_inserter(vertexPositions));
             
-            auto r = doMoveVertices(worldBounds, vertexPositions, delta, uvLock);
-            return kdl::visit_result(kdl::overload {
+            auto result = doMoveVertices(worldBounds, vertexPositions, delta, uvLock);
+            return kdl::map_result(kdl::overload {
                 [&]() {
                     std::vector<vm::polygon3> faces;
                     faces.reserve(facePositions.size());
@@ -966,14 +966,10 @@ namespace TrenchBroom {
                             faces.push_back(vm::polygon3(newFace->vertexPositions()));
                         }
                     }
-
-                    return kdl::result<std::vector<vm::polygon3>, GeometryException>::success(std::move(faces));
-                },
-                [](GeometryException&& e) {
-                    return kdl::result<std::vector<vm::polygon3>, GeometryException>::error(std::move(e));
+                    
+                    return faces;
                 }
-            }, std::move(r));
-
+            }, std::move(result));
         }
 
         Brush::CanMoveVerticesResult::CanMoveVerticesResult(const bool s, BrushGeometry&& g) :
