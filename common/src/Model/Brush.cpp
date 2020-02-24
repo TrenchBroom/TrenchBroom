@@ -955,20 +955,18 @@ namespace TrenchBroom {
             vm::polygon3::get_vertices(std::begin(facePositions), std::end(facePositions), std::back_inserter(vertexPositions));
             
             auto result = doMoveVertices(worldBounds, vertexPositions, delta, uvLock);
-            return kdl::map_result(kdl::overload {
-                [&]() {
-                    std::vector<vm::polygon3> faces;
-                    faces.reserve(facePositions.size());
+            return kdl::map_result([&]() {
+                std::vector<vm::polygon3> faces;
+                faces.reserve(facePositions.size());
 
-                    for (const auto& facePosition : facePositions) {
-                        const auto* newFace = m_geometry->findClosestFace(facePosition.vertices() + delta, vm::C::almost_zero());
-                        if (newFace != nullptr) {
-                            faces.push_back(vm::polygon3(newFace->vertexPositions()));
-                        }
+                for (const auto& facePosition : facePositions) {
+                    const auto* newFace = m_geometry->findClosestFace(facePosition.vertices() + delta, vm::C::almost_zero());
+                    if (newFace != nullptr) {
+                        faces.push_back(vm::polygon3(newFace->vertexPositions()));
                     }
-                    
-                    return faces;
                 }
+                
+                return faces;
             }, std::move(result));
         }
 

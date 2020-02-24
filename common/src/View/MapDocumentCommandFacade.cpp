@@ -842,11 +842,9 @@ namespace TrenchBroom {
                 if (result.is_success()) {
                     kdl::vec_append(newFacePositions, kdl::get_value(result));
                 } else {
-                    return kdl::visit_error(kdl::overload{
-                        [](GeometryException&& e) {
-                            return kdl::result<std::vector<vm::polygon3>, GeometryException>::error(
-                                std::move(e));
-                        }
+                    return kdl::visit_error([](GeometryException&& e) {
+                        return kdl::result<std::vector<vm::polygon3>, GeometryException>::error(
+                            std::move(e));
                     }, std::move(result));
                 }
                 
