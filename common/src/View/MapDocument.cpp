@@ -1240,10 +1240,8 @@ namespace TrenchBroom {
             for (auto* brush : brushes) {
                 auto result = intersection->intersect(m_worldBounds, brush);
                 if (result.is_error()) {
-                    kdl::visit_error(kdl::overload {
-                        [&](const GeometryException& e) {
-                            error() << "Could not intersect brushes: " << e.what();
-                        }
+                    kdl::visit_error([&](const GeometryException& e) {
+                        error() << "Could not intersect brushes: " << e.what();
                     }, result);
                     delete intersection;
                     return false;
