@@ -46,10 +46,8 @@ namespace TrenchBroom {
             Assets::Texture* m_matchingTexture;
             Assets::Texture* m_nonMatchingTexture;
             Assets::TextureCollection* m_textureCollection;
-        protected:
-            void SetUp() override {
-                MapDocumentTest::SetUp();
-
+        private:
+            void SetUp() {
                 auto matchingTexture = std::make_unique<Assets::Texture>("some_texture", 16, 16);
                 auto nonMatchingTexture = std::make_unique<Assets::Texture>("other_texture", 32, 32);
 
@@ -76,6 +74,11 @@ namespace TrenchBroom {
                     Model::SmartTag("entity", {}, std::make_unique<Model::EntityClassNameTagMatcher>("brush_entity", ""))
                 });
                 document->registerSmartTags();
+            }
+        protected:
+            TagManagementTest()
+            : MapDocumentTest() {
+                SetUp();
             }
         };
 

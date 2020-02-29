@@ -33,18 +33,18 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EditorContextTest : public ::testing::Test {
+        class EditorContextTest {
         protected:
             vm::bbox3d worldBounds;
             World* world;
             EditorContext context;
 
-            void SetUp() override {
+            EditorContextTest() {
                 worldBounds = vm::bbox3d(8192.0);
                 world = new World(MapFormat::Standard);
             }
 
-            void TearDown() override {
+            virtual ~EditorContextTest() {
                 context.reset();
                 delete world;
                 world = nullptr;

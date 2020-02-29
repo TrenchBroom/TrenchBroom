@@ -90,9 +90,14 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/TestUtils.h"
 )
 
+# Catch2 needs one source file to define a macro (in our case CATCH_CONFIG_RUNNER) before including
+# catch.hpp. This needs to be excluded from unity builds, otherwise the macro wouldn't be defined
+# before the first catch.hpp inclusion.
+set_property(SOURCE "${COMMON_TEST_SOURCE_DIR}/RunAllTests.cpp" PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
+
 add_executable(common-test ${COMMON_TEST_SOURCE})
 target_include_directories(common-test PRIVATE ${COMMON_TEST_SOURCE_DIR})
-target_link_libraries(common-test PRIVATE common gtest gmock)
+target_link_libraries(common-test PRIVATE common Catch2::Catch2)
 
 set_compiler_config(common-test)
 

@@ -53,7 +53,7 @@ namespace TrenchBroom {
             ASSERT_EQ(name, texture->name());
             ASSERT_EQ(width, texture->width());
             ASSERT_EQ(height, texture->height());
-            ASSERT_TRUE(GL_BGRA == texture->format() || GL_RGBA == texture->format());
+            ASSERT_TRUE((GL_BGRA == texture->format() || GL_RGBA == texture->format()));
             ASSERT_EQ(Assets::TextureType::Opaque, texture->type());
         }
 
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             ASSERT_EQ(w, texture->width());
             ASSERT_EQ(h, texture->height());
             ASSERT_EQ(1u, texture->buffersIfUnprepared().size());
-            ASSERT_TRUE(GL_BGRA == texture->format() || GL_RGBA == texture->format());
+            ASSERT_TRUE((GL_BGRA == texture->format() || GL_RGBA == texture->format()));
             ASSERT_EQ(Assets::TextureType::Opaque, texture->type());
 
             auto* texturePtr = texture.get();
@@ -168,7 +168,7 @@ namespace TrenchBroom {
             ASSERT_EQ(w, texture->width());
             ASSERT_EQ(h, texture->height());
             ASSERT_EQ(1u, texture->buffersIfUnprepared().size());
-            ASSERT_TRUE(GL_BGRA == texture->format() || GL_RGBA == texture->format());
+            ASSERT_TRUE((GL_BGRA == texture->format() || GL_RGBA == texture->format()));
             ASSERT_EQ(Assets::TextureType::Masked, texture->type());
 
             auto& mip0Data = texture->buffersIfUnprepared().at(0);

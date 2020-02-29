@@ -19,7 +19,7 @@
 
 #include <catch2/catch.hpp>
 
-#include "GTestCompat.h"
+#include "../../test/src/GTestCompat.h"
 
 #include "BenchmarkUtils.h"
 
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             return {result, textures};
         }
 
-        TEST(BrushRendererBenchmark, benchBrushRenderer) {
+        TEST_CASE("BrushRendererBenchmark.benchBrushRenderer", "[BrushRendererBenchmark]") {
             auto brushesTextures = makeBrushes();
             std::vector<Model::Brush*> brushes = brushesTextures.first;
             std::vector<Assets::Texture*> textures = brushesTextures.second;

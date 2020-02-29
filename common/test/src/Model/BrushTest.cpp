@@ -1018,12 +1018,16 @@ namespace TrenchBroom {
             delete brush;
         }
 
-        class UVLockTest : public ::testing::TestWithParam<MapFormat> {
+        template<MapFormat F>
+        class UVLockTest {
+            MapFormat param = F;
         };
 
-        TEST_P(UVLockTest, moveFaceWithUVLock) {
+        TEST_CASE("moveFaceWithUVLock", "[UVLockTest]") {
+            auto format = GENERATE(MapFormat::Valve, MapFormat::Standard);
+
             const vm::bbox3 worldBounds(4096.0);
-            World world(GetParam());
+            World world(format);
 
             Assets::Texture testTexture("testTexture", 64, 64);
 
@@ -1080,17 +1084,12 @@ namespace TrenchBroom {
                     const auto newTexCoordsWithUVLock = kdl::vec_transform(shearedVertexPositions, [&](auto x) {
                         return newFaceWithUVLock->textureCoords(x);
                     });
-                    if (normal == vm::vec3d::pos_z() || (GetParam() == MapFormat::Valve)) {
+                    if (normal == vm::vec3d::pos_z() || (format == MapFormat::Valve)) {
                         EXPECT_TRUE(UVListsEqual(oldTexCoords, newTexCoordsWithUVLock));
                     }
                 }
             }
         }
-
-        INSTANTIATE_TEST_CASE_P(MapFormatInstantiations,
-                                UVLockTest,
-                                ::testing::Values(MapFormat::Valve, MapFormat::Standard),
-                                );
 
         TEST_CASE("BrushTest.moveFaceDownFailure", "[BrushTest]") {
             const vm::bbox3 worldBounds(4096.0);
@@ -2661,7 +2660,9 @@ namespace TrenchBroom {
                     top = brush;
             }
 
-            ASSERT_TRUE(left != nullptr && top != nullptr && right != nullptr);
+            ASSERT_TRUE(left != nullptr);
+            ASSERT_TRUE(top != nullptr);
+            ASSERT_TRUE(right != nullptr);
 
             // left brush faces
             ASSERT_EQ(6u, left->faceCount());

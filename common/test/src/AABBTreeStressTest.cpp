@@ -35,6 +35,8 @@
 
 #include <vecmath/bbox.h>
 
+#include <iostream>
+
 namespace TrenchBroom {
     namespace Model {
         using AABB = AABBTree<double, 3, Node*>;
@@ -66,7 +68,8 @@ namespace TrenchBroom {
 
                     if (!m_tree.bounds().contains(oldBounds)) {
                         cancel();
-                        ASSERT_TRUE(m_tree.bounds().contains(oldBounds)) << "Node at line " << node->lineNumber() << " decreased tree bounds: " << oldBounds << " -> " << m_tree.bounds();
+                        UNSCOPED_INFO("Node at line " << node->lineNumber() << " decreased tree bounds: " << oldBounds << " -> " << m_tree.bounds());
+                        ASSERT_TRUE(m_tree.bounds().contains(oldBounds));
                     }
                 } else {
                     m_tree.insert(node->physicalBounds(), node);
@@ -76,12 +79,14 @@ namespace TrenchBroom {
                 if (!m_tree.contains(node)) {
                     cancel();
                     m_tree.print(std::cout);
-                    ASSERT_TRUE(m_tree.contains(node)) << "Node " << node << " with bounds " << node->physicalBounds() << " at line " << node->lineNumber() << " not found in tree after insertion";
+                    UNSCOPED_INFO("Node " << node << " with bounds " << node->physicalBounds() << " at line " << node->lineNumber() << " not found in tree after insertion");
+                    ASSERT_TRUE(m_tree.contains(node));
                 }
 
                 if (m_bounds != m_tree.bounds()) {
                     cancel();
-                    ASSERT_TRUE(m_bounds == m_tree.bounds()) << "Node at line " << node->lineNumber() << " mangled tree bounds";
+                    UNSCOPED_INFO("Node at line " << node->lineNumber() << " mangled tree bounds");
+                    ASSERT_TRUE(m_bounds == m_tree.bounds());
                 }
             }
         };

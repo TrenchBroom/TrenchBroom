@@ -19,7 +19,7 @@
 
 #include <catch2/catch.hpp>
 
-#include "GTestCompat.h"
+#include "../../test/src/GTestCompat.h"
 
 #include "BenchmarkUtils.h"
 
@@ -63,8 +63,7 @@ namespace TrenchBroom {
         }
     };
 
-    TEST(AABBTreeBenchmark, benchBuildTree) {
-
+    TEST_CASE("AABBTreeBenchmark.benchBuildTree", "[AABBTreeBenchmark]") {
         const auto mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/benchmark/AABBTree/ne_ruins.map");
         const auto file = IO::Disk::openFile(mapPath);
         auto fileReader = file->reader().buffer();

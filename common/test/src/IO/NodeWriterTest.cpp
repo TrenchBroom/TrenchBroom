@@ -33,6 +33,8 @@
 
 #include <kdl/string_compare.h>
 
+#include <iostream>
+#include <sstream>
 #include <vector>
 
 namespace TrenchBroom {

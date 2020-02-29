@@ -27,6 +27,7 @@
 
 #include "Notifier.h"
 
+#if 0 // FIXME: gmock
 namespace TrenchBroom {
     class MockObserver0 {
     public:
@@ -74,5 +75,6 @@ namespace TrenchBroom {
         MOCK_METHOD1_T(notify, void(A1));
     };
 }
+#endif
 
 #endif /* defined(TrenchBroom_MockObserver) */

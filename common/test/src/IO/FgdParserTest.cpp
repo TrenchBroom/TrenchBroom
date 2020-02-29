@@ -52,9 +52,14 @@ namespace TrenchBroom {
                 FgdParser parser(std::begin(reader), std::end(reader), defaultColor, path);
 
                 TestParserStatus status;
-                ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing FGD file " << path.asString() << " failed";
-                ASSERT_EQ(0u, status.countStatus(LogLevel::Warn)) << "Parsing FGD file " << path.asString() << " produced warnings";
-                ASSERT_EQ(0u, status.countStatus(LogLevel::Error)) << "Parsing FGD file " << path.asString() << " produced errors";
+                UNSCOPED_INFO("Parsing FGD file " << path.asString() << " failed");
+                ASSERT_NO_THROW(parser.parseDefinitions(status));
+
+                UNSCOPED_INFO("Parsing FGD file " << path.asString() << " produced warnings");
+                ASSERT_EQ(0u, status.countStatus(LogLevel::Warn));
+
+                UNSCOPED_INFO("Parsing FGD file " << path.asString() << " produced errors");
+                ASSERT_EQ(0u, status.countStatus(LogLevel::Error));
             }
         }
 

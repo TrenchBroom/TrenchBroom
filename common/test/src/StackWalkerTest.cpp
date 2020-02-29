@@ -20,13 +20,10 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <catch2/catch.hpp>
 
 #include "GTestCompat.h"
-#include <gmock/gmock.h>
 
 #include "TrenchBroomStackWalker.h"
 
 namespace TrenchBroom {
-    using ::testing::HasSubstr;
-
     TEST_CASE("StackWalkerTest.testStackTraceSymbols", "[StackWalkerTest]") {
         const std::string stackTrace = TrenchBroomStackWalker::getStackTrace();
 

@@ -21,7 +21,6 @@
 #include <catch2/catch.hpp>
 
 #include "GTestCompat.h"
-#include <gmock/gmock.h>
 
 #include "View/ScaleObjectsTool.h"
 
