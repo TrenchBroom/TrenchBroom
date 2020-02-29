@@ -19,7 +19,7 @@
  */
 
 #include "View/KeyboardShortcut.h"
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
 
 #include "TestUtils.h"
 

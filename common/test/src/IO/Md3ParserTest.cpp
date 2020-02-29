@@ -19,7 +19,7 @@
 
 #include <stdio.h>
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
 
 #include "Logger.h"
 #include "Assets/EntityModel.h"

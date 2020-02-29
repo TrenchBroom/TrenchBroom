@@ -20,7 +20,7 @@
 #ifndef MapDocumentTest_h
 #define MapDocumentTest_h
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
 
 #include "Model/MapFormat.h"
 #include "View/MapDocument.h"
