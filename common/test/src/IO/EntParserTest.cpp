@@ -19,6 +19,8 @@
 
 #include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
 #include "Exceptions.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"

@@ -17,6 +17,8 @@
 
 #include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
 #include "kdl/set_temp.h"
 
 namespace kdl {

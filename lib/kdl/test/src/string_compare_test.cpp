@@ -17,6 +17,8 @@
 
 #include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
 #include "kdl/collection_utils.h"
 #include "kdl/string_compare.h"
 

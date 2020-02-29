@@ -19,6 +19,8 @@
 
 #include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
 #include "Exceptions.h"
 #include "Macros.h"
 #include "IO/DiskFileSystem.h"

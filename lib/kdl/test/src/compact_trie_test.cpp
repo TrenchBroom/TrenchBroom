@@ -17,6 +17,8 @@
 
 #include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
 #include "kdl/compact_trie.h"
 #include "kdl/vector_utils.h"
 

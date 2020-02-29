@@ -21,6 +21,8 @@
 
 #include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
 #include "Assets/EntityDefinition.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Value.h"

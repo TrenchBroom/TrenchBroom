@@ -19,6 +19,8 @@
 
 #include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
 #include "Model/Tag.h"
 #include "Model/TagManager.h"
 #include "Model/Brush.h"

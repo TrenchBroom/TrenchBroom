@@ -19,6 +19,8 @@
 
 #include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
 #include <vecmath/vec.h>
 #include <vecmath/plane.h>
 #include <vecmath/scalar.h>
