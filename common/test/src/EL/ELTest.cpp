@@ -19,6 +19,8 @@
 
 #include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
 #include "EL/ELExceptions.h"
 #include "EL/Types.h"
 #include "EL/Value.h"

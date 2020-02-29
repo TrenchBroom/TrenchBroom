@@ -19,6 +19,8 @@
 
 #include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
 #include "IO/TestParserStatus.h"
 #include "IO/WorldReader.h"
 #include "Model/Brush.h"

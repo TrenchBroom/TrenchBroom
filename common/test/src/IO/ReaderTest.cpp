@@ -19,6 +19,8 @@
 
 #include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/Reader.h"

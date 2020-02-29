@@ -21,6 +21,8 @@
 #include "View/KeyboardShortcut.h"
 #include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
 #include "TestUtils.h"
 
 namespace TrenchBroom {

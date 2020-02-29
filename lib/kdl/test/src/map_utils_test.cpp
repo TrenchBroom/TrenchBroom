@@ -17,6 +17,8 @@
 
 #include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
 #include "test_utils.h"
 
 #include "kdl/map_utils.h"

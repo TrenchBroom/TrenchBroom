@@ -22,6 +22,8 @@
 
 #include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
 #include "Model/MapFormat.h"
 #include "View/MapDocument.h"
 

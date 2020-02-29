@@ -21,6 +21,8 @@
 
 #include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Entity.h"

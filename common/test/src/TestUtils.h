@@ -22,6 +22,8 @@
 
 #include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
 #include <kdl/vector_set.h>
 
 #include <vecmath/forward.h>

@@ -19,6 +19,8 @@
 
 #include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/Layer.h"

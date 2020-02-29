@@ -19,6 +19,8 @@
 
 #include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
 

@@ -18,6 +18,8 @@
  */
 
 #include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 #include <gmock/gmock.h>
 
 #include "Notifier.h"

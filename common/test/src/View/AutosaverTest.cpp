@@ -19,6 +19,8 @@
 
 #include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
 #include "Logger.h"
 #include "IO/Path.h"
 #include "IO/TestEnvironment.h"

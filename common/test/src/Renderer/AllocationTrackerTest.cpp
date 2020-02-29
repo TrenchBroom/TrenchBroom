@@ -18,6 +18,8 @@
  */
 
 #include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 #include <random>
 #include <algorithm>
 #include <vector>
