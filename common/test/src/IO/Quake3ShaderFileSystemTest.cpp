@@ -33,7 +33,7 @@ namespace TrenchBroom {
     namespace IO {
         void assertShader(const std::vector<Path>& paths, const Path& path);
 
-        TEST(Quake3ShaderFileSystemTest, testShaderLinking) {
+        TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking", "[Quake3ShaderFileSystemTest]") {
             NullLogger logger;
 
             const auto workDir = IO::Disk::getCurrentWorkingDir();
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             assertShader(items, texturePrefix + Path("test/not_existing2"));
         }
 
-        TEST(Quake3ShaderFileSystemTest, testSkipMalformedFiles) {
+        TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles", "[Quake3ShaderFileSystemTest]") {
             NullLogger logger;
 
             // There is one malformed shader script, this should be skipped.

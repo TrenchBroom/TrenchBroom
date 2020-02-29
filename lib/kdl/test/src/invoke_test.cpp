@@ -20,7 +20,7 @@
 #include "kdl/invoke.h"
 
 namespace kdl {
-    TEST(invoke_test, invoke_later_lvalue) {
+    TEST_CASE("invoke_test.invoke_later_lvalue", "[invoke_test]") {
         bool invoked = false;
         auto lambda = [&invoked]() { invoked = true; };
 
@@ -31,7 +31,7 @@ namespace kdl {
         ASSERT_TRUE(invoked);
     }
 
-    TEST(invoke_test, invoke_later_rvalue) {
+    TEST_CASE("invoke_test.invoke_later_rvalue", "[invoke_test]") {
         bool invoked = false;
 
         {

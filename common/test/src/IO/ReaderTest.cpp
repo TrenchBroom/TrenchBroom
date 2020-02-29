@@ -60,11 +60,11 @@ namespace TrenchBroom {
             EXPECT_THROW(r.readChar<char>(), ReaderException);
         }
 
-        TEST(BufferReaderTest, createEmpty) {
+        TEST_CASE("BufferReaderTest.createEmpty", "[BufferReaderTest]") {
             createEmpty(Reader::from(buff(), buff()));
         }
 
-        TEST(FileReaderTest, createEmpty) {
+        TEST_CASE("FileReaderTest.createEmpty", "[FileReaderTest]") {
             const auto emptyFile = Disk::openFile(Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Reader/empty"));
             createEmpty(emptyFile->reader());
         }
@@ -93,11 +93,11 @@ namespace TrenchBroom {
             EXPECT_THROW(r.readChar<char>(), ReaderException);
         }
 
-        TEST(BufferReaderTest, createNonEmpty) {
+        TEST_CASE("BufferReaderTest.createNonEmpty", "[BufferReaderTest]") {
             createNonEmpty(Reader::from(buff(), buff() + 10));
         }
 
-        TEST(FileReaderTest, createNonEmpty) {
+        TEST_CASE("FileReaderTest.createNonEmpty", "[FileReaderTest]") {
             createNonEmpty(file()->reader());
         }
 
@@ -115,12 +115,12 @@ namespace TrenchBroom {
             EXPECT_EQ(2U, r.position());
         }
 
-        TEST(BufferReaderTest, testSeekFromBegin) {
+        TEST_CASE("BufferReaderTest.testSeekFromBegin", "[BufferReaderTest]") {
             seekFromBegin(Reader::from(buff(), buff() + 10));
 
         }
 
-        TEST(FileReaderTest, testSeekFromBegin) {
+        TEST_CASE("FileReaderTest.testSeekFromBegin", "[FileReaderTest]") {
             seekFromBegin(file()->reader());
         }
 
@@ -138,11 +138,11 @@ namespace TrenchBroom {
             EXPECT_EQ(0U, r.position());
         }
 
-        TEST(BufferReaderTest, testSeekFromEnd) {
+        TEST_CASE("BufferReaderTest.testSeekFromEnd", "[BufferReaderTest]") {
             seekFromEnd(Reader::from(buff(), buff() + 10));
         }
 
-        TEST(FileReaderTest, testSeekFromEnd) {
+        TEST_CASE("FileReaderTest.testSeekFromEnd", "[FileReaderTest]") {
             seekFromEnd(file()->reader());
         }
 
@@ -157,11 +157,11 @@ namespace TrenchBroom {
             EXPECT_EQ(2U, r.position());
         }
 
-        TEST(BufferReaderTest, testSeekForward) {
+        TEST_CASE("BufferReaderTest.testSeekForward", "[BufferReaderTest]") {
             seekForward(Reader::from(buff(), buff() + 10));
         }
 
-        TEST(FileReaderTest, testSeekForward) {
+        TEST_CASE("FileReaderTest.testSeekForward", "[FileReaderTest]") {
             seekForward(file()->reader());
         }
 
@@ -184,11 +184,11 @@ namespace TrenchBroom {
             EXPECT_EQ(3U, s.position());
         }
 
-        TEST(BufferReaderTest, testSubReader) {
+        TEST_CASE("BufferReaderTest.testSubReader", "[BufferReaderTest]") {
             subReader(Reader::from(buff(), buff() + 10));
         }
 
-        TEST(FileReaderTest, testSubReader) {
+        TEST_CASE("FileReaderTest.testSubReader", "[FileReaderTest]") {
             subReader(file()->reader());
         }
     }

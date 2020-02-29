@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(IdPakFileSystemTest, directoryExists) {
+        TEST_CASE("IdPakFileSystemTest.directoryExists", "[IdPakFileSystemTest]") {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak3.pak");
 
             const IdPakFileSystem fs(pakPath);
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(fs.directoryExists(Path("gfx/palette.lmp")));
         }
 
-        TEST(IdPakFileSystemTest, fileExists) {
+        TEST_CASE("IdPakFileSystemTest.fileExists", "[IdPakFileSystemTest]") {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak3.pak");
 
             const IdPakFileSystem fs(pakPath);
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(fs.fileExists(Path("GFX/Palette.LMP")));
         }
 
-        TEST(IdPakFileSystemTest, findItems) {
+        TEST_CASE("IdPakFileSystemTest.findItems", "[IdPakFileSystemTest]") {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
 
             const IdPakFileSystem fs(pakPath);
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics/tag2.pcx")) != std::end(items));
         }
 
-        TEST(IdPakFileSystemTest, findItemsRecursively) {
+        TEST_CASE("IdPakFileSystemTest.findItemsRecursively", "[IdPakFileSystemTest]") {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
 
             const IdPakFileSystem fs(pakPath);
@@ -128,7 +128,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3/stflr1_5.wal")) != std::end(items));
         }
 
-        TEST(IdPakFileSystemTest, openFile) {
+        TEST_CASE("IdPakFileSystemTest.openFile", "[IdPakFileSystemTest]") {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
 
             const IdPakFileSystem fs(pakPath);

@@ -78,7 +78,7 @@ namespace TrenchBroom {
         return true;
     }
 
-    TEST(TestUtilsTest, testTexCoordsEqual) {
+    TEST_CASE("TestUtilsTest.testTexCoordsEqual", "[TestUtilsTest]") {
         ASSERT_TRUE(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(0.0, 0.0)));
         ASSERT_TRUE(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(1.0, 0.0)));
         ASSERT_TRUE(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(2.00001, 0.0)));
@@ -93,7 +93,7 @@ namespace TrenchBroom {
         ASSERT_FALSE(texCoordsEqual(vm::vec2f(-0.25, 0.0), vm::vec2f(0.25, 0.0)));
     }
 
-    TEST(TestUtilsTest, UVListsEqual) {
+    TEST_CASE("TestUtilsTest.UVListsEqual", "[TestUtilsTest]") {
         EXPECT_TRUE(UVListsEqual({{0,0}, {1,0}, {0, 1}},  {{0,0}, {1,0}, {0, 1}}));
         EXPECT_TRUE(UVListsEqual({{0,0}, {1,0}, {0, 1}},  {{10,0}, {11,0}, {10, 1}})); // translation by whole texture increments OK
 
@@ -102,7 +102,7 @@ namespace TrenchBroom {
         EXPECT_FALSE(UVListsEqual({{0,0}, {1,0}, {0, 1}},  {{0,0}, {2,0}, {0, 2}})); // unwanted scaling
     }
 
-    TEST(TestUtilsTest, pointExactlyIntegral) {
+    TEST_CASE("TestUtilsTest.pointExactlyIntegral", "[TestUtilsTest]") {
         ASSERT_TRUE(pointExactlyIntegral(vm::vec3d(0.0, 0.0, 0.0)));
         ASSERT_TRUE(pointExactlyIntegral(vm::vec3d(1024.0, 1204.0, 1024.0)));
         ASSERT_TRUE(pointExactlyIntegral(vm::vec3d(-10000.0, -10000.0, -10000.0)));

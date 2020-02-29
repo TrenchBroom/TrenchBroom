@@ -84,7 +84,7 @@ namespace TrenchBroom {
             }
         };
 
-        TEST(AABBTreeStressTest, parseMapTest) {
+        TEST_CASE("AABBTreeStressTest.parseMapTest", "[AABBTreeStressTest]") {
             const auto mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Map/rtz_q1.map");
             const auto file = IO::Disk::openFile(mapPath);
             auto fileReader = file->reader().buffer();

@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(ObjParserTest, loadValidObj) {
+        TEST_CASE("ObjParserTest.loadValidObj", "[ObjParserTest]") {
             NullLogger logger;
 
             const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Obj");

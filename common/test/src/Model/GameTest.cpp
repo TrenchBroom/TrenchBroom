@@ -36,7 +36,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(GameTest, loadCorruptPackages) {
+        TEST_CASE("GameTest.loadCorruptPackages", "[GameTest]") {
             // https://github.com/kduske/TrenchBroom/issues/2496
 
             const auto games = std::vector<IO::Path> {
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             }
         }
 
-        TEST(GameTest, loadQuake3Shaders) {
+        TEST_CASE("GameTest.loadQuake3Shaders", "[GameTest]") {
             const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/games//Quake3/GameConfig.cfg");
             const auto configStr = IO::Disk::readFile(configPath);
             auto configParser = IO::GameConfigParser(configStr, configPath);

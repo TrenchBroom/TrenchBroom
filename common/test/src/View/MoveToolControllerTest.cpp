@@ -69,7 +69,7 @@ namespace TrenchBroom {
             using RestrictedDragPolicy::DR_Continue;
         };
 
-        TEST(MoveToolControllerTest, testMoveWithSnapUp) {
+        TEST_CASE("MoveToolControllerTest.testMoveWithSnapUp", "[MoveToolControllerTest]") {
             using namespace ::testing;
             using ::testing::InSequence;
             const InSequence inSequence;
@@ -100,7 +100,7 @@ namespace TrenchBroom {
             controller.endMouseDrag(inputState);
         }
 
-        TEST(MoveToolControllerTest, testMoveAfterZeroVerticalMove) {
+        TEST_CASE("MoveToolControllerTest.testMoveAfterZeroVerticalMove", "[MoveToolControllerTest]") {
             // see https://github.com/kduske/TrenchBroom/issues/1529
 
             using namespace ::testing;
@@ -147,7 +147,7 @@ namespace TrenchBroom {
         }
 
 
-        TEST(MoveToolControllerTest, testDontJumpAfterVerticalMoveWithOffset) {
+        TEST_CASE("MoveToolControllerTest.testDontJumpAfterVerticalMoveWithOffset", "[MoveToolControllerTest]") {
             // see https://github.com/kduske/TrenchBroom/pull/1635#issuecomment-271460182
 
             using namespace ::testing;

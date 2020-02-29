@@ -55,12 +55,12 @@ namespace TrenchBroom {
             ASSERT_EQ(Assets::TextureType::Opaque, texture->type());
         }
 
-        TEST(FreeImageTextureReaderTest, testLoadPngs) {
+        TEST_CASE("FreeImageTextureReaderTest.testLoadPngs", "[FreeImageTextureReaderTest]") {
             assertTexture("5x5.png",          5,   5);
             assertTexture("707x710.png",      707, 710);
         }
 
-        TEST(FreeImageTextureReaderTest, testLoadCorruptPng) {
+        TEST_CASE("FreeImageTextureReaderTest.testLoadCorruptPng", "[FreeImageTextureReaderTest]") {
             const auto texture = loadTexture("corruptPngTest.png");
 
             // TextureReader::readTexture is supposed to return a placeholder for corrupt textures
@@ -149,15 +149,15 @@ namespace TrenchBroom {
             }
         }
 
-        TEST(FreeImageTextureReaderTest, testPNGContents) {
+        TEST_CASE("FreeImageTextureReaderTest.testPNGContents", "[FreeImageTextureReaderTest]") {
             testImageContents(loadTexture("pngContentsTest.png"));
         }
 
-        TEST(FreeImageTextureReaderTest, testJPGContents) {
+        TEST_CASE("FreeImageTextureReaderTest.testJPGContents", "[FreeImageTextureReaderTest]") {
             testImageContents(loadTexture("jpgContentsTest.jpg"));
         }
 
-        TEST(FreeImageTextureReaderTest, alphaMaskTest) {
+        TEST_CASE("FreeImageTextureReaderTest.alphaMaskTest", "[FreeImageTextureReaderTest]") {
             const auto texture = loadTexture("alphaMaskTest.png");
             const std::size_t w = 25u;
             const std::size_t h = 10u;

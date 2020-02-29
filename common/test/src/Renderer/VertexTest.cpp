@@ -35,7 +35,7 @@ namespace TrenchBroom {
             vm::vec4f color;
         };
 
-        TEST(VertexTest, memoryLayoutSingleVertex) {
+        TEST_CASE("VertexTest.memoryLayoutSingleVertex", "[VertexTest]") {
             using Vertex = GLVertexTypes::P3T2C4::Vertex;
 
             const auto pos   = vm::vec3f(1.0f, 2.0f, 3.0f);
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             ASSERT_EQ(0, std::memcmp(&expected, &actual, sizeof(expected)));
         }
 
-        TEST(VertexTest, memoryLayoutVertexList) {
+        TEST_CASE("VertexTest.memoryLayoutVertexList", "[VertexTest]") {
             using Vertex = GLVertexTypes::P3T2C4::Vertex;
 
             auto expected = std::vector<TestVertex>();

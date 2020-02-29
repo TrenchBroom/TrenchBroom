@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(DkPakFileSystemTest, directoryExists) {
+        TEST_CASE("DkPakFileSystemTest.directoryExists", "[DkPakFileSystemTest]") {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/dkpak_test.pak");
 
             const DkPakFileSystem fs(pakPath);
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(fs.directoryExists(Path("pics/tag1.pcx")));
         }
 
-        TEST(DkPakFileSystemTest, fileExists) {
+        TEST_CASE("DkPakFileSystemTest.fileExists", "[DkPakFileSystemTest]") {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/dkpak_test.pak");
 
             const DkPakFileSystem fs(pakPath);
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(fs.fileExists(Path("PICS/TAG1.pcX")));
         }
 
-        TEST(DkPakFileSystemTest, findItems) {
+        TEST_CASE("DkPakFileSystemTest.findItems", "[DkPakFileSystemTest]") {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/dkpak_test.pak");
 
             const DkPakFileSystem fs(pakPath);
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics/tag2.pcx")) != std::end(items));
         }
 
-        TEST(DkPakFileSystemTest, findItemsRecursively) {
+        TEST_CASE("DkPakFileSystemTest.findItemsRecursively", "[DkPakFileSystemTest]") {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/dkpak_test.pak");
 
             const DkPakFileSystem fs(pakPath);
@@ -128,7 +128,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3/stflr1_5.wal")) != std::end(items));
         }
 
-        TEST(DkPakFileSystemTest, openFile) {
+        TEST_CASE("DkPakFileSystemTest.openFile", "[DkPakFileSystemTest]") {
             const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/dkpak_test.pak");
 
             const DkPakFileSystem fs(pakPath);

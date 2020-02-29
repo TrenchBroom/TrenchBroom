@@ -34,7 +34,7 @@ namespace TrenchBroom {
     void assertTreeContains(const AABB& tree, const BOX& box, AABB::DataType data);
     void assertTreeDoesNotContain(const AABB& tree, const BOX& box, AABB::DataType data);
 
-    TEST(AABBTreeTest, createEmptyTree) {
+    TEST_CASE("AABBTreeTest.createEmptyTree", "[AABBTreeTest]") {
         AABB tree;
 
         ASSERT_TRUE(tree.empty());
@@ -43,7 +43,7 @@ namespace TrenchBroom {
 )" , tree);
     }
 
-    TEST(AABBTreeTest, insertSingleNode) {
+    TEST_CASE("AABBTreeTest.insertSingleNode", "[AABBTreeTest]") {
         const BOX bounds(VEC(0.0, 0.0, 0.0), VEC(2.0, 1.0, 1.0));
 
         AABB tree;
@@ -59,7 +59,7 @@ L [ ( 0 0 0 ) ( 2 1 1 ) ]: 1
         assertTreeContains(tree, bounds, 1u);
     }
 
-    TEST(AABBTreeTest, insertDuplicateNode) {
+    TEST_CASE("AABBTreeTest.insertDuplicateNode", "[AABBTreeTest]") {
         const BOX bounds(VEC(0.0, 0.0, 0.0), VEC(2.0, 1.0, 1.0));
 
         AABB tree;
@@ -72,7 +72,7 @@ L [ ( 0 0 0 ) ( 2 1 1 ) ]: 1
         assertTreeContains(tree, bounds, 1u);
     }
 
-    TEST(AABBTreeTest, insertTwoNodes) {
+    TEST_CASE("AABBTreeTest.insertTwoNodes", "[AABBTreeTest]") {
         const BOX bounds1(VEC(0.0, 0.0, 0.0), VEC(2.0, 1.0, 1.0));
         const BOX bounds2(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0));
 
@@ -92,7 +92,7 @@ O [ ( -1 -1 -1 ) ( 2 1 1 ) ]
         assertTreeContains(tree, bounds2, 2u);
     }
 
-    TEST(AABBTreeTest, insertThreeNodes) {
+    TEST_CASE("AABBTreeTest.insertThreeNodes", "[AABBTreeTest]") {
         const BOX bounds1(VEC(0.0, 0.0, 0.0), VEC(2.0, 1.0, 1.0));
         const BOX bounds2(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0));
         const BOX bounds3(VEC(-2.0, -2.0, -1.0), VEC(0.0, 0.0, 1.0));
@@ -117,7 +117,7 @@ O [ ( -2 -2 -1 ) ( 2 1 1 ) ]
         assertTreeContains(tree, bounds3, 3u);
     }
 
-    TEST(AABBTreeTest, removeLeafsInInverseInsertionOrder) {
+    TEST_CASE("AABBTreeTest.removeLeafsInInverseInsertionOrder", "[AABBTreeTest]") {
         const BOX bounds1(VEC(0.0, 0.0, 0.0), VEC(2.0, 1.0, 1.0));
         const BOX bounds2(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0));
         const BOX bounds3(VEC(-2.0, -2.0, -1.0), VEC(0.0, 0.0, 1.0));
@@ -186,7 +186,7 @@ L [ ( 0 0 0 ) ( 2 1 1 ) ]: 1
         ASSERT_FALSE(tree.remove(1u));
     }
 
-    TEST(AABBTreeTest, removeLeafsInInsertionOrder) {
+    TEST_CASE("AABBTreeTest.removeLeafsInInsertionOrder", "[AABBTreeTest]") {
         const BOX bounds1(VEC(0.0, 0.0, 0.0), VEC(2.0, 1.0, 1.0));
         const BOX bounds2(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0));
         const BOX bounds3(VEC(-2.0, -2.0, -1.0), VEC(0.0, 0.0, 1.0));
@@ -255,7 +255,7 @@ L [ ( -2 -2 -1 ) ( 0 0 1 ) ]: 3
         ASSERT_FALSE(tree.remove(1u));
     }
 
-    TEST(AABBTreeTest, insertFourContainedNodes) {
+    TEST_CASE("AABBTreeTest.insertFourContainedNodes", "[AABBTreeTest]") {
         const BOX bounds1(VEC(-4.0, -4.0, -4.0), VEC(4.0, 4.0, 4.0));
         const BOX bounds2(VEC(-3.0, -3.0, -3.0), VEC(3.0, 3.0, 3.0));
         const BOX bounds3(VEC(-2.0, -2.0, -2.0), VEC(2.0, 2.0, 2.0));
@@ -305,7 +305,7 @@ O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
         assertTreeContains(tree, bounds4, 4u);
     }
 
-    TEST(AABBTreeTest, insertFourContainedNodesInverse) {
+    TEST_CASE("AABBTreeTest.insertFourContainedNodesInverse", "[AABBTreeTest]") {
         const BOX bounds1(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0));
         const BOX bounds2(VEC(-2.0, -2.0, -2.0), VEC(2.0, 2.0, 2.0));
         const BOX bounds3(VEC(-3.0, -3.0, -3.0), VEC(3.0, 3.0, 3.0));
@@ -356,7 +356,7 @@ O [ ( -4 -4 -4 ) ( 4 4 4 ) ]
         assertTreeContains(tree, bounds4, 4u);
     }
 
-    TEST(AABBTreeTest, removeFourContainedNodes) {
+    TEST_CASE("AABBTreeTest.removeFourContainedNodes", "[AABBTreeTest]") {
         const BOX bounds1(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0));
         const BOX bounds2(VEC(-2.0, -2.0, -2.0), VEC(2.0, 2.0, 2.0));
         const BOX bounds3(VEC(-3.0, -3.0, -3.0), VEC(3.0, 3.0, 3.0));
@@ -440,12 +440,12 @@ L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 1
         return BOX(VEC(static_cast<double>(min), -1.0, -1.0), VEC(static_cast<double>(max), 1.0, 1.0));
     }
 
-    TEST(AABBTreeTest, findIntersectorsOfEmptyTree) {
+    TEST_CASE("AABBTreeTest.findIntersectorsOfEmptyTree", "[AABBTreeTest]") {
         AABB tree;
         assertIntersectors(tree, RAY(VEC::zero(), VEC::pos_x()), {});
     }
 
-    TEST(AABBTreeTest, findIntersectorsOfTreeWithOneNode) {
+    TEST_CASE("AABBTreeTest.findIntersectorsOfTreeWithOneNode", "[AABBTreeTest]") {
         AABB tree;
         tree.insert(BOX(VEC(-1.0, -1.0, -1.0), VEC(1.0, 1.0, 1.0)), 1u);
 
@@ -453,7 +453,7 @@ L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 1
         assertIntersectors(tree, RAY(VEC(-2.0, 0.0, 0.0), VEC::pos_x()), { 1u });
     }
 
-    TEST(AABBTreeTest, findIntersectorsOfTreeWithTwoNodes) {
+    TEST_CASE("AABBTreeTest.findIntersectorsOfTreeWithTwoNodes", "[AABBTreeTest]") {
         AABB tree;
         tree.insert(BOX(VEC(-2.0, -1.0, -1.0), VEC(-1.0, +1.0, +1.0)), 1u);
         tree.insert(BOX(VEC(+1.0, -1.0, -1.0), VEC(+2.0, +1.0, +1.0)), 2u);
@@ -469,14 +469,14 @@ L [ ( -1 -1 -1 ) ( 1 1 1 ) ]: 1
         assertIntersectors(tree, RAY(VEC(+1.5, -2.0,  0.0), VEC::pos_y()), { 2u });
     }
 
-    TEST(AABBTreeTest, findIntersectorFromInside) {
+    TEST_CASE("AABBTreeTest.findIntersectorFromInside", "[AABBTreeTest]") {
         AABB tree;
         tree.insert(BOX(VEC(-4.0, -1.0, -1.0), VEC(+4.0, +1.0, +1.0)), 1u);
 
         assertIntersectors(tree, RAY(VEC(0.0,  0.0,  0.0), VEC::pos_x()), { 1u });
     }
 
-    TEST(AABBTreeTest, findIntersectorsFromInsideRootBBox) {
+    TEST_CASE("AABBTreeTest.findIntersectorsFromInsideRootBBox", "[AABBTreeTest]") {
         AABB tree;
         tree.insert(BOX(VEC(-4.0, -1.0, -1.0), VEC(-2.0, +1.0, +1.0)), 1u);
         tree.insert(BOX(VEC(+2.0, -1.0, -1.0), VEC(+4.0, +1.0, +1.0)), 2u);

@@ -54,7 +54,7 @@ namespace TrenchBroom {
             }
         };
 
-        TEST(FileSystemTest, makeAbsolute) {
+        TEST_CASE("FileSystemTest.makeAbsolute", "[FileSystemTest]") {
             FSTestEnvironment env;
 
             auto fs = std::make_shared<DiskFileSystem>(env.dir() + Path("anotherDir"));
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             ASSERT_EQ(env.dir() + Path("dir1/asdf.map"), absPathNotExisting);
         }
 
-        TEST(DiskTest, fixPath) {
+        TEST_CASE("DiskTest.fixPath", "[DiskTest]") {
             FSTestEnvironment env;
 
             ASSERT_THROW(Disk::fixPath(Path("asdf/blah")), FileSystemException);
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(QFileInfo::exists(IO::pathAsQString(Disk::fixPath(env.dir() + Path("anotHERDIR/./SUBdirTEST/../SubdirTesT/TesT2.MAP")))));
         }
 
-        TEST(DiskTest, directoryExists) {
+        TEST_CASE("DiskTest.directoryExists", "[DiskTest]") {
             FSTestEnvironment env;
 
             ASSERT_THROW(Disk::directoryExists(Path("asdf/bleh")), FileSystemException);
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(Disk::directoryExists(env.dir() + Path("anotherDir/subDirTest")));
         }
 
-        TEST(DiskTest, fileExists) {
+        TEST_CASE("DiskTest.fileExists", "[DiskTest]") {
             FSTestEnvironment env;
 
             ASSERT_THROW(Disk::fileExists(Path("asdf/bleh")), FileSystemException);
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(Disk::fileExists(env.dir() + Path("anotherDir/subDirTest/test2.map")));
         }
 
-        TEST(DiskTest, getDirectoryContents) {
+        TEST_CASE("DiskTest.getDirectoryContents", "[DiskTest]") {
             FSTestEnvironment env;
 
             ASSERT_THROW(Disk::getDirectoryContents(Path("asdf/bleh")), FileSystemException);
@@ -113,7 +113,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(std::begin(contents), std::end(contents), Path("test2.map")) != std::end(contents));
         }
 
-        TEST(DiskTest, openFile) {
+        TEST_CASE("DiskTest.openFile", "[DiskTest]") {
             FSTestEnvironment env;
 
             ASSERT_THROW(Disk::openFile(Path("asdf/bleh")), FileSystemException);
@@ -124,7 +124,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(Disk::openFile(env.dir() + Path("anotherDir/subDirTest/test2.map")) != nullptr);
         }
 
-        TEST(DiskTest, resolvePath) {
+        TEST_CASE("DiskTest.resolvePath", "[DiskTest]") {
             FSTestEnvironment env;
 
             std::vector<Path> rootPaths;
@@ -145,7 +145,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Path(""), Disk::resolvePath(rootPaths, paths[4]));
         }
 
-        TEST(DiskFileSystemTest, createDiskFileSystem) {
+        TEST_CASE("DiskFileSystemTest.createDiskFileSystem", "[DiskFileSystemTest]") {
             FSTestEnvironment env;
 
             ASSERT_THROW(DiskFileSystem(env.dir() + Path("asdf"), true), FileSystemException);
@@ -159,7 +159,7 @@ namespace TrenchBroom {
             ASSERT_EQ(fs.root(), fs.makeAbsolute(Path("")));
         }
 
-        TEST(DiskFileSystemTest, directoryExists) {
+        TEST_CASE("DiskFileSystemTest.directoryExists", "[DiskFileSystemTest]") {
             FSTestEnvironment env;
             const DiskFileSystem fs(env.dir());
 
@@ -179,7 +179,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(fs.directoryExists(Path("fasdf")));
         }
 
-        TEST(DiskFileSystemTest, fileExists) {
+        TEST_CASE("DiskFileSystemTest.fileExists", "[DiskFileSystemTest]") {
             FSTestEnvironment env;
             const DiskFileSystem fs(env.dir());
 
@@ -199,7 +199,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(fs.fileExists(Path("fdfdf.blah")));
         }
 
-        TEST(DiskFileSystemTest, findItems) {
+        TEST_CASE("DiskFileSystemTest.findItems", "[DiskFileSystemTest]") {
             FSTestEnvironment env;
             const DiskFileSystem fs(env.dir());
 
@@ -228,7 +228,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("anotherDir/test3.map")) != std::end(items));
         }
 
-        TEST(DiskFileSystemTest, findItemsRecursively) {
+        TEST_CASE("DiskFileSystemTest.findItemsRecursively", "[DiskFileSystemTest]") {
             FSTestEnvironment env;
             const DiskFileSystem fs(env.dir());
 
@@ -265,7 +265,7 @@ namespace TrenchBroom {
 
         // getDirectoryContents gets tested thoroughly by the tests for the find* methods
 
-        TEST(DiskFileSystemTest, openFile) {
+        TEST_CASE("DiskFileSystemTest.openFile", "[DiskFileSystemTest]") {
             FSTestEnvironment env;
             const DiskFileSystem fs(env.dir());
 
@@ -283,7 +283,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(fs.openFile(Path("anotherDir/../anotherDir/./test3.map")) != nullptr);
         }
 
-        TEST(WritableDiskFileSystemTest, createWritableDiskFileSystem) {
+        TEST_CASE("WritableDiskFileSystemTest.createWritableDiskFileSystem", "[WritableDiskFileSystemTest]") {
             FSTestEnvironment env;
 
             ASSERT_THROW(WritableDiskFileSystem(env.dir() + Path("asdf"), false), FileSystemException);
@@ -297,7 +297,7 @@ namespace TrenchBroom {
             ASSERT_EQ(env.dir(), fs.makeAbsolute(Path("")));
         }
 
-        TEST(WritableDiskFileSystemTest, createDirectory) {
+        TEST_CASE("WritableDiskFileSystemTest.createDirectory", "[WritableDiskFileSystemTest]") {
             FSTestEnvironment env;
             WritableDiskFileSystem fs(env.dir(), false);
 
@@ -322,7 +322,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(fs.directoryExists(Path("newDir/yetAnotherDir")));
         }
 
-        TEST(WritableDiskFileSystemTest, deleteFile) {
+        TEST_CASE("WritableDiskFileSystemTest.deleteFile", "[WritableDiskFileSystemTest]") {
             FSTestEnvironment env;
             WritableDiskFileSystem fs(env.dir(), false);
 
@@ -348,7 +348,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(fs.fileExists(Path("anotherDir/subDirTest/test2.map")));
         }
 
-        TEST(WritableDiskFileSystemTest, moveFile) {
+        TEST_CASE("WritableDiskFileSystemTest.moveFile", "[WritableDiskFileSystemTest]") {
             FSTestEnvironment env;
             WritableDiskFileSystem fs(env.dir(), false);
 
@@ -388,7 +388,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(fs.fileExists(Path("dir1/test2.map")));
         }
 
-        TEST(WritableDiskFileSystemTest, copyFile) {
+        TEST_CASE("WritableDiskFileSystemTest.copyFile", "[WritableDiskFileSystemTest]") {
             FSTestEnvironment env;
             WritableDiskFileSystem fs(env.dir(), false);
 

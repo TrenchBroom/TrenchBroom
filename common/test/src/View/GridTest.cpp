@@ -38,25 +38,25 @@ namespace TrenchBroom {
     namespace View {
         static const vm::bbox3 worldBounds(8192.0);
 
-        TEST(GridTest, size) {
+        TEST_CASE("GridTest.size", "[GridTest]") {
             for (int i = Grid::MinSize; i < Grid::MaxSize; ++i)
                 ASSERT_EQ(i, Grid(i).size());
         }
 
-        TEST(GridTest, actualSizeInteger) {
+        TEST_CASE("GridTest.actualSizeInteger", "[GridTest]") {
             for (int i = 0; i < Grid::MaxSize; ++i) {
                 const int actualSize = static_cast<int>(std::pow(2, i));
                 ASSERT_EQ(actualSize, Grid(i).actualSize());
             }
         }
 
-        TEST(GridTest, actualSizeSubInteger) {
+        TEST_CASE("GridTest.actualSizeSubInteger", "[GridTest]") {
             ASSERT_EQ(0.5, Grid(-1).actualSize());
             ASSERT_EQ(0.25, Grid(-2).actualSize());
             ASSERT_EQ(0.125, Grid(-3).actualSize());
         }
 
-        TEST(GridTest, changeSize) {
+        TEST_CASE("GridTest.changeSize", "[GridTest]") {
             Grid g(0);
             g.incSize();
             ASSERT_EQ(1, g.size());
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             ASSERT_EQ(4, g.size());
         }
 
-        TEST(GridTest, offsetScalars) {
+        TEST_CASE("GridTest.offsetScalars", "[GridTest]") {
             ASSERT_DOUBLE_EQ(0.0, Grid(2u).offset(0.0));
             ASSERT_DOUBLE_EQ(0.3, Grid(2u).offset(0.3));
             ASSERT_DOUBLE_EQ(-0.3, Grid(2u).offset(-0.3));
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             ASSERT_DOUBLE_EQ(1.0, Grid(2u).offset(5.0));
         }
 
-        TEST(GridTest, snapScalars) {
+        TEST_CASE("GridTest.snapScalars", "[GridTest]") {
             ASSERT_DOUBLE_EQ(0.0, Grid(-1).snap(0.0));
             ASSERT_DOUBLE_EQ(0.0, Grid(-1).snap(0.1));
             ASSERT_DOUBLE_EQ(0.0, Grid(-1).snap(0.24));
@@ -117,7 +117,7 @@ namespace TrenchBroom {
             ASSERT_DOUBLE_EQ(0.0, Grid(2u).snapUp(-4.0, true));
         }
 
-        TEST(GridTest, snapOnLine) {
+        TEST_CASE("GridTest.snapOnLine", "[GridTest]") {
             const vm::line3d X(vm::vec3d(5.0, 0.0, 0.0), vm::vec3d::pos_x());
 
             ASSERT_VEC_EQ(vm::vec3d::zero(), Grid(2u).snap(vm::vec3d::zero(), X));
@@ -133,7 +133,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(vm::vec3d(2.0, 4.0, 0.0), Grid(2u).snap(vm::vec3(7.5, 0.0, 0.0), L));
         }
 
-        TEST(GridTest, snapOnEdge) {
+        TEST_CASE("GridTest.snapOnEdge", "[GridTest]") {
             const vm::segment3d E(vm::vec3d::zero(), vm::vec3d(1.0, 2.0, 0.0) * 2.0);
             ASSERT_VEC_EQ(vm::vec3d::zero(), Grid(2u).snap(vm::vec3d::zero(), E));
             ASSERT_VEC_EQ(vm::vec3d::zero(), Grid(2u).snap(vm::vec3(1.0, 0.0, 0.0), E));
@@ -143,7 +143,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(vm::is_nan(Grid(2u).snap(vm::vec3(-10.0, 0.0, 0.0), E)));
         }
 
-        TEST(GridTest, snapOnQuad) {
+        TEST_CASE("GridTest.snapOnQuad", "[GridTest]") {
             const vm::polygon3d quad {
                     vm::vec3d(-9.0, -9.0, 0.0),
                     vm::vec3d(+9.0, -9.0, 0.0),
@@ -159,7 +159,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(vm::vec3d(9.0, -4.0, 0.0), Grid(2u).snap(vm::vec3d(10.0, -2.0, 1.0), quad, vm::vec3d::pos_z()));
         }
 
-        TEST(GridTest, moveDeltaForPoint) {
+        TEST_CASE("GridTest.moveDeltaForPoint", "[GridTest]") {
             const auto grid16 = Grid(4);
 
             const auto pointOffGrid = vm::vec3d(17, 17, 17);
@@ -169,7 +169,7 @@ namespace TrenchBroom {
             ASSERT_EQ(pointOnGrid, pointOffGrid + grid16.moveDeltaForPoint(pointOffGrid, inputDelta));
         }
 
-        TEST(GridTest, moveDeltaForPoint_SubInteger) {
+        TEST_CASE("GridTest.moveDeltaForPoint_SubInteger", "[GridTest]") {
             const auto grid05 = Grid(-1);
 
             const auto pointOffGrid = vm::vec3d(0.51, 0.51, 0.51);
@@ -179,7 +179,7 @@ namespace TrenchBroom {
             ASSERT_EQ(pointOnGrid, pointOffGrid + grid05.moveDeltaForPoint(pointOffGrid, inputDelta));
         }
 
-        TEST(GridTest, moveDeltaForPoint_SubInteger2) {
+        TEST_CASE("GridTest.moveDeltaForPoint_SubInteger2", "[GridTest]") {
             const auto grid05 = Grid(-1);
 
             const auto pointOffGrid = vm::vec3d(0.51, 0.51, 0.51);
@@ -197,7 +197,7 @@ namespace TrenchBroom {
             return cube;
         }
 
-        TEST(GridTest, moveDeltaForFace) {
+        TEST_CASE("GridTest.moveDeltaForFace", "[GridTest]") {
             const auto grid16 = Grid(4);
 
             Model::Brush* cube = makeCube128();
@@ -213,7 +213,7 @@ namespace TrenchBroom {
             delete cube;
         }
 
-        TEST(GridTest, moveDeltaForFace_SubInteger) {
+        TEST_CASE("GridTest.moveDeltaForFace_SubInteger", "[GridTest]") {
             const auto grid05 = Grid(-1);
 
             Model::Brush* cube = makeCube128();

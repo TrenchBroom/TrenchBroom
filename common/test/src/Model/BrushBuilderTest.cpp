@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(BrushBuilderTest, createCube) {
+        TEST_CASE("BrushBuilderTest.createCube", "[BrushBuilderTest]") {
             const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard);
 
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             delete cube;
         }
 
-        TEST(BrushBuilderTest, createCubeDefaults) {
+        TEST_CASE("BrushBuilderTest.createCubeDefaults", "[BrushBuilderTest]") {
             const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard);
 

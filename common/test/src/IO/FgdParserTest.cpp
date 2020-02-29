@@ -38,7 +38,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(FgdParserTest, parseIncludedFgdFiles) {
+        TEST_CASE("FgdParserTest.parseIncludedFgdFiles", "[FgdParserTest]") {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
             const std::vector<Path> cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("fgd"));
 
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             }
         }
 
-        TEST(FgdParserTest, parseEmptyFile) {
+        TEST_CASE("FgdParserTest.parseEmptyFile", "[FgdParserTest]") {
             const std::string file = "";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             FgdParser parser(file, defaultColor);
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(FgdParserTest, parseWhitespaceFile) {
+        TEST_CASE("FgdParserTest.parseWhitespaceFile", "[FgdParserTest]") {
             const std::string file = "     \n  \t \n  ";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             FgdParser parser(file, defaultColor);
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(FgdParserTest, parseCommentsFile) {
+        TEST_CASE("FgdParserTest.parseCommentsFile", "[FgdParserTest]") {
             const std::string file = "// asdfasdfasdf\n//kj3k4jkdjfkjdf\n";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             FgdParser parser(file, defaultColor);
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(FgdParserTest, parseEmptyFlagDescription) {
+        TEST_CASE("FgdParserTest.parseEmptyFlagDescription", "[FgdParserTest]") {
             const std::string file =
             "@PointClass color(0 255 0) size(-2 -2 -12, 2 2 12) = light_mine1 : \"Dusty fluorescent light fixture\"\n"
             "[\n"
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(FgdParserTest, parseSolidClass) {
+        TEST_CASE("FgdParserTest.parseSolidClass", "[FgdParserTest]") {
             const std::string file =
             "@SolidClass = worldspawn : \"World entity\"\n"
             "[\n"
@@ -144,7 +144,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(FgdParserTest, parsePointClass) {
+        TEST_CASE("FgdParserTest.parsePointClass", "[FgdParserTest]") {
             const std::string file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(FgdParserTest, parseBaseClass) {
+        TEST_CASE("FgdParserTest.parseBaseClass", "[FgdParserTest]") {
             const std::string file =
             "@baseclass = Appearflags [\n"
             "	spawnflags(Flags) =\n"
@@ -195,7 +195,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(FgdParserTest, parsePointClassWithBaseClasses) {
+        TEST_CASE("FgdParserTest.parsePointClassWithBaseClasses", "[FgdParserTest]") {
             const std::string file =
             "@baseclass = Appearflags [\n"
             "	spawnflags(Flags) =\n"
@@ -239,7 +239,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(FgdParserTest, parseType_TargetSourceAttribute) {
+        TEST_CASE("FgdParserTest.parseType_TargetSourceAttribute", "[FgdParserTest]") {
             const std::string file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
@@ -271,7 +271,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(FgdParserTest, parseType_TargetDestinationAttribute) {
+        TEST_CASE("FgdParserTest.parseType_TargetDestinationAttribute", "[FgdParserTest]") {
             const std::string file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
@@ -303,7 +303,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(FgdParserTest, parseStringAttribute) {
+        TEST_CASE("FgdParserTest.parseStringAttribute", "[FgdParserTest]") {
             const std::string file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
@@ -354,7 +354,7 @@ namespace TrenchBroom {
          * Support having an integer (or decimal) as a default for a string attribute. Technically
          * a type mismatch, but appears in the wild; see: https://github.com/kduske/TrenchBroom/issues/2833
          */
-        TEST(FgdParserTest, parseStringAttribute_IntDefault) {
+        TEST_CASE("FgdParserTest.parseStringAttribute_IntDefault", "[FgdParserTest]") {
             const std::string file = R"(@PointClass = info_notnull : "Wildcard entity"
 [
     name(string) : "Description" : 3
@@ -401,7 +401,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(FgdParserTest, parseIntegerAttribute) {
+        TEST_CASE("FgdParserTest.parseIntegerAttribute", "[FgdParserTest]") {
             const std::string file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
@@ -448,7 +448,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(FgdParserTest, parseReadOnlyAttribute) {
+        TEST_CASE("FgdParserTest.parseReadOnlyAttribute", "[FgdParserTest]") {
             const std::string file =
                 "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
                 "[\n"
@@ -475,7 +475,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(FgdParserTest, parseFloatAttribute) {
+        TEST_CASE("FgdParserTest.parseFloatAttribute", "[FgdParserTest]") {
             const std::string file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
@@ -522,7 +522,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(FgdParserTest, parseChoiceAttribute) {
+        TEST_CASE("FgdParserTest.parseChoiceAttribute", "[FgdParserTest]") {
             const std::string file = R"%(
             @PointClass = info_notnull : "Wildcard entity" // I love you\n
 [
@@ -664,7 +664,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(FgdParserTest, parseFlagsAttribute) {
+        TEST_CASE("FgdParserTest.parseFlagsAttribute", "[FgdParserTest]") {
             const std::string file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
@@ -725,7 +725,7 @@ namespace TrenchBroom {
 
         using Assets::assertModelDefinition;
 
-        TEST(FgdParserTest, parseLegacyStaticModelDefinition) {
+        TEST_CASE("FgdParserTest.parseLegacyStaticModelDefinition", "[FgdParserTest]") {
             static const std::string ModelDefinition = "\":maps/b_shell0.bsp\", \":maps/b_shell1.bsp\" spawnflags = 1";
 
             assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
@@ -737,7 +737,7 @@ namespace TrenchBroom {
                                              "{ 'spawnflags': 1 }");
         }
 
-        TEST(FgdParserTest, parseLegacyDynamicModelDefinition) {
+        TEST_CASE("FgdParserTest.parseLegacyDynamicModelDefinition", "[FgdParserTest]") {
             static const std::string ModelDefinition = "pathKey = \"model\" skinKey = \"skin\" frameKey = \"frame\"";
 
             assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
@@ -750,7 +750,7 @@ namespace TrenchBroom {
                                              "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
         }
 
-        TEST(FgdParserTest, parseELStaticModelDefinition) {
+        TEST_CASE("FgdParserTest.parseELStaticModelDefinition", "[FgdParserTest]") {
             static const std::string ModelDefinition = "{{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }}";
 
             assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
@@ -766,7 +766,7 @@ namespace TrenchBroom {
                                              "{ 'spawnflags': 2 }");
         }
 
-        TEST(FgdParserTest, parseELDynamicModelDefinition) {
+        TEST_CASE("FgdParserTest.parseELDynamicModelDefinition", "[FgdParserTest]") {
             static const std::string ModelDefinition = "{ 'path': model, 'skin': skin, 'frame': frame }";
 
             assertModelDefinition<FgdParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
@@ -779,7 +779,7 @@ namespace TrenchBroom {
                                              "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
         }
 
-        TEST(FgdParserTest, parseLegacyModelWithParseError) {
+        TEST_CASE("FgdParserTest.parseLegacyModelWithParseError", "[FgdParserTest]") {
             const std::string file =
             "@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(\":progs/polyp.mdl\" 0 153, \":progs/polyp.mdl\" startonground = \"1\") = monster_polyp: \"Polyp\""
             "["
@@ -800,7 +800,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(FgdParserTest, parseInvalidBounds) {
+        TEST_CASE("FgdParserTest.parseInvalidBounds", "[FgdParserTest]") {
             const std::string file = R"(
 @PointClass size(32 32 0, -32 -32 256) model({"path" : ":progs/goddess-statue.mdl" }) =
 decor_goddess_statue : "Goddess Statue" [])";
@@ -818,7 +818,7 @@ decor_goddess_statue : "Goddess Statue" [])";
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(FgdParserTest, parseInclude) {
+        TEST_CASE("FgdParserTest.parseInclude", "[FgdParserTest]") {
             const Path path = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Fgd/parseInclude/host.fgd");
             auto file = Disk::openFile(path);
             auto reader = file->reader().buffer();
@@ -835,7 +835,7 @@ decor_goddess_statue : "Goddess Statue" [])";
             kdl::vec_clear_and_delete(defs);
         }
 
-        TEST(FgdParserTest, parseNestedInclude) {
+        TEST_CASE("FgdParserTest.parseNestedInclude", "[FgdParserTest]") {
             const Path path = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Fgd/parseNestedInclude/host.fgd");
             auto file = Disk::openFile(path);
             auto reader = file->reader().buffer();
@@ -853,7 +853,7 @@ decor_goddess_statue : "Goddess Statue" [])";
             kdl::vec_clear_and_delete(defs);
         }
 
-        TEST(FgdParserTest, parseRecursiveInclude) {
+        TEST_CASE("FgdParserTest.parseRecursiveInclude", "[FgdParserTest]") {
             const Path path = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Fgd/parseRecursiveInclude/host.fgd");
             auto file = Disk::openFile(path);
             auto reader = file->reader().buffer();
@@ -869,7 +869,7 @@ decor_goddess_statue : "Goddess Statue" [])";
             kdl::vec_clear_and_delete(defs);
         }
 
-        TEST(FgdParserTest, parseStringContinuations) {
+        TEST_CASE("FgdParserTest.parseStringContinuations", "[FgdParserTest]") {
             const std::string file =
                 "@PointClass = cont_description :\n"
                 "\n"

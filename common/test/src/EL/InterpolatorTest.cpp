@@ -33,16 +33,16 @@ namespace TrenchBroom {
             ASSERT_EQ(expected, Interpolator(expression).interpolate(context));
         }
 
-        TEST(ELInterpolatorTest, interpolateEmptyString) {
+        TEST_CASE("ELInterpolatorTest.interpolateEmptyString", "[ELInterpolatorTest]") {
             ASSERT_EL("", "");
             ASSERT_EL("   ", "   ");
         }
 
-        TEST(ELInterpolatorTest, interpolateStringWithoutExpression) {
+        TEST_CASE("ELInterpolatorTest.interpolateStringWithoutExpression", "[ELInterpolatorTest]") {
             ASSERT_EL(" asdfasdf  sdf ", " asdfasdf  sdf ");
         }
 
-        TEST(ELInterpolatorTest, interpolateStringWithSimpleExpression) {
+        TEST_CASE("ELInterpolatorTest.interpolateStringWithSimpleExpression", "[ELInterpolatorTest]") {
             ASSERT_EL(" asdfasdf asdf  sdf ", " asdfasdf ${'asdf'}  sdf ");
             ASSERT_EL(" asdfasdf asdf AND  sdf ", " asdfasdf ${'asdf'} ${'AND'}  sdf ");
             ASSERT_EL(" asdfasdf asdf AND  sdf ", " asdfasdf ${'asdf'}${' AND'}  sdf ");
@@ -50,17 +50,17 @@ namespace TrenchBroom {
             ASSERT_EL(" this and that ", " ${ 'this'+' and ' }${'that'} ");
         }
 
-        TEST(ELInterpolatorTest, interpolateStringWithNestedExpression) {
+        TEST_CASE("ELInterpolatorTest.interpolateStringWithNestedExpression", "[ELInterpolatorTest]") {
             ASSERT_EL(" asdfasdf nested ${TEST} expression  sdf ", " asdfasdf ${ 'nested ${TEST} expression' }  sdf ");
         }
 
-        TEST(ELInterpolatorTest, interpolateStringWithVariable) {
+        TEST_CASE("ELInterpolatorTest.interpolateStringWithVariable", "[ELInterpolatorTest]") {
             EvaluationContext context;
             context.declareVariable("TEST", Value("interesting"));
             ASSERT_EL(" an interesting expression", " an ${TEST} expression", context);
         }
 
-        TEST(ELInterpolatorTest, interpolateStringWithBackslashAndVariable) {
+        TEST_CASE("ELInterpolatorTest.interpolateStringWithBackslashAndVariable", "[ELInterpolatorTest]") {
             EvaluationContext context;
             context.declareVariable("TEST", Value("interesting"));
             ASSERT_EL(" an \\interesting expression", " an \\${TEST} expression", context);

@@ -34,7 +34,7 @@ namespace TrenchBroom {
             ASSERT_EQ(exp3, key3);
         }
 
-        TEST(KeyboardShortcutTest, sortModifierKeys) {
+        TEST_CASE("KeyboardShortcutTest.sortModifierKeys", "[KeyboardShortcutTest]") {
             assertSortModifierKeys(WXK_ALT, WXK_NONE, WXK_NONE,
                                    WXK_ALT, WXK_NONE, WXK_NONE);
             assertSortModifierKeys(WXK_SHIFT, WXK_NONE, WXK_NONE,
@@ -82,7 +82,7 @@ namespace TrenchBroom {
         }
 
 #ifdef __WXGTK20__
-        TEST(KeyboardShortcutTest, isShortcutValid) {
+        TEST_CASE("KeyboardShortcutTest.isShortcutValid", "[KeyboardShortcutTest]") {
             ASSERT_FALSE(KeyboardShortcut::isShortcutValid(WXK_TAB));
             ASSERT_FALSE(KeyboardShortcut::isShortcutValid(WXK_TAB, WXK_CONTROL));
             ASSERT_FALSE(KeyboardShortcut::isShortcutValid(WXK_ESCAPE));
@@ -99,14 +99,14 @@ namespace TrenchBroom {
         }
 #endif
 
-        TEST(KeyboardShortcutTest, staticModifierKeyMenuText) {
+        TEST_CASE("KeyboardShortcutTest.staticModifierKeyMenuText", "[KeyboardShortcutTest]") {
             ASSERT_WXSTR_EQ(QString("Ctrl"), KeyboardShortcut::modifierMenuString(WXK_CONTROL));
             ASSERT_WXSTR_EQ(QString("Alt"), KeyboardShortcut::modifierMenuString(WXK_ALT));
             ASSERT_WXSTR_EQ(QString("Shift"), KeyboardShortcut::modifierMenuString(WXK_SHIFT));
             ASSERT_WXSTR_EQ(QString(""), KeyboardShortcut::modifierMenuString(WXK_TAB));
         }
 
-        TEST(KeyboardShortcutTest, modifierDisplayString) {
+        TEST_CASE("KeyboardShortcutTest.modifierDisplayString", "[KeyboardShortcutTest]") {
 #ifdef __APPLE__
             ASSERT_WXSTR_EQ(QString(L"\u2318"), KeyboardShortcut::modifierDisplayString(WXK_CONTROL));
             ASSERT_WXSTR_EQ(QString(L"\u2325"), KeyboardShortcut::modifierDisplayString(WXK_ALT));
@@ -120,7 +120,7 @@ namespace TrenchBroom {
 #endif
         }
 
-        TEST(KeyboardShortcutTest, staticShortcutDisplayText) {
+        TEST_CASE("KeyboardShortcutTest.staticShortcutDisplayText", "[KeyboardShortcutTest]") {
 #ifdef __APPLE__
             ASSERT_WXSTR_EQ(QString("C"), KeyboardShortcut::shortcutDisplayString('C', WXK_NONE, WXK_NONE, WXK_NONE));
             ASSERT_WXSTR_EQ(QString(L"\u238B"), KeyboardShortcut::shortcutDisplayString(WXK_ESCAPE, WXK_NONE, WXK_NONE, WXK_NONE));
@@ -138,7 +138,7 @@ namespace TrenchBroom {
 #endif
         }
 
-        TEST(KeyboardShortcutTest, parseShortcut) {
+        TEST_CASE("KeyboardShortcutTest.parseShortcut", "[KeyboardShortcutTest]") {
             int m1, m2, m3, k;
 
             ASSERT_TRUE(KeyboardShortcut::parseShortcut("", k, m1, m2, m3));
@@ -224,7 +224,7 @@ namespace TrenchBroom {
 #endif
         }
 
-        TEST(KeyboardShortcutTest, constructWithString) {
+        TEST_CASE("KeyboardShortcutTest.constructWithString", "[KeyboardShortcutTest]") {
             StringStream test;
             test << static_cast<int>('D') << ":" << WXK_CONTROL << ":" << WXK_ALT << ":" << WXK_NONE;
 
@@ -240,7 +240,7 @@ namespace TrenchBroom {
             ASSERT_EQ('D', shortcut.key());
         }
 
-        TEST(KeyboardShortcutTest, matches) {
+        TEST_CASE("KeyboardShortcutTest.matches", "[KeyboardShortcutTest]") {
             const KeyboardShortcut shortcut('D', WXK_CONTROL, WXK_ALT);
 
             ASSERT_FALSE(shortcut.matches('S', WXK_CONTROL, WXK_ALT));
@@ -253,7 +253,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(shortcut.matches('D', WXK_NONE, WXK_ALT, WXK_CONTROL));
         }
 
-        TEST(KeyboardShortcutTest, modifierKeyMenuText) {
+        TEST_CASE("KeyboardShortcutTest.modifierKeyMenuText", "[KeyboardShortcutTest]") {
             const KeyboardShortcut shortcut('D', WXK_ALT, WXK_CONTROL);
 #ifdef __APPLE__
             ASSERT_WXSTR_EQ(QString("Alt+Ctrl"), shortcut.modifierMenuString());

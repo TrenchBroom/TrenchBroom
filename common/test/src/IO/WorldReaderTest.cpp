@@ -45,7 +45,7 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        TEST(WorldReaderTest, parseFailure_1424) {
+        TEST_CASE("WorldReaderTest.parseFailure_1424", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(world != nullptr);
         }
 
-        TEST(WorldReaderTest, parseEmptyMap) {
+        TEST_CASE("WorldReaderTest.parseEmptyMap", "[WorldReaderTest]") {
             const std::string data("");
             const vm::bbox3 worldBounds(8192.0);
 
@@ -83,7 +83,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(world->children().front()->hasChildren());
         }
 
-        TEST(WorldReaderTest, parseMapWithEmptyEntity) {
+        TEST_CASE("WorldReaderTest.parseMapWithEmptyEntity", "[WorldReaderTest]") {
             const std::string data("{}");
             const vm::bbox3 worldBounds(8192.0);
 
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->children().front()->childCount());
         }
 
-        TEST(WorldReaderTest, parseMapWithWorldspawn) {
+        TEST_CASE("WorldReaderTest.parseMapWithWorldspawn", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -120,7 +120,7 @@ namespace TrenchBroom {
             ASSERT_STREQ("yay", world->attribute("message").c_str());
         }
 
-        TEST(WorldReaderTest, parseMapWithWorldspawnAndOneMoreEntity) {
+        TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneMoreEntity", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -157,7 +157,7 @@ namespace TrenchBroom {
             ASSERT_STREQ(" -1 ", entity->attribute("angle").c_str());
         }
 
-        TEST(WorldReaderTest, parseMapWithWorldspawnAndOneBrush) {
+        TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneBrush", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -207,7 +207,7 @@ namespace TrenchBroom {
                                          vm::vec3(0.0, 64.0, 0.0)) != nullptr);
         }
 
-        TEST(WorldReaderTest, parseMapAndCheckFaceFlags) {
+        TEST_CASE("WorldReaderTest.parseMapAndCheckFaceFlags", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -245,7 +245,7 @@ namespace TrenchBroom {
             ASSERT_FLOAT_EQ(-0.55f, face->yScale());
         }
 
-        TEST(WorldReaderTest, parseBrushWithCurlyBraceInTextureName) {
+        TEST_CASE("WorldReaderTest.parseBrushWithCurlyBraceInTextureName", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -287,7 +287,7 @@ namespace TrenchBroom {
                                          vm::vec3(0.0, 64.0, 0.0)) != nullptr);
         }
 
-        TEST(WorldReaderTest, parseProblematicBrush1) {
+        TEST_CASE("WorldReaderTest.parseProblematicBrush1", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -328,7 +328,7 @@ namespace TrenchBroom {
                                          vm::vec3(323.0, 116.0, 176.0)) != nullptr);
         }
 
-        TEST(WorldReaderTest, parseProblematicBrush2) {
+        TEST_CASE("WorldReaderTest.parseProblematicBrush2", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -353,7 +353,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
         }
 
-        TEST(WorldReaderTest, parseProblematicBrush3) {
+        TEST_CASE("WorldReaderTest.parseProblematicBrush3", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -378,7 +378,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
         }
 
-        TEST(WorldReaderTest, parseValveBrush) {
+        TEST_CASE("WorldReaderTest.parseValveBrush", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -403,7 +403,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
         }
 
-        TEST(WorldReaderTest, parseQuake2Brush) {
+        TEST_CASE("WorldReaderTest.parseQuake2Brush", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -428,7 +428,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
         }
 
-        TEST(WorldReaderTest, parseQuake2ValveBrush) {
+        TEST_CASE("WorldReaderTest.parseQuake2ValveBrush", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -456,7 +456,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
         }
 
-        TEST(WorldReaderTest, parseDaikatanaBrush) {
+        TEST_CASE("WorldReaderTest.parseDaikatanaBrush", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -489,7 +489,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush->findFace("rtz/c_mf_v3cww")->hasColor());
         }
 
-        TEST(WorldReaderTest, parseDaikatanaMapHeader) {
+        TEST_CASE("WorldReaderTest.parseDaikatanaMapHeader", "[WorldReaderTest]") {
             const std::string data(R"(
 ////////////////////////////////////////////////////////////
 // ldef 000 "Base Brush Layer"
@@ -530,7 +530,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
         }
 
-        TEST(WorldReaderTest, parseQuakeBrushWithNumericalTextureName) {
+        TEST_CASE("WorldReaderTest.parseQuakeBrushWithNumericalTextureName", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -555,7 +555,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
         }
 
-        TEST(WorldReaderTest, parseBrushesWithLayer) {
+        TEST_CASE("WorldReaderTest.parseBrushesWithLayer", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -602,7 +602,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->children().back()->childCount());
         }
 
-        TEST(WorldReaderTest, parseEntitiesAndBrushesWithLayer) {
+        TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithLayer", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -662,7 +662,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->children().back()->children().back()->childCount());
         }
 
-        TEST(WorldReaderTest, parseEntitiesAndBrushesWithGroup) {
+        TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithGroup", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -743,7 +743,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, mySubGroup->childCount());
         }
 
-        TEST(WorldReaderTest, parseBrushPrimitive) {
+        TEST_CASE("WorldReaderTest.parseBrushPrimitive", "[WorldReaderTest]") {
             const std::string data(R"(
             {
                 "classname" "worldspawn"
@@ -771,7 +771,7 @@ namespace TrenchBroom {
             ASSERT_EQ(0u, world->defaultLayer()->childCount());
         }
 
-        TEST(WorldReaderTest, parseBrushPrimitiveAndLegacyBrush) {
+        TEST_CASE("WorldReaderTest.parseBrushPrimitiveAndLegacyBrush", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -807,7 +807,7 @@ brushDef
             ASSERT_EQ(1u, world->defaultLayer()->childCount());
         }
 
-        TEST(WorldReaderTest, parseQuake3Patch) {
+        TEST_CASE("WorldReaderTest.parseQuake3Patch", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -835,7 +835,7 @@ common/caulk
             ASSERT_EQ(0u, world->defaultLayer()->childCount());
         }
 
-        TEST(WorldReaderTest, parseMultipleClassnames) {
+        TEST_CASE("WorldReaderTest.parseMultipleClassnames", "[WorldReaderTest]") {
             // See https://github.com/kduske/TrenchBroom/issues/1485
 
             const std::string data(R"(
@@ -852,7 +852,7 @@ common/caulk
             ASSERT_NO_THROW(reader.read(Model::MapFormat::Quake2, worldBounds, status));
         }
 
-        TEST(WorldReaderTest, parseEscapedDoubleQuotationMarks) {
+        TEST_CASE("WorldReaderTest.parseEscapedDoubleQuotationMarks", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -873,7 +873,7 @@ common/caulk
             ASSERT_STREQ("yay \\\"Mr. Robot!\\\"", world->attribute("message").c_str());
         }
 
-        TEST(WorldReaderTest, parseAttributeWithUnescapedPathAndTrailingBackslash) {
+        TEST_CASE("WorldReaderTest.parseAttributeWithUnescapedPathAndTrailingBackslash", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -894,7 +894,7 @@ common/caulk
             ASSERT_STREQ("c:\\a\\b\\c\\", world->attribute("path").c_str());
         }
 
-        TEST(WorldReaderTest, parseAttributeWithEscapedPathAndTrailingBackslash) {
+        TEST_CASE("WorldReaderTest.parseAttributeWithEscapedPathAndTrailingBackslash", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -915,7 +915,7 @@ common/caulk
             ASSERT_STREQ("c:\\\\a\\\\b\\\\c\\\\", world->attribute("path").c_str());
         }
 
-        TEST(WorldReaderTest, parseAttributeTrailingEscapedBackslash) {
+        TEST_CASE("WorldReaderTest.parseAttributeTrailingEscapedBackslash", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -938,7 +938,7 @@ common/caulk
         }
 
         // https://github.com/kduske/TrenchBroom/issues/1739
-        TEST(WorldReaderTest, parseAttributeNewlineEscapeSequence) {
+        TEST_CASE("WorldReaderTest.parseAttributeNewlineEscapeSequence", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -960,7 +960,7 @@ common/caulk
         }
 
         /*
-        TEST(WorldReaderTest, parseIssueIgnoreFlags) {
+        TEST_CASE("WorldReaderTest.parseIssueIgnoreFlags", "[WorldReaderTest]") {
             const std::string data("{"
                               "\"classname\" \"worldspawn\""
                               "{\n"
