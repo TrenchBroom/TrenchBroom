@@ -39,7 +39,7 @@ namespace TrenchBroom {
             return index.findAttributableNodes(AttributableNodeIndexQuery::numbered(name), value);
         }
 
-        TEST(EntityAttributeIndexTest, addAttributableNode) {
+        TEST_CASE("EntityAttributeIndexTest.addAttributableNode", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
             Entity* entity1 = new Entity();
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             delete entity2;
         }
 
-        TEST(EntityAttributeIndexTest, removeAttributableNode) {
+        TEST_CASE("EntityAttributeIndexTest.removeAttributableNode", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
             Entity* entity1 = new Entity();
@@ -90,7 +90,7 @@ namespace TrenchBroom {
             delete entity2;
         }
 
-        TEST(EntityAttributeIndexTest, addAttribute) {
+        TEST_CASE("EntityAttributeIndexTest.addAttribute", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
             Entity* entity1 = new Entity();
@@ -120,7 +120,7 @@ namespace TrenchBroom {
             delete entity2;
         }
 
-        TEST(EntityAttributeIndexTest, removeAttribute) {
+        TEST_CASE("EntityAttributeIndexTest.removeAttribute", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
             Entity* entity1 = new Entity();
@@ -146,7 +146,7 @@ namespace TrenchBroom {
             delete entity2;
         }
 
-        TEST(EntityAttributeIndexTest, addNumberedEntityAttribute) {
+        TEST_CASE("EntityAttributeIndexTest.addNumberedEntityAttribute", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
             Entity* entity1 = new Entity();
@@ -165,7 +165,7 @@ namespace TrenchBroom {
         }
 
 
-        TEST(EntityAttributeIndexTest, addRemoveFloatProperty) {
+        TEST_CASE("EntityAttributeIndexTest.addRemoveFloatProperty", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
             Entity* entity1 = new Entity();
@@ -182,7 +182,7 @@ namespace TrenchBroom {
             delete entity1;
         }
 
-        TEST(EntityAttributeIndexTest, allNames) {
+        TEST_CASE("EntityAttributeIndexTest.allNames", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
             Entity* entity1 = new Entity();
@@ -198,7 +198,7 @@ namespace TrenchBroom {
             ASSERT_COLLECTIONS_EQUIVALENT(std::vector<std::string>{ "test", "other" }, index.allNames());
         }
 
-        TEST(EntityAttributeIndexTest, allValuesForNames) {
+        TEST_CASE("EntityAttributeIndexTest.allValuesForNames", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
             Entity* entity1 = new Entity();

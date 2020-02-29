@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace EL {
-        TEST(ELTest, constructValues) {
+        TEST_CASE("ELTest.constructValues", "[ELTest]") {
             ASSERT_EQ(ValueType::Boolean, Value(true).type());
             ASSERT_EQ(ValueType::Boolean, Value(false).type());
             ASSERT_EQ(ValueType::String,  Value("test").type());
@@ -39,7 +39,7 @@ namespace TrenchBroom {
             ASSERT_EQ(ValueType::Null,    Value().type());
         }
 
-        TEST(ELTest, typeConversions) {
+        TEST_CASE("ELTest.typeConversions", "[ELTest]") {
             ASSERT_EQ(Value(true), Value(true).convertTo(ValueType::Boolean));
             ASSERT_EQ(Value(false), Value(false).convertTo(ValueType::Boolean));
             ASSERT_EQ(Value("true"), Value(true).convertTo(ValueType::String));
@@ -123,11 +123,11 @@ namespace TrenchBroom {
             ASSERT_EQ(Value::Undefined, Value::Undefined.convertTo(ValueType::Undefined));
         }
 
-        TEST(ELTest, serializeValues) {
+        TEST_CASE("ELTest.serializeValues", "[ELTest]") {
             ASSERT_EQ(std::string("16"), Value(16.0).asString());
         }
 
-        TEST(ELTest, subscriptOperator) {
+        TEST_CASE("ELTest.subscriptOperator", "[ELTest]") {
             ASSERT_THROW(Value(true)[Value(0)], EvaluationError);
             ASSERT_THROW(Value(1.0)[Value(0)], EvaluationError);
             ASSERT_THROW(Value()[Value(0)], EvaluationError);
@@ -196,7 +196,7 @@ namespace TrenchBroom {
             ASSERT_THROW(mapValue[Value(ArrayType({ Value("test"), Value(0) }))], ConversionError);
         }
 
-        TEST(ELTest, unaryPlusOperator) {
+        TEST_CASE("ELTest.unaryPlusOperator", "[ELTest]") {
             ASSERT_THROW(+Value("test"), EvaluationError);
             ASSERT_THROW(+Value(ArrayType()), EvaluationError);
             ASSERT_THROW(+Value(MapType()), EvaluationError);
@@ -206,7 +206,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Value(0.0), +Value(false));
         }
 
-        TEST(ELTest, unaryMinusOperator) {
+        TEST_CASE("ELTest.unaryMinusOperator", "[ELTest]") {
             ASSERT_THROW(-Value("test"), EvaluationError);
             ASSERT_THROW(-Value(ArrayType()), EvaluationError);
             ASSERT_THROW(-Value(MapType()), EvaluationError);
@@ -216,7 +216,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Value( 0.0), -Value(false));
         }
 
-        TEST(ELTest, binaryPlusOperator) {
+        TEST_CASE("ELTest.binaryPlusOperator", "[ELTest]") {
             ASSERT_EQ(Value(2.0),           Value(true)     + Value(true));
             ASSERT_EQ(Value(3.0),           Value(false)    + Value(3.0));
             ASSERT_THROW(Value(true) + Value("test"),       EvaluationError);
@@ -272,7 +272,7 @@ namespace TrenchBroom {
             ASSERT_THROW(Value(MapType()) + Value(ArrayType()),   EvaluationError);
         }
 
-        TEST(ELTest, binaryMinusOperator) {
+        TEST_CASE("ELTest.binaryMinusOperator", "[ELTest]") {
             ASSERT_EQ(Value(0.0),           Value(true)     - Value(true));
             ASSERT_EQ(Value(-3.0),          Value(false)    - Value(3.0));
             ASSERT_THROW(Value(true) - Value("test"),       EvaluationError);
@@ -309,7 +309,7 @@ namespace TrenchBroom {
             ASSERT_THROW(Value(MapType()) - Value(MapType()),      EvaluationError);
         }
 
-        TEST(ELTest, binaryTimesOperator) {
+        TEST_CASE("ELTest.binaryTimesOperator", "[ELTest]") {
             ASSERT_EQ(Value(0.0), Value(true) * Value(false));
             ASSERT_EQ(Value(1.0), Value(true) * Value(true));
             ASSERT_EQ(Value(-2.0), Value(true) * Value(-2.0));
@@ -348,7 +348,7 @@ namespace TrenchBroom {
             ASSERT_THROW(Value(MapType()) * Value::Null, EvaluationError);
         }
 
-        TEST(ELTest, binaryOverOperator) {
+        TEST_CASE("ELTest.binaryOverOperator", "[ELTest]") {
             ASSERT_EQ(Value(std::numeric_limits<NumberType>::infinity()), Value(true) / Value(false));
             ASSERT_EQ(Value(1.0), Value(true) / Value(true));
             ASSERT_EQ(Value(-0.5), Value(true) / Value(-2.0));
@@ -387,7 +387,7 @@ namespace TrenchBroom {
             ASSERT_THROW(Value(MapType()) / Value::Null, EvaluationError);
         }
 
-        TEST(ELTest, binaryModulusOperator) {
+        TEST_CASE("ELTest.binaryModulusOperator", "[ELTest]") {
             ASSERT_TRUE(vm::is_nan((Value(true) % Value(false)).numberValue()));
             ASSERT_EQ(Value(0.0), Value(true) % Value(true));
             ASSERT_EQ(Value(1.0), Value(true) % Value(-2.0));

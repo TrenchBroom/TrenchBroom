@@ -26,7 +26,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        TEST(AllocationTrackerTest, constructor) {
+        TEST_CASE("AllocationTrackerTest.constructor", "[AllocationTrackerTest]") {
             AllocationTracker t(100);
             EXPECT_EQ(100u, t.capacity());
             EXPECT_EQ(100u, t.largestPossibleAllocation());
@@ -35,7 +35,7 @@ namespace TrenchBroom {
             EXPECT_FALSE(t.hasAllocations());
         }
 
-        TEST(AllocationTrackerTest, emptyConstructor) {
+        TEST_CASE("AllocationTrackerTest.emptyConstructor", "[AllocationTrackerTest]") {
             AllocationTracker t;
             EXPECT_EQ(0u, t.capacity());
             EXPECT_EQ(0u, t.largestPossibleAllocation());
@@ -45,7 +45,7 @@ namespace TrenchBroom {
             EXPECT_FALSE(t.hasAllocations());
         }
 
-        TEST(AllocationTrackerTest, constructWithZeroCapacity) {
+        TEST_CASE("AllocationTrackerTest.constructWithZeroCapacity", "[AllocationTrackerTest]") {
             AllocationTracker t(0);
             EXPECT_EQ(0u, t.capacity());
             EXPECT_EQ(0u, t.largestPossibleAllocation());
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             EXPECT_FALSE(t.hasAllocations());
         }
 
-        TEST(AllocationTrackerTest, invalidAllocate) {
+        TEST_CASE("AllocationTrackerTest.invalidAllocate", "[AllocationTrackerTest]") {
             AllocationTracker t(100);
 
             EXPECT_ANY_THROW(t.allocate(0));
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             EXPECT_FALSE(t.hasAllocations());
         }
 
-        TEST(AllocationTrackerTest, fiveAllocations) {
+        TEST_CASE("AllocationTrackerTest.fiveAllocations", "[AllocationTrackerTest]") {
             AllocationTracker t(500);
 
             // allocate all the memory
@@ -136,7 +136,7 @@ namespace TrenchBroom {
             EXPECT_EQ((std::vector<AllocationTracker::Range>{}), t.freeBlocks());
         }
 
-        TEST(AllocationTrackerTest, freeMergeRight) {
+        TEST_CASE("AllocationTrackerTest.freeMergeRight", "[AllocationTrackerTest]") {
             AllocationTracker t(400);
 
             // allocate all the memory
@@ -161,7 +161,7 @@ namespace TrenchBroom {
             EXPECT_EQ(200u, t.largestPossibleAllocation());
         }
 
-        TEST(AllocationTrackerTest, freeMergeLeft) {
+        TEST_CASE("AllocationTrackerTest.freeMergeLeft", "[AllocationTrackerTest]") {
             AllocationTracker t(400);
 
             // allocate all the memory
@@ -186,7 +186,7 @@ namespace TrenchBroom {
             EXPECT_EQ(200u, t.largestPossibleAllocation());
         }
 
-        TEST(AllocationTrackerTest, expandEmpty) {
+        TEST_CASE("AllocationTrackerTest.expandEmpty", "[AllocationTrackerTest]") {
             AllocationTracker t;
 
             t.expand(100);
@@ -199,7 +199,7 @@ namespace TrenchBroom {
             EXPECT_FALSE(t.hasAllocations());
         }
 
-        TEST(AllocationTrackerTest, expandWithFreeSpaceAtEnd) {
+        TEST_CASE("AllocationTrackerTest.expandWithFreeSpaceAtEnd", "[AllocationTrackerTest]") {
             AllocationTracker t(200);
 
             AllocationTracker::Block* newBlock = t.allocate(100);
@@ -217,7 +217,7 @@ namespace TrenchBroom {
             EXPECT_EQ((std::vector<AllocationTracker::Range>{{0, 100}}), t.usedBlocks());
         }
 
-        TEST(AllocationTrackerTest, expandWithUsedSpaceAtEnd) {
+        TEST_CASE("AllocationTrackerTest.expandWithUsedSpaceAtEnd", "[AllocationTrackerTest]") {
             AllocationTracker t(200);
 
             {
@@ -274,7 +274,7 @@ namespace TrenchBroom {
 
         }
 
-        TEST(AllocationTrackerTest, testShuffle) {
+        TEST_CASE("AllocationTrackerTest.testShuffle", "[AllocationTrackerTest]") {
             std::vector<int> ints;
             for (int i = 0; i < 10; ++i) {
                 ints.push_back(i);
@@ -286,7 +286,7 @@ namespace TrenchBroom {
             ASSERT_EQ((std::vector<int>{8, 0, 7, 6, 4, 3, 5, 1, 2, 9}), ints);
         }
 
-        TEST(AllocationTrackerTest, benchmarkAllocOnly) {
+        TEST_CASE("AllocationTrackerTest.benchmarkAllocOnly", "[AllocationTrackerTest]") {
             std::mt19937 randEngine;
 
             AllocationTracker t(140 * NumBrushes);
@@ -297,7 +297,7 @@ namespace TrenchBroom {
             }
         }
 
-        TEST(AllocationTrackerTest, benchmarkAllocFreeAlloc) {
+        TEST_CASE("AllocationTrackerTest.benchmarkAllocFreeAlloc", "[AllocationTrackerTest]") {
             std::mt19937 randEngine;
 
             AllocationTracker t(140 * NumBrushes);
@@ -330,7 +330,7 @@ namespace TrenchBroom {
             }
         }
 
-        TEST(AllocationTrackerTest, benchmarkAllocAndExpand) {
+        TEST_CASE("AllocationTrackerTest.benchmarkAllocAndExpand", "[AllocationTrackerTest]") {
             std::mt19937 randEngine;
 
             AllocationTracker t;

@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(TaggingTest, testTagBrush) {
+        TEST_CASE("TaggingTest.testTagBrush", "[TaggingTest]") {
             const vm::bbox3 worldBounds{4096.0};
             World world{MapFormat::Standard};
 

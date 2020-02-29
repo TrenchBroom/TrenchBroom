@@ -85,19 +85,19 @@ namespace TrenchBroom {
             Tokenizer<SimpleToken::Type>(str, "", 0) {}
         };
 
-        TEST(TokenizerTest, simpleLanguageEmptyString) {
+        TEST_CASE("TokenizerTest.simpleLanguageEmptyString", "[TokenizerTest]") {
             const std::string testString("");
             SimpleTokenizer tokenizer(testString);
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
 
-        TEST(TokenizerTest, simpleLanguageBlankString) {
+        TEST_CASE("TokenizerTest.simpleLanguageBlankString", "[TokenizerTest]") {
             const std::string testString("\n  \t ");
             SimpleTokenizer tokenizer(testString);
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
 
-        TEST(TokenizerTest, simpleLanguageEmptyBlock) {
+        TEST_CASE("TokenizerTest.simpleLanguageEmptyBlock", "[TokenizerTest]") {
             const std::string testString("{"
                                     "}");
 
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
 
-        TEST(TokenizerTest, simpleLanguagePushPeekPopToken) {
+        TEST_CASE("TokenizerTest.simpleLanguagePushPeekPopToken", "[TokenizerTest]") {
             const std::string testString("{\n"
                                     "}");
 
@@ -121,7 +121,7 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
 
-        TEST(TokenizerTest, simpleLanguageEmptyBlockWithLeadingAndTrailingWhitespace) {
+        TEST_CASE("TokenizerTest.simpleLanguageEmptyBlockWithLeadingAndTrailingWhitespace", "[TokenizerTest]") {
             const std::string testString(" \t{"
                                     " }  ");
 
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
 
-        TEST(TokenizerTest, simpleLanguageBlockWithStringAttribute) {
+        TEST_CASE("TokenizerTest.simpleLanguageBlockWithStringAttribute", "[TokenizerTest]") {
             const std::string testString("{\n"
                                     "    attribute =value;\n"
                                     "}\n");
@@ -151,7 +151,7 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
 
-        TEST(TokenizerTest, simpleLanguageBlockWithIntegerAttribute) {
+        TEST_CASE("TokenizerTest.simpleLanguageBlockWithIntegerAttribute", "[TokenizerTest]") {
             const std::string testString("{"
                                     "    attribute =  12328;"
                                     "}");
@@ -169,7 +169,7 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
 
-        TEST(TokenizerTest, simpleLanguageBlockWithNegativeIntegerAttribute) {
+        TEST_CASE("TokenizerTest.simpleLanguageBlockWithNegativeIntegerAttribute", "[TokenizerTest]") {
             const std::string testString("{"
                                     "    attribute =  -12328;"
                                     "}");
@@ -187,7 +187,7 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
 
-        TEST(TokenizerTest, simpleLanguageBlockWithDecimalAttribute) {
+        TEST_CASE("TokenizerTest.simpleLanguageBlockWithDecimalAttribute", "[TokenizerTest]") {
             const std::string testString("{"
                                     "    attribute =  12328.38283;"
                                     "}");
@@ -205,7 +205,7 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
 
-        TEST(TokenizerTest, simpleLanguageBlockWithDecimalAttributeStartingWithDot) {
+        TEST_CASE("TokenizerTest.simpleLanguageBlockWithDecimalAttributeStartingWithDot", "[TokenizerTest]") {
             const std::string testString("{"
                                     "    attribute =  .38283;"
                                     "}");
@@ -223,7 +223,7 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
 
-        TEST(TokenizerTest, simpleLanguageBlockWithNegativeDecimalAttribute) {
+        TEST_CASE("TokenizerTest.simpleLanguageBlockWithNegativeDecimalAttribute", "[TokenizerTest]") {
             const std::string testString("{"
                                     "    attribute =  -343.38283;"
                                     "}");

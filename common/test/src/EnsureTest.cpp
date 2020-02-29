@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace Ensure {
-        TEST(EnsureTest, successfulEnsure) {
+        TEST_CASE("EnsureTest.successfulEnsure", "[EnsureTest]") {
             EXPECT_NO_THROW(ensure(true, "this shouldn't fail"));
         }
 
@@ -34,7 +34,7 @@ namespace TrenchBroom {
 #pragma clang diagnostic ignored "-Wcovered-switch-default"
 #endif
 
-        TEST(EnsureTest, failingEnsure) {
+        TEST_CASE("EnsureTest.failingEnsure", "[EnsureTest]") {
             ASSERT_DEATH(ensure(false, "this should fail"), "");
         }
 

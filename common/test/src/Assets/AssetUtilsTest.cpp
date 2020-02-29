@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        TEST(AssetUtilsTest, safeGetModelSpecification) {
+        TEST_CASE("AssetUtilsTest.safeGetModelSpecification", "[AssetUtilsTest]") {
             TestLogger logger;
 
             const auto expected = ModelSpecification(IO::Path("test/test"), 1, 2);

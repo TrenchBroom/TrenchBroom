@@ -32,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(AseParserTest, loadWithoutException) {
+        TEST_CASE("AseParserTest.loadWithoutException", "[AseParserTest]") {
             NullLogger logger;
             
             const auto defaultAssetsPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets");
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(model->frame(0)->loaded());
         }
         
-        TEST(AseParserTest, fallbackToMaterialName) {
+        TEST_CASE("AseParserTest.fallbackToMaterialName", "[AseParserTest]") {
             NullLogger logger;
 
             const auto defaultAssetsPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets");
@@ -83,7 +83,7 @@ namespace TrenchBroom {
             ASSERT_EQ("textures/bigtile", model->surface(0).skin(0)->name());
         }
         
-        TEST(AseParserTest, loadDefaultMaterial) {
+        TEST_CASE("AseParserTest.loadDefaultMaterial", "[AseParserTest]") {
             NullLogger logger;
 
             const auto defaultAssetsPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets");
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             ASSERT_EQ(32u, texture->height());
         }
 
-        TEST(AseParserTest, parseFailure_2657) {
+        TEST_CASE("AseParserTest.parseFailure_2657", "[AseParserTest]") {
             NullLogger logger;
 
             const auto defaultAssetsPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets");
@@ -139,7 +139,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(model->frame(0)->loaded());
         }
 
-        TEST(AseParserTest, parseFailure_2679) {
+        TEST_CASE("AseParserTest.parseFailure_2679", "[AseParserTest]") {
             NullLogger logger;
 
             const auto defaultAssetsPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets");
@@ -163,7 +163,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(model->frame(0)->loaded());
         }
     
-        TEST(AseParserTest, parseFailure_2898_vertex_index) {
+        TEST_CASE("AseParserTest.parseFailure_2898_vertex_index", "[AseParserTest]") {
             NullLogger logger;
 
             const auto defaultAssetsPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets");
@@ -187,7 +187,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(model->frame(0)->loaded());
         }
         
-        TEST(AseParserTest, parseFailure_2898_no_uv) {
+        TEST_CASE("AseParserTest.parseFailure_2898_no_uv", "[AseParserTest]") {
             NullLogger logger;
 
             const auto defaultAssetsPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets");

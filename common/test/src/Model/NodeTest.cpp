@@ -197,7 +197,7 @@ namespace TrenchBroom {
             }
         };
 
-        TEST(NodeTest, destroyChild) {
+        TEST_CASE("NodeTest.destroyChild", "[NodeTest]") {
             using namespace ::testing;
 
             TestNode* root = new TestNode();
@@ -210,7 +210,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(childDestroyed);
         }
 
-        TEST(NodeTest, addRemoveChild) {
+        TEST_CASE("NodeTest.addRemoveChild", "[NodeTest]") {
             using namespace ::testing;
 
             MockNode root;
@@ -303,7 +303,7 @@ namespace TrenchBroom {
             ASSERT_EQ(3u, child->familySize());
         }
 
-        TEST(NodeTest, partialSelection) {
+        TEST_CASE("NodeTest.partialSelection", "[NodeTest]") {
             TestNode root;
             TestNode* child1 = new TestNode();
             TestNode* child2 = new TestNode();
@@ -343,7 +343,7 @@ namespace TrenchBroom {
             ASSERT_EQ(2u, root.descendantSelectionCount());
         }
 
-        TEST(NodeTest, isAncestorOf) {
+        TEST_CASE("NodeTest.isAncestorOf", "[NodeTest]") {
             TestNode root;
             TestNode* child1 = new TestNode();
             TestNode* child2 = new TestNode();
@@ -392,7 +392,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(grandChild1_1->isAncestorOf(std::vector<Node*>{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
         }
 
-        TEST(NodeTest, isDescendantOf) {
+        TEST_CASE("NodeTest.isDescendantOf", "[NodeTest]") {
             TestNode root;
             TestNode* child1 = new TestNode();
             TestNode* child2 = new TestNode();

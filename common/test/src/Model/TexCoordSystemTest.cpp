@@ -36,7 +36,7 @@ namespace TrenchBroom {
 #pragma clang diagnostic ignored "-Wcovered-switch-default"
 #endif
 
-        TEST(TexCoordSystemTest, testSnapshotTypeSafety) {
+        TEST_CASE("TexCoordSystemTest.testSnapshotTypeSafety", "[TexCoordSystemTest]") {
             BrushFaceAttributes attribs("");
 
             ParaxialTexCoordSystem paraxial(vm::vec3::pos_z(), attribs);

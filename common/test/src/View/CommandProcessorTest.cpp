@@ -150,7 +150,7 @@ namespace TrenchBroom {
 
         const Command::CommandType TestCommand::Type = Command::freeType();
 
-        TEST(CommandProcessorTest, doAndUndoSuccessfulCommand) {
+        TEST_CASE("CommandProcessorTest.doAndUndoSuccessfulCommand", "[CommandProcessorTest]") {
             /*
              * Execute a successful command, then undo it successfully.
              */
@@ -182,7 +182,7 @@ namespace TrenchBroom {
             ASSERT_EQ(commandName, commandProcessor.redoCommandName());
         }
 
-        TEST(CommandProcessorTest, doSuccessfulCommandAndFailAtUndo) {
+        TEST_CASE("CommandProcessorTest.doSuccessfulCommandAndFailAtUndo", "[CommandProcessorTest]") {
             /*
              * Execute a successful command, then undo fails.
              */
@@ -211,7 +211,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(commandProcessor.canRepeat());
         }
 
-        TEST(CommandProcessorTest, doFailingCommand) {
+        TEST_CASE("CommandProcessorTest.doFailingCommand", "[CommandProcessorTest]") {
             /*
              * Execute a failing command.
              */
@@ -231,7 +231,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(commandProcessor.canRepeat());
         }
 
-        TEST(CommandProcessorTest, repeatAndUndoSingleCommand) {
+        TEST_CASE("CommandProcessorTest.repeatAndUndoSingleCommand", "[CommandProcessorTest]") {
             /*
              * Execute a successful command, then repeat it successfully, and undo the repeated command
              * successfully, too.
@@ -277,7 +277,7 @@ namespace TrenchBroom {
         }
 
 
-        TEST(CommandProcessorTest, repeatSingleCommandTwice) {
+        TEST_CASE("CommandProcessorTest.repeatSingleCommandTwice", "[CommandProcessorTest]") {
             /*
              * Execute a successful command, then repeat it successfully two times
              */
@@ -318,7 +318,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(commandProcessor.canRepeat());
         }
 
-        TEST(CommandProcessorTest, repeatAndUndoMultipleCommands) {
+        TEST_CASE("CommandProcessorTest.repeatAndUndoMultipleCommands", "[CommandProcessorTest]") {
             /*
              * Execute two successful commands, then repeat them successfully, and undo the repeated commands
              * successfully, too.
@@ -372,7 +372,7 @@ namespace TrenchBroom {
             ASSERT_EQ(commandName2, commandProcessor.undoCommandName());
         }
 
-        TEST(CommandProcessorTest, commitUndoRedoTransaction) {
+        TEST_CASE("CommandProcessorTest.commitUndoRedoTransaction", "[CommandProcessorTest]") {
             /*
              * Execute two successful commands in a transaction, then undo the transaction successfully.
              * Finally, redo it, also with success.
@@ -429,7 +429,7 @@ namespace TrenchBroom {
             ASSERT_EQ(transactionName, commandProcessor.undoCommandName());
         }
 
-        TEST(CommandProcessorTest, rollbackTransaction) {
+        TEST_CASE("CommandProcessorTest.rollbackTransaction", "[CommandProcessorTest]") {
             /*
              * Execute two successful commands in a transaction, then rollback the transaction and commit it.
              */
@@ -469,7 +469,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(commandProcessor.canRepeat());
         }
 
-        TEST(CommandProcessorTest, nestedTransactions) {
+        TEST_CASE("CommandProcessorTest.nestedTransactions", "[CommandProcessorTest]") {
             /*
              * Execute a command in a transaction, start a nested transaction, execute a command, and
              * commit both transactions. Then undo the outer transaction.
@@ -520,7 +520,7 @@ namespace TrenchBroom {
             ASSERT_EQ(outerTransactionName, commandProcessor.redoCommandName());
         }
 
-        TEST(CommandProcessorTest, collateCommands) {
+        TEST_CASE("CommandProcessorTest.collateCommands", "[CommandProcessorTest]") {
             /*
              * Execute a command and collate the next command, then undo.
              */
@@ -562,7 +562,7 @@ namespace TrenchBroom {
             ASSERT_EQ(commandName1, commandProcessor.redoCommandName());
         }
 
-        TEST(CommandProcessorTest, collationInterval) {
+        TEST_CASE("CommandProcessorTest.collationInterval", "[CommandProcessorTest]") {
             /*
              * Execute two commands, with time passing between their execution exceeding the collation interval.
              */

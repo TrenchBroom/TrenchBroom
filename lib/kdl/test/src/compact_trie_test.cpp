@@ -34,7 +34,7 @@ namespace kdl {
     ASSERT_EQ(exp, act);\
 }
 
-    TEST(compact_trie_test, insert) {
+    TEST_CASE("compact_trie_test.insert", "[compact_trie_test]") {
         test_index index;
         index.insert("key", "value");
         index.insert("key2", "value");
@@ -69,7 +69,7 @@ namespace kdl {
         ASSERT_MATCHES(std::vector<std::string>({ "value", "value", "value2", "value3", "value4", "value4" }), index, "*")
     }
 
-    TEST(compact_trie_test, remove) {
+    TEST_CASE("compact_trie_test.remove", "[compact_trie_test]") {
         test_index index;
         index.insert("andrew", "value");
         index.insert("andreas", "value");
@@ -105,7 +105,7 @@ namespace kdl {
         ASSERT_MATCHES(std::vector<std::string>({}), index, "*")
     }
 
-    TEST(compact_trie_test, find_matches_with_exact_pattern) {
+    TEST_CASE("compact_trie_test.find_matches_with_exact_pattern", "[compact_trie_test]") {
         test_index index;
         index.insert("key", "value");
         index.insert("key2", "value");
@@ -124,7 +124,7 @@ namespace kdl {
         ASSERT_MATCHES(std::vector<std::string>({}), index, "")
     }
 
-    TEST(compact_trie_test, find_matches_with_wildcards) {
+    TEST_CASE("compact_trie_test.find_matches_with_wildcards", "[compact_trie_test]") {
         test_index index;
         index.insert("key", "value");
         index.insert("key2", "value");
@@ -162,7 +162,7 @@ namespace kdl {
         ASSERT_MATCHES(std::vector<std::string>({}), index, "t*%*")
     }
 
-    TEST(compact_trie_test, find_matches_with_digit_suffix) {
+    TEST_CASE("compact_trie_test.find_matches_with_digit_suffix", "[compact_trie_test]") {
         test_index index;
         index.insert("key", "value");
         index.insert("key2", "value");
@@ -180,7 +180,7 @@ namespace kdl {
         ASSERT_MATCHES(std::vector<std::string>({}), index, "k%*")
     }
 
-    TEST(compact_trie_test, get_keys) {
+    TEST_CASE("compact_trie_test.get_keys", "[compact_trie_test]") {
         test_index index;
         index.insert("key", "value");
         index.insert("key2", "value");

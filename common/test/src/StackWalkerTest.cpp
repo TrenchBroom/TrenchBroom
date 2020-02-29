@@ -25,7 +25,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 namespace TrenchBroom {
     using ::testing::HasSubstr;
 
-    TEST(StackWalkerTest, testStackTraceSymbols) {
+    TEST_CASE("StackWalkerTest.testStackTraceSymbols", "[StackWalkerTest]") {
         const std::string stackTrace = TrenchBroomStackWalker::getStackTrace();
 
         // FIXME: doesn't work on CI right now

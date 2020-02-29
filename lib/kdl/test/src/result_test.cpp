@@ -294,7 +294,7 @@ namespace kdl {
         ASSERT_EQ(0u, y.copies);
     }
 
-    TEST(result_test, constructor) {
+    TEST_CASE("result_test.constructor", "[result_test]") {
         ASSERT_TRUE((result<int, float, std::string>::success(1).is_success()));
         ASSERT_TRUE((result<int, float, std::string>::error(1.0f).is_error()));
         ASSERT_TRUE((result<int, float, std::string>::error("").is_error()));
@@ -315,7 +315,7 @@ namespace kdl {
         test_construct_error<result<const int, Error1, Error2>>(Error2{});
     }
 
-    TEST(result_test, visit) {
+    TEST_CASE("result_test.visit", "[result_test]") {
         test_visit_success_const_lvalue_ref<const result<int, Error1, Error2>>(1);
         test_visit_success_const_lvalue_ref<result<int, Error1, Error2>>(1);
         test_visit_success_const_lvalue_ref<const result<const int, Error1, Error2>>(1);
@@ -329,7 +329,7 @@ namespace kdl {
         test_visit_error_rvalue_ref<result<int, Counter, Error2>>(Counter{});
     }
 
-    TEST(result_test, map) {
+    TEST_CASE("result_test.map", "[result_test]") {
         test_map_const_lvalue_ref<const result<int, Error1, Error2>, float>(1);
         test_map_const_lvalue_ref<result<int, Error1, Error2>, float>(1);
         test_map_const_lvalue_ref<const result<const int, Error1, Error2>, float>(1);
@@ -337,7 +337,7 @@ namespace kdl {
         test_map_rvalue_ref<result<Counter, Error1, Error2>, Counter>(Counter{});
     }
     
-    TEST(reference_result_test, constructor) {
+    TEST_CASE("reference_result_test.constructor", "[reference_result_test]") {
         int x = 1;
 
         ASSERT_TRUE((result<int&, float, std::string>::success(x).is_success()));
@@ -360,7 +360,7 @@ namespace kdl {
         test_construct_error<result<const int&, Error1, Error2>>(Error2{});
     }
     
-    TEST(reference_result_test, visit) {
+    TEST_CASE("reference_result_test.visit", "[reference_result_test]") {
         int x = 1;
         test_visit_success_const_lvalue_ref<const result<int&, Error1, Error2>>(x);
         test_visit_success_const_lvalue_ref<result<int&, Error1, Error2>>(x);
@@ -377,7 +377,7 @@ namespace kdl {
         test_visit_error_rvalue_ref<result<int&, Counter, Error2>>(Counter{});
     }
     
-    TEST(reference_result_test, map) {
+    TEST_CASE("reference_result_test.map", "[reference_result_test]") {
         int x = 1;
         test_map_const_lvalue_ref<const result<int&, Error1, Error2>, float>(x);
         test_map_const_lvalue_ref<result<int&, Error1, Error2>, float>(x);
@@ -388,7 +388,7 @@ namespace kdl {
         test_map_rvalue_ref<result<Counter&, Error1, Error2>, Counter>(c);
     }
     
-    TEST(void_result_test, constructor) {
+    TEST_CASE("void_result_test.constructor", "[void_result_test]") {
         ASSERT_TRUE((result<void, float, std::string>::success().is_success()));
         ASSERT_TRUE((result<void, float, std::string>::error(1.0f).is_error()));
         ASSERT_TRUE((result<void, float, std::string>::error("").is_error()));
@@ -403,7 +403,7 @@ namespace kdl {
         test_construct_error<result<void, Error1, Error2>>(Error2{});
     }
 
-    TEST(void_result_test, visit) {
+    TEST_CASE("void_result_test.visit", "[void_result_test]") {
         test_visit_success_with_opt_value<const result<void, Error1, Error2>>();
         test_visit_success_with_opt_value<result<void, Error1, Error2>>();
         
@@ -412,7 +412,7 @@ namespace kdl {
         test_visit_error_rvalue_ref_with_opt_value<result<void, Counter, Error2>>(Counter{});
     }
     
-    TEST(opt_result_test, constructor) {
+    TEST_CASE("opt_result_test.constructor", "[opt_result_test]") {
         ASSERT_TRUE((result<opt<int>, float, std::string>::success().is_success()));
         ASSERT_TRUE((result<opt<int>, float, std::string>::success(1).is_success()));
         ASSERT_TRUE((result<opt<int>, float, std::string>::error(1.0f).is_error()));
@@ -439,7 +439,7 @@ namespace kdl {
         test_construct_error<result<opt<const int>, Error1, Error2>>(Error2{});
     }
 
-    TEST(opt_result_test, visit) {
+    TEST_CASE("opt_result_test.visit", "[opt_result_test]") {
         test_visit_success_with_opt_value<const result<opt<int>, Error1, Error2>>();
         test_visit_success_with_opt_value<result<opt<int>, Error1, Error2>>();
         
@@ -458,7 +458,7 @@ namespace kdl {
 }
 
 namespace something {
-    TEST(result_test, adl_friend_lookup) {
+    TEST_CASE("result_test.adl_friend_lookup", "[result_test]") {
         auto value_result = kdl::result<int, kdl::Error1, kdl::Error2>::success(1);
 
         ASSERT_TRUE(kdl::visit_result(kdl::overload {

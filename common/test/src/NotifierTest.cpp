@@ -49,7 +49,7 @@ namespace TrenchBroom {
         MOCK_METHOD2(notify2, void(const int&, const int&));
     };
 
-    TEST(NotifierTest, testAddRemoveObservers) {
+    TEST_CASE("NotifierTest.testAddRemoveObservers", "[NotifierTest]") {
         Observer o1;
         Observer o2;
 
@@ -86,7 +86,7 @@ namespace TrenchBroom {
         ASSERT_FALSE(obs.twoArgNotifier.removeObserver(&o2, &Observer::notify2));
     }
 
-    TEST(NotifierTest, testNotifyObservers) {
+    TEST_CASE("NotifierTest.testNotifyObservers", "[NotifierTest]") {
         Observer o1;
         Observer o2;
 

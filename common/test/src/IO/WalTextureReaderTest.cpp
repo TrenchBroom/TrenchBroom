@@ -41,7 +41,7 @@ namespace TrenchBroom {
             ASSERT_EQ(height, texture->height());
         }
 
-        TEST(WalTextureReaderTest, testLoadQ2WalDir) {
+        TEST_CASE("WalTextureReaderTest.testLoadQ2WalDir", "[WalTextureReaderTest]") {
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
             const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("fixture/test/colormap.pcx"));
 

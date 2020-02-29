@@ -32,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        TEST(AutosaverTest, backupFileMatcher) {
+        TEST_CASE("AutosaverTest.backupFileMatcher", "[AutosaverTest]") {
             Autosaver::BackupFileMatcher matcher(IO::Path("test"));
 
             ASSERT_TRUE(matcher(IO::Path("test.1.map"), false));

@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(PortalFileTest, parseInvalidPRT1) {
+        TEST_CASE("PortalFileTest.parseInvalidPRT1", "[PortalFileTest]") {
             const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt1_invalid.prt");
 
             EXPECT_ANY_THROW(const Model::PortalFile p = Model::PortalFile(path));
@@ -44,19 +44,19 @@ namespace TrenchBroom {
                 {{-64,-32,0}, {-32,-32,0}, {-48,-32,64}}
         };
 
-        TEST(PortalFileTest, parsePRT1) {
+        TEST_CASE("PortalFileTest.parsePRT1", "[PortalFileTest]") {
             const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt1.prt");
             const Model::PortalFile portalFile(path);
             ASSERT_EQ(ExpectedPortals, portalFile.portals());
         }
 
-        TEST(PortalFileTest, parsePRT1AM) {
+        TEST_CASE("PortalFileTest.parsePRT1AM", "[PortalFileTest]") {
             const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt1am.prt");
             const Model::PortalFile portalFile(path);
             ASSERT_EQ(ExpectedPortals, portalFile.portals());
         }
 
-        TEST(PortalFileTest, parsePRT2) {
+        TEST_CASE("PortalFileTest.parsePRT2", "[PortalFileTest]") {
             const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt2.prt");
             const Model::PortalFile portalFile(path);
             ASSERT_EQ(ExpectedPortals, portalFile.portals());

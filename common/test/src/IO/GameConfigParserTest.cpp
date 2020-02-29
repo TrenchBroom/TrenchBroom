@@ -32,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(GameConfigParserTest, parseIncludedGameConfigs) {
+        TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs", "[GameConfigParserTest]") {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
             const std::vector<Path> cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("cfg"));
 
@@ -49,19 +49,19 @@ namespace TrenchBroom {
             }
         }
 
-        TEST(GameConfigParserTest, parseBlankConfig) {
+        TEST_CASE("GameConfigParserTest.parseBlankConfig", "[GameConfigParserTest]") {
             const std::string config("   ");
             GameConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
         }
 
-        TEST(GameConfigParserTest, parseEmptyConfig) {
+        TEST_CASE("GameConfigParserTest.parseEmptyConfig", "[GameConfigParserTest]") {
             const std::string config("  {  } ");
             GameConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
         }
 
-        TEST(GameConfigParserTest, parseQuakeConfig) {
+        TEST_CASE("GameConfigParserTest.parseQuakeConfig", "[GameConfigParserTest]") {
             const std::string config(R"(
 {
     "version": 3,
@@ -171,7 +171,7 @@ namespace TrenchBroom {
             ASSERT_EQ(expected.smartTags(), actual.smartTags());
         }
 
-        TEST(GameConfigParserTest, parseQuake2Config) {
+        TEST_CASE("GameConfigParserTest.parseQuake2Config", "[GameConfigParserTest]") {
             const std::string config(R"%(
 {
     "version": 3,
@@ -476,7 +476,7 @@ namespace TrenchBroom {
             ASSERT_EQ(expected.smartTags(), actual.smartTags());
         }
 
-        TEST(GameConfigParserTest, parseExtrasConfig) {
+        TEST_CASE("GameConfigParserTest.parseExtrasConfig", "[GameConfigParserTest]") {
             const std::string config(R"%(
 {
     "version": 3,
@@ -799,7 +799,7 @@ namespace TrenchBroom {
             ASSERT_EQ(expected.smartTags(), actual.smartTags());
         }
 
-        TEST(GameConfigParserTest, parseDuplicateTags) {
+        TEST_CASE("GameConfigParserTest.parseDuplicateTags", "[GameConfigParserTest]") {
             const std::string config(R"(
 {
     "version": 3,

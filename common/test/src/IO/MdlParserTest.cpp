@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(MdlParserTest, loadValidMdl) {
+        TEST_CASE("MdlParserTest.loadValidMdl", "[MdlParserTest]") {
             NullLogger logger;
 
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             EXPECT_EQ(1u, surface.frameCount());
         }
 
-        TEST(MdlParserTest, loadInvalidMdl) {
+        TEST_CASE("MdlParserTest.loadInvalidMdl", "[MdlParserTest]") {
             NullLogger logger;
 
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
