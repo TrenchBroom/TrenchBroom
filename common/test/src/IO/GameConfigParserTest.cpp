@@ -46,7 +46,8 @@ namespace TrenchBroom {
                 try {
                     parser.parse();
                 } catch (const std::exception& e) {
-                    FAIL() << "Parsing game config " << path.asString() << " failed: " << e.what();
+                    UNSCOPED_INFO("Parsing game config " << path.asString() << " failed: " << e.what());
+                    REQUIRE(false);
                 }
             }
         }

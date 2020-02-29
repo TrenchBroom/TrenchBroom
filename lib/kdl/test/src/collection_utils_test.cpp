@@ -49,7 +49,9 @@ namespace kdl {
     }
 
     TEST_CASE("collection_utils_test.range_delete_all", "[collection_utils_test]") {
-        bool d1, d2, d3;
+        bool d1 = false;
+        bool d2 = false;
+        bool d3 = false;
         auto d = std::vector<deletable*>({ new deletable(d1), new deletable(d2), new deletable(d3) });
         range_delete_all(std::begin(d), std::end(d));
 
@@ -82,7 +84,9 @@ namespace kdl {
     }
 
     TEST_CASE("collection_utils_test.col_delete_all", "[collection_utils_test]") {
-        bool d1, d2, d3;
+        bool d1 = false;
+        bool d2 = false;
+        bool d3 = false;
         auto d = std::vector<deletable*>({ new deletable(d1), new deletable(d2), new deletable(d3) });
         col_delete_all(d);
 

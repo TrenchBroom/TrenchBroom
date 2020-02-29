@@ -85,7 +85,8 @@ namespace kdl {
             while (list_first != items.front()) {
                 list_first = get_link(list_first).next();
                 if (list_first == head) {
-                    FAIL() << "list head is not an item";
+                    UNSCOPED_INFO("list head is not an item");
+                    FAIL();
                 }
             }
             auto list_cur = list_first;

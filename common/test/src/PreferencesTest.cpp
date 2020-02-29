@@ -36,6 +36,7 @@
 #include "Model/TagMatcher.h"
 #include "View/Actions.h"
 
+#include <iostream>
 #include <optional>
 #include <string>
 

@@ -20,7 +20,6 @@
 #include <catch2/catch.hpp>
 
 #include "GTestCompat.h"
-#include <gmock/gmock.h>
 
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
@@ -33,6 +32,7 @@
 
 #include <vector>
 
+#if 0 // FIXME: gmock
 namespace TrenchBroom {
     namespace Model {
         class MockNode : public Node {
@@ -444,3 +444,4 @@ namespace TrenchBroom {
         }
     }
 }
+#endif

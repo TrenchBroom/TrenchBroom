@@ -25,6 +25,9 @@
 #include <vecmath/ray.h>
 #include "AABBTree.h"
 
+#include <set>
+#include <sstream>
+
 namespace TrenchBroom {
     using AABB = AABBTree<double, 3, size_t>;
     using BOX = AABB::Box;

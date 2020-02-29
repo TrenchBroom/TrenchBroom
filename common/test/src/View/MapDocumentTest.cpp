@@ -47,13 +47,16 @@
 namespace TrenchBroom {
     namespace View {
         MapDocumentTest::MapDocumentTest() :
-        MapDocumentTest(Model::MapFormat::Standard) {}
+        MapDocumentTest(Model::MapFormat::Standard) {
+            SetUp();
+        }
 
         MapDocumentTest::MapDocumentTest(const Model::MapFormat mapFormat) :
-        ::testing::Test(),
         m_mapFormat(mapFormat),
         m_pointEntityDef(nullptr),
-        m_brushEntityDef(nullptr) {}
+        m_brushEntityDef(nullptr) {
+            SetUp();
+        }
 
         void MapDocumentTest::SetUp() {
             game = std::make_shared<Model::TestGame>();
@@ -67,7 +70,7 @@ namespace TrenchBroom {
             document->setEntityDefinitions(std::vector<Assets::EntityDefinition*>{ m_pointEntityDef, m_brushEntityDef });
         }
 
-        void MapDocumentTest::TearDown() {
+        MapDocumentTest::~MapDocumentTest() {
             m_pointEntityDef = nullptr;
             m_brushEntityDef = nullptr;
         }

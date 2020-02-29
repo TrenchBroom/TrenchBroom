@@ -38,20 +38,20 @@ namespace TrenchBroom {
     namespace Model {
         static const std::string TestClassname = "something";
 
-        class EntityTest : public ::testing::Test {
+        class EntityTest {
         protected:
             vm::bbox3d m_worldBounds;
             Entity* m_entity;
             World* m_world;
 
-            void SetUp() override {
+            EntityTest() {
                 m_worldBounds = vm::bbox3d(8192.0);
                 m_entity = new Entity();
                 m_entity->addOrUpdateAttribute(AttributeNames::Classname, TestClassname);
                 m_world = new World(MapFormat::Standard);
             }
 
-            void TearDown() override {
+            virtual ~EntityTest() {
                 // Only some of the tests add the entity to the world
                 if (m_entity->parent() == nullptr) {
                     delete m_entity;

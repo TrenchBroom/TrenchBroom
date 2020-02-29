@@ -290,7 +290,9 @@ namespace kdl {
     }
 
     TEST_CASE("vector_utils_test.vec_clear_and_delete", "[vector_utils_test]") {
-        bool d1, d2, d3;
+        bool d1 = false;
+        bool d2 = false;
+        bool d3 = false;
         auto v = std::vector<deletable*>({
             new deletable(d1),
             new deletable(d2),

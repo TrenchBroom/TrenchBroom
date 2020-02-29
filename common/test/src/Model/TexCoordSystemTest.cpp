@@ -48,7 +48,9 @@ namespace TrenchBroom {
             auto parallelSnapshot = parallel.takeSnapshot();
             ASSERT_NE(nullptr, parallelSnapshot);
 
+#if 0 // not supported with Catch2
             ASSERT_DEATH(parallelSnapshot->restore(paraxial), "");
+#endif
             parallelSnapshot->restore(parallel);
         }
 

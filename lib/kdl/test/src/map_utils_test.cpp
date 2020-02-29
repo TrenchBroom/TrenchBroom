@@ -202,7 +202,10 @@ namespace kdl {
     }
 
     TEST_CASE("map_utils_test.map_clear_and_delete", "[map_utils_test]") {
-        bool d1, d2, d3, d4;
+        bool d1 = false;
+        bool d2 = false;
+        bool d3 = false;
+        bool d4 = false;
 
         auto m = std::map<int, std::vector<deletable*>>({
             { 1, {} },

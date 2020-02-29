@@ -55,7 +55,8 @@ namespace TrenchBroom {
 
                 const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Game/CorruptPak");
                 auto logger = NullLogger();
-                ASSERT_NO_THROW(GameImpl(config, gamePath, logger)) << "Should not throw when loading corrupted package file for game " << game;
+                UNSCOPED_INFO("Should not throw when loading corrupted package file for game " << game);
+                ASSERT_NO_THROW(GameImpl(config, gamePath, logger));
             }
         }
 

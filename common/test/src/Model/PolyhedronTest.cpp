@@ -36,6 +36,7 @@
 
 #include <iterator>
 #include <tuple>
+#include <set>
 
 namespace TrenchBroom {
     namespace Model {

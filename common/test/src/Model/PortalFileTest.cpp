@@ -35,7 +35,9 @@ namespace TrenchBroom {
         TEST_CASE("PortalFileTest.parseInvalidPRT1", "[PortalFileTest]") {
             const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt1_invalid.prt");
 
-            EXPECT_ANY_THROW(const Model::PortalFile p = Model::PortalFile(path));
+            EXPECT_ANY_THROW([&](){
+                const Model::PortalFile p = Model::PortalFile(path);
+            }());
         }
 
         static const std::vector<vm::polygon3f> ExpectedPortals {
