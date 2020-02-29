@@ -44,7 +44,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(matcher(IO::Path("test.2-crash.map"), false));
         }
 
-        TEST_F(MapDocumentTest, autosaverNoSaveUntilSaveInterval) {
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveUntilSaveInterval") {
             IO::TestEnvironment env("autosaver_test");
             NullLogger logger;
 
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(env.directoryExists(IO::Path("autosave")));
         }
 
-        TEST_F(MapDocumentTest, autosaverNoSaveOfUnchangedMap) {
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveOfUnchangedMap") {
             IO::TestEnvironment env("autosaver_test");
             NullLogger logger;
 
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(env.directoryExists(IO::Path("autosave")));
         }
 
-        TEST_F(MapDocumentTest, autosaverSavesAfterSaveInterval) {
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAfterSaveInterval") {
             IO::TestEnvironment env("autosaver_test");
             NullLogger logger;
 
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(env.directoryExists(IO::Path("autosave")));
         }
 
-        TEST_F(MapDocumentTest, autosaverNoSaveUntilIdleInterval) {
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveUntilIdleInterval") {
             IO::TestEnvironment env("autosaver_test");
             NullLogger logger;
 
@@ -117,7 +117,7 @@ namespace TrenchBroom {
 
         }
 
-        TEST_F(MapDocumentTest, autosaverSavesAfterIdleInterval) {
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAfterIdleInterval") {
             IO::TestEnvironment env("autosaver_test");
             NullLogger logger;
 
@@ -139,7 +139,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(env.directoryExists(IO::Path("autosave")));
         }
 
-        TEST_F(MapDocumentTest, autosaverSavesAgainAfterSaveInterval) {
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAgainAfterSaveInterval") {
             IO::TestEnvironment env("autosaver_test");
             NullLogger logger;
 
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(env.fileExists(IO::Path("autosave/test.2.map")));
         }
 
-        TEST_F(MapDocumentTest, autosaverSavesWhenCrashFilesPresent) {
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesWhenCrashFilesPresent") {
             // https://github.com/kduske/TrenchBroom/issues/2544
 
             IO::TestEnvironment env("autosaver_test");

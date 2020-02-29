@@ -66,7 +66,7 @@ namespace TrenchBroom {
             }
         };
         
-        TEST_F(CompilationTaskRunnerTest, runMissingTool) {
+        TEST_CASE_METHOD(CompilationTaskRunnerTest, "CompilationTaskRunnerTest.runMissingTool") {
             EL::NullVariableStore variables;
             QTextEdit output;
             TextOutputAdapter outputAdapter(&output);

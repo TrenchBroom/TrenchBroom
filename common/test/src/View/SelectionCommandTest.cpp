@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace View {
         class SelectionCommandTest : public MapDocumentTest {};
 
-        TEST_F(SelectionCommandTest, faceSelectionUndoAfterTranslationUndo) {
+        TEST_CASE_METHOD(SelectionCommandTest, "SelectionCommandTest.faceSelectionUndoAfterTranslationUndo") {
             Model::Brush* brush = createBrush();
             ASSERT_EQ(vm::vec3::zero(), brush->logicalBounds().center());
 

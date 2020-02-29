@@ -37,7 +37,7 @@ namespace TrenchBroom {
     namespace View {
         class SnapshotTest : public MapDocumentTest {};
 
-        TEST_F(SnapshotTest, setTexturesAfterRestore) {
+        TEST_CASE_METHOD(SnapshotTest, "SnapshotTest.setTexturesAfterRestore") {
             document->setEnabledTextureCollections(std::vector<IO::Path>{ IO::Path("fixture/test/IO/Wad/cr8_czg.wad") });
 
             Model::Brush* brush = createBrush("coffin1");
