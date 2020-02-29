@@ -89,7 +89,7 @@ namespace TrenchBroom {
             }
         };
 
-        TEST_F(TagManagementTest, tagRegistration) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRegistration") {
             ASSERT_TRUE(document->isRegisteredSmartTag("texture"));
             ASSERT_TRUE(document->isRegisteredSmartTag("surfaceparm"));
             ASSERT_TRUE(document->isRegisteredSmartTag("contentflags"));
@@ -100,7 +100,7 @@ namespace TrenchBroom {
         }
     
         // https://github.com/kduske/TrenchBroom/issues/2905
-        TEST_F(TagManagementTest, duplicateTag) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.duplicateTag") {
             game->setSmartTags({
                 Model::SmartTag("texture", {}, std::make_unique<Model::TextureNameTagMatcher>("some_texture")),
                 Model::SmartTag("texture", {}, std::make_unique<Model::SurfaceParmTagMatcher>("some_other_texture")),
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             ASSERT_THROW(document->registerSmartTags(), std::logic_error);
         }
 
-        TEST_F(TagManagementTest, matchTextureNameTag) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchTextureNameTag") {
             auto matchingBrush = std::unique_ptr<Model::Brush>(createBrush("some_texture"));
             auto nonMatchingBrush = std::unique_ptr<Model::Brush>(createBrush("asdf"));
 
@@ -121,7 +121,7 @@ namespace TrenchBroom {
             }
         }
 
-        TEST_F(TagManagementTest, enableTextureNameTag) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableTextureNameTag") {
             auto* nonMatchingBrush = createBrush("asdf");
             document->addNode(nonMatchingBrush, document->currentParent());
 
@@ -139,12 +139,12 @@ namespace TrenchBroom {
             ASSERT_TRUE(tag.matches(*face));
         }
 
-        TEST_F(TagManagementTest, disableTextureNameTag) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableTextureNameTag") {
             const auto& tag = document->smartTag("texture");
             ASSERT_FALSE(tag.canDisable());
         }
 
-        TEST_F(TagManagementTest, matchSurfaceParmTag) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchSurfaceParmTag") {
             auto texture = std::make_unique<Assets::Texture>("texturename", 16, 16);
             texture->setSurfaceParms({"some_parm"});
 
@@ -164,17 +164,17 @@ namespace TrenchBroom {
             }
         }
 
-        TEST_F(TagManagementTest, enableSurfaceParmTag) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableSurfaceParmTag") {
             const auto& tag = document->smartTag("surfaceparm");
             ASSERT_FALSE(tag.canEnable());
         }
 
-        TEST_F(TagManagementTest, disableSurfaceParmTag) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableSurfaceParmTag") {
             const auto& tag = document->smartTag("surfaceparm");
             ASSERT_FALSE(tag.canDisable());
         }
 
-        TEST_F(TagManagementTest, matchContentFlagsTag) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchContentFlagsTag") {
             auto matchingBrush = std::unique_ptr<Model::Brush>(createBrush("asdf"));
             auto nonMatchingBrush = std::unique_ptr<Model::Brush>(createBrush("asdf"));
 
@@ -194,7 +194,7 @@ namespace TrenchBroom {
             }
         }
 
-        TEST_F(TagManagementTest, enableContentFlagsTag) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableContentFlagsTag") {
             auto* nonMatchingBrush = createBrush("asdf");
             document->addNode(nonMatchingBrush, document->currentParent());
 
@@ -212,7 +212,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(tag.matches(*face));
         }
 
-        TEST_F(TagManagementTest, disableContentFlagsTag) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableContentFlagsTag") {
             auto* matchingBrush = createBrush("asdf");
             for (auto* face : matchingBrush->faces()) {
                 face->setSurfaceContents(1);
@@ -234,7 +234,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(tag.matches(*face));
         }
 
-        TEST_F(TagManagementTest, matchSurfaceFlagsTag) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchSurfaceFlagsTag") {
             auto matchingBrush = std::unique_ptr<Model::Brush>(createBrush("asdf"));
             auto nonMatchingBrush = std::unique_ptr<Model::Brush>(createBrush("asdf"));
 
@@ -253,7 +253,7 @@ namespace TrenchBroom {
                 ASSERT_FALSE(tag.matches(*face));
             }
         }
-        TEST_F(TagManagementTest, enableSurfaceFlagsTag) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableSurfaceFlagsTag") {
             auto* nonMatchingBrush = createBrush("asdf");
             document->addNode(nonMatchingBrush, document->currentParent());
 
@@ -271,7 +271,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(tag.matches(*face));
         }
 
-        TEST_F(TagManagementTest, disableSurfaceFlagsTag) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableSurfaceFlagsTag") {
             auto* matchingBrush = createBrush("asdf");
             for (auto* face : matchingBrush->faces()) {
                 face->setSurfaceFlags(1);
@@ -293,7 +293,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(tag.matches(*face));
         }
 
-        TEST_F(TagManagementTest, matchEntityClassnameTag) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchEntityClassnameTag") {
             auto* matchingBrush = createBrush("asdf");
             auto* nonMatchingBrush = createBrush("asdf");
 
@@ -310,7 +310,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(tag.matches(*nonMatchingBrush));
         }
 
-        TEST_F(TagManagementTest, enableEntityClassnameTag) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableEntityClassnameTag") {
             auto* brush = createBrush("asdf");
             document->addNode(brush, document->currentParent());
 
@@ -326,7 +326,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(tag.matches(*brush));
         }
 
-        TEST_F(TagManagementTest, enableEntityClassnameTagRetainsAttributes) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableEntityClassnameTagRetainsAttributes") {
             auto* brush = createBrush("asdf");
 
             auto* oldEntity = new Model::Entity();
@@ -351,7 +351,7 @@ namespace TrenchBroom {
             ASSERT_EQ("some_value", newEntity->attribute("some_attr", ""));
         }
 
-        TEST_F(TagManagementTest, disableEntityClassnameTag) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableEntityClassnameTag") {
             auto* brush = createBrush("asdf");
 
             auto* oldEntity = new Model::Entity();
@@ -372,7 +372,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(tag.matches(*brush));
         }
 
-        TEST_F(TagManagementTest, tagInitializeBrushTags) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagInitializeBrushTags") {
             auto* entity = new Model::Entity();
             entity->addOrUpdateAttribute("classname", "brush_entity");
             document->addNode(entity, document->currentParent());
@@ -384,7 +384,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasTag(tag));
         }
 
-        TEST_F(TagManagementTest, tagRemoveBrushTags) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRemoveBrushTags") {
             auto* entity = new Model::Entity();
             entity->addOrUpdateAttribute("classname", "brush_entity");
             document->addNode(entity, document->currentParent());
@@ -398,7 +398,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush->hasTag(tag));
         }
 
-        TEST_F(TagManagementTest, tagUpdateBrushTags) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushTags") {
             auto* brush = createBrush("some_texture");
             document->addNode(brush, document->currentParent());
 
@@ -413,7 +413,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasTag(tag));
         }
 
-        TEST_F(TagManagementTest, tagUpdateBrushTagsAfterReparenting) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushTagsAfterReparenting") {
             auto* lightEntity = new Model::Entity();
             lightEntity->addOrUpdateAttribute("classname", "brush_entity");
             document->addNode(lightEntity, document->currentParent());
@@ -432,7 +432,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasTag(tag));
         }
 
-        TEST_F(TagManagementTest, tagUpdateBrushTagsAfterChangingClassname) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushTagsAfterChangingClassname") {
             auto* lightEntity = new Model::Entity();
             lightEntity->addOrUpdateAttribute("classname", "asdf");
             document->addNode(lightEntity, document->currentParent());
@@ -450,7 +450,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasTag(tag));
         }
 
-        TEST_F(TagManagementTest, tagInitializeBrushFaceTags) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagInitializeBrushFaceTags") {
             auto* brushWithTags = createBrush("some_texture");
             document->addNode(brushWithTags, document->currentParent());
 
@@ -467,7 +467,7 @@ namespace TrenchBroom {
             }
         }
 
-        TEST_F(TagManagementTest, tagRemoveBrushFaceTags) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRemoveBrushFaceTags") {
             auto* brushWithTags = createBrush("some_texture");
             document->addNode(brushWithTags, document->currentParent());
             document->removeNode(brushWithTags);
@@ -478,7 +478,7 @@ namespace TrenchBroom {
             }
         }
 
-        TEST_F(TagManagementTest, tagUpdateBrushFaceTags) {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushFaceTags") {
             auto* brush = createBrush("asdf");
             document->addNode(brush, document->currentParent());
 

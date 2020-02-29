@@ -50,7 +50,7 @@ namespace TrenchBroom {
         }
 
         // https://github.com/kduske/TrenchBroom/issues/2602
-        TEST_F(ClipToolControllerTest, testTwoPointsCreateClipPlane) {
+        TEST_CASE_METHOD(ClipToolControllerTest, "ClipToolControllerTest.testTwoPointsCreateClipPlane") {
             const auto data = R"(
 // entity 0
 {

@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace View {
         class ReparentNodesTest : public MapDocumentTest {};
 
-        TEST_F(ReparentNodesTest, reparentLayerToLayer) {
+        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentLayerToLayer") {
             Model::Layer* layer1 = new Model::Layer("Layer 1");
             document->addNode(layer1, document->world());
 
@@ -41,7 +41,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(document->reparentNodes(layer2, { layer1 }));
         }
 
-        TEST_F(ReparentNodesTest, reparentBetweenLayers) {
+        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentBetweenLayers") {
             Model::Layer* oldParent = new Model::Layer("Layer 1");
             document->addNode(oldParent, document->world());
 
@@ -59,14 +59,14 @@ namespace TrenchBroom {
             ASSERT_EQ(oldParent, entity->parent());
         }
 
-        TEST_F(ReparentNodesTest, reparentGroupToItself) {
+        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentGroupToItself") {
             Model::Group* group = new Model::Group("Group");
             document->addNode(group, document->currentParent());
 
             ASSERT_FALSE(document->reparentNodes(group, { group }));
         }
 
-        TEST_F(ReparentNodesTest, reparentGroupToChild) {
+        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentGroupToChild") {
             Model::Group* outer = new Model::Group("Outer");
             document->addNode(outer, document->currentParent());
 
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(document->reparentNodes(inner, { outer }));
         }
 
-        TEST_F(ReparentNodesTest, removeEmptyGroup) {
+        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.removeEmptyGroup") {
             Model::Group* group = new Model::Group("Group");
             document->addNode(group, document->currentParent());
 
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             ASSERT_EQ(group, entity->parent());
         }
 
-        TEST_F(ReparentNodesTest, recursivelyRemoveEmptyGroups) {
+        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.recursivelyRemoveEmptyGroups") {
             Model::Group* outer = new Model::Group("Outer");
             document->addNode(outer, document->currentParent());
 
@@ -113,7 +113,7 @@ namespace TrenchBroom {
             ASSERT_EQ(inner, entity->parent());
         }
 
-        TEST_F(ReparentNodesTest, removeEmptyEntity) {
+        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.removeEmptyEntity") {
             Model::Entity* entity = new Model::Entity();
             document->addNode(entity, document->currentParent());
 
@@ -129,7 +129,7 @@ namespace TrenchBroom {
             ASSERT_EQ(entity, brush->parent());
         }
 
-        TEST_F(ReparentNodesTest, removeEmptyGroupAndEntity) {
+        TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.removeEmptyGroupAndEntity") {
             Model::Group* group = new Model::Group("Group");
             document->addNode(group, document->currentParent());
 

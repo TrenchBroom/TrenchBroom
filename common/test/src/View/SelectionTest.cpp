@@ -32,7 +32,7 @@ namespace TrenchBroom {
     namespace View {
         class SelectionTest : public MapDocumentTest {};
 
-        TEST_F(SelectionTest, selectTouchingWithGroup) {
+        TEST_CASE_METHOD(SelectionTest, "SelectionTest.selectTouchingWithGroup") {
             document->selectAllNodes();
             document->deleteObjects();
             assert(document->selectedNodes().nodeCount() == 0);
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, document->selectedNodes().nodeCount());
         }
 
-        TEST_F(SelectionTest, selectInsideWithGroup) {
+        TEST_CASE_METHOD(SelectionTest, "SelectionTest.selectInsideWithGroup") {
             document->selectAllNodes();
             document->deleteObjects();
             assert(document->selectedNodes().nodeCount() == 0);

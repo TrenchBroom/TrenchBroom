@@ -30,7 +30,7 @@ namespace TrenchBroom {
         class SnapBrushVerticesTest : public MapDocumentTest {};
 
         // see https://github.com/kduske/TrenchBroom/issues/2244
-        TEST_F(SnapBrushVerticesTest, snapVerticesCrash_2244) {
+        TEST_CASE_METHOD(SnapBrushVerticesTest, "SnapBrushVerticesTest.snapVerticesCrash_2244") {
             document->selectAllNodes();
             document->deleteObjects();
 

@@ -38,7 +38,7 @@ namespace TrenchBroom {
             MapDocumentTest(Model::MapFormat::Valve) {}
         };
 
-        TEST_F(ChangeBrushFaceAttributesTest, resetAttributesOfValve220Face) {
+        TEST_CASE_METHOD(ChangeBrushFaceAttributesTest, "ChangeBrushFaceAttributesTest.resetAttributesOfValve220Face") {
             Model::Brush* brush = createBrush();
             document->addNode(brush, document->currentParent());
 
