@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_TestUtils_h
 #define TrenchBroom_TestUtils_h
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
 
 #include <kdl/vector_set.h>
 

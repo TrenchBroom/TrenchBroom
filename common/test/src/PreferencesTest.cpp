@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
 
 #include <QTextStream>
 #include <QString>

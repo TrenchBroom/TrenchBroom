@@ -19,7 +19,7 @@
 
 #include <stdio.h>
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
 
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
