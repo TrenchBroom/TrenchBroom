@@ -219,7 +219,7 @@ namespace TrenchBroom {
 
             std::vector<Model::BrushFace*> result;
             if (hit.type() == ResizeHit2D) {
-                const std::vector<Model::BrushFace*>& faces = hit.target<std::vector<Model::BrushFace*>>();
+                const std::vector<Model::BrushFace*>& faces = hit.target<const std::vector<Model::BrushFace*>&>();
                 assert(!faces.empty());
                 kdl::vec_append(result, faces, collectDragFaces(faces[0]));
                 if (faces.size() > 1) {
