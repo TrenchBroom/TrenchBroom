@@ -26,10 +26,44 @@
 #include "View/MoveToolController.h"
 #include "View/Tool.h"
 
-#if 0 // FIXME: gmock
+#include <kdl/vector_utils.h>
+
+#include <variant>
+
 namespace TrenchBroom {
     namespace View {
         class MockMoveToolController : public MoveToolController<NoPickingPolicy, NoMousePolicy> {
+        public:
+            enum class CheckMoveArgs { No,Yes };
+            struct DoStartMove { MoveInfo moveInfoToReturn; };
+            struct DoMove { CheckMoveArgs checkArgs; vm::vec3 expectedLastHandlePosition; vm::vec3 nextHandlePosition; DragResult dragResult; };
+            struct DoEndMove {};
+            struct DoCancelMove {};
+
+            using ExpectedCall = std::variant<
+                DoStartMove,
+                DoMove,
+                DoEndMove,
+                DoCancelMove>;
+        private:
+            mutable std::vector<ExpectedCall> m_expectedCalls;
+        private:
+            template <class T>
+            T popCall() const {
+                ASSERT_FALSE(m_expectedCalls.empty());
+                const ExpectedCall variant = kdl::vec_pop_front(m_expectedCalls);
+                const T call = std::get<T>(variant);
+                return call;
+            }
+        public:
+            /**
+             * Sets an expectation that the given member function will be called.
+             *
+             * The expectations set this way are all mandatory and must be called in the order they are set.
+             */
+            void expectCall(ExpectedCall call) {
+                m_expectedCalls.push_back(std::move(call));
+            }
         private:
             class MyTool : public Tool {
             public:
@@ -41,30 +75,37 @@ namespace TrenchBroom {
             MockMoveToolController(const Grid& grid) :
             MoveToolController(grid),
             m_tool() {}
+
+            ~MockMoveToolController() {
+                ASSERT_TRUE(m_expectedCalls.empty());
+            }
         protected:
-            MoveInfo doStartMove(const InputState& inputState) override {
-                return mockDoStartMove(inputState);
+            MoveInfo doStartMove(const InputState&) override {
+                return popCall<DoStartMove>().moveInfoToReturn;
             }
 
-            DragResult doMove(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
-                return mockDoMove(inputState, lastHandlePosition, nextHandlePosition);
+            DragResult doMove(const InputState&, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
+                const DoMove expectedCall = popCall<DoMove>();
+
+                // Only validate the arguments if requested when the expectation was set
+                if (expectedCall.checkArgs == CheckMoveArgs::Yes) {
+                    ASSERT_EQ(expectedCall.expectedLastHandlePosition, lastHandlePosition);
+                    ASSERT_EQ(expectedCall.nextHandlePosition, nextHandlePosition);
+                }
+
+                return expectedCall.dragResult;
             }
 
-            void doEndMove(const InputState& inputState) override {
-                mockDoEndMove(inputState);
+            void doEndMove(const InputState&) override {
+                popCall<DoEndMove>();
             }
 
             void doCancelMove() override {
-                mockDoCancelMove();
+                popCall<DoCancelMove>();
             }
             Tool* doGetTool() override { return &m_tool; }
             const Tool* doGetTool() const override { return &m_tool; }
             bool doCancel() override { return false; }
-        public:
-            MOCK_METHOD1(mockDoStartMove, MoveInfo(const InputState&));
-            MOCK_METHOD3(mockDoMove, DragResult(const InputState&, const vm::vec3&, const vm::vec3&));
-            MOCK_METHOD1(mockDoEndMove, void(const InputState&));
-            MOCK_METHOD0(mockDoCancelMove, void());
         public:
             using MoveToolController::MoveInfo;
             using RestrictedDragPolicy::DragResult;
@@ -72,10 +113,6 @@ namespace TrenchBroom {
         };
 
         TEST_CASE("MoveToolControllerTest.testMoveWithSnapUp", "[MoveToolControllerTest]") {
-            using namespace ::testing;
-            using ::testing::InSequence;
-            const InSequence inSequence;
-
             const Renderer::Camera::Viewport viewport(-200, -200, 400, 400);
             Renderer::PerspectiveCamera camera(90.0f, 0.1f, 500.0f, viewport, vm::vec3f(0.0f, 0.0f, 100.0f), vm::vec3f::neg_z(), vm::vec3f::pos_y());
 
@@ -88,27 +125,24 @@ namespace TrenchBroom {
             const vm::vec3 origin = vm::vec3(camera.position());
             inputState.setPickRequest(PickRequest(vm::ray3(origin, vm::vec3::neg_z()), camera));
 
-            EXPECT_CALL(controller, mockDoStartMove(Ref(inputState))).Times(1).WillOnce(Return(MockMoveToolController::MoveInfo(vm::vec3::zero())));
+            controller.expectCall(MockMoveToolController::DoStartMove{MockMoveToolController::MoveInfo(vm::vec3::zero())});
             controller.startMouseDrag(inputState);
 
             inputState.mouseMove(9, 0, 9, 0);
             inputState.setPickRequest(PickRequest(vm::ray3(origin, normalize(vm::vec3(9.0, 0.0, 0.0) - origin)), camera));
 
-            EXPECT_CALL(controller, mockDoMove(Ref(inputState), vm::vec3(0.0, 0.0, 0.0), vm::vec3(16.0, 0.0, 0.0))).Times(1).WillOnce(Return(MockMoveToolController::DR_Continue));
+            controller.expectCall(MockMoveToolController::DoMove{MockMoveToolController::CheckMoveArgs::Yes,
+                                                                 vm::vec3(0.0, 0.0, 0.0), vm::vec3(16.0, 0.0, 0.0), MockMoveToolController::DR_Continue});
             controller.mouseDrag(inputState);
 
             inputState.mouseUp(MouseButtons::MBLeft);
-            EXPECT_CALL(controller, mockDoEndMove(Ref(inputState)));
+            controller.expectCall(MockMoveToolController::DoEndMove{});
             controller.endMouseDrag(inputState);
         }
 
         TEST_CASE("MoveToolControllerTest.testMoveAfterZeroVerticalMove", "[MoveToolControllerTest]") {
             // see https://github.com/kduske/TrenchBroom/issues/1529
 
-            using namespace ::testing;
-            using ::testing::InSequence;
-            const InSequence inSequence;
-
             const Renderer::Camera::Viewport viewport(-200, -200, 400, 400);
             Renderer::PerspectiveCamera camera(90.0f, 0.1f, 500.0f, viewport, vm::vec3f(0.0f, 0.0f, 100.0f), vm::vec3f::neg_z(), vm::vec3f::pos_y());
 
@@ -121,11 +155,11 @@ namespace TrenchBroom {
             const vm::vec3 origin = vm::vec3(camera.position());
             inputState.setPickRequest(PickRequest(vm::ray3(origin, vm::vec3::neg_z()), camera));
 
-            EXPECT_CALL(controller, mockDoStartMove(Ref(inputState))).Times(1).WillOnce(Return(MockMoveToolController::MoveInfo(vm::vec3::zero())));
+            controller.expectCall(MockMoveToolController::DoStartMove{MockMoveToolController::MoveInfo(vm::vec3::zero())});
             controller.startMouseDrag(inputState);
 
             // nothing will happen due to grid snapping
-            EXPECT_CALL(controller, mockDoMove(_,_,_)).Times(0);
+            // NOTE: if doMove were called it would automatically cause the test to fail
             inputState.mouseMove(1, 0, 1, 0);
             inputState.setPickRequest(PickRequest(vm::ray3(origin, normalize(vm::vec3(1.0, 0.0, 0.0) - origin)), camera));
             controller.mouseDrag(inputState);
@@ -144,17 +178,13 @@ namespace TrenchBroom {
             controller.mouseDrag(inputState);
 
             inputState.mouseUp(MouseButtons::MBLeft);
-            EXPECT_CALL(controller, mockDoEndMove(Ref(inputState)));
+            controller.expectCall(MockMoveToolController::DoEndMove{});
             controller.endMouseDrag(inputState);
         }
 
 
         TEST_CASE("MoveToolControllerTest.testDontJumpAfterVerticalMoveWithOffset", "[MoveToolControllerTest]") {
             // see https://github.com/kduske/TrenchBroom/pull/1635#issuecomment-271460182
-
-            using namespace ::testing;
-            using ::testing::InSequence;
-            const InSequence inSequence;
 
             const Renderer::Camera::Viewport viewport(0, 0, 400, 400);
             Renderer::PerspectiveCamera camera(90.0f, 0.1f, 500.0f, viewport, vm::vec3f(0.0f, 0.0f, 100.0f),
@@ -173,7 +203,7 @@ namespace TrenchBroom {
             const FloatType initialHitDistance = vm::intersect_ray_plane(initialPickRay, vm::plane3(vm::vec3::zero(), vm::vec3::pos_z()));
             const vm::vec3 initialHitPoint = vm::point_at_distance(initialPickRay, initialHitDistance);
 
-            EXPECT_CALL(controller, mockDoStartMove(Ref(inputState))).Times(1).WillOnce(Return(MockMoveToolController::MoveInfo(initialHitPoint)));
+            controller.expectCall(MockMoveToolController::DoStartMove{MockMoveToolController::MoveInfo(initialHitPoint)});
             controller.startMouseDrag(inputState);
 
             // switch to vertical move mode
@@ -181,7 +211,8 @@ namespace TrenchBroom {
             controller.modifierKeyChange(inputState);
 
             // We don't really care about the actual values
-            EXPECT_CALL(controller, mockDoMove(Ref(inputState), _, _)).Times(1).WillOnce(Return(MockMoveToolController::DR_Continue));
+            controller.expectCall(MockMoveToolController::DoMove{MockMoveToolController::CheckMoveArgs::No,
+                                                                 vm::vec3(), vm::vec3(), MockMoveToolController::DR_Continue});
 
             // drag vertically, but with a bit of an offset to the side
             inputState.mouseMove(20, 50, 20, 50);
@@ -189,14 +220,13 @@ namespace TrenchBroom {
             controller.mouseDrag(inputState);
 
             // switch to horizontal mode, must not trigger a move, so no expectation set
-            EXPECT_CALL(controller, mockDoMove(_,_,_)).Times(0);
+            // NOTE: if doMove were called it would automatically cause the test to fail
             inputState.setModifierKeys(ModifierKeys::MKNone);
             controller.modifierKeyChange(inputState);
 
             inputState.mouseUp(MouseButtons::MBLeft);
-            EXPECT_CALL(controller, mockDoEndMove(Ref(inputState)));
+            controller.expectCall(MockMoveToolController::DoEndMove{});
             controller.endMouseDrag(inputState);
         }
     }
 }
-#endif
