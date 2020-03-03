@@ -211,11 +211,11 @@ namespace TrenchBroom {
 
                     const Model::Hit& first = pickResult.query().type(m_hitType).occluded().first();
                     if (first.isMatch()) {
-                        const H& firstHandle = first.target<H>();
+                        const H& firstHandle = first.target<const H&>();
 
                         const std::vector<Model::Hit> matches = pickResult.query().type(m_hitType).all();
                         for (const Model::Hit& match : matches) {
-                            const H& handle = match.target<H>();
+                            const H& handle = match.target<const H&>();
 
                             if (equalHandles(handle, firstHandle)) {
                                 if (allIncidentBrushesVisited(handle, visitedBrushes)) {
