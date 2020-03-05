@@ -64,6 +64,7 @@ namespace TrenchBroom {
             Notifier<Tool*> toolActivatedNotifier;
             Notifier<Tool*> toolDeactivatedNotifier;
             Notifier<Tool*> refreshViewsNotifier;
+            Notifier<Tool*> toolHandleSelectionChangedNotifier;
         public:
             ToolBox();
         protected:

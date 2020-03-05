@@ -37,6 +37,7 @@ namespace TrenchBroom {
             Notifier<Tool*> toolActivatedNotifier;
             Notifier<Tool*> toolDeactivatedNotifier;
             Notifier<Tool*> refreshViewsNotifier;
+            Notifier<Tool*> toolHandleSelectionChangedNotifier;
         protected:
             explicit Tool(bool initiallyActive);
         public:
@@ -47,6 +48,7 @@ namespace TrenchBroom {
             bool deactivate();
 
             void refreshViews();
+            void notifyToolHandleSelectionChanged();
 
             void createPage(QStackedLayout* book);
             void showPage();
