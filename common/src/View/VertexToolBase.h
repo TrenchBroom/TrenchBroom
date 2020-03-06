@@ -175,6 +175,7 @@ namespace TrenchBroom {
                     }
                 }
                 refreshViews();
+                notifyToolHandleSelectionChanged();
                 return true;
             }
 
@@ -189,6 +190,7 @@ namespace TrenchBroom {
                     handleManager().deselectAll();
                 }
                 handleManager().toggle(std::begin(selectedHandles), std::end(selectedHandles));
+                notifyToolHandleSelectionChanged();
             }
 
             bool selected(const Model::Hit& hit) const {
@@ -199,6 +201,7 @@ namespace TrenchBroom {
                 if (handleManager().anySelected()) {
                     handleManager().deselectAll();
                     refreshViews();
+                    notifyToolHandleSelectionChanged();
                     return true;
                 }
                 return false;

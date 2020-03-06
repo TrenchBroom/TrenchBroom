@@ -61,6 +61,10 @@ namespace TrenchBroom {
             refreshViewsNotifier(this);
         }
 
+        void Tool::notifyToolHandleSelectionChanged() {
+            toolHandleSelectionChangedNotifier(this);
+        }
+
         void Tool::createPage(QStackedLayout* book) {
             assert(m_book == nullptr);
 

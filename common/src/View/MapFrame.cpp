@@ -560,6 +560,7 @@ namespace TrenchBroom {
 
             m_mapView->mapViewToolBox()->toolActivatedNotifier.addObserver(this, &MapFrame::toolActivated);
             m_mapView->mapViewToolBox()->toolDeactivatedNotifier.addObserver(this, &MapFrame::toolDeactivated);
+            m_mapView->mapViewToolBox()->toolHandleSelectionChangedNotifier.addObserver(this, &MapFrame::toolHandleSelectionChanged);
         }
 
         void MapFrame::unbindObservers() {
@@ -583,6 +584,7 @@ namespace TrenchBroom {
 
             m_mapView->mapViewToolBox()->toolActivatedNotifier.removeObserver(this, &MapFrame::toolActivated);
             m_mapView->mapViewToolBox()->toolDeactivatedNotifier.removeObserver(this, &MapFrame::toolDeactivated);
+            m_mapView->mapViewToolBox()->toolHandleSelectionChangedNotifier.removeObserver(this, &MapFrame::toolHandleSelectionChanged);
         }
 
         void MapFrame::documentWasCleared(View::MapDocument*) {
@@ -637,6 +639,10 @@ namespace TrenchBroom {
         }
 
         void MapFrame::toolDeactivated(Tool*) {
+            updateActionState();
+        }
+
+        void MapFrame::toolHandleSelectionChanged(Tool*) {
             updateActionState();
         }
 

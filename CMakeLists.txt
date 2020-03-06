@@ -23,6 +23,9 @@ endif()
 # Enable the source_group command for creating IDE folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+# Set TrenchBroom item as default single startup project (NOTE: CMake 3.6 and newer)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT TrenchBroom)
+
 # Using C and CXX because GLEW is C
 project(TrenchBroom C CXX)
 
@@ -54,6 +57,17 @@ if(COMPILER_IS_MSVC)
 
     # This might work in CMake 3.13 and avoid a global setting, but we are on 3.12 for now
     # target_link_options(common INTERFACE "/STACK:${TB_STACK_SIZE}")
+endif()
+
+# Enable ASAN if possible and requested
+if(TB_ENABLE_ASAN)
+    message(STATUS "Enabling ASan")
+    if(COMPILER_IS_CLANG)
+        add_compile_options(-fsanitize=address)
+        add_link_options(-fsanitize=address)
+    else()
+        message(WARNING "TB isn't set up to enable ASan for compiler ${CMAKE_CXX_COMPILER_ID}")
+    endif()
 endif()
 
 include(cmake/Utils.cmake)

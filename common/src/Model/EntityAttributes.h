@@ -63,6 +63,7 @@ namespace TrenchBroom {
             extern const std::string GroupClassname;
             extern const std::string GroupTypeLayer;
             extern const std::string GroupTypeGroup;
+            extern const std::string DefaultValue;
         }
 
         bool isNumberedAttribute(std::string_view prefix, std::string_view name);
@@ -99,7 +100,7 @@ namespace TrenchBroom {
         bool isLayer(const std::string& classname, const std::vector<EntityAttribute>& attributes);
         bool isGroup(const std::string& classname, const std::vector<EntityAttribute>& attributes);
         bool isWorldspawn(const std::string& classname, const std::vector<EntityAttribute>& attributes);
-        const std::string& findAttribute(const std::vector<EntityAttribute>& attributes, const std::string& name, const std::string& defaultValue = "");
+        const std::string& findAttribute(const std::vector<EntityAttribute>& attributes, const std::string& name, const std::string& defaultValue = AttributeValues::DefaultValue);
 
         class EntityAttributes {
         private:

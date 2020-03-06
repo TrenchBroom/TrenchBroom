@@ -150,6 +150,7 @@ namespace TrenchBroom {
             void gridDidChange();
             void toolActivated(Tool* tool);
             void toolDeactivated(Tool* tool);
+            void toolHandleSelectionChanged(Tool* tool);
             void selectionDidChange(const Selection& selection);
             void currentLayerDidChange(const TrenchBroom::Model::Layer* layer);
             void groupWasOpened(Model::Group* group);

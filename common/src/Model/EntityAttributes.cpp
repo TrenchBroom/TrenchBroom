@@ -63,6 +63,7 @@ namespace TrenchBroom {
             const std::string GroupClassname      = "func_group";
             const std::string GroupTypeLayer      = "_tb_layer";
             const std::string GroupTypeGroup      = "_tb_group";
+            const std::string DefaultValue        = "";
         }
 
         bool isNumberedAttribute(const std::string_view prefix, const std::string_view name) {
