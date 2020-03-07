@@ -164,7 +164,7 @@ namespace TrenchBroom {
                     document->unsetMapSoftBounds();
                 }
             });
-            connect(m_softBoundsFromMap, &QAbstractButton::clicked, this, [this](const bool checked) {
+            connect(m_softBoundsFromMap, &QAbstractButton::clicked, this, [this](const bool /*checked*/) {
                 // This signal happens in response to user input only
                 auto document = kdl::mem_lock(m_document);
                 // if (checked) {
