@@ -35,6 +35,7 @@
 
 #include <utility>
 
+#include <QDebug>
 #include <QFormLayout>
 #include <QVBoxLayout>
 #include <QCheckBox>
