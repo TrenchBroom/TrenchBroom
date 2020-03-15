@@ -13,6 +13,12 @@ repository by running
 git clone --recursive https://github.com/kduske/TrenchBroom.git
 ```
 
+If you have an existing git clone, you might need to update submodules using
+
+```bash
+git submodule update --init --recursive
+```
+
 ---
 
 ## Windows
