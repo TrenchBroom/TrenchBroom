@@ -32,6 +32,11 @@ vecmath-test.exe
 IF ERRORLEVEL 1 GOTO ERROR
 cd "%BUILD_DIR%"
 
+cd lib\kdl\test\Release
+kdl-test.exe
+IF ERRORLEVEL 1 GOTO ERROR
+cd "%BUILD_DIR%"
+
 cd common\test\Release
 common-test.exe
 IF ERRORLEVEL 1 GOTO ERROR
