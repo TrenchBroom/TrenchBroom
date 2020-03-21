@@ -65,7 +65,7 @@ cd <path/to/TrenchBroom>/build
 Then, execute this command to configure the project:
 
 ```bash
-cmake .. -T v141 -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017"
+cmake .. -G "Visual Studio 15 2017" -T v141 -A Win32 -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017"
 ```
 
 > **Note**: Make sure to specify the correct Qt as `CMAKE_PREFIX_PATH` value.
