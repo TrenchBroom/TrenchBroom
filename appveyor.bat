@@ -11,7 +11,7 @@ cppcheck --version
 mkdir cmakebuild
 cd cmakebuild
 
-cmake .. -G"Visual Studio 15 2017" -DCMAKE_PREFIX_PATH="%QT5_INSTALL_DIR%" -T v141 -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="/WX" -DTB_SUPPRESS_PCH=1
+cmake .. -G"Visual Studio 16 2019" -DCMAKE_PREFIX_PATH="%QT5_INSTALL_DIR%" -T v141 -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="/WX" -DTB_SUPPRESS_PCH=1
 
 REM  -DCMAKE_CXX_FLAGS=/WX
 
