@@ -94,7 +94,7 @@ namespace TrenchBroom {
                 }
             }
 
-            return std::make_unique<TextureFont>(std::move(texture), glyphs, metrics.lineHeight, firstChar, charCount);
+            return std::make_unique<TextureFont>(std::move(texture), glyphs, static_cast<int>(metrics.lineHeight), firstChar, charCount);
         }
 
         FreeTypeFontFactory::Metrics FreeTypeFontFactory::computeMetrics(FT_Face face, const unsigned char firstChar, const unsigned char charCount) const {
