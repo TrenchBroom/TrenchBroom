@@ -335,12 +335,12 @@ namespace kdl {
     }
 
     TEST(intrusive_circular_list_test, remove_single) {
-        list l;
-
         auto e1_deleted = false;
         auto e2_deleted = false;
         auto e3_deleted = false;
         auto e4_deleted = false;
+
+        list l;
 
         auto* e1 = new delete_tracking_element(e1_deleted);
         auto* e2 = new delete_tracking_element(e2_deleted);
@@ -386,12 +386,12 @@ namespace kdl {
     }
 
     TEST(intrusive_circular_list_test, remove_multiple) {
-        list l;
-
         auto e1_deleted = false;
         auto e2_deleted = false;
         auto e3_deleted = false;
         auto e4_deleted = false;
+
+        list l;
 
         auto* e1 = new delete_tracking_element(e1_deleted);
         auto* e2 = new delete_tracking_element(e2_deleted);
@@ -413,10 +413,10 @@ namespace kdl {
 
 
     TEST(intrusive_circular_list_test, remove_all) {
-        list l;
-
         auto e1_deleted = false;
         auto e2_deleted = false;
+
+        list l;
 
         auto* e1 = new delete_tracking_element(e1_deleted);
         auto* e2 = new delete_tracking_element(e2_deleted);
@@ -432,12 +432,12 @@ namespace kdl {
 
 
     TEST(intrusive_circular_list_test, release_single) {
-        list l;
-
         auto e1_deleted = false;
         auto e2_deleted = false;
         auto e3_deleted = false;
         auto e4_deleted = false;
+
+        list l;
 
         element* e1 = new delete_tracking_element(e1_deleted);
         element* e2 = new delete_tracking_element(e2_deleted);
@@ -487,12 +487,12 @@ namespace kdl {
     }
 
     TEST(intrusive_circular_list_test, release_multiple) {
-        list l;
-
         auto e1_deleted = false;
         auto e2_deleted = false;
         auto e3_deleted = false;
         auto e4_deleted = false;
+
+        list l;
 
         element* e1 = new delete_tracking_element(e1_deleted);
         element* e2 = new delete_tracking_element(e2_deleted);
@@ -514,10 +514,10 @@ namespace kdl {
     }
 
     TEST(intrusive_circular_list_test, release_all) {
-        list l;
-
         auto e1_deleted = false;
         auto e2_deleted = false;
+
+        list l;
 
         element* e1 = new delete_tracking_element(e1_deleted);
         element* e2 = new delete_tracking_element(e2_deleted);
@@ -982,6 +982,10 @@ namespace kdl {
     }
 
     TEST(intrusive_circular_list_test, splice_replace_first_item_with_one_item) {
+        auto t1_deleted = false;
+        auto t2_deleted = false;
+        auto t3_deleted = false;
+
         list from;
         list to;
 
@@ -992,10 +996,6 @@ namespace kdl {
         from.push_back(f1);
         from.push_back(f2);
         from.push_back(f3);
-
-        auto t1_deleted = false;
-        auto t2_deleted = false;
-        auto t3_deleted = false;
 
         auto* t1 = new delete_tracking_element(t1_deleted);
         auto* t2 = new delete_tracking_element(t2_deleted);
@@ -1015,6 +1015,10 @@ namespace kdl {
     }
 
     TEST(intrusive_circular_list_test, splice_replace_mid_item_with_one_item) {
+        auto t1_deleted = false;
+        auto t2_deleted = false;
+        auto t3_deleted = false;
+
         list from;
         list to;
 
@@ -1025,10 +1029,6 @@ namespace kdl {
         from.push_back(f1);
         from.push_back(f2);
         from.push_back(f3);
-
-        auto t1_deleted = false;
-        auto t2_deleted = false;
-        auto t3_deleted = false;
 
         auto* t1 = new delete_tracking_element(t1_deleted);
         auto* t2 = new delete_tracking_element(t2_deleted);
@@ -1048,6 +1048,10 @@ namespace kdl {
     }
 
     TEST(intrusive_circular_list_test, splice_replace_last_item_with_one_item) {
+        auto t1_deleted = false;
+        auto t2_deleted = false;
+        auto t3_deleted = false;
+
         list from;
         list to;
 
@@ -1058,10 +1062,6 @@ namespace kdl {
         from.push_back(f1);
         from.push_back(f2);
         from.push_back(f3);
-
-        auto t1_deleted = false;
-        auto t2_deleted = false;
-        auto t3_deleted = false;
 
         auto* t1 = new delete_tracking_element(t1_deleted);
         auto* t2 = new delete_tracking_element(t2_deleted);
@@ -1081,6 +1081,10 @@ namespace kdl {
     }
 
     TEST(intrusive_circular_list_test, splice_replace_first_item_with_two_items) {
+        auto t1_deleted = false;
+        auto t2_deleted = false;
+        auto t3_deleted = false;
+
         list from;
         list to;
 
@@ -1091,10 +1095,6 @@ namespace kdl {
         from.push_back(f1);
         from.push_back(f2);
         from.push_back(f3);
-
-        auto t1_deleted = false;
-        auto t2_deleted = false;
-        auto t3_deleted = false;
 
         auto* t1 = new delete_tracking_element(t1_deleted);
         auto* t2 = new delete_tracking_element(t2_deleted);
@@ -1114,6 +1114,10 @@ namespace kdl {
     }
 
     TEST(intrusive_circular_list_test, splice_replace_mid_item_with_two_items) {
+        auto t1_deleted = false;
+        auto t2_deleted = false;
+        auto t3_deleted = false;
+
         list from;
         list to;
 
@@ -1124,10 +1128,6 @@ namespace kdl {
         from.push_back(f1);
         from.push_back(f2);
         from.push_back(f3);
-
-        auto t1_deleted = false;
-        auto t2_deleted = false;
-        auto t3_deleted = false;
 
         auto* t1 = new delete_tracking_element(t1_deleted);
         auto* t2 = new delete_tracking_element(t2_deleted);
@@ -1147,6 +1147,10 @@ namespace kdl {
     }
 
     TEST(intrusive_circular_list_test, splice_replace_last_item_with_two_items) {
+        auto t1_deleted = false;
+        auto t2_deleted = false;
+        auto t3_deleted = false;
+
         list from;
         list to;
 
@@ -1157,10 +1161,6 @@ namespace kdl {
         from.push_back(f1);
         from.push_back(f2);
         from.push_back(f3);
-
-        auto t1_deleted = false;
-        auto t2_deleted = false;
-        auto t3_deleted = false;
 
         auto* t1 = new delete_tracking_element(t1_deleted);
         auto* t2 = new delete_tracking_element(t2_deleted);
@@ -1180,6 +1180,10 @@ namespace kdl {
     }
 
     TEST(intrusive_circular_list_test, splice_replace_mid_item_with_all_items) {
+        auto t1_deleted = false;
+        auto t2_deleted = false;
+        auto t3_deleted = false;
+
         list from;
         list to;
 
@@ -1190,10 +1194,6 @@ namespace kdl {
         from.push_back(f1);
         from.push_back(f2);
         from.push_back(f3);
-
-        auto t1_deleted = false;
-        auto t2_deleted = false;
-        auto t3_deleted = false;
 
         auto* t1 = new delete_tracking_element(t1_deleted);
         auto* t2 = new delete_tracking_element(t2_deleted);
@@ -1213,6 +1213,10 @@ namespace kdl {
     }
 
     TEST(intrusive_circular_list_test, splice_replace_first_two_items_with_two_items) {
+        auto t1_deleted = false;
+        auto t2_deleted = false;
+        auto t3_deleted = false;
+
         list from;
         list to;
 
@@ -1223,10 +1227,6 @@ namespace kdl {
         from.push_back(f1);
         from.push_back(f2);
         from.push_back(f3);
-
-        auto t1_deleted = false;
-        auto t2_deleted = false;
-        auto t3_deleted = false;
 
         auto* t1 = new delete_tracking_element(t1_deleted);
         auto* t2 = new delete_tracking_element(t2_deleted);
@@ -1246,6 +1246,10 @@ namespace kdl {
     }
 
     TEST(intrusive_circular_list_test, splice_replace_last_two_items_with_two_items) {
+        auto t1_deleted = false;
+        auto t2_deleted = false;
+        auto t3_deleted = false;
+
         list from;
         list to;
 
@@ -1256,10 +1260,6 @@ namespace kdl {
         from.push_back(f1);
         from.push_back(f2);
         from.push_back(f3);
-
-        auto t1_deleted = false;
-        auto t2_deleted = false;
-        auto t3_deleted = false;
 
         auto* t1 = new delete_tracking_element(t1_deleted);
         auto* t2 = new delete_tracking_element(t2_deleted);
@@ -1279,6 +1279,10 @@ namespace kdl {
     }
 
     TEST(intrusive_circular_list_test, splice_replace_last_and_first_items_with_two_items) {
+        auto t1_deleted = false;
+        auto t2_deleted = false;
+        auto t3_deleted = false;
+
         list from;
         list to;
 
@@ -1289,10 +1293,6 @@ namespace kdl {
         from.push_back(f1);
         from.push_back(f2);
         from.push_back(f3);
-
-        auto t1_deleted = false;
-        auto t2_deleted = false;
-        auto t3_deleted = false;
 
         auto* t1 = new delete_tracking_element(t1_deleted);
         auto* t2 = new delete_tracking_element(t2_deleted);
@@ -1312,6 +1312,10 @@ namespace kdl {
     }
 
     TEST(intrusive_circular_list_test, splice_replace_all_items_with_two_items) {
+        auto t1_deleted = false;
+        auto t2_deleted = false;
+        auto t3_deleted = false;
+
         list from;
         list to;
 
@@ -1322,10 +1326,6 @@ namespace kdl {
         from.push_back(f1);
         from.push_back(f2);
         from.push_back(f3);
-
-        auto t1_deleted = false;
-        auto t2_deleted = false;
-        auto t3_deleted = false;
 
         auto* t1 = new delete_tracking_element(t1_deleted);
         auto* t2 = new delete_tracking_element(t2_deleted);
@@ -1345,6 +1345,10 @@ namespace kdl {
     }
 
     TEST(intrusive_circular_list_test, splice_replace_all_items_with_one_item) {
+        auto t1_deleted = false;
+        auto t2_deleted = false;
+        auto t3_deleted = false;
+
         list from;
         list to;
 
@@ -1355,10 +1359,6 @@ namespace kdl {
         from.push_back(f1);
         from.push_back(f2);
         from.push_back(f3);
-
-        auto t1_deleted = false;
-        auto t2_deleted = false;
-        auto t3_deleted = false;
 
         auto* t1 = new delete_tracking_element(t1_deleted);
         auto* t2 = new delete_tracking_element(t2_deleted);
@@ -1378,6 +1378,10 @@ namespace kdl {
     }
 
     TEST(intrusive_circular_list_test, splice_replace_all_items_with_all_items) {
+        auto t1_deleted = false;
+        auto t2_deleted = false;
+        auto t3_deleted = false;
+
         list from;
         list to;
 
@@ -1388,10 +1392,6 @@ namespace kdl {
         from.push_back(f1);
         from.push_back(f2);
         from.push_back(f3);
-
-        auto t1_deleted = false;
-        auto t2_deleted = false;
-        auto t3_deleted = false;
 
         auto* t1 = new delete_tracking_element(t1_deleted);
         auto* t2 = new delete_tracking_element(t2_deleted);
@@ -1411,10 +1411,10 @@ namespace kdl {
     }
 
     TEST(intrusive_circular_list_test, release) {
-        list l;
-
         auto e1_deleted = false;
         auto e2_deleted = false;
+
+        list l;
 
         element* e1 = new delete_tracking_element(e1_deleted);
         element* e2 = new delete_tracking_element(e2_deleted);
@@ -1437,10 +1437,10 @@ namespace kdl {
     }
 
     TEST(intrusive_circular_list_test, clear_with_items) {
-        list l;
-
         auto e1_deleted = false;
         auto e2_deleted = false;
+
+        list l;
 
         element* e1 = new delete_tracking_element(e1_deleted);
         element* e2 = new delete_tracking_element(e2_deleted);
