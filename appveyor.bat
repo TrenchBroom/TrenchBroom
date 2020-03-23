@@ -11,7 +11,7 @@ cppcheck --version
 mkdir cmakebuild
 cd cmakebuild
 
-cmake .. -G"Visual Studio 15 2017" -DCMAKE_PREFIX_PATH="%QT5_INSTALL_DIR%" -T v141 -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="/WX" -DTB_SUPPRESS_PCH=1
+cmake .. -G"Visual Studio 16 2019" -T v142 -A Win32 -DCMAKE_PREFIX_PATH="%QT5_INSTALL_DIR%" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="/WX" -DTB_SUPPRESS_PCH=1
 
 REM  -DCMAKE_CXX_FLAGS=/WX
 
@@ -29,6 +29,11 @@ set BUILD_DIR="%cd%"
 
 cd lib\vecmath\test\Release
 vecmath-test.exe
+IF ERRORLEVEL 1 GOTO ERROR
+cd "%BUILD_DIR%"
+
+cd lib\kdl\test\Release
+kdl-test.exe
 IF ERRORLEVEL 1 GOTO ERROR
 cd "%BUILD_DIR%"
 
