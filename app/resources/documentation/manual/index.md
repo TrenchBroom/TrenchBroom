@@ -1959,7 +1959,7 @@ In an ENT file, the same model specification might look like this.
     <point
     	name="ammo_bfg" color=".3 .3 1"
     	box="-16 -16 -16 16 16 16"
-    	model="{{ perch == "1" -> "progs/gaunt.mdl", { "path": "progs/gaunt.mdl", "skin": 0, "frame": 24 } }}"
+    	model="{{ perch == '1' -> 'progs/gaunt.mdl', { 'path': 'progs/gaunt.mdl', 'skin': 0, 'frame': 24 } }}"
 	/>
 
 ## Point Files and Portal Files
