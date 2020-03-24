@@ -139,7 +139,7 @@ namespace TrenchBroom {
             shader.set("WorldExtentsTintColor", vm::vec4f(prefs.get(Preferences::SoftMapBoundsColor).r(),
                                                           prefs.get(Preferences::SoftMapBoundsColor).g(),
                                                           prefs.get(Preferences::SoftMapBoundsColor).b(),
-                                                          0.2f));
+                                                          0.1f));
 
             glAssert(glEnable(GL_TEXTURE_2D));
             glAssert(glActiveTexture(GL_TEXTURE0));

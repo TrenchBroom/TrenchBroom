@@ -183,7 +183,7 @@ namespace TrenchBroom {
                 shader.set("WorldExtentsTintColor", vm::vec4f(prefs.get(Preferences::SoftMapBoundsColor).r(),
                                                               prefs.get(Preferences::SoftMapBoundsColor).g(),
                                                               prefs.get(Preferences::SoftMapBoundsColor).b(),
-                                                              0.2f));
+                                                              0.1f));
 
                 RenderFunc func(shader, applyTexture, m_faceColor);
                 if (m_alpha < 1.0f) {
