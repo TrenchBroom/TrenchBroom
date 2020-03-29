@@ -19,6 +19,8 @@
 
 #include "InputEvent.h"
 
+#include <QApplication>
+
 #include <iostream>
 #include <string_view>
 
@@ -298,14 +300,15 @@ namespace TrenchBroom {
             // These are the mouse X and Y position, not the wheel delta
             const int posX = qtEvent->x();
             const int posY = qtEvent->y();
-
+            
+            // Number of "lines" to scroll
             QPointF scrollDistance;
-            if (!qtEvent->pixelDelta().isNull()) {
-                // pixelDelta() is not available everywhere and returns (0, 0) if not available.
-                scrollDistance = QPointF(qtEvent->pixelDelta()) * MouseEvent::ScrollFactor;
-            } else {
-                // This gives scrollDistance in degrees, see: http://doc.qt.io/qt-5/qwheelevent.html#angleDelta
-                scrollDistance = QPointF(qtEvent->angleDelta()) * MouseEvent::ScrollFactor;
+            // TODO: support pixel scrolling via qtEvent->pixelDelta()?
+            {
+                const int wheelScrollLines = QApplication::wheelScrollLines();
+                const QPointF angleDelta = QPointF(qtEvent->angleDelta());
+
+                scrollDistance = (angleDelta / 120.0f) * wheelScrollLines;
             }
 
             // Qt switches scroll axis when alt is pressed, but unfortunately, not consistently on all OS'es

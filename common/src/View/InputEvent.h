@@ -124,10 +124,7 @@ namespace TrenchBroom {
          * and mouse wheel events.
          */
         class MouseEvent : public InputEvent {
-        public:
-            // This 8.0f factor was just picked to roughly match wxWidgets TrenchBroom
-            static constexpr float ScrollFactor = 1.0f / 8.0f;
-            
+        public:            
             enum class Type {
                 /**
                  * A button was pressed.
