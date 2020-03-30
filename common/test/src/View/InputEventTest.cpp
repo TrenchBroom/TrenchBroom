@@ -276,12 +276,17 @@ namespace TrenchBroom {
             const auto qWheel1 = makeWheelEvent({ 2, 0 });
             const auto qWheel2 = makeWheelEvent({ 3, 0 });
 
+            const float expectedScrollLines = \
+                (InputEventRecorder::scrollLinesForEvent(&qWheel1) +
+                 InputEventRecorder::scrollLinesForEvent(&qWheel2)).x();
+            EXPECT_GT(expectedScrollLines, 0.0f);
+
             using namespace std::chrono_literals;
             r.recordEvent(&qWheel1);
             r.recordEvent(&qWheel2);
             
             checkEventQueue(r,
-                MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, 0, 0, 5.0f * MouseEvent::ScrollFactor));
+                MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, 0, 0, expectedScrollLines));
         }
         
         TEST_CASE("InputEventRecorderTest.recordVScrollWithCollation", "[InputEventRecorderTest]") {
@@ -289,12 +294,17 @@ namespace TrenchBroom {
             const auto qWheel1 = makeWheelEvent({ 0, 3 });
             const auto qWheel2 = makeWheelEvent({ 0, 4 });
 
+            const float expectedScrollLines = \
+                (InputEventRecorder::scrollLinesForEvent(&qWheel1) +
+                 InputEventRecorder::scrollLinesForEvent(&qWheel2)).y();
+            EXPECT_GT(expectedScrollLines, 0.0f);
+
             using namespace std::chrono_literals;
             r.recordEvent(&qWheel1);
             r.recordEvent(&qWheel2);
             
             checkEventQueue(r,
-                MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Vertical, 0, 0, 7.0f * MouseEvent::ScrollFactor));
+                MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Vertical, 0, 0, expectedScrollLines));
         }
         
         TEST_CASE("InputEventRecorderTest.recordDiagonalScroll", "[InputEventRecorderTest]") {
@@ -302,14 +312,22 @@ namespace TrenchBroom {
             const auto qWheel1 = makeWheelEvent({ 1, 3 });
             const auto qWheel2 = makeWheelEvent({ 3, 0 });
 
+            const QPointF expectedScrollLines1 = InputEventRecorder::scrollLinesForEvent(&qWheel1);
+            EXPECT_GT(expectedScrollLines1.x(), 0.0f);
+            EXPECT_GT(expectedScrollLines1.y(), 0.0f);
+
+            const QPointF expectedScrollLines2 = InputEventRecorder::scrollLinesForEvent(&qWheel2);
+            EXPECT_GT(expectedScrollLines2.x(), 0.0f);
+            EXPECT_EQ(expectedScrollLines2.y(), 0.0f);
+
             using namespace std::chrono_literals;
             r.recordEvent(&qWheel1);
             r.recordEvent(&qWheel2);
             
             checkEventQueue(r,
-                MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, 0, 0, 1.0f * MouseEvent::ScrollFactor),
-                MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Vertical,   0, 0, 3.0f * MouseEvent::ScrollFactor),
-                MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, 0, 0, 3.0f * MouseEvent::ScrollFactor));
+                MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, 0, 0, expectedScrollLines1.x()),
+                MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Vertical,   0, 0, expectedScrollLines1.y()),
+                MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, 0, 0, expectedScrollLines2.x()));
         }
 
         TEST_CASE("InputEventRecorderTest.recordLeftClickWithQuickSmallMotion", "[InputEventRecorderTest]") {

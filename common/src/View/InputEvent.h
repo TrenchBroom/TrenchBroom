@@ -124,7 +124,7 @@ namespace TrenchBroom {
          * and mouse wheel events.
          */
         class MouseEvent : public InputEvent {
-        public:            
+        public:
             enum class Type {
                 /**
                  * A button was pressed.
@@ -185,7 +185,7 @@ namespace TrenchBroom {
              * @param wheelAxis the wheel axies that was scrolled, if any
              * @param posX the current X position of the mouse pointer
              * @param posY the current Y position of the mouse pointer
-             * @param scrollDistance the distance by which the mouse wheel was scrolled
+             * @param scrollDistance the distance by which the mouse wheel was scrolled, in lines
              */
             MouseEvent(Type type, Button button, WheelAxis wheelAxis, int posX, int posY, float scrollDistance);
         public:
@@ -334,6 +334,9 @@ namespace TrenchBroom {
              * @param event the event to record
              */
             void recordEvent(const QMouseEvent* event);
+
+            static QPointF scrollLinesForEvent(const QWheelEvent* qtEvent);
+
             void recordEvent(const QWheelEvent* event);
 
             /**

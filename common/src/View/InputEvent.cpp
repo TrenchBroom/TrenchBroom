@@ -295,6 +295,15 @@ namespace TrenchBroom {
                 m_queue.enqueueEvent(std::make_unique<MouseEvent>(type, button, wheelAxis, posX, posY, scrollDistance));
             }
         }
+        
+        QPointF InputEventRecorder::scrollLinesForEvent(const QWheelEvent* qtEvent) {
+            // TODO: support pixel scrolling via qtEvent->pixelDelta()?
+            const int wheelScrollLines = QApplication::wheelScrollLines();
+            const QPointF angleDelta = QPointF(qtEvent->angleDelta());
+
+            const QPointF scrollDistance = (angleDelta / 120.0f) * wheelScrollLines;
+            return scrollDistance;
+        }
 
         void InputEventRecorder::recordEvent(const QWheelEvent* qtEvent) {
             // These are the mouse X and Y position, not the wheel delta
@@ -302,14 +311,7 @@ namespace TrenchBroom {
             const int posY = qtEvent->y();
             
             // Number of "lines" to scroll
-            QPointF scrollDistance;
-            // TODO: support pixel scrolling via qtEvent->pixelDelta()?
-            {
-                const int wheelScrollLines = QApplication::wheelScrollLines();
-                const QPointF angleDelta = QPointF(qtEvent->angleDelta());
-
-                scrollDistance = (angleDelta / 120.0f) * wheelScrollLines;
-            }
+            QPointF scrollDistance = scrollLinesForEvent(qtEvent);
 
             // Qt switches scroll axis when alt is pressed, but unfortunately, not consistently on all OS'es
             // and doesn't give any way of knowing.
