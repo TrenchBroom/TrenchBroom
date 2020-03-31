@@ -40,6 +40,8 @@
 #include <QPushButton>
 #include <QTextEdit>
 
+#include "Ensure.h"
+
 namespace TrenchBroom {
     namespace View {
         CompilationDialog::CompilationDialog(MapFrame* mapFrame) :
@@ -50,7 +52,7 @@ namespace TrenchBroom {
         m_closeButton(nullptr),
         m_currentRunLabel(nullptr),
         m_output(nullptr) {
-            setAttribute(Qt::WA_DeleteOnClose);
+            ensure(mapFrame != nullptr, "must have a map frame");
             createGui();
             setMinimumSize(600, 300);
             resize(800, 600);
@@ -112,6 +114,12 @@ namespace TrenchBroom {
             connect(m_compileButton, &QPushButton::clicked, this, &CompilationDialog::toggleCompile);
             connect(m_launchButton, &QPushButton::clicked, this, &CompilationDialog::launchEngine);
             connect(m_closeButton, &QPushButton::clicked, this, &CompilationDialog::close);
+
+            // This catches dismissing the dialog with Escape, which doesn't
+            // invoke CompilationDialog::closeEvent
+            connect(this, &QDialog::rejected, this, [this]() {
+                this->m_mapFrame->compilationDialogWillClose();
+            });
         }
 
         void CompilationDialog::keyPressEvent(QKeyEvent* event) {
