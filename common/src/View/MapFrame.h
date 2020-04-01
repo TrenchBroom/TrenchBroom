@@ -96,7 +96,7 @@ namespace TrenchBroom {
             QComboBox* m_gridChoice;
             QLabel* m_statusBarLabel;
 
-            QDialog* m_compilationDialog;
+            QPointer<QDialog> m_compilationDialog;
         private: // shortcuts
             using ActionMap = std::map<const Action*, QAction*>;
             ActionMap m_actionMap;
