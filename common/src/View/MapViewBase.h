@@ -148,11 +148,17 @@ namespace TrenchBroom {
             void flipObjects(vm::direction direction);
             bool canFlipObjects() const;
         public: // texture actions
-            void moveTextures(vm::direction direction);
-            vm::vec2f moveTextureOffset(vm::direction direction) const;
-            float moveTextureDistance() const;
-            void rotateTextures(bool clockwise);
-            float rotateTextureAngle(bool clockwise) const;
+            enum class TextureActionMode {
+                Normal,
+                Coarse,
+                Fine
+            };
+
+            void moveTextures(vm::direction direction, TextureActionMode mode);
+            vm::vec2f moveTextureOffset(vm::direction direction, TextureActionMode mode) const;
+            float moveTextureDistance(TextureActionMode mode) const;
+            void rotateTextures(bool clockwise, TextureActionMode mode);
+            float rotateTextureAngle(bool clockwise, TextureActionMode mode) const;
         public: // tool mode actions
             void createComplexBrush();
 
