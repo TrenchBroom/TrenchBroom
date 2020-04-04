@@ -51,7 +51,7 @@ namespace TrenchBroom {
                     }
                 }
 
-                return true;
+                return false;
             }
         };
 
