@@ -147,7 +147,14 @@ namespace TrenchBroom {
             void processEvent(const MouseEvent& act) override {
                 ASSERT_FALSE(m_expectedEvents.empty());
                 std::visit(kdl::overload{
-                    [&](const MouseEvent& exp) { ASSERT_EQ(exp, act); },
+                    [&](const MouseEvent& exp) {
+                        CHECK(exp.type == act.type);
+                        CHECK(exp.button == act.button);
+                        CHECK(exp.wheelAxis == act.wheelAxis);
+                        CHECK(exp.posX == act.posX);
+                        CHECK(exp.posY == act.posY);
+                        CHECK(exp.scrollDistance == Approx(act.scrollDistance));
+                    },
                     [&](const auto&) { ASSERT_TRUE(false); }
                 }, m_expectedEvents.front());
                 m_expectedEvents.pop_front();
@@ -174,11 +181,11 @@ namespace TrenchBroom {
             ASSERT_TRUE(p.allConsumed());
         }
         
-        inline QWheelEvent makeWheelEvent(const QPoint& pixelDelta) {
+        inline QWheelEvent makeWheelEvent(const QPoint& angleDelta) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
-            return QWheelEvent({}, {}, pixelDelta, {}, Qt::NoButton, 0, Qt::ScrollUpdate, false);
+            return QWheelEvent({}, {}, {}, angleDelta, Qt::NoButton, 0, Qt::ScrollUpdate, false);
 #else
-            return QWheelEvent({}, {}, pixelDelta, {}, 0, Qt::Orientation::Horizontal, Qt::NoButton, 0);
+            return QWheelEvent({}, {}, {}, angleDelta, 0, Qt::Orientation::Horizontal, Qt::NoButton, 0);
 #endif
         }
         
@@ -277,8 +284,8 @@ namespace TrenchBroom {
             const auto qWheel2 = makeWheelEvent({ 3, 0 });
 
             const float expectedScrollLines = \
-                (InputEventRecorder::scrollLinesForEvent(&qWheel1) +
-                 InputEventRecorder::scrollLinesForEvent(&qWheel2)).x();
+                static_cast<float>((InputEventRecorder::scrollLinesForEvent(&qWheel1) +
+                                    InputEventRecorder::scrollLinesForEvent(&qWheel2)).x());
             EXPECT_GT(expectedScrollLines, 0.0f);
 
             using namespace std::chrono_literals;
@@ -295,8 +302,8 @@ namespace TrenchBroom {
             const auto qWheel2 = makeWheelEvent({ 0, 4 });
 
             const float expectedScrollLines = \
-                (InputEventRecorder::scrollLinesForEvent(&qWheel1) +
-                 InputEventRecorder::scrollLinesForEvent(&qWheel2)).y();
+                static_cast<float>((InputEventRecorder::scrollLinesForEvent(&qWheel1) +
+                                    InputEventRecorder::scrollLinesForEvent(&qWheel2)).y());
             EXPECT_GT(expectedScrollLines, 0.0f);
 
             using namespace std::chrono_literals;
@@ -325,9 +332,9 @@ namespace TrenchBroom {
             r.recordEvent(&qWheel2);
             
             checkEventQueue(r,
-                MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, 0, 0, expectedScrollLines1.x()),
-                MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Vertical,   0, 0, expectedScrollLines1.y()),
-                MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, 0, 0, expectedScrollLines2.x()));
+                MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, 0, 0, static_cast<float>(expectedScrollLines1.x())),
+                MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Vertical,   0, 0, static_cast<float>(expectedScrollLines1.y())),
+                MouseEvent(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, 0, 0, static_cast<float>(expectedScrollLines2.x())));
         }
 
         TEST_CASE("InputEventRecorderTest.recordLeftClickWithQuickSmallMotion", "[InputEventRecorderTest]") {
