@@ -298,11 +298,12 @@ namespace TrenchBroom {
         
         QPointF InputEventRecorder::scrollLinesForEvent(const QWheelEvent* qtEvent) {
             // TODO: support pixel scrolling via qtEvent->pixelDelta()?
-            const int wheelScrollLines = QApplication::wheelScrollLines();
-            const QPointF angleDelta = QPointF(qtEvent->angleDelta());
+            const int linesPerStep = QApplication::wheelScrollLines();
+            const QPointF angleDelta = QPointF(qtEvent->angleDelta()); // in eighths-of-degrees
+            constexpr float EighthsOfDegreesPerStep = 120.0f; // see: https://doc.qt.io/qt-5/qwheelevent.html#angleDelta
 
-            const QPointF scrollDistance = (angleDelta / 120.0f) * wheelScrollLines;
-            return scrollDistance;
+            const QPointF lines = (angleDelta / EighthsOfDegreesPerStep) * linesPerStep;
+            return lines;
         }
 
         void InputEventRecorder::recordEvent(const QWheelEvent* qtEvent) {
