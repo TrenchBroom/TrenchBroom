@@ -956,9 +956,11 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::renderFPS(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            Renderer::RenderService renderService(renderContext, renderBatch);
+            if (pref(Preferences::ShowFPS)) {
+                Renderer::RenderService renderService(renderContext, renderBatch);
 
-            renderService.renderHeadsUp(m_currentFPS);
+                renderService.renderHeadsUp(m_currentFPS);
+            }
         }
 
         void MapViewBase::processEvent(const KeyEvent& event) {
