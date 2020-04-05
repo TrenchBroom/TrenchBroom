@@ -2106,14 +2106,16 @@ Then you need to copy your `classname` matchers into the array value of the `bru
 
 The file format is specified by an array of maps under the key `fileformats`. The following formats are supported.
 
-Format      	 Description
-------      	 -----------
-Standard     	 Standard Quake map file
-Valve       	 Valve map file (like Standard, but with different texture info per face)
-Quake2       	 Quake 2 map file
-Quake3       	 Quake 3 map file (with brush primitives)
+Format           Description
+------           -----------
+Standard         Standard Quake map file
+Valve            Valve map file (like Standard, but with different texture info per face)
+Quake2           Quake 2 map file
+Quake2 (Valve)   Quake 2 map file in Valve format
+Quake3           Quake 3 map file (with brush primitives)
+Quake3 (Valve)   Quake 3 map file in Valve format
 Quake3 (legacy)  Quake 3 map file (without brush primitives)
-Hexen2       	 Hexen 2 map file (like Quake, but with an additional, but unused value per face)
+Hexen2           Hexen 2 map file (like Quake, but with an additional, but unused value per face)
 
 Each entry of the array must have the following structure:
 

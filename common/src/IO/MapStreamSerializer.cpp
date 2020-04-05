@@ -193,11 +193,14 @@ namespace TrenchBroom {
                 case Model::MapFormat::Standard:
                     return std::make_unique<QuakeStreamSerializer>(stream);
                 case Model::MapFormat::Quake2:
-                    // TODO 2427: Implement Quake3 serializers and use them
+                    // TODO 2427: Implement Quake3 serializers... needs
+                    // patchdef support in all of them, plus brush primitives
+                    // for Model::MapFormat::Quake3.
                 case Model::MapFormat::Quake3:
                 case Model::MapFormat::Quake3_Legacy:
                     return std::make_unique<Quake2StreamSerializer>(stream);
                 case Model::MapFormat::Quake2_Valve:
+                case Model::MapFormat::Quake3_Valve:
                     return std::make_unique<Quake2ValveStreamSerializer>(stream);
                 case Model::MapFormat::Daikatana:
                     return std::make_unique<DaikatanaStreamSerializer>(stream);
