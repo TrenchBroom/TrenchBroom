@@ -80,8 +80,10 @@ namespace TrenchBroom {
             auto* container = new QWidget();
 
             m_gamePathText = new QLineEdit();
-            m_gamePathText->setReadOnly(true);
             setHint(m_gamePathText, "Click on the button to change...");
+            connect(m_gamePathText, &QLineEdit::editingFinished, this, [this]() {
+                updateGamePath(this->m_gamePathText->text());
+            });
 
             m_chooseGamePathButton = new QPushButton("...");
             connect(m_chooseGamePathButton, &QPushButton::clicked, this, &GamesPreferencePane::chooseGamePathClicked);
@@ -119,12 +121,13 @@ namespace TrenchBroom {
         void GamesPreferencePane::chooseGamePathClicked() {
             const QString pathStr = QFileDialog::getExistingDirectory(this, tr("Game Path"), fileDialogDefaultDirectory(FileDialogDir::GamePath));
             if (!pathStr.isEmpty()) {
-                updateFileDialogDefaultDirectoryWithDirectory(FileDialogDir::GamePath, pathStr);
                 updateGamePath(pathStr);
             }
         }
 
         void GamesPreferencePane::updateGamePath(const QString& str) {
+            updateFileDialogDefaultDirectoryWithDirectory(FileDialogDir::GamePath, str);
+
             const auto gamePath = IO::pathFromQString(str);
             const auto gameName = m_gameListBox->selectedGameName();
             auto& gameFactory = Model::GameFactory::instance();
