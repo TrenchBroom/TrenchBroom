@@ -27,6 +27,7 @@
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/Layer.h"
+#include "Model/ParallelTexCoordSystem.h"
 #include "Model/World.h"
 
 #include <vecmath/vec.h>
@@ -45,6 +46,24 @@ namespace TrenchBroom {
                     return face;
             }
             return nullptr;
+        }
+        inline void
+        checkFaceTexCoordSystem(const Model::BrushFace* face, bool expectParallel) {
+            auto snapshot = face->takeTexCoordSystemSnapshot();
+            auto *check = dynamic_cast<Model::ParallelTexCoordSystemSnapshot*>(snapshot.get());
+            bool mismatch = (check != nullptr) ^ expectParallel;
+            ASSERT_FALSE(mismatch);
+        }
+        inline void
+        checkBrushTexCoordSystem(const Model::Brush* brush, bool expectParallel) {
+            const std::vector<Model::BrushFace*> faces = brush->faces();
+            ASSERT_EQ(6u, faces.size());
+            checkFaceTexCoordSystem(faces[0], expectParallel);
+            checkFaceTexCoordSystem(faces[1], expectParallel);
+            checkFaceTexCoordSystem(faces[2], expectParallel);
+            checkFaceTexCoordSystem(faces[3], expectParallel);
+            checkFaceTexCoordSystem(faces[4], expectParallel);
+            checkFaceTexCoordSystem(faces[5], expectParallel);
         }
 
         TEST_CASE("WorldReaderTest.parseFailure_1424", "[WorldReaderTest]") {
@@ -184,6 +203,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
 
             Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
             const std::vector<Model::BrushFace*>& faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
 
@@ -234,6 +254,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
 
             Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
             const std::vector<Model::BrushFace*>& faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
 
@@ -272,6 +293,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
 
             Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
             const std::vector<Model::BrushFace*> faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
 
@@ -314,6 +336,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
 
             Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
             const std::vector<Model::BrushFace*> faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
             ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(308.0, 108.0, 176.0), vm::vec3(308.0, 132.0, 176.0),
@@ -353,6 +376,8 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
+            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
         }
 
         TEST_CASE("WorldReaderTest.parseProblematicBrush3", "[WorldReaderTest]") {
@@ -378,6 +403,8 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
+            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
         }
 
         TEST_CASE("WorldReaderTest.parseValveBrush", "[WorldReaderTest]") {
@@ -403,6 +430,8 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
+            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, true);
         }
 
         TEST_CASE("WorldReaderTest.parseQuake2Brush", "[WorldReaderTest]") {
@@ -428,6 +457,8 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
+            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
         }
 
         TEST_CASE("WorldReaderTest.parseQuake2ValveBrush", "[WorldReaderTest]") {
@@ -456,6 +487,38 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
+            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, true);
+        }
+
+        TEST_CASE("WorldReaderTest.parseQuake3ValveBrush", "[WorldReaderTest]") {
+            const std::string data(R"(
+{
+"classname" "worldspawn"
+"mapversion" "220"
+"_tb_textures" "textures/gothic_block"
+// brush 0
+{
+( 208 190 80 ) ( 208 -62 80 ) ( 208 190 -176 ) gothic_block/blocks18c_3 [ -0.625 1 0 34 ] [ 0 0 -1 0 ] 32.6509 0.25 0.25 0 0 0
+( 224 200 80 ) ( 208 190 80 ) ( 224 200 -176 ) gothic_block/blocks18c_3 [ -1 0 0 32 ] [ 0 0 -1 0 ] 35.6251 0.25 0.25 0 1 0
+( 224 200 -176 ) ( 208 190 -176 ) ( 224 -52 -176 ) gothic_block/blocks18c_3 [ -1 0 0 32 ] [ 0.625 -1 0 -4 ] 35.6251 0.25 0.25 0 0 0
+( 224 -52 80 ) ( 208 -62 80 ) ( 224 200 80 ) gothic_block/blocks18c_3 [ 1 0 0 -32 ] [ 0.625 -1 0 -4 ] 324.375 0.25 0.25 0 0 0
+( 224 -52 -176 ) ( 208 -62 -176 ) ( 224 -52 80 ) gothic_block/blocks18c_3 [ 1 0 0 -23.7303 ] [ 0 0 -1 0 ] 35.6251 0.25 0.25 0 0 0
+( 224 -52 80 ) ( 224 200 80 ) ( 224 -52 -176 ) gothic_block/blocks18c_3 [ -0.625 1 0 44 ] [ 0 0 -1 0 ] 32.6509 0.25 0.25 0 0 0
+}
+})");
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data);
+
+            auto world = reader.read(Model::MapFormat::Quake3_Valve, worldBounds, status);
+
+            ASSERT_EQ(1u, world->childCount());
+            Model::Node* defaultLayer = world->children().front();
+            ASSERT_EQ(1u, defaultLayer->childCount());
+            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, true);
         }
 
         TEST_CASE("WorldReaderTest.parseDaikatanaBrush", "[WorldReaderTest]") {
@@ -483,6 +546,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
 
             const auto* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
             ASSERT_TRUE(vm::is_equal(Color(5, 6, 7), brush->findFace("rtz/c_mf_v3cw")->color(), 0.1f));
             ASSERT_EQ(1, brush->findFace("rtz/b_rc_v16w")->surfaceContents());
             ASSERT_EQ(2, brush->findFace("rtz/b_rc_v16w")->surfaceFlags());
@@ -530,6 +594,8 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
+            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
         }
 
         TEST_CASE("WorldReaderTest.parseQuakeBrushWithNumericalTextureName", "[WorldReaderTest]") {
@@ -555,6 +621,8 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
+            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
         }
 
         TEST_CASE("WorldReaderTest.parseBrushesWithLayer", "[WorldReaderTest]") {
