@@ -38,6 +38,7 @@ namespace TrenchBroom {
         Preference<Color> PointFileColor(IO::Path("Renderer/Colors/Point file"), Color(0.0f, 1.0f, 0.0f, 1.0f));
         Preference<Color> PortalFileBorderColor(IO::Path("Renderer/Colors/Portal file border"), Color(1.0f, 1.0f, 1.0f, 0.5f));
         Preference<Color> PortalFileFillColor(IO::Path("Renderer/Colors/Portal file fill"), Color(1.0f, 0.4f, 0.4f, 0.2f));
+        Preference<bool>  ShowFPS(IO::Path("Renderer/Show FPS"), false);
 
         Preference<Color>& axisColor(vm::axis::type axis) {
             switch (axis) {
@@ -194,6 +195,7 @@ namespace TrenchBroom {
                 &PointFileColor,
                 &PortalFileBorderColor,
                 &PortalFileFillColor,
+                &ShowFPS,
                 &CompassBackgroundColor,
                 &CompassBackgroundOutlineColor,
                 &CompassAxisOutlineColor,

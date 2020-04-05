@@ -33,6 +33,8 @@ namespace TrenchBroom {
         // NOTE: any QKeySequence preferences must be functions like CameraFly*
         // because QKeySequence docs specify that you can't create an instance before QApplication
 
+        // NOTE: When adding a new preference here, always update the staticPreferences() implementation 
+
         extern Preference<int> MapViewLayout;
 
         extern Preference<bool>  ShowAxes;
@@ -44,6 +46,7 @@ namespace TrenchBroom {
         extern Preference<Color> PointFileColor;
         extern Preference<Color> PortalFileBorderColor;
         extern Preference<Color> PortalFileFillColor;
+        extern Preference<bool>  ShowFPS;
 
         Preference<Color>& axisColor(vm::axis::type axis);
 
