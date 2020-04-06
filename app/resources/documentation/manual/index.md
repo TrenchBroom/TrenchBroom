@@ -2109,13 +2109,14 @@ The file format is specified by an array of maps under the key `fileformats`. Th
 Format           Description
 ------           -----------
 Standard         Standard Quake map file
-Valve            Valve map file (like Standard, but with different texture info per face)
-Quake2           Quake 2 map file
-Quake2 (Valve)   Quake 2 map file in Valve format
-Quake3           Quake 3 map file (with brush primitives)
-Quake3 (Valve)   Quake 3 map file in Valve format
-Quake3 (legacy)  Quake 3 map file (without brush primitives)
+Valve            Valve map file (like Standard, but with more control over texture mapping)
+Quake2           Quake 2 map file with Standard style texture info
+Quake2 (Valve)   Quake 2 map file with Valve style texture info
+Quake3 (Valve)   Quake 3 map file with Valve style texture info
+Quake3 (legacy)  Quake 3 map file with Standard style texture info
 Hexen2           Hexen 2 map file (like Quake, but with an additional, but unused value per face)
+
+Note that the "Quake3" format, which will include Quake 3 brush primitives support, is not yet fully implemented and so is omitted from the list above. The "Quake3 (Valve)" format is as expressive for texture placement as the brush primitives format, but "Quake3 (Valve)" cannot be used to read existing map files that contain brush primitives. Also note that none of the Quake 3 formats yet support patch meshes.
 
 Each entry of the array must have the following structure:
 
