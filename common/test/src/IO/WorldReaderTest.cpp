@@ -36,9 +36,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        inline Model::BrushFace*
-        findFaceByPoints(const std::vector<Model::BrushFace*>& faces, const vm::vec3& point0, const vm::vec3& point1,
-                         const vm::vec3& point2) {
+        inline Model::BrushFace* findFaceByPoints(const std::vector<Model::BrushFace*>& faces, const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2) {
             for (Model::BrushFace* face : faces) {
                 if (face->points()[0] == point0 &&
                     face->points()[1] == point1 &&
@@ -48,16 +46,14 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        inline void
-        checkFaceTexCoordSystem(const Model::BrushFace* face, const bool expectParallel) {
+        inline void checkFaceTexCoordSystem(const Model::BrushFace* face, const bool expectParallel) {
             auto snapshot = face->takeTexCoordSystemSnapshot();
             auto* check = dynamic_cast<Model::ParallelTexCoordSystemSnapshot*>(snapshot.get());
             const bool isParallel = (check != nullptr);
             ASSERT_EQ(expectParallel, isParallel);
         }
 
-        inline void
-        checkBrushTexCoordSystem(const Model::Brush* brush, const bool expectParallel) {
+        inline void checkBrushTexCoordSystem(const Model::Brush* brush, const bool expectParallel) {
             const std::vector<Model::BrushFace*> faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
             checkFaceTexCoordSystem(faces[0], expectParallel);
