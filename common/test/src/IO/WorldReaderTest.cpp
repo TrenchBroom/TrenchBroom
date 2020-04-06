@@ -47,15 +47,17 @@ namespace TrenchBroom {
             }
             return nullptr;
         }
+
         inline void
-        checkFaceTexCoordSystem(const Model::BrushFace* face, bool expectParallel) {
+        checkFaceTexCoordSystem(const Model::BrushFace* face, const bool expectParallel) {
             auto snapshot = face->takeTexCoordSystemSnapshot();
-            auto *check = dynamic_cast<Model::ParallelTexCoordSystemSnapshot*>(snapshot.get());
-            bool mismatch = (check != nullptr) ^ expectParallel;
-            ASSERT_FALSE(mismatch);
+            auto* check = dynamic_cast<Model::ParallelTexCoordSystemSnapshot*>(snapshot.get());
+            const bool isParallel = (check != nullptr);
+            ASSERT_EQ(expectParallel, isParallel);
         }
+
         inline void
-        checkBrushTexCoordSystem(const Model::Brush* brush, bool expectParallel) {
+        checkBrushTexCoordSystem(const Model::Brush* brush, const bool expectParallel) {
             const std::vector<Model::BrushFace*> faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
             checkFaceTexCoordSystem(faces[0], expectParallel);
