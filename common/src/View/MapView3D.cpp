@@ -82,7 +82,7 @@ namespace TrenchBroom {
 
             m_camera->setFov(pref(Preferences::CameraFov));
 
-            postInit();
+            mapViewBaseVirtualInit();
         }
 
         MapView3D::~MapView3D() {

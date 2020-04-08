@@ -106,10 +106,8 @@ namespace TrenchBroom {
             m_compass = std::move(compass);
         }
 
-        void MapViewBase::postInit() {
-            createActions();
-            updateActionStates();
-            updatePickResult();
+        void MapViewBase::mapViewBaseVirtualInit() {
+            createActionsAndUpdatePicking();
         }
 
         MapViewBase::~MapViewBase() {
@@ -192,6 +190,15 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapViewBase::preferenceDidChange);
         }
 
+        /**
+         * Full re-initialization of QActions and picking state.
+         */
+        void MapViewBase::createActionsAndUpdatePicking() {
+            createActions();
+            updateActionStates();
+            updatePickResult();
+        }
+
         void MapViewBase::nodesDidChange(const std::vector<Model::Node*>&) {
             updatePickResult();
             update();
@@ -264,9 +271,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::documentDidChange(MapDocument*) {
-            createActions();
-            updateActionStates();
-            updatePickResult();
+            createActionsAndUpdatePicking();
             update();
         }
 

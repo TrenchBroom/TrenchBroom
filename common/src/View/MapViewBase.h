@@ -104,15 +104,16 @@ namespace TrenchBroom {
             void setCompass(std::unique_ptr<Renderer::Compass> compass);
 
             /**
-             * Perform tasks that are needed for a fully initalized MapViewBase.
-             * Subclasses should call this at the end of their constructors.
+             * Perform tasks that are needed for a fully initialized MapViewBase.
+             * 
+             * This must be called exactly once, at the end of subclasses's constructors.
              * (Does virtual function calls, so we can't call it in the MapViewBase constructor.)
              * 
              * On normal app startup, these tasks are handled by documentDidChange(),
-             * but when changing map view layotus (e.g. 1 pane to 2 pane) there are 
+             * but when changing map view layouts (e.g. 1 pane to 2 pane) there are 
              * no document notifications to handle these tasks, so it must be done by the constructor.
              */
-            void postInit();
+            void mapViewBaseVirtualInit();
         public:
             ~MapViewBase() override;
         public:
@@ -120,6 +121,8 @@ namespace TrenchBroom {
         private:
             void bindObservers();
             void unbindObservers();
+
+            void createActionsAndUpdatePicking();
 
             void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void toolChanged(Tool* tool);
