@@ -106,6 +106,12 @@ namespace TrenchBroom {
             m_compass = std::move(compass);
         }
 
+        void MapViewBase::postInit() {
+            createActions();
+            updateActionStates();
+            updatePickResult();
+        }
+
         MapViewBase::~MapViewBase() {
             unbindObservers();
 
