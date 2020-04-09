@@ -19,6 +19,8 @@
 
 #include "TestUtils.h"
 
+#include "Assets/Texture.h"
+#include "Ensure.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 
@@ -139,6 +141,59 @@ namespace TrenchBroom {
             assert(face != nullptr);
 
             ASSERT_EQ(expected, face->textureName());
+        }
+    }
+
+    int getComponentOfPixel(const Assets::Texture* texture, const std::size_t x, const std::size_t y, const Component component) {
+        const auto format = texture->format();
+
+        ensure(GL_BGRA == format || GL_RGBA == format, "expected GL_BGRA or GL_RGBA");
+
+        std::size_t componentIndex = 0;
+        if (format == GL_RGBA) {
+            switch (component) {
+                case Component::R: componentIndex = 0u; break;
+                case Component::G: componentIndex = 1u; break;
+                case Component::B: componentIndex = 2u; break;
+                case Component::A: componentIndex = 3u; break;
+            }
+        } else {
+            switch (component) {
+                case Component::R: componentIndex = 2u; break;
+                case Component::G: componentIndex = 1u; break;
+                case Component::B: componentIndex = 0u; break;
+                case Component::A: componentIndex = 3u; break;
+            }
+        }
+
+        const auto& mip0DataBuffer = texture->buffersIfUnprepared().at(0);
+        assert(texture->width() * texture->height() * 4 == mip0DataBuffer.size());
+        assert(x < texture->width());
+        assert(y < texture->height());
+
+        const uint8_t* mip0Data = mip0DataBuffer.data();
+        return static_cast<int>(mip0Data[(texture->width() * 4u * y) + (x * 4u) + componentIndex]);
+    }
+
+    void checkColor(const Assets::Texture* texturePtr, const std::size_t x, const std::size_t y,
+        const int r, const int g, const int b, const int a, const ColorMatch match) {
+
+        const auto actualR = getComponentOfPixel(texturePtr, x, y, Component::R);
+        const auto actualG = getComponentOfPixel(texturePtr, x, y, Component::G);
+        const auto actualB = getComponentOfPixel(texturePtr, x, y, Component::B);
+        const auto actualA = getComponentOfPixel(texturePtr, x, y, Component::A);
+
+        if (match == ColorMatch::Approximate) {
+            // allow some error for lossy formats, e.g. JPG
+            CHECK(std::abs(r - actualR) <= 5);
+            CHECK(std::abs(g - actualG) <= 5);
+            CHECK(std::abs(b - actualB) <= 5);
+            CHECK(a == actualA);
+        } else {
+            CHECK(r == actualR);
+            CHECK(g == actualG);
+            CHECK(b == actualB);
+            CHECK(a == actualA);
         }
     }
 }

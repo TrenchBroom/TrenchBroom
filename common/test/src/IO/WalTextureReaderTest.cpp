@@ -34,7 +34,7 @@ namespace TrenchBroom {
     namespace IO {
         static void assertTexture(const Path& path, const size_t width, const size_t height, const FileSystem& fs, const TextureReader& reader) {
             const Path filePath = Path("fixture/test/IO/Wal") + path;
-            Assets::Texture* texture = reader.readTexture(fs.openFile(filePath));
+            auto texture = std::unique_ptr<Assets::Texture>{ reader.readTexture(fs.openFile(filePath)) };
             ASSERT_TRUE(texture != nullptr);
 
             const auto& name = path.suffix(2).deleteExtension().asString("/");
