@@ -23,21 +23,10 @@ git submodule update --init --recursive
 
 ## Windows
 
-Visual Studio 2017 or 2019 can be used for development. TrenchBroom needs to compile with VS 2017 (that's what our releases are built with).
-
 ### Prerequisites
 
 In order to develop, debug and compile TrenchBroom, you need to install tools listed below.
 
-#### Visual Studio 2017
-
-Download [VS 2017](https://visualstudio.microsoft.com/vs/older-downloads/#visual-studio-2017-family) and install it.
-
-You'll also need to install these dependencies using Visual Studio Installer (included with main installer):
-
-- Workloads 
-  - **Desktop development with C++**
-  
 #### Visual Studio 2019
 
 Download [VS 2019](https://visualstudio.microsoft.com/vs/) and install it.
@@ -60,8 +49,6 @@ You'll also need to install these dependencies using Visual Studio Installer (in
 
 Create a subdirectory in TrenchBroom directory called `build`.
 
-#### Visual Studio 2017
-
 Open a command prompt and change directory to `build`:
 
 ```bash
@@ -71,23 +58,7 @@ cd <path/to/TrenchBroom>/build
 Then, execute this command to configure the project:
 
 ```bash
-cmake .. -G "Visual Studio 15 2017" -T v141 -A Win32 -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017"
-```
-
-> **Note**: Make sure to specify the correct Qt as `CMAKE_PREFIX_PATH` value.
-
-#### Visual Studio 2019
-
-Open a command prompt and change directory to `build`:
-
-```bash
-cd <path/to/TrenchBroom>/build
-```
-
-Then, execute this command to configure the project:
-
-```bash
-cmake .. -G "Visual Studio 16 2019" -A Win32 -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017"
+cmake .. -G "Visual Studio 16 2019" -T v142 -A Win32 -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017"
 ```
 
 > **Note**: Make sure to specify the correct Qt as `CMAKE_PREFIX_PATH` value.
