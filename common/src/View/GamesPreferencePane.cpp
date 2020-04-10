@@ -30,13 +30,17 @@
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
 
+#include <QAction>
 #include <QBoxLayout>
+#include <QDir>
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QStackedWidget>
 #include <QWidget>
+
+#include "IO/ResourceUtils.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -80,8 +84,22 @@ namespace TrenchBroom {
             auto* container = new QWidget();
 
             m_gamePathText = new QLineEdit();
-            m_gamePathText->setReadOnly(true);
             setHint(m_gamePathText, "Click on the button to change...");
+            connect(m_gamePathText, &QLineEdit::editingFinished, this, [this]() {
+                updateGamePath(this->m_gamePathText->text());
+            });
+
+            auto* validDirectoryIcon = new QAction(m_gamePathText);
+            m_gamePathText->addAction(validDirectoryIcon, QLineEdit::TrailingPosition);
+            connect(m_gamePathText, &QLineEdit::textChanged, this, [validDirectoryIcon](const QString& text) {
+                if (text.isEmpty() || QDir(text).exists()) {
+                    validDirectoryIcon->setToolTip("");
+                    validDirectoryIcon->setIcon(QIcon());
+                } else {
+                    validDirectoryIcon->setToolTip(tr("Directory not found"));
+                    validDirectoryIcon->setIcon(IO::loadIconResourceQt(IO::Path("IssueBrowser.png")));
+                }
+            });
 
             m_chooseGamePathButton = new QPushButton("...");
             connect(m_chooseGamePathButton, &QPushButton::clicked, this, &GamesPreferencePane::chooseGamePathClicked);
@@ -119,12 +137,13 @@ namespace TrenchBroom {
         void GamesPreferencePane::chooseGamePathClicked() {
             const QString pathStr = QFileDialog::getExistingDirectory(this, tr("Game Path"), fileDialogDefaultDirectory(FileDialogDir::GamePath));
             if (!pathStr.isEmpty()) {
-                updateFileDialogDefaultDirectoryWithDirectory(FileDialogDir::GamePath, pathStr);
                 updateGamePath(pathStr);
             }
         }
 
         void GamesPreferencePane::updateGamePath(const QString& str) {
+            updateFileDialogDefaultDirectoryWithDirectory(FileDialogDir::GamePath, str);
+
             const auto gamePath = IO::pathFromQString(str);
             const auto gameName = m_gameListBox->selectedGameName();
             auto& gameFactory = Model::GameFactory::instance();
