@@ -68,6 +68,12 @@ namespace TrenchBroom {
                             discardUntil("\n\r");
                         }
                         break;
+                    case ';':
+                        // Heretic2 allows semicolon to start a line comment.
+                        // QuArK writes comments in this format when saving a Heretic2 .map.
+                        advance();
+                        discardUntil("\n\r");
+                        break;
                     case '{':
                         advance();
                         return Token(QuakeMapToken::OBrace, c, c+1, offset(c), startLine, startColumn);

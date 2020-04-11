@@ -21,6 +21,8 @@
 
 #include "GTestCompat.h"
 
+#include "IO/DiskIO.h"
+#include "IO/File.h"
 #include "IO/TestParserStatus.h"
 #include "IO/WorldReader.h"
 #include "Model/Brush.h"
@@ -1072,5 +1074,32 @@ common/caulk
             ASSERT_EQ(3u, secondEntity->hiddenIssues());
         }
          */
+
+        TEST_CASE("WorldReaderTest.parseHeretic2QuarkMap", "[WorldReaderTest]") {
+            const IO::Path mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Map/Heretic2Quark.map");
+            const std::shared_ptr<File> file = IO::Disk::openFile(mapPath);
+            auto fileReader = file->reader().buffer();
+
+            IO::TestParserStatus status;
+            IO::WorldReader worldReader(std::begin(fileReader), std::end(fileReader));
+
+            const auto worldBounds = vm::bbox3(8192.0);
+            auto world = worldReader.read(Model::MapFormat::Quake2, worldBounds, status);
+
+            REQUIRE(world != nullptr);
+            REQUIRE(1u == world->childCount());
+
+            auto* layer = dynamic_cast<Model::Layer*>(world->children().at(0));
+            REQUIRE(layer != nullptr);
+            REQUIRE(1u == layer->childCount());
+
+            auto* brush = dynamic_cast<Model::Brush*>(layer->children().at(0));
+            REQUIRE(brush != nullptr);
+
+            CHECK(vm::bbox3(vm::vec3(-512, -512, -64), vm::vec3(512, 512, 0)) == brush->logicalBounds());
+            for (Model::BrushFace* face : brush->faces()) {
+                CHECK("general/sand1" == face->textureName());
+            }
+        }
     }
 }
