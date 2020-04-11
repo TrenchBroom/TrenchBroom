@@ -329,7 +329,7 @@ namespace TrenchBroom {
                 "description": "Player cannot pass through the brush (other things can)"
             }, // 1 << 16
             {
-                "name": "mosterclip",
+                "name": "monsterclip",
                 "description": "Monster cannot pass through the brush (player and other things can)"
             }, // 1 << 17
             {
@@ -441,7 +441,7 @@ namespace TrenchBroom {
                         { "unused", "" },
                         { "unused", "" },
                         { "playerclip", "Player cannot pass through the brush (other things can)" },
-                        { "mosterclip", "Monster cannot pass through the brush (player and other things can)" },
+                        { "monsterclip", "Monster cannot pass through the brush (player and other things can)" },
                         { "current_0", "Brush has a current in direction of 0 degrees" },
                         { "current_90", "Brush has a current in direction of 90 degrees" },
                         { "current_180", "Brush has a current in direction of 180 degrees" },
@@ -641,7 +641,7 @@ namespace TrenchBroom {
                 "description": "Player cannot pass through the brush (other things can)"
             }, // 65536
             {
-                "name": "mosterclip",
+                "name": "monsterclip",
                 "description": "Monster cannot pass through the brush (player and other things can)"
             }, // 131072
             {
@@ -765,7 +765,7 @@ namespace TrenchBroom {
                         { "unused", "" },
                         { "unused", "" },
                         { "playerclip", "Player cannot pass through the brush (other things can)" },
-                        { "mosterclip", "Monster cannot pass through the brush (player and other things can)" },
+                        { "monsterclip", "Monster cannot pass through the brush (player and other things can)" },
                         { "current_0", "Brush has a current in direction of 0 degrees" },
                         { "current_90", "Brush has a current in direction of 90 degrees" },
                         { "current_180", "Brush has a current in direction of 180 degrees" },
