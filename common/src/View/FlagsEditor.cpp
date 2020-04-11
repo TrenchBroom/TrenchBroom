@@ -48,7 +48,8 @@ namespace TrenchBroom {
 
         void FlagsEditor::setFlags(const QList<int>& values, const QStringList& labels, const QStringList& tooltips) {
             const auto count = static_cast<size_t>(values.size());
-            const auto numRows = count / m_numCols;
+            const size_t numRows = (count + (m_numCols - 1)) / m_numCols;
+            ensure(numRows * m_numCols >= count, "didn't allocate enough grid cells");
 
             m_checkBoxes.clear();
             m_values.clear();
@@ -83,6 +84,10 @@ namespace TrenchBroom {
                         layout->addWidget(m_checkBoxes[index], rowInt, colInt);
                     }
                 }
+            }
+
+            for (size_t i = 0; i < m_checkBoxes.size(); ++i) {
+                ensure(m_checkBoxes[i] != nullptr, "didn't create enough checkbox widgets");
             }
 
             setLayout(layout);
