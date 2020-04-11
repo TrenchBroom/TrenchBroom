@@ -70,11 +70,12 @@ namespace TrenchBroom {
             connect(m_tabBook, &TabBook::pageChanged, this, &TabBar::tabBookPageChanged);
 
             m_controlLayout = new QHBoxLayout();
-            m_controlLayout->setContentsMargins(0, LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin);
+            m_controlLayout->setContentsMargins(0, 0, 0, 0);
+            m_controlLayout->setSpacing(0);
             m_controlLayout->addSpacing(LayoutConstants::TabBarBarLeftMargin);
             m_controlLayout->addStretch(1);
             m_controlLayout->addLayout(m_barBook, 0);
-            assert(m_controlLayout->setAlignment(m_barBook, Qt::AlignVCenter));
+            m_controlLayout->setAlignment(m_barBook, Qt::AlignVCenter);
             m_controlLayout->addSpacing(LayoutConstants::NarrowHMargin);
 
             setLayout(m_controlLayout);
@@ -84,13 +85,13 @@ namespace TrenchBroom {
             ensure(bookPage != nullptr, "bookPage is null");
 
             auto* button = new TabBarButton(title);
+            button->setMargin(LayoutConstants::WideHMargin);
             connect(button, &TabBarButton::clicked, this, &TabBar::buttonClicked);
             button->setPressed(m_buttons.empty());
             m_buttons.push_back(button);
 
-            const auto sizerIndex = static_cast<int>(2 * (m_buttons.size() - 1) + 1);
-            m_controlLayout->insertWidget(sizerIndex, button, 0, Qt::AlignVCenter);
-            m_controlLayout->insertSpacing(sizerIndex + 1, LayoutConstants::WideHMargin);
+            const auto sizerIndex = static_cast<int>(m_buttons.size());
+            m_controlLayout->insertWidget(sizerIndex, button);
 
             QWidget* barPage = bookPage->createTabBarPage(nullptr);
             m_barBook->addWidget(barPage);
