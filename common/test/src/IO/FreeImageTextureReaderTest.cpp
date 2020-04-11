@@ -33,6 +33,8 @@
 
 #include <string>
 
+#include "TestUtils.h"
+
 namespace TrenchBroom {
     namespace IO {
         static std::unique_ptr<const Assets::Texture> loadTexture(const std::string& name) {
@@ -72,58 +74,8 @@ namespace TrenchBroom {
             ASSERT_NE(0u, texture->height());
         }
 
-        enum class Component {
-            R, G, B, A
-        };
-
-        static int getComponentOfPixel(const Assets::Texture* texture, const std::size_t x, const std::size_t y, const Component component) {
-            const auto format = texture->format();
-
-            ensure(GL_BGRA == format || GL_RGBA == format, "expected GL_BGRA or GL_RGBA");
-
-            std::size_t componentIndex = 0;
-            if (format == GL_RGBA) {
-                switch (component) {
-                    case Component::R: componentIndex = 0u; break;
-                    case Component::G: componentIndex = 1u; break;
-                    case Component::B: componentIndex = 2u; break;
-                    case Component::A: componentIndex = 3u; break;
-                }
-            } else {
-                switch (component) {
-                    case Component::R: componentIndex = 2u; break;
-                    case Component::G: componentIndex = 1u; break;
-                    case Component::B: componentIndex = 0u; break;
-                    case Component::A: componentIndex = 3u; break;
-                }
-            }
-
-            const auto& mip0DataBuffer = texture->buffersIfUnprepared().at(0);
-            assert(texture->width() * texture->height() * 4 == mip0DataBuffer.size());
-            assert(x < texture->width());
-            assert(y < texture->height());
-
-            const uint8_t* mip0Data = mip0DataBuffer.data();
-            return static_cast<int>(mip0Data[(texture->width() * 4u * y) + (x * 4u) + componentIndex]);
-        }
-
-        static void checkColor(const Assets::Texture* texturePtr, const std::size_t x, const std::size_t y,
-            const int r, const int g, const int b, const int a) {
-
-            const auto actualR = getComponentOfPixel(texturePtr, x, y, Component::R);
-            const auto actualG = getComponentOfPixel(texturePtr, x, y, Component::G);
-            const auto actualB = getComponentOfPixel(texturePtr, x, y, Component::B);
-            const auto actualA = getComponentOfPixel(texturePtr, x, y, Component::A);
-
-            // allow some error for lossy formats, e.g. JPG
-            EXPECT_TRUE(std::abs(r - actualR) <= 5);
-            EXPECT_TRUE(std::abs(g - actualG) <= 5);
-            EXPECT_TRUE(std::abs(b - actualB) <= 5);
-            EXPECT_EQ(a, actualA);
-        }
-
         // https://github.com/kduske/TrenchBroom/issues/2474
-        static void testImageContents(std::unique_ptr<const Assets::Texture> texture) {
+        static void testImageContents(std::unique_ptr<const Assets::Texture> texture, const ColorMatch match) {
             const std::size_t w = 64u;
             const std::size_t h = 64u;
 
@@ -139,24 +91,24 @@ namespace TrenchBroom {
                 for (std::size_t x = 0; x < w; ++x) {
                     if (x == 0 && y == 0) {
                         // top left pixel is red
-                        checkColor(texturePtr, x, y, 255, 0, 0, 255);
+                        checkColor(texturePtr, x, y, 255, 0, 0, 255, match);
                     } else if (x == (w - 1) && y == (h - 1)) {
                         // bottom right pixel is green
-                        checkColor(texturePtr, x, y, 0, 255, 0, 255);
+                        checkColor(texturePtr, x, y, 0, 255, 0, 255, match);
                     } else {
                         // others are 161, 161, 161
-                        checkColor(texturePtr, x, y, 161, 161, 161, 255);
+                        checkColor(texturePtr, x, y, 161, 161, 161, 255, match);
                     }
                 }
             }
         }
 
         TEST_CASE("FreeImageTextureReaderTest.testPNGContents", "[FreeImageTextureReaderTest]") {
-            testImageContents(loadTexture("pngContentsTest.png"));
+            testImageContents(loadTexture("pngContentsTest.png"), ColorMatch::Exact);
         }
 
         TEST_CASE("FreeImageTextureReaderTest.testJPGContents", "[FreeImageTextureReaderTest]") {
-            testImageContents(loadTexture("jpgContentsTest.jpg"));
+            testImageContents(loadTexture("jpgContentsTest.jpg"), ColorMatch::Approximate);
         }
 
         TEST_CASE("FreeImageTextureReaderTest.alphaMaskTest", "[FreeImageTextureReaderTest]") {

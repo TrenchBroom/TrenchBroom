@@ -28,6 +28,7 @@
 #include "IO/FreeImageTextureReader.h"
 #include "IO/HlMipTextureReader.h"
 #include "IO/IdMipTextureReader.h"
+#include "IO/M8TextureReader.h"
 #include "IO/Quake3ShaderTextureReader.h"
 #include "IO/TextureCollectionLoader.h"
 #include "IO/WalTextureReader.h"
@@ -69,6 +70,9 @@ namespace TrenchBroom {
             } else if (textureConfig.format.format == "q3shader") {
                 TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
                 return std::make_unique<Quake3ShaderTextureReader>(nameStrategy, gameFS, logger);
+            } else if (textureConfig.format.format == "m8") {
+                TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
+                return std::make_unique<M8TextureReader>(nameStrategy, gameFS, logger);
             } else {
                 throw GameException("Unknown texture format '" + textureConfig.format.format + "'");
             }

@@ -18,6 +18,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/GameConfigParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/IdMipTextureReaderTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/IdPakFileSystemTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/IO/M8TextureReaderTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/Md3ParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/MdlParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/NodeWriterTest.cpp"
