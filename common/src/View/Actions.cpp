@@ -236,7 +236,7 @@ namespace TrenchBroom {
                     result.push_back(makeAction(
                         IO::Path("Tags/" + tag.name() + "/Enable"),
                         QObject::tr("Turn Selection into %1").arg(QString::fromStdString(tag.name())),
-                        ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool,
+                        ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::FaceSelection | ActionContext::AnyTool,
                         [&tag](ActionExecutionContext& context) {
                             context.view()->enableTag(tag);
                         },
@@ -247,7 +247,7 @@ namespace TrenchBroom {
                     result.push_back(makeAction(
                         IO::Path("Tags/" + tag.name() + "/Disable"),
                         QObject::tr("Turn Selection into non-%1").arg(QString::fromStdString(tag.name())),
-                        ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool,
+                        ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::FaceSelection | ActionContext::AnyTool,
                         [&tag](ActionExecutionContext& context) {
                             context.view()->disableTag(tag);
                         },
