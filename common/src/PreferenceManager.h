@@ -104,6 +104,10 @@ namespace TrenchBroom {
          */
         std::map<IO::Path, QJsonValue> m_cache;
         QFileSystemWatcher* m_fileSystemWatcher;
+        /**
+         * If true, don't try to read/write preferences anymore.
+         */
+        bool m_readFailure;
 
         void markAsUnsaved(PreferenceBase* preference);
     public:

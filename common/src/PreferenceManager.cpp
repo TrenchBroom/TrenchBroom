@@ -37,6 +37,7 @@
 #endif
 #include <QStandardPaths>
 #include <QStringBuilder>
+#include <QMessageBox>
 
 #include <string>
 #include <vector>
@@ -249,7 +250,8 @@ namespace TrenchBroom {
     PreferenceManager::PreferenceManager()
     : QObject(),
     m_preferencesFilePath(v2SettingsPath()),
-    m_fileSystemWatcher(nullptr) {
+    m_fileSystemWatcher(nullptr),
+    m_readFailure(false) {
 #if defined __APPLE__
         m_saveInstantly = true;
 #else
@@ -286,6 +288,9 @@ namespace TrenchBroom {
         }
         m_unsavedPreferences.clear();
 
+        if (m_readFailure) {
+            return;
+        }
         assertResult(writeV2SettingsToPath(m_preferencesFilePath, m_cache))
     }
 
@@ -331,6 +336,10 @@ namespace TrenchBroom {
      * preferenceDidChangeNotifier as needed.
      */
     void PreferenceManager::loadCacheFromDisk() {
+        if (m_readFailure) {
+            return;
+        }
+
         const std::map<IO::Path, QJsonValue> oldPrefs = m_cache;
 
         // Reload m_cache
@@ -340,14 +349,20 @@ namespace TrenchBroom {
                 m_cache = prefs;
             },
             [&] (const PreferenceErrors::FileReadError&) {
-                // FIXME: Log error. Set a flag indicating the file has a parse error.
-                // Refuse to overwrite it.
-                m_cache = {};
+                m_readFailure = true;
+
+                auto message = QMessageBox(QMessageBox::Icon::Critical, tr("Error"),
+                                           tr("Couldn't read %1. Further settings changes will not be saved.").arg(m_preferencesFilePath),
+                                           QMessageBox::Ok);
+                message.exec();
             },
             [&] (const PreferenceErrors::JsonParseError&) {
-                // FIXME: Log error. Set a flag indicating the file has a parse error.
-                // Refuse to overwrite it.
-                m_cache = {};
+                m_readFailure = true;
+
+                auto message = QMessageBox(QMessageBox::Icon::Critical, tr("Error"),
+                                           tr("JSON parse error while reading %1. Further settings changes will not be saved.").arg(m_preferencesFilePath),
+                                           QMessageBox::Ok);
+                message.exec();
             },
             [&] (const PreferenceErrors::NoFilePresent&) {
                 m_cache = {};
@@ -692,6 +707,8 @@ namespace TrenchBroom {
         }
 
         const std::map<IO::Path, QJsonValue> v2Prefs = migrateV1ToV2(readV1Settings());
-        writeV2SettingsToPath(destinationPath, v2Prefs);
+
+        // FIXME: should probably show an error dialog
+        assertResult(writeV2SettingsToPath(destinationPath, v2Prefs));
     }
 }

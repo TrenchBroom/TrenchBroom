@@ -229,8 +229,8 @@ namespace TrenchBroom {
 
         CHECK(v2Deserialized.is_success());
         kdl::visit_result(kdl::overload{
-            [&](const std::map<IO::Path, QJsonValue>& success) {
-                CHECK(v2 == success);
+            [&](const std::map<IO::Path, QJsonValue>& prefs) {
+                CHECK(v2 == prefs);
             },
             [](const PreferenceErrors::NoFilePresent&) {
                 FAIL_CHECK();
