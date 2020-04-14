@@ -362,6 +362,7 @@ namespace TrenchBroom {
                 m_cache = prefs;
             },
             [&] (const PreferenceErrors::FileReadError&) {
+                // This happens e.g. if you don't have read permissions for m_preferencesFilePath
                 showErrorAndDisableFileReadWrite(tr("A file read error"));
             },
             [&] (const PreferenceErrors::JsonParseError&) {
