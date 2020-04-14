@@ -425,6 +425,10 @@ namespace TrenchBroom {
             }
         }
 
+        size_t MapView3D::doGetFlipAxis(const vm::direction direction) const {
+            return vm::find_abs_max_component(doGetMoveDirection(direction));
+        }
+
         vm::vec3 MapView3D::doComputePointEntityPosition(const vm::bbox3& bounds) const {
             auto document = kdl::mem_lock(m_document);
 

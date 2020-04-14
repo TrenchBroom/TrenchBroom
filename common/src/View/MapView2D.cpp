@@ -282,6 +282,24 @@ namespace TrenchBroom {
             }
         }
 
+        size_t MapView2D::doGetFlipAxis(const vm::direction direction) const {
+            switch (direction) {                
+                case vm::direction::forward:
+                case vm::direction::backward:
+                    // These are not currently used, but it would be a "forward flip"
+                    return vm::find_abs_max_component(m_camera->direction());                
+                case vm::direction::left:
+                case vm::direction::right:
+                    // Horizontal flip
+                    return vm::find_abs_max_component(m_camera->right());                
+                case vm::direction::up:
+                case vm::direction::down:
+                    // Vertical flip. In 2D views, this corresponds to the vertical axis of the viewport.
+                    return vm::find_abs_max_component(m_camera->up());
+                switchDefault()
+            }
+        }
+
         vm::vec3 MapView2D::doComputePointEntityPosition(const vm::bbox3& bounds) const {
             auto document = kdl::mem_lock(m_document);
 

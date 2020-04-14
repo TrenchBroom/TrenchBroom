@@ -423,7 +423,7 @@ namespace TrenchBroom {
                 halfGrid.decSize();
 
                 const auto center = halfGrid.referencePoint(document->selectionBounds());
-                const auto axis = vm::find_abs_max_component(moveDirection(direction));
+                const size_t axis = doGetFlipAxis(direction);
 
                 document->flipObjects(center, axis);
             }
