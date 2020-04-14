@@ -382,10 +382,14 @@ namespace TrenchBroom {
                 const QString label = QString::fromLatin1("Show %1").arg(QString::fromStdString(tag.name()).toLower());
 
                 auto* checkBox = new QCheckBox(label);
-                m_tagCheckBoxes.push_back(checkBox);
+                const Model::TagType::Type tagType = tag.type();
 
-                layout->addWidget(checkBox);
-                connect(checkBox, &QAbstractButton::clicked, this, &ViewEditor::showTagChanged);
+                m_tagCheckBoxes.emplace_back(tagType, checkBox);
+
+                layout->addWidget(checkBox);                
+                connect(checkBox, &QAbstractButton::clicked, this, [this, tagType](const bool checked) {
+                    showTagChanged(checked, tagType);
+                });
             }
             parent->setLayout(layout);
         }
@@ -477,14 +481,8 @@ namespace TrenchBroom {
             Model::EditorContext& editorContext = document->editorContext();
             const Model::TagType::Type hiddenTags = editorContext.hiddenTags();
 
-            const auto& tags = document->smartTags();
-            auto tagIt = std::begin(tags);
-            auto boxIt = std::begin(m_tagCheckBoxes);
-            while (tagIt != std::end(tags) && boxIt != std::end(m_tagCheckBoxes)) {
-                const Model::Tag& tag = *tagIt;
-                QCheckBox* checkBox = *boxIt;
-                checkBox->setChecked((tag.type() & hiddenTags) == 0);
-                ++tagIt; ++boxIt;
+            for (const auto& [tagType, checkBox] : m_tagCheckBoxes) {
+                checkBox->setChecked((tagType & hiddenTags) == 0);
             }
         }
 
@@ -542,24 +540,19 @@ namespace TrenchBroom {
             editorContext.setShowBrushes(checked);
         }
 
-        void ViewEditor::showTagChanged(const bool /* checked */) {
+        void ViewEditor::showTagChanged(const bool checked, const Model::TagType::Type tagType) {
             auto document = kdl::mem_lock(m_document);
+            auto& editorContext = document->editorContext();
 
-            Model::TagType::Type hiddenTags = Model::TagType::NoType;
-            const auto& tags = document->smartTags();
-
-            auto tagIt = std::begin(tags);
-            auto boxIt = std::begin(m_tagCheckBoxes);
-            while (tagIt != std::end(tags) && boxIt != std::end(m_tagCheckBoxes)) {
-                const auto& tag = *tagIt;
-                QCheckBox* checkBox = *boxIt;
-                if (!checkBox->isChecked()) {
-                    hiddenTags |= tag.type();
-                }
-                ++tagIt; ++boxIt;
+            Model::TagType::Type hiddenTags = editorContext.hiddenTags();
+            if (checked) {
+                // Unhide tagType
+                hiddenTags &= ~tagType;
+            } else {
+                // Hide tagType
+                hiddenTags |= tagType;
             }
 
-            auto& editorContext = document->editorContext();
             editorContext.setHiddenTags(hiddenTags);
         }
 

@@ -84,7 +84,8 @@ namespace TrenchBroom {
             const SmartTag& smartTag(size_t index) const;
 
             /**
-             * Register the given smart tags with this tag manager. The smart tags are copied into the manager. If this
+             * Register the given smart tags with this tag manager.
+             * The smart tags are copied into the manager and indexes and types are assigned. If this
              * manager already contains any smart tags, they are cleared before registering the given smart tags.
              *
              * @param tags the smart tags to register
