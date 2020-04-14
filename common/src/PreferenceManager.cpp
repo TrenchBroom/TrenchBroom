@@ -251,7 +251,7 @@ namespace TrenchBroom {
     : QObject(),
     m_preferencesFilePath(v2SettingsPath()),
     m_fileSystemWatcher(nullptr),
-    m_readFailure(false) {
+    m_fileReadWriteDisabled(false) {
 #if defined __APPLE__
         m_saveInstantly = true;
 #else
@@ -288,7 +288,7 @@ namespace TrenchBroom {
         }
         m_unsavedPreferences.clear();
 
-        if (m_readFailure) {
+        if (m_fileReadWriteDisabled) {
             return;
         }
         assertResult(writeV2SettingsToPath(m_preferencesFilePath, m_cache))
@@ -330,13 +330,26 @@ namespace TrenchBroom {
         return result.release_data();
     }
 
+    void PreferenceManager::showErrorAndDisableFileReadWrite(const QString& reason) {
+        m_fileReadWriteDisabled = true;
+
+        auto message = QMessageBox(QMessageBox::Icon::Critical, tr("TrenchBroom"),
+                                   tr("%1 occurred while reading the settings file:\n\n"
+                                      "%2\n\nPlease correct the problem or delete the file, and restart TrenchBroom.\n"
+                                      "Further settings changes will not be saved this session.")
+                                     .arg(reason)
+                                     .arg(m_preferencesFilePath),
+                                   QMessageBox::Ok);
+        message.exec();
+    }
+
     /**
      * Reloads m_cache from the .json file,
      * marks all Preference<T> objects as needing deserialization next time they're accessed, and emits
      * preferenceDidChangeNotifier as needed.
      */
     void PreferenceManager::loadCacheFromDisk() {
-        if (m_readFailure) {
+        if (m_fileReadWriteDisabled) {
             return;
         }
 
@@ -349,20 +362,10 @@ namespace TrenchBroom {
                 m_cache = prefs;
             },
             [&] (const PreferenceErrors::FileReadError&) {
-                m_readFailure = true;
-
-                auto message = QMessageBox(QMessageBox::Icon::Critical, tr("Error"),
-                                           tr("Couldn't read %1. Further settings changes will not be saved.").arg(m_preferencesFilePath),
-                                           QMessageBox::Ok);
-                message.exec();
+                showErrorAndDisableFileReadWrite(tr("A file read error"));
             },
             [&] (const PreferenceErrors::JsonParseError&) {
-                m_readFailure = true;
-
-                auto message = QMessageBox(QMessageBox::Icon::Critical, tr("Error"),
-                                           tr("JSON parse error while reading %1. Further settings changes will not be saved.").arg(m_preferencesFilePath),
-                                           QMessageBox::Ok);
-                message.exec();
+                showErrorAndDisableFileReadWrite(tr("A JSON parsing error"));
             },
             [&] (const PreferenceErrors::NoFilePresent&) {
                 m_cache = {};

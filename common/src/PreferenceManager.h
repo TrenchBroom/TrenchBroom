@@ -106,8 +106,10 @@ namespace TrenchBroom {
         QFileSystemWatcher* m_fileSystemWatcher;
         /**
          * If true, don't try to read/write preferences anymore.
+         * This gets set to true if there is a JSON parse error, so
+         * we don't clobber the file if the user makes a mistake while editing it by hand.
          */
-        bool m_readFailure;
+        bool m_fileReadWriteDisabled;
 
         void markAsUnsaved(PreferenceBase* preference);
     public:
@@ -119,6 +121,7 @@ namespace TrenchBroom {
         void saveChanges();
         void discardChanges();
     private:
+        void showErrorAndDisableFileReadWrite(const QString& reason);
         void loadCacheFromDisk();
         void invalidatePreferences();
         void loadPreferenceFromCache(PreferenceBase* pref);
