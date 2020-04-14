@@ -173,6 +173,14 @@ namespace kdl {
         bool is_error() const {
             return !is_success();
         }
+
+        /**
+         * Indicates whether the given result contains the given type of error.
+         */
+        template <class E, typename std::enable_if<std::disjunction_v<std::is_convertible<E, Errors>...>>::type* = nullptr>
+        bool is_error_type() const {
+            return std::holds_alternative<E>(m_value);
+        }
         
         /**
          * Indicates whether the given result contains a value.
@@ -333,7 +341,15 @@ namespace kdl {
         bool is_error() const {
             return !is_success();
         }
-        
+
+        /**
+         * Indicates whether the given result contains the given type of error.
+         */
+        template <class E, typename std::enable_if<std::disjunction_v<std::is_convertible<E, Errors>...>>::type* = nullptr>
+        bool is_error_type() const {
+            return std::holds_alternative<E>(m_value);
+        }
+
         /**
          * Indicates whether this result contains a reference.
          */
@@ -444,7 +460,19 @@ namespace kdl {
         bool is_error() const {
             return !is_success();
         }
-        
+    
+        /**
+         * Indicates whether the given result contains the given type of error.
+         */
+        template <class E, typename std::enable_if<std::disjunction_v<std::is_convertible<E, Errors>...>>::type* = nullptr>
+        bool is_error_type() const {
+            if (m_error.has_value()) { 
+                return std::holds_alternative<E>(m_error.value());
+            } else {
+                return false;
+            }
+        }
+
         /**
          * Indicates whether this result is empty.
          */
@@ -586,7 +614,15 @@ namespace kdl {
         bool is_error() const {
             return !is_success();
         }
-        
+
+        /**
+         * Indicates whether the given result contains the given type of error.
+         */
+        template <class E, typename std::enable_if<std::disjunction_v<std::is_convertible<E, Errors>...>>::type* = nullptr>
+        bool is_error_type() const {
+            return std::holds_alternative<E>(m_value);
+        }
+
         /**
          * Indicates whether the given result is a success, i.e. whether it is empty or contains a value.
          */

@@ -194,17 +194,30 @@ namespace TrenchBroom {
 
     TEST_CASE("PreferencesTest.readV2", "[PreferencesTest]") {
         // Invalid JSON -> parse error -> parseV2SettingsFromJSON() is expected to return nullopt
-        ASSERT_EQ(PreferencesResult::Status::JsonParseError, parseV2SettingsFromJSON(QByteArray()).status);
-        ASSERT_EQ(PreferencesResult::Status::JsonParseError, parseV2SettingsFromJSON(QByteArray("abc")).status);
-        ASSERT_EQ(PreferencesResult::Status::JsonParseError, parseV2SettingsFromJSON(QByteArray(R"({"foo": "bar",})")).status);
+        CHECK(parseV2SettingsFromJSON(QByteArray()).is_error_type<PreferenceErrors::JsonParseError>());
+        CHECK(parseV2SettingsFromJSON(QByteArray("abc")).is_error_type<PreferenceErrors::JsonParseError>());
+        CHECK(parseV2SettingsFromJSON(QByteArray(R"({"foo": "bar",})")).is_error_type<PreferenceErrors::JsonParseError>());
 
         // Valid JSON
-        ASSERT_EQ(PreferencesResult::Status::Valid, parseV2SettingsFromJSON(QByteArray(R"({"foo": "bar"})")).status);
-        ASSERT_EQ(PreferencesResult::Status::Valid, parseV2SettingsFromJSON(QByteArray("{}")).status);
+        CHECK(parseV2SettingsFromJSON(QByteArray(R"({"foo": "bar"})")).is_success());
+        CHECK(parseV2SettingsFromJSON(QByteArray("{}")).is_success());
 
         const PreferencesResult v2 = readV2SettingsFromPath("fixture/test/preferences-v2.json");
-        ASSERT_EQ(PreferencesResult::Status::Valid, v2.status);
-        testV2Prefs(v2.map);
+        CHECK(v2.is_success());
+        kdl::visit_result(kdl::overload{
+            [](const std::map<IO::Path, QJsonValue>& prefs) {
+               testV2Prefs(prefs);
+            },
+            [](const PreferenceErrors::NoFilePresent&) {
+                FAIL_CHECK();
+            },
+            [](const PreferenceErrors::JsonParseError&) {
+                FAIL_CHECK();
+            },
+            [](const PreferenceErrors::FileReadError&) {
+                FAIL_CHECK();
+            }
+        }, v2);
     }
 
     TEST_CASE("PreferencesTest.testWriteReadV2", "[PreferencesTest]") {
@@ -214,8 +227,21 @@ namespace TrenchBroom {
         const QByteArray v2Serialized = writeV2SettingsToJSON(v2);
         const auto v2Deserialized = parseV2SettingsFromJSON(v2Serialized);
 
-        ASSERT_EQ(PreferencesResult::Status::Valid, v2Deserialized.status);
-        EXPECT_EQ(v2, v2Deserialized.map);
+        CHECK(v2Deserialized.is_success());
+        kdl::visit_result(kdl::overload{
+            [&](const std::map<IO::Path, QJsonValue>& success) {
+                CHECK(v2 == success);
+            },
+            [](const PreferenceErrors::NoFilePresent&) {
+                FAIL_CHECK();
+            },
+            [](const PreferenceErrors::JsonParseError&) {
+                FAIL_CHECK();
+            },
+            [](const PreferenceErrors::FileReadError&) {
+                FAIL_CHECK();
+            }
+        }, v2Deserialized);
     }
 
     /**

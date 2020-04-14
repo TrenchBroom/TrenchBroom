@@ -25,7 +25,7 @@
 #include "Preference.h"
 
 #include <kdl/vector_set.h>
-#include <nonstd/optional.hpp>
+#include <kdl/result.h>
 
 #include <map>
 #include <memory>
@@ -36,6 +36,7 @@
 #include <QString>
 #include <QThread>
 #include <QJsonParseError>
+
 class QTextStream;
 class QFileSystemWatcher;
 
@@ -189,24 +190,17 @@ namespace TrenchBroom {
         return prefs.get(preference);
     }
 
-    struct PreferencesResult {
-        enum class Status {
-            Valid,
-            NoFilePresent,
-            JsonParseError,
-            FileReadError
-        };
+    namespace PreferenceErrors {
+        struct NoFilePresent  {};
+        struct JsonParseError { QJsonParseError jsonError; };
+        struct FileReadError  {};
+    }
 
-        Status status;
-        std::map<IO::Path, QJsonValue> map;
-        QJsonParseError error;
-
-        static PreferencesResult parseError(const QJsonParseError& i_parseError);
-        static PreferencesResult valid(const std::map<IO::Path, QJsonValue>& i_map);
-        static PreferencesResult noFilePresent();
-        static PreferencesResult fileReadError();
-    };
-
+    using PreferencesResult = kdl::result<std::map<IO::Path, QJsonValue>, // Success case
+                                          PreferenceErrors::NoFilePresent,
+                                          PreferenceErrors::JsonParseError,
+                                          PreferenceErrors::FileReadError>;
+    
     // V1 settings
     std::map<IO::Path, QJsonValue> parseINI(QTextStream* iniStream);
     std::map<IO::Path, QJsonValue> getINISettingsV1(const QString& path);
