@@ -299,6 +299,7 @@ namespace TrenchBroom {
             bool canMakeStructural() const;
         private: // subclassing interface
             virtual vm::vec3 doGetMoveDirection(vm::direction direction) const = 0;
+            virtual size_t doGetFlipAxis(const vm::direction direction) const = 0;
             virtual vm::vec3 doComputePointEntityPosition(const vm::bbox3& bounds) const = 0;
 
             virtual ActionContext::Type doGetActionContext() const = 0;
