@@ -28,7 +28,7 @@
 #include "IO/Tokenizer.h"
 
 #include <memory>
-#include <nonstd/optional.hpp>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -119,10 +119,10 @@ namespace TrenchBroom {
 
             bool parseReadOnlyFlag(ParserStatus& status);
             std::string parseAttributeDescription(ParserStatus& status);
-            nonstd::optional<std::string> parseDefaultStringValue(ParserStatus& status);
-            nonstd::optional<int> parseDefaultIntegerValue(ParserStatus& status);
-            nonstd::optional<float> parseDefaultFloatValue(ParserStatus& status);
-            nonstd::optional<std::string> parseDefaultChoiceValue(ParserStatus& status);
+            std::optional<std::string> parseDefaultStringValue(ParserStatus& status);
+            std::optional<int> parseDefaultIntegerValue(ParserStatus& status);
+            std::optional<float> parseDefaultFloatValue(ParserStatus& status);
+            std::optional<std::string> parseDefaultChoiceValue(ParserStatus& status);
 
             vm::vec3 parseVector(ParserStatus& status);
             vm::bbox3 parseSize(ParserStatus& status);

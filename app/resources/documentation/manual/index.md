@@ -614,6 +614,10 @@ If you hold #key(308) when you start dragging, the brush will not be resized. In
 
 ![Splitting a brush in the 3D viewport](images/ResizeTool3DSplitMode.gif)
 
+When starting a drag with #key(308) you can also drag inward to split the original brush:
+
+![Splitting a brush inward in the 3D viewport](images/ResizeTool3DSplitInwardMode.gif)
+
 You can also resize several brushes at the same time by moving their faces using the resize tool, but only if these faces line up perfectly. As the following animation illustrates, it's not enough that the faces are parallel - they have to be identical.
 
 ![Resizing multiple brushes](images/ResizeTool3DMultipleBrushes.gif)
@@ -1955,7 +1959,7 @@ In an ENT file, the same model specification might look like this.
     <point
     	name="ammo_bfg" color=".3 .3 1"
     	box="-16 -16 -16 16 16 16"
-    	model="{{ perch == "1" -> "progs/gaunt.mdl", { "path": "progs/gaunt.mdl", "skin": 0, "frame": 24 } }}"
+    	model="{{ perch == '1' -> 'progs/gaunt.mdl', { 'path': 'progs/gaunt.mdl', 'skin': 0, 'frame': 24 } }}"
 	/>
 
 ## Point Files and Portal Files
@@ -2102,14 +2106,17 @@ Then you need to copy your `classname` matchers into the array value of the `bru
 
 The file format is specified by an array of maps under the key `fileformats`. The following formats are supported.
 
-Format      	 Description
-------      	 -----------
-Standard     	 Standard Quake map file
-Valve       	 Valve map file (like Standard, but with different texture info per face)
-Quake2       	 Quake 2 map file
-Quake3       	 Quake 3 map file (with brush primitives)
-Quake3 (legacy)  Quake 3 map file (without brush primitives)
-Hexen2       	 Hexen 2 map file (like Quake, but with an additional, but unused value per face)
+Format           Description
+------           -----------
+Standard         Standard Quake map file
+Valve            Valve map file (like Standard, but with more control over texture mapping)
+Quake2           Quake 2 map file with Standard style texture info
+Quake2 (Valve)   Quake 2 map file with Valve style texture info
+Quake3 (Valve)   Quake 3 map file with Valve style texture info
+Quake3 (legacy)  Quake 3 map file with Standard style texture info
+Hexen2           Hexen 2 map file (like Quake, but with an additional, but unused value per face)
+
+Note that the "Quake3" format, which will include Quake 3 brush primitives support, is not yet fully implemented and so is omitted from the list above. The "Quake3 (Valve)" format is as expressive for texture placement as the brush primitives format, but "Quake3 (Valve)" cannot be used to read existing map files that contain brush primitives. Also note that none of the Quake 3 formats yet support patch meshes.
 
 Each entry of the array must have the following structure:
 

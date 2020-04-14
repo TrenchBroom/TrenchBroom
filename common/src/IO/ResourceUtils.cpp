@@ -20,9 +20,15 @@
 #include "ResourceUtils.h"
 
 #include "Ensure.h"
+#include "Logger.h"
+#include "Assets/Texture.h"
+#include "IO/FileSystem.h"
+#include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "IO/SystemPaths.h"
+
+#include <kdl/set_temp.h>
 
 #include <map>
 #include <string>
@@ -36,6 +42,26 @@
 
 namespace TrenchBroom {
     namespace IO {
+        std::unique_ptr<Assets::Texture> loadDefaultTexture(const FileSystem& fs, Logger& logger, const std::string& name) {
+            // recursion guard
+            static bool executing = false;
+            if (!executing) {
+                const kdl::set_temp set_executing(executing);
+                
+                try {
+                    const auto file = fs.openFile(Path("textures/__TB_empty.png"));
+                    FreeImageTextureReader imageReader(IO::TextureReader::StaticNameStrategy(name), fs, logger);
+                    return std::unique_ptr<Assets::Texture>(imageReader.readTexture(file));
+                } catch (const Exception& e) {
+                    logger.error() << "Could not load default texture: " << e.what();
+                    // fall through to return an empty texture
+                }
+            } else {
+                logger.error() << "Could not load default texture";
+            }
+            return std::make_unique<Assets::Texture>(name, 32, 32);
+        }
+
         static QString imagePathToString(const Path& imagePath) {
             const Path fullPath = imagePath.isAbsolute() ? imagePath : SystemPaths::findResourceFile(Path("images") + imagePath);
             return pathAsQString(fullPath);

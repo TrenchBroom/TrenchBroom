@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Logger.h"
 #include "Assets/EntityModel.h"
@@ -29,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(ObjParserTest, loadValidObj) {
+        TEST_CASE("ObjParserTest.loadValidObj", "[ObjParserTest]") {
             NullLogger logger;
 
             const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Obj");

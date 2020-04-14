@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "EL/ELExceptions.h"
 #include "EL/EvaluationContext.h"
@@ -45,22 +47,22 @@ namespace TrenchBroom {
             ASSERT_EQ(expression1.evaluate(context), expression2.evaluate(context));
         }
 
-        TEST(ELParserTest, parseEmptyExpression) {
+        TEST_CASE("ELParserTest.parseEmptyExpression", "[ELParserTest]") {
             ASSERT_EL_THROW("", ParserException);
             ASSERT_EL_THROW("    ", ParserException);
             ASSERT_EL_THROW("\n", ParserException);
         }
 
-        TEST(ELParserTest, parseStringLiteral) {
+        TEST_CASE("ELParserTest.parseStringLiteral", "[ELParserTest]") {
             ASSERT_EL_THROW("\"asdf", ParserException);
             ASSERT_EL_EQ("asdf", "\"asdf\"");
         }
 
-        TEST(ELParserTest, parseStringLiteralWithDoubleQuotationMarks) {
+        TEST_CASE("ELParserTest.parseStringLiteralWithDoubleQuotationMarks", "[ELParserTest]") {
             ASSERT_EL_EQ(R"(asdf" "asdf)", R"("asdf\" \"asdf")");
         }
 
-        TEST(ELParserTest, parseNumberLiteral) {
+        TEST_CASE("ELParserTest.parseNumberLiteral", "[ELParserTest]") {
             ASSERT_EL_THROW("1.123.34", ParserException);
 
             ASSERT_EL_EQ(1.0, "1");
@@ -70,12 +72,12 @@ namespace TrenchBroom {
             ASSERT_EL_EQ(0.0, "0");
         }
 
-        TEST(ELParserTest, parseBooleanLiteral) {
+        TEST_CASE("ELParserTest.parseBooleanLiteral", "[ELParserTest]") {
             ASSERT_EL_EQ(true, "true");
             ASSERT_EL_EQ(false, "false");
         }
 
-        TEST(ELParserTest, parseArrayLiteral) {
+        TEST_CASE("ELParserTest.parseArrayLiteral", "[ELParserTest]") {
             EL::ArrayType array, nestedArray;
             array.push_back(EL::Value(1.0));
             array.push_back(EL::Value("test"));
@@ -92,7 +94,7 @@ namespace TrenchBroom {
             ASSERT_EL_EQ(EL::ArrayType({ EL::Value(-2.0), EL::Value(-1.0), EL::Value(0.0), EL::Value(1.0) }), "[-2..1]");
         }
 
-        TEST(ELParserTest, parseMapLiteral) {
+        TEST_CASE("ELParserTest.parseMapLiteral", "[ELParserTest]") {
             EL::MapType map, nestedMap;
             map.insert(std::make_pair("testkey1", EL::Value(1.0)));
             map.insert(std::make_pair("testkey2", EL::Value("asdf")));
@@ -103,7 +105,7 @@ namespace TrenchBroom {
             ASSERT_EL_EQ(map, " { \"testkey1\": 1, \"testkey2\"   :\"asdf\", \"testkey3\":{\"nestedKey\":true} }");
         }
 
-        TEST(ELParserTest, parseMapLiteralNestedInArray) {
+        TEST_CASE("ELParserTest.parseMapLiteralNestedInArray", "[ELParserTest]") {
             EL::MapType map;
             map.insert(std::make_pair("key", EL::Value("value")));
 
@@ -113,7 +115,7 @@ namespace TrenchBroom {
             ASSERT_EL_EQ(array, R"([ { "key": "value" } ])");
         }
 
-        TEST(ELParserTest, parseMapLiteralNestedInArrayNestedInMap) {
+        TEST_CASE("ELParserTest.parseMapLiteralNestedInArrayNestedInMap", "[ELParserTest]") {
             EL::MapType inner;
             inner.insert(std::make_pair("key", EL::Value("value")));
 
@@ -127,7 +129,7 @@ namespace TrenchBroom {
             ASSERT_EL_EQ(outer, R"({ "outerkey1": [ { "key": "value" } ], "outerkey2": "asdf" })");
         }
 
-        TEST(ELParserTest, parseMapLiteralWithTrailingGarbage) {
+        TEST_CASE("ELParserTest.parseMapLiteralWithTrailingGarbage", "[ELParserTest]") {
             ASSERT_EL_THROW("{\n"
                             "\t\"profiles\": [],\n"
                             "\t\"version\": 1\n"
@@ -135,22 +137,22 @@ namespace TrenchBroom {
                             "asdf", ParserException);
         }
 
-        TEST(ELParserTest, parseVariable) {
+        TEST_CASE("ELParserTest.parseVariable", "[ELParserTest]") {
             EL::EvaluationContext context;
             context.declareVariable("test", EL::Value(1.0));
 
             ASSERT_EL_EQ(1.0, "test", context);
         }
 
-        TEST(ELParserTest, parseUnaryPlus) {
+        TEST_CASE("ELParserTest.parseUnaryPlus", "[ELParserTest]") {
             ASSERT_EL_EQ(1.0, "+1.0");
         }
 
-        TEST(ELParserTest, parseUnaryMinus) {
+        TEST_CASE("ELParserTest.parseUnaryMinus", "[ELParserTest]") {
             ASSERT_EL_EQ(-1.0, "-1.0");
         }
 
-        TEST(ELParserTest, parseLogicalNegation) {
+        TEST_CASE("ELParserTest.parseLogicalNegation", "[ELParserTest]") {
             ASSERT_EL_EQ(false, "!true");
             ASSERT_EL_EQ(true, "!false");
             ASSERT_EL_THROW("!0", EL::ConversionError);
@@ -158,79 +160,79 @@ namespace TrenchBroom {
             ASSERT_EL_THROW("!'true'", EL::ConversionError);
         }
 
-        TEST(ELParserTest, parseBitwiseNegation) {
+        TEST_CASE("ELParserTest.parseBitwiseNegation", "[ELParserTest]") {
             ASSERT_EL_EQ(~393, "~393");
             ASSERT_EL_THROW("~", ParserException);
             ASSERT_EL_THROW("~~", ParserException);
         }
 
-        TEST(ELParserTest, parseAddition) {
+        TEST_CASE("ELParserTest.parseAddition", "[ELParserTest]") {
             ASSERT_EL_EQ(5.0, "2 + 3");
             ASSERT_EL_EQ("asdf", "\"as\"+\"df\"");
             ASSERT_EL_EQ(9.0, "2 + 3 + 4");
         }
 
-        TEST(ELParserTest, parseSubtraction) {
+        TEST_CASE("ELParserTest.parseSubtraction", "[ELParserTest]") {
             ASSERT_EL_EQ(-1.0, "2 - 3.0");
             ASSERT_EL_EQ(-5.0, "2 - 3 - 4");
             ASSERT_EL_EQ(-7.0, "2 - 3 - 4 - 2");
         }
 
-        TEST(ELParserTest, parseMultiplication) {
+        TEST_CASE("ELParserTest.parseMultiplication", "[ELParserTest]") {
             ASSERT_EL_EQ(6.0, "2 * 3.0");
 
             ASSERT_EL_EQ(24.0, "2 * 3 * 4");
             ASSERT_EL_EQ(48.0, "2 * 3 * 4 * 2");
         }
 
-        TEST(ELParserTest, parseDivision) {
+        TEST_CASE("ELParserTest.parseDivision", "[ELParserTest]") {
             ASSERT_EL_EQ(6.0, "12 / 2.0");
             ASSERT_EL_EQ(3.0, "12 / 2 / 2");
             ASSERT_EL_EQ(1.0, "12 / 2 / 2 / 3");
         }
 
-        TEST(ELParserTest, parseModulus) {
+        TEST_CASE("ELParserTest.parseModulus", "[ELParserTest]") {
             ASSERT_EL_EQ(0.0, "12 % 2.0");
             ASSERT_EL_EQ(2.0, "12 % 5 % 3");
             ASSERT_EL_EQ(2.0, "12 % 5 % 3 % 3");
         }
 
-        TEST(ELParserTest, parseLogicalAnd) {
+        TEST_CASE("ELParserTest.parseLogicalAnd", "[ELParserTest]") {
             ASSERT_EL_EQ(true, "true && true");
             ASSERT_EL_EQ(false, "false && true");
             ASSERT_EL_EQ(false, "true && false");
             ASSERT_EL_EQ(false, "false && false");
         }
 
-        TEST(ELParserTest, parseLogicalOr) {
+        TEST_CASE("ELParserTest.parseLogicalOr", "[ELParserTest]") {
             ASSERT_EL_EQ(true, "true || true");
             ASSERT_EL_EQ(true, "false || true");
             ASSERT_EL_EQ(true, "true || false");
             ASSERT_EL_EQ(false, "false || false");
         }
 
-        TEST(ELParserTest, parseBitwiseAnd) {
+        TEST_CASE("ELParserTest.parseBitwiseAnd", "[ELParserTest]") {
             ASSERT_EL_EQ(23 & 24, "23 & 24");
         }
 
-        TEST(ELParserTest, parseBitwiseOr) {
+        TEST_CASE("ELParserTest.parseBitwiseOr", "[ELParserTest]") {
             ASSERT_EL_EQ(23 | 24, "23 | 24");
         }
 
-        TEST(ELParserTest, parseBitwiseXor) {
+        TEST_CASE("ELParserTest.parseBitwiseXor", "[ELParserTest]") {
             ASSERT_EL_EQ(23 ^ 24, "23 ^ 24");
             ASSERT_EL_THROW("23 ^^ 23", ParserException);
         }
 
-        TEST(ELParserTest, parseBitwiseShiftLeft) {
+        TEST_CASE("ELParserTest.parseBitwiseShiftLeft", "[ELParserTest]") {
             ASSERT_EL_EQ(1 << 7, "1 << 7");
         }
 
-        TEST(ELParserTest, parseBitwiseShiftRight) {
+        TEST_CASE("ELParserTest.parseBitwiseShiftRight", "[ELParserTest]") {
             ASSERT_EL_EQ(8 >> 2, "8 >> 2");
         }
 
-        TEST(ELParserTest, parseSubscript) {
+        TEST_CASE("ELParserTest.parseSubscript", "[ELParserTest]") {
             ASSERT_EL_EQ(1.0, "[ 1.0, 2.0, \"test\" ][0]");
             ASSERT_EL_EQ(2.0, "[ 1.0, 2.0, \"test\" ][1]");
             ASSERT_EL_EQ("test", "[ 1.0, 2.0, \"test\" ][2]");
@@ -265,18 +267,18 @@ namespace TrenchBroom {
             ASSERT_EL_EQ("est", "\"test\"[1..]");
         }
 
-        TEST(ELParserTest, parseCaseOperator) {
+        TEST_CASE("ELParserTest.parseCaseOperator", "[ELParserTest]") {
             ASSERT_EL_EQ(false, "true -> false");
             ASSERT_EL_EQ(true, "true -> true && true");
             ASSERT_EL_EQ(5, "1 < 3 -> 2 + 3");
             ASSERT_EL_EQ(EL::Value::Undefined, "false -> true");
         }
 
-        TEST(ELParserTest, parseBinaryNegation) {
+        TEST_CASE("ELParserTest.parseBinaryNegation", "[ELParserTest]") {
             ASSERT_EL_EQ(~1l, "~1");
         }
 
-        TEST(ELParserTest, parseSwitchExpression) {
+        TEST_CASE("ELParserTest.parseSwitchExpression", "[ELParserTest]") {
             ASSERT_EL_EQ(EL::Value::Undefined, "{{}}");
             ASSERT_EL_EQ("asdf", "{{'asdf'}}");
             ASSERT_EL_EQ("fdsa", "{{'fdsa', 'asdf'}}");
@@ -284,7 +286,7 @@ namespace TrenchBroom {
             ASSERT_EL_EQ(EL::Value::Undefined, "{{false -> false}}");
         }
 
-        TEST(ELParserTest, testComparisonOperators) {
+        TEST_CASE("ELParserTest.testComparisonOperators", "[ELParserTest]") {
             ASSERT_EL_EQ(true, "1 < 2");
             ASSERT_EL_EQ(false, "2 < 2");
             ASSERT_EL_EQ(true, "1 <= 2");
@@ -303,7 +305,7 @@ namespace TrenchBroom {
             ASSERT_EL_EQ(false, "2 >= 3");
         }
 
-        TEST(ELParserTest, testOperatorPrecedence) {
+        TEST_CASE("ELParserTest.testOperatorPrecedence", "[ELParserTest]") {
             ASSERT_ELS_EQ("7 + 2 * 3", "2 * 3 + 7");
             ASSERT_ELS_EQ("7 + 2 * 3 + 2", "2 * 3 + 7 + 2");
             ASSERT_ELS_EQ("7 + 2 * 3 + 2 * 2", "2 * 3 + 7 + 2 * 2");
@@ -315,7 +317,7 @@ namespace TrenchBroom {
             ASSERT_EL_EQ(false, "false && (false || true)");
         }
 
-        TEST(ELParserTest, testParseGrouping) {
+        TEST_CASE("ELParserTest.testParseGrouping", "[ELParserTest]") {
             ASSERT_EL_THROW("()", ParserException);
             ASSERT_EL_EQ(1.0, "(1)");
             ASSERT_EL_EQ(9.0, "(2+1)*3");

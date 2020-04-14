@@ -96,7 +96,7 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             std::unique_ptr<const Model::CompilationRunTool> m_task;
-            std::unique_ptr<QProcess> m_process;
+            QProcess* m_process;
             bool m_terminated;
         public:
             CompilationRunToolTaskRunner(CompilationContext& context, const Model::CompilationRunTool& task);
@@ -106,6 +106,7 @@ namespace TrenchBroom {
             void doTerminate() override;
         private:
             void startProcess();
+            std::string cmd();
         private slots:
             void processErrorOccurred(QProcess::ProcessError processError);
             void processFinished(int exitCode, QProcess::ExitStatus exitStatus);

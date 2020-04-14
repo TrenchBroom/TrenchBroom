@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/plane.h>
@@ -29,7 +31,7 @@
 /* see https://github.com/kduske/TrenchBroom/issues/1033
  commented out because it breaks the release build process
  */
-TEST(PlaneTest, planePointFinder) {
+TEST_CASE("PlaneTest.planePointFinder", "[PlaneTest]") {
     const vm::vec3 points[3] = {vm::vec3(48, 16, 28), vm::vec3(16.0, 16.0, 27.9980487823486328125), vm::vec3(48, 18, 22)};
     ASSERT_FALSE(vm::is_integral(points[1]));
 

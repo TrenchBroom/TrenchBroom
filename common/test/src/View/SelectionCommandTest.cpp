@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -31,7 +33,7 @@ namespace TrenchBroom {
     namespace View {
         class SelectionCommandTest : public MapDocumentTest {};
 
-        TEST_F(SelectionCommandTest, faceSelectionUndoAfterTranslationUndo) {
+        TEST_CASE_METHOD(SelectionCommandTest, "SelectionCommandTest.faceSelectionUndoAfterTranslationUndo") {
             Model::Brush* brush = createBrush();
             ASSERT_EQ(vm::vec3::zero(), brush->logicalBounds().center());
 

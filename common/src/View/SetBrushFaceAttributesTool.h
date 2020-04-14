@@ -41,9 +41,10 @@ namespace TrenchBroom {
             bool doMouseClick(const InputState& inputState) override;
             bool doMouseDoubleClick(const InputState& inputState) override;
 
-            bool performCopy(const InputState& inputState, bool applyToBrush);
+            void copyAttributesFromSelection(const InputState& inputState, bool applyToBrush);
+            bool canCopyAttributesFromSelection(const InputState& inputState) const;
             bool applies(const InputState& inputState) const;
-            bool copyAttributes(const InputState& inputState) const;
+            bool copyAllAttributes(const InputState& inputState) const;
 
             bool doCancel() override;
         };

@@ -19,7 +19,9 @@
 
 #include <stdio.h>
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -34,7 +36,7 @@ namespace TrenchBroom {
     namespace View {
         class RemoveNodesTest : public MapDocumentTest {};
 
-        TEST_F(RemoveNodesTest, removeLayer) {
+        TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.removeLayer") {
             Model::Layer* layer = new Model::Layer("Layer 1");
             document->addNode(layer, document->world());
 
@@ -45,7 +47,7 @@ namespace TrenchBroom {
             ASSERT_EQ(document->world(), layer->parent());
         }
 
-        TEST_F(RemoveNodesTest, removeEmptyBrushEntity) {
+        TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.removeEmptyBrushEntity") {
             Model::Layer* layer = new Model::Layer("Layer 1");
             document->addNode(layer, document->world());
 
@@ -64,7 +66,7 @@ namespace TrenchBroom {
             ASSERT_EQ(layer, entity->parent());
         }
 
-        TEST_F(RemoveNodesTest, removeEmptyGroup) {
+        TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.removeEmptyGroup") {
             Model::Group* group = new Model::Group("group");
             document->addNode(group, document->currentParent());
 
@@ -84,7 +86,7 @@ namespace TrenchBroom {
             ASSERT_EQ(document->world()->defaultLayer(), group->parent());
         }
 
-        TEST_F(RemoveNodesTest, recursivelyRemoveEmptyGroups) {
+        TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.recursivelyRemoveEmptyGroups") {
             Model::Group* outer = new Model::Group("outer");
             document->addNode(outer, document->currentParent());
 

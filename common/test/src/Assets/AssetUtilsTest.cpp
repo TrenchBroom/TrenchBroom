@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "TestLogger.h"
 
@@ -25,15 +27,15 @@
 #include "Assets/AssetUtils.h"
 #include "IO/Path.h"
 
-#include <nonstd/optional.hpp>
+#include <optional>
 
 namespace TrenchBroom {
     namespace Assets {
-        TEST(AssetUtilsTest, safeGetModelSpecification) {
+        TEST_CASE("AssetUtilsTest.safeGetModelSpecification", "[AssetUtilsTest]") {
             TestLogger logger;
 
             const auto expected = ModelSpecification(IO::Path("test/test"), 1, 2);
-            nonstd::optional<ModelSpecification> actual;
+            std::optional<ModelSpecification> actual;
             
             // regular execution is fine
             ASSERT_NO_THROW(actual = safeGetModelSpecification(logger, "", [&]() {

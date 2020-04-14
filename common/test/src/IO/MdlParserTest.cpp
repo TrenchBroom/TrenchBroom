@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Logger.h"
 #include "IO/DiskFileSystem.h"
@@ -31,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(MdlParserTest, loadValidMdl) {
+        TEST_CASE("MdlParserTest.loadValidMdl", "[MdlParserTest]") {
             NullLogger logger;
 
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
@@ -56,7 +58,7 @@ namespace TrenchBroom {
             EXPECT_EQ(1u, surface.frameCount());
         }
 
-        TEST(MdlParserTest, loadInvalidMdl) {
+        TEST_CASE("MdlParserTest.loadInvalidMdl", "[MdlParserTest]") {
             NullLogger logger;
 
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());

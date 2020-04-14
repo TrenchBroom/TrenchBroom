@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Exceptions.h"
 #include "Assets/EntityDefinition.h"
@@ -38,7 +40,7 @@ namespace TrenchBroom {
     namespace IO {
         void assertAttributeDefinition(const std::string& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition);
 
-        TEST(EntParserTest, parseIncludedEntFiles) {
+        TEST_CASE("EntParserTest.parseIncludedEntFiles", "[EntParserTest]") {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
             const std::vector<Path> cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("ent"));
 
@@ -50,13 +52,15 @@ namespace TrenchBroom {
                 EntParser parser(std::begin(reader), std::end(reader), defaultColor);
 
                 TestParserStatus status;
-                ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing ENT file " << path.asString() << " failed";
-                ASSERT_EQ(0u, status.countStatus(LogLevel::Error))
-                                    << "Parsing ENT file " << path.asString() << " produced errors";
+                UNSCOPED_INFO("Parsing ENT file " << path.asString() << " failed");
+                ASSERT_NO_THROW(parser.parseDefinitions(status));
+
+                UNSCOPED_INFO("Parsing ENT file " << path.asString() << " produced errors");
+                ASSERT_EQ(0u, status.countStatus(LogLevel::Error));
             }
         }
 
-        TEST(EntParserTest, parseEmptyFile) {
+        TEST_CASE("EntParserTest.parseEmptyFile", "[EntParserTest]") {
             const std::string file = "";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             EntParser parser(file, defaultColor);
@@ -67,7 +71,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(EntParserTest, parseWhitespaceFile) {
+        TEST_CASE("EntParserTest.parseWhitespaceFile", "[EntParserTest]") {
             const std::string file = "     \n  \t \n  ";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             EntParser parser(file, defaultColor);
@@ -78,7 +82,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(EntParserTest, parseMalformedXML) {
+        TEST_CASE("EntParserTest.parseMalformedXML", "[EntParserTest]") {
             const std::string file =
 R"(<?xml version="1.0"?>
 <classes>
@@ -91,7 +95,7 @@ R"(<?xml version="1.0"?>
             ASSERT_THROW(parser.parseDefinitions(status), ParserException);
         }
 
-        TEST(EntParserTest, parseSimplePointEntityDefinition) {
+        TEST_CASE("EntParserTest.parseSimplePointEntityDefinition", "[EntParserTest]") {
             const std::string file = R"(
 <?xml version="1.0"?>
 <!--
@@ -132,10 +136,12 @@ Updated: 2011-03-02
 
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
-            ASSERT_EQ(1u, definitions.size()) << "Expected one entity definition";
+            UNSCOPED_INFO("Expected one entity definition");
+            ASSERT_EQ(1u, definitions.size());
 
             const auto* pointDefinition = dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front());
-            ASSERT_NE(nullptr, pointDefinition) << "Definition must be a point entity definition";
+            UNSCOPED_INFO("Definition must be a point entity definition");
+            ASSERT_NE(nullptr, pointDefinition);
 
             const auto expectedDescription = R"(
     -------- KEYS --------
@@ -143,42 +149,73 @@ Updated: 2011-03-02
     -------- NOTES --------
     Compiler-only entity that specifies the origin of a skybox (a wholly contained, separate area of the map), similar to some games portal skies. When compiled with Q3Map2, the skybox surfaces will be visible from any place where sky is normally visible. It will cast shadows on the normal parts of the map, and can be used with cloud layers and other effects.
     )";
-            ASSERT_EQ(expectedDescription, pointDefinition->description()) << "Expected text value as entity defintion description";
+            UNSCOPED_INFO("Expected text value as entity defintion description");
+            ASSERT_EQ(expectedDescription, pointDefinition->description());
 
-            ASSERT_TRUE(vm::is_equal(Color(0.77f, 0.88f, 1.0f, 1.0f), pointDefinition->color(), 0.01f)) << "Expected matching color";
-            ASSERT_TRUE(vm::is_equal(vm::bbox3(vm::vec3(-4.0, -4.0, -4.0), vm::vec3(+4.0, +4.0, +4.0)), pointDefinition->bounds(), 0.01)) << "Expected matching bounds";
+            UNSCOPED_INFO("Expected matching color");
+            ASSERT_TRUE(vm::is_equal(Color(0.77f, 0.88f, 1.0f, 1.0f), pointDefinition->color(), 0.01f));
 
-            ASSERT_EQ(3u, pointDefinition->attributeDefinitions().size()) << "Expected three attribute definitions";
+            UNSCOPED_INFO("Expected matching bounds");
+            ASSERT_TRUE(vm::is_equal(vm::bbox3(vm::vec3(-4.0, -4.0, -4.0), vm::vec3(+4.0, +4.0, +4.0)), pointDefinition->bounds(), 0.01));
+
+            UNSCOPED_INFO("Expected three attribute definitions");
+            ASSERT_EQ(3u, pointDefinition->attributeDefinitions().size());
 
             const auto* angleDefinition = pointDefinition->attributeDefinition("angle");
-            ASSERT_NE(nullptr, angleDefinition) << "Missing attribute definition for 'angle' key";
-            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, angleDefinition->type()) << "Expected angle attribute definition to be of String type";
+            UNSCOPED_INFO("Missing attribute definition for 'angle' key");
+            ASSERT_NE(nullptr, angleDefinition);
 
-            ASSERT_EQ("angle", angleDefinition->name()) << "Expected matching attribute definition name";
-            ASSERT_EQ("Yaw Angle", angleDefinition->shortDescription()) << "Expected attribute definition's short description to match name";
-            ASSERT_EQ("Rotation angle of the sky surfaces.", angleDefinition->longDescription()) << "Expected attribute definition's long description to match element text";
+            UNSCOPED_INFO("Expected angle attribute definition to be of String type");
+            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, angleDefinition->type());
+
+            UNSCOPED_INFO("Expected matching attribute definition name");
+            ASSERT_EQ("angle", angleDefinition->name());
+
+            UNSCOPED_INFO("Expected attribute definition's short description to match name");
+            ASSERT_EQ("Yaw Angle", angleDefinition->shortDescription());
+
+            UNSCOPED_INFO("Expected attribute definition's long description to match element text");
+            ASSERT_EQ("Rotation angle of the sky surfaces.", angleDefinition->longDescription());
 
             const auto* anglesDefinition = pointDefinition->attributeDefinition("angles");
-            ASSERT_NE(nullptr, anglesDefinition) << "Missing attribute definition for 'angles' key";
-            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, anglesDefinition->type()) << "Expected angles attribute definition to be of String type";
+            UNSCOPED_INFO("Missing attribute definition for 'angles' key");
+            ASSERT_NE(nullptr, anglesDefinition);
+            
+            UNSCOPED_INFO("Expected angles attribute definition to be of String type");
+            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, anglesDefinition->type());
 
-            ASSERT_EQ("angles", anglesDefinition->name()) << "Expected matching attribute definition name";
-            ASSERT_EQ("Pitch Yaw Roll", anglesDefinition->shortDescription()) << "Expected attribute definition's short description to match name";
-            ASSERT_EQ("Individual control of PITCH, YAW, and ROLL (default 0 0 0).", anglesDefinition->longDescription()) << "Expected attribute definition's long description to match element text";
+            UNSCOPED_INFO("Expected matching attribute definition name");
+            ASSERT_EQ("angles", anglesDefinition->name());
+
+            UNSCOPED_INFO("Expected attribute definition's short description to match name");
+            ASSERT_EQ("Pitch Yaw Roll", anglesDefinition->shortDescription());
+
+            UNSCOPED_INFO("Expected attribute definition's long description to match element text");
+            ASSERT_EQ("Individual control of PITCH, YAW, and ROLL (default 0 0 0).", anglesDefinition->longDescription());
 
             const auto* scaleDefinition = dynamic_cast<const Assets::FloatAttributeDefinition*>(pointDefinition->attributeDefinition("_scale"));
-            ASSERT_NE(nullptr, scaleDefinition) << "Missing attribute definition for '_scale' key";
-            ASSERT_EQ(Assets::AttributeDefinition::Type_FloatAttribute, scaleDefinition->type()) << "Expected angles attribute definition to be of Float type";
+            UNSCOPED_INFO("Missing attribute definition for '_scale' key");
+            ASSERT_NE(nullptr, scaleDefinition);
 
-            ASSERT_EQ("_scale", scaleDefinition->name()) << "Expected matching attribute definition name";
-            ASSERT_EQ("Scale", scaleDefinition->shortDescription()) << "Expected attribute definition's short description to match name";
-            ASSERT_EQ(64.0f, scaleDefinition->defaultValue()) << "Expected correct default value for '_scale' attribute definition";
-            ASSERT_EQ("Scaling factor (default 64), good values are between 50 and 300, depending on the map.", scaleDefinition->longDescription()) << "Expected attribute definition's long description to match element text";
+            UNSCOPED_INFO("Expected angles attribute definition to be of Float type");
+            ASSERT_EQ(Assets::AttributeDefinition::Type_FloatAttribute, scaleDefinition->type());
+
+            UNSCOPED_INFO("Expected matching attribute definition name");
+            ASSERT_EQ("_scale", scaleDefinition->name());
+
+            UNSCOPED_INFO("Expected attribute definition's short description to match name");
+            ASSERT_EQ("Scale", scaleDefinition->shortDescription());
+
+            UNSCOPED_INFO("Expected correct default value for '_scale' attribute definition");
+            ASSERT_EQ(64.0f, scaleDefinition->defaultValue());
+
+            UNSCOPED_INFO("Expected attribute definition's long description to match element text");
+            ASSERT_EQ("Scaling factor (default 64), good values are between 50 and 300, depending on the map.", scaleDefinition->longDescription());
 
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(EntParserTest, parseSimpleGroupEntityDefinition) {
+        TEST_CASE("EntParserTest.parseSimpleGroupEntityDefinition", "[EntParserTest]") {
             const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
@@ -207,10 +244,12 @@ Target this entity with a misc_model to have the model attached to the entity (s
 
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
-            ASSERT_EQ(1u, definitions.size()) << "Expected one entity definition";
+            UNSCOPED_INFO("Expected one entity definition");
+            ASSERT_EQ(1u, definitions.size());
 
             const auto* brushDefinition = dynamic_cast<const Assets::BrushEntityDefinition*>(definitions.front());
-            ASSERT_NE(nullptr, brushDefinition) << "Definition must be a brush entity definition";
+            UNSCOPED_INFO("Definition must be a brush entity definition");
+            ASSERT_NE(nullptr, brushDefinition);
 
             const auto expectedDescription = R"(
 Solid entity that oscillates back and forth in a linear motion. By default, it will have an amount of displacement in either direction equal to the dimension of the brush in the axis in which it's bobbing. Entity bobs on the Z axis (up-down) by default. It can also emit sound if the "noise" key is set. Will crush the player when blocked.
@@ -221,11 +260,14 @@ In order for the sound to be emitted from the entity, it is recommended to inclu
 
 Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
 )";
-            ASSERT_EQ(expectedDescription, brushDefinition->description()) << "Expected text value as entity defintion description";
+            UNSCOPED_INFO("Expected text value as entity defintion description");
+            ASSERT_EQ(expectedDescription, brushDefinition->description());
 
-            ASSERT_TRUE(vm::is_equal(Color(0.0f, 0.4f, 1.0f), brushDefinition->color(), 0.01f)) << "Expected matching color";
+            UNSCOPED_INFO("Expected matching color");
+            ASSERT_TRUE(vm::is_equal(Color(0.0f, 0.4f, 1.0f), brushDefinition->color(), 0.01f));
 
-            ASSERT_EQ(7u, brushDefinition->attributeDefinitions().size()) << "Expected three attribute definitions";
+            UNSCOPED_INFO("Expected three attribute definitions");
+            ASSERT_EQ(7u, brushDefinition->attributeDefinitions().size());
             assertAttributeDefinition("noise", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);
             assertAttributeDefinition("model2", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);
             assertAttributeDefinition("color", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);
@@ -237,7 +279,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(EntParserTest, parseListAttributeDefinition) {
+        TEST_CASE("EntParserTest.parseListAttributeDefinition", "[EntParserTest]") {
             const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
@@ -265,18 +307,25 @@ Target this entity with a misc_model to have the model attached to the entity (s
 
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
-            ASSERT_EQ(1u, definitions.size()) << "Expected one entity definition";
+            UNSCOPED_INFO("Expected one entity definition");
+            ASSERT_EQ(1u, definitions.size());
 
             const auto* pointDefinition = dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front());
-            ASSERT_NE(nullptr, pointDefinition) << "Definition must be a point entity definition";
+            UNSCOPED_INFO("Definition must be a point entity definition");
+            ASSERT_NE(nullptr, pointDefinition);
 
-            ASSERT_EQ(1u, pointDefinition->attributeDefinitions().size()) << "Expected one attribute definitions";
+            UNSCOPED_INFO("Expected one attribute definitions");
+            ASSERT_EQ(1u, pointDefinition->attributeDefinitions().size());
 
             const auto* colorIndexDefinition = dynamic_cast<const Assets::ChoiceAttributeDefinition*>(pointDefinition->attributeDefinition("count"));
-            ASSERT_NE(nullptr, colorIndexDefinition) << "Missing attribute definition for 'count' key";
-            ASSERT_EQ(Assets::AttributeDefinition::Type_ChoiceAttribute, colorIndexDefinition->type()) << "Expected count attribute definition to be of choice type";
+            UNSCOPED_INFO("Missing attribute definition for 'count' key");
+            ASSERT_NE(nullptr, colorIndexDefinition);
 
-            ASSERT_EQ("Text Color", colorIndexDefinition->shortDescription()) << "Expected name value as entity attribute definition short description";
+            UNSCOPED_INFO("Expected count attribute definition to be of choice type");
+            ASSERT_EQ(Assets::AttributeDefinition::Type_ChoiceAttribute, colorIndexDefinition->type());
+
+            UNSCOPED_INFO("Expected name value as entity attribute definition short description");
+            ASSERT_EQ("Text Color", colorIndexDefinition->shortDescription());
 
             const auto expectedDescription = R"(Color of the location text displayed in parentheses during team chat. Set to 0-7 for color.
 0 : White (default)
@@ -287,7 +336,8 @@ Target this entity with a misc_model to have the model attached to the entity (s
 5 : Cyan
 6 : Magenta
 7 : White)";
-            ASSERT_EQ(expectedDescription, colorIndexDefinition->longDescription()) << "Expected text value as entity attribute defintion long description";
+            UNSCOPED_INFO("Expected text value as entity attribute defintion long description");
+            ASSERT_EQ(expectedDescription, colorIndexDefinition->longDescription());
 
             const auto& options = colorIndexDefinition->options();
             ASSERT_EQ(3u, options.size());
@@ -304,7 +354,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(EntParserTest, parseInvalidRealAttributeDefinition) {
+        TEST_CASE("EntParserTest.parseInvalidRealAttributeDefinition", "[EntParserTest]") {
             const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
@@ -319,23 +369,29 @@ Target this entity with a misc_model to have the model attached to the entity (s
 
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
-            ASSERT_EQ(1u, definitions.size()) << "Expected one entity definition";
+            UNSCOPED_INFO("Expected one entity definition");
+            ASSERT_EQ(1u, definitions.size());
 
             const auto* pointDefinition = dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front());
-            ASSERT_NE(nullptr, pointDefinition) << "Definition must be a point entity definition";
+            UNSCOPED_INFO("Definition must be a point entity definition");
+            ASSERT_NE(nullptr, pointDefinition);
 
-            ASSERT_EQ(1u, pointDefinition->attributeDefinitions().size()) << "Expected one attribute definitions";
+            UNSCOPED_INFO("Expected one attribute definitions");
+            ASSERT_EQ(1u, pointDefinition->attributeDefinitions().size());
 
             const auto* scaleDefinition = dynamic_cast<const Assets::StringAttributeDefinition*>(pointDefinition->attributeDefinition("_scale"));
-            ASSERT_NE(nullptr, scaleDefinition) << "Missing attribute definition for '_scale' key";
-            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, scaleDefinition->type()) << "Expected angles attribute definition to be of Float type";
+            UNSCOPED_INFO("Missing attribute definition for '_scale' key");
+            ASSERT_NE(nullptr, scaleDefinition);
+            UNSCOPED_INFO("Expected angles attribute definition to be of Float type");
+            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, scaleDefinition->type());
 
-            ASSERT_EQ("asdf", scaleDefinition->defaultValue()) << "Expected correct default value for '_scale' attribute definition";
+            UNSCOPED_INFO("Expected correct default value for '_scale' attribute definition");
+            ASSERT_EQ("asdf", scaleDefinition->defaultValue());
 
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(EntParserTest, parseLegacyModelDefinition) {
+        TEST_CASE("EntParserTest.parseLegacyModelDefinition", "[EntParserTest]") {
             const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
@@ -348,10 +404,12 @@ Target this entity with a misc_model to have the model attached to the entity (s
 
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
-            ASSERT_EQ(1u, definitions.size()) << "Expected one entity definition";
+            UNSCOPED_INFO("Expected one entity definition");
+            ASSERT_EQ(1u, definitions.size());
 
             const auto* pointDefinition = dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front());
-            ASSERT_NE(nullptr, pointDefinition) << "Definition must be a point entity definition";
+            UNSCOPED_INFO("Definition must be a point entity definition");
+            ASSERT_NE(nullptr, pointDefinition);
 
             const auto& modelDefinition = pointDefinition->modelDefinition();
             ASSERT_EQ(Path("models/powerups/ammo/bfgam.md3"), modelDefinition.defaultModelSpecification().path);
@@ -359,7 +417,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(EntParserTest, parseELStaticModelDefinition) {
+        TEST_CASE("EntParserTest.parseELStaticModelDefinition", "[EntParserTest]") {
             const std::string file = R"(
             <?xml version="1.0"?>
             <classes>
@@ -372,10 +430,12 @@ Target this entity with a misc_model to have the model attached to the entity (s
 
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
-            ASSERT_EQ(1u, definitions.size()) << "Expected one entity definition";
+            UNSCOPED_INFO("Expected one entity definition");
+            ASSERT_EQ(1u, definitions.size());
 
             const auto* pointDefinition = dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front());
-            ASSERT_NE(nullptr, pointDefinition) << "Definition must be a point entity definition";
+            UNSCOPED_INFO("Definition must be a point entity definition");
+            ASSERT_NE(nullptr, pointDefinition);
 
             const auto& modelDefinition = pointDefinition->modelDefinition();
             ASSERT_EQ(Path("models/powerups/ammo/bfgam2.md3"), modelDefinition.defaultModelSpecification().path);
@@ -385,8 +445,11 @@ Target this entity with a misc_model to have the model attached to the entity (s
 
         void assertAttributeDefinition(const std::string& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition) {
             const auto* attrDefinition = entityDefinition->attributeDefinition(name);
-            ASSERT_NE(nullptr, attrDefinition) << "Missing attribute definition for '" + name + "' key";
-            ASSERT_EQ(expectedType, attrDefinition->type()) << "Expected '" + name + "' attribute definition to be of expected type";
+            UNSCOPED_INFO("Missing attribute definition for '" + name + "' key");
+            ASSERT_NE(nullptr, attrDefinition);
+
+            UNSCOPED_INFO("Expected '" + name + "' attribute definition to be of expected type");
+            ASSERT_EQ(expectedType, attrDefinition->type());
         }
     }
 }

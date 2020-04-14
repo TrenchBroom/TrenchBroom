@@ -19,7 +19,9 @@
 
 #include <stdio.h>
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Logger.h"
 #include "Assets/EntityModel.h"
@@ -39,7 +41,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(Md3ParserTest, loadValidMd3) {
+        TEST_CASE("Md3ParserTest.loadValidMd3", "[Md3ParserTest]") {
             NullLogger logger;
             const auto shaderSearchPath = Path("scripts");
             const auto textureSearchPaths = std::vector<Path> { Path("models") };
@@ -81,7 +83,7 @@ namespace TrenchBroom {
             ASSERT_NE(nullptr, skin2);
         }
 
-        TEST(Md3ParserTest, loadFailure_2659) {
+        TEST_CASE("Md3ParserTest.loadFailure_2659", "[Md3ParserTest]") {
             // see https://github.com/kduske/TrenchBroom/issues/2659
 
             NullLogger logger;

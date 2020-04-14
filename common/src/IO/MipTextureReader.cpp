@@ -36,8 +36,8 @@ namespace TrenchBroom {
             static constexpr size_t TextureNameLength = 16;
         }
 
-        MipTextureReader::MipTextureReader(const NameStrategy& nameStrategy) :
-        TextureReader(nameStrategy) {}
+        MipTextureReader::MipTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger) :
+        TextureReader(nameStrategy, fs, logger) {}
 
         MipTextureReader::~MipTextureReader() = default;
 
@@ -81,7 +81,7 @@ namespace TrenchBroom {
                 const auto height = reader.readSize<int32_t>();
 
                 if (!checkTextureDimensions(width, height)) {
-                    return new Assets::Texture(name, 16, 16);
+                    throw AssetException("Invalid texture dimensions");
                 }
 
                 for (size_t i = 0; i < MipLevels; ++i) {
@@ -96,7 +96,7 @@ namespace TrenchBroom {
                 auto palette = doGetPalette(reader, offset, width, height);
 
                 if (!palette.initialized()) {
-                    return new Assets::Texture(name, width, height);
+                    throw AssetException("Palette is not initialized");
                 }
 
                 for (size_t i = 0; i < MipLevels; ++i) {
@@ -114,8 +114,8 @@ namespace TrenchBroom {
                                   ? Assets::TextureType::Masked
                                   : Assets::TextureType::Opaque;
                 return new Assets::Texture(name, width, height, averageColor, std::move(buffers), GL_RGBA, type);
-            } catch (const ReaderException&) {
-                return new Assets::Texture(name, 16, 16);
+            } catch (const ReaderException& e) {
+                throw AssetException(e.what());
             }
         }
     }

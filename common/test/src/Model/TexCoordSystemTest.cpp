@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "FloatType.h"
 #include "Model/BrushFaceAttributes.h"
@@ -36,7 +38,7 @@ namespace TrenchBroom {
 #pragma clang diagnostic ignored "-Wcovered-switch-default"
 #endif
 
-        TEST(TexCoordSystemTest, testSnapshotTypeSafety) {
+        TEST_CASE("TexCoordSystemTest.testSnapshotTypeSafety", "[TexCoordSystemTest]") {
             BrushFaceAttributes attribs("");
 
             ParaxialTexCoordSystem paraxial(vm::vec3::pos_z(), attribs);
@@ -46,7 +48,9 @@ namespace TrenchBroom {
             auto parallelSnapshot = parallel.takeSnapshot();
             ASSERT_NE(nullptr, parallelSnapshot);
 
+#if 0 // not supported with Catch2
             ASSERT_DEATH(parallelSnapshot->restore(paraxial), "");
+#endif
             parallelSnapshot->restore(parallel);
         }
 

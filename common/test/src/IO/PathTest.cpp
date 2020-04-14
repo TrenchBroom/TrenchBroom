@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Exceptions.h"
 #include "IO/Path.h"
@@ -28,7 +30,7 @@
 namespace TrenchBroom {
     namespace IO {
 #ifdef _WIN32
-        TEST(PathTest, constructWithString) {
+        TEST_CASE("PathTest.constructWithString", "[PathTest]") {
             ASSERT_EQ(std::string(""), Path("").asString());
             ASSERT_EQ(std::string(""), Path(" ").asString());
             ASSERT_EQ(std::string("c:"), Path("c:\\").asString());
@@ -41,7 +43,7 @@ namespace TrenchBroom {
             ASSERT_EQ(std::string(".\\asdf"), Path(".\\asdf").asString());
         }
 
-        TEST(PathTest, concatenate) {
+        TEST_CASE("PathTest.concatenate", "[PathTest]") {
             ASSERT_THROW(Path("") + Path("c:\\"), PathException);
             ASSERT_THROW(Path("") + Path("c:\\asdf"), PathException);
             ASSERT_THROW(Path("asdf") + Path("c:\\asdf"), PathException);
@@ -54,7 +56,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("asdf\\hey"), Path("asdf") + Path("hey"));
         }
 
-        TEST(PathTest, isEmpty) {
+        TEST_CASE("PathTest.isEmpty", "[PathTest]") {
             ASSERT_TRUE(Path("").isEmpty());
             ASSERT_FALSE(Path("asdf").isEmpty());
             ASSERT_FALSE(Path("c:").isEmpty());
@@ -63,7 +65,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(Path("c:\\.").isEmpty());
         }
 
-        TEST(PathTest, getLastComponent) {
+        TEST_CASE("PathTest.getLastComponent", "[PathTest]") {
             ASSERT_THROW(Path("").lastComponent().asString(), PathException);
             ASSERT_EQ("asdf", Path("c:\\asdf").lastComponent().asString());
             ASSERT_EQ(Path("asdf"), Path("asdf").lastComponent());
@@ -71,21 +73,21 @@ namespace TrenchBroom {
             ASSERT_EQ(Path(""), Path("/").lastComponent());
         }
 
-        TEST(PathTest, deleteLastComponent) {
+        TEST_CASE("PathTest.deleteLastComponent", "[PathTest]") {
             ASSERT_THROW(Path("").deleteLastComponent(), PathException);
             ASSERT_EQ(Path("c:\\"), Path("c:\\asdf").deleteLastComponent());
             ASSERT_EQ(Path(""), Path("asdf").deleteLastComponent());
             ASSERT_EQ(Path("c:\\this\\is\\a"), Path("c:\\this\\is\\a\\path.map").deleteLastComponent());
         }
 
-        TEST(PathTest, getFirstComponent) {
+        TEST_CASE("PathTest.getFirstComponent", "[PathTest]") {
             ASSERT_THROW(Path("").firstComponent(), PathException);
             ASSERT_EQ("\\", Path("/asdf").firstComponent().asString());
             ASSERT_EQ("c:", Path("c:\\asdf\\blah").firstComponent().asString());
             ASSERT_EQ("asdf", Path("asdf\\bbab").firstComponent().asString());
         }
 
-        TEST(PathTest, deleteFirstComponent) {
+        TEST_CASE("PathTest.deleteFirstComponent", "[PathTest]") {
             ASSERT_THROW(Path("").deleteFirstComponent(), PathException);
             ASSERT_EQ(Path(""), Path("\\").deleteFirstComponent());
             ASSERT_EQ(Path("asdf"), Path("\\asdf").deleteFirstComponent());
@@ -95,7 +97,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("blah"), Path("asdf/blah").deleteFirstComponent());
         }
 
-        TEST(PathTest, subPath) {
+        TEST_CASE("PathTest.subPath", "[PathTest]") {
             ASSERT_EQ(Path(""), Path("").subPath(0, 0));
             ASSERT_THROW(Path("test\\blah").subPath(1, 2), PathException);
             ASSERT_EQ(Path("test\\blah"), Path("test\\blah").subPath(0, 2));
@@ -105,7 +107,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("blah"), Path("test\\blah").subPath(1, 1));
         }
 
-        TEST(PathTest, getExtension) {
+        TEST_CASE("PathTest.getExtension", "[PathTest]") {
             ASSERT_THROW(Path("").extension(), PathException);
             ASSERT_EQ(std::string(""), Path("asdf").extension());
             ASSERT_EQ(std::string("map"), Path("asdf.map").extension());
@@ -114,7 +116,7 @@ namespace TrenchBroom {
             ASSERT_EQ(std::string(""), Path("c:\\").extension());
         }
 
-        TEST(PathTest, addExtension) {
+        TEST_CASE("PathTest.addExtension", "[PathTest]") {
             const auto test = Path("c:\\").addExtension("map").asString();
             const auto test2 = test;
             const auto test3 = test + test2;
@@ -127,13 +129,13 @@ namespace TrenchBroom {
 
         }
 
-        TEST(PathTest, makeAbsolute) {
+        TEST_CASE("PathTest.makeAbsolute", "[PathTest]") {
             ASSERT_THROW(Path("c:\\asdf").makeAbsolute(Path("c:\\hello")), PathException);
             ASSERT_THROW(Path("asdf").makeAbsolute(Path("hello")), PathException);
             ASSERT_EQ(Path("c:\\asdf\\hello"), Path("c:\\asdf").makeAbsolute(Path("hello")));
         }
 
-        TEST(PathTest, makeRelative) {
+        TEST_CASE("PathTest.makeRelative", "[PathTest]") {
             ASSERT_THROW(Path("").makeRelative(), PathException);
             ASSERT_THROW(Path("models\\barrel\\skin.tga").makeRelative(), PathException);
             ASSERT_EQ(Path(""), Path("C:").makeRelative());
@@ -141,7 +143,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("models\\barrel\\skin.tga"), Path("C:\\models\\barrel\\skin.tga").makeRelative());
         }
 
-        TEST(PathTest, makeRelativeWithAbsolutePath) {
+        TEST_CASE("PathTest.makeRelativeWithAbsolutePath", "[PathTest]") {
             ASSERT_THROW(Path("c:\\asdf").makeRelative(Path("asdf\\hello")), PathException);
             ASSERT_THROW(Path("asdf").makeRelative(Path("c:\\asdf\\hello")), PathException);
             ASSERT_THROW(Path("asdf").makeRelative(Path("c:\\")), PathException);
@@ -156,13 +158,13 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("hello"), Path("c:\\asdf\\test\\..\\").makeRelative(Path("c:\\asdf\\hurr\\..\\hello")));
         }
 
-        TEST(PathTest, makeCanonical) {
+        TEST_CASE("PathTest.makeCanonical", "[PathTest]") {
             ASSERT_THROW(Path("c:\\..").makeCanonical(), PathException);
             ASSERT_THROW(Path("c:\\asdf\\..\\..").makeCanonical(), PathException);
             ASSERT_EQ(Path("c:\\asdf"), Path("c:\\asdf\\test\\..").makeCanonical());
         }
 
-        TEST(PathTest, canMakeRelative) {
+        TEST_CASE("PathTest.canMakeRelative", "[PathTest]") {
             // copied from makeRelative test
             ASSERT_FALSE(Path("c:\\asdf").canMakeRelative(Path("asdf\\hello")));
             ASSERT_FALSE(Path("asdf").canMakeRelative(Path("c:\\asdf\\hello")));
@@ -178,17 +180,17 @@ namespace TrenchBroom {
             ASSERT_TRUE(Path("c:\\asdf\\test\\..\\").canMakeRelative(Path("c:\\asdf\\hurr\\..\\hello")));
         }
 
-        TEST(PathTest, pathAsQString) {
+        TEST_CASE("PathTest.pathAsQString", "[PathTest]") {
             ASSERT_EQ(QString::fromLatin1("c:\\asdf\\test"), pathAsQString(Path("c:\\asdf\\test")));
             ASSERT_EQ(QString::fromLatin1("asdf\\test"), pathAsQString(Path("asdf\\test")));
         }
 
-        TEST(PathTest, pathFromQString) {
+        TEST_CASE("PathTest.pathFromQString", "[PathTest]") {
             ASSERT_EQ(Path("c:\\asdf\\test"), pathFromQString(QString::fromLatin1("c:\\asdf\\test")));
             ASSERT_EQ(Path("asdf\\test"), pathFromQString(QString::fromLatin1("asdf\\test")));
         }
 #else
-        TEST(PathTest, constructWithString) {
+        TEST_CASE("PathTest.constructWithString", "[PathTest]") {
             ASSERT_EQ(std::string(""), Path("").asString());
             ASSERT_EQ(std::string(""), Path(" ").asString());
             ASSERT_EQ(std::string("/"), Path("/").asString());
@@ -201,7 +203,7 @@ namespace TrenchBroom {
             ASSERT_EQ(std::string("./asdf"), Path("./asdf").asString());
         }
 
-        TEST(PathTest, concatenate) {
+        TEST_CASE("PathTest.concatenate", "[PathTest]") {
             ASSERT_THROW(Path("") + Path("/"), PathException);
             ASSERT_THROW(Path("") + Path("/asdf"), PathException);
             ASSERT_THROW(Path("asdf") + Path("/asdf"), PathException);
@@ -214,7 +216,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("asdf/hey"), Path("asdf") + Path("hey"));
         }
 
-        TEST(PathTest, isEmpty) {
+        TEST_CASE("PathTest.isEmpty", "[PathTest]") {
             ASSERT_TRUE(Path("").isEmpty());
             ASSERT_FALSE(Path("asdf").isEmpty());
             ASSERT_FALSE(Path("/").isEmpty());
@@ -223,7 +225,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(Path("/.").isEmpty());
         }
 
-        TEST(PathTest, getLastComponent) {
+        TEST_CASE("PathTest.getLastComponent", "[PathTest]") {
             ASSERT_THROW(Path("").lastComponent().asString(), PathException);
             ASSERT_EQ("asdf", Path("/asdf").lastComponent().asString());
             ASSERT_EQ(Path("asdf"), Path("asdf").lastComponent());
@@ -231,7 +233,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Path(""), Path("/").lastComponent());
         }
 
-        TEST(PathTest, deleteLastComponent) {
+        TEST_CASE("PathTest.deleteLastComponent", "[PathTest]") {
             ASSERT_THROW(Path("").deleteLastComponent(), PathException);
             ASSERT_EQ(Path("/"), Path("/asdf").deleteLastComponent());
             ASSERT_EQ(Path(""), Path("asdf").deleteLastComponent());
@@ -239,21 +241,21 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("/"), Path("/").deleteLastComponent());
         }
 
-        TEST(PathTest, getFirstComponet) {
+        TEST_CASE("PathTest.getFirstComponet", "[PathTest]") {
             ASSERT_THROW(Path("").firstComponent(), PathException);
             ASSERT_EQ("/", Path("/").firstComponent().asString());
             ASSERT_EQ("/", Path("/asdf").firstComponent().asString());
             ASSERT_EQ("asdf", Path("asdf").firstComponent().asString());
         }
 
-        TEST(PathTest, deleteFirstComponent) {
+        TEST_CASE("PathTest.deleteFirstComponent", "[PathTest]") {
             ASSERT_THROW(Path("").deleteFirstComponent(), PathException);
             ASSERT_EQ(Path(""), Path("/").deleteFirstComponent());
             ASSERT_EQ(Path("asdf"), Path("/asdf").deleteFirstComponent());
             ASSERT_EQ(Path("blah"), Path("asdf/blah").deleteFirstComponent());
         }
 
-        TEST(PathTest, subPath) {
+        TEST_CASE("PathTest.subPath", "[PathTest]") {
             ASSERT_EQ(Path(""), Path("").subPath(0, 0));
             ASSERT_THROW(Path("test/blah").subPath(1, 2), PathException);
             ASSERT_EQ(Path("test/blah"), Path("test/blah").subPath(0, 2));
@@ -263,7 +265,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("blah"), Path("test/blah").subPath(1, 1));
         }
 
-        TEST(PathTest, getExtension) {
+        TEST_CASE("PathTest.getExtension", "[PathTest]") {
             ASSERT_THROW(Path("").extension(), PathException);
             ASSERT_EQ(std::string(""), Path("asdf").extension());
             ASSERT_EQ(std::string("map"), Path("asdf.map").extension());
@@ -272,7 +274,7 @@ namespace TrenchBroom {
             ASSERT_EQ(std::string(""), Path("/").extension());
         }
 
-        TEST(PathTest, addExtension) {
+        TEST_CASE("PathTest.addExtension", "[PathTest]") {
             ASSERT_THROW(Path("").addExtension("map"), PathException);
             ASSERT_EQ(Path("/asdf."), Path("/asdf").addExtension(""));
             ASSERT_EQ(Path("/asdf.map"), Path("/asdf").addExtension("map"));
@@ -280,20 +282,20 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("/.map"), Path("/").addExtension("map"));
         }
 
-        TEST(PathTest, makeAbsolute) {
+        TEST_CASE("PathTest.makeAbsolute", "[PathTest]") {
             ASSERT_THROW(Path("/asdf").makeAbsolute(Path("/hello")), PathException);
             ASSERT_THROW(Path("asdf").makeAbsolute(Path("hello")), PathException);
             ASSERT_EQ(Path("/asdf/hello"), Path("/asdf").makeAbsolute(Path("hello")));
         }
 
-        TEST(PathTest, makeRelative) {
+        TEST_CASE("PathTest.makeRelative", "[PathTest]") {
             ASSERT_THROW(Path("").makeRelative(), PathException);
             ASSERT_THROW(Path("models/barrel/skin.tga").makeRelative(), PathException);
             ASSERT_EQ(Path(""), Path("/").makeRelative());
             ASSERT_EQ(Path("models/barrel/skin.tga"), Path("/models/barrel/skin.tga").makeRelative());
         }
 
-        TEST(PathTest, makeRelativeWithAbsolutePath) {
+        TEST_CASE("PathTest.makeRelativeWithAbsolutePath", "[PathTest]") {
             ASSERT_THROW(Path("/asdf").makeRelative(Path("asdf/hello")), PathException);
             ASSERT_THROW(Path("asdf").makeRelative(Path("/asdf/hello")), PathException);
             ASSERT_THROW(Path("asdf").makeRelative(Path("/")), PathException);
@@ -306,13 +308,13 @@ namespace TrenchBroom {
             ASSERT_EQ(Path("hello"), Path("/asdf/test/../").makeRelative(Path("/asdf/hurr/../hello")));
         }
 
-        TEST(PathTest, makeCanonical) {
+        TEST_CASE("PathTest.makeCanonical", "[PathTest]") {
             ASSERT_THROW(Path("/..").makeCanonical(), PathException);
             ASSERT_THROW(Path("/asdf/../..").makeCanonical(), PathException);
             ASSERT_EQ(Path("/asdf"), Path("/asdf/test/..").makeCanonical());
         }
 
-        TEST(PathTest, operatorLT) {
+        TEST_CASE("PathTest.operatorLT", "[PathTest]") {
             ASSERT_FALSE(Path("") < Path(""));
             ASSERT_FALSE(Path("/") < Path(""));
             ASSERT_FALSE(Path("/") < Path("/"));
@@ -327,12 +329,12 @@ namespace TrenchBroom {
             ASSERT_FALSE(Path("dir/dir2/dir3") < Path("dir/dir2"));
         }
 
-        TEST(PathTest, pathAsQString) {
+        TEST_CASE("PathTest.pathAsQString", "[PathTest]") {
             ASSERT_EQ(QString::fromLatin1("/asdf/test"), pathAsQString(Path("/asdf/test")));
             ASSERT_EQ(QString::fromLatin1("asdf/test"), pathAsQString(Path("asdf/test")));
         }
 
-        TEST(PathTest, pathFromQString) {
+        TEST_CASE("PathTest.pathFromQString", "[PathTest]") {
             ASSERT_EQ(Path("/asdf/test"), pathFromQString(QString::fromLatin1("/asdf/test")));
             ASSERT_EQ(Path("asdf/test"), pathFromQString(QString::fromLatin1("asdf/test")));
         }

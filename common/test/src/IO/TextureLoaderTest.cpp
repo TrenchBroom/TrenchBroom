@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Logger.h"
 #include "Assets/Texture.h"
@@ -45,7 +47,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(texture == nullptr);
         }
 
-        TEST(TextureLoaderTest, testLoad) {
+        TEST_CASE("TextureLoaderTest.testLoad", "[TextureLoaderTest]") {
             const std::vector<IO::Path> paths({ Path("fixture/test/IO/Wad/cr8_czg.wad") });
 
             const IO::Path root = IO::Disk::getCurrentWorkingDir();
@@ -90,7 +92,7 @@ namespace TrenchBroom {
             assertTexture("lasthopeofhuman", 128, 128, textureManager);
         }
 
-        TEST(TextureLoaderTest, testLoadExclusions) {
+        TEST_CASE("TextureLoaderTest.testLoadExclusions", "[TextureLoaderTest]") {
             const std::vector<IO::Path> paths({ Path("fixture/test/IO/Wad/cr8_czg.wad") });
 
             const IO::Path root = IO::Disk::getCurrentWorkingDir();

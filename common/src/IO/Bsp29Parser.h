@@ -37,6 +37,7 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        class FileSystem;
         class Reader;
 
         class Bsp29Parser : public EntityModelParser {
@@ -68,13 +69,14 @@ namespace TrenchBroom {
             const char* m_begin;
             const char* m_end;
             const Assets::Palette& m_palette;
+            const FileSystem& m_fs;
         public:
-            Bsp29Parser(const std::string& name, const char* begin, const char* end, const Assets::Palette& palette);
+            Bsp29Parser(const std::string& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystem& fs);
         private:
             std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
             void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
 
-            std::vector<Assets::Texture*> parseTextures(Reader reader);
+            std::vector<Assets::Texture*> parseTextures(Reader reader, Logger& logger);
             TextureInfoList parseTextureInfos(Reader reader, size_t textureInfoCount);
             std::vector<vm::vec3f> parseVertices(Reader reader, size_t vertexCount);
             EdgeInfoList parseEdgeInfos(Reader reader, size_t edgeInfoCount);

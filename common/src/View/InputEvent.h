@@ -23,6 +23,7 @@
 #include <QKeyEvent>
 
 #include <chrono>
+#include <iosfwd>
 #include <memory>
 #include <vector>
 
@@ -106,6 +107,16 @@ namespace TrenchBroom {
              * @param processor the event processor
              */
             void processWith(InputEventProcessor& processor) const override;
+            
+            /**
+             * Indicates whether the given two key events are equal.
+             */
+            friend bool operator==(const KeyEvent& lhs, const KeyEvent& rhs);
+            
+            /**
+             * Prints a textual representation of the given event to the given output stream.
+             */
+            friend std::ostream& operator<<(std::ostream& out, const KeyEvent& event);
         };
 
         /**
@@ -174,7 +185,7 @@ namespace TrenchBroom {
              * @param wheelAxis the wheel axies that was scrolled, if any
              * @param posX the current X position of the mouse pointer
              * @param posY the current Y position of the mouse pointer
-             * @param scrollDistance the distance by which the mouse wheel was scrolled
+             * @param scrollDistance the distance by which the mouse wheel was scrolled, in lines
              */
             MouseEvent(Type type, Button button, WheelAxis wheelAxis, int posX, int posY, float scrollDistance);
         public:
@@ -193,6 +204,16 @@ namespace TrenchBroom {
              * @param processor the event processor
              */
             void processWith(InputEventProcessor& processor) const override;
+            
+            /**
+             * Indicates whether the given two mouse events are equal.
+             */
+            friend bool operator==(const MouseEvent& lhs, const MouseEvent& rhs);
+
+            /**
+             * Prints a textual representation of the given event to the given output stream.
+             */
+            friend std::ostream& operator<<(std::ostream& out, const MouseEvent& event);
         };
 
         /**
@@ -206,6 +227,16 @@ namespace TrenchBroom {
              * @param processor the event processor
              */
             void processWith(InputEventProcessor& processor) const override;
+            
+            /**
+             * Indicates whether the given two cancel events are equal.
+             */
+            friend bool operator==(const CancelEvent&, const CancelEvent&);
+            
+            /**
+             * Prints a textual representation of the given event to the given output stream.
+             */
+            friend std::ostream& operator<<(std::ostream& out, const CancelEvent& event);
         };
 
         /**
@@ -280,6 +311,10 @@ namespace TrenchBroom {
              * Used in implementing the macOS behaviour where Ctrl+Click is RMB.
              */
             bool m_nextMouseUpIsRMB;
+            /**
+             * Used to suppress a click event for the mouse up event that follows a double click.
+             */
+            bool m_nextMouseUpIsDblClick;
         public:
             /**
              * Creates a new event handler.
@@ -299,6 +334,9 @@ namespace TrenchBroom {
              * @param event the event to record
              */
             void recordEvent(const QMouseEvent* event);
+
+            static QPointF scrollLinesForEvent(const QWheelEvent* qtEvent);
+
             void recordEvent(const QWheelEvent* event);
 
             /**

@@ -310,7 +310,7 @@ namespace TrenchBroom {
             return 0;
         }
 
-        nonstd::optional<QKeySequence> keySequenceFromV1Settings(const QString& string) {
+        std::optional<QKeySequence> keySequenceFromV1Settings(const QString& string) {
             auto inCopy = QString(string);
             auto inStream = QTextStream(&inCopy);
 

@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "IO/DiskIO.h"
 #include "IO/File.h"
@@ -32,7 +34,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(GameConfigParserTest, parseIncludedGameConfigs) {
+        TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs", "[GameConfigParserTest]") {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
             const std::vector<Path> cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("cfg"));
 
@@ -44,24 +46,25 @@ namespace TrenchBroom {
                 try {
                     parser.parse();
                 } catch (const std::exception& e) {
-                    FAIL() << "Parsing game config " << path.asString() << " failed: " << e.what();
+                    UNSCOPED_INFO("Parsing game config " << path.asString() << " failed: " << e.what());
+                    REQUIRE(false);
                 }
             }
         }
 
-        TEST(GameConfigParserTest, parseBlankConfig) {
+        TEST_CASE("GameConfigParserTest.parseBlankConfig", "[GameConfigParserTest]") {
             const std::string config("   ");
             GameConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
         }
 
-        TEST(GameConfigParserTest, parseEmptyConfig) {
+        TEST_CASE("GameConfigParserTest.parseEmptyConfig", "[GameConfigParserTest]") {
             const std::string config("  {  } ");
             GameConfigParser parser(config);
             ASSERT_THROW(parser.parse(), ParserException);
         }
 
-        TEST(GameConfigParserTest, parseQuakeConfig) {
+        TEST_CASE("GameConfigParserTest.parseQuakeConfig", "[GameConfigParserTest]") {
             const std::string config(R"(
 {
     "version": 3,
@@ -171,7 +174,7 @@ namespace TrenchBroom {
             ASSERT_EQ(expected.smartTags(), actual.smartTags());
         }
 
-        TEST(GameConfigParserTest, parseQuake2Config) {
+        TEST_CASE("GameConfigParserTest.parseQuake2Config", "[GameConfigParserTest]") {
             const std::string config(R"%(
 {
     "version": 3,
@@ -326,7 +329,7 @@ namespace TrenchBroom {
                 "description": "Player cannot pass through the brush (other things can)"
             }, // 1 << 16
             {
-                "name": "mosterclip",
+                "name": "monsterclip",
                 "description": "Monster cannot pass through the brush (player and other things can)"
             }, // 1 << 17
             {
@@ -438,7 +441,7 @@ namespace TrenchBroom {
                         { "unused", "" },
                         { "unused", "" },
                         { "playerclip", "Player cannot pass through the brush (other things can)" },
-                        { "mosterclip", "Monster cannot pass through the brush (player and other things can)" },
+                        { "monsterclip", "Monster cannot pass through the brush (player and other things can)" },
                         { "current_0", "Brush has a current in direction of 0 degrees" },
                         { "current_90", "Brush has a current in direction of 90 degrees" },
                         { "current_180", "Brush has a current in direction of 180 degrees" },
@@ -476,7 +479,7 @@ namespace TrenchBroom {
             ASSERT_EQ(expected.smartTags(), actual.smartTags());
         }
 
-        TEST(GameConfigParserTest, parseExtrasConfig) {
+        TEST_CASE("GameConfigParserTest.parseExtrasConfig", "[GameConfigParserTest]") {
             const std::string config(R"%(
 {
     "version": 3,
@@ -638,7 +641,7 @@ namespace TrenchBroom {
                 "description": "Player cannot pass through the brush (other things can)"
             }, // 65536
             {
-                "name": "mosterclip",
+                "name": "monsterclip",
                 "description": "Monster cannot pass through the brush (player and other things can)"
             }, // 131072
             {
@@ -762,7 +765,7 @@ namespace TrenchBroom {
                         { "unused", "" },
                         { "unused", "" },
                         { "playerclip", "Player cannot pass through the brush (other things can)" },
-                        { "mosterclip", "Monster cannot pass through the brush (player and other things can)" },
+                        { "monsterclip", "Monster cannot pass through the brush (player and other things can)" },
                         { "current_0", "Brush has a current in direction of 0 degrees" },
                         { "current_90", "Brush has a current in direction of 90 degrees" },
                         { "current_180", "Brush has a current in direction of 180 degrees" },
@@ -799,7 +802,7 @@ namespace TrenchBroom {
             ASSERT_EQ(expected.smartTags(), actual.smartTags());
         }
 
-        TEST(GameConfigParserTest, parseDuplicateTags) {
+        TEST_CASE("GameConfigParserTest.parseDuplicateTags", "[GameConfigParserTest]") {
             const std::string config(R"(
 {
     "version": 3,

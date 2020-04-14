@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Logger.h"
 #include "IO/DiskIO.h"
@@ -27,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(WadFileSystemTest, loadEntries) {
+        TEST_CASE("WadFileSystemTest.loadEntries", "[WadFileSystemTest]") {
             const Path wadPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Wad/cr8_czg.wad");
             NullLogger logger;
             WadFileSystem fs(wadPath, logger);

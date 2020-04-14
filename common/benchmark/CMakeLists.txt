@@ -8,9 +8,11 @@ set(COMMON_BENCHMARK_SOURCE
         "${COMMON_BENCHMARK_SOURCE_DIR}/Renderer/BrushRendererBenchmark.cpp"
 )
 
+set_property(SOURCE "${COMMON_BENCHMARK_SOURCE_DIR}/Main.cpp" PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
+
 add_executable(common-benchmark ${COMMON_BENCHMARK_SOURCE})
 target_include_directories(common-benchmark PRIVATE ${COMMON_BENCHMARK_SOURCE_DIR})
-target_link_libraries(common-benchmark PRIVATE common gtest)
+target_link_libraries(common-benchmark PRIVATE common Catch2::Catch2)
 
 set_compiler_config(common-benchmark)
 

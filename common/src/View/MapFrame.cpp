@@ -560,6 +560,7 @@ namespace TrenchBroom {
 
             m_mapView->mapViewToolBox()->toolActivatedNotifier.addObserver(this, &MapFrame::toolActivated);
             m_mapView->mapViewToolBox()->toolDeactivatedNotifier.addObserver(this, &MapFrame::toolDeactivated);
+            m_mapView->mapViewToolBox()->toolHandleSelectionChangedNotifier.addObserver(this, &MapFrame::toolHandleSelectionChanged);
         }
 
         void MapFrame::unbindObservers() {
@@ -583,6 +584,7 @@ namespace TrenchBroom {
 
             m_mapView->mapViewToolBox()->toolActivatedNotifier.removeObserver(this, &MapFrame::toolActivated);
             m_mapView->mapViewToolBox()->toolDeactivatedNotifier.removeObserver(this, &MapFrame::toolDeactivated);
+            m_mapView->mapViewToolBox()->toolHandleSelectionChangedNotifier.removeObserver(this, &MapFrame::toolHandleSelectionChanged);
         }
 
         void MapFrame::documentWasCleared(View::MapDocument*) {
@@ -637,6 +639,10 @@ namespace TrenchBroom {
         }
 
         void MapFrame::toolDeactivated(Tool*) {
+            updateActionState();
+        }
+
+        void MapFrame::toolHandleSelectionChanged(Tool*) {
             updateActionState();
         }
 
@@ -966,10 +972,6 @@ namespace TrenchBroom {
          * This is relatively expensive so only call it when the clipboard changes or e.g. the user tries to paste.
          */
         bool MapFrame::canPaste() const {
-            if (!m_mapView->active()) {
-                return false;
-            }
-
             auto* clipboard = QApplication::clipboard();
             return !clipboard->text().isEmpty();
         }
@@ -1465,10 +1467,8 @@ namespace TrenchBroom {
         void MapFrame::showCompileDialog() {
             if (m_compilationDialog == nullptr) {
                 m_compilationDialog = new CompilationDialog(this);
-                m_compilationDialog->show();
-            } else {
-                m_compilationDialog->raise();
             }
+            showModelessDialog(m_compilationDialog);
         }
 
         void MapFrame::compilationDialogWillClose() {
@@ -1476,7 +1476,6 @@ namespace TrenchBroom {
             const auto& gameName = m_document->game()->gameName();
             auto& gameFactory = Model::GameFactory::instance();
             gameFactory.saveConfigs(gameName);
-            m_compilationDialog = nullptr;
         }
 
         void MapFrame::showLaunchEngineDialog() {

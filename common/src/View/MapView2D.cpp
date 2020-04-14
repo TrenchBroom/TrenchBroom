@@ -85,6 +85,8 @@ namespace TrenchBroom {
                 break;
             switchDefault()
             }
+
+            mapViewBaseVirtualInit();
         }
 
         MapView2D::~MapView2D() {

@@ -17,7 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
+
+#include "TestLogger.h"
 
 #include "Logger.h"
 #include "Assets/Palette.h"
@@ -44,15 +48,15 @@ namespace TrenchBroom {
             delete texture;
         }
 
-        TEST(IdMipTextureReaderTest, testLoadWad) {
+        TEST_CASE("IdMipTextureReaderTest.testLoadWad", "[IdMipTextureReaderTest]") {
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
             const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
 
             TextureReader::TextureNameStrategy nameStrategy;
-            IdMipTextureReader textureLoader(nameStrategy, palette);
+            NullLogger logger;
+            IdMipTextureReader textureLoader(nameStrategy, fs, logger, palette);
 
             const Path wadPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Wad/cr8_czg.wad");
-            NullLogger logger;
             WadFileSystem wadFS(wadPath, logger);
 
             assertTexture("cr8_czg_1",          64,  64, wadFS, textureLoader);

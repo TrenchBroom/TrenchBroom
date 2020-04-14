@@ -38,7 +38,7 @@ namespace TrenchBroom {
         m_format(format),
         m_type(type),
         m_culling(TextureCulling::CullDefault),
-        m_blendFunc{false, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
+        m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
         m_textureId(0) {
             assert(m_width > 0);
             assert(m_height > 0);
@@ -57,7 +57,7 @@ namespace TrenchBroom {
         m_format(format),
         m_type(type),
         m_culling(TextureCulling::CullDefault),
-        m_blendFunc{false, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
+        m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
         m_textureId(0),
         m_buffers(std::move(buffers)) {
             assert(m_width > 0);
@@ -83,7 +83,7 @@ namespace TrenchBroom {
         m_format(format),
         m_type(type),
         m_culling(TextureCulling::CullDefault),
-        m_blendFunc{false, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
+        m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
         m_textureId(0) {}
 
         Texture::~Texture() {
@@ -146,13 +146,13 @@ namespace TrenchBroom {
         }
 
         void Texture::setBlendFunc(GLenum srcFactor, GLenum destFactor) {
-            m_blendFunc.enable = true;
+            m_blendFunc.enable = TextureBlendFunc::Enable::UseFactors;
             m_blendFunc.srcFactor = srcFactor;
             m_blendFunc.destFactor = destFactor;
         }
     
         void Texture::disableBlend() {
-            m_blendFunc.enable = false;
+            m_blendFunc.enable = TextureBlendFunc::Enable::DisableBlend;
         }
 
         size_t Texture::usageCount() const {
@@ -269,18 +269,23 @@ namespace TrenchBroom {
                 }
 
 
-                glAssert(glPushAttrib(GL_COLOR_BUFFER_BIT));
-                if (m_blendFunc.enable) {
-                    glAssert(glBlendFunc(m_blendFunc.srcFactor, m_blendFunc.destFactor));
-                } else {
-                    glAssert(glDisable(GL_BLEND));
+                if (m_blendFunc.enable != TextureBlendFunc::Enable::UseDefault) {
+                    glAssert(glPushAttrib(GL_COLOR_BUFFER_BIT));
+                    if (m_blendFunc.enable == TextureBlendFunc::Enable::UseFactors) {
+                        glAssert(glBlendFunc(m_blendFunc.srcFactor, m_blendFunc.destFactor));
+                    } else {
+                        assert(m_blendFunc.enable == TextureBlendFunc::Enable::DisableBlend);
+                        glAssert(glDisable(GL_BLEND));
+                    }
                 }
             }
         }
 
         void Texture::deactivate() const {
             if (isPrepared()) {
-                glAssert(glPopAttrib());
+                if (m_blendFunc.enable != TextureBlendFunc::Enable::UseDefault) {
+                    glAssert(glPopAttrib());
+                }
 
                 switch (m_culling) {
                     case Assets::TextureCulling::CullNone:

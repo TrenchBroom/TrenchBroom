@@ -23,12 +23,12 @@
 #include <algorithm> // for std::search
 #include <iterator>
 #include <cassert>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <sstream>
 #include <vector>
 
-#include <nonstd/optional.hpp>
 
 namespace kdl {
     /**
@@ -228,13 +228,13 @@ namespace kdl {
      * @param str the string
      * @return the signed integer value or an empty optional if the given string cannot be interpreted as a signed integer
      */
-    inline nonstd::optional<int> str_to_int(const std::string& str) {
+    inline std::optional<int> str_to_int(const std::string& str) {
         try {
             return stoi(str);
         } catch (std::invalid_argument&) {
-            return nonstd::nullopt;
+            return std::nullopt;
         } catch (std::out_of_range&) {
-            return nonstd::nullopt;
+            return std::nullopt;
         }
     }
 
@@ -246,13 +246,13 @@ namespace kdl {
      * @return the signed long integer value or an empty optional if the given string cannot be interpreted as a signed
      * long integer
      */
-    inline nonstd::optional<long> str_to_long(const std::string& str) {
+    inline std::optional<long> str_to_long(const std::string& str) {
         try {
             return stol(str);
         } catch (std::invalid_argument&) {
-            return nonstd::nullopt;
+            return std::nullopt;
         } catch (std::out_of_range&) {
-            return nonstd::nullopt;
+            return std::nullopt;
         }
     }
 
@@ -264,13 +264,13 @@ namespace kdl {
      * @return the signed long long integer value or an empty optional if the given string cannot be interpreted as a
      * signed long long integer
      */
-    inline nonstd::optional<long long> str_to_long_long(const std::string& str) {
+    inline std::optional<long long> str_to_long_long(const std::string& str) {
         try {
             return stoll(str);
         } catch (std::invalid_argument&) {
-            return nonstd::nullopt;
+            return std::nullopt;
         } catch (std::out_of_range&) {
-            return nonstd::nullopt;
+            return std::nullopt;
         }
     }
 
@@ -282,13 +282,13 @@ namespace kdl {
      * @return the unsigned long integer value or an empty optional if the given string cannot be interpreted as an
      * unsigned long integer
      */
-    inline nonstd::optional<unsigned long> str_to_u_long(const std::string& str) {
+    inline std::optional<unsigned long> str_to_u_long(const std::string& str) {
         try {
             return stoul(str);
         } catch (std::invalid_argument&) {
-            return nonstd::nullopt;
+            return std::nullopt;
         } catch (std::out_of_range&) {
-            return nonstd::nullopt;
+            return std::nullopt;
         }
     }
 
@@ -300,13 +300,13 @@ namespace kdl {
      * @return the unsigned long long integer value or an empty optional if the given string cannot be interpreted as an
      * unsigned long long integer
      */
-    inline nonstd::optional<unsigned long long> str_to_u_long_long(const std::string& str) {
+    inline std::optional<unsigned long long> str_to_u_long_long(const std::string& str) {
         try {
             return stoull(str);
         } catch (std::invalid_argument&) {
-            return nonstd::nullopt;
+            return std::nullopt;
         } catch (std::out_of_range&) {
-            return nonstd::nullopt;
+            return std::nullopt;
         }
     }
 
@@ -317,13 +317,13 @@ namespace kdl {
      * @param str the string
      * @return the std::size_t value or an empty optional if the given string cannot be interpreted as an std::size_t
      */
-    inline nonstd::optional<std::size_t> str_to_size(const std::string& str) {
+    inline std::optional<std::size_t> str_to_size(const std::string& str) {
         try {
             return static_cast<std::size_t>(stoul(str));
         } catch (std::invalid_argument&) {
-            return nonstd::nullopt;
+            return std::nullopt;
         } catch (std::out_of_range&) {
-            return nonstd::nullopt;
+            return std::nullopt;
         }
     }
 
@@ -335,13 +335,13 @@ namespace kdl {
      * @return the 32 bit floating point value value or an empty optional if the given string cannot be interpreted as an
      * 32 bit floating point value
      */
-    inline nonstd::optional<float> str_to_float(const std::string& str) {
+    inline std::optional<float> str_to_float(const std::string& str) {
         try {
             return stof(str);
         } catch (std::invalid_argument&) {
-            return nonstd::nullopt;
+            return std::nullopt;
         } catch (std::out_of_range&) {
-            return nonstd::nullopt;
+            return std::nullopt;
         }
     }
 
@@ -353,13 +353,13 @@ namespace kdl {
      * @return the 64 bit floating point value value or an empty optional if the given string cannot be interpreted as an
      * 64 bit floating point value
      */
-    inline nonstd::optional<double> str_to_double(const std::string& str) {
+    inline std::optional<double> str_to_double(const std::string& str) {
         try {
             return stod(str);
         } catch (std::invalid_argument&) {
-            return nonstd::nullopt;
+            return std::nullopt;
         } catch (std::out_of_range&) {
-            return nonstd::nullopt;
+            return std::nullopt;
         }
     }
 
@@ -371,13 +371,13 @@ namespace kdl {
      * @return the long double value value value or an empty optional if the given string cannot be interpreted as an
      * long double value value
      */
-    inline nonstd::optional<long double> str_to_long_double(const std::string& str) {
+    inline std::optional<long double> str_to_long_double(const std::string& str) {
         try {
             return stold(str);
         } catch (std::invalid_argument&) {
-            return nonstd::nullopt;
+            return std::nullopt;
         } catch (std::out_of_range&) {
-            return nonstd::nullopt;
+            return std::nullopt;
         }
     }
 }

@@ -133,7 +133,7 @@ namespace TrenchBroom {
                 auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName);
                 world->defaultLayer()->addChild(brush);
 
-                if (format == MapFormat::Valve) {
+                if (format == MapFormat::Valve || format == MapFormat::Quake2_Valve || format == MapFormat::Quake3_Valve) {
                     world->addOrUpdateAttribute(AttributeNames::ValveVersion, "220");
                 }
 
@@ -393,7 +393,7 @@ namespace TrenchBroom {
                 } else if (extension == "bsp" && kdl::vec_contains(supported, "bsp")) {
                     const auto palette = loadTexturePalette();
                     auto reader = file->reader().buffer();
-                    IO::Bsp29Parser parser(modelName, std::begin(reader), std::end(reader), palette);
+                    IO::Bsp29Parser parser(modelName, std::begin(reader), std::end(reader), palette, m_fs);
                     return parser.initializeModel(logger);
                 } else if (extension == "dkm" && kdl::vec_contains(supported, "dkm")) {
                     auto reader = file->reader().buffer();
@@ -453,7 +453,7 @@ namespace TrenchBroom {
                 } else if (extension == "bsp" && kdl::vec_contains(supported, "bsp")) {
                     const auto palette = loadTexturePalette();
                     auto reader = file->reader().buffer();
-                    IO::Bsp29Parser parser(modelName, std::begin(reader), std::end(reader), palette);
+                    IO::Bsp29Parser parser(modelName, std::begin(reader), std::end(reader), palette, m_fs);
                     parser.loadFrame(frameIndex, model, logger);
                 } else if (extension == "dkm" && kdl::vec_contains(supported, "dkm")) {
                     auto reader = file->reader().buffer();

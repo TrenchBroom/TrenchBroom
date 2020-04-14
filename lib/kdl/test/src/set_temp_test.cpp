@@ -15,12 +15,14 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "kdl/set_temp.h"
 
 namespace kdl {
-    TEST(set_temp_test, set_unset) {
+    TEST_CASE("set_temp_test.set_unset", "[set_temp_test]") {
         int value = 0;
         {
             set_temp s(value, 1);
@@ -29,7 +31,7 @@ namespace kdl {
         ASSERT_EQ(0, value);
     }
 
-    TEST(set_temp_test, set_unset_bool) {
+    TEST_CASE("set_temp_test.set_unset_bool", "[set_temp_test]") {
         bool value = false;
         {
             set_temp s(value, true);
@@ -50,7 +52,7 @@ namespace kdl {
         ASSERT_FALSE(value);
     }
 
-    TEST(set_later_test, set) {
+    TEST_CASE("set_later_test.set", "[set_later_test]") {
         int value = 0;
 
         {
@@ -60,7 +62,7 @@ namespace kdl {
         ASSERT_EQ(1, value);
     }
 
-    TEST(inc_temp, inc_dec) {
+    TEST_CASE("inc_temp.inc_dec", "[inc_temp]") {
         int value = 0;
 
         {
@@ -70,7 +72,7 @@ namespace kdl {
         ASSERT_EQ(0, value);
     }
 
-    TEST(dec_temp, dec_inc) {
+    TEST_CASE("dec_temp.dec_inc", "[dec_temp]") {
         int value = 0;
         {
             dec_temp d(value);

@@ -27,6 +27,7 @@
 #include "IO/IdPakFileSystem.h"
 #include "IO/FileMatcher.h"
 #include "IO/Quake3ShaderFileSystem.h"
+#include "IO/SystemPaths.h"
 #include "IO/ZipFileSystem.h"
 #include "Model/GameConfig.h"
 
@@ -46,7 +47,7 @@ namespace TrenchBroom {
             releaseNext();
             m_shaderFS = nullptr;
 
-            addDefaultAssetPath(config, logger);
+            addDefaultAssetPaths(config, logger);
 
             if (!gamePath.isEmpty() && IO::Disk::directoryExists(gamePath)) {
                 addGameFileSystems(config, gamePath, additionalSearchPaths, logger);
@@ -60,13 +61,20 @@ namespace TrenchBroom {
             }
         }
 
-        void GameFileSystem::addDefaultAssetPath(const GameConfig& config, Logger& logger) {
-            // To allow loading some default assets such as the empty texture, we add the game config path.
+        void GameFileSystem::addDefaultAssetPaths(const GameConfig& config, Logger& logger) {
+            // There are two ways of providing default assets: The 'defaults/assets' folder in TrenchBroom's resources folder, and the
+            // 'assets' folder in the game configuration folders. We add filesystems for both types here.
+            
+            std::vector<IO::Path> defaultFolderPaths = IO::SystemPaths::findResourceDirectories(IO::Path("defaults"));
             const auto& configPath = config.path();
             if (!configPath.isEmpty()) {
-                const auto configAssetPath = configPath.deleteLastComponent() + IO::Path("assets");
-                if (IO::Disk::directoryExists(configAssetPath)) {
-                    addFileSystemPath(configAssetPath, logger);
+                defaultFolderPaths.push_back(configPath.deleteLastComponent());
+            }
+
+            for (const auto& defaultFolderPath : defaultFolderPaths) {
+                const auto defaultAssetsPath = defaultFolderPath + IO::Path("assets");
+                if (IO::Disk::directoryExists(defaultAssetsPath)) {
+                    addFileSystemPath(defaultAssetsPath, logger);
                 }
             }
         }

@@ -35,8 +35,8 @@ namespace TrenchBroom {
             const size_t TextureNameLength = 32;
         }
 
-        WalTextureReader::WalTextureReader(const NameStrategy& nameStrategy, const Assets::Palette& palette) :
-        TextureReader(nameStrategy),
+        WalTextureReader::WalTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger, const Assets::Palette& palette) :
+        TextureReader(nameStrategy, fs, logger),
         m_palette(palette) {}
 
         Assets::Texture* WalTextureReader::doReadTexture(std::shared_ptr<File> file) const {
@@ -116,7 +116,8 @@ namespace TrenchBroom {
             for (size_t i = 0; i < maxMipLevels; ++i) {
                 offsets[i] = reader.readSize<uint32_t>();
                 ++mipLevels;
-                if (width / (1 << i) == 1 || height / (1 << i) == 1) {
+                if (width / (static_cast<size_t>(1) << i) == 1 
+                    || height / (static_cast<size_t>(1) << i) == 1) {
                     break;
                 }
             }
@@ -134,8 +135,8 @@ namespace TrenchBroom {
             for (size_t i = 0; i < mipLevels; ++i) {
                 const auto offset = offsets[i];
                 reader.seekFromBegin(offset);
-                const auto curWidth = width / (1 << i);
-                const auto curHeight = height / (1 << i);
+                const auto curWidth = width / (static_cast<size_t>(1) << i);
+                const auto curHeight = height / (static_cast<size_t>(1) << i);
                 const auto size = curWidth * curHeight;
 
                 // FIXME: Confirm this is actually happening because of bad data and not a bug.

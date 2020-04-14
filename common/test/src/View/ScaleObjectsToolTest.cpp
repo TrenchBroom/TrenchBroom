@@ -18,14 +18,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "View/ScaleObjectsTool.h"
 
 namespace TrenchBroom {
     namespace View {
-        TEST(ScaleObjectsToolTest, moveBBoxFace_NonProportional) {
+        TEST_CASE("ScaleObjectsToolTest.moveBBoxFace_NonProportional", "[ScaleObjectsToolTest]") {
             const auto input1 = vm::bbox3(vm::vec3(-100,-100,-100),
                                       vm::vec3( 100, 100, 100));
 
@@ -48,7 +49,7 @@ namespace TrenchBroom {
             EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x()), vm::vec3(-125, 0, 0), ProportionalAxes::None(), AnchorPos::Center).is_empty());
         }
 
-        TEST(ScaleObjectsToolTest, moveBBoxFace_Proportional) {
+        TEST_CASE("ScaleObjectsToolTest.moveBBoxFace_Proportional", "[ScaleObjectsToolTest]") {
             const auto input1 = vm::bbox3(vm::vec3(-100,-100,-100),
                                       vm::vec3( 100, 100, 100));
 
@@ -72,7 +73,7 @@ namespace TrenchBroom {
             EXPECT_TRUE(moveBBoxSide(input1, BBoxSide(vm::vec3::pos_x()), vm::vec3(-125, 0, 0), ProportionalAxes::All(), AnchorPos::Center).is_empty());
         }
 
-        TEST(ScaleObjectsToolTest, moveBBoxCorner) {
+        TEST_CASE("ScaleObjectsToolTest.moveBBoxCorner", "[ScaleObjectsToolTest]") {
             const auto input1 = vm::bbox3(vm::vec3(-100,-100,-100),
                                       vm::vec3( 100, 100, 100));
 
@@ -94,7 +95,7 @@ namespace TrenchBroom {
             EXPECT_TRUE(moveBBoxCorner(input1, BBoxCorner(vm::vec3(1,1,1)), vm::vec3(-125,0,0), AnchorPos::Center).is_empty());
         }
 
-        TEST(ScaleObjectsToolTest, moveBBoxEdge_NonProportional) {
+        TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge_NonProportional", "[ScaleObjectsToolTest]") {
             const auto input1 = vm::bbox3(vm::vec3(-100,-100,-100),
                                       vm::vec3( 100, 100, 100));
 
@@ -118,7 +119,7 @@ namespace TrenchBroom {
             EXPECT_TRUE(moveBBoxEdge(input1, BBoxEdge(vm::vec3(1,1,-1), vm::vec3(1,1,1)), vm::vec3(-125,-225,0), ProportionalAxes::None(), AnchorPos::Center).is_empty());
         }
 
-        TEST(ScaleObjectsToolTest, moveBBoxEdge_NonProportional_NegY) {
+        TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge_NonProportional_NegY", "[ScaleObjectsToolTest]") {
             const auto input1 = vm::bbox3(vm::vec3(-100,-100,-100),
                                       vm::vec3( 100, 100, 100));
 
@@ -136,7 +137,7 @@ namespace TrenchBroom {
         }
 
 
-        TEST(ScaleObjectsToolTest, moveBBoxEdge_Proportional) {
+        TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge_Proportional", "[ScaleObjectsToolTest]") {
             const auto input1 = vm::bbox3(vm::vec3(-100,-100,-100),
                                       vm::vec3( 100, 100, 100));
 
@@ -159,7 +160,7 @@ namespace TrenchBroom {
             EXPECT_TRUE(moveBBoxEdge(input1, BBoxEdge(vm::vec3(1,1,-1), vm::vec3(1,1,1)), vm::vec3(-125,-125,0), ProportionalAxes::All(), AnchorPos::Center).is_empty());
         }
 
-        TEST(ScaleObjectsToolTest, moveBBoxEdge) {
+        TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge", "[ScaleObjectsToolTest]") {
             const auto input1 = vm::bbox3(vm::vec3(-64,-64,-16),
                                       vm::vec3( 64, 64, 16));
 

@@ -15,7 +15,9 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "test_utils.h"
 
@@ -25,7 +27,7 @@
 #include <vector>
 
 namespace kdl {
-    TEST(vector_utils_test, vec_at) {
+    TEST_CASE("vector_utils_test.vec_at", "[vector_utils_test]") {
         const auto cv = std::vector<int>({ 1, 2, 3 });
         for (std::size_t i = 0u; i < cv.size(); ++i) {
             ASSERT_EQ(cv[i], vec_at(cv, static_cast<int>(i)));
@@ -36,7 +38,7 @@ namespace kdl {
         ASSERT_EQ(4, mv[2]);
     }
 
-    TEST(vector_utils_test, vec_pop_back) {
+    TEST_CASE("vector_utils_test.vec_pop_back", "[vector_utils_test]") {
         auto v = std::vector<int>({ 1, 2, 3 });
         ASSERT_EQ(3, vec_pop_back(v));
         ASSERT_EQ(std::vector<int>({ 1, 2 }), v);
@@ -58,7 +60,7 @@ namespace kdl {
 
     derived::~derived() = default;
 
-    TEST(vector_utils_test, vec_element_cast) {
+    TEST_CASE("vector_utils_test.vec_element_cast", "[vector_utils_test]") {
         auto vd = std::vector<derived*>({ new derived(), new derived() });
         auto vb = vec_element_cast<base*>(vd);
 
@@ -76,7 +78,7 @@ namespace kdl {
         vec_clear_and_delete(vd);
     }
 
-    TEST(vector_utils_test, vec_index_of) {
+    TEST_CASE("vector_utils_test.vec_index_of", "[vector_utils_test]") {
         using vec = std::vector<int>;
 
         ASSERT_EQ(0u, vec_index_of(vec({}), 1));
@@ -88,7 +90,7 @@ namespace kdl {
         ASSERT_EQ(3u, vec_index_of(vec({ 1, 2, 3 }), 4));
     }
 
-    TEST(vector_utils_test, vec_contains) {
+    TEST_CASE("vector_utils_test.vec_contains", "[vector_utils_test]") {
         using vec = std::vector<int>;
 
         ASSERT_FALSE(vec_contains(vec({}), 1));
@@ -106,7 +108,7 @@ namespace kdl {
         ASSERT_EQ(exp, into);
     }
 
-    TEST(vector_utils_test, vec_append) {
+    TEST_CASE("vector_utils_test.vec_append", "[vector_utils_test]") {
         using vec = std::vector<int>;
 
         test_append<int>({}, {});
@@ -115,7 +117,7 @@ namespace kdl {
         test_append<int>({ 1, 2, 3 }, { 1 }, vec{ 2 }, vec{ 3 });
     }
 
-    TEST(vector_utils_test, vec_concat) {
+    TEST_CASE("vector_utils_test.vec_concat", "[vector_utils_test]") {
         using vec = std::vector<int>;
 
         ASSERT_EQ(vec({}), vec_concat(vec({})));
@@ -124,7 +126,7 @@ namespace kdl {
         ASSERT_EQ(vec({ 1, 2 }), vec_concat(vec({ 1 }), vec({ 2 })));
     }
 
-    TEST(vector_utils_test, vec_slice) {
+    TEST_CASE("vector_utils_test.vec_slice", "[vector_utils_test]") {
         using vec = std::vector<int>;
 
         ASSERT_EQ(vec({}), vec_slice(vec({}), 0, 0));
@@ -140,7 +142,7 @@ namespace kdl {
         ASSERT_EQ(vec({ 1, 2, 3 }), vec_slice(vec({ 1, 2, 3 }), 0, 3));
     }
 
-    TEST(vector_utils_test, vec_slice_prefix) {
+    TEST_CASE("vector_utils_test.vec_slice_prefix", "[vector_utils_test]") {
         using vec = std::vector<int>;
 
         ASSERT_EQ(vec({}), vec_slice_prefix(vec({}), 0));
@@ -152,7 +154,7 @@ namespace kdl {
         ASSERT_EQ(vec({}), vec_slice_prefix(vec({ 1, 2, 3 }), 0));
     }
 
-    TEST(vector_utils_test, vec_slice_suffix) {
+    TEST_CASE("vector_utils_test.vec_slice_suffix", "[vector_utils_test]") {
         using vec = std::vector<int>;
 
         ASSERT_EQ(vec({}), vec_slice_suffix(vec({}), 0));
@@ -170,7 +172,7 @@ namespace kdl {
         ASSERT_EQ(exp, from);
     }
 
-    TEST(vector_utils_test, vec_erase) {
+    TEST_CASE("vector_utils_test.vec_erase", "[vector_utils_test]") {
         test_erase<int>({}, {}, 1);
         test_erase<int>({}, { 1 }, 1);
         test_erase<int>({ 1 }, { 1 }, 2);
@@ -184,7 +186,7 @@ namespace kdl {
         ASSERT_EQ(exp, from);
     }
 
-    TEST(vector_utils_test, vec_erase_if) {
+    TEST_CASE("vector_utils_test.vec_erase_if", "[vector_utils_test]") {
         const auto pred = [](const int n) { return n % 2 == 0; };
 
         test_erase_if<int>({}, {}, pred);
@@ -199,7 +201,7 @@ namespace kdl {
         ASSERT_EQ(exp, from);
     }
 
-    TEST(vector_utils_test, vec_erase_at) {
+    TEST_CASE("vector_utils_test.vec_erase_at", "[vector_utils_test]") {
         test_erase_at<int>({}, { 1 }, 0u);
         test_erase_at<int>({ 1, 1 }, { 1, 2, 1 }, 1u);
         test_erase_at<int>({ 1, 2 }, { 2, 1, 2 }, 0u);
@@ -211,7 +213,7 @@ namespace kdl {
         ASSERT_EQ(exp, from);
     }
 
-    TEST(vector_utils_test, vec_erase_all) {
+    TEST_CASE("vector_utils_test.vec_erase_all", "[vector_utils_test]") {
         test_erase_all<int>({}, {}, {});
         test_erase_all<int>({ 1, 2, 3 }, { 1, 2, 3 }, {});
         test_erase_all<int>({ 2, 3 }, { 1, 2, 3 }, { 1 });
@@ -220,21 +222,21 @@ namespace kdl {
         test_erase_all<int>({ 1, 3 }, { 1, 2, 2, 3 }, { 2 });
     }
 
-    TEST(vector_utils_test, vec_sort) {
+    TEST_CASE("vector_utils_test.vec_sort", "[vector_utils_test]") {
         // just a smoke test since we're just forwarding to std::sort
         auto v = std::vector<int>({ 2, 3, 2, 1 });
         vec_sort(v);
         ASSERT_EQ(std::vector<int>({ 1, 2, 2, 3 }), v);
     }
 
-    TEST(vector_utils_test, vec_sort_and_remove_duplicates) {
+    TEST_CASE("vector_utils_test.vec_sort_and_remove_duplicates", "[vector_utils_test]") {
         // just a smoke test since we're just forwarding to std::sort and std::unique
         auto v = std::vector<int>({ 2, 3, 2, 1 });
         vec_sort_and_remove_duplicates(v);
         ASSERT_EQ(std::vector<int>({ 1, 2, 3 }), v);
     }
 
-    TEST(vector_utils_test, vec_transform) {
+    TEST_CASE("vector_utils_test.vec_transform", "[vector_utils_test]") {
         ASSERT_EQ(std::vector<int>({}), vec_transform(std::vector<int>({}), [](auto x) { return x + 10; }));
         ASSERT_EQ(std::vector<int>({ 11, 12, 13 }),
             vec_transform(std::vector<int>({ 1, 2, 3 }), [](auto x) { return x + 10; }));
@@ -242,7 +244,7 @@ namespace kdl {
             vec_transform(std::vector<int>({ 1, 2, 3 }), [](auto x) { return x + 10.0; }));
     }
 
-    TEST(vector_utils_test, set_difference) {
+    TEST_CASE("vector_utils_test.set_difference", "[vector_utils_test]") {
         using vec = std::vector<int>;
         using set = std::set<int>;
         ASSERT_EQ(vec({}), set_difference(set({}), set({})));
@@ -255,7 +257,7 @@ namespace kdl {
         ASSERT_EQ(vec({ 1, 3 }), set_difference(set({ 1, 2, 3 }), set({ 2 })));
     }
 
-    TEST(vector_utils_test, set_union) {
+    TEST_CASE("vector_utils_test.set_union", "[vector_utils_test]") {
         using vec = std::vector<int>;
         using set = std::set<int>;
         ASSERT_EQ(vec({}), set_union(set({}), set({})));
@@ -266,7 +268,7 @@ namespace kdl {
         ASSERT_EQ(vec({ 1, 2, 3, 4 }), set_union(set({ 1, 2, 3 }), set({ 2, 4 })));
     }
 
-    TEST(vector_utils_test, set_intersection) {
+    TEST_CASE("vector_utils_test.set_intersection", "[vector_utils_test]") {
         using vec = std::vector<int>;
         using set = std::set<int>;
         ASSERT_EQ(vec({}), set_intersection(set({}), set({})));
@@ -278,7 +280,7 @@ namespace kdl {
         ASSERT_EQ(vec({ 1, 3 }), set_intersection(set({ 1, 2, 3, 4 }), set({ 1, 3, 5 })));
     }
 
-    TEST(vector_utils_test, vec_clear_to_zero) {
+    TEST_CASE("vector_utils_test.vec_clear_to_zero", "[vector_utils_test]") {
         auto v = std::vector<int>({ 1, 2, 3 });
         ASSERT_LT(0u, v.capacity());
 
@@ -287,8 +289,10 @@ namespace kdl {
         ASSERT_EQ(0u, v.capacity());
     }
 
-    TEST(vector_utils_test, vec_clear_and_delete) {
-        bool d1, d2, d3;
+    TEST_CASE("vector_utils_test.vec_clear_and_delete", "[vector_utils_test]") {
+        bool d1 = false;
+        bool d2 = false;
+        bool d3 = false;
         auto v = std::vector<deletable*>({
             new deletable(d1),
             new deletable(d2),

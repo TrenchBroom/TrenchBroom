@@ -1,11 +1,13 @@
 add_executable(kdl-test)
 target_sources(kdl-test PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/GTestCompat.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/binary_relation_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/collection_utils_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/compact_trie_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/invoke_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/intrusive_circular_list_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/map_utils_test.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/result_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/run_all.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/set_adapter_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/skip_iterator_test.cpp"
@@ -19,7 +21,9 @@ target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/vector_utils_test.cpp"
         )
 
-target_link_libraries(kdl-test gtest kdl)
+set_property(SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/run_all.cpp" PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
+
+target_link_libraries(kdl-test Catch2::Catch2 kdl)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     target_compile_options(kdl-test PRIVATE -Wall -Wextra -Weverything -pedantic -Wno-c++98-compat -Wno-global-constructors -Wno-zero-as-null-pointer-constant -Wno-weak-vtables)

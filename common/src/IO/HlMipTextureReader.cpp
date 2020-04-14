@@ -26,8 +26,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        HlMipTextureReader::HlMipTextureReader(const NameStrategy& nameStrategy) :
-        MipTextureReader(nameStrategy) {}
+        HlMipTextureReader::HlMipTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger) :
+        MipTextureReader(nameStrategy, fs, logger) {}
 
         Assets::Palette HlMipTextureReader::doGetPalette(Reader& reader, const size_t offset[], const size_t width, const size_t height) const {
             const size_t start = offset[0] + (width * height * 85 >> 6) + 2;

@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "TestUtils.h"
 #include "Model/Brush.h"
@@ -38,7 +40,7 @@ namespace TrenchBroom {
             MapDocumentTest(Model::MapFormat::Valve) {}
         };
 
-        TEST_F(ChangeBrushFaceAttributesTest, resetAttributesOfValve220Face) {
+        TEST_CASE_METHOD(ChangeBrushFaceAttributesTest, "ChangeBrushFaceAttributesTest.resetAttributesOfValve220Face") {
             Model::Brush* brush = createBrush();
             document->addNode(brush, document->currentParent());
 

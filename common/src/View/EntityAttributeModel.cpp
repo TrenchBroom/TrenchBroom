@@ -39,7 +39,7 @@
 #include <kdl/vector_set.h>
 
 #include <iterator>
-#include <nonstd/optional.hpp>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -177,7 +177,7 @@ namespace TrenchBroom {
         AttributeRow AttributeRow::rowForAttributableNodes(const std::string& key, const std::vector<Model::AttributableNode*>& attributables) {
             ensure(attributables.size() > 0, "rowForAttributableNodes requries a non-empty node list");
 
-            nonstd::optional<AttributeRow> result;
+            std::optional<AttributeRow> result;
             for (const Model::AttributableNode* node : attributables) {
                 // this happens at startup when the world is still null
                 if (node == nullptr) {

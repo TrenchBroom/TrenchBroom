@@ -55,6 +55,7 @@ namespace TrenchBroom {
             void focusOutEvent(QFocusEvent* event) override;
             void updateCompileButton(bool test);
 
+            bool stopCompilation();
             void closeEvent(QCloseEvent* event) override;
         private slots:
             void launchEngine();

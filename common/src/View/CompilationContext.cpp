@@ -27,9 +27,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        CompilationContext::CompilationContext(std::weak_ptr<MapDocument> document, const EL::VariableTable& variables, const TextOutputAdapter& output, bool test) :
+        CompilationContext::CompilationContext(std::weak_ptr<MapDocument> document, const EL::VariableStore& variables, const TextOutputAdapter& output, bool test) :
         m_document(document),
-        m_variables(variables),
+        m_variables(variables.clone()),
         m_output(output),
         m_test(test) {}
 
@@ -42,11 +42,11 @@ namespace TrenchBroom {
         }
 
         std::string CompilationContext::interpolate(const std::string& input) const {
-            return EL::interpolate(input, EL::EvaluationContext(m_variables));
+            return EL::interpolate(input, EL::EvaluationContext(*m_variables));
         }
 
         std::string CompilationContext::variableValue(const std::string& variableName) const {
-            return m_variables.value(variableName).convertTo(EL::ValueType::String).stringValue();
+            return m_variables->value(variableName).convertTo(EL::ValueType::String).stringValue();
         }
     }
 }

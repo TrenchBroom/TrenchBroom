@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -29,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(BrushBuilderTest, createCube) {
+        TEST_CASE("BrushBuilderTest.createCube", "[BrushBuilderTest]") {
             const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard);
 
@@ -48,7 +50,7 @@ namespace TrenchBroom {
             delete cube;
         }
 
-        TEST(BrushBuilderTest, createCubeDefaults) {
+        TEST_CASE("BrushBuilderTest.createCubeDefaults", "[BrushBuilderTest]") {
             const vm::bbox3 worldBounds(8192.0);
             World world(MapFormat::Standard);
 

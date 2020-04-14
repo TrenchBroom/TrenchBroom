@@ -17,7 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#define CATCH_CONFIG_RUNNER
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "TrenchBroomApp.h"
 #include "Ensure.h"
@@ -40,11 +43,10 @@ int main(int argc, char **argv) {
 
     ensure(qApp == &app, "invalid app instance");
 
-    ::testing::InitGoogleTest(&argc, argv);
-
     // set the locale to US so that we can parse floats attribute
     std::setlocale(LC_NUMERIC, "C");
-    const int result = RUN_ALL_TESTS();
+
+    const int result = Catch::Session().run(argc, argv);
 
     return result;
 }

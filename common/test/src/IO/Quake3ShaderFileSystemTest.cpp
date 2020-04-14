@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Logger.h"
 #include "Assets/Quake3Shader.h"
@@ -33,7 +35,7 @@ namespace TrenchBroom {
     namespace IO {
         void assertShader(const std::vector<Path>& paths, const Path& path);
 
-        TEST(Quake3ShaderFileSystemTest, testShaderLinking) {
+        TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking", "[Quake3ShaderFileSystemTest]") {
             NullLogger logger;
 
             const auto workDir = IO::Disk::getCurrentWorkingDir();
@@ -59,7 +61,7 @@ namespace TrenchBroom {
             assertShader(items, texturePrefix + Path("test/not_existing2"));
         }
 
-        TEST(Quake3ShaderFileSystemTest, testSkipMalformedFiles) {
+        TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles", "[Quake3ShaderFileSystemTest]") {
             NullLogger logger;
 
             // There is one malformed shader script, this should be skipped.

@@ -15,14 +15,16 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "kdl/skip_iterator.h"
 
 #include <vector>
 
 namespace kdl {
-    TEST(skip_iterator_test, prefix_increment) {
+    TEST_CASE("skip_iterator_test.prefix_increment", "[skip_iterator_test]") {
         std::vector<int> vec({ 1, 2, 3, 4, 5 });
         auto it = skip_iterator(std::begin(vec), std::end(vec), 1, 2);
 
@@ -31,7 +33,7 @@ namespace kdl {
         ASSERT_EQ(++it, std::end(vec));
     }
 
-    TEST(skip_iterator_test, postfix_increment) {
+    TEST_CASE("skip_iterator_test.postfix_increment", "[skip_iterator_test]") {
         std::vector<int> vec({ 1, 2, 3, 4, 5 });
         auto it = skip_iterator(std::begin(vec), std::end(vec), 1, 2);
 
@@ -40,7 +42,7 @@ namespace kdl {
         ASSERT_EQ(it, std::end(vec));
     }
 
-    TEST(skip_iterator_test, empty_sequence) {
+    TEST_CASE("skip_iterator_test.empty_sequence", "[skip_iterator_test]") {
         std::vector<size_t> vec;
 
         ASSERT_EQ(std::begin(vec), skip_iterator(std::begin(vec), std::end(vec)));
@@ -49,14 +51,14 @@ namespace kdl {
         ASSERT_EQ(std::end(vec), skip_iterator(std::begin(vec), std::end(vec), 1));
     }
 
-    TEST(skip_iterator_test, zero_stride) {
+    TEST_CASE("skip_iterator_test.zero_stride", "[skip_iterator_test]") {
         std::vector<size_t> vec({ 1 });
 
         ASSERT_EQ(std::begin(vec), skip_iterator(std::begin(vec), std::end(vec), 0, 0));
         ASSERT_EQ(std::begin(vec), std::next(skip_iterator(std::begin(vec), std::end(vec), 0, 0)));
     }
 
-    TEST(skip_iterator_test, oneElement_sequence) {
+    TEST_CASE("skip_iterator_test.oneElement_sequence", "[skip_iterator_test]") {
         std::vector<size_t> vec({ 1 });
 
         ASSERT_EQ(std::begin(vec), skip_iterator(std::begin(vec), std::end(vec)));

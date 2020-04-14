@@ -21,9 +21,9 @@ matrix:
           packages:
             - g++-8 qt59base freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm cppcheck
     - os: osx
-      osx_image: xcode10.2
+      osx_image: xcode11.3
     - os: osx
-      osx_image: xcode10.2
+      osx_image: xcode11.3
       env: TB_DEBUG_BUILD=true
 script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./travis-macos.sh; fi

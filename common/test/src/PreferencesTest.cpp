@@ -17,12 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include <QTextStream>
 #include <QString>
 
-#include <nonstd/optional.hpp>
 #include <kdl/vector_utils.h>
 #include <vecmath/bbox.h>
 
@@ -35,6 +36,8 @@
 #include "Model/TagMatcher.h"
 #include "View/Actions.h"
 
+#include <iostream>
+#include <optional>
 #include <string>
 
 namespace TrenchBroom {
@@ -46,7 +49,7 @@ namespace TrenchBroom {
         return it->second;
     }
 
-    TEST(PreferencesTest, migrateLocalV1Settings) {
+    TEST_CASE("PreferencesTest.migrateLocalV1Settings", "[PreferencesTest]") {
         const std::map<IO::Path, QJsonValue> reg = readV1Settings();
 
         [[maybe_unused]]
@@ -56,7 +59,7 @@ namespace TrenchBroom {
         // has any settings on it.
     }
 
-    TEST(PreferencesTest, parseV1) {
+    TEST_CASE("PreferencesTest.parseV1", "[PreferencesTest]") {
         const std::map<IO::Path, QJsonValue> parsed = getINISettingsV1("fixture/test/preferences-v1.ini");
 
         EXPECT_EQ(QJsonValue("108.000000"), getValue(parsed, IO::Path("Controls/Camera/Field of vision")));
@@ -180,7 +183,7 @@ namespace TrenchBroom {
         EXPECT_EQ(QJsonValue(QJsonValue::Undefined), getValue(v2, IO::Path("RecentDocuments/0")));
     }
 
-    TEST(PreferencesTest, migrateV1) {
+    TEST_CASE("PreferencesTest.migrateV1", "[PreferencesTest]") {
         const std::map<IO::Path, QJsonValue> v1 = getINISettingsV1("fixture/test/preferences-v1.ini");
         const std::map<IO::Path, QJsonValue> v2 = migrateV1ToV2(v1);
 
@@ -189,7 +192,7 @@ namespace TrenchBroom {
         //EXPECT_TRUE(writeV2SettingsToPath("C:\\Users\\Eric\\Desktop\\Preferences.json", v2));
     }
 
-    TEST(PreferencesTest, readV2) {
+    TEST_CASE("PreferencesTest.readV2", "[PreferencesTest]") {
         // Invalid JSON -> parse error -> parseV2SettingsFromJSON() is expected to return nullopt
         ASSERT_EQ(PreferencesResult::Status::JsonParseError, parseV2SettingsFromJSON(QByteArray()).status);
         ASSERT_EQ(PreferencesResult::Status::JsonParseError, parseV2SettingsFromJSON(QByteArray("abc")).status);
@@ -204,7 +207,7 @@ namespace TrenchBroom {
         testV2Prefs(v2.map);
     }
 
-    TEST(PreferencesTest, testWriteReadV2) {
+    TEST_CASE("PreferencesTest.testWriteReadV2", "[PreferencesTest]") {
         const std::map<IO::Path, QJsonValue> v1 = getINISettingsV1("fixture/test/preferences-v1.ini");
         const std::map<IO::Path, QJsonValue> v2 = migrateV1ToV2(v1);
 
@@ -219,13 +222,13 @@ namespace TrenchBroom {
      * Helper template so we don't need to use out parameters in the tests
      */
     template <class Serializer, class PrimitiveType>
-    static nonstd::optional<PrimitiveType> maybeDeserialize(const QJsonValue& string) {
+    static std::optional<PrimitiveType> maybeDeserialize(const QJsonValue& string) {
         const Serializer s;
         PrimitiveType result;
         if (s.readFromJSON(string, &result)) {
             return { result };
         }
-        return nonstd::nullopt;
+        return std::nullopt;
     }
 
     template <class Serializer, class PrimitiveType>
@@ -245,7 +248,7 @@ namespace TrenchBroom {
         EXPECT_EQ(str, testSerialize);
     }
 
-    TEST(PreferencesTest, serializeV1Bool) {
+    TEST_CASE("PreferencesTest.serializeV1Bool", "[PreferencesTest]") {
         EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV1, bool>("").has_value()));
         EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV1, bool>("-1").has_value()));
 
@@ -253,7 +256,7 @@ namespace TrenchBroom {
         testSerialize<PreferenceSerializerV1, bool>(QJsonValue("1"), true);
     }
 
-    TEST(PreferencesTest, serializeV1Color) {
+    TEST_CASE("PreferencesTest.serializeV1Color", "[PreferencesTest]") {
         EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV1, Color>(QJsonValue("0.921569 0.666667")).has_value())); // must give 3 or 4 components
 
         testSerialize<PreferenceSerializerV1, Color>(
@@ -261,17 +264,17 @@ namespace TrenchBroom {
             Color(0.921569f, 0.666667f, 0.45098f, 0.5f));
     }
 
-    TEST(PreferencesTest, serializeV1float) {
+    TEST_CASE("PreferencesTest.serializeV1float", "[PreferencesTest]") {
         testSerialize<PreferenceSerializerV1, float>(QJsonValue("0.921569"), 0.921569f);
     }
 
-    TEST(PreferencesTest, serializeV1int) {
+    TEST_CASE("PreferencesTest.serializeV1int", "[PreferencesTest]") {
         testSerialize<PreferenceSerializerV1, int>(QJsonValue("0"), 0);
         testSerialize<PreferenceSerializerV1, int>(QJsonValue("-1"), -1);
         testSerialize<PreferenceSerializerV1, int>(QJsonValue("1000"), 1000);
     }
 
-    TEST(PreferencesTest, serializeV1Path) {
+    TEST_CASE("PreferencesTest.serializeV1Path", "[PreferencesTest]") {
 #ifdef _WIN32
         testSerialize<PreferenceSerializerV1, IO::Path>(QJsonValue("c:\\foo\\bar"), IO::Path("c:\\foo\\bar"));
         testSerialize<PreferenceSerializerV1, IO::Path>(QJsonValue("c:\\foo\\bar"), IO::Path("c:/foo/bar"));
@@ -286,7 +289,7 @@ namespace TrenchBroom {
         testSerialize<PreferenceSerializerV1, IO::Path>(QJsonValue(""), IO::Path());
     }
 
-    TEST(PreferencesTest, serializeV1KeyboardShortcut) {
+    TEST_CASE("PreferencesTest.serializeV1KeyboardShortcut", "[PreferencesTest]") {
         // These come from wxWidgets TrenchBroom 2019.6, on Windows
         testSerialize<PreferenceSerializerV1, QKeySequence>(QJsonValue("87:307:306:0"),   QKeySequence::fromString("Alt+Shift+W"));
         testSerialize<PreferenceSerializerV1, QKeySequence>(QJsonValue("87:307:0:0"),     QKeySequence::fromString("Alt+W"));
@@ -301,7 +304,7 @@ namespace TrenchBroom {
         testSerialize<PreferenceSerializerV1, QKeySequence>(QJsonValue("80:307:0:0"),     QKeySequence::fromString("Alt+P")); // "Alt" in Qt = Alt in macOS
     }
 
-    TEST(PreferencesTest, serializeV2Bool) {
+    TEST_CASE("PreferencesTest.serializeV2Bool", "[PreferencesTest]") {
         EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV2, bool>(QJsonValue("")).has_value()));
         EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV2, bool>(QJsonValue("0")).has_value()));
 
@@ -309,13 +312,13 @@ namespace TrenchBroom {
         testSerialize<PreferenceSerializerV2, bool>(QJsonValue(true), true);
     }
 
-    TEST(PreferencesTest, serializeV2float) {
+    TEST_CASE("PreferencesTest.serializeV2float", "[PreferencesTest]") {
         EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV2, float>(QJsonValue("1.25")).has_value()));
 
         testSerialize<PreferenceSerializerV2, float>(QJsonValue(1.25), 1.25f);
     }
 
-    TEST(PreferencesTest, serializeV2int) {
+    TEST_CASE("PreferencesTest.serializeV2int", "[PreferencesTest]") {
         EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV2, int>(QJsonValue("0")).has_value()));
         EXPECT_FALSE((maybeDeserialize<PreferenceSerializerV2, int>(QJsonValue("-1")).has_value()));
 
@@ -324,12 +327,12 @@ namespace TrenchBroom {
         testSerialize<PreferenceSerializerV2, int>(QJsonValue(1000), 1000);
     }
 
-    TEST(PreferencesTest, serializeV2KeyboardShortcut) {
+    TEST_CASE("PreferencesTest.serializeV2KeyboardShortcut", "[PreferencesTest]") {
         testSerialize<PreferenceSerializerV2, QKeySequence>(QJsonValue("Alt+Shift+W"),    QKeySequence::fromString("Alt+Shift+W"));
         testSerialize<PreferenceSerializerV2, QKeySequence>(QJsonValue("Meta+W"),         QKeySequence::fromString("Meta+W")); // "Meta" in Qt = Control in macOS
     }
 
-    TEST(PreferencesTest, testWxViewShortcutsAndMenuShortcutsRecognized) {
+    TEST_CASE("PreferencesTest.testWxViewShortcutsAndMenuShortcutsRecognized", "[PreferencesTest]") {
         // All map view shortcuts, and all binadable menu items before the Qt port
         const std::vector<std::string> preferenceKeys {
             "Controls/Map view/Create brush",
@@ -368,25 +371,24 @@ namespace TrenchBroom {
             "Controls/Map view/Duplicate and move objects right",
             "Controls/Map view/Duplicate and move objects backward; Duplicate and move objects up",
             "Controls/Map view/Duplicate and move objects forward; Duplicate and move objects down",
-            // The Qt port dropped the fine/coarse variants
             "Controls/Map view/Move textures up",
-//            "Controls/Map view/Move textures up (fine)",
-//            "Controls/Map view/Move textures up (coarse)",
+            "Controls/Map view/Move textures up (fine)",
+            "Controls/Map view/Move textures up (coarse)",
             "Controls/Map view/Move textures down",
-//            "Controls/Map view/Move textures down (fine)",
-//            "Controls/Map view/Move textures down (coarse)",
+            "Controls/Map view/Move textures down (fine)",
+            "Controls/Map view/Move textures down (coarse)",
             "Controls/Map view/Move textures left",
-//            "Controls/Map view/Move textures left (fine)",
-//            "Controls/Map view/Move textures left (coarse)",
+            "Controls/Map view/Move textures left (fine)",
+            "Controls/Map view/Move textures left (coarse)",
             "Controls/Map view/Move textures right",
-//            "Controls/Map view/Move textures right (fine)",
-//            "Controls/Map view/Move textures right (coarse)",
+            "Controls/Map view/Move textures right (fine)",
+            "Controls/Map view/Move textures right (coarse)",
             "Controls/Map view/Rotate textures clockwise",
-//            "Controls/Map view/Rotate textures clockwise (fine)",
-//            "Controls/Map view/Rotate textures clockwise (coarse)",
+            "Controls/Map view/Rotate textures clockwise (fine)",
+            "Controls/Map view/Rotate textures clockwise (coarse)",
             "Controls/Map view/Rotate textures counter-clockwise",
-//            "Controls/Map view/Rotate textures counter-clockwise (fine)",
-//            "Controls/Map view/Rotate textures counter-clockwise (coarse)",
+            "Controls/Map view/Rotate textures counter-clockwise (fine)",
+            "Controls/Map view/Rotate textures counter-clockwise (coarse)",
             "Controls/Map view/Cycle map view",
             "Controls/Map view/Reset camera zoom",
             "Controls/Map view/Cancel",
@@ -494,7 +496,7 @@ namespace TrenchBroom {
         }
     }
 
-    TEST(PreferencesTest, testWxEntityShortcuts) {
+    TEST_CASE("PreferencesTest.testWxEntityShortcuts", "[PreferencesTest]") {
         auto hellKnight = Assets::PointEntityDefinition("monster_hell_knight", Color(0,0,0), vm::bbox3(), "", {}, Assets::ModelDefinition());
         const auto defs = std::vector<Assets::EntityDefinition*>{&hellKnight};
 
@@ -517,7 +519,7 @@ namespace TrenchBroom {
         }
     }
 
-    TEST(PreferencesTest, testWxTagShortcuts) {
+    TEST_CASE("PreferencesTest.testWxTagShortcuts", "[PreferencesTest]") {
         const auto tags = std::vector<Model::SmartTag>{
             Model::SmartTag("Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27))
         };

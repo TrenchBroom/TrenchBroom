@@ -17,15 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Renderer/Camera.h"
 #include "Renderer/PerspectiveCamera.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        TEST(CameraTest, testInvalidUp) {
+        TEST_CASE("CameraTest.testInvalidUp", "[CameraTest]") {
             PerspectiveCamera c;
             c.setDirection(vm::vec3f(0,0,1), vm::vec3f(0,0,1));
 
@@ -34,7 +35,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(vm::is_nan(c.up()));
         }
 
-        TEST(CameraTest, testOrbitDown) {
+        TEST_CASE("CameraTest.testOrbitDown", "[CameraTest]") {
             PerspectiveCamera c;
             c.setDirection(vm::vec3f(1,0,0), vm::vec3f(0,0,1));
 
@@ -45,7 +46,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(vm::is_nan(c.up()));
         }
 
-        TEST(CameraTest, testOrbitWhileInverted) {
+        TEST_CASE("CameraTest.testOrbitWhileInverted", "[CameraTest]") {
             PerspectiveCamera c;
             c.setDirection(vm::vec3f(1,0,0), vm::vec3f(0,0,-1));
 
@@ -56,7 +57,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(vm::is_nan(c.up()));
         }
 
-        TEST(CameraTest, testYawWhenPitchedDown) {
+        TEST_CASE("CameraTest.testYawWhenPitchedDown", "[CameraTest]") {
             PerspectiveCamera c;
             c.setDirection(vm::vec3f::neg_z(), vm::vec3f::pos_x());
 

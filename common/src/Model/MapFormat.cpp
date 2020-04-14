@@ -30,6 +30,8 @@ namespace TrenchBroom {
                 return MapFormat::Standard;
             } else if (formatName == "Quake2") {
                 return MapFormat::Quake2;
+            } else if (formatName == "Quake2 (Valve)") {
+                return MapFormat::Quake2_Valve;
             } else if (formatName == "Valve") {
                 return MapFormat::Valve;
             } else if (formatName == "Hexen2") {
@@ -38,6 +40,8 @@ namespace TrenchBroom {
                 return MapFormat::Daikatana;
             } else if (formatName == "Quake3 (legacy)") {
                 return MapFormat::Quake3_Legacy;
+            } else if (formatName == "Quake3 (Valve)") {
+                return MapFormat::Quake3_Valve;
             } else if (formatName == "Quake3") {
                 return MapFormat::Quake3;
             } else {
@@ -51,6 +55,8 @@ namespace TrenchBroom {
                     return "Standard";
                 case MapFormat::Quake2:
                     return "Quake2";
+                case MapFormat::Quake2_Valve:
+                    return "Quake2 (Valve)";
                 case MapFormat::Valve:
                     return "Valve";
                 case MapFormat::Hexen2:
@@ -59,6 +65,8 @@ namespace TrenchBroom {
                     return "Daikatana";
                 case MapFormat::Quake3_Legacy:
                     return "Quake3 (legacy)";
+                case MapFormat::Quake3_Valve:
+                    return "Quake3 (Valve)";
                 case MapFormat::Quake3:
                     return "Quake3";
                 case MapFormat::Unknown:

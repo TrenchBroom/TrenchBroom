@@ -72,8 +72,9 @@ namespace TrenchBroom {
             void contextMenuEvent(QContextMenuEvent *event) override;
         public:
             void startDrag(const QMouseEvent* event);
-            void scroll(const QMouseEvent* event);
         private:
+            void scroll(const QMouseEvent* event);
+            void scrollBy(int deltaY);
             bool updateTooltip(QHelpEvent* event);
         private:
             void doRender() override;

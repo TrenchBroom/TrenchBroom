@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -32,7 +34,7 @@ namespace TrenchBroom {
     namespace View {
         class SelectionTest : public MapDocumentTest {};
 
-        TEST_F(SelectionTest, selectTouchingWithGroup) {
+        TEST_CASE_METHOD(SelectionTest, "SelectionTest.selectTouchingWithGroup") {
             document->selectAllNodes();
             document->deleteObjects();
             assert(document->selectedNodes().nodeCount() == 0);
@@ -62,7 +64,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, document->selectedNodes().nodeCount());
         }
 
-        TEST_F(SelectionTest, selectInsideWithGroup) {
+        TEST_CASE_METHOD(SelectionTest, "SelectionTest.selectInsideWithGroup") {
             document->selectAllNodes();
             document->deleteObjects();
             assert(document->selectedNodes().nodeCount() == 0);
