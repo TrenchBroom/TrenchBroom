@@ -103,6 +103,22 @@ namespace TrenchBroom {
             ASSERT_FALSE(document->isRegisteredSmartTag(""));
             ASSERT_FALSE(document->isRegisteredSmartTag("asdf"));
         }
+
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRegistrationAssignsIndexes") {
+            CHECK(0u == document->smartTag("texture").index());
+            CHECK(1u == document->smartTag("surfaceparm").index());
+            CHECK(2u == document->smartTag("contentflags").index());
+            CHECK(3u == document->smartTag("surfaceflags").index());
+            CHECK(4u == document->smartTag("entity").index());
+        }
+
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRegistrationAssignsTypes") {
+            CHECK(1u == document->smartTag("texture").type());
+            CHECK(2u == document->smartTag("surfaceparm").type());
+            CHECK(4u == document->smartTag("contentflags").type());
+            CHECK(8u == document->smartTag("surfaceflags").type());
+            CHECK(16u == document->smartTag("entity").type());
+        }
     
         // https://github.com/kduske/TrenchBroom/issues/2905
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.duplicateTag") {
