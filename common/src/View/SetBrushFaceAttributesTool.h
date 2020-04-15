@@ -35,8 +35,10 @@ namespace TrenchBroom {
         class SetBrushFaceAttributesTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
             std::weak_ptr<MapDocument> m_document;
-            Model::BrushFace* m_lastDraggedBrushFace;
-            Model::BrushFace* m_secondLastDraggedBrushFace;
+        private: // drag state
+            Model::BrushFace* m_dragInitialSelectedFace;
+            Model::BrushFace* m_dragTargetFace;
+            Model::BrushFace* m_dragSourceFace;
         public:
             SetBrushFaceAttributesTool(std::weak_ptr<MapDocument> document);
         private:
@@ -45,20 +47,21 @@ namespace TrenchBroom {
 
             bool doMouseClick(const InputState& inputState) override;
             bool doMouseDoubleClick(const InputState& inputState) override;
-
-            bool doStartMouseDrag(const InputState& inputState) override;
-            bool doMouseDrag(const InputState& inputState) override;
-            void doEndMouseDrag(const InputState& inputState) override;
-            void doCancelMouseDrag() override;
-
-            void transferFaceAttributes(const InputState& inputState, Model::BrushFace* from, Model::BrushFace* to);
+            
             void copyAttributesFromSelection(const InputState& inputState, bool applyToBrush);
             bool canCopyAttributesFromSelection(const InputState& inputState) const;
             bool applies(const InputState& inputState) const;
             bool copyAllAttributes(const InputState& inputState) const;
 
             bool doCancel() override;
-        private:
+            
+            bool doStartMouseDrag(const InputState& inputState) override;
+            bool doMouseDrag(const InputState& inputState) override;
+            void doEndMouseDrag(const InputState& inputState) override;
+            void doCancelMouseDrag() override;
+
+            void resetDragState();
+            void transferFaceAttributes(const InputState& inputState, Model::BrushFace* sourceFace, Model::BrushFace* targetFace);
             const Model::Hit& firstHit(const InputState& inputState, const Model::HitType::Type type) const;
         };
     }

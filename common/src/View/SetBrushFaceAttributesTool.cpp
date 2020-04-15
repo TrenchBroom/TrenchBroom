@@ -31,7 +31,7 @@
 
 #include <vector>
 
-#include <QDebug>
+#include "Ensure.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -39,8 +39,9 @@ namespace TrenchBroom {
         ToolControllerBase(),
         Tool(true),
         m_document(document),
-        m_lastDraggedBrushFace(nullptr),
-        m_secondLastDraggedBrushFace(nullptr) {}
+        m_dragInitialSelectedFace(nullptr),
+        m_dragTargetFace(nullptr),
+        m_dragSourceFace(nullptr) {}
 
         Tool* SetBrushFaceAttributesTool::doGetTool() {
             return this;
@@ -72,99 +73,6 @@ namespace TrenchBroom {
             } else {
                 return false;
             }
-        }
-
-        bool SetBrushFaceAttributesTool::doStartMouseDrag(const InputState& inputState) {
-            if (!applies(inputState))
-                return false;
-
-            auto document = kdl::mem_lock(m_document);
-
-            // Need to have a selected face to start painting alignment
-            const std::vector<Model::BrushFace*>& selectedFaces = document->selectedBrushFaces();
-            if (selectedFaces.size() != 1) {
-                return false;
-            }
-            Model::BrushFace* selectedFace = selectedFaces[0];
-            m_secondLastDraggedBrushFace = selectedFace;
-
-            // Optionally clicking on a face
-            const auto& hit = firstHit(inputState, Model::Brush::BrushHit);
-            if (hit.isMatch()) {
-                Model::BrushFace* clickedFace = Model::hitToFace(hit);
-                m_lastDraggedBrushFace = clickedFace;
-            } else {
-                m_lastDraggedBrushFace = nullptr;
-            }
-
-            qDebug() << "start drag";           
-            document->startTransaction("Drag Select Brush Faces");
-            transferFaceAttributes(inputState,
-                m_secondLastDraggedBrushFace, 
-                m_lastDraggedBrushFace);
-
-            return true;
-        }
-
-        bool SetBrushFaceAttributesTool::doMouseDrag(const InputState& inputState) {            
-            const auto& hit = firstHit(inputState, Model::Brush::BrushHit);
-            if (!hit.isMatch()) {
-                // Dragging over void
-                return true;
-            }
-
-            Model::BrushFace* face = Model::hitToFace(hit);
-            if (face == m_lastDraggedBrushFace) {
-                // Dragging on the same face as last frame
-                return true;
-            }
-
-            // Dragged onto a new face
-            m_secondLastDraggedBrushFace = m_lastDraggedBrushFace;
-            m_lastDraggedBrushFace = face;
-
-            transferFaceAttributes(inputState,
-                m_secondLastDraggedBrushFace, 
-                m_lastDraggedBrushFace);
-
-            return true;
-        }
-
-        void SetBrushFaceAttributesTool::doEndMouseDrag(const InputState& inputState) {
-            auto document = kdl::mem_lock(m_document);
-            document->commitTransaction();
-
-            m_lastDraggedBrushFace = nullptr;
-            m_secondLastDraggedBrushFace = nullptr;
-        }
-
-        void SetBrushFaceAttributesTool::doCancelMouseDrag() {
-            auto document = kdl::mem_lock(m_document);
-            document->cancelTransaction();
-
-            m_lastDraggedBrushFace = nullptr;
-            m_secondLastDraggedBrushFace = nullptr;
-        }
-
-        void SetBrushFaceAttributesTool::transferFaceAttributes(const InputState& inputState, Model::BrushFace* from, Model::BrushFace* to) {
-            qDebug() << "transfer from " << from << " to " << to;
-
-            auto document = kdl::mem_lock(m_document);
-
-            const Model::WrapStyle wrapStyle = inputState.modifierKeysDown(ModifierKeys::MKShift) ? Model::WrapStyle::Rotation : Model::WrapStyle::Projection;
-
-            const Transaction transaction(document);
-            document->deselectAll();
-            document->select(to);
-
-            auto snapshot = from->takeTexCoordSystemSnapshot();
-            document->setFaceAttributes(from->attribs());
-            if (snapshot != nullptr) {
-                document->copyTexCoordSystemFromFace(*snapshot, from->attribs().takeSnapshot(), from->boundary(), wrapStyle);
-            }
-
-            document->deselectAll();
-            document->select(from);
         }
 
         void SetBrushFaceAttributesTool::copyAttributesFromSelection(const InputState& inputState, const bool applyToBrush) {
@@ -225,6 +133,97 @@ namespace TrenchBroom {
 
         bool SetBrushFaceAttributesTool::doCancel() {
             return false;
+        }
+
+        bool SetBrushFaceAttributesTool::doStartMouseDrag(const InputState& inputState) {
+            if (!applies(inputState))
+                return false;
+
+            auto document = kdl::mem_lock(m_document);
+
+            // Need to have a selected face to start painting alignment
+            const std::vector<Model::BrushFace*>& selectedFaces = document->selectedBrushFaces();
+            if (selectedFaces.size() != 1) {
+                return false;
+            }
+
+            resetDragState();
+            m_dragInitialSelectedFace = selectedFaces[0];
+
+            document->startTransaction("Drag Select Brush Faces");
+
+            return true;
+        }
+
+        bool SetBrushFaceAttributesTool::doMouseDrag(const InputState& inputState) {            
+            const auto& hit = firstHit(inputState, Model::Brush::BrushHit);
+            if (!hit.isMatch()) {
+                // Dragging over void
+                return true;
+            }
+
+            Model::BrushFace* face = Model::hitToFace(hit);
+            if (face == m_dragTargetFace) {
+                // Dragging on the same face as last frame
+                return true;
+            }
+
+            if (m_dragSourceFace == nullptr && m_dragTargetFace == nullptr) {
+                // Start drag
+                m_dragSourceFace = m_dragInitialSelectedFace;
+                m_dragTargetFace = face;                
+            } else {
+                // Continuing drag onto new face
+                m_dragSourceFace = m_dragTargetFace;
+                m_dragTargetFace = face;
+            }
+
+            transferFaceAttributes(inputState, m_dragSourceFace, m_dragTargetFace);
+
+            return true;
+        }
+
+        void SetBrushFaceAttributesTool::doEndMouseDrag(const InputState&) {
+            auto document = kdl::mem_lock(m_document);
+            document->commitTransaction();
+
+            resetDragState();
+        }
+
+        void SetBrushFaceAttributesTool::doCancelMouseDrag() {
+            auto document = kdl::mem_lock(m_document);
+            document->cancelTransaction();
+
+            resetDragState();
+        }
+
+        void SetBrushFaceAttributesTool::resetDragState() {
+            m_dragInitialSelectedFace = nullptr;
+            m_dragTargetFace = nullptr;
+            m_dragSourceFace = nullptr;
+        }
+
+        void SetBrushFaceAttributesTool::transferFaceAttributes(const InputState& inputState, Model::BrushFace* sourceFace, Model::BrushFace* targetFace) {
+            ensure(sourceFace != nullptr, "no source face");
+            ensure(targetFace != nullptr, "no target face");
+            ensure(m_dragInitialSelectedFace != nullptr, "no initially selected face");
+
+            auto document = kdl::mem_lock(m_document);
+
+            const Model::WrapStyle wrapStyle = inputState.modifierKeysDown(ModifierKeys::MKShift) ? Model::WrapStyle::Rotation : Model::WrapStyle::Projection;
+
+            const Transaction transaction(document);
+            document->deselectAll();
+            document->select(targetFace);
+
+            auto snapshot = sourceFace->takeTexCoordSystemSnapshot();
+            document->setFaceAttributes(sourceFace->attribs());
+            if (snapshot != nullptr) {
+                document->copyTexCoordSystemFromFace(*snapshot, sourceFace->attribs().takeSnapshot(), sourceFace->boundary(), wrapStyle);
+            }
+
+            document->deselectAll();
+            document->select(m_dragInitialSelectedFace);
         }
 
         /**
