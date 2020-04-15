@@ -154,7 +154,7 @@ namespace TrenchBroom {
             resetDragState();
             m_dragInitialSelectedFace = selectedFaces[0];
 
-            document->startTransaction("Drag Select Brush Faces");
+            document->startTransaction("Drag Apply Face Attributes");
 
             return true;
         }
