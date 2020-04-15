@@ -62,7 +62,7 @@ endif()
 # Enable ASAN if possible and requested
 if(TB_ENABLE_ASAN)
     message(STATUS "Enabling ASan")
-    if(COMPILER_IS_CLANG)
+    if(COMPILER_IS_CLANG OR COMPILER_IS_GNU)
         add_compile_options(-fsanitize=address)
         add_link_options(-fsanitize=address)
     else()
