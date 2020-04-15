@@ -26,12 +26,17 @@
 #include <memory>
 
 namespace TrenchBroom {
+    namespace Model {
+        class BrushFace;
+    }
     namespace View {
         class MapDocument;
 
-        class SetBrushFaceAttributesTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, NoMouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
+        class SetBrushFaceAttributesTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
             std::weak_ptr<MapDocument> m_document;
+            Model::BrushFace* m_lastDraggedBrushFace;
+            Model::BrushFace* m_secondLastDraggedBrushFace;
         public:
             SetBrushFaceAttributesTool(std::weak_ptr<MapDocument> document);
         private:
@@ -41,12 +46,20 @@ namespace TrenchBroom {
             bool doMouseClick(const InputState& inputState) override;
             bool doMouseDoubleClick(const InputState& inputState) override;
 
+            bool doStartMouseDrag(const InputState& inputState) override;
+            bool doMouseDrag(const InputState& inputState) override;
+            void doEndMouseDrag(const InputState& inputState) override;
+            void doCancelMouseDrag() override;
+
+            void transferFaceAttributes(const InputState& inputState, Model::BrushFace* from, Model::BrushFace* to);
             void copyAttributesFromSelection(const InputState& inputState, bool applyToBrush);
             bool canCopyAttributesFromSelection(const InputState& inputState) const;
             bool applies(const InputState& inputState) const;
             bool copyAllAttributes(const InputState& inputState) const;
 
             bool doCancel() override;
+        private:
+            const Model::Hit& firstHit(const InputState& inputState, const Model::HitType::Type type) const;
         };
     }
 }
