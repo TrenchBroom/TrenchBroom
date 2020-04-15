@@ -75,6 +75,10 @@ namespace TrenchBroom {
             }
         }
 
+        static Model::WrapStyle wrapStyle(const InputState& inputState) {
+            return inputState.modifierKeysDown(ModifierKeys::MKShift) ? Model::WrapStyle::Rotation : Model::WrapStyle::Projection;
+        }
+
         void SetBrushFaceAttributesTool::copyAttributesFromSelection(const InputState& inputState, const bool applyToBrush) {
             assert(canCopyAttributesFromSelection(inputState));
             
@@ -88,7 +92,7 @@ namespace TrenchBroom {
             Model::Brush* targetBrush = targetFace->brush();
             const std::vector<Model::BrushFace*> targetList = applyToBrush ? targetBrush->faces() : std::vector<Model::BrushFace*>({ targetFace });
 
-            const Model::WrapStyle wrapStyle = inputState.modifierKeysDown(ModifierKeys::MKShift) ? Model::WrapStyle::Rotation : Model::WrapStyle::Projection;
+            const Model::WrapStyle style = wrapStyle(inputState);
 
             const Transaction transaction(document);
             document->deselectAll();
@@ -97,7 +101,7 @@ namespace TrenchBroom {
                 auto snapshot = source->takeTexCoordSystemSnapshot();
                 document->setFaceAttributes(source->attribs());
                 if (snapshot != nullptr) {
-                    document->copyTexCoordSystemFromFace(*snapshot, source->attribs().takeSnapshot(), source->boundary(), wrapStyle);
+                    document->copyTexCoordSystemFromFace(*snapshot, source->attribs().takeSnapshot(), source->boundary(), style);
                 }
             } else {
                 document->setTexture(source->texture());
@@ -210,7 +214,7 @@ namespace TrenchBroom {
 
             auto document = kdl::mem_lock(m_document);
 
-            const Model::WrapStyle wrapStyle = inputState.modifierKeysDown(ModifierKeys::MKShift) ? Model::WrapStyle::Rotation : Model::WrapStyle::Projection;
+            const Model::WrapStyle style = wrapStyle(inputState);
 
             const Transaction transaction(document);
             document->deselectAll();
@@ -219,7 +223,7 @@ namespace TrenchBroom {
             auto snapshot = sourceFace->takeTexCoordSystemSnapshot();
             document->setFaceAttributes(sourceFace->attribs());
             if (snapshot != nullptr) {
-                document->copyTexCoordSystemFromFace(*snapshot, sourceFace->attribs().takeSnapshot(), sourceFace->boundary(), wrapStyle);
+                document->copyTexCoordSystemFromFace(*snapshot, sourceFace->attribs().takeSnapshot(), sourceFace->boundary(), style);
             }
 
             document->deselectAll();
