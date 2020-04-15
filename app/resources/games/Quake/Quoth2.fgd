@@ -591,7 +591,13 @@ monster_vermis: "Vermis"
 		]
 	]
 		
-@PointClass size(-8 -8 -8, 8 8 8) base(Static, Appearflags) = mapobject_custom: "Custom mapobject"
+@PointClass size(-8 -8 -8, 8 8 8) base(Static, Appearflags) 
+	model({
+    	"path" : model,
+    	"skin" : skin,
+    	"frame": frame
+	})
+	= mapobject_custom: "Custom mapobject"
 	[
 		model(string) : "Model"
 		frame(integer) : "Frame"
