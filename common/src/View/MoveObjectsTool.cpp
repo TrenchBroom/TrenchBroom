@@ -45,6 +45,11 @@ namespace TrenchBroom {
 
         bool MoveObjectsTool::startMove(const InputState& inputState) {
             auto document = kdl::mem_lock(m_document);
+
+            if (!document->selectedBrushFaces().empty()) {
+                return false;
+            }
+
             document->startTransaction(duplicateObjects(inputState) ? "Duplicate Objects" : "Move Objects");
             m_duplicateObjects = duplicateObjects(inputState);
             return true;
