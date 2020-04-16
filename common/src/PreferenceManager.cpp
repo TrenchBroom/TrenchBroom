@@ -259,7 +259,7 @@ namespace TrenchBroom {
 #endif
 
         if (!migrateSettingsFromV1IfPathDoesNotExist(m_preferencesFilePath)) {
-            qWarning() << "Error writing settings to" << m_preferencesFilePath;
+            showErrorAndDisableFileReadWrite(tr("An error occurrend while attempting to migrate the preferences to:"), tr("ensure the directory is writable"));
         }
 
         this->loadCacheFromDisk();
