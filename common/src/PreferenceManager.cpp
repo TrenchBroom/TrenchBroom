@@ -657,6 +657,11 @@ namespace TrenchBroom {
     bool writeV2SettingsToPath(const QString& path, const std::map<IO::Path, QJsonValue>& v2Prefs) {
         const QByteArray serialized = writeV2SettingsToJSON(v2Prefs);
 
+        const QString settingsDir = QFileInfo(path).path();
+        if (!QDir().mkpath(settingsDir)) {
+            return false;
+        }
+
         QSaveFile saveFile(path);
         if (!saveFile.open(QIODevice::WriteOnly)) {
             return false;
