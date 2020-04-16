@@ -852,6 +852,8 @@ There are several ways in which TrenchBroom lets you change the texture of a bru
 
 Holding #key(307) and left clicking transfers the texture by projecting it onto the target face. Alternatively, you can hold #key(306) and #key(307) and left click to transfer the texture by rotating it. This will avoid stretching the texture, but is only available on Valve 220 format maps.
 
+You can also left click and drag with #key(307) held down (and optionally #key(306) as described above) to transfer texture attributes along a sequence of faces.
+
 If you wish to copy the texture to all faces of a brush, you can double click the left mouse button while holding #key(307). Note that this copies the texture and face attributes such as the offset or scale. If you wish to copy the texture only, you need to hold #key(308) in addition to holding #key(307) (or #key(306) and #key(307) to avoiding stretching). Finally, you can use copy and paste to copy the texture and attributes of a selected face onto other faces: First, select the face that you wish to copy from and choose #menu(Menu/Edit/Copy), then selected the faces that you wish to copy to, and choose #menu(Menu/Edit/Paste).
 
 ### Replacing Textures
