@@ -293,7 +293,10 @@ namespace TrenchBroom {
         if (m_fileReadWriteDisabled) {
             return;
         }
-        assertResult(writeV2SettingsToPath(m_preferencesFilePath, m_cache))
+
+        if (!writeV2SettingsToPath(m_preferencesFilePath, m_cache)) {
+            showErrorAndDisableFileReadWrite(tr("An error occurrend while attempting to save the preferences file:"), tr("ensure the directory is writable"));
+        }
     }
 
     void PreferenceManager::discardChanges() {
@@ -332,17 +335,20 @@ namespace TrenchBroom {
         return result.release_data();
     }
 
-    void PreferenceManager::showErrorAndDisableFileReadWrite(const QString& reason) {
+    void PreferenceManager::showErrorAndDisableFileReadWrite(const QString& reason, const QString& suggestion) {
         m_fileReadWriteDisabled = true;
 
-        auto message = QMessageBox(QMessageBox::Icon::Critical, tr("TrenchBroom"),
-                                   tr("%1 occurred while reading the settings file:\n\n"
-                                      "%2\n\nPlease correct the problem or delete the file, and restart TrenchBroom.\n"
-                                      "Further settings changes will not be saved this session.")
-                                     .arg(reason)
-                                     .arg(m_preferencesFilePath),
+        const QString message = tr("%1\n\n"
+                                   "%2\n\nPlease correct the problem (%3) and restart TrenchBroom.\n"
+                                   "Further settings changes will not be saved this session.")
+                                .arg(reason)
+                                .arg(m_preferencesFilePath)
+                                .arg(suggestion);
+
+        auto dialog = QMessageBox(QMessageBox::Icon::Critical, tr("TrenchBroom"),
+                                   message,
                                    QMessageBox::Ok);
-        message.exec();
+        dialog.exec();
     }
 
     /**
@@ -365,10 +371,10 @@ namespace TrenchBroom {
             },
             [&] (const PreferenceErrors::FileReadError&) {
                 // This happens e.g. if you don't have read permissions for m_preferencesFilePath
-                showErrorAndDisableFileReadWrite(tr("A file read error"));
+                showErrorAndDisableFileReadWrite(tr("A file IO error occurred while attempting to read the preference file:"), tr("ensure the file is readable"));
             },
             [&] (const PreferenceErrors::JsonParseError&) {
-                showErrorAndDisableFileReadWrite(tr("A JSON parsing error"));
+                showErrorAndDisableFileReadWrite(tr("A JSON parsing error occurred while reading the preference file:"), tr("fix the JSON, or backup and delete the file"));
             },
             [&] (const PreferenceErrors::NoFilePresent&) {
                 m_cache = {};

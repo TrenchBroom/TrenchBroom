@@ -121,7 +121,7 @@ namespace TrenchBroom {
         void saveChanges();
         void discardChanges();
     private:
-        void showErrorAndDisableFileReadWrite(const QString& reason);
+        void showErrorAndDisableFileReadWrite(const QString& reason, const QString& suggestion);
         void loadCacheFromDisk();
         void invalidatePreferences();
         void loadPreferenceFromCache(PreferenceBase* pref);
