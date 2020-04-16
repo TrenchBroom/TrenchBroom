@@ -111,8 +111,9 @@ namespace TrenchBroom {
         }
 
         bool SetBrushFaceAttributesTool::canCopyAttributesFromSelection(const InputState& inputState) const {
-            if (!applies(inputState))
+            if (!applies(inputState)) {
                 return false;
+            }
 
             auto document = kdl::mem_lock(m_document);
 
@@ -140,8 +141,9 @@ namespace TrenchBroom {
         }
 
         bool SetBrushFaceAttributesTool::doStartMouseDrag(const InputState& inputState) {
-            if (!applies(inputState))
+            if (!applies(inputState)) {
                 return false;
+            }
 
             auto document = kdl::mem_lock(m_document);
 
@@ -160,7 +162,7 @@ namespace TrenchBroom {
         }
 
         bool SetBrushFaceAttributesTool::doMouseDrag(const InputState& inputState) {            
-            const auto& hit = firstHit(inputState, Model::Brush::BrushHit);
+            const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (!hit.isMatch()) {
                 // Dragging over void
                 return true;
@@ -228,13 +230,6 @@ namespace TrenchBroom {
 
             document->deselectAll();
             document->select(m_dragInitialSelectedFace);
-        }
-
-        /**
-         * FIXME: Copied from SelectionTool, factor out
-         */
-        const Model::Hit& SetBrushFaceAttributesTool::firstHit(const InputState& inputState, const Model::HitType::Type type) const {
-            return inputState.pickResult().query().pickable().type(type).occluded().first();
         }
     }
 }

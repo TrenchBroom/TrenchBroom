@@ -62,7 +62,6 @@ namespace TrenchBroom {
 
             void resetDragState();
             void transferFaceAttributes(const InputState& inputState, Model::BrushFace* sourceFace, Model::BrushFace* targetFace);
-            const Model::Hit& firstHit(const InputState& inputState, const Model::HitType::Type type) const;
         };
     }
 }
