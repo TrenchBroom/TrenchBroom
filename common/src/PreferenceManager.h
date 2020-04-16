@@ -224,7 +224,7 @@ namespace TrenchBroom {
     QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QJsonValue>& v2Prefs);
 
     // Migration
-    void migrateSettingsFromV1IfPathDoesNotExist(const QString& destinationPath);
+    bool migrateSettingsFromV1IfPathDoesNotExist(const QString& destinationPath);
 }
 
 #endif /* defined(TrenchBroom_PreferenceManager) */

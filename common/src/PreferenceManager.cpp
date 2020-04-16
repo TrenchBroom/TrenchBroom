@@ -258,7 +258,9 @@ namespace TrenchBroom {
         m_saveInstantly = false;
 #endif
 
-        migrateSettingsFromV1IfPathDoesNotExist(m_preferencesFilePath);
+        if (!migrateSettingsFromV1IfPathDoesNotExist(m_preferencesFilePath)) {
+            qWarning() << "Error writing settings to" << m_preferencesFilePath;
+        }
 
         this->loadCacheFromDisk();
 
@@ -702,17 +704,16 @@ namespace TrenchBroom {
         return document.toJson(QJsonDocument::Indented);
     }
 
-    void migrateSettingsFromV1IfPathDoesNotExist(const QString& destinationPath) {
+    bool migrateSettingsFromV1IfPathDoesNotExist(const QString& destinationPath) {
         // Check if the Preferences.json exists, migrate if not
 
         QFileInfo prefsFileInfo(destinationPath);
         if (prefsFileInfo.exists()) {
-            return;
+            return true;
         }
 
         const std::map<IO::Path, QJsonValue> v2Prefs = migrateV1ToV2(readV1Settings());
 
-        // FIXME: should probably show an error dialog
-        assertResult(writeV2SettingsToPath(destinationPath, v2Prefs));
+        return writeV2SettingsToPath(destinationPath, v2Prefs);
     }
 }
