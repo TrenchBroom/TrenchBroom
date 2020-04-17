@@ -25,6 +25,7 @@
 #include "Model/BoundsIntersectsNodeVisitor.h"
 #include "Model/Brush.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
+#include "Model/EntityRotationPolicy.h"
 #include "Model/EntitySnapshot.h"
 #include "Model/FindContainerVisitor.h"
 #include "Model/FindGroupVisitor.h"

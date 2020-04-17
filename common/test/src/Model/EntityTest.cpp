@@ -24,6 +24,7 @@
 #include <memory>
 
 #include "Model/Entity.h"
+#include "Model/EntityRotationPolicy.h"
 #include "Model/EntityAttributes.h"
 #include "Model/MapFormat.h"
 #include "Model/Layer.h"
