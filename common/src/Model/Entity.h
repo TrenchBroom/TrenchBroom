@@ -23,7 +23,6 @@
 #include "FloatType.h"
 #include "Macros.h"
 #include "Model/AttributableNode.h"
-#include "Model/EntityRotationPolicy.h"
 #include "Model/HitType.h"
 #include "Model/Object.h"
 
@@ -41,7 +40,7 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class Entity : public AttributableNode, public Object, private EntityRotationPolicy {
+        class Entity : public AttributableNode, public Object {
         public:
             static const HitType::Type EntityHit;
             static const vm::bbox3 DefaultBounds;

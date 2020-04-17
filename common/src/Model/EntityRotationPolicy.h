@@ -46,8 +46,7 @@ namespace TrenchBroom {
                 const std::string attribute;
                 RotationInfo(RotationType i_type, const std::string& i_attribute);
             };
-        protected:
-            EntityRotationPolicy();
+        public:
             static vm::mat4x4 getRotation(const Entity* entity);
             static void applyRotation(Entity* entity, const vm::mat4x4& transformation);
             static std::string getAttribute(const Entity* entity);

@@ -37,8 +37,6 @@ namespace TrenchBroom {
         type(i_type),
         attribute(i_attribute) {}
 
-        EntityRotationPolicy::EntityRotationPolicy() {}
-
         vm::mat4x4 EntityRotationPolicy::getRotation(const Entity* entity) {
             const RotationInfo info = rotationInfo(entity);
             switch (info.type) {
