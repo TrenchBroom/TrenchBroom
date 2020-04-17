@@ -40,11 +40,15 @@ namespace TrenchBroom {
                 Euler_PositivePitchDown,
                 Mangle
             };
+            enum class RotationUsage {
+                Allowed,
+                BlockRotation
+            };
 
             struct RotationInfo {
                 const RotationType type;
                 const std::string attribute;
-                RotationInfo(RotationType i_type, const std::string& i_attribute);
+                const RotationUsage usage;
             };
         public:
             static vm::mat4x4 getRotation(const Entity* entity);

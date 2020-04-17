@@ -47,10 +47,11 @@ namespace TrenchBroom {
 
         // EntityModel::LoadedFrame
 
-        EntityModelLoadedFrame::EntityModelLoadedFrame(const size_t index, const std::string& name, const vm::bbox3f& bounds) :
+        EntityModelLoadedFrame::EntityModelLoadedFrame(const size_t index, const std::string& name, const vm::bbox3f& bounds, const PitchType pitchType) :
         EntityModelFrame(index),
         m_name(name),
         m_bounds(bounds),
+        m_pitchType(pitchType),
         m_spacialTree(std::make_unique<SpacialTree>()) {}
 
         EntityModelLoadedFrame::~EntityModelLoadedFrame() = default;
@@ -65,6 +66,10 @@ namespace TrenchBroom {
 
         const vm::bbox3f& EntityModelLoadedFrame::bounds() const {
             return m_bounds;
+        }
+
+        PitchType EntityModelLoadedFrame::pitchType() const {
+            return m_pitchType;
         }
 
         float EntityModelLoadedFrame::intersect(const vm::ray3f& ray) const {
@@ -189,6 +194,10 @@ namespace TrenchBroom {
             const vm::bbox3f& bounds() const override {
                 static const auto bounds = vm::bbox3f(8.0f);
                 return bounds;
+            }
+
+            PitchType pitchType() const override {
+                return PitchType::Normal;
             }
 
             float intersect(const vm::ray3f& /* ray */) const override {
@@ -363,9 +372,10 @@ namespace TrenchBroom {
 
         // EntityModel
 
-        EntityModel::EntityModel(const std::string& name) :
+        EntityModel::EntityModel(const std::string& name, PitchType pitchType) :
         m_name(name),
-        m_prepared(false) {}
+        m_prepared(false),
+        m_pitchType(pitchType) {}
 
         std::unique_ptr<Renderer::TexturedRenderer> EntityModel::buildRenderer(const size_t skinIndex, const size_t frameIndex) const {
             std::vector<std::unique_ptr<Renderer::TexturedIndexRangeRenderer>> renderers;
@@ -420,7 +430,7 @@ namespace TrenchBroom {
                 throw AssetException("Frame index " + std::to_string(frameIndex) + " is out of bounds (frame count = " + std::to_string(frameCount()) + ")");
             }
 
-            auto frame = std::make_unique<EntityModelLoadedFrame>(frameIndex, name, bounds);
+            auto frame = std::make_unique<EntityModelLoadedFrame>(frameIndex, name, bounds, m_pitchType);
             auto& result = *frame;
             m_frames[frameIndex] = std::move(frame);
             return result;

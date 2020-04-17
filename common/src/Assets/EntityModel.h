@@ -42,6 +42,11 @@ namespace TrenchBroom {
         class Texture;
         class TextureCollection;
 
+        enum class PitchType {
+            Normal,
+            MdlInverted
+        };
+
         /**
          * One frame of the model. Since frames are loaded on demand, each frame has two possible states: loaded
          * and unloaded. These states are modeled as subclasses of this class.
@@ -88,6 +93,8 @@ namespace TrenchBroom {
              */
             virtual const vm::bbox3f& bounds() const = 0;
 
+            virtual PitchType pitchType() const = 0;
+
             /**
              * Intersects this frame with the given ray and returns the point of intersection.
              *
@@ -104,6 +111,7 @@ namespace TrenchBroom {
         private:
             std::string m_name;
             vm::bbox3f m_bounds;
+            PitchType m_pitchType;
 
             // For hit testing
             std::vector<vm::vec3f> m_tris;
@@ -118,13 +126,14 @@ namespace TrenchBroom {
              * @param name the frame name
              * @param bounds the bounding box of the frame
              */
-            EntityModelLoadedFrame(size_t index, const std::string& name, const vm::bbox3f& bounds);
+            EntityModelLoadedFrame(size_t index, const std::string& name, const vm::bbox3f& bounds, PitchType pitchType);
 
             ~EntityModelLoadedFrame();
 
             bool loaded() const override;
             const std::string& name() const override;
             const vm::bbox3f& bounds() const override;
+            PitchType pitchType() const override;
             float intersect(const vm::ray3f& ray) const override;
 
             /**
@@ -260,13 +269,14 @@ namespace TrenchBroom {
             bool m_prepared;
             std::vector<std::unique_ptr<EntityModelFrame>> m_frames;
             std::vector<std::unique_ptr<EntityModelSurface>> m_surfaces;
+            PitchType m_pitchType;
         public:
             /**
              * Creates a new entity model with the given name.
 
              * @param name the name of the model
              */
-            explicit EntityModel(const std::string& name);
+            explicit EntityModel(const std::string& name, PitchType pitchType);
 
             /**
              * Creates a renderer to render the given frame of the model using the skin with the given index.
