@@ -249,7 +249,7 @@ namespace TrenchBroom {
             /* const auto syncType = */ reader.readSize<int32_t>();
             const auto flags = reader.readInt<int32_t>();
 
-            auto model = std::make_unique<Assets::EntityModel>(m_name);
+            auto model = std::make_unique<Assets::EntityModel>(m_name, Assets::PitchType::MdlInverted);
             model->addFrames(frameCount);
             auto& surface = model->addSurface(m_name);
 

@@ -35,6 +35,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        enum class PitchType;
         class EntityModelFrame;
         struct ModelSpecification;
     }
@@ -69,6 +70,7 @@ namespace TrenchBroom {
             const vm::vec3& origin() const;
             const vm::mat4x4& rotation() const;
             const vm::mat4x4 modelTransformation() const;
+            Assets::PitchType pitchType() const;
             FloatType area(vm::axis::type axis) const;
         private:
             void cacheAttributes();

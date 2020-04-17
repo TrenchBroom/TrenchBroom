@@ -104,6 +104,10 @@ namespace TrenchBroom {
             return vm::translation_matrix(origin()) * rotation();
         }
 
+        Assets::PitchType Entity::pitchType() const {
+            return (m_modelFrame != nullptr ? m_modelFrame->pitchType() : Assets::PitchType::Normal);
+        }
+
         FloatType Entity::area(vm::axis::type axis) const {
             const vm::vec3 size = physicalBounds().size();
             switch (axis) {
