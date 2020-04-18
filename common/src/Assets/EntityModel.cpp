@@ -120,7 +120,7 @@ namespace TrenchBroom {
                         const auto& p3 = Renderer::getVertexComponent<0>(vertices[index + i + 1]);
                         bounds.add(p1);
                         bounds.add(p2);
-                        bounds.add(p2);
+                        bounds.add(p3);
 
                         const size_t triIndex = m_tris.size() / 3u;
                         m_tris.push_back(p1);
@@ -142,7 +142,7 @@ namespace TrenchBroom {
                         const auto& p3 = Renderer::getVertexComponent<0>(vertices[index + i + 2]);
                         bounds.add(p1);
                         bounds.add(p2);
-                        bounds.add(p2);
+                        bounds.add(p3);
 
                         const size_t triIndex = m_tris.size() / 3u;
                         if (i % 2 == 0) {

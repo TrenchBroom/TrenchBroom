@@ -13,6 +13,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/DkPakFileSystemTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/ELParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/EntParserTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/IO/EntityModelTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/FgdParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/FreeImageTextureReaderTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/GameConfigParserTest.cpp"
