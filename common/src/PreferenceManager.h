@@ -25,6 +25,7 @@
 #include "Preference.h"
 
 #include <kdl/vector_set.h>
+#include <kdl/result.h>
 
 #include <map>
 #include <memory>
@@ -34,6 +35,7 @@
 #include <QByteArray>
 #include <QString>
 #include <QThread>
+#include <QJsonParseError>
 
 class QTextStream;
 class QFileSystemWatcher;
@@ -102,6 +104,12 @@ namespace TrenchBroom {
          */
         std::map<IO::Path, QJsonValue> m_cache;
         QFileSystemWatcher* m_fileSystemWatcher;
+        /**
+         * If true, don't try to read/write preferences anymore.
+         * This gets set to true if there is a JSON parse error, so
+         * we don't clobber the file if the user makes a mistake while editing it by hand.
+         */
+        bool m_fileReadWriteDisabled;
 
         void markAsUnsaved(PreferenceBase* preference);
     public:
@@ -113,6 +121,7 @@ namespace TrenchBroom {
         void saveChanges();
         void discardChanges();
     private:
+        void showErrorAndDisableFileReadWrite(const QString& reason, const QString& suggestion);
         void loadCacheFromDisk();
         void invalidatePreferences();
         void loadPreferenceFromCache(PreferenceBase* pref);
@@ -188,6 +197,17 @@ namespace TrenchBroom {
         return prefs.get(preference);
     }
 
+    namespace PreferenceErrors {
+        struct NoFilePresent  {};
+        struct JsonParseError { QJsonParseError jsonError; };
+        struct FileReadError  {};
+    }
+
+    using PreferencesResult = kdl::result<std::map<IO::Path, QJsonValue>, // Success case
+                                          PreferenceErrors::NoFilePresent,
+                                          PreferenceErrors::JsonParseError,
+                                          PreferenceErrors::FileReadError>;
+    
     // V1 settings
     std::map<IO::Path, QJsonValue> parseINI(QTextStream* iniStream);
     std::map<IO::Path, QJsonValue> getINISettingsV1(const QString& path);
@@ -196,16 +216,15 @@ namespace TrenchBroom {
 
     // V2 settings
     QString v2SettingsPath();
-    std::map<IO::Path, QJsonValue> readV2SettingsFromPath(const QString& path);
-    std::map<IO::Path, QJsonValue> readV2Settings();
+    PreferencesResult readV2SettingsFromPath(const QString& path);
+    PreferencesResult readV2Settings();
 
     bool writeV2SettingsToPath(const QString& path, const std::map<IO::Path, QJsonValue>& v2Prefs);
-
-    std::map<IO::Path, QJsonValue> parseV2SettingsFromJSON(const QByteArray& jsonData);
+    PreferencesResult parseV2SettingsFromJSON(const QByteArray& jsonData);
     QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QJsonValue>& v2Prefs);
 
     // Migration
-    void migrateSettingsFromV1IfPathDoesNotExist(const QString& destinationPath);
+    bool migrateSettingsFromV1IfPathDoesNotExist(const QString& destinationPath);
 }
 
 #endif /* defined(TrenchBroom_PreferenceManager) */

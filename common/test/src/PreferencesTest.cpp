@@ -193,8 +193,31 @@ namespace TrenchBroom {
     }
 
     TEST_CASE("PreferencesTest.readV2", "[PreferencesTest]") {
-        const std::map<IO::Path, QJsonValue> v2 = readV2SettingsFromPath("fixture/test/preferences-v2.json");
-        testV2Prefs(v2);
+        // Invalid JSON -> parse error -> parseV2SettingsFromJSON() is expected to return nullopt
+        CHECK(parseV2SettingsFromJSON(QByteArray()).is_error_type<PreferenceErrors::JsonParseError>());
+        CHECK(parseV2SettingsFromJSON(QByteArray("abc")).is_error_type<PreferenceErrors::JsonParseError>());
+        CHECK(parseV2SettingsFromJSON(QByteArray(R"({"foo": "bar",})")).is_error_type<PreferenceErrors::JsonParseError>());
+
+        // Valid JSON
+        CHECK(parseV2SettingsFromJSON(QByteArray(R"({"foo": "bar"})")).is_success());
+        CHECK(parseV2SettingsFromJSON(QByteArray("{}")).is_success());
+
+        const PreferencesResult v2 = readV2SettingsFromPath("fixture/test/preferences-v2.json");
+        CHECK(v2.is_success());
+        kdl::visit_result(kdl::overload{
+            [](const std::map<IO::Path, QJsonValue>& prefs) {
+               testV2Prefs(prefs);
+            },
+            [](const PreferenceErrors::NoFilePresent&) {
+                FAIL_CHECK();
+            },
+            [](const PreferenceErrors::JsonParseError&) {
+                FAIL_CHECK();
+            },
+            [](const PreferenceErrors::FileReadError&) {
+                FAIL_CHECK();
+            }
+        }, v2);
     }
 
     TEST_CASE("PreferencesTest.testWriteReadV2", "[PreferencesTest]") {
@@ -204,7 +227,21 @@ namespace TrenchBroom {
         const QByteArray v2Serialized = writeV2SettingsToJSON(v2);
         const auto v2Deserialized = parseV2SettingsFromJSON(v2Serialized);
 
-        EXPECT_EQ(v2, v2Deserialized);
+        CHECK(v2Deserialized.is_success());
+        kdl::visit_result(kdl::overload{
+            [&](const std::map<IO::Path, QJsonValue>& prefs) {
+                CHECK(v2 == prefs);
+            },
+            [](const PreferenceErrors::NoFilePresent&) {
+                FAIL_CHECK();
+            },
+            [](const PreferenceErrors::JsonParseError&) {
+                FAIL_CHECK();
+            },
+            [](const PreferenceErrors::FileReadError&) {
+                FAIL_CHECK();
+            }
+        }, v2Deserialized);
     }
 
     /**
