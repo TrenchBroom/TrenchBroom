@@ -31,10 +31,9 @@ namespace TrenchBroom {
         class EntitySnapshot : public NodeSnapshot {
         private:
             Entity* m_entity;
-            EntityAttribute m_origin;
-            EntityAttribute m_rotation;
+            std::vector<EntityAttribute> m_attributesSnapshot;
         public:
-            EntitySnapshot(Entity* entity, const EntityAttribute& origin, const EntityAttribute& rotation);
+            EntitySnapshot(Entity* entity);
         private:
             void doRestore(const vm::bbox3& worldBounds) override;
         };

@@ -39,7 +39,7 @@ namespace TrenchBroom {
     namespace View {
         class SnapshotTest : public MapDocumentTest {};
 
-        TEST_CASE_METHOD(SnapshotTest, "SnapshotTest.setTexturesAfterRestore") {
+        TEST_CASE_METHOD(SnapshotTest, "SnapshotTest.setTexturesAfterRestore", "[SnapshotTest]") {
             document->setEnabledTextureCollections(std::vector<IO::Path>{ IO::Path("fixture/test/IO/Wad/cr8_czg.wad") });
 
             Model::Brush* brush = createBrush("coffin1");
@@ -60,6 +60,21 @@ namespace TrenchBroom {
 
             for (Model::BrushFace* face : brush->faces())
                 ASSERT_EQ(texture, face->texture());
+        }
+
+        TEST_CASE_METHOD(SnapshotTest, "SnapshotTest.undoRotation", "[SnapshotTest]") {
+            auto* entity = new Model::Entity();
+            entity->addOrUpdateAttribute(Model::AttributeNames::Classname, "test");
+
+            document->addNode(entity, document->currentParent());            
+            CHECK(!entity->hasAttribute("angle"));
+
+            document->select(entity);
+            document->rotateObjects(vm::vec3::zero(), vm::vec3::pos_z(), vm::to_radians(15.0));
+            CHECK(entity->attribute("angle") == std::string("15"));
+
+            document->undoCommand();
+            CHECK(!entity->hasAttribute("angle"));
         }
     }
 }

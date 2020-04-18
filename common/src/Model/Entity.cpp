@@ -184,12 +184,7 @@ namespace TrenchBroom {
         }
 
         NodeSnapshot* Entity::doTakeSnapshot() {
-            const EntityAttribute origin(AttributeNames::Origin, attribute(AttributeNames::Origin), nullptr);
-
-            const auto rotationName = EntityRotationPolicy::getAttribute(this);
-            const EntityAttribute rotation(rotationName, attribute(rotationName), nullptr);
-
-            return new EntitySnapshot(this, origin, rotation);
+            return new EntitySnapshot(this);
         }
 
         class CanAddChildToEntity : public ConstNodeVisitor, public NodeQuery<bool> {
