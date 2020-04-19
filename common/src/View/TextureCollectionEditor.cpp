@@ -52,7 +52,7 @@ namespace TrenchBroom {
         }
 
         void TextureCollectionEditor::createGui() {
-            deleteChildWidgetsAndLayout(this);
+            deleteChildWidgetsLaterAndDeleteLayout(this);
 
             QWidget* collectionEditor = nullptr;
 

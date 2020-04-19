@@ -402,8 +402,11 @@ namespace TrenchBroom {
             tableView->resizeRowsToContents();
         }
 
-        void deleteChildWidgetsAndLayout(QWidget* widget) {
-            qDeleteAll(widget->findChildren<QWidget*>("", Qt::FindDirectChildrenOnly));
+        void deleteChildWidgetsLaterAndDeleteLayout(QWidget* widget) {
+            const QList<QWidget*> children = widget->findChildren<QWidget*>("", Qt::FindDirectChildrenOnly);
+            for (QWidget* childWidget : children) {
+                childWidget->deleteLater();
+            }
 
             delete widget->layout();
         }

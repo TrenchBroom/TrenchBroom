@@ -57,7 +57,7 @@ namespace TrenchBroom {
             m_checkBoxes.resize(count, nullptr);
             m_values.resize(count, 0);
 
-            deleteChildWidgetsAndLayout(this);
+            deleteChildWidgetsLaterAndDeleteLayout(this);
 
             auto* layout = new QGridLayout();
             layout->setHorizontalSpacing(LayoutConstants::WideHMargin);
