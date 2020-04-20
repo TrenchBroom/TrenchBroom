@@ -165,7 +165,7 @@ namespace TrenchBroom {
             for (const Action* action : visitor.toolbarActions) {
                 printPref(action->preferencePath(), action->keySequence());
             }
-            actionManager.visitMapViewActions([&out, &printPref](const auto& action) {
+            actionManager.visitMapViewActions([&printPref](const auto& action) {
                 printPref(action.preferencePath(), action.keySequence());
             });
 
