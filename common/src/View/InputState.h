@@ -81,6 +81,9 @@ namespace TrenchBroom {
 
             MouseButtonState mouseButtons() const;
             bool mouseButtonsDown(MouseButtonState buttons) const;
+            /**
+             * Checks whether only the given buttons are down (and no others).
+             */
             bool mouseButtonsPressed(const MouseButtonState buttons) const;
             int mouseX() const;
             int mouseY() const;

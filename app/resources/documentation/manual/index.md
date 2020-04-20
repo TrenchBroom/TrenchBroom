@@ -839,13 +839,30 @@ In TrenchBroom, there is the notion of a current texture, which we have already 
 
 ### Assigning Textures Manually
 
-There are several ways in which TrenchBroom lets you change the texture of a brush face. Firstly, you can change the texture of the currently selected faces by clicking on a texture in the texture browser. This also works if you have selected brushes (and nothing else) - in this case, the new texture is applied to all faces of the currently selected brushes. Secondly, you can copy the texture from a selected face to another face as follows: First, select the brush face that has the texture that you wish to copy, then click on the brush face that you wish to copy the texture to with the left mouse button while holding #key(307).
+To change the texture of the currently selected faces, left click on a texture in the texture browser. This also works if you have selected brushes (and nothing else) - in this case, the new texture is applied to all faces of the currently selected brushes. 
 
-Holding #key(307) and left clicking transfers the texture by projecting it onto the target face. Alternatively, you can hold #key(306) and #key(307) and left click to transfer the texture by rotating it. This will avoid stretching the texture, but is only available on Valve 220 format maps.
+To transfer the texture and texture attributes (such as the offset or scale) from one face to another, there are several shortcuts. Start by selecting a source face with #key(306) + left click. Then, hold one of the following modifier combinations:
 
-You can also left click and drag with #key(307) held down (and optionally #key(306) as described above) to transfer texture attributes along a sequence of faces.
+Modifier Keys         Meaning
+-------------         -------
+#key(307)             Transfer texture and attributes from selected face (by projecting it on to the target faces)
+#key(307) + #key(306) Transfer texture and attributes from selected face (by rotating it on to the target faces, available on Valve format maps only)
+#key(307) + #key(308) Transfer texture only (attributes of the target are preserved)
 
-If you wish to copy the texture to all faces of a brush, you can double click the left mouse button while holding #key(307). Note that this copies the texture and face attributes such as the offset or scale. If you wish to copy the texture only, you need to hold #key(308) in addition to holding #key(307) (or #key(306) and #key(307) to avoiding stretching). Finally, you can use copy and paste to copy the texture and attributes of a selected face onto other faces: First, select the face that you wish to copy from and choose #menu(Menu/Edit/Copy), then selected the faces that you wish to copy to, and choose #menu(Menu/Edit/Paste).
+and perform one of the following actions, depending on which faces you want to modify:
+
+Actions                    Affected faces
+-------                    --------------
+Left mouse click           clicked face
+Left mouse drag            all faces dragged over (each subsequent face dragged over will transfer from the last)
+Left mouse double click    all faces of target brush
+
+To clarify, using the #key(307) modifier copies the source face's texture projection to the target face without altering it. Sometimes this is desirable, but it can lead to the target face having a stretched texture if the face normals are very different. The #key(307) + #key(306) combination avoids this by rotating the source face's texture projection onto the target face, but it's only available on Valve format maps.
+
+Finally, you can use copy and paste to copy the texture and attributes of a selected face onto other faces:
+
+1. Select the face that you wish to copy from and choose #menu(Menu/Edit/Copy)
+2. Select the faces that you wish to copy to, and choose #menu(Menu/Edit/Paste)
 
 ### Replacing Textures
 
