@@ -544,6 +544,24 @@ namespace TrenchBroom {
             return m_currentTextureName;
         }
 
+        const std::string& MapDocument::textureNameForNewFace() const {
+            if (pref(Preferences::ForceNewFaceTexture)) {
+                if (m_game->defaultFaceAttribs().textureName() != Model::BrushFaceAttributes::NoTextureName) {
+                    return m_game->defaultFaceAttribs().textureName();
+                }
+            }
+            return m_currentTextureName;
+        }
+
+        Assets::Texture* MapDocument::forcedTextureForClipFace() const {
+            if (pref(Preferences::ForceClipFaceTexture)) {
+                if (m_game->defaultFaceAttribs().textureName() != Model::BrushFaceAttributes::NoTextureName) {
+                    return m_textureManager->texture(m_game->defaultFaceAttribs().textureName());
+                }
+            }
+            return nullptr;
+        }
+
         void MapDocument::setCurrentTextureName(const std::string& currentTextureName) {
             if (m_currentTextureName == currentTextureName)
                 return;
@@ -1105,7 +1123,7 @@ namespace TrenchBroom {
 
         bool MapDocument::createBrush(const std::vector<vm::vec3>& points) {
             Model::BrushBuilder builder(m_world.get(), m_worldBounds, m_game->defaultFaceAttribs());
-            Model::Brush* brush = builder.createBrush(points, currentTextureName());
+            Model::Brush* brush = builder.createBrush(points, textureNameForNewFace());
             if (!brush->fullySpecified()) {
                 delete brush;
                 return false;
@@ -1274,9 +1292,11 @@ namespace TrenchBroom {
         bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3) {
             const std::vector<Model::Brush*>& brushes = m_selectedNodes.brushes();
             std::map<Model::Node*, std::vector<Model::Node*>> clippedBrushes;
+            auto* forcedTexture = forcedTextureForClipFace();
+            const std::string& clipTextureName = (forcedTexture == nullptr) ? currentTextureName() : forcedTexture->name();
 
             for (const Model::Brush* originalBrush : brushes) {
-                Model::BrushFace* clipFace = m_world->createFace(p1, p2, p3, Model::BrushFaceAttributes(currentTextureName()));
+                Model::BrushFace* clipFace = m_world->createFace(p1, p2, p3, Model::BrushFaceAttributes(clipTextureName));
                 Model::Brush* clippedBrush = originalBrush->clone(m_worldBounds);
                 if (clippedBrush->clip(m_worldBounds, clipFace))
                     clippedBrushes[originalBrush->parent()].push_back(clippedBrush);
@@ -1344,10 +1364,20 @@ namespace TrenchBroom {
 
             if (!faces.empty()) {
                 Model::ChangeBrushFaceAttributesRequest request;
-                if (texture == nullptr)
-                    request.unsetTexture();
-                else
+                if (texture == nullptr) {
+                    if (pref(Preferences::ForceNewFaceTexture)) {
+                        if (m_game->defaultFaceAttribs().textureName() != Model::BrushFaceAttributes::NoTextureName) {
+                            texture = m_textureManager->texture(m_game->defaultFaceAttribs().textureName());
+                        }
+                    }
+                    if (texture == nullptr) {
+                        request.unsetTexture();
+                    } else {
+                        request.setTexture(texture);
+                    }
+                } else {
                     request.setTexture(texture);
+                }
                 executeAndStore(ChangeBrushFaceAttributesCommand::command(request));
             }
         }

@@ -123,6 +123,9 @@ namespace TrenchBroom {
         extern Preference<bool> TextureLock;
         extern Preference<bool> UVLock;
 
+        extern Preference<bool> ForceNewFaceTexture;
+        extern Preference<bool> ForceClipFaceTexture;
+
         Preference<IO::Path>& RendererFontPath();
         extern Preference<int> RendererFontSize;
 

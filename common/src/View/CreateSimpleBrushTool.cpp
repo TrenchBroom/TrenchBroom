@@ -36,7 +36,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
             const auto game = document->game();
             const Model::BrushBuilder builder(document->world(), document->worldBounds(), game->defaultFaceAttribs());
-            updateBrush(builder.createCuboid(bounds, document->currentTextureName()));
+            updateBrush(builder.createCuboid(bounds, document->textureNameForNewFace()));
         }
 
     }

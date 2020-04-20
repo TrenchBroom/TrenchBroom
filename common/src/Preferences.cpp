@@ -125,6 +125,9 @@ namespace TrenchBroom {
         Preference<bool> TextureLock(IO::Path("Editor/Texture lock"), true);
         Preference<bool> UVLock(IO::Path("Editor/UV lock"), false);
 
+        Preference<bool> ForceNewFaceTexture(IO::Path("Default Texture/New faces"), false);
+        Preference<bool> ForceClipFaceTexture(IO::Path("Default Texture/Clip faces"), false);
+
         Preference<IO::Path>& RendererFontPath() {
             static Preference<IO::Path> fontPath(IO::Path("Renderer/Font name"), IO::Path("fonts/SourceSansPro-Regular.otf"));
             return fontPath;
@@ -251,6 +254,8 @@ namespace TrenchBroom {
                 &TextureMagFilter,
                 &TextureLock,
                 &UVLock,
+                &ForceNewFaceTexture,
+                &ForceClipFaceTexture,
                 &RendererFontPath(),
                 &RendererFontSize,
                 &BrowserFontSize,

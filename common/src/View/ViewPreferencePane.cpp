@@ -128,6 +128,11 @@ namespace TrenchBroom {
             m_textureBrowserIconSizeCombo->addItem("300%");
             m_textureBrowserIconSizeCombo->setToolTip("Sets the icon size in the texture browser.");
 
+            m_forceNewFaceTexture = new QCheckBox();
+            m_forceNewFaceTexture->setToolTip("Use the game config's default face texture (if any) for faces on new brushes.");
+            m_forceClipFaceTexture = new QCheckBox();
+            m_forceClipFaceTexture->setToolTip("Use the game config's default face texture (if any) for faces created by clipping.");
+
             m_rendererFontSizeCombo = new QComboBox();
             m_rendererFontSizeCombo->setEditable(true);
             m_rendererFontSizeCombo->setToolTip("Sets the font size for various labels in the editing views.");
@@ -156,6 +161,10 @@ namespace TrenchBroom {
             layout->addSection("Texture Browser");
             layout->addRow("Icon size", m_textureBrowserIconSizeCombo);
 
+            layout->addSection("Use of Default Texture");
+            layout->addRow("New faces", m_forceNewFaceTexture);
+            layout->addRow("Clip faces", m_forceClipFaceTexture);
+
             layout->addSection("Fonts");
             layout->addRow("Renderer Font Size", m_rendererFontSizeCombo);
 
@@ -176,6 +185,8 @@ namespace TrenchBroom {
             connect(m_edgeColorButton, &ColorButton::colorChanged, this, &ViewPreferencePane::edgeColorChanged);
             connect(m_textureModeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ViewPreferencePane::textureModeChanged);
             connect(m_textureBrowserIconSizeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ViewPreferencePane::textureBrowserIconSizeChanged);
+            connect(m_forceNewFaceTexture, &QCheckBox::stateChanged, this, &ViewPreferencePane::forceNewFaceTextureChanged);
+            connect(m_forceClipFaceTexture, &QCheckBox::stateChanged, this, &ViewPreferencePane::forceClipFaceTextureChanged);
             connect(m_rendererFontSizeCombo, &QComboBox::currentTextChanged, this, &ViewPreferencePane::rendererFontSizeChanged);
         }
 
@@ -230,6 +241,9 @@ namespace TrenchBroom {
             } else {
                 m_textureBrowserIconSizeCombo->setCurrentIndex(2);
             }
+
+            m_forceNewFaceTexture->setChecked(pref(Preferences::ForceNewFaceTexture));
+            m_forceClipFaceTexture->setChecked(pref(Preferences::ForceClipFaceTexture));
 
             m_rendererFontSizeCombo->setCurrentText(QString::asprintf("%i", pref(Preferences::RendererFontSize)));
         }
@@ -333,6 +347,18 @@ namespace TrenchBroom {
                     prefs.set(Preferences::TextureBrowserIconSize, 3.0f);
                     break;
             }
+        }
+
+        void ViewPreferencePane::forceNewFaceTextureChanged(const int state) {
+            const auto value = state == Qt::Checked;
+            auto& prefs = PreferenceManager::instance();
+            prefs.set(Preferences::ForceNewFaceTexture, value);
+        }
+
+        void ViewPreferencePane::forceClipFaceTextureChanged(const int state) {
+            const auto value = state == Qt::Checked;
+            auto& prefs = PreferenceManager::instance();
+            prefs.set(Preferences::ForceClipFaceTexture, value);
         }
 
         void ViewPreferencePane::rendererFontSizeChanged(const QString& str) {

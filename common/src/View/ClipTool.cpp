@@ -759,9 +759,14 @@ namespace TrenchBroom {
                 for (auto* brush : brushes) {
                     auto* parent = brush->parent();
 
-                    auto* frontFace = world->createFace(point1, point2, point3, document->currentTextureName());
-                    auto* backFace = world->createFace(point1, point3, point2, document->currentTextureName());
+                    auto* frontFace = world->createFace(point1, point2, point3, Model::BrushFaceAttributes::NoTextureName);
+                    auto* backFace = world->createFace(point1, point3, point2, Model::BrushFaceAttributes::NoTextureName);
                     setFaceAttributes(brush->faces(), frontFace, backFace);
+                    auto* forcedTexture = document->forcedTextureForClipFace();
+                    if (forcedTexture != nullptr) {
+                        frontFace->setTexture(forcedTexture);
+                        backFace->setTexture(forcedTexture);
+                    }
 
                     auto* frontBrush = brush->clone(worldBounds);
                     if (frontBrush->clip(worldBounds, frontFace)) {

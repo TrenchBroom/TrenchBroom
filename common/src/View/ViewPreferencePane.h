@@ -43,6 +43,8 @@ namespace TrenchBroom {
             ColorButton* m_gridColorButton;
             ColorButton* m_edgeColorButton;
             QComboBox* m_textureBrowserIconSizeCombo;
+            QCheckBox* m_forceNewFaceTexture;
+            QCheckBox* m_forceClipFaceTexture;
             QComboBox* m_rendererFontSizeCombo;
         public:
             explicit ViewPreferencePane(QWidget* parent = nullptr);
@@ -69,6 +71,8 @@ namespace TrenchBroom {
             void gridColorChanged(const QColor& color);
             void edgeColorChanged(const QColor& color);
             void textureBrowserIconSizeChanged(int index);
+            void forceNewFaceTextureChanged(int state);
+            void forceClipFaceTextureChanged(int state);
             void rendererFontSizeChanged(const QString& text);
         };
     }

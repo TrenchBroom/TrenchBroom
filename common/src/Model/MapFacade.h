@@ -81,6 +81,8 @@ namespace TrenchBroom {
             virtual const vm::bbox3& lastSelectionBounds() const = 0;
             virtual const vm::bbox3& selectionBounds() const = 0;
             virtual const std::string& currentTextureName() const = 0;
+            virtual const std::string& textureNameForNewFace() const = 0;
+            virtual Assets::Texture* forcedTextureForClipFace() const = 0;
 
             virtual void selectAllNodes() = 0;
             virtual void selectSiblings() = 0;

@@ -267,6 +267,8 @@ namespace TrenchBroom {
             const vm::bbox3& lastSelectionBounds() const override;
             const vm::bbox3& selectionBounds() const override;
             const std::string& currentTextureName() const override;
+            const std::string& textureNameForNewFace() const override;
+            Assets::Texture* forcedTextureForClipFace() const override;
             void setCurrentTextureName(const std::string& currentTextureName);
 
             void selectAllNodes() override;

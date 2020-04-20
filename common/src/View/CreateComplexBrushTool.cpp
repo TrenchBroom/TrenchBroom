@@ -45,7 +45,7 @@ namespace TrenchBroom {
                 auto document = kdl::mem_lock(m_document);
                 const auto game = document->game();
                 const Model::BrushBuilder builder(document->world(), document->worldBounds(), game->defaultFaceAttribs());
-                Model::Brush* brush = builder.createBrush(*m_polyhedron, document->currentTextureName());
+                Model::Brush* brush = builder.createBrush(*m_polyhedron, document->textureNameForNewFace());
                 updateBrush(brush);
             } else {
                 updateBrush(nullptr);

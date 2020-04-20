@@ -22,6 +22,8 @@
 #include "Ensure.h"
 #include "Exceptions.h"
 #include "Macros.h"
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Assets/Palette.h"
 #include "Assets/EntityModel.h"
 #include "Assets/EntityDefinitionFileSpec.h"
@@ -130,7 +132,8 @@ namespace TrenchBroom {
                 auto world = std::make_unique<World>(format);
 
                 const Model::BrushBuilder builder(world.get(), worldBounds, defaultFaceAttribs());
-                auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName);
+                const std::string& startTextureName = pref(Preferences::ForceNewFaceTexture) ? defaultFaceAttribs().textureName() : Model::BrushFaceAttributes::NoTextureName;
+                auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), startTextureName);
                 world->defaultLayer()->addChild(brush);
 
                 if (format == MapFormat::Valve || format == MapFormat::Quake2_Valve || format == MapFormat::Quake3_Valve) {
