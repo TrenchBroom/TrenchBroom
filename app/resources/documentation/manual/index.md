@@ -841,7 +841,7 @@ In TrenchBroom, there is the notion of a current texture, which we have already 
 
 To change the texture of the currently selected faces, left click on a texture in the texture browser. This also works if you have selected brushes (and nothing else) - in this case, the new texture is applied to all faces of the currently selected brushes. 
 
-To transfer the texture and texture attributes (such as the offset or scale) from one face to another, there are several shortcuts. Start by selecting a source face with #key(Shift) + left click. Then, hold one of the following modifier combinations:
+To transfer the texture and texture attributes (such as the offset or scale) from one face to another, start by selecting the source face with #key(Shift) + left click. Then, hold one of the following modifier combinations depending on what you want to transfer:
 
 Modifier Keys            Meaning
 -------------            -------
@@ -849,10 +849,10 @@ Modifier Keys            Meaning
 #key(Alt)#key(Shift)     Transfer texture and attributes from selected face (by rotating it on to the target faces, available on Valve format maps only)
 #key(Alt)#key(Ctrl)      Transfer texture only (attributes of the target are preserved)
 
-and perform one of the following actions, depending on which faces you want to modify:
+and perform one of the following actions, depending on which faces you want to transfer to:
 
-Actions                    Affected faces
--------                    --------------
+Actions                    Faces to transfer to
+-------                    --------------------
 Left mouse click           clicked face
 Left mouse drag            all faces dragged over (each subsequent face dragged over will transfer from the last)
 Left mouse double click    all faces of target brush
