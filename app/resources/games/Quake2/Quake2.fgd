@@ -1,15 +1,10 @@
-
 //
 // Quake 2 game definition file (.fgd)
-// for Worldcraft 1.6 and above
-// last update: march 3 1998
 //
-// written by autolycus / autolycus@planetquake.com
-// email me with improvements and suggestions
+// Originally written by by autolycus
+// Special thanks to: Disruptor, Zoid, Zaphod, Imaginos, and EutecTic.
 //
-// special thanks to: Disruptor, Zoid, Zaphod, Imaginos,
-// and EutecTic for comments, suggestions, and help!
-//
+// Lasted updated by xaGe : 20200415
 
 //
 // worldspawn
@@ -48,8 +43,7 @@
 // player start, deathmatch, coop, deathmatch intermission
 //
 
-@baseclass base(Appearflags, Targetname) size(-16 -16 -24, 16 16 32) color(0 255 0) = PlayerClass []
-
+@baseclass base(Appearflags, Targetname) size(-16 -16 -24, 16 16 32) color(0 255 0) model({ "path": ":models/monsters/insane/tris.md2", "frame":209, "skin":1}) = PlayerClass []
 @PointClass base(PlayerClass) = info_player_start : "Player 1 start" []
 @PointClass base(PlayerClass) = info_player_deathmatch : "Player deathmatch start" []
 @PointClass base(PlayerClass) = info_player_coop : "Player cooperative start" []
@@ -458,17 +452,11 @@
 	_cone(integer) : "Size of light (spotlight)" : 10
 ]
 
-// 0221 - blanked out the "start off" spawnflag
-// 0221 - added better descriptions :)
-@PointClass base(light) color(0 255 0) size(-2 -2 -12, 2 2 12) = light_mine1 : "Dusty fluorescent light fixture"
-[
-	spawnflags(Flags) =
-	[
-		1 : "" : 0
-	]
-]
-// 0221 - changed inheritance from "light" to "light_min1"
-@PointClass base(light_mine1) = light_mine2 : "Clean fluorescent light fixture" []
+@PointClass base(light) color(0 255 0) size(-2 -2 -12, 2 2 12) model({ "path": ":models/objects/minelite/light1/tris.md2", "skin": 0 }) = light_mine1 : "Clean fluorescent light fixture"	[spawnflags(Flags) =	[	1 : "" : 0	]]
+@PointClass base(light) color(0 255 0) size(-2 -2 -12, 2 2 12) model({ "path": ":models/objects/minelite/light2/tris.md2", "skin": 0 }) = light_mine2 : "Dusty fluorescent light fixture"	[spawnflags(Flags) = [	1 : "" : 0]]
+
+
+
 
 // actor code is still broken...leaving this in because i know *someone* will fix
 // this because its pretty damn cool.
@@ -499,17 +487,14 @@
 
 @PointClass base(Appearflags) color(255 128 0) size(-8 -8 -8, 8 8 8) model({ "path": ":models/objects/black/tris.md2" }) = misc_blackhole : "Blackhole" []
 
-@PointClass base(Appearflags) color(255 128 0) size(-16 -16 0, 16 16 16)
-    model(
-        {{
-            spawnflags & 32 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 5 },
-            spawnflags & 16 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 4 },
-            spawnflags &  8 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 3 },
-            spawnflags &  4 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 2 },
-            spawnflags &  2 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 1 },
-                                          ":models/deadbods/dude/tris.md2"
-        }}
-    ) = misc_deadsoldier : "Dead guys! 6 of em!"
+@PointClass base(Appearflags) color(255 128 0) size(-16 -16 0, 16 16 16)	model({{
+  spawnflags & 32 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 5 },
+  spawnflags & 16 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 4 },
+  spawnflags &  8 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 3 },
+  spawnflags &  4 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 2 },
+  spawnflags &  2 -> { "path": ":models/deadbods/dude/tris.md2", "frame": 1 },
+                             	":models/deadbods/dude/tris.md2"
+  }}) = misc_deadsoldier : "Dead guys! 6 of em!"
 [
 	spawnflags(Flags) =
 	[
@@ -523,9 +508,9 @@
 ]
 
 // The following three entities are eye-candy - they don't do anything
-@PointClass base(Appearflags) color(255 128 0) size(-32 -32 -16, 32 32 32) = misc_eastertank : "Tank Pimp" []
-@PointClass base(Appearflags) color(255 128 0) size(-32 -32 0, 32 32 32) = misc_easterchick : "Chick #1" []
-@PointClass base(Appearflags) color(255 128 0) size(-32 -32 0, 32 32 32) = misc_easterchick2 : "Chick #2" []
+@PointClass base(Appearflags) color(255 128 0) size(-32 -32 -16, 32 32 32) model({ "path": ":models/monsters/tank/tris.md2",	"frame":254, "skin": 2}) = misc_eastertank : "Tank sitting down. Make him a chair out of brushes." []
+@PointClass base(Appearflags) color(255 128 0) size(-32 -32 0, 32 32 32) model({ "path": ":models/monsters/bitch/tris.md2", "frame":208}) = misc_easterchick : "Chick #1 sitting: Place her near misc_eastertank." []
+@PointClass base(Appearflags) color(255 128 0) size(-32 -32 0, 32 32 32) model({ "path": ":models/monsters/bitch/tris.md2", "frame":248}) = misc_easterchick2 : "Chick #2 sitting w/ different pose. Can be placed close to misc_eastertank's for full effect." []
 
 // 0225 - removed "target" key - id concluded being able to target
 // something with a movable barrel was a bug and removed that function :(
@@ -541,26 +526,33 @@
 @PointClass base(Appearflags) color(255 0 0) size(-8 -8 -8, 8 8 8) model({ "path": ":models/objects/gibs/head/tris.md2" }) = misc_gib_head : "head gib, use with target_spawner" []
 @PointClass base(Appearflags) color(255 0 0) size(-8 -8 -8, 8 8 8) model({ "path": ":models/objects/gibs/arm/tris.md2" }) = misc_gib_leg : "leg gib, use with target_spawner" []
 
-// 0221 - added "item", "deathtarget", and "killtarget" keys
-@PointClass base(Appearflags, Targetname, Target) color(255 128 0) size(-16 -16 -24, 16 16 32) = misc_insane : "Insane Soldiers"
+
+
+// new
+@PointClass base(Appearflags, Targetname, Target) color(255 128 0) size(-16 -16 -24, 16 16 32) model({{
+  spawnflags & 32 -> { "path": ":models/monsters/insane/tris.md2", "frame": 0 },
+  spawnflags & 16 -> { "path": ":models/monsters/insane/tris.md2", "frame": 74 },
+  spawnflags &  8 -> { "path": ":models/monsters/insane/tris.md2", "frame": 252 },
+  spawnflags &  4 -> { "path": ":models/monsters/insane/tris.md2", "frame": 38 },
+  spawnflags &  2 -> { "path": ":models/monsters/insane/tris.md2", "frame": 0 },
+                             	":models/monsters/insane/tris.md2"
+  }}) = misc_insane : "Insane Soldiers"
 [
 	spawnflags(Flags) =
 	[
-		1 : "Ambush" : 0
-		2 : "Trigger Spawn" : 0
-		4 : "Crawl" : 0
-		8 : "Crucified" : 0
-		16 : "Stand Ground" : 0
-		32 : "Always Stand" : 0
+    1 : "Ambush" : 0
+    2 : "Trigger Spawn" : 0
+    4 : "Crawl" : 0
+    8 : "Crucified" : 0
+   16 : "Stand Ground" : 0
+   32 : "Always Stand" : 0
 	]
-	deathtarget(string) : "Entity to trigger at death"
-	killtarget(string) : "Entity to remove at death"
-	item(string) : "Item to spawn at death"
+  deathtarget(string) : "Entity to trigger at death"
+  killtarget(string) : "Entity to remove at death"
+  item(string) : "Item to spawn at death"
 ]
 
-// 0303 - added "targetname" key
 @PointClass base(Appearflags, Targetname) color(255 128 0) size(-64 -64 0, 64 64 128) model({ "path": ":models/objects/satellite/tris.md2" }) = misc_satellite_dish : "Satellite Dish" []
-
 @PointClass base(Appearflags, Targetname) color(255 128 0) size(-16 -16 0, 16 16 32) model({ "path": ":models/ships/strogg1/tris.md2" }) = misc_strogg_ship : "Strogg ship for flybys"
 [
 	target(string) : "First path target"
@@ -568,13 +560,8 @@
 
 ]
 
-// place teleporter units 10 units into a brush to get rid of teleport pad
-@PointClass base(Appearflags, Targetname) color(255 0 0) size(-32 -32 -24, 32 32 -16) = misc_teleporter : "Teleporter"
-[
-	target(string) : "Teleport Destination"
-]
-@PointClass base(Appearflags, Targetname) color(255 0 0) size(-32 -32 -24, 32 32 -16) = misc_teleporter_dest : "Teleport Destination" []
-
+@PointClass base(Appearflags, Targetname) color(255 0 0) size(-32 -32 -24, 32 32 -16) model({ "path": ":models/objects/dmspot/tris.md2", "skin": 1 }) = misc_teleporter : "Teleporter: To hide the teleport pads, place them units 10 units into a brush."	[	target(string) : "Teleport Destination"	]
+@PointClass base(Appearflags, Targetname) color(255 0 0) size(-32 -32 -24, 32 32 -16) model({ "path": ":models/objects/dmspot/tris.md2", "skin": 0 }) = misc_teleporter_dest : "Teleport Destination: To hide the teleport pads, place them units 10 units into a brush." []
 @PointClass base(Appearflags) color(255 128 0) size(-176 -120 -24, 176 120 72) model({ "path": ":models/ships/bigviper/tris.md2" }) = misc_bigviper : "Large stationary Viper" []
 @PointClass base(Appearflags, Targetname) color(255 128 0) size(-16 -16 0, 16 16 32) model({ "path": ":models/ships/viper/tris.md2" }) = misc_viper : "Viper for flybys"
 [
@@ -591,7 +578,6 @@
 // Monsters!
 //
 
-// 0221 - added "deathtarget", "killtarget", and "combattarget" keys
 @BaseClass base(Appearflags, Target, Targetname) color(255 128 0) size(-16 -16 -24, 16 16 32) = Monsters
 [
 	spawnflags(Flags) =
@@ -607,13 +593,12 @@
 ]
 
 @PointClass base(Monsters) model({ "path": ":models/monsters/berserk/tris.md2" }) = monster_berserk : "Berserker" []
-@PointClass base(Monsters) size(-56 -56 0, 56 56 80) = monster_boss2 : "Boss2" []
+@PointClass base(Monsters) size(-56 -56 0, 56 56 80) model({ "path": ":models/monsters/boss2/tris.md2" }) = monster_boss2 : "Hornet" []
 
 // Just fidgets in one spot and teleports away when triggered
 //
 // 0221 - removed Monsters class inheritance
-@PointClass base(Appearflags, Targetname) size(-32 -32 0, 32 32 90) = monster_boss3_stand : "Stationnary Makron" []
-
+@PointClass base(Appearflags, Targetname) size(-32 -32 0, 32 32 80) model({ "path": ":models/monsters/boss3/rider/tris.md2", "frame": 414}) = monster_boss3_stand : "Stationnary Makron" []
 @PointClass base(Monsters) model({ "path": ":models/monsters/brain/tris.md2" }) = monster_brain : "Brains" []
 @PointClass base(Monsters) model({ "path": ":models/monsters/bitch/tris.md2" }) = monster_chick : "Iron Maiden" []
 @PointClass base(Appearflags, Targetname) color(255 128 0) size(-32 -32 0, 32 32 48) model({ "path": ":models/monsters/commandr/tris.md2" }) = monster_commander_body : "Tank commander's decapitated body" []
@@ -623,11 +608,11 @@
 @PointClass base(Monsters) size(-32 -32 -24, 32 32 64) model({ "path": ":models/monsters/gladiatr/tris.md2" }) = monster_gladiator : "Gladiator" []
 @PointClass base(Monsters) model({ "path": ":models/monsters/gunner/tris.md2" }) = monster_gunner : "Gunner" []
 @PointClass base(Monsters) model({ "path": ":models/monsters/hover/tris.md2" }) = monster_hover : "Icarus" []
-@PointClass base(Monsters) model({ "path": ":models/monsters/infantry/tris.md2" }) = monster_infantry : "Infantry" []
+@PointClass base(Monsters) model({ "path": ":models/monsters/infantry/tris.md2", "frame": 64}) = monster_infantry : "Infantry" []
 @PointClass base(Monsters) size(-80 -80 0, 90 90 140) model({ "path": ":models/monsters/boss3/jorg/tris.md2" }) = monster_jorg : "Jorg" []
 
 // 0221 - this entity can only spawn once the Jorg dies ... im sure someone will change that tho
-@PointClass base(Monsters) size(-30 -30 0, 30 30 90) model({ "path": ":models/monsters/boss3/rider/tris.md2" }) = monster_makron : "Makron" []
+@PointClass base(Monsters) size(-32 -32 0, 32 32 80) model({ "path": ":models/monsters/boss3/rider/tris.md2", "frame": 414}) = monster_makron : "Makron" []
 @PointClass base(Monsters) model({ "path": ":models/monsters/medic/tris.md2" }) = monster_medic : "Medic" []
 @PointClass base(Monsters) size(-32 -32 -24, 32 32 32) model({ "path": ":models/monsters/mutant/tris.md2" }) = monster_mutant : "Mutant" []
 @PointClass base(Monsters) model({ "path": ":models/monsters/parasite/tris.md2" }) = monster_parasite : "Parasite" []
@@ -635,8 +620,8 @@
 @PointClass base(Monsters) model({ "path": ":models/monsters/soldier/tris.md2", "skin": 2 }) = monster_soldier : "Soldier" []
 @PointClass base(Monsters) model({ "path": ":models/monsters/soldier/tris.md2", "skin": 4 }) = monster_soldier_ss : "SS Soldier" []
 @PointClass base(Monsters) size(-32 -32 -16, 32 32 72) model({ "path": ":models/monsters/tank/tris.md2" }) = monster_tank : "Tank" []
-@PointClass base(Monsters) size(-64 -64 0, 64 64 72) model({ "path": ":models/monsters/tank/tris.md2", "skin": 2 }) = monster_supertank : "Super tank" []
-@PointClass base(Monsters) size(-32 -32 -16, 32 32 72) model({ "path": ":models/monsters/boss1/tris.md2" }) = monster_tank_commander : "Tank commander" []
+@PointClass base(Monsters) size(-32 -32 -16, 32 32 72) model({ "path": ":models/monsters/tank/tris.md2", "skin": 2 }) = monster_tank_commander : "Tank Commander" []
+@PointClass base(Monsters) size(-64 -64 0, 64 64 72) model({ "path": ":models/monsters/boss1/tris.md2" }) = monster_supertank : "Super Tank Boss" []
 
 // using a "wait" value of -1 on a path corner causes a func_train to go silent between
 // itself and the next path corner when the train is restarted. The train's sound will
@@ -953,13 +938,8 @@
 	team(string) : "Team"
 	_minlight(string) : "Minimum light (optional)"
 ]
-@PointClass base(Appearflags) color(128 255 128) size(-16 -16 -24, 16 16 32) = turret_driver : "Turret driver"
-[
-	target(string) : "Target (turret_breach)"
-]
-
+@PointClass base(Appearflags) color(128 255 128) size(-16 -16 -24, 16 16 32) model({ "path": ":models/monsters/infantry/tris.md2"}) = turret_driver : "Turret driver"	[	target(string) : "Target (turret_breach)"	]
 @PointClass base(Appearflags) color(0 128 204) size(-8 -8 -8, 8 8 8) = viewthing : "Just for debugging level - dont use" []
-
 @BaseClass base(Appearflags, Target) color(76 76 255) size(-16 -16 -16, 16 16 16) = Weapons
 [
 	team(string) : "Team"
