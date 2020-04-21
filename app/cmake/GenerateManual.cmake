@@ -13,11 +13,13 @@ set(DOC_MANUAL_IMAGES_TARGET_DIR "${DOC_MANUAL_TARGET_DIR}/images")
 
 set(PANDOC_TEMPLATE_PATH "${DOC_MANUAL_SOURCE_DIR}/template.html")
 set(PANDOC_INPUT_PATH    "${DOC_MANUAL_SOURCE_DIR}/index.md")
+set(PANDOC_INPUT_PROCESSED_PATH    "${DOC_MANUAL_TARGET_DIR}/index.md.tmp")
 set(PANDOC_OUTPUT_PATH   "${DOC_MANUAL_TARGET_DIR}/index.html.tmp")
 set(INDEX_OUTPUT_PATH    "${DOC_MANUAL_TARGET_DIR}/index.html")
 
 fix_win32_path(PANDOC_TEMPLATE_PATH)
 fix_win32_path(PANDOC_INPUT_PATH)
+fix_win32_path(PANDOC_INPUT_PROCESSED_PATH)
 fix_win32_path(PANDOC_OUTPUT_PATH)
 
 # Create directories
@@ -30,17 +32,19 @@ add_custom_command(OUTPUT "${DOC_MANUAL_IMAGES_TARGET_DIR}"
 )
 
 # Generate manual
-# 1. Run pandoc to create a temporary HTML file
-# 2. Run AddVersionToManual.cmake on the temporary HTML file
-# 3. Run TransformKeyboardShortcuts.cmake on the temporary HTML file
+# 1. Run TransformKeyboardShortcuts.cmake on the source .md to create a .md.tmp file
+# 2. Run pandoc to create a temporary HTML file
+# 3. Run AddVersionToManual.cmake on the temporary HTML file
 # 4. Copy the temporary HTML file to its target
-# 5. Remove the temporary HTML file
+# 5. Remove the temporary HTML file and temporary .md file
 add_custom_command(OUTPUT "${INDEX_OUTPUT_PATH}"
-    COMMAND ${PANDOC_PATH} --standalone --toc --toc-depth=2 --template "${PANDOC_TEMPLATE_PATH}" --from=markdown --to=html5 -o "${PANDOC_OUTPUT_PATH}" "${PANDOC_INPUT_PATH}"
-    COMMAND ${CMAKE_COMMAND} -DINPUT="${PANDOC_OUTPUT_PATH}" -DOUTPUT="${PANDOC_OUTPUT_PATH}" -P "${CMAKE_CURRENT_BINARY_DIR}/AddVersionToManual.cmake"
-    COMMAND ${CMAKE_COMMAND} -DINPUT="${PANDOC_OUTPUT_PATH}" -DOUTPUT="${PANDOC_OUTPUT_PATH}" -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/TransformKeyboardShortcuts.cmake"
+    # This is done before running pandoc to prevent "smart typography" from mangling #menu() macros that use ...
+    COMMAND ${CMAKE_COMMAND} -DINPUT="${PANDOC_INPUT_PATH}" -DOUTPUT="${PANDOC_INPUT_PROCESSED_PATH}" -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/TransformKeyboardShortcuts.cmake"
+    COMMAND ${PANDOC_PATH} --standalone --toc --toc-depth=2 --template "${PANDOC_TEMPLATE_PATH}" --from=markdown --to=html5 -o "${PANDOC_OUTPUT_PATH}" "${PANDOC_INPUT_PROCESSED_PATH}"
+    COMMAND ${CMAKE_COMMAND} -DINPUT="${PANDOC_OUTPUT_PATH}" -DOUTPUT="${PANDOC_OUTPUT_PATH}" -P "${CMAKE_CURRENT_BINARY_DIR}/AddVersionToManual.cmake"    
     COMMAND ${CMAKE_COMMAND} -E copy "${PANDOC_OUTPUT_PATH}" "${INDEX_OUTPUT_PATH}"
     COMMAND ${CMAKE_COMMAND} -E remove "${PANDOC_OUTPUT_PATH}"
+    COMMAND ${CMAKE_COMMAND} -E remove "${PANDOC_INPUT_PROCESSED_PATH}"
     DEPENDS "${DOC_MANUAL_TARGET_DIR}" "${PANDOC_TEMPLATE_PATH}" "${PANDOC_INPUT_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/cmake/TransformKeyboardShortcuts.cmake" "${CMAKE_CURRENT_SOURCE_DIR}/cmake/AddVersionToManual.cmake.in"
 )
 
