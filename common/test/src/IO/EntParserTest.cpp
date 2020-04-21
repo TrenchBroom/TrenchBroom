@@ -266,7 +266,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             UNSCOPED_INFO("Expected matching color");
             ASSERT_TRUE(vm::is_equal(Color(0.0f, 0.4f, 1.0f), brushDefinition->color(), 0.01f));
 
-            UNSCOPED_INFO("Expected three attribute definitions");
+            UNSCOPED_INFO("Expected seven attribute definitions");
             ASSERT_EQ(7u, brushDefinition->attributeDefinitions().size());
             assertAttributeDefinition("noise", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);
             assertAttributeDefinition("model2", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);
@@ -275,6 +275,21 @@ Target this entity with a misc_model to have the model attached to the entity (s
             assertAttributeDefinition("_castshadows", Assets::AttributeDefinition::Type_IntegerAttribute, brushDefinition);
             assertAttributeDefinition("_celshader", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);
             assertAttributeDefinition("spawnflags", Assets::AttributeDefinition::Type_FlagsAttribute, brushDefinition);
+
+            UNSCOPED_INFO("Expected matching spawnflag definitions");
+            const Assets::FlagsAttributeDefinition* spawnflags = brushDefinition->spawnflags();
+            ASSERT_TRUE(spawnflags != nullptr);
+            ASSERT_EQ(0, spawnflags->defaultValue());
+            const Assets::FlagsAttributeOption::List& options = spawnflags->options();
+            ASSERT_EQ(2u, options.size());
+            ASSERT_EQ(std::string("X_AXIS"), options[0].shortDescription());
+            ASSERT_EQ(std::string("X Axis"), options[0].longDescription());
+            ASSERT_FALSE(options[0].isDefault());
+            ASSERT_EQ(1, options[0].value());
+            ASSERT_EQ(std::string("Y_AXIS"), options[1].shortDescription());
+            ASSERT_EQ(std::string("Y Axis"), options[1].longDescription());
+            ASSERT_FALSE(options[1].isDefault());
+            ASSERT_EQ(2, options[1].value());
 
             kdl::vec_clear_and_delete(definitions);
         }
