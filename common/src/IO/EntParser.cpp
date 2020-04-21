@@ -157,8 +157,8 @@ namespace TrenchBroom {
                         warn(*flagElement, "Invalid value '" + strValue + "' for bit attribute", status);
                     } else {
                         const auto value = 1 << *bit;
-                        const auto shortDesc = parseString(element, "key", status);
-                        const auto longDesc = parseString(element, "name", status);
+                        const auto shortDesc = parseString(*flagElement, "key", status);
+                        const auto longDesc = parseString(*flagElement, "name", status);
                         result->addOption(value, shortDesc, longDesc, false);
                     }
 
