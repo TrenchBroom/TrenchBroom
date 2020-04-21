@@ -34,14 +34,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        void printKeys(QTextStream& out);
-        QString toString(const IO::Path& path, const QString& suffix);
-        QString toString(const QKeySequence& keySequence);
-
-        void printMenuShortcuts(QTextStream& out);
-        void printActionShortcuts(QTextStream& out);
-
-        QString escapeString(const QString& str) {
+        static QString escapeString(const QString& str) {
             if (str == "'") {
                 return "\\'";
             } else if (str == "\\") {
@@ -51,7 +44,7 @@ namespace TrenchBroom {
             }
         }
 
-        void printKeys(QTextStream& out) {
+        static void printKeys(QTextStream& out) {
             const auto keyStrings = KeyStrings();
 
             out << "const keys = {\n";
@@ -61,7 +54,7 @@ namespace TrenchBroom {
             out << "};\n";
         }
 
-        QString toString(const IO::Path& path, const QString& suffix) {
+        static QString toString(const IO::Path& path, const QString& suffix) {
             QString result;
             result += "[";
             for (const auto& component : path.components()) {
@@ -72,7 +65,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        QString toString(const QKeySequence& keySequence) {
+        static QString toString(const QKeySequence& keySequence) {
             static const std::array<std::tuple<int, QString>, 4> Modifiers = {
                 std::make_tuple(static_cast<int>(Qt::CTRL),  QString::fromLatin1("Ctrl")),
                 std::make_tuple(static_cast<int>(Qt::ALT),   QString::fromLatin1("Alt")),
@@ -125,7 +118,7 @@ namespace TrenchBroom {
             }
         };
 
-        void printMenuShortcuts(QTextStream& out) {
+        static void printMenuShortcuts(QTextStream& out) {
             out << "const menu = {\n";
 
             const auto& actionManager = ActionManager::instance();
@@ -135,7 +128,7 @@ namespace TrenchBroom {
             out << "};\n";
         }
 
-        void printActionShortcuts(QTextStream& out) {
+        static void printActionShortcuts(QTextStream& out) {
             out << "const actions = {\n";
 
             auto printPref = [&out](const IO::Path& prefPath, const QKeySequence& keySequence) {
