@@ -1010,13 +1010,13 @@ namespace TrenchBroom {
             }
         }
 
-        void MapDocument::isolate(const std::vector<Model::Node*>& /* nodes */) {
+        void MapDocument::isolate() {
             const std::vector<Model::Layer*>& layers = m_world->allLayers();
 
-            Model::CollectTransitivelyUnselectedNodesVisitor collectUnselected;
+            Model::CollectNotTransitivelySelectedOrDescendantSelectedNodesVisitor collectUnselected;
             Model::Node::recurse(std::begin(layers), std::end(layers), collectUnselected);
 
-            Model::CollectSelectedNodesVisitor collectSelected;
+            Model::CollectTransitivelySelectedOrDescendantSelectedNodesVisitor collectSelected;
             Model::Node::recurse(std::begin(layers), std::end(layers), collectSelected);
 
             Transaction transaction(this, "Isolate Objects");

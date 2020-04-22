@@ -231,7 +231,13 @@ namespace TrenchBroom {
             void select();
             void deselect();
 
+            /**
+             * Returns true if this node or our parent or grandparent, etc., is selected
+             */
             bool transitivelySelected() const;
+            /**
+             * Returns true if our parent or grandparent, etc., is selected
+             */
             bool parentSelected() const;
 
             bool childSelected() const;
