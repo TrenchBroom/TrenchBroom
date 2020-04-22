@@ -32,6 +32,19 @@ namespace TrenchBroom {
     namespace View {
         class MapDocument;
 
+        /**
+         * Functionality summary:
+         *
+         * Modifier combinations:
+         * - Alt:       transfer texture and alignment from selected
+         * - Alt+Shift: transfer texture and alignment (rotation method) from selected
+         * - Alt+Ctrl:  transfer texture (but not alignment) from selected
+         *
+         * Actions:
+         * - LMB Click: applies to clicked faces
+         * - LMB Drag: applies to all faces dragged over
+         * - LMB Double click: applies to all faces of target brush
+         */
         class SetBrushFaceAttributesTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
             std::weak_ptr<MapDocument> m_document;
@@ -51,7 +64,9 @@ namespace TrenchBroom {
             void copyAttributesFromSelection(const InputState& inputState, bool applyToBrush);
             bool canCopyAttributesFromSelection(const InputState& inputState) const;
             bool applies(const InputState& inputState) const;
-            bool copyAllAttributes(const InputState& inputState) const;
+            bool copyTextureOnlyModifiersDown(const InputState& inputState) const;
+            bool copyTextureAttribsProjectionModifiersDown(const InputState& inputState) const;
+            bool copyTextureAttribsRotationModifiersDown(const InputState& inputState) const;
 
             bool doCancel() override;
             
@@ -61,7 +76,8 @@ namespace TrenchBroom {
             void doCancelMouseDrag() override;
 
             void resetDragState();
-            void transferFaceAttributes(const InputState& inputState, Model::BrushFace* sourceFace, Model::BrushFace* targetFace);
+            void transferFaceAttributes(const InputState& inputState, Model::BrushFace* sourceFace,
+                                        const std::vector<Model::BrushFace*>& targetFaces, Model::BrushFace* faceToSelectAfter);
         };
     }
 }
