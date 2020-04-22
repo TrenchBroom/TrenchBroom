@@ -82,9 +82,14 @@ namespace TrenchBroom {
         void TagManager::registerSmartTags(const std::vector<SmartTag>& tags) {
             m_smartTags = kdl::vector_set<SmartTag, TagCmp>(tags.size());
             for (const auto& tag : tags) {
-                if (!m_smartTags.insert(tag).second) {
+                const size_t nextIndex = freeTagIndex();
+                auto [it, inserted] = m_smartTags.insert(tag);
+
+                if (!inserted) {
                     throw std::logic_error("Smart tag '" + tag.name() + "' already registered");
                 }
+
+                it->setIndex(nextIndex);
             }
         }
 

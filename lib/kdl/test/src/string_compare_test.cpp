@@ -15,14 +15,16 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "kdl/collection_utils.h"
 #include "kdl/string_compare.h"
 
 namespace kdl {
     namespace cs {
-        TEST(string_utils_cs_test, str_mismatch) {
+        TEST_CASE("string_utils_cs_test.str_mismatch", "[string_utils_cs_test]") {
             ASSERT_EQ(0u, str_mismatch("", ""));
             ASSERT_EQ(4u, str_mismatch("asdf", "asdf"));
             ASSERT_EQ(0u, str_mismatch("ssdf", "asdf"));
@@ -38,7 +40,7 @@ namespace kdl {
             ASSERT_EQ(2u, str_mismatch("asDf", "asdf"));
         }
 
-        TEST(string_utils_cs_test, str_contains) {
+        TEST_CASE("string_utils_cs_test.str_contains", "[string_utils_cs_test]") {
             ASSERT_FALSE(str_contains("", ""));
             ASSERT_TRUE(str_contains("asdf", ""));
             ASSERT_TRUE(str_contains("asdf", "a"));
@@ -65,7 +67,7 @@ namespace kdl {
             ASSERT_FALSE(str_contains("asdf", "ASDF"));
         }
 
-        TEST(string_utils_cs_test, str_is_prefix) {
+        TEST_CASE("string_utils_cs_test.str_is_prefix", "[string_utils_cs_test]") {
             ASSERT_TRUE(str_is_prefix("asdf", ""));
             ASSERT_TRUE(str_is_prefix("asdf", "a"));
             ASSERT_TRUE(str_is_prefix("asdf", "as"));
@@ -81,7 +83,7 @@ namespace kdl {
             ASSERT_FALSE(str_is_prefix("asdf", "asDF"));
         }
 
-        TEST(string_utils_cs_test, str_is_suffix) {
+        TEST_CASE("string_utils_cs_test.str_is_suffix", "[string_utils_cs_test]") {
             ASSERT_TRUE(str_is_suffix("asdf", ""));
             ASSERT_TRUE(str_is_suffix("asdf", "f"));
             ASSERT_TRUE(str_is_suffix("asdf", "df"));
@@ -96,7 +98,7 @@ namespace kdl {
             ASSERT_FALSE(str_is_suffix("asdf", "ASDf"));
         }
 
-        TEST(string_utils_cs_test, str_compare) {
+        TEST_CASE("string_utils_cs_test.str_compare", "[string_utils_cs_test]") {
             ASSERT_EQ(0, str_compare("", ""));
             ASSERT_EQ(0, str_compare("a", "a"));
             ASSERT_EQ(-1, str_compare("", "a"));
@@ -108,14 +110,14 @@ namespace kdl {
             ASSERT_EQ(-1, str_compare("Asdf", "Wxyt"));
         }
 
-        TEST(string_utils_cs_test, str_is_equal) {
+        TEST_CASE("string_utils_cs_test.str_is_equal", "[string_utils_cs_test]") {
             ASSERT_TRUE(str_is_equal("", ""));
             ASSERT_TRUE(str_is_equal("asdf", "asdf"));
             ASSERT_FALSE(str_is_equal("asdf", "asdF"));
             ASSERT_FALSE(str_is_equal("AsdF", "Asdf"));
         }
 
-        TEST(string_utils_cs_test, str_matches_glob) {
+        TEST_CASE("string_utils_cs_test.str_matches_glob", "[string_utils_cs_test]") {
             ASSERT_TRUE(str_matches_glob("", ""));
             ASSERT_TRUE(str_matches_glob("", "*"));
             ASSERT_FALSE(str_matches_glob("", "?"));
@@ -167,7 +169,7 @@ namespace kdl {
             return c;
         }
 
-        TEST(string_utils_cs_test, sort) {
+        TEST_CASE("string_utils_cs_test.sort", "[string_utils_cs_test]") {
             ASSERT_EQ(std::vector<std::string>({}), sorted(std::vector<std::string>({})));
             ASSERT_EQ(std::vector<std::string>({
                 "Ab",
@@ -188,7 +190,7 @@ namespace kdl {
     }
 
     namespace ci {
-        TEST(string_utils_ci_test, str_mismatch) {
+        TEST_CASE("string_utils_ci_test.str_mismatch", "[string_utils_ci_test]") {
             ASSERT_EQ(0u, str_mismatch("", ""));
             ASSERT_EQ(4u, str_mismatch("asdf", "asdf"));
             ASSERT_EQ(0u, str_mismatch("ssdf", "asdf"));
@@ -204,7 +206,7 @@ namespace kdl {
             ASSERT_EQ(4u, str_mismatch("asDf", "asdf"));
         }
 
-        TEST(string_utils_ci_test, str_contains) {
+        TEST_CASE("string_utils_ci_test.str_contains", "[string_utils_ci_test]") {
             ASSERT_FALSE(str_contains("", ""));
             ASSERT_TRUE(str_contains("asdf", ""));
             ASSERT_TRUE(str_contains("asdf", "a"));
@@ -232,7 +234,7 @@ namespace kdl {
         }
 
 
-        TEST(string_utils_ci_test, str_is_prefix) {
+        TEST_CASE("string_utils_ci_test.str_is_prefix", "[string_utils_ci_test]") {
             ASSERT_TRUE(str_is_prefix("asdf", ""));
             ASSERT_TRUE(str_is_prefix("asdf", "a"));
             ASSERT_TRUE(str_is_prefix("asdf", "as"));
@@ -251,7 +253,7 @@ namespace kdl {
         }
 
 
-        TEST(string_utils_ci_test, str_is_suffix) {
+        TEST_CASE("string_utils_ci_test.str_is_suffix", "[string_utils_ci_test]") {
             ASSERT_TRUE(str_is_suffix("asdf", ""));
             ASSERT_TRUE(str_is_suffix("asdf", "f"));
             ASSERT_TRUE(str_is_suffix("asdf", "df"));
@@ -268,7 +270,7 @@ namespace kdl {
             ASSERT_TRUE(str_is_suffix("asdf", "ASDf"));
         }
 
-        TEST(string_utils_ci_test, str_compare) {
+        TEST_CASE("string_utils_ci_test.str_compare", "[string_utils_ci_test]") {
             ASSERT_EQ(0, str_compare("", ""));
             ASSERT_EQ(0, str_compare("a", "a"));
             ASSERT_EQ(-1, str_compare("", "a"));
@@ -280,7 +282,7 @@ namespace kdl {
             ASSERT_EQ(-1, str_compare("Asdf", "Wxyt"));
         }
 
-        TEST(string_utils_ci_test, str_is_equal) {
+        TEST_CASE("string_utils_ci_test.str_is_equal", "[string_utils_ci_test]") {
             ASSERT_TRUE(str_is_equal("", ""));
             ASSERT_TRUE(str_is_equal("asdf", "asdf"));
             ASSERT_TRUE(str_is_equal("asdf", "asdF"));
@@ -289,7 +291,7 @@ namespace kdl {
             ASSERT_FALSE(str_is_equal("dfdd", "Asdf"));
         }
 
-        TEST(string_utils_ci_test, str_matches_glob) {
+        TEST_CASE("string_utils_ci_test.str_matches_glob", "[string_utils_ci_test]") {
             ASSERT_TRUE(str_matches_glob("ASdf", "asdf"));
             ASSERT_TRUE(str_matches_glob("AsdF", "*"));
             ASSERT_TRUE(str_matches_glob("ASdf", "a??f"));
@@ -310,7 +312,7 @@ namespace kdl {
             return c;
         }
 
-        TEST(string_utils_ci_test, sort) {
+        TEST_CASE("string_utils_ci_test.sort", "[string_utils_ci_test]") {
             ASSERT_EQ(std::vector<std::string>({}), sorted(std::vector<std::string>({})));
             ASSERT_EQ(std::vector<std::string>({
                 "a",

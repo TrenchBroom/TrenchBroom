@@ -15,14 +15,16 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include <kdl/transform_range.h>
 
 #include <vector>
 
 namespace kdl {
-    TEST(transform_iterator_test, operator_less_than) {
+    TEST_CASE("transform_iterator_test.operator_less_than", "[transform_iterator_test]") {
         const auto v1 = std::vector<int>({});
         const auto t1 = transform_adapter(v1, [](const auto& i) { return i + 2; });
         ASSERT_FALSE(std::begin(t1) < std::end(t1));
@@ -38,7 +40,7 @@ namespace kdl {
         ASSERT_FALSE(it < end);
     }
 
-    TEST(transform_iterator_test, operator_greater_than) {
+    TEST_CASE("transform_iterator_test.operator_greater_than", "[transform_iterator_test]") {
         const auto v1 = std::vector<int>({});
         const auto t1 = transform_adapter(v1, [](const auto& i) { return i + 2; });
         ASSERT_FALSE(std::end(t1) > std::begin(t1));
@@ -54,7 +56,7 @@ namespace kdl {
         ASSERT_FALSE(end > it);
     }
 
-    TEST(transform_iterator_test, operator_equal) {
+    TEST_CASE("transform_iterator_test.operator_equal", "[transform_iterator_test]") {
         const auto v1 = std::vector<int>({});
         const auto t1 = transform_adapter(v1, [](const auto& i) { return i + 2; });
         ASSERT_TRUE(std::begin(t1) == std::end(t1));
@@ -70,7 +72,7 @@ namespace kdl {
         ASSERT_TRUE(it == end);
     }
 
-    TEST(transform_iterator_test, operator_not_equal) {
+    TEST_CASE("transform_iterator_test.operator_not_equal", "[transform_iterator_test]") {
         const auto v1 = std::vector<int>({});
         const auto t1 = transform_adapter(v1, [](const auto& i) { return i + 2; });
         ASSERT_FALSE(std::begin(t1) != std::end(t1));
@@ -86,19 +88,19 @@ namespace kdl {
         ASSERT_FALSE(it != end);
     }
 
-    TEST(transform_iterator_test, operator_prefix_increment) {
+    TEST_CASE("transform_iterator_test.operator_prefix_increment", "[transform_iterator_test]") {
         const auto v = std::vector<int>({ 1 });
         const auto t = transform_adapter(v, [](const auto& i) { return i + 2; });
         ASSERT_EQ(std::end(t), ++std::begin(t));
     }
 
-    TEST(transform_iterator_test, operator_prefix_decrement) {
+    TEST_CASE("transform_iterator_test.operator_prefix_decrement", "[transform_iterator_test]") {
         const auto v = std::vector<int>({ 1 });
         const auto t = transform_adapter(v, [](const auto& i) { return i + 2; });
         ASSERT_EQ(std::begin(t), --std::end(t));
     }
 
-    TEST(transform_iterator_test, operator_postfix_increment) {
+    TEST_CASE("transform_iterator_test.operator_postfix_increment", "[transform_iterator_test]") {
         const auto v = std::vector<int>({ 1 });
         const auto t = transform_adapter(v, [](const auto& i) { return i + 2; });
 
@@ -107,7 +109,7 @@ namespace kdl {
         ASSERT_EQ(std::end(t), it);
     }
 
-    TEST(transform_iterator_test, operator_postfix_decrement) {
+    TEST_CASE("transform_iterator_test.operator_postfix_decrement", "[transform_iterator_test]") {
         const auto v = std::vector<int>({ 1 });
         const auto t = transform_adapter(v, [](const auto& i) { return i + 2; });
 
@@ -116,13 +118,13 @@ namespace kdl {
         ASSERT_EQ(std::begin(t), it);
     }
 
-    TEST(transform_iterator_test, operator_star) {
+    TEST_CASE("transform_iterator_test.operator_star", "[transform_iterator_test]") {
         const auto v = std::vector<int>({ 1 });
         const auto t = transform_adapter(v, [](const auto& i) { return i + 2; });
         ASSERT_EQ(3, *std::begin(t));
     }
 
-    TEST(transform_adapter_test, empty) {
+    TEST_CASE("transform_adapter_test.empty", "[transform_adapter_test]") {
         const auto v1 = std::vector<int>({});
         const auto t1 = transform_adapter(v1, [](const auto& i) { return i + 2; });
         ASSERT_TRUE(t1.empty());
@@ -132,7 +134,7 @@ namespace kdl {
         ASSERT_FALSE(t2.empty());
     }
 
-    TEST(transform_adapter_test, size) {
+    TEST_CASE("transform_adapter_test.size", "[transform_adapter_test]") {
         const auto v1 = std::vector<int>({});
         const auto t1 = transform_adapter(v1, [](const auto& i) { return i + 2; });
         ASSERT_EQ(0u, t1.size());
@@ -142,7 +144,7 @@ namespace kdl {
         ASSERT_EQ(3u, t2.size());
     }
 
-    TEST(transform_adapter_test, iterators) {
+    TEST_CASE("transform_adapter_test.iterators", "[transform_adapter_test]") {
         const auto v1 = std::vector<int>({});
         const auto t1 = transform_adapter(v1, [](const auto& i) { return i + 2; });
         ASSERT_EQ(std::begin(t1), std::end(t1));
@@ -167,7 +169,7 @@ namespace kdl {
         ASSERT_EQ(it, end);
     }
 
-    TEST(transform_adapter_test, reverse_iterators) {
+    TEST_CASE("transform_adapter_test.reverse_iterators", "[transform_adapter_test]") {
         const auto v1 = std::vector<int>({});
         const auto t1 = transform_adapter(v1, [](const auto& i) { return i + 2; });
         ASSERT_EQ(std::rbegin(t1), std::rend(t1));

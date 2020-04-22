@@ -247,13 +247,23 @@ namespace TrenchBroom {
         void ControlListBox::doubleClicked(const size_t /* index */) {}
 
         void ControlListBox::listItemSelectionChanged() {
+            bool wasAnyRowSelected = false;
+            
             for (int row = 0; row < count(); ++row) {
                 auto* listItem = m_listWidget->item(row);
                 auto* renderer = this->renderer(row);
+                // FIXME: this uses QListWidgetItem::isSelected() but addItemRenderer() is doing
+                // it based on QListWidget::currentItem() - should be consistent.
+                // (see: https://github.com/kduske/TrenchBroom/issues/3104)
                 renderer->setSelected(listItem->isSelected(), m_listWidget);
                 if (listItem->isSelected()) {
                     selectedRowChanged(row);
+                    wasAnyRowSelected = true;
                 }
+            }
+
+            if (!wasAnyRowSelected) {
+                selectedRowChanged(-1);
             }
 
             emit itemSelectionChanged();

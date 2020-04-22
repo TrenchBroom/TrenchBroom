@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "TestLogger.h"
 
@@ -30,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(ResourceUtilsTest, loadDefaultTexture) {
+        TEST_CASE("ResourceUtilsTest.loadDefaultTexture", "[ResourceUtilsTest]") {
             auto fs = std::make_shared<DiskFileSystem>(IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets"));
             NullLogger logger;
             

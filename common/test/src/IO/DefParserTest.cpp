@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "TestUtils.h"
 #include "Assets/AttributeDefinition.h"
@@ -36,7 +38,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(DefParserTest, parseIncludedDefFiles) {
+        TEST_CASE("DefParserTest.parseIncludedDefFiles", "[DefParserTest]") {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
             const std::vector<Path> cfgFiles = Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("def"));
 
@@ -47,13 +49,18 @@ namespace TrenchBroom {
                 DefParser parser(std::begin(reader), std::end(reader), defaultColor);
 
                 TestParserStatus status;
-                ASSERT_NO_THROW(parser.parseDefinitions(status)) << "Parsing DEF file " << path.asString() << " failed";
-                ASSERT_EQ(0u, status.countStatus(LogLevel::Warn)) << "Parsing DEF file " << path.asString() << " produced warnings";
-                ASSERT_EQ(0u, status.countStatus(LogLevel::Error)) << "Parsing DEF file " << path.asString() << " produced errors";
+                UNSCOPED_INFO("Parsing DEF file " << path.asString() << " failed");
+                ASSERT_NO_THROW(parser.parseDefinitions(status));
+                
+                UNSCOPED_INFO("Parsing DEF file " << path.asString() << " produced warnings");
+                ASSERT_EQ(0u, status.countStatus(LogLevel::Warn));
+
+                UNSCOPED_INFO("Parsing DEF file " << path.asString() << " produced errors");
+                ASSERT_EQ(0u, status.countStatus(LogLevel::Error));
             }
         }
 
-        TEST(DefParserTest, parseExtraDefFiles) {
+        TEST_CASE("DefParserTest.parseExtraDefFiles", "[DefParserTest]") {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Def");
             const std::vector<Path> cfgFiles = Disk::findItems(basePath, [] (const Path& path, bool directory) {
                 return !directory && kdl::ci::str_is_equal(path.extension(), "def");
@@ -72,7 +79,7 @@ namespace TrenchBroom {
             }
         }
 
-        TEST(DefParserTest, parseEmptyFile) {
+        TEST_CASE("DefParserTest.parseEmptyFile", "[DefParserTest]") {
             const std::string file = "";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
@@ -83,7 +90,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(DefParserTest, parseWhitespaceFile) {
+        TEST_CASE("DefParserTest.parseWhitespaceFile", "[DefParserTest]") {
             const std::string file = "     \n  \t \n  ";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
@@ -94,7 +101,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(DefParserTest, parseCommentsFile) {
+        TEST_CASE("DefParserTest.parseCommentsFile", "[DefParserTest]") {
             const std::string file = "// asdfasdfasdf\n//kj3k4jkdjfkjdf\n";
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
@@ -105,7 +112,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(DefParserTest, parseSolidClass) {
+        TEST_CASE("DefParserTest.parseSolidClass", "[DefParserTest]") {
             const std::string file =
             "/*QUAKED worldspawn (0.0 0.0 0.0) ?\n"
             "{\n"
@@ -144,7 +151,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(DefParserTest, parsePointClass) {
+        TEST_CASE("DefParserTest.parsePointClass", "[DefParserTest]") {
             const std::string file =
             "/*QUAKED monster_zombie (1.0 0.0 0.0) (-16 -16 -24) (16 16 32) Crucified ambush\n"
             "If crucified, stick the bounding box 12 pixels back into a wall to look right.\n"
@@ -191,7 +198,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(DefParserTest, parseSpawnflagWithSkip) {
+        TEST_CASE("DefParserTest.parseSpawnflagWithSkip", "[DefParserTest]") {
             const std::string file =
                     "/*QUAKED item_health (.3 .3 1) (-16 -16 -16) (16 16 16) - SUSPENDED SPIN - RESPAWN\n"
                     "some desc\n"
@@ -247,7 +254,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(DefParserTest, parseBrushEntityWithMissingBBoxAndNoQuestionMark) {
+        TEST_CASE("DefParserTest.parseBrushEntityWithMissingBBoxAndNoQuestionMark", "[DefParserTest]") {
             const std::string file =
                     "/*QUAKED item_health (.3 .3 1) SUSPENDED SPIN - RESPAWN\n"
                     "some desc\n"
@@ -296,7 +303,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST(DefParserTest, parsePointClassWithBaseClasses) {
+        TEST_CASE("DefParserTest.parsePointClassWithBaseClasses", "[DefParserTest]") {
             const std::string file =
             "/*QUAKED _light_style\n"
             "{\n"
@@ -365,7 +372,7 @@ namespace TrenchBroom {
 
         using Assets::assertModelDefinition;
 
-        TEST(DefParserTest, parseLegacyStaticModelDefinition) {
+        TEST_CASE("DefParserTest.parseLegacyStaticModelDefinition", "[DefParserTest]") {
             static const std::string ModelDefinition = "\":maps/b_shell0.bsp\", \":maps/b_shell1.bsp\" spawnflags = 1";
 
             assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
@@ -377,7 +384,7 @@ namespace TrenchBroom {
                                              "{ 'spawnflags': 1 }");
         }
 
-        TEST(DefParserTest, parseLegacyDynamicModelDefinition) {
+        TEST_CASE("DefParserTest.parseLegacyDynamicModelDefinition", "[DefParserTest]") {
             static const std::string ModelDefinition = "pathKey = \"model\" skinKey = \"skin\" frameKey = \"frame\"";
 
             assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
@@ -390,7 +397,7 @@ namespace TrenchBroom {
                                              "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
         }
 
-        TEST(DefParserTest, parseELStaticModelDefinition) {
+        TEST_CASE("DefParserTest.parseELStaticModelDefinition", "[DefParserTest]") {
             static const std::string ModelDefinition = "{{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }}";
 
             assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp")),
@@ -406,7 +413,7 @@ namespace TrenchBroom {
                                              "{ 'spawnflags': 2 }");
         }
 
-        TEST(DefParserTest, parseELDynamicModelDefinition) {
+        TEST_CASE("DefParserTest.parseELDynamicModelDefinition", "[DefParserTest]") {
             static const std::string ModelDefinition = "{ 'path': model, 'skin': skin, 'frame': frame }";
 
             assertModelDefinition<DefParser>(Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp")),
@@ -419,7 +426,7 @@ namespace TrenchBroom {
                                              "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
         }
 
-        TEST(DefParserTest, parseInvalidBounds) {
+        TEST_CASE("DefParserTest.parseInvalidBounds", "[DefParserTest]") {
             const std::string file =
                 "/*QUAKED light (0.0 1.0 0.0) (8 -8 -8) (-8 8 8) START_OFF\n"
                 "{\n"

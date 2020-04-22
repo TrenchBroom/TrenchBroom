@@ -19,6 +19,8 @@
 
 #include "InputEvent.h"
 
+#include <QApplication>
+
 #include <iostream>
 #include <string_view>
 
@@ -293,20 +295,24 @@ namespace TrenchBroom {
                 m_queue.enqueueEvent(std::make_unique<MouseEvent>(type, button, wheelAxis, posX, posY, scrollDistance));
             }
         }
+        
+        QPointF InputEventRecorder::scrollLinesForEvent(const QWheelEvent* qtEvent) {
+            // TODO: support pixel scrolling via qtEvent->pixelDelta()?
+            const int linesPerStep = QApplication::wheelScrollLines();
+            const QPointF angleDelta = QPointF(qtEvent->angleDelta()); // in eighths-of-degrees
+            constexpr float EighthsOfDegreesPerStep = 120.0f; // see: https://doc.qt.io/qt-5/qwheelevent.html#angleDelta
+
+            const QPointF lines = (angleDelta / EighthsOfDegreesPerStep) * linesPerStep;
+            return lines;
+        }
 
         void InputEventRecorder::recordEvent(const QWheelEvent* qtEvent) {
             // These are the mouse X and Y position, not the wheel delta
             const int posX = qtEvent->x();
             const int posY = qtEvent->y();
-
-            QPointF scrollDistance;
-            if (!qtEvent->pixelDelta().isNull()) {
-                // pixelDelta() is not available everywhere and returns (0, 0) if not available.
-                scrollDistance = QPointF(qtEvent->pixelDelta()) * MouseEvent::ScrollFactor;
-            } else {
-                // This gives scrollDistance in degrees, see: http://doc.qt.io/qt-5/qwheelevent.html#angleDelta
-                scrollDistance = QPointF(qtEvent->angleDelta()) * MouseEvent::ScrollFactor;
-            }
+            
+            // Number of "lines" to scroll
+            QPointF scrollDistance = scrollLinesForEvent(qtEvent);
 
             // Qt switches scroll axis when alt is pressed, but unfortunately, not consistently on all OS'es
             // and doesn't give any way of knowing.

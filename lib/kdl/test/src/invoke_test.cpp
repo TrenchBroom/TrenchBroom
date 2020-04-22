@@ -15,12 +15,14 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "kdl/invoke.h"
 
 namespace kdl {
-    TEST(invoke_test, invoke_later_lvalue) {
+    TEST_CASE("invoke_test.invoke_later_lvalue", "[invoke_test]") {
         bool invoked = false;
         auto lambda = [&invoked]() { invoked = true; };
 
@@ -31,7 +33,7 @@ namespace kdl {
         ASSERT_TRUE(invoked);
     }
 
-    TEST(invoke_test, invoke_later_rvalue) {
+    TEST_CASE("invoke_test.invoke_later_rvalue", "[invoke_test]") {
         bool invoked = false;
 
         {

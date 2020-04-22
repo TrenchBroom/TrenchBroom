@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 
 #include "FloatType.h"
@@ -34,6 +36,7 @@
 
 #include <iterator>
 #include <tuple>
+#include <set>
 
 namespace TrenchBroom {
     namespace Model {
@@ -60,7 +63,7 @@ namespace TrenchBroom {
         void assertNotIntersects(const Polyhedron3d& lhs, const Polyhedron3d& rhs);
 
 
-        TEST(PolyhedronTest, initWith4Points) {
+        TEST_CASE("PolyhedronTest.initWith4Points", "[PolyhedronTest]") {
             const vm::vec3d p1( 0.0, 0.0, 8.0);
             const vm::vec3d p2( 8.0, 0.0, 0.0);
             const vm::vec3d p3(-8.0, 0.0, 0.0);
@@ -92,7 +95,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(hasTriangleOf(p, p1, p4, p3));
         }
 
-        TEST(PolyhedronTest, copy) {
+        TEST_CASE("PolyhedronTest.copy", "[PolyhedronTest]") {
             const vm::vec3d p1( 0.0, 0.0, 8.0);
             const vm::vec3d p2( 8.0, 0.0, 0.0);
             const vm::vec3d p3(-8.0, 0.0, 0.0);
@@ -121,7 +124,7 @@ namespace TrenchBroom {
             ASSERT_EQ(original, copy);
         }
 
-        TEST(PolyhedronTest, swap) {
+        TEST_CASE("PolyhedronTest.swap", "[PolyhedronTest]") {
             const vm::vec3d p1( 0.0, 0.0, 8.0);
             const vm::vec3d p2( 8.0, 0.0, 0.0);
             const vm::vec3d p3(-8.0, 0.0, 0.0);
@@ -155,7 +158,7 @@ namespace TrenchBroom {
             ASSERT_EQ(original.bounds(), rhs.bounds());
         }
 
-        TEST(PolyhedronTest, convexHullWithFailingPoints) {
+        TEST_CASE("PolyhedronTest.convexHullWithFailingPoints", "[PolyhedronTest]") {
             const vm::vec3d p1(-64.0,    -45.5049, -34.4752);
             const vm::vec3d p2(-64.0,    -43.6929, -48.0);
             const vm::vec3d p3(-64.0,     20.753,  -34.4752);
@@ -176,7 +179,7 @@ namespace TrenchBroom {
             p.addPoint(p8);
         }
 
-        TEST(PolyhedronTest, convexHullWithFailingPoints2) {
+        TEST_CASE("PolyhedronTest.convexHullWithFailingPoints2", "[PolyhedronTest]") {
             const vm::vec3d p1(-64.0,    48.7375, -34.4752);
             const vm::vec3d p2(-64.0,    64.0,    -48.0);
             const vm::vec3d p3(-64.0,    64.0,    -34.4752);
@@ -195,7 +198,7 @@ namespace TrenchBroom {
             p.addPoint(p7);
         }
 
-        TEST(PolyhedronTest, convexHullWithFailingPoints3) {
+        TEST_CASE("PolyhedronTest.convexHullWithFailingPoints3", "[PolyhedronTest]") {
             const vm::vec3d p1(-64,      -64,      -48);
             const vm::vec3d p2(-64,       22.5637, -48);
             const vm::vec3d p3(-64,       64,      -48);
@@ -214,7 +217,7 @@ namespace TrenchBroom {
             p.addPoint(p7);
         }
 
-        TEST(PolyhedronTest, convexHullWithFailingPoints4) {
+        TEST_CASE("PolyhedronTest.convexHullWithFailingPoints4", "[PolyhedronTest]") {
             const vm::vec3d p01(-64, 64, -48);
             const vm::vec3d p02(-43.5959, -39.1918, -46.2555);
             const vm::vec3d p03(-40.5744, -38.257, -48);
@@ -247,7 +250,7 @@ namespace TrenchBroom {
             p.addPoint(p14);
         }
 
-        TEST(PolyhedronTest, convexHullWithFailingPoints5) {
+        TEST_CASE("PolyhedronTest.convexHullWithFailingPoints5", "[PolyhedronTest]") {
             const vm::vec3d p01(-64, -64, -64);
             const vm::vec3d p02(-64, -64, 64);
             const vm::vec3d p03(-64, -32, 64);
@@ -272,7 +275,7 @@ namespace TrenchBroom {
             p.addPoint(p10); // assertion failure here
         }
 
-        TEST(PolyhedronTest, convexHullWithFailingPoints6) {
+        TEST_CASE("PolyhedronTest.convexHullWithFailingPoints6", "[PolyhedronTest]") {
             const vm::vec3d p1(-32, -16, -32);
             const vm::vec3d p2(-32, 16, -32);
             const vm::vec3d p3(-32, 16, -0);
@@ -293,7 +296,7 @@ namespace TrenchBroom {
             p.addPoint(p8);
         }
 
-        TEST(PolyhedronTest, convexHullWithFailingPoints7) {
+        TEST_CASE("PolyhedronTest.convexHullWithFailingPoints7", "[PolyhedronTest]") {
             const vm::vec3d p1(12.8616, -36.5751, 32);
             const vm::vec3d p2(57.9411, -22.6274, 5.9733);
             const vm::vec3d p3(64, -64, 2.47521);
@@ -314,7 +317,7 @@ namespace TrenchBroom {
             p.addPoint(p8);
         }
 
-        TEST(PolyhedronTest, convexHullWithFailingPoints8) {
+        TEST_CASE("PolyhedronTest.convexHullWithFailingPoints8", "[PolyhedronTest]") {
             // Cause of https://github.com/kduske/TrenchBroom/issues/1469
             // See also BrushTest.subtractTruncatedCones
 
@@ -343,7 +346,7 @@ namespace TrenchBroom {
         }
 
 /*
-TEST(PolyhedronTest, testImpossibleSplit) {
+TEST_CASE("PolyhedronTest.testImpossibleSplit", "[PolyhedronTest]") {
     const vm::vec3d p1( 0.0, 4.0, 8.0);
     const vm::vec3d p2( 8.0, 0.0, 0.0);
     const vm::vec3d p3(-8.0, 0.0, 0.0);
@@ -355,7 +358,7 @@ TEST(PolyhedronTest, testImpossibleSplit) {
     ASSERT_TRUE(seam.empty());
 }
 
-TEST(PolyhedronTest, testSimpleSplit) {
+TEST_CASE("PolyhedronTest.testSimpleSplit", "[PolyhedronTest]") {
     const vm::vec3d p1( 0.0, 4.0, 8.0);
     const vm::vec3d p2( 8.0, 0.0, 0.0);
     const vm::vec3d p3(-8.0, 0.0, 0.0);
@@ -374,7 +377,7 @@ TEST(PolyhedronTest, testSimpleSplit) {
     ASSERT_TRUE(hasTriangleOf(p, p2, p3, p4));
 }
 
-TEST(PolyhedronTest, testWeaveSimpleCap) {
+TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
     const vm::vec3d p1( 0.0, 4.0, 8.0);
     const vm::vec3d p2( 8.0, 0.0, 0.0);
     const vm::vec3d p3(-8.0, 0.0, 0.0);
@@ -391,7 +394,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
     ASSERT_EQ(4u, p.faceCount());
 }
 */
-        TEST(PolyhedronTest, testSimpleConvexHull) {
+        TEST_CASE("PolyhedronTest.testSimpleConvexHull", "[PolyhedronTest]") {
             const vm::vec3d p1( 0.0, 4.0, 8.0);
             const vm::vec3d p2( 8.0, 0.0, 0.0);
             const vm::vec3d p3(-8.0, 0.0, 0.0);
@@ -426,7 +429,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(hasTriangleOf(p, p5, p4, p3));
         }
 
-        TEST(PolyhedronTest, testSimpleConvexHullWithCoplanarFaces) {
+        TEST_CASE("PolyhedronTest.testSimpleConvexHullWithCoplanarFaces", "[PolyhedronTest]") {
             const vm::vec3d p1( 0.0, 0.0, 8.0);
             const vm::vec3d p2( 8.0, 0.0, 0.0);
             const vm::vec3d p3(-8.0, 0.0, 0.0);
@@ -459,7 +462,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(hasTriangleOf(p, p5, p4, p3));
         }
 
-        TEST(PolyhedronTest, testSimpleConvexHullOfCube) {
+        TEST_CASE("PolyhedronTest.testSimpleConvexHullOfCube", "[PolyhedronTest]") {
             const vm::vec3d p1( -8.0, -8.0, -8.0);
             const vm::vec3d p2( -8.0, -8.0, +8.0);
             const vm::vec3d p3( -8.0, +8.0, -8.0);
@@ -509,12 +512,12 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(hasQuadOf(p, p2, p6, p8, p4));
         }
 
-        TEST(PolyhedronTest, initEmpty) {
+        TEST_CASE("PolyhedronTest.initEmpty", "[PolyhedronTest]") {
             Polyhedron3d p;
             ASSERT_TRUE(p.empty());
         }
 
-        TEST(PolyhedronTest, initEmptyAndAddOnePoint) {
+        TEST_CASE("PolyhedronTest.initEmptyAndAddOnePoint", "[PolyhedronTest]") {
             const vm::vec3d p1( -8.0, -8.0, -8.0);
 
             Polyhedron3d p;
@@ -533,7 +536,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
         }
 
 
-        TEST(PolyhedronTest, initEmptyAndAddTwoIdenticalPoints) {
+        TEST_CASE("PolyhedronTest.initEmptyAndAddTwoIdenticalPoints", "[PolyhedronTest]") {
             const vm::vec3d p1( -8.0, -8.0, -8.0);
 
             Polyhedron3d p;
@@ -552,7 +555,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(hasVertices(p, points));
         }
 
-        TEST(PolyhedronTest, initEmptyAndAddTwoPoints) {
+        TEST_CASE("PolyhedronTest.initEmptyAndAddTwoPoints", "[PolyhedronTest]") {
             const vm::vec3d p1(0.0, 0.0, 0.0);
             const vm::vec3d p2(3.0, 0.0, 0.0);
 
@@ -573,7 +576,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(hasVertices(p, points));
         }
 
-        TEST(PolyhedronTest, initEmptyAndAddThreeColinearPoints) {
+        TEST_CASE("PolyhedronTest.initEmptyAndAddThreeColinearPoints", "[PolyhedronTest]") {
             const vm::vec3d p1(0.0, 0.0, 0.0);
             const vm::vec3d p2(3.0, 0.0, 0.0);
             const vm::vec3d p3(6.0, 0.0, 0.0);
@@ -596,7 +599,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(hasVertices(p, points));
         }
 
-        TEST(PolyhedronTest, initEmptyAndAddThreePoints) {
+        TEST_CASE("PolyhedronTest.initEmptyAndAddThreePoints", "[PolyhedronTest]") {
             const vm::vec3d p1(0.0, 0.0, 0.0);
             const vm::vec3d p2(3.0, 0.0, 0.0);
             const vm::vec3d p3(6.0, 5.0, 0.0);
@@ -620,7 +623,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(hasVertices(p, points));
         }
 
-        TEST(PolyhedronTest, initEmptyAndAddThreePointsAndOneInnerPoint) {
+        TEST_CASE("PolyhedronTest.initEmptyAndAddThreePointsAndOneInnerPoint", "[PolyhedronTest]") {
             const vm::vec3d p1(0.0, 0.0, 0.0);
             const vm::vec3d p2(6.0, 0.0, 0.0);
             const vm::vec3d p3(3.0, 6.0, 0.0);
@@ -646,7 +649,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(hasVertices(p, points));
         }
 
-        TEST(PolyhedronTest, initEmptyAndAddFourCoplanarPoints) {
+        TEST_CASE("PolyhedronTest.initEmptyAndAddFourCoplanarPoints", "[PolyhedronTest]") {
             const vm::vec3d p1(0.0, 0.0, 0.0);
             const vm::vec3d p2(6.0, 0.0, 0.0);
             const vm::vec3d p3(3.0, 3.0, 0.0);
@@ -672,7 +675,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(hasVertices(p, points));
         }
 
-        TEST(PolyhedronTest, initEmptyAndAddFourPoints) {
+        TEST_CASE("PolyhedronTest.initEmptyAndAddFourPoints", "[PolyhedronTest]") {
             const vm::vec3d p1(0.0, 0.0, 0.0);
             const vm::vec3d p2(6.0, 0.0, 0.0);
             const vm::vec3d p3(3.0, 6.0, 0.0);
@@ -699,7 +702,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(hasVertices(p, points));
         }
 
-        TEST(PolyhedronTest, testAddColinearPointToRectangleOnEdge) {
+        TEST_CASE("PolyhedronTest.testAddColinearPointToRectangleOnEdge", "[PolyhedronTest]") {
             // https://github.com/kduske/TrenchBroom/issues/1659
             /*
              p4 p5 p3
@@ -731,7 +734,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_FALSE(p.hasVertex(p5));
         }
 
-        TEST(PolyhedronTest, testAddPointToRectangleMakingOneColinear) {
+        TEST_CASE("PolyhedronTest.testAddPointToRectangleMakingOneColinear", "[PolyhedronTest]") {
             /*
              p4    p3  p5
              *-----*   +
@@ -763,7 +766,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_FALSE(p.hasVertex(p3));
         }
 
-        TEST(PolyhedronTest, testAddExistingPoints) {
+        TEST_CASE("PolyhedronTest.testAddExistingPoints", "[PolyhedronTest]") {
             /*
              p4    p3
              *-----*
@@ -795,7 +798,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(p.addPoint(p4) == nullptr);
         }
 
-        TEST(PolyhedronTest, testAddManyPointsCrash) {
+        TEST_CASE("PolyhedronTest.testAddManyPointsCrash", "[PolyhedronTest]") {
             const vm::vec3d p1( 8, 10, 0);
             const vm::vec3d p2( 0, 24, 0);
             const vm::vec3d p3( 8, 10, 8);
@@ -965,7 +968,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(hasTriangleOf(p, p7, p5, p6));
         }
 
-        TEST(PolyhedronTest, testAdd8PointsCrash) {
+        TEST_CASE("PolyhedronTest.testAdd8PointsCrash", "[PolyhedronTest]") {
             // a horizontal rectangle
             const vm::vec3d p1( 0,  0,  0);
             const vm::vec3d p2( 0, 32,  0);
@@ -989,7 +992,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             p.addPoint(p8); // assertion failure here
         }
 
-        TEST(PolyhedronTest, testMergeManyFacesAfterAddingPoint) {
+        TEST_CASE("PolyhedronTest.testMergeManyFacesAfterAddingPoint", "[PolyhedronTest]") {
             const vm::vec3d  p1(0.0,  0.0, 0.0);
             const vm::vec3d  p2(0.0,  0.0, 4.0);
             const vm::vec3d  p3(0.0, 10.0, 0.0);
@@ -1121,7 +1124,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(p.hasFace(topNew));
         }
 
-        TEST(PolyhedronTest, crashWhileAddingPoints1) {
+        TEST_CASE("PolyhedronTest.crashWhileAddingPoints1", "[PolyhedronTest]") {
             const vm::vec3d p1(224, 336, 0);
             const vm::vec3d p2(272, 320, 0);
             const vm::vec3d p3(-96, 352, 128);
@@ -1140,7 +1143,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             p.addPoint(p7); // Assertion failure here.
         }
 
-        TEST(PolyhedronTest, crashWhileAddingPoints2) {
+        TEST_CASE("PolyhedronTest.crashWhileAddingPoints2", "[PolyhedronTest]") {
             const vm::vec3d  p1(256, 39, 160);
             const vm::vec3d  p4(256, 39, 64);
             const vm::vec3d  p6(  0, 32, 160);
@@ -1310,7 +1313,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(hasQuadOf(p, p6, p14, p15, p9));
         }
 
-        TEST(PolyhedronTest, crashWhileAddingPoints3) {
+        TEST_CASE("PolyhedronTest.crashWhileAddingPoints3", "[PolyhedronTest]") {
             const vm::vec3d  p1(256, 39, 160);
             const vm::vec3d  p2(256, 0, 160);
             const vm::vec3d  p3(256,  0, 64);
@@ -1346,7 +1349,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             p.addPoint(p15); // Assertion failure here.
         }
 
-        TEST(PolyhedronTest, crashWhileAddingPoints4) {
+        TEST_CASE("PolyhedronTest.crashWhileAddingPoints4", "[PolyhedronTest]") {
             //
             // p2 .  |  . p3
             //       |
@@ -1374,7 +1377,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(hasQuadOf(p, p1, p4, p3, p2));
         }
 
-        TEST(PolyhedronTest, crashWhileAddingPoints5) {
+        TEST_CASE("PolyhedronTest.crashWhileAddingPoints5", "[PolyhedronTest]") {
             // https://github.com/kduske/TrenchBroom/issues/1573
 
             const vm::vec3d p1(2, 0, 0);
@@ -1406,7 +1409,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             }
         };
 
-        TEST(PolyhedronTest, clipCubeWithHorizontalPlane) {
+        TEST_CASE("PolyhedronTest.clipCubeWithHorizontalPlane", "[PolyhedronTest]") {
             const vm::vec3d p1(-64.0, -64.0, -64.0);
             const vm::vec3d p2(-64.0, -64.0, +64.0);
             const vm::vec3d p3(-64.0, +64.0, -64.0);
@@ -1456,7 +1459,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(hasQuadOf(p, p5,     p7,     p8 + d, p6 + d));
         }
 
-        TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAtTop) {
+        TEST_CASE("PolyhedronTest.clipCubeWithHorizontalPlaneAtTop", "[PolyhedronTest]") {
             const vm::vec3d p1(-64.0, -64.0, -64.0);
             const vm::vec3d p2(-64.0, -64.0, +64.0);
             const vm::vec3d p3(-64.0, +64.0, -64.0);
@@ -1505,7 +1508,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(hasQuadOf(p, p5, p7, p8, p6));
         }
 
-        TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAboveTop) {
+        TEST_CASE("PolyhedronTest.clipCubeWithHorizontalPlaneAboveTop", "[PolyhedronTest]") {
             const vm::vec3d p1(-64.0, -64.0, -64.0);
             const vm::vec3d p2(-64.0, -64.0, +64.0);
             const vm::vec3d p3(-64.0, +64.0, -64.0);
@@ -1554,7 +1557,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(hasQuadOf(p, p5, p7, p8, p6));
         }
 
-        TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAtBottom) {
+        TEST_CASE("PolyhedronTest.clipCubeWithHorizontalPlaneAtBottom", "[PolyhedronTest]") {
             const vm::vec3d p1(-64.0, -64.0, -64.0);
             const vm::vec3d p2(-64.0, -64.0, +64.0);
             const vm::vec3d p3(-64.0, +64.0, -64.0);
@@ -1582,7 +1585,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(p.clip(plane, callback).empty());
         }
 
-        TEST(PolyhedronTest, clipCubeWithSlantedPlane) {
+        TEST_CASE("PolyhedronTest.clipCubeWithSlantedPlane", "[PolyhedronTest]") {
             Polyhedron3d p(vm::bbox3d(64.0));
 
             const vm::plane3d plane(vm::vec3d(64.0, 64.0, 0.0), normalize(vm::vec3d(1.0, 1.0, 1.0)));
@@ -1640,7 +1643,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(hasTriangleOf(p, p9, p11, p10, 0.0001));
         }
 
-        TEST(PolyhedronTest, clipCubeDiagonally) {
+        TEST_CASE("PolyhedronTest.clipCubeDiagonally", "[PolyhedronTest]") {
             Polyhedron3d p(vm::bbox3d(64.0));
 
             const vm::plane3d plane(vm::vec3d::zero(), normalize(vm::vec3d(1.0, 1.0, 0.0)));
@@ -1682,7 +1685,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
         }
 
-        TEST(PolyhedronTest, clipCubeWithVerticalSlantedPlane) {
+        TEST_CASE("PolyhedronTest.clipCubeWithVerticalSlantedPlane", "[PolyhedronTest]") {
             Polyhedron3d p(vm::bbox3d(64.0));
 
             const vm::plane3d plane(vm::vec3d(  0.0, -64.0, 0.0), normalize(vm::vec3d(2.0, 1.0, 0.0)));
@@ -1724,7 +1727,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
         }
 
-        TEST(PolyhedronTest, badClip) {
+        TEST_CASE("PolyhedronTest.badClip", "[PolyhedronTest]") {
             std::vector<vm::vec3d> polyVertices;
             vm::parse_all<double, 3>("(42.343111906757798 -24.90770936530231 48) (-5.6569680341747599 2.8051472462014218 -48) (-5.6567586128027614 -49.450466294904317 -48) (19.543884272280891 -64 2.4012022379983975) (64 -37.411190147253905 48) (64 -37.411184396581227 46.058241521600749) (16.970735645328752 -10.25882837570019 -48) (-15.996232760046849 -43.48119425295382 -48) (19.543373293787141 -64 32.936432269212482) (8.4017750903182601 -31.43996828352385 48) (-39.598145767921849 -3.7271836202911599 -48) (-28.284087977216849 -36.386647152659414 -48) (19.543509018008759 -64 47.655300195644266) (19.681387204653735 -64 48) (11.313359105885354 -46.184610213813635 -48) (42.170501479615339 -64 13.71441369506833) (64 -64 46.458506734897242) (64 -64 48) (64 -40.963243586214006 42.982066058285824) (64 -50.475344214694601 34.745773336493968) (22.627205203363062 -26.588725604065875 -48) (19.915358366079595 -18.759196710165369 -48) (16.82318198217952 -36.641571668509357 -48) (30.54114372047146 -27.178907257955132 48) (-13.006693391918915 1.3907491999939996 -48)", std::back_inserter(polyVertices));
 
@@ -1734,7 +1737,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_NO_THROW(poly.clip(plane));
         }
 
-        TEST(PolyhedronTest, clipWithInvalidSeam) {
+        TEST_CASE("PolyhedronTest.clipWithInvalidSeam", "[PolyhedronTest]") {
             // see https://github.com/kduske/TrenchBroom/issues/1801
             // see BrushTest::invalidBrush1801
 
@@ -1773,7 +1776,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             return false;
         }
 
-        TEST(PolyhedronTest, subtractInnerCuboidFromCuboid) {
+        TEST_CASE("PolyhedronTest.subtractInnerCuboidFromCuboid", "[PolyhedronTest]") {
             const Polyhedron3d minuend(vm::bbox3d(32.0));
             const Polyhedron3d subtrahend(vm::bbox3d(16.0));
 
@@ -1800,7 +1803,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(result.empty());
         }
 
-        TEST(PolyhedronTest, subtractDisjointCuboidFromCuboid) {
+        TEST_CASE("PolyhedronTest.subtractDisjointCuboidFromCuboid", "[PolyhedronTest]") {
             const Polyhedron3d minuend(vm::bbox3d(64.0));
             const Polyhedron3d subtrahend(vm::bbox3d(vm::vec3d(96.0, 96.0, 96.0), vm::vec3d(128.0, 128.0, 128.0)));
 
@@ -1811,7 +1814,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_EQ(minuend, resultPolyhedron);
         }
 
-        TEST(PolyhedronTest, subtractCuboidFromInnerCuboid) {
+        TEST_CASE("PolyhedronTest.subtractCuboidFromInnerCuboid", "[PolyhedronTest]") {
             const Polyhedron3d minuend(vm::bbox3d(32.0));
             const Polyhedron3d subtrahend(vm::bbox3d(64.0));
 
@@ -1819,7 +1822,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(result.empty());
         }
 
-        TEST(PolyhedronTest, subtractCuboidFromIdenticalCuboid) {
+        TEST_CASE("PolyhedronTest.subtractCuboidFromIdenticalCuboid", "[PolyhedronTest]") {
             const Polyhedron3d minuend(vm::bbox3d(64.0));
             const Polyhedron3d subtrahend(vm::bbox3d(64.0));
 
@@ -1827,7 +1830,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(result.empty());
         }
 
-        TEST(PolyhedronTest, subtractCuboidProtrudingThroughCuboid) {
+        TEST_CASE("PolyhedronTest.subtractCuboidProtrudingThroughCuboid", "[PolyhedronTest]") {
             const Polyhedron3d    minuend(vm::bbox3d(vm::vec3d(-32.0, -32.0, -16.0), vm::vec3d(32.0, 32.0, 16.0)));
             const Polyhedron3d subtrahend(vm::bbox3d(vm::vec3d(-16.0, -16.0, -32.0), vm::vec3d(16.0, 16.0, 32.0)));
 
@@ -1886,7 +1889,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(result.empty());
         }
 
-        TEST(PolyhedronTest, subtractCuboidProtrudingFromCuboid) {
+        TEST_CASE("PolyhedronTest.subtractCuboidProtrudingFromCuboid", "[PolyhedronTest]") {
             /*
              ____________
              |          |
@@ -1904,7 +1907,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_EQ(3u, result.size());
         }
 
-        TEST(PolyhedronTest, subtractCuboidProtrudingFromCuboid2) {
+        TEST_CASE("PolyhedronTest.subtractCuboidProtrudingFromCuboid2", "[PolyhedronTest]") {
             /*
              ____________
              |          |
@@ -1920,7 +1923,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_EQ(3u, result.size());
         }
 
-        TEST(PolyhedronTest, subtractCuboidFromCuboidWithCutCorners) {
+        TEST_CASE("PolyhedronTest.subtractCuboidFromCuboidWithCutCorners", "[PolyhedronTest]") {
 
             /*
                ____
@@ -1964,7 +1967,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(result.empty());
         }
 
-        TEST(PolyhedronTest, subtractRhombusFromCuboid) {
+        TEST_CASE("PolyhedronTest.subtractRhombusFromCuboid", "[PolyhedronTest]") {
 
             /*
              ______
@@ -1996,7 +1999,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_TRUE(result.empty());
         }
 
-        TEST(PolyhedronTest, subtractFailWithMissingFragments) {
+        TEST_CASE("PolyhedronTest.subtractFailWithMissingFragments", "[PolyhedronTest]") {
             const std::vector<vm::vec3d> minuendVertices {
                 vm::vec3d(-1056, 864, -192),
                 vm::vec3d(-1024, 896, -192),
@@ -2026,7 +2029,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_EQ(4u, result.size());
         }
 
-        TEST(PolyhedronTest, subtractTetrahedronFromCubeWithOverlappingFragments) {
+        TEST_CASE("PolyhedronTest.subtractTetrahedronFromCubeWithOverlappingFragments", "[PolyhedronTest]") {
             // see https://github.com/kduske/TrenchBroom/pull/1764#issuecomment-296342133
             // merge creates overlapping fragments
 
@@ -2042,7 +2045,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             ASSERT_EQ(3u, result.size());
         }
 
-        TEST(PolyhedronTest, intersection_empty_polyhedron) {
+        TEST_CASE("PolyhedronTest.intersection_empty_polyhedron", "[PolyhedronTest]") {
             const Polyhedron3d empty;
             const Polyhedron3d point      { vm::vec3d(1.0, 0.0, 0.0) };
             const Polyhedron3d edge       { vm::vec3d(1.0, 0.0, 0.0), vm::vec3d(2.0, 0.0, 0.0) };
@@ -2056,14 +2059,14 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             assertNotIntersects(empty, polyhedron);
         }
 
-        TEST(PolyhedronTest, intersection_point_point) {
+        TEST_CASE("PolyhedronTest.intersection_point_point", "[PolyhedronTest]") {
             const Polyhedron3d point { vm::vec3d(0.0, 0.0, 0.0) };
 
             assertIntersects(point, point);
             assertNotIntersects(point, Polyhedron3d { vm::vec3d(0.0, 0.0, 1.0) });
         }
 
-        TEST(PolyhedronTest, intersection_point_edge) {
+        TEST_CASE("PolyhedronTest.intersection_point_edge", "[PolyhedronTest]") {
             const vm::vec3d pointPos(0.0, 0.0, 0.0);
             const Polyhedron3d point { pointPos };
 
@@ -2072,7 +2075,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             assertNotIntersects(point, Polyhedron3d { vm::vec3d(-1.0, 0.0, 1.0), vm::vec3d(1.0, 0.0, 1.0) } ); // point / unrelated edge
         }
 
-        TEST(PolyhedronTest, intersection_point_polygon) {
+        TEST_CASE("PolyhedronTest.intersection_point_polygon", "[PolyhedronTest]") {
             const vm::vec3d pointPos(0.0, 0.0, 0.0);
             const Polyhedron3d point { pointPos };
 
@@ -2083,7 +2086,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             assertNotIntersects(point, Polyhedron3d { vm::vec3d(-1.0, -1.0, 1.0), vm::vec3d(1.0, -1.0, 1.0), vm::vec3d(0.0, 1.0, 1.0) } ); // point / triangle above point
         }
 
-        TEST(PolyhedronTest, intersection_point_polyhedron) {
+        TEST_CASE("PolyhedronTest.intersection_point_polyhedron", "[PolyhedronTest]") {
             const vm::vec3d pointPos(0.0, 0.0, 0.0);
             const Polyhedron3d point { pointPos };
 
@@ -2095,7 +2098,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             assertNotIntersects(point, Polyhedron3d { vm::vec3d(-1.0, -1.0, 1.0), vm::vec3d(1.0, -1.0, 1.0), vm::vec3d(0.0, 1.0, 1.0), vm::vec3d(0.0, 0.0, 2.0) } ); // point / tetrahedron above point
         }
 
-        TEST(PolyhedronTest, intersection_edge_edge) {
+        TEST_CASE("PolyhedronTest.intersection_edge_edge", "[PolyhedronTest]") {
             const vm::vec3d point1(-1.0, 0.0, 0.0);
             const vm::vec3d point2(+1.0, 0.0, 0.0);
             const Polyhedron3d edge { point1, point2 };
@@ -2110,7 +2113,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             assertNotIntersects(edge, Polyhedron3d { point1 + vm::vec3d::pos_z(), point2 + vm::vec3d::pos_z() } );
         }
 
-        TEST(PolyhedronTest, intersection_edge_polygon_same_plane) {
+        TEST_CASE("PolyhedronTest.intersection_edge_polygon_same_plane", "[PolyhedronTest]") {
             const vm::vec3d point1(-1.0, 0.0, 0.0);
             const vm::vec3d point2(+1.0, 0.0, 0.0);
             const Polyhedron3d edge { point1, point2 };
@@ -2126,7 +2129,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
         }
 
 
-        TEST(PolyhedronTest, intersection_edge_polygon_different_plane) {
+        TEST_CASE("PolyhedronTest.intersection_edge_polygon_different_plane", "[PolyhedronTest]") {
             const vm::vec3d point1(0.0, 0.0, 1.0);
             const vm::vec3d point2(0.0, 0.0, -1.0);
             const Polyhedron3d edge { point1, point2 };
@@ -2159,7 +2162,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
                 Polyhedron3d { vm::vec3d(0.0, 0.0, 0.0), vm::vec3d(2.0, 0.0, 0.0), vm::vec3d(2.0, 2.0, 0.0), vm::vec3d(0.0, 2.0, 0.0) } );
         }
 
-        TEST(PolyhedronTest, intersection_edge_polyhedron) {
+        TEST_CASE("PolyhedronTest.intersection_edge_polyhedron", "[PolyhedronTest]") {
             const Polyhedron3d tetrahedron {
                 vm::vec3d(-1.0, -1.0, 0.0),
                 vm::vec3d(+1.0, -1.0, 0.0),
@@ -2178,7 +2181,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             assertNotIntersects(Polyhedron3d { vm::vec3d( -2.0,  -2.0, -1.0), vm::vec3d( 2.0,  2.0,  -1.0) }, tetrahedron); // no intersection
         }
 
-        TEST(PolyhedronTest, intersection_polygon_polygon_same_plane) {
+        TEST_CASE("PolyhedronTest.intersection_polygon_polygon_same_plane", "[PolyhedronTest]") {
             const Polyhedron3d square {
                 vm::vec3d(-1.0, -1.0, 0.0),
                 vm::vec3d(+1.0, -1.0, 0.0),
@@ -2223,7 +2226,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             }, square);
         }
 
-        TEST(PolyhedronTest, intersection_polygon_polygon_different_plane) {
+        TEST_CASE("PolyhedronTest.intersection_polygon_polygon_different_plane", "[PolyhedronTest]") {
             const Polyhedron3d square {
                 vm::vec3d(-1.0, -1.0, 0.0),
                 vm::vec3d(+1.0, -1.0, 0.0),
@@ -2287,7 +2290,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             }, square);
         }
 
-        TEST(PolyhedronTest, intersection_polygon_polyhedron_same_plane_as_face) {
+        TEST_CASE("PolyhedronTest.intersection_polygon_polyhedron_same_plane_as_face", "[PolyhedronTest]") {
             const Polyhedron3d cube {
                 vm::vec3d(-1.0, -1.0, -1.0),
                 vm::vec3d(-1.0, -1.0, +1.0),
@@ -2362,7 +2365,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
             }, cube);
         }
 
-        TEST(PolyhedronTest, intersection_polygon_polyhedron_any_orientation) {
+        TEST_CASE("PolyhedronTest.intersection_polygon_polyhedron_any_orientation", "[PolyhedronTest]") {
             const Polyhedron3d cube {
                 vm::vec3d(-1.0, -1.0, -1.0),
                 vm::vec3d(-1.0, -1.0, +1.0),

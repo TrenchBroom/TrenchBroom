@@ -40,6 +40,8 @@
 #include <QPushButton>
 #include <QTextEdit>
 
+#include "Ensure.h"
+
 namespace TrenchBroom {
     namespace View {
         CompilationDialog::CompilationDialog(MapFrame* mapFrame) :
@@ -50,6 +52,7 @@ namespace TrenchBroom {
         m_closeButton(nullptr),
         m_currentRunLabel(nullptr),
         m_output(nullptr) {
+            ensure(mapFrame != nullptr, "must have a map frame");
             createGui();
             setMinimumSize(600, 300);
             resize(800, 600);
@@ -114,6 +117,17 @@ namespace TrenchBroom {
         }
 
         void CompilationDialog::keyPressEvent(QKeyEvent* event) {
+            // Dismissing the dialog with Escape, doesn't invoke CompilationDialog::closeEvent
+            // so handle it here, so we can potentially block it.
+            if (event->key() == Qt::Key_Escape) {
+               if (!stopCompilation()) {
+                   // User cancelled closing, so ignore the Escape key press
+                   return;
+               } else {
+                   m_mapFrame->compilationDialogWillClose();
+               }
+            }
+
             QDialog::keyPressEvent(event);
             const auto test = (event->modifiers() &Qt::AltModifier);
             updateCompileButton(test);
@@ -152,23 +166,31 @@ namespace TrenchBroom {
             }
         }
 
-        void CompilationDialog::closeEvent(QCloseEvent* event) {
-            if (m_run.running()) {
-                const auto result = QMessageBox::warning(this, "Warning",
-                    "Closing this dialog will stop the running compilation. Are you sure?",
-                    QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-                if (result == QMessageBox::Yes) {
-                    m_run.terminate();
-                    event->accept();
-                } else {
-                    event->ignore();
-                }
-            } else {
-                event->accept();
+        /**
+         * Call this before the dialog closes. Returns true to indicate that closing can
+         * continue, returns false if the user cancelled closing the dialog.
+         */
+        bool CompilationDialog::stopCompilation() {
+            if (!m_run.running()) {
+                return true;
             }
+        
+            const auto result = QMessageBox::warning(this, "Warning",
+                "Closing this dialog will stop the running compilation. Are you sure?",
+                QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+            if (result == QMessageBox::Yes) {
+                m_run.terminate();
+                return true;
+            }
+            return false;
+        }
 
-            if (event->isAccepted()) {
+        void CompilationDialog::closeEvent(QCloseEvent* event) {
+            if (stopCompilation()) {
                 m_mapFrame->compilationDialogWillClose();
+                event->accept();
+            } else {
+                event->ignore();
             }
         }
 

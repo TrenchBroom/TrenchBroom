@@ -17,15 +17,14 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "TrenchBroomStackWalker.h"
 
 namespace TrenchBroom {
-    using ::testing::HasSubstr;
-
-    TEST(StackWalkerTest, testStackTraceSymbols) {
+    TEST_CASE("StackWalkerTest.testStackTraceSymbols", "[StackWalkerTest]") {
         const std::string stackTrace = TrenchBroomStackWalker::getStackTrace();
 
         // FIXME: doesn't work on CI right now

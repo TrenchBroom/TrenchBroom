@@ -20,7 +20,9 @@
 #ifndef TrenchBroom_TestUtils_h
 #define TrenchBroom_TestUtils_h
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include <kdl/vector_set.h>
 
@@ -31,6 +33,10 @@
 #include <string>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+
     bool texCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2);
     bool pointExactlyIntegral(const vm::vec3d &point);
     bool UVListsEqual(const std::vector<vm::vec2f>& uvs,
@@ -45,6 +51,18 @@ namespace TrenchBroom {
         void assertTexture(const std::string& expected, const Brush* brush, const std::vector<vm::vec3d>& vertices);
         void assertTexture(const std::string& expected, const Brush* brush, const vm::polygon3d& vertices);
     }
+
+    enum class Component {
+        R, G, B, A
+    };
+
+    enum class ColorMatch {
+        Exact, Approximate
+    };
+
+    int getComponentOfPixel(const Assets::Texture* texture, std::size_t x, std::size_t y, Component component);
+    void checkColor(const Assets::Texture* texturePtr, std::size_t x, std::size_t y,
+                    int r, int g, int b, int a, ColorMatch match = ColorMatch::Exact);
 }
 
 template <typename L, typename R>

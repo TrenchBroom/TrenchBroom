@@ -25,6 +25,7 @@
 #include "Model/BoundsIntersectsNodeVisitor.h"
 #include "Model/Brush.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
+#include "Model/EntityRotationPolicy.h"
 #include "Model/EntitySnapshot.h"
 #include "Model/FindContainerVisitor.h"
 #include "Model/FindGroupVisitor.h"
@@ -101,6 +102,10 @@ namespace TrenchBroom {
 
         const vm::mat4x4 Entity::modelTransformation() const {
             return vm::translation_matrix(origin()) * rotation();
+        }
+
+        Assets::PitchType Entity::pitchType() const {
+            return (m_modelFrame != nullptr ? m_modelFrame->pitchType() : Assets::PitchType::Normal);
         }
 
         FloatType Entity::area(vm::axis::type axis) const {
@@ -184,12 +189,7 @@ namespace TrenchBroom {
         }
 
         NodeSnapshot* Entity::doTakeSnapshot() {
-            const EntityAttribute origin(AttributeNames::Origin, attribute(AttributeNames::Origin), nullptr);
-
-            const auto rotationName = EntityRotationPolicy::getAttribute(this);
-            const EntityAttribute rotation(rotationName, attribute(rotationName), nullptr);
-
-            return new EntitySnapshot(this, origin, rotation);
+            return new EntitySnapshot(this);
         }
 
         class CanAddChildToEntity : public ConstNodeVisitor, public NodeQuery<bool> {

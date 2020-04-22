@@ -23,30 +23,12 @@
 
 namespace TrenchBroom {
     namespace Model {
-        EntitySnapshot::EntitySnapshot(Entity* entity, const EntityAttribute& origin, const EntityAttribute& rotation) :
+        EntitySnapshot::EntitySnapshot(Entity* entity) :
         m_entity(entity),
-        m_origin(origin),
-        m_rotation(rotation) {}
-
-        static void restoreAttribute(Entity* entity, const EntityAttribute& attribute) {
-            if (attribute.name().empty())
-                return;
-
-            if (attribute.value().empty()) {
-                // If the entity has an attribute with this name, clear the value, but otherwise don't insert {"name" ""}.
-                if (entity->hasAttribute(attribute.name())) {
-                    entity->addOrUpdateAttribute(attribute.name(), "");
-                }
-                return;
-            }
-
-            // normal case
-            entity->addOrUpdateAttribute(attribute.name(), attribute.value());
-        }
+        m_attributesSnapshot(entity->attributes()) {}
 
         void EntitySnapshot::doRestore(const vm::bbox3& /* worldBounds */) {
-            restoreAttribute(m_entity, m_origin);
-            restoreAttribute(m_entity, m_rotation);
+            m_entity->setAttributes(m_attributesSnapshot);
         }
     }
 }

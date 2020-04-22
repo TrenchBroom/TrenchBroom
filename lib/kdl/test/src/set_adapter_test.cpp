@@ -15,14 +15,16 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "kdl/set_adapter.h"
 
 #include <vector>
 
 namespace kdl {
-    TEST(const_set_adapter_test, wrap_set) {
+    TEST_CASE("const_set_adapter_test.wrap_set", "[const_set_adapter_test]") {
         const auto v = std::vector<int>({1, 2, 3, 4});
         const auto s = wrap_set(v);
 
@@ -30,7 +32,7 @@ namespace kdl {
     }
 
 
-    TEST(const_set_adapter_test, iterators) {
+    TEST_CASE("const_set_adapter_test.iterators", "[const_set_adapter_test]") {
         const auto v = std::vector<int>({1, 2, 3, 4});
         const auto s = wrap_set(v);
 
@@ -42,7 +44,7 @@ namespace kdl {
         ASSERT_EQ(std::end(s), it);
     }
 
-    TEST(const_set_adapter_test, reverse_iterators) {
+    TEST_CASE("const_set_adapter_test.reverse_iterators", "[const_set_adapter_test]") {
         const auto v = std::vector<int>({1, 2, 3, 4});
         const auto s = wrap_set(v);
 
@@ -54,7 +56,7 @@ namespace kdl {
         ASSERT_EQ(std::rend(s), it);
     }
 
-    TEST(const_set_adapter_test, empty) {
+    TEST_CASE("const_set_adapter_test.empty", "[const_set_adapter_test]") {
         const auto v1 = std::vector<int>();
         ASSERT_TRUE(wrap_set(v1).empty());
 
@@ -62,7 +64,7 @@ namespace kdl {
         ASSERT_FALSE(wrap_set(v2).empty());
     }
 
-    TEST(const_set_adapter_test, col_total_size) {
+    TEST_CASE("const_set_adapter_test.col_total_size", "[const_set_adapter_test]") {
         const auto v1 = std::vector<int>();
         ASSERT_EQ(0u, wrap_set(v1).size());
 
@@ -70,12 +72,12 @@ namespace kdl {
         ASSERT_EQ(2u, wrap_set(v2).size());
     }
 
-    TEST(const_set_adapter_test, max_size) {
+    TEST_CASE("const_set_adapter_test.max_size", "[const_set_adapter_test]") {
         const auto v = std::vector<int>();
         ASSERT_EQ(v.max_size(), wrap_set(v).max_size());
     }
 
-    TEST(const_set_adapter_test, count) {
+    TEST_CASE("const_set_adapter_test.count", "[const_set_adapter_test]") {
         const auto v1 = std::vector<int>();
         ASSERT_EQ(0u, wrap_set(v1).count(1));
 
@@ -87,7 +89,7 @@ namespace kdl {
         ASSERT_EQ(0u, wrap_set(v2).count(4));
     }
 
-    TEST(const_set_adapter_test, find) {
+    TEST_CASE("const_set_adapter_test.find", "[const_set_adapter_test]") {
         const auto v1 = std::vector<int>();
         const auto s1 = wrap_set(v1);
         ASSERT_EQ(std::end(s1), s1.find(1));
@@ -101,7 +103,7 @@ namespace kdl {
         ASSERT_EQ(std::end(s2), s2.find(4));
     }
 
-    TEST(const_set_adapter_test, equal_range) {
+    TEST_CASE("const_set_adapter_test.equal_range", "[const_set_adapter_test]") {
         const auto v1 = std::vector<int>();
         const auto s1 = wrap_set(v1);
         ASSERT_EQ(std::make_pair(std::end(s1), std::end(s1)), s1.equal_range(1));
@@ -115,7 +117,7 @@ namespace kdl {
         ASSERT_EQ(std::make_pair(std::next(std::begin(s2), 3), std::next(std::begin(s2), 3)), s2.equal_range(4));
     }
 
-    TEST(const_set_adapter_test, lower_bound) {
+    TEST_CASE("const_set_adapter_test.lower_bound", "[const_set_adapter_test]") {
         const auto v1 = std::vector<int>();
         const auto s1 = wrap_set(v1);
         ASSERT_EQ(std::end(s1), s1.lower_bound(1));
@@ -129,7 +131,7 @@ namespace kdl {
         ASSERT_EQ(std::next(std::begin(s2), 3), s2.lower_bound(4));
     }
 
-    TEST(const_set_adapter_test, upper_bound) {
+    TEST_CASE("const_set_adapter_test.upper_bound", "[const_set_adapter_test]") {
         const auto v1 = std::vector<int>();
         const auto s1 = wrap_set(v1);
         ASSERT_EQ(std::end(s1), s1.upper_bound(1));
@@ -143,20 +145,20 @@ namespace kdl {
         ASSERT_EQ(std::next(std::begin(s2), 3), s2.upper_bound(4));
     }
 
-    TEST(const_set_adapter_test, capacity) {
+    TEST_CASE("const_set_adapter_test.capacity", "[const_set_adapter_test]") {
         const auto v1 = std::vector<int>();
         const auto s1 = wrap_set(v1);
         ASSERT_EQ(v1.capacity(), s1.capacity());
     }
 
-    TEST(const_set_adapter_test, get_data) {
+    TEST_CASE("const_set_adapter_test.get_data", "[const_set_adapter_test]") {
         const auto v1 = std::vector<int>();
         const auto s1 = wrap_set(v1);
         const auto& d = s1.get_data();
         ASSERT_EQ(&v1, &d);
     }
 
-    TEST(const_set_adapter_test, operator_equal) {
+    TEST_CASE("const_set_adapter_test.operator_equal", "[const_set_adapter_test]") {
         ASSERT_TRUE (wrap_set(std::vector<int>({         })) == wrap_set(std::vector<int>({         })));
         ASSERT_TRUE (wrap_set(std::vector<int>({ 1, 2, 3 })) == wrap_set(std::vector<int>({ 1, 2, 3 })));
         ASSERT_FALSE(wrap_set(std::vector<int>({    2, 3 })) == wrap_set(std::vector<int>({ 1, 2, 3 })));
@@ -165,7 +167,7 @@ namespace kdl {
         ASSERT_FALSE(wrap_set(std::vector<int>({ 1, 2, 3 })) == wrap_set(std::vector<int>({       3 })));
     }
 
-    TEST(const_set_adapter_test, operator_not_equal) {
+    TEST_CASE("const_set_adapter_test.operator_not_equal", "[const_set_adapter_test]") {
         ASSERT_FALSE(wrap_set(std::vector<int>({         })) != wrap_set(std::vector<int>({         })));
         ASSERT_FALSE(wrap_set(std::vector<int>({ 1, 2, 3 })) != wrap_set(std::vector<int>({ 1, 2, 3 })));
         ASSERT_TRUE (wrap_set(std::vector<int>({    2, 3 })) != wrap_set(std::vector<int>({ 1, 2, 3 })));
@@ -174,7 +176,7 @@ namespace kdl {
         ASSERT_TRUE (wrap_set(std::vector<int>({ 1, 2, 3 })) != wrap_set(std::vector<int>({       3 })));
     }
 
-    TEST(const_set_adapter_test, operator_less_than) {
+    TEST_CASE("const_set_adapter_test.operator_less_than", "[const_set_adapter_test]") {
         ASSERT_FALSE(wrap_set(std::vector<int>({         })) < wrap_set(std::vector<int>({         })));
         ASSERT_TRUE (wrap_set(std::vector<int>({         })) < wrap_set(std::vector<int>({ 1       })));
         ASSERT_TRUE (wrap_set(std::vector<int>({         })) < wrap_set(std::vector<int>({ 1, 2    })));
@@ -186,7 +188,7 @@ namespace kdl {
         ASSERT_TRUE (wrap_set(std::vector<int>({ 1, 2, 3 })) < wrap_set(std::vector<int>({    2, 3 })));
     }
 
-    TEST(const_set_adapter_test, operator_less_than_or_equal) {
+    TEST_CASE("const_set_adapter_test.operator_less_than_or_equal", "[const_set_adapter_test]") {
         ASSERT_TRUE (wrap_set(std::vector<int>({         })) <= wrap_set(std::vector<int>({         })));
         ASSERT_TRUE (wrap_set(std::vector<int>({         })) <= wrap_set(std::vector<int>({ 1       })));
         ASSERT_TRUE (wrap_set(std::vector<int>({         })) <= wrap_set(std::vector<int>({ 1, 2    })));
@@ -198,7 +200,7 @@ namespace kdl {
         ASSERT_TRUE (wrap_set(std::vector<int>({ 1, 2, 3 })) <= wrap_set(std::vector<int>({    2, 3 })));
     }
 
-    TEST(const_set_adapter_test, operator_greater_than) {
+    TEST_CASE("const_set_adapter_test.operator_greater_than", "[const_set_adapter_test]") {
         ASSERT_FALSE(wrap_set(std::vector<int>({         })) > wrap_set(std::vector<int>({         })));
         ASSERT_FALSE(wrap_set(std::vector<int>({         })) > wrap_set(std::vector<int>({ 1       })));
         ASSERT_FALSE(wrap_set(std::vector<int>({         })) > wrap_set(std::vector<int>({ 1, 2    })));
@@ -210,7 +212,7 @@ namespace kdl {
         ASSERT_FALSE(wrap_set(std::vector<int>({ 1, 2, 3 })) > wrap_set(std::vector<int>({    2, 3 })));
     }
 
-    TEST(const_set_adapter_test, operator_greater_than_or_equal) {
+    TEST_CASE("const_set_adapter_test.operator_greater_than_or_equal", "[const_set_adapter_test]") {
         ASSERT_TRUE (wrap_set(std::vector<int>({         })) >= wrap_set(std::vector<int>({         })));
         ASSERT_FALSE(wrap_set(std::vector<int>({         })) >= wrap_set(std::vector<int>({ 1       })));
         ASSERT_FALSE(wrap_set(std::vector<int>({         })) >= wrap_set(std::vector<int>({ 1, 2    })));
@@ -222,21 +224,21 @@ namespace kdl {
         ASSERT_FALSE(wrap_set(std::vector<int>({ 1, 2, 3 })) >= wrap_set(std::vector<int>({    2, 3 })));
     }
 
-    TEST(set_adapter_test, wrap_set) {
+    TEST_CASE("set_adapter_test.wrap_set", "[set_adapter_test]") {
         auto v = std::vector<int>({ 1, 2, 3 });
         auto s = wrap_set(v);
 
         ASSERT_EQ(v, s.get_data());
     }
 
-    TEST(set_adapter_test, create_set) {
+    TEST_CASE("set_adapter_test.create_set", "[set_adapter_test]") {
         auto v = std::vector<int>({ 1, 2, 3, 2, 5 });
         auto s = create_set(v);
 
         ASSERT_EQ(std::vector<int>({1, 2, 3, 5}), s.get_data());
     }
 
-    TEST(set_adapter_test, operator_assign_with_initializer_list) {
+    TEST_CASE("set_adapter_test.operator_assign_with_initializer_list", "[set_adapter_test]") {
         auto v = std::vector<int>({ 1, 2, 3, 2, 5 });
         auto s = create_set(v);
 
@@ -244,7 +246,7 @@ namespace kdl {
         ASSERT_EQ(std::vector<int>({3, 5, 6, 7 }), s.get_data());
     }
 
-    TEST(set_adapter_test, clear) {
+    TEST_CASE("set_adapter_test.clear", "[set_adapter_test]") {
         auto v = std::vector<int>({ 1, 2, 3 });
         auto s = wrap_set(v);
 
@@ -253,7 +255,7 @@ namespace kdl {
         ASSERT_TRUE(v.empty());
     }
 
-    TEST(set_adapter_test, insert_with_value) {
+    TEST_CASE("set_adapter_test.insert_with_value", "[set_adapter_test]") {
         auto v = std::vector<int>();
         auto s = wrap_set(v);
 
@@ -280,7 +282,7 @@ namespace kdl {
         ASSERT_EQ(std::vector<int>({ 1, 2, 3 }), v);
     }
 
-    TEST(set_adapter_test, insert_with_value_and_hint) {
+    TEST_CASE("set_adapter_test.insert_with_value_and_hint", "[set_adapter_test]") {
         auto v = std::vector<int>();
         auto s = wrap_set(v);
 
@@ -299,7 +301,7 @@ namespace kdl {
         ASSERT_EQ(std::vector<int>({ 1, 2, 3 }), v);
     }
 
-    TEST(set_adapter_test, insert_with_range) {
+    TEST_CASE("set_adapter_test.insert_with_range", "[set_adapter_test]") {
         auto v = std::vector<int>();
         auto s = wrap_set(v);
 
@@ -309,7 +311,7 @@ namespace kdl {
         ASSERT_EQ(std::vector<int>({ 1, 2, 3, 4 }), v);
     }
 
-    TEST(set_adapter_test, insert_with_range_and_count) {
+    TEST_CASE("set_adapter_test.insert_with_range_and_count", "[set_adapter_test]") {
         auto v = std::vector<int>();
         auto s = wrap_set(v);
 
@@ -320,7 +322,7 @@ namespace kdl {
     }
 
 
-    TEST(set_adapter_test, emplace) {
+    TEST_CASE("set_adapter_test.emplace", "[set_adapter_test]") {
         auto v = std::vector<int>();
         auto s = wrap_set(v);
 
@@ -350,7 +352,7 @@ namespace kdl {
         ASSERT_EQ(std::vector<int>({ 1, 2, 3 }), v);
     }
 
-    TEST(set_adapter_test, emplace_hint) {
+    TEST_CASE("set_adapter_test.emplace_hint", "[set_adapter_test]") {
         auto v = std::vector<int>();
         auto s = wrap_set(v);
 
@@ -372,7 +374,7 @@ namespace kdl {
         ASSERT_EQ(std::vector<int>({ 1, 2, 3 }), v);
     }
 
-    TEST(set_adapter_test, erase_with_iterator) {
+    TEST_CASE("set_adapter_test.erase_with_iterator", "[set_adapter_test]") {
         auto v = std::vector<int>({ 1, 2, 3 });
         auto s = wrap_set(v);
 
@@ -386,7 +388,7 @@ namespace kdl {
         ASSERT_EQ(std::vector<int>({}), v);
     }
 
-    TEST(set_adapter_test, erase_with_range) {
+    TEST_CASE("set_adapter_test.erase_with_range", "[set_adapter_test]") {
         auto v = std::vector<int>({ 1, 2, 3 });
         auto s = wrap_set(v);
 
@@ -399,7 +401,7 @@ namespace kdl {
         ASSERT_EQ(std::vector<int>({}), v);
     }
 
-    TEST(set_adapter_test, erase_with_value) {
+    TEST_CASE("set_adapter_test.erase_with_value", "[set_adapter_test]") {
         auto v = std::vector<int>({ 1, 2, 3 });
         auto s = wrap_set(v);
 
@@ -419,7 +421,7 @@ namespace kdl {
         ASSERT_EQ(std::vector<int>({}), v);
     }
 
-    TEST(set_adapter_test, swap) {
+    TEST_CASE("set_adapter_test.swap", "[set_adapter_test]") {
         // swap only works if the underlying collection is stored by value
         auto s = set_adapter<std::vector<int>, std::less<int>>(std::vector<int>({ 1, 2, 3 }));
         auto t = set_adapter<std::vector<int>, std::less<int>>(std::vector<int>({ 4, 5 }));
@@ -434,7 +436,7 @@ namespace kdl {
         ASSERT_EQ(std::vector<int>({ 1, 2, 3 }), t.get_data());
     }
 
-    TEST(set_adapter_test, release_data) {
+    TEST_CASE("set_adapter_test.release_data", "[set_adapter_test]") {
         auto v = std::vector<int>({ 1, 2, 3 });
         auto s = wrap_set(v);
 

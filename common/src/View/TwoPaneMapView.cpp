@@ -82,10 +82,10 @@ namespace TrenchBroom {
         void TwoPaneMapView::doMaximizeView(MapView* view) {
             assert(view == m_mapView2D || view == m_mapView3D);
             if (view == m_mapView2D) {
-                m_mapView2D->hide();
+                m_mapView3D->hide();
             }
             if (view == m_mapView3D) {
-                m_mapView3D->hide();
+                m_mapView2D->hide();
             }
         }
 

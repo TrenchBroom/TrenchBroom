@@ -295,7 +295,9 @@ It depends on the game how the texture collection paths are saved in the map fil
 
 ![Texture collection editor](images/TextureCollectionDirectoryEditor.png) If the game you are currently editing comes with builtin textures, then these textures are usually stored in the game's assets at a particular path. For example in the case of Quake 2, the textures are stored in the PAK files in subdirectories under the path `textures`. TrenchBroom will find these texture collections and allow you to load them selectively in the texture collection editor. On the left side, TrenchBroom presents you with a list of all the texture collections it has found for the game, and on the right side, it shows a list of all texture collections that have been loaded. You can load a texture collection by selecting it on the left and clicking the "+" button below the list on the right. To remove a texture collection, select it on the right and click the "-" button.
 
-If you want to provide your own custom textures, you need to put them in a subdirectory where TrenchBroom can find them. For Quake 2, this means that you need to create a subdirectory called `textures` in the directory of the mod you're mapping for, or in the baseq2 directory. Then you need to create another subdirectory with a name of your choice. Then you copy your texture files into that directory. TrenchBroom will then find that directory (possibly after restarting the editor) and allow you to load the textures from there.
+If you want to provide your own custom textures, you need to put them in a subdirectory where TrenchBroom can find them. For Quake 2, this means that you need to create a subdirectory called `textures` in the directory of the mod you're mapping for, or in the `baseq2` directory. Then you need to create another subdirectory with a name of your choice. Then you copy your texture files into that directory. TrenchBroom will then find that directory (possibly after restarting the editor) and allow you to load the textures from there. Currently, for a generic game you must create a `textures` folder in the game path directory you set in [game configuration](#game_configuration), or in a directory you loaded as a mod.
+
+You need to place your textures in a subdirectory exactly one level deep in the `textures` folder. Any loose images in `textures` will not be detected, nor will any nested in subdirectories of your collection.
 
 The following table lists the texture directories for all supported games.
 
@@ -303,6 +305,7 @@ Game      Texture Directory Default
 ----      ----------------- -------
 Quake 2   `<MOD>/textures`  `baseq2/textures`
 Daikatana `<MOD>/textures`  `data/textures`
+Generic   `<MOD>/textures`  `<GamePath>/textures`
 
 ## Interacting With the Editor
 
@@ -520,22 +523,10 @@ Like the move tool, the rotate tool places some controls above the viewport. On 
 
 If you look closely at the clip above, you will notice that the entity in the picture, a green armor, rotates nicely with the brush it is placed on. Firstly, its position does not seem to change in relation to the brush, and secondly, its angle of rotation is also changed according to the rotation being performed by the user. Whether and how TrenchBroom can adapt the angle of rotation of an entity depends on the following rules.
 
-- First, TrenchBroom looks at the entity's classname and its properties to determine its rotation type.
-	- If the entity does not have a classname, then its rotation remains unchanged.
-	- If the classname starts with "light", then TrenchBroom checks its properties.
-		- If it has a property named "mangle", then the value of the property consists of three separate angles (yaw pitch roll).
-		- If it does not have a target property, and
-			- if it has a property called "angles", then the value of the property consists of three separate angles (-pitch yaw roll).
-			- otherwise TrenchBroom assumes it has a property called "angle", which is a single value that indicates the rotation angle about the Z axis.
-	- If the classname does not start with "light", and
-		- if the entity is not a point entity, and
-			- if it has a property called "angles", then the value of the property consists of three separate angles (-pitch yaw roll).
-			- if it has a property called "mangle", then the value of the property consists of three separate angles (yaw pitch roll).
-			- otherwise TrenchBroom assumes it has a property called "angle", which is a single value that indicates the rotation angle about the Z axis.
-		- if the entity is a point entity, and if the origin of the entity's bounding box is at the center, and
-			- if it has a property called "angles", then the value of the property consists of three separate angles (-pitch yaw roll).
-			- if it has a property called "mangle", then the value of the property consists of three separate angles (yaw pitch roll).
-			- otherwise TrenchBroom assumes it has a property called "angle", which is a single value that indicates the rotation angle about the Z axis.
+- "angles" is interpreted as "pitch yaw roll" (if the entity model is a Quake MDL, pitch is inverted)
+- "mangle" is interpreted as "yaw pitch roll" if the entity classnames begins with "light", otherwise it's a synonym for "angles"
+- "angle" is interpreted as the rotation angle about the Z axis
+- If the point entity's bounding box is not centered in the XY plane (e.g. Quake's misc_explobox), attempts to rotate the entity in TrenchBroom will be blocked. This is done to prevent the model from being rotated out of the collision box, which doesn't rotate in Quake.
 
 Finally, if TrenchBroom has found a property that contains the rotation angle of the entity, it adapts the value of that property according to the rotation being performed by the user. These rules are quite complicated because sadly, the entity definitions do not contain information about how rotations should be applied to entities. But in practice, they should just perform as expected when you work with the rotate tool in the editor.
 
@@ -851,6 +842,8 @@ In TrenchBroom, there is the notion of a current texture, which we have already 
 There are several ways in which TrenchBroom lets you change the texture of a brush face. Firstly, you can change the texture of the currently selected faces by clicking on a texture in the texture browser. This also works if you have selected brushes (and nothing else) - in this case, the new texture is applied to all faces of the currently selected brushes. Secondly, you can copy the texture from a selected face to another face as follows: First, select the brush face that has the texture that you wish to copy, then click on the brush face that you wish to copy the texture to with the left mouse button while holding #key(307).
 
 Holding #key(307) and left clicking transfers the texture by projecting it onto the target face. Alternatively, you can hold #key(306) and #key(307) and left click to transfer the texture by rotating it. This will avoid stretching the texture, but is only available on Valve 220 format maps.
+
+You can also left click and drag with #key(307) held down (and optionally #key(306) as described above) to transfer texture attributes along a sequence of faces.
 
 If you wish to copy the texture to all faces of a brush, you can double click the left mouse button while holding #key(307). Note that this copies the texture and face attributes such as the offset or scale. If you wish to copy the texture only, you need to hold #key(308) in addition to holding #key(307) (or #key(306) and #key(307) to avoiding stretching). Finally, you can use copy and paste to copy the texture and attributes of a selected face onto other faces: First, select the face that you wish to copy from and choose #menu(Menu/Edit/Copy), then selected the faces that you wish to copy to, and choose #menu(Menu/Edit/Paste).
 
@@ -1959,7 +1952,7 @@ In an ENT file, the same model specification might look like this.
     <point
     	name="ammo_bfg" color=".3 .3 1"
     	box="-16 -16 -16 16 16 16"
-    	model="{{ perch == "1" -> "progs/gaunt.mdl", { "path": "progs/gaunt.mdl", "skin": 0, "frame": 24 } }}"
+    	model="{{ perch == '1' -> 'progs/gaunt.mdl', { 'path': 'progs/gaunt.mdl', 'skin': 0, 'frame': 24 } }}"
 	/>
 
 ## Point Files and Portal Files
@@ -2106,14 +2099,17 @@ Then you need to copy your `classname` matchers into the array value of the `bru
 
 The file format is specified by an array of maps under the key `fileformats`. The following formats are supported.
 
-Format      	 Description
-------      	 -----------
-Standard     	 Standard Quake map file
-Valve       	 Valve map file (like Standard, but with different texture info per face)
-Quake2       	 Quake 2 map file
-Quake3       	 Quake 3 map file (with brush primitives)
-Quake3 (legacy)  Quake 3 map file (without brush primitives)
-Hexen2       	 Hexen 2 map file (like Quake, but with an additional, but unused value per face)
+Format           Description
+------           -----------
+Standard         Standard Quake map file
+Valve            Valve map file (like Standard, but with more control over texture mapping)
+Quake2           Quake 2 map file with Standard style texture info
+Quake2 (Valve)   Quake 2 map file with Valve style texture info
+Quake3 (Valve)   Quake 3 map file with Valve style texture info
+Quake3 (legacy)  Quake 3 map file with Standard style texture info
+Hexen2           Hexen 2 map file (like Quake, but with an additional, but unused value per face)
+
+Note that the "Quake3" format, which will include Quake 3 brush primitives support, is not yet fully implemented and so is omitted from the list above. The "Quake3 (Valve)" format is as expressive for texture placement as the brush primitives format, but "Quake3 (Valve)" cannot be used to read existing map files that contain brush primitives. Also note that none of the Quake 3 formats yet support patch meshes.
 
 Each entry of the array must have the following structure:
 

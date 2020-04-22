@@ -35,6 +35,7 @@
 #include <QButtonGroup>
 #include <QColor>
 #include <QDebug>
+#include <QDialog>
 #include <QDir>
 #include <QFont>
 #include <QHeaderView>
@@ -401,10 +402,20 @@ namespace TrenchBroom {
             tableView->resizeRowsToContents();
         }
 
-        void deleteChildWidgetsAndLayout(QWidget* widget) {
-            qDeleteAll(widget->findChildren<QWidget*>("", Qt::FindDirectChildrenOnly));
+        void deleteChildWidgetsLaterAndDeleteLayout(QWidget* widget) {
+            const QList<QWidget*> children = widget->findChildren<QWidget*>("", Qt::FindDirectChildrenOnly);
+            for (QWidget* childWidget : children) {
+                childWidget->deleteLater();
+            }
 
             delete widget->layout();
+        }
+
+        void showModelessDialog(QDialog* dialog) {
+            // https://doc.qt.io/qt-5/qdialog.html#code-examples
+            dialog->show();
+            dialog->raise();
+            dialog->activateWindow();
         }
     }
 }

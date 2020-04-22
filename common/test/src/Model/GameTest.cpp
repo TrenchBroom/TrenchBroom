@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Logger.h"
 #include "Assets/Texture.h"
@@ -36,7 +38,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(GameTest, loadCorruptPackages) {
+        TEST_CASE("GameTest.loadCorruptPackages", "[GameTest]") {
             // https://github.com/kduske/TrenchBroom/issues/2496
 
             const auto games = std::vector<IO::Path> {
@@ -53,11 +55,12 @@ namespace TrenchBroom {
 
                 const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Game/CorruptPak");
                 auto logger = NullLogger();
-                ASSERT_NO_THROW(GameImpl(config, gamePath, logger)) << "Should not throw when loading corrupted package file for game " << game;
+                UNSCOPED_INFO("Should not throw when loading corrupted package file for game " << game);
+                ASSERT_NO_THROW(GameImpl(config, gamePath, logger));
             }
         }
 
-        TEST(GameTest, loadQuake3Shaders) {
+        TEST_CASE("GameTest.loadQuake3Shaders", "[GameTest]") {
             const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/games//Quake3/GameConfig.cfg");
             const auto configStr = IO::Disk::readFile(configPath);
             auto configParser = IO::GameConfigParser(configStr, configPath);

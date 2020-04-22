@@ -20,7 +20,9 @@
 #ifndef MapDocumentTest_h
 #define MapDocumentTest_h
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Model/MapFormat.h"
 #include "View/MapDocument.h"
@@ -39,7 +41,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class MapDocumentTest : public ::testing::Test {
+        class MapDocumentTest {
         private:
             Model::MapFormat m_mapFormat;
         protected:
@@ -51,8 +53,10 @@ namespace TrenchBroom {
             MapDocumentTest();
             explicit MapDocumentTest(Model::MapFormat mapFormat);
 
-            void SetUp() override;
-            void TearDown() override;
+        private:
+            void SetUp();
+        protected:
+            virtual ~MapDocumentTest();
 
             Model::Brush* createBrush(const std::string& textureName = "texture");
         };

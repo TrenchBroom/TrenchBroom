@@ -19,7 +19,9 @@
 
 #include "EntityDefinitionTestUtils.h"
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Assets/EntityDefinition.h"
 #include "EL/EvaluationContext.h"

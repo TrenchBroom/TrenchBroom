@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "IO/NodeWriter.h"
 #include "Model/Brush.h"
@@ -31,11 +33,13 @@
 
 #include <kdl/string_compare.h>
 
+#include <iostream>
+#include <sstream>
 #include <vector>
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(NodeWriterTest, writeEmptyMap) {
+        TEST_CASE("NodeWriterTest.writeEmptyMap", "[NodeWriterTest]") {
             Model::World map(Model::MapFormat::Standard);
 
             std::stringstream str;
@@ -49,7 +53,7 @@ namespace TrenchBroom {
                          "}\n", result.c_str());
         }
 
-        TEST(NodeWriterTest, writeWorldspawn) {
+        TEST_CASE("NodeWriterTest.writeWorldspawn", "[NodeWriterTest]") {
             Model::World map(Model::MapFormat::Standard);
             map.addOrUpdateAttribute("classname", "worldspawn");
             map.addOrUpdateAttribute("message", "holy damn");
@@ -66,7 +70,7 @@ namespace TrenchBroom {
                          "}\n", result.c_str());
         }
 
-        TEST(NodeWriterTest, writeDaikatanaMap) {
+        TEST_CASE("NodeWriterTest.writeDaikatanaMap", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
             Model::World map(Model::MapFormat::Daikatana);
@@ -115,7 +119,7 @@ R"(// entity 0
             ASSERT_EQ(actual, expected);
         }
 
-        TEST(NodeWriterTest, writeQuake2ValveMap) {
+        TEST_CASE("NodeWriterTest.writeQuake2ValveMap", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
             Model::World map(Model::MapFormat::Quake2_Valve);
@@ -131,8 +135,6 @@ R"(// entity 0
             std::stringstream str;
             NodeWriter writer(map, str);
             writer.writeMap();
-
-            std::cout << str.str();
 
             const std::string expected =
 R"(// entity 0
@@ -154,7 +156,41 @@ R"(// entity 0
             ASSERT_EQ(actual, expected);
         }
 
-        TEST(NodeWriterTest, writeWorldspawnWithBrushInDefaultLayer) {
+        TEST_CASE("NodeWriterTest.writeQuake3ValveMap", "[NodeWriterTest]") {
+            const vm::bbox3 worldBounds(8192.0);
+
+            Model::World map(Model::MapFormat::Quake3_Valve);
+            map.addOrUpdateAttribute("classname", "worldspawn");
+
+            Model::BrushBuilder builder(&map, worldBounds);
+            Model::Brush* brush1 = builder.createCube(64.0, "none");
+            map.defaultLayer()->addChild(brush1);
+
+            std::stringstream str;
+            NodeWriter writer(map, str);
+            writer.writeMap();
+
+            const std::string expected =
+R"(// entity 0
+{
+"classname" "worldspawn"
+// brush 0
+{
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none [ 0 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 0
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 0
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none [ -1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1 0 0 0
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1 0 0 0
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none [ -1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 0
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1 0 0 0
+}
+}
+)";
+
+            const std::string actual = str.str();
+            ASSERT_EQ(actual, expected);
+        }
+
+        TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInDefaultLayer", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
             Model::World map(Model::MapFormat::Standard);
@@ -187,7 +223,7 @@ R"(// entity 0
             ASSERT_EQ(expected, actual);
         }
 
-        TEST(NodeWriterTest, writeWorldspawnWithBrushInCustomLayer) {
+        TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInCustomLayer", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
             Model::World map(Model::MapFormat::Standard);
@@ -231,7 +267,7 @@ R"(// entity 0
             ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
         }
 
-        TEST(NodeWriterTest, writeMapWithGroupInDefaultLayer) {
+        TEST_CASE("NodeWriterTest.writeMapWithGroupInDefaultLayer", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
             Model::World map(Model::MapFormat::Standard);
@@ -274,7 +310,7 @@ R"(// entity 0
             ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
         }
 
-        TEST(NodeWriterTest, writeMapWithGroupInCustomLayer) {
+        TEST_CASE("NodeWriterTest.writeMapWithGroupInCustomLayer", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
             Model::World map(Model::MapFormat::Standard);
@@ -328,7 +364,7 @@ R"(// entity 0
             ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
         }
 
-        TEST(NodeWriterTest, writeMapWithNestedGroupInCustomLayer) {
+        TEST_CASE("NodeWriterTest.writeMapWithNestedGroupInCustomLayer", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
             Model::World map(Model::MapFormat::Standard);
@@ -394,7 +430,7 @@ R"(// entity 0
             ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
         }
 
-        TEST(NodeWriterTest, writeNodesWithNestedGroup) {
+        TEST_CASE("NodeWriterTest.writeNodesWithNestedGroup", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
             Model::World map(Model::MapFormat::Standard);
@@ -456,7 +492,7 @@ R"(// entity 0
             ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
         }
 
-        TEST(NodeWriterTest, writeFaces) {
+        TEST_CASE("NodeWriterTest.writeFaces", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
             Model::World map(Model::MapFormat::Standard);
@@ -482,7 +518,7 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
             delete brush;
         }
 
-        TEST(NodeWriterTest, writePropertiesWithQuotationMarks) {
+        TEST_CASE("NodeWriterTest.writePropertiesWithQuotationMarks", "[NodeWriterTest]") {
             Model::World map(Model::MapFormat::Standard);
             map.addOrUpdateAttribute("classname", "worldspawn");
             map.addOrUpdateAttribute("message", "\"holy damn\", he said");
@@ -499,7 +535,7 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
                          "}\n", result.c_str());
         }
 
-        TEST(NodeWriterTest, writePropertiesWithEscapedQuotationMarks) {
+        TEST_CASE("NodeWriterTest.writePropertiesWithEscapedQuotationMarks", "[NodeWriterTest]") {
             Model::World map(Model::MapFormat::Standard);
             map.addOrUpdateAttribute("classname", "worldspawn");
             map.addOrUpdateAttribute("message", "\\\"holy damn\\\", he said");
@@ -517,7 +553,7 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
         }
 
         // https://github.com/kduske/TrenchBroom/issues/1739
-        TEST(NodeWriterTest, writePropertiesWithNewlineEscapeSequence) {
+        TEST_CASE("NodeWriterTest.writePropertiesWithNewlineEscapeSequence", "[NodeWriterTest]") {
             Model::World map(Model::MapFormat::Standard);
             map.addOrUpdateAttribute("classname", "worldspawn");
             map.addOrUpdateAttribute("message", "holy damn\\nhe said");
@@ -535,7 +571,7 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
         }
 
         // https://github.com/kduske/TrenchBroom/issues/2556
-        TEST(NodeWriterTest, writePropertiesWithTrailingBackslash) {
+        TEST_CASE("NodeWriterTest.writePropertiesWithTrailingBackslash", "[NodeWriterTest]") {
             Model::World map(Model::MapFormat::Standard);
             map.addOrUpdateAttribute("classname", "worldspawn");
             map.addOrUpdateAttribute("message\\", "holy damn\\");

@@ -17,23 +17,77 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
+#include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
+#include "IO/NodeWriter.h"
+#include "Model/Brush.h"
+#include "Model/BrushBuilder.h"
+#include "Model/BrushFace.h"
+#include "Model/BrushFaceAttributes.h"
+#include "Model/CollectTouchingNodesVisitor.h"
+#include "Model/EditorContext.h"
+#include "Model/Group.h"
+#include "Model/Layer.h"
+#include "Model/MapFormat.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
+#include "Model/Object.h"
 #include "Model/PickResult.h"
+#include "Model/World.h"
 
 #include <kdl/vector_utils.h>
 
 #include <vecmath/bbox.h>
 #include <vecmath/ray.h>
+#include <vecmath/mat_ext.h>
 
 #include <vector>
+#include <variant>
 
 namespace TrenchBroom {
     namespace Model {
+        struct DoCanAddChild { bool valueToReturn; const Node* expectedChild; };
+        struct DoCanRemoveChild { bool valueToReturn; const Node* expectedChild; };
+        struct DoParentWillChange {};
+        struct DoParentDidChange {};
+        struct DoAncestorWillChange {};
+        struct DoAncestorDidChange {};
+
+        using ExpectedCall = std::variant<
+            DoCanAddChild,
+            DoCanRemoveChild,
+            DoParentWillChange,
+            DoParentDidChange,
+            DoAncestorWillChange,
+            DoAncestorDidChange>;
+
         class MockNode : public Node {
+        private:
+            mutable std::vector<ExpectedCall> m_expectedCalls;
+        public:
+            /**
+             * Sets an expectation that the given member function will be called. Some of the variant cases
+             * include a value to return when that function is called, or checks to perform on the function arguments.
+             *
+             * The expectations set this way are all mandatory and must be called in the order they are set.
+             */
+            void expectCall(ExpectedCall call) {
+                m_expectedCalls.push_back(std::move(call));
+            }
+
+            ~MockNode() {
+                // If this fails, it means a call that was expected was not made
+                ASSERT_TRUE(m_expectedCalls.empty());
+            }
+        private:
+            template <class T>
+            T popCall() const {
+                ASSERT_FALSE(m_expectedCalls.empty());
+                T expectedCall = std::get<T>(kdl::vec_pop_front(m_expectedCalls));
+                return expectedCall;
+            }
         private: // implement Node interface
             Node* doClone(const vm::bbox3& /* worldBounds */) const override {
                 return new MockNode();
@@ -55,11 +109,15 @@ namespace TrenchBroom {
             }
 
             bool doCanAddChild(const Node* child) const override {
-                return mockDoCanAddChild(child);
+                auto call = popCall<DoCanAddChild>();
+                ASSERT_EQ(call.expectedChild, child);
+                return call.valueToReturn;
             }
 
             bool doCanRemoveChild(const Node* child) const override {
-                return mockDoCanRemoveChild(child);
+                auto call = popCall<DoCanRemoveChild>();
+                ASSERT_EQ(call.expectedChild, child);
+                return call.valueToReturn;
             }
 
             bool doRemoveIfEmpty() const override {
@@ -71,61 +129,41 @@ namespace TrenchBroom {
             }
 
             void doParentWillChange() override {
-                mockDoParentWillChange();
+                popCall<DoParentWillChange>();
             }
 
             void doParentDidChange() override {
-                mockDoParentDidChange();
+                popCall<DoParentDidChange>();
             }
 
             bool doSelectable() const override {
-                return mockDoSelectable();
+                return false;
             }
 
             void doAncestorWillChange() override {
-                mockDoAncestorWillChange();
+                popCall<DoAncestorWillChange>();
             }
 
             void doAncestorDidChange() override {
-                mockDoAncestorDidChange();
+                popCall<DoAncestorDidChange>();
             }
 
-            void doPick(const vm::ray3& ray, PickResult& pickResult) override {
-                mockDoPick(ray, pickResult);
+            void doPick(const vm::ray3& /*ray*/, PickResult& /*pickResult*/) override {
             }
 
-            void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override {
-                mockDoFindNodesContaining(point, result);
+            void doFindNodesContaining(const vm::vec3& /*point*/, std::vector<Node*>& /*result*/) override {
             }
 
-            void doAccept(NodeVisitor& visitor) override {
-                mockDoAccept(visitor);
+            void doAccept(NodeVisitor& /*visitor*/) override {
             }
 
-            void doAccept(ConstNodeVisitor& visitor) const override {
-                mockDoAccept(visitor);
+            void doAccept(ConstNodeVisitor& /*visitor*/) const override {
             }
 
             void doGenerateIssues(const IssueGenerator* /* generator */, std::vector<Issue*>& /* issues */) override {}
 
             void doAcceptTagVisitor(TagVisitor& /* visitor */) override {}
             void doAcceptTagVisitor(ConstTagVisitor& /* visitor */) const override {}
-        public:
-            MOCK_CONST_METHOD1(mockDoCanAddChild, bool(const Node*));
-            MOCK_CONST_METHOD1(mockDoCanRemoveChild, bool(const Node*));
-            MOCK_CONST_METHOD0(mockDoSelectable, bool());
-
-            MOCK_METHOD0(mockDoParentWillChange, void());
-            MOCK_METHOD0(mockDoParentDidChange, void());
-            MOCK_METHOD0(mockDoAncestorWillChange, void());
-            MOCK_METHOD0(mockDoAncestorDidChange, void());
-
-            MOCK_METHOD2(mockDoPick, void(const vm::ray3&, PickResult&));
-            MOCK_CONST_METHOD2(mockDoFindNodesContaining, void(const vm::vec3&, std::vector<Node*>&));
-            MOCK_CONST_METHOD1(mockDoIntersectWithRay, FloatType(const vm::ray3&));
-
-            MOCK_METHOD1(mockDoAccept, void(NodeVisitor&));
-            MOCK_CONST_METHOD1(mockDoAccept, void(ConstNodeVisitor&));
         };
 
         class TestNode : public Node {
@@ -197,9 +235,7 @@ namespace TrenchBroom {
             }
         };
 
-        TEST(NodeTest, destroyChild) {
-            using namespace ::testing;
-
+        TEST_CASE("NodeTest.destroyChild", "[NodeTest]") {
             TestNode* root = new TestNode();
             bool childDestroyed = false;
             DestroyableNode* child = new DestroyableNode(childDestroyed);
@@ -210,21 +246,20 @@ namespace TrenchBroom {
             ASSERT_TRUE(childDestroyed);
         }
 
-        TEST(NodeTest, addRemoveChild) {
-            using namespace ::testing;
-
+        TEST_CASE("NodeTest.addRemoveChild", "[NodeTest]") {
             MockNode root;
             MockNode* child = new MockNode();
             MockNode* grandChild1 = new MockNode();
             MockNode* grandChild2 = new MockNode();
 
+            // NOTE: Node::doAddChild only calls canAddChild in debug builds
 #ifndef NDEBUG
-            EXPECT_CALL(*child, mockDoCanAddChild(grandChild1)).WillOnce(Return(true));
+            child->expectCall(DoCanAddChild{true, grandChild1});
 #endif
-            EXPECT_CALL(*grandChild1, mockDoParentWillChange());
-            EXPECT_CALL(*grandChild1, mockDoAncestorWillChange());
-            EXPECT_CALL(*grandChild1, mockDoParentDidChange());
-            EXPECT_CALL(*grandChild1, mockDoAncestorDidChange());
+            grandChild1->expectCall(DoParentWillChange{});
+            grandChild1->expectCall(DoAncestorWillChange{});
+            grandChild1->expectCall(DoParentDidChange{});
+            grandChild1->expectCall(DoAncestorDidChange{});
             child->addChild(grandChild1);
             ASSERT_EQ(1u, child->childCount());
             ASSERT_EQ(2u, child->familySize());
@@ -232,14 +267,14 @@ namespace TrenchBroom {
             ASSERT_TRUE(kdl::vec_contains(child->children(), grandChild1));
 
 #ifndef NDEBUG
-            EXPECT_CALL(root, mockDoCanAddChild(child)).WillOnce(Return(true));
+            root.expectCall(DoCanAddChild{true, child});
 #endif
-            EXPECT_CALL(*child, mockDoParentWillChange());
-            EXPECT_CALL(*child, mockDoAncestorWillChange());
-            EXPECT_CALL(*child, mockDoParentDidChange());
-            EXPECT_CALL(*child, mockDoAncestorDidChange());
-            EXPECT_CALL(*grandChild1, mockDoAncestorWillChange());
-            EXPECT_CALL(*grandChild1, mockDoAncestorDidChange());
+            child->expectCall(DoParentWillChange{});
+            child->expectCall(DoAncestorWillChange{});
+            child->expectCall(DoParentDidChange{});
+            child->expectCall(DoAncestorDidChange{});
+            grandChild1->expectCall(DoAncestorWillChange{});
+            grandChild1->expectCall(DoAncestorDidChange{});
 
             root.addChild(child);
             ASSERT_EQ(1u, root.childCount());
@@ -248,12 +283,12 @@ namespace TrenchBroom {
             ASSERT_TRUE(kdl::vec_contains(root.children(), child));
 
 #ifndef NDEBUG
-            EXPECT_CALL(*child, mockDoCanAddChild(grandChild2)).WillOnce(Return(true));
+            child->expectCall(DoCanAddChild{true,grandChild2});
 #endif
-            EXPECT_CALL(*grandChild2, mockDoParentWillChange());
-            EXPECT_CALL(*grandChild2, mockDoAncestorWillChange());
-            EXPECT_CALL(*grandChild2, mockDoParentDidChange());
-            EXPECT_CALL(*grandChild2, mockDoAncestorDidChange());
+            grandChild2->expectCall(DoParentWillChange{});
+            grandChild2->expectCall(DoAncestorWillChange{});
+            grandChild2->expectCall(DoParentDidChange{});
+            grandChild2->expectCall(DoAncestorDidChange{});
             child->addChild(grandChild2);
             ASSERT_EQ(1u, root.childCount());
             ASSERT_EQ(4u, root.familySize());
@@ -263,16 +298,16 @@ namespace TrenchBroom {
             ASSERT_TRUE(kdl::vec_contains(child->children(), grandChild2));
 
 #ifndef NDEBUG
-            EXPECT_CALL(root, mockDoCanRemoveChild(child)).WillOnce(Return(true));
+            root.expectCall(DoCanRemoveChild{true,child});
 #endif
-            EXPECT_CALL(*child, mockDoParentWillChange());
-            EXPECT_CALL(*child, mockDoAncestorWillChange());
-            EXPECT_CALL(*child, mockDoParentDidChange());
-            EXPECT_CALL(*child, mockDoAncestorDidChange());
-            EXPECT_CALL(*grandChild1, mockDoAncestorWillChange());
-            EXPECT_CALL(*grandChild1, mockDoAncestorDidChange());
-            EXPECT_CALL(*grandChild2, mockDoAncestorWillChange());
-            EXPECT_CALL(*grandChild2, mockDoAncestorDidChange());
+            child->expectCall(DoParentWillChange{});
+            child->expectCall(DoAncestorWillChange{});
+            child->expectCall(DoParentDidChange{});
+            child->expectCall(DoAncestorDidChange{});
+            grandChild1->expectCall(DoAncestorWillChange{});
+            grandChild1->expectCall(DoAncestorDidChange{});
+            grandChild2->expectCall(DoAncestorWillChange{});
+            grandChild2->expectCall(DoAncestorDidChange{});
 
             root.removeChild(child);
             ASSERT_EQ(nullptr, child->parent());
@@ -283,16 +318,16 @@ namespace TrenchBroom {
             ASSERT_EQ(3u, child->familySize());
 
 #ifndef NDEBUG
-            EXPECT_CALL(root, mockDoCanAddChild(child)).WillOnce(Return(true));
+            root.expectCall(DoCanAddChild{true,child});
 #endif
-            EXPECT_CALL(*child, mockDoParentWillChange());
-            EXPECT_CALL(*child, mockDoAncestorWillChange());
-            EXPECT_CALL(*child, mockDoParentDidChange());
-            EXPECT_CALL(*child, mockDoAncestorDidChange());
-            EXPECT_CALL(*grandChild1, mockDoAncestorWillChange());
-            EXPECT_CALL(*grandChild1, mockDoAncestorDidChange());
-            EXPECT_CALL(*grandChild2, mockDoAncestorWillChange());
-            EXPECT_CALL(*grandChild2, mockDoAncestorDidChange());
+            child->expectCall(DoParentWillChange{});
+            child->expectCall(DoAncestorWillChange{});
+            child->expectCall(DoParentDidChange{});
+            child->expectCall(DoAncestorDidChange{});
+            grandChild1->expectCall(DoAncestorWillChange{});
+            grandChild1->expectCall(DoAncestorDidChange{});
+            grandChild2->expectCall(DoAncestorWillChange{});
+            grandChild2->expectCall(DoAncestorDidChange{});
 
             root.addChild(child);
             ASSERT_EQ(&root, child->parent());
@@ -303,7 +338,7 @@ namespace TrenchBroom {
             ASSERT_EQ(3u, child->familySize());
         }
 
-        TEST(NodeTest, partialSelection) {
+        TEST_CASE("NodeTest.partialSelection", "[NodeTest]") {
             TestNode root;
             TestNode* child1 = new TestNode();
             TestNode* child2 = new TestNode();
@@ -343,7 +378,7 @@ namespace TrenchBroom {
             ASSERT_EQ(2u, root.descendantSelectionCount());
         }
 
-        TEST(NodeTest, isAncestorOf) {
+        TEST_CASE("NodeTest.isAncestorOf", "[NodeTest]") {
             TestNode root;
             TestNode* child1 = new TestNode();
             TestNode* child2 = new TestNode();
@@ -392,7 +427,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(grandChild1_1->isAncestorOf(std::vector<Node*>{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
         }
 
-        TEST(NodeTest, isDescendantOf) {
+        TEST_CASE("NodeTest.isDescendantOf", "[NodeTest]") {
             TestNode root;
             TestNode* child1 = new TestNode();
             TestNode* child2 = new TestNode();
@@ -439,6 +474,40 @@ namespace TrenchBroom {
             ASSERT_TRUE(child2->isDescendantOf(std::vector<Node*>{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
             ASSERT_TRUE(grandChild1_1->isDescendantOf(std::vector<Node*>{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
             ASSERT_TRUE(grandChild1_1->isDescendantOf(std::vector<Node*>{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+        }
+
+        // Visitors
+
+        TEST_CASE("CollectTouchingNodesVisitor", "[NodeVisitorTest]") {
+            const vm::bbox3 worldBounds(8192.0);
+            EditorContext context;
+
+            World map(Model::MapFormat::Standard);
+            map.addOrUpdateAttribute("classname", "worldspawn");
+
+            BrushBuilder builder(&map, worldBounds);
+            Brush* brush1 = builder.createCube(64.0, "none");
+            Brush* brush2 = builder.createCube(64.0, "none");
+            Brush* brush3 = builder.createCube(64.0, "none");
+
+            brush2->transform(vm::translation_matrix(vm::vec3(10.0, 0.0, 0.0)), false, worldBounds);
+            brush3->transform(vm::translation_matrix(vm::vec3(100.0, 0.0, 0.0)), false, worldBounds);
+
+            map.defaultLayer()->addChild(brush1);
+            map.defaultLayer()->addChild(brush2);
+            map.defaultLayer()->addChild(brush3);
+
+            CHECK(brush1->intersects(brush2));
+            CHECK(brush2->intersects(brush1));
+
+            CHECK(!brush1->intersects(brush3));
+            CHECK(!brush3->intersects(brush1));
+
+            const auto query = std::vector<Brush*>{brush1};
+            auto visitor = CollectTouchingNodesVisitor(std::begin(query), std::end(query), context);
+            map.acceptAndRecurse(visitor);
+
+            CHECK(std::vector<Node*>{brush2} == visitor.nodes());
         }
     }
 }

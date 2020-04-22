@@ -163,20 +163,15 @@ namespace TrenchBroom {
         }
 
         void CellView::wheelEvent(QWheelEvent* event) {
-            validate();
-            if (m_scrollBar != nullptr) {
-                QPoint pixelDelta = event->pixelDelta();
-                if (pixelDelta.isNull()) {
-                    QPoint degreeDelta = event->angleDelta() / 8;
-                    pixelDelta = degreeDelta;
-                }
-
-                const int top = m_scrollBar->value();
-                const int height = static_cast<int>(m_layout.height());
-                const int newTop = std::min(std::max(0, top - pixelDelta.y()), height);
-                m_scrollBar->setValue(newTop);
-                update();
-            }
+            const QPoint pixelDelta = event->pixelDelta();
+            const QPoint angleDelta = event->angleDelta();
+                
+            if (!pixelDelta.isNull()) {
+                scrollBy(pixelDelta.y());
+            } else if (!angleDelta.isNull()) {
+                scrollBy(angleDelta.y());
+            }                
+            event->accept();
         }
 
         bool CellView::event(QEvent* event) {
@@ -222,11 +217,16 @@ namespace TrenchBroom {
         }
 
         void CellView::scroll(const QMouseEvent* event) {
+            const QPoint mousePosition = event->pos();
+            const int delta = mousePosition.y() - m_lastMousePos.y();
+
+            scrollBy(delta);
+        }
+
+        void CellView::scrollBy(const int deltaY) {
             validate();
             if (m_scrollBar != nullptr) {
-                const QPoint mousePosition = event->pos();
-                const int delta = mousePosition.y() - m_lastMousePos.y();
-                const int newThumbPosition = m_scrollBar->value() - delta;
+                const int newThumbPosition = m_scrollBar->value() - deltaY;
                 m_scrollBar->setValue(newThumbPosition);
                 update();
             }

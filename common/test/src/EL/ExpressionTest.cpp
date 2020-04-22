@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include <cmath>
 
@@ -99,7 +101,7 @@ namespace TrenchBroom {
         void assertOptimizable(const std::string& expression);
         void assertNotOptimizable(const std::string& expression);
 
-        TEST(ExpressionTest, testValueLiterals) {
+        TEST_CASE("ExpressionTest.testValueLiterals", "[ExpressionTest]") {
             evaluateAndAssert("true", true);
             evaluateAndAssert("false", false);
             evaluateAndAssert("'asdf'", "asdf");
@@ -107,13 +109,13 @@ namespace TrenchBroom {
             evaluateAndAssert("-2", -2);
         }
 
-        TEST(ExpressionTest, testVariableExpression) {
+        TEST_CASE("ExpressionTest.testVariableExpression", "[ExpressionTest]") {
             evaluateAndAssert("x", true, "x", true);
             evaluateAndAssert("ohhai", 7, "ohhai", 7);
             evaluateAndAssert("x", Value::Undefined);
         }
 
-        TEST(ExpressionTest, testArrayExpression) {
+        TEST_CASE("ExpressionTest.testArrayExpression", "[ExpressionTest]") {
             evaluateAndAssert("[]", ArrayType());
             evaluateAndAssert("[1, 2, 3]", array(1, 2, 3));
             evaluateAndAssert("[1, 2, x]", array(1, 2, "test"), "x", "test");
@@ -123,7 +125,7 @@ namespace TrenchBroom {
             assertNotOptimizable("[1, 2, x]");
         }
 
-        TEST(ExpressionTest, testMapExpression) {
+        TEST_CASE("ExpressionTest.testMapExpression", "[ExpressionTest]") {
             evaluateAndAssert("{}", MapType());
             evaluateAndAssert("{ 'k': true }", map("k", true));
             evaluateAndAssert("{ 'k1': true, 'k2': 3, 'k3': 3 + 7 }", map("k1", true, "k2", 3, "k3", 10));
@@ -135,7 +137,7 @@ namespace TrenchBroom {
             assertNotOptimizable("{ 'k1': 'asdf', 'k2': x }");
         }
 
-        TEST(ExpressionTest, testAdditionOperator) {
+        TEST_CASE("ExpressionTest.testAdditionOperator", "[ExpressionTest]") {
             evaluateAndAssert("2 + 3", 5);
             evaluateAndAssert("-2 + 3", 1);
             evaluateAndAssert("2 + 3 + 4", 9);
@@ -144,28 +146,28 @@ namespace TrenchBroom {
             evaluateAndAssert("'as' + 'df'", "asdf");
         }
 
-        TEST(ExpressionTest, testSubtractionOperator) {
+        TEST_CASE("ExpressionTest.testSubtractionOperator", "[ExpressionTest]") {
             evaluateAndAssert("2 - 3", -1);
             evaluateAndAssert("-2 - 3", -5);
             evaluateAndAssert("2 - 3 - 4", -5);
             assertOptimizable("2 - 3");
         }
 
-        TEST(ExpressionTest, testMultiplicationOperator) {
+        TEST_CASE("ExpressionTest.testMultiplicationOperator", "[ExpressionTest]") {
             evaluateAndAssert("2 * 3", 6);
             evaluateAndAssert("-2 * 3", -6);
             evaluateAndAssert("2 * 3 * 4", 24);
             assertOptimizable("2 * 3");
         }
 
-        TEST(ExpressionTest, testDivisionOperator) {
+        TEST_CASE("ExpressionTest.testDivisionOperator", "[ExpressionTest]") {
             evaluateAndAssert("2 / 3", 2.0 / 3.0);
             evaluateAndAssert("-2 / 3", -2.0 / 3.0);
             evaluateAndAssert("2 / 3 / 4", 2.0 / 3.0 / 4.0);
             assertOptimizable("2 / 3");
         }
 
-        TEST(ExpressionTest, testModulusOperator) {
+        TEST_CASE("ExpressionTest.testModulusOperator", "[ExpressionTest]") {
             evaluateAndAssert("3 % 2", std::fmod(3.0, 2.0));
             evaluateAndAssert("-2 % 3", std::fmod(-2.0, 3.0));
             evaluateAndAssert("13 % 8 % 4", std::fmod(std::fmod(13.0, 8.0), 4.0));
@@ -173,7 +175,7 @@ namespace TrenchBroom {
             assertOptimizable("2 % 3");
         }
 
-        TEST(ExpressionTest, testLogicalNegationOperator) {
+        TEST_CASE("ExpressionTest.testLogicalNegationOperator", "[ExpressionTest]") {
             evaluateAndAssert("!true", false);
             evaluateAndAssert("!false", true);
             evaluateAndThrow<ConversionError>("!1");
@@ -183,7 +185,7 @@ namespace TrenchBroom {
             evaluateAndThrow<ConversionError>("!null");
         }
 
-        TEST(ExpressionTest, testLogicalAndOperator) {
+        TEST_CASE("ExpressionTest.testLogicalAndOperator", "[ExpressionTest]") {
             evaluateAndAssert("false && false", false);
             evaluateAndAssert("false &&  true", false);
             evaluateAndAssert(" true && false", false);
@@ -191,7 +193,7 @@ namespace TrenchBroom {
             assertOptimizable("true && false");
         }
 
-        TEST(ExpressionTest, testLogicalOrOperator) {
+        TEST_CASE("ExpressionTest.testLogicalOrOperator", "[ExpressionTest]") {
             evaluateAndAssert("false || false", false);
             evaluateAndAssert("false ||  true",  true);
             evaluateAndAssert(" true || false",  true);
@@ -201,7 +203,7 @@ namespace TrenchBroom {
 
         void evalutateComparisonAndAssert(const std::string& op, bool result);
 
-        TEST(ExpressionTest, testComparisonOperators) {
+        TEST_CASE("ExpressionTest.testComparisonOperators", "[ExpressionTest]") {
             evalutateComparisonAndAssert("<",   true);
             evalutateComparisonAndAssert("<=",  true);
             evalutateComparisonAndAssert("==", false);
@@ -210,7 +212,7 @@ namespace TrenchBroom {
             evalutateComparisonAndAssert(">=", false);
         }
 
-        TEST(ExpressionTest, testBitwiseNegationOperator) {
+        TEST_CASE("ExpressionTest.testBitwiseNegationOperator", "[ExpressionTest]") {
             evaluateAndAssert("~23423", ~23423);
             evaluateAndAssert("~23423.1", ~23423);
             evaluateAndAssert("~23423.8", ~23423);
@@ -221,7 +223,7 @@ namespace TrenchBroom {
             evaluateAndThrow<ConversionError>("~null");
         }
 
-        TEST(ExpressionTest, testBitwiseAndOperator) {
+        TEST_CASE("ExpressionTest.testBitwiseAndOperator", "[ExpressionTest]") {
             evaluateAndAssert("0 & 0", 0 & 0);
             evaluateAndAssert("123 & 456", 123 & 456);
             evaluateAndAssert("true & 123", 1 & 123);
@@ -231,7 +233,7 @@ namespace TrenchBroom {
             evaluateAndAssert("null & 123", 0 & 123);
         }
 
-        TEST(ExpressionTest, testBitwiseOrOperator) {
+        TEST_CASE("ExpressionTest.testBitwiseOrOperator", "[ExpressionTest]") {
             evaluateAndAssert("0 | 0", 0 | 0);
             evaluateAndAssert("123 | 456", 123 | 456);
             evaluateAndAssert("true | 123", 1 | 123);
@@ -241,7 +243,7 @@ namespace TrenchBroom {
             evaluateAndAssert("null | 123", 0 | 123);
         }
 
-        TEST(ExpressionTest, testBitwiseXorOperator) {
+        TEST_CASE("ExpressionTest.testBitwiseXorOperator", "[ExpressionTest]") {
             evaluateAndAssert("0 ^ 0", 0 ^ 0);
             evaluateAndAssert("123 ^ 456", 123 ^ 456);
             evaluateAndAssert("true ^ 123", 1 ^ 123);
@@ -251,7 +253,7 @@ namespace TrenchBroom {
             evaluateAndAssert("null ^ 123", 0 ^ 123);
         }
 
-        TEST(ExpressionTest, testBitwiseShiftLeftOperator) {
+        TEST_CASE("ExpressionTest.testBitwiseShiftLeftOperator", "[ExpressionTest]") {
             evaluateAndAssert("1 << 2", 1 << 2);
 #ifndef _WIN32
             evaluateAndAssert("1 << 33", 1l << 33);
@@ -268,7 +270,7 @@ namespace TrenchBroom {
             evaluateAndAssert("1 << null", 1l << 0);
         }
 
-        TEST(ExpressionTest, testBitwiseShiftRightOperator) {
+        TEST_CASE("ExpressionTest.testBitwiseShiftRightOperator", "[ExpressionTest]") {
             evaluateAndAssert("1 >> 2", 1 >> 2);
 #ifndef _WIN32
             evaluateAndAssert("1 >> 33", 1l >> 33);
@@ -285,7 +287,7 @@ namespace TrenchBroom {
             evaluateAndAssert("1 >> null", 1l >> 0);
         }
 
-        TEST(ExpressionTest, testArithmeticPrecedence) {
+        TEST_CASE("ExpressionTest.testArithmeticPrecedence", "[ExpressionTest]") {
             evaluateAndAssert("1 + 2 - 3", 1.0 + 2.0 - 3.0);
             evaluateAndAssert("1 - 2 + 3", 1.0 - 2.0 + 3.0);
 
@@ -305,20 +307,20 @@ namespace TrenchBroom {
             evaluateAndAssert("2 / 6 * 4", 2.0 / 6.0 * 4.0);
         }
 
-        TEST(ExpressionTest, testLogicalPrecedence) {
+        TEST_CASE("ExpressionTest.testLogicalPrecedence", "[ExpressionTest]") {
             evaluateAndAssert("false && false || true",   true);
             evaluateAndAssert("!true && !true || !false", true);
         }
 
-        TEST(ExpressionTest, testLogicalAndComparisonPrecedence) {
+        TEST_CASE("ExpressionTest.testLogicalAndComparisonPrecedence", "[ExpressionTest]") {
             evaluateAndAssert("3 < 10 || 10 > 2", true);
         }
 
-        TEST(ExpressionTest, testArithmeticAndComparisonPrecedence) {
+        TEST_CASE("ExpressionTest.testArithmeticAndComparisonPrecedence", "[ExpressionTest]") {
             evaluateAndAssert("2 + 3 < 2 + 4", 1);
         }
 
-        TEST(ExpressionTest, testCaseExpression) {
+        TEST_CASE("ExpressionTest.testCaseExpression", "[ExpressionTest]") {
             evaluateAndAssert("true && false -> true", Value::Undefined);
             evaluateAndAssert("true && true -> false", false);
             evaluateAndAssert("2 + 3 < 2 + 4 -> 6 % 5", 1);

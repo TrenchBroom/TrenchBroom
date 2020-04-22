@@ -30,6 +30,8 @@
 #include <QEvent>
 #include <QLineEdit>
 #include <QSortFilterProxyModel>
+#include <QTimer>
+
 
 namespace TrenchBroom {
     namespace View {
@@ -54,14 +56,21 @@ namespace TrenchBroom {
             // show the completions immediately when the editor is opened if the editor's text is empty
             auto* lineEdit = dynamic_cast<QLineEdit*>(editor);
             if (lineEdit != nullptr) {
-                const auto text = lineEdit->text();
-                if (text.isEmpty()) {
-                    auto* completer = lineEdit->completer();
-                    if (completer != nullptr) {
-                        completer->setCompletionPrefix(text);
-                        completer->complete();
+                // Delay to work around https://github.com/kduske/TrenchBroom/issues/3082
+                // Briefly, when typing the first letter of the text you want to enter to open the cell editor,
+                // when setEditorData() runs, the letter has not been inserted into the QLineEdit yet.
+                // Opening the completion popup and then typing the letter causes the editor to close, which is
+                // issue #3082 and quite annoying. Only happens on Linux.
+                QTimer::singleShot(0, lineEdit, [lineEdit](){
+                    const QString text = lineEdit->text();
+                    if (text.isEmpty()) {
+                        QCompleter* completer = lineEdit->completer();
+                        if (completer != nullptr) {
+                            completer->setCompletionPrefix("");
+                            completer->complete();
+                        }
                     }
-                }
+                });
             }
         }
 

@@ -16,13 +16,25 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <gtest/gtest.h>
+#define CATCH_CONFIG_RUNNER
+
+#ifdef _MSC_VER
+// catch.hpp has signed/unsigned mismatch warnings
+#pragma warning(push)
+#pragma warning(disable : 4365)
+#endif
+
+#include <catch2/catch.hpp>
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #include <clocale>
 
 int main(int argc, char **argv) {
     // set the locale to US so that we can parse floats attribute
     std::setlocale(LC_NUMERIC, "C");
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+
+    return Catch::Session().run(argc, argv);
 }

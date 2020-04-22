@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "TestLogger.h"
 
@@ -29,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        TEST(AssetUtilsTest, safeGetModelSpecification) {
+        TEST_CASE("AssetUtilsTest.safeGetModelSpecification", "[AssetUtilsTest]") {
             TestLogger logger;
 
             const auto expected = ModelSpecification(IO::Path("test/test"), 1, 2);

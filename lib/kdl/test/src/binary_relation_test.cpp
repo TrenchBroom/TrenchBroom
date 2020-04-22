@@ -15,7 +15,9 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "kdl/binary_relation.h"
 
@@ -27,14 +29,14 @@ namespace kdl {
         ASSERT_TRUE(std::equal(std::begin(exp), std::end(exp), std::begin(act), std::end(act)));
     }
 
-    TEST(binary_relation_test, constructor_default) {
+    TEST_CASE("binary_relation_test.constructor_default", "[binary_relation_test]") {
         using relation = binary_relation<int, std::string>;
 
         relation r;
         ASSERT_TRUE(r.empty());
     }
 
-    TEST(binary_relation_test, constructor_intializer_list) {
+    TEST_CASE("binary_relation_test.constructor_intializer_list", "[binary_relation_test]") {
         using relation = binary_relation<int, std::string>;
 
         relation r({
@@ -55,14 +57,14 @@ namespace kdl {
         }, r);
     }
 
-    TEST(binary_relation_test, empty) {
+    TEST_CASE("binary_relation_test.empty", "[binary_relation_test]") {
         using relation = binary_relation<int, std::string>;
 
         ASSERT_TRUE(relation().empty());
         ASSERT_FALSE(relation({{ 1, "a" }}).empty());
     }
 
-    TEST(binary_relation_test, size) {
+    TEST_CASE("binary_relation_test.size", "[binary_relation_test]") {
         using relation = binary_relation<int, std::string>;
 
         ASSERT_EQ(0u, relation().size());
@@ -71,7 +73,7 @@ namespace kdl {
         ASSERT_EQ(3u, relation({{ 1, "a" }, { 1, "b" }, { 2, "c" }}).size());
     }
 
-    TEST(binary_relation_test, contains) {
+    TEST_CASE("binary_relation_test.contains", "[binary_relation_test]") {
         using relation = binary_relation<int, std::string>;
 
         ASSERT_FALSE(relation().contains(1, "a"));
@@ -80,7 +82,7 @@ namespace kdl {
         ASSERT_TRUE(relation({{ 1, "a" }}).contains(1, "a"));
     }
 
-    TEST(binary_relation_test, count_left) {
+    TEST_CASE("binary_relation_test.count_left", "[binary_relation_test]") {
         using relation = binary_relation<int, std::string>;
 
         ASSERT_EQ(0u, relation().count_left("a"));
@@ -90,7 +92,7 @@ namespace kdl {
         ASSERT_EQ(2u, relation({{ 1, "a" }, { 1, "b" }, { 2, "a" }}).count_left("a"));
     }
 
-    TEST(binary_relation_test, count_right) {
+    TEST_CASE("binary_relation_test.count_right", "[binary_relation_test]") {
         using relation = binary_relation<int, std::string>;
 
         ASSERT_EQ(0u, relation().count_right(1));
@@ -100,7 +102,7 @@ namespace kdl {
         ASSERT_EQ(2u, relation({{ 1, "a" }, { 1, "b" }, { 2, "a" }}).count_right(1));
     }
 
-    TEST(binary_relation_test, iterator) {
+    TEST_CASE("binary_relation_test.iterator", "[binary_relation_test]") {
         using relation = binary_relation<int, std::string>;
 
         relation r;
@@ -144,7 +146,7 @@ namespace kdl {
         ASSERT_TRUE(std::equal(std::begin(exp), std::end(exp), act.first, act.second));
     }
 
-    TEST(binary_relation_test, left_range) {
+    TEST_CASE("binary_relation_test.left_range", "[binary_relation_test]") {
         using relation = binary_relation<int, std::string>;
 
         assertRange<int>({}, relation().left_range("a"));
@@ -153,7 +155,7 @@ namespace kdl {
         assertRange<int>({ 1, 2 }, relation({{ 1, "a" }, { 2, "a" }, { 3, "b" }}).left_range("a"));
     }
 
-    TEST(binary_relation_test, right_range) {
+    TEST_CASE("binary_relation_test.right_range", "[binary_relation_test]") {
         using relation = binary_relation<int, std::string>;
 
         assertRange<std::string>({}, relation().right_range(1));
@@ -162,7 +164,7 @@ namespace kdl {
         assertRange<std::string>({ "a", "b" }, relation({{ 1, "a" }, { 1, "b" }, { 2, "c" }}).right_range(1));
     }
 
-    TEST(binary_relation_test, insert_relation) {
+    TEST_CASE("binary_relation_test.insert_relation", "[binary_relation_test]") {
         using relation = binary_relation<int, std::string>;
 
         relation r;
@@ -186,7 +188,7 @@ namespace kdl {
     }
 
 
-    TEST(binary_relation_test, insert_right_range) {
+    TEST_CASE("binary_relation_test.insert_right_range", "[binary_relation_test]") {
         using relation = binary_relation<int, std::string>;
 
         relation r;
@@ -232,7 +234,7 @@ namespace kdl {
         ASSERT_TRUE(std::equal(std::begin(right_3), std::end(right_3), r.right_begin(left_3)));
     }
 
-    TEST(binary_relation_test, insert_left_range) {
+    TEST_CASE("binary_relation_test.insert_left_range", "[binary_relation_test]") {
         using relation = binary_relation<std::string, size_t>;
 
         relation r;
@@ -278,7 +280,7 @@ namespace kdl {
         ASSERT_TRUE(std::equal(std::begin(left_3), std::end(left_3), r.left_begin(right_3)));
     }
 
-    TEST(binary_relation_test, insert_values) {
+    TEST_CASE("binary_relation_test.insert_values", "[binary_relation_test]") {
         using relation = binary_relation<int, std::string>;
 
         relation r;
@@ -308,7 +310,7 @@ namespace kdl {
         ASSERT_EQ(1u, r.count_right(2));
     }
 
-    TEST(binary_relation_test, erase) {
+    TEST_CASE("binary_relation_test.erase", "[binary_relation_test]") {
         using relation = binary_relation<int, std::string>;
 
         relation r;

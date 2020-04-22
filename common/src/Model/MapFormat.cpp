@@ -40,6 +40,8 @@ namespace TrenchBroom {
                 return MapFormat::Daikatana;
             } else if (formatName == "Quake3 (legacy)") {
                 return MapFormat::Quake3_Legacy;
+            } else if (formatName == "Quake3 (Valve)") {
+                return MapFormat::Quake3_Valve;
             } else if (formatName == "Quake3") {
                 return MapFormat::Quake3;
             } else {
@@ -63,6 +65,8 @@ namespace TrenchBroom {
                     return "Daikatana";
                 case MapFormat::Quake3_Legacy:
                     return "Quake3 (legacy)";
+                case MapFormat::Quake3_Valve:
+                    return "Quake3 (Valve)";
                 case MapFormat::Quake3:
                     return "Quake3";
                 case MapFormat::Unknown:

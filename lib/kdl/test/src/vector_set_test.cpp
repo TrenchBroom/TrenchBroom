@@ -15,7 +15,9 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "kdl/vector_set.h"
 
@@ -34,20 +36,20 @@ namespace kdl {
     void ASSERT_VSET_EQ(const vec& expected, const vset& actual);
     void ASSERT_VSET_EQ(const vset::size_type capacity, const vec& expected, const vset& actual);
 
-    TEST(vector_set_test, constructor_default) {
+    TEST_CASE("vector_set_test.constructor_default", "[vector_set_test]") {
         vset s;
         ASSERT_TRUE(s.empty());
         ASSERT_EQ(0u, s.size());
     }
 
-    TEST(vector_set_test, constructor_default_with_capacity) {
+    TEST_CASE("vector_set_test.constructor_default_with_capacity", "[vector_set_test]") {
         vset s(7u);
         ASSERT_TRUE(s.empty());
         ASSERT_EQ(0u, s.size());
         ASSERT_EQ(7u, s.capacity());
     }
 
-    TEST(vector_set_test, constructor_with_range) {
+    TEST_CASE("vector_set_test.constructor_with_range", "[vector_set_test]") {
         ASSERT_VSET_EQ({},          create_vset_from_range({}));
         ASSERT_VSET_EQ({ 1 },       create_vset_from_range({ 1 }));
         ASSERT_VSET_EQ({ 1 },       create_vset_from_range({ 1, 1 }));
@@ -56,7 +58,7 @@ namespace kdl {
         ASSERT_VSET_EQ({ 1, 2, 3 }, create_vset_from_range({ 2, 1, 3, 1, 2 }));
     }
 
-    TEST(vector_set_test, constructor_with_range_and_capacity) {
+    TEST_CASE("vector_set_test.constructor_with_range_and_capacity", "[vector_set_test]") {
         ASSERT_VSET_EQ(10u, {},          create_vset_from_range(10u, {}));
         ASSERT_VSET_EQ(10u, { 1 },       create_vset_from_range(10u, { 1 }));
         ASSERT_VSET_EQ(10u, { 1 },       create_vset_from_range(10u, { 1, 1 }));
@@ -65,7 +67,7 @@ namespace kdl {
         ASSERT_VSET_EQ(10u, { 1, 2, 3 }, create_vset_from_range(10u, { 2, 1, 3, 1, 2 }));
     }
 
-    TEST(vector_set_test, constructor_with_initializer_list) {
+    TEST_CASE("vector_set_test.constructor_with_initializer_list", "[vector_set_test]") {
         ASSERT_VSET_EQ({},          create_vset_from_list({}));
         ASSERT_VSET_EQ({ 1 },       create_vset_from_list({ 1 }));
         ASSERT_VSET_EQ({ 1 },       create_vset_from_list({ 1, 1 }));
@@ -74,7 +76,7 @@ namespace kdl {
         ASSERT_VSET_EQ({ 1, 2, 3 }, create_vset_from_list({ 2, 1, 3, 1, 2 }));
     }
 
-    TEST(vector_set_test, constructor_with_initializer_list_and_capacity) {
+    TEST_CASE("vector_set_test.constructor_with_initializer_list_and_capacity", "[vector_set_test]") {
         ASSERT_VSET_EQ(10u, {},          create_vset_from_list(10u, {}));
         ASSERT_VSET_EQ(10u, { 1 },       create_vset_from_list(10u, { 1 }));
         ASSERT_VSET_EQ(10u, { 1 },       create_vset_from_list(10u, { 1, 1 }));
@@ -83,7 +85,7 @@ namespace kdl {
         ASSERT_VSET_EQ(10u, { 1, 2, 3 }, create_vset_from_list(10u, { 2, 1, 3, 1, 2 }));
     }
 
-    TEST(vector_set_test, constructor_with_vector) {
+    TEST_CASE("vector_set_test.constructor_with_vector", "[vector_set_test]") {
         ASSERT_VSET_EQ({},          create_vset_from_vector({}));
         ASSERT_VSET_EQ({ 1 },       create_vset_from_vector({ 1 }));
         ASSERT_VSET_EQ({ 1 },       create_vset_from_vector({ 1, 1 }));
@@ -92,7 +94,7 @@ namespace kdl {
         ASSERT_VSET_EQ({ 1, 2, 3 }, create_vset_from_vector({ 2, 1, 3, 1, 2 }));
     }
 
-    TEST(vector_set_test, assignment_from_initializer_list) {
+    TEST_CASE("vector_set_test.assignment_from_initializer_list", "[vector_set_test]") {
         ASSERT_VSET_EQ({},          vset() = {});
         ASSERT_VSET_EQ({ 1 },       vset() = { 1 });
         ASSERT_VSET_EQ({ 1 },       vset() = { 1, 1 });
@@ -108,7 +110,7 @@ namespace kdl {
         ASSERT_VSET_EQ({ 1, 2, 3 }, vset({ 7, 8, 9 }) = { 2, 1, 3, 1, 2 });
     }
 
-    TEST(vector_set_test, assignment_from_vector) {
+    TEST_CASE("vector_set_test.assignment_from_vector", "[vector_set_test]") {
         ASSERT_VSET_EQ({},          vset() = std::vector<int>({}));
         ASSERT_VSET_EQ({ 1 },       vset() = std::vector<int>({ 1 }));
         ASSERT_VSET_EQ({ 1 },       vset() = std::vector<int>({ 1, 1 }));
@@ -124,12 +126,12 @@ namespace kdl {
         ASSERT_VSET_EQ({ 1, 2, 3 }, vset({ 7, 8, 9 }) = std::vector<int>({ 2, 1, 3, 1, 2 }));
     }
 
-    TEST(vector_set_test, deduction_guide_range) {
+    TEST_CASE("vector_set_test.deduction_guide_range", "[vector_set_test]") {
         std::vector<int> v({ 1, 2, 3 });
         vector_set s(std::begin(v), std::end(v));
     }
 
-    TEST(vector_set_test, deduction_guide_range_and_capacity) {
+    TEST_CASE("vector_set_test.deduction_guide_range_and_capacity", "[vector_set_test]") {
         std::vector<int> v({ 1, 2, 3 });
         vector_set s(3u, std::begin(v), std::end(v));
     }

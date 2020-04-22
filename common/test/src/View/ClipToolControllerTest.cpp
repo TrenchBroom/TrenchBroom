@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "MapDocumentTest.h"
 
@@ -50,7 +52,7 @@ namespace TrenchBroom {
         }
 
         // https://github.com/kduske/TrenchBroom/issues/2602
-        TEST_F(ClipToolControllerTest, testTwoPointsCreateClipPlane) {
+        TEST_CASE_METHOD(ClipToolControllerTest, "ClipToolControllerTest.testTwoPointsCreateClipPlane") {
             const auto data = R"(
 // entity 0
 {

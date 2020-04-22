@@ -236,7 +236,7 @@ namespace TrenchBroom {
                     result.push_back(makeAction(
                         IO::Path("Tags/" + tag.name() + "/Enable"),
                         QObject::tr("Turn Selection into %1").arg(QString::fromStdString(tag.name())),
-                        ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool,
+                        ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::FaceSelection | ActionContext::AnyTool,
                         [&tag](ActionExecutionContext& context) {
                             context.view()->enableTag(tag);
                         },
@@ -247,7 +247,7 @@ namespace TrenchBroom {
                     result.push_back(makeAction(
                         IO::Path("Tags/" + tag.name() + "/Disable"),
                         QObject::tr("Turn Selection into non-%1").arg(QString::fromStdString(tag.name())),
-                        ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool,
+                        ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::FaceSelection | ActionContext::AnyTool,
                         [&tag](ActionExecutionContext& context) {
                             context.view()->disableTag(tag);
                         },
@@ -531,37 +531,109 @@ namespace TrenchBroom {
             createAction(IO::Path("Controls/Map view/Move textures up"), QObject::tr("Move Textures Up"),
                 ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_Up),
                 [](ActionExecutionContext& context) {
-                    context.view()->moveTextures(vm::direction::up);
+                    context.view()->moveTextures(vm::direction::up, MapViewBase::TextureActionMode::Normal);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Move textures up (coarse)"), QObject::tr("Move Textures Up (Coarse)"),
+                ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::SHIFT + Qt::Key_Up),
+                [](ActionExecutionContext& context) {
+                    context.view()->moveTextures(vm::direction::up, MapViewBase::TextureActionMode::Coarse);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Move textures up (fine)"), QObject::tr("Move Textures Up (Fine)"),
+                ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::CTRL + Qt::Key_Up),
+                [](ActionExecutionContext& context) {
+                    context.view()->moveTextures(vm::direction::up, MapViewBase::TextureActionMode::Fine);
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });
             createAction(IO::Path("Controls/Map view/Move textures down"), QObject::tr("Move Textures Down"),
                 ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_Down),
                 [](ActionExecutionContext& context) {
-                    context.view()->moveTextures(vm::direction::down);
+                    context.view()->moveTextures(vm::direction::down, MapViewBase::TextureActionMode::Normal);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Move textures down (coarse)"), QObject::tr("Move Textures Down (Coarse)"),
+                ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::SHIFT + Qt::Key_Down),
+                [](ActionExecutionContext& context) {
+                    context.view()->moveTextures(vm::direction::down, MapViewBase::TextureActionMode::Coarse);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Move textures down (fine)"), QObject::tr("Move Textures Down (Fine)"),
+                ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::CTRL + Qt::Key_Down),
+                [](ActionExecutionContext& context) {
+                    context.view()->moveTextures(vm::direction::down, MapViewBase::TextureActionMode::Fine);
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });
             createAction(IO::Path("Controls/Map view/Move textures left"), QObject::tr("Move Textures Left"),
                 ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_Left),
                 [](ActionExecutionContext& context) {
-                    context.view()->moveTextures(vm::direction::left);
+                    context.view()->moveTextures(vm::direction::left, MapViewBase::TextureActionMode::Normal);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Move textures left (coarse)"), QObject::tr("Move Textures Left (Coarse)"),
+                ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::SHIFT + Qt::Key_Left),
+                [](ActionExecutionContext& context) {
+                    context.view()->moveTextures(vm::direction::left, MapViewBase::TextureActionMode::Coarse);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Move textures left (fine)"), QObject::tr("Move Textures Left (Fine)"),
+                ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::CTRL + Qt::Key_Left),
+                [](ActionExecutionContext& context) {
+                    context.view()->moveTextures(vm::direction::left, MapViewBase::TextureActionMode::Fine);
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });
             createAction(IO::Path("Controls/Map view/Move textures right"), QObject::tr("Move Textures Right"),
                 ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_Right),
                 [](ActionExecutionContext& context) {
-                    context.view()->moveTextures(vm::direction::right);
+                    context.view()->moveTextures(vm::direction::right, MapViewBase::TextureActionMode::Normal);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Move textures right (coarse)"), QObject::tr("Move Textures Right (Coarse)"),
+                ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::SHIFT + Qt::Key_Right),
+                [](ActionExecutionContext& context) {
+                    context.view()->moveTextures(vm::direction::right, MapViewBase::TextureActionMode::Coarse);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Move textures right (fine)"), QObject::tr("Move Textures Right (Fine)"),
+                ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::CTRL + Qt::Key_Right),
+                [](ActionExecutionContext& context) {
+                    context.view()->moveTextures(vm::direction::right, MapViewBase::TextureActionMode::Fine);
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });
             createAction(IO::Path("Controls/Map view/Rotate textures clockwise"), QObject::tr("Rotate Textures Clockwise"),
                 ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_PageUp),
                 [](ActionExecutionContext& context) {
-                    context.view()->rotateTextures(true);
+                    context.view()->rotateTextures(true, MapViewBase::TextureActionMode::Normal);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Rotate textures clockwise (coarse)"), QObject::tr("Rotate Textures Clockwise (Coarse)"),
+                ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::SHIFT + Qt::Key_PageUp),
+                [](ActionExecutionContext& context) {
+                    context.view()->rotateTextures(true, MapViewBase::TextureActionMode::Coarse);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Rotate textures clockwise (fine)"), QObject::tr("Rotate Textures Clockwise (Fine)"),
+                ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::CTRL + Qt::Key_PageUp),
+                [](ActionExecutionContext& context) {
+                    context.view()->rotateTextures(true, MapViewBase::TextureActionMode::Fine);
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });
             createAction(IO::Path("Controls/Map view/Rotate textures counter-clockwise"), QObject::tr("Rotate Textures Counter-clockwise"),
                 ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_PageDown),
                 [](ActionExecutionContext& context) {
-                    context.view()->rotateTextures(false);
+                    context.view()->rotateTextures(false, MapViewBase::TextureActionMode::Normal);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Rotate textures counter-clockwise (coarse)"), QObject::tr("Rotate Textures Counter-clockwise (Coarse)"),
+                ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::SHIFT + Qt::Key_PageDown),
+                [](ActionExecutionContext& context) {
+                    context.view()->rotateTextures(false, MapViewBase::TextureActionMode::Coarse);
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Rotate textures counter-clockwise (fine)"), QObject::tr("Rotate Textures Counter-clockwise (Fine)"),
+                ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::CTRL + Qt::Key_PageDown),
+                [](ActionExecutionContext& context) {
+                    context.view()->rotateTextures(false, MapViewBase::TextureActionMode::Fine);
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });
 

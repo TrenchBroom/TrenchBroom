@@ -81,6 +81,8 @@ namespace TrenchBroom {
             initializeToolChain(toolBox);
 
             m_camera->setFov(pref(Preferences::CameraFov));
+
+            mapViewBaseVirtualInit();
         }
 
         MapView3D::~MapView3D() {
@@ -421,6 +423,10 @@ namespace TrenchBroom {
                     return vm::vec3::neg_z();
                 switchDefault()
             }
+        }
+
+        size_t MapView3D::doGetFlipAxis(const vm::direction direction) const {
+            return vm::find_abs_max_component(doGetMoveDirection(direction));
         }
 
         vm::vec3 MapView3D::doComputePointEntityPosition(const vm::bbox3& bounds) const {

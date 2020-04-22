@@ -68,6 +68,12 @@ namespace TrenchBroom {
                             discardUntil("\n\r");
                         }
                         break;
+                    case ';':
+                        // Heretic2 allows semicolon to start a line comment.
+                        // QuArK writes comments in this format when saving a Heretic2 .map.
+                        advance();
+                        discardUntil("\n\r");
+                        break;
                     case '{':
                         advance();
                         return Token(QuakeMapToken::OBrace, c, c+1, offset(c), startLine, startColumn);
@@ -170,7 +176,7 @@ namespace TrenchBroom {
                 expect(QuakeMapToken::Number | QuakeMapToken::OBracket, token = m_tokenizer.nextToken());
                 if (token.type() == QuakeMapToken::OBracket) {
                     format = Model::MapFormat::Valve;
-                    // TODO: Could also be Model::MapFormat::Quake2_Valve, handle this case.
+                    // TODO: Could also be Model::MapFormat::Quake2_Valve or Model::MapFormat::Quake3_Valve, handle this case.
                 }
             }
 
@@ -334,7 +340,8 @@ namespace TrenchBroom {
                 } else {
                     parseBrush(status, startLine, false);
                 }
-            } else if (m_format == Model::MapFormat::Quake3_Legacy) {
+            } else if (m_format == Model::MapFormat::Quake3_Valve ||
+                       m_format == Model::MapFormat::Quake3_Legacy) {
                 // We expect either a patch or a regular brush.
                 expect(QuakeMapToken::String | QuakeMapToken::OParenthesis, token);
                 if (token.hasType(QuakeMapToken::String)) {
@@ -409,6 +416,7 @@ namespace TrenchBroom {
                     parseQuake2Face(status);
                     break;
                 case Model::MapFormat::Quake2_Valve:
+                case Model::MapFormat::Quake3_Valve:
                     parseQuake2ValveFace(status);
                     break;
                 case Model::MapFormat::Hexen2:

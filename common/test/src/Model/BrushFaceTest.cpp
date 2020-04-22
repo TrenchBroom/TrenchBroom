@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "FloatType.h"
 #include "Exceptions.h"
@@ -49,7 +51,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(BrushFaceTest, constructWithValidPoints) {
+        TEST_CASE("BrushFaceTest.constructWithValidPoints", "[BrushFaceTest]") {
             const vm::vec3 p0(0.0,  0.0, 4.0);
             const vm::vec3 p1(1.0,  0.0, 4.0);
             const vm::vec3 p2(0.0, -1.0, 4.0);
@@ -63,7 +65,7 @@ namespace TrenchBroom {
             ASSERT_EQ(4.0, face.boundary().distance);
         }
 
-        TEST(BrushFaceTest, constructWithColinearPoints) {
+        TEST_CASE("BrushFaceTest.constructWithColinearPoints", "[BrushFaceTest]") {
             const vm::vec3 p0(0.0, 0.0, 4.0);
             const vm::vec3 p1(1.0, 0.0, 4.0);
             const vm::vec3 p2(2.0, 0.0, 4.0);
@@ -72,7 +74,7 @@ namespace TrenchBroom {
             ASSERT_THROW(new BrushFace(p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs)), GeometryException);
         }
 
-        TEST(BrushFaceTest, textureUsageCount) {
+        TEST_CASE("BrushFaceTest.textureUsageCount", "[BrushFaceTest]") {
             const vm::vec3 p0(0.0,  0.0, 4.0);
             const vm::vec3 p1(1.0,  0.0, 4.0);
             const vm::vec3 p2(0.0, -1.0, 4.0);
@@ -433,7 +435,7 @@ namespace TrenchBroom {
             delete face;
         }
 
-        TEST(BrushFaceTest, testTextureLock_Paraxial) {
+        TEST_CASE("BrushFaceTest.testTextureLock_Paraxial", "[BrushFaceTest]") {
             const vm::bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
             World world(MapFormat::Standard);
@@ -454,7 +456,7 @@ namespace TrenchBroom {
             delete cube;
         }
 
-        TEST(BrushFaceTest, testTextureLock_Parallel) {
+        TEST_CASE("BrushFaceTest.testTextureLock_Parallel", "[BrushFaceTest]") {
             const vm::bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
             World world(MapFormat::Valve);
@@ -475,7 +477,7 @@ namespace TrenchBroom {
             delete cube;
         }
 
-        TEST(BrushFaceTest, testBrushFaceSnapshot) {
+        TEST_CASE("BrushFaceTest.testBrushFaceSnapshot", "[BrushFaceTest]") {
             const vm::bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
             World world(MapFormat::Valve);
@@ -514,7 +516,7 @@ namespace TrenchBroom {
         }
 
         // https://github.com/kduske/TrenchBroom/issues/2001
-        TEST(BrushFaceTest, testValveRotation) {
+        TEST_CASE("BrushFaceTest.testValveRotation", "[BrushFaceTest]") {
             const std::string data("{\n"
                                       "\"classname\" \"worldspawn\"\n"
                                       "{\n"
@@ -570,7 +572,7 @@ namespace TrenchBroom {
         }
 
         // https://github.com/kduske/TrenchBroom/issues/1995
-        TEST(BrushFaceTest, testCopyTexCoordSystem) {
+        TEST_CASE("BrushFaceTest.testCopyTexCoordSystem", "[BrushFaceTest]") {
             const std::string data("{\n"
                                       "    \"classname\" \"worldspawn\"\n"
                                       "    {\n"
@@ -627,7 +629,7 @@ namespace TrenchBroom {
         }
 
         // https://github.com/kduske/TrenchBroom/issues/2315
-        TEST(BrushFaceTest, move45DegreeFace) {
+        TEST_CASE("BrushFaceTest.move45DegreeFace", "[BrushFaceTest]") {
             const std::string data(R"(
 // entity 0
 {

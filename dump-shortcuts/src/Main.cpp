@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
     // Needs to be "" otherwise Qt adds this to the paths returned by QStandardPaths
     // which would cause preferences to move from where they were with wx
     app.setOrganizationName("");
-    app.setOrganizationDomain("com.kristianduske");
+    app.setOrganizationDomain("io.github.trenchbroom");
 
     TrenchBroom::View::printKeys(out);
     TrenchBroom::View::printMenuShortcuts(out);

@@ -58,6 +58,10 @@ namespace TrenchBroom {
              */
             Quake3_Legacy,
             /**
+             * Quake 3 with Valve 220 format texturing, supported by https://github.com/Garux/netradiant-custom/tree/master/tools/quake3/q3map2
+             */
+            Quake3_Valve,
+            /**
              * Quake 3 with brush primitives, also allows Quake 2 brushes
              */
             Quake3

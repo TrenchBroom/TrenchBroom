@@ -23,7 +23,6 @@
 #include "FloatType.h"
 #include "Macros.h"
 #include "Model/AttributableNode.h"
-#include "Model/EntityRotationPolicy.h"
 #include "Model/HitType.h"
 #include "Model/Object.h"
 
@@ -36,12 +35,13 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        enum class PitchType;
         class EntityModelFrame;
         struct ModelSpecification;
     }
 
     namespace Model {
-        class Entity : public AttributableNode, public Object, private EntityRotationPolicy {
+        class Entity : public AttributableNode, public Object {
         public:
             static const HitType::Type EntityHit;
             static const vm::bbox3 DefaultBounds;
@@ -70,6 +70,7 @@ namespace TrenchBroom {
             const vm::vec3& origin() const;
             const vm::mat4x4& rotation() const;
             const vm::mat4x4 modelTransformation() const;
+            Assets::PitchType pitchType() const;
             FloatType area(vm::axis::type axis) const;
         private:
             void cacheAttributes();

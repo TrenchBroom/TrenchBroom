@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
@@ -30,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(ZipFileSystemTest, directoryExists) {
+        TEST_CASE("ZipFileSystemTest.directoryExists", "[ZipFileSystemTest]") {
             const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
 
             const ZipFileSystem fs(zipPath);
@@ -42,7 +44,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(fs.directoryExists(Path("pics/tag1.pcx")));
         }
 
-        TEST(ZipFileSystemTest, fileExists) {
+        TEST_CASE("ZipFileSystemTest.fileExists", "[ZipFileSystemTest]") {
             const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
 
             const ZipFileSystem fs(zipPath);
@@ -53,7 +55,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(fs.fileExists(Path("PICS/TAG1.pcX")));
         }
 
-        TEST(ZipFileSystemTest, findItems) {
+        TEST_CASE("ZipFileSystemTest.findItems", "[ZipFileSystemTest]") {
             const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
 
             const ZipFileSystem fs(zipPath);
@@ -82,7 +84,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("pics/tag2.pcx")) != std::end(items));
         }
 
-        TEST(ZipFileSystemTest, findItemsRecursively) {
+        TEST_CASE("ZipFileSystemTest.findItemsRecursively", "[ZipFileSystemTest]") {
             const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
 
             const ZipFileSystem fs(zipPath);
@@ -130,7 +132,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(std::find(std::begin(items), std::end(items), Path("textures/e1u3/stflr1_5.wal")) != std::end(items));
         }
 
-        TEST(ZipFileSystemTest, openFile) {
+        TEST_CASE("ZipFileSystemTest.openFile", "[ZipFileSystemTest]") {
             const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
 
             const ZipFileSystem fs(zipPath);

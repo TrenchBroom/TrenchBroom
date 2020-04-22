@@ -44,6 +44,7 @@
 
 #include <QCompleter>
 #include <QDialogButtonBox>
+#include <QDir>
 #include <QLabel>
 #include <QMessageBox>
 #include <QProcess>
@@ -200,6 +201,8 @@ namespace TrenchBroom {
                 const std::string& parameterSpec = profile->parameterSpec();
                 const std::string parameters = EL::interpolate(parameterSpec, EL::EvaluationContext(variables()));
 
+                const auto workDir = IO::pathAsQString(executablePath.deleteLastComponent());
+
 #ifdef __APPLE__
                 // We have to launch apps via the 'open' command so that we can properly pass parameters.
                 QStringList arguments;
@@ -207,8 +210,6 @@ namespace TrenchBroom {
                 arguments.append(IO::pathAsQString(executablePath));
                 arguments.append("--args");
                 arguments.append(QString::fromStdString(parameters));
-
-                const auto workDir = IO::pathAsQString(executablePath.deleteLastComponent());
 
                 if (!QProcess::startDetached("/usr/bin/open", arguments, workDir)) {
                     throw Exception("Unknown error");
@@ -218,7 +219,12 @@ namespace TrenchBroom {
                     .arg(IO::pathAsQString(executablePath))
                     .arg(QString::fromStdString(parameters));
 
-                if (!QProcess::startDetached(commandAndArgs)) {
+                const QString oldWorkDir = QDir::currentPath();
+                QDir::setCurrent(workDir);
+                const bool success = QProcess::startDetached(commandAndArgs);
+                QDir::setCurrent(oldWorkDir);
+
+                if (!success) {
                     throw Exception("Unknown error");
                 }
 #endif

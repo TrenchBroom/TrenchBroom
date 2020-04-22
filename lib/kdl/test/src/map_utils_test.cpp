@@ -15,7 +15,9 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "test_utils.h"
 
@@ -31,7 +33,7 @@ namespace kdl {
         ASSERT_EQ(keys, map_keys(map));
     }
 
-    TEST(map_utils_test, map_keys) {
+    TEST_CASE("map_utils_test.map_keys", "[map_utils_test]") {
         test_map_keys<int, int>({}, {});
         test_map_keys<int, std::string>({ 1, 2, 3 }, {
             { 1, "one" },
@@ -45,7 +47,7 @@ namespace kdl {
         ASSERT_EQ(values, map_values(map));
     }
 
-    TEST(map_utils_test, map_values) {
+    TEST_CASE("map_utils_test.map_values", "[map_utils_test]") {
         test_map_values<int, int>({}, {});
         test_map_values<int, std::string>({ "one", "two", "three" }, {
             { 1, "one" },
@@ -59,7 +61,7 @@ namespace kdl {
         ASSERT_EQ(exp, map_lexicographical_compare(lhs, rhs));
     }
 
-    TEST(map_utils_test, map_lexicographical_compare) {
+    TEST_CASE("map_utils_test.map_lexicographical_compare", "[map_utils_test]") {
         test_map_lexicographical_compare<int, int>(0, {}, {});
         test_map_lexicographical_compare<int, int>(0, {
             { 1, 2 },
@@ -112,7 +114,7 @@ namespace kdl {
         ASSERT_EQ(exp, map_is_equivalent(lhs, rhs));
     }
 
-    TEST(map_utils_test, map_is_equivalent) {
+    TEST_CASE("map_utils_test.map_is_equivalent", "[map_utils_test]") {
         test_map_is_equivalent<int, int>(true, {}, {});
         test_map_is_equivalent<int, int>(true, {
             { 1, 2 },
@@ -165,7 +167,7 @@ namespace kdl {
         ASSERT_EQ(exp, map_find_or_default(m, key, defaultValue));
     }
 
-    TEST(map_utils_test, map_find_or_default) {
+    TEST_CASE("map_utils_test.map_find_or_default", "[map_utils_test]") {
         test_map_find_or_default<int, std::string>("default", {}, 1, "default");
         test_map_find_or_default<int, std::string>("value", {{ 1, "value" }}, 1, "default");
     }
@@ -175,7 +177,7 @@ namespace kdl {
         ASSERT_EQ(exp, map_union(m1, m2));
     }
 
-    TEST(map_utils_test, map_union) {
+    TEST_CASE("map_utils_test.map_union", "[map_utils_test]") {
         test_map_union<int, int>({},                   {},         {});
         test_map_union<int, int>({{ 1, 2 }},           {{ 1, 2 }}, {});
         test_map_union<int, int>({{ 1, 2 }},           {},         {{ 1, 2 }});
@@ -190,7 +192,7 @@ namespace kdl {
         ASSERT_EQ(exp, map_merge(m1, m2));
     }
 
-    TEST(map_utils_test, map_merge) {
+    TEST_CASE("map_utils_test.map_merge", "[map_utils_test]") {
         test_map_merge<int, int>({}, {}, {});
         test_map_merge<int, int>({{ 1, { 1, 2 }}}, {{ 1, { 1, 2 }}}, {});
         test_map_merge<int, int>({{ 1, { 1, 2 }}}, {}, {{ 1, { 1, 2 }}});
@@ -199,8 +201,11 @@ namespace kdl {
         test_map_merge<int, int>({{ 1, { 1, 2, 3, 4 }}}, {{ 1, { 1, 2 }}}, {{ 1, { 3, 4 }}});
     }
 
-    TEST(map_utils_test, map_clear_and_delete) {
-        bool d1, d2, d3, d4;
+    TEST_CASE("map_utils_test.map_clear_and_delete", "[map_utils_test]") {
+        bool d1 = false;
+        bool d2 = false;
+        bool d3 = false;
+        bool d4 = false;
 
         auto m = std::map<int, std::vector<deletable*>>({
             { 1, {} },

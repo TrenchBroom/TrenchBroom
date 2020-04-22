@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Model/Tag.h"
 #include "Model/TagManager.h"
@@ -29,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(TaggingTest, testTagBrush) {
+        TEST_CASE("TaggingTest.testTagBrush", "[TaggingTest]") {
             const vm::bbox3 worldBounds{4096.0};
             World world{MapFormat::Standard};
 

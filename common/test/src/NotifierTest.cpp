@@ -17,10 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Notifier.h"
+
+#include <vector>
+#include <tuple>
 
 namespace TrenchBroom {
     class Observed {
@@ -44,12 +48,26 @@ namespace TrenchBroom {
 
     class Observer {
     public:
-        MOCK_METHOD0(notify0, void());
-        MOCK_METHOD1(notify1, void(const int&));
-        MOCK_METHOD2(notify2, void(const int&, const int&));
+        int notify0Calls;
+        std::vector<int> notify1Calls;
+        std::vector<std::tuple<int,int>> notify2Calls;
+
+        Observer() : notify0Calls(0) {}
+
+        void notify0() {
+            ++notify0Calls;
+        }
+
+        void notify1(const int& a1) {
+            notify1Calls.push_back(a1);
+        }
+
+        void notify2(const int& a1, const int& a2) {
+            notify2Calls.push_back({a1, a2});
+        }
     };
 
-    TEST(NotifierTest, testAddRemoveObservers) {
+    TEST_CASE("NotifierTest.testAddRemoveObservers", "[NotifierTest]") {
         Observer o1;
         Observer o2;
 
@@ -86,7 +104,7 @@ namespace TrenchBroom {
         ASSERT_FALSE(obs.twoArgNotifier.removeObserver(&o2, &Observer::notify2));
     }
 
-    TEST(NotifierTest, testNotifyObservers) {
+    TEST_CASE("NotifierTest.testNotifyObservers", "[NotifierTest]") {
         Observer o1;
         Observer o2;
 
@@ -98,20 +116,25 @@ namespace TrenchBroom {
         obs.twoArgNotifier.addObserver(&o1, &Observer::notify2);
         obs.twoArgNotifier.addObserver(&o2, &Observer::notify2);
 
-        EXPECT_CALL(o1, notify0());
-        EXPECT_CALL(o2, notify0());
+        CHECK(0 == o1.notify0Calls);
+        CHECK(o1.notify1Calls.empty());
+        CHECK(o1.notify2Calls.empty());
 
-        EXPECT_CALL(o1, notify1(1));
-        EXPECT_CALL(o2, notify1(1));
-        EXPECT_CALL(o1, notify1(2));
-        EXPECT_CALL(o2, notify1(2));
-
-        EXPECT_CALL(o1, notify2(1, 2));
-        EXPECT_CALL(o2, notify2(1, 2));
+        CHECK(0 == o2.notify0Calls);
+        CHECK(o2.notify1Calls.empty());
+        CHECK(o2.notify2Calls.empty());
 
         obs.notify0();
         obs.notify1(1);
         obs.notify1(2);
         obs.notify2(1, 2);
+
+        CHECK(1 == o1.notify0Calls);
+        CHECK(std::vector<int>{1, 2} == o1.notify1Calls);
+        CHECK(std::vector<std::tuple<int,int>>{{1, 2}} == o1.notify2Calls);
+
+        CHECK(1 == o2.notify0Calls);
+        CHECK(std::vector<int>{1, 2} == o2.notify1Calls);
+        CHECK(std::vector<std::tuple<int,int>>{{1, 2}} == o2.notify2Calls);
     }
 }

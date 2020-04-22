@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include "GTestCompat.h"
 
 #include "Assets/Quake3Shader.h"
 #include "IO/DiskFileSystem.h"
@@ -33,7 +35,7 @@ namespace TrenchBroom {
     namespace IO {
         void assertShaders(const std::vector<Assets::Quake3Shader>& expected, const std::vector<Assets::Quake3Shader>& actual);
 
-        TEST(Quake3ShaderParserTest, parseEmptyShader) {
+        TEST_CASE("Quake3ShaderParserTest.parseEmptyShader", "[Quake3ShaderParserTest]") {
             const std::string data("");
             Quake3ShaderParser parser(data);
             const auto expected = std::vector<Assets::Quake3Shader> {};
@@ -42,7 +44,7 @@ namespace TrenchBroom {
             assertShaders(expected, parser.parse(status));
         }
 
-        TEST(Quake3ShaderParserTest, parseSingleShaderWithEmptyBlock) {
+        TEST_CASE("Quake3ShaderParserTest.parseSingleShaderWithEmptyBlock", "[Quake3ShaderParserTest]") {
             const std::string data(R"(
 textures/liquids/lavahell2 //path and name of new texture
 {}
@@ -62,7 +64,7 @@ textures/liquids/lavahell2 //path and name of new texture
             assertShaders(expected, parser.parse(status));
         }
 
-        TEST(Quake3ShaderParserTest, parseSingleSimpleShaderWithoutEditorImage) {
+        TEST_CASE("Quake3ShaderParserTest.parseSingleSimpleShaderWithoutEditorImage", "[Quake3ShaderParserTest]") {
             const std::string data(R"(
 textures/liquids/lavahell2 //path and name of new texture
 {
@@ -114,7 +116,7 @@ textures/liquids/lavahell2 //path and name of new texture
             assertShaders(expected, parser.parse(status));
         }
 
-        TEST(Quake3ShaderParserTest, parseSingleSimpleShaderWithEditorImage) {
+        TEST_CASE("Quake3ShaderParserTest.parseSingleSimpleShaderWithEditorImage", "[Quake3ShaderParserTest]") {
             const std::string data(R"(
 textures/liquids/lavahell2 //path and name of new texture
 {
@@ -167,7 +169,7 @@ textures/liquids/lavahell2 //path and name of new texture
             assertShaders(expected, parser.parse(status));
         }
 
-        TEST(Quake3ShaderParserTest, parseSingleComplexShaderWithEditorImage) {
+        TEST_CASE("Quake3ShaderParserTest.parseSingleComplexShaderWithEditorImage", "[Quake3ShaderParserTest]") {
             const std::string data(R"(
 textures/eerie/ironcrosslt2_10000
 {
@@ -228,7 +230,7 @@ textures/eerie/ironcrosslt2_10000
             assertShaders(expected, parser.parse(status));
         }
 
-        TEST(Quake3ShaderParserTest, parseTwoShaders) {
+        TEST_CASE("Quake3ShaderParserTest.parseTwoShaders", "[Quake3ShaderParserTest]") {
             const std::string data(R"(
 textures/eerie/ironcrosslt2_10000
 {
@@ -337,7 +339,7 @@ textures/liquids/lavahell2 //path and name of new texture
             assertShaders(expected, parser.parse(status));
         }
 
-        TEST(Quake3ShaderParserTest, parseShadersWithCommentTerminatingBlockEntry) {
+        TEST_CASE("Quake3ShaderParserTest.parseShadersWithCommentTerminatingBlockEntry", "[Quake3ShaderParserTest]") {
             const std::string data(R"(
 waterBubble
 {
@@ -358,7 +360,7 @@ waterBubble
             ASSERT_NO_THROW(parser.parse(status));
         }
 
-        TEST(Quake3ShaderParserTest, parseShadersWithMultilineComment) {
+        TEST_CASE("Quake3ShaderParserTest.parseShadersWithMultilineComment", "[Quake3ShaderParserTest]") {
             const std::string data(R"(
 /*
 This is a
@@ -384,7 +386,7 @@ waterBubble
             ASSERT_NO_THROW(parser.parse(status));
         }
 
-        TEST(Quake3ShaderParserTest, parseBlendFuncParameters) {
+        TEST_CASE("Quake3ShaderParserTest.parseBlendFuncParameters", "[Quake3ShaderParserTest]") {
             // see https://github.com/id-Software/Quake-III-Arena/blob/master/code/renderer/tr_shader.c#L176
             const std::string data(R"(
             waterBubble
@@ -499,7 +501,7 @@ waterBubble
             ASSERT_EQ(Assets::Quake3ShaderStage::BlendFunc::OneMinusSrcColor, stages[11].blendFunc.destFactor);
         }
 
-        TEST(Quake3ShaderParserTest, parseShadersWithInvalidWhitespace) {
+        TEST_CASE("Quake3ShaderParserTest.parseShadersWithInvalidWhitespace", "[Quake3ShaderParserTest]") {
             // see https://github.com/kduske/TrenchBroom/issues/2537
             // The file contains a carriage return without a consecutive line feed, which tripped the parser.
 
@@ -513,7 +515,7 @@ waterBubble
             ASSERT_NO_THROW(parser.parse(status));
         }
 
-        TEST(Quake3ShaderParserTest, parseShaderAbsolutePath) {
+        TEST_CASE("Quake3ShaderParserTest.parseShaderAbsolutePath", "[Quake3ShaderParserTest]") {
             // see https://github.com/kduske/TrenchBroom/issues/2633
             // apparently, the Q3 engine can handle this
 
@@ -540,7 +542,7 @@ waterBubble
             assertShaders(expected, parser.parse(status));
         }
 
-        TEST(Quake3ShaderParserTest, parseShaderWithMissingCBrace) {
+        TEST_CASE("Quake3ShaderParserTest.parseShaderWithMissingCBrace", "[Quake3ShaderParserTest]") {
             // see https://github.com/kduske/TrenchBroom/issues/2663
             // Quake 3 allows this, too.
 

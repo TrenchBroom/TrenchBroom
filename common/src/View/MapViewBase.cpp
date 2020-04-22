@@ -106,6 +106,10 @@ namespace TrenchBroom {
             m_compass = std::move(compass);
         }
 
+        void MapViewBase::mapViewBaseVirtualInit() {
+            createActionsAndUpdatePicking();
+        }
+
         MapViewBase::~MapViewBase() {
             unbindObservers();
 
@@ -186,6 +190,15 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapViewBase::preferenceDidChange);
         }
 
+        /**
+         * Full re-initialization of QActions and picking state.
+         */
+        void MapViewBase::createActionsAndUpdatePicking() {
+            createActions();
+            updateActionStates();
+            updatePickResult();
+        }
+
         void MapViewBase::nodesDidChange(const std::vector<Model::Node*>&) {
             updatePickResult();
             update();
@@ -258,9 +271,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::documentDidChange(MapDocument*) {
-            createActions();
-            updateActionStates();
-            updatePickResult();
+            createActionsAndUpdatePicking();
             update();
         }
 
@@ -412,7 +423,7 @@ namespace TrenchBroom {
                 halfGrid.decSize();
 
                 const auto center = halfGrid.referencePoint(document->selectionBounds());
-                const auto axis = vm::find_abs_max_component(moveDirection(direction));
+                const size_t axis = doGetFlipAxis(direction);
 
                 document->flipObjects(center, axis);
             }
@@ -423,24 +434,24 @@ namespace TrenchBroom {
             return !m_toolBox.anyToolActive() && document->hasSelectedNodes();
         }
 
-        void MapViewBase::moveTextures(const vm::direction direction) {
+        void MapViewBase::moveTextures(const vm::direction direction, const TextureActionMode mode) {
             auto document = kdl::mem_lock(m_document);
             if (document->hasSelectedBrushFaces()) {
-                const auto offset = moveTextureOffset(direction);
+                const auto offset = moveTextureOffset(direction, mode);
                 document->moveTextures(doGetCamera().up(), doGetCamera().right(), offset);
             }
         }
 
-        vm::vec2f MapViewBase::moveTextureOffset(vm::direction direction) const {
+        vm::vec2f MapViewBase::moveTextureOffset(const vm::direction direction, const TextureActionMode mode) const {
             switch (direction) {
                 case vm::direction::up:
-                    return vm::vec2f(0.0f, moveTextureDistance());
+                    return vm::vec2f(0.0f, moveTextureDistance(mode));
                 case vm::direction::down:
-                    return vm::vec2f(0.0f, -moveTextureDistance());
+                    return vm::vec2f(0.0f, -moveTextureDistance(mode));
                 case vm::direction::left:
-                    return vm::vec2f(-moveTextureDistance(), 0.0f);
+                    return vm::vec2f(-moveTextureDistance(mode), 0.0f);
                 case vm::direction::right:
-                    return vm::vec2f(moveTextureDistance(), 0.0f);
+                    return vm::vec2f(moveTextureDistance(mode), 0.0f);
                 case vm::direction::forward:
                 case vm::direction::backward:
                     return vm::vec2f();
@@ -448,43 +459,42 @@ namespace TrenchBroom {
             }
         }
 
-        float MapViewBase::moveTextureDistance() const {
+        float MapViewBase::moveTextureDistance(const TextureActionMode mode) const {
             const auto& grid = kdl::mem_lock(m_document)->grid();
             const auto gridSize = static_cast<float>(grid.actualSize());
 
-            const Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
-            switch (modifiers) {
-                case Qt::ControlModifier:
+            switch (mode) {
+                case TextureActionMode::Fine:
                     return 1.0f;
-                case Qt::ShiftModifier:
+                case TextureActionMode::Coarse:
                     return 2.0f * gridSize;
-                default:
+                case TextureActionMode::Normal:
                     return gridSize;
+                switchDefault();
             }
         }
 
-        void MapViewBase::rotateTextures(const bool clockwise) {
+        void MapViewBase::rotateTextures(const bool clockwise, const TextureActionMode mode) {
             auto document = kdl::mem_lock(m_document);
             if (document->hasSelectedBrushFaces()) {
-                const auto angle = rotateTextureAngle(clockwise);
+                const auto angle = rotateTextureAngle(clockwise, mode);
                 document->rotateTextures(angle);
             }
         }
 
-        float MapViewBase::rotateTextureAngle(const bool clockwise) const {
+        float MapViewBase::rotateTextureAngle(const bool clockwise, const TextureActionMode mode) const {
             const auto& grid = kdl::mem_lock(m_document)->grid();
             const auto gridAngle = static_cast<float>(vm::to_degrees(grid.angle()));
-            float angle;
+            float angle = 0.0f;
 
-            const Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
-            switch (modifiers) {
-                case Qt::ControlModifier:
+            switch (mode) {
+                case TextureActionMode::Fine:
                     angle = 1.0f;
                     break;
-                case Qt::ShiftModifier:
+                case TextureActionMode::Coarse:
                     angle = 90.0f;
                     break;
-                default:
+                case TextureActionMode::Normal:
                     angle = gridAngle;
                     break;
             }
@@ -963,9 +973,11 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::renderFPS(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            Renderer::RenderService renderService(renderContext, renderBatch);
+            if (pref(Preferences::ShowFPS)) {
+                Renderer::RenderService renderService(renderContext, renderBatch);
 
-            renderService.renderHeadsUp(m_currentFPS);
+                renderService.renderHeadsUp(m_currentFPS);
+            }
         }
 
         void MapViewBase::processEvent(const KeyEvent& event) {

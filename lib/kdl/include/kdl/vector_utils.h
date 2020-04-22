@@ -83,6 +83,23 @@ namespace kdl {
     }
 
     /**
+    * Removes the first element of the given vector and returns it.
+    *
+    * Precondition: !v.empty()
+    *
+    * @tparam T the type of the vector elements
+    * @param v the vector
+    * @return the first element of the given vector
+    */
+    template <typename T>
+    T vec_pop_front(std::vector<T>& v) {
+        assert(!v.empty());
+        T result = std::move(v.front());
+        v.erase(v.begin(), v.begin() + 1);
+        return result;
+    }
+
+    /**
      * Returns a vector containing elements of type O, each of which is constructed by passing the corresponding
      * element of v to the constructor of o, e.g. result.push_back(O(e)), where result is the resulting vector, and e
      * is an element from v.

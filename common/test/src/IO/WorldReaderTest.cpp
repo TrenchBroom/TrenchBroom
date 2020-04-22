@@ -17,14 +17,19 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
 
+#include "GTestCompat.h"
+
+#include "IO/DiskIO.h"
+#include "IO/File.h"
 #include "IO/TestParserStatus.h"
 #include "IO/WorldReader.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/Layer.h"
+#include "Model/ParallelTexCoordSystem.h"
 #include "Model/World.h"
 
 #include <vecmath/vec.h>
@@ -33,9 +38,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        inline Model::BrushFace*
-        findFaceByPoints(const std::vector<Model::BrushFace*>& faces, const vm::vec3& point0, const vm::vec3& point1,
-                         const vm::vec3& point2) {
+        inline Model::BrushFace* findFaceByPoints(const std::vector<Model::BrushFace*>& faces, const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2) {
             for (Model::BrushFace* face : faces) {
                 if (face->points()[0] == point0 &&
                     face->points()[1] == point1 &&
@@ -45,7 +48,25 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        TEST(WorldReaderTest, parseFailure_1424) {
+        inline void checkFaceTexCoordSystem(const Model::BrushFace* face, const bool expectParallel) {
+            auto snapshot = face->takeTexCoordSystemSnapshot();
+            auto* check = dynamic_cast<Model::ParallelTexCoordSystemSnapshot*>(snapshot.get());
+            const bool isParallel = (check != nullptr);
+            ASSERT_EQ(expectParallel, isParallel);
+        }
+
+        inline void checkBrushTexCoordSystem(const Model::Brush* brush, const bool expectParallel) {
+            const std::vector<Model::BrushFace*> faces = brush->faces();
+            ASSERT_EQ(6u, faces.size());
+            checkFaceTexCoordSystem(faces[0], expectParallel);
+            checkFaceTexCoordSystem(faces[1], expectParallel);
+            checkFaceTexCoordSystem(faces[2], expectParallel);
+            checkFaceTexCoordSystem(faces[3], expectParallel);
+            checkFaceTexCoordSystem(faces[4], expectParallel);
+            checkFaceTexCoordSystem(faces[5], expectParallel);
+        }
+
+        TEST_CASE("WorldReaderTest.parseFailure_1424", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -69,7 +90,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(world != nullptr);
         }
 
-        TEST(WorldReaderTest, parseEmptyMap) {
+        TEST_CASE("WorldReaderTest.parseEmptyMap", "[WorldReaderTest]") {
             const std::string data("");
             const vm::bbox3 worldBounds(8192.0);
 
@@ -83,7 +104,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(world->children().front()->hasChildren());
         }
 
-        TEST(WorldReaderTest, parseMapWithEmptyEntity) {
+        TEST_CASE("WorldReaderTest.parseMapWithEmptyEntity", "[WorldReaderTest]") {
             const std::string data("{}");
             const vm::bbox3 worldBounds(8192.0);
 
@@ -97,7 +118,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->children().front()->childCount());
         }
 
-        TEST(WorldReaderTest, parseMapWithWorldspawn) {
+        TEST_CASE("WorldReaderTest.parseMapWithWorldspawn", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -120,7 +141,7 @@ namespace TrenchBroom {
             ASSERT_STREQ("yay", world->attribute("message").c_str());
         }
 
-        TEST(WorldReaderTest, parseMapWithWorldspawnAndOneMoreEntity) {
+        TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneMoreEntity", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -157,7 +178,7 @@ namespace TrenchBroom {
             ASSERT_STREQ(" -1 ", entity->attribute("angle").c_str());
         }
 
-        TEST(WorldReaderTest, parseMapWithWorldspawnAndOneBrush) {
+        TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneBrush", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -182,6 +203,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
 
             Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
             const std::vector<Model::BrushFace*>& faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
 
@@ -207,7 +229,7 @@ namespace TrenchBroom {
                                          vm::vec3(0.0, 64.0, 0.0)) != nullptr);
         }
 
-        TEST(WorldReaderTest, parseMapAndCheckFaceFlags) {
+        TEST_CASE("WorldReaderTest.parseMapAndCheckFaceFlags", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -232,6 +254,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
 
             Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
             const std::vector<Model::BrushFace*>& faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
 
@@ -245,7 +268,7 @@ namespace TrenchBroom {
             ASSERT_FLOAT_EQ(-0.55f, face->yScale());
         }
 
-        TEST(WorldReaderTest, parseBrushWithCurlyBraceInTextureName) {
+        TEST_CASE("WorldReaderTest.parseBrushWithCurlyBraceInTextureName", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -270,6 +293,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
 
             Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
             const std::vector<Model::BrushFace*> faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
 
@@ -287,7 +311,7 @@ namespace TrenchBroom {
                                          vm::vec3(0.0, 64.0, 0.0)) != nullptr);
         }
 
-        TEST(WorldReaderTest, parseProblematicBrush1) {
+        TEST_CASE("WorldReaderTest.parseProblematicBrush1", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -312,6 +336,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
 
             Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
             const std::vector<Model::BrushFace*> faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
             ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(308.0, 108.0, 176.0), vm::vec3(308.0, 132.0, 176.0),
@@ -328,7 +353,7 @@ namespace TrenchBroom {
                                          vm::vec3(323.0, 116.0, 176.0)) != nullptr);
         }
 
-        TEST(WorldReaderTest, parseProblematicBrush2) {
+        TEST_CASE("WorldReaderTest.parseProblematicBrush2", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -351,9 +376,11 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
+            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
         }
 
-        TEST(WorldReaderTest, parseProblematicBrush3) {
+        TEST_CASE("WorldReaderTest.parseProblematicBrush3", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -376,9 +403,11 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
+            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
         }
 
-        TEST(WorldReaderTest, parseValveBrush) {
+        TEST_CASE("WorldReaderTest.parseValveBrush", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -401,9 +430,11 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
+            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, true);
         }
 
-        TEST(WorldReaderTest, parseQuake2Brush) {
+        TEST_CASE("WorldReaderTest.parseQuake2Brush", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -426,9 +457,11 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
+            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
         }
 
-        TEST(WorldReaderTest, parseQuake2ValveBrush) {
+        TEST_CASE("WorldReaderTest.parseQuake2ValveBrush", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -454,9 +487,41 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
+            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, true);
         }
 
-        TEST(WorldReaderTest, parseDaikatanaBrush) {
+        TEST_CASE("WorldReaderTest.parseQuake3ValveBrush", "[WorldReaderTest]") {
+            const std::string data(R"(
+{
+"classname" "worldspawn"
+"mapversion" "220"
+"_tb_textures" "textures/gothic_block"
+// brush 0
+{
+( 208 190 80 ) ( 208 -62 80 ) ( 208 190 -176 ) gothic_block/blocks18c_3 [ -0.625 1 0 34 ] [ 0 0 -1 0 ] 32.6509 0.25 0.25 0 0 0
+( 224 200 80 ) ( 208 190 80 ) ( 224 200 -176 ) gothic_block/blocks18c_3 [ -1 0 0 32 ] [ 0 0 -1 0 ] 35.6251 0.25 0.25 0 1 0
+( 224 200 -176 ) ( 208 190 -176 ) ( 224 -52 -176 ) gothic_block/blocks18c_3 [ -1 0 0 32 ] [ 0.625 -1 0 -4 ] 35.6251 0.25 0.25 0 0 0
+( 224 -52 80 ) ( 208 -62 80 ) ( 224 200 80 ) gothic_block/blocks18c_3 [ 1 0 0 -32 ] [ 0.625 -1 0 -4 ] 324.375 0.25 0.25 0 0 0
+( 224 -52 -176 ) ( 208 -62 -176 ) ( 224 -52 80 ) gothic_block/blocks18c_3 [ 1 0 0 -23.7303 ] [ 0 0 -1 0 ] 35.6251 0.25 0.25 0 0 0
+( 224 -52 80 ) ( 224 200 80 ) ( 224 -52 -176 ) gothic_block/blocks18c_3 [ -0.625 1 0 44 ] [ 0 0 -1 0 ] 32.6509 0.25 0.25 0 0 0
+}
+})");
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data);
+
+            auto world = reader.read(Model::MapFormat::Quake3_Valve, worldBounds, status);
+
+            ASSERT_EQ(1u, world->childCount());
+            Model::Node* defaultLayer = world->children().front();
+            ASSERT_EQ(1u, defaultLayer->childCount());
+            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, true);
+        }
+
+        TEST_CASE("WorldReaderTest.parseDaikatanaBrush", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -481,6 +546,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
 
             const auto* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
             ASSERT_TRUE(vm::is_equal(Color(5, 6, 7), brush->findFace("rtz/c_mf_v3cw")->color(), 0.1f));
             ASSERT_EQ(1, brush->findFace("rtz/b_rc_v16w")->surfaceContents());
             ASSERT_EQ(2, brush->findFace("rtz/b_rc_v16w")->surfaceFlags());
@@ -489,7 +555,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush->findFace("rtz/c_mf_v3cww")->hasColor());
         }
 
-        TEST(WorldReaderTest, parseDaikatanaMapHeader) {
+        TEST_CASE("WorldReaderTest.parseDaikatanaMapHeader", "[WorldReaderTest]") {
             const std::string data(R"(
 ////////////////////////////////////////////////////////////
 // ldef 000 "Base Brush Layer"
@@ -528,9 +594,11 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
+            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
         }
 
-        TEST(WorldReaderTest, parseQuakeBrushWithNumericalTextureName) {
+        TEST_CASE("WorldReaderTest.parseQuakeBrushWithNumericalTextureName", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -553,9 +621,11 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
+            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brush, false);
         }
 
-        TEST(WorldReaderTest, parseBrushesWithLayer) {
+        TEST_CASE("WorldReaderTest.parseBrushesWithLayer", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -602,7 +672,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->children().back()->childCount());
         }
 
-        TEST(WorldReaderTest, parseEntitiesAndBrushesWithLayer) {
+        TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithLayer", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -662,7 +732,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->children().back()->children().back()->childCount());
         }
 
-        TEST(WorldReaderTest, parseEntitiesAndBrushesWithGroup) {
+        TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithGroup", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -743,7 +813,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, mySubGroup->childCount());
         }
 
-        TEST(WorldReaderTest, parseBrushPrimitive) {
+        TEST_CASE("WorldReaderTest.parseBrushPrimitive", "[WorldReaderTest]") {
             const std::string data(R"(
             {
                 "classname" "worldspawn"
@@ -771,7 +841,7 @@ namespace TrenchBroom {
             ASSERT_EQ(0u, world->defaultLayer()->childCount());
         }
 
-        TEST(WorldReaderTest, parseBrushPrimitiveAndLegacyBrush) {
+        TEST_CASE("WorldReaderTest.parseBrushPrimitiveAndLegacyBrush", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -807,7 +877,7 @@ brushDef
             ASSERT_EQ(1u, world->defaultLayer()->childCount());
         }
 
-        TEST(WorldReaderTest, parseQuake3Patch) {
+        TEST_CASE("WorldReaderTest.parseQuake3Patch", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -835,7 +905,7 @@ common/caulk
             ASSERT_EQ(0u, world->defaultLayer()->childCount());
         }
 
-        TEST(WorldReaderTest, parseMultipleClassnames) {
+        TEST_CASE("WorldReaderTest.parseMultipleClassnames", "[WorldReaderTest]") {
             // See https://github.com/kduske/TrenchBroom/issues/1485
 
             const std::string data(R"(
@@ -852,7 +922,7 @@ common/caulk
             ASSERT_NO_THROW(reader.read(Model::MapFormat::Quake2, worldBounds, status));
         }
 
-        TEST(WorldReaderTest, parseEscapedDoubleQuotationMarks) {
+        TEST_CASE("WorldReaderTest.parseEscapedDoubleQuotationMarks", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -873,7 +943,7 @@ common/caulk
             ASSERT_STREQ("yay \\\"Mr. Robot!\\\"", world->attribute("message").c_str());
         }
 
-        TEST(WorldReaderTest, parseAttributeWithUnescapedPathAndTrailingBackslash) {
+        TEST_CASE("WorldReaderTest.parseAttributeWithUnescapedPathAndTrailingBackslash", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -894,7 +964,7 @@ common/caulk
             ASSERT_STREQ("c:\\a\\b\\c\\", world->attribute("path").c_str());
         }
 
-        TEST(WorldReaderTest, parseAttributeWithEscapedPathAndTrailingBackslash) {
+        TEST_CASE("WorldReaderTest.parseAttributeWithEscapedPathAndTrailingBackslash", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -915,7 +985,7 @@ common/caulk
             ASSERT_STREQ("c:\\\\a\\\\b\\\\c\\\\", world->attribute("path").c_str());
         }
 
-        TEST(WorldReaderTest, parseAttributeTrailingEscapedBackslash) {
+        TEST_CASE("WorldReaderTest.parseAttributeTrailingEscapedBackslash", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -938,7 +1008,7 @@ common/caulk
         }
 
         // https://github.com/kduske/TrenchBroom/issues/1739
-        TEST(WorldReaderTest, parseAttributeNewlineEscapeSequence) {
+        TEST_CASE("WorldReaderTest.parseAttributeNewlineEscapeSequence", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -960,7 +1030,7 @@ common/caulk
         }
 
         /*
-        TEST(WorldReaderTest, parseIssueIgnoreFlags) {
+        TEST_CASE("WorldReaderTest.parseIssueIgnoreFlags", "[WorldReaderTest]") {
             const std::string data("{"
                               "\"classname\" \"worldspawn\""
                               "{\n"
@@ -1004,5 +1074,32 @@ common/caulk
             ASSERT_EQ(3u, secondEntity->hiddenIssues());
         }
          */
+
+        TEST_CASE("WorldReaderTest.parseHeretic2QuarkMap", "[WorldReaderTest]") {
+            const IO::Path mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Map/Heretic2Quark.map");
+            const std::shared_ptr<File> file = IO::Disk::openFile(mapPath);
+            auto fileReader = file->reader().buffer();
+
+            IO::TestParserStatus status;
+            IO::WorldReader worldReader(std::begin(fileReader), std::end(fileReader));
+
+            const auto worldBounds = vm::bbox3(8192.0);
+            auto world = worldReader.read(Model::MapFormat::Quake2, worldBounds, status);
+
+            REQUIRE(world != nullptr);
+            REQUIRE(1u == world->childCount());
+
+            auto* layer = dynamic_cast<Model::Layer*>(world->children().at(0));
+            REQUIRE(layer != nullptr);
+            REQUIRE(1u == layer->childCount());
+
+            auto* brush = dynamic_cast<Model::Brush*>(layer->children().at(0));
+            REQUIRE(brush != nullptr);
+
+            CHECK(vm::bbox3(vm::vec3(-512, -512, -64), vm::vec3(512, 512, 0)) == brush->logicalBounds());
+            for (Model::BrushFace* face : brush->faces()) {
+                CHECK("general/sand1" == face->textureName());
+            }
+        }
     }
 }
