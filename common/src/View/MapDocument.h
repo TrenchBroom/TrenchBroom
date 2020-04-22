@@ -330,7 +330,7 @@ namespace TrenchBroom {
             void openGroup(Model::Group* group);
             void closeGroup();
         public: // modifying transient node attributes, declared in MapFacade interface
-            void isolate(const std::vector<Model::Node*>& nodes);
+            void isolate();
             void hide(std::vector<Model::Node*> nodes) override; // Don't take the nodes by reference!
             void hideSelection();
             void show(const std::vector<Model::Node*>& nodes) override;

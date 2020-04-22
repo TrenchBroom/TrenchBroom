@@ -1405,7 +1405,7 @@ namespace TrenchBroom {
 
         void MapFrame::isolateSelection() {
             if (canIsolateSelection()) {
-                m_document->isolate(m_document->selectedNodes().nodes());
+                m_document->isolate();
             }
         }
 

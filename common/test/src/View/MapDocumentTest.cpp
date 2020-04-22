@@ -952,5 +952,54 @@ namespace TrenchBroom {
             ASSERT_TRUE(document->translateObjects(delta));
             ASSERT_EQ(box.translate(delta), document->selectionBounds());
         }
+
+        // https://github.com/kduske/TrenchBroom/issues/3117
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.isolate") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            const Model::BrushBuilder builder(document->world(), document->worldBounds());
+            const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
+
+            auto *brush1 = builder.createCuboid(box, "texture");
+            document->addNode(brush1, document->currentParent());
+
+            auto *brush2 = builder.createCuboid(box.translate(vm::vec3(1, 1, 1)), "texture");
+            document->addNode(brush2, document->currentParent());
+
+            document->selectAllNodes();
+
+            Model::Entity* brushEntity = document->createBrushEntity(m_brushEntityDef);
+
+            document->deselectAll();
+
+            // Check initial state
+            REQUIRE(1 == document->currentLayer()->childCount());
+            REQUIRE(brushEntity == dynamic_cast<Model::Entity*>(document->currentLayer()->children().at(0)));
+            REQUIRE(2 == brushEntity->childCount());
+            REQUIRE(brush1 == dynamic_cast<Model::Brush*>(brushEntity->children().at(0)));
+            REQUIRE(brush2 == dynamic_cast<Model::Brush*>(brushEntity->children().at(1)));
+
+            CHECK(!brushEntity->selected());
+            CHECK(!brush1->selected());
+            CHECK(!brush2->selected());
+            CHECK(!brushEntity->hidden());
+            CHECK(!brush1->hidden());
+            CHECK(!brush2->hidden());
+
+            // Select just brush1
+            document->select(brush1);
+            CHECK(!brushEntity->selected());
+            CHECK(brush1->selected());
+            CHECK(!brush2->selected());
+
+            // Isolate brush1
+            document->isolate();
+
+            CHECK(!brushEntity->hidden());
+            CHECK(!brush1->hidden());
+            CHECK(brush2->hidden());
+        }
     }
 }
