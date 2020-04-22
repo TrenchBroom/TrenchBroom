@@ -298,6 +298,19 @@ namespace TrenchBroom {
             return map;
         }
 
+        std::vector<Preference<QKeySequence>*> keyPreferences() {
+            std::vector<Preference<QKeySequence>*> result;
+
+            for (PreferenceBase* pref : staticPreferences()) {
+                auto* keyPref = dynamic_cast<Preference<QKeySequence>*>(pref);
+                if (keyPref != nullptr) {
+                    result.push_back(keyPref);
+                }
+            }
+
+            return result;
+        }
+
         DynamicPreferencePattern<QString>      GamesPath(IO::Path("Games/*/Path"));
         DynamicPreferencePattern<QString>      GamesDefaultEngine(IO::Path("Games/*/Default Engine"));
         DynamicPreferencePattern<QKeySequence> FiltersTagsToggle(IO::Path("Filters/Tags/*/Toggle Visible"));
