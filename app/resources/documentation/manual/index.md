@@ -574,7 +574,7 @@ Two modifiers can be used in both the 2D and 3D views:
 
 - Hold #key(Alt) to move the scale anchor point to the center of the bounding box. Otherwise, the anchor point is opposite the handle being dragged.
 
-    ![Dragging a side of the bounding box with #key(Alt)](images/Scale3DSideCenter.gif)
+    ![Dragging a side of the bounding box](images/Scale3DSideCenter.gif)
 
 
 ### Shearing Objects {#shearing_objects}
@@ -583,7 +583,7 @@ Hit #menu(Menu/Edit/Tools/Shear Tool) to activate the shear tool. Dragging a sid
 
 Texture lock in the Shear tool only works in Valve 220 format maps.
 
-![Vertical shearing in the 3D viewport with #key(Alt)](images/Shear3DVertical.gif)
+![Vertical shearing in the 3D viewport](images/Shear3DVertical.gif)
 
 ### Deleting Objects
 
