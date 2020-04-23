@@ -8,6 +8,12 @@ function key_str(key) {
     }
 }
 
+// Pandoc smart typography converts three periods to …, but this breaks
+// our menu item lookups.
+function fix_ellipsis(path) {
+    return path.replace("…", "...");
+}
+
 function shortcut_str(shortcut) {
     let result = "";
     if (shortcut) {
@@ -33,6 +39,8 @@ function menu_path_str(path) {
 
 // handles the string in a #menu() macro
 function menu_item_str(key) {
+    key = fix_ellipsis(key);
+
     let result = "<b>";
     const item = menu[key];
     if (item) {
@@ -51,6 +59,8 @@ function menu_item_str(key) {
 
 // handles the string in an #action() macro
 function action_str(key) {
+    key = fix_ellipsis(key);
+
     let result = "<b>";
     const item = actions[key];
     if (item) {
