@@ -370,7 +370,7 @@ namespace TrenchBroom {
             document->addNode(brush1, document->currentParent());
             document->select(brush1);
 
-            document->setTexture(nullptr);
+            document->setTexture(nullptr, false);
         }
 
         ValveMapDocumentTest::ValveMapDocumentTest() :
