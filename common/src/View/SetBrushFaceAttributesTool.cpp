@@ -223,7 +223,7 @@ namespace TrenchBroom {
             document->select(targetFaces);
 
             if (copyTextureOnlyModifiersDown(inputState)) {
-                document->setTexture(sourceFace->texture());
+                document->setTexture(sourceFace->texture(), false);
             } else {
                 auto snapshot = sourceFace->takeTexCoordSystemSnapshot();
                 document->setFaceAttributes(sourceFace->attribs());

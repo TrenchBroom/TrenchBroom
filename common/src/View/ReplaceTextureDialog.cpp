@@ -66,7 +66,7 @@ namespace TrenchBroom {
 
             Transaction transaction(document, "Replace Textures");
             document->select(faces);
-            document->setTexture(replacement);
+            document->setTexture(replacement, false);
 
             std::stringstream msg;
             msg << "Replaced texture '" << subject->name() << "' with '" << replacement->name() << "' on " << faces.size() << " faces.";
