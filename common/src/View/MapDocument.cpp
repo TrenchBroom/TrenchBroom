@@ -1323,17 +1323,18 @@ namespace TrenchBroom {
             return result->success();
         }
 
-        void MapDocument::setTexture(Assets::Texture* texture) {
+        void MapDocument::setTexture(Assets::Texture* texture, const bool toggle) {
             const std::vector<Model::BrushFace*> faces = allSelectedBrushFaces();
 
             if (texture != nullptr) {
                 if (faces.empty()) {
-                    if (currentTextureName() == texture->name())
+                    if (currentTextureName() == texture->name() && toggle) {
                         setCurrentTextureName(Model::BrushFaceAttributes::NoTextureName);
-                    else
+                    } else {
                         setCurrentTextureName(texture->name());
+                    }
                 } else {
-                    if (hasTexture(faces, texture)) {
+                    if (hasTexture(faces, texture) && toggle) {
                         texture = nullptr;
                         setCurrentTextureName(Model::BrushFaceAttributes::NoTextureName);
                     } else {
@@ -1344,10 +1345,11 @@ namespace TrenchBroom {
 
             if (!faces.empty()) {
                 Model::ChangeBrushFaceAttributesRequest request;
-                if (texture == nullptr)
+                if (texture == nullptr) {
                     request.unsetTexture();
-                else
+                } else {
                     request.setTexture(texture);
+                }
                 executeAndStore(ChangeBrushFaceAttributesCommand::command(request));
             }
         }

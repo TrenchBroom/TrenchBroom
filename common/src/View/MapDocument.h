@@ -366,7 +366,7 @@ namespace TrenchBroom {
         public: // brush resizing, declared in MapFacade interface
             bool resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) override;
         public: // modifying face attributes, declared in MapFacade interface
-            void setTexture(Assets::Texture* texture) override;
+            void setTexture(Assets::Texture* texture, bool toggle) override;
         private:
             bool hasTexture(const std::vector<Model::BrushFace*>& faces, Assets::Texture* texture) const;
         public:

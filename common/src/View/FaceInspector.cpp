@@ -110,7 +110,7 @@ namespace TrenchBroom {
 
         void FaceInspector::textureSelected(Assets::Texture* texture) {
             auto document = kdl::mem_lock(m_document);
-            document->setTexture(texture);
+            document->setTexture(texture, true);
         }
     }
 }
