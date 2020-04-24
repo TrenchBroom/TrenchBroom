@@ -318,7 +318,6 @@ namespace TrenchBroom {
 
         void FileTextureCollectionEditor::dropEvent(QDropEvent* event) {
             const QMimeData* mimeData = event->mimeData();
-
             event->acceptProposedAction();
 
             // Activate and bring the TB window to the front so the dialog
@@ -328,7 +327,6 @@ namespace TrenchBroom {
 
             for (const QUrl& url : mimeData->urls()) {
                const QString path = url.toLocalFile();
-
                loadTextureCollection(m_document, this, path);
             }
         }
