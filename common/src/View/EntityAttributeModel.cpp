@@ -44,13 +44,29 @@
 #include <vector>
 
 #include <QBrush>
+#include <QByteArray>
 #include <QDebug>
 #include <QIcon>
 #include <QMessageBox>
+#include <QString>
 #include <QTimer>
 
 namespace TrenchBroom {
     namespace View {
+        /**
+         * The rationale for not using UTF-8 here is Quake maps often want to use
+         * the bytes 128-255 which are characters in Quake's bitmap font (gold text, etc.)
+         * UTF-8 is not suitable since we need a single-byte encoding.
+         *
+         * See: https://github.com/kduske/TrenchBroom/issues/3122 
+         */
+        static QString entityStringToUnicode(const std::string& string) {
+            return QString::fromLocal8Bit(QByteArray::fromStdString(string));
+        }
+
+        static std::string entityStringFromUnicode(const QString& string) {
+            return string.toLocal8Bit().toStdString();
+        }
 
         // AttributeRow
 
@@ -313,7 +329,7 @@ namespace TrenchBroom {
                 const AttributeRow oldDeletion = *oldMinusNew.begin();
                 const AttributeRow newAddition = *newMinusOld.begin();
 
-                qDebug() << "EntityAttributeModel::setRows: one row changed: " << QString::fromStdString(oldDeletion.name()) << " -> " << QString::fromStdString(newAddition.name());
+                qDebug() << "EntityAttributeModel::setRows: one row changed: " << entityStringToUnicode(oldDeletion.name()) << " -> " << entityStringToUnicode(newAddition.name());
 
                 const size_t oldIndex = kdl::vec_index_of(m_rows, oldDeletion);
                 m_rows.at(oldIndex) = newAddition;
@@ -577,15 +593,15 @@ namespace TrenchBroom {
 
             if (role == Qt::DisplayRole || role == Qt::EditRole) {
                 if (index.column() == 0) {
-                    return QVariant(QString::fromStdString(row.name()));
+                    return QVariant(entityStringToUnicode(row.name()));
                 } else {
-                    return QVariant(QString::fromStdString(row.value()));
+                    return QVariant(entityStringToUnicode(row.value()));
                 }
             }
 
             if (role == Qt::ToolTipRole) {
                 if (!row.tooltip().empty()) {
-                    return QVariant(QString::fromStdString(row.tooltip()));
+                    return QVariant(entityStringToUnicode(row.tooltip()));
                 }
             }
 
@@ -609,17 +625,17 @@ namespace TrenchBroom {
 
             if (index.column() == 0) {
                 // rename key
-                qDebug() << "tried to rename " << QString::fromStdString(attributeRow.name()) << " to " << value.toString();
+                qDebug() << "tried to rename " << entityStringToUnicode(attributeRow.name()) << " to " << value.toString();
 
-                const std::string newName = value.toString().toStdString();
+                const std::string newName = entityStringFromUnicode(value.toString());
                 if (renameAttribute(rowIndex, newName, attributables)) {
                     return true;
                 }
             } else if (index.column() == 1) {
-                qDebug() << "tried to set " << QString::fromStdString(attributeRow.name()) << " to "
+                qDebug() << "tried to set " << entityStringToUnicode(attributeRow.name()) << " to "
                          << value.toString();
 
-                if (updateAttribute(rowIndex, value.toString().toStdString(), attributables)) {
+                if (updateAttribute(rowIndex, entityStringFromUnicode(value.toString()), attributables)) {
                     return true;
                 }
             }
@@ -705,7 +721,7 @@ namespace TrenchBroom {
                 QMessageBox msgBox;
                 msgBox.setWindowTitle(tr("Error"));
                 msgBox.setText(tr("A property with key '%1' already exists.\n\n Do you wish to overwrite it?")
-                    .arg(QString::fromStdString(newName)));
+                    .arg(entityStringToUnicode(newName)));
                 msgBox.setIcon(QMessageBox::Critical);
                 msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
                 if (msgBox.exec() == QMessageBox::No) {
