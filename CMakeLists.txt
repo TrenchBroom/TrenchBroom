@@ -92,6 +92,9 @@ endif()
 # settings on Windows
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
+# Prevent gtest from being installed
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+
 # Find Qt and OpenGL
 find_package(OpenGL REQUIRED)
 find_package(Qt5Widgets REQUIRED)
