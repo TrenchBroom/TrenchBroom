@@ -143,11 +143,7 @@ namespace TrenchBroom {
 
             Model::CollectSelectableNodesVisitor visitor(*m_editorContext);
 
-            Model::Node* target = currentGroup();
-            if (target == nullptr) {
-                target = m_world.get();
-            }
-
+            Model::Node* target = currentGroupOrWorld();
             target->recurse(visitor);
             performSelect(visitor.nodes());
         }

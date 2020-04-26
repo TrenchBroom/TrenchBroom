@@ -216,6 +216,14 @@ namespace TrenchBroom {
             return m_editorContext->currentGroup();
         }
 
+        Model::Node* MapDocument::currentGroupOrWorld() const {
+            Model::Node* result = currentGroup();
+            if (result == nullptr) {
+                result = m_world.get();
+            }
+            return result;
+        }
+
         Model::Node* MapDocument::currentParent() const {
             Model::Node* result = currentGroup();
             if (result == nullptr)
@@ -601,6 +609,30 @@ namespace TrenchBroom {
             else
                 deselectAll();
             select(nodes);
+        }
+
+        void MapDocument::selectInverse() {
+            // This only selects nodes that have no selected children (or parents).
+            // This is because if a brush entity only 1 selected child and 1 unselected,
+            // we treat it as partially selected and don't want to try to select the entity if the
+            // selection is inverted, which would reselect both children.
+            class CollectUnselectedSelectableNodesVisitor :
+            public Model::CollectMatchingNodesVisitor<Model::NodePredicates::And<Model::MatchSelectableNodes, Model::MatchTransitivelySelectedOrDescendantSelectedNodes<false>>, Model::UniqueNodeCollectionStrategy> {
+            public:
+                CollectUnselectedSelectableNodesVisitor(const Model::EditorContext& editorContext) :
+                CollectMatchingNodesVisitor(Model::NodePredicates::And<Model::MatchSelectableNodes, Model::MatchTransitivelySelectedOrDescendantSelectedNodes<false>>(
+                    Model::MatchSelectableNodes(editorContext), 
+                    Model::MatchTransitivelySelectedOrDescendantSelectedNodes<false>())) {}
+            };
+
+            CollectUnselectedSelectableNodesVisitor visitor(*m_editorContext);
+
+            Model::Node* target = currentGroupOrWorld();
+            target->recurse(visitor);
+
+            Transaction transaction(this, "Select Inverse");
+            deselectAll();
+            select(visitor.nodes());
         }
 
         void MapDocument::selectNodesWithFilePosition(const std::vector<size_t>& positions) {

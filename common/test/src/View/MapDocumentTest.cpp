@@ -924,6 +924,48 @@ namespace TrenchBroom {
             EXPECT_EQ(nullptr, brush2->parent());
         }
 
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.selectInverse") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            const Model::BrushBuilder builder(document->world(), document->worldBounds());
+            const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
+
+            auto *brush1 = builder.createCuboid(box, "texture");
+            document->addNode(brush1, document->currentParent());
+
+            auto *brush2 = builder.createCuboid(box.translate(vm::vec3(1, 1, 1)), "texture");
+            document->addNode(brush2, document->currentParent());
+
+            auto *brush3 = builder.createCuboid(box.translate(vm::vec3(2, 2, 2)), "texture");
+            document->addNode(brush3, document->currentParent());
+
+            document->select(std::vector<Model::Node *>{brush1, brush2});
+            Model::Entity* brushEnt = document->createBrushEntity(m_brushEntityDef);
+
+            document->deselectAll();
+
+            // worldspawn {
+            //   brushEnt { brush1, brush2 },
+            //   brush3
+            // }
+
+            document->select(brush1);
+            CHECK( brush1->selected());
+            CHECK(!brush2->selected());
+            CHECK(!brush3->selected());
+            CHECK(!brushEnt->selected());
+
+            document->selectInverse();
+
+            CHECK_THAT(document->selectedNodes().brushes(), Catch::UnorderedEquals(std::vector<Model::Brush *>{brush2, brush3}));
+            CHECK(!brush1->selected());
+            CHECK( brush2->selected());
+            CHECK( brush3->selected());
+            CHECK(!brushEnt->selected());
+        }
+
         // https://github.com/kduske/TrenchBroom/issues/2776
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.pasteAndTranslateGroup") {
             // delete default brush
