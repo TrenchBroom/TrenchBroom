@@ -534,7 +534,7 @@ namespace TrenchBroom {
                 const auto pathStr = openEvent->file().toStdString();
                 const auto path = IO::Path(pathStr);
                 if (openDocument(path)) {
-                    hideWelcomeWindow();
+                    closeWelcomeWindow();
                     return true;
                 } else {
                     return false;
