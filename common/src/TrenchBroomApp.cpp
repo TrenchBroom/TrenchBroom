@@ -219,7 +219,7 @@ namespace TrenchBroom {
                 auto game = gameFactory.createGame(gameName, frame->logger());
                 ensure(game.get() != nullptr, "game is null");
 
-                hideWelcomeWindow();
+                closeWelcomeWindow();
                 frame->openDocument(game, mapFormat, path);
                 return true;
             } catch (const FileNotFoundException& e) {
@@ -462,7 +462,7 @@ namespace TrenchBroom {
                 auto game = gameFactory.createGame(gameName, frame->logger());
                 ensure(game.get() != nullptr, "game is null");
 
-                hideWelcomeWindow();
+                closeWelcomeWindow();
                 frame->newDocument(game, mapFormat);
                 return true;
             } catch (const RecoverableException& e) {
@@ -575,19 +575,9 @@ namespace TrenchBroom {
             m_welcomeWindow->show();
         }
 
-        void TrenchBroomApp::hideWelcomeWindow() {
-            if (m_welcomeWindow != nullptr) {
-                m_welcomeWindow->hide();
-                if (quitOnLastWindowClosed() && m_frameManager->allFramesClosed()) {
-                    closeWelcomeWindow();
-                }
-            }
-        }
-
         void TrenchBroomApp::closeWelcomeWindow() {
             if (m_welcomeWindow != nullptr) {
                 m_welcomeWindow->close();
-                m_welcomeWindow = nullptr;
             }
         }
 

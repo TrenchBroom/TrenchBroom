@@ -50,6 +50,8 @@ namespace TrenchBroom {
 
         AboutDialog::AboutDialog() :
         QDialog() {
+            // This makes it so the About dialog doesn't prevent the application from quitting
+            setAttribute(Qt::WA_QuitOnClose, false);
             createGui();
         }
 

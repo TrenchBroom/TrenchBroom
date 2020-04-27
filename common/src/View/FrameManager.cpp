@@ -122,10 +122,6 @@ namespace TrenchBroom {
             }
 
             m_frames.erase(it);
-            if (m_frames.empty() || qApp->quitOnLastWindowClosed()) {
-                AboutDialog::closeAboutDialog();
-                TrenchBroomApp::instance().closeWelcomeWindow();
-            }
 
             // MapFrame uses Qt::WA_DeleteOnClose so we don't need to delete it here
         }
