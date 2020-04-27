@@ -215,6 +215,7 @@ namespace TrenchBroom {
             void selectInside();
             void selectTall();
             void selectByLineNumber();
+            void selectInverse();
             void selectNone();
 
             bool canSelect() const;
@@ -223,6 +224,7 @@ namespace TrenchBroom {
             bool canSelectTall() const;
             bool canDeselect() const;
             bool canChangeSelection() const;
+            bool canSelectInverse() const;
 
             void groupSelectedObjects();
             bool canGroupSelectedObjects() const;

@@ -245,6 +245,8 @@ A similar operation can be found under #menu(Menu/Edit/Select Tall), but this pa
 
 If you have selected a single brush that belongs to an entity or group, and you wish to select every other object belonging to that entity or group, you can choose #menu(Menu/Edit/Select Siblings). The same effect can be achieved by left double clicking on a brush that belongs to an entity or group. The menu command #menu(Menu/Edit/Select by Line Number) is useful for diagnostic purposes. If an external program such as a map compiler presents you with an error message and a line number indicating where in the map file that error occured, you can use this menu command to have TrenchBroom select the offending object for you.
 
+#menu(Menu/Edit/Select Inverse) will invert the selection, i.e. selecting everything that is currently unselected (excluding hidden and locked objects).
+
 Finally, you can deselect everything by left clicking in the void, or by choosing #menu(Menu/Edit/Select None).
 
 ## Selecting Brush Faces

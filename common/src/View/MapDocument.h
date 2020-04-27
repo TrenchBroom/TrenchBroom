@@ -185,6 +185,13 @@ namespace TrenchBroom {
             void setCurrentLayer(Model::Layer* currentLayer);
 
             Model::Group* currentGroup() const override;
+            /**
+             * Returns the current group if one is open, otherwise the world.
+             */
+            Model::Node* currentGroupOrWorld() const override;
+            /**
+             * Returns the current group if one is open, otherwise the current layer.
+             */
             Model::Node* currentParent() const override;
 
             Model::EditorContext& editorContext() const;
@@ -273,6 +280,7 @@ namespace TrenchBroom {
             void selectSiblings() override;
             void selectTouching(bool del) override;
             void selectInside(bool del) override;
+            void selectInverse() override;
             void selectNodesWithFilePosition(const std::vector<size_t>& positions) override;
             void select(const std::vector<Model::Node*>& nodes) override;
             void select(Model::Node* node) override;

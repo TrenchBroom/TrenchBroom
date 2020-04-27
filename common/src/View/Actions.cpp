@@ -945,6 +945,14 @@ namespace TrenchBroom {
                     return context.hasDocument() && context.frame()->canSelect();
                 }));
             editMenu.addItem(
+                createAction(IO::Path("Menu/Edit/Select Inverse"), QObject::tr("Select Inverse"), ActionContext::Any, QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_A),
+                    [](ActionExecutionContext& context) {
+                        context.frame()->selectInverse();
+                    },
+                    [](ActionExecutionContext& context) {
+                        return context.hasDocument() && context.frame()->canSelectInverse();
+                    }));
+            editMenu.addItem(
                 createAction(IO::Path("Menu/Edit/Select None"), QObject::tr("Select None"), ActionContext::Any, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_A),
                     [](ActionExecutionContext& context) {
                         context.frame()->selectNone();

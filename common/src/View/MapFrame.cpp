@@ -1064,6 +1064,12 @@ namespace TrenchBroom {
             }
         }
 
+        void MapFrame::selectInverse() {
+            if (canSelectInverse()) {
+               m_document->selectInverse();
+            }
+        }
+
         void MapFrame::selectNone() {
             if (canDeselect()) {
                 m_document->deselectAll();
@@ -1091,6 +1097,10 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canChangeSelection() const {
+            return m_document->editorContext().canChangeSelection();
+        }
+
+        bool MapFrame::canSelectInverse() const {
             return m_document->editorContext().canChangeSelection();
         }
 

@@ -61,6 +61,7 @@ namespace TrenchBroom {
 
             virtual Layer* currentLayer() const = 0;
             virtual Group* currentGroup() const = 0;
+            virtual Node* currentGroupOrWorld() const = 0;
             virtual Node* currentParent() const = 0;
 
             virtual Assets::EntityDefinitionManager& entityDefinitionManager() = 0;
@@ -86,6 +87,7 @@ namespace TrenchBroom {
             virtual void selectSiblings() = 0;
             virtual void selectTouching(bool del) = 0;
             virtual void selectInside(bool del) = 0;
+            virtual void selectInverse() = 0;
             virtual void selectNodesWithFilePosition(const std::vector<size_t>& positions) = 0;
             virtual void select(const std::vector<Node*>& nodes) = 0;
             virtual void select(Node* node) = 0;
