@@ -76,6 +76,9 @@ namespace TrenchBroom {
 
             ASSERT_THROW(Disk::fixPath(Path("asdf/blah")), FileSystemException);
             ASSERT_THROW(Disk::fixPath(Path("/../../test")), FileSystemException);
+            ASSERT_THROW(Disk::fixPath(env.dir() + Path("anotherDir/test3.map/asdf")), FileSystemException);
+            CHECK(env.dir() + Path("anotherDir/test3.map") == Disk::fixPath(env.dir() + Path("ANOTHERdir/TEST3.MAP")));
+            CHECK(env.dir() + Path("anotherDir/test3.map") == Disk::fixPath(env.dir() + Path("anotherDir/subDirTest/../test3.map")));
 
             // on case sensitive file systems, this should also work
             ASSERT_TRUE(QFileInfo::exists(IO::pathAsQString(Disk::fixPath(env.dir() + Path("TEST.txt")))));
@@ -86,9 +89,12 @@ namespace TrenchBroom {
             FSTestEnvironment env;
 
             ASSERT_THROW(Disk::directoryExists(Path("asdf/bleh")), FileSystemException);
+            ASSERT_THROW(Disk::directoryExists(env.dir() + Path("anotherDir/test3.map/asdf")), FileSystemException); // test3.map is a file
 
             ASSERT_TRUE(Disk::directoryExists(env.dir() + Path("anotherDir")));
             ASSERT_TRUE(Disk::directoryExists(env.dir() + Path("anotherDir/subDirTest")));
+            CHECK(!Disk::directoryExists(env.dir() + Path("anotherDir/test3.map"))); // not a directory
+            CHECK(!Disk::directoryExists(env.dir() + Path("anotherDir/asdf"))); // asdf directory doesn't exist
         }
 
         TEST_CASE("DiskTest.fileExists", "[DiskTest]") {
