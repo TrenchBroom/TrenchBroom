@@ -68,6 +68,7 @@
 #include <QStandardPaths>
 #include <QSysInfo>
 #include <QUrl>
+#include <QProxyStyle>
 
 namespace TrenchBroom {
     namespace View {
@@ -114,6 +115,7 @@ namespace TrenchBroom {
             }
 
             loadStyleSheets();
+            loadStyle();
 
             // these must be initialized here and not earlier
             m_frameManager = std::make_unique<FrameManager>(useSDI());
@@ -180,6 +182,36 @@ namespace TrenchBroom {
             } else {
                 return false;
             }
+        }
+
+        void TrenchBroomApp::loadStyle() {
+            // We can't use auto mnemonics in TrenchBroom. e.g. by default with Qt, Alt+D opens the "Debug" menu,
+            // Alt+S activates the "Show default properties" checkbox in the entity inspector.
+            // Flying with Alt held down and pressing WASD is a fundamental behaviour in TB, so we can't have
+            // shortcuts randomly activating.
+            //
+            // Previously were calling `qt_set_sequence_auto_mnemonic(false);` in main(), but it turns out we
+            // also need to suppress an Alt press followed by release from focusing the menu bar
+            // (https://github.com/kduske/TrenchBroom/issues/3140), so the following QProxyStyle disables
+            // that completely.
+            
+            class TrenchBroomProxyStyle : public QProxyStyle {
+            public:
+                TrenchBroomProxyStyle(const QString &key)
+                : QProxyStyle(key) {}
+
+                TrenchBroomProxyStyle(QStyle* style = nullptr)
+                : QProxyStyle(style) {}
+
+                int styleHint(StyleHint hint, const QStyleOption* option = 0, const QWidget* widget = nullptr, QStyleHintReturn* returnData = 0) const override {
+                    if (hint == QStyle::SH_MenuBar_AltKeyNavigation) {
+                        return 0;
+                    }
+                    return QProxyStyle::styleHint(hint, option, widget, returnData);
+                }
+            };
+
+            setStyle(new TrenchBroomProxyStyle());
         }
 
         const std::vector<IO::Path>& TrenchBroomApp::recentDocuments() const {
