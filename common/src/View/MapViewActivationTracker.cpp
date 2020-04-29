@@ -94,6 +94,9 @@ namespace TrenchBroom {
                 case QEvent::Enter:
                     enterEvent(event, widget);
                     break;
+                case QEvent::DragEnter:
+                    dragEnterEvent(event, widget);
+                    break;
                 default:
                     break;
             }
@@ -152,6 +155,13 @@ namespace TrenchBroom {
             if (m_active) {
                 widget->setFocus();
             }
+        }
+
+        void MapViewActivationTracker::dragEnterEvent(QEvent*, QWidget* widget) {
+            if (!m_active) {
+                activate();
+            }
+            widget->setFocus();
         }
 
         void MapViewActivationTracker::activate() {
