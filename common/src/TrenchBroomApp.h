@@ -60,9 +60,10 @@ namespace TrenchBroom {
             void parseCommandLineAndShowFrame();
 
             FrameManager* frameManager();
-
+        private:
             bool loadStyleSheets();
-
+            void loadStyle();
+        public:
             const std::vector<IO::Path>& recentDocuments() const;
             void addRecentDocumentMenu(QMenu* menu);
             void removeRecentDocumentMenu(QMenu* menu);

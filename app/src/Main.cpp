@@ -49,12 +49,6 @@ int main(int argc, char *argv[])
     // Set up Hi DPI scaling
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
-    // We can't use auto mnemonics in TrenchBroom. e.g. by default with Qt, Alt+D opens the "Debug" menu,
-    // Alt+S activates the "Show default properties" checkbox in the entity inspector.
-    // Flying with Alt held down and pressing WASD is a fundamental behaviour in TB, so we can't have
-    // shortcuts randomly activating.
-    qt_set_sequence_auto_mnemonic(false);
-
     // Workaround bug in Qt's Ctrl+Click = RMB emulation (a macOS feature.)
     // In Qt 5.13.0 / macOS 10.14.6, Ctrl+trackpad click+Drag produces no mouse events at all, but
     // it should produce RMB down/move events.
