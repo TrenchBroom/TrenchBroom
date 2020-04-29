@@ -75,6 +75,11 @@ namespace TrenchBroom {
             if (!handleInput(inputState)) {
                 return false;
             }
+            // NOTE: We check for MBLeft here rather than in handleInput because we want the
+            // yellow highlight to render as a preview when Shift is down, before you press MBLeft. 
+            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
+                return false;
+            }
 
             m_tool->updateDragFaces(inputState.pickResult());
             m_mode = inputState.modifierKeysDown(ModifierKeys::MKAlt) ? Mode::MoveFace : Mode::Resize;
