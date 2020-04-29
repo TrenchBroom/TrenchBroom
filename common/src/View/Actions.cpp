@@ -1509,6 +1509,13 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
                 }));
+            debugMenu.addItem(createMenuAction(IO::Path("Menu/Debug/Show Palette..."), QObject::tr("Show Palette..."), 0,
+                [](ActionExecutionContext& context) {
+                    context.frame()->debugShowPalette();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                }));
 #endif
         }
 

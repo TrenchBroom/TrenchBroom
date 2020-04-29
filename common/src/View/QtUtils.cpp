@@ -185,7 +185,7 @@ namespace TrenchBroom {
             const auto defaultPalette = QPalette();
             auto palette = widget->palette();
             palette.setColor(QPalette::Normal, QPalette::WindowText, defaultPalette.color(QPalette::Disabled, QPalette::WindowText));
-            palette.setColor(QPalette::Normal, QPalette::Text, defaultPalette.color(QPalette::Disabled, QPalette::WindowText));
+            palette.setColor(QPalette::Normal, QPalette::Text, defaultPalette.color(QPalette::Disabled, QPalette::Text));
             widget->setPalette(palette);
             return widget;
         }

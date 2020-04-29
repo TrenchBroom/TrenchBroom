@@ -37,6 +37,10 @@ namespace TrenchBroom {
 
         extern Preference<int> MapViewLayout;
 
+        QString systemTheme();
+        QString darkTheme();
+        extern Preference<QString> Theme;
+
         extern Preference<bool>  ShowAxes;
         extern Preference<Color> BackgroundColor;
         extern Preference<float> AxisLength;

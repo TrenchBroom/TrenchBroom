@@ -88,6 +88,9 @@
 #include <QToolBar>
 #include <QComboBox>
 #include <QVBoxLayout>
+#include <QColorDialog> // for DebugPaletteWindow
+#include <QTableWidget> // for DebugPaletteWindow
+#include <QPushButton> // for DebugPaletteWindow
 
 namespace TrenchBroom {
     namespace View {
@@ -1582,6 +1585,11 @@ namespace TrenchBroom {
             }
         }
 
+        void MapFrame::debugShowPalette() {
+            DebugPaletteWindow* window = new DebugPaletteWindow(this);
+            showModelessDialog(window);
+        }
+
         void MapFrame::focusChange(QWidget* /* oldFocus */, QWidget* newFocus) {
             auto newMapView = dynamic_cast<MapViewBase*>(newFocus);
             if (newMapView != nullptr) {
@@ -1637,5 +1645,90 @@ namespace TrenchBroom {
         void MapFrame::triggerAutosave() {
             m_autosaver->triggerAutosave(logger());
         }
+
+        // DebugPaletteWindow
+
+        DebugPaletteWindow::DebugPaletteWindow(QWidget *parent)
+        : QDialog(parent)
+        {           
+            auto m_roles = std::vector<std::pair<QPalette::ColorRole, QString>> {
+                { QPalette::Window,          "Window" },
+                { QPalette::WindowText,      "WindowText" },
+                { QPalette::Base,            "Base" },
+                { QPalette::AlternateBase,   "AlternateBase" },
+                { QPalette::ToolTipBase,     "ToolTipBase" },
+                { QPalette::ToolTipText,     "ToolTipText" },
+                { QPalette::PlaceholderText, "PlaceholderText" },
+                { QPalette::Text,            "Text" },
+                { QPalette::Button,          "Button" },
+                { QPalette::ButtonText,      "ButtonText" },
+                { QPalette::BrightText,      "BrightText" },
+                { QPalette::Light,           "Light" },
+                { QPalette::Midlight,        "Midlight" },
+                { QPalette::Dark,            "Dark" },
+                { QPalette::Mid,             "Mid" },
+                { QPalette::Shadow,          "Shadow" },
+                { QPalette::Highlight,       "Highlight" },
+                { QPalette::HighlightedText, "HighlightedText" }
+            };
+
+            auto m_groups = std::vector<std::pair<QPalette::ColorGroup, QString>> {
+                { QPalette::Disabled,  "Disabled"},
+                { QPalette::Active,    "Active"},
+                { QPalette::Inactive,  "Inactive"}
+            };
+
+            QStringList verticalHeaderLabels;
+            for (const auto& role : m_roles) {
+                verticalHeaderLabels.append(role.second);
+            }
+
+            QStringList horizontalHeaderLabels;
+            for (const auto& group : m_groups) {
+                horizontalHeaderLabels.append(group.second);
+            }
+
+            auto* m_widget = new QTableWidget(m_roles.size(), m_groups.size());
+            m_widget->setHorizontalHeaderLabels(horizontalHeaderLabels);
+            m_widget->setVerticalHeaderLabels(verticalHeaderLabels);
+
+            for (int x = 0; x < m_widget->columnCount(); x++) {
+                for (int y = 0; y < m_widget->rowCount(); y++) {
+                    const QPalette::ColorRole role = m_roles.at(y).first;
+                    const QPalette::ColorGroup group = m_groups.at(x).first;
+
+                    QPushButton *button = new QPushButton();
+
+                    auto updateButCol = [=](){
+                        QPalette pal;
+                        pal.setColor(QPalette::Button, qApp->palette().color(group, role));
+                        button->setAutoFillBackground(true);
+                        button->setPalette(pal);
+                    };
+
+                    updateButCol();
+
+                    connect(button, &QPushButton::clicked, this, [=](){
+                        QColor c = QColorDialog::getColor();
+
+                        QPalette p = qApp->palette();
+                        p.setColor(group, role, c);
+                        qApp->setPalette(p);
+
+                        updateButCol();
+                    });
+
+                    m_widget->setCellWidget(y, x, button);
+                }
+            }
+
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(m_widget);
+            setLayout(layout);
+        }
+
+        DebugPaletteWindow::~DebugPaletteWindow() = default;
     }
 }

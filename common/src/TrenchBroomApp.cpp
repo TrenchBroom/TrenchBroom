@@ -19,6 +19,8 @@
 
 #include "TrenchBroomApp.h"
 
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "RecoverableExceptions.h"
 #include "TrenchBroomStackWalker.h"
 #include "IO/Path.h"
@@ -68,6 +70,8 @@
 #include <QStandardPaths>
 #include <QSysInfo>
 #include <QUrl>
+#include <QColor>
+#include <QPalette>
 #include <QProxyStyle>
 
 namespace TrenchBroom {
@@ -168,6 +172,23 @@ namespace TrenchBroom {
             return m_frameManager.get();
         }
 
+        QPalette TrenchBroomApp::darkPalette() {
+            QColor button = QColor(65, 65, 65);
+            QColor text = QColor(220, 220, 220);
+
+            QPalette p = QPalette(button);
+            p.setColor(QPalette::Base, button.darker(150)); // list box backgrounds, text entry backgrounds, menu backgrounds
+            //p.setColor(QPalette::Window, button.darker(110)); // toolbar, etc.
+            p.setColor(QPalette::Active,   QPalette::WindowText, text);   // table cell text
+            p.setColor(QPalette::Disabled, QPalette::WindowText, text.darker(300)); // table cell text (disabled)
+            
+            p.setColor(QPalette::Active,   QPalette::Text,  text); // menu text
+            p.setColor(QPalette::Disabled, QPalette::Text,  text.darker(250)); // disabled menu item text color
+            p.setColor(QPalette::Disabled, QPalette::Light, button.darker(200)); // disabled menu item text shadow
+
+            return p;
+        }
+
         bool TrenchBroomApp::loadStyleSheets() {
             const auto path = IO::SystemPaths::findResourceFile(IO::Path("stylesheets/base.qss"));
             auto file = QFile(IO::pathAsQString(path));
@@ -211,7 +232,14 @@ namespace TrenchBroom {
                 }
             };
 
-            setStyle(new TrenchBroomProxyStyle());
+            // Apply either the Fusion style + dark palette, or the system style
+            if (pref(Preferences::Theme) == Preferences::darkTheme()) {
+                setStyle(new TrenchBroomProxyStyle("Fusion"));
+                setPalette(darkPalette());
+            } else {
+                // System
+                setStyle(new TrenchBroomProxyStyle());    
+            }
         }
 
         const std::vector<IO::Path>& TrenchBroomApp::recentDocuments() const {

@@ -25,10 +25,12 @@
 
 #include <QMainWindow>
 #include <QPointer>
+#include <QDialog>
 
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 class QAction;
 class QComboBox;
@@ -346,6 +348,7 @@ namespace TrenchBroom {
             void debugCrash();
             void debugThrowExceptionDuringCommand();
             void debugSetWindowSize();
+            void debugShowPalette();
 
             void focusChange(QWidget* oldFocus, QWidget* newFocus);
 
@@ -358,6 +361,13 @@ namespace TrenchBroom {
             void closeEvent(QCloseEvent* event) override;
         private:
             void triggerAutosave();
+        };
+
+        class DebugPaletteWindow : public QDialog {
+            Q_OBJECT
+        public:
+            DebugPaletteWindow(QWidget *parent = nullptr);
+            ~DebugPaletteWindow();
         };
     }
 }
