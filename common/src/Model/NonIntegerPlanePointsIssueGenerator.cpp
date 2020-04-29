@@ -62,7 +62,8 @@ namespace TrenchBroom {
 
         NonIntegerPlanePointsIssueGenerator::NonIntegerPlanePointsIssueGenerator() :
         IssueGenerator(NonIntegerPlanePointsIssue::Type, "Non-integer plane points") {
-            addQuickFix(new NonIntegerPlanePointsIssueQuickFix());
+            // Disabled until findPlanePoints() is fixed, see: https://github.com/kduske/TrenchBroom/issues/2780
+            // addQuickFix(new NonIntegerPlanePointsIssueQuickFix());
         }
 
         void NonIntegerPlanePointsIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
