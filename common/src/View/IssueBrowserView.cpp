@@ -159,6 +159,7 @@ namespace TrenchBroom {
             // The QModelIndex list returned by getSelection() contains duplicates
             // (not sure why, current row and selected row?)
             kdl::vector_set<Model::Issue*> result;
+            result.reserve(indices.size());
             for (QModelIndex index : indices) {
                 if (index.isValid()) {
                     const auto row = static_cast<size_t>(index.row());
