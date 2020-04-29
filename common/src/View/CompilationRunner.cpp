@@ -182,11 +182,11 @@ namespace TrenchBroom {
             const auto toolPath = IO::Path(interpolate(m_task->toolSpec()));
             const auto parameters = interpolate(m_task->parameterSpec());
             if (parameters.empty()) {
-                return toolPath.asString();
+                return std::string("\"") + toolPath.asString() + "\"";
             } else if (toolPath.isEmpty()) {
                 return "";
             } else {
-                return toolPath.asString() + " " + parameters;
+                return std::string("\"") + toolPath.asString() + "\" " + parameters;
             }
         }
 
