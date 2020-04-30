@@ -565,11 +565,11 @@ namespace TrenchBroom {
 
             if (role == Qt::ForegroundRole) {
                 if (row.isDefault() || row.subset()) {
-                    return QVariant(QBrush(Colors::disabledText()));
+                    return QVariant(QBrush(Colors::disabledCellText()));
                 }
                 if (index.column() == 1) {
                     if (row.multi()) {
-                        return QVariant(QBrush(Colors::disabledText()));
+                        return QVariant(QBrush(Colors::disabledCellText()));
                     }
                 }
                 return QVariant();
