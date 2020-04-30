@@ -175,7 +175,7 @@ namespace TrenchBroom {
         QPalette TrenchBroomApp::darkPalette() {
             const auto button = QColor(35, 35, 35);
             const auto text = QColor(220, 220, 220);
-            const auto highlight = QColor(0, 127, 255);
+            const auto highlight = QColor(70, 70, 70);
 
             // Build an initial palette based on the button color
             QPalette palette = QPalette(button);
