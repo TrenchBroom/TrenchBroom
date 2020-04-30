@@ -23,9 +23,14 @@
 #include "TestUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/Brush.h"
+#include "Model/CollectMatchingIssuesVisitor.h"
+#include "Model/EmptyAttributeNameIssueGenerator.h"
+#include "Model/EmptyAttributeValueIssueGenerator.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/HitQuery.h"
+#include "Model/Issue.h"
+#include "Model/IssueQuickFix.h"
 #include "Model/Layer.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushBuilder.h"
@@ -43,6 +48,8 @@
 #include <vecmath/bbox.h>
 #include <vecmath/scalar.h>
 #include <vecmath/ray.h>
+
+#include "kdl/vector_utils.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -1042,6 +1049,48 @@ namespace TrenchBroom {
             CHECK(!brushEntity->hidden());
             CHECK(!brush1->hidden());
             CHECK(brush2->hidden());
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "IssueGenerator.emptyAttribute") {
+            Model::Entity* entity = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+            entity->addOrUpdateAttribute("", "");
+            CHECK(entity->hasAttribute(""));
+
+            auto issueGenerators = std::vector<Model::IssueGenerator*>{
+                new Model::EmptyAttributeNameIssueGenerator(),
+                new Model::EmptyAttributeValueIssueGenerator()
+            };
+
+            class AcceptAllIssues {
+            public:
+                bool operator()(const Model::Issue*) const {
+                    return true;
+                }
+            };
+
+            auto visitor = Model::CollectMatchingIssuesVisitor<AcceptAllIssues>(issueGenerators, AcceptAllIssues());
+            document->world()->acceptAndRecurse(visitor);
+
+            std::vector<Model::Issue*> issues = visitor.issues();
+            REQUIRE(2 == issues.size());
+
+            Model::Issue* issue0 = issues.at(0);
+            Model::Issue* issue1 = issues.at(1);
+
+            // Should be one EmptyAttributeNameIssue and one EmptyAttributeValueIssue
+            CHECK(((issue0->type() == issueGenerators[0]->type() && issue1->type() == issueGenerators[1]->type())
+                || (issue0->type() == issueGenerators[1]->type() && issue1->type() == issueGenerators[0]->type())));
+            
+            std::vector<Model::IssueQuickFix*> fixes = document->world()->quickFixes(issue0->type());
+            REQUIRE(1 == fixes.size());
+
+            Model::IssueQuickFix* quickFix = fixes.at(0);
+            quickFix->apply(document.get(), std::vector<Model::Issue*>{issue0});
+
+            // The fix should have deleted the attribute
+            CHECK(!entity->hasAttribute(""));
+
+            kdl::vec_clear_and_delete(issueGenerators);
         }
     }
 }
