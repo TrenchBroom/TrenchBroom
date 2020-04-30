@@ -175,28 +175,33 @@ namespace TrenchBroom {
         QPalette TrenchBroomApp::darkPalette() {
             const auto button = QColor(35, 35, 35);
             const auto text = QColor(220, 220, 220);
+            const auto highlight = QColor(0, 127, 255);
 
-            QPalette p = QPalette(button);
-            p.setColor(QPalette::Base, button.darker(150)); // list box backgrounds, text entry backgrounds, menu backgrounds
+            // Build an initial palette based on the button color
+            QPalette palette = QPalette(button);
+
+            // list box backgrounds, text entry backgrounds, menu backgrounds
+            palette.setColor(QPalette::Base, button.darker(130));
 
             // WindowText is supposed to be against QPalette::Window
-            p.setColor(QPalette::Active,   QPalette::WindowText, text);
-            p.setColor(QPalette::Inactive, QPalette::WindowText, text);
-            p.setColor(QPalette::Disabled, QPalette::WindowText, text.darker(200)); // e.g. AppInfoPanel dim text (makeInfo())
+            palette.setColor(QPalette::Active,   QPalette::WindowText, text);
+            palette.setColor(QPalette::Inactive, QPalette::WindowText, text);
+            palette.setColor(QPalette::Disabled, QPalette::WindowText, text.darker(200)); // makeInfo()
 
-            // menu text, text edit text, table cell text
-            p.setColor(QPalette::Active,   QPalette::Text,  text.darker(125));
-            p.setColor(QPalette::Inactive, QPalette::Text,  text.darker(125)); 
-            p.setColor(QPalette::Disabled, QPalette::Text,  text.darker(250)); // disabled menu item text color
+            // Menu text, text edit text, table cell text
+            palette.setColor(QPalette::Active,   QPalette::Text,  text.darker(125));
+            palette.setColor(QPalette::Inactive, QPalette::Text,  text.darker(125)); 
+            palette.setColor(QPalette::Disabled, QPalette::Text,  text.darker(270)); // Disabled menu item text color
 
-            p.setColor(QPalette::Disabled, QPalette::Light, button.darker(200)); // disabled menu item text shadow
+            // Disabled menu item text shadow
+            palette.setColor(QPalette::Disabled, QPalette::Light, button.darker(200));
 
-            // highlight
-            p.setColor(QPalette::Active,   QPalette::Highlight, QColor(59,59,59));
-            p.setColor(QPalette::Inactive, QPalette::Highlight, QColor(59,59,59));
-            p.setColor(QPalette::Disabled, QPalette::Highlight, QColor(59,59,59));            
+            // Highlight (selected list box row, selected grid cell background, selected tab text
+            palette.setColor(QPalette::Active,   QPalette::Highlight, highlight);
+            palette.setColor(QPalette::Inactive, QPalette::Highlight, highlight);
+            palette.setColor(QPalette::Disabled, QPalette::Highlight, highlight);            
 
-            return p;
+            return palette;
         }
 
         bool TrenchBroomApp::loadStyleSheets() {
