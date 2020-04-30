@@ -173,18 +173,28 @@ namespace TrenchBroom {
         }
 
         QPalette TrenchBroomApp::darkPalette() {
-            QColor button = QColor(65, 65, 65);
-            QColor text = QColor(220, 220, 220);
+            const auto button = QColor(35, 35, 35);
+            const auto text = QColor(220, 220, 220);
 
             QPalette p = QPalette(button);
             p.setColor(QPalette::Base, button.darker(150)); // list box backgrounds, text entry backgrounds, menu backgrounds
-            //p.setColor(QPalette::Window, button.darker(110)); // toolbar, etc.
-            p.setColor(QPalette::Active,   QPalette::WindowText, text);   // table cell text
-            p.setColor(QPalette::Disabled, QPalette::WindowText, text.darker(300)); // table cell text (disabled)
-            
-            p.setColor(QPalette::Active,   QPalette::Text,  text); // menu text
+
+            // WindowText is supposed to be against QPalette::Window
+            p.setColor(QPalette::Active,   QPalette::WindowText, text);
+            p.setColor(QPalette::Inactive, QPalette::WindowText, text);
+            p.setColor(QPalette::Disabled, QPalette::WindowText, text.darker(200)); // e.g. AppInfoPanel dim text (makeInfo())
+
+            // menu text, text edit text, table cell text
+            p.setColor(QPalette::Active,   QPalette::Text,  text.darker(125));
+            p.setColor(QPalette::Inactive, QPalette::Text,  text.darker(125)); 
             p.setColor(QPalette::Disabled, QPalette::Text,  text.darker(250)); // disabled menu item text color
+
             p.setColor(QPalette::Disabled, QPalette::Light, button.darker(200)); // disabled menu item text shadow
+
+            // highlight
+            p.setColor(QPalette::Active,   QPalette::Highlight, QColor(59,59,59));
+            p.setColor(QPalette::Inactive, QPalette::Highlight, QColor(59,59,59));
+            p.setColor(QPalette::Disabled, QPalette::Highlight, QColor(59,59,59));            
 
             return p;
         }
