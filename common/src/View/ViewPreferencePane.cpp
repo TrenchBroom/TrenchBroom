@@ -120,6 +120,13 @@ namespace TrenchBroom {
 
             m_themeCombo = new QComboBox();
             m_themeCombo->addItems({Preferences::systemTheme(), Preferences::darkTheme()});
+            auto* themeInfo = new QLabel();
+            themeInfo->setText(tr("Requires restart after changing"));
+            makeInfo(themeInfo);
+            auto* themeLayout = new QHBoxLayout();
+            themeLayout->addWidget(m_themeCombo);
+            themeLayout->addWidget(themeInfo);
+            themeLayout->setContentsMargins(0, 0, 0, 0);
 
             m_textureBrowserIconSizeCombo = new QComboBox();
             m_textureBrowserIconSizeCombo->addItem("25%");
@@ -155,7 +162,7 @@ namespace TrenchBroom {
             layout->addRow("Background", m_backgroundColorButton);
             layout->addRow("Grid", m_gridColorButton);
             layout->addRow("Edges", m_edgeColorButton);
-            layout->addRow("Theme", m_themeCombo);
+            layout->addRow("Theme", themeLayout);
 
             layout->addSection("Texture Browser");
             layout->addRow("Icon size", m_textureBrowserIconSizeCombo);
