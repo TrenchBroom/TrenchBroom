@@ -1658,7 +1658,9 @@ namespace TrenchBroom {
                 { QPalette::AlternateBase,   "AlternateBase" },
                 { QPalette::ToolTipBase,     "ToolTipBase" },
                 { QPalette::ToolTipText,     "ToolTipText" },
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
                 { QPalette::PlaceholderText, "PlaceholderText" },
+#endif
                 { QPalette::Text,            "Text" },
                 { QPalette::Button,          "Button" },
                 { QPalette::ButtonText,      "ButtonText" },
