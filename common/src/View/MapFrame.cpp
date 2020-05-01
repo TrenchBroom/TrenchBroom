@@ -43,6 +43,7 @@
 #endif
 #include "View/MapViewBase.h"
 #include "View/ClipTool.h"
+#include "View/ColorButton.h"
 #include "View/CompilationDialog.h"
 #include "View/EdgeTool.h"
 #include "View/FaceTool.h"
@@ -1649,9 +1650,10 @@ namespace TrenchBroom {
         // DebugPaletteWindow
 
         DebugPaletteWindow::DebugPaletteWindow(QWidget *parent)
-        : QDialog(parent)
-        {           
-            auto m_roles = std::vector<std::pair<QPalette::ColorRole, QString>> {
+        : QDialog(parent) {
+            setWindowTitle(tr("Palette"));
+
+            const auto roles = std::vector<std::pair<QPalette::ColorRole, QString>> {
                 { QPalette::Window,          "Window" },
                 { QPalette::WindowText,      "WindowText" },
                 { QPalette::Base,            "Base" },
@@ -1672,60 +1674,49 @@ namespace TrenchBroom {
                 { QPalette::HighlightedText, "HighlightedText" }
             };
 
-            auto m_groups = std::vector<std::pair<QPalette::ColorGroup, QString>> {
-                { QPalette::Disabled,  "Disabled"},
-                { QPalette::Active,    "Active"},
-                { QPalette::Inactive,  "Inactive"}
+            const auto groups = std::vector<std::pair<QPalette::ColorGroup, QString>> {
+                { QPalette::Disabled,  "Disabled" },
+                { QPalette::Active,    "Active" },
+                { QPalette::Inactive,  "Inactive" }
             };
 
             QStringList verticalHeaderLabels;
-            for (const auto& role : m_roles) {
+            for (const auto& role : roles) {
                 verticalHeaderLabels.append(role.second);
             }
 
             QStringList horizontalHeaderLabels;
-            for (const auto& group : m_groups) {
+            for (const auto& group : groups) {
                 horizontalHeaderLabels.append(group.second);
             }
 
-            auto* m_widget = new QTableWidget(m_roles.size(), m_groups.size());
-            m_widget->setHorizontalHeaderLabels(horizontalHeaderLabels);
-            m_widget->setVerticalHeaderLabels(verticalHeaderLabels);
+            auto* table = new QTableWidget(static_cast<int>(roles.size()), 
+                                           static_cast<int>(groups.size()));
+            table->setHorizontalHeaderLabels(horizontalHeaderLabels);
+            table->setVerticalHeaderLabels(verticalHeaderLabels);
 
-            for (int x = 0; x < m_widget->columnCount(); x++) {
-                for (int y = 0; y < m_widget->rowCount(); y++) {
-                    const QPalette::ColorRole role = m_roles.at(y).first;
-                    const QPalette::ColorGroup group = m_groups.at(x).first;
+            for (int x = 0; x < table->columnCount(); ++x) {
+                for (int y = 0; y < table->rowCount(); ++y) {
+                    const QPalette::ColorRole role = roles.at(static_cast<size_t>(y)).first;
+                    const QPalette::ColorGroup group = groups.at(static_cast<size_t>(x)).first;
 
-                    QPushButton *button = new QPushButton();
+                    ColorButton* button = new ColorButton();
+                    table->setCellWidget(y, x, button);
 
-                    auto updateButCol = [=](){
-                        QPalette pal;
-                        pal.setColor(QPalette::Button, qApp->palette().color(group, role));
-                        button->setAutoFillBackground(true);
-                        button->setPalette(pal);
-                    };
+                    button->setColor(qApp->palette().color(group, role));
 
-                    updateButCol();
-
-                    connect(button, &QPushButton::clicked, this, [=](){
-                        QColor c = QColorDialog::getColor();
-
-                        QPalette p = qApp->palette();
-                        p.setColor(group, role, c);
-                        qApp->setPalette(p);
-
-                        updateButCol();
+                    connect(button, &ColorButton::colorChangedByUser, this, [=](const QColor& color){
+                        QPalette palette = qApp->palette();
+                        palette.setColor(group, role, color);
+                        qApp->setPalette(palette);
                     });
-
-                    m_widget->setCellWidget(y, x, button);
                 }
             }
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
-            layout->addWidget(m_widget);
+            layout->addWidget(table);
             setLayout(layout);
         }
 

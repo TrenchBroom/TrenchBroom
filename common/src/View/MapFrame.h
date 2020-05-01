@@ -367,7 +367,7 @@ namespace TrenchBroom {
             Q_OBJECT
         public:
             DebugPaletteWindow(QWidget *parent = nullptr);
-            ~DebugPaletteWindow();
+            virtual ~DebugPaletteWindow();
         };
     }
 }
