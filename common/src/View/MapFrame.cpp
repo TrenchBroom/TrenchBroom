@@ -89,9 +89,7 @@
 #include <QToolBar>
 #include <QComboBox>
 #include <QVBoxLayout>
-#include <QColorDialog> // for DebugPaletteWindow
-#include <QTableWidget> // for DebugPaletteWindow
-#include <QPushButton> // for DebugPaletteWindow
+#include <QTableWidget>
 
 namespace TrenchBroom {
     namespace View {
