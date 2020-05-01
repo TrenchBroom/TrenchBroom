@@ -174,14 +174,24 @@ namespace TrenchBroom {
 
         QPalette TrenchBroomApp::darkPalette() {
             const auto button = QColor(35, 35, 35);
-            const auto text = QColor(230, 230, 230);
-            const auto highlight = QColor(70, 70, 70);
+            const auto text = QColor(207, 207, 207);
+            const auto highlight = QColor(62, 112, 205);
 
             // Build an initial palette based on the button color
             QPalette palette = QPalette(button);
 
-            // list box backgrounds, text entry backgrounds, menu backgrounds
+            // Window colors
+            palette.setColor(QPalette::Active,   QPalette::Window, QColor(50, 50, 50));
+            palette.setColor(QPalette::Inactive, QPalette::Window, QColor(40, 40, 40));
+            palette.setColor(QPalette::Disabled, QPalette::Window, QColor(50, 50, 50).darker(200)); // makeInfo()
+
+            // List box backgrounds, text entry backgrounds, menu backgrounds
             palette.setColor(QPalette::Base, button.darker(130));
+
+            // Button text
+            palette.setColor(QPalette::Active,   QPalette::ButtonText, text);
+            palette.setColor(QPalette::Inactive, QPalette::ButtonText, text);
+            palette.setColor(QPalette::Disabled, QPalette::ButtonText, text.darker(200)); // makeInfo()
 
             // WindowText is supposed to be against QPalette::Window
             palette.setColor(QPalette::Active,   QPalette::WindowText, text);
@@ -191,7 +201,7 @@ namespace TrenchBroom {
             // Menu text, text edit text, table cell text
             palette.setColor(QPalette::Active,   QPalette::Text,  text.darker(115));
             palette.setColor(QPalette::Inactive, QPalette::Text,  text.darker(115)); 
-            palette.setColor(QPalette::Disabled, QPalette::Text,  text.darker(260)); // Disabled menu item text color
+            palette.setColor(QPalette::Disabled, QPalette::Text,  QColor(102, 102, 102)); // Disabled menu item text color
 
             // Disabled menu item text shadow
             palette.setColor(QPalette::Disabled, QPalette::Light, button.darker(200));
