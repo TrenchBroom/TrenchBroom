@@ -125,6 +125,7 @@ namespace TrenchBroom {
             makeInfo(themeInfo);
             auto* themeLayout = new QHBoxLayout();
             themeLayout->addWidget(m_themeCombo);
+            themeLayout->addSpacing(LayoutConstants::NarrowHMargin);
             themeLayout->addWidget(themeInfo);
             themeLayout->setContentsMargins(0, 0, 0, 0);
 
