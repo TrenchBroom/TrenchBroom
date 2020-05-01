@@ -85,6 +85,17 @@ namespace TrenchBroom {
             auto* viewPrefsHeader = new QLabel("Map Views");
             makeEmphasized(viewPrefsHeader);
 
+            m_themeCombo = new QComboBox();
+            m_themeCombo->addItems({Preferences::systemTheme(), Preferences::darkTheme()});
+            auto* themeInfo = new QLabel();
+            themeInfo->setText(tr("Requires restart after changing"));
+            makeInfo(themeInfo);
+            auto* themeLayout = new QHBoxLayout();
+            themeLayout->addWidget(m_themeCombo);
+            themeLayout->addSpacing(LayoutConstants::NarrowHMargin);
+            themeLayout->addWidget(themeInfo);
+            themeLayout->setContentsMargins(0, 0, 0, 0);
+
             m_layoutCombo = new QComboBox();
             m_layoutCombo->setToolTip("Sets the layout of the editing views.");
             m_layoutCombo->addItem("One Pane");
@@ -118,17 +129,6 @@ namespace TrenchBroom {
             m_edgeColorButton = new ColorButton();
             m_edgeColorButton->setToolTip("Sets the color of brush edges in the editing views.");
 
-            m_themeCombo = new QComboBox();
-            m_themeCombo->addItems({Preferences::systemTheme(), Preferences::darkTheme()});
-            auto* themeInfo = new QLabel();
-            themeInfo->setText(tr("Requires restart after changing"));
-            makeInfo(themeInfo);
-            auto* themeLayout = new QHBoxLayout();
-            themeLayout->addWidget(m_themeCombo);
-            themeLayout->addSpacing(LayoutConstants::NarrowHMargin);
-            themeLayout->addWidget(themeInfo);
-            themeLayout->setContentsMargins(0, 0, 0, 0);
-
             m_textureBrowserIconSizeCombo = new QComboBox();
             m_textureBrowserIconSizeCombo->addItem("25%");
             m_textureBrowserIconSizeCombo->addItem("50%");
@@ -151,6 +151,9 @@ namespace TrenchBroom {
             // override the default to make the sliders take up maximum width
             layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
+            layout->addSection("User Interface");
+            layout->addRow("Theme", themeLayout);
+
             layout->addSection("Map Views");
             layout->addRow("Layout", m_layoutCombo);
             layout->addRow("Brightness", m_brightnessSlider);
@@ -163,7 +166,6 @@ namespace TrenchBroom {
             layout->addRow("Background", m_backgroundColorButton);
             layout->addRow("Grid", m_gridColorButton);
             layout->addRow("Edges", m_edgeColorButton);
-            layout->addRow("Theme", themeLayout);
 
             layout->addSection("Texture Browser");
             layout->addRow("Icon size", m_textureBrowserIconSizeCombo);
