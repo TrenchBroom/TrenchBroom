@@ -183,7 +183,7 @@ namespace TrenchBroom {
             // Window colors
             palette.setColor(QPalette::Active,   QPalette::Window, QColor(50, 50, 50));
             palette.setColor(QPalette::Inactive, QPalette::Window, QColor(40, 40, 40));
-            palette.setColor(QPalette::Disabled, QPalette::Window, QColor(50, 50, 50).darker(200)); // makeInfo()
+            palette.setColor(QPalette::Disabled, QPalette::Window, QColor(50, 50, 50).darker(200));
 
             // List box backgrounds, text entry backgrounds, menu backgrounds
             palette.setColor(QPalette::Base, button.darker(130));
@@ -191,12 +191,12 @@ namespace TrenchBroom {
             // Button text
             palette.setColor(QPalette::Active,   QPalette::ButtonText, text);
             palette.setColor(QPalette::Inactive, QPalette::ButtonText, text);
-            palette.setColor(QPalette::Disabled, QPalette::ButtonText, text.darker(200)); // makeInfo()
+            palette.setColor(QPalette::Disabled, QPalette::ButtonText, text.darker(200));
 
             // WindowText is supposed to be against QPalette::Window
             palette.setColor(QPalette::Active,   QPalette::WindowText, text);
             palette.setColor(QPalette::Inactive, QPalette::WindowText, text);
-            palette.setColor(QPalette::Disabled, QPalette::WindowText, text.darker(200)); // makeInfo()
+            palette.setColor(QPalette::Disabled, QPalette::WindowText, text.darker(200));
 
             // Menu text, text edit text, table cell text
             palette.setColor(QPalette::Active,   QPalette::Text,  text.darker(115));
