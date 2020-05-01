@@ -174,7 +174,7 @@ namespace TrenchBroom {
 
         QPalette TrenchBroomApp::darkPalette() {
             const auto button = QColor(35, 35, 35);
-            const auto text = QColor(220, 220, 220);
+            const auto text = QColor(230, 230, 230);
             const auto highlight = QColor(70, 70, 70);
 
             // Build an initial palette based on the button color
@@ -189,9 +189,9 @@ namespace TrenchBroom {
             palette.setColor(QPalette::Disabled, QPalette::WindowText, text.darker(200)); // makeInfo()
 
             // Menu text, text edit text, table cell text
-            palette.setColor(QPalette::Active,   QPalette::Text,  text.darker(125));
-            palette.setColor(QPalette::Inactive, QPalette::Text,  text.darker(125)); 
-            palette.setColor(QPalette::Disabled, QPalette::Text,  text.darker(270)); // Disabled menu item text color
+            palette.setColor(QPalette::Active,   QPalette::Text,  text.darker(115));
+            palette.setColor(QPalette::Inactive, QPalette::Text,  text.darker(115)); 
+            palette.setColor(QPalette::Disabled, QPalette::Text,  text.darker(260)); // Disabled menu item text color
 
             // Disabled menu item text shadow
             palette.setColor(QPalette::Disabled, QPalette::Light, button.darker(200));
