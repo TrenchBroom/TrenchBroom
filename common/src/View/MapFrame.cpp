@@ -911,11 +911,11 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canCutSelection() const {
-            return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
+            return widgetOrChildHasFocus(m_mapView) && m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
         }
 
         bool MapFrame::canCopySelection() const {
-            return m_document->hasSelectedNodes() || m_document->hasSelectedBrushFaces();
+            return widgetOrChildHasFocus(m_mapView) && (m_document->hasSelectedNodes() || m_document->hasSelectedBrushFaces());
         }
 
         void MapFrame::pasteAtCursorPosition() {
@@ -959,6 +959,10 @@ namespace TrenchBroom {
          * This is relatively expensive so only call it when the clipboard changes or e.g. the user tries to paste.
          */
         bool MapFrame::canPaste() const {
+            if (!widgetOrChildHasFocus(m_mapView)) {
+                return false;
+            }
+            
             const auto* clipboard = QApplication::clipboard();
             const auto* mimeData = clipboard->mimeData();
             return mimeData != nullptr && mimeData->hasText();
