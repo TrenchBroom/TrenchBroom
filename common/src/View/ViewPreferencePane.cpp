@@ -329,7 +329,7 @@ namespace TrenchBroom {
             prefs.set(Preferences::EdgeColor, value);
         }
 
-        void ViewPreferencePane::themeChanged(int index) {
+        void ViewPreferencePane::themeChanged(int /*index*/) {
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::Theme, m_themeCombo->currentText());
         }
