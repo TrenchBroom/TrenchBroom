@@ -97,6 +97,7 @@ namespace TrenchBroom {
             if (!imagePath.isEmpty()) {
                 const auto onPath = imagePathToString(imagePath.replaceBasename(imagePath.basename() + "_on"));
                 const auto offPath = imagePathToString(imagePath.replaceBasename(imagePath.basename() + "_off"));
+                const auto disabledPath = imagePathToString(imagePath.replaceBasename(imagePath.basename() + "_disabled"));
 
                 if (!onPath.isEmpty() && !offPath.isEmpty()) {
                     result.addFile(onPath, QSize(), QIcon::Normal, QIcon::On);
@@ -109,6 +110,9 @@ namespace TrenchBroom {
                     }
 
                     result.addFile(imagePathString, QSize(), QIcon::Normal);
+                    if (!disabledPath.isEmpty()) {
+                        result.addFile(disabledPath, QSize(), QIcon::Disabled);
+                    }
                 }
             }
 
