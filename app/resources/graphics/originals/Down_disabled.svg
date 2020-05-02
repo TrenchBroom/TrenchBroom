@@ -8,7 +8,7 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   sodipodi:docname="Down.svg"
+   sodipodi:docname="Down_disabled.svg"
    id="svg82"
    viewBox="0, 0, 16, 16"
    height="16"
@@ -16,7 +16,7 @@
    y="0"
    x="0"
    version="1.1"
-   inkscape:export-filename="C:\Users\Eric\Documents\TrenchBroom\app\resources\graphics\images\Down.png"
+   inkscape:export-filename="C:\Users\Eric\Documents\TrenchBroom\app\resources\graphics\images\Down_disabled.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96">
   <metadata
@@ -27,6 +27,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -58,11 +59,11 @@
   </sodipodi:namedview>
   <g
      id="Layer_1"
-     style="fill:#7f7f7f;fill-opacity:1">
+     style="fill:#7f7f7f;fill-opacity:0.33333334">
     <path
        id="path79"
        fill="#494949"
        d="M12,5 L4,5 L8,11"
-       style="fill:#7f7f7f;fill-opacity:1" />
+       style="fill:#7f7f7f;fill-opacity:0.33333334" />
   </g>
 </svg>
