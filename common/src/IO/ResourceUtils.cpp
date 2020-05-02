@@ -88,15 +88,23 @@ namespace TrenchBroom {
             const auto pixmap = QPixmap::fromImage(image);
             icon.addPixmap(pixmap, QIcon::Normal, state);
 
-            // Prepare the disabled state
+            // Prepare the disabled state:
+            // Convert to greyscale, divide the opacity by 3
 
-            auto disabledPixmap = QPixmap(pixmap.size());
-            disabledPixmap.fill(Qt::transparent);
+            auto disabledImage = image.convertToFormat(QImage::Format_ARGB32);
+            const int w = disabledImage.width();
+            const int h = disabledImage.height();
+            for (int y = 0; y < h; ++y) {
+                QRgb* row = reinterpret_cast<QRgb*>(disabledImage.scanLine(y));
+                for (int x = 0; x < w; ++x) {
+                    const QRgb oldPixel = row[x];
+                    const int grey = (qRed(oldPixel) + qGreen(oldPixel) + qBlue(oldPixel)) / 3;
+                    const int alpha = qAlpha(oldPixel) / 3;
+                    row[x] = qRgba(grey, grey, grey, alpha);
+                }
+            }
 
-            auto disabledPainter = QPainter(&disabledPixmap);
-            disabledPainter.setOpacity(0.33);
-            disabledPainter.drawPixmap(0, 0, pixmap);
-
+            const auto disabledPixmap = QPixmap::fromImage(disabledImage);
             icon.addPixmap(disabledPixmap, QIcon::Disabled, state);
         }
 
