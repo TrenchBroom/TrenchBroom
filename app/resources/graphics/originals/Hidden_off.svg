@@ -14,8 +14,11 @@
    height="16"
    viewBox="0, 0, 16, 16"
    id="svg168"
-   sodipodi:docname="Visible.svg"
-   inkscape:version="1.0rc1 (09960d6f05, 2020-04-09)">
+   sodipodi:docname="Hidden_off.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
+   inkscape:export-filename="/media/psf/Home/Documents/Code/TrenchBroom_qt/app/resources/graphics/images/Hidden_off.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
   <metadata
      id="metadata174">
     <rdf:RDF>
@@ -39,15 +42,15 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="2560"
-     inkscape:window-height="1377"
+     inkscape:window-width="2488"
+     inkscape:window-height="1373"
      id="namedview170"
      showgrid="true"
-     inkscape:zoom="17"
-     inkscape:cx="8"
-     inkscape:cy="8"
-     inkscape:window-x="1912"
-     inkscape:window-y="-8"
+     inkscape:zoom="48.083261"
+     inkscape:cx="10.055062"
+     inkscape:cy="6.9749608"
+     inkscape:window-x="72"
+     inkscape:window-y="30"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg168">
     <inkscape:grid
@@ -55,31 +58,32 @@
        type="xygrid" />
   </sodipodi:namedview>
   <g
-     style="fill:#7f7f7f;fill-opacity:1"
+     style="fill:#3f3f3f;fill-opacity:1"
      id="Layer_1">
     <path
-       style="fill:#7f7f7f;fill-opacity:1"
+       style="fill:#3f3f3f;fill-opacity:1"
        d="M4.5,13.5 L4.5,13.5"
        fill-opacity="0"
        stroke="#000000"
        stroke-width="1"
        id="path159" />
     <path
-       style="fill:#7f7f7f;fill-opacity:1"
+       style="fill:#3f3f3f;fill-opacity:1"
        d="M12.5,5.5 L12.5,5.5"
        fill-opacity="0"
        stroke="#000000"
        stroke-width="1"
        id="path161" />
     <path
-       style="fill:#7f7f7f;fill-opacity:1"
-       d="M8,4 C12,4 15,7 15,8 C15,9 12,12 8,12 C4,12 1,9 1,8 C1,7 4,4 8,4 z M8,5 C5,5 2,7 2,8 C2,9 5,11 8,11 C11,11 14,9 14,8 C14,7 11,5 8,5 z"
-       fill="#494949"
-       id="path163" />
+       style="fill:#3f3f3f;fill-opacity:1"
+       d="M 7.9792027,1.9826659 C 11.979203,1.9826659 15,7 15,8 15,9 12.020798,13.996537 8.0207972,13.996537 4.0207972,13.996537 1,9 1,8 1,7 3.9792027,1.9826659 7.9792027,1.9826659 Z m 0.041595,2.0190657 C 5.0207973,4.0017316 2,7 2,8 2,9 5,11.998268 8,11.998268 11,11.998268 14,9 14,8 14,7 11.020797,4.0017316 8.0207977,4.0017316 Z"
+       id="path163"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ssssssssss" />
     <path
-       style="fill:#7f7f7f;fill-opacity:1"
-       d="M8,10 C6.895,10 6,9.105 6,8 C6,6.895 6.895,6 8,6 C9.105,6 10,6.895 10,8 C10,9.105 9.105,10 8,10 z"
-       fill="#494949"
-       id="path165" />
+       style="fill:#3f3f3f;fill-opacity:1;stroke-width:1"
+       d="M 7.9999997,11 C 6.3549468,11 5.0225284,9.6578875 5.0225284,8.0008659 c 0,-1.6570216 1.3324184,-2.9991343 2.9774713,-2.9991343 1.6450528,0 2.9774713,1.3421127 2.9774713,2.9991343 C 10.977471,9.6578875 9.6450525,11 7.9999997,11 Z"
+       id="path165"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>

@@ -7,7 +7,7 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   inkscape:version="1.0rc1 (09960d6, 2020-04-09)"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="DefaultGameIcon.svg"
    id="svg58"
    viewBox="0, 0, 32, 32"
@@ -15,7 +15,10 @@
    width="32"
    y="0"
    x="0"
-   version="1.1">
+   version="1.1"
+   inkscape:export-filename="/media/psf/Home/Documents/Code/TrenchBroom_qt/app/resources/graphics/images/DefaultGameIcon.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
   <metadata
      id="metadata64">
     <rdf:RDF>
@@ -24,6 +27,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -32,15 +36,15 @@
   <sodipodi:namedview
      inkscape:current-layer="svg58"
      inkscape:window-maximized="0"
-     inkscape:window-y="23"
-     inkscape:window-x="0"
+     inkscape:window-y="30"
+     inkscape:window-x="72"
      inkscape:cy="16"
-     inkscape:cx="16"
+     inkscape:cx="6.4296754"
      inkscape:zoom="20.21875"
-     showgrid="false"
+     showgrid="true"
      id="namedview60"
-     inkscape:window-height="768"
-     inkscape:window-width="1163"
+     inkscape:window-height="1156"
+     inkscape:window-width="1842"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0"
      guidetolerance="10"
@@ -48,28 +52,32 @@
      objecttolerance="10"
      borderopacity="1"
      bordercolor="#666666"
-     pagecolor="#ffffff" />
-  <g
-     id="Layer_1">
-    <g
-       id="g51">
-      <path
-         id="path47"
-         fill="#FFFFFF"
-         d="M6,4 L26,4 C27.105,4 28,4.895 28,6 L28,26 C28,27.105 27.105,28 26,28 L6,28 C4.895,28 4,27.105 4,26 L4,6 C4,4.895 4.895,4 6,4 z" />
-      <path
-         id="path49"
-         fill="#5C5C5C"
-         d="M26,3 C27.657,3 29,4.343 29,6 L29,26 C29,27.657 27.657,29 26,29 L6,29 C4.343,29 3,27.657 3,26 L3,6 C3,4.343 4.343,3 6,3 L26,3 z M26,4 L6,4 C4.895,4 4,4.895 4,6 L4,26 C4,27.105 4.895,28 6,28 L26,28 C27.105,28 28,27.105 28,26 L28,6 C28,4.895 27.105,4 26,4 z" />
-    </g>
-    <text
-       id="text55"
-       transform="matrix(1, 0, 0, 1, 16, 16)"><tspan
-         id="tspan53"
-         fill="#5C5C5C"
-         font-size="24"
-         font-family="HelveticaNeue-Bold"
-         y="8.5"
-         x="-6.672">?</tspan></text>
-  </g>
+     pagecolor="#ffffff">
+    <inkscape:grid
+       type="xygrid"
+       id="grid817"
+       empspacing="4" />
+  </sodipodi:namedview>
+  <path
+     id="path47"
+     d="m 6,4 h 20 c 1.105,0 2,0.895 2,2 v 20 c 0,1.105 -0.895,2 -2,2 H 6 C 4.895,28 4,27.105 4,26 V 6 C 4,4.895 4.895,4 6,4 Z"
+     inkscape:connector-curvature="0"
+     style="fill:#ffffff" />
+  <path
+     id="path49"
+     d="m 26,3 c 1.657,0 3,1.343 3,3 v 20 c 0,1.657 -1.343,3 -3,3 H 6 C 4.343,29 3,27.657 3,26 V 6 C 3,4.343 4.343,3 6,3 Z m 0,1 H 6 C 4.895,4 4,4.895 4,6 v 20 c 0,1.105 0.895,2 2,2 h 20 c 1.105,0 2,-0.895 2,-2 V 6 C 28,4.895 27.105,4 26,4 Z"
+     inkscape:connector-curvature="0"
+     style="fill:#3f3f3f;fill-opacity:1" />
+  <text
+     id="text55"
+     x="16"
+     y="16"
+     style="fill:#3f3f3f;fill-opacity:1;">
+    <tspan
+       style="font-size:24px;font-family:HelveticaNeue-Bold;fill:#3f3f3f;fill-opacity:1;"
+       x="9.3280001"
+       y="24.5"
+       font-size="24"
+       id="tspan53">?</tspan>
+  </text>
 </svg>
