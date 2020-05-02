@@ -9,7 +9,7 @@
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    inkscape:export-ydpi="96"
    inkscape:export-xdpi="96"
-   inkscape:export-filename="C:\Users\Eric\Documents\TrenchBroom\app\resources\graphics\images\Lock_off.png"
+   inkscape:export-filename="/media/psf/Home/Documents/Code/TrenchBroom_qt/app/resources/graphics/images/Lock_off.png"
    version="1.1"
    x="0"
    y="0"
@@ -18,7 +18,7 @@
    viewBox="0, 0, 16, 16"
    id="svg88"
    sodipodi:docname="Lock_off.svg"
-   inkscape:version="1.0rc1 (09960d6f05, 2020-04-09)">
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
   <metadata
      id="metadata94">
     <rdf:RDF>
@@ -42,43 +42,32 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="2560"
-     inkscape:window-height="1377"
+     inkscape:window-width="2488"
+     inkscape:window-height="1373"
      id="namedview90"
      showgrid="true"
      inkscape:zoom="40.4375"
-     inkscape:cx="8"
+     inkscape:cx="3.2148377"
      inkscape:cy="8"
-     inkscape:window-x="1912"
-     inkscape:window-y="-8"
+     inkscape:window-x="72"
+     inkscape:window-y="30"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg88">
     <inkscape:grid
        id="grid834"
        type="xygrid" />
   </sodipodi:namedview>
-  <g
-     style="fill:#7f7f7f;fill-opacity:1"
-     id="Layer_1">
-    <path
-       style="fill:#7f7f7f;fill-opacity:1"
-       d="M10.031,6 C11.118,6 12,6.878 12,7.961 L12,11.024 C12,12.107 11.118,13 10.031,13 L5.969,13 C4.882,13 4,12.122 4,11.039 L4,7.976 C4,6.893 4.882,6.015 5.969,6.015 L10.031,6 z M9.451,7 L6.549,7.011 C5.773,7.011 5.143,7.638 5.143,8.411 L5.143,10.599 C5.143,11.373 5.773,12 6.549,12 L9.451,12 C10.227,12 10.857,11.362 10.857,10.589 L10.857,8.4 C10.857,7.627 10.227,7 9.451,7 z"
-       fill="#494949"
-       id="path79" />
-    <path
-       style="fill:#7f7f7f;fill-opacity:1"
-       d="M8,10 C7.448,10 7,9.552 7,9 C7,8.448 7.448,8 8,8 C8.552,8 9,8.448 9,9 C9,9.552 8.552,10 8,10 z"
-       fill="#494949"
-       id="path81" />
-    <path
-       style="fill:#7f7f7f;fill-opacity:1"
-       d="M8.494,9.65 L9,11.167 L7,11.167 L7.506,9.65 L7.611,9.755 C8.13,9.86 7.87,9.86 8.389,9.755 z"
-       fill="#494949"
-       id="path83" />
-    <path
-       style="fill:#7f7f7f;fill-opacity:1"
-       d="M9.917,5.928 C10.637,5.089 11.177,4.205 10.911,3.044 C10.861,2.825 10.661,2.672 10.535,2.486 C9.121,1.072 7,3.193 7,3.193 L6.293,2.486 C6.485,2.294 6.793,2.03 7.191,1.765 C7.9,1.292 8.63,1 9.386,1 C10.078,1 10.72,1.257 11.243,1.779 C11.765,2.301 12.022,2.943 12.022,3.635 C12.022,4.392 11.729,5.122 11.257,5.831 C10.992,6.228 10.728,6.537 10.535,6.729 L9.828,6.022 L9.917,5.928 z"
-       fill="#494949"
-       id="path85" />
-  </g>
+  <path
+     style="fill:#3f3f3f;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0, 10.99999998999999917;stroke-dashoffset:0;stroke-opacity:1"
+     d="M 3.5039062 7 C 2.7516135 7 2 7.6673177 2 8.3339844 L 2 13.666016 C 2 14.332681 2.7516135 15 3.5039062 15 L 12.53125 15 C 13.283543 15 14.037109 14.332681 14.037109 13.666016 L 14.037109 8.3339844 C 14.037109 7.6673177 13.283543 7 12.53125 7 L 3.5039062 7 z M 8 9 A 2 2 0 0 1 10 11 A 2 2 0 0 1 8 13 A 2 2 0 0 1 6 11 A 2 2 0 0 1 8 9 z "
+     id="path4576" />
+  <path
+     style="fill:none;fill-opacity:1;stroke:#3f3f3f;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 7.5309663,3.9258115 9.1399252,2.7378488 c 0,0 2.1871678,-2.05435981 4.1671038,0.6272371 1.979939,2.6815969 -0.603216,4.1996366 -0.603216,4.1996366 L 11.094855,8.752685"
+     id="path4578"
+     inkscape:connector-curvature="0"
+     sodipodi:nodetypes="ccscc"
+     inkscape:export-filename="./path4578.png"
+     inkscape:export-xdpi="96"
+     inkscape:export-ydpi="96" />
 </svg>

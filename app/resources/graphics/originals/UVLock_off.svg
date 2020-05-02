@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -9,84 +7,20 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:export-ydpi="96"
+   inkscape:export-xdpi="96"
+   inkscape:export-filename="/media/psf/Home/Documents/Code/TrenchBroom_qt/app/resources/graphics/images/UVLock_off.png"
+   version="1.1"
+   x="0"
+   y="0"
    width="24"
    height="24"
-   viewBox="0 0 24.000001 24"
-   id="svg2"
-   version="1.1"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)"
-   sodipodi:docname="UVLockOff.svg"
-   inkscape:export-filename="C:\Users\Eric\Documents\TrenchBroom\app\resources\graphics\images\UVLock_off.png"
-   inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96">
-  <defs
-     id="defs4">
-    <marker
-       inkscape:stockid="Arrow1Lstart"
-       orient="auto"
-       refY="0.0"
-       refX="0.0"
-       id="Arrow1Lstart"
-       style="overflow:visible"
-       inkscape:isstock="true">
-      <path
-         id="path4749"
-         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
-         style="fill-rule:evenodd;stroke:none;stroke-width:1pt;stroke-opacity:1;fill:#494949;fill-opacity:1"
-         transform="scale(0.8) translate(12.5,0)" />
-    </marker>
-    <inkscape:perspective
-       sodipodi:type="inkscape:persp3d"
-       inkscape:vp_x="4.4999999 : 29.75 : 1"
-       inkscape:vp_y="0 : 1000 : 0"
-       inkscape:vp_z="68.500003 : 29.75 : 1"
-       inkscape:persp3d-origin="36.500002 : 9.75 : 1"
-       id="perspective4155" />
-  </defs>
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="32"
-     inkscape:cx="-1.5589365"
-     inkscape:cy="13.228569"
-     inkscape:document-units="px"
-     inkscape:current-layer="layer1"
-     showgrid="true"
-     units="px"
-     inkscape:showpageshadow="false"
-     showguides="false"
-     inkscape:snap-grids="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="1137"
-     inkscape:window-x="-8"
-     inkscape:window-y="484"
-     inkscape:window-maximized="1"
-     inkscape:snap-bbox="false"
-     inkscape:bbox-paths="true"
-     objecttolerance="10000"
-     inkscape:object-nodes="true"
-     inkscape:snap-smooth-nodes="true"
-     inkscape:snap-text-baseline="false">
-    <inkscape:grid
-       type="xygrid"
-       id="grid3336"
-       empspacing="4"
-       originx="0"
-       originy="0" />
-    <inkscape:grid
-       type="xygrid"
-       id="grid4272"
-       empspacing="4"
-       originx="-0.50000002"
-       originy="-0.5"
-       dotted="true" />
-  </sodipodi:namedview>
+   viewBox="0 0 24 24"
+   id="svg88"
+   sodipodi:docname="UVLock_off.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
   <metadata
-     id="metadata7">
+     id="metadata94">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
@@ -97,34 +31,80 @@
       </cc:Work>
     </rdf:RDF>
   </metadata>
-  <g
-     inkscape:label="Ebene 1"
-     inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(0,-1028.3623)">
-    <path
-       inkscape:connector-curvature="0"
-       d="M 17.15,1050.3623 H 6.75 c -0.927273,0 -1.75,-0.9 -1.75,-1.75 v -8.5 c 0,-0.85 0.822727,-1.75 1.75,-1.75 h 10.5 c 0.927271,0 1.75,0.9 1.75,1.75 v 8.5 c 0,0.85 -0.922729,1.75 -1.85,1.75 z m -9.65,-10 c -0.3272729,0 -0.5,0.2 -0.5,0.5 v 7 c 0,0.3 0.1727271,0.5 0.5,0.5 h 9 c 0.327272,0 0.5,-0.2 0.5,-0.5 v -7 c 0,-0.3 -0.172728,-0.5 -0.5,-0.5 z"
-       id="path6"
-       style="fill:#7f7f7f;fill-opacity:1;stroke:none;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       sodipodi:nodetypes="ssssssssssssssssss" />
-    <path
-       inkscape:connector-curvature="0"
-       d="m 16.171068,1040.3623 -1.414213,-1.4142 1.414213,-1.4142 c 1.06066,-1.0607 1.504209,-2.7385 10e-7,-4.2427 -1.504209,-1.5042 -3.181981,-1.0606 -4.242642,0 l -1.414213,1.4143 -1.414214,-1.4143 1.414214,-1.4142 c 1.767767,-1.7677 5.142595,-1.9284 7.071068,0 1.928473,1.9285 1.767767,5.3033 0,7.0711 z"
-       id="path4"
-       style="fill:#7f7f7f;fill-opacity:1"
-       sodipodi:nodetypes="ccsssccsssc" />
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.36572695px;line-height:1.25;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Bold';letter-spacing:0px;word-spacing:0px;fill:#7f7f7f;fill-opacity:1;stroke:none;stroke-width:0.18414319;"
-       x="8.7098923"
-       y="915.12189"
-       id="text18"
-       transform="scale(0.8737363,1.1445101)"><tspan
-         sodipodi:role="line"
-         id="tspan16"
-         x="8.7098923"
-         y="915.12189"
-         style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:'Roboto Heavy';fill:#7f7f7f;fill-opacity:1;stroke-width:0.18414319;">UV</tspan></text>
-  </g>
+  <defs
+     id="defs92" />
+  <sodipodi:namedview
+     inkscape:document-rotation="0"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2488"
+     inkscape:window-height="1373"
+     id="namedview90"
+     showgrid="true"
+     inkscape:zoom="32"
+     inkscape:cx="1.58262"
+     inkscape:cy="9.2602551"
+     inkscape:window-x="72"
+     inkscape:window-y="30"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg88"
+     inkscape:snap-bbox="true"
+     inkscape:bbox-nodes="true">
+    <inkscape:grid
+       id="grid834"
+       type="xygrid"
+       empspacing="4" />
+  </sodipodi:namedview>
+  <rect
+     style="fill:#7f7f7f;fill-opacity:0.24705882;stroke:#7f7f7f;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:10;stroke-opacity:1"
+     id="rect826"
+     width="17"
+     height="17.0625"
+     x="3.53125"
+     y="3.468749"
+     inkscape:export-filename="/media/psf/Home/Documents/Code/TrenchBroom_qt/app/resources/graphics/images/rect826.png"
+     inkscape:export-xdpi="96"
+     inkscape:export-ydpi="96" />
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:58.28285217px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#3f3f3f;fill-opacity:1;stroke:none;stroke-width:1;"
+     x="6.0752883"
+     y="13.720876"
+     id="text5241"
+     transform="scale(0.86579539,1.1550073)"><tspan
+       sodipodi:role="line"
+       id="tspan5239"
+       x="6.0752883"
+       y="13.720876"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:9.31137943px;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans Bold';fill:#3f3f3f;fill-opacity:1;stroke-width:1;">UV</tspan></text>
+  <circle
+     style="fill:#7f7f7f;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+     id="path15179"
+     cx="4"
+     cy="4"
+     r="2.5" />
+  <circle
+     style="fill:#7f7f7f;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+     id="path15179-1"
+     cx="20"
+     cy="4"
+     r="2.5" />
+  <circle
+     style="fill:#7f7f7f;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+     id="path15179-2"
+     cx="4"
+     cy="20"
+     r="2.5" />
+  <circle
+     style="fill:#7f7f7f;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+     id="path15179-1-7"
+     cx="20"
+     cy="20"
+     r="2.5" />
 </svg>
