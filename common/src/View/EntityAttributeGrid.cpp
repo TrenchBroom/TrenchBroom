@@ -212,7 +212,11 @@ namespace TrenchBroom {
                 emit currentRowChanged();
             });
 
-            connect(m_table->selectionModel(), &QItemSelectionModel::selectionChanged, this, [=](const QItemSelection& selected, const QItemSelection& deselected){
+            connect(m_table->selectionModel(), &QItemSelectionModel::selectionChanged, this, [=](){
+                updateControlsEnabled();
+            });
+
+            connect(m_proxyModel, &QAbstractItemModel::dataChanged, this, [=]() {
                 updateControlsEnabled();
             });
 
