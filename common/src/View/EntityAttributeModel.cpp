@@ -688,10 +688,14 @@ namespace TrenchBroom {
         }
 
         bool EntityAttributeModel::canRemove(const int rowIndexInt) {
-            if (rowIndexInt < 0 || static_cast<size_t>(rowIndexInt) >= m_rows.size())
+            if (rowIndexInt < 0 || static_cast<size_t>(rowIndexInt) >= m_rows.size()) {
                 return false;
+            }
 
             const AttributeRow& row = m_rows.at(static_cast<size_t>(rowIndexInt));
+            if (row.isDefault()) {
+                return false;
+            }
             return row.nameMutable() && row.valueMutable();
         }
 

@@ -86,7 +86,7 @@ namespace TrenchBroom {
         public:
             std::string selectedRowName() const;
         signals:
-            void selectedRow();
+            void currentRowChanged();
         };
     }
 }

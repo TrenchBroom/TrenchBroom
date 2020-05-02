@@ -202,10 +202,18 @@ namespace TrenchBroom {
             });
 
             connect(m_table->selectionModel(), &QItemSelectionModel::currentChanged, this, [=](const QModelIndex& current, const QModelIndex& previous){
+                // NOTE: when we get this signal, the selection hasn't been updated yet.
+                // So selectedRowsAndCursorRow() will return a mix of the new current row and old selection.
+                // Because of this, it's important to also call updateControlsEnabled() in response to QItemSelectionModel::selectionChanged
+                // as we do below. (#3165)
                 qDebug() << "current changed form " << previous << " to " << current;
                 updateControlsEnabled();
                 ensureSelectionVisible();
-                emit selectedRow();
+                emit currentRowChanged();
+            });
+
+            connect(m_table->selectionModel(), &QItemSelectionModel::selectionChanged, this, [=](const QItemSelection& selected, const QItemSelection& deselected){
+                updateControlsEnabled();
             });
 
             // Shortcuts
