@@ -106,12 +106,12 @@ namespace TrenchBroom {
         Preference<float> RotateHandleRadius(IO::Path("Controls/Rotate handle radius"), 64.0f);
         Preference<Color> RotateHandleColor(IO::Path("Renderer/Colors/Rotate handle"), Color(248, 230, 60, 1.0f));
 
-        Preference<Color> ScaleHandleColor(IO::Path("Renderer/Colors/Scale handle"),   Color(0, 255, 145, 1.0f));
-        Preference<Color> ScaleFillColor(IO::Path("Renderer/Colors/Scale fill"),       Color(0, 255, 145, 0.125f));
-        Preference<Color> ScaleOutlineColor(IO::Path("Renderer/Colors/Scale outline"), Color(0, 255, 145, 1.0f));
-        Preference<Color> ScaleOutlineDimColor(IO::Path("Renderer/Colors/Scale outline dim"), Color(0, 255, 145, 0.3f));
-        Preference<Color> ShearFillColor(IO::Path("Renderer/Colors/Shear fill"),       Color(128, 128, 255, 0.125f));
-        Preference<Color> ShearOutlineColor(IO::Path("Renderer/Colors/Shear outline"), Color(128, 128, 255, 1.0f));
+        Preference<Color> ScaleHandleColor(IO::Path("Renderer/Colors/Scale handle"),   Color(77, 255, 80, 1.0f));
+        Preference<Color> ScaleFillColor(IO::Path("Renderer/Colors/Scale fill"),       Color(77, 255, 80, 0.125f));
+        Preference<Color> ScaleOutlineColor(IO::Path("Renderer/Colors/Scale outline"), Color(77, 255, 80, 1.0f));
+        Preference<Color> ScaleOutlineDimColor(IO::Path("Renderer/Colors/Scale outline dim"), Color(77, 255, 80, 0.3f));
+        Preference<Color> ShearFillColor(IO::Path("Renderer/Colors/Shear fill"),       Color(45, 133, 255, 0.125f));
+        Preference<Color> ShearOutlineColor(IO::Path("Renderer/Colors/Shear outline"), Color(45, 133, 255, 1.0f));
 
         Preference<Color> MoveTraceColor(IO::Path("Renderer/Colors/Move trace"), Color(0.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> OccludedMoveTraceColor(IO::Path("Renderer/Colors/Move trace"), Color(0.0f, 1.0f, 1.0f, 0.4f));

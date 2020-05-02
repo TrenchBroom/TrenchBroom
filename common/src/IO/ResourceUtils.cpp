@@ -39,6 +39,7 @@
 #include <QIcon>
 #include <QImage>
 #include <QPainter>
+#include <QPalette>
 #include <QPixmap>
 #include <QThread>
 
@@ -78,19 +79,8 @@ namespace TrenchBroom {
             return QPixmap(imagePathString);
         }
 
-        static void addImagePathToIcon(QIcon& icon, const QString& imagePath, const QIcon::State state) {
-            const auto image = QImage(imagePath);
-            if (image.isNull()) {
-                qWarning() << "Failed loading image " << imagePath;
-                return;
-            }
-
-            const auto pixmap = QPixmap::fromImage(image);
-            icon.addPixmap(pixmap, QIcon::Normal, state);
-
-            // Prepare the disabled state:
+        static QImage createDisabledState(const QImage& image) {
             // Convert to greyscale, divide the opacity by 3
-
             auto disabledImage = image.convertToFormat(QImage::Format_ARGB32);
             const int w = disabledImage.width();
             const int h = disabledImage.height();
@@ -104,8 +94,22 @@ namespace TrenchBroom {
                 }
             }
 
-            const auto disabledPixmap = QPixmap::fromImage(disabledImage);
-            icon.addPixmap(disabledPixmap, QIcon::Disabled, state);
+            return disabledImage;
+        }
+        
+        static void addImagePathToIcon(QIcon& icon, const QString& imagePath, const QIcon::State state, const bool invert) {
+            auto image = QImage(imagePath);
+            if (image.isNull()) {
+                qWarning() << "Failed loading image " << imagePath;
+                return;
+            }
+
+            if (invert && image.isGrayscale()) {
+                image.invertPixels();
+            }
+            
+            icon.addPixmap(QPixmap::fromImage(image), QIcon::Normal, state);
+            icon.addPixmap(QPixmap::fromImage(createDisabledState(image)), QIcon::Disabled, state);
         }
 
         QIcon loadIconResourceQt(const Path& imagePath) {
@@ -124,6 +128,10 @@ namespace TrenchBroom {
                 }
             }
 
+            const auto palette = QPalette();
+            const auto windowColor = palette.color(QPalette::Active, QPalette::Window);
+            const auto darkTheme = windowColor.lightness() <= 127;
+            
             // Cache miss, load the icon
             QIcon result;
             if (!imagePath.isEmpty()) {
@@ -132,10 +140,10 @@ namespace TrenchBroom {
                 const auto imagePathString = imagePathToString(imagePath);
 
                 if (!onPath.isEmpty() && !offPath.isEmpty()) {
-                    addImagePathToIcon(result, onPath, QIcon::On);
-                    addImagePathToIcon(result, offPath, QIcon::Off);
+                    addImagePathToIcon(result, onPath, QIcon::On, darkTheme);
+                    addImagePathToIcon(result, offPath, QIcon::Off, darkTheme);
                 } else if (!imagePathString.isEmpty()) {
-                    addImagePathToIcon(result, imagePathString, QIcon::Off);
+                    addImagePathToIcon(result, imagePathString, QIcon::Off, darkTheme);
                 } else {
                     qWarning() << "Couldn't find image for path: " << pathAsQString(imagePath);
                 }

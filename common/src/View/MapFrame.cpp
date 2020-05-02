@@ -1148,6 +1148,10 @@ namespace TrenchBroom {
             dialog.exec();
         }
 
+        bool MapFrame::anyToolActive() const {
+            return m_mapView->anyToolActive();
+        }
+
         void MapFrame::toggleCreateComplexBrushTool() {
             if (canToggleCreateComplexBrushTool()) {
                 m_mapView->toggleCreateComplexBrushTool();

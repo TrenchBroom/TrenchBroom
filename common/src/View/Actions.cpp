@@ -710,11 +710,6 @@ namespace TrenchBroom {
                 ActionContext::Any, QKeySequence(Qt::Key_Escape),
                 [](ActionExecutionContext& context) { context.view()->cancel(); },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });
-            createAction(IO::Path("Controls/Map view/Deactivate current tool"), QObject::tr("Deactivate Current Tool"),
-                ActionContext::AnyView | ActionContext::AnyTool, QKeySequence(Qt::CTRL + Qt::Key_Escape),
-                [](ActionExecutionContext& context) { context.view()->deactivateTool(); },
-                [](ActionExecutionContext& context) { return context.hasDocument(); },
-                IO::Path("NoTool.png"));
         }
 
         void ActionManager::createMenu() {
@@ -1067,6 +1062,17 @@ namespace TrenchBroom {
                     return context.hasDocument() && context.frame()->faceToolActive();
                 },
                 IO::Path("FaceTool.png")));
+            toolMenu.addItem(createMenuAction(IO::Path("Controls/Map view/Deactivate current tool"), QObject::tr("Deactivate Current Tool"), Qt::CTRL + Qt::Key_Escape,
+                [](ActionExecutionContext& context) {
+                    context.view()->deactivateTool();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && !context.frame()->anyToolActive();
+                },
+                IO::Path("NoTool.png")));
 
             auto& csgMenu = editMenu.addMenu("CSG");
             csgMenu.addItem(createMenuAction(IO::Path("Menu/Edit/CSG/Convex Merge"), QObject::tr("Convex Merge"), Qt::CTRL + Qt::Key_J,
