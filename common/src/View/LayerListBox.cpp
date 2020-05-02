@@ -61,24 +61,19 @@ namespace TrenchBroom {
             m_nameText->installEventFilter(this);
             m_infoText->installEventFilter(this);
 
-            auto* itemPanelBottomLayout = new QHBoxLayout();
-            itemPanelBottomLayout->setContentsMargins(0, 0, 0, 0);
-            itemPanelBottomLayout->setSpacing(0);
+            auto* textLayout = new QVBoxLayout();
+            textLayout->setContentsMargins(0, LayoutConstants::NarrowVMargin, 0, LayoutConstants::NarrowVMargin);
+            textLayout->setSpacing(LayoutConstants::NarrowVMargin);
+            textLayout->addWidget(m_nameText, 1);
+            textLayout->addWidget(m_infoText, 1);
 
-            itemPanelBottomLayout->addWidget(m_hiddenButton, 0, Qt::AlignVCenter);
-            itemPanelBottomLayout->addWidget(m_lockButton, 0, Qt::AlignVCenter);
-            itemPanelBottomLayout->addWidget(m_infoText, 0, Qt::AlignVCenter);
-            itemPanelBottomLayout->addStretch(1);
-            itemPanelBottomLayout->addSpacing(LayoutConstants::NarrowHMargin);
-
-            auto* itemPanelLayout = new QVBoxLayout();
+            auto* itemPanelLayout = new QHBoxLayout();
             itemPanelLayout->setContentsMargins(0, 0, 0, 0);
-            itemPanelLayout->setSpacing(0);
+            itemPanelLayout->setSpacing(LayoutConstants::MediumHMargin);
 
-            itemPanelLayout->addSpacing(LayoutConstants::NarrowVMargin);
-            itemPanelLayout->addWidget(m_nameText);
-            itemPanelLayout->addLayout(itemPanelBottomLayout);
-            itemPanelLayout->addSpacing(LayoutConstants::NarrowVMargin);
+            itemPanelLayout->addLayout(textLayout, 1);
+            itemPanelLayout->addWidget(m_hiddenButton);
+            itemPanelLayout->addWidget(m_lockButton);
             setLayout(itemPanelLayout);
 
             updateLayerItem();
@@ -108,8 +103,8 @@ namespace TrenchBroom {
             m_hiddenButton->setChecked(m_layer->hidden());
 
             auto document = kdl::mem_lock(m_document);
-            m_lockButton->setEnabled(m_layer->locked() || m_layer != document->currentLayer());
-            m_hiddenButton->setEnabled(m_layer->hidden() || m_layer != document->currentLayer());
+            m_lockButton->setVisible(m_layer->locked() || m_layer != document->world()->defaultLayer());
+            m_hiddenButton->setVisible(m_layer->hidden() || m_layer != document->world()->defaultLayer());
         }
 
         Model::Layer* LayerListBoxWidget::layer() const {

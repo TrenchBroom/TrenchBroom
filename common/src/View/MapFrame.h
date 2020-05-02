@@ -235,6 +235,8 @@ namespace TrenchBroom {
             void renameSelectedGroups();
             bool canRenameSelectedGroups() const;
 
+            bool anyToolActive() const;
+            
             void toggleCreateComplexBrushTool();
             bool canToggleCreateComplexBrushTool() const;
             bool createComplexBrushToolActive() const;
