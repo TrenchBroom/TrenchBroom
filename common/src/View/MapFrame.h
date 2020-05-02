@@ -105,8 +105,6 @@ namespace TrenchBroom {
             QMenu* m_recentDocumentsMenu;
             QAction* m_undoAction;
             QAction* m_redoAction;
-            QAction* m_pasteAction;
-            QAction* m_pasteAtOriginalPositionAction;
         public:
             MapFrame(FrameManager* frameManager, std::shared_ptr<MapDocument> document);
             ~MapFrame() override;
@@ -122,7 +120,6 @@ namespace TrenchBroom {
             void updateShortcuts();
             void updateActionState();
             void updateUndoRedoActions();
-            void updatePasteActions();
 
             void addRecentDocumentsMenu();
             void removeRecentDocumentsMenu();

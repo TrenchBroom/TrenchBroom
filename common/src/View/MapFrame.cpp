@@ -84,6 +84,7 @@
 #include <QClipboard>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QFileDialog>
 #include <QStatusBar>
 #include <QToolBar>
@@ -113,9 +114,7 @@ namespace TrenchBroom {
         m_compilationDialog(nullptr),
         m_recentDocumentsMenu(nullptr),
         m_undoAction(nullptr),
-        m_redoAction(nullptr),
-        m_pasteAction(nullptr),
-        m_pasteAtOriginalPositionAction(nullptr) {
+        m_redoAction(nullptr) {
             ensure(m_frameManager != nullptr, "frameManager is null");
             ensure(m_document != nullptr, "document is null");
 
@@ -216,8 +215,6 @@ namespace TrenchBroom {
             m_recentDocumentsMenu = menuBuilder.recentDocumentsMenu;
             m_undoAction = menuBuilder.undoAction;
             m_redoAction = menuBuilder.redoAction;
-            m_pasteAction = menuBuilder.pasteAction;
-            m_pasteAtOriginalPositionAction = menuBuilder.pasteAtOriginalPositionAction;
 
             addRecentDocumentsMenu();
         }
@@ -231,8 +228,7 @@ namespace TrenchBroom {
         void MapFrame::updateActionState() {
             ActionExecutionContext context(this, currentMapViewBase());
             for (auto [tAction, qAction] : m_actionMap) {
-                if (qAction == m_undoAction || qAction == m_redoAction ||
-                    qAction == m_pasteAction || qAction == m_pasteAtOriginalPositionAction) {
+                if (qAction == m_undoAction || qAction == m_redoAction) {
                     // These are handled specially for performance reasons.
                     continue;
                 }
@@ -264,16 +260,6 @@ namespace TrenchBroom {
                     m_redoAction->setText("Redo");
                     m_redoAction->setEnabled(false);
                 }
-            }
-        }
-
-        void MapFrame::updatePasteActions() {
-            const auto enable = canPaste();
-            if (m_pasteAction != nullptr) {
-                m_pasteAction->setEnabled(enable);
-            }
-            if (m_pasteAtOriginalPositionAction != nullptr) {
-                m_pasteAtOriginalPositionAction->setEnabled(enable);
             }
         }
 
@@ -669,7 +655,6 @@ namespace TrenchBroom {
             connect(m_autosaveTimer, &QTimer::timeout, this, &MapFrame::triggerAutosave);
             connect(qApp, &QApplication::focusChanged, this, &MapFrame::focusChange);
             connect(m_gridChoice, QOverload<int>::of(&QComboBox::activated), this, [this](const int index) { setGridSize(index + Grid::MinSize); });
-            connect(QApplication::clipboard(), &QClipboard::dataChanged, this, &MapFrame::updatePasteActions);
             connect(m_toolBar, &QToolBar::visibilityChanged, this, [this](const bool /* visible */) {
                 // update the "Toggle Toolbar" menu item
                 this->updateActionState();
@@ -974,8 +959,9 @@ namespace TrenchBroom {
          * This is relatively expensive so only call it when the clipboard changes or e.g. the user tries to paste.
          */
         bool MapFrame::canPaste() const {
-            auto* clipboard = QApplication::clipboard();
-            return !clipboard->text().isEmpty();
+            const auto* clipboard = QApplication::clipboard();
+            const auto* mimeData = clipboard->mimeData();
+            return mimeData != nullptr && mimeData->hasText();
         }
 
         void MapFrame::duplicateSelection() {
