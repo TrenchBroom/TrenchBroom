@@ -178,12 +178,12 @@ namespace TrenchBroom {
             m_table->horizontalHeader()->setSectionsClickable(false);
             m_table->setSelectionBehavior(QAbstractItemView::SelectItems);
 
-            m_addAttributeButton = createBitmapButton("Add.png", tr("Add a new property"), this);
+            m_addAttributeButton = createBitmapButton("Add.png", tr("Add a new property (%1)").arg(EntityAttributeTable::insertRowShortcutString()), this);
             connect(m_addAttributeButton, &QAbstractButton::clicked, this, [=](const bool /* checked */){
                 addAttribute();
             });
 
-            m_removePropertiesButton = createBitmapButton("Remove.png", tr("Remove the selected properties"), this);
+            m_removePropertiesButton = createBitmapButton("Remove.png", tr("Remove the selected properties (%1)").arg(EntityAttributeTable::removeRowShortcutString()), this);
             connect(m_removePropertiesButton, &QAbstractButton::clicked, this, [=](const bool /* checked */){
                 removeSelectedAttributes();
             });
