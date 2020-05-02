@@ -29,6 +29,14 @@ namespace TrenchBroom {
     namespace Preferences {
         Preference<int> MapViewLayout(IO::Path("Views/Map view layout"), static_cast<int>(View::MapViewLayout::OnePane));
 
+        QString systemTheme() {
+            return QStringLiteral("System");
+        }
+        QString darkTheme() {
+            return QStringLiteral("Dark");
+        }
+        Preference<QString> Theme(IO::Path("Theme"), systemTheme());
+
         Preference<bool>  ShowAxes(IO::Path("Renderer/Show axes"), true);
         Preference<Color> BackgroundColor(IO::Path("Renderer/Colors/Background"), Color(38, 38, 38));
         Preference<float> AxisLength(IO::Path("Renderer/Axis length"), 128.0f);
@@ -186,6 +194,7 @@ namespace TrenchBroom {
         const std::vector<PreferenceBase*>& staticPreferences() {
             static const std::vector<PreferenceBase*> list {
                 &MapViewLayout,
+                &Theme,
                 &ShowAxes,
                 &BackgroundColor,
                 &AxisLength,

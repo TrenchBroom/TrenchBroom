@@ -34,11 +34,13 @@
 #include <string>
 
 #include <QApplication>
+#include <QColor>
 #include <QDebug>
 #include <QIcon>
+#include <QImage>
+#include <QPainter>
 #include <QPixmap>
 #include <QThread>
-
 
 namespace TrenchBroom {
     namespace IO {
@@ -76,6 +78,36 @@ namespace TrenchBroom {
             return QPixmap(imagePathString);
         }
 
+        static void addImagePathToIcon(QIcon& icon, const QString& imagePath, const QIcon::State state) {
+            const auto image = QImage(imagePath);
+            if (image.isNull()) {
+                qWarning() << "Failed loading image " << imagePath;
+                return;
+            }
+
+            const auto pixmap = QPixmap::fromImage(image);
+            icon.addPixmap(pixmap, QIcon::Normal, state);
+
+            // Prepare the disabled state:
+            // Convert to greyscale, divide the opacity by 3
+
+            auto disabledImage = image.convertToFormat(QImage::Format_ARGB32);
+            const int w = disabledImage.width();
+            const int h = disabledImage.height();
+            for (int y = 0; y < h; ++y) {
+                QRgb* row = reinterpret_cast<QRgb*>(disabledImage.scanLine(y));
+                for (int x = 0; x < w; ++x) {
+                    const QRgb oldPixel = row[x];
+                    const int grey = (qRed(oldPixel) + qGreen(oldPixel) + qBlue(oldPixel)) / 3;
+                    const int alpha = qAlpha(oldPixel) / 3;
+                    row[x] = qRgba(grey, grey, grey, alpha);
+                }
+            }
+
+            const auto disabledPixmap = QPixmap::fromImage(disabledImage);
+            icon.addPixmap(disabledPixmap, QIcon::Disabled, state);
+        }
+
         QIcon loadIconResourceQt(const Path& imagePath) {
             // Simple caching layer.
             // Without it, the .png files would be read from disk and decoded each time this is called, which is slow.
@@ -97,18 +129,15 @@ namespace TrenchBroom {
             if (!imagePath.isEmpty()) {
                 const auto onPath = imagePathToString(imagePath.replaceBasename(imagePath.basename() + "_on"));
                 const auto offPath = imagePathToString(imagePath.replaceBasename(imagePath.basename() + "_off"));
+                const auto imagePathString = imagePathToString(imagePath);
 
                 if (!onPath.isEmpty() && !offPath.isEmpty()) {
-                    result.addFile(onPath, QSize(), QIcon::Normal, QIcon::On);
-                    result.addFile(offPath, QSize(), QIcon::Normal, QIcon::Off);
+                    addImagePathToIcon(result, onPath, QIcon::On);
+                    addImagePathToIcon(result, offPath, QIcon::Off);
+                } else if (!imagePathString.isEmpty()) {
+                    addImagePathToIcon(result, imagePathString, QIcon::Off);
                 } else {
-                    const auto imagePathString = imagePathToString(imagePath);
-
-                    if (imagePathString.isEmpty()) {
-                        qWarning() << "Couldn't find image for path: " << pathAsQString(imagePath);
-                    }
-
-                    result.addFile(imagePathString, QSize(), QIcon::Normal);
+                    qWarning() << "Couldn't find image for path: " << pathAsQString(imagePath);
                 }
             }
 

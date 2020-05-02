@@ -184,8 +184,9 @@ namespace TrenchBroom {
 
             const auto defaultPalette = QPalette();
             auto palette = widget->palette();
-            palette.setColor(QPalette::Normal, QPalette::WindowText, defaultPalette.color(QPalette::Disabled, QPalette::WindowText));
-            palette.setColor(QPalette::Normal, QPalette::Text, defaultPalette.color(QPalette::Disabled, QPalette::WindowText));
+            // Set all color groups (active, inactive, disabled) to use the disabled color, so it's dimmer
+            palette.setColor(QPalette::WindowText, defaultPalette.color(QPalette::Disabled, QPalette::WindowText));
+            palette.setColor(QPalette::Text, defaultPalette.color(QPalette::Disabled, QPalette::Text));
             widget->setPalette(palette);
             return widget;
         }

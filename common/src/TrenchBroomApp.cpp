@@ -19,6 +19,8 @@
 
 #include "TrenchBroomApp.h"
 
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "RecoverableExceptions.h"
 #include "TrenchBroomStackWalker.h"
 #include "IO/Path.h"
@@ -68,6 +70,8 @@
 #include <QStandardPaths>
 #include <QSysInfo>
 #include <QUrl>
+#include <QColor>
+#include <QPalette>
 #include <QProxyStyle>
 
 namespace TrenchBroom {
@@ -168,6 +172,48 @@ namespace TrenchBroom {
             return m_frameManager.get();
         }
 
+        QPalette TrenchBroomApp::darkPalette() {
+            const auto button = QColor(35, 35, 35);
+            const auto text = QColor(207, 207, 207);
+            const auto highlight = QColor(62, 112, 205);
+
+            // Build an initial palette based on the button color
+            QPalette palette = QPalette(button);
+
+            // Window colors
+            palette.setColor(QPalette::Active,   QPalette::Window, QColor(50, 50, 50));
+            palette.setColor(QPalette::Inactive, QPalette::Window, QColor(40, 40, 40));
+            palette.setColor(QPalette::Disabled, QPalette::Window, QColor(50, 50, 50).darker(200));
+
+            // List box backgrounds, text entry backgrounds, menu backgrounds
+            palette.setColor(QPalette::Base, button.darker(130));
+
+            // Button text
+            palette.setColor(QPalette::Active,   QPalette::ButtonText, text);
+            palette.setColor(QPalette::Inactive, QPalette::ButtonText, text);
+            palette.setColor(QPalette::Disabled, QPalette::ButtonText, text.darker(200));
+
+            // WindowText is supposed to be against QPalette::Window
+            palette.setColor(QPalette::Active,   QPalette::WindowText, text);
+            palette.setColor(QPalette::Inactive, QPalette::WindowText, text);
+            palette.setColor(QPalette::Disabled, QPalette::WindowText, text.darker(200));
+
+            // Menu text, text edit text, table cell text
+            palette.setColor(QPalette::Active,   QPalette::Text,  text.darker(115));
+            palette.setColor(QPalette::Inactive, QPalette::Text,  text.darker(115)); 
+            palette.setColor(QPalette::Disabled, QPalette::Text,  QColor(102, 102, 102)); // Disabled menu item text color
+
+            // Disabled menu item text shadow
+            palette.setColor(QPalette::Disabled, QPalette::Light, button.darker(200));
+
+            // Highlight (selected list box row, selected grid cell background, selected tab text
+            palette.setColor(QPalette::Active,   QPalette::Highlight, highlight);
+            palette.setColor(QPalette::Inactive, QPalette::Highlight, highlight);
+            palette.setColor(QPalette::Disabled, QPalette::Highlight, highlight);            
+
+            return palette;
+        }
+
         bool TrenchBroomApp::loadStyleSheets() {
             const auto path = IO::SystemPaths::findResourceFile(IO::Path("stylesheets/base.qss"));
             auto file = QFile(IO::pathAsQString(path));
@@ -211,7 +257,14 @@ namespace TrenchBroom {
                 }
             };
 
-            setStyle(new TrenchBroomProxyStyle());
+            // Apply either the Fusion style + dark palette, or the system style
+            if (pref(Preferences::Theme) == Preferences::darkTheme()) {
+                setStyle(new TrenchBroomProxyStyle("Fusion"));
+                setPalette(darkPalette());
+            } else {
+                // System
+                setStyle(new TrenchBroomProxyStyle());    
+            }
         }
 
         const std::vector<IO::Path>& TrenchBroomApp::recentDocuments() const {

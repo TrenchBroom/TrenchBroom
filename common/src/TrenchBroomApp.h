@@ -61,6 +61,7 @@ namespace TrenchBroom {
 
             FrameManager* frameManager();
         private:
+            static QPalette darkPalette();
             bool loadStyleSheets();
             void loadStyle();
         public:
