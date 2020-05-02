@@ -655,6 +655,10 @@ namespace TrenchBroom {
             connect(m_autosaveTimer, &QTimer::timeout, this, &MapFrame::triggerAutosave);
             connect(qApp, &QApplication::focusChanged, this, &MapFrame::focusChange);
             connect(m_gridChoice, QOverload<int>::of(&QComboBox::activated), this, [this](const int index) { setGridSize(index + Grid::MinSize); });
+            connect(QApplication::clipboard(), &QClipboard::dataChanged, this, [this]() {
+                // update the "Paste" menu items
+                this->updateActionState();
+            });
             connect(m_toolBar, &QToolBar::visibilityChanged, this, [this](const bool /* visible */) {
                 // update the "Toggle Toolbar" menu item
                 this->updateActionState();
