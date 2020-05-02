@@ -216,7 +216,13 @@ namespace TrenchBroom {
                 updateControlsEnabled();
             });
 
+            // e.g. handles setting a value of a default attribute so it becomes non-default
             connect(m_proxyModel, &QAbstractItemModel::dataChanged, this, [=]() {
+                updateControlsEnabled();
+            });
+
+            // e.g. handles deleting 2 rows
+            connect(m_proxyModel, &QAbstractItemModel::modelReset, this, [=]() {
                 updateControlsEnabled();
             });
 
