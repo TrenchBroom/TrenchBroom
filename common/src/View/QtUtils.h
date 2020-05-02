@@ -29,6 +29,7 @@
 
 #include <QBoxLayout>
 #include <QObject>
+#include <QPointer>
 #include <QSettings>
 #include <QStringList>
 #include <QWidget>
@@ -39,6 +40,7 @@ class QColor;
 class QCompleter;
 class QDialog;
 class QDialogButtonBox;
+class QEvent;
 class QFont;
 class QLayout;
 class QLineEdit;
@@ -48,6 +50,7 @@ class QSlider;
 class QSplitter;
 class QString;
 class QTableView;
+class QWidget;
 
 namespace TrenchBroom {
     class Color;
@@ -61,6 +64,17 @@ namespace TrenchBroom {
             ~DisableWindowUpdates();
         };
 
+        class SyncHeightEventFilter : public QObject {
+        private:
+            QPointer<QWidget> m_master;
+            QPointer<QWidget> m_slave;
+        public:
+            SyncHeightEventFilter(QWidget* master, QWidget* slave, QObject* parent = nullptr);
+            ~SyncHeightEventFilter();
+            
+            bool eventFilter(QObject* target, QEvent* event) override;
+        };
+        
         enum class FileDialogDir {
             Map,
             TextureCollection,

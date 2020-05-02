@@ -53,6 +53,10 @@ namespace TrenchBroom {
             connect(m_tabBook, &QStackedLayout::currentChanged, this, &TabBook::pageChanged);
         }
 
+        TabBar* TabBook::tabBar() {
+            return m_tabBar;
+        }
+
         void TabBook::addPage(TabBookPage* page, const QString& title) {
             ensure(page != nullptr, "page is null");
 
@@ -63,10 +67,6 @@ namespace TrenchBroom {
         void TabBook::switchToPage(const int index) {
             assert(index < m_tabBook->count());
             m_tabBook->setCurrentIndex(index);
-        }
-
-        void TabBook::setTabBarHeight(const int height) {
-            m_tabBar->setMinimumSize(0, height);
         }
     }
 }
