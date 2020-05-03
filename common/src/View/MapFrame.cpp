@@ -81,6 +81,7 @@
 #include <QLabel>
 #include <QString>
 #include <QApplication>
+#include <QChildEvent>
 #include <QClipboard>
 #include <QInputDialog>
 #include <QMessageBox>
@@ -98,6 +99,7 @@ namespace TrenchBroom {
         QMainWindow(),
         m_frameManager(frameManager),
         m_document(std::move(document)),
+        m_lastInputTime(std::chrono::system_clock::now()),
         m_autosaver(std::make_unique<Autosaver>(m_document)),
         m_autosaveTimer(nullptr),
         m_toolBar(nullptr),
@@ -121,6 +123,8 @@ namespace TrenchBroom {
             setAttribute(Qt::WA_DeleteOnClose);
             setObjectName("MapFrame");
 
+            installEventFilter(this);
+            
             createGui();
             createMenus();
             createToolBar();
@@ -1635,8 +1639,39 @@ namespace TrenchBroom {
             // Don't call superclass implementation
         }
 
+        namespace {
+            template <typename F>
+            void applyRecursively(QObject* object, const F& f) {
+                f(object);
+                for (auto* child : object->children()) {
+                    applyRecursively(child, f);
+                }
+            }
+        }
+        
+        bool MapFrame::eventFilter(QObject* target, QEvent* event) {
+            if (event->type() == QEvent::MouseButtonPress ||
+                event->type() == QEvent::MouseButtonRelease ||
+                event->type() == QEvent::MouseButtonDblClick ||
+                event->type() == QEvent::MouseMove ||
+                event->type() == QEvent::KeyPress ||
+                event->type() == QEvent::KeyRelease) {
+                m_lastInputTime = std::chrono::system_clock::now();
+            } else if (event->type() == QEvent::ChildAdded) {
+                auto* childEvent = static_cast<QChildEvent*>(event);
+                applyRecursively(childEvent->child(), [&](auto* object) { object->installEventFilter(this); });
+            } else if (event->type() == QEvent::ChildRemoved) {
+                auto* childEvent = static_cast<QChildEvent*>(event);
+                applyRecursively(childEvent->child(), [&](auto* object) { object->removeEventFilter(this); });
+            }
+            return QMainWindow::eventFilter(target, event);
+        }
+
         void MapFrame::triggerAutosave() {
-            m_autosaver->triggerAutosave(logger());
+            using namespace std::chrono_literals;
+            if (std::chrono::system_clock::now() - m_lastInputTime > 1s) {
+                m_autosaver->triggerAutosave(logger());
+            }
         }
 
         // DebugPaletteWindow

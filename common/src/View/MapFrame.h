@@ -27,6 +27,7 @@
 #include <QPointer>
 #include <QDialog>
 
+#include <chrono>
 #include <map>
 #include <memory>
 #include <string>
@@ -76,6 +77,7 @@ namespace TrenchBroom {
             FrameManager* m_frameManager;
             std::shared_ptr<MapDocument> m_document;
 
+            std::chrono::time_point<std::chrono::system_clock> m_lastInputTime;
             std::unique_ptr<Autosaver> m_autosaver;
             QTimer* m_autosaveTimer;
 
@@ -355,6 +357,8 @@ namespace TrenchBroom {
         protected: // other event handlers
             void changeEvent(QEvent* event) override;
             void closeEvent(QCloseEvent* event) override;
+        public: // event filter (suppress autosave for user input events)
+            bool eventFilter(QObject* target, QEvent* event) override;
         private:
             void triggerAutosave();
         };

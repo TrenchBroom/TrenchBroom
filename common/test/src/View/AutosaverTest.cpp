@@ -53,7 +53,7 @@ namespace TrenchBroom {
             document->saveDocumentAs(env.dir() + IO::Path("test.map"));
             assert(env.fileExists(IO::Path("test.map")));
 
-            Autosaver autosaver(document, 10, 0);
+            Autosaver autosaver(document, 10);
 
             // modify the map
             document->addNode(createBrush("some_texture"), document->currentLayer());
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             document->saveDocumentAs(env.dir() + IO::Path("test.map"));
             assert(env.fileExists(IO::Path("test.map")));
 
-            Autosaver autosaver(document, 0, 0);
+            Autosaver autosaver(document, 0);
             autosaver.triggerAutosave(logger);
 
             ASSERT_FALSE(env.fileExists(IO::Path("autosave/test.1.map")));
@@ -85,48 +85,7 @@ namespace TrenchBroom {
             document->saveDocumentAs(env.dir() + IO::Path("test.map"));
             assert(env.fileExists(IO::Path("test.map")));
 
-            Autosaver autosaver(document, 1, 0);
-
-            // modify the map
-            document->addNode(createBrush("some_texture"), document->currentLayer());
-
-            // Wait for 2 seconds.
-            using namespace std::chrono_literals;
-            std::this_thread::sleep_for(2s);
-
-            autosaver.triggerAutosave(logger);
-
-            ASSERT_TRUE(env.fileExists(IO::Path("autosave/test.1.map")));
-            ASSERT_TRUE(env.directoryExists(IO::Path("autosave")));
-        }
-
-        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveUntilIdleInterval") {
-            IO::TestEnvironment env("autosaver_test");
-            NullLogger logger;
-
-            document->saveDocumentAs(env.dir() + IO::Path("test.map"));
-            assert(env.fileExists(IO::Path("test.map")));
-
-            Autosaver autosaver(document, 0, 1);
-
-            // modify the map
-            document->addNode(createBrush("some_texture"), document->currentLayer());
-
-            autosaver.triggerAutosave(logger);
-
-            ASSERT_FALSE(env.fileExists(IO::Path("autosave/test.1.map")));
-            ASSERT_FALSE(env.directoryExists(IO::Path("autosave")));
-
-        }
-
-        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAfterIdleInterval") {
-            IO::TestEnvironment env("autosaver_test");
-            NullLogger logger;
-
-            document->saveDocumentAs(env.dir() + IO::Path("test.map"));
-            assert(env.fileExists(IO::Path("test.map")));
-
-            Autosaver autosaver(document, 0, 1);
+            Autosaver autosaver(document, 1);
 
             // modify the map
             document->addNode(createBrush("some_texture"), document->currentLayer());
@@ -148,7 +107,7 @@ namespace TrenchBroom {
             document->saveDocumentAs(env.dir() + IO::Path("test.map"));
             assert(env.fileExists(IO::Path("test.map")));
 
-            Autosaver autosaver(document, 1, 0);
+            Autosaver autosaver(document, 1);
 
             // modify the map
             document->addNode(createBrush("some_texture"), document->currentLayer());
@@ -189,7 +148,7 @@ namespace TrenchBroom {
             document->saveDocumentAs(env.dir() + IO::Path("test.map"));
             assert(env.fileExists(IO::Path("test.map")));
 
-            Autosaver autosaver(document, 0, 0);
+            Autosaver autosaver(document, 0);
 
             // modify the map
             document->addNode(createBrush("some_texture"), document->currentLayer());
