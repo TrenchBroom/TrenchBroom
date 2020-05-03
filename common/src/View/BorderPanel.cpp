@@ -33,22 +33,29 @@ namespace TrenchBroom {
         void BorderPanel::paintEvent(QPaintEvent* /*event*/) {
             QPainter painter(this);
 
-            painter.fillRect(this->rect(), palette().color(backgroundRole()));
-            painter.setPen(Colors::borderColor());
+            const QRectF r = QRectF(rect());
+            const qreal thickness = static_cast<qreal>(m_thickness);
 
-            QRect r = rect();
+            painter.setRenderHint(QPainter::Antialiasing, false);
+
+            painter.setPen(Qt::NoPen);
+            painter.setBrush(palette().color(backgroundRole()));        
+            painter.drawRect(r);
+
+            painter.setPen(Qt::NoPen);
+            painter.setBrush(Colors::borderColor());            
             if ((m_borders & LeftSide) != 0) {
-                painter.drawLine(r.left(), r.top(), r.left(), r.bottom());
+                painter.drawRect(QRectF(r.topLeft(), QSizeF(thickness, r.height())));
             }
             if ((m_borders & TopSide) != 0) {
-                painter.drawLine(r.left(), r.top(), r.right(), r.top());
+                painter.drawRect(QRectF(r.topLeft(), QSizeF(r.width(), thickness)));
             }
             if ((m_borders & RightSide) != 0) {
-                painter.drawLine(r.right(), r.top(), r.right(), r.bottom());
+                painter.drawRect(QRectF(r.topRight() - QPointF(thickness, 0.0),   QSizeF(thickness, r.height())));
             }
             if ((m_borders & BottomSide) != 0) {
-                painter.drawLine(r.left(), r.bottom(), r.right(), r.bottom());
-            }
+                painter.drawRect(QRectF(r.bottomLeft() - QPointF(0.0, thickness), QSizeF(r.width(), thickness)));
+            }    
         }
     }
 }
