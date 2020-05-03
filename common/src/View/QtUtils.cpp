@@ -44,6 +44,7 @@
 #include <QLineEdit>
 #include <QPalette>
 #include <QSettings>
+#include <QResizeEvent>
 #include <QScreen>
 #include <QString>
 #include <QStringBuilder>
@@ -71,6 +72,35 @@ namespace TrenchBroom {
 
         DisableWindowUpdates::~DisableWindowUpdates() {
             m_widget->setUpdatesEnabled(true);
+        }
+
+        SyncHeightEventFilter::SyncHeightEventFilter(QWidget* master, QWidget* slave, QObject* parent) :
+        QObject(parent),
+        m_master(master),
+        m_slave(slave) {
+            ensure(m_master != nullptr, "master is not null");
+            ensure(m_slave != nullptr, "slave is not null");
+            
+            m_master->installEventFilter(this);
+        }
+        
+        SyncHeightEventFilter::~SyncHeightEventFilter() {
+            if (m_master) {
+                m_master->removeEventFilter(this);
+            }
+        }
+
+        bool SyncHeightEventFilter::eventFilter(QObject* target, QEvent* event) {
+            if (target == m_master && event->type() == QEvent::Resize) {
+                const auto* sizeEvent = static_cast<QResizeEvent*>(event);
+                const auto height = sizeEvent->size().height();
+                if (m_slave->minimumHeight() != height) {
+                    m_slave->setMinimumHeight(height);
+                }
+                return false;
+            } else {
+                return QObject::eventFilter(target, event);
+            }
         }
 
         static QString fileDialogDirToString(const FileDialogDir dir) {
