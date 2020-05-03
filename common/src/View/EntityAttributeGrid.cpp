@@ -178,12 +178,12 @@ namespace TrenchBroom {
             m_table->horizontalHeader()->setSectionsClickable(false);
             m_table->setSelectionBehavior(QAbstractItemView::SelectItems);
 
-            m_addAttributeButton = createBitmapButton("Add.png", tr("Add a new property"), this);
+            m_addAttributeButton = createBitmapButton("Add.png", tr("Add a new property (%1)").arg(EntityAttributeTable::insertRowShortcutString()), this);
             connect(m_addAttributeButton, &QAbstractButton::clicked, this, [=](const bool /* checked */){
                 addAttribute();
             });
 
-            m_removePropertiesButton = createBitmapButton("Remove.png", tr("Remove the selected properties"), this);
+            m_removePropertiesButton = createBitmapButton("Remove.png", tr("Remove the selected properties (%1)").arg(EntityAttributeTable::removeRowShortcutString()), this);
             connect(m_removePropertiesButton, &QAbstractButton::clicked, this, [=](const bool /* checked */){
                 removeSelectedAttributes();
             });
@@ -202,10 +202,28 @@ namespace TrenchBroom {
             });
 
             connect(m_table->selectionModel(), &QItemSelectionModel::currentChanged, this, [=](const QModelIndex& current, const QModelIndex& previous){
+                // NOTE: when we get this signal, the selection hasn't been updated yet.
+                // So selectedRowsAndCursorRow() will return a mix of the new current row and old selection.
+                // Because of this, it's important to also call updateControlsEnabled() in response to QItemSelectionModel::selectionChanged
+                // as we do below. (#3165)
                 qDebug() << "current changed form " << previous << " to " << current;
                 updateControlsEnabled();
                 ensureSelectionVisible();
-                emit selectedRow();
+                emit currentRowChanged();
+            });
+
+            connect(m_table->selectionModel(), &QItemSelectionModel::selectionChanged, this, [=](){
+                updateControlsEnabled();
+            });
+
+            // e.g. handles setting a value of a default attribute so it becomes non-default
+            connect(m_proxyModel, &QAbstractItemModel::dataChanged, this, [=]() {
+                updateControlsEnabled();
+            });
+
+            // e.g. handles deleting 2 rows
+            connect(m_proxyModel, &QAbstractItemModel::modelReset, this, [=]() {
+                updateControlsEnabled();
             });
 
             // Shortcuts

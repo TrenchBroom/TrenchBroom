@@ -20,13 +20,21 @@
 #ifndef TRENCHBROOM_ENTITYATTRIBUTETABLE_H
 #define TRENCHBROOM_ENTITYATTRIBUTETABLE_H
 
+#include <QString>
 #include <QTableView>
 
 namespace TrenchBroom {
     namespace View {
+        /**
+         * Hardcoded shortcuts:
+         * - Ctrl+Enter emits the `addRowShortcutTriggered` signal
+         * - Delete or Backspace emits the `removeRowsShortcutTriggered` signal
+         */
         class EntityAttributeTable : public QTableView {
             Q_OBJECT
         public:
+            static QString insertRowShortcutString();
+            static QString removeRowShortcutString();
             void finishEditing(QWidget* editor);
         protected:
             bool event(QEvent *event) override;
