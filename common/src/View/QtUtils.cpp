@@ -31,6 +31,7 @@
 
 #include <QtGlobal>
 #include <QAbstractButton>
+#include <QApplication>
 #include <QBoxLayout>
 #include <QButtonGroup>
 #include <QColor>
@@ -131,6 +132,19 @@ namespace TrenchBroom {
             const auto path = windowSettingsPath(window, "Geometry");
             const QSettings settings;
             window->restoreGeometry(settings.value(path).toByteArray());
+        }
+
+        bool widgetOrChildHasFocus(const QWidget* widget) {
+            ensure(widget != nullptr, "widget must not be null");
+            
+            const QObject* currentWidget = QApplication::focusWidget();
+            while (currentWidget != nullptr) {
+                if (currentWidget == widget) {
+                    return true;
+                }
+                currentWidget = currentWidget->parent();
+            }
+            return false;
         }
 
         MapFrame* findMapFrame(QWidget* widget) {

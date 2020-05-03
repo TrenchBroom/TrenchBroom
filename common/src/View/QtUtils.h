@@ -101,6 +101,11 @@ namespace TrenchBroom {
             window->restoreState(settings.value(path).toByteArray());
         }
 
+        /**
+         * Return true if the given widget or any of its children currently has focus.
+         */
+        bool widgetOrChildHasFocus(const QWidget* widget);
+        
         class MapFrame;
         MapFrame* findMapFrame(QWidget* widget);
 
