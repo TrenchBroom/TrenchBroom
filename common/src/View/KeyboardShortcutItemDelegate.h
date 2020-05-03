@@ -28,6 +28,9 @@ namespace TrenchBroom {
             Q_OBJECT
         public:
             KeyboardShortcutItemDelegate();
+            QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+        private slots:
+            void commitAndCloseEditor();
         };
     }
 }
