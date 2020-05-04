@@ -42,6 +42,7 @@
 #include <QPalette>
 #include <QPixmap>
 #include <QThread>
+#include <QSvgRenderer>
 
 namespace TrenchBroom {
     namespace IO {
@@ -98,7 +99,27 @@ namespace TrenchBroom {
         }
         
         static void addImagePathToIcon(QIcon& icon, const QString& imagePath, const QIcon::State state, const bool invert) {
-            auto image = QImage(imagePath);
+            QSvgRenderer svgr(imagePath);
+            qDebug() << "image: " << imagePath;
+            qDebug() << "valid "  << svgr.isValid();
+            qDebug() << "vbox "  << svgr.viewBox();
+            qDebug() << "ds "  << svgr.defaultSize();
+            qDebug() << "ds "  << &svgr;
+
+            QImage image(svgr.defaultSize().width() * 2,
+                svgr.defaultSize().height() * 2,
+                QImage::Format_ARGB32_Premultiplied);
+            image.fill(Qt::transparent);
+            
+
+            {
+                QPainter paint(&image);
+                svgr.render(&paint);
+            }
+
+            image.setDevicePixelRatio(2.0);
+
+            //auto image = QImage(imagePath);
             if (image.isNull()) {
                 qWarning() << "Failed loading image " << imagePath;
                 return;
@@ -112,7 +133,7 @@ namespace TrenchBroom {
             icon.addPixmap(QPixmap::fromImage(createDisabledState(image)), QIcon::Disabled, state);
         }
 
-        QIcon loadIconResourceQt(const Path& imagePath) {
+        static QIcon loadIconResourceQt_RealPath(const Path& imagePath) {
             // Simple caching layer.
             // Without it, the .png files would be read from disk and decoded each time this is called, which is slow.
             // We never evict from the cache which is assumed to be OK because this is just used for icons
@@ -152,6 +173,10 @@ namespace TrenchBroom {
             cache[imagePath] = result;
 
             return result;
+        }
+
+        QIcon loadIconResourceQt(const Path& imagePath) {
+            return loadIconResourceQt_RealPath(imagePath.replaceExtension("svg"));
         }
     }
 }
