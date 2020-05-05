@@ -94,6 +94,9 @@ namespace TrenchBroom {
         m_welcomeWindow(nullptr) {
             // When this flag is enabled, font and palette changes propagate as though the user had manually called the corresponding QWidget methods.
             setAttribute(Qt::AA_UseStyleSheetPropagationInWidgetStyles);
+            
+            // Don't show icons in menus, they are scaled down and don't look very good.
+            setAttribute(Qt::AA_DontShowIconsInMenus);
 
 #if defined(_WIN32) && defined(_MSC_VER)
             // with MSVC, set our own handler for segfaults so we can access the context
