@@ -31,6 +31,7 @@
 #include <QObject>
 #include <QPointer>
 #include <QSettings>
+#include <QString>
 #include <QStringList>
 #include <QWidget>
 

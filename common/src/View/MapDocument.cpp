@@ -128,8 +128,6 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
-#include <QByteArray>
-
 #include <cassert>
 #include <map>
 #include <sstream>
