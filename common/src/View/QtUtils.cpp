@@ -51,6 +51,7 @@
 #include <QStringBuilder>
 #include <QStandardPaths>
 #include <QTableView>
+#include <QTextCodec>
 #include <QToolButton>
 #include <QWindow>
 
@@ -464,22 +465,34 @@ namespace TrenchBroom {
             dialog->activateWindow();
         }
 
-        /**
-         * The rationale for not using UTF-8 here is Quake maps often want to use
-         * the bytes 128-255 which are characters in Quake's bitmap font (gold text, etc.)
-         * UTF-8 is not suitable since we need a single-byte encoding.
-         *
-         * See: https://github.com/kduske/TrenchBroom/issues/3122
-         *
-         * Longer term, we should map this customizable per-map/per-game
-         * (e.g. Hexen 2 uses iso8859-1)
-         */
+        static QTextCodec* codecForEncoding(const MapTextEncoding encoding) {
+            switch (encoding) {
+            case MapTextEncoding::Quake:
+                // Quake uses the full 1-255 range for its bitmap font.
+                // So using a "just assume UTF-8" approach would not work here.
+                // See: https://github.com/kduske/TrenchBroom/issues/3122
+                return QTextCodec::codecForLocale();
+            case MapTextEncoding::Iso88591:
+                return QTextCodec::codecForName("ISO 8859-1");
+            case MapTextEncoding::Utf8:
+                return QTextCodec::codecForName("UTF-8");
+            switchDefault()
+            }
+            return nullptr;
+        }
+
         QString mapStringToUnicode(const MapTextEncoding encoding, const std::string& string) {
-            return QString::fromLocal8Bit(QByteArray::fromStdString(string));
+            QTextCodec* codec = codecForEncoding(encoding);
+            ensure(codec != nullptr, "null codec");
+
+            return codec->toUnicode(QByteArray::fromStdString(string));
         }
 
         std::string mapStringFromUnicode(const MapTextEncoding encoding, const QString& string) {
-            return string.toLocal8Bit().toStdString();
+            QTextCodec* codec = codecForEncoding(encoding);
+            ensure(codec != nullptr, "null codec");
+
+            return codec->fromUnicode(string).toStdString();
         }
     }
 }
