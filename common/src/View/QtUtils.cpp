@@ -94,8 +94,8 @@ namespace TrenchBroom {
             if (target == m_master && event->type() == QEvent::Resize) {
                 const auto* sizeEvent = static_cast<QResizeEvent*>(event);
                 const auto height = sizeEvent->size().height();
-                if (m_slave->minimumHeight() != height) {
-                    m_slave->setMinimumHeight(height);
+                if (m_slave->height() != height) {
+                    m_slave->setFixedHeight(height);
                 }
                 return false;
             } else {
