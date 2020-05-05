@@ -93,6 +93,7 @@
 #include "View/EntityDefinitionFileCommand.h"
 #include "View/FindPlanePointsCommand.h"
 #include "View/Grid.h"
+#include "View/MapTextEncoding.h"
 #include "View/MapViewConfig.h"
 #include "View/MoveBrushEdgesCommand.h"
 #include "View/MoveBrushFacesCommand.h"
@@ -348,22 +349,8 @@ namespace TrenchBroom {
             }
         }
 
-        /**
-         * The rationale for not using UTF-8 here is Quake maps often want to use
-         * the bytes 128-255 which are characters in Quake's bitmap font (gold text, etc.)
-         * UTF-8 is not suitable since we need a single-byte encoding.
-         *
-         * See: https://github.com/kduske/TrenchBroom/issues/3122
-         *
-         * Longer term, we should map this customizable per-map/per-game
-         * (e.g. Hexen 2 uses iso8859-1)
-         */
-        QString MapDocument::mapStringToUnicode(const std::string& string) {
-            return QString::fromLocal8Bit(QByteArray::fromStdString(string));
-        }
-
-        std::string MapDocument::mapStringFromUnicode(const QString& string) {
-            return string.toLocal8Bit().toStdString();
+        MapTextEncoding MapDocument::encoding() const {
+            return MapTextEncoding::Quake;
         }
 
         std::string MapDocument::serializeSelectedNodes() {

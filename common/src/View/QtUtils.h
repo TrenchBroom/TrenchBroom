@@ -56,6 +56,8 @@ namespace TrenchBroom {
     class Color;
 
     namespace View {
+        enum class MapTextEncoding;
+
         class DisableWindowUpdates {
         private:
             QWidget* m_widget;
@@ -213,6 +215,9 @@ namespace TrenchBroom {
         void deleteChildWidgetsLaterAndDeleteLayout(QWidget* widget);
 
         void showModelessDialog(QDialog* dialog);
+
+        QString mapStringToUnicode(MapTextEncoding encoding, const std::string& string);
+        std::string mapStringFromUnicode(MapTextEncoding encoding, const QString& string);
     }
 }
 
