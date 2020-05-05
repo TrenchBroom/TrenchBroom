@@ -53,21 +53,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        /**
-         * The rationale for not using UTF-8 here is Quake maps often want to use
-         * the bytes 128-255 which are characters in Quake's bitmap font (gold text, etc.)
-         * UTF-8 is not suitable since we need a single-byte encoding.
-         *
-         * See: https://github.com/kduske/TrenchBroom/issues/3122 
-         */
-        static QString entityStringToUnicode(const std::string& string) {
-            return QString::fromLocal8Bit(QByteArray::fromStdString(string));
-        }
-
-        static std::string entityStringFromUnicode(const QString& string) {
-            return string.toLocal8Bit().toStdString();
-        }
-
         // AttributeRow
 
         AttributeRow::AttributeRow() :
@@ -308,6 +293,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeModel::setRows(const std::map<std::string, AttributeRow>& newRowsKeyMap) {
+            auto document = kdl::mem_lock(m_document);
             const auto newRowSet = kdl::vector_set(kdl::map_values(newRowsKeyMap));
             const auto oldRowSet = kdl::vector_set(std::begin(m_rows), std::end(m_rows));
 
@@ -329,7 +315,7 @@ namespace TrenchBroom {
                 const AttributeRow oldDeletion = *oldMinusNew.begin();
                 const AttributeRow newAddition = *newMinusOld.begin();
 
-                qDebug() << "EntityAttributeModel::setRows: one row changed: " << entityStringToUnicode(oldDeletion.name()) << " -> " << entityStringToUnicode(newAddition.name());
+                qDebug() << "EntityAttributeModel::setRows: one row changed: " << document->mapStringToUnicode(oldDeletion.name()) << " -> " << document->mapStringToUnicode(newAddition.name());
 
                 const size_t oldIndex = kdl::vec_index_of(m_rows, oldDeletion);
                 m_rows.at(oldIndex) = newAddition;
@@ -546,6 +532,7 @@ namespace TrenchBroom {
                 return QVariant();
             }
 
+            auto document = kdl::mem_lock(m_document);
             const AttributeRow& row = m_rows.at(static_cast<size_t>(index.row()));
 
             if (role == Qt::DecorationRole) {
@@ -593,15 +580,15 @@ namespace TrenchBroom {
 
             if (role == Qt::DisplayRole || role == Qt::EditRole) {
                 if (index.column() == 0) {
-                    return QVariant(entityStringToUnicode(row.name()));
+                    return QVariant(document->mapStringToUnicode(row.name()));
                 } else {
-                    return QVariant(entityStringToUnicode(row.value()));
+                    return QVariant(document->mapStringToUnicode(row.value()));
                 }
             }
 
             if (role == Qt::ToolTipRole) {
                 if (!row.tooltip().empty()) {
-                    return QVariant(entityStringToUnicode(row.tooltip()));
+                    return QVariant(document->mapStringToUnicode(row.tooltip()));
                 }
             }
 
@@ -625,17 +612,17 @@ namespace TrenchBroom {
 
             if (index.column() == 0) {
                 // rename key
-                qDebug() << "tried to rename " << entityStringToUnicode(attributeRow.name()) << " to " << value.toString();
+                qDebug() << "tried to rename " << document->mapStringToUnicode(attributeRow.name()) << " to " << value.toString();
 
-                const std::string newName = entityStringFromUnicode(value.toString());
+                const std::string newName = document->mapStringFromUnicode(value.toString());
                 if (renameAttribute(rowIndex, newName, attributables)) {
                     return true;
                 }
             } else if (index.column() == 1) {
-                qDebug() << "tried to set " << entityStringToUnicode(attributeRow.name()) << " to "
+                qDebug() << "tried to set " << document->mapStringToUnicode(attributeRow.name()) << " to "
                          << value.toString();
 
-                if (updateAttribute(rowIndex, entityStringFromUnicode(value.toString()), attributables)) {
+                if (updateAttribute(rowIndex, document->mapStringFromUnicode(value.toString()), attributables)) {
                     return true;
                 }
             }
@@ -706,6 +693,7 @@ namespace TrenchBroom {
         bool EntityAttributeModel::renameAttribute(const size_t rowIndex, const std::string& newName, const std::vector<Model::AttributableNode*>& /* attributables */) {
             ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
+            auto document = kdl::mem_lock(m_document);
             const AttributeRow& row = m_rows.at(rowIndex);
             const std::string& oldName = row.name();
 
@@ -725,15 +713,14 @@ namespace TrenchBroom {
                 QMessageBox msgBox;
                 msgBox.setWindowTitle(tr("Error"));
                 msgBox.setText(tr("A property with key '%1' already exists.\n\n Do you wish to overwrite it?")
-                    .arg(entityStringToUnicode(newName)));
+                    .arg(document->mapStringToUnicode(newName)));
                 msgBox.setIcon(QMessageBox::Critical);
                 msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
                 if (msgBox.exec() == QMessageBox::No) {
                     return false;
                 }
             }
-
-            auto document = kdl::mem_lock(m_document);
+            
             return document->renameAttribute(oldName, newName);
         }
 

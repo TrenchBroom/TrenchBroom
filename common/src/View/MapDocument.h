@@ -31,6 +31,8 @@
 #include <vecmath/bbox.h>
 #include <vecmath/util.h>
 
+#include <QString>
+
 #include <map>
 #include <memory>
 #include <string>
@@ -237,6 +239,9 @@ namespace TrenchBroom {
         private:
             void doSaveDocument(const IO::Path& path);
             void clearDocument();
+        public: // text encoding
+            QString mapStringToUnicode(const std::string& string);
+            std::string mapStringFromUnicode(const QString& string);
         public: // copy and paste
             std::string serializeSelectedNodes();
             std::string serializeSelectedBrushFaces();

@@ -45,14 +45,14 @@ namespace TrenchBroom {
         void SmartChoiceEditor::comboBoxActivated(const int /* index */) {
             const kdl::set_temp ignoreTextChanged(m_ignoreEditTextChanged);
 
-            const auto valueDescStr = m_comboBox->currentText().toStdString();
+            const auto valueDescStr = document()->mapStringFromUnicode(m_comboBox->currentText());
             const auto valueStr = valueDescStr.substr(0, valueDescStr.find_first_of(':') - 1);
             document()->setAttribute(name(), valueStr);
         }
 
         void SmartChoiceEditor::comboBoxEditTextChanged(const QString& text) {
             if (!m_ignoreEditTextChanged) {
-                document()->setAttribute(name(), text.toStdString());
+                document()->setAttribute(name(), document()->mapStringFromUnicode(text));
             }
         }
 
@@ -95,11 +95,11 @@ namespace TrenchBroom {
                 const auto& options = choiceDef->options();
 
                 for (const Assets::ChoiceAttributeOption& option : options) {
-                    m_comboBox->addItem(QString::fromStdString(option.value() + " : " + option.description()));
+                    m_comboBox->addItem(document()->mapStringToUnicode(option.value() + " : " + option.description()));
                 }
 
                 const auto value = Model::AttributableNode::selectAttributeValue(name(), attributables);
-                m_comboBox->setCurrentText(QString::fromStdString(value));
+                m_comboBox->setCurrentText(document()->mapStringToUnicode(value));
             }
         }
     }
