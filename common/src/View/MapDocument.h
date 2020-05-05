@@ -31,8 +31,6 @@
 #include <vecmath/bbox.h>
 #include <vecmath/util.h>
 
-#include <QString>
-
 #include <map>
 #include <memory>
 #include <string>
