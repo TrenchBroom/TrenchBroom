@@ -50,7 +50,6 @@ namespace TrenchBroom {
             FaceInspector* m_faceInspector;
 
             SyncHeightEventFilter* m_syncMapViewBarEventFilter;
-            SyncHeightEventFilter* m_syncTabBarEventFilter;
         public:
             Inspector(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
             void connectTopWidgets(MapViewBar* mapViewBar);
