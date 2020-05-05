@@ -478,7 +478,6 @@ namespace TrenchBroom {
                 return QTextCodec::codecForName("UTF-8");
             switchDefault()
             }
-            return nullptr;
         }
 
         QString mapStringToUnicode(const MapTextEncoding encoding, const std::string& string) {
