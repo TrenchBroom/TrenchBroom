@@ -48,6 +48,7 @@ namespace TrenchBroom {
             extern const std::string LayerId;
             extern const std::string LayerName;
             extern const std::string LayerSortIndex;
+            extern const std::string LayerColor;
             extern const std::string Layer;
             extern const std::string GroupId;
             extern const std::string GroupName;
