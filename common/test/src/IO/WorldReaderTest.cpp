@@ -166,8 +166,10 @@ namespace TrenchBroom {
             ASSERT_STREQ("yay", world->attribute("message").c_str());
 
             ASSERT_EQ(1u, world->childCount());
-            Model::Node* defaultLayer = world->children().front();
+            Model::Layer* defaultLayer = dynamic_cast<Model::Layer*>(world->children().front());
+            ASSERT_NE(nullptr, defaultLayer);
             ASSERT_EQ(1u, defaultLayer->childCount());
+            ASSERT_EQ(0, defaultLayer->sortIndex());
 
             Model::Entity* entity = static_cast<Model::Entity*>(defaultLayer->children().front());
             ASSERT_TRUE(entity->hasAttribute("classname"));
@@ -668,8 +670,57 @@ namespace TrenchBroom {
             auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
 
             ASSERT_EQ(2u, world->childCount());
-            ASSERT_EQ(2u, world->children().front()->childCount());
-            ASSERT_EQ(1u, world->children().back()->childCount());
+
+            Model::Layer* defaultLayer = dynamic_cast<Model::Layer*>(world->children().at(0));
+            Model::Layer* myLayer      = dynamic_cast<Model::Layer*>(world->children().at(1));
+            ASSERT_NE(nullptr, defaultLayer);
+            ASSERT_NE(nullptr, myLayer);
+
+            ASSERT_EQ(0, defaultLayer->sortIndex());
+            ASSERT_EQ(Model::Layer::invalidSortIndex(), myLayer->sortIndex());
+
+            ASSERT_EQ(2u, defaultLayer->childCount());
+            ASSERT_EQ(1u, myLayer->childCount());
+        }
+
+        TEST_CASE("WorldReaderTest.parseBrushesWithTwoLayersReverseSorted", "[WorldReaderTest]") {
+            const std::string data(R"(
+{
+"classname" "worldspawn"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "My Layer 1"
+"_tb_id" "1"
+"_tb_layer_sort_index" "2"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "My Layer 2"
+"_tb_id" "2"
+"_tb_layer_sort_index" "1"
+})");
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data);
+
+            auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
+
+            ASSERT_EQ(3u, world->childCount());
+
+            Model::Layer* defaultLayer = dynamic_cast<Model::Layer*>(world->children().at(0));
+            Model::Layer* myLayer1     = dynamic_cast<Model::Layer*>(world->children().at(1));
+            Model::Layer* myLayer2     = dynamic_cast<Model::Layer*>(world->children().at(2));
+            ASSERT_NE(nullptr, defaultLayer);
+            ASSERT_NE(nullptr, myLayer1);
+            ASSERT_NE(nullptr, myLayer2);
+
+            ASSERT_EQ(0, defaultLayer->sortIndex());
+            ASSERT_EQ(2, myLayer1->sortIndex());
+            ASSERT_EQ(1, myLayer2->sortIndex());
         }
 
         TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithLayer", "[WorldReaderTest]") {

@@ -203,12 +203,17 @@ namespace TrenchBroom {
         }
 
         std::vector<Model::EntityAttribute> NodeSerializer::layerAttributes(const Model::Layer* layer) {
-            return {
+            std::vector<Model::EntityAttribute> result = {
                 Model::EntityAttribute(Model::AttributeNames::Classname, Model::AttributeValues::LayerClassname),
                 Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeLayer),
                 Model::EntityAttribute(Model::AttributeNames::LayerName, layer->name()),
                 Model::EntityAttribute(Model::AttributeNames::LayerId, m_layerIds.getId(layer)),
             };
+            if (layer->sortIndex() != Model::Layer::invalidSortIndex()) {
+                result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerSortIndex, layer->attribute(Model::AttributeNames::LayerSortIndex)));
+            } 
+
+            return result;
         }
 
         std::vector<Model::EntityAttribute> NodeSerializer::groupAttributes(const Model::Group* group) {

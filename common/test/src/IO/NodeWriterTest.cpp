@@ -267,6 +267,39 @@ R"(// entity 0
             ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
         }
 
+        TEST_CASE("NodeWriterTest.writeWorldspawnWithCustomLayerWithSortIndex", "[NodeWriterTest]") {
+            const vm::bbox3 worldBounds(8192.0);
+
+            Model::World map(Model::MapFormat::Standard);
+            map.addOrUpdateAttribute("classname", "worldspawn");
+
+            Model::Layer* layer = map.createLayer("Custom Layer");
+            layer->setSortIndex(1);
+            map.addChild(layer);
+
+            std::stringstream str;
+            NodeWriter writer(map, str);
+            writer.writeMap();
+
+            const std::string expected =
+R"(// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Custom Layer"
+"_tb_id" "*"
+"_tb_layer_sort_index" "1"
+}
+)";
+
+            const auto actual = str.str();
+            ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
+        }
+
         TEST_CASE("NodeWriterTest.writeMapWithGroupInDefaultLayer", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 

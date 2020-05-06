@@ -166,6 +166,13 @@ namespace TrenchBroom {
             }
 
             Model::Layer* layer = m_factory->createLayer(name);
+
+            const std::string& layerSortIndex = findAttribute(attributes, Model::AttributeNames::LayerSortIndex);
+            if (!kdl::str_is_blank(layerSortIndex)) {
+                // This is optional (not present on maps saved in TB 2020.1 and earlier)
+                layer->addOrUpdateAttribute(Model::AttributeNames::LayerSortIndex, layerSortIndex);
+            }
+
             setExtraAttributes(layer, extraAttributes);
             m_layers.insert(std::make_pair(layerId, layer));
 
