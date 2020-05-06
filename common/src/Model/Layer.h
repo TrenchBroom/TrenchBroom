@@ -40,6 +40,10 @@ namespace TrenchBroom {
             Layer(const std::string& name);
 
             void setName(const std::string& name);
+
+            static int invalidSortIndex();
+            int sortIndex() const;
+            void setSortIndex(int index);
         private: // implement Node interface
             const std::string& doGetName() const override;
             const vm::bbox3& doGetLogicalBounds() const override;

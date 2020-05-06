@@ -28,6 +28,7 @@
 #include "Model/NodeVisitor.h"
 #include "Model/TagVisitor.h"
 
+#include <limits>
 #include <string>
 
 namespace TrenchBroom {
@@ -39,6 +40,29 @@ namespace TrenchBroom {
 
         void Layer::setName(const std::string& name) {
             addOrUpdateAttribute(AttributeNames::LayerName, name);
+        }
+
+        int Layer::invalidSortIndex() {
+            return std::numeric_limits<int>::max();
+        }
+
+        int Layer::sortIndex() const {
+            const std::string& indexString = attribute(AttributeNames::LayerSortIndex);
+            if (indexString.empty()) {
+                return invalidSortIndex();
+            }
+
+            try {
+                return std::stoi(indexString);
+            } catch (const std::invalid_argument&) {
+                return invalidSortIndex();
+            } catch (const std::out_of_range&) {
+                return invalidSortIndex();
+            }
+        }
+
+        void Layer::setSortIndex(int index) {
+            addOrUpdateAttribute(AttributeNames::LayerSortIndex, std::to_string(index));
         }
 
         const std::string& Layer::doGetName() const {
