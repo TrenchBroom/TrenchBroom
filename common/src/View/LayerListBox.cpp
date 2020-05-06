@@ -46,10 +46,10 @@ namespace TrenchBroom {
             m_infoText = new QLabel("");
             makeInfo(m_infoText);
 
-            m_hiddenButton = createBitmapToggleButton("Hidden.png", "");
-            m_lockButton = createBitmapToggleButton("Lock.png", "");
-            m_moveLayerUpButton = createBitmapButton("Up.png", "Move the selected layer up");
-            m_moveLayerDownButton = createBitmapButton("Down.png", "Move the selected layer down");
+            m_hiddenButton = createBitmapToggleButton("Hidden.png", tr("Toggle hidden state"));
+            m_lockButton = createBitmapToggleButton("Lock.png", tr("Toggle locked state"));
+            m_moveLayerUpButton = createBitmapButton("Up.png", tr("Move the selected layer up"));
+            m_moveLayerDownButton = createBitmapButton("Down.png", tr("Move the selected layer down"));
 
             auto documentS = kdl::mem_lock(m_document);
             connect(m_hiddenButton, &QAbstractButton::clicked, this, [this](){
