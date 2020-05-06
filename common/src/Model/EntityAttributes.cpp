@@ -47,6 +47,7 @@ namespace TrenchBroom {
             const std::string GroupType         = "_tb_type";
             const std::string LayerId           = "_tb_id";
             const std::string LayerName         = "_tb_name";
+            const std::string LayerSortIndex    = "_tb_layer_sort_index";
             const std::string Layer             = "_tb_layer";
             const std::string GroupId           = "_tb_id";
             const std::string GroupName         = "_tb_name";

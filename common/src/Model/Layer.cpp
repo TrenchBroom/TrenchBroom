@@ -23,6 +23,7 @@
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/Group.h"
 #include "Model/Entity.h"
+#include "Model/EntityAttributes.h"
 #include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/TagVisitor.h"
@@ -32,15 +33,16 @@
 namespace TrenchBroom {
     namespace Model {
         Layer::Layer(const std::string& name) :
-        m_name(name),
-        m_boundsValid(false) {}
+        m_boundsValid(false) {
+            setName(name);
+        }
 
         void Layer::setName(const std::string& name) {
-            m_name = name;
+            addOrUpdateAttribute(AttributeNames::LayerName, name);
         }
 
         const std::string& Layer::doGetName() const {
-            return m_name;
+            return attribute(AttributeNames::LayerName);
         }
 
         const vm::bbox3& Layer::doGetLogicalBounds() const {
@@ -58,7 +60,7 @@ namespace TrenchBroom {
         }
 
         Node* Layer::doClone(const vm::bbox3& worldBounds) const {
-            Layer* layer = new Layer(m_name);
+            Layer* layer = new Layer(doGetName());
             cloneAttributes(layer);
             layer->addChildren(clone(worldBounds, children()));
             return layer;
@@ -116,6 +118,25 @@ namespace TrenchBroom {
 
         void Layer::doAccept(ConstNodeVisitor& visitor) const {
             visitor.visit(this);
+        }
+
+        void Layer::doAttributesDidChange(const vm::bbox3& oldBounds) {
+        }
+
+        bool Layer::doIsAttributeNameMutable(const std::string& name) const {
+            return false;
+        }
+
+        bool Layer::doIsAttributeValueMutable(const std::string& name) const {
+            return false;
+        }
+
+        vm::vec3 Layer::doGetLinkSourceAnchor() const {
+            return vm::vec3::zero();
+        }
+
+        vm::vec3 Layer::doGetLinkTargetAnchor() const {
+            return vm::vec3::zero();
         }
 
         void Layer::invalidateBounds() {
