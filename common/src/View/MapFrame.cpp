@@ -915,7 +915,7 @@ namespace TrenchBroom {
                 str = m_document->serializeSelectedBrushFaces();
             }
 
-            clipboard->setText(QString::fromStdString(str));
+            clipboard->setText(mapStringToUnicode(m_document->encoding(), str));
         }
 
         bool MapFrame::canCutSelection() const {
@@ -960,7 +960,7 @@ namespace TrenchBroom {
                 return PasteType::Failed;
             }
 
-            return m_document->paste(qtext.toStdString());
+            return m_document->paste(mapStringFromUnicode(m_document->encoding(), qtext));
         }
 
         /**

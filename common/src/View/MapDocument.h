@@ -75,6 +75,7 @@ namespace TrenchBroom {
         class Selection;
         class UndoableCommand;
         class ViewEffectsService;
+        enum class MapTextEncoding;
 
         class MapDocument : public Model::MapFacade, public CachingLogger {
         public:
@@ -237,6 +238,8 @@ namespace TrenchBroom {
         private:
             void doSaveDocument(const IO::Path& path);
             void clearDocument();
+        public: // text encoding
+            MapTextEncoding encoding() const;
         public: // copy and paste
             std::string serializeSelectedNodes();
             std::string serializeSelectedBrushFaces();
