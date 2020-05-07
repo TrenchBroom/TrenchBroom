@@ -46,8 +46,10 @@ namespace TrenchBroom {
             m_infoText = new QLabel("");
             makeInfo(m_infoText);
 
-            m_hiddenButton = createBitmapToggleButton("Hidden.png", "");
-            m_lockButton = createBitmapToggleButton("Lock.png", "");
+            m_hiddenButton = createBitmapToggleButton("Hidden.png", tr("Toggle hidden state"));
+            m_lockButton = createBitmapToggleButton("Lock.png", tr("Toggle locked state"));
+            m_moveLayerUpButton = createBitmapButton("Up.png", tr("Move the selected layer up"));
+            m_moveLayerDownButton = createBitmapButton("Down.png", tr("Move the selected layer down"));
 
             auto documentS = kdl::mem_lock(m_document);
             connect(m_hiddenButton, &QAbstractButton::clicked, this, [this](){
@@ -55,6 +57,12 @@ namespace TrenchBroom {
             });
             connect(m_lockButton, &QAbstractButton::clicked, this, [this]() {
                 emit layerLockToggled(m_layer);
+            });
+            connect(m_moveLayerUpButton, &QAbstractButton::clicked, this, [this]() {
+                emit layerMovedUp(m_layer);
+            });
+            connect(m_moveLayerDownButton, &QAbstractButton::clicked, this, [this]() {
+                emit layerMovedDown(m_layer);
             });
 
             installEventFilter(this);
@@ -114,7 +122,7 @@ namespace TrenchBroom {
             m_lockButton->setChecked(m_layer->locked());
             m_hiddenButton->setChecked(m_layer->hidden());
 
-            auto document = kdl::mem_lock(m_document);
+            auto document = lock(m_document);
             m_lockButton->setEnabled(m_layer->locked() || m_layer != document->currentLayer());
             m_hiddenButton->setEnabled(m_layer->hidden() || m_layer != document->currentLayer());
 
@@ -247,6 +255,12 @@ namespace TrenchBroom {
             });
             connect(renderer, &LayerListBoxWidget::layerLockToggled, this, [this](auto* layer) {
                 emit layerLockToggled(layer);
+            });
+            connect(renderer, &LayerListBoxWidget::layerMovedUp, this, [this](auto* layer) {
+                emit layerMovedUp(layer);
+            });
+            connect(renderer, &LayerListBoxWidget::layerMovedDown, this, [this](auto* layer) {
+                emit layerMovedDown(layer);
             });
 
             return renderer;
