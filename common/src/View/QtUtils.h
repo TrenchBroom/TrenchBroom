@@ -187,6 +187,7 @@ namespace TrenchBroom {
 
         void setDefaultWindowColor(QWidget* widget);
         void setBaseWindowColor(QWidget* widget);
+        void setHighlightWindowColor(QWidget* widget);
 
         QLineEdit* createSearchBox();
 

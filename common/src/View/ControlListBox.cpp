@@ -37,7 +37,9 @@ namespace TrenchBroom {
 
         ControlListBoxItemRenderer::ControlListBoxItemRenderer(QWidget* parent) :
         QWidget(parent),
-        m_index(0) {}
+        m_index(0) {
+            setBaseWindowColor(this);
+        }
 
         ControlListBoxItemRenderer::~ControlListBoxItemRenderer() = default;
 
@@ -55,6 +57,12 @@ namespace TrenchBroom {
         void ControlListBoxItemRenderer::updateItem() {}
 
         void ControlListBoxItemRenderer::setSelected(const bool selected, const QListWidget* listWidget) {
+            if (selected) {
+                setHighlightWindowColor(this);
+            } else {
+                setBaseWindowColor(this);
+            }
+
             // by default, we just change the appearance of all labels
             auto children = findChildren<QLabel*>();
             for (auto* child : children) {
