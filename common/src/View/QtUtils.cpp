@@ -398,17 +398,18 @@ namespace TrenchBroom {
         }
 
         void setDefaultWindowColor(QWidget* widget) {
-            auto palette = QPalette();
-            palette.setColor(QPalette::Window, palette.color(QPalette::Normal, QPalette::Window));
             widget->setAutoFillBackground(true);
-            widget->setPalette(palette);
+            widget->setBackgroundRole(QPalette::Window);
         }
 
         void setBaseWindowColor(QWidget* widget) {
-            auto palette = QPalette();
-            palette.setColor(QPalette::Window, palette.color(QPalette::Normal, QPalette::Base));
             widget->setAutoFillBackground(true);
-            widget->setPalette(palette);
+            widget->setBackgroundRole(QPalette::Base);
+        }
+
+        void setHighlightWindowColor(QWidget* widget) {
+            widget->setAutoFillBackground(true);
+            widget->setBackgroundRole(QPalette::Highlight);
         }
 
         QLineEdit* createSearchBox() {
