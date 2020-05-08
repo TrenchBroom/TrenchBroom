@@ -75,6 +75,9 @@ namespace TrenchBroom {
             void onRemoveLayer();
             bool canRemoveLayer() const;
 
+            void onRenameLayer();
+            bool canRenameLayer() const;
+
             void onShowAllLayers();
 
             void onMoveLayerUpFromMenu();

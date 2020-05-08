@@ -46,6 +46,8 @@
 #include <QMessageBox>
 #include <QVBoxLayout>
 
+#include "ViewUtils.h"
+
 namespace TrenchBroom {
     namespace View {
         LayerEditor::LayerEditor(std::weak_ptr<MapDocument> document, QWidget *parent) :
@@ -81,6 +83,7 @@ namespace TrenchBroom {
             QAction* moveLayerUpAction = popupMenu.addAction(tr("Move layer up"), this, &LayerEditor::onMoveLayerUpFromMenu);
             QAction* moveLayerDownAction = popupMenu.addAction(tr("Move layer down"), this, &LayerEditor::onMoveLayerDownFromMenu);
             popupMenu.addSeparator();
+            QAction* renameLayerAction = popupMenu.addAction(tr("Rename layer"), this, &LayerEditor::onRenameLayer);
             QAction* removeLayerAction = popupMenu.addAction(tr("Remove layer"), this, &LayerEditor::onRemoveLayer);
 
             moveSelectionToLayerAction->setEnabled(canMoveSelectionToLayer());
@@ -325,6 +328,27 @@ namespace TrenchBroom {
             }
 
             if (findVisibleAndUnlockedLayer(layer) == nullptr) {
+                return false;
+            }
+
+            auto document = kdl::mem_lock(m_document);
+            return (layer != document->world()->defaultLayer());
+        }
+
+        void LayerEditor::onRenameLayer() {
+            if (canRenameLayer()) {
+                auto document = kdl::mem_lock(m_document);
+                const std::string name = queryGroupName(this);                
+                if (!name.empty()) {
+                    auto* layer = m_layerList->selectedLayer();
+                    document->renameLayer(layer, name);
+                }
+            }
+        }
+
+        bool LayerEditor::canRenameLayer() const {
+            const auto* layer = m_layerList->selectedLayer();
+            if (layer == nullptr) {
                 return false;
             }
 
