@@ -53,6 +53,7 @@
 #include <QTableView>
 #include <QTextCodec>
 #include <QToolButton>
+#include <QVBoxLayout>
 #include <QWindow>
 
 // QDesktopWidget was deprecated in Qt 5.10 and we should use QGuiApplication::screenAt in 5.10 and above
@@ -428,6 +429,13 @@ namespace TrenchBroom {
                 return;
             }
             button->setChecked(checked);
+        }
+
+        void insertTitleBarSeparator(QVBoxLayout* layout) {
+#ifdef _WIN32
+            layout->insertWidget(0, new BorderLine(), 1);
+#endif
+            unused(layout);
         }
 
         AutoResizeRowsEventFilter::AutoResizeRowsEventFilter(QTableView* tableView) :

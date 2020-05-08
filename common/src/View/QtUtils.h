@@ -51,6 +51,7 @@ class QSlider;
 class QSplitter;
 class QString;
 class QTableView;
+class QVBoxLayout;
 class QWidget;
 
 namespace TrenchBroom {
@@ -192,6 +193,12 @@ namespace TrenchBroom {
         QLineEdit* createSearchBox();
 
         void checkButtonInGroup(QButtonGroup* group, int id, bool checked);
+
+        /**
+         * Insert a separating line as the first item in the given layout on platforms where
+         * this is necessary.
+         */
+        void insertTitleBarSeparator(QVBoxLayout* layout);
 
         template <typename I>
         QStringList toQStringList(I cur, I end) {

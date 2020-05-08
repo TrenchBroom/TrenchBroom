@@ -68,8 +68,9 @@ namespace TrenchBroom {
             outerLayout->setContentsMargins(QMargins());
             outerLayout->setSpacing(0);
 
-            // outerLayout->addWidget(new BorderLine());
             outerLayout->addLayout(innerLayout);
+            insertTitleBarSeparator(outerLayout);
+
             container->setLayout(outerLayout);
 
             setCentralWidget(container);
