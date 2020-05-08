@@ -144,14 +144,14 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
 
-        void Layer::doAttributesDidChange(const vm::bbox3& oldBounds) {
+        void Layer::doAttributesDidChange(const vm::bbox3& /* oldBounds */) {
         }
 
-        bool Layer::doIsAttributeNameMutable(const std::string& name) const {
+        bool Layer::doIsAttributeNameMutable(const std::string& /* name */) const {
             return false;
         }
 
-        bool Layer::doIsAttributeValueMutable(const std::string& name) const {
+        bool Layer::doIsAttributeValueMutable(const std::string& /* name */) const {
             return false;
         }
 

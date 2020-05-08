@@ -268,8 +268,6 @@ R"(// entity 0
         }
 
         TEST_CASE("NodeWriterTest.writeWorldspawnWithCustomLayerWithSortIndex", "[NodeWriterTest]") {
-            const vm::bbox3 worldBounds(8192.0);
-
             Model::World map(Model::MapFormat::Standard);
             map.addOrUpdateAttribute("classname", "worldspawn");
 
