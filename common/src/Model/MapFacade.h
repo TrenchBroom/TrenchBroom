@@ -53,6 +53,10 @@ namespace TrenchBroom {
         class Node;
         class NodeCollection;
 
+        /**
+         * Interface of MapDocument that is exposed to the Model package.
+         * Exists mostly so Issues (from the Model package) can perform quick fixes.
+         */
         class MapFacade {
         public:
             virtual ~MapFacade();

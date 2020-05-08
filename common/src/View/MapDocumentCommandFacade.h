@@ -41,6 +41,13 @@ namespace TrenchBroom {
     namespace View {
         class CommandProcessor;
 
+        /**
+         * MapDocument API that is private to Command classes.
+         *
+         * These `performSomething()` methods will actually do an action, where
+         * the corresponding `something()` in MapDocument would create and execute a
+         * Command object which then calls `performSomething()`.
+         */
         class MapDocumentCommandFacade : public MapDocument {
         private:
             std::unique_ptr<CommandProcessor> m_commandProcessor;
