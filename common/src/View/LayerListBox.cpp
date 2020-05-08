@@ -122,7 +122,7 @@ namespace TrenchBroom {
             m_lockButton->setChecked(m_layer->locked());
             m_hiddenButton->setChecked(m_layer->hidden());
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             m_lockButton->setEnabled(m_layer->locked() || m_layer != document->currentLayer());
             m_hiddenButton->setEnabled(m_layer->hidden() || m_layer != document->currentLayer());
 
