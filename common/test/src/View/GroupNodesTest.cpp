@@ -35,11 +35,11 @@ namespace TrenchBroom {
     namespace View {
         class GroupNodesTest : public MapDocumentTest {};
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createEmptyGroup") {
+        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createEmptyGroup", "[GroupNodesTest]") {
             ASSERT_EQ(nullptr, document->groupSelection("test"));
         }
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createGroupWithOneNode") {
+        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createGroupWithOneNode", "[GroupNodesTest]") {
             Model::Brush* brush = createBrush();
             document->addNode(brush, document->currentParent());
             document->select(brush);
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->selected());
         }
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createGroupWithPartialBrushEntity") {
+        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createGroupWithPartialBrushEntity", "[GroupNodesTest]") {
             Model::Brush* brush1 = createBrush();
             document->addNode(brush1, document->currentParent());
 
@@ -88,7 +88,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush1->selected());
         }
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createGroupWithFullBrushEntity") {
+        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.createGroupWithFullBrushEntity", "[GroupNodesTest]") {
             Model::Brush* brush1 = createBrush();
             document->addNode(brush1, document->currentParent());
 
@@ -121,7 +121,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush2->selected());
         }
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.pasteInGroup") {
+        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.pasteInGroup", "[GroupNodesTest]") {
             // https://github.com/kduske/TrenchBroom/issues/1734
 
             const std::string data("{"
@@ -153,7 +153,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.undoMoveGroupContainingBrushEntity") {
+        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.undoMoveGroupContainingBrushEntity", "[GroupNodesTest]") {
             // Test for issue #1715
 
             Model::Brush* brush1 = createBrush();
@@ -177,7 +177,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(hasEmptyName(entity->attributeNames()));
         }
 
-        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.rotateGroupContainingBrushEntity") {
+        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.rotateGroupContainingBrushEntity", "[GroupNodesTest]") {
             // Test for issue #1754
 
             Model::Brush* brush1 = createBrush();
@@ -199,6 +199,23 @@ namespace TrenchBroom {
             document->undoCommand();
 
             EXPECT_FALSE(entity->hasAttribute("origin"));
+        }
+
+        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.renameGroup", "[GroupNodesTest]") {
+            Model::Brush* brush1 = createBrush();
+            document->addNode(brush1, document->currentParent());
+            document->select(brush1);
+
+            Model::Group* group = document->groupSelection("test");
+            
+            document->renameGroups("abc");
+            CHECK(group->name() == "abc");
+            
+            document->undoCommand();
+            CHECK(group->name() == "test");
+
+            document->redoCommand();
+            CHECK(group->name() == "abc");
         }
     }
 }
