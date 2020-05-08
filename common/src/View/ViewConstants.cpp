@@ -74,26 +74,6 @@ namespace TrenchBroom {
                 QColor result = pal.color(QPalette::Disabled, QPalette::WindowText);
                 return result;
             }
-
-            QColor borderColor() {
-                static const QColor col =
-#if defined __APPLE__
-                QColor(90, 90, 90);
-#else
-                QColor(Qt::black);
-#endif
-                return col;
-            }
-
-            QColor separatorColor() {
-                static const QColor col =
-#if defined __APPLE__
-                QColor(183, 183, 183);
-#else
-                QColor(Qt::lightGray);
-#endif
-                return col;
-            }
             
             QColor window() {
                 QPalette pal;
