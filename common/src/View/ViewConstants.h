@@ -107,6 +107,7 @@ namespace TrenchBroom {
             QColor disabledText(const QWidget* widget);
             QColor borderColor();
             QColor separatorColor();
+            QColor window();
         }
     }
 }

@@ -94,6 +94,12 @@ namespace TrenchBroom {
 #endif
                 return col;
             }
+            
+            QColor window() {
+                QPalette pal;
+                QColor result = pal.color(QPalette::Active, QPalette::Window);
+                return result;
+            }
         }
     }
 }
