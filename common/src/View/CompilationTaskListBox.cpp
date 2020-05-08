@@ -52,11 +52,6 @@ namespace TrenchBroom {
         m_panel(nullptr) {
             m_panel = new TitledPanel(m_title);
 
-            // TitleBar uses QPalette::Base to draw itself when used as a list item widget, so we set that here
-            auto palette = m_panel->getTitleBar()->palette();
-            palette.setColor(QPalette::Base, palette.color(QPalette::Normal, QPalette::Window));
-            m_panel->getTitleBar()->setPalette(palette);
-
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
