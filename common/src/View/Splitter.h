@@ -27,11 +27,9 @@ namespace TrenchBroom {
         class SplitterHandle : public QSplitterHandle {
             Q_OBJECT
         public:
-            using QSplitterHandle::QSplitterHandle;
-        protected:
-        public:
-            QSize sizeHint() const override;
+            explicit SplitterHandle(Qt::Orientation orientation, QSplitter* parent = nullptr);
 
+            QSize sizeHint() const override;
         protected:
             void paintEvent(QPaintEvent* event) override;
         };
@@ -40,7 +38,7 @@ namespace TrenchBroom {
             Q_OBJECT
         public:
             explicit Splitter(Qt::Orientation orientation, QWidget *parent = nullptr);
-            Splitter(QWidget* parent = nullptr);
+            explicit Splitter(QWidget* parent = nullptr);
         protected:
             QSplitterHandle* createHandle() override;
 

@@ -28,7 +28,7 @@ namespace TrenchBroom {
             setObjectName("borderLine");
             setContentsMargins(0, 0, 0, 0);
             setFrameShadow(QFrame::Plain);
-            setForegroundRole(QPalette::Shadow);
+            setForegroundRole(QPalette::Mid);
             setLineWidth(thickness - 1);
             if (direction == Direction::Horizontal) {
                 setFrameShape(QFrame::HLine);
