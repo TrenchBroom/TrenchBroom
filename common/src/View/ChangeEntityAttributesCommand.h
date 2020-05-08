@@ -46,19 +46,32 @@ namespace TrenchBroom {
                 Remove,
                 Rename
             };
+            enum class Target {
+                SelectedNodes,
+                NodeList
+            };
 
             Action m_action;
+            Target m_target;
             std::string m_oldName;
             std::string m_newName;
             std::string m_newValue;
 
             std::map<Model::AttributableNode*, std::vector<Model::EntityAttributeSnapshot>> m_snapshots;
+            /**
+             * Only used if m_target == NodeList
+             */
+            std::vector<Model::AttributableNode*> m_targetNodes;
         public:
             static std::unique_ptr<ChangeEntityAttributesCommand> set(const std::string& name, const std::string& value);
             static std::unique_ptr<ChangeEntityAttributesCommand> remove(const std::string& name);
             static std::unique_ptr<ChangeEntityAttributesCommand> rename(const std::string& oldName, const std::string& newName);
+
+            static std::unique_ptr<ChangeEntityAttributesCommand>    setForNodes(const std::vector<Model::AttributableNode*>& nodes, const std::string& name, const std::string& value);
+            static std::unique_ptr<ChangeEntityAttributesCommand> removeForNodes(const std::vector<Model::AttributableNode*>& nodes, const std::string& name);
+            static std::unique_ptr<ChangeEntityAttributesCommand> renameForNodes(const std::vector<Model::AttributableNode*>& nodes, const std::string& oldName, const std::string& newName);
         public:
-            ChangeEntityAttributesCommand(Action action);
+            ChangeEntityAttributesCommand(Action action, Target target);
             ~ChangeEntityAttributesCommand() override;
         private:
             static std::string makeName(Action action);
@@ -66,6 +79,7 @@ namespace TrenchBroom {
             void setName(const std::string& name);
             void setNewName(const std::string& newName);
             void setNewValue(const std::string& newValue);
+            void setTargetNodes(const std::vector<Model::AttributableNode*>& nodes);
 
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
             std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;

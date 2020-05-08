@@ -1047,6 +1047,13 @@ namespace TrenchBroom {
             }
         }
 
+        void MapDocument::renameLayer(Model::Layer* layer, const std::string& name) {
+            const Transaction transaction(this, "Rename Layer");
+
+            const auto result = executeAndStore(ChangeEntityAttributesCommand::setForNodes({ layer }, Model::AttributeNames::LayerName, name));
+            unused(result);
+        }
+
         void MapDocument::isolate() {
             const std::vector<Model::Layer*>& layers = m_world->allLayers();
 
