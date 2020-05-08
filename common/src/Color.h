@@ -22,11 +22,14 @@
 
 #include <vecmath/vec.h>
 
+#include <string>
+
 namespace TrenchBroom {
     class Color : public vm::vec<float, 4> {
     public:
         static bool canParse(const std::string& str);
         static Color parse(const std::string& str);
+        std::string toString() const;
 
         Color();
         Color(const vec<float,4>& v);

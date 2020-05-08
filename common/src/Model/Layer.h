@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_Layer
 #define TrenchBroom_Layer
 
+#include "Color.h"
 #include "FloatType.h"
 #include "Macros.h"
 #include "Model/AttributableNode.h"
@@ -28,6 +29,7 @@
 
 #include <string>
 #include <vector>
+#include <optional>
 
 namespace TrenchBroom {
     namespace Model {
@@ -44,6 +46,9 @@ namespace TrenchBroom {
             static int invalidSortIndex();
             int sortIndex() const;
             void setSortIndex(int index);
+
+            std::optional<Color> groupColor() const;
+            void setGroupColor(const Color& color);
         private: // implement Node interface
             const std::string& doGetName() const override;
             const vm::bbox3& doGetLogicalBounds() const override;

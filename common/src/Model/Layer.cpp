@@ -61,6 +61,18 @@ namespace TrenchBroom {
             }
         }
 
+        std::optional<Color> Layer::groupColor() const {
+            const std::string& string = attribute(AttributeNames::LayerColor);
+            if (string.empty() || !Color::canParse(string)) {
+                return std::nullopt;
+            }
+            return { Color::parse(string) };
+        }
+
+        void Layer::setGroupColor(const Color& color) {
+            addOrUpdateAttribute(AttributeNames::LayerColor, color.toString());
+        }
+
         void Layer::setSortIndex(int index) {
             addOrUpdateAttribute(AttributeNames::LayerSortIndex, std::to_string(index));
         }
