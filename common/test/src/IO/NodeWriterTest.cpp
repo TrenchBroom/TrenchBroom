@@ -251,6 +251,7 @@ R"(// entity 0
 "_tb_type" "_tb_layer"
 "_tb_name" "Custom Layer"
 "_tb_id" "*"
+"_tb_layer_sort_index" "0"
 // brush 0
 {
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
@@ -372,6 +373,7 @@ R"(// entity 0
 "_tb_type" "_tb_layer"
 "_tb_name" "Custom Layer"
 "_tb_id" "*"
+"_tb_layer_sort_index" "0"
 }
 // entity 2
 {
@@ -429,6 +431,7 @@ R"(// entity 0
 "_tb_type" "_tb_layer"
 "_tb_name" "Custom Layer"
 "_tb_id" "*"
+"_tb_layer_sort_index" "0"
 }
 // entity 2
 {
