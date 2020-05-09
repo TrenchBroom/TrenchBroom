@@ -265,6 +265,9 @@ R"(// entity 0
 )";
 
             const auto actual = str.str();
+
+            std::cout << actual;
+
             ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
         }
 
