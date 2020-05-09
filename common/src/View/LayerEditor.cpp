@@ -385,17 +385,22 @@ namespace TrenchBroom {
             }
 
             auto document = kdl::mem_lock(m_document);
-            auto world = document->world();
+            Model::World* world = document->world();
 
             if (layer == world->defaultLayer()) {
                 return false;
             }
 
+            const std::vector<Model::Layer*> sorted = world->customLayersUserSorted();
+            if (sorted.empty()) {
+                return false;
+            }
+
             if (direction > 0) {
-                return layer != world->customLayers().back();
+                return layer != sorted.back();
             }
             else if (direction < 0) {
-                return layer != world->customLayers().front();
+                return layer != sorted.front();
             }
 
             return false;
@@ -407,6 +412,8 @@ namespace TrenchBroom {
             }
 
             ensure(layer != nullptr, "layer is null");
+            auto document = kdl::mem_lock(m_document);
+            document->moveLayer(layer, direction);
         }
 
         void LayerEditor::onShowAllLayers() {

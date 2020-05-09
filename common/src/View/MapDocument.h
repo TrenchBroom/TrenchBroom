@@ -342,6 +342,7 @@ namespace TrenchBroom {
             void closeGroup();
         public: // layer management
             void renameLayer(Model::Layer* layer, const std::string& name);
+            void moveLayer(Model::Layer* layer, int direction);
         public: // modifying transient node attributes, declared in MapFacade interface
             void isolate();
             void hide(std::vector<Model::Node*> nodes) override; // Don't take the nodes by reference!

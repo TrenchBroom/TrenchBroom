@@ -35,6 +35,7 @@
 
 #include <vecmath/bbox_io.h>
 
+#include <algorithm>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -70,6 +71,14 @@ namespace TrenchBroom {
             CollectLayersVisitor visitor;
             accept(std::next(std::begin(children)), std::end(children), visitor);
             return visitor.layers();
+        }
+
+        std::vector<Layer*> World::customLayersUserSorted() const {
+            std::vector<Layer*> result = customLayers();
+            std::stable_sort(result.begin(), result.end(), [](Layer* a, Layer* b) {
+                return a->sortIndex() < b->sortIndex();
+            });
+            return result;
         }
 
         void World::createDefaultLayer() {

@@ -241,8 +241,14 @@ namespace TrenchBroom {
         ControlListBoxItemRenderer* LayerListBox::createItemRenderer(QWidget* parent, const size_t index) {
             auto document = kdl::mem_lock(m_document);
             const auto* world = document->world();
-            const auto layers = world->allLayers();
-            auto* renderer = new LayerListBoxWidget(document, layers[index], parent);
+
+            Model::Layer* layer;
+            if (index == 0) {
+                layer = world->defaultLayer();
+            } else {
+                layer = world->customLayersUserSorted().at(index - 1);
+            }
+            auto* renderer = new LayerListBoxWidget(document, layer, parent);
 
             connect(renderer, &LayerListBoxWidget::layerDoubleClicked, this, [this](auto* layer){
                 emit layerSetCurrent(layer);

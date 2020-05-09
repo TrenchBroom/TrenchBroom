@@ -1054,6 +1054,25 @@ namespace TrenchBroom {
             unused(result);
         }
 
+        void MapDocument::moveLayer(Model::Layer* layer, int direction) {
+            const Transaction transaction(this, "Move Layer");
+
+            ensure(layer != m_world->defaultLayer(), "attempted to move default layer");
+
+            std::vector<Model::Layer*> sorted = m_world->customLayersUserSorted();
+
+            Model::Layer* neighbour = sorted.at(kdl::vec_index_of(sorted, layer) + direction);
+
+            qDebug() << "our sort index " << layer->sortIndex() << " move: " << direction
+                     << " neighbour sort: " << neighbour->sortIndex();
+
+            const int ourSortIndex = layer->sortIndex();
+            const int neighbourSortIndex = neighbour->sortIndex();
+    
+            executeAndStore(ChangeEntityAttributesCommand::setForNodes({ layer },     Model::AttributeNames::LayerSortIndex, std::to_string(neighbourSortIndex)));
+            executeAndStore(ChangeEntityAttributesCommand::setForNodes({ neighbour }, Model::AttributeNames::LayerSortIndex, std::to_string(ourSortIndex)));
+        }
+
         void MapDocument::isolate() {
             const std::vector<Model::Layer*>& layers = m_world->allLayers();
 

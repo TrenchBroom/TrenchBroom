@@ -56,7 +56,14 @@ namespace TrenchBroom {
         public: // layer management
             Layer* defaultLayer() const;
             std::vector<Layer*> allLayers() const;
+            /**
+             * Returns the custom layers in file order
+             */
             std::vector<Layer*> customLayers() const;
+            /**
+             * Returns the custom layers ordered by Layer::sortIndex()
+             */
+            std::vector<Layer*> customLayersUserSorted() const;
         private:
             void createDefaultLayer();
         public: // index
