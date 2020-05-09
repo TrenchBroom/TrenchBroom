@@ -46,6 +46,10 @@ namespace TrenchBroom {
             return std::numeric_limits<int>::max();
         }
 
+        int Layer::defaultLayerSortIndex() {
+            return -1;
+        }
+
         int Layer::sortIndex() const {
             const std::string& indexString = attribute(AttributeNames::LayerSortIndex);
             if (indexString.empty()) {

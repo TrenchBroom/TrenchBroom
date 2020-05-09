@@ -141,6 +141,29 @@ namespace TrenchBroom {
             ASSERT_STREQ("yay", world->attribute("message").c_str());
         }
 
+        TEST_CASE("WorldReaderTest.parseDefaultLayerColor", "[WorldReaderTest]") {
+            const std::string data(R"(
+{
+"classname" "worldspawn"
+"_tb_layer_color" "0.0 1.0 0.0"
+}
+)");
+
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data);
+
+            auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+
+            REQUIRE(world != nullptr);
+            REQUIRE(world->childCount() == 1u);
+            auto* defaultLayer = dynamic_cast<Model::Layer*>(world->children().at(0));
+
+            REQUIRE(defaultLayer->groupColor().has_value());
+            CHECK(defaultLayer->groupColor().value() == Color(0.0f, 1.0f, 0.0f));
+        }
+
         TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneMoreEntity", "[WorldReaderTest]") {
             const std::string data(R"(
 {
@@ -169,7 +192,7 @@ namespace TrenchBroom {
             Model::Layer* defaultLayer = dynamic_cast<Model::Layer*>(world->children().front());
             ASSERT_NE(nullptr, defaultLayer);
             ASSERT_EQ(1u, defaultLayer->childCount());
-            ASSERT_EQ(0, defaultLayer->sortIndex());
+            ASSERT_EQ(Model::Layer::defaultLayerSortIndex(), defaultLayer->sortIndex());
 
             Model::Entity* entity = static_cast<Model::Entity*>(defaultLayer->children().front());
             ASSERT_TRUE(entity->hasAttribute("classname"));
@@ -676,14 +699,14 @@ namespace TrenchBroom {
             ASSERT_NE(nullptr, defaultLayer);
             ASSERT_NE(nullptr, myLayer);
 
-            ASSERT_EQ(0, defaultLayer->sortIndex());
-            ASSERT_EQ(Model::Layer::invalidSortIndex(), myLayer->sortIndex());
+            CHECK(defaultLayer->sortIndex() == Model::Layer::defaultLayerSortIndex());
+            CHECK(myLayer->sortIndex()      == 0); // The layer didn't have a sort index (saved in an older version of TB), so it's assigned 0           
 
             ASSERT_EQ(2u, defaultLayer->childCount());
             ASSERT_EQ(1u, myLayer->childCount());
         }
 
-        TEST_CASE("WorldReaderTest.parseBrushesWithTwoLayersReverseSorted", "[WorldReaderTest]") {
+        TEST_CASE("WorldReaderTest.parseLayersWithReverseSort", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -691,15 +714,67 @@ namespace TrenchBroom {
 {
 "classname" "func_group"
 "_tb_type" "_tb_layer"
-"_tb_name" "My Layer 1"
+"_tb_name" "Sort Index 1"
 "_tb_id" "1"
-"_tb_layer_sort_index" "2"
+"_tb_layer_sort_index" "1"
 }
 {
 "classname" "func_group"
 "_tb_type" "_tb_layer"
-"_tb_name" "My Layer 2"
+"_tb_name" "Sort Index 0"
 "_tb_id" "2"
+"_tb_layer_sort_index" "0"
+})");
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data);
+
+            auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
+
+            REQUIRE(world->childCount() == 3u);
+
+            // NOTE: They are listed in world->children() in file order, not sort index order
+            auto* defaultLayer = dynamic_cast<Model::Layer*>(world->children().at(0));
+            auto* sort1     = dynamic_cast<Model::Layer*>(world->children().at(1));
+            auto* sort0     = dynamic_cast<Model::Layer*>(world->children().at(2));
+
+            REQUIRE(defaultLayer != nullptr);
+            REQUIRE(sort0 != nullptr);
+            REQUIRE(sort1 != nullptr);            
+
+            CHECK(sort0->name() == "Sort Index 0");
+            CHECK(sort1->name() == "Sort Index 1");
+
+            CHECK(defaultLayer->sortIndex() == Model::Layer::defaultLayerSortIndex());
+            CHECK(sort0->sortIndex()     == 0);
+            CHECK(sort1->sortIndex()     == 1);            
+        }
+
+        TEST_CASE("WorldReaderTest.parseLayersWithGapsInSortIndices", "[WorldReaderTest]") {
+            const std::string data(R"(
+{
+"classname" "worldspawn"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index 5"
+"_tb_id" "1"
+"_tb_layer_sort_index" "5"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index 3"
+"_tb_id" "2"
+"_tb_layer_sort_index" "3"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index 1"
+"_tb_id" "3"
 "_tb_layer_sort_index" "1"
 })");
             const vm::bbox3 worldBounds(8192.0);
@@ -709,18 +784,29 @@ namespace TrenchBroom {
 
             auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
 
-            ASSERT_EQ(3u, world->childCount());
+            ASSERT_EQ(4u, world->childCount());
 
-            Model::Layer* defaultLayer = dynamic_cast<Model::Layer*>(world->children().at(0));
-            Model::Layer* myLayer1     = dynamic_cast<Model::Layer*>(world->children().at(1));
-            Model::Layer* myLayer2     = dynamic_cast<Model::Layer*>(world->children().at(2));
-            ASSERT_NE(nullptr, defaultLayer);
-            ASSERT_NE(nullptr, myLayer1);
-            ASSERT_NE(nullptr, myLayer2);
+            // NOTE: They are listed in world->children() in file order, not sort index order
+            auto* defaultLayer = dynamic_cast<Model::Layer*>(world->children().at(0));
+            auto* sort5        = dynamic_cast<Model::Layer*>(world->children().at(1));
+            auto* sort3        = dynamic_cast<Model::Layer*>(world->children().at(2));
+            auto* sort1        = dynamic_cast<Model::Layer*>(world->children().at(3));            
+          
+            REQUIRE(nullptr != defaultLayer);
+            REQUIRE(nullptr != sort1);
+            REQUIRE(nullptr != sort3);
+            REQUIRE(nullptr != sort5);
 
-            ASSERT_EQ(0, defaultLayer->sortIndex());
-            ASSERT_EQ(2, myLayer1->sortIndex());
-            ASSERT_EQ(1, myLayer2->sortIndex());
+            CHECK(sort1->name() == "Sort Index 1");
+            CHECK(sort3->name() == "Sort Index 3");
+            CHECK(sort5->name() == "Sort Index 5");
+
+            CHECK(defaultLayer->sortIndex() == Model::Layer::defaultLayerSortIndex());
+            // The sort indices are sanitized to start at 0 and be contiguous, but the indices read from the file (1, 3, 5)
+            // are still used to produce the final ordering
+            CHECK(sort1->sortIndex()        == 0);
+            CHECK(sort3->sortIndex()        == 1);
+            CHECK(sort5->sortIndex()        == 2);
         }
 
         TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithLayer", "[WorldReaderTest]") {

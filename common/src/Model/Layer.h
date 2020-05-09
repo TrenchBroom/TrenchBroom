@@ -33,6 +33,10 @@
 
 namespace TrenchBroom {
     namespace Model {
+        /**
+         * Sort indices: the default layer doesn't have a sort index, because it's pinned at the top of the layer
+         * list. Custom layers have sort indices, if there are N custom layers they will use the sort indices 0, 1, ..., N - 1.
+         */
         class Layer : public AttributableNode {
         private:
             mutable vm::bbox3 m_logicalBounds;
@@ -44,6 +48,8 @@ namespace TrenchBroom {
             void setName(const std::string& name);
 
             static int invalidSortIndex();
+            static int defaultLayerSortIndex();
+
             int sortIndex() const;
             void setSortIndex(int index);
 
