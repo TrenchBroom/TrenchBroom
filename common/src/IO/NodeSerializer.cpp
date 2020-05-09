@@ -208,8 +208,11 @@ namespace TrenchBroom {
                 Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeLayer),
                 Model::EntityAttribute(Model::AttributeNames::LayerName, layer->name()),
                 Model::EntityAttribute(Model::AttributeNames::LayerId, m_layerIds.getId(layer)),
-                Model::EntityAttribute(Model::AttributeNames::LayerSortIndex, layer->attribute(Model::AttributeNames::LayerSortIndex))
             };
+            if (layer->sortIndex() != Model::Layer::invalidSortIndex()) {
+                result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerSortIndex, layer->attribute(Model::AttributeNames::LayerSortIndex)));
+            } 
+
             return result;
         }
 

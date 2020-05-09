@@ -230,6 +230,8 @@ R"(// entity 0
             map.addOrUpdateAttribute("classname", "worldspawn");
 
             Model::Layer* layer = map.createLayer("Custom Layer");
+            CHECK(layer->sortIndex() == Model::Layer::invalidSortIndex());
+            layer->setSortIndex(0);
             map.addChild(layer);
 
             Model::BrushBuilder builder(&map, worldBounds);
@@ -376,7 +378,6 @@ R"(// entity 0
 "_tb_type" "_tb_layer"
 "_tb_name" "Custom Layer"
 "_tb_id" "*"
-"_tb_layer_sort_index" "0"
 }
 // entity 2
 {
@@ -434,7 +435,6 @@ R"(// entity 0
 "_tb_type" "_tb_layer"
 "_tb_name" "Custom Layer"
 "_tb_id" "*"
-"_tb_layer_sort_index" "0"
 }
 // entity 2
 {
