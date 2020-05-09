@@ -85,6 +85,14 @@ namespace TrenchBroom {
         Model::Node* WorldReader::onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
             m_world->setAttributes(attributes);
             setExtraAttributes(m_world.get(), extraAttributes);
+
+            // handle default layer attributes, which are stored in worldspawn
+            for (const Model::EntityAttribute& attribute : attributes) {
+                if (attribute.name() == Model::AttributeNames::LayerColor) {
+                    m_world->defaultLayer()->addOrUpdateAttribute(attribute.name(), attribute.value());
+                    break;
+                }
+            }
             return m_world->defaultLayer();
         }
 

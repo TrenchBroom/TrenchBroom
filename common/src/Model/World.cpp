@@ -74,7 +74,7 @@ namespace TrenchBroom {
 
         void World::createDefaultLayer() {
             m_defaultLayer = createLayer("Default Layer");
-            m_defaultLayer->setSortIndex(0);
+            m_defaultLayer->setSortIndex(Layer::defaultLayerSortIndex());
             addChild(m_defaultLayer);
         }
 
