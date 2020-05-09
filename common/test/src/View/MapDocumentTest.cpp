@@ -1092,5 +1092,21 @@ namespace TrenchBroom {
 
             kdl::vec_clear_and_delete(issueGenerators);
         }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.renameLayer", "[LayerTest]") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            Model::Layer* layer = document->world()->createLayer("test1");
+            document->addNode(layer, document->world());
+            CHECK(layer->name() == "test1");
+
+            document->renameLayer(layer, "test2");
+            CHECK(layer->name() == "test2");
+
+            document->undoCommand();
+            CHECK(layer->name() == "test1");
+        }
     }
 }
