@@ -184,8 +184,8 @@ namespace TrenchBroom {
             document->documentWasLoadedNotifier.addObserver(this, &LayerListBox::documentDidChange);
             document->documentWasClearedNotifier.addObserver(this, &LayerListBox::documentDidChange);
             document->currentLayerDidChangeNotifier.addObserver(this, &LayerListBox::currentLayerDidChange);
-            document->nodesWereAddedNotifier.addObserver(this, &LayerListBox::nodesWereAddedOrRemoved);
-            document->nodesWereRemovedNotifier.addObserver(this, &LayerListBox::nodesWereAddedOrRemoved);
+            document->nodesWereAddedNotifier.addObserver(this, &LayerListBox::nodesDidChange);
+            document->nodesWereRemovedNotifier.addObserver(this, &LayerListBox::nodesDidChange);
             document->nodesDidChangeNotifier.addObserver(this, &LayerListBox::nodesDidChange);
             document->nodeVisibilityDidChangeNotifier.addObserver(this, &LayerListBox::nodesDidChange);
             document->nodeLockingDidChangeNotifier.addObserver(this, &LayerListBox::nodesDidChange);
@@ -198,8 +198,8 @@ namespace TrenchBroom {
                 document->documentWasLoadedNotifier.removeObserver(this, &LayerListBox::documentDidChange);
                 document->documentWasClearedNotifier.removeObserver(this, &LayerListBox::documentDidChange);
                 document->currentLayerDidChangeNotifier.removeObserver(this, &LayerListBox::currentLayerDidChange);
-                document->nodesWereAddedNotifier.removeObserver(this, &LayerListBox::nodesWereAddedOrRemoved);
-                document->nodesWereRemovedNotifier.removeObserver(this, &LayerListBox::nodesWereAddedOrRemoved);
+                document->nodesWereAddedNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
+                document->nodesWereRemovedNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
                 document->nodesDidChangeNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
                 document->nodeVisibilityDidChangeNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
                 document->nodeLockingDidChangeNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
@@ -210,18 +210,14 @@ namespace TrenchBroom {
             reload();
         }
 
-        void LayerListBox::nodesWereAddedOrRemoved(const std::vector<Model::Node*>& nodes) {
+        void LayerListBox::nodesDidChange(const std::vector<Model::Node*>& nodes) {
             for (const auto* node : nodes) {
                 if (dynamic_cast<const Model::Layer*>(node) != nullptr) {
-                    // A layer was added or removed, so we need to clear and repopulate the list
+                    // A layer was added or removed or modified, so we need to clear and repopulate the list
                     reload();
                     return;
                 }
             }
-            updateItems();
-        }
-
-        void LayerListBox::nodesDidChange(const std::vector<Model::Node*>&) {
             updateItems();
         }
 
