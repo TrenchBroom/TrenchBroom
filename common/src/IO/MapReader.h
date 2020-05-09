@@ -120,6 +120,8 @@ namespace TrenchBroom {
             void resolveNodes(ParserStatus& status);
             Model::Node* resolveParent(const ParentInfo& parentInfo) const;
 
+            void sanitizeLayerIndicies(ParserStatus& status);
+
             EntityType entityType(const std::vector<Model::EntityAttribute>& attributes) const;
 
             void setFilePosition(Model::Node* node, size_t startLine, size_t lineCount);

@@ -27,7 +27,10 @@
 
 #include <kdl/string_utils.h>
 
+#include <algorithm>
 #include <string>
+
+#include <QDebug>
 
 namespace TrenchBroom {
     namespace IO {
@@ -39,9 +42,38 @@ namespace TrenchBroom {
 
         std::unique_ptr<Model::World> WorldReader::read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             readEntities(format, worldBounds, status);
+            sanitizeLayerIndicies(status);
             m_world->rebuildNodeTree();
             m_world->enableNodeTreeUpdates();
             return std::move(m_world);
+        }
+
+        
+        void WorldReader::sanitizeLayerIndicies(ParserStatus& status) {
+            if (m_layerList.empty()) {
+                return;
+            }
+
+            std::vector<Model::Layer*> customLayers;
+            customLayers.reserve(m_layerList.size());
+            for (Model::Layer* layer : m_layerList) {
+                if (layer != m_world->defaultLayer()) {
+                    customLayers.push_back(layer);
+                }
+            }
+
+            std::stable_sort(customLayers.begin(), customLayers.end(), [](Model::Layer* a, Model::Layer* b) {
+                return a->sortIndex() < b->sortIndex();
+            });
+
+            int i = 0;
+            for (Model::Layer* layer : customLayers) {
+                if (layer->sortIndex() != i) {
+                    qDebug() << "sanitizing " << layer->sortIndex() << " to " << i << " for " << QString::fromStdString(layer->name());
+                    layer->setSortIndex(i);
+                }
+                ++i;
+            }
         }
 
         Model::ModelFactory& WorldReader::initialize(const Model::MapFormat format) {
@@ -62,6 +94,7 @@ namespace TrenchBroom {
 
         void WorldReader::onLayer(Model::Layer* layer, ParserStatus& /* status */) {
             m_world->addChild(layer);
+            m_layerList.push_back(layer); // record for sanitizeLayerIndicies()
         }
 
         void WorldReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& /* status */) {
