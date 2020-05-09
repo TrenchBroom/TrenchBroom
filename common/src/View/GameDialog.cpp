@@ -127,11 +127,10 @@ namespace TrenchBroom {
             auto* outerLayout = new QVBoxLayout();
             outerLayout->setContentsMargins(QMargins());
             outerLayout->setSpacing(0);
-#if !defined __APPLE__
-            outerLayout->addWidget(new BorderLine(), 1);
-#endif
             outerLayout->addLayout(innerLayout, 1);
             outerLayout->addLayout(wrapDialogButtonBox(buttonBox), 1);
+            insertTitleBarSeparator(outerLayout);
+
             setLayout(outerLayout);
         }
 

@@ -143,6 +143,8 @@ namespace TrenchBroom {
             outerLayout->setSpacing(0);
             outerLayout->addLayout(upperLayout, 1);
             outerLayout->addLayout(wrapDialogButtonBox(buttonBox), 0);
+            insertTitleBarSeparator(outerLayout);
+
             setLayout(outerLayout);
 
             setMinimumSize(650, 450);

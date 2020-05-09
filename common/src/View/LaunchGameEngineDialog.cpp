@@ -130,6 +130,7 @@ namespace TrenchBroom {
             outerLayout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
             outerLayout->addWidget(midPanel, 1);
             outerLayout->addLayout(wrapDialogButtonBox(buttonBox));
+
             setLayout(outerLayout);
 
             m_parameterText->setEnabled(false);
