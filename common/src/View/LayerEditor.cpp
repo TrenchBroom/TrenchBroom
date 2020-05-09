@@ -274,6 +274,14 @@ namespace TrenchBroom {
                 auto* world = document->world();
                 auto* layer = world->createLayer(name);
 
+                // Sort it at the bottom of the list
+                const std::vector<Model::Layer*> customLayers = world->customLayersUserSorted();
+                if (customLayers.empty()) {
+                    layer->setSortIndex(0);
+                } else {
+                    layer->setSortIndex(customLayers.back()->sortIndex() + 1);
+                }
+
                 Transaction transaction(document, "Create Layer " + layer->name());
                 document->addNode(layer, world);
                 document->setCurrentLayer(layer);
