@@ -28,6 +28,8 @@
 
 #include <set>
 
+static std::string safeTextureName(std::string textureName);
+
 namespace TrenchBroom {
     namespace IO {
         ObjFileSerializer::IndexedVertex::IndexedVertex(const size_t i_vertex, const size_t i_texCoords, const size_t i_normal) :
@@ -71,7 +73,8 @@ namespace TrenchBroom {
 
             for (const Object& object : m_objects) {
                 for (const Face& face : object.faces) {
-                    textureNames.insert(face.texture);
+					std::string textureName = safeTextureName(face.texture);
+                    textureNames.insert(textureName);
                 }
             }
 
@@ -116,7 +119,8 @@ namespace TrenchBroom {
 
         void ObjFileSerializer::writeFaces(const FaceList& faces) {
             for (const Face& face : faces) {
-                std::fprintf(m_stream, "usemtl %s\n", face.texture.c_str());
+				std::string textureName = safeTextureName(face.texture);
+                std::fprintf(m_stream, "usemtl %s\n", textureName.c_str());
                 std::fprintf(m_stream, "f");
                 for (const IndexedVertex& vertex : face.verts) {
                     std::fprintf(m_stream, " %lu/%lu/%lu",
@@ -164,4 +168,12 @@ namespace TrenchBroom {
             m_currentObject.faces.push_back(Face(indexedVertices, face->textureName()));
         }
     }
+}
+
+// makes sure that blank texture names are safely serialized as the appropriate NoTextureName.
+static std::string safeTextureName(std::string textureName) {
+	if (textureName.compare(std::string("")) == 0) {
+		return TrenchBroom::Model::BrushFaceAttributes::NoTextureName;
+	}
+	return textureName;
 }
