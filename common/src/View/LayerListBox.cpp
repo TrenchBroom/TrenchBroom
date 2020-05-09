@@ -108,7 +108,9 @@ namespace TrenchBroom {
          */
         void LayerListBoxWidget::updateLayerItem() {
             // Update labels
-            m_nameText->setText(QString::fromStdString(m_layer->name()));
+            m_nameText->setText(tr("%1 (sort:%2)")
+                .arg(QString::fromStdString(m_layer->name()))
+                .arg(m_layer->sortIndex()));
             if (kdl::mem_lock(m_document)->currentLayer() == m_layer) {
                 makeEmphasized(m_nameText);
             } else {
