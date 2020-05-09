@@ -267,7 +267,7 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::onAddLayer() {
-            const std::string name = queryLayerName();
+            const std::string name = queryLayerName("Unnamed");
             if (!name.empty()) {
                 auto document = kdl::mem_lock(m_document);
                 auto* world = document->world();
@@ -280,10 +280,10 @@ namespace TrenchBroom {
             }
         }
 
-        std::string LayerEditor::queryLayerName() {
+        std::string LayerEditor::queryLayerName(const std::string& suggestion) {
             while (true) {
                 bool ok = false;
-                const std::string name = QInputDialog::getText(this, "Enter a name", "Layer Name", QLineEdit::Normal, "Unnamed", &ok).toStdString();
+                const std::string name = QInputDialog::getText(this, "Enter a name", "Layer Name", QLineEdit::Normal, QString::fromStdString(suggestion), &ok).toStdString();
 
                 if (!ok) {
                     return "";
@@ -338,9 +338,10 @@ namespace TrenchBroom {
         void LayerEditor::onRenameLayer() {
             if (canRenameLayer()) {
                 auto document = kdl::mem_lock(m_document);
-                const std::string name = queryGroupName(this);                
-                if (!name.empty()) {
-                    auto* layer = m_layerList->selectedLayer();
+                Model::Layer* layer = m_layerList->selectedLayer();
+
+                const std::string name = queryLayerName(layer->name());
+                if (!name.empty()) {                    
                     document->renameLayer(layer, name);
                 }
             }

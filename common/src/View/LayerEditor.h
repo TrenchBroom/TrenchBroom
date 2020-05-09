@@ -70,7 +70,7 @@ namespace TrenchBroom {
             void onSelectAllInLayer();
 
             void onAddLayer();
-            std::string queryLayerName();
+            std::string queryLayerName(const std::string& suggestion);
 
             void onRemoveLayer();
             bool canRemoveLayer() const;
