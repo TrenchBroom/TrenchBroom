@@ -70,6 +70,26 @@ namespace TrenchBroom {
                          "}\n", result.c_str());
         }
 
+        TEST_CASE("NodeWriterTest.writeDefaultLayerColor", "[NodeWriterTest]") {
+            Model::World map(Model::MapFormat::Standard);
+            map.addOrUpdateAttribute("classname", "worldspawn");
+            map.defaultLayer()->setGroupColor(Color(0.0f, 1.0f, 0.0f));
+
+            std::stringstream str;
+            NodeWriter writer(map, str);
+            writer.writeMap();
+
+            const std::string actual = str.str();
+            const std::string expected = R"(
+// entity 0
+{
+"classname" "worldspawn"
+"_tb_layer_color" "0.0 1.0 0.0"
+}
+)";
+            CHECK(actual == expected);
+        }
+
         TEST_CASE("NodeWriterTest.writeDaikatanaMap", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 

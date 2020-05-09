@@ -91,6 +91,7 @@ namespace TrenchBroom {
             toggleLayerLockedAction->setEnabled(canToggleLayerLocked());
             moveLayerUpAction->setEnabled(canMoveLayer(-1));
             moveLayerDownAction->setEnabled(canMoveLayer(1));
+            renameLayerAction->setEnabled(canRenameLayer());
             removeLayerAction->setEnabled(canRemoveLayer());
 
             popupMenu.exec(QCursor::pos());

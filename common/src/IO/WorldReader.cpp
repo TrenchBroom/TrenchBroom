@@ -49,7 +49,7 @@ namespace TrenchBroom {
         }
 
         
-        void WorldReader::sanitizeLayerIndicies(ParserStatus& status) {
+        void WorldReader::sanitizeLayerIndicies(ParserStatus& /* status */) {
             if (m_layerList.empty()) {
                 return;
             }
