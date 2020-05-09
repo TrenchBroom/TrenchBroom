@@ -28,6 +28,7 @@
 
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
+#include <kdl/vector_utils.h>
 
 #include <string>
 
@@ -88,7 +89,28 @@ namespace TrenchBroom {
         }
 
         void NodeSerializer::defaultLayer(Model::World& world) {
-            entity(&world, world.attributes(), {}, world.defaultLayer());
+            std::vector<Model::EntityAttribute> worldAttribs = world.attributes();
+
+            // Strip out any AttributeNames::LayerColor that may have been in worldspawn
+            auto predicate = [](const Model::EntityAttribute& attribute) {
+                return attribute.name() == Model::AttributeNames::LayerColor;
+            };
+
+            // Transfer the color from the default layer Layer object to worldspawn
+            // FIXME: should use something like addOrUpdateAttribute()
+            if (world.defaultLayer()->hasAttribute(Model::AttributeNames::LayerColor)) {
+                auto it = std::find_if(worldAttribs.begin(), worldAttribs.end(), predicate);
+                if (it != worldAttribs.end()) {
+                    it->setValue(world.defaultLayer()->attribute(Model::AttributeNames::LayerColor));
+                } else {
+                    worldAttribs.push_back(Model::EntityAttribute(Model::AttributeNames::LayerColor,
+                                                                  world.defaultLayer()->attribute(Model::AttributeNames::LayerColor)));
+                }
+            } else {
+                kdl::vec_erase_if(worldAttribs, predicate);
+            }            
+
+            entity(&world, worldAttribs, {}, world.defaultLayer());
         }
 
         void NodeSerializer::customLayer(Model::Layer* layer) {
