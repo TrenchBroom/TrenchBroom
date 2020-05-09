@@ -60,7 +60,10 @@ namespace TrenchBroom {
         }
 
         void ModEditor::createGui() {
-            auto* availableModContainer = new TitledPanel("Available", false, false);
+            auto* availableModContainer = new TitledPanel("Available", false, true);
+            availableModContainer->setBackgroundRole(QPalette::Base);
+            availableModContainer->setAutoFillBackground(true);
+            
             m_availableModList = new QListWidget();
             m_availableModList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
@@ -78,7 +81,10 @@ namespace TrenchBroom {
             filterBoxSizer->setSpacing(0);
             filterBoxSizer->addWidget(m_filterBox, 1);
 
-            auto* enabledModContainer = new TitledPanel("Enabled", false, false);
+            auto* enabledModContainer = new TitledPanel("Enabled", false, true);
+            enabledModContainer->setBackgroundRole(QPalette::Base);
+            enabledModContainer->setAutoFillBackground(true);
+
             m_enabledModList = new QListWidget();
             m_enabledModList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 

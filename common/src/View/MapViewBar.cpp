@@ -20,6 +20,7 @@
 #include "MapViewBar.h"
 
 #include "PreferenceManager.h"
+#include "Preferences.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
@@ -51,11 +52,10 @@ namespace TrenchBroom {
 
             m_viewEditor = new ViewPopupEditor(std::move(document));
 
-            const auto vMargin =
 #ifdef __APPLE__
-            0;
+            const auto vMargin = pref(Preferences::Theme) == Preferences::darkTheme() ? LayoutConstants::MediumVMargin : 0;
 #else
-            LayoutConstants::MediumVMargin;
+            const auto vMargin = LayoutConstants::MediumVMargin;
 #endif
             
             auto* layout = new QHBoxLayout();

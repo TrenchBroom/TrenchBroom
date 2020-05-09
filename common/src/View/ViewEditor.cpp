@@ -169,6 +169,8 @@ namespace TrenchBroom {
             scrollWidget->setLayout(scrollWidgetLayout);
 
             auto* scrollArea = new QScrollArea();
+            scrollArea->setBackgroundRole(QPalette::Base);
+            scrollArea->setAutoFillBackground(true);
             scrollArea->setWidget(scrollWidget);
 
             auto* showAllButton = new QPushButton(tr("Show all"));
@@ -278,7 +280,7 @@ namespace TrenchBroom {
         }
 
         QWidget* ViewEditor::createEntityDefinitionsPanel(QWidget* parent) {
-            TitledPanel* panel = new TitledPanel("Entity Definitions", parent);
+            TitledPanel* panel = new TitledPanel("Entity Definitions", parent, false);
 
             auto document = kdl::mem_lock(m_document);
             Assets::EntityDefinitionManager& entityDefinitionManager = document->entityDefinitionManager();
@@ -297,7 +299,7 @@ namespace TrenchBroom {
         }
 
         QWidget* ViewEditor::createEntitiesPanel(QWidget* parent) {
-            TitledPanel* panel = new TitledPanel("Entities", parent);
+            TitledPanel* panel = new TitledPanel("Entities", parent, false);
 
             m_showEntityClassnamesCheckBox = new QCheckBox(tr("Show entity classnames"));
             m_showGroupBoundsCheckBox = new QCheckBox(tr("Show group bounds"));
@@ -333,7 +335,7 @@ namespace TrenchBroom {
         }
 
         QWidget* ViewEditor::createBrushesPanel(QWidget* parent) {
-            TitledPanel* panel = new TitledPanel("Brushes", parent);
+            TitledPanel* panel = new TitledPanel("Brushes", parent, false);
             auto* inner = panel->getPanel();
             createTagFilter(inner);
 
@@ -395,7 +397,7 @@ namespace TrenchBroom {
         }
 
         QWidget* ViewEditor::createRendererPanel(QWidget* parent) {
-            TitledPanel* panel = new TitledPanel("Renderer", parent);
+            TitledPanel* panel = new TitledPanel("Renderer", parent, false);
             QWidget* inner = panel->getPanel();
 
             const QList<QString> FaceRenderModes = { "Show textures", "Hide textures", "Hide faces" };
