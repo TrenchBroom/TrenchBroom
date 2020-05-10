@@ -27,6 +27,7 @@
 #include "Model/EmptyAttributeNameIssueGenerator.h"
 #include "Model/EmptyAttributeValueIssueGenerator.h"
 #include "Model/Entity.h"
+#include "Model/FindLayerVisitor.h"
 #include "Model/Group.h"
 #include "Model/HitQuery.h"
 #include "Model/Issue.h"
@@ -1132,6 +1133,31 @@ namespace TrenchBroom {
             Model::Entity* entityClone = document->selectedNodes().entities().at(0);
             CHECK(entityClone->parent() == layer1);
             CHECK(layer1->childCount() == 2);
+            CHECK(document->currentLayer() == layer2);
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.newGroupGoesIntoSourceLayer", "[LayerTest]") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            Model::Layer* layer1 = document->world()->createLayer("test1");
+            Model::Layer* layer2 = document->world()->createLayer("test2");
+            document->addNode(layer1, document->world());
+            document->addNode(layer2, document->world());
+
+            document->setCurrentLayer(layer1);
+            Model::Entity* entity = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+            CHECK(entity->parent() == layer1);
+            CHECK(layer1->childCount() == 1);
+
+            document->setCurrentLayer(layer2);
+            document->select(entity);
+            Model::Group* newGroup = document->groupSelection("Group in Layer 1"); // the new group should stay in layer1
+
+            CHECK(entity->parent() == newGroup);
+            CHECK(Model::findLayer(entity) == layer1);
+            CHECK(Model::findLayer(newGroup) == layer1);
             CHECK(document->currentLayer() == layer2);
         }
     }
