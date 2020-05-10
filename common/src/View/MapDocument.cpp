@@ -873,7 +873,9 @@ namespace TrenchBroom {
         bool MapDocument::duplicateObjects() {
             const auto result = executeAndStore(DuplicateNodesCommand::duplicate());
             if (result->success()) {
-                m_viewEffectsService->flashSelection();
+                if (m_viewEffectsService) {
+                    m_viewEffectsService->flashSelection();
+                }
                 return true;
             }
             return false;

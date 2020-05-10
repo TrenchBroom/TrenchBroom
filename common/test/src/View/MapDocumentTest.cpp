@@ -1108,5 +1108,31 @@ namespace TrenchBroom {
             document->undoCommand();
             CHECK(layer->name() == "test1");
         }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.duplicateObjectGoesIntoSourceLayer", "[LayerTest]") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            Model::Layer* layer1 = document->world()->createLayer("test1");
+            Model::Layer* layer2 = document->world()->createLayer("test2");
+            document->addNode(layer1, document->world());
+            document->addNode(layer2, document->world());
+
+            document->setCurrentLayer(layer1);
+            Model::Entity* entity = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+            CHECK(entity->parent() == layer1);
+            CHECK(layer1->childCount() == 1);
+
+            document->setCurrentLayer(layer2);
+            document->select(entity);
+            document->duplicateObjects(); // the duplicate should stay in layer1
+
+            REQUIRE(document->selectedNodes().entityCount() == 1);
+            Model::Entity* entityClone = document->selectedNodes().entities().at(0);
+            CHECK(entityClone->parent() == layer1);
+            CHECK(layer1->childCount() == 2);
+            CHECK(document->currentLayer() == layer2);
+        }
     }
 }
