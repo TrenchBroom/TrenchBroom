@@ -19,11 +19,14 @@
 
 #include "DuplicateNodesCommand.h"
 
+#include "Model/FindLayerVisitor.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
+#include "Model/Layer.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <kdl/map_utils.h>
+
 
 namespace TrenchBroom {
     namespace View {
@@ -50,7 +53,8 @@ namespace TrenchBroom {
                 const vm::bbox3& worldBounds = document->worldBounds();
                 m_previouslySelectedNodes = document->selectedNodes().nodes();
 
-                for (const Model::Node* original : m_previouslySelectedNodes) {
+                for (Model::Node* original : m_previouslySelectedNodes) {
+                    Model::Layer* originalLayer = Model::findLayer(original);
                     Model::Node* clone = original->cloneRecursively(worldBounds);
 
                     Model::Node* parent = original->parent();
@@ -65,12 +69,12 @@ namespace TrenchBroom {
                             // parent was not cloned yet
                             newParent = parent->clone(worldBounds);
                             newParentMap.insert({ parent, newParent });
-                            m_addedNodes[document->currentParent()].push_back(newParent);
+                            m_addedNodes[originalLayer].push_back(newParent);
                         }
 
                         newParent->addChild(clone);
                     } else {
-                        m_addedNodes[document->currentParent()].push_back(clone);
+                        m_addedNodes[originalLayer].push_back(clone);
                     }
 
                     m_nodesToSelect.push_back(clone);
