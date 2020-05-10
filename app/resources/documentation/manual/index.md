@@ -131,7 +131,7 @@ Once you have selected a game and a map format, TrenchBroom will open the main e
 
 The main window consists of a menu bar, a toolbar, the editing area, an inspector on the right and an info panel at the bottom. In the screenshot below, there are three editing area: one 3D viewport and two orthographic 2D editing area.
 
-![The main editing window (Linux XFCE)](images/MainWindow.png)
+![The main editing window (Ubuntu Linux)](images/MainWindow.png)
 
 The sizes of the editing area, the inspector and the info bar can be changed by dragging the dividers with the mouse. This applies to some of the dividers in the inspector as well. If a divider is 2 pixels thick, it can be dragged with the mouse. The positions of the dividers and the size of the editing window are saved when you close a window. The following subsections introduce the most important parts of the main window: the editing area, the inspector, and the info bar. The toolbar and the menu will be explained in more detail in later sections.
 
@@ -626,7 +626,7 @@ Both snap modes are used simultaneously. There may be situations when you have t
 
 The brush resize tool offers a quick way to move an individual face of a brush in 2D views. Hold #key(Alt) in addition to #key(Shift) when starting to drag a face in a 2D view to enable this mode. You will notice that a face is highlighted as usual, but when you start dragging the mouse, the face will just be moved in the direction you are dragging. The move is not restricted by the face normal, and other faces will be affected as well.
 
-![Resizing multiple brushes](images/ResizeTool2DFaceMoving.gif)
+![Moving faces](images/ResizeTool2DFaceMoving.gif)
 
 The distance is snapped to the current grid size. Moving multiple faces is possible if the faces lie on the same plane. The [UV Lock](#uv_lock) setting controls whether texture lock is used when dragging faces using this mode.
 
@@ -939,15 +939,15 @@ The entity property editor is split into two separate areas. At the top, there i
 
 ### Editing Properties
 
-To select an entity property, just click in the row that represents that property in the table. The row will be highlighted, and at the same time, the field which you clicked on will get a black outline. The black outline is called a _cursor_ and it indicates that you can change the outlined field by entering text. In the screenshot above, the "origin" property has been selected, and its key has the cursor, indicating that it is ready to be changed.
+To select an entity property, just click in the row that represents that property in the table. The clicked field will be highlighted, indicating that it has focus. The highlight indicates that you can change the field by entering text. In the screenshot above, the "mangle" property has been selected, and its value has focus, indicating that it is ready to be changed.
 
-If you are changing a lot of properties, you may wish to navigate quickly through the table. You can use the cursor keys to move the cursor around in the table. Alternatively, you can hit #key(Tab) to move field by field. If the cursor is on a key of some property, hitting tab will move the cursor the value field of that property, and hitting tab again will move it to the key field of the next property, and so on until you reaach the end of the table. You can also move in the opposite direction by hittin #key(Shift)#key(Tab). #key(Return) moves vertically through the list, meaning that if the cursor is on a property key and you hit enter, the cursor will move to the key of the next property in the list. Use this navigation method to mass renamed property keys, for example.
+If you are changing a lot of properties, you may wish to navigate quickly through the table. You can use the cursor keys to move focus around in the table. Alternatively, you can hit #key(Tab) to move field by field. If the focus is on a key of some property, hitting tab will move the cursor the value field of that property, and hitting tab again will move it to the key field of the next property, and so on until you reach the end of the table. You can also move in the opposite direction by hittin #key(Shift)#key(Tab). #key(Return) moves vertically through the list, meaning that if focus is on a property key and you hit enter, focus will move to the key of the next property in the list. Use this navigation method to mass rename property keys, for example.
 
 To change the key or the value of a property, set the focus to the appropriate field in the table. If you enter some text now, that text will replace the key of the property. An alternative way to change a field is to click on it while its property is already selected. This will show an actual text field in which you can enter the text.
 
 There are several ways to add a property to an entity. First, you can click on the button with the "+" label at the bottom of the table. This will insert a new property with a default name and no value into the table. Second, you can hit #key(Ctrl)#key(Return) to add a new property. In both cases, the new property will be selected so that you can start editing its key and value right away as described above. Finally, you can add a property by changing the value of a default property. This will promote the default property to an actual property of the entity.
 
-To remove entity properties, you should select the rows in the table that represent them and hit the button labeled "-" at the bottom of the table.
+To remove entity properties, you should click the rows in the table that represent them and hit the button labeled "-" at the bottom of the table.
 
 ### Multiple Entity Selections
 
@@ -1052,7 +1052,7 @@ The preferences dialog allows you to set the game configurations, to change the 
 
 ## Game Configuration {#game_configuration}
 
-![Game Configuration Dialog (Linux XFCE)](images/GamePreferences.png)
+![Game Configuration Dialog (Ubuntu Linux)](images/GamePreferences.png)
 
 The game configuration preference pane is where you set up the paths to the games that TrenchBroom supports. For each game, you can set the game path by clicking on the "..." button and selecting the folder in which the game is stored on your hard drive. Alternatively, you can enter a path manually in the text box, but you have to hit #key(Return) to apply the change.
 
@@ -1064,7 +1064,7 @@ In this dialog, you can add a game engine profile by clicking on the '+' button 
 
 ## View Layout and Rendering {#view_layout_and_rendering}
 
-![View Configuration Dialog (Linux XFCE)](images/ViewPreferences.png)
+![View Configuration Dialog (Ubuntu Linux)](images/ViewPreferences.png)
 
 In this preference pane, you can choose the layout of the editing area. There are four layouts available:
 
@@ -1090,7 +1090,7 @@ Texture Browser Icon Size 	The size of the texture icons in the texture browser
 
 ## Mouse Input {#mouse_input}
 
-![Mouse Configuration Dialog (Linux XFCE)](images/MousePreferences.png)
+![Mouse Configuration Dialog (Ubuntu Linux)](images/MousePreferences.png)
 
 The mouse input preference pane allows you to change how TrenchBroom interprets mouse movements.
 
@@ -1103,7 +1103,7 @@ Move Keys 	Keyboard shortcuts for moving around in the map, with a separate slid
 
 ## Keyboard Shortcuts {#keyboard_shortcuts}
 
-![Keyboard Configuration Dialog (Linux XFCE)](images/KeyboardPreferences.png)
+![Keyboard Configuration Dialog (Ubuntu Linux)](images/KeyboardPreferences.png)
 
 In this preference pane, you can change the keybaord shortcuts used in TrenchBroom. The table lists all available shortcuts, their context, and the description. To change a keyboard shortcut, click twice (do not double click) on the shortcut in the first column of the table and enter the new shortcut. The context determines when this shortcut is available, for example, the PgDn key triggers different actions depending on whether the rotate tool is active or not. Finally, the desription column explains what a shortcut does in a particular context. Sometimes a shortcut triggers different actions depending on whether the viewport in which it was used is a 3D or a 2D viewport. For example, the PgDn key can move objects backward (away from the camera) in a 2D viewport or down along the Z axis in the 3D viewport. These different actions are listed together in the description column, but they are separated with a semicolon.
 
@@ -1147,7 +1147,7 @@ In addition to making you aware of issues, TrenchBroom can also fix them for you
 
 TrenchBroom supports compiling your maps from inside the editor. This means that you can create compilation profiles and configure those profiles to run external compilation tools for you. Note however that TrenchBroom does not come with prepackaged compilation tools - you'll have to download and install those yourself. The following screenshot shows the compilation dialog that comes up when choosing #menu(Menu/Run/Compile...).
 
-![Compilation Dialog (Windows 7)](images/CompilationDialog.png)
+![Compilation Dialog (Windows 10)](images/CompilationDialog.png)
 
 This dialog allows you to create compilation profiles, which are listed on the left of the dialog. Each compilation profile has a name, a working directory, and a list of tasks. Click the '+' button below the profile list to create a new compilation profile, or click the '-' button to delete the selected profile. If you select a profile, you can edit its name, working directory, and tasks on the right side of the dialog.
 
