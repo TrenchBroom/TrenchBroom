@@ -194,6 +194,7 @@ namespace TrenchBroom {
              * Returns the current group if one is open, otherwise the current layer.
              */
             Model::Node* currentParent() const override;
+            Model::Node* parentForNodes(const std::vector<Model::Node*>& nodes) const override;
 
             Model::EditorContext& editorContext() const;
 

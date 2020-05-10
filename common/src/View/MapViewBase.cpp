@@ -633,7 +633,7 @@ namespace TrenchBroom {
             }
 
             if (!toReparent.empty()) {
-                reparentNodes(toReparent, document->currentParent(), false);
+                reparentNodes(toReparent, document->parentForNodes(toReparent), false);
             }
 
             bool anyTagDisabled = false;

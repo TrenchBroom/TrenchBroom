@@ -328,7 +328,7 @@ namespace TrenchBroom {
             }
 
             facade.deselectAll();
-            facade.reparentNodes(facade.currentParent(), detailBrushes);
+            facade.reparentNodes(facade.parentForNodes(selectedBrushes), detailBrushes);
             facade.select(std::vector<Node*> (std::begin(detailBrushes), std::end(detailBrushes)));
         }
 

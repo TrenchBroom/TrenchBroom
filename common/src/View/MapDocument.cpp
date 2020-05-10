@@ -232,6 +232,17 @@ namespace TrenchBroom {
             return result;
         }
 
+        Model::Node* MapDocument::parentForNodes(const std::vector<Model::Node*>& nodes) const {
+            Model::Group* parentGroup = Model::findGroup(nodes.at(0));
+            if (parentGroup != nullptr) {
+                return parentGroup;
+            }
+
+            Model::Layer* parentLayer = Model::findLayer(nodes.at(0));
+            ensure(parentLayer != nullptr, "no parent layer");
+            return parentLayer;
+        }
+
         Model::EditorContext& MapDocument::editorContext() const {
             return *m_editorContext;
         }
@@ -931,7 +942,7 @@ namespace TrenchBroom {
 
             const Transaction transaction(this, name.str());
             deselectAll();
-            addNode(entity, currentParent());
+            addNode(entity, parentForNodes(nodes));
             reparentNodes(entity, nodes);
             select(nodes);
 
@@ -950,7 +961,7 @@ namespace TrenchBroom {
 
             const Transaction transaction(this, "Group Selected Objects");
             deselectAll();
-            addNode(group, currentParent());
+            addNode(group, parentForNodes(nodes));
             reparentNodes(group, nodes);
             select(group);
 
@@ -1293,7 +1304,7 @@ namespace TrenchBroom {
             deselect(toRemove);
 
             if (valid) {
-                addNode(result, currentParent());
+                addNode(result, parentForNodes(toRemove));
                 removeNodes(toRemove);
                 select(result);
             } else {

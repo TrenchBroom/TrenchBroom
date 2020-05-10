@@ -277,10 +277,11 @@ namespace TrenchBroom {
                 const Model::BrushBuilder builder(document->world(), document->worldBounds(), game->defaultFaceAttribs());
                 auto* brush = builder.createBrush(polyhedron, document->currentTextureName());
                 brush->cloneFaceAttributesFrom(document->selectedNodes().brushes());
+                Model::Node* newParent = document->parentForNodes(document->selectedNodes().nodes());
 
                 const Transaction transaction(document, "CSG Convex Merge");
                 deselectAll();
-                document->addNode(brush, document->currentParent());
+                document->addNode(brush, newParent);
             }
 
             virtual H getHandlePosition(const Model::Hit& hit) const {
