@@ -43,6 +43,7 @@ namespace TrenchBroom {
         private:
             std::weak_ptr<MapDocument> m_document;
             Model::Layer* m_layer;
+            QAbstractButton* m_activeButton;
             QLabel* m_nameText;
             QLabel* m_infoText;
             QAbstractButton* m_hiddenButton;

@@ -32,13 +32,21 @@
 #include <QAbstractButton>
 #include <QListWidgetItem>
 #include <QMouseEvent>
+#include <QToolButton>
 
 namespace TrenchBroom {
     namespace View {
         LayerListBoxWidget::LayerListBoxWidget(std::weak_ptr<MapDocument> document, Model::Layer* layer, QWidget* parent) :
         ControlListBoxItemRenderer(parent),
         m_document(std::move(document)),
-        m_layer(layer) {
+        m_layer(layer),
+        m_activeButton(nullptr),
+        m_nameText(nullptr),
+        m_infoText(nullptr),
+        m_hiddenButton(nullptr),
+        m_lockButton(nullptr),
+        m_moveLayerUpButton(nullptr),
+        m_moveLayerDownButton(nullptr) {
             m_nameText = new QLabel(QString::fromStdString(m_layer->name()));
             // Ignore the label's minimum width, this prevents a horizontal scroll bar from appearing on the list widget,
             // and instead just cuts off the label for long layer names.
@@ -46,6 +54,9 @@ namespace TrenchBroom {
             m_infoText = new QLabel("");
             makeInfo(m_infoText);
 
+            m_activeButton = new QToolButton();
+            m_activeButton->setText(">>");
+            m_activeButton->setCheckable(true);
             m_hiddenButton = createBitmapToggleButton("Hidden.png", tr("Toggle hidden state"));
             m_lockButton = createBitmapToggleButton("Lock.png", tr("Toggle locked state"));
             m_moveLayerUpButton = createBitmapButton("Up.png", tr("Move the selected layer up"));
@@ -74,26 +85,17 @@ namespace TrenchBroom {
             textLayout->setSpacing(LayoutConstants::NarrowVMargin);
             textLayout->addWidget(m_nameText, 1);
             textLayout->addWidget(m_infoText, 1);
-            
-            auto* itemPanelBottomLayout = new QHBoxLayout();
-            itemPanelBottomLayout->setContentsMargins(0, 0, 0, 0);
-            itemPanelBottomLayout->setSpacing(0);
-
-            itemPanelBottomLayout->addWidget(m_hiddenButton, 0, Qt::AlignVCenter);
-            itemPanelBottomLayout->addWidget(m_lockButton, 0, Qt::AlignVCenter);
-            itemPanelBottomLayout->addWidget(m_moveLayerUpButton, 0, Qt::AlignVCenter);
-            itemPanelBottomLayout->addWidget(m_moveLayerDownButton, 0, Qt::AlignVCenter);
-            itemPanelBottomLayout->addWidget(m_infoText, 0, Qt::AlignVCenter);
-            itemPanelBottomLayout->addStretch(1);
-            itemPanelBottomLayout->addSpacing(LayoutConstants::NarrowHMargin);
 
             auto* itemPanelLayout = new QHBoxLayout();
             itemPanelLayout->setContentsMargins(0, 0, 0, 0);
             itemPanelLayout->setSpacing(LayoutConstants::MediumHMargin);
 
+            itemPanelLayout->addWidget(m_activeButton);
             itemPanelLayout->addLayout(textLayout, 1);
             itemPanelLayout->addWidget(m_hiddenButton);
             itemPanelLayout->addWidget(m_lockButton);
+            itemPanelLayout->addWidget(m_moveLayerUpButton, 0, Qt::AlignVCenter);
+            itemPanelLayout->addWidget(m_moveLayerDownButton, 0, Qt::AlignVCenter);
             setLayout(itemPanelLayout);
 
             updateLayerItem();
@@ -121,12 +123,13 @@ namespace TrenchBroom {
             m_infoText->setText(info);
 
             // Update buttons
+            auto document = kdl::mem_lock(m_document);
+            m_activeButton->setChecked(document->currentLayer() == m_layer);
             m_lockButton->setChecked(m_layer->locked());
             m_hiddenButton->setChecked(m_layer->hidden());
 
-            auto document = kdl::mem_lock(m_document);
-            m_lockButton->setEnabled(m_layer->locked() || m_layer != document->currentLayer());
-            m_hiddenButton->setEnabled(m_layer->hidden() || m_layer != document->currentLayer());
+            m_lockButton->setEnabled(m_layer->locked());
+            m_hiddenButton->setEnabled(m_layer->hidden());
 
             const auto* world = document->world();
             m_moveLayerUpButton->setEnabled(m_layer != world->allLayers().front());
