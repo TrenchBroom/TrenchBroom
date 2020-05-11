@@ -59,17 +59,16 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 - All help is appreciated!
 
 # Credits
-- wxWidgets www.wxwidgets.org
-- FreeType www.freetype.org
-- FreeImage www.freeimage.org
-- GLEW glew.sourceforge.net
-- GoogleTest code.google.com/p/googletest/
-- GoogleMock code.google.com/p/googlemock/
-- CMake www.cmake.org
-- Pandoc www.pandoc.org
-- Quake icons by Th3 ProphetMan th3-prophetman.deviantart.com
-- Hexen 2 icon by thedoctor45 thedoctor45.deviantart.com
-- Source Sans Pro font www.google.com/fonts/specimen/Source+Sans+Pro
+- [wxWidgets](https://www.wxwidgets.org/)
+- [FreeType](https://www.freetype.org/)
+- [FreeImage](http://freeimage.sourceforge.net/)
+- [GLEW](http://glew.sourceforge.net/)
+- [GoogleTest](https://github.com/google/googletest)
+- [CMake](https://cmake.org/)
+- [Pandoc](https://www.pandoc.org/)
+- Quake icons by [Th3 ProphetMan](https://www.deviantart.com/th3-prophetman)
+- Hexen 2 icon by [thedoctor45](https://www.deviantart.com/thedoctor45)
+- [Source Sans Pro](https://fonts.google.com/specimen/Source+Sans+Pro) font
 
 ## Changes
 See [releases](https://github.com/kduske/TrenchBroom/releases) for latest changes.
