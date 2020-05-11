@@ -53,7 +53,13 @@ namespace TrenchBroom {
         LayerEditor::LayerEditor(std::weak_ptr<MapDocument> document, QWidget *parent) :
         QWidget(parent),
         m_document(document),
-        m_layerList(nullptr) {
+        m_layerList(nullptr),
+        m_addLayerButton(nullptr),
+        m_removeLayerButton(nullptr),
+        m_showAllLayersButton(nullptr),
+        m_hideAllLayersButton(nullptr),
+        m_moveLayerUpButton(nullptr),
+        m_moveLayerDownButton(nullptr) {
             createGui();
 
             updateButtons();
@@ -77,11 +83,22 @@ namespace TrenchBroom {
             QAction* moveSelectionToLayerAction = popupMenu.addAction(tr("Move selection to layer"), this, &LayerEditor::onMoveSelectionToLayer);
             popupMenu.addAction(tr("Select all in layer"), this, &LayerEditor::onSelectAllInLayer);
             popupMenu.addSeparator();
-            QAction* toggleLayerVisibleAction = popupMenu.addAction(layer->hidden() ? tr("Show layer") : tr("Hide layer"), this, &LayerEditor::onToggleLayerVisibleFromMenu);
-            QAction* toggleLayerLockedAction = popupMenu.addAction(layer->locked() ? tr("Unlock layer") : tr("Lock layer"), this, &LayerEditor::onToggleLayerLockedFromMenu);
+            QAction* toggleLayerVisibleAction = popupMenu.addAction(layer->hidden() ? tr("Show layer") : tr("Hide layer"), this, [this, layer](){
+                toggleLayerVisible(layer);
+            });
+            QAction* isolateLayerAction       = popupMenu.addAction(tr("Isolate layer"), this, [this, layer](){
+                isolateLayer(layer);
+            });
+            QAction* toggleLayerLockedAction = popupMenu.addAction(layer->locked() ? tr("Unlock layer") : tr("Lock layer"), this, [this, layer](){
+                toggleLayerLocked(layer);
+            });
             popupMenu.addSeparator();
-            QAction* moveLayerUpAction = popupMenu.addAction(tr("Move layer up"), this, &LayerEditor::onMoveLayerUpFromMenu);
-            QAction* moveLayerDownAction = popupMenu.addAction(tr("Move layer down"), this, &LayerEditor::onMoveLayerDownFromMenu);
+            QAction* moveLayerUpAction = popupMenu.addAction(tr("Move layer up"), this, [this, layer](){
+                moveLayer(layer, -1);
+            });
+            QAction* moveLayerDownAction = popupMenu.addAction(tr("Move layer down"), this, [this, layer](){
+                moveLayer(layer, 1);
+            });
             popupMenu.addSeparator();
             QAction* renameLayerAction = popupMenu.addAction(tr("Rename layer"), this, &LayerEditor::onRenameLayer);
             QAction* removeLayerAction = popupMenu.addAction(tr("Remove layer"), this, &LayerEditor::onRemoveLayer);
@@ -97,26 +114,9 @@ namespace TrenchBroom {
             popupMenu.exec(QCursor::pos());
         }
 
-        void LayerEditor::onToggleLayerVisibleFromMenu() {
-            toggleLayerVisible(m_layerList->selectedLayer());
-        }
-
-        void LayerEditor::onToggleLayerVisibleFromList(Model::Layer* layer) {
-            toggleLayerVisible(layer);
-        }
-
         bool LayerEditor::canToggleLayerVisible() const {
             auto* layer = m_layerList->selectedLayer();
-            if (layer == nullptr) {
-                return false;
-            }
-
-            auto document = kdl::mem_lock(m_document);
-            if (!layer->hidden() && layer == document->currentLayer()) {
-                return false;
-            }
-
-            return true;
+            return layer != nullptr;
         }
 
         void LayerEditor::toggleLayerVisible(Model::Layer* layer) {
@@ -127,14 +127,6 @@ namespace TrenchBroom {
             } else {
                 document->resetVisibility(std::vector<Model::Node*>(1, layer));
             }
-        }
-
-        void LayerEditor::onToggleLayerLockedFromMenu() {
-            toggleLayerLocked(m_layerList->selectedLayer());
-        }
-
-        void LayerEditor::onToggleLayerLockedFromList(Model::Layer* layer) {
-            toggleLayerLocked(layer);
         }
 
         bool LayerEditor::canToggleLayerLocked() const {
@@ -159,6 +151,16 @@ namespace TrenchBroom {
             } else {
                 document->resetLock(std::vector<Model::Node*>(1, layer));
             }
+        }
+
+        void LayerEditor::isolateLayer(Model::Layer* layer) {
+            auto document = kdl::mem_lock(m_document);
+            const auto layers = document->world()->allLayers();
+
+            // FIXME: Move to a MapDocument method
+            Transaction transaction(document, "Isolate " + layer->name());
+            document->hide(std::vector<Model::Node*>(std::begin(layers), std::end(layers)));
+            document->show(std::vector<Model::Node*>{layer});
         }
 
         class LayerEditor::CollectMoveableNodes : public Model::NodeVisitor {
@@ -366,22 +368,6 @@ namespace TrenchBroom {
             return (layer != document->world()->defaultLayer());
         }
 
-        void LayerEditor::onMoveLayerUpFromMenu() {
-            moveLayer(m_layerList->selectedLayer(), -1);
-        }
-
-        void LayerEditor::onMoveLayerUpFromList(Model::Layer* layer) {
-            moveLayer(layer, -1);
-        }
-
-        void LayerEditor::onMoveLayerDownFromMenu() {
-            moveLayer(m_layerList->selectedLayer(), 1);
-        }
-
-        void LayerEditor::onMoveLayerDownFromList(Model::Layer* layer) {
-            moveLayer(layer, 1);
-        }
-
         bool LayerEditor::canMoveLayer(int direction) const {
             if (direction == 0) {
                 return false;
@@ -430,6 +416,12 @@ namespace TrenchBroom {
             document->resetVisibility(std::vector<Model::Node*>(std::begin(layers), std::end(layers)));
         }
 
+        void LayerEditor::onHideAllLayers() {
+            auto document = kdl::mem_lock(m_document);
+            const auto layers = document->world()->allLayers();
+            document->hide(std::vector<Model::Node*>(std::begin(layers), std::end(layers)));
+        }
+
         Model::Layer* LayerEditor::findVisibleAndUnlockedLayer(const Model::Layer* except) const {
             auto document = kdl::mem_lock(m_document);
             if (!document->world()->defaultLayer()->locked() && !document->world()->defaultLayer()->hidden()) {
@@ -466,29 +458,48 @@ namespace TrenchBroom {
             m_layerList = new LayerListBox(m_document, this);
             connect(m_layerList, &LayerListBox::layerSetCurrent, this, &LayerEditor::onSetCurrentLayer);
             connect(m_layerList, &LayerListBox::layerRightClicked, this, &LayerEditor::onLayerRightClick);
-            connect(m_layerList, &LayerListBox::layerVisibilityToggled, this, &LayerEditor::onToggleLayerVisibleFromList);
-            connect(m_layerList, &LayerListBox::layerLockToggled, this, &LayerEditor::onToggleLayerLockedFromList);
+            connect(m_layerList, &LayerListBox::layerVisibilityToggled, this, [this](Model::Layer* layer){
+                toggleLayerVisible(layer);
+            });
+            connect(m_layerList, &LayerListBox::layerLockToggled, this, [this](Model::Layer* layer){
+                toggleLayerLocked(layer);
+            });
+            connect(m_layerList, &LayerListBox::layerMovedUp, this, [this](Model::Layer* layer){
+                moveLayer(layer, -1);
+            });
+            connect(m_layerList, &LayerListBox::layerMovedDown, this, [this](Model::Layer* layer){
+                moveLayer(layer, 1);
+            });
             connect(m_layerList, &LayerListBox::itemSelectionChanged, this, &LayerEditor::updateButtons);
 
             m_addLayerButton = createBitmapButton("Add.png", tr("Add a new layer from the current selection"));
             m_removeLayerButton = createBitmapButton("Remove.png", tr("Remove the selected layer and move its objects to the default layer"));
             m_showAllLayersButton = createBitmapButton("Hidden_off.png", tr("Show all layers"));
+            m_hideAllLayersButton = createBitmapButton("Hidden_on.png", tr("Hide all layers"));
             m_moveLayerUpButton = createBitmapButton("Up.png", "Move the selected layer up");
             m_moveLayerDownButton = createBitmapButton("Down.png", "Move the selected layer down");
 
             connect(m_addLayerButton, &QAbstractButton::pressed, this, &LayerEditor::onAddLayer);
             connect(m_removeLayerButton, &QAbstractButton::pressed, this, &LayerEditor::onRemoveLayer);
             connect(m_showAllLayersButton, &QAbstractButton::pressed, this, &LayerEditor::onShowAllLayers);
-            connect(m_moveLayerUpButton, &QAbstractButton::pressed, this, &LayerEditor::onMoveLayerUpFromMenu);
-            connect(m_moveLayerDownButton, &QAbstractButton::pressed, this, &LayerEditor::onMoveLayerDownFromMenu);
+            connect(m_hideAllLayersButton, &QAbstractButton::pressed, this, &LayerEditor::onHideAllLayers);
+            connect(m_moveLayerUpButton, &QAbstractButton::pressed, this, [=](){
+                Model::Layer* layer = m_layerList->selectedLayer();
+                moveLayer(layer, -1);
+            });
+            connect(m_moveLayerDownButton, &QAbstractButton::pressed, this, [=](){
+                Model::Layer* layer = m_layerList->selectedLayer();
+                moveLayer(layer, 1);
+            });
 
             auto* buttonSizer = new QHBoxLayout();
             buttonSizer->addWidget(m_addLayerButton);
             buttonSizer->addWidget(m_removeLayerButton);
-            buttonSizer->addWidget(m_showAllLayersButton);
             buttonSizer->addWidget(m_moveLayerUpButton);
             buttonSizer->addWidget(m_moveLayerDownButton);
             buttonSizer->addStretch(1);
+            buttonSizer->addWidget(m_showAllLayersButton);
+            buttonSizer->addWidget(m_hideAllLayersButton);
 
             auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);

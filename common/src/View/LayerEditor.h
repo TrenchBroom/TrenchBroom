@@ -45,6 +45,7 @@ namespace TrenchBroom {
             QAbstractButton* m_addLayerButton;
             QAbstractButton* m_removeLayerButton;
             QAbstractButton* m_showAllLayersButton;
+            QAbstractButton* m_hideAllLayersButton;
             QAbstractButton* m_moveLayerUpButton;
             QAbstractButton* m_moveLayerDownButton;
         public:
@@ -57,15 +58,13 @@ namespace TrenchBroom {
             void onMoveSelectionToLayer();
             bool canMoveSelectionToLayer() const;
 
-            void onToggleLayerVisibleFromMenu();
-            void onToggleLayerVisibleFromList(Model::Layer* layer);
             bool canToggleLayerVisible() const;
             void toggleLayerVisible(Model::Layer* layer);
 
-            void onToggleLayerLockedFromMenu();
-            void onToggleLayerLockedFromList(Model::Layer* layer);
             bool canToggleLayerLocked() const;
             void toggleLayerLocked(Model::Layer* layer);
+
+            void isolateLayer(Model::Layer* layer);
 
             void onSelectAllInLayer();
 
@@ -79,12 +78,7 @@ namespace TrenchBroom {
             bool canRenameLayer() const;
 
             void onShowAllLayers();
-
-            void onMoveLayerUpFromMenu();
-            void onMoveLayerUpFromList(Model::Layer* layer);
-
-            void onMoveLayerDownFromMenu();
-            void onMoveLayerDownFromList(Model::Layer* layer);
+            void onHideAllLayers();
 
             bool canMoveLayer(int direction) const;
             void moveLayer(Model::Layer* layer, int direction);
