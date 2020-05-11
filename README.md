@@ -59,11 +59,11 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 - All help is appreciated!
 
 # Credits
-- [wxWidgets](https://www.wxwidgets.org/)
+- [Qt](https://www.qt.io/)
 - [FreeType](https://www.freetype.org/)
 - [FreeImage](http://freeimage.sourceforge.net/)
 - [GLEW](http://glew.sourceforge.net/)
-- [GoogleTest](https://github.com/google/googletest)
+- [Catch2](https://github.com/catchorg/Catch2)
 - [CMake](https://cmake.org/)
 - [Pandoc](https://www.pandoc.org/)
 - Quake icons by [Th3 ProphetMan](https://www.deviantart.com/th3-prophetman)
