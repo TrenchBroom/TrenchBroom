@@ -1050,6 +1050,41 @@ namespace TrenchBroom {
             }
             menu.addSeparator();
 
+            // Layer operations
+
+            const std::vector<Model::Layer*> selectedObjectLayers = Model::findLayers(nodes);
+
+            QMenu* moveSelectionTo = menu.addMenu(tr("Move Selection to Layer"));
+            for (Model::Layer* layer : document->world()->allLayersUserSorted()) {
+                QAction* moveToLayer = moveSelectionTo->addAction(QString::fromStdString(layer->name()));
+                connect(moveToLayer, &QAction::triggered, this, [](){
+
+                });
+            }
+
+            if (selectedObjectLayers.size() == 1u) {
+                Model::Layer* layer = selectedObjectLayers[0];
+                unused(menu.addAction(tr("Make Layer %1 Active").arg(QString::fromStdString(layer->name())), this, [](){
+
+                }));
+            } else {
+                QMenu* makeLayerActive = menu.addMenu(tr("Make Selection Layer Active"));
+                for (Model::Layer* layer : selectedObjectLayers) {
+                    unused(makeLayerActive->addAction(QString::fromStdString(layer->name()), this, [](){
+
+                    }));
+                }
+            }
+
+            unused(menu.addAction(tr("Hide Selected Object Layers"), this, [](){
+
+            }));
+            unused(menu.addAction(tr("Isolate Selected Object Layers"), this, [](){
+
+            }));
+
+            menu.addSeparator();
+
             if (document->selectedNodes().hasOnlyBrushes()) {
                 QAction* moveToWorldAction = menu.addAction(tr("Make Structural"), this, &MapViewBase::makeStructural);
                 moveToWorldAction->setEnabled(canMakeStructural());

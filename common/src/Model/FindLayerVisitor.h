@@ -34,6 +34,7 @@ namespace TrenchBroom {
         };
 
         Model::Layer* findLayer(Model::Node* node);
+        std::vector<Model::Layer*> findLayers(const std::vector<Model::Node*>& nodes);
     }
 }
 

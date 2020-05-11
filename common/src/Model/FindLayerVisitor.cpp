@@ -21,6 +21,8 @@
 
 #include "Model/Node.h"
 
+#include <kdl/vector_set.h>
+
 namespace TrenchBroom {
     namespace Model {
         void FindLayerVisitor::doVisit(World*) {}
@@ -38,6 +40,20 @@ namespace TrenchBroom {
             FindLayerVisitor visitor;
             node->acceptAndEscalate(visitor);
             return visitor.result();
+        }
+
+        std::vector<Model::Layer*> findLayers(const std::vector<Model::Node*>& nodes) {
+            kdl::vector_set<Model::Layer*> layersSet;
+            for (Model::Node* node : nodes) {
+                Model::Layer* layer = findLayer(node);
+                if (layer != nullptr) {
+                    layersSet.insert(layer);
+                }
+            }
+
+            std::vector<Model::Layer*> layers = layersSet.release_data();
+            Layer::sortLayers(layers);
+            return layers;
         }
     }
 }

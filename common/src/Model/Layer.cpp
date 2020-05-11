@@ -30,6 +30,7 @@
 
 #include <limits>
 #include <string>
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace Model {
@@ -79,6 +80,12 @@ namespace TrenchBroom {
 
         void Layer::setSortIndex(int index) {
             addOrUpdateAttribute(AttributeNames::LayerSortIndex, std::to_string(index));
+        }
+
+        void Layer::sortLayers(std::vector<Layer*>& layers)  {
+            std::stable_sort(layers.begin(), layers.end(), [](Layer* a, Layer* b) {
+                return a->sortIndex() < b->sortIndex();
+            });
         }
 
         const std::string& Layer::doGetName() const {

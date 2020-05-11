@@ -53,6 +53,8 @@ namespace TrenchBroom {
             int sortIndex() const;
             void setSortIndex(int index);
 
+            static void sortLayers(std::vector<Layer*>& layers);
+
             std::optional<Color> groupColor() const;
             void setGroupColor(const Color& color);
         private: // implement Node interface

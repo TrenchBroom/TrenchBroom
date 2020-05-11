@@ -73,11 +73,15 @@ namespace TrenchBroom {
             return visitor.layers();
         }
 
+        std::vector<Layer*> World::allLayersUserSorted() const {
+            std::vector<Layer*> result = allLayers();
+            Layer::sortLayers(result);
+            return result;
+        }
+
         std::vector<Layer*> World::customLayersUserSorted() const {
             std::vector<Layer*> result = customLayers();
-            std::stable_sort(result.begin(), result.end(), [](Layer* a, Layer* b) {
-                return a->sortIndex() < b->sortIndex();
-            });
+            Layer::sortLayers(result);
             return result;
         }
 

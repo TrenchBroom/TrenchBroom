@@ -55,11 +55,18 @@ namespace TrenchBroom {
             ~World() override;
         public: // layer management
             Layer* defaultLayer() const;
+            /**
+             * Returns all layers in file order
+             */
             std::vector<Layer*> allLayers() const;
             /**
              * Returns the custom layers in file order
              */
             std::vector<Layer*> customLayers() const;
+            /**
+             * Returns all layers (default and custom) layers ordered by Layer::sortIndex(). The default layer is always first.
+             */
+            std::vector<Layer*> allLayersUserSorted() const;
             /**
              * Returns the custom layers ordered by Layer::sortIndex()
              */
