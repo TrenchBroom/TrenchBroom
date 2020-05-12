@@ -93,7 +93,17 @@ namespace TrenchBroom {
                  merge them again if they are coplanar.
                  */
                 for (const Edge* edge : e.splitFaces()) {
+                    Vertex* vertex1 = edge->firstVertex();
+                    Vertex* vertex2 = edge->secondVertex();
                     mergeNeighbours(edge->firstEdge(), nullptr);
+                    
+                    // Remove the newly inserted vertices and edges, too.
+                    if (vertex1->hasTwoIncidentEdges()) {
+                        mergeIncidentEdges(vertex1);
+                    }
+                    if (vertex2->hasTwoIncidentEdges()) {
+                        mergeIncidentEdges(vertex2);
+                    }
                 }
                 assert(checkInvariant());
 
@@ -215,7 +225,7 @@ namespace TrenchBroom {
                 Edge* seamEdge = currentEdge->edge();
                 seamEdge->makeSecondEdge(currentEdge);
 
-                if (faceWasSplit) {
+                if (faceWasSplit && currentEdge->destination() != stopVertex) {
                     splitFaces.push_back(seamEdge);
                 }
                 

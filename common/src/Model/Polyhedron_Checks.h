@@ -27,6 +27,12 @@ namespace TrenchBroom {
              if (!checkConvex())
              return false;
              */
+            if (!checkComponentCounts())
+                return false;
+            if (!checkEulerCharacteristic())
+                return false;
+            if (!checkVertices())
+                return false;
             if (!checkFaceBoundaries())
                 return false;
             if (!checkFaceNeighbours())
@@ -34,8 +40,6 @@ namespace TrenchBroom {
             if (!checkOverlappingFaces())
                 return false;
             if (!checkVertexLeavingEdges())
-                return false;
-            if (!checkEulerCharacteristic())
                 return false;
             if (!checkClosed())
                 return false;
@@ -51,12 +55,53 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
+        bool Polyhedron<T,FP,VP>::checkComponentCounts() const {
+            if (vertexCount() == 0u && edgeCount() == 0u && faceCount() == 0u)
+                return true; // empty
+            if (vertexCount() == 1u && edgeCount() == 0u && faceCount() == 0u)
+                return true; // point
+            if (vertexCount() == 2u && edgeCount() == 1u && faceCount() == 0u)
+                return true; // edge
+            if (vertexCount() >= 3u && edgeCount() >= 3u && faceCount() == 1u)
+                return true; // polygon
+            if (vertexCount() >= 4u && edgeCount() >= 6u && faceCount() >= 4u)
+                return true; // polyhedron
+            return false;
+        }
+
+        template <typename T, typename FP, typename VP>
         bool Polyhedron<T,FP,VP>::checkEulerCharacteristic() const {
             if (!polyhedron())
                 return true;
 
             // See https://en.m.wikipedia.org/wiki/Euler_characteristic
             return vertexCount() + faceCount() - edgeCount() == 2;
+        }
+
+        template <typename T, typename FP, typename VP>
+        bool Polyhedron<T,FP,VP>::checkVertices() const {
+            const auto countIncidentEdges = [](const Vertex* vertex) -> size_t {
+                if (vertex->leaving() == nullptr) {
+                    return 0u;
+                }
+
+                size_t count = 0u;
+                HalfEdge* halfEdge = vertex->leaving();
+                do {
+                    ++count;
+                    halfEdge = halfEdge->nextIncident();
+                } while (halfEdge != vertex->leaving());
+                return count;
+            };
+
+            if (polyhedron()) {
+                for (const Vertex* vertex : m_vertices) {
+                    if (countIncidentEdges(vertex) < 3u) {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
         template <typename T, typename FP, typename VP>
@@ -68,8 +113,7 @@ namespace TrenchBroom {
             for (auto it1 = std::begin(m_faces), end = std::end(m_faces); it1 != end; ++it1) {
                 for (auto it2 = std::next(it1); it2 != end; ++it2) {
                     const std::size_t sharedVertexCount = (*it1)->countSharedVertices(*it2);
-                    if (sharedVertexCount == (*it1)->vertexCount() ||
-                        sharedVertexCount == (*it2)->vertexCount()) {
+                    if (sharedVertexCount > 2u) {
                         return false;
                     }
                 }

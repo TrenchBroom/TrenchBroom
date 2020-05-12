@@ -2056,7 +2056,9 @@ namespace TrenchBroom {
             /* ====================== Implementation in Polyhedron_Checks.h ====================== */
         private: // invariants and checks
             bool checkInvariant() const;
+            bool checkComponentCounts() const;
             bool checkEulerCharacteristic() const;
+            bool checkVertices() const;
             bool checkOverlappingFaces() const;
             bool checkFaceBoundaries() const;
             bool checkFaceNeighbours() const;
