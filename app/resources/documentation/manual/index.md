@@ -2152,7 +2152,9 @@ The following package formats are supported.
 
 Format       Description
 ------       -----------
-idpak        Id pak file, used by Quake, Quake 2, Hexen 2
+idpak        Id pak file
+dkpak        Daikatana pak file
+zip          Zip file, often uses other extensions such as pk3
 
 #### Texture Configurations
 
