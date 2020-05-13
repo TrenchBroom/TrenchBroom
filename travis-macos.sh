@@ -2,7 +2,7 @@
 
 set -o verbose
 
-brew update
+brew update > /dev/null # Discard stdout, otherwise this spams ~3000 lines to the log
 brew install cmake p7zip pandoc cppcheck qt5 ninja
 
 # Sometimes homebrew complains that cmake is already installed, but we need the latest version.
