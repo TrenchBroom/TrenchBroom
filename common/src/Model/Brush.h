@@ -313,6 +313,7 @@ namespace TrenchBroom {
         public:
             void initializeTags(TagManager& tagManager) override;
             void clearTags() override;
+            void updateTags(TagManager& tagManager) override;
 
             /**
              * Indicates whether all of the faces of this brush have any of the given tags.
