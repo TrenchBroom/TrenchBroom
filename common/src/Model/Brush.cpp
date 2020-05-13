@@ -1549,6 +1549,13 @@ namespace TrenchBroom {
             Taggable::clearTags();
         }
 
+        void Brush::updateTags(TagManager& tagManager) {
+            for (auto* face : m_faces) {
+                face->updateTags(tagManager);
+            }
+            Taggable::updateTags(tagManager);
+        }
+
         bool Brush::allFacesHaveAnyTagInMask(TagType::Type tagMask) const {
             // Possible optimization: Store the shared face tag mask in the brush and updated it when a face changes.
 
