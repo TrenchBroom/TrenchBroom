@@ -151,6 +151,11 @@ namespace TrenchBroom {
             void setPayload(typename VP::Type payload);
 
             /**
+             * Indicates whether this vertex has exactly two incident edges.
+             */
+            bool hasTwoIncidentEdges() const;
+            
+            /**
              * Indicates whether the given face is incident to this vertex.
              *
              * @param face the face to check, must not be null
