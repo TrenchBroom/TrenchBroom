@@ -378,6 +378,8 @@ namespace TrenchBroom {
             document->select(brush1);
 
             document->setTexture(nullptr, false);
+
+            CHECK(brush1->faces().at(0u)->textureName() == Model::BrushFaceAttributes::NoTextureName);
         }
 
         ValveMapDocumentTest::ValveMapDocumentTest() :
