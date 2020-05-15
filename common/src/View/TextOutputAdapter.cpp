@@ -26,80 +26,70 @@
 #include <string>
 
 #include <QTextEdit>
+#include <QScrollBar>
 
 namespace TrenchBroom {
     namespace View {
-        TextOutputAdapter::TextOutputAdapter(QTextEdit* textEdit) :
-        m_textEdit(textEdit),
-        m_lastNewLine(0) {
-            ensure(m_textEdit != nullptr, "textEdit is null");
+        TextOutputAdapter::TextOutputAdapter(QTextEdit* textEdit) {
+            ensure(textEdit != nullptr, "textEdit is null");
+            m_textEdit = textEdit;
+            m_textDocument = textEdit->document();
+
+            m_insertionCursor = QTextCursor(m_textDocument);
+            m_insertionCursor.movePosition(QTextCursor::End);
         }
+        
+        void TextOutputAdapter::appendString(const QString& string) {
+            QScrollBar* bar = m_textEdit->verticalScrollBar();
+            const bool wasAtBottom = (bar->value() >= bar->maximum());
+            qDebug() << "was at bot " << wasAtBottom;
 
-        void TextOutputAdapter::appendString(const std::string& str) {
-            const auto cStr = compressString(str);
-            if (!cStr.empty()) {
-                DisableWindowUpdates disableUpdates(m_textEdit);
+            const int size = string.size();
 
-                size_t l = 0;
-                for (size_t i = 0; i < cStr.length(); ++i) {
-                    const auto c = cStr[i];
-                    const auto n = i < cStr.length() - 1 ? cStr[i + 1] : 0;
-                    if (c == '\r' && n == '\n') {
-                        continue;
-                    } else if (c == '\r') {
-                        const auto from = m_lastNewLine;
-                        const auto to = m_textEdit->textCursor().position();
+            for (int i = 0; i < size; ++i) {
+                const QChar c = string[i];
+                const QChar n = (i + 1) < size ? string[i + 1] : static_cast<QChar>(0);
 
-                        QTextCursor cursor(m_textEdit->document());
-                        cursor.clearSelection();
-                        cursor.setPosition(from, QTextCursor::MoveAnchor);
-                        cursor.setPosition(to, QTextCursor::KeepAnchor);
-                        cursor.removeSelectedText();
-                        l = i;
-                    } else if (c == '\n') {
-                        const auto text = cStr.substr(l, i - l + 1);
-                        appendToTextEdit(text);
-                        m_lastNewLine = m_textEdit->textCursor().position();
-                        l = i+1;
+                // handle CRLF by advancing to the LF, which is handled below
+                if (c == '\r' && n == '\n') {                    
+                    continue;
+                }
+                // handle LF
+                if (c == '\n') {
+                    m_insertionCursor.movePosition(QTextCursor::End);
+                    m_insertionCursor.insertBlock();
+                    continue;
+                }
+                // handle CR, next character not LF
+                if (c == '\r') {
+                    m_insertionCursor.movePosition(QTextCursor::StartOfLine);
+                    continue;
+                }
+
+                // insert a literal string
+                int last = i;
+                for (int j = i; j < size; ++j) {
+                    const QChar charJ = string[j];
+                    if (charJ != '\r' && charJ != '\n') {
+                        last = j;
+                    } else {
+                        break;
                     }
                 }
-                appendToTextEdit(cStr.substr(l));
-            }
-        }
-
-        std::string TextOutputAdapter::compressString(const std::string& str) {
-            std::string fullStr = m_remainder + str;
-            std::stringstream result;
-            size_t chunkStart = 0;
-            size_t previousChunkStart = 0;
-            for (size_t i = 0; i < fullStr.length(); ++i) {
-                const auto c = fullStr[i];
-                const auto n = i < fullStr.length() - 1 ? fullStr[i+1] : 0;
-                if (c == '\r' && n == '\n') {
-                    continue;
-                } else if (c == '\r') {
-                    previousChunkStart = chunkStart;
-                    chunkStart = i;
-                } else if (c == '\n') {
-                    result << fullStr.substr(chunkStart, i - chunkStart + 1);
-                    chunkStart = previousChunkStart = i+1;
+                const int insertionSize = last - i + 1;
+                const QString substr = string.mid(i, insertionSize);
+                if (!m_insertionCursor.atEnd()) {
+                    m_insertionCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, insertionSize);
                 }
+                m_insertionCursor.insertText(substr);
+                i = last;
             }
-            if (previousChunkStart < chunkStart) {
-                const auto chunk = fullStr.substr(previousChunkStart, chunkStart - previousChunkStart);
-                result << chunk;
-            }
-            m_remainder = fullStr.substr(chunkStart);
-            return result.str();
-        }
 
-        void TextOutputAdapter::appendToTextEdit(const std::string& str) {
-            QTextCursor cursor(m_textEdit->document());
-            cursor.clearSelection();
-            cursor.movePosition(QTextCursor::MoveOperation::End);
-            cursor.insertText(QString::fromStdString(str));
-            cursor.movePosition(QTextCursor::MoveOperation::End);
-            m_textEdit->ensureCursorVisible();
+            if (wasAtBottom) {
+                m_textEdit->verticalScrollBar()->setValue(m_textEdit->verticalScrollBar()->maximum());
+                //m_textEdit->moveCursor(QTextCursor::End);
+                //m_textEdit->ensureCursorVisible();
+            }
         }
     }
 }

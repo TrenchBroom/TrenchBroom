@@ -22,9 +22,14 @@
 
 #include <kdl/string_utils.h>
 
+#include <QTextCursor>
+#include <QString>
+#include <QByteArray>
+
 #include <string>
 
 class QTextEdit;
+class QStringRef;
 
 namespace TrenchBroom {
     namespace View {
@@ -35,8 +40,8 @@ namespace TrenchBroom {
         class TextOutputAdapter {
         private:
             QTextEdit* m_textEdit;
-            int m_lastNewLine;
-            std::string m_remainder;
+            QTextDocument* m_textDocument;
+            QTextCursor m_insertionCursor;
         public:
             explicit TextOutputAdapter(QTextEdit* textEdit);
 
@@ -61,36 +66,11 @@ namespace TrenchBroom {
              */
             template <typename T>
             TextOutputAdapter& append(const T& t) {
-                appendString(kdl::str_to_string(t));
+                appendString(QString::fromLocal8Bit(QByteArray::fromStdString(kdl::str_to_string(t))));
                 return *this;
             }
         private:
-            /**
-             * Appends the given string. The string is first compressed, then the remainder is interpreted again in case
-             * any control characters could not be interpreted without considering the previously appended strings. In
-             * such a case, the contents of the text control are updated according to the control characters, and the
-             * string itself is appended to the text widget.
-             *
-             * @param str the string to append
-             */
-            void appendString(const std::string& str);
-
-            /**
-             * Interprets some control characters in the given string line by line. If the string ends with an
-             * unterminated line portion, then that remainder is stored in the member varable m_remainder. The next
-             * time this function is invoked, the remainder is preprended to the given string.
-             *
-             * @param str the string to compress
-             * @return the compressed string
-             */
-            std::string compressString(const std::string& str);
-
-            /**
-             * Appends the given string to the contents of the QTextEdit widget.
-             *
-             * @param str the string to append
-             */
-            void appendToTextEdit(const std::string& str);
+            void appendString(const QString& str);
         };
     }
 }
