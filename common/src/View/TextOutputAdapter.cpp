@@ -20,75 +20,79 @@
 #include "TextOutputAdapter.h"
 
 #include "Ensure.h"
-#include "View/QtUtils.h"
 
-#include <sstream>
 #include <string>
 
 #include <QTextEdit>
 #include <QScrollBar>
+#include <QString>
+#include <QByteArray>
 
 namespace TrenchBroom {
     namespace View {
         TextOutputAdapter::TextOutputAdapter(QTextEdit* textEdit) {
             ensure(textEdit != nullptr, "textEdit is null");
             m_textEdit = textEdit;
-            m_textDocument = textEdit->document();
 
-            m_insertionCursor = QTextCursor(m_textDocument);
+            // Create our own private cursor, separate from the UI cursor
+            // so user selections don't interfere with our text insertions
+            m_insertionCursor = QTextCursor(m_textEdit->document());
             m_insertionCursor.movePosition(QTextCursor::End);
         }
-        
+
+        void TextOutputAdapter::appendStdString(const std::string& string) {
+            appendString(QString::fromLocal8Bit(QByteArray::fromStdString(string)));
+        }
+
         void TextOutputAdapter::appendString(const QString& string) {
-            QScrollBar* bar = m_textEdit->verticalScrollBar();
-            const bool wasAtBottom = (bar->value() >= bar->maximum());
-            qDebug() << "was at bot " << wasAtBottom;
+            QScrollBar* scrollBar = m_textEdit->verticalScrollBar();
+            const bool wasAtBottom = (scrollBar->value() >= scrollBar->maximum());
 
             const int size = string.size();
-
             for (int i = 0; i < size; ++i) {
                 const QChar c = string[i];
                 const QChar n = (i + 1) < size ? string[i + 1] : static_cast<QChar>(0);
 
-                // handle CRLF by advancing to the LF, which is handled below
+                // Handle CRLF by advancing to the LF, which is handled below
                 if (c == '\r' && n == '\n') {                    
                     continue;
                 }
-                // handle LF
+                // Handle LF
                 if (c == '\n') {
                     m_insertionCursor.movePosition(QTextCursor::End);
                     m_insertionCursor.insertBlock();
                     continue;
                 }
-                // handle CR, next character not LF
+                // Handle CR, next character not LF
                 if (c == '\r') {
                     m_insertionCursor.movePosition(QTextCursor::StartOfLine);
                     continue;
                 }
 
-                // insert a literal string
-                int last = i;
+                // Insert characters from index i, up to but excluding the next
+                // CR or LF, as a literal string
+                int lastToInsert = i;
                 for (int j = i; j < size; ++j) {
                     const QChar charJ = string[j];
-                    if (charJ != '\r' && charJ != '\n') {
-                        last = j;
-                    } else {
+                    if (charJ == '\r' || charJ == '\n') {
                         break;
                     }
+                    lastToInsert = j;
                 }
-                const int insertionSize = last - i + 1;
-                const QString substr = string.mid(i, insertionSize);
+                const int insertionSize = lastToInsert - i + 1;
+                const QString substring = string.mid(i, insertionSize);
                 if (!m_insertionCursor.atEnd()) {
+                    // This means a CR was previously used. We need to select
+                    // the same number of characters as we're inserting, so the
+                    // text is overwritten.
                     m_insertionCursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, insertionSize);
                 }
-                m_insertionCursor.insertText(substr);
-                i = last;
+                m_insertionCursor.insertText(substring);
+                i = lastToInsert;
             }
 
             if (wasAtBottom) {
                 m_textEdit->verticalScrollBar()->setValue(m_textEdit->verticalScrollBar()->maximum());
-                //m_textEdit->moveCursor(QTextCursor::End);
-                //m_textEdit->ensureCursorVisible();
             }
         }
     }

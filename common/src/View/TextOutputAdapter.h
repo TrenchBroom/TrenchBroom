@@ -20,57 +20,49 @@
 #ifndef TextCtrlOutputAdapter_h
 #define TextCtrlOutputAdapter_h
 
-#include <kdl/string_utils.h>
-
 #include <QTextCursor>
-#include <QString>
-#include <QByteArray>
 
+#include <sstream>
 #include <string>
 
 class QTextEdit;
-class QStringRef;
+class QString;
 
 namespace TrenchBroom {
     namespace View {
         /**
-         * Adapts a QTextEdit to the requirements of displaying the output of a command line tool, specifically
-         * interpreting selected control characters.
+         * Helper for displaying the output of a command line tool in QTextEdit.
+         *
+         * - Interprets CR and LF control characters.
+         * - Scroll bar follows output, unless it's manually raised.
          */
         class TextOutputAdapter {
         private:
             QTextEdit* m_textEdit;
-            QTextDocument* m_textDocument;
             QTextCursor m_insertionCursor;
         public:
             explicit TextOutputAdapter(QTextEdit* textEdit);
 
             /**
              * Appends the given value to the text widget.
-             *
-             * @tparam T the type of the value to append
-             * @param t the value to append
-             * @return a reference to this output adapter
+             * Objects are formatted using std::stringstream.
+             * 8-bit to Unicode conversion is performed with QString::fromLocal8Bit.
              */
             template <typename T>
             TextOutputAdapter& operator<<(const T& t) {
-                return append(t);
-            }
-
-            /**
-             * Appends the given value to the text widget.
-             *
-             * @tparam T the type of the value to append
-             * @param t the value to append
-             * @return a reference to this output adapter
-             */
-            template <typename T>
-            TextOutputAdapter& append(const T& t) {
-                appendString(QString::fromLocal8Bit(QByteArray::fromStdString(kdl::str_to_string(t))));
+                append(t);
                 return *this;
             }
         private:
-            void appendString(const QString& str);
+            template <typename T>
+            void append(const T& t) {
+                std::stringstream s;
+                s << t;
+                appendStdString(s.str());
+            }
+
+            void appendStdString(const std::string& string);
+            void appendString(const QString& string);
         };
     }
 }
