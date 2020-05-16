@@ -677,11 +677,7 @@ namespace TrenchBroom {
         }
 
         std::string StandardMapParser::parseTextureName(ParserStatus& /* status */) {
-            auto textureName = m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace());
-            if (textureName == Model::BrushFaceAttributes::NoTextureName) {
-                textureName = "";
-            }
-            return textureName;
+            return m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace());
         }
 
         std::tuple<vm::vec3, float, vm::vec3, float> StandardMapParser::parseValveTextureAxes(ParserStatus& /* status */) {
