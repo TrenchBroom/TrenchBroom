@@ -20,77 +20,49 @@
 #ifndef TextCtrlOutputAdapter_h
 #define TextCtrlOutputAdapter_h
 
-#include <kdl/string_utils.h>
+#include <QTextCursor>
 
+#include <sstream>
 #include <string>
 
 class QTextEdit;
+class QString;
 
 namespace TrenchBroom {
     namespace View {
         /**
-         * Adapts a QTextEdit to the requirements of displaying the output of a command line tool, specifically
-         * interpreting selected control characters.
+         * Helper for displaying the output of a command line tool in QTextEdit.
+         *
+         * - Interprets CR and LF control characters.
+         * - Scroll bar follows output, unless it's manually raised.
          */
         class TextOutputAdapter {
         private:
             QTextEdit* m_textEdit;
-            int m_lastNewLine;
-            std::string m_remainder;
+            QTextCursor m_insertionCursor;
         public:
             explicit TextOutputAdapter(QTextEdit* textEdit);
 
             /**
              * Appends the given value to the text widget.
-             *
-             * @tparam T the type of the value to append
-             * @param t the value to append
-             * @return a reference to this output adapter
+             * Objects are formatted using std::stringstream.
+             * 8-bit to Unicode conversion is performed with QString::fromLocal8Bit.
              */
             template <typename T>
             TextOutputAdapter& operator<<(const T& t) {
-                return append(t);
-            }
-
-            /**
-             * Appends the given value to the text widget.
-             *
-             * @tparam T the type of the value to append
-             * @param t the value to append
-             * @return a reference to this output adapter
-             */
-            template <typename T>
-            TextOutputAdapter& append(const T& t) {
-                appendString(kdl::str_to_string(t));
+                append(t);
                 return *this;
             }
         private:
-            /**
-             * Appends the given string. The string is first compressed, then the remainder is interpreted again in case
-             * any control characters could not be interpreted without considering the previously appended strings. In
-             * such a case, the contents of the text control are updated according to the control characters, and the
-             * string itself is appended to the text widget.
-             *
-             * @param str the string to append
-             */
-            void appendString(const std::string& str);
+            template <typename T>
+            void append(const T& t) {
+                std::stringstream s;
+                s << t;
+                appendStdString(s.str());
+            }
 
-            /**
-             * Interprets some control characters in the given string line by line. If the string ends with an
-             * unterminated line portion, then that remainder is stored in the member varable m_remainder. The next
-             * time this function is invoked, the remainder is preprended to the given string.
-             *
-             * @param str the string to compress
-             * @return the compressed string
-             */
-            std::string compressString(const std::string& str);
-
-            /**
-             * Appends the given string to the contents of the QTextEdit widget.
-             *
-             * @param str the string to append
-             */
-            void appendToTextEdit(const std::string& str);
+            void appendStdString(const std::string& string);
+            void appendString(const QString& string);
         };
     }
 }

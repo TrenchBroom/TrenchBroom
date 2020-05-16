@@ -202,15 +202,15 @@ namespace TrenchBroom {
 
         void CompilationRunToolTaskRunner::processReadyReadStandardError() {
             if (m_process != nullptr) {
-                const auto str = QString::fromLocal8Bit(m_process->readAllStandardError());
-                m_context << str.toStdString();
+                const QByteArray bytes = m_process->readAllStandardError();
+                m_context << bytes.toStdString();
             }
         }
 
         void CompilationRunToolTaskRunner::processReadyReadStandardOutput() {
             if (m_process != nullptr) {
-                const auto str = QString::fromLocal8Bit(m_process->readAllStandardOutput());
-                m_context << str.toStdString();
+                const QByteArray bytes = m_process->readAllStandardOutput();
+                m_context << bytes.toStdString();
             }
         }
 
