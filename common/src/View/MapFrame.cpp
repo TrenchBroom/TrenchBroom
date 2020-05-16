@@ -334,9 +334,6 @@ namespace TrenchBroom {
             auto* frameLayout = new QVBoxLayout();
             frameLayout->setContentsMargins(0, 0, 0, 0);
             frameLayout->setSpacing(0); // no space between BorderLine and m_hSplitter
-#if !defined __APPLE__
-            frameLayout->addWidget(new BorderLine());
-#endif
             frameLayout->addWidget(m_hSplitter);
 
             // NOTE: you can't set the layout of a QMainWindow, so make another widget to wrap this layout in
@@ -915,7 +912,7 @@ namespace TrenchBroom {
                 str = m_document->serializeSelectedBrushFaces();
             }
 
-            clipboard->setText(QString::fromStdString(str));
+            clipboard->setText(mapStringToUnicode(m_document->encoding(), str));
         }
 
         bool MapFrame::canCutSelection() const {
@@ -960,7 +957,7 @@ namespace TrenchBroom {
                 return PasteType::Failed;
             }
 
-            return m_document->paste(qtext.toStdString());
+            return m_document->paste(mapStringFromUnicode(m_document->encoding(), qtext));
         }
 
         /**

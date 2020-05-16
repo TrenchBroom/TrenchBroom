@@ -31,6 +31,7 @@
 #include <QObject>
 #include <QPointer>
 #include <QSettings>
+#include <QString>
 #include <QStringList>
 #include <QWidget>
 
@@ -50,12 +51,15 @@ class QSlider;
 class QSplitter;
 class QString;
 class QTableView;
+class QVBoxLayout;
 class QWidget;
 
 namespace TrenchBroom {
     class Color;
 
     namespace View {
+        enum class MapTextEncoding;
+
         class DisableWindowUpdates {
         private:
             QWidget* m_widget;
@@ -184,10 +188,17 @@ namespace TrenchBroom {
 
         void setDefaultWindowColor(QWidget* widget);
         void setBaseWindowColor(QWidget* widget);
+        void setHighlightWindowColor(QWidget* widget);
 
         QLineEdit* createSearchBox();
 
         void checkButtonInGroup(QButtonGroup* group, int id, bool checked);
+
+        /**
+         * Insert a separating line as the first item in the given layout on platforms where
+         * this is necessary.
+         */
+        void insertTitleBarSeparator(QVBoxLayout* layout);
 
         template <typename I>
         QStringList toQStringList(I cur, I end) {
@@ -213,6 +224,9 @@ namespace TrenchBroom {
         void deleteChildWidgetsLaterAndDeleteLayout(QWidget* widget);
 
         void showModelessDialog(QDialog* dialog);
+
+        QString mapStringToUnicode(MapTextEncoding encoding, const std::string& string);
+        std::string mapStringFromUnicode(MapTextEncoding encoding, const QString& string);
     }
 }
 

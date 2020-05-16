@@ -105,6 +105,8 @@ namespace TrenchBroom {
             dialogLayout->setSpacing(0);
             dialogLayout->addWidget(splitter, 1);
             dialogLayout->addLayout(wrapDialogButtonBox(buttonLayout));
+            insertTitleBarSeparator(dialogLayout);
+
             setLayout(dialogLayout);
 
             connect(&m_run, &CompilationRun::compilationStarted, this, &CompilationDialog::compilationStarted);

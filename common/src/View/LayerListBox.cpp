@@ -103,8 +103,8 @@ namespace TrenchBroom {
             m_hiddenButton->setChecked(m_layer->hidden());
 
             auto document = kdl::mem_lock(m_document);
-            m_lockButton->setVisible(m_layer->locked() || m_layer != document->world()->defaultLayer());
-            m_hiddenButton->setVisible(m_layer->hidden() || m_layer != document->world()->defaultLayer());
+            m_lockButton->setVisible(m_layer->locked() || m_layer != document->currentLayer());
+            m_hiddenButton->setVisible(m_layer->hidden() || m_layer != document->currentLayer());
         }
 
         Model::Layer* LayerListBoxWidget::layer() const {
@@ -164,6 +164,7 @@ namespace TrenchBroom {
             document->nodesWereRemovedNotifier.addObserver(this, &LayerListBox::nodesWereAddedOrRemoved);
             document->nodesDidChangeNotifier.addObserver(this, &LayerListBox::nodesDidChange);
             document->nodeVisibilityDidChangeNotifier.addObserver(this, &LayerListBox::nodesDidChange);
+            document->nodeLockingDidChangeNotifier.addObserver(this, &LayerListBox::nodesDidChange);
         }
 
         void LayerListBox::unbindObservers() {
@@ -177,6 +178,7 @@ namespace TrenchBroom {
                 document->nodesWereRemovedNotifier.removeObserver(this, &LayerListBox::nodesWereAddedOrRemoved);
                 document->nodesDidChangeNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
                 document->nodeVisibilityDidChangeNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
+                document->nodeLockingDidChangeNotifier.removeObserver(this, &LayerListBox::nodesDidChange);
             }
         }
 

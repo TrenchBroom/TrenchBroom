@@ -37,7 +37,6 @@ namespace TrenchBroom {
         m_mapInspector(nullptr),
         m_entityInspector(nullptr),
         m_faceInspector(nullptr),
-        m_syncMapViewBarEventFilter(nullptr),
         m_syncTabBarEventFilter(nullptr) {
             m_tabBook = new TabBook();
 
@@ -56,14 +55,10 @@ namespace TrenchBroom {
         }
 
         void Inspector::connectTopWidgets(MapViewBar* mapViewBar) {
-            if (m_syncMapViewBarEventFilter != nullptr) {
-                delete std::exchange(m_syncMapViewBarEventFilter, nullptr);
-            }
             if (m_syncTabBarEventFilter != nullptr) {
                 delete std::exchange(m_syncTabBarEventFilter, nullptr);
             }
 
-            m_syncMapViewBarEventFilter = new SyncHeightEventFilter(m_tabBook->tabBar(), mapViewBar, this);
             m_syncTabBarEventFilter = new SyncHeightEventFilter(mapViewBar, m_tabBook->tabBar(), this);
         }
 

@@ -93,6 +93,7 @@
 #include "View/EntityDefinitionFileCommand.h"
 #include "View/FindPlanePointsCommand.h"
 #include "View/Grid.h"
+#include "View/MapTextEncoding.h"
 #include "View/MapViewConfig.h"
 #include "View/MoveBrushEdgesCommand.h"
 #include "View/MoveBrushFacesCommand.h"
@@ -344,6 +345,10 @@ namespace TrenchBroom {
 
                 documentWasClearedNotifier(this);
             }
+        }
+
+        MapTextEncoding MapDocument::encoding() const {
+            return MapTextEncoding::Quake;
         }
 
         std::string MapDocument::serializeSelectedNodes() {

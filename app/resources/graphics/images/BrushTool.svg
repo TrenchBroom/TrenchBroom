@@ -37,8 +37,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="22.627417"
-     inkscape:cx="2.9477654"
-     inkscape:cy="13.889794"
+     inkscape:cx="-5.5154189"
+     inkscape:cy="13.713017"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -89,57 +89,51 @@
      transform="translate(0,-1028.3623)">
     <path
        style="fill:#7f7f7f;fill-opacity:0.24705882;stroke:#ff7f01;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       d="m 8.5,1031.8623 h 7 l 5,5 v 7 l -5,5 h -7 l -5,-5 v -7 z"
+       d="m 15.5,1031.8623 5,5 v 7 l -12,5 -5,-4 v -9 z"
        id="rect826"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ccccccccc" />
-    <circle
-       style="fill:#ff7f00;fill-opacity:1;stroke:#ff7f00;stroke-width:0.5;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:0, 5.5;stroke-dashoffset:0;stroke-opacity:1"
-       id="path4927-9-1"
-       cx="15.5"
-       cy="1031.8623"
-       r="2" />
-    <circle
+       sodipodi:nodetypes="ccccccc" />
+    <ellipse
        style="fill:#ff7f00;fill-opacity:1;stroke:#ff7f00;stroke-width:0.5;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:0, 5.5;stroke-dashoffset:0;stroke-opacity:1"
        id="path4927-9-1-3"
-       cx="8.5"
-       cy="1031.8623"
-       r="2" />
-    <circle
+       cx="3.5"
+       cy="1035.8623"
+       rx="1.5"
+       ry="1.5000024" />
+    <ellipse
        style="fill:#ff7f00;fill-opacity:1;stroke:#ff7f00;stroke-width:0.5;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:0, 5.5;stroke-dashoffset:0;stroke-opacity:1"
-       id="path4927-9-1-6"
+       id="path4927-9-1-3-3"
        cx="15.5"
-       cy="1048.8623"
-       r="2" />
-    <circle
+       cy="1031.8623"
+       rx="1.5"
+       ry="1.5000024" />
+    <ellipse
        style="fill:#ff7f00;fill-opacity:1;stroke:#ff7f00;stroke-width:0.5;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:0, 5.5;stroke-dashoffset:0;stroke-opacity:1"
-       id="path4927-9-1-3-7"
+       id="path4927-9-1-3-3-6"
+       cx="20.5"
+       cy="1036.8623"
+       rx="1.5"
+       ry="1.5000024" />
+    <ellipse
+       style="fill:#ff7f00;fill-opacity:1;stroke:#ff7f00;stroke-width:0.5;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:0, 5.5;stroke-dashoffset:0;stroke-opacity:1"
+       id="path4927-9-1-3-3-6-7"
+       cx="20.5"
+       cy="1043.8623"
+       rx="1.5"
+       ry="1.5000024" />
+    <ellipse
+       style="fill:#ff7f00;fill-opacity:1;stroke:#ff7f00;stroke-width:0.5;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:0, 5.5;stroke-dashoffset:0;stroke-opacity:1"
+       id="path4927-9-1-3-3-6-7-5"
        cx="8.5"
        cy="1048.8623"
-       r="2" />
-    <circle
+       rx="1.5"
+       ry="1.5000024" />
+    <ellipse
        style="fill:#ff7f00;fill-opacity:1;stroke:#ff7f00;stroke-width:0.5;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:0, 5.5;stroke-dashoffset:0;stroke-opacity:1"
-       id="path4927-9-1-6-5"
-       cx="20.5"
-       cy="1043.8623"
-       r="2" />
-    <circle
-       style="fill:#ff7f00;fill-opacity:1;stroke:#ff7f00;stroke-width:0.5;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:0, 5.5;stroke-dashoffset:0;stroke-opacity:1"
-       id="path4927-9-1-6-3"
-       cx="20.5"
-       cy="1036.8623"
-       r="2" />
-    <circle
-       style="fill:#ff7f00;fill-opacity:1;stroke:#ff7f00;stroke-width:0.5;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:0, 5.5;stroke-dashoffset:0;stroke-opacity:1"
-       id="path4927-9-1-6-5-5"
+       id="path4927-9-1-3-3-6-7-5-3-5"
        cx="3.5"
-       cy="1043.8623"
-       r="2" />
-    <circle
-       style="fill:#ff7f00;fill-opacity:1;stroke:#ff7f00;stroke-width:0.5;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:0, 5.5;stroke-dashoffset:0;stroke-opacity:1"
-       id="path4927-9-1-6-3-6"
-       cx="3.5"
-       cy="1036.8623"
-       r="2" />
+       cy="1044.8623"
+       rx="1.5"
+       ry="1.5000024" />
   </g>
 </svg>

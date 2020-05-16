@@ -27,6 +27,7 @@
 #include "IO/ResourceUtils.h"
 #include "View/BorderLine.h"
 #include "View/MapFrame.h"
+#include "View/MapTextEncoding.h"
 #include "View/ViewConstants.h"
 
 #include <QtGlobal>
@@ -50,7 +51,9 @@
 #include <QStringBuilder>
 #include <QStandardPaths>
 #include <QTableView>
+#include <QTextCodec>
 #include <QToolButton>
+#include <QVBoxLayout>
 #include <QWindow>
 
 // QDesktopWidget was deprecated in Qt 5.10 and we should use QGuiApplication::screenAt in 5.10 and above
@@ -94,8 +97,8 @@ namespace TrenchBroom {
             if (target == m_master && event->type() == QEvent::Resize) {
                 const auto* sizeEvent = static_cast<QResizeEvent*>(event);
                 const auto height = sizeEvent->size().height();
-                if (m_slave->minimumHeight() != height) {
-                    m_slave->setMinimumHeight(height);
+                if (m_slave->height() != height) {
+                    m_slave->setFixedHeight(height);
                 }
                 return false;
             } else {
@@ -396,17 +399,18 @@ namespace TrenchBroom {
         }
 
         void setDefaultWindowColor(QWidget* widget) {
-            auto palette = QPalette();
-            palette.setColor(QPalette::Window, palette.color(QPalette::Normal, QPalette::Window));
             widget->setAutoFillBackground(true);
-            widget->setPalette(palette);
+            widget->setBackgroundRole(QPalette::Window);
         }
 
         void setBaseWindowColor(QWidget* widget) {
-            auto palette = QPalette();
-            palette.setColor(QPalette::Window, palette.color(QPalette::Normal, QPalette::Base));
             widget->setAutoFillBackground(true);
-            widget->setPalette(palette);
+            widget->setBackgroundRole(QPalette::Base);
+        }
+
+        void setHighlightWindowColor(QWidget* widget) {
+            widget->setAutoFillBackground(true);
+            widget->setBackgroundRole(QPalette::Highlight);
         }
 
         QLineEdit* createSearchBox() {
@@ -425,6 +429,13 @@ namespace TrenchBroom {
                 return;
             }
             button->setChecked(checked);
+        }
+
+        void insertTitleBarSeparator(QVBoxLayout* layout) {
+#ifdef _WIN32
+            layout->insertWidget(0, new BorderLine(), 1);
+#endif
+            unused(layout);
         }
 
         AutoResizeRowsEventFilter::AutoResizeRowsEventFilter(QTableView* tableView) :
@@ -461,6 +472,35 @@ namespace TrenchBroom {
             dialog->show();
             dialog->raise();
             dialog->activateWindow();
+        }
+
+        static QTextCodec* codecForEncoding(const MapTextEncoding encoding) {
+            switch (encoding) {
+            case MapTextEncoding::Quake:
+                // Quake uses the full 1-255 range for its bitmap font.
+                // So using a "just assume UTF-8" approach would not work here.
+                // See: https://github.com/kduske/TrenchBroom/issues/3122
+                return QTextCodec::codecForLocale();
+            case MapTextEncoding::Iso88591:
+                return QTextCodec::codecForName("ISO 8859-1");
+            case MapTextEncoding::Utf8:
+                return QTextCodec::codecForName("UTF-8");
+            switchDefault()
+            }
+        }
+
+        QString mapStringToUnicode(const MapTextEncoding encoding, const std::string& string) {
+            QTextCodec* codec = codecForEncoding(encoding);
+            ensure(codec != nullptr, "null codec");
+
+            return codec->toUnicode(QByteArray::fromStdString(string));
+        }
+
+        std::string mapStringFromUnicode(const MapTextEncoding encoding, const QString& string) {
+            QTextCodec* codec = codecForEncoding(encoding);
+            ensure(codec != nullptr, "null codec");
+
+            return codec->fromUnicode(string).toStdString();
         }
     }
 }

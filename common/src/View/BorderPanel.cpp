@@ -20,6 +20,7 @@
 #include "BorderPanel.h"
 
 #include <QPainter>
+#include <QPalette>
 
 #include "View/ViewConstants.h"
 
@@ -28,7 +29,9 @@ namespace TrenchBroom {
         BorderPanel::BorderPanel(const Sides borders, const int thickness, QWidget* parent) :
         QWidget(parent),
         m_borders(borders),
-        m_thickness(thickness) {}
+        m_thickness(thickness) {
+            setForegroundRole(QPalette::Mid);
+        }
 
         void BorderPanel::paintEvent(QPaintEvent* /*event*/) {
             QPainter painter(this);
@@ -43,7 +46,7 @@ namespace TrenchBroom {
             painter.drawRect(r);
 
             painter.setPen(Qt::NoPen);
-            painter.setBrush(Colors::borderColor());            
+            painter.setBrush(palette().color(foregroundRole()));
             if ((m_borders & LeftSide) != 0) {
                 painter.drawRect(QRectF(r.topLeft(), QSizeF(thickness, r.height())));
             }

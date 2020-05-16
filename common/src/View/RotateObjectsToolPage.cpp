@@ -142,7 +142,7 @@ namespace TrenchBroom {
             layout->addSpacing(LayoutConstants::NarrowHMargin);
             layout->addWidget(text2, 0, Qt::AlignVCenter);
             layout->addSpacing(LayoutConstants::NarrowHMargin);
-            layout->addWidget(m_axis, 0);
+            layout->addWidget(m_axis, 0, Qt::AlignVCenter);
             layout->addSpacing(LayoutConstants::NarrowHMargin);
             layout->addWidget(text3, 0, Qt::AlignVCenter);
             layout->addSpacing(LayoutConstants::NarrowHMargin);

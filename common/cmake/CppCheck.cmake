@@ -32,7 +32,7 @@ else()
 
     list(APPEND CPPCHECK_ARGS
         ${CPPCHECK_COMMON_ARGS}
-        --verbose
+        --quiet
         --error-exitcode=1
         ${COMMON_SOURCE_DIR}
         -i${COMMON_SOURCE_DIR}/Model/AttributableNode.cpp # FIXME: remove once https://github.com/kduske/TrenchBroom/issues/2887 is resolved upstream

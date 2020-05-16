@@ -19,21 +19,23 @@
 
 #include "Splitter.h"
 
-#include "View/ViewConstants.h"
-
 #include <QDebug>
 #include <QPainter>
 #include <QPaintEvent>
 
 namespace TrenchBroom {
     namespace View {
-        void SplitterHandle::paintEvent(QPaintEvent* event) {
-            QPainter painter(this);
-            painter.fillRect(event->rect(), QBrush(Colors::borderColor()));
-        }
+        SplitterHandle::SplitterHandle(const Qt::Orientation orientation, QSplitter* parent) :
+        QSplitterHandle(orientation, parent) {}
 
         QSize SplitterHandle::sizeHint() const {
             return QSize(3, 3);
+        }
+
+        void SplitterHandle::paintEvent(QPaintEvent* event) {
+            QPainter painter(this);
+            painter.setPen(Qt::NoPen);
+            painter.fillRect(event->rect(), QBrush(palette().color(QPalette::Mid)));
         }
 
         Splitter::Splitter(const Qt::Orientation orientation, QWidget* parent) :
