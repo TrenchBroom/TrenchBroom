@@ -98,7 +98,7 @@ namespace TrenchBroom {
             return disabledImage;
         }
         
-        static void addImagePathToIcon(QIcon& icon, const QString& imagePath, const QIcon::State state, const bool invert) {
+        static void addImagePathToIcon(QIcon& icon, const QString& imagePath, const QIcon::State state, const bool invert, const qreal devicePixelRatio) {
             QSvgRenderer svgr(imagePath);
             qDebug() << "image: " << imagePath;
             qDebug() << "valid "  << svgr.isValid();
@@ -106,8 +106,8 @@ namespace TrenchBroom {
             qDebug() << "ds "  << svgr.defaultSize();
             qDebug() << "ds "  << &svgr;
 
-            QImage image(svgr.defaultSize().width() * 2,
-                svgr.defaultSize().height() * 2,
+            QImage image(static_cast<int>(svgr.defaultSize().width() * devicePixelRatio),
+                static_cast<int>(svgr.defaultSize().height() * devicePixelRatio),
                 QImage::Format_ARGB32_Premultiplied);
             image.fill(Qt::transparent);
             
@@ -117,7 +117,7 @@ namespace TrenchBroom {
                 svgr.render(&paint);
             }
 
-            image.setDevicePixelRatio(2.0);
+            image.setDevicePixelRatio(devicePixelRatio);
 
             //auto image = QImage(imagePath);
             if (image.isNull()) {
@@ -161,10 +161,13 @@ namespace TrenchBroom {
                 const auto imagePathString = imagePathToString(imagePath);
 
                 if (!onPath.isEmpty() && !offPath.isEmpty()) {
-                    addImagePathToIcon(result, onPath, QIcon::On, darkTheme);
-                    addImagePathToIcon(result, offPath, QIcon::Off, darkTheme);
+                    addImagePathToIcon(result, onPath, QIcon::On, darkTheme,   1.0);
+                    addImagePathToIcon(result, onPath, QIcon::On, darkTheme,   2.0);
+                    addImagePathToIcon(result, offPath, QIcon::Off, darkTheme, 1.0);
+                    addImagePathToIcon(result, offPath, QIcon::Off, darkTheme, 2.0);
                 } else if (!imagePathString.isEmpty()) {
-                    addImagePathToIcon(result, imagePathString, QIcon::Off, darkTheme);
+                    addImagePathToIcon(result, imagePathString, QIcon::Off, darkTheme, 1.0);
+                    addImagePathToIcon(result, imagePathString, QIcon::Off, darkTheme, 2.0);
                 } else {
                     qWarning() << "Couldn't find image for path: " << pathAsQString(imagePath);
                 }

@@ -374,6 +374,10 @@ namespace TrenchBroom {
             m_toolBar->setObjectName("MapFrameToolBar");
             m_toolBar->setFloatable(false);
             m_toolBar->setMovable(false);
+            // macOS Qt bug: with the 32x32 default icon size, 24x24 highdpi icons get scaled up to 32x32.
+            // We expect them to be drawn at 24x24 logical pixels centered in a 32x32 box, as is the case with non-highdpi icons.
+            // As a workaround, just lower the toolbar size to 24x24 (we could alternatively render the icons at 32x32).
+            m_toolBar->setIconSize(QSize(24, 24));
 
             ToolBarBuilder builder(*m_toolBar, m_actionMap, [this](const Action& action) {
                 ActionExecutionContext context(this, currentMapViewBase());

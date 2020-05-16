@@ -293,6 +293,9 @@ namespace TrenchBroom {
         }
 
         QAbstractButton* createBitmapButton(const QIcon& icon, const QString& tooltip, QWidget* parent) {
+            // NOTE: QIcon::availableSizes() is not high-dpi friendly, it returns pixels when we want logical sizes.
+            // We rely on the fact that loadIconResourceQt inserts pixmaps in the order 1x then 2x, so the first
+            // pixmap has the logical size.
             ensure(!icon.availableSizes().empty(), "expected a non-empty icon. Fails when the image file couldn't be found.");
 
             // NOTE: according to http://doc.qt.io/qt-5/qpushbutton.html this would be more correctly
