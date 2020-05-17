@@ -32,6 +32,7 @@
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 
+#include <kdl/vector_utils.h>
 #include <kdl/memory_utils.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
@@ -56,6 +57,8 @@ namespace TrenchBroom {
         m_layerList(nullptr),
         m_addLayerButton(nullptr),
         m_removeLayerButton(nullptr),
+        m_unlockAllLayersButton(nullptr),
+        m_lockAllLayersButton(nullptr),
         m_showAllLayersButton(nullptr),
         m_hideAllLayersButton(nullptr),
         m_moveLayerUpButton(nullptr),
@@ -403,6 +406,8 @@ namespace TrenchBroom {
 
             m_addLayerButton = createBitmapButton("Add.png", tr("Add a new layer from the current selection"));
             m_removeLayerButton = createBitmapButton("Remove.png", tr("Remove the selected layer and move its objects to the default layer"));
+            m_unlockAllLayersButton = createBitmapButton("Lock_off.png", tr("Unlock all layers"));
+            m_lockAllLayersButton = createBitmapButton("Lock_on.png", tr("Lock all layers"));
             m_showAllLayersButton = createBitmapButton("Hidden_off.png", tr("Show all layers"));
             m_hideAllLayersButton = createBitmapButton("Hidden_on.png", tr("Hide all layers"));
             m_moveLayerUpButton = createBitmapButton("Up.png", "Move the selected layer up");
@@ -410,6 +415,16 @@ namespace TrenchBroom {
 
             connect(m_addLayerButton, &QAbstractButton::pressed, this, &LayerEditor::onAddLayer);
             connect(m_removeLayerButton, &QAbstractButton::pressed, this, &LayerEditor::onRemoveLayer);
+            connect(m_unlockAllLayersButton, &QAbstractButton::pressed, this, [=]() {
+                auto document = kdl::mem_lock(m_document);
+                const auto nodes = kdl::vec_element_cast<Model::Node*>(document->world()->allLayers());
+                document->resetLock(nodes);
+            });
+            connect(m_lockAllLayersButton, &QAbstractButton::pressed, this, [=]() {
+                auto document = kdl::mem_lock(m_document);
+                const auto nodes = kdl::vec_element_cast<Model::Node*>(document->world()->allLayers());
+                document->lock(nodes);
+            });
             connect(m_showAllLayersButton, &QAbstractButton::pressed, this, &LayerEditor::onShowAllLayers);
             connect(m_hideAllLayersButton, &QAbstractButton::pressed, this, &LayerEditor::onHideAllLayers);
             connect(m_moveLayerUpButton, &QAbstractButton::pressed, this, [=](){
@@ -427,6 +442,8 @@ namespace TrenchBroom {
             buttonSizer->addWidget(m_moveLayerUpButton);
             buttonSizer->addWidget(m_moveLayerDownButton);
             buttonSizer->addStretch(1);
+            buttonSizer->addWidget(m_unlockAllLayersButton);
+            buttonSizer->addWidget(m_lockAllLayersButton);
             buttonSizer->addWidget(m_showAllLayersButton);
             buttonSizer->addWidget(m_hideAllLayersButton);
 

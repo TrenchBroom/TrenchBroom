@@ -44,6 +44,8 @@ namespace TrenchBroom {
 
             QAbstractButton* m_addLayerButton;
             QAbstractButton* m_removeLayerButton;
+            QAbstractButton* m_unlockAllLayersButton;
+            QAbstractButton* m_lockAllLayersButton;
             QAbstractButton* m_showAllLayersButton;
             QAbstractButton* m_hideAllLayersButton;
             QAbstractButton* m_moveLayerUpButton;
