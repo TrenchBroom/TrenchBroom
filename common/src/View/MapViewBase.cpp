@@ -1057,8 +1057,8 @@ namespace TrenchBroom {
             QMenu* moveSelectionTo = menu.addMenu(tr("Move Selection to Layer"));
             for (Model::Layer* layer : document->world()->allLayersUserSorted()) {
                 QAction* moveToLayer = moveSelectionTo->addAction(QString::fromStdString(layer->name()));
-                connect(moveToLayer, &QAction::triggered, this, [](){
-
+                connect(moveToLayer, &QAction::triggered, this, [=](){
+                    document->moveSelectionToLayer(layer);
                 });
             }
 

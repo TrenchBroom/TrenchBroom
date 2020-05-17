@@ -54,7 +54,6 @@ namespace TrenchBroom {
             void onSetCurrentLayer(Model::Layer* layer);
             void onLayerRightClick(Model::Layer* layer);
 
-            class CollectMoveableNodes;
             void onMoveSelectionToLayer();
             bool canMoveSelectionToLayer() const;
 
@@ -84,7 +83,6 @@ namespace TrenchBroom {
             void moveLayer(Model::Layer* layer, int direction);
         private:
             Model::Layer* findVisibleAndUnlockedLayer(const Model::Layer* except) const;
-            void moveSelectedNodesToLayer(std::shared_ptr<MapDocument> document, Model::Layer* layer);
             void createGui();
         private slots:
             void updateButtons();

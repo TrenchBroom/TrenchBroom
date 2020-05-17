@@ -1086,6 +1086,78 @@ namespace TrenchBroom {
             executeAndStore(ChangeEntityAttributesCommand::setForNodes({ neighbour }, Model::AttributeNames::LayerSortIndex, std::to_string(ourSortIndex)));
         }
 
+        class CollectMoveableNodes : public Model::NodeVisitor {
+        private:
+            Model::World* m_world;
+            std::set<Model::Node*> m_selectNodes;
+            std::set<Model::Node*> m_moveNodes;
+        public:
+            explicit CollectMoveableNodes(Model::World* world) : m_world(world) {}
+
+            const std::vector<Model::Node*> selectNodes() const {
+                return std::vector<Model::Node*>(std::begin(m_selectNodes), std::end(m_selectNodes));
+            }
+
+            const std::vector<Model::Node*> moveNodes() const {
+                return std::vector<Model::Node*>(std::begin(m_moveNodes), std::end(m_moveNodes));
+            }
+        private:
+            void doVisit(Model::World*) override   {}
+            void doVisit(Model::Layer*) override   {}
+
+            void doVisit(Model::Group* group) override   {
+                assert(group->selected());
+
+                if (!group->grouped()) {
+                    m_moveNodes.insert(group);
+                    m_selectNodes.insert(group);
+                }
+            }
+
+            void doVisit(Model::Entity* entity) override {
+                assert(entity->selected());
+
+                if (!entity->grouped()) {
+                    m_moveNodes.insert(entity);
+                    m_selectNodes.insert(entity);
+                }
+            }
+
+            void doVisit(Model::Brush* brush) override   {
+                assert(brush->selected());
+                if (!brush->grouped()) {
+                    auto* entity = brush->entity();
+                    if (entity == m_world) {
+                        m_moveNodes.insert(brush);
+                        m_selectNodes.insert(brush);
+                    } else {
+                        if (m_moveNodes.insert(entity).second) {
+                            const std::vector<Model::Node*>& siblings = entity->children();
+                            m_selectNodes.insert(std::begin(siblings), std::end(siblings));
+                        }
+                    }
+                }
+            }
+        };
+
+        void MapDocument::moveSelectionToLayer(Model::Layer* layer) {
+            Transaction transaction(this, "Move Nodes to " + layer->name());
+
+            const auto& selectedNodes = this->selectedNodes().nodes();
+
+            CollectMoveableNodes visitor(world());
+            Model::Node::accept(std::begin(selectedNodes), std::end(selectedNodes), visitor);
+
+            const auto moveNodes = visitor.moveNodes();
+            if (!moveNodes.empty()) {
+                deselectAll();
+                reparentNodes(layer, visitor.moveNodes());
+                if (!layer->hidden() && !layer->locked()) {
+                    select(visitor.selectNodes());
+                }
+            }
+        }
+
         void MapDocument::isolate() {
             const std::vector<Model::Layer*>& layers = m_world->allLayers();
 
