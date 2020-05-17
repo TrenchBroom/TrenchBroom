@@ -471,20 +471,30 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush->hasTag(tag));
         }
 
-        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagInitializeBrushFaceTags") {
+        TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagInitializeBrushFaceTags", "[TagManagementTest]") {
             auto* brushWithTags = createBrush("some_texture");
             document->addNode(brushWithTags, document->currentParent());
+            document->select(brushWithTags);
+
+            SECTION("No modification to brush") {
+            }
+            SECTION("Vertex manipulation") {
+                const auto verticesToMove = std::map<vm::vec3, std::vector<Model::Brush*>>{ { vm::vec3::fill(16.0), { brushWithTags } } };
+                const auto result = document->moveVertices(verticesToMove, vm::vec3::fill(1.0));
+                REQUIRE(result.success);
+                REQUIRE(result.hasRemainingVertices);
+            }
 
             const auto& tag = document->smartTag("texture");
             for (const auto* face : brushWithTags->faces()) {
-                ASSERT_TRUE(face->hasTag(tag));
+                CHECK(face->hasTag(tag));
             }
 
             auto* brushWithoutTags = createBrush("asdf");
             document->addNode(brushWithoutTags, document->currentParent());
 
             for (const auto* face : brushWithoutTags->faces()) {
-                ASSERT_FALSE(face->hasTag(tag));
+                CHECK(!face->hasTag(tag));
             }
         }
 

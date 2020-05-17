@@ -276,7 +276,7 @@ namespace TrenchBroom {
                     result.push_back(makeAction(
                         IO::Path("Entities/" + definition->name() + "/Create"),
                         QObject::tr("Create %1").arg(QString::fromStdString(definition->name())),
-                        ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyTool,
+                        ActionContext::Any,
                         [definition](ActionExecutionContext& context) {
                             context.view()->createEntity(definition);
                         },

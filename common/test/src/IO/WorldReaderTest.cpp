@@ -1238,5 +1238,43 @@ common/caulk
                 CHECK("general/sand1" == face->textureName());
             }
         }
+
+        TEST_CASE("WorldReaderTest.parseTBEmptyTextureName", "[WorldReaderTest]") {
+            const std::string data(R"(
+// entity 0
+{
+"classname" "worldspawn"
+// brush 0
+{
+( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) __TB_empty 0 0 0 1 1
+( -64 -64 -16 ) ( -64 -64 -15 ) ( -63 -64 -16 ) __TB_empty 0 0 0 1 1
+( -64 -64 -16 ) ( -63 -64 -16 ) ( -64 -63 -16 ) __TB_empty 0 0 0 1 1
+( 64 64 16 ) ( 64 65 16 ) ( 65 64 16 ) __TB_empty 0 0 0 1 1
+( 64 64 16 ) ( 65 64 16 ) ( 64 64 17 ) __TB_empty 0 0 0 1 1
+( 64 64 16 ) ( 64 64 17 ) ( 64 65 16 ) __TB_empty 0 0 0 1 1
+}
+})");
+
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data);
+
+            auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+            REQUIRE(world != nullptr);
+            REQUIRE(world->childCount() == 1u);
+
+            Model::Layer* defaultLayer = dynamic_cast<Model::Layer*>(world->children().front());
+            REQUIRE(defaultLayer != nullptr);
+            REQUIRE(defaultLayer->childCount() == 1u);
+
+            Model::Brush* brush = dynamic_cast<Model::Brush*>(defaultLayer->children().front());
+            REQUIRE(brush != nullptr);
+
+            for (Model::BrushFace* face : brush->faces()) {
+                CHECK(!face->textureName().empty());
+                CHECK(face->textureName() == Model::BrushFaceAttributes::NoTextureName);
+            }
+        }
     }
 }
