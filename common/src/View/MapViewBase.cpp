@@ -1054,34 +1054,38 @@ namespace TrenchBroom {
 
             const std::vector<Model::Layer*> selectedObjectLayers = Model::findLayers(nodes);
 
-            QMenu* moveSelectionTo = menu.addMenu(tr("Move Selection to Layer"));
+            QMenu* moveSelectionTo = menu.addMenu(tr("Move to Layer"));
             for (Model::Layer* layer : document->world()->allLayersUserSorted()) {
-                QAction* moveToLayer = moveSelectionTo->addAction(QString::fromStdString(layer->name()));
-                connect(moveToLayer, &QAction::triggered, this, [=](){
+                QAction* action = moveSelectionTo->addAction(QString::fromStdString(layer->name()), this, [=](){
                     document->moveSelectionToLayer(layer);
                 });
+                action->setEnabled(document->canMoveSelectionToLayer(layer));
             }
 
             if (selectedObjectLayers.size() == 1u) {
                 Model::Layer* layer = selectedObjectLayers[0];
-                unused(menu.addAction(tr("Make Layer %1 Active").arg(QString::fromStdString(layer->name())), this, [](){
-
-                }));
+                QAction* action = menu.addAction(tr("Make Layer %1 Active").arg(QString::fromStdString(layer->name())), this, [=](){
+                    document->setCurrentLayer(layer);
+                });
+                action->setEnabled(document->canSetCurrentLayer(layer));
             } else {
-                QMenu* makeLayerActive = menu.addMenu(tr("Make Selection Layer Active"));
+                QMenu* makeLayerActive = menu.addMenu(tr("Make Layer Active"));
                 for (Model::Layer* layer : selectedObjectLayers) {
-                    unused(makeLayerActive->addAction(QString::fromStdString(layer->name()), this, [](){
-
-                    }));
+                    QAction* action = makeLayerActive->addAction(QString::fromStdString(layer->name()), this, [=](){
+                        document->setCurrentLayer(layer);
+                    });
+                    action->setEnabled(document->canSetCurrentLayer(layer));
                 }
             }
 
-            unused(menu.addAction(tr("Hide Selected Object Layers"), this, [](){
-
-            }));
-            unused(menu.addAction(tr("Isolate Selected Object Layers"), this, [](){
-
-            }));
+            QAction* hideLayersAction = menu.addAction(tr("Hide Layers"), this, [=](){
+                document->hideLayers(selectedObjectLayers);
+            });
+            hideLayersAction->setEnabled(document->canHideLayers(selectedObjectLayers));
+            QAction* isolateLayersAction = menu.addAction(tr("Isolate Layers"), this, [=](){
+                document->isolateLayers(selectedObjectLayers);
+            });
+            isolateLayersAction->setEnabled(document->canIsolateLayers(selectedObjectLayers));
 
             menu.addSeparator();
 

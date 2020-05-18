@@ -213,6 +213,10 @@ namespace TrenchBroom {
             currentLayerDidChangeNotifier(m_currentLayer);
         }
 
+        bool MapDocument::canSetCurrentLayer(Model::Layer* currentLayer) const {
+            return m_currentLayer != currentLayer;
+        }
+
         Model::Group* MapDocument::currentGroup() const {
             return m_editorContext->currentGroup();
         }
@@ -1085,6 +1089,10 @@ namespace TrenchBroom {
             executeAndStore(ChangeEntityAttributesCommand::setForNodes({ layer },     Model::AttributeNames::LayerSortIndex, std::to_string(neighbourSortIndex)));
             executeAndStore(ChangeEntityAttributesCommand::setForNodes({ neighbour }, Model::AttributeNames::LayerSortIndex, std::to_string(ourSortIndex)));
         }
+        
+        bool MapDocument::canMoveLayer(Model::Layer* layer, const int direction) const {
+            return false;
+        }
 
         class CollectMoveableNodes : public Model::NodeVisitor {
         private:
@@ -1156,6 +1164,26 @@ namespace TrenchBroom {
                     select(visitor.selectNodes());
                 }
             }
+        }
+
+        bool MapDocument::canMoveSelectionToLayer(Model::Layer* layer) const {
+            return false;
+        }
+
+        void MapDocument::hideLayers(const std::vector<Model::Layer*>& layers) {
+            
+        }
+
+        bool MapDocument::canHideLayers(const std::vector<Model::Layer*>& layers) const {
+            return false;
+        }
+
+        void MapDocument::isolateLayers(const std::vector<Model::Layer*>& layers) {
+            
+        }
+
+        bool MapDocument::canIsolateLayers(const std::vector<Model::Layer*>& layers) const {
+            return false;
         }
 
         void MapDocument::isolate() {

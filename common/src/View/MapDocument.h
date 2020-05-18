@@ -184,6 +184,7 @@ namespace TrenchBroom {
 
             Model::Layer* currentLayer() const override;
             void setCurrentLayer(Model::Layer* currentLayer);
+            bool canSetCurrentLayer(Model::Layer* currentLayer) const;
 
             Model::Group* currentGroup() const override;
             /**
@@ -344,7 +345,13 @@ namespace TrenchBroom {
         public: // layer management
             void renameLayer(Model::Layer* layer, const std::string& name);
             void moveLayer(Model::Layer* layer, int direction);
+            bool canMoveLayer(Model::Layer* layer, int direction) const;
             void moveSelectionToLayer(Model::Layer* layer);
+            bool canMoveSelectionToLayer(Model::Layer* layer) const;
+            void hideLayers(const std::vector<Model::Layer*>& layers);
+            bool canHideLayers(const std::vector<Model::Layer*>& layers) const;
+            void isolateLayers(const std::vector<Model::Layer*>& layers);
+            bool canIsolateLayers(const std::vector<Model::Layer*>& layers) const;
         public: // modifying transient node attributes, declared in MapFacade interface
             void isolate();
             void hide(std::vector<Model::Node*> nodes) override; // Don't take the nodes by reference!
