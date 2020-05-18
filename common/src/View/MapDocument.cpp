@@ -1373,6 +1373,12 @@ namespace TrenchBroom {
             return setFaceAttributes(request);
         }
 
+        bool MapDocument::setFaceAttributesExceptContentFlags(const Model::BrushFaceAttributes& attributes) {
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.setAllExceptContentFlags(attributes);
+            return setFaceAttributes(request);
+        }
+
         bool MapDocument::setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) {
             const auto result = executeAndStore(ChangeBrushFaceAttributesCommand::command(request));
             return result->success();
