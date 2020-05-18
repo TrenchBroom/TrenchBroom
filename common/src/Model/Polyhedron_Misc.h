@@ -22,13 +22,17 @@
 
 #include "Polyhedron.h"
 
+#include <kdl/vector_utils.h>
+
 #include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 #include <vecmath/ray.h>
 #include <vecmath/plane.h>
 #include <vecmath/bbox.h>
 #include <vecmath/scalar.h>
 #include <vecmath/util.h>
 
+#include <sstream>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -898,6 +902,47 @@ namespace TrenchBroom {
 
             m_faces.remove(neighbour);
             return validEdge;
+        }
+
+        template <typename T, typename FP, typename VP>
+        std::string Polyhedron<T,FP,VP>::exportObj() const {
+            std::vector<const Face*> faces;
+            for (const Face* face : m_faces) {
+                faces.push_back(face);
+            }
+            return exportObjSelectedFaces(faces);
+        }
+
+        template <typename T, typename FP, typename VP>
+        std::string Polyhedron<T,FP,VP>::exportObjSelectedFaces(const std::vector<const Face*>& faces) const {
+            std::stringstream ss;
+            std::vector<const Vertex*> vertices;
+
+            for (const Vertex* current : m_vertices) {
+                vertices.push_back(current);
+            }
+        
+            // write the vertices
+            for (const Vertex* v : vertices) {
+                // vec operator<< prints the vector space delimited
+                ss << "v " << v->position() << "\n";
+            }
+        
+            // write the faces
+            for (const Face* face : faces) {
+                ss << "f ";
+                for (const HalfEdge* halfEdge : face->boundary()) {
+                    const Vertex* vertex = halfEdge->origin();
+                    auto indexOptional = kdl::vec_index_of(vertices, vertex);
+                    assert(indexOptional.has_value());
+        
+                    // .obj indices are 1-based
+                    ss << (*indexOptional + 1) << " ";   
+                }
+                ss << "\n";
+            }
+        
+            return ss.str();
         }
     }
 }

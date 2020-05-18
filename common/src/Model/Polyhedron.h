@@ -35,6 +35,7 @@
 #include <initializer_list>
 #include <limits>
 #include <optional>
+#include <string>
 #include <variant>
 #include <vector>
 
@@ -1465,6 +1466,15 @@ namespace TrenchBroom {
              * validEdge was null
              */
             Edge* mergeNeighbours(HalfEdge* borderFirst, Edge* validEdge);
+        public:
+            /**
+             * Exports to .obj format for debugging.
+             */
+            std::string exportObj() const;
+            /**
+             * Export only the specified faces to .obj format.
+             */
+            std::string exportObjSelectedFaces(const std::vector<const Face*>& faces) const;
 
             /* ====================== Implementation in Polyhedron_ConvexHull.h ====================== */
         public: // Convex hull; adding and removing points
