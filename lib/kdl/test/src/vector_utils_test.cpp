@@ -81,25 +81,44 @@ namespace kdl {
     TEST_CASE("vector_utils_test.vec_index_of", "[vector_utils_test]") {
         using vec = std::vector<int>;
 
-        ASSERT_EQ(0u, vec_index_of(vec({}), 1));
-        ASSERT_EQ(1u, vec_index_of(vec({ 2 }), 1));
+        ASSERT_EQ(std::nullopt, vec_index_of(vec({}), 1));
+        ASSERT_EQ(std::nullopt, vec_index_of(vec({ 2 }), 1));
         ASSERT_EQ(0u, vec_index_of(vec({ 1 }), 1));
         ASSERT_EQ(0u, vec_index_of(vec({ 1, 2, 3 }), 1));
         ASSERT_EQ(1u, vec_index_of(vec({ 1, 2, 3 }), 2));
         ASSERT_EQ(2u, vec_index_of(vec({ 1, 2, 3 }), 3));
-        ASSERT_EQ(3u, vec_index_of(vec({ 1, 2, 3 }), 4));
+        ASSERT_EQ(1u, vec_index_of(vec({ 1, 2, 2 }), 2));
+        ASSERT_EQ(std::nullopt, vec_index_of(vec({ 1, 2, 3 }), 4));
+
+        
+        ASSERT_EQ(std::nullopt, vec_index_of(vec({}), [](const auto& i) { return i == 1; }));
+        ASSERT_EQ(std::nullopt, vec_index_of(vec({ 2 }), [](const auto& i) { return i == 1; }));
+        ASSERT_EQ(0u, vec_index_of(vec({ 1 }), [](const auto& i) { return i == 1; }));
+        ASSERT_EQ(0u, vec_index_of(vec({ 1, 2, 3 }), [](const auto& i) { return i == 1; }));
+        ASSERT_EQ(1u, vec_index_of(vec({ 1, 2, 3 }), [](const auto& i) { return i == 2; }));
+        ASSERT_EQ(2u, vec_index_of(vec({ 1, 2, 3 }), [](const auto& i) { return i == 3; }));
+        ASSERT_EQ(1u, vec_index_of(vec({ 1, 2, 2 }), [](const auto& i) { return i == 2; }));
+        ASSERT_EQ(std::nullopt, vec_index_of(vec({ 1, 2, 3 }), [](const auto& i) { return i == 4; }));
     }
 
     TEST_CASE("vector_utils_test.vec_contains", "[vector_utils_test]") {
         using vec = std::vector<int>;
 
-        ASSERT_FALSE(vec_contains(vec({}), 1));
-        ASSERT_FALSE(vec_contains(vec({ 2 }), 1));
-        ASSERT_TRUE(vec_contains(vec({ 1 }), 1));
-        ASSERT_TRUE(vec_contains(vec({ 1, 2, 3 }), 1));
-        ASSERT_TRUE(vec_contains(vec({ 1, 2, 3 }), 2));
-        ASSERT_TRUE(vec_contains(vec({ 1, 2, 3 }), 3));
-        ASSERT_FALSE(vec_contains(vec({ 1, 2, 3 }), 4));
+        ASSERT_EQ(false, vec_contains(vec({}), 1));
+        ASSERT_EQ(false, vec_contains(vec({ 2 }), 1));
+        ASSERT_EQ(true, vec_contains(vec({ 1 }), 1));
+        ASSERT_EQ(true, vec_contains(vec({ 1, 2, 3 }), 1));
+        ASSERT_EQ(true, vec_contains(vec({ 1, 2, 3 }), 2));
+        ASSERT_EQ(true, vec_contains(vec({ 1, 2, 3 }), 3));
+        ASSERT_EQ(false, vec_contains(vec({ 1, 2, 3 }), 4));
+        
+        ASSERT_EQ(false, vec_contains(vec({}), [](const auto& i) { return i == 1; }));
+        ASSERT_EQ(false, vec_contains(vec({ 2 }), [](const auto& i) { return i == 1; }));
+        ASSERT_EQ(true, vec_contains(vec({ 1 }), [](const auto& i) { return i == 1; }));
+        ASSERT_EQ(true, vec_contains(vec({ 1, 2, 3 }), [](const auto& i) { return i == 1; }));
+        ASSERT_EQ(true, vec_contains(vec({ 1, 2, 3 }), [](const auto& i) { return i == 2; }));
+        ASSERT_EQ(true, vec_contains(vec({ 1, 2, 3 }), [](const auto& i) { return i == 3; }));
+        ASSERT_EQ(false, vec_contains(vec({ 1, 2, 3 }), [](const auto& i) { return i == 4; }));
     }
 
     template <typename T, typename... Args>
