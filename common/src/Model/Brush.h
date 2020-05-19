@@ -47,7 +47,7 @@ namespace TrenchBroom {
             using EdgeList = BrushEdgeList;
         private:
             std::vector<BrushFace*> m_faces;
-            BrushGeometry* m_geometry;
+            std::unique_ptr<BrushGeometry> m_geometry;
 
             mutable bool m_transparent;
         public:

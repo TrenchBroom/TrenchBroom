@@ -137,11 +137,9 @@ namespace TrenchBroom {
         };
 
         Brush::Brush() :
-        m_geometry(nullptr),
         m_transparent(false) {}
 
         Brush::Brush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) :
-        m_geometry(nullptr),
         m_transparent(false) {
             addFaces(faces);
             try {
@@ -153,7 +151,6 @@ namespace TrenchBroom {
         }
 
         Brush::Brush(const Brush& other) :
-        m_geometry(nullptr),
         m_transparent(other.m_transparent) {
             auto faceMap = std::unordered_map<const BrushFace*, BrushFace*>();
             m_faces.reserve(other.m_faces.size());
@@ -165,16 +162,14 @@ namespace TrenchBroom {
 
             if (other.m_geometry != nullptr) {
                 CopyCallback callback(faceMap);
-                m_geometry = new BrushGeometry(*other.m_geometry, callback);
+                m_geometry = std::make_unique<BrushGeometry>(*other.m_geometry, callback);
             }
         }
 
         Brush::Brush(Brush&& other) noexcept :
         m_faces(std::move(other.m_faces)),
-        m_geometry(other.m_geometry),
-        m_transparent(other.m_transparent) {
-            other.m_geometry = nullptr;
-        }
+        m_geometry(std::move(other.m_geometry)),
+        m_transparent(other.m_transparent) {}
 
         Brush& Brush::operator=(Brush other) noexcept {
             using std::swap;
@@ -194,8 +189,6 @@ namespace TrenchBroom {
         }
 
         void Brush::cleanup() {
-            delete m_geometry;
-            m_geometry = nullptr;
             kdl::vec_clear_and_delete(m_faces);
         }
 
@@ -1034,7 +1027,7 @@ namespace TrenchBroom {
         void Brush::buildGeometry(const vm::bbox3& worldBounds) {
             assert(m_geometry == nullptr);
 
-            m_geometry = new BrushGeometry(worldBounds.expand(1.0));
+            m_geometry = std::make_unique<BrushGeometry>(worldBounds.expand(1.0));
 
             AddFacesToGeometry addFacesToGeometry(*m_geometry, m_faces);
             updateFacesFromGeometry(worldBounds, *m_geometry);
@@ -1054,8 +1047,7 @@ namespace TrenchBroom {
                 for (auto* brushFace : m_faces) {
                     brushFace->setGeometry(nullptr);
                 }
-                delete m_geometry;
-                m_geometry = nullptr;
+                m_geometry.reset();
             }
         }
 
