@@ -91,7 +91,7 @@ namespace TrenchBroom {
             void beginBrush(const Model::BrushNode* brushNode);
             void endBrush(const Model::BrushNode* brushNode);
         public:
-            void brushFaces(const std::vector<Model::BrushFace*>& faces);
+            void brushFaces(const std::vector<const Model::BrushFace*>& faces);
         private:
             void brushFace(const Model::BrushFace* face);
         private:

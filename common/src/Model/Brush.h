@@ -81,9 +81,11 @@ namespace TrenchBroom {
             std::optional<size_t> findFace(const std::vector<vm::polygon3>& candidates, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             std::optional<size_t> findFace(const BrushFace* face) const;
 
-            BrushFace* face(size_t index) const;
+            const BrushFace* face(size_t index) const;
+            BrushFace* face(size_t index);
             size_t faceCount() const;
-            const std::vector<BrushFace*>& faces() const;
+            std::vector<const BrushFace*> faces() const;
+            const std::vector<BrushFace*>& faces();
 
             bool closed() const;
             bool fullySpecified() const;

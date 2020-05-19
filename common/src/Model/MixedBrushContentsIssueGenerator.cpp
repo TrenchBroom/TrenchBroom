@@ -54,7 +54,7 @@ namespace TrenchBroom {
 
         void MixedBrushContentsIssueGenerator::doGenerate(BrushNode* brushNode, IssueList& issues) const {
             const Brush& brush = brushNode->brush();
-            const std::vector<BrushFace*>& faces = brush.faces();
+            const auto faces = brush.faces();
             auto it = std::begin(faces);
             auto end = std::end(faces);
             assert(it != end);

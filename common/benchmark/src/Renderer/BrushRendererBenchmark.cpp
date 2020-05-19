@@ -62,10 +62,11 @@ namespace TrenchBroom {
             std::vector<Model::BrushNode*> result;
             size_t currentTextureIndex = 0;
             for (size_t i = 0; i < NumBrushes; ++i) {
-                Model::BrushNode* brushNode = world.createBrush(builder.createCube(64.0, ""));
-                for (auto* face : brushNode->brush().faces()) {
+                Model::Brush brush =builder.createCube(64.0, "");
+                for (Model::BrushFace* face : brush.faces()) {
                     face->setTexture(textures.at((currentTextureIndex++) % NumTextures));
                 }
+                Model::BrushNode* brushNode = world.createBrush(std::move(brush));
                 result.push_back(brushNode);
             }
 

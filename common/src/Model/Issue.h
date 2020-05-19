@@ -71,7 +71,7 @@ namespace TrenchBroom {
         public:
             ~BrushFaceIssue() override;
             size_t faceIndex() const;
-            BrushFace* face() const;
+            const BrushFace* face() const;
         private:
             size_t doGetLineNumber() const override;
         };

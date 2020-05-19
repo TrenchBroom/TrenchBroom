@@ -781,7 +781,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ClipTool::setFaceAttributes(const std::vector<Model::BrushFace*>& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const {
+        void ClipTool::setFaceAttributes(const std::vector<const Model::BrushFace*>& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const {
             ensure(!faces.empty(), "no faces");
 
             auto faceIt = std::begin(faces);

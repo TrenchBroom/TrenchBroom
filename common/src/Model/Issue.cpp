@@ -117,7 +117,7 @@ namespace TrenchBroom {
             return m_faceIndex;
         }
 
-        BrushFace* BrushFaceIssue::face() const {
+        const BrushFace* BrushFaceIssue::face() const {
             const BrushNode* brushNode = static_cast<const BrushNode*>(node());
             const Brush& brush = brushNode->brush();
             return brush.face(m_faceIndex);
