@@ -70,6 +70,9 @@ namespace TrenchBroom {
             const Brush& brush() const;
             void setBrush(Brush brush);
 
+            void selectFace(size_t faceIndex);
+            void deselectFace(size_t faceIndex);
+            
             using Node::takeSnapshot;
             BrushFaceSnapshot* takeSnapshot(BrushFace* face);
         private: // implement Node interface
