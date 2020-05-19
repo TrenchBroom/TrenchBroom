@@ -94,12 +94,6 @@ namespace TrenchBroom {
         public: // move face along normal
             bool canMoveBoundary(const vm::bbox3& worldBounds, const BrushFace* face, const vm::vec3& delta) const;
             void moveBoundary(const vm::bbox3& worldBounds, BrushFace* face, const vm::vec3& delta, bool lockTexture);
-            bool canExpand(const vm::bbox3& worldBounds, FloatType delta, bool lockTexture) const;
-            /**
-             * Moves all faces by `delta` units along their normals; negative values shrink the brush.
-             * Returns true if the brush is valid after the modification, false if the brush is invalid.
-             */
-            bool expand(const vm::bbox3& worldBounds, FloatType delta, bool lockTexture);
         public:
             // geometry access
             size_t vertexCount() const;

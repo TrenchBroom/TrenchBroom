@@ -206,16 +206,6 @@ namespace TrenchBroom {
             m_brush.moveBoundary(worldBounds, face, delta, lockTexture);
         }
 
-        bool BrushNode::canExpand(const vm::bbox3& worldBounds, const FloatType delta, const bool lockTexture) const {
-            return m_brush.canExpand(worldBounds, delta, lockTexture);
-        }
-
-        bool BrushNode::expand(const vm::bbox3& worldBounds, const FloatType delta, const bool lockTexture) {
-            const NotifyNodeChange nodeChange(this);
-            const NotifyPhysicalBoundsChange boundsChange(this);
-            return m_brush.expand(worldBounds, delta, lockTexture);
-        }
-
         size_t BrushNode::vertexCount() const {
             return m_brush.vertexCount();
         }

@@ -1278,26 +1278,28 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::csgHollow() {
-            const std::vector<Model::BrushNode*> brushes = selectedNodes().brushes();
-            if (brushes.empty()) {
+            const std::vector<Model::BrushNode*> brushNodes = selectedNodes().brushes();
+            if (brushNodes.empty()) {
                 return false;
             }
 
             std::map<Model::Node*, std::vector<Model::Node*>> toAdd;
             std::vector<Model::Node*> toRemove;
 
-            for (Model::BrushNode* brush : brushes) {
+            for (Model::BrushNode* brushNode : brushNodes) {
+                const Model::Brush& brush = brushNode->brush();
+
                 // make an shrunken copy of brush
-                Model::BrushNode* shrunken = brush->clone(m_worldBounds);
-                if (shrunken->expand(m_worldBounds, -1.0 * static_cast<FloatType>(m_grid->actualSize()), true)) {
-                    // shrinking gave us a valid brush, so subtract it from `brush`
-                    const std::vector<Model::BrushNode*> fragments = brush->subtract(*m_world, m_worldBounds, currentTextureName(), shrunken);
+                Model::Brush shrunken = brush;
+                if (shrunken.expand(m_worldBounds, -1.0 * static_cast<FloatType>(m_grid->actualSize()), true)) {
+                    std::vector<Model::Brush> fragments = brush.subtract(*m_world, m_worldBounds, currentTextureName(), shrunken);
+                    std::vector<Model::BrushNode*> fragmentNodes = kdl::vec_transform(std::move(fragments), [](auto&& b) {
+                        return new Model::BrushNode(std::move(b));
+                    });
 
-                    kdl::vec_append(toAdd[brush->parent()], fragments);
-                    toRemove.push_back(brush);
+                    kdl::vec_append(toAdd[brushNode->parent()], fragmentNodes);
+                    toRemove.push_back(brushNode);
                 }
-
-                delete shrunken;
             }
 
             Transaction transaction(this, "CSG Hollow");
