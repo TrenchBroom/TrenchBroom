@@ -3521,46 +3521,6 @@ namespace TrenchBroom {
             delete brush;
         }
 
-        TEST_CASE("BrushNodeTest.expand", "[BrushNodeTest]") {
-            const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(MapFormat::Standard);
-            const BrushBuilder builder(&world, worldBounds);
-
-            Model::BrushNode *brush1 = world.createBrush(builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture"));
-            EXPECT_TRUE(brush1->canExpand(worldBounds, 6, true));
-            EXPECT_TRUE(brush1->expand(worldBounds, 6, true));
-
-            const vm::bbox3 expandedBBox(vm::vec3(-70, -70, -70), vm::vec3(70, 70, 70));
-
-            EXPECT_EQ(expandedBBox, brush1->logicalBounds());
-            EXPECT_COLLECTIONS_EQUIVALENT(expandedBBox.vertices(), brush1->vertexPositions());
-        }
-
-        TEST_CASE("BrushNodeTest.contract", "[BrushNodeTest]") {
-            const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(MapFormat::Standard);
-            const BrushBuilder builder(&world, worldBounds);
-
-            Model::BrushNode *brush1 = world.createBrush(builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture"));
-            EXPECT_TRUE(brush1->canExpand(worldBounds, -32, true));
-            EXPECT_TRUE(brush1->expand(worldBounds, -32, true));
-
-            const vm::bbox3 expandedBBox(vm::vec3(-32, -32, -32), vm::vec3(32, 32, 32));
-
-            EXPECT_EQ(expandedBBox, brush1->logicalBounds());
-            EXPECT_COLLECTIONS_EQUIVALENT(expandedBBox.vertices(), brush1->vertexPositions());
-        }
-
-        TEST_CASE("BrushNodeTest.contractToZero", "[BrushNodeTest]") {
-            const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(MapFormat::Standard);
-            const BrushBuilder builder(&world, worldBounds);
-
-            Model::BrushNode *brush1 = world.createBrush(builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture"));
-            EXPECT_FALSE(brush1->canExpand(worldBounds, -64, true));
-            EXPECT_FALSE(brush1->expand(worldBounds, -64, true));
-        }
-
         TEST_CASE("BrushNodeTest.moveVerticesFail_2158", "[BrushNodeTest]") {
             // see https://github.com/kduske/TrenchBroom/issues/2158
             const vm::bbox3 worldBounds(4096.0);
