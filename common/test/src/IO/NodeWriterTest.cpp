@@ -79,7 +79,7 @@ namespace TrenchBroom {
             Model::BrushBuilder builder(&map, worldBounds);
             Model::BrushNode* brushNode1 = map.createBrush(builder.createCube(64.0, "none"));
             for (auto* face : brushNode1->brush().faces()) {
-                face->setColor(Color(1.0f, 2.0f, 3.0f));
+                face->attributes().setColor(Color(1.0f, 2.0f, 3.0f));
             }
             map.defaultLayer()->addChild(brushNode1);
 
@@ -128,7 +128,7 @@ R"(// entity 0
             Model::BrushBuilder builder(&map, worldBounds);
             Model::BrushNode* brushNode1 = map.createBrush(builder.createCube(64.0, "none"));
             for (auto* face : brushNode1->brush().faces()) {
-                face->setSurfaceValue(32.0f);
+                face->attributes().setSurfaceValue(32.0f);
             }
             map.defaultLayer()->addChild(brushNode1);
 

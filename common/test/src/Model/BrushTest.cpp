@@ -2972,12 +2972,12 @@ namespace TrenchBroom {
             ASSERT_TRUE(left->findFace(vm::plane3(+32.0, vm::vec3::neg_z())) != nullptr);
 
             // left brush textures
-            ASSERT_EQ(subtrahendTexture, left->findFace(vm::vec3::pos_x())->textureName());
-            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::neg_x())->textureName());
-            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::pos_y())->textureName());
-            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::neg_y())->textureName());
-            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::pos_z())->textureName());
-            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::neg_z())->textureName());
+            ASSERT_EQ(subtrahendTexture, left->findFace(vm::vec3::pos_x())->attributes().textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::neg_x())->attributes().textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::pos_y())->attributes().textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::neg_y())->attributes().textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::pos_z())->attributes().textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::neg_z())->attributes().textureName());
 
             // top brush faces
             ASSERT_EQ(6u, top->faceCount());
@@ -2989,12 +2989,12 @@ namespace TrenchBroom {
             ASSERT_TRUE(top->findFace(vm::plane3(0.0, vm::vec3::neg_z())) != nullptr);
 
             // top brush textures
-            ASSERT_EQ(defaultTexture, top->findFace(vm::vec3::pos_x())->textureName());
-            ASSERT_EQ(defaultTexture, top->findFace(vm::vec3::neg_x())->textureName());
-            ASSERT_EQ(minuendTexture, top->findFace(vm::vec3::pos_y())->textureName());
-            ASSERT_EQ(minuendTexture, top->findFace(vm::vec3::neg_y())->textureName());
-            ASSERT_EQ(minuendTexture, top->findFace(vm::vec3::pos_z())->textureName());
-            ASSERT_EQ(subtrahendTexture, top->findFace(vm::vec3::neg_z())->textureName());
+            ASSERT_EQ(defaultTexture, top->findFace(vm::vec3::pos_x())->attributes().textureName());
+            ASSERT_EQ(defaultTexture, top->findFace(vm::vec3::neg_x())->attributes().textureName());
+            ASSERT_EQ(minuendTexture, top->findFace(vm::vec3::pos_y())->attributes().textureName());
+            ASSERT_EQ(minuendTexture, top->findFace(vm::vec3::neg_y())->attributes().textureName());
+            ASSERT_EQ(minuendTexture, top->findFace(vm::vec3::pos_z())->attributes().textureName());
+            ASSERT_EQ(subtrahendTexture, top->findFace(vm::vec3::neg_z())->attributes().textureName());
 
             // right brush faces
             ASSERT_EQ(6u, right->faceCount());
@@ -3006,12 +3006,12 @@ namespace TrenchBroom {
             ASSERT_TRUE(right->findFace(vm::plane3(+32.0, vm::vec3::neg_z())) != nullptr);
 
             // right brush textures
-            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_x())->textureName());
-            ASSERT_EQ(subtrahendTexture, right->findFace(vm::vec3::neg_x())->textureName());
-            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_y())->textureName());
-            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::neg_y())->textureName());
-            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_z())->textureName());
-            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::neg_z())->textureName());
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_x())->attributes().textureName());
+            ASSERT_EQ(subtrahendTexture, right->findFace(vm::vec3::neg_x())->attributes().textureName());
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_y())->attributes().textureName());
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::neg_y())->attributes().textureName());
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_z())->attributes().textureName());
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::neg_z())->attributes().textureName());
         }
 
         TEST_CASE("BrushTest.subtractDisjoint", "[BrushTest]") {

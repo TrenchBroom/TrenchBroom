@@ -99,7 +99,7 @@ namespace TrenchBroom {
 
             auto* face = m_helper.face();
             const auto origin = m_helper.origin();
-            const auto oldCoords = vm::vec2f(face->toTexCoordSystemMatrix(vm::vec2f::zero(), face->scale(), true) * origin);
+            const auto oldCoords = vm::vec2f(face->toTexCoordSystemMatrix(vm::vec2f::zero(), face->attributes().scale(), true) * origin);
 
             auto document = kdl::mem_lock(m_document);
             if (m_selector[0]) {
@@ -114,8 +114,8 @@ namespace TrenchBroom {
                 }
             }
 
-            const auto newCoords = vm::vec2f(face->toTexCoordSystemMatrix(vm::vec2f::zero(), face->scale(), true) * origin);
-            const auto newOffset = face->offset() + oldCoords - newCoords;
+            const auto newCoords = vm::vec2f(face->toTexCoordSystemMatrix(vm::vec2f::zero(), face->attributes().scale(), true) * origin);
+            const auto newOffset = face->attributes().offset() + oldCoords - newCoords;
 
             Model::ChangeBrushFaceAttributesRequest request;
             request.setOffset(newOffset);

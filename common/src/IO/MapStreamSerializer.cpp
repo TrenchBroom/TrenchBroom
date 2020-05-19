@@ -59,17 +59,17 @@ namespace TrenchBroom {
             }
 
             void writeTextureInfo(std::ostream& stream, Model::BrushFace* face) {
-                const std::string& textureName = face->textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face->textureName();
+                const std::string& textureName = face->attributes().textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face->attributes().textureName();
                 stream << textureName << " " <<
-                ftos(face->xOffset(), FloatPrecision)  << " " <<
-                ftos(face->yOffset(), FloatPrecision)  << " " <<
-                ftos(face->rotation(), FloatPrecision) << " " <<
-                ftos(face->xScale(), FloatPrecision)   << " " <<
-                ftos(face->yScale(), FloatPrecision);
+                ftos(face->attributes().xOffset(), FloatPrecision)  << " " <<
+                ftos(face->attributes().yOffset(), FloatPrecision)  << " " <<
+                ftos(face->attributes().rotation(), FloatPrecision) << " " <<
+                ftos(face->attributes().xScale(), FloatPrecision)   << " " <<
+                ftos(face->attributes().yScale(), FloatPrecision);
             }
 
             void writeValveTextureInfo(std::ostream& stream, Model::BrushFace* face) {
-                const std::string& textureName = face->textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face->textureName();
+                const std::string& textureName = face->attributes().textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face->attributes().textureName();
                 const vm::vec3& xAxis = face->textureXAxis();
                 const vm::vec3& yAxis = face->textureYAxis();
 
@@ -80,16 +80,16 @@ namespace TrenchBroom {
                 xAxis.x() << " " <<
                 xAxis.y() << " " <<
                 xAxis.z() << " " <<
-                face->xOffset()   <<
+                face->attributes().xOffset()   <<
                 " ] [ " <<
                 yAxis.x() << " " <<
                 yAxis.y() << " " <<
                 yAxis.z() << " " <<
-                face->yOffset()   <<
+                face->attributes().yOffset()   <<
                 " ] " <<
-                face->rotation() << " " <<
-                face->xScale()   << " " <<
-                face->yScale();
+                face->attributes().rotation() << " " <<
+                face->attributes().xScale()   << " " <<
+                face->attributes().yScale();
             }
         };
 
@@ -110,9 +110,9 @@ namespace TrenchBroom {
         protected:
             void writeSurfaceAttributes(std::ostream& stream, Model::BrushFace* face) {
                 stream <<
-                face->surfaceContents()  << " " <<
-                face->surfaceFlags()     << " " <<
-                ftos(face->surfaceValue(), FloatPrecision);
+                face->attributes().surfaceContents()  << " " <<
+                face->attributes().surfaceFlags()     << " " <<
+                ftos(face->attributes().surfaceValue(), FloatPrecision);
             }
         };
 
@@ -141,12 +141,12 @@ namespace TrenchBroom {
                 writeFacePoints(stream, face);
                 stream << " ";
                 writeTextureInfo(stream, face);
-                if (face->hasSurfaceAttributes() || face->hasColor()) {
+                if (face->attributes().hasSurfaceAttributes() || face->attributes().hasColor()) {
                     stream << " ";
                     writeSurfaceAttributes(stream, face);
 
                 }
-                if (face->hasColor()) {
+                if (face->attributes().hasColor()) {
                     stream << " ";
                     writeSurfaceColor(stream, face);
                 }
@@ -155,9 +155,9 @@ namespace TrenchBroom {
         protected:
             void writeSurfaceColor(std::ostream& stream, Model::BrushFace* face) {
                 stream <<
-                static_cast<int>(face->color().r()) << " " <<
-                static_cast<int>(face->color().g()) << " " <<
-                static_cast<int>(face->color().b());
+                static_cast<int>(face->attributes().color().r()) << " " <<
+                static_cast<int>(face->attributes().color().g()) << " " <<
+                static_cast<int>(face->attributes().color().b());
             }
         };
 

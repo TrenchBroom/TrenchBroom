@@ -664,7 +664,7 @@ namespace TrenchBroom {
 
         void MapDocument::select(const Model::BrushFaceHandle& handle) {
             executeAndStore(SelectionCommand::select({ handle }));
-            setCurrentTextureName(handle.face()->textureName());
+            setCurrentTextureName(handle.face()->attributes().textureName());
         }
 
         void MapDocument::convertToFaceSelection() {

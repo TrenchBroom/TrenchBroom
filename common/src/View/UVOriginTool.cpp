@@ -186,9 +186,9 @@ namespace TrenchBroom {
             // snap the delta to the distance.
 
             const auto w2fTransform = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-            const auto w2tTransform = face->toTexCoordSystemMatrix(face->offset(), face->scale(), true);
+            const auto w2tTransform = face->toTexCoordSystemMatrix(face->attributes().offset(), face->attributes().scale(), true);
             const auto f2wTransform = face->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-            const auto t2wTransform = face->fromTexCoordSystemMatrix(face->offset(), face->scale(), true);
+            const auto t2wTransform = face->fromTexCoordSystemMatrix(face->attributes().offset(), face->attributes().scale(), true);
             const auto f2tTransform = w2tTransform * f2wTransform;
             const auto t2fTransform = w2fTransform * t2wTransform;
 

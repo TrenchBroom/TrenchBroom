@@ -81,18 +81,18 @@ namespace TrenchBroom {
             }
 
             void writeTextureInfo(FILE* stream, Model::BrushFace* face) {
-                const std::string& textureName = face->textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face->textureName();
+                const std::string& textureName = face->attributes().textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face->attributes().textureName();
                 std::fprintf(stream, TextureInfoFormat.c_str(),
                              textureName.c_str(),
-                             static_cast<double>(face->xOffset()),
-                             static_cast<double>(face->yOffset()),
-                             static_cast<double>(face->rotation()),
-                             static_cast<double>(face->xScale()),
-                             static_cast<double>(face->yScale()));
+                             static_cast<double>(face->attributes().xOffset()),
+                             static_cast<double>(face->attributes().yOffset()),
+                             static_cast<double>(face->attributes().rotation()),
+                             static_cast<double>(face->attributes().xScale()),
+                             static_cast<double>(face->attributes().yScale()));
             }
 
             void writeValveTextureInfo(FILE* stream, Model::BrushFace* face) {
-                const std::string& textureName = face->textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face->textureName();
+                const std::string& textureName = face->attributes().textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face->attributes().textureName();
                 const vm::vec3 xAxis = face->textureXAxis();
                 const vm::vec3 yAxis = face->textureYAxis();
 
@@ -102,16 +102,16 @@ namespace TrenchBroom {
                              xAxis.x(),
                              xAxis.y(),
                              xAxis.z(),
-                             static_cast<double>(face->xOffset()),
+                             static_cast<double>(face->attributes().xOffset()),
 
                              yAxis.x(),
                              yAxis.y(),
                              yAxis.z(),
-                             static_cast<double>(face->yOffset()),
+                             static_cast<double>(face->attributes().yOffset()),
 
-                             static_cast<double>(face->rotation()),
-                             static_cast<double>(face->xScale()),
-                             static_cast<double>(face->yScale()));
+                             static_cast<double>(face->attributes().rotation()),
+                             static_cast<double>(face->attributes().xScale()),
+                             static_cast<double>(face->attributes().yScale()));
             }
         };
 
@@ -137,9 +137,9 @@ namespace TrenchBroom {
         protected:
             void writeSurfaceAttributes(FILE* stream, Model::BrushFace* face) {
                 std::fprintf(stream, SurfaceAttributesFormat.c_str(),
-                             face->surfaceContents(),
-                             face->surfaceFlags(),
-                             static_cast<double>(face->surfaceValue()));
+                             face->attributes().surfaceContents(),
+                             face->attributes().surfaceFlags(),
+                             static_cast<double>(face->attributes().surfaceValue()));
             }
         };
 
@@ -170,10 +170,10 @@ namespace TrenchBroom {
                 writeFacePoints(stream, face);
                 writeTextureInfo(stream, face);
 
-                if (face->hasSurfaceAttributes() || face->hasColor()) {
+                if (face->attributes().hasSurfaceAttributes() || face->attributes().hasColor()) {
                     writeSurfaceAttributes(stream, face);
                 }
-                if (face->hasColor()) {
+                if (face->attributes().hasColor()) {
                     writeSurfaceColor(stream, face);
                 }
 
@@ -183,9 +183,9 @@ namespace TrenchBroom {
         protected:
             void writeSurfaceColor(FILE* stream, Model::BrushFace* face) {
                 std::fprintf(stream, SurfaceColorFormat.c_str(),
-                             static_cast<int>(face->color().r()),
-                             static_cast<int>(face->color().g()),
-                             static_cast<int>(face->color().b()));
+                             static_cast<int>(face->attributes().color().r()),
+                             static_cast<int>(face->attributes().color().g()),
+                             static_cast<int>(face->attributes().color().b()));
             }
         };
 

@@ -113,7 +113,7 @@ namespace TrenchBroom {
         }
 
         BrushFace* BrushFace::clone() const {
-            BrushFace* result = new BrushFace(points()[0], points()[1], points()[2], textureName(), m_texCoordSystem->clone());
+            BrushFace* result = new BrushFace(points()[0], points()[1], points()[2], m_attributes.textureName(), m_texCoordSystem->clone());
             result->m_attributes = m_attributes;
             result->m_textureReference = m_textureReference;
             result->setFilePosition(m_lineNumber, m_lineCount);
@@ -237,11 +237,29 @@ namespace TrenchBroom {
             return m_attributes;
         }
 
+        BrushFaceAttributes& BrushFace::attributes() {
+            return m_attributes;
+        }
+
         void BrushFace::setAttributes(const BrushFaceAttributes& attributes) {
             const float oldRotation = m_attributes.rotation();
             m_attributes = attributes;
             m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attributes.rotation());
             updateBrush();
+        }
+
+        bool BrushFace::setAttributes(const BrushFace* other) {
+            auto result = false;
+            result |= m_attributes.setTextureName(other->attributes().textureName());
+            result |= m_attributes.setXOffset(other->attributes().xOffset());
+            result |= m_attributes.setYOffset(other->attributes().yOffset());
+            result |= m_attributes.setRotation(other->attributes().rotation());
+            result |= m_attributes.setXScale(other->attributes().xScale());
+            result |= m_attributes.setYScale(other->attributes().yScale());
+            result |= m_attributes.setSurfaceContents(other->attributes().surfaceContents());
+            result |= m_attributes.setSurfaceFlags(other->attributes().surfaceFlags());
+            result |= m_attributes.setSurfaceValue(other->attributes().surfaceValue());
+            return result;
         }
 
         void BrushFace::resetTexCoordSystemCache() {
@@ -250,81 +268,6 @@ namespace TrenchBroom {
             }
         }
 
-        const std::string& BrushFace::textureName() const {
-            return m_attributes.textureName();
-        }
-
-        bool BrushFace::setTextureName(const std::string& textureName) {
-            if (textureName == m_attributes.textureName()) {
-                return false;
-            }
-            
-            m_attributes.setTextureName(textureName);
-            
-            return true;
-        }
-
-        const vm::vec2f& BrushFace::offset() const {
-            return m_attributes.offset();
-        }
-
-        float BrushFace::xOffset() const {
-            return m_attributes.xOffset();
-        }
-
-        float BrushFace::yOffset() const {
-            return m_attributes.yOffset();
-        }
-
-        const vm::vec2f& BrushFace::scale() const {
-            return m_attributes.scale();
-        }
-
-        float BrushFace::xScale() const {
-            return m_attributes.xScale();
-        }
-
-        float BrushFace::yScale() const {
-            return m_attributes.yScale();
-        }
-
-        float BrushFace::rotation() const {
-            return m_attributes.rotation();
-        }
-
-        int BrushFace::surfaceContents() const {
-            return m_attributes.surfaceContents();
-        }
-
-        int BrushFace::surfaceFlags() const {
-            return m_attributes.surfaceFlags();
-        }
-
-        float BrushFace::surfaceValue() const {
-            return m_attributes.surfaceValue();
-        }
-
-        bool BrushFace::hasSurfaceAttributes() const {
-            return surfaceContents() != 0 || surfaceFlags() != 0 || surfaceValue() != 0.0f;
-        }
-
-        bool BrushFace::hasColor() const {
-            return color().a() > 0.0f;
-        }
-
-        const Color& BrushFace::color() const {
-            return m_attributes.color();
-        }
-
-        bool BrushFace::setColor(const Color& color) {
-            if (color == m_attributes.color()) {
-                return false;
-            }
-
-            m_attributes.setColor(color);
-            return true;
-        }
-        
         Assets::Texture* BrushFace::texture() const {
             return m_textureReference.texture();
         }
@@ -350,102 +293,6 @@ namespace TrenchBroom {
             m_textureReference = Assets::TextureReference(texture);
             updateBrush();
             return true;
-        }
-
-        bool BrushFace::setXOffset(const float i_xOffset) {
-            if (i_xOffset == xOffset()) {
-                return false;
-            }
-
-            m_attributes.setXOffset(i_xOffset);
-            updateBrush();
-            return true;
-        }
-
-        bool BrushFace::setYOffset(const float i_yOffset) {
-            if (i_yOffset == yOffset()) {
-                return false;
-            }
-
-            m_attributes.setYOffset(i_yOffset);
-            updateBrush();
-            return true;
-        }
-
-        bool BrushFace::setXScale(const float i_xScale) {
-            if (i_xScale == xScale()) {
-                return false;
-            }
-
-            m_attributes.setXScale(i_xScale);
-            updateBrush();
-            return true;
-        }
-
-        bool BrushFace::setYScale(const float i_yScale) {
-            if (i_yScale == yScale()) {
-                return false;
-            }
-
-            m_attributes.setYScale(i_yScale);
-            updateBrush();
-            return true;
-        }
-
-        bool BrushFace::setRotation(const float rotation) {
-            if (rotation == m_attributes.rotation()) {
-                return false;
-            }
-
-            const auto oldRotation = m_attributes.rotation();
-            m_attributes.setRotation(rotation);
-            m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, rotation);
-            updateBrush();
-            return true;
-        }
-
-        bool BrushFace::setSurfaceContents(const int surfaceContents) {
-            if (surfaceContents == m_attributes.surfaceContents()) {
-                return false;
-            }
-
-            m_attributes.setSurfaceContents(surfaceContents);
-            updateBrush();
-            return true;
-        }
-
-        bool BrushFace::setSurfaceFlags(const int surfaceFlags) {
-            if (surfaceFlags == m_attributes.surfaceFlags()) {
-                return false;
-            }
-
-            m_attributes.setSurfaceFlags(surfaceFlags);
-            updateBrush();
-            return true;
-        }
-
-        bool BrushFace::setSurfaceValue(const float surfaceValue) {
-            if (surfaceValue == m_attributes.surfaceValue()) {
-                return false;
-            }
-
-            m_attributes.setSurfaceValue(surfaceValue);
-            updateBrush();
-            return true;
-        }
-
-        bool BrushFace::setAttributes(const BrushFace* other) {
-            auto result = false;
-            result |= setTexture(other->texture());
-            result |= setXOffset(other->xOffset());
-            result |= setYOffset(other->yOffset());
-            result |= setRotation(other->rotation());
-            result |= setXScale(other->xScale());
-            result |= setYScale(other->yScale());
-            result |= setSurfaceContents(other->surfaceContents());
-            result |= setSurfaceFlags(other->surfaceFlags());
-            result |= setSurfaceValue(other->surfaceValue());
-            return result;
         }
 
         vm::vec3 BrushFace::textureXAxis() const {

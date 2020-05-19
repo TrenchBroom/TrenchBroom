@@ -201,10 +201,10 @@ namespace TrenchBroom {
             auto nonMatchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf"));
 
             for (auto* face : matchingBrushNode->brush().faces()) {
-                face->setSurfaceContents(1);
+                face->attributes().setSurfaceContents(1);
             }
             for (auto* face : nonMatchingBrushNode->brush().faces()) {
-                face->setSurfaceContents(2);
+                face->attributes().setSurfaceContents(2);
             }
 
             const auto& tag = document->smartTag("contentflags");
@@ -237,7 +237,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableContentFlagsTag") {
             auto* matchingBrushNode = createBrushNode("asdf");
             for (auto* face : matchingBrushNode->brush().faces()) {
-                face->setSurfaceContents(1);
+                face->attributes().setSurfaceContents(1);
             }
 
             document->addNode(matchingBrushNode, document->currentParent());
@@ -261,10 +261,10 @@ namespace TrenchBroom {
             auto nonMatchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf"));
 
             for (auto* face : matchingBrushNode->brush().faces()) {
-                face->setSurfaceFlags(1);
+                face->attributes().setSurfaceFlags(1);
             }
             for (auto* face : nonMatchingBrushNode->brush().faces()) {
-                face->setSurfaceFlags(2);
+                face->attributes().setSurfaceFlags(2);
             }
 
             const auto& tag = document->smartTag("surfaceflags");
@@ -297,7 +297,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableSurfaceFlagsTag") {
             auto* matchingBrushNode = createBrushNode("asdf");
             for (auto* face : matchingBrushNode->brush().faces()) {
-                face->setSurfaceFlags(1);
+                face->attributes().setSurfaceFlags(1);
             }
 
             document->addNode(matchingBrushNode, document->currentParent());

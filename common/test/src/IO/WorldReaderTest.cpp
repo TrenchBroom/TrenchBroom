@@ -27,6 +27,7 @@
 #include "IO/WorldReader.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceAttributes.h"
 #include "Model/EntityNode.h"
 #include "Model/LayerNode.h"
 #include "Model/ParallelTexCoordSystem.h"
@@ -210,12 +211,12 @@ namespace TrenchBroom {
             const Model::BrushFace* face1 = findFaceByPoints(faces, vm::vec3(0.0, 0.0, -16.0), vm::vec3(0.0, 0.0, 0.0),
                                                              vm::vec3(64.0, 0.0, -16.0));
             ASSERT_TRUE(face1 != nullptr);
-            ASSERT_STREQ("tex1", face1->textureName().c_str());
-            ASSERT_FLOAT_EQ(1.0, face1->xOffset());
-            ASSERT_FLOAT_EQ(2.0, face1->yOffset());
-            ASSERT_FLOAT_EQ(3.0, face1->rotation());
-            ASSERT_FLOAT_EQ(4.0, face1->xScale());
-            ASSERT_FLOAT_EQ(5.0, face1->yScale());
+            ASSERT_STREQ("tex1", face1->attributes().textureName().c_str());
+            ASSERT_FLOAT_EQ(1.0, face1->attributes().xOffset());
+            ASSERT_FLOAT_EQ(2.0, face1->attributes().yOffset());
+            ASSERT_FLOAT_EQ(3.0, face1->attributes().rotation());
+            ASSERT_FLOAT_EQ(4.0, face1->attributes().xScale());
+            ASSERT_FLOAT_EQ(5.0, face1->attributes().yScale());
 
             ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(0.0, 0.0, -16.0), vm::vec3(0.0, 64.0, -16.0),
                                          vm::vec3(0.0, 0.0, 0.0)) != nullptr);
@@ -261,11 +262,11 @@ namespace TrenchBroom {
             Model::BrushFace* face = findFaceByPoints(faces, vm::vec3(0.0, 0.0, -16.0), vm::vec3(0.0, 0.0, 0.0),
                                                       vm::vec3(64.0, 0.0, -16.0));
             ASSERT_TRUE(face != nullptr);
-            ASSERT_FLOAT_EQ(22.0f, face->xOffset());
-            ASSERT_FLOAT_EQ(22.0f, face->xOffset());
-            ASSERT_FLOAT_EQ(56.2f, face->rotation());
-            ASSERT_FLOAT_EQ(1.03433f, face->xScale());
-            ASSERT_FLOAT_EQ(-0.55f, face->yScale());
+            ASSERT_FLOAT_EQ(22.0f, face->attributes().xOffset());
+            ASSERT_FLOAT_EQ(22.0f, face->attributes().xOffset());
+            ASSERT_FLOAT_EQ(56.2f, face->attributes().rotation());
+            ASSERT_FLOAT_EQ(1.03433f, face->attributes().xScale());
+            ASSERT_FLOAT_EQ(-0.55f, face->attributes().yScale());
         }
 
         TEST_CASE("WorldReaderTest.parseBrushWithCurlyBraceInTextureName", "[WorldReaderTest]") {
@@ -548,12 +549,12 @@ namespace TrenchBroom {
             const auto* brushNode = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brushNode, false);
             const auto& brush = brushNode->brush();
-            ASSERT_TRUE(vm::is_equal(Color(5, 6, 7), brush.findFace("rtz/c_mf_v3cw")->color(), 0.1f));
-            ASSERT_EQ(1, brush.findFace("rtz/b_rc_v16w")->surfaceContents());
-            ASSERT_EQ(2, brush.findFace("rtz/b_rc_v16w")->surfaceFlags());
-            ASSERT_FLOAT_EQ(3.0, brush.findFace("rtz/b_rc_v16w")->surfaceValue());
-            ASSERT_TRUE(vm::is_equal(Color(8, 9, 10), brush.findFace("rtz/b_rc_v16w")->color(), 0.1f));
-            ASSERT_FALSE(brush.findFace("rtz/c_mf_v3cww")->hasColor());
+            ASSERT_TRUE(vm::is_equal(Color(5, 6, 7), brush.findFace("rtz/c_mf_v3cw")->attributes().color(), 0.1f));
+            ASSERT_EQ(1, brush.findFace("rtz/b_rc_v16w")->attributes().surfaceContents());
+            ASSERT_EQ(2, brush.findFace("rtz/b_rc_v16w")->attributes().surfaceFlags());
+            ASSERT_FLOAT_EQ(3.0, brush.findFace("rtz/b_rc_v16w")->attributes().surfaceValue());
+            ASSERT_TRUE(vm::is_equal(Color(8, 9, 10), brush.findFace("rtz/b_rc_v16w")->attributes().color(), 0.1f));
+            ASSERT_FALSE(brush.findFace("rtz/c_mf_v3cww")->attributes().hasColor());
         }
 
         TEST_CASE("WorldReaderTest.parseDaikatanaMapHeader", "[WorldReaderTest]") {
@@ -1099,7 +1100,7 @@ common/caulk
 
             CHECK(vm::bbox3(vm::vec3(-512, -512, -64), vm::vec3(512, 512, 0)) == brushNode->logicalBounds());
             for (Model::BrushFace* face : brushNode->brush().faces()) {
-                CHECK("general/sand1" == face->textureName());
+                CHECK("general/sand1" == face->attributes().textureName());
             }
         }
 
@@ -1135,9 +1136,9 @@ common/caulk
             Model::BrushNode* brush = dynamic_cast<Model::BrushNode*>(defaultLayer->children().front());
             REQUIRE(brush != nullptr);
 
-            for (Model::BrushFace* face : brush->brush().faces()) {
-                CHECK(!face->textureName().empty());
-                CHECK(face->textureName() == Model::BrushFaceAttributes::NoTextureName);
+            for (const Model::BrushFace* face : brush->brush().faces()) {
+                CHECK(!face->attributes().textureName().empty());
+                CHECK(face->attributes().textureName() == Model::BrushFaceAttributes::NoTextureName);
             }
         }
     }

@@ -293,25 +293,25 @@ namespace TrenchBroom {
                         return false;
                 if (candidate->selected() != m_face.selected())
                     return false;
-                if (candidate->textureName() != m_face.textureName())
+                if (candidate->attributes().textureName() != m_face.attributes().textureName())
                     return false;
                 if (candidate->texture() != m_face.texture())
                     return false;
-                if (candidate->xOffset() != m_face.xOffset())
+                if (candidate->attributes().xOffset() != m_face.attributes().xOffset())
                     return false;
-                if (candidate->yOffset() != m_face.yOffset())
+                if (candidate->attributes().yOffset() != m_face.attributes().yOffset())
                     return false;
-                if (candidate->rotation() != m_face.rotation())
+                if (candidate->attributes().rotation() != m_face.attributes().rotation())
                     return false;
-                if (candidate->xScale() != m_face.xScale())
+                if (candidate->attributes().xScale() != m_face.attributes().xScale())
                     return false;
-                if (candidate->yScale() != m_face.yScale())
+                if (candidate->attributes().yScale() != m_face.attributes().yScale())
                     return false;
-                if (candidate->surfaceContents() != m_face.surfaceContents())
+                if (candidate->attributes().surfaceContents() != m_face.attributes().surfaceContents())
                     return false;
-                if (candidate->surfaceFlags() != m_face.surfaceFlags())
+                if (candidate->attributes().surfaceFlags() != m_face.attributes().surfaceFlags())
                     return false;
-                if (candidate->surfaceValue() != m_face.surfaceValue())
+                if (candidate->attributes().surfaceValue() != m_face.attributes().surfaceValue())
                     return false;
                 return true;
             }
@@ -534,7 +534,7 @@ namespace TrenchBroom {
 
             // Check just the texture names are restored
             for (BrushFace* face : cube->brush().faces()) {
-                EXPECT_EQ("testTexture", face->textureName());
+                EXPECT_EQ("testTexture", face->attributes().textureName());
                 EXPECT_EQ(nullptr, face->texture());
             }
 

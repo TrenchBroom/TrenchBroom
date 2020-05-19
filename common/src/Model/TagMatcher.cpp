@@ -72,7 +72,7 @@ namespace TrenchBroom {
 
         bool TextureNameTagMatcher::matches(const Taggable& taggable) const {
             BrushFaceMatchVisitor visitor([this](const BrushFace& face) {
-                return matchesTextureName(face.textureName());
+                return matchesTextureName(face.attributes().textureName());
             });
 
             taggable.accept(visitor);
@@ -224,7 +224,7 @@ namespace TrenchBroom {
 
         ContentFlagsTagMatcher::ContentFlagsTagMatcher(const int i_flags) :
         FlagsTagMatcher(i_flags,
-            [](const BrushFace& face) { return face.surfaceContents(); },
+            [](const BrushFace& face) { return face.attributes().surfaceContents(); },
             [](ChangeBrushFaceAttributesRequest& request, const int flags) { request.setContentFlags(flags); },
             [](ChangeBrushFaceAttributesRequest& request, const int flags) { request.unsetContentFlags(flags); },
             [](const Game& game, const int flags) { return game.contentFlags().flagNames(flags); }
@@ -236,7 +236,7 @@ namespace TrenchBroom {
 
         SurfaceFlagsTagMatcher::SurfaceFlagsTagMatcher(const int i_flags) :
         FlagsTagMatcher(i_flags,
-            [](const BrushFace& face) { return face.surfaceFlags(); },
+            [](const BrushFace& face) { return face.attributes().surfaceFlags(); },
             [](ChangeBrushFaceAttributesRequest& request, const int flags) { request.setSurfaceFlags(flags); },
             [](ChangeBrushFaceAttributesRequest& request, const int flags) { request.unsetSurfaceFlags(flags); },
             [](const Game& game, const int flags) { return game.surfaceFlags().flagNames(flags); }
