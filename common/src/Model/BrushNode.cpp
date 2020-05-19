@@ -120,10 +120,6 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
 
-        size_t BrushNode::faceCount() const {
-            return m_brush.faceCount();
-        }
-
         const std::vector<BrushFace*>& BrushNode::faces() const {
             return m_brush.faces();
         }

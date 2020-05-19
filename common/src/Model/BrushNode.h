@@ -69,7 +69,6 @@ namespace TrenchBroom {
             const Brush& brush() const;
             void setBrush(Brush brush);
         public:
-            size_t faceCount() const;
             const std::vector<BrushFace*>& faces() const;
             void setFaces(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces);
 
