@@ -421,7 +421,7 @@ namespace TrenchBroom {
             widget->setClearButtonEnabled(true);
             widget->setPlaceholderText(QLineEdit::tr("Search..."));
 
-            QIcon icon = loadIconResourceQt(IO::Path("Search.png"));
+            QIcon icon = loadIconResourceQt(IO::Path("Search.svg"));
             widget->addAction(icon, QLineEdit::LeadingPosition);
             return widget;
         }

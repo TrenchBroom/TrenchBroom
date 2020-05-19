@@ -540,11 +540,11 @@ namespace TrenchBroom {
                 // lock icon
                 if (index.column() == 0) {
                     if (!row.nameMutable()) {
-                        return QVariant(IO::loadIconResourceQt(IO::Path("Locked_small.png")));
+                        return QVariant(IO::loadIconResourceQt(IO::Path("Locked_small.svg")));
                     }
                 } else if (index.column() == 1) {
                     if (!row.valueMutable()) {
-                        return QVariant(IO::loadIconResourceQt(IO::Path("Locked_small.png")));
+                        return QVariant(IO::loadIconResourceQt(IO::Path("Locked_small.svg")));
                     }
                 }
                 return QVariant();

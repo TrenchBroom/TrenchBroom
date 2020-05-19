@@ -145,9 +145,9 @@ namespace TrenchBroom {
             enabledCollectionsContainerLayout->addWidget(m_enabledCollectionsList);
             enabledCollectionsContainer->getPanel()->setLayout(enabledCollectionsContainerLayout);
 
-            m_addCollectionsButton = createBitmapButton("Add.png", tr("Enable the selected texture collections"), this);
-            m_removeCollectionsButton = createBitmapButton("Remove.png", tr("Disable the selected texture collections"), this);
-            m_reloadCollectionsButton = createBitmapButton("Refresh.png", tr("Reload all enabled texture collections"), this);
+            m_addCollectionsButton = createBitmapButton("Add.svg", tr("Enable the selected texture collections"), this);
+            m_removeCollectionsButton = createBitmapButton("Remove.svg", tr("Disable the selected texture collections"), this);
+            m_reloadCollectionsButton = createBitmapButton("Refresh.svg", tr("Reload all enabled texture collections"), this);
 
             auto* toolBar = createMiniToolBarLayout(
                 m_addCollectionsButton,
