@@ -195,7 +195,6 @@ namespace TrenchBroom {
         }
 
         ChangeBrushFaceAttributesRequest::ChangeBrushFaceAttributesRequest() :
-        m_texture(nullptr),
         m_xOffset(0.0f),
         m_yOffset(0.0f),
         m_rotation(0.0f),
@@ -217,7 +216,7 @@ namespace TrenchBroom {
         m_colorValueOp(ValueOp_None) {}
 
         void ChangeBrushFaceAttributesRequest::clear() {
-            m_texture = nullptr;
+            m_textureName = "";
             m_xOffset = m_yOffset = 0.0f;
             m_rotation = 0.0f;
             m_xScale = m_yScale = 1.0f;
@@ -242,10 +241,7 @@ namespace TrenchBroom {
             for (BrushFace* face : faces) {
                 switch (m_textureOp) {
                     case TextureOp_Set:
-                        result |= face->setTexture(m_texture);
-                        break;
-                    case TextureOp_Unset:
-                        result |= face->unsetTexture();
+                        result |= face->setTextureName(m_textureName);
                         break;
                     case TextureOp_None:
                         break;
@@ -284,14 +280,9 @@ namespace TrenchBroom {
             setScale(vm::vec2f::one());
         }
 
-        void ChangeBrushFaceAttributesRequest::setTexture(Assets::Texture* texture) {
-            m_texture = texture;
+        void ChangeBrushFaceAttributesRequest::setTextureName(const std::string& textureName) {
+            m_textureName = textureName;
             m_textureOp = TextureOp_Set;
-        }
-
-        void ChangeBrushFaceAttributesRequest::unsetTexture() {
-            m_texture = nullptr;
-            m_textureOp = TextureOp_Unset;
         }
 
         void ChangeBrushFaceAttributesRequest::resetTextureAxes() {
@@ -490,7 +481,7 @@ namespace TrenchBroom {
         }
 
         void ChangeBrushFaceAttributesRequest::setAll(const Model::BrushFaceAttributes& attributes) {
-            setTexture(attributes.texture());
+            setTextureName(attributes.textureName());
             setXOffset(attributes.xOffset());
             setYOffset(attributes.yOffset());
             setRotation(attributes.rotation());
@@ -503,7 +494,7 @@ namespace TrenchBroom {
         }
 
         bool ChangeBrushFaceAttributesRequest::collateWith(ChangeBrushFaceAttributesRequest& other) {
-            Assets::Texture* newTexture = m_texture; TextureOp newTextureOp = m_textureOp;
+            std::string newTextureName = m_textureName; TextureOp newTextureOp = m_textureOp;
             AxisOp newAxisOp = m_axisOp;
 
             float newXOffset = m_xOffset;   ValueOp newXOffsetOp = m_xOffsetOp;
@@ -542,8 +533,8 @@ namespace TrenchBroom {
 
             if (!collateValueOp(newColorValueOp, newColorValue, other.m_colorValueOp, other.m_colorValue))
                 return false;
-
-            m_texture = newTexture; m_textureOp = newTextureOp;
+            
+            m_textureName = newTextureName; m_textureOp = newTextureOp;
             m_axisOp = newAxisOp;
             m_xOffset = newXOffset; m_xOffsetOp = newXOffsetOp;
             m_yOffset = newYOffset; m_yOffsetOp = newYOffsetOp;

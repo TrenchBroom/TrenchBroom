@@ -1367,50 +1367,9 @@ namespace TrenchBroom {
             return result->success();
         }
 
-        void MapDocument::setTexture(Assets::Texture* texture, const bool toggle) {
-            const auto faces = allSelectedBrushFaces();
-
-            if (texture != nullptr) {
-                if (faces.empty()) {
-                    if (currentTextureName() == texture->name() && toggle) {
-                        setCurrentTextureName(Model::BrushFaceAttributes::NoTextureName);
-                    } else {
-                        setCurrentTextureName(texture->name());
-                    }
-                } else {
-                    const auto hasTexture = std::any_of(std::begin(faces), std::end(faces), [&](const auto& handle) {
-                        return handle.face()->texture() == texture;
-                    });
-                    if (hasTexture && toggle) {
-                        texture = nullptr;
-                        setCurrentTextureName(Model::BrushFaceAttributes::NoTextureName);
-                    } else {
-                        setCurrentTextureName(texture->name());
-                    }
-                }
-            }
-
-            if (!faces.empty()) {
-                Model::ChangeBrushFaceAttributesRequest request;
-                if (texture == nullptr) {
-                    request.unsetTexture();
-                } else {
-                    request.setTexture(texture);
-                }
-                executeAndStore(ChangeBrushFaceAttributesCommand::command(request));
-            }
-        }
-
         bool MapDocument::setFaceAttributes(const Model::BrushFaceAttributes& attributes) {
             Model::ChangeBrushFaceAttributesRequest request;
             request.setAll(attributes);
-
-            // try to find the texture if it is null, maybe it just wasn't set?
-            if (attributes.texture() == nullptr) {
-                Assets::Texture* texture = m_textureManager->texture(attributes.textureName());
-                request.setTexture(texture);
-            }
-
             return setFaceAttributes(request);
         }
 

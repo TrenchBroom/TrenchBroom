@@ -69,10 +69,10 @@ namespace TrenchBroom {
             void resetTextureAxesToParaxial(const vm::vec3& normal, float angle);
             void resetTextureAxesToParallel(const vm::vec3& normal, float angle);
 
-            vm::vec2f getTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs) const;
+            vm::vec2f getTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs, const vm::vec2f& textureSize) const;
 
             void setRotation(const vm::vec3& normal, float oldAngle, float newAngle);
-            void transform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant);
+            void transform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, const vm::vec2f& textureSize, bool lockTexture, const vm::vec3& invariant);
             void updateNormal(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs, const WrapStyle style);
 
             void moveTexture(const vm::vec3& normal, const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset, BrushFaceAttributes& attribs) const;
@@ -98,10 +98,10 @@ namespace TrenchBroom {
             virtual void doResetTextureAxesToParallel(const vm::vec3& normal, float angle) = 0;
 
             virtual bool isRotationInverted(const vm::vec3& normal) const = 0;
-            virtual vm::vec2f doGetTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs) const = 0;
+            virtual vm::vec2f doGetTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs, const vm::vec2f& textureSize) const = 0;
 
             virtual void doSetRotation(const vm::vec3& normal, float oldAngle, float newAngle) = 0;
-            virtual void doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant) = 0;
+            virtual void doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, const vm::vec2f& textureSize, bool lockTexture, const vm::vec3& invariant) = 0;
             virtual void doUpdateNormalWithProjection(const vm::vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
             virtual void doUpdateNormalWithRotation(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
 

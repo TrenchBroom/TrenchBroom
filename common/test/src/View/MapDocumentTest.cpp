@@ -377,18 +377,6 @@ namespace TrenchBroom {
             ASSERT_EQ(bounds, brush3->logicalBounds());
         }
 
-        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.setTextureNull") {
-            Model::BrushBuilder builder(document->world(), document->worldBounds());
-            Model::BrushNode* brush1 = document->world()->createBrush(builder.createCube(64.0, Model::BrushFaceAttributes::NoTextureName));
-
-            document->addNode(brush1, document->currentParent());
-            document->select(brush1);
-
-            document->setTexture(nullptr, false);
-
-            CHECK(brush1->brush().faces().at(0u)->textureName() == Model::BrushFaceAttributes::NoTextureName);
-        }
-
         ValveMapDocumentTest::ValveMapDocumentTest() :
         MapDocumentTest(Model::MapFormat::Valve) {}
 

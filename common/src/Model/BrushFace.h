@@ -22,6 +22,7 @@
 
 #include "FloatType.h"
 #include "Macros.h"
+#include "Assets/TextureReference.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Tag.h" // BrushFace inherits from Taggable
@@ -89,7 +90,9 @@ namespace TrenchBroom {
 
             std::unique_ptr<TexCoordSystem> m_texCoordSystem;
             BrushFaceGeometry* m_geometry;
-
+            
+            Assets::TextureReference m_textureReference;
+            
             // brush renderer
             mutable bool m_markedToRenderFace;
         protected:
@@ -127,13 +130,11 @@ namespace TrenchBroom {
             void resetTexCoordSystemCache();
 
             const std::string& textureName() const;
-            Assets::Texture* texture() const;
-            vm::vec2f textureSize() const;
+            bool setTextureName(const std::string& textureName);
 
             const vm::vec2f& offset() const;
             float xOffset() const;
             float yOffset() const;
-            vm::vec2f modOffset(const vm::vec2f& offset) const;
 
             const vm::vec2f& scale() const;
             float xScale() const;
@@ -150,8 +151,11 @@ namespace TrenchBroom {
             const Color& color() const;
             bool setColor(const Color& color);
 
+            Assets::Texture* texture() const;
+            vm::vec2f textureSize() const;
+            vm::vec2f modOffset(const vm::vec2f& offset) const;
+
             bool setTexture(Assets::Texture* texture);
-            bool unsetTexture();
 
             bool setXOffset(float xOffset);
             bool setYOffset(float yOffset);

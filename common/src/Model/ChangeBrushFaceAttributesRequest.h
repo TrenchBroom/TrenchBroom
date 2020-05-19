@@ -28,10 +28,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
     namespace Model {
         class BrushFace;
         class BrushFaceAttributes;
@@ -65,11 +61,10 @@ namespace TrenchBroom {
             // TODO: replace with class based enum
             typedef enum {
                 TextureOp_None,
-                TextureOp_Set,
-                TextureOp_Unset
+                TextureOp_Set
             } TextureOp;
         private:
-            Assets::Texture* m_texture;
+            std::string m_textureName;
             float m_xOffset;
             float m_yOffset;
             float m_rotation;
@@ -101,8 +96,7 @@ namespace TrenchBroom {
 
             void resetAll();
 
-            void setTexture(Assets::Texture* texture);
-            void unsetTexture();
+            void setTextureName(const std::string& textureName);
 
             void resetTextureAxes();
             void resetTextureAxesToParaxial();

@@ -115,6 +115,7 @@ namespace TrenchBroom {
         BrushFace* BrushFace::clone() const {
             BrushFace* result = new BrushFace(points()[0], points()[1], points()[2], textureName(), m_texCoordSystem->clone());
             result->m_attributes = m_attributes;
+            result->m_textureReference = m_textureReference;
             result->setFilePosition(m_lineNumber, m_lineCount);
             if (m_selected)
                 result->select();
@@ -138,15 +139,15 @@ namespace TrenchBroom {
             coordSystemSnapshot.restore(*m_texCoordSystem);
 
             // Get the texcoords at the refPoint using the source face's attributes and tex coord system
-            const auto desriedCoords = m_texCoordSystem->getTexCoords(refPoint, attributes) * attributes.textureSize();
+            const auto desriedCoords = m_texCoordSystem->getTexCoords(refPoint, attributes, vm::vec2f::one());
 
             m_texCoordSystem->updateNormal(sourceFacePlane.normal, m_boundary.normal, m_attributes, wrapStyle);
 
             // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
             if (!vm::is_zero(seam.direction, vm::C::almost_zero())) {
-                const auto currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attributes) * m_attributes.textureSize();
+                const auto currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attributes, vm::vec2f::one());
                 const auto offsetChange = desriedCoords - currentCoords;
-                m_attributes.setOffset(correct(m_attributes.modOffset(m_attributes.offset() + offsetChange), 4));
+                m_attributes.setOffset(correct(modOffset(m_attributes.offset() + offsetChange), 4));
             }
 
             invalidateVertexCache();
@@ -253,12 +254,14 @@ namespace TrenchBroom {
             return m_attributes.textureName();
         }
 
-        Assets::Texture* BrushFace::texture() const {
-            return m_attributes.texture();
-        }
-
-        vm::vec2f BrushFace::textureSize() const {
-            return m_attributes.textureSize();
+        bool BrushFace::setTextureName(const std::string& textureName) {
+            if (textureName == m_attributes.textureName()) {
+                return false;
+            }
+            
+            m_attributes.setTextureName(textureName);
+            
+            return true;
         }
 
         const vm::vec2f& BrushFace::offset() const {
@@ -271,10 +274,6 @@ namespace TrenchBroom {
 
         float BrushFace::yOffset() const {
             return m_attributes.yOffset();
-        }
-
-        vm::vec2f BrushFace::modOffset(const vm::vec2f& offset) const {
-            return m_attributes.modOffset(offset);
         }
 
         const vm::vec2f& BrushFace::scale() const {
@@ -325,23 +324,30 @@ namespace TrenchBroom {
             m_attributes.setColor(color);
             return true;
         }
-
-        bool BrushFace::setTexture(Assets::Texture* texture) {
-            if (texture == m_attributes.texture()) {
-                return false;
-            }
-
-            m_attributes.setTexture(texture);
-            updateBrush();
-            return true;
+        
+        Assets::Texture* BrushFace::texture() const {
+            return m_textureReference.texture();
         }
 
-        bool BrushFace::unsetTexture() {
-            if (m_attributes.texture() == nullptr) {
+        vm::vec2f BrushFace::textureSize() const {
+            if (texture() == nullptr) {
+                return vm::vec2f::one();
+            }
+            const float w = texture()->width()  == 0 ? 1.0f : static_cast<float>(texture()->width());
+            const float h = texture()->height() == 0 ? 1.0f : static_cast<float>(texture()->height());
+            return vm::vec2f(w, h);
+        }
+
+        vm::vec2f BrushFace::modOffset(const vm::vec2f& offset) const {
+            return m_attributes.modOffset(offset, textureSize());
+        }
+
+        bool BrushFace::setTexture(Assets::Texture* texture) {
+            if (texture == this->texture()) {
                 return false;
             }
 
-            m_attributes.unsetTexture();
+            m_textureReference = Assets::TextureReference(texture);
             updateBrush();
             return true;
         }
@@ -489,7 +495,7 @@ namespace TrenchBroom {
 
             setPoints(m_points[0], m_points[1], m_points[2]);
 
-            m_texCoordSystem->transform(oldBoundary, m_boundary, transform, m_attributes, lockTexture, invariant);
+            m_texCoordSystem->transform(oldBoundary, m_boundary, transform, m_attributes, textureSize(), lockTexture, invariant);
         }
 
         void BrushFace::invert() {
@@ -515,15 +521,15 @@ namespace TrenchBroom {
             if (!vm::is_zero(seam.direction, vm::C::almost_zero())) {
                 const auto refPoint = project_point(seam, center());
 
-                // Get the texcoords at the refPoint using the old face's attributes and tex coord system
-                const auto desriedCoords = m_texCoordSystem->getTexCoords(refPoint, m_attributes) * m_attributes.textureSize();
+                // Get the texcoords at the refPoint using the old face's attribs and tex coord system
+                const auto desriedCoords = m_texCoordSystem->getTexCoords(refPoint, m_attributes, vm::vec2f::one());
 
                 m_texCoordSystem->updateNormal(oldPlane.normal, m_boundary.normal, m_attributes, WrapStyle::Projection);
 
                 // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
-                const auto currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attributes) * m_attributes.textureSize();
+                const auto currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attributes, vm::vec2f::one());
                 const auto offsetChange = desriedCoords - currentCoords;
-                m_attributes.setOffset(correct(m_attributes.modOffset(m_attributes.offset() + offsetChange), 4));
+                m_attributes.setOffset(correct(modOffset(m_attributes.offset() + offsetChange), 4));
             }
         }
 
@@ -639,7 +645,7 @@ namespace TrenchBroom {
         }
 
         vm::vec2f BrushFace::textureCoords(const vm::vec3& point) const {
-            return m_texCoordSystem->getTexCoords(point, m_attributes);
+            return m_texCoordSystem->getTexCoords(point, m_attributes, textureSize());
         }
 
         FloatType BrushFace::intersectWithRay(const vm::ray3& ray) const {
