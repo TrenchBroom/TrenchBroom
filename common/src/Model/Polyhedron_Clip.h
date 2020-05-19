@@ -62,12 +62,6 @@ namespace TrenchBroom {
 
         template <typename T, typename FP, typename VP>
         typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const vm::plane<T,3>& plane) {
-            Callback c;
-            return clip(plane, c);
-        }
-
-        template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const vm::plane<T,3>& plane, Callback& callback) {
             if (const auto vertexResult = checkIntersects(plane)) {
                 return ClipResult(*vertexResult);
             }
@@ -77,15 +71,15 @@ namespace TrenchBroom {
             // Sometimes building a seam fails due to floating point imprecisions. In that case, intersectWithPlane
             // throws a GeometryException which we catch here.
             try {
-                const Seam seam = intersectWithPlane(plane, callback);
+                const Seam seam = intersectWithPlane(plane);
 
                 // We construct a seam along those edges which are completely inside the plane and delete the half of the
                 // polyhedron that is above the plane. The remaining half is an open polyhedron (one face is missing) which
                 // is below the plane.
-                split(seam, callback);
+                split(seam);
 
                 // We seal the polyhedron by creating a new face.
-                Face* newFace = sealWithSinglePolygon(seam, plane, callback);
+                Face* newFace = sealWithSinglePolygon(seam, plane);
                 updateBounds();
 
                 assert(newFace != nullptr);
@@ -99,7 +93,7 @@ namespace TrenchBroom {
                  merge them again if they are coplanar.
                  */
                 for (const Edge* edge : e.splitFaces()) {
-                    mergeNeighbours(edge->firstEdge(), nullptr, callback);
+                    mergeNeighbours(edge->firstEdge(), nullptr);
                 }
                 assert(checkInvariant());
 
@@ -176,7 +170,7 @@ namespace TrenchBroom {
         };
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::intersectWithPlane(const vm::plane<T,3>& plane, Callback& callback) {
+        typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::intersectWithPlane(const vm::plane<T,3>& plane) {
             Seam seam;
             std::vector<Edge*> splitFaces;
 
@@ -189,7 +183,7 @@ namespace TrenchBroom {
             
             // Now we split the face to which this initial half edge belongs. The call returns the newly inserted edge
             // that connects the (possibly newly inserted) vertices which are now inside of the plane.
-            std::tie(currentEdge, faceWasSplit) = intersectWithPlane(initialEdge, plane, callback);
+            std::tie(currentEdge, faceWasSplit) = intersectWithPlane(initialEdge, plane);
             
             // Keep track of the faces that were split so that we can merge them if no seam can be created.
             if (faceWasSplit) {
@@ -213,7 +207,7 @@ namespace TrenchBroom {
 
                 // Now we split that face. Again, the returned edge connects the two (possibly inserted) vertices of that
                 // face which are now inside the plane.
-                std::tie(currentEdge, faceWasSplit) = intersectWithPlane(currentEdge, plane, callback);
+                std::tie(currentEdge, faceWasSplit) = intersectWithPlane(currentEdge, plane);
 
                 // Build a seam while intersecting the polyhedron by remembering the edges we just inserted. To ensure that
                 // the seam edges are correctly oriented, we check that the current edge is the second edge, as the current
@@ -285,7 +279,7 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        std::tuple<typename Polyhedron<T,FP,VP>::HalfEdge*, bool> Polyhedron<T,FP,VP>::intersectWithPlane(HalfEdge* firstBoundaryEdge, const vm::plane<T,3>& plane, Callback& callback) {
+        std::tuple<typename Polyhedron<T,FP,VP>::HalfEdge*, bool> Polyhedron<T,FP,VP>::intersectWithPlane(HalfEdge* firstBoundaryEdge, const vm::plane<T,3>& plane) {
 
             // Starting at the given edge, we search the boundary of the incident face until we find an edge that is either split in two by the given plane
             // or where its origin is inside it. In the first case, we split the found edge by inserting a vertex at the position where
@@ -324,7 +318,6 @@ namespace TrenchBroom {
                     assert(plane.point_status(newVertex->position()) == vm::plane_status::inside);
 
                     m_vertices.push_back(newVertex);
-                    callback.vertexWasCreated(newVertex);
 
                     // The newly inserted vertex will be reexamined in the next loop iteration as it is now contained within the plane.
                 } else {
@@ -350,9 +343,9 @@ namespace TrenchBroom {
                 const vm::plane_status os = plane.point_status(seamOrigin->destination()->position());
                 assert(os != vm::plane_status::inside);
                 if (os == vm::plane_status::below) {
-                    intersectWithPlane(seamOrigin, seamDestination, callback);
+                    intersectWithPlane(seamOrigin, seamDestination);
                 } else {
-                    intersectWithPlane(seamDestination, seamOrigin, callback);
+                    intersectWithPlane(seamDestination, seamOrigin);
                 }
                 faceWasSplit = true;
             }
@@ -361,7 +354,7 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::intersectWithPlane(HalfEdge* oldBoundaryFirst, HalfEdge* newBoundaryFirst, Callback& callback) {
+        void Polyhedron<T,FP,VP>::intersectWithPlane(HalfEdge* oldBoundaryFirst, HalfEdge* newBoundaryFirst) {
             HalfEdge* newBoundaryLast = oldBoundaryFirst->previous();
 
             HalfEdge* oldBoundarySplitter = new HalfEdge(newBoundaryFirst->origin());
@@ -376,8 +369,6 @@ namespace TrenchBroom {
 
             m_edges.push_back(newEdge);
             m_faces.push_back(newFace);
-
-            callback.faceWasSplit(oldFace, newFace);
         }
 
         /*

@@ -63,94 +63,64 @@ namespace TrenchBroom {
             addPoints(std::begin(points), std::end(points));
         }
 
-        template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::addPoints(const std::vector<vm::vec<T,3>>& points, Callback& callback) {
-            addPoints(std::begin(points), std::end(points), callback);
-        }
-
         template <typename T, typename FP, typename VP> template <typename I>
         void Polyhedron<T,FP,VP>::addPoints(I cur, I end) {
-            Callback c;
             while (cur != end) {
-                addPoint(*cur++, c);
-            }
-        }
-
-        template <typename T, typename FP, typename VP> template <typename I>
-        void Polyhedron<T,FP,VP>::addPoints(I cur, I end, Callback& callback) {
-            while (cur != end) {
-                addPoint(*cur++, callback);
+                addPoint(*cur++);
             }
         }
 
         template <typename T, typename FP, typename VP>
         typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPoint(const vm::vec<T,3>& position) {
-            Callback c;
-            return addPoint(position, c);
-        }
-
-        template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPoint(const vm::vec<T,3>& position, Callback& callback) {
             assert(checkInvariant());
             Vertex* result = nullptr;
             switch (vertexCount()) {
                 case 0:
-                    result = addFirstPoint(position, callback);
+                    result = addFirstPoint(position);
                     m_bounds.min = m_bounds.max = position;
                     break;
                 case 1:
-                    result = addSecondPoint(position, callback);
+                    result = addSecondPoint(position);
                     m_bounds = vm::merge(m_bounds, position);
                     break;
                 case 2:
-                    result = addThirdPoint(position, callback);
+                    result = addThirdPoint(position);
                     m_bounds = vm::merge(m_bounds, position);
                     break;
                 default:
-                    result = addFurtherPoint(position, callback);
+                    result = addFurtherPoint(position);
                     if (result != nullptr) {
                         m_bounds = vm::merge(m_bounds, position);
                     }
                     break;
             }
             assert(checkInvariant());
-            if (result != nullptr) {
-                callback.vertexWasAdded(result);
-            }
             return result;
         }
 
         template <typename T, typename FP, typename VP>
         void Polyhedron<T,FP,VP>::merge(const Polyhedron& other) {
-            Callback c;
-            merge(other, c);
-        }
-
-        template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::merge(const Polyhedron& other, Callback& callback) {
             for (const Vertex* vertex : other.vertices()) {
-                addPoint(vertex->position(), callback);
+                addPoint(vertex->position());
             }
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFirstPoint(const vm::vec<T,3>& position, Callback& callback) {
+        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFirstPoint(const vm::vec<T,3>& position) {
             assert(empty());
             Vertex* newVertex = new Vertex(position);
             m_vertices.push_back(newVertex);
-            callback.vertexWasCreated(newVertex);
             return newVertex;
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addSecondPoint(const vm::vec<T,3>& position, Callback& callback) {
+        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addSecondPoint(const vm::vec<T,3>& position) {
             assert(point());
 
             Vertex* onlyVertex = *std::begin(m_vertices);
             if (position != onlyVertex->position()) {
                 Vertex* newVertex = new Vertex(position);
                 m_vertices.push_back(newVertex);
-                callback.vertexWasCreated(newVertex);
 
                 HalfEdge* halfEdge1 = new HalfEdge(onlyVertex);
                 HalfEdge* halfEdge2 = new HalfEdge(newVertex);
@@ -163,21 +133,21 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addThirdPoint(const vm::vec<T,3>& position, Callback& callback) {
+        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addThirdPoint(const vm::vec<T,3>& position) {
             assert(edge());
 
             Vertex* v1 = m_vertices.front();
             Vertex* v2 = v1->next();
 
             if (vm::is_colinear(v1->position(), v2->position(), position)) {
-                return addColinearThirdPoint(position, callback);
+                return addColinearThirdPoint(position);
             } else {
-                return addNonColinearThirdPoint(position, callback);
+                return addNonColinearThirdPoint(position);
             }
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addColinearThirdPoint(const vm::vec<T,3>& position, Callback& /* callback */) {
+        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addColinearThirdPoint(const vm::vec<T,3>& position) {
             assert(edge());
 
             auto* v1 = m_vertices.front();
@@ -199,7 +169,7 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addNonColinearThirdPoint(const vm::vec<T,3>& position, Callback& callback) {
+        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addNonColinearThirdPoint(const vm::vec<T,3>& position) {
             assert(edge());
 
             Vertex* v1 = m_vertices.front();
@@ -236,43 +206,39 @@ namespace TrenchBroom {
             m_edges.push_back(e3);
             m_faces.push_back(face);
 
-            callback.vertexWasCreated(v1);
-            callback.faceWasCreated(face);
-
             return v3;
         }
 
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPoint(const vm::vec<T,3>& position, Callback& callback) {
+        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPoint(const vm::vec<T,3>& position) {
             assert(faceCount() > 0u);
             if (faceCount() == 1u) {
-                return addFurtherPointToPolygon(position, callback);
+                return addFurtherPointToPolygon(position);
             } else {
-                return addFurtherPointToPolyhedron(position, callback);
+                return addFurtherPointToPolyhedron(position);
             }
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolygon(const vm::vec<T,3>& position, Callback& callback) {
+        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolygon(const vm::vec<T,3>& position) {
             Face* face = m_faces.front();
             const vm::plane_status status = face->pointStatus(position);
             switch (status) {
                 case vm::plane_status::inside:
-                    return addPointToPolygon(position, callback);
+                    return addPointToPolygon(position);
                 case vm::plane_status::above:
                     face->flip();
-                    callback.faceWasFlipped(face);
                     switchFallthrough();
                 case vm::plane_status::below:
-                    return makePolyhedron(position, callback);
+                    return makePolyhedron(position);
             }
             // will never be reached
             return nullptr;
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(const vm::vec<T,3>& position, Callback& callback) {
+        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(const vm::vec<T,3>& position) {
             assert(polygon());
 
             Face* face = m_faces.front();
@@ -335,7 +301,6 @@ namespace TrenchBroom {
 
                 if (curEdge != visibleEdges.front()) {
                     Vertex* vertex = curEdge->origin();
-                    callback.vertexWillBeDeleted(vertex);
                     m_vertices.remove(vertex);
                 }
             }
@@ -343,13 +308,12 @@ namespace TrenchBroom {
             m_edges.push_back(e1);
             m_edges.push_back(e2);
             m_vertices.push_back(newVertex);
-            callback.vertexWasCreated(newVertex);
 
             return newVertex;
         }
 
         template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::makePolygon(const std::vector<vm::vec<T,3>>& positions, Callback& callback) {
+        void Polyhedron<T,FP,VP>::makePolygon(const std::vector<vm::vec<T,3>>& positions) {
             assert(empty());
             assert(positions.size() > 2);
 
@@ -361,20 +325,17 @@ namespace TrenchBroom {
                 Edge* e = new Edge(h);
 
                 m_vertices.push_back(v);
-                callback.vertexWasCreated(v);
-
                 boundary.push_back(h);
                 m_edges.push_back(e);
             }
 
             const vm::plane<T,3> plane = makePlaneFromBoundary(boundary);
             Face* f = new Face(std::move(boundary), plane);
-            callback.faceWasCreated(f);
             m_faces.push_back(f);
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::makePolyhedron(const vm::vec<T,3>& position, Callback& callback) {
+        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::makePolyhedron(const vm::vec<T,3>& position) {
             assert(polygon());
 
             Seam seam;
@@ -386,11 +347,11 @@ namespace TrenchBroom {
                 seam.push_back((*it)->edge());
             }
 
-            return weave(seam, position, callback);
+            return weave(seam, position);
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolyhedron(const vm::vec<T,3>& position, Callback& callback) {
+        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolyhedron(const vm::vec<T,3>& position) {
             assert(polyhedron());
             if (contains(position)) {
                 return nullptr;
@@ -407,9 +368,8 @@ namespace TrenchBroom {
             }
 
             assert(seam.size() >= 3);
-            split(seam, callback);
-
-            return weave(seam, position, callback);
+            split(seam);
+            return weave(seam, position);
         }
 
         template <typename T, typename FP, typename VP>
@@ -744,7 +704,7 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::split(const Seam& seam, Callback& callback) {
+        void Polyhedron<T,FP,VP>::split(const Seam& seam) {
             assert(seam.size() >= 3);
             assert(!seam.hasMultipleLoops());
 
@@ -770,20 +730,17 @@ namespace TrenchBroom {
             // We must remember which faces we have already visited to stop the recursion.
             std::unordered_set<Face*> visitedFaces;
             VertexList verticesToDelete; // Will automatically delete the vertices when it falls out of scope
-            deleteFaces(first, visitedFaces, verticesToDelete, callback);
+            deleteFaces(first, visitedFaces, verticesToDelete);
         }
 
         template <typename T, typename FP, typename VP> template <typename FaceSet>
-        void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, VertexList& verticesToDelete, Callback& callback) {
+        void Polyhedron<T,FP,VP>::deleteFaces(HalfEdge* first, FaceSet& visitedFaces, VertexList& verticesToDelete) {
             Face* face = first->face();
 
             // Have we already visited this face?
             if (!visitedFaces.insert(face).second) {
                 return;
             }
-
-            // Callback must be called now when the face is still fully intact.
-            callback.faceWillBeDeleted(face);
 
             HalfEdge* current = first;
             do {
@@ -797,7 +754,7 @@ namespace TrenchBroom {
                     // we are in a recursive call where that neighbour is being deleted by one
                     // of our callers. In that case, the call to deleteFaces returned immediately.
                     if (edge->fullySpecified()) {
-                        deleteFaces(edge->twin(current), visitedFaces, verticesToDelete, callback);
+                        deleteFaces(edge->twin(current), visitedFaces, verticesToDelete);
                     }
 
                     if (edge->fullySpecified()) {
@@ -819,7 +776,6 @@ namespace TrenchBroom {
                 if (origin->leaving() == current) {
                     // We expect that the vertices on the seam have had a remaining edge
                     // set as their leaving edge before the call to this function.
-                    callback.vertexWillBeDeleted(origin);
                     verticesToDelete.splice_back(m_vertices, VertexList::iter(origin), std::next(VertexList::iter(origin)), 1u);
                 }
                 current = current->next();
@@ -829,7 +785,7 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::sealWithSinglePolygon(const Seam& seam, const vm::plane<T,3>& plane, Callback& callback) {
+        typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::sealWithSinglePolygon(const Seam& seam, const vm::plane<T,3>& plane) {
             assert(seam.size() >= 3);
             assert(!seam.hasMultipleLoops());
             assert(!empty() && !point() && !edge() && !polygon());
@@ -845,7 +801,6 @@ namespace TrenchBroom {
             }
 
             Face* face = new Face(std::move(boundary), plane);
-            callback.faceWasCreated(face);
             m_faces.push_back(face);
             return face;
         }
@@ -876,7 +831,7 @@ namespace TrenchBroom {
         };
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, const vm::vec<T,3>& position, Callback& callback) {
+        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, const vm::vec<T,3>& position) {
             assert(seam.size() >= 3);
             assert(!seam.hasMultipleLoops());
             assert(!empty() && !point() && !edge());
@@ -975,14 +930,10 @@ namespace TrenchBroom {
                     }
                 }
 
-                Face* newFace = new Face(std::move(boundary), plane);
-                callback.faceWasCreated(newFace);
-                m_faces.push_back(newFace);
-
+                m_faces.push_back(new Face(std::move(boundary), plane));
                 if (last != nullptr) {
                     m_edges.push_back(new Edge(h1, last));
                 }
-
                 if (first == nullptr) {
                     first = h1;
                 }
@@ -991,9 +942,7 @@ namespace TrenchBroom {
 
             assert(first->face() != last->face());
             m_edges.push_back(new Edge(first, last));
-
             m_vertices.push_back(top);
-            callback.vertexWasCreated(top);
 
             return top;
         }

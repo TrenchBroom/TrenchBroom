@@ -98,8 +98,6 @@ namespace TrenchBroom {
         
         Brush::~Brush() = default;
 
-        class Brush::AddFaceCallback : public BrushGeometry::Callback {};
-
         void Brush::updateGeometryFromFaces(const vm::bbox3& worldBounds) {
             // First, add all faces to the brush geometry
             BrushFace::sortFaces(m_faces);
@@ -108,8 +106,7 @@ namespace TrenchBroom {
             
             for (size_t i = 0u; i < m_faces.size(); ++i) {
                 BrushFace& face = m_faces[i];
-                AddFaceCallback callback;
-                const auto result = geometry->clip(face.boundary(), callback);
+                const auto result = geometry->clip(face.boundary());
                 if (result.success()) {
                     BrushFaceGeometry* faceGeometry = result.face();
                     face.setGeometry(faceGeometry);

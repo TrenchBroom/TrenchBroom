@@ -38,7 +38,6 @@ namespace TrenchBroom {
 
         class Brush {
         private:
-            class AddFaceCallback;
             class CopyCallback;
         public:
             using VertexList = BrushVertexList;

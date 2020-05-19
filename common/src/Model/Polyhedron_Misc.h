@@ -45,39 +45,6 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        Polyhedron<T,FP,VP>::Callback::~Callback() = default;
-
-        template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::Callback::vertexWasCreated(Vertex* /* vertex */) {}
-
-        template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::Callback::vertexWillBeDeleted(Vertex* /* vertex */) {}
-
-        template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::Callback::vertexWasAdded(Vertex* /* vertex */) {}
-
-        template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::Callback::vertexWillBeRemoved(Vertex* /* vertex */) {}
-
-        template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::Callback::faceWasCreated(Face* /* face */) {}
-
-        template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::Callback::faceWillBeDeleted(Face* /* face */) {}
-
-        template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::Callback::faceDidChange(Face* /* face */) {}
-
-        template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::Callback::faceWasFlipped(Face* /* face */) {}
-
-        template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::Callback::faceWasSplit(Face* /* original */, Face* /* clone */) {}
-
-        template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::Callback::facesWillBeMerged(Face* /* remaining */, Face* /* toDelete */) {}
-
-        template <typename T, typename FP, typename VP>
         Polyhedron<T,FP,VP>::CopyCallback::~CopyCallback() = default;
 
         template <typename T, typename FP, typename VP>
@@ -713,12 +680,6 @@ namespace TrenchBroom {
 
         template <typename T, typename FP, typename VP>
         bool Polyhedron<T,FP,VP>::healEdges(const T minLength) {
-            Callback callback;
-            return healEdges(callback, minLength);
-        }
-
-        template <typename T, typename FP, typename VP>
-        bool Polyhedron<T,FP,VP>::healEdges(Callback& callback, const T minLength) {
             const T minLength2 = minLength * minLength;
 
             /*
@@ -739,7 +700,7 @@ namespace TrenchBroom {
 
                 const T length2 = vm::squared_length(currentEdge->vector());
                 if (length2 < minLength2) {
-                    currentEdge = removeEdge(currentEdge, callback);
+                    currentEdge = removeEdge(currentEdge);
                 } else {
                     currentEdge = currentEdge->next();
                 }
@@ -757,7 +718,7 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::removeEdge(Edge* edge, Callback& callback) {
+        typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::removeEdge(Edge* edge) {
             // First, transfer all edges from the second to the first vertex of the given edge.
             // This results in the edge being a loop and the second vertex to be orphaned.
             auto* firstVertex = edge->firstVertex();
@@ -784,7 +745,7 @@ namespace TrenchBroom {
                 nextEdge->setOrigin(firstVertex);
 
                 if (firstFace->vertexCount() == 2) {
-                    removeDegenerateFace(firstFace, callback);
+                    removeDegenerateFace(firstFace);
                 }
             }
 
@@ -796,11 +757,10 @@ namespace TrenchBroom {
                 secondFace->removeFromBoundary(secondEdge);
 
                 if (secondFace->vertexCount() == 2) {
-                    removeDegenerateFace(secondFace, callback);
+                    removeDegenerateFace(secondFace);
                 }
             }
 
-            callback.vertexWillBeDeleted(secondVertex);
             m_vertices.remove(secondVertex);
 
             auto* result = edge->next();
@@ -815,7 +775,7 @@ namespace TrenchBroom {
                     auto* currentFace = firstEdge->face();
                     auto* neighbour = firstEdge->twin()->face();
                     if (currentFace->coplanar(neighbour)) {
-                        result = mergeNeighbours(currentEdge, result, callback);
+                        result = mergeNeighbours(currentEdge, result);
                     }
                     currentEdge = nextEdge;
                 } while (currentEdge != firstEdge);
@@ -825,7 +785,7 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::removeDegenerateFace(Face* face, Callback& callback) {
+        void Polyhedron<T,FP,VP>::removeDegenerateFace(Face* face) {
             assert(face != nullptr);
             assert(face->vertexCount() == 2u);
 
@@ -875,12 +835,11 @@ namespace TrenchBroom {
             m_edges.remove(edge2);
 
             // Delete the degenerate face. This also deletes its boundary of halfEdge1 and halfEdge2.
-            callback.faceWillBeDeleted(face);
             m_faces.remove(face);
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::mergeNeighbours(HalfEdge* borderFirst, Edge* validEdge, Callback& callback) {
+        typename Polyhedron<T,FP,VP>::Edge* Polyhedron<T,FP,VP>::mergeNeighbours(HalfEdge* borderFirst, Edge* validEdge) {
             Face* face = borderFirst->face();
             Face* neighbour = borderFirst->twin()->face();
 
@@ -931,16 +890,13 @@ namespace TrenchBroom {
 
                 // don't delete the origin of the first twin edge!
                 if (curEdge != twinFirst) {
-                    callback.vertexWillBeDeleted(origin);
                     m_vertices.remove(origin);
                 }
 
                 curEdge = next;
             } while (curEdge != firstEdge);
 
-            callback.facesWillBeMerged(face, neighbour);
             m_faces.remove(neighbour);
-
             return validEdge;
         }
     }
