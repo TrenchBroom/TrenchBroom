@@ -52,8 +52,10 @@ namespace TrenchBroom {
             QAbstractButton* m_moveLayerDownButton;
         public:
             explicit LayerEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-        private:
+        private:            
             void onSetCurrentLayer(Model::Layer* layer);
+            bool canSetCurrentLayer(Model::Layer* layer) const;
+
             void onLayerRightClick(Model::Layer* layer);
 
             void onMoveSelectionToLayer();

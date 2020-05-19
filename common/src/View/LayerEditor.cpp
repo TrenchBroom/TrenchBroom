@@ -81,10 +81,18 @@ namespace TrenchBroom {
             updateButtons();
         }
 
+        bool LayerEditor::canSetCurrentLayer(Model::Layer* layer) const {
+            auto document = kdl::mem_lock(m_document);
+            return document->currentLayer() != layer;
+        }
+
         void LayerEditor::onLayerRightClick(Model::Layer* layer) {
             auto document = kdl::mem_lock(m_document);
 
             QMenu popupMenu;
+            QAction* makeActiveAction = popupMenu.addAction(tr("Make active layer"), this, [this, layer](){
+                onSetCurrentLayer(layer);
+            });
             QAction* moveSelectionToLayerAction = popupMenu.addAction(tr("Move selection to layer"), this, &LayerEditor::onMoveSelectionToLayer);
             popupMenu.addAction(tr("Select all in layer"), this, &LayerEditor::onSelectAllInLayer);
             popupMenu.addSeparator();
@@ -108,6 +116,7 @@ namespace TrenchBroom {
             QAction* renameLayerAction = popupMenu.addAction(tr("Rename layer"), this, &LayerEditor::onRenameLayer);
             QAction* removeLayerAction = popupMenu.addAction(tr("Remove layer"), this, &LayerEditor::onRemoveLayer);
 
+            makeActiveAction->setEnabled(canSetCurrentLayer(layer));
             moveSelectionToLayerAction->setEnabled(canMoveSelectionToLayer());
             toggleLayerVisibleAction->setEnabled(canToggleLayerVisible());
 
@@ -403,10 +412,10 @@ namespace TrenchBroom {
             buttonSizer->addWidget(m_moveLayerUpButton);
             buttonSizer->addWidget(m_moveLayerDownButton);
             buttonSizer->addStretch(1);
-            buttonSizer->addWidget(m_unlockAllLayersButton);
-            buttonSizer->addWidget(m_lockAllLayersButton);
             buttonSizer->addWidget(m_showAllLayersButton);
             buttonSizer->addWidget(m_hideAllLayersButton);
+            buttonSizer->addWidget(m_unlockAllLayersButton);
+            buttonSizer->addWidget(m_lockAllLayersButton);
 
             auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);
