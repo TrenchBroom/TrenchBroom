@@ -45,7 +45,7 @@ namespace TrenchBroom {
             return m_face != nullptr;
         }
 
-        Model::BrushFace* UVViewHelper::face() const {
+        const Model::BrushFace* UVViewHelper::face() const {
             return m_face;
         }
 
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             return m_face->texture();
         }
 
-        void UVViewHelper::setFace(Model::BrushFace* face) {
+        void UVViewHelper::setFace(const Model::BrushFace* face) {
             if (face != m_face) {
                 m_face = face;
                 if (m_face != nullptr) {

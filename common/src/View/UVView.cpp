@@ -351,7 +351,7 @@ namespace TrenchBroom {
             if (!m_helper.valid())
                 return pickResult;
 
-            Model::BrushFace* face = m_helper.face();
+            const Model::BrushFace* face = m_helper.face();
             const FloatType distance = face->intersectWithRay(pickRay);
             if (!vm::is_nan(distance)) {
                 const vm::vec3 hitPoint = vm::point_at_distance(pickRay, distance);
