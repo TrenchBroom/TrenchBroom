@@ -109,11 +109,8 @@ namespace TrenchBroom {
             bool containsPoint(const vm::vec3& point) const;
 
             std::vector<BrushFace*> incidentFaces(const BrushVertex* vertex) const;
-
+        public:
             // vertex operations
-            bool canMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertices, const vm::vec3& delta) const;
-            std::vector<vm::vec3> moveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, bool uvLock = false);
-
             bool canAddVertex(const vm::bbox3& worldBounds, const vm::vec3& position) const;
             BrushVertex* addVertex(const vm::bbox3& worldBounds, const vm::vec3& position);
 

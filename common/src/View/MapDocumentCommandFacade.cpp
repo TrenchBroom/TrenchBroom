@@ -753,10 +753,12 @@ namespace TrenchBroom {
 
             std::vector<vm::vec3> newVertexPositions;
             for (const auto& entry : vertices) {
-                Model::BrushNode* brush = entry.first;
+                Model::BrushNode* brushNode = entry.first;
+                Model::Brush brush = brushNode->brush();
                 const std::vector<vm::vec3>& oldPositions = entry.second;
-                const std::vector<vm::vec3> newPositions = brush->moveVertices(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
+                const std::vector<vm::vec3> newPositions = brush.moveVertices(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
                 kdl::vec_append(newVertexPositions, newPositions);
+                brushNode->setBrush(std::move(brush));
             }
 
             invalidateSelectionBounds();

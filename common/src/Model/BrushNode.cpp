@@ -246,16 +246,6 @@ namespace TrenchBroom {
             return m_brush.incidentFaces(vertex);
         }
 
-        bool BrushNode::canMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertices, const vm::vec3& delta) const {
-            return m_brush.canMoveVertices(worldBounds, vertices, delta);
-        }
-
-        std::vector<vm::vec3> BrushNode::moveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, const bool uvLock) {
-            const NotifyNodeChange nodeChange(this);
-            const NotifyPhysicalBoundsChange boundsChange(this);
-            return m_brush.moveVertices(worldBounds, vertexPositions, delta, uvLock);
-        }
-
         bool BrushNode::canAddVertex(const vm::bbox3& worldBounds, const vm::vec3& position) const {
             return m_brush.canAddVertex(worldBounds, position);
         }
