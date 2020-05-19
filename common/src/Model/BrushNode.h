@@ -32,6 +32,7 @@
 #include <vecmath/forward.h>
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -94,14 +95,7 @@ namespace TrenchBroom {
             void doPick(const vm::ray3& ray, PickResult& pickResult) override;
             void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
 
-            struct BrushFaceHit {
-                BrushFace* face;
-                FloatType distance;
-                BrushFaceHit();
-                BrushFaceHit(BrushFace* i_face, FloatType i_distance);
-            };
-
-            BrushFaceHit findFaceHit(const vm::ray3& ray) const;
+            std::optional<std::tuple<FloatType, size_t>> findFaceHit(const vm::ray3& ray) const;
 
             Node* doGetContainer() const override;
             LayerNode* doGetLayer() const override;
