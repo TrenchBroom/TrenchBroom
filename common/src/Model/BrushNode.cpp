@@ -153,10 +153,6 @@ namespace TrenchBroom {
             m_brush.cloneInvertedFaceAttributesFrom(brush->m_brush);
         }
 
-        std::vector<BrushFace*> BrushNode::incidentFaces(const BrushVertex* vertex) const {
-            return m_brush.incidentFaces(vertex);
-        }
-
         bool BrushNode::canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const {
             return m_brush.canTransform(transformation, worldBounds);
         }

@@ -301,11 +301,11 @@ namespace TrenchBroom {
             addController(new MoveClipPointPart(new Callback2D(tool)));
         }
 
-        std::vector<vm::vec3> ClipToolController3D::selectHelpVectors(Model::BrushNode* node, Model::BrushFace* face, const vm::vec3& hitPoint) {
+        std::vector<vm::vec3> ClipToolController3D::selectHelpVectors(Model::BrushNode* brushNode, Model::BrushFace* face, const vm::vec3& hitPoint) {
             ensure(face != nullptr, "face is null");
 
             std::vector<vm::vec3> result;
-            for (const Model::BrushFace* incidentFace : selectIncidentFaces(node, face, hitPoint)) {
+            for (const Model::BrushFace* incidentFace : selectIncidentFaces(brushNode, face, hitPoint)) {
                 const vm::vec3& normal = incidentFace->boundary().normal;
                 result.push_back(vm::get_abs_max_component_axis(normal));
             }
@@ -314,7 +314,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        std::vector<Model::BrushFace*> ClipToolController3D::selectIncidentFaces(Model::BrushNode* node, Model::BrushFace* face, const vm::vec3& hitPoint) {
+        std::vector<Model::BrushFace*> ClipToolController3D::selectIncidentFaces(Model::BrushNode* brushNode, Model::BrushFace* face, const vm::vec3& hitPoint) {
             static const auto MaxDistance = vm::constants<FloatType>::almost_zero();
 
             // First, try to see if the clip point is almost equal to a vertex:
@@ -329,7 +329,8 @@ namespace TrenchBroom {
             }
 
             if (closestVertex != nullptr) {
-                return node->incidentFaces(closestVertex);
+                const Model::Brush& brush = brushNode->brush();
+                return brush.incidentFaces(closestVertex);
             }
 
             // Next, try the edges:
