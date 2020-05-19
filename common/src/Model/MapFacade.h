@@ -76,7 +76,7 @@ namespace TrenchBroom {
             virtual std::vector<AttributableNode*> allSelectedAttributableNodes() const = 0;
             virtual const NodeCollection& selectedNodes() const = 0;
             virtual std::vector<BrushFace*> allSelectedBrushFaces() const = 0;
-            virtual const std::vector<BrushFace*>& selectedBrushFaces() const = 0;
+            virtual std::vector<BrushFace*> selectedBrushFaces() const = 0;
 
             virtual const vm::bbox3& referenceBounds() const = 0;
             virtual const vm::bbox3& lastSelectionBounds() const = 0;

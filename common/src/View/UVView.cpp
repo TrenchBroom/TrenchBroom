@@ -116,7 +116,7 @@ namespace TrenchBroom {
 
         void UVView::selectionDidChange(const Selection&) {
             auto document = kdl::mem_lock(m_document);
-            const std::vector<Model::BrushFace*>& faces = document->selectedBrushFaces();
+            const std::vector<Model::BrushFace*> faces = document->selectedBrushFaces();
             if (faces.size() != 1) {
                 m_helper.setFace(nullptr);
             } else {
