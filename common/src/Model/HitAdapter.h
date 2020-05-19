@@ -37,7 +37,7 @@ namespace TrenchBroom {
         EntityNode* hitToEntity(const Hit& hit);
         std::optional<BrushFaceHandle> hitToFaceHandle(const Hit& hit);
         BrushNode* hitToBrush(const Hit& hit);
-        BrushFace* hitToFace(const Hit& hit);
+        const BrushFace* hitToFace(const Hit& hit);
     }
 }
 
