@@ -81,28 +81,33 @@ namespace TrenchBroom {
         private:
             BrushFace::Points m_points;
             vm::plane3 m_boundary;
+            BrushFaceAttributes m_attributes;
+
+            Assets::TextureReference m_textureReference;
+            std::unique_ptr<TexCoordSystem> m_texCoordSystem;
+            BrushFaceGeometry* m_geometry;
+
             mutable size_t m_lineNumber;
             mutable size_t m_lineCount;
             bool m_selected;
-
-            std::unique_ptr<TexCoordSystem> m_texCoordSystem;
-            BrushFaceGeometry* m_geometry;
-            
-            Assets::TextureReference m_textureReference;
             
             // brush renderer
             mutable bool m_markedToRenderFace;
-        protected:
-            BrushFaceAttributes m_attributes;
         public:
             BrushFace(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem);
 
+            BrushFace(const BrushFace& other);
+            BrushFace(BrushFace&& other) noexcept;
+            BrushFace& operator=(BrushFace other) noexcept;
+
+            friend void swap(BrushFace& lhs, BrushFace& rhs) noexcept;
+
+            ~BrushFace();
+            
             static BrushFace* createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
             static BrushFace* createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
 
             static void sortFaces(std::vector<BrushFace*>& faces);
-
-            virtual ~BrushFace() override;
 
             BrushFace* clone() const;
 
@@ -187,8 +192,6 @@ namespace TrenchBroom {
         private: // implement Taggable interface
             void doAcceptTagVisitor(TagVisitor& visitor) override;
             void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
-        private:
-            deleteCopyAndMove(BrushFace)
         };
     }
 }
