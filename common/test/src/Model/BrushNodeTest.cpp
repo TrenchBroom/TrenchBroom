@@ -686,52 +686,6 @@ namespace TrenchBroom {
             delete clone;
         }
 
-        TEST_CASE("BrushNodeTest.clip", "[BrushNodeTest]") {
-            const vm::bbox3 worldBounds(4096.0);
-
-            // build a cube with length 16 at the origin
-            BrushFace* left = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
-                                                        vm::vec3(0.0, 1.0, 0.0),
-                                                        vm::vec3(0.0, 0.0, 1.0));
-            BrushFace* right = BrushFace::createParaxial(vm::vec3(16.0, 0.0, 0.0),
-                                                         vm::vec3(16.0, 0.0, 1.0),
-                                                         vm::vec3(16.0, 1.0, 0.0));
-            BrushFace* front = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
-                                                         vm::vec3(0.0, 0.0, 1.0),
-                                                         vm::vec3(1.0, 0.0, 0.0));
-            BrushFace* back = BrushFace::createParaxial(vm::vec3(0.0, 16.0, 0.0),
-                                                        vm::vec3(1.0, 16.0, 0.0),
-                                                        vm::vec3(0.0, 16.0, 1.0));
-            BrushFace* top = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 16.0),
-                                                       vm::vec3(0.0, 1.0, 16.0),
-                                                       vm::vec3(1.0, 0.0, 16.0));
-            BrushFace* bottom = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
-                                                          vm::vec3(1.0, 0.0, 0.0),
-                                                          vm::vec3(0.0, 1.0, 0.0));
-            BrushFace* clip = BrushFace::createParaxial(vm::vec3(8.0, 0.0, 0.0),
-                                                        vm::vec3(8.0, 0.0, 1.0),
-                                                        vm::vec3(8.0, 1.0, 0.0));
-
-            std::vector<BrushFace*> faces;
-            faces.push_back(left);
-            faces.push_back(right);
-            faces.push_back(front);
-            faces.push_back(back);
-            faces.push_back(top);
-            faces.push_back(bottom);
-
-            BrushNode brush(worldBounds, faces);
-            ASSERT_TRUE(brush.clip(worldBounds, clip));
-
-            ASSERT_EQ(6u, brush.faces().size());
-            assertHasFace(brush, *left);
-            assertHasFace(brush, *clip);
-            assertHasFace(brush, *front);
-            assertHasFace(brush, *back);
-            assertHasFace(brush, *top);
-            assertHasFace(brush, *bottom);
-        }
-
         TEST_CASE("BrushNodeTest.moveBoundary", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
 

@@ -746,7 +746,7 @@ namespace TrenchBroom {
 
         void ClipTool::updateBrushes() {
             auto document = kdl::mem_lock(m_document);
-            const auto& brushes = document->selectedNodes().brushes();
+            const auto& brushNodes = document->selectedNodes().brushes();
             const auto& worldBounds = document->worldBounds();
 
             if (canClip()) {
@@ -756,32 +756,27 @@ namespace TrenchBroom {
                 ensure(numPoints == 3, "invalid number of points");
 
                 auto* world = document->world();
-                for (auto* brush : brushes) {
-                    auto* parent = brush->parent();
+                for (auto* brushNode : brushNodes) {
+                    auto* parent = brushNode->parent();
 
                     auto* frontFace = world->createFace(point1, point2, point3, document->currentTextureName());
                     auto* backFace = world->createFace(point1, point3, point2, document->currentTextureName());
-                    setFaceAttributes(brush->faces(), frontFace, backFace);
+                    setFaceAttributes(brushNode->brush().faces(), frontFace, backFace);
 
-                    auto* frontBrush = brush->clone(worldBounds);
-                    if (frontBrush->clip(worldBounds, frontFace)) {
-                        m_frontBrushes[parent].push_back(frontBrush);
-                    } else {
-                        delete frontBrush;
+                    auto frontBrush = brushNode->brush();
+                    if (frontBrush.clip(worldBounds, frontFace)) {
+                        m_frontBrushes[parent].push_back(new Model::BrushNode(std::move(frontBrush)));
                     }
-
-                    auto* backBrush = brush->clone(worldBounds);
-                    if (backBrush->clip(worldBounds, backFace)) {
-                        m_backBrushes[parent].push_back(backBrush);
-                    } else {
-                        delete backBrush;
+                    
+                    auto backBrush = brushNode->brush();
+                    if (backBrush.clip(worldBounds, backFace)) {
+                        m_backBrushes[parent].push_back(new Model::BrushNode(std::move(backBrush)));
                     }
                 }
             } else {
-                for (auto* brush : brushes) {
-                    auto* parent = brush->parent();
-                    auto* frontBrush = brush->clone(worldBounds);
-                    m_frontBrushes[parent].push_back(frontBrush);
+                for (auto* brushNode : brushNodes) {
+                    auto* parent = brushNode->parent();
+                    m_frontBrushes[parent].push_back(new Model::BrushNode(brushNode->brush()));
                 }
             }
         }

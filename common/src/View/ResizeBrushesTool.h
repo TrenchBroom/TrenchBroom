@@ -33,6 +33,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class Brush;
         class BrushFace;
         class BrushFaceHandle;
         class BrushNode;
@@ -107,7 +108,6 @@ namespace TrenchBroom {
         private:
             bool splitBrushesOutward(const vm::vec3& delta);
             bool splitBrushesInward(const vm::vec3& delta);
-            Model::BrushFace* findMatchingFace(Model::BrushNode* brush, const Model::BrushFace* reference) const;
             std::vector<vm::polygon3> dragFaceDescriptors() const;
         private:
             void bindObservers();

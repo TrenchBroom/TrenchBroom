@@ -190,12 +190,6 @@ namespace TrenchBroom {
             m_brush.cloneInvertedFaceAttributesFrom(brush->m_brush);
         }
 
-        bool BrushNode::clip(const vm::bbox3& worldBounds, BrushFace* face) {
-            const NotifyNodeChange nodeChange(this);
-            const NotifyPhysicalBoundsChange boundsChange(this);
-            return m_brush.clip(worldBounds, face);
-        }
-
         bool BrushNode::canMoveBoundary(const vm::bbox3& worldBounds, const BrushFace* face, const vm::vec3& delta) const {
             return m_brush.canMoveBoundary(worldBounds, face, delta);
         }
