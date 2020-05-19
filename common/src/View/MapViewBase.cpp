@@ -30,7 +30,7 @@
 #include "Model/BrushFace.h"
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/EditorContext.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
@@ -992,7 +992,7 @@ namespace TrenchBroom {
                 void doVisit(const Model::WorldNode*) override  { setResult(false); }
                 void doVisit(const Model::LayerNode*) override  { setResult(false); }
                 void doVisit(const Model::GroupNode*) override  { setResult(false); }
-                void doVisit(const Model::Entity*) override { setResult(true); }
+                void doVisit(const Model::EntityNode*) override { setResult(true); }
                 void doVisit(const Model::BrushNode*) override  { setResult(false); }
             };
 
@@ -1302,7 +1302,7 @@ namespace TrenchBroom {
             bool operator()(const Model::WorldNode*) const       { return false; }
             bool operator()(const Model::LayerNode*) const       { return false; }
             bool operator()(const Model::GroupNode*) const       { return true;  }
-            bool operator()(const Model::Entity*) const      { return true; }
+            bool operator()(const Model::EntityNode*) const      { return true; }
             bool operator()(const Model::BrushNode* brush) const { return brush->entity() == m_world; }
         };
 

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Entity
-#define TrenchBroom_Entity
+#ifndef TrenchBroom_EntityNode
+#define TrenchBroom_EntityNode
 
 #include "FloatType.h"
 #include "Macros.h"
@@ -41,7 +41,7 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class Entity : public AttributableNode, public Object {
+        class EntityNode : public AttributableNode, public Object {
         public:
             static const HitType::Type EntityHit;
             static const vm::bbox3 DefaultBounds;
@@ -56,7 +56,7 @@ namespace TrenchBroom {
 
             const Assets::EntityModelFrame* m_modelFrame;
         public:
-            Entity();
+            EntityNode();
 
             bool brushEntity() const;
             bool pointEntity() const;
@@ -131,9 +131,9 @@ namespace TrenchBroom {
             void doAcceptTagVisitor(TagVisitor& visitor) override;
             void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
         private:
-            deleteCopyAndMove(Entity)
+            deleteCopyAndMove(EntityNode)
         };
     }
 }
 
-#endif /* defined(TrenchBroom_Entity) */
+#endif /* defined(TrenchBroom_EntityNode) */

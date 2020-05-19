@@ -24,7 +24,7 @@ namespace TrenchBroom {
     namespace Model {
         class BrushNode;
         class EditorContext;
-        class Entity;
+        class EntityNode;
         class GroupNode;
         class LayerNode;
         class WorldNode;
@@ -38,7 +38,7 @@ namespace TrenchBroom {
             bool operator()(const Model::WorldNode* world) const;
             bool operator()(const Model::LayerNode* layer) const;
             bool operator()(const Model::GroupNode* group) const;
-            bool operator()(const Model::Entity* entity) const;
+            bool operator()(const Model::EntityNode* entity) const;
             bool operator()(const Model::BrushNode* brush) const;
         };
     }

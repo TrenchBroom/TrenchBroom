@@ -23,7 +23,7 @@
 #include "Model/Hit.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/HitAdapter.h"
 
 #include <vecmath/util.h>
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             const BrushFace* face = hitToFace(hit);
             if (face != nullptr)
                 return face->area(m_axis);
-            const Entity* entity = hitToEntity(hit);
+            const EntityNode* entity = hitToEntity(hit);
             if (entity != nullptr)
                 return entity->area(m_axis);
             return 0.0;

@@ -21,7 +21,7 @@
 
 #include "Model/BrushNode.h"
 #include "Model/GroupNode.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 
 #include <vector>
 
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ComputeNodeBoundsVisitor::doVisit(const Entity* entity) {
+        void ComputeNodeBoundsVisitor::doVisit(const EntityNode* entity) {
             if (m_boundsType == BoundsType::Physical) {
                 m_builder.add(entity->physicalBounds());
             } else {

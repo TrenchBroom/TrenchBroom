@@ -22,7 +22,7 @@
 #include "Ensure.h"
 #include "Model/AttributableNode.h"
 #include "Model/BrushNode.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/WorldNode.h"
 
 namespace TrenchBroom {
@@ -38,7 +38,7 @@ namespace TrenchBroom {
         void CollectAttributableNodesVisitor::doVisit(LayerNode*) {}
         void CollectAttributableNodesVisitor::doVisit(GroupNode*) {}
 
-        void CollectAttributableNodesVisitor::doVisit(Entity* entity) {
+        void CollectAttributableNodesVisitor::doVisit(EntityNode* entity) {
             addNode(entity);
         }
 

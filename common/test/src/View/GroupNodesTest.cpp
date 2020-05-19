@@ -22,7 +22,7 @@
 #include "GTestCompat.h"
 
 #include "Model/BrushNode.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             Model::BrushNode* brush2 = createBrush();
             document->addNode(brush2, document->currentParent());
 
-            Model::Entity* entity = new Model::Entity();
+            Model::EntityNode* entity = new Model::EntityNode();
             document->addNode(entity, document->currentParent());
             document->reparentNodes(entity, { brush1, brush2 });
 
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             Model::BrushNode* brush2 = createBrush();
             document->addNode(brush2, document->currentParent());
 
-            Model::Entity* entity = new Model::Entity();
+            Model::EntityNode* entity = new Model::EntityNode();
             document->addNode(entity, document->currentParent());
             document->reparentNodes(entity, { brush1, brush2 });
 
@@ -140,7 +140,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(document->selectedNodes().hasOnlyEntities());
             ASSERT_EQ(1u, document->selectedNodes().entityCount());
 
-            Model::Entity* light = document->selectedNodes().entities().front();
+            Model::EntityNode* light = document->selectedNodes().entities().front();
             ASSERT_EQ(group, light->parent());
         }
 
@@ -159,7 +159,7 @@ namespace TrenchBroom {
             Model::BrushNode* brush1 = createBrush();
             document->addNode(brush1, document->currentParent());
 
-            Model::Entity* entity = new Model::Entity();
+            Model::EntityNode* entity = new Model::EntityNode();
             document->addNode(entity, document->currentParent());
             document->reparentNodes(entity, { brush1 });
 
@@ -183,7 +183,7 @@ namespace TrenchBroom {
             Model::BrushNode* brush1 = createBrush();
             document->addNode(brush1, document->currentParent());
 
-            Model::Entity* entity = new Model::Entity();
+            Model::EntityNode* entity = new Model::EntityNode();
             document->addNode(entity, document->currentParent());
             document->reparentNodes(entity, { brush1 });
 

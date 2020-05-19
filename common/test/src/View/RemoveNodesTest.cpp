@@ -25,7 +25,7 @@
 
 #include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             Model::LayerNode* layer = new Model::LayerNode("Layer 1");
             document->addNode(layer, document->world());
 
-            Model::Entity* entity = new Model::Entity();
+            Model::EntityNode* entity = new Model::EntityNode();
             document->addNode(entity, layer);
 
             Model::BrushNode* brush = createBrush();

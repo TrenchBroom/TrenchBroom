@@ -22,7 +22,7 @@
 #include "IO/ParserStatus.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
@@ -211,7 +211,7 @@ namespace TrenchBroom {
         }
 
         void MapReader::createEntity(const size_t /* line */, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
-            Model::Entity* entity = m_factory->createEntity();
+            Model::EntityNode* entity = m_factory->createEntity();
             entity->setAttributes(attributes);
             setExtraAttributes(entity, extraAttributes);
 

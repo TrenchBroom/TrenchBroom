@@ -39,7 +39,7 @@ namespace TrenchBroom {
             return doCreateGroup(name);
         }
 
-        Entity* ModelFactory::createEntity() const {
+        EntityNode* ModelFactory::createEntity() const {
             return doCreateEntity();
         }
 

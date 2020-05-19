@@ -21,7 +21,7 @@
 
 #include "Macros.h"
 #include "Assets/EntityModel.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 
 #include <kdl/string_compare.h>
 #include <kdl/string_utils.h>
@@ -34,7 +34,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        vm::mat4x4 EntityRotationPolicy::getRotation(const Entity* entity) {
+        vm::mat4x4 EntityRotationPolicy::getRotation(const EntityNode* entity) {
             const RotationInfo info = rotationInfo(entity);
             switch (info.type) {
                 case RotationType::Angle: {
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityRotationPolicy::applyRotation(Entity* entity, const vm::mat4x4& transformation) {
+        void EntityRotationPolicy::applyRotation(EntityNode* entity, const vm::mat4x4& transformation) {
             const auto info = rotationInfo(entity);
 
             if (info.usage == RotationUsage::BlockRotation) {
@@ -154,12 +154,12 @@ namespace TrenchBroom {
             }
         }
 
-        std::string EntityRotationPolicy::getAttribute(const Entity* entity) {
+        std::string EntityRotationPolicy::getAttribute(const EntityNode* entity) {
             const auto info = rotationInfo(entity);
             return info.attribute;
         }
 
-        EntityRotationPolicy::RotationInfo EntityRotationPolicy::rotationInfo(const Entity* entity) {
+        EntityRotationPolicy::RotationInfo EntityRotationPolicy::rotationInfo(const EntityNode* entity) {
             auto type = RotationType::None;
             std::string attribute;
             RotationUsage usage = RotationUsage::Allowed;
@@ -228,7 +228,7 @@ namespace TrenchBroom {
             return RotationInfo{type, attribute, usage};
         }
 
-        void EntityRotationPolicy::setAngle(Entity* entity, const std::string& attribute, const vm::vec3& direction) {
+        void EntityRotationPolicy::setAngle(EntityNode* entity, const std::string& attribute, const vm::vec3& direction) {
             const auto angle = getAngle(direction);
             entity->addOrUpdateAttribute(attribute, kdl::str_to_string(vm::round(angle)));
         }

@@ -25,7 +25,7 @@
 #include "Model/BrushFace.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/GroupNode.h"
 #include "Model/HitAdapter.h"
@@ -105,7 +105,7 @@ namespace TrenchBroom {
                     document->deselectAll();
                 }
             } else {
-                const auto& hit = firstHit(inputState, Model::Entity::EntityHit | Model::BrushNode::BrushHit);
+                const auto& hit = firstHit(inputState, Model::EntityNode::EntityHit | Model::BrushNode::BrushHit);
                 if (hit.isMatch()) {
                     auto* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
                     if (editorContext.selectable(node)) {
@@ -160,7 +160,7 @@ namespace TrenchBroom {
                 }
             } else {
                 const auto inGroup = document->currentGroup() != nullptr;
-                const auto& hit = firstHit(inputState, Model::BrushNode::BrushHit | Model::Entity::EntityHit);
+                const auto& hit = firstHit(inputState, Model::BrushNode::BrushHit | Model::EntityNode::EntityHit);
                 if (hit.isMatch()) {
                     const auto hitInGroup = inGroup && hit.isMatch() && Model::hitToNode(hit)->isDescendantOf(document->currentGroup());
                     if (!inGroup || hitInGroup) {
@@ -304,7 +304,7 @@ namespace TrenchBroom {
         }
 
         void SelectionTool::drillSelection(const InputState& inputState) {
-            const auto hits = inputState.pickResult().query().pickable().type(Model::Entity::EntityHit | Model::BrushNode::BrushHit).occluded().all();
+            const auto hits = inputState.pickResult().query().pickable().type(Model::EntityNode::EntityHit | Model::BrushNode::BrushHit).occluded().all();
 
             // Hits may contain multiple brush/entity hits that are inside closed groups. These need to be converted
             // to group hits using findOutermostClosedGroupOrNode() and multiple hits on the same Group need to be collapsed.
@@ -353,7 +353,7 @@ namespace TrenchBroom {
                     return true;
                 }
             } else {
-                const auto& hit = firstHit(inputState, Model::Entity::EntityHit | Model::BrushNode::BrushHit);
+                const auto& hit = firstHit(inputState, Model::EntityNode::EntityHit | Model::BrushNode::BrushHit);
                 if (!hit.isMatch()) {
                     return false;
                 }
@@ -387,7 +387,7 @@ namespace TrenchBroom {
                 }
             } else {
                 assert(document->hasSelectedNodes());
-                const auto& hit = firstHit(inputState, Model::Entity::EntityHit | Model::BrushNode::BrushHit);
+                const auto& hit = firstHit(inputState, Model::EntityNode::EntityHit | Model::BrushNode::BrushHit);
                 if (hit.isMatch()) {
                     auto* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
                     if (!node->selected() && editorContext.selectable(node)) {
@@ -410,7 +410,7 @@ namespace TrenchBroom {
 
         void SelectionTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             auto document = kdl::mem_lock(m_document);
-            const auto& hit = firstHit(inputState, Model::Entity::EntityHit | Model::BrushNode::BrushHit);
+            const auto& hit = firstHit(inputState, Model::EntityNode::EntityHit | Model::BrushNode::BrushHit);
             if (hit.isMatch()) {
                 Model::Node* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
 

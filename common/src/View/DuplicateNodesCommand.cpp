@@ -97,7 +97,7 @@ namespace TrenchBroom {
             void doVisit(const Model::WorldNode*) override  { setResult(false); }
             void doVisit(const Model::LayerNode*) override  { setResult(false); }
             void doVisit(const Model::GroupNode*) override  { setResult(false);  }
-            void doVisit(const Model::Entity*) override { setResult(true);  }
+            void doVisit(const Model::EntityNode*) override { setResult(true);  }
             void doVisit(const Model::BrushNode*) override  { setResult(false); }
         };
 

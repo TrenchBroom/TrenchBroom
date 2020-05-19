@@ -25,7 +25,7 @@
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/EditorContext.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/Node.h"
@@ -342,7 +342,7 @@ namespace TrenchBroom {
                 }
             }
 
-            void doVisit(Model::Entity* entity) override {
+            void doVisit(Model::EntityNode* entity) override {
                 if (entity->locked()) {
                     if (collectLocked()) m_lockedNodes.addNode(entity);
                 } else if (selected(entity)) {

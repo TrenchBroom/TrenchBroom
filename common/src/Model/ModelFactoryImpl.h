@@ -42,7 +42,7 @@ namespace TrenchBroom {
             WorldNode* doCreateWorld() const override;
             LayerNode* doCreateLayer(const std::string& name) const override;
             GroupNode* doCreateGroup(const std::string& name) const override;
-            Entity* doCreateEntity() const override;
+            EntityNode* doCreateEntity() const override;
             BrushNode* doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const override;
 
             BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;

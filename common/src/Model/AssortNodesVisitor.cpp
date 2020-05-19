@@ -39,13 +39,13 @@ namespace TrenchBroom {
         void SkipGroupsStrategy::addGroup(GroupNode* /* group */) {}
 
 
-        const std::vector<Entity*>& CollectEntitiesStrategy::entities() const { return m_entities; }
-        void CollectEntitiesStrategy::addEntity(Entity* entity) { m_entities.push_back(entity); }
+        const std::vector<EntityNode*>& CollectEntitiesStrategy::entities() const { return m_entities; }
+        void CollectEntitiesStrategy::addEntity(EntityNode* entity) { m_entities.push_back(entity); }
 
-        const std::vector<Entity*> SkipEntitiesStrategy::m_entities{};
+        const std::vector<EntityNode*> SkipEntitiesStrategy::m_entities{};
 
-        const std::vector<Entity*>& SkipEntitiesStrategy::entities() const { return m_entities; }
-        void SkipEntitiesStrategy::addEntity(Entity* /* entity */) {}
+        const std::vector<EntityNode*>& SkipEntitiesStrategy::entities() const { return m_entities; }
+        void SkipEntitiesStrategy::addEntity(EntityNode* /* entity */) {}
 
 
         const std::vector<BrushNode*>& CollectBrushesStrategy::brushes() const { return m_brushes; }

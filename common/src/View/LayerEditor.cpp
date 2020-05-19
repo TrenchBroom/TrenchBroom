@@ -21,7 +21,7 @@
 
 #include "Model/BrushNode.h"
 #include "Model/CollectSelectableNodesVisitor.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
 #include "Model/GroupNode.h"
@@ -180,7 +180,7 @@ namespace TrenchBroom {
                 }
             }
 
-            void doVisit(Model::Entity* entity) override {
+            void doVisit(Model::EntityNode* entity) override {
                 assert(entity->selected());
 
                 if (!entity->grouped()) {

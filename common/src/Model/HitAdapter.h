@@ -24,14 +24,14 @@ namespace TrenchBroom {
     namespace Model {
         class BrushNode;
         class BrushFace;
-        class Entity;
+        class EntityNode;
         class Hit;
         class Node;
         class Object;
 
         Node* hitToNode(const Hit& hit);
         Object* hitToObject(const Hit& hit);
-        Entity* hitToEntity(const Hit& hit);
+        EntityNode* hitToEntity(const Hit& hit);
         BrushNode* hitToBrush(const Hit& hit);
         BrushFace* hitToFace(const Hit& hit);
     }

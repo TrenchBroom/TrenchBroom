@@ -26,7 +26,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushSnapshot.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/FindContainerVisitor.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
@@ -328,7 +328,7 @@ namespace TrenchBroom {
             void doVisit(WorldNode* world) override       { setResult(world); cancel(); }
             void doVisit(LayerNode* /* layer */) override {}
             void doVisit(GroupNode* /* group */) override {}
-            void doVisit(Entity* entity) override     { setResult(entity); cancel(); }
+            void doVisit(EntityNode* entity) override     { setResult(entity); cancel(); }
             void doVisit(BrushNode* /* brush */) override {}
         };
 
@@ -1469,7 +1469,7 @@ namespace TrenchBroom {
             void doVisit(const WorldNode* /* world */) override { setResult(false); }
             void doVisit(const LayerNode* /* layer */) override { setResult(false); }
             void doVisit(const GroupNode* group) override       { setResult(contains(group->logicalBounds())); }
-            void doVisit(const Entity* entity) override     { setResult(contains(entity->logicalBounds())); }
+            void doVisit(const EntityNode* entity) override     { setResult(contains(entity->logicalBounds())); }
             void doVisit(const BrushNode* brush) override       { setResult(contains(brush)); }
 
             bool contains(const vm::bbox3& bounds) const {
@@ -1508,7 +1508,7 @@ namespace TrenchBroom {
             void doVisit(const WorldNode* /* world */) override { setResult(false); }
             void doVisit(const LayerNode* /* layer */) override { setResult(false); }
             void doVisit(const GroupNode* group) override       { setResult(intersects(group->logicalBounds())); }
-            void doVisit(const Entity* entity) override     { setResult(intersects(entity->logicalBounds())); }
+            void doVisit(const EntityNode* entity) override     { setResult(intersects(entity->logicalBounds())); }
             void doVisit(const BrushNode* brush) override       { setResult(intersects(brush)); }
 
             bool intersects(const vm::bbox3& bounds) const {

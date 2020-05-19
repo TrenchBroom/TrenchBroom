@@ -22,7 +22,7 @@
 #include "Ensure.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/BrushNode.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
@@ -38,7 +38,7 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            explicit PointEntityWithBrushesIssue(Entity* entity) :
+            explicit PointEntityWithBrushesIssue(EntityNode* entity) :
             Issue(entity) {}
         private:
             IssueType doGetType() const override {
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             }
 
             std::string doGetDescription() const override {
-                const Entity* entity = static_cast<Entity*>(node());
+                const EntityNode* entity = static_cast<EntityNode*>(node());
                 return entity->classname() + " contains brushes";
             }
         };
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             addQuickFix(new PointEntityWithBrushesIssueQuickFix());
         }
 
-        void PointEntityWithBrushesIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
+        void PointEntityWithBrushesIssueGenerator::doGenerate(EntityNode* entity, IssueList& issues) const {
             ensure(entity != nullptr, "entity is null");
             const Assets::EntityDefinition* definition = entity->definition();
             if (definition != nullptr && definition->type() == Assets::EntityDefinitionType::PointEntity && entity->hasChildren())

@@ -36,7 +36,7 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class Entity;
+        class EntityNode;
     }
 
     namespace Renderer {

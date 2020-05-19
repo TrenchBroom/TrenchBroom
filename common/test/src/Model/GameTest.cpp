@@ -29,7 +29,7 @@
 #include "IO/IOUtils.h"
 #include "IO/GameConfigParser.h"
 #include "IO/Path.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/GameConfig.h"
 #include "Model/GameImpl.h"
 
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, textureCollections.size());
             ASSERT_EQ(IO::Path("textures/test"), textureCollections.front());
 
-            auto worldspawn = Entity();
+            auto worldspawn = EntityNode();
             worldspawn.addOrUpdateAttribute("_tb_textures", textureCollections.front().asString());
 
             auto textureManager = Assets::TextureManager(0, 0, logger);

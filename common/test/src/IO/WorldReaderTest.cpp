@@ -27,7 +27,7 @@
 #include "IO/WorldReader.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/LayerNode.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/WorldNode.h"
@@ -169,7 +169,7 @@ namespace TrenchBroom {
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
 
-            Model::Entity* entity = static_cast<Model::Entity*>(defaultLayer->children().front());
+            Model::EntityNode* entity = static_cast<Model::EntityNode*>(defaultLayer->children().front());
             ASSERT_TRUE(entity->hasAttribute("classname"));
             ASSERT_STREQ("info_player_deathmatch", entity->attribute("classname").c_str());
             ASSERT_TRUE(entity->hasAttribute("origin"));

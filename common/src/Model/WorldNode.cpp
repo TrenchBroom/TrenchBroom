@@ -109,7 +109,7 @@ namespace TrenchBroom {
             void doVisit(WorldNode*) override         {}
             void doVisit(LayerNode*) override         {}
             void doVisit(GroupNode*) override         {}
-            void doVisit(Entity* entity) override { m_nodeTree.insert(entity->physicalBounds(), entity); }
+            void doVisit(EntityNode* entity) override { m_nodeTree.insert(entity->physicalBounds(), entity); }
             void doVisit(BrushNode* brush) override   { m_nodeTree.insert(brush->physicalBounds(), brush); }
         };
 
@@ -123,7 +123,7 @@ namespace TrenchBroom {
             void doVisit(WorldNode*) override         {}
             void doVisit(LayerNode*) override         {}
             void doVisit(GroupNode*) override         {}
-            void doVisit(Entity* entity) override { doRemove(entity, entity->physicalBounds()); }
+            void doVisit(EntityNode* entity) override { doRemove(entity, entity->physicalBounds()); }
             void doVisit(BrushNode* brush) override   { doRemove(brush, brush->physicalBounds()); }
 
             void doRemove(Node* node, const vm::bbox3& bounds) {
@@ -145,7 +145,7 @@ namespace TrenchBroom {
             void doVisit(WorldNode*) override         {}
             void doVisit(LayerNode*) override         {}
             void doVisit(GroupNode*) override         {}
-            void doVisit(Entity* entity) override { m_nodeTree.update(entity->physicalBounds(), entity); }
+            void doVisit(EntityNode* entity) override { m_nodeTree.update(entity->physicalBounds(), entity); }
             void doVisit(BrushNode* brush) override   { m_nodeTree.update(brush->physicalBounds(), brush); }
         };
 
@@ -176,7 +176,7 @@ namespace TrenchBroom {
             void doVisit(WorldNode* world) override   { invalidateIssues(world);  }
             void doVisit(LayerNode* layer) override   { invalidateIssues(layer);  }
             void doVisit(GroupNode* group) override   { invalidateIssues(group);  }
-            void doVisit(Entity* entity) override { invalidateIssues(entity); }
+            void doVisit(EntityNode* entity) override { invalidateIssues(entity); }
             void doVisit(BrushNode* brush) override   { invalidateIssues(brush);  }
 
             void invalidateIssues(Node* node) { node->invalidateIssues(); }
@@ -227,7 +227,7 @@ namespace TrenchBroom {
             void doVisit(const WorldNode*) override  { setResult(false); }
             void doVisit(const LayerNode*) override  { setResult(true); }
             void doVisit(const GroupNode*) override  { setResult(false); }
-            void doVisit(const Entity*) override { setResult(false); }
+            void doVisit(const EntityNode*) override { setResult(false); }
             void doVisit(const BrushNode*) override  { setResult(false); }
         };
 
@@ -247,7 +247,7 @@ namespace TrenchBroom {
             void doVisit(const WorldNode*) override        { setResult(false); }
             void doVisit(const LayerNode* layer) override  { setResult(layer != m_this->defaultLayer()); }
             void doVisit(const GroupNode*) override        { setResult(false); }
-            void doVisit(const Entity*) override       { setResult(false); }
+            void doVisit(const EntityNode*) override       { setResult(false); }
             void doVisit(const BrushNode*) override        { setResult(false); }
         };
 
@@ -387,7 +387,7 @@ namespace TrenchBroom {
             return m_factory->createGroup(name);
         }
 
-        Entity* WorldNode::doCreateEntity() const {
+        EntityNode* WorldNode::doCreateEntity() const {
             return m_factory->createEntity();
         }
 

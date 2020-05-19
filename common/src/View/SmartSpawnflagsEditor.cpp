@@ -22,7 +22,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
 #include "Model/AttributableNode.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/NodeVisitor.h"
 #include "Model/WorldNode.h"
 #include "View/FlagsEditor.h"
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             void doVisit(Model::WorldNode*) override  { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
             void doVisit(Model::LayerNode*) override  {}
             void doVisit(Model::GroupNode*) override  {}
-            void doVisit(Model::Entity*) override { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
+            void doVisit(Model::EntityNode*) override { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
             void doVisit(Model::BrushNode*) override  {}
         };
 

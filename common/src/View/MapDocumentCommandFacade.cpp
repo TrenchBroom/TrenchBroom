@@ -31,7 +31,7 @@
 #include "Model/CollectSelectableBrushFacesVisitor.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/EntityAttributeSnapshot.h"
 #include "Model/Game.h"
 #include "Model/GroupNode.h"
@@ -407,7 +407,7 @@ namespace TrenchBroom {
                 m_oldNames[group] = group->name();
                 group->setName(m_newName);
             }
-            void doVisit(Model::Entity*) override {}
+            void doVisit(Model::EntityNode*) override {}
             void doVisit(Model::BrushNode*) override  {}
         };
 
@@ -424,7 +424,7 @@ namespace TrenchBroom {
                 const std::string& newName = kdl::map_find_or_default(m_newNames, group, group->name());
                 group->setName(newName);
             }
-            void doVisit(Model::Entity*) override {}
+            void doVisit(Model::EntityNode*) override {}
             void doVisit(Model::BrushNode*) override  {}
         };
 
@@ -474,7 +474,7 @@ namespace TrenchBroom {
             void doVisit(const Model::WorldNode*) override  { setResult(true); }
             void doVisit(const Model::LayerNode*) override  { setResult(true); }
             void doVisit(const Model::GroupNode*) override  { setResult(true); }
-            void doVisit(const Model::Entity*) override { setResult(true); }
+            void doVisit(const Model::EntityNode*) override { setResult(true); }
             void doVisit(const Model::BrushNode* brush) override { setResult(brush->canTransform(m_transform, m_worldBounds)); }
             bool doCombineResults(const bool oldResult, const bool newResult) const override {
                 return newResult && oldResult;

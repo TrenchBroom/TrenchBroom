@@ -23,7 +23,7 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushNode;
-        class Entity;
+        class EntityNode;
         class GroupNode;
         class LayerNode;
         class Node;
@@ -39,7 +39,7 @@ namespace TrenchBroom {
             bool operator()(const WorldNode* world) const;
             bool operator()(const LayerNode* layer) const;
             bool operator()(const GroupNode* group) const;
-            bool operator()(const Entity* entity) const;
+            bool operator()(const EntityNode* entity) const;
             bool operator()(const BrushNode* brush) const;
         private:
             bool match(const Node* node) const;

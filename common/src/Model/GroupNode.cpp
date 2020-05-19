@@ -24,7 +24,7 @@
 #include "Model/BoundsIntersectsNodeVisitor.h"
 #include "Model/BrushNode.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/FindContainerVisitor.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             void doVisit(WorldNode*) override       {}
             void doVisit(LayerNode*) override       {}
             void doVisit(GroupNode* group) override { group->setEditState(m_editState); }
-            void doVisit(Entity*) override      {}
+            void doVisit(EntityNode*) override      {}
             void doVisit(BrushNode*) override       {}
         };
 
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             void doVisit(const WorldNode*) override  { setResult(false); }
             void doVisit(const LayerNode*) override  { setResult(false); }
             void doVisit(const GroupNode*) override  { setResult(true); }
-            void doVisit(const Entity*) override { setResult(true); }
+            void doVisit(const EntityNode*) override { setResult(true); }
             void doVisit(const BrushNode*) override  { setResult(true); }
         };
 

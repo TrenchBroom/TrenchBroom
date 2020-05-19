@@ -22,7 +22,7 @@
 
 #include "Model/NodeVisitor.h"
 #include "Model/BrushNode.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             void doVisit(WorldNode* world)   override { collectIssues(world);  }
             void doVisit(LayerNode* layer)   override { collectIssues(layer);  }
             void doVisit(GroupNode* group)   override { collectIssues(group);  }
-            void doVisit(Entity* entity) override { collectIssues(entity); }
+            void doVisit(EntityNode* entity) override { collectIssues(entity); }
             void doVisit(BrushNode* brush)   override { collectIssues(brush);  }
 
             void collectIssues(Node* node) {

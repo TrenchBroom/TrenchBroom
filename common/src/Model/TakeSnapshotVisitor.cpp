@@ -20,7 +20,7 @@
 #include "TakeSnapshotVisitor.h"
 
 #include "Model/BrushNode.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
@@ -34,7 +34,7 @@ namespace TrenchBroom {
         void TakeSnapshotVisitor::doVisit(WorldNode* world)   { handleNode(world); }
         void TakeSnapshotVisitor::doVisit(LayerNode* layer)   { handleNode(layer); }
         void TakeSnapshotVisitor::doVisit(GroupNode* group)   { handleNode(group); }
-        void TakeSnapshotVisitor::doVisit(Entity* entity) { handleNode(entity); }
+        void TakeSnapshotVisitor::doVisit(EntityNode* entity) { handleNode(entity); }
         void TakeSnapshotVisitor::doVisit(BrushNode* brush)   { handleNode(brush); }
 
         void TakeSnapshotVisitor::handleNode(Node* node) {
