@@ -373,7 +373,9 @@ namespace TrenchBroom {
          */
         static void checkTextureLockOffWithVerticalFlip(const Brush& cube) {
             const vm::mat4x4 transform = vm::mirror_matrix<double>(vm::axis::z);
-            const BrushFace* origFace = cube.findFace(vm::vec3::pos_x());
+            const auto origFaceIndex = cube.findFace(vm::vec3::pos_x());
+            REQUIRE(origFaceIndex);
+            const BrushFace* origFace = cube.face(*origFaceIndex);
 
             // transform the face (texture lock off)
             BrushFace* face = origFace->clone();
@@ -399,7 +401,9 @@ namespace TrenchBroom {
 
             // translate the cube mins to the origin, scale by 2 in the X axis, then translate back
             const vm::mat4x4 transform = vm::translation_matrix(mins) * vm::scaling_matrix(vm::vec3(2.0, 1.0, 1.0)) * vm::translation_matrix(-1.0 * mins);
-            const BrushFace* origFace = cube.findFace(vm::vec3::neg_y());
+            const auto origFaceIndex = cube.findFace(vm::vec3::neg_y());
+            REQUIRE(origFaceIndex);
+            const BrushFace* origFace = cube.face(*origFaceIndex);
 
             // transform the face (texture lock off)
             BrushFace* face = origFace->clone();
@@ -471,8 +475,9 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             BrushNode* cubeNode = world.createBrush(builder.createCube(128.0, ""));
 
-            BrushFace* topFace = cubeNode->brush().findFace(vm::vec3(0.0, 0.0, 1.0));
-            ASSERT_NE(nullptr, topFace);
+            auto topFaceIndex = cubeNode->brush().findFace(vm::vec3::pos_z());
+            REQUIRE(topFaceIndex);
+            BrushFace* topFace = cubeNode->brush().face(*topFaceIndex);
             ASSERT_EQ(0.0, topFace->attributes().rotation());
             BrushFaceSnapshot* snapshot = cubeNode->takeSnapshot(topFace);
 
@@ -487,11 +492,15 @@ namespace TrenchBroom {
                 delete cubeSnapshot;
 
                 // NOTE: topFace is a dangling pointer here
-                ASSERT_NE(topFace, cubeNode->brush().findFace(vm::vec3(0.0, 0.0, 1.0)));
+                const auto newTopFaceIndex = cubeNode->brush().findFace(vm::vec3::pos_z());
+                REQUIRE(newTopFaceIndex);
+                const BrushFace* newTopFace = cubeNode->brush().face(*newTopFaceIndex);
+                ASSERT_NE(topFace, newTopFace);
             }
 
-            // Lookup the new copy of topFace
-            topFace = cubeNode->brush().findFace(vm::vec3(0.0, 0.0, 1.0));
+            topFaceIndex = cubeNode->brush().findFace(vm::vec3::pos_z());
+            REQUIRE(topFaceIndex);
+            topFace = cubeNode->brush().face(*topFaceIndex);
 
             // Ensure that the snapshot can be restored, despite the Brush having a new BrushFace object
             snapshot->restore();
@@ -644,7 +653,9 @@ namespace TrenchBroom {
             Brush brush = brushNode->brush();
 
             // find the face
-            BrushFace* angledFace = brush.findFace(vm::vec3(-0.70710678118654746, 0.70710678118654746, 0));
+            const auto angledFaceIndex = brush.findFace(vm::vec3(-0.70710678118654746, 0.70710678118654746, 0));
+            REQUIRE(angledFaceIndex);
+            BrushFace* angledFace = brush.face(*angledFaceIndex);
             EXPECT_NE(nullptr, angledFace);
 
             brush.moveBoundary(worldBounds, angledFace, vm::vec3(-7.9999999999999973, 7.9999999999999973, 0), true);

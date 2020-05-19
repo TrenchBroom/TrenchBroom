@@ -266,21 +266,22 @@ namespace TrenchBroom {
 
             Model::BrushBuilder builder(document->world(), document->worldBounds());
             Model::BrushNode* brushNode = document->world()->createBrush(builder.createCuboid(initialBBox, "texture"));
+            const Model::Brush& brush = brushNode->brush();
 
             document->addNode(brushNode, document->currentParent());
             document->select(std::vector<Model::Node*>{brushNode});
 
             ASSERT_EQ(vm::vec3(200,200,200), brushNode->logicalBounds().size());
-            ASSERT_EQ(vm::plane3(100.0, vm::vec3::pos_z()), brushNode->brush().findFace(vm::vec3::pos_z())->boundary());
+            ASSERT_EQ(vm::plane3(100.0, vm::vec3::pos_z()), brush.face(*brush.findFace(vm::vec3::pos_z()))->boundary());
 
             // attempting an invalid scale has no effect
             ASSERT_FALSE(document->scaleObjects(initialBBox, invalidBBox));
             ASSERT_EQ(vm::vec3(200,200,200), brushNode->logicalBounds().size());
-            ASSERT_EQ(vm::plane3(100.0, vm::vec3::pos_z()), brushNode->brush().findFace(vm::vec3::pos_z())->boundary());
+            ASSERT_EQ(vm::plane3(100.0, vm::vec3::pos_z()), brush.face(*brush.findFace(vm::vec3::pos_z()))->boundary());
 
             ASSERT_TRUE(document->scaleObjects(initialBBox, doubleBBox));
             ASSERT_EQ(vm::vec3(400,400,400), brushNode->logicalBounds().size());
-            ASSERT_EQ(vm::plane3(200.0, vm::vec3::pos_z()), brushNode->brush().findFace(vm::vec3::pos_z())->boundary());
+            ASSERT_EQ(vm::plane3(200.0, vm::vec3::pos_z()), brush.face(*brush.findFace(vm::vec3::pos_z()))->boundary());
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.scaleObjectsInGroup") {
@@ -391,8 +392,12 @@ namespace TrenchBroom {
 
             Model::BrushNode* brushNode1 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 64, 64)), "texture"));
             Model::BrushNode* brushNode2 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 64, 64)), "texture"));
-            brushNode1->brush().findFace(vm::vec3::pos_z())->restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
-            brushNode2->brush().findFace(vm::vec3::pos_z())->restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
+            
+            const Model::Brush& brush1 = brushNode1->brush();
+            const Model::Brush& brush2 = brushNode2->brush();
+            
+            brush1.face(*brush1.findFace(vm::vec3::pos_z()))->restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
+            brush2.face(*brush2.findFace(vm::vec3::pos_z()))->restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
             document->addNode(brushNode1, entity);
             document->addNode(brushNode2, entity);
             ASSERT_EQ(2u, entity->children().size());
@@ -402,7 +407,9 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, entity->children().size());
 
             Model::BrushNode* brushNode3 = static_cast<Model::BrushNode*>(entity->children()[0]);
-            Model::BrushFace* top = brushNode3->brush().findFace(vm::vec3::pos_z());
+            const Model::Brush& brush3 = brushNode3->brush();
+            
+            Model::BrushFace* top = brush3.face(*brush3.findFace(vm::vec3::pos_z()));
             ASSERT_EQ(vm::vec3(1, 0, 0), top->textureXAxis());
             ASSERT_EQ(vm::vec3(0, 1, 0), top->textureYAxis());
         }
@@ -418,7 +425,9 @@ namespace TrenchBroom {
 
             Model::BrushNode* brushNode1 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture"));
             Model::BrushNode* brushNode2 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 32)), "texture"));
-            brushNode2->brush().findFace(vm::vec3::pos_z())->restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
+            
+            const Model::Brush& brush2 = brushNode2->brush();
+            brush2.face(*brush2.findFace(vm::vec3::pos_z()))->restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
             document->addNode(brushNode1, entity);
             document->addNode(brushNode2, entity);
             ASSERT_EQ(2u, entity->children().size());
@@ -429,11 +438,13 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, entity->children().size());
 
             Model::BrushNode* brushNode3 = static_cast<Model::BrushNode*>(entity->children()[0]);
+            const Model::Brush& brush3 = brushNode3->brush();
+
             ASSERT_EQ(vm::bbox3(vm::vec3(0, 0, 32), vm::vec3(64, 64, 64)), brushNode3->logicalBounds());
 
             // the texture alignment from the top of brush2 should have transferred
             // to the bottom face of brush3
-            Model::BrushFace* top = brushNode3->brush().findFace(vm::vec3::neg_z());
+            Model::BrushFace* top = brush3.face(*brush3.findFace(vm::vec3::neg_z()));
             ASSERT_EQ(vm::vec3(1, 0, 0), top->textureXAxis());
             ASSERT_EQ(vm::vec3(0, 1, 0), top->textureYAxis());
         }
@@ -631,7 +642,8 @@ namespace TrenchBroom {
             auto hits = pickResult.query().all();
             ASSERT_EQ(1u, hits.size());
 
-            ASSERT_EQ(brushNode1->brush().findFace(vm::vec3::neg_x()), Model::hitToFace(hits.front()));
+            const auto& brush1 = brushNode1->brush();
+            ASSERT_EQ(brush1.face(*brush1.findFace(vm::vec3::neg_x())), Model::hitToFace(hits.front()));
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
 
             pickResult.clear();
@@ -690,7 +702,8 @@ namespace TrenchBroom {
             auto hits = pickResult.query().type(Model::BrushNode::BrushHitType).all();
             ASSERT_EQ(1u, hits.size());
 
-            ASSERT_EQ(brushNode1->brush().findFace(vm::vec3::neg_x()), Model::hitToFace(hits.front()));
+            const auto& brush1 = brushNode1->brush();
+            ASSERT_EQ(brush1.face(*brush1.findFace(vm::vec3::neg_x())), Model::hitToFace(hits.front()));
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
 
             ASSERT_EQ(std::vector<Model::Node*>{ group }, hitsToNodesWithGroupPicking(hits));
@@ -720,7 +733,7 @@ namespace TrenchBroom {
             hits = pickResult.query().type(Model::BrushNode::BrushHitType).all();
             ASSERT_EQ(1u, hits.size());
 
-            ASSERT_EQ(brushNode1->brush().findFace(vm::vec3::neg_x()), Model::hitToFace(hits.front()));
+            ASSERT_EQ(brush1.face(*brush1.findFace(vm::vec3::neg_x())), Model::hitToFace(hits.front()));
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
 
             ASSERT_EQ(std::vector<Model::Node*>{ brushNode1 }, hitsToNodesWithGroupPicking(hits));
@@ -807,7 +820,8 @@ namespace TrenchBroom {
             auto hits = pickResult.query().type(Model::BrushNode::BrushHitType).all();
             ASSERT_EQ(1u, hits.size());
 
-            ASSERT_EQ(brushNode3->brush().findFace(vm::vec3::neg_x()), Model::hitToFace(hits.front()));
+            const auto& brush3 = brushNode3->brush();
+            ASSERT_EQ(brush3.face(*brush3.findFace(vm::vec3::neg_x())), Model::hitToFace(hits.front()));
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
 
             ASSERT_EQ(std::vector<Model::Node*>{ brushNode3 }, hitsToNodesWithGroupPicking(hits));
@@ -819,7 +833,8 @@ namespace TrenchBroom {
             hits = pickResult.query().type(Model::BrushNode::BrushHitType).all();
             ASSERT_EQ(1u, hits.size());
 
-            ASSERT_EQ(brushNode1->brush().findFace(vm::vec3::neg_x()), Model::hitToFace(hits.front()));
+            const auto& brush1 = brushNode1->brush();
+            ASSERT_EQ(brush1.face(*brush1.findFace(vm::vec3::neg_x())), Model::hitToFace(hits.front()));
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
             ASSERT_EQ(std::vector<Model::Node*>{ innerGroup }, hitsToNodesWithGroupPicking(hits));
 
@@ -846,7 +861,7 @@ namespace TrenchBroom {
             hits = pickResult.query().type(Model::BrushNode::BrushHitType).all();
             ASSERT_EQ(1u, hits.size());
 
-            ASSERT_EQ(brushNode3->brush().findFace(vm::vec3::neg_x()), Model::hitToFace(hits.front()));
+            ASSERT_EQ(brush3.face(*brush3.findFace(vm::vec3::neg_x())), Model::hitToFace(hits.front()));
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
             ASSERT_EQ(std::vector<Model::Node*>{ brushNode3 }, hitsToNodesWithGroupPicking(hits));
 
@@ -857,7 +872,7 @@ namespace TrenchBroom {
             hits = pickResult.query().type(Model::BrushNode::BrushHitType).all();
             ASSERT_EQ(1u, hits.size());
 
-            ASSERT_EQ(brushNode1->brush().findFace(vm::vec3::neg_x()), Model::hitToFace(hits.front()));
+            ASSERT_EQ(brush1.face(*brush1.findFace(vm::vec3::neg_x())), Model::hitToFace(hits.front()));
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
             ASSERT_EQ(std::vector<Model::Node*>{ brushNode1 }, hitsToNodesWithGroupPicking(hits));
         }
@@ -889,7 +904,8 @@ namespace TrenchBroom {
             auto hits = pickResult.query().all();
             ASSERT_EQ(1u, hits.size());
 
-            ASSERT_EQ(brushNode1->brush().findFace(vm::vec3::neg_x()), Model::hitToFace(hits.front()));
+            const auto& brush1 = brushNode1->brush();
+            ASSERT_EQ(brush1.face(*brush1.findFace(vm::vec3::neg_x())), Model::hitToFace(hits.front()));
             ASSERT_DOUBLE_EQ(32.0, hits.front().distance());
         }
 

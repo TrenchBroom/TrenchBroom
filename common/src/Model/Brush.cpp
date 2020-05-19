@@ -248,50 +248,34 @@ namespace TrenchBroom {
             return m_geometry->bounds();
         }
 
-        BrushFace* Brush::findFace(const std::string& textureName) const {
-            for (BrushFace* face : m_faces) {
-                if (face->attributes().textureName() == textureName) {
-                    return face;
-                }
-            }
-            return nullptr;
+        std::optional<size_t> Brush::findFace(const std::string& textureName) const {
+            return kdl::vec_index_of(m_faces, [&](const BrushFace* face) { return face->attributes().textureName() == textureName; });
         }
 
-        BrushFace* Brush::findFace(const vm::vec3& normal) const {
-            for (auto* face : m_faces) {
-                if (vm::is_equal(face->boundary().normal, normal, vm::C::almost_zero())) {
-                    return face;
-                }
-            }
-            return nullptr;
+        std::optional<size_t> Brush::findFace(const vm::vec3& normal) const {
+            return kdl::vec_index_of(m_faces, [&](const BrushFace* face) { return vm::is_equal(face->boundary().normal, normal, vm::C::almost_zero()); });
         }
 
-        BrushFace* Brush::findFace(const vm::plane3& boundary) const {
-            for (auto* face : m_faces) {
-                if (vm::is_equal(face->boundary(), boundary, vm::C::almost_zero())) {
-                    return face;
-                }
-            }
-            return nullptr;
+        std::optional<size_t> Brush::findFace(const vm::plane3& boundary) const {
+            return kdl::vec_index_of(m_faces, [&](const BrushFace* face) { return vm::is_equal(face->boundary(), boundary, vm::C::almost_zero()); });
         }
 
-        BrushFace* Brush::findFace(const vm::polygon3& vertices, const FloatType epsilon) const {
-            for (auto* face : m_faces) {
-                if (face->hasVertices(vertices, epsilon)) {
-                    return face;
-                }
-            }
-            return nullptr;
+        std::optional<size_t> Brush::findFace(const vm::polygon3& vertices, const FloatType epsilon) const {
+            return kdl::vec_index_of(m_faces, [&](const BrushFace* face) { return face->hasVertices(vertices, epsilon); });
         }
 
-        BrushFace* Brush::findFace(const std::vector<vm::polygon3>& candidates, const FloatType epsilon) const {
+        std::optional<size_t> Brush::findFace(const std::vector<vm::polygon3>& candidates, const FloatType epsilon) const {
             for (const auto& candidate : candidates) {
-                auto* face = findFace(candidate, epsilon);
-                if (face != nullptr) {
-                    return face;
+                if (const auto faceIndex = findFace(candidate, epsilon)) {
+                    return faceIndex;
                 }
             }
-            return nullptr;
+            return std::nullopt;
+        }
+
+        BrushFace* Brush::face(const size_t index) const {
+            assert(index < faceCount());
+            return m_faces[index];
         }
 
         size_t Brush::faceCount() const {
@@ -340,8 +324,8 @@ namespace TrenchBroom {
 
         void Brush::cloneFaceAttributesFrom(const Brush& brush) {
             for (auto* destination : m_faces) {
-                const auto* source = brush.findFace(destination->boundary());
-                if (source != nullptr) {
+                if (const auto sourceIndex = brush.findFace(destination->boundary())) {
+                    const auto* source = brush.face(*sourceIndex);
                     destination->setAttributes(source->attributes());
 
                     auto snapshot = source->takeTexCoordSystemSnapshot();
@@ -354,8 +338,8 @@ namespace TrenchBroom {
 
         void Brush::cloneInvertedFaceAttributesFrom(const Brush& brush) {
             for (auto* destination : m_faces) {
-                const auto* source = brush.findFace(destination->boundary().flip());
-                if (source != nullptr) {
+                if (const auto sourceIndex = brush.findFace(destination->boundary().flip())) {
+                    const auto* source = brush.face(*sourceIndex);
                     // Todo: invert the face attributes?
                     destination->setAttributes(source->attributes());
 

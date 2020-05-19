@@ -149,9 +149,10 @@ namespace TrenchBroom {
         }
 
         void assertTexture(const std::string& expected, const Brush& brush, const vm::vec3& faceNormal) {
-            BrushFace* face = brush.findFace(faceNormal);
-            assert(face != nullptr);
-
+            const auto faceIndex = brush.findFace(faceNormal);
+            REQUIRE(faceIndex);
+            
+            BrushFace* face = brush.face(*faceIndex);
             ASSERT_EQ(expected, face->attributes().textureName());
         }
 
@@ -168,9 +169,10 @@ namespace TrenchBroom {
         }
 
         void assertTexture(const std::string& expected, const Brush& brush, const vm::polygon3d& vertices) {
-            BrushFace* face = brush.findFace(vertices, 0.0001);
-            assert(face != nullptr);
+            const auto faceIndex = brush.findFace(vertices, 0.0001);
+            REQUIRE(faceIndex);
 
+            BrushFace* face = brush.face(*faceIndex);
             ASSERT_EQ(expected, face->attributes().textureName());
         }
     }
