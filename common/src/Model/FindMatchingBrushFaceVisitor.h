@@ -37,9 +37,10 @@ namespace TrenchBroom {
             void doVisit(LayerNode*)  override {}
             void doVisit(GroupNode*)  override {}
             void doVisit(EntityNode*) override {}
-            void doVisit(BrushNode* brush)   override {
-                for (BrushFace* face : brush->faces()) {
-                    if (m_p(brush, face)) {
+            void doVisit(BrushNode* brushNode)   override {
+                const Brush& brush = brushNode->brush();
+                for (BrushFace* face : brush.faces()) {
+                    if (m_p(brushNode, face)) {
                         setResult(face);
                         cancel();
                         return;

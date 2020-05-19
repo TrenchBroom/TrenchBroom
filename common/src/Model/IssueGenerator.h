@@ -51,20 +51,20 @@ namespace TrenchBroom {
             const std::string& description() const;
             const IssueQuickFixList& quickFixes() const;
 
-            void generate(WorldNode* world,   IssueList& issues) const;
-            void generate(LayerNode* layer,   IssueList& issues) const;
-            void generate(GroupNode* group,   IssueList& issues) const;
-            void generate(EntityNode* entity, IssueList& issues) const;
-            void generate(BrushNode* brush,   IssueList& issues) const;
+            void generate(WorldNode* worldNode,   IssueList& issues) const;
+            void generate(LayerNode* layerNode,   IssueList& issues) const;
+            void generate(GroupNode* groupNode,   IssueList& issues) const;
+            void generate(EntityNode* entityNode, IssueList& issues) const;
+            void generate(BrushNode* brushNode,   IssueList& issues) const;
         protected:
             IssueGenerator(IssueType type, const std::string& description);
             void addQuickFix(IssueQuickFix* quickFix);
         private:
-            virtual void doGenerate(WorldNode* world,           IssueList& issues) const;
-            virtual void doGenerate(LayerNode* layer,           IssueList& issues) const;
-            virtual void doGenerate(GroupNode* group,           IssueList& issues) const;
-            virtual void doGenerate(EntityNode* entity,         IssueList& issues) const;
-            virtual void doGenerate(BrushNode* brush,           IssueList& issues) const;
+            virtual void doGenerate(WorldNode* worldNode,           IssueList& issues) const;
+            virtual void doGenerate(LayerNode* layerNode,           IssueList& issues) const;
+            virtual void doGenerate(GroupNode* groupNode,           IssueList& issues) const;
+            virtual void doGenerate(EntityNode* entityNode,         IssueList& issues) const;
+            virtual void doGenerate(BrushNode* brushNode,           IssueList& issues) const;
             virtual void doGenerate(AttributableNode* node, IssueList& issues) const;
         };
     }

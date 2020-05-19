@@ -85,10 +85,11 @@ namespace TrenchBroom {
             addQuickFix(new InvalidTextureScaleIssueQuickFix());
         }
 
-        void InvalidTextureScaleIssueGenerator::doGenerate(BrushNode* brush, IssueList& issues) const {
-            for (const auto& face : brush->faces()) {
+        void InvalidTextureScaleIssueGenerator::doGenerate(BrushNode* brushNode, IssueList& issues) const {
+            const Brush& brush = brushNode->brush();
+            for (BrushFace* face : brush.faces()) {
                 if (!face->attribs().valid()) {
-                    issues.push_back(new InvalidTextureScaleIssue(brush, face));
+                    issues.push_back(new InvalidTextureScaleIssue(brushNode, face));
                 }
             }
         }

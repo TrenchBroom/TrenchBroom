@@ -52,8 +52,9 @@ namespace TrenchBroom {
         MixedBrushContentsIssueGenerator::MixedBrushContentsIssueGenerator() :
         IssueGenerator(MixedBrushContentsIssue::Type, "Mixed brush content flags") {}
 
-        void MixedBrushContentsIssueGenerator::doGenerate(BrushNode* brush, IssueList& issues) const {
-            const std::vector<BrushFace*>& faces = brush->faces();
+        void MixedBrushContentsIssueGenerator::doGenerate(BrushNode* brushNode, IssueList& issues) const {
+            const Brush& brush = brushNode->brush();
+            const std::vector<BrushFace*>& faces = brush.faces();
             auto it = std::begin(faces);
             auto end = std::end(faces);
             assert(it != end);
@@ -61,8 +62,9 @@ namespace TrenchBroom {
             const int contentFlags = (*it)->surfaceContents();
             ++it;
             while (it != end) {
-                if ((*it)->surfaceContents() != contentFlags)
-                    issues.push_back(new MixedBrushContentsIssue(brush));
+                if ((*it)->surfaceContents() != contentFlags) {
+                    issues.push_back(new MixedBrushContentsIssue(brushNode));
+                }
                 ++it;
             }
         }

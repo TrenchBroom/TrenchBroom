@@ -119,7 +119,7 @@ namespace TrenchBroom {
             Model::EntityNode* entity = new Model::EntityNode();
             document->addNode(entity, document->currentParent());
 
-            Model::BrushNode* brush = createBrush();
+            Model::BrushNode* brush = createBrushNode();
             document->addNode(brush, entity);
 
             ASSERT_TRUE(document->reparentNodes(document->currentParent(), { brush }));
@@ -138,7 +138,7 @@ namespace TrenchBroom {
             Model::EntityNode* entity = new Model::EntityNode();
             document->addNode(entity, group);
 
-            Model::BrushNode* brush = createBrush();
+            Model::BrushNode* brush = createBrushNode();
             document->addNode(brush, entity);
 
             ASSERT_TRUE(document->reparentNodes(document->currentParent(), { brush }));

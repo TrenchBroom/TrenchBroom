@@ -100,8 +100,9 @@ namespace TrenchBroom {
 
         // NoFilter
 
-        BrushRenderer::Filter::RenderSettings BrushRenderer::NoFilter::markFaces(const Model::BrushNode* brush) const {
-            for (Model::BrushFace* face : brush->faces()) {
+        BrushRenderer::Filter::RenderSettings BrushRenderer::NoFilter::markFaces(const Model::BrushNode* brushNode) const {
+            const Model::Brush& brush = brushNode->brush();
+            for (Model::BrushFace* face : brush.faces()) {
                 face->setMarked(true);
             }
             return std::make_tuple(FaceRenderPolicy::RenderMarked,

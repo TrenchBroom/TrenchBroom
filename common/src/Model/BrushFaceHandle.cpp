@@ -20,6 +20,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "BrushFaceHandle.h"
 
 #include "Ensure.h"
+#include "Model/Brush.h"
 #include "Model/BrushNode.h"
 
 #include <kdl/vector_utils.h>
@@ -31,7 +32,7 @@ namespace TrenchBroom {
         m_face(face) {
             assert(m_node != nullptr);
             assert(m_face != nullptr);
-            ensure(kdl::vec_contains(m_node->faces(), face), "face must belong to node");
+            ensure(kdl::vec_contains(m_node->brush().faces(), face), "face must belong to node");
         }
 
         BrushNode* BrushFaceHandle::node() const {
@@ -50,8 +51,8 @@ namespace TrenchBroom {
             return kdl::vec_transform(handles, [](const auto& handle) { return handle.face(); });
         }
 
-        std::vector<BrushFaceHandle> toHandles(BrushNode* brush) {
-            return kdl::vec_transform(brush->faces(), [&](auto* face) { return BrushFaceHandle(brush, face); });
+        std::vector<BrushFaceHandle> toHandles(BrushNode* brushNode) {
+            return kdl::vec_transform(brushNode->brush().faces(), [&](auto* face) { return BrushFaceHandle(brushNode, face); });
         }
     }
 }

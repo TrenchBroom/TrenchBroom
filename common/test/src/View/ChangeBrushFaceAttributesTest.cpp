@@ -42,14 +42,14 @@ namespace TrenchBroom {
         };
 
         TEST_CASE_METHOD(ChangeBrushFaceAttributesTest, "ChangeBrushFaceAttributesTest.resetAttributesOfValve220Face") {
-            Model::BrushNode* brush = createBrush();
-            document->addNode(brush, document->currentParent());
+            Model::BrushNode* brushNode = createBrushNode();
+            document->addNode(brushNode, document->currentParent());
 
-            Model::BrushFace* face = brush->faces().front();
+            Model::BrushFace* face = brushNode->brush().faces().front();
             const vm::vec3 initialX = face->textureXAxis();
             const vm::vec3 initialY = face->textureYAxis();
 
-            document->select(Model::BrushFaceHandle(brush, face));
+            document->select(Model::BrushFaceHandle(brushNode, face));
 
             const Model::BrushFaceAttributes originalAttribs = face->attribs();
             Model::ChangeBrushFaceAttributesRequest rotate;

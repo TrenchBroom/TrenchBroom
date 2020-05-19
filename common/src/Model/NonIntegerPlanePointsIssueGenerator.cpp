@@ -66,13 +66,14 @@ namespace TrenchBroom {
             // addQuickFix(new NonIntegerPlanePointsIssueQuickFix());
         }
 
-        void NonIntegerPlanePointsIssueGenerator::doGenerate(BrushNode* brush, IssueList& issues) const {
-            for (const BrushFace* face : brush->faces()) {
+        void NonIntegerPlanePointsIssueGenerator::doGenerate(BrushNode* brushNode, IssueList& issues) const {
+            const Brush& brush = brushNode->brush();
+            for (const BrushFace* face : brush.faces()) {
                 const BrushFace::Points& points = face->points();
                 for (size_t i = 0; i < 3; ++i) {
                     const vm::vec3& point = points[i];
                     if (!vm::is_integral(point)) {
-                        issues.push_back(new NonIntegerPlanePointsIssue(brush));
+                        issues.push_back(new NonIntegerPlanePointsIssue(brushNode));
                         return;
                     }
                 }
