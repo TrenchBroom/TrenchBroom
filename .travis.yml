@@ -9,7 +9,7 @@ matrix:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
             - sourceline: "ppa:beineri/opt-qt595-xenial"
           packages:
-            - g++-7 qt59base freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm cppcheck
+            - g++-7 qt59base qt59svg freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm cppcheck
     - os: linux
       dist: xenial
       env: TB_GCC8=true
@@ -19,7 +19,7 @@ matrix:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
             - sourceline: "ppa:beineri/opt-qt595-xenial"
           packages:
-            - g++-8 qt59base freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm cppcheck
+            - g++-8 qt59base qt59svg freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm cppcheck
     - os: osx
       osx_image: xcode11.3
     - os: osx
