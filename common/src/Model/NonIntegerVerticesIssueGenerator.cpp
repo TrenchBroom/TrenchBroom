@@ -65,10 +65,11 @@ namespace TrenchBroom {
             addQuickFix(new NonIntegerVerticesIssueQuickFix());
         }
 
-        void NonIntegerVerticesIssueGenerator::doGenerate(BrushNode* brush, IssueList& issues) const {
-            for (const BrushVertex* vertex : brush->vertices()) {
+        void NonIntegerVerticesIssueGenerator::doGenerate(BrushNode* brushNode, IssueList& issues) const {
+            const Brush& brush = brushNode->brush();
+            for (const BrushVertex* vertex : brush.vertices()) {
                 if (!vm::is_integral(vertex->position())) {
-                    issues.push_back(new NonIntegerVerticesIssue(brush));
+                    issues.push_back(new NonIntegerVerticesIssue(brushNode));
                     return;
                 }
             }

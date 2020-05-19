@@ -98,9 +98,11 @@ namespace TrenchBroom {
             }
         }
 
-        static void checkVerticesIntegral(const Model::BrushNode* brush) {
-            for (const Model::BrushVertex* vertex : brush->vertices())
+        static void checkVerticesIntegral(const Model::BrushNode* brushNode) {
+            const Model::Brush& brush = brushNode->brush();
+            for (const Model::BrushVertex* vertex : brush.vertices()) {
                 ASSERT_POINT_INTEGRAL(vertex->position());
+            }
         }
 
         static void checkBoundsIntegral(const Model::BrushNode* brush) {

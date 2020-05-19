@@ -49,14 +49,16 @@ namespace TrenchBroom {
             }
         }
 
-        void VertexHandleManager::addHandles(const Model::BrushNode* brush) {
-            for (const Model::BrushVertex* vertex : brush->vertices()) {
+        void VertexHandleManager::addHandles(const Model::BrushNode* brushNode) {
+            const Model::Brush& brush = brushNode->brush();
+            for (const Model::BrushVertex* vertex : brush.vertices()) {
                 add(vertex->position());
             }
         }
 
-        void VertexHandleManager::removeHandles(const Model::BrushNode* brush) {
-            for (const Model::BrushVertex* vertex : brush->vertices()) {
+        void VertexHandleManager::removeHandles(const Model::BrushNode* brushNode) {
+            const Model::Brush& brush = brushNode->brush();
+            for (const Model::BrushVertex* vertex : brush.vertices()) {
                 assertResult(remove(vertex->position()))
             }
         }
