@@ -52,6 +52,11 @@ namespace TrenchBroom {
             BrushNode* node() const;
 
             /**
+             * Returns the face index.
+             */
+            size_t faceIndex() const;
+            
+            /**
              * Returns the brush face.
              */
             BrushFace* face() const;

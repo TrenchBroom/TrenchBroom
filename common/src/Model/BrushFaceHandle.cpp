@@ -38,6 +38,10 @@ namespace TrenchBroom {
             return m_node;
         }
 
+        size_t BrushFaceHandle::faceIndex() const {
+            return m_faceIndex;
+        }
+        
         BrushFace* BrushFaceHandle::face() const {
             return m_node->brush().face(m_faceIndex);
         }
