@@ -55,17 +55,63 @@ namespace TrenchBroom {
         }
 
         BrushFace::BrushFace(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem) :
+        m_attributes(attributes),
+        m_texCoordSystem(std::move(texCoordSystem)),
+        m_geometry(nullptr),
         m_lineNumber(0),
         m_lineCount(0),
         m_selected(false),
-        m_texCoordSystem(std::move(texCoordSystem)),
-        m_geometry(nullptr),
-        m_markedToRenderFace(false),
-        m_attributes(attributes) {
+        m_markedToRenderFace(false) {
             ensure(m_texCoordSystem != nullptr, "texCoordSystem is null");
             setPoints(point0, point1, point2);
         }
 
+        BrushFace::BrushFace(const BrushFace& other) :
+        m_points(other.m_points),
+        m_boundary(other.m_boundary),
+        m_attributes(other.m_attributes),
+        m_textureReference(other.m_textureReference),
+        m_texCoordSystem(other.m_texCoordSystem ? other.m_texCoordSystem->clone() : nullptr),
+        m_geometry(nullptr),
+        m_lineNumber(other.m_lineNumber),
+        m_lineCount(other.m_lineCount),
+        m_selected(other.m_selected),
+        m_markedToRenderFace(false) {}
+        
+        BrushFace::BrushFace(BrushFace&& other) noexcept :
+        m_points(std::move(other.m_points)),
+        m_boundary(std::move(other.m_boundary)),
+        m_attributes(std::move(other.m_attributes)),
+        m_textureReference(std::move(other.m_textureReference)),
+        m_texCoordSystem(std::move(other.m_texCoordSystem)),
+        m_geometry(other.m_geometry),
+        m_lineNumber(other.m_lineNumber),
+        m_lineCount(other.m_lineCount),
+        m_selected(other.m_selected),
+        m_markedToRenderFace(false) {}
+        
+        BrushFace& BrushFace::operator=(BrushFace other) noexcept {
+            using std::swap;
+            swap(*this, other);
+            return *this;
+        }
+
+        void swap(BrushFace& lhs, BrushFace& rhs) noexcept {
+            using std::swap;
+            swap(lhs.m_points, rhs.m_points);
+            swap(lhs.m_boundary, rhs.m_boundary);
+            swap(lhs.m_attributes, rhs.m_attributes);
+            swap(lhs.m_textureReference, rhs.m_textureReference);
+            swap(lhs.m_texCoordSystem, rhs.m_texCoordSystem);
+            swap(lhs.m_geometry, rhs.m_geometry);
+            swap(lhs.m_lineNumber, rhs.m_lineNumber);
+            swap(lhs.m_lineCount, rhs.m_lineCount);
+            swap(lhs.m_selected, rhs.m_selected);
+            swap(lhs.m_markedToRenderFace, rhs.m_markedToRenderFace);
+        }
+
+        BrushFace::~BrushFace() = default;
+        
         BrushFace* BrushFace::createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName) {
             const BrushFaceAttributes attributes(textureName);
             return new BrushFace(point0, point1, point2, attributes, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attributes));
@@ -95,17 +141,6 @@ namespace TrenchBroom {
                     return lhsBoundary.distance < rhsBoundary.distance;
                 }
             });
-        }
-
-        BrushFace::~BrushFace() {
-            for (size_t i = 0; i < 3; ++i) {
-                m_points[i] = vm::vec3::zero();
-            }
-            m_lineNumber = 0;
-            m_lineCount = 0;
-            m_selected = false;
-            m_texCoordSystem = nullptr;
-            m_geometry = nullptr;
         }
 
         BrushFace* BrushFace::clone() const {
