@@ -125,10 +125,6 @@ namespace TrenchBroom {
             return new BrushFaceSnapshot(this, face);
         }
 
-        bool BrushNode::closed() const {
-            return m_brush.closed();
-        }
-
         bool BrushNode::fullySpecified() const {
             return m_brush.fullySpecified();
         }
