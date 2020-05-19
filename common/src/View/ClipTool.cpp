@@ -759,17 +759,17 @@ namespace TrenchBroom {
                 for (auto* brushNode : brushNodes) {
                     auto* parent = brushNode->parent();
 
-                    auto* frontFace = world->createFace(point1, point2, point3, document->currentTextureName());
-                    auto* backFace = world->createFace(point1, point3, point2, document->currentTextureName());
+                    auto frontFace = world->createFace(point1, point2, point3, document->currentTextureName());
+                    auto backFace = world->createFace(point1, point3, point2, document->currentTextureName());
                     setFaceAttributes(brushNode->brush().faces(), frontFace, backFace);
 
                     auto frontBrush = brushNode->brush();
-                    if (frontBrush.clip(worldBounds, frontFace)) {
+                    if (frontBrush.clip(worldBounds, std::move(frontFace))) {
                         m_frontBrushes[parent].push_back(new Model::BrushNode(std::move(frontBrush)));
                     }
                     
                     auto backBrush = brushNode->brush();
-                    if (backBrush.clip(worldBounds, backFace)) {
+                    if (backBrush.clip(worldBounds, std::move(backFace))) {
                         m_backBrushes[parent].push_back(new Model::BrushNode(std::move(backBrush)));
                     }
                 }
@@ -781,7 +781,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ClipTool::setFaceAttributes(const std::vector<const Model::BrushFace*>& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const {
+        void ClipTool::setFaceAttributes(const std::vector<const Model::BrushFace*>& faces, Model::BrushFace& frontFace, Model::BrushFace& backFace) const {
             ensure(!faces.empty(), "no faces");
 
             auto faceIt = std::begin(faces);
@@ -792,14 +792,14 @@ namespace TrenchBroom {
             while (faceIt != faceEnd) {
                 const auto* face = *faceIt;
 
-                const auto bestFrontDiff = bestFrontFace->boundary().normal - frontFace->boundary().normal;
-                const auto frontDiff = face->boundary().normal - frontFace->boundary().normal;
+                const auto bestFrontDiff = bestFrontFace->boundary().normal - frontFace.boundary().normal;
+                const auto frontDiff = face->boundary().normal - frontFace.boundary().normal;
                 if (vm::squared_length(frontDiff) < vm::squared_length(bestFrontDiff)) {
                     bestFrontFace = face;
                 }
 
-                const auto bestBackDiff = bestBackFace->boundary().normal - backFace->boundary().normal;
-                const auto backDiff = face->boundary().normal - backFace->boundary().normal;
+                const auto bestBackDiff = bestBackFace->boundary().normal - backFace.boundary().normal;
+                const auto backDiff = face->boundary().normal - backFace.boundary().normal;
                 if (vm::squared_length(backDiff) < vm::squared_length(bestBackDiff)) {
                     bestBackFace = face;
                 }
@@ -809,8 +809,8 @@ namespace TrenchBroom {
 
             ensure(bestFrontFace != nullptr, "bestFrontFace is null");
             ensure(bestBackFace != nullptr, "bestBackFace is null");
-            frontFace->setAttributes(bestFrontFace);
-            backFace->setAttributes(bestBackFace);
+            frontFace.setAttributes(bestFrontFace);
+            backFace.setAttributes(bestBackFace);
         }
 
         void ClipTool::clearRenderers() {

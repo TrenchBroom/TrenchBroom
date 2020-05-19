@@ -22,6 +22,7 @@
 
 #include "FloatType.h"
 #include "IO/StandardMapParser.h"
+#include "Model/BrushFace.h"
 #include "Model/IdType.h"
 
 #include <vecmath/forward.h>
@@ -35,7 +36,6 @@ namespace TrenchBroom {
     namespace Model {
         class AttributableNode;
         class BrushNode;
-        class BrushFace;
         class EntityAttribute;
         class GroupNode;
         class LayerNode;
@@ -87,7 +87,7 @@ namespace TrenchBroom {
 
             Model::Node* m_brushParent;
             Model::Node* m_currentNode;
-            std::vector<Model::BrushFace*> m_faces;
+            std::vector<Model::BrushFace> m_faces;
 
             LayerMap m_layers;
             GroupMap m_groups;
@@ -99,8 +99,6 @@ namespace TrenchBroom {
             void readEntities(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
             void readBrushes(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
             void readBrushFaces(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
-        public:
-            ~MapReader() override;
         private: // implement MapParser interface
             void onFormatSet(Model::MapFormat format) override;
             void onBeginEntity(size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
@@ -133,7 +131,7 @@ namespace TrenchBroom {
             virtual void onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) = 0;
             virtual void onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) = 0;
             virtual void onBrush(Model::Node* parent, Model::BrushNode* brush, ParserStatus& status) = 0;
-            virtual void onBrushFace(Model::BrushFace* face, ParserStatus& status);
+            virtual void onBrushFace(Model::BrushFace face, ParserStatus& status);
         };
     }
 }

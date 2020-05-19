@@ -75,10 +75,6 @@ namespace TrenchBroom {
         m_brushParent(nullptr),
         m_currentNode(nullptr) {}
 
-        MapReader::~MapReader() {
-            kdl::vec_clear_and_delete(m_faces);
-        }
-
         void MapReader::readEntities(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
             parseEntities(format, status);
@@ -135,9 +131,9 @@ namespace TrenchBroom {
         }
 
         void MapReader::onBrushFace(const size_t line, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) {
-            Model::BrushFace* face = m_factory->createFace(point1, point2, point3, attribs, texAxisX, texAxisY);
-            face->setFilePosition(line, 1);
-            onBrushFace(face, status);
+            Model::BrushFace face = m_factory->createFace(point1, point2, point3, attribs, texAxisX, texAxisY);
+            face.setFilePosition(line, 1u);
+            onBrushFace(std::move(face), status);
         }
 
         void MapReader::createLayer(const size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
@@ -224,7 +220,7 @@ namespace TrenchBroom {
 
         void MapReader::createBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             try {
-                Model::BrushNode* brush = m_factory->createBrush(Model::Brush(m_worldBounds, m_faces));
+                Model::BrushNode* brush = m_factory->createBrush(Model::Brush(m_worldBounds, std::move(m_faces)));
                 setFilePosition(brush, startLine, lineCount);
                 setExtraAttributes(brush, extraAttributes);
 
@@ -338,8 +334,8 @@ namespace TrenchBroom {
             }
         }
 
-        void MapReader::onBrushFace(Model::BrushFace* face, ParserStatus& /* status */) {
-            m_faces.push_back(face);
+        void MapReader::onBrushFace(Model::BrushFace face, ParserStatus& /* status */) {
+            m_faces.push_back(std::move(face));
         }
     }
 }

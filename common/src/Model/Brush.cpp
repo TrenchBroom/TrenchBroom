@@ -60,7 +60,6 @@ namespace TrenchBroom {
             void faceWasCreated(BrushFaceGeometry* face) override {
                 assert(m_addedFace != nullptr);
                 m_addedFace->setGeometry(face);
-                face->setPayload(m_addedFace);
                 m_addedFace = nullptr;
             }
 
@@ -139,9 +138,9 @@ namespace TrenchBroom {
         Brush::Brush() :
         m_transparent(false) {}
 
-        Brush::Brush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) :
+        Brush::Brush(const vm::bbox3& worldBounds, std::vector<BrushFace> faces) :
         m_transparent(false) {
-            addFaces(faces);
+            addFaces(kdl::vec_transform(faces, [](auto&& f) { return new BrushFace(std::move(f)); }));
             try {
                 buildGeometry(worldBounds);
             } catch (const GeometryException&) {
@@ -348,9 +347,9 @@ namespace TrenchBroom {
             }
         }
 
-        bool Brush::clip(const vm::bbox3& worldBounds, BrushFace* face) {
+        bool Brush::clip(const vm::bbox3& worldBounds, BrushFace face) {
             try {
-                addFace(face);
+                addFace(new BrushFace(face));
                 updateGeometryFromFaces(worldBounds);
                 return !m_faces.empty();
             } catch (GeometryException&) {
@@ -360,23 +359,24 @@ namespace TrenchBroom {
 
         bool Brush::canMoveBoundary(const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta) const {
             const auto* face = this->face(faceIndex);
-            auto* testFace = face->clone();
-            testFace->transform(vm::translation_matrix(delta), false);
+            auto testFace = BrushFace(*face);
+            testFace.transform(vm::translation_matrix(delta), false);
 
-            std::vector<BrushFace*> testFaces;
-            testFaces.push_back(testFace);
+            std::vector<BrushFace> testFaces;
+            testFaces.reserve(faceCount());
+            testFaces.push_back(std::move(testFace));
 
-            for (auto* brushFace : m_faces) {
+            for (const auto* brushFace : m_faces) {
                 if (brushFace != face) {
-                    testFaces.push_back(brushFace->clone());
+                    testFaces.emplace_back(*brushFace);
                 }
             }
 
             try {
-                const auto testBrush = Brush(worldBounds, testFaces);
+                const auto testBrush = Brush(worldBounds, std::move(testFaces));
                 const auto inWorldBounds = worldBounds.contains(testBrush.bounds());
                 const auto closed = testBrush.closed();
-                const auto allFaces = testBrush.faceCount() == testFaces.size();
+                const auto allFaces = testBrush.faceCount() == faceCount();
 
                 return inWorldBounds && closed && allFaces;
             } catch (const GeometryException&) {
@@ -1027,7 +1027,7 @@ namespace TrenchBroom {
         }
 
         Brush Brush::createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<const Brush*>& subtrahends) const {
-            std::vector<BrushFace*> faces(0);
+            std::vector<BrushFace> faces;
             faces.reserve(geometry.faceCount());
 
             for (const auto* face : geometry.faces()) {
@@ -1043,7 +1043,7 @@ namespace TrenchBroom {
                 faces.push_back(factory.createFace(p0, p1, p2, attribs));
             }
 
-            auto brush = Brush(worldBounds, faces);
+            auto brush = Brush(worldBounds, std::move(faces));
             brush.cloneFaceAttributesFrom(*this);
             for (const auto* subtrahend : subtrahends) {
                 brush.cloneInvertedFaceAttributesFrom(*subtrahend);

@@ -248,7 +248,7 @@ namespace TrenchBroom {
             PasteType paste(const std::string& str);
         private:
             bool pasteNodes(const std::vector<Model::Node*>& nodes);
-            bool pasteBrushFaces(const std::vector<Model::BrushFace*>& faces);
+            bool pasteBrushFaces(const std::vector<Model::BrushFace>& faces);
         public: // point file management
             // cppcheck-suppress passedByValue
             void loadPointFile(const IO::Path path);

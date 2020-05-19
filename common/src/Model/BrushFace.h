@@ -106,9 +106,9 @@ namespace TrenchBroom {
             
             friend bool operator==(const BrushFace& lhs, const BrushFace& rhs);
             friend bool operator!=(const BrushFace& lhs, const BrushFace& rhs);
-            
-            static BrushFace* createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
-            static BrushFace* createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
+
+            static BrushFace createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
+            static BrushFace createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
 
             static void sortFaces(std::vector<BrushFace*>& faces);
 

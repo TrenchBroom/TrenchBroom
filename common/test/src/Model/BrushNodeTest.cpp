@@ -239,34 +239,38 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(4096.0);
 
             // build a cube with length 16 at the origin
-            BrushFace* left = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
-                                                        vm::vec3(0.0, 1.0, 0.0),
-                                                        vm::vec3(0.0, 0.0, 1.0));
-            BrushFace* right = BrushFace::createParaxial(vm::vec3(16.0, 0.0, 0.0),
-                                                         vm::vec3(16.0, 0.0, 1.0),
-                                                         vm::vec3(16.0, 1.0, 0.0));
-            BrushFace* front = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
-                                                         vm::vec3(0.0, 0.0, 1.0),
-                                                         vm::vec3(1.0, 0.0, 0.0));
-            BrushFace* back = BrushFace::createParaxial(vm::vec3(0.0, 16.0, 0.0),
-                                                        vm::vec3(1.0, 16.0, 0.0),
-                                                        vm::vec3(0.0, 16.0, 1.0));
-            BrushFace* top = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 16.0),
-                                                       vm::vec3(0.0, 1.0, 16.0),
-                                                       vm::vec3(1.0, 0.0, 16.0));
-            BrushFace* bottom = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
-                                                          vm::vec3(1.0, 0.0, 0.0),
-                                                          vm::vec3(0.0, 1.0, 0.0));
-
-            std::vector<BrushFace*> faces;
-            faces.push_back(left);
-            faces.push_back(right);
-            faces.push_back(front);
-            faces.push_back(back);
-            faces.push_back(top);
-            faces.push_back(bottom);
-
-            BrushNode brush(Brush(worldBounds, faces));
+            BrushNode brush(Brush(worldBounds, {
+                // left
+                BrushFace::createParaxial(
+                    vm::vec3(0.0, 0.0, 0.0),
+                    vm::vec3(0.0, 1.0, 0.0),
+                    vm::vec3(0.0, 0.0, 1.0)),
+                // right
+                BrushFace::createParaxial(
+                    vm::vec3(16.0, 0.0, 0.0),
+                    vm::vec3(16.0, 0.0, 1.0),
+                    vm::vec3(16.0, 1.0, 0.0)),
+                // front
+                BrushFace::createParaxial(
+                    vm::vec3(0.0, 0.0, 0.0),
+                    vm::vec3(0.0, 0.0, 1.0),
+                    vm::vec3(1.0, 0.0, 0.0)),
+                // back
+                BrushFace::createParaxial(
+                    vm::vec3(0.0, 16.0, 0.0),
+                    vm::vec3(1.0, 16.0, 0.0),
+                    vm::vec3(0.0, 16.0, 1.0)),
+                // top
+                BrushFace::createParaxial(
+                    vm::vec3(0.0, 0.0, 16.0),
+                    vm::vec3(0.0, 1.0, 16.0),
+                    vm::vec3(1.0, 0.0, 16.0)),
+                // bottom
+                BrushFace::createParaxial(
+                    vm::vec3(0.0, 0.0, 0.0),
+                    vm::vec3(1.0, 0.0, 0.0),
+                    vm::vec3(0.0, 1.0, 0.0)),
+            }));
 
             PickResult hits1;
             brush.pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::pos_y()), hits1);
@@ -274,80 +278,61 @@ namespace TrenchBroom {
 
             Hit hit1 = hits1.all().front();
             ASSERT_DOUBLE_EQ(8.0, hit1.distance());
-            ASSERT_EQ(front, hitToFaceHandle(hit1)->face());
+            ASSERT_EQ(vm::vec3::neg_y(), hitToFaceHandle(hit1)->face()->boundary().normal);
 
             PickResult hits2;
             brush.pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::neg_y()), hits2);
             ASSERT_TRUE(hits2.empty());
         }
 
-        struct MatchFace {
-        private:
-            const BrushFace& m_face;
-        public:
-            explicit MatchFace(const BrushFace& face) :
-            m_face(face) {}
-
-            bool operator()(const BrushFace* candidate) const {
-                for (size_t i = 0; i < 3; ++i) {
-                    if (candidate->points()[i] != m_face.points()[i]) {
-                        return false;
-                    }
-                }
-                if (candidate->selected() != m_face.selected()) {
-                    return false;
-                }
-                return candidate->attributes() == m_face.attributes();
-            }
-        };
-
-        static void assertHasFace(const BrushNode& brushNode, const BrushFace& face) {
-            const auto faces = brushNode.brush().faces();
-            const auto it = std::find_if(std::begin(faces), std::end(faces), MatchFace(face));
-            ASSERT_TRUE(it != std::end(faces));
-        }
-
         TEST_CASE("BrushNodeTest.clone", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
 
             // build a cube with length 16 at the origin
-            BrushFace* left = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
-                                                        vm::vec3(0.0, 1.0, 0.0),
-                                                        vm::vec3(0.0, 0.0, 1.0));
-            BrushFace* right = BrushFace::createParaxial(vm::vec3(16.0, 0.0, 0.0),
-                                                         vm::vec3(16.0, 0.0, 1.0),
-                                                         vm::vec3(16.0, 1.0, 0.0));
-            BrushFace* front = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
-                                                         vm::vec3(0.0, 0.0, 1.0),
-                                                         vm::vec3(1.0, 0.0, 0.0));
-            BrushFace* back = BrushFace::createParaxial(vm::vec3(0.0, 16.0, 0.0),
-                                                        vm::vec3(1.0, 16.0, 0.0),
-                                                        vm::vec3(0.0, 16.0, 1.0));
-            BrushFace* top = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 16.0),
-                                                       vm::vec3(0.0, 1.0, 16.0),
-                                                       vm::vec3(1.0, 0.0, 16.0));
-            BrushFace* bottom = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
-                                                          vm::vec3(1.0, 0.0, 0.0),
-                                                          vm::vec3(0.0, 1.0, 0.0));
+            BrushNode original(Brush(worldBounds, {
+                // left
+                BrushFace::createParaxial(
+                    vm::vec3(0.0, 0.0, 0.0),
+                    vm::vec3(0.0, 1.0, 0.0),
+                    vm::vec3(0.0, 0.0, 1.0)),
+                // right
+                BrushFace::createParaxial(
+                    vm::vec3(16.0, 0.0, 0.0),
+                    vm::vec3(16.0, 0.0, 1.0),
+                    vm::vec3(16.0, 1.0, 0.0)),
+                // front
+                BrushFace::createParaxial(
+                    vm::vec3(0.0, 0.0, 0.0),
+                    vm::vec3(0.0, 0.0, 1.0),
+                    vm::vec3(1.0, 0.0, 0.0)),
+                // back
+                BrushFace::createParaxial(
+                    vm::vec3(0.0, 16.0, 0.0),
+                    vm::vec3(1.0, 16.0, 0.0),
+                    vm::vec3(0.0, 16.0, 1.0)),
+                // top
+                BrushFace::createParaxial(
+                    vm::vec3(0.0, 0.0, 16.0),
+                    vm::vec3(0.0, 1.0, 16.0),
+                    vm::vec3(1.0, 0.0, 16.0)),
+                // bottom
+                BrushFace::createParaxial(
+                    vm::vec3(0.0, 0.0, 0.0),
+                    vm::vec3(1.0, 0.0, 0.0),
+                    vm::vec3(0.0, 1.0, 0.0)),
+            }));
 
-            std::vector<BrushFace*> faces;
-            faces.push_back(left);
-            faces.push_back(right);
-            faces.push_back(front);
-            faces.push_back(back);
-            faces.push_back(top);
-            faces.push_back(bottom);
-
-            BrushNode original(Brush(worldBounds, faces));
             BrushNode* clone = original.clone(worldBounds);
-
-            assertHasFace(*clone, *left);
-            assertHasFace(*clone, *right);
-            assertHasFace(*clone, *front);
-            assertHasFace(*clone, *back);
-            assertHasFace(*clone, *top);
-            assertHasFace(*clone, *bottom);
-
+            
+            ASSERT_EQ(original.brush().faceCount(), clone->brush().faceCount());
+            for (const auto* originalFace : original.brush().faces()) {
+                const auto cloneFaceIndex = clone->brush().findFace(originalFace->boundary());
+                ASSERT_TRUE(cloneFaceIndex.has_value());
+                
+                const auto* cloneFace = clone->brush().face(*cloneFaceIndex);
+                ASSERT_EQ(*originalFace, *cloneFace);
+            }
+            
             delete clone;
         }
 
