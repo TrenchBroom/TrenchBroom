@@ -69,8 +69,6 @@ namespace TrenchBroom {
             const Brush& brush() const;
             void setBrush(Brush brush);
         public:
-            void setFaces(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces);
-
             using Node::takeSnapshot;
             BrushFaceSnapshot* takeSnapshot(BrushFace* face);
 
