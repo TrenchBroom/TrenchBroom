@@ -114,12 +114,12 @@ namespace TrenchBroom {
 
                 // test setFaceAttributes
                 EXPECT_EQ(&texture, attribs.texture());
-                face.setAttribs(attribs);
+                face.setAttributes(attribs);
                 EXPECT_EQ(2u, texture.usageCount());
                 EXPECT_EQ(0u, texture2.usageCount());
 
                 // test setFaceAttributes with the same attributes
-                face.setAttribs(attribs);
+                face.setAttributes(attribs);
                 EXPECT_EQ(2u, texture.usageCount());
                 EXPECT_EQ(0u, texture2.usageCount());
             }
@@ -240,11 +240,11 @@ namespace TrenchBroom {
 
 #if 0
             printf("transformed face attribs: scale %f %f, rotation %f, offset %f %f\n",
-                   face->attribs().scale().x(),
-                   face->attribs().scale().y(),
-                   face->attribs().rotation(),
-                   face->attribs().offset().x(),
-                   face->attribs().offset().y());
+                   face->attributes().scale().x(),
+                   face->attributes().scale().y(),
+                   face->attributes().rotation(),
+                   face->attributes().offset().x(),
+                   face->attributes().offset().y());
 #endif
 
             checkUVListsEqual(uvs, transformedVertUVs, face);
@@ -557,9 +557,9 @@ namespace TrenchBroom {
             const vm::vec3 newYAxis(rot45 * negXFace->textureYAxis());
 
             // Rotate by 45 degrees CCW
-            ASSERT_FLOAT_EQ(0.0f, negXFace->attribs().rotation());
+            ASSERT_FLOAT_EQ(0.0f, negXFace->attributes().rotation());
             negXFace->rotateTexture(45.0);
-            ASSERT_FLOAT_EQ(45.0f, negXFace->attribs().rotation());
+            ASSERT_FLOAT_EQ(45.0f, negXFace->attributes().rotation());
 
             ASSERT_VEC_EQ(newXAxis, negXFace->textureXAxis());
             ASSERT_VEC_EQ(newYAxis, negXFace->textureYAxis());
@@ -612,12 +612,12 @@ namespace TrenchBroom {
             auto snapshot = negYFace->takeTexCoordSystemSnapshot();
 
             // copy texturing from the negYFace to posXFace using the rotation method
-            posXFace->copyTexCoordSystemFromFace(*snapshot, negYFace->attribs(), negYFace->boundary(), WrapStyle::Rotation);
+            posXFace->copyTexCoordSystemFromFace(*snapshot, negYFace->attributes(), negYFace->boundary(), WrapStyle::Rotation);
             ASSERT_VEC_EQ(vm::vec3(0.030303030303030123, 0.96969696969696961, -0.24242424242424243), posXFace->textureXAxis());
             ASSERT_VEC_EQ(vm::vec3(-0.0037296037296037088, -0.24242424242424243, -0.97016317016317011), posXFace->textureYAxis());
 
             // copy texturing from the negYFace to posXFace using the projection method
-            posXFace->copyTexCoordSystemFromFace(*snapshot, negYFace->attribs(), negYFace->boundary(), WrapStyle::Projection);
+            posXFace->copyTexCoordSystemFromFace(*snapshot, negYFace->attributes(), negYFace->boundary(), WrapStyle::Projection);
             ASSERT_VEC_EQ(vm::vec3::neg_y(), posXFace->textureXAxis());
             ASSERT_VEC_EQ(vm::vec3::neg_z(), posXFace->textureYAxis());
 

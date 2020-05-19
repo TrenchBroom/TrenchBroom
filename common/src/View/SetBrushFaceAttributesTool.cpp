@@ -222,9 +222,9 @@ namespace TrenchBroom {
                 document->setTexture(sourceFaceHandle.face()->texture(), false);
             } else {
                 auto snapshot = sourceFaceHandle.face()->takeTexCoordSystemSnapshot();
-                document->setFaceAttributes(sourceFaceHandle.face()->attribs());
+                document->setFaceAttributes(sourceFaceHandle.face()->attributes());
                 if (snapshot != nullptr) {
-                    document->copyTexCoordSystemFromFace(*snapshot, sourceFaceHandle.face()->attribs().takeSnapshot(), sourceFaceHandle.face()->boundary(), style);
+                    document->copyTexCoordSystemFromFace(*snapshot, sourceFaceHandle.face()->attributes().takeSnapshot(), sourceFaceHandle.face()->boundary(), style);
                 }
             }
 

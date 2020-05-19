@@ -57,7 +57,7 @@ namespace TrenchBroom {
             return halfEdge->edge();
         }
 
-        BrushFace::BrushFace(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs, std::unique_ptr<TexCoordSystem> texCoordSystem) :
+        BrushFace::BrushFace(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem) :
         m_brush(nullptr),
         m_lineNumber(0),
         m_lineCount(0),
@@ -65,19 +65,19 @@ namespace TrenchBroom {
         m_texCoordSystem(std::move(texCoordSystem)),
         m_geometry(nullptr),
         m_markedToRenderFace(false),
-        m_attribs(attribs) {
+        m_attributes(attributes) {
             ensure(m_texCoordSystem != nullptr, "texCoordSystem is null");
             setPoints(point0, point1, point2);
         }
 
         BrushFace* BrushFace::createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName) {
-            const BrushFaceAttributes attribs(textureName);
-            return new BrushFace(point0, point1, point2, attribs, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attribs));
+            const BrushFaceAttributes attributes(textureName);
+            return new BrushFace(point0, point1, point2, attributes, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attributes));
         }
 
         BrushFace* BrushFace::createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName) {
-            const BrushFaceAttributes attribs(textureName);
-            return new BrushFace(point0, point1, point2, attribs, std::make_unique<ParallelTexCoordSystem>(point0, point1, point2, attribs));
+            const BrushFaceAttributes attributes(textureName);
+            return new BrushFace(point0, point1, point2, attributes, std::make_unique<ParallelTexCoordSystem>(point0, point1, point2, attributes));
         }
 
         void BrushFace::sortFaces(std::vector<BrushFace*>& faces) {
@@ -115,7 +115,7 @@ namespace TrenchBroom {
 
         BrushFace* BrushFace::clone() const {
             BrushFace* result = new BrushFace(points()[0], points()[1], points()[2], textureName(), m_texCoordSystem->clone());
-            result->m_attribs = m_attribs;
+            result->m_attributes = m_attributes;
             result->setFilePosition(m_lineNumber, m_lineCount);
             if (m_selected)
                 result->select();
@@ -131,23 +131,23 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
 
-        void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot& coordSystemSnapshot, const BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const WrapStyle wrapStyle) {
+        void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot& coordSystemSnapshot, const BrushFaceAttributes& attributes, const vm::plane3& sourceFacePlane, const WrapStyle wrapStyle) {
             // Get a line, and a reference point, that are on both the source face's plane and our plane
             const auto seam = vm::intersect_plane_plane(sourceFacePlane, m_boundary);
             const auto refPoint = vm::project_point(seam, center());
 
             coordSystemSnapshot.restore(*m_texCoordSystem);
 
-            // Get the texcoords at the refPoint using the source face's attribs and tex coord system
-            const auto desriedCoords = m_texCoordSystem->getTexCoords(refPoint, attribs) * attribs.textureSize();
+            // Get the texcoords at the refPoint using the source face's attributes and tex coord system
+            const auto desriedCoords = m_texCoordSystem->getTexCoords(refPoint, attributes) * attributes.textureSize();
 
-            m_texCoordSystem->updateNormal(sourceFacePlane.normal, m_boundary.normal, m_attribs, wrapStyle);
+            m_texCoordSystem->updateNormal(sourceFacePlane.normal, m_boundary.normal, m_attributes, wrapStyle);
 
             // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
             if (!vm::is_zero(seam.direction, vm::C::almost_zero())) {
-                const auto currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
+                const auto currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attributes) * m_attributes.textureSize();
                 const auto offsetChange = desriedCoords - currentCoords;
-                m_attribs.setOffset(correct(m_attribs.modOffset(m_attribs.offset() + offsetChange), 4));
+                m_attributes.setOffset(correct(m_attributes.modOffset(m_attributes.offset() + offsetChange), 4));
             }
 
             invalidateVertexCache();
@@ -233,77 +233,77 @@ namespace TrenchBroom {
             return vm::abs((c1 - c2) / 2.0);
         }
 
-        const BrushFaceAttributes& BrushFace::attribs() const {
-            return m_attribs;
+        const BrushFaceAttributes& BrushFace::attributes() const {
+            return m_attributes;
         }
 
-        void BrushFace::setAttribs(const BrushFaceAttributes& attribs) {
-            const float oldRotation = m_attribs.rotation();
-            m_attribs = attribs;
-            m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attribs.rotation());
+        void BrushFace::setAttributes(const BrushFaceAttributes& attributes) {
+            const float oldRotation = m_attributes.rotation();
+            m_attributes = attributes;
+            m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attributes.rotation());
             updateBrush();
         }
 
         void BrushFace::resetTexCoordSystemCache() {
             if (m_texCoordSystem != nullptr) {
-                m_texCoordSystem->resetCache(m_points[0], m_points[1], m_points[2], m_attribs);
+                m_texCoordSystem->resetCache(m_points[0], m_points[1], m_points[2], m_attributes);
             }
         }
 
         const std::string& BrushFace::textureName() const {
-            return m_attribs.textureName();
+            return m_attributes.textureName();
         }
 
         Assets::Texture* BrushFace::texture() const {
-            return m_attribs.texture();
+            return m_attributes.texture();
         }
 
         vm::vec2f BrushFace::textureSize() const {
-            return m_attribs.textureSize();
+            return m_attributes.textureSize();
         }
 
         const vm::vec2f& BrushFace::offset() const {
-            return m_attribs.offset();
+            return m_attributes.offset();
         }
 
         float BrushFace::xOffset() const {
-            return m_attribs.xOffset();
+            return m_attributes.xOffset();
         }
 
         float BrushFace::yOffset() const {
-            return m_attribs.yOffset();
+            return m_attributes.yOffset();
         }
 
         vm::vec2f BrushFace::modOffset(const vm::vec2f& offset) const {
-            return m_attribs.modOffset(offset);
+            return m_attributes.modOffset(offset);
         }
 
         const vm::vec2f& BrushFace::scale() const {
-            return m_attribs.scale();
+            return m_attributes.scale();
         }
 
         float BrushFace::xScale() const {
-            return m_attribs.xScale();
+            return m_attributes.xScale();
         }
 
         float BrushFace::yScale() const {
-            return m_attribs.yScale();
+            return m_attributes.yScale();
         }
 
         float BrushFace::rotation() const {
-            return m_attribs.rotation();
+            return m_attributes.rotation();
         }
 
         int BrushFace::surfaceContents() const {
-            return m_attribs.surfaceContents();
+            return m_attributes.surfaceContents();
         }
 
         int BrushFace::surfaceFlags() const {
-            return m_attribs.surfaceFlags();
+            return m_attributes.surfaceFlags();
         }
 
         float BrushFace::surfaceValue() const {
-            return m_attribs.surfaceValue();
+            return m_attributes.surfaceValue();
         }
 
         bool BrushFace::hasSurfaceAttributes() const {
@@ -315,15 +315,15 @@ namespace TrenchBroom {
         }
 
         const Color& BrushFace::color() const {
-            return m_attribs.color();
+            return m_attributes.color();
         }
 
         bool BrushFace::setColor(const Color& color) {
-            if (color == m_attribs.color()) {
+            if (color == m_attributes.color()) {
                 return false;
             }
 
-            m_attribs.setColor(color);
+            m_attributes.setColor(color);
             return true;
         }
 
@@ -333,21 +333,21 @@ namespace TrenchBroom {
         }
 
         bool BrushFace::setTexture(Assets::Texture* texture) {
-            if (texture == m_attribs.texture()) {
+            if (texture == m_attributes.texture()) {
                 return false;
             }
 
-            m_attribs.setTexture(texture);
+            m_attributes.setTexture(texture);
             updateBrush();
             return true;
         }
 
         bool BrushFace::unsetTexture() {
-            if (m_attribs.texture() == nullptr) {
+            if (m_attributes.texture() == nullptr) {
                 return false;
             }
 
-            m_attribs.unsetTexture();
+            m_attributes.unsetTexture();
             updateBrush();
             return true;
         }
@@ -357,7 +357,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            m_attribs.setXOffset(i_xOffset);
+            m_attributes.setXOffset(i_xOffset);
             updateBrush();
             return true;
         }
@@ -367,7 +367,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            m_attribs.setYOffset(i_yOffset);
+            m_attributes.setYOffset(i_yOffset);
             updateBrush();
             return true;
         }
@@ -377,7 +377,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            m_attribs.setXScale(i_xScale);
+            m_attributes.setXScale(i_xScale);
             updateBrush();
             return true;
         }
@@ -387,49 +387,49 @@ namespace TrenchBroom {
                 return false;
             }
 
-            m_attribs.setYScale(i_yScale);
+            m_attributes.setYScale(i_yScale);
             updateBrush();
             return true;
         }
 
         bool BrushFace::setRotation(const float rotation) {
-            if (rotation == m_attribs.rotation()) {
+            if (rotation == m_attributes.rotation()) {
                 return false;
             }
 
-            const auto oldRotation = m_attribs.rotation();
-            m_attribs.setRotation(rotation);
+            const auto oldRotation = m_attributes.rotation();
+            m_attributes.setRotation(rotation);
             m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, rotation);
             updateBrush();
             return true;
         }
 
         bool BrushFace::setSurfaceContents(const int surfaceContents) {
-            if (surfaceContents == m_attribs.surfaceContents()) {
+            if (surfaceContents == m_attributes.surfaceContents()) {
                 return false;
             }
 
-            m_attribs.setSurfaceContents(surfaceContents);
+            m_attributes.setSurfaceContents(surfaceContents);
             updateBrush();
             return true;
         }
 
         bool BrushFace::setSurfaceFlags(const int surfaceFlags) {
-            if (surfaceFlags == m_attribs.surfaceFlags()) {
+            if (surfaceFlags == m_attributes.surfaceFlags()) {
                 return false;
             }
 
-            m_attribs.setSurfaceFlags(surfaceFlags);
+            m_attributes.setSurfaceFlags(surfaceFlags);
             updateBrush();
             return true;
         }
 
         bool BrushFace::setSurfaceValue(const float surfaceValue) {
-            if (surfaceValue == m_attribs.surfaceValue()) {
+            if (surfaceValue == m_attributes.surfaceValue()) {
                 return false;
             }
 
-            m_attribs.setSurfaceValue(surfaceValue);
+            m_attributes.setSurfaceValue(surfaceValue);
             updateBrush();
             return true;
         }
@@ -462,14 +462,14 @@ namespace TrenchBroom {
         }
 
         void BrushFace::moveTexture(const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset) {
-            m_texCoordSystem->moveTexture(m_boundary.normal, up, right, offset, m_attribs);
+            m_texCoordSystem->moveTexture(m_boundary.normal, up, right, offset, m_attributes);
             invalidateVertexCache();
         }
 
         void BrushFace::rotateTexture(const float angle) {
-            const float oldRotation = m_attribs.rotation();
-            m_texCoordSystem->rotateTexture(m_boundary.normal, angle, m_attribs);
-            m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attribs.rotation());
+            const float oldRotation = m_attributes.rotation();
+            m_texCoordSystem->rotateTexture(m_boundary.normal, angle, m_attributes);
+            m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attributes.rotation());
             invalidateVertexCache();
         }
 
@@ -495,7 +495,7 @@ namespace TrenchBroom {
 
             setPoints(m_points[0], m_points[1], m_points[2]);
 
-            m_texCoordSystem->transform(oldBoundary, m_boundary, transform, m_attribs, lockTexture, invariant);
+            m_texCoordSystem->transform(oldBoundary, m_boundary, transform, m_attributes, lockTexture, invariant);
         }
 
         void BrushFace::invert() {
@@ -521,15 +521,15 @@ namespace TrenchBroom {
             if (!vm::is_zero(seam.direction, vm::C::almost_zero())) {
                 const auto refPoint = project_point(seam, center());
 
-                // Get the texcoords at the refPoint using the old face's attribs and tex coord system
-                const auto desriedCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
+                // Get the texcoords at the refPoint using the old face's attributes and tex coord system
+                const auto desriedCoords = m_texCoordSystem->getTexCoords(refPoint, m_attributes) * m_attributes.textureSize();
 
-                m_texCoordSystem->updateNormal(oldPlane.normal, m_boundary.normal, m_attribs, WrapStyle::Projection);
+                m_texCoordSystem->updateNormal(oldPlane.normal, m_boundary.normal, m_attributes, WrapStyle::Projection);
 
                 // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
-                const auto currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attribs) * m_attribs.textureSize();
+                const auto currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attributes) * m_attributes.textureSize();
                 const auto offsetChange = desriedCoords - currentCoords;
-                m_attribs.setOffset(correct(m_attribs.modOffset(m_attribs.offset() + offsetChange), 4));
+                m_attributes.setOffset(correct(m_attributes.modOffset(m_attributes.offset() + offsetChange), 4));
             }
         }
 
@@ -569,7 +569,7 @@ namespace TrenchBroom {
         }
 
         float BrushFace::measureTextureAngle(const vm::vec2f& center, const vm::vec2f& point) const {
-            return m_texCoordSystem->measureAngle(m_attribs.rotation(), center, point);
+            return m_texCoordSystem->measureAngle(m_attributes.rotation(), center, point);
         }
 
         size_t BrushFace::vertexCount() const {
@@ -645,7 +645,7 @@ namespace TrenchBroom {
         }
 
         vm::vec2f BrushFace::textureCoords(const vm::vec3& point) const {
-            return m_texCoordSystem->getTexCoords(point, m_attribs);
+            return m_texCoordSystem->getTexCoords(point, m_attributes);
         }
 
         FloatType BrushFace::intersectWithRay(const vm::ray3& ray) const {

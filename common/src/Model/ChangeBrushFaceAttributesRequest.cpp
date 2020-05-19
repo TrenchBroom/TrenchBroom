@@ -486,7 +486,7 @@ namespace TrenchBroom {
         }
 
         void ChangeBrushFaceAttributesRequest::setAll(const Model::BrushFace* face) {
-            setAll(face->attribs());
+            setAll(face->attributes());
         }
 
         void ChangeBrushFaceAttributesRequest::setAll(const Model::BrushFaceAttributes& attributes) {

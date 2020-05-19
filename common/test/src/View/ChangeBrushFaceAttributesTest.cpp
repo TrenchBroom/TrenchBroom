@@ -51,7 +51,7 @@ namespace TrenchBroom {
 
             document->select(Model::BrushFaceHandle(brushNode, face));
 
-            const Model::BrushFaceAttributes originalAttribs = face->attribs();
+            const Model::BrushFaceAttributes originalAttribs = face->attributes();
             Model::ChangeBrushFaceAttributesRequest rotate;
             rotate.addRotation(2.0);
             for (size_t i = 0; i < 5; ++i)

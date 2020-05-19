@@ -65,7 +65,7 @@ namespace TrenchBroom {
                 return false;
 
             const auto* face = m_helper.face();
-            if (!face->attribs().valid()) {
+            if (!face->attributes().valid()) {
                 return false;
             }
 

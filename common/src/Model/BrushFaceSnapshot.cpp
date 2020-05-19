@@ -27,14 +27,14 @@ namespace TrenchBroom {
     namespace Model {
         BrushFaceSnapshot::BrushFaceSnapshot(BrushNode* node, const BrushFace* face) :
         m_faceRef(node, face),
-        m_attribs(face->attribs().takeSnapshot()),
+        m_attribs(face->attributes().takeSnapshot()),
         m_coordSystemSnapshot(face->takeTexCoordSystemSnapshot()) {}
 
         BrushFaceSnapshot::~BrushFaceSnapshot() = default;
 
         void BrushFaceSnapshot::restore() {
             const auto faceHandle = m_faceRef.resolve();
-            faceHandle.face()->setAttribs(m_attribs);
+            faceHandle.face()->setAttributes(m_attribs);
             if (m_coordSystemSnapshot != nullptr) {
                 faceHandle.face()->restoreTexCoordSystemSnapshot(*m_coordSystemSnapshot);
             }
