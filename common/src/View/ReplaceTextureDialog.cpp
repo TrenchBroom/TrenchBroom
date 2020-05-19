@@ -22,6 +22,7 @@
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
+#include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectMatchingBrushFacesVisitor.h"
 #include "Model/WorldNode.h"
 #include "View/BorderLine.h"
@@ -66,9 +67,12 @@ namespace TrenchBroom {
                 return;
             }
 
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.setTextureName(replacement->name());
+            
             Transaction transaction(document, "Replace Textures");
             document->select(faces);
-            document->setTexture(replacement, false);
+            document->setFaceAttributes(request);
 
             std::stringstream msg;
             msg << "Replaced texture '" << subject->name() << "' with '" << replacement->name() << "' on " << faces.size() << " faces.";

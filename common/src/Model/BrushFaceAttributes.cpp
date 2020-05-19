@@ -30,7 +30,6 @@ namespace TrenchBroom {
 
         BrushFaceAttributes::BrushFaceAttributes(const std::string& textureName) :
         m_textureName(textureName),
-        m_texture(nullptr),
         m_offset(vm::vec2f::zero()),
         m_scale(vm::vec2f(1.0f, 1.0f)),
         m_rotation(0.0f),
@@ -40,22 +39,6 @@ namespace TrenchBroom {
 
         BrushFaceAttributes::BrushFaceAttributes(const BrushFaceAttributes& other) :
         m_textureName(other.m_textureName),
-        m_texture(other.m_texture),
-        m_offset(other.m_offset),
-        m_scale(other.m_scale),
-        m_rotation(other.m_rotation),
-        m_surfaceContents(other.m_surfaceContents),
-        m_surfaceFlags(other.m_surfaceFlags),
-        m_surfaceValue(other.m_surfaceValue),
-        m_color(other.m_color) {
-            if (m_texture != nullptr) {
-                m_texture->incUsageCount();
-            }
-        }
-
-        BrushFaceAttributes::BrushFaceAttributes(const std::string& textureName, const BrushFaceAttributes& other) :
-        m_textureName(textureName),
-        m_texture(nullptr),
         m_offset(other.m_offset),
         m_scale(other.m_scale),
         m_rotation(other.m_rotation),
@@ -64,11 +47,15 @@ namespace TrenchBroom {
         m_surfaceValue(other.m_surfaceValue),
         m_color(other.m_color) {}
 
-        BrushFaceAttributes::~BrushFaceAttributes() {
-            if (m_texture != nullptr) {
-                m_texture->decUsageCount();
-            }
-        }
+        BrushFaceAttributes::BrushFaceAttributes(const std::string& textureName, const BrushFaceAttributes& other) :
+        m_textureName(textureName),
+        m_offset(other.m_offset),
+        m_scale(other.m_scale),
+        m_rotation(other.m_rotation),
+        m_surfaceContents(other.m_surfaceContents),
+        m_surfaceFlags(other.m_surfaceFlags),
+        m_surfaceValue(other.m_surfaceValue),
+        m_color(other.m_color) {}
 
         BrushFaceAttributes& BrushFaceAttributes::operator=(BrushFaceAttributes other) {
             using std::swap;
@@ -76,22 +63,20 @@ namespace TrenchBroom {
             return *this;
         }
 
-        bool BrushFaceAttributes::operator==(const BrushFaceAttributes& other) const {
-            return (m_textureName == other.m_textureName &&
-                m_texture == other.m_texture &&
-                m_offset == other.m_offset &&
-                m_scale == other.m_scale &&
-                m_rotation == other.m_rotation &&
-                m_surfaceContents == other.m_surfaceContents &&
-                m_surfaceFlags == other.m_surfaceFlags &&
-                m_surfaceValue == other.m_surfaceValue &&
-                m_color == other.m_color);
+        bool operator==(const BrushFaceAttributes& lhs, const BrushFaceAttributes& rhs) {
+            return (lhs.m_textureName == rhs.m_textureName &&
+                    lhs.m_offset == rhs.m_offset &&
+                    lhs.m_scale == rhs.m_scale &&
+                    lhs.m_rotation == rhs.m_rotation &&
+                    lhs.m_surfaceContents == rhs.m_surfaceContents &&
+                    lhs.m_surfaceFlags == rhs.m_surfaceFlags &&
+                    lhs.m_surfaceValue == rhs.m_surfaceValue &&
+                    lhs.m_color == rhs.m_color);
         }
 
         void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs) {
             using std::swap;
             swap(lhs.m_textureName, rhs.m_textureName);
-            swap(lhs.m_texture, rhs.m_texture);
             swap(lhs.m_offset, rhs.m_offset);
             swap(lhs.m_scale, rhs.m_scale);
             swap(lhs.m_rotation, rhs.m_rotation);
@@ -117,17 +102,8 @@ namespace TrenchBroom {
             return m_textureName;
         }
 
-        Assets::Texture* BrushFaceAttributes::texture() const {
-            return m_texture;
-        }
-
-        vm::vec2f BrushFaceAttributes::textureSize() const {
-            if (m_texture == nullptr) {
-                return vm::vec2f::one();
-            }
-            const float w = m_texture->width()  == 0 ? 1.0f : static_cast<float>(m_texture->width());
-            const float h = m_texture->height() == 0 ? 1.0f : static_cast<float>(m_texture->height());
-            return vm::vec2f(w, h);
+        void BrushFaceAttributes::setTextureName(const std::string& textureName) {
+            m_textureName = textureName;
         }
 
         const vm::vec2f& BrushFaceAttributes::offset() const {
@@ -142,8 +118,8 @@ namespace TrenchBroom {
             return m_offset.y();
         }
 
-        vm::vec2f BrushFaceAttributes::modOffset(const vm::vec2f& offset) const {
-            return offset - snapDown(offset, textureSize());
+        vm::vec2f BrushFaceAttributes::modOffset(const vm::vec2f& offset, const vm::vec2f& textureSize) const {
+            return offset - snapDown(offset, textureSize);
         }
 
         const vm::vec2f& BrushFaceAttributes::scale() const {
@@ -172,25 +148,6 @@ namespace TrenchBroom {
 
         float BrushFaceAttributes::surfaceValue() const {
             return m_surfaceValue;
-        }
-
-        void BrushFaceAttributes::setTexture(Assets::Texture* texture) {
-            if (m_texture != nullptr) {
-                m_texture->decUsageCount();
-            }
-            m_texture = texture;
-            if (m_texture != nullptr) {
-                m_texture->incUsageCount();
-                m_textureName = m_texture->name();
-            }
-        }
-
-        void BrushFaceAttributes::unsetTexture() {
-            if (m_texture != nullptr) {
-                m_texture->decUsageCount();
-            }
-            m_texture = nullptr;
-            m_textureName = BrushFaceAttributes::NoTextureName;
         }
 
         bool BrushFaceAttributes::valid() const {

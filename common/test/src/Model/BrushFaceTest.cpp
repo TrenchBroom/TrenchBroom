@@ -84,47 +84,37 @@ namespace TrenchBroom {
             EXPECT_EQ(0u, texture.usageCount());
             EXPECT_EQ(0u, texture2.usageCount());
 
-            // BrushFaceAttributes doesn't increase usage count
             BrushFaceAttributes attribs("");
-            attribs.setTexture(&texture);
-            EXPECT_EQ(1u, texture.usageCount());
-
             {
                 // test constructor
                 BrushFace face(p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs));
-                EXPECT_EQ(2u, texture.usageCount());
+                EXPECT_EQ(0u, texture.usageCount());
+
+                // test setTexture
+                face.setTexture(&texture);
+                EXPECT_EQ(1u, texture.usageCount());
+                EXPECT_EQ(0u, texture2.usageCount());
 
                 // test clone()
-                BrushFace *clone = face.clone();
-                EXPECT_EQ(3u, texture.usageCount());
+                BrushFace* clone = face.clone();
+                EXPECT_EQ(2u, texture.usageCount());
 
                 // test destructor
                 delete clone;
                 clone = nullptr;
-                EXPECT_EQ(2u, texture.usageCount());
-
-                // test setTexture
-                face.setTexture(&texture2);
                 EXPECT_EQ(1u, texture.usageCount());
+
+                // test setTexture with different texture
+                face.setTexture(&texture2);
+                EXPECT_EQ(0u, texture.usageCount());
                 EXPECT_EQ(1u, texture2.usageCount());
 
                 // test setTexture with the same texture
                 face.setTexture(&texture2);
                 EXPECT_EQ(1u, texture2.usageCount());
-
-                // test setFaceAttributes
-                EXPECT_EQ(&texture, attribs.texture());
-                face.setAttributes(attribs);
-                EXPECT_EQ(2u, texture.usageCount());
-                EXPECT_EQ(0u, texture2.usageCount());
-
-                // test setFaceAttributes with the same attributes
-                face.setAttributes(attribs);
-                EXPECT_EQ(2u, texture.usageCount());
-                EXPECT_EQ(0u, texture2.usageCount());
             }
 
-            EXPECT_EQ(1u, texture.usageCount());
+            EXPECT_EQ(0u, texture.usageCount());
             EXPECT_EQ(0u, texture2.usageCount());
         }
 

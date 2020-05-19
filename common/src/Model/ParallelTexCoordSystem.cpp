@@ -112,8 +112,8 @@ namespace TrenchBroom {
             return false;
         }
 
-        vm::vec2f ParallelTexCoordSystem::doGetTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs) const {
-            return (computeTexCoords(point, attribs.scale()) + attribs.offset()) / attribs.textureSize();
+        vm::vec2f ParallelTexCoordSystem::doGetTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs, const vm::vec2f& textureSize) const {
+            return (computeTexCoords(point, attribs.scale()) + attribs.offset()) / textureSize;
         }
 
         /**
@@ -138,8 +138,7 @@ namespace TrenchBroom {
             m_yAxis = rot * m_yAxis;
         }
 
-        void ParallelTexCoordSystem::doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& oldInvariant) {
-
+        void ParallelTexCoordSystem::doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, const vm::vec2f& textureSize, const bool lockTexture, const vm::vec3& oldInvariant) {
             if (attribs.xScale() == 0.0f || attribs.yScale() == 0.0f) {
                 return;
             }
@@ -195,7 +194,7 @@ namespace TrenchBroom {
 
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordinates of the center
-            const auto newOffset = correct(attribs.modOffset(oldInvariantTechCoords - newInvariantTexCoords), 4);
+            const auto newOffset = correct(attribs.modOffset(oldInvariantTechCoords - newInvariantTexCoords, textureSize), 4);
             assert(!vm::is_nan(newOffset));
             attribs.setOffset(newOffset);
         }

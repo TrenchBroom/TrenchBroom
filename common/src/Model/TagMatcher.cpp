@@ -110,7 +110,7 @@ namespace TrenchBroom {
             assert(texture != nullptr);
 
             ChangeBrushFaceAttributesRequest request;
-            request.setTexture(texture);
+            request.setTextureName(texture->name());
             facade.setFaceAttributes(request);
         }
 
@@ -305,13 +305,9 @@ namespace TrenchBroom {
             facade.createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
 
             if (!m_texture.empty()) {
-                const auto& textureManager = facade.textureManager();
-                auto* texture = textureManager.texture(m_texture);
-                if (texture != nullptr) {
-                    ChangeBrushFaceAttributesRequest request;
-                    request.setTexture(texture);
-                    facade.setFaceAttributes(request);
-                }
+                ChangeBrushFaceAttributesRequest request;
+                request.setTextureName(m_texture);
+                facade.setFaceAttributes(request);
             }
 
         }

@@ -37,7 +37,6 @@ namespace TrenchBroom {
             static const std::string NoTextureName;
         private:
             std::string m_textureName;
-            Assets::Texture* m_texture;
 
             vm::vec2f m_offset;
             vm::vec2f m_scale;
@@ -52,21 +51,21 @@ namespace TrenchBroom {
             BrushFaceAttributes(const std::string& textureName);
             BrushFaceAttributes(const BrushFaceAttributes& other);
             BrushFaceAttributes(const std::string& textureName, const BrushFaceAttributes& other);
-            ~BrushFaceAttributes();
+
             BrushFaceAttributes& operator=(BrushFaceAttributes other);
-            bool operator==(const BrushFaceAttributes& other) const;
+            
+            friend bool operator==(const BrushFaceAttributes& lhs, const BrushFaceAttributes& rhs);
             friend void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs);
 
             BrushFaceAttributes takeSnapshot() const;
 
             const std::string& textureName() const;
-            Assets::Texture* texture() const;
-            vm::vec2f textureSize() const;
+            void setTextureName(const std::string& textureName);
 
             const vm::vec2f& offset() const;
             float xOffset() const;
             float yOffset() const;
-            vm::vec2f modOffset(const vm::vec2f& offset) const;
+            vm::vec2f modOffset(const vm::vec2f& offset, const vm::vec2f& textureSize) const;
 
             const vm::vec2f& scale() const;
             float xScale() const;
@@ -77,9 +76,6 @@ namespace TrenchBroom {
             int surfaceContents() const;
             int surfaceFlags() const;
             float surfaceValue() const;
-
-            void setTexture(Assets::Texture* texture);
-            void unsetTexture();
 
             bool valid() const;
 

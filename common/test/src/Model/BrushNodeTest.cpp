@@ -504,7 +504,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
             const BrushBuilder builder(&world, worldBounds);
 
-            BrushNode* cube = world.createBrush(builder.createCube(128.0, ""));
+            BrushNode* cube = world.createBrush(builder.createCube(128.0, "testTexture"));
             BrushSnapshot* snapshot = nullptr;
 
             // Temporarily set a texture on `cube`, take a snapshot, then clear the texture
@@ -520,14 +520,14 @@ namespace TrenchBroom {
                 ASSERT_EQ(6U, texture.usageCount());
 
                 for (BrushFace* face : cube->brush().faces()) {
-                    face->unsetTexture();
+                    face->setTexture(nullptr);
                 }
                 ASSERT_EQ(0U, texture.usageCount());
             }
 
             // Check all textures are cleared
             for (BrushFace* face : cube->brush().faces()) {
-                EXPECT_EQ(BrushFaceAttributes::NoTextureName, face->textureName());
+                EXPECT_EQ(nullptr, face->texture());
             }
 
             snapshot->restore(worldBounds);
