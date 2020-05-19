@@ -39,8 +39,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        inline Model::BrushFace* findFaceByPoints(const std::vector<Model::BrushFace*>& faces, const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2) {
-            for (Model::BrushFace* face : faces) {
+        inline const Model::BrushFace* findFaceByPoints(const std::vector<const Model::BrushFace*>& faces, const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2) {
+            for (const Model::BrushFace* face : faces) {
                 if (face->points()[0] == point0 &&
                     face->points()[1] == point1 &&
                     face->points()[2] == point2)

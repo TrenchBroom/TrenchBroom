@@ -42,7 +42,7 @@ namespace TrenchBroom {
             return m_faceIndex;
         }
         
-        BrushFace* BrushFaceHandle::face() const {
+        const BrushFace* BrushFaceHandle::face() const {
             return m_node->brush().face(m_faceIndex);
         }
 
@@ -54,8 +54,8 @@ namespace TrenchBroom {
             return kdl::vec_transform(handles, [](const auto& handle) { return handle.node(); });
         }
 
-        std::vector<BrushFace*> toFaces(const std::vector<BrushFaceHandle>& handles) {
-            return kdl::vec_transform(handles, [](const auto& handle) { return handle.face(); });
+        std::vector<const BrushFace*> toFaces(const std::vector<BrushFaceHandle>& handles) {
+            return kdl::vec_transform(handles, [](const auto& handle) { return static_cast<const BrushFace*>(handle.face()); });
         }
 
         std::vector<BrushFaceHandle> toHandles(BrushNode* brushNode) {

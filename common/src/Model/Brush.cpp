@@ -277,7 +277,12 @@ namespace TrenchBroom {
             return kdl::vec_index_of(m_faces, face);
         }
 
-        BrushFace* Brush::face(const size_t index) const {
+        const BrushFace* Brush::face(const size_t index) const {
+            assert(index < faceCount());
+            return m_faces[index];
+        }
+
+        BrushFace* Brush::face(const size_t index) {
             assert(index < faceCount());
             return m_faces[index];
         }
@@ -286,7 +291,11 @@ namespace TrenchBroom {
             return m_faces.size();
         }
 
-        const std::vector<BrushFace*>& Brush::faces() const {
+        std::vector<const BrushFace*> Brush::faces() const {
+            return kdl::vec_transform(m_faces, [](const auto* f) { return f; });
+        }
+
+        const std::vector<BrushFace*>& Brush::faces() {
             return m_faces;
         }
 

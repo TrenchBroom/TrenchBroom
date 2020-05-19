@@ -161,7 +161,7 @@ namespace TrenchBroom {
             ++m_brushNo;
         }
 
-        void NodeSerializer::brushFaces(const std::vector<Model::BrushFace*>& faces) {
+        void NodeSerializer::brushFaces(const std::vector<const Model::BrushFace*>& faces) {
             for (const auto* face : faces) {
                 brushFace(face);
             }
