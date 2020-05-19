@@ -22,7 +22,7 @@
 
 #include "IO/Path.h"
 
-#include <ctime>
+#include <chrono>
 #include <memory>
 
 namespace TrenchBroom {
@@ -46,12 +46,14 @@ namespace TrenchBroom {
                 bool operator()(const IO::Path& path, bool directory) const;
             };
         private:
+            using Clock = std::chrono::system_clock;
+            
             std::weak_ptr<MapDocument> m_document;
 
             /**
              * The time after which a new autosave is attempted, in seconds.
              */
-            std::time_t m_saveInterval;
+            std::chrono::milliseconds m_saveInterval;
 
             /**
              * The maximum number of backups to create. When this number is exceeded, old backups are deleted until
@@ -60,16 +62,17 @@ namespace TrenchBroom {
             size_t m_maxBackups;
 
             /**
-             * The time at which the last autosave has succeeded. POSIX timestamp.
+             * The time at which the last autosave has succeeded.
              */
-            std::time_t m_lastSaveTime;
+            std::chrono::time_point<Clock> m_lastSaveTime;
 
             /**
              * The modification count that was last recorded.
              */
             size_t m_lastModificationCount;
+            
         public:
-            explicit Autosaver(std::weak_ptr<MapDocument> document, std::time_t saveInterval = 10 * 60, size_t maxBackups = 50);
+            explicit Autosaver(std::weak_ptr<MapDocument> document, std::chrono::milliseconds saveInterval = std::chrono::milliseconds(10 * 60 * 1000), size_t maxBackups = 50);
 
             void triggerAutosave(Logger& logger);
         private:

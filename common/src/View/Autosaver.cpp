@@ -62,11 +62,11 @@ namespace TrenchBroom {
             return backupNo > 0u;
         }
 
-        Autosaver::Autosaver(std::weak_ptr<MapDocument> document, const std::time_t saveInterval, const size_t maxBackups) :
+        Autosaver::Autosaver(std::weak_ptr<MapDocument> document, const std::chrono::milliseconds saveInterval, const size_t maxBackups) :
         m_document(document),
         m_saveInterval(saveInterval),
         m_maxBackups(maxBackups),
-        m_lastSaveTime(time(nullptr)),
+        m_lastSaveTime(Clock::now()),
         m_lastModificationCount(kdl::mem_lock(m_document)->modificationCount()) {}
 
         void Autosaver::triggerAutosave(Logger& logger) {
@@ -74,7 +74,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            const auto currentTime = std::time(nullptr);
+            const auto currentTime = Clock::now();
 
             auto document = kdl::mem_lock(m_document);
             if (!document->modified()) {
@@ -117,7 +117,7 @@ namespace TrenchBroom {
 
                 const auto backupFilePath = fs.makeAbsolute(makeBackupName(mapBasename, backupNo));
 
-                m_lastSaveTime = std::time(nullptr);
+                m_lastSaveTime = Clock::now();
                 m_lastModificationCount = document->modificationCount();
                 document->saveDocumentTo(backupFilePath);
 
