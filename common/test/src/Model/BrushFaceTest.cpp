@@ -655,10 +655,8 @@ namespace TrenchBroom {
             // find the face
             const auto angledFaceIndex = brush.findFace(vm::vec3(-0.70710678118654746, 0.70710678118654746, 0));
             REQUIRE(angledFaceIndex);
-            BrushFace* angledFace = brush.face(*angledFaceIndex);
-            EXPECT_NE(nullptr, angledFace);
-
-            brush.moveBoundary(worldBounds, angledFace, vm::vec3(-7.9999999999999973, 7.9999999999999973, 0), true);
+            
+            brush.moveBoundary(worldBounds, *angledFaceIndex, vm::vec3(-7.9999999999999973, 7.9999999999999973, 0), true);
 
             kdl::vec_clear_and_delete(nodes);
         }

@@ -504,18 +504,21 @@ namespace TrenchBroom {
             faces.push_back(bottom);
 
             Brush brush(worldBounds, faces);
-            ASSERT_EQ(6u, brush.faces().size());
+            REQUIRE(brush.faces().size() == 6u);
 
-            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, +16.0)));
-            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, -16.0)));
-            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, +2.0)));
-            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, -6.0)));
-            ASSERT_TRUE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, +1.0)));
-            ASSERT_TRUE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, -5.0)));
+            const auto topFaceIndex = brush.findFace(vm::vec3::pos_z());
+            REQUIRE(topFaceIndex);
+            
+            CHECK(!brush.canMoveBoundary(worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, +16.0)));
+            CHECK(!brush.canMoveBoundary(worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, -16.0)));
+            CHECK(!brush.canMoveBoundary(worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, +2.0)));
+            CHECK(!brush.canMoveBoundary(worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, -6.0)));
+            CHECK(brush.canMoveBoundary(worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, +1.0)));
+            CHECK(brush.canMoveBoundary(worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, -5.0)));
 
-            brush.moveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, 1.0), false);
-            ASSERT_EQ(6u, brush.faces().size());
-            ASSERT_DOUBLE_EQ(7.0, brush.bounds().size().z());
+            brush.moveBoundary(worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, 1.0), false);
+            CHECK(brush.faces().size() == 6u);
+            CHECK(brush.bounds().size().z() == 7.0);
         }
 
         TEST_CASE("BrushTest.resizePastWorldBounds", "[BrushTest]") {
@@ -527,10 +530,9 @@ namespace TrenchBroom {
 
             const auto rightFaceIndex = brush1.findFace(vm::vec3::pos_x());
             REQUIRE(rightFaceIndex);
-            BrushFace* rightFace = brush1.face(*rightFaceIndex);
 
-            EXPECT_TRUE(brush1.canMoveBoundary(worldBounds, rightFace, vm::vec3(16, 0, 0)));
-            EXPECT_FALSE(brush1.canMoveBoundary(worldBounds, rightFace, vm::vec3(8000, 0, 0)));
+            EXPECT_TRUE(brush1.canMoveBoundary(worldBounds, *rightFaceIndex, vm::vec3(16, 0, 0)));
+            EXPECT_FALSE(brush1.canMoveBoundary(worldBounds, *rightFaceIndex, vm::vec3(8000, 0, 0)));
         }
 
         TEST_CASE("BrushTest.expand", "[BrushTest]") {
