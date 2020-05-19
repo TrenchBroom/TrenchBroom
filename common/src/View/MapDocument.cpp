@@ -403,7 +403,7 @@ namespace TrenchBroom {
             assert(!faces.empty());
             const Model::BrushFace* face = faces.back();
 
-            const bool result = setFaceAttributes(face->attribs());
+            const bool result = setFaceAttributes(face->attributes());
             kdl::col_delete_all(faces);
 
             return result;

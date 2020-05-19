@@ -342,11 +342,11 @@ namespace TrenchBroom {
             for (auto* destination : m_faces) {
                 const auto* source = brush.findFace(destination->boundary());
                 if (source != nullptr) {
-                    destination->setAttribs(source->attribs());
+                    destination->setAttributes(source->attributes());
 
                     auto snapshot = source->takeTexCoordSystemSnapshot();
                     if (snapshot != nullptr) {
-                        destination->copyTexCoordSystemFromFace(*snapshot, source->attribs().takeSnapshot(), source->boundary(), WrapStyle::Projection);
+                        destination->copyTexCoordSystemFromFace(*snapshot, source->attributes().takeSnapshot(), source->boundary(), WrapStyle::Projection);
                     }
                 }
             }
@@ -357,11 +357,11 @@ namespace TrenchBroom {
                 const auto* source = brush.findFace(destination->boundary().flip());
                 if (source != nullptr) {
                     // Todo: invert the face attributes?
-                    destination->setAttribs(source->attribs());
+                    destination->setAttributes(source->attributes());
 
                     auto snapshot = source->takeTexCoordSystemSnapshot();
                     if (snapshot != nullptr) {
-                        destination->copyTexCoordSystemFromFace(*snapshot, source->attribs().takeSnapshot(), destination->boundary(), WrapStyle::Projection);
+                        destination->copyTexCoordSystemFromFace(*snapshot, source->attributes().takeSnapshot(), destination->boundary(), WrapStyle::Projection);
                     }
                 }
             }
@@ -926,10 +926,10 @@ namespace TrenchBroom {
                 leftClone->transform(M, true);
 
                 auto snapshot = std::unique_ptr<TexCoordSystemSnapshot>(leftClone->takeTexCoordSystemSnapshot());
-                rightFace->setAttribs(leftClone->attribs());
+                rightFace->setAttributes(leftClone->attributes());
                 if (snapshot) {
                     // Note, the wrap style doesn't matter because the source and destination faces should have the same plane
-                    rightFace->copyTexCoordSystemFromFace(*snapshot, leftClone->attribs().takeSnapshot(),
+                    rightFace->copyTexCoordSystemFromFace(*snapshot, leftClone->attributes().takeSnapshot(),
                                                           leftClone->boundary(), WrapStyle::Rotation);
                 }
                 rightFace->resetTexCoordSystemCache();

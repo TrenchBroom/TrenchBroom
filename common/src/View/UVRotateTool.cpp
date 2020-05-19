@@ -111,7 +111,7 @@ namespace TrenchBroom {
             const auto& angleHandleHit = pickResult.query().type(AngleHandleHitType).occluded().first();
 
             const auto* face = m_helper.face();
-            if (!face->attribs().valid()) {
+            if (!face->attributes().valid()) {
                 return false;
             }
 
@@ -294,7 +294,7 @@ namespace TrenchBroom {
             }
 
             const auto* face = m_helper.face();
-            if (!face->attribs().valid()) {
+            if (!face->attributes().valid()) {
                 return;
             }
 

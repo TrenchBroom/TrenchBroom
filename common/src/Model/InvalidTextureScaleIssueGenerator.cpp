@@ -88,7 +88,7 @@ namespace TrenchBroom {
         void InvalidTextureScaleIssueGenerator::doGenerate(BrushNode* brushNode, IssueList& issues) const {
             const Brush& brush = brushNode->brush();
             for (BrushFace* face : brush.faces()) {
-                if (!face->attribs().valid()) {
+                if (!face->attributes().valid()) {
                     issues.push_back(new InvalidTextureScaleIssue(brushNode, face));
                 }
             }

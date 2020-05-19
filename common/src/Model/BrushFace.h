@@ -94,9 +94,9 @@ namespace TrenchBroom {
             // brush renderer
             mutable bool m_markedToRenderFace;
         protected:
-            BrushFaceAttributes m_attribs;
+            BrushFaceAttributes m_attributes;
         public:
-            BrushFace(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs, std::unique_ptr<TexCoordSystem> texCoordSystem);
+            BrushFace(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem);
 
             static BrushFace* createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
             static BrushFace* createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
@@ -109,7 +109,7 @@ namespace TrenchBroom {
 
             std::unique_ptr<TexCoordSystemSnapshot> takeTexCoordSystemSnapshot() const;
             void restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot& coordSystemSnapshot);
-            void copyTexCoordSystemFromFace(const TexCoordSystemSnapshot& coordSystemSnapshot, const BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, WrapStyle wrapStyle);
+            void copyTexCoordSystemFromFace(const TexCoordSystemSnapshot& coordSystemSnapshot, const BrushFaceAttributes& attributes, const vm::plane3& sourceFacePlane, WrapStyle wrapStyle);
 
             Brush* brush() const;
             void setBrush(Brush* brush);
@@ -122,8 +122,8 @@ namespace TrenchBroom {
             vm::vec3 boundsCenter() const;
             FloatType area(vm::axis::type axis) const;
 
-            const BrushFaceAttributes& attribs() const;
-            void setAttribs(const BrushFaceAttributes& attribs);
+            const BrushFaceAttributes& attributes() const;
+            void setAttributes(const BrushFaceAttributes& attributes);
 
             void resetTexCoordSystemCache();
 
