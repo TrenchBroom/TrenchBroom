@@ -64,7 +64,7 @@ namespace TrenchBroom {
 
             std::tuple<EntityNode*, BrushNode*> createTopLevelBrushEntity() {
                 BrushBuilder builder(world, worldBounds);
-                auto* brush = builder.createCube(32.0, "sometex");
+                auto* brush = world->createBrush(builder.createCube(32.0, "sometex"));
                 auto* entity = world->createEntity();
                 entity->addChild(brush);
                 world->defaultLayer()->addChild(entity);
@@ -73,7 +73,7 @@ namespace TrenchBroom {
 
             BrushNode* createTopLevelBrush() {
                 BrushBuilder builder(world, worldBounds);
-                auto* brush = builder.createCube(32.0, "sometex");
+                auto* brush = world->createBrush(builder.createCube(32.0, "sometex"));
                 world->defaultLayer()->addChild(brush);
                 return brush;
             }
@@ -88,7 +88,7 @@ namespace TrenchBroom {
 
             std::tuple<GroupNode*, BrushNode*> createGroupedBrush() {
                 BrushBuilder builder(world, worldBounds);
-                auto* brush = builder.createCube(32.0, "sometex");
+                auto* brush = world->createBrush(builder.createCube(32.0, "sometex"));
                 auto* group = world->createGroup("somegroup");
 
                 group->addChild(brush);
@@ -110,7 +110,7 @@ namespace TrenchBroom {
 
             std::tuple<GroupNode*, EntityNode*, BrushNode*> createGroupedBrushEntity() {
                 BrushBuilder builder(world, worldBounds);
-                auto* brush = builder.createCube(32.0, "sometex");
+                auto* brush = world->createBrush(builder.createCube(32.0, "sometex"));
                 auto* entity = world->createEntity();
                 auto* group = world->createGroup("somegroup");
 
@@ -123,7 +123,7 @@ namespace TrenchBroom {
 
             std::tuple<GroupNode*, GroupNode*, BrushNode*> createdNestedGroupedBrush() {
                 BrushBuilder builder(world, worldBounds);
-                auto* innerBrush = builder.createCube(32.0, "sometex");
+                auto* innerBrush = world->createBrush(builder.createCube(32.0, "sometex"));
                 auto* innerGroup = world->createGroup("inner");
                 auto* outerGroup = world->createGroup("outer");
 

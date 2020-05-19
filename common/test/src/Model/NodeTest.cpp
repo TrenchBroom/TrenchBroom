@@ -486,9 +486,9 @@ namespace TrenchBroom {
             map.addOrUpdateAttribute("classname", "worldspawn");
 
             BrushBuilder builder(&map, worldBounds);
-            BrushNode* brush1 = builder.createCube(64.0, "none");
-            BrushNode* brush2 = builder.createCube(64.0, "none");
-            BrushNode* brush3 = builder.createCube(64.0, "none");
+            BrushNode* brush1 = map.createBrush(builder.createCube(64.0, "none"));
+            BrushNode* brush2 = map.createBrush(builder.createCube(64.0, "none"));
+            BrushNode* brush3 = map.createBrush(builder.createCube(64.0, "none"));
 
             brush2->transform(vm::translation_matrix(vm::vec3(10.0, 0.0, 0.0)), false, worldBounds);
             brush3->transform(vm::translation_matrix(vm::vec3(100.0, 0.0, 0.0)), false, worldBounds);

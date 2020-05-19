@@ -194,7 +194,7 @@ namespace TrenchBroom {
             Assets::Texture texture("testTexture", 64, 64);
             Model::WorldNode world(Model::MapFormat::Standard);
             Model::BrushBuilder builder(&world, worldBounds);
-            Model::BrushNode* cube = builder.createCube(128.0, "");
+            Model::BrushNode* cube = world.createBrush(builder.createCube(128.0, ""));
             return cube;
         }
 

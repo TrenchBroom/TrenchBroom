@@ -215,7 +215,7 @@ namespace TrenchBroom {
                     tallVertices.push_back(maxPlane.project_point(vertex->position()));
                 }
 
-                Model::BrushNode* tallBrush = brushBuilder.createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName);
+                Model::BrushNode* tallBrush = document->world()->createBrush(brushBuilder.createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName));
                 tallBrushes.push_back(tallBrush);
             }
 
