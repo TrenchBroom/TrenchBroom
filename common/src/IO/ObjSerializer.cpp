@@ -144,7 +144,7 @@ namespace TrenchBroom {
             m_currentObject.faces.clear();
         }
 
-        void ObjFileSerializer::doBrushFace(Model::BrushFace* face) {
+        void ObjFileSerializer::doBrushFace(const Model::BrushFace* face) {
             const vm::vec3& normal = face->boundary().normal;
             const size_t normalIndex = m_normals.index(normal);
 

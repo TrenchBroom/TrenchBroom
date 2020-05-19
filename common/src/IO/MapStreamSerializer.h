@@ -50,9 +50,9 @@ namespace TrenchBroom {
             void doEntityAttribute(const Model::EntityAttribute& attribute) override;
             void doBeginBrush(const Model::BrushNode* brush) override;
             void doEndBrush(Model::BrushNode* brush) override;
-            void doBrushFace(Model::BrushFace* face) override;
+            void doBrushFace(const Model::BrushFace* face) override;
         private:
-            virtual void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) = 0;
+            virtual void doWriteBrushFace(std::ostream& stream, const Model::BrushFace* face) = 0;
         };
     }
 }

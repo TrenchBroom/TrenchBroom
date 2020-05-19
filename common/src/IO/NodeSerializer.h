@@ -93,7 +93,7 @@ namespace TrenchBroom {
         public:
             void brushFaces(const std::vector<Model::BrushFace*>& faces);
         private:
-            void brushFace(Model::BrushFace* face);
+            void brushFace(const Model::BrushFace* face);
         private:
             class GetParentAttributes;
         public:
@@ -113,7 +113,7 @@ namespace TrenchBroom {
 
             virtual void doBeginBrush(const Model::BrushNode* brushNode) = 0;
             virtual void doEndBrush(Model::BrushNode* brushNode) = 0;
-            virtual void doBrushFace(Model::BrushFace* face) = 0;
+            virtual void doBrushFace(const Model::BrushFace* face) = 0;
         };
     }
 }

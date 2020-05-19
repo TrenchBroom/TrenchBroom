@@ -55,12 +55,12 @@ namespace TrenchBroom {
             void doEntityAttribute(const Model::EntityAttribute& attribute) override;
             void doBeginBrush(const Model::BrushNode* brush) override;
             void doEndBrush(Model::BrushNode* brush) override;
-            void doBrushFace(Model::BrushFace* face) override;
+            void doBrushFace(const Model::BrushFace* face) override;
         private:
             void setFilePosition(Model::Node* node);
             size_t startLine();
         private:
-            virtual size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) = 0;
+            virtual size_t doWriteBrushFace(FILE* stream, const Model::BrushFace* face) = 0;
         };
     }
 }
