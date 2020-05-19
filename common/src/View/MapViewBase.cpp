@@ -34,7 +34,7 @@
 #include "Model/EntityAttributes.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
@@ -991,7 +991,7 @@ namespace TrenchBroom {
             private:
                 void doVisit(const Model::World*) override  { setResult(false); }
                 void doVisit(const Model::LayerNode*) override  { setResult(false); }
-                void doVisit(const Model::Group*) override  { setResult(false); }
+                void doVisit(const Model::GroupNode*) override  { setResult(false); }
                 void doVisit(const Model::Entity*) override { setResult(true); }
                 void doVisit(const Model::BrushNode*) override  { setResult(false); }
             };
@@ -1205,12 +1205,12 @@ namespace TrenchBroom {
             document->mergeSelectedGroupsWithGroup(newGroup);
         }
 
-        Model::Group* MapViewBase::findGroupToMergeGroupsInto(const Model::NodeCollection& selectedNodes) const {
+        Model::GroupNode* MapViewBase::findGroupToMergeGroupsInto(const Model::NodeCollection& selectedNodes) const {
             if (!(selectedNodes.hasOnlyGroups() && selectedNodes.groupCount() >= 2)) {
                 return nullptr;
             }
 
-            Model::Group* mergeTarget = nullptr;
+            Model::GroupNode* mergeTarget = nullptr;
 
             auto document = kdl::mem_lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().first();
@@ -1270,7 +1270,7 @@ namespace TrenchBroom {
             if (!nodes.empty()) {
                 Model::Node* lastNode = nodes.back();
 
-                Model::Group* group = Model::findGroup(lastNode);
+                Model::GroupNode* group = Model::findGroup(lastNode);
                 if (group != nullptr) {
                     return group;
                 }
@@ -1301,7 +1301,7 @@ namespace TrenchBroom {
         public:
             bool operator()(const Model::World*) const       { return false; }
             bool operator()(const Model::LayerNode*) const       { return false; }
-            bool operator()(const Model::Group*) const       { return true;  }
+            bool operator()(const Model::GroupNode*) const       { return true;  }
             bool operator()(const Model::Entity*) const      { return true; }
             bool operator()(const Model::BrushNode* brush) const { return brush->entity() == m_world; }
         };

@@ -21,7 +21,7 @@
 
 #include "Model/BrushNode.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/Entity.h"
 #include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
@@ -68,7 +68,7 @@ namespace TrenchBroom {
         private:
             void doVisit(const World*)  override { setResult(false); }
             void doVisit(const LayerNode*)  override { setResult(false); }
-            void doVisit(const Group*)  override { setResult(true); }
+            void doVisit(const GroupNode*)  override { setResult(true); }
             void doVisit(const Entity*) override { setResult(true); }
             void doVisit(const BrushNode*)  override { setResult(true); }
         };

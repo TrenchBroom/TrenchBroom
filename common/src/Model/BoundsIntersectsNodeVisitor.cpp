@@ -22,7 +22,7 @@
 #include "Polyhedron.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -31,7 +31,7 @@ namespace TrenchBroom {
 
         void BoundsIntersectsNodeVisitor::doVisit(const World*)         { setResult(false); }
         void BoundsIntersectsNodeVisitor::doVisit(const LayerNode*)         { setResult(false); }
-        void BoundsIntersectsNodeVisitor::doVisit(const Group* group)   { setResult(m_bounds.intersects(group->logicalBounds())); }
+        void BoundsIntersectsNodeVisitor::doVisit(const GroupNode* group)   { setResult(m_bounds.intersects(group->logicalBounds())); }
         void BoundsIntersectsNodeVisitor::doVisit(const Entity* entity) { setResult(m_bounds.intersects(entity->logicalBounds())); }
         void BoundsIntersectsNodeVisitor::doVisit(const BrushNode* brush)   {
             for (const BrushVertex* vertex : brush->vertices()) {

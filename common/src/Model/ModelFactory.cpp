@@ -35,7 +35,7 @@ namespace TrenchBroom {
             return doCreateLayer(name);
         }
 
-        Group* ModelFactory::createGroup(const std::string& name) const {
+        GroupNode* ModelFactory::createGroup(const std::string& name) const {
             return doCreateGroup(name);
         }
 

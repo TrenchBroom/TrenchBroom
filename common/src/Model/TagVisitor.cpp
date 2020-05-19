@@ -24,7 +24,7 @@ namespace TrenchBroom {
         TagVisitor::~TagVisitor() = default;
         void TagVisitor::visit(World&) {}
         void TagVisitor::visit(LayerNode&) {}
-        void TagVisitor::visit(Group&) {}
+        void TagVisitor::visit(GroupNode&) {}
         void TagVisitor::visit(Entity&) {}
         void TagVisitor::visit(BrushNode&) {}
         void TagVisitor::visit(BrushFace&) {}
@@ -32,7 +32,7 @@ namespace TrenchBroom {
         ConstTagVisitor::~ConstTagVisitor() = default;
         void ConstTagVisitor::visit(const World&) {}
         void ConstTagVisitor::visit(const LayerNode&) {}
-        void ConstTagVisitor::visit(const Group&) {}
+        void ConstTagVisitor::visit(const GroupNode&) {}
         void ConstTagVisitor::visit(const Entity&) {}
         void ConstTagVisitor::visit(const BrushNode&) {}
         void ConstTagVisitor::visit(const BrushFace&) {}

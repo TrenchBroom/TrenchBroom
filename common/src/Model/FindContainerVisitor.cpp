@@ -19,7 +19,7 @@
 
 #include "FindContainerVisitor.h"
 
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/Entity.h"
 #include "Model/LayerNode.h"
 #include "Model/World.h"
@@ -36,7 +36,7 @@ namespace TrenchBroom {
             cancel();
         }
 
-        void FindContainerVisitor::doVisit(Group* group) {
+        void FindContainerVisitor::doVisit(GroupNode* group) {
             setResult(group);
             cancel();
         }

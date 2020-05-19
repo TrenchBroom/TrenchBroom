@@ -27,7 +27,7 @@
 #include "Model/EmptyAttributeNameIssueGenerator.h"
 #include "Model/EmptyAttributeValueIssueGenerator.h"
 #include "Model/Entity.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/HitQuery.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -289,7 +289,7 @@ namespace TrenchBroom {
 
             document->addNode(brush1, document->currentParent());
             document->select(std::vector<Model::Node*>{ brush1 });
-            [[maybe_unused]] Model::Group* group = document->groupSelection("my group");
+            [[maybe_unused]] Model::GroupNode* group = document->groupSelection("my group");
 
             // attempting an invalid scale has no effect
             ASSERT_FALSE(document->scaleObjects(initialBBox, invalidBBox));
@@ -502,7 +502,7 @@ namespace TrenchBroom {
             Model::Entity* entity = new Model::Entity();
             document->addNode(entity, document->currentParent());
             document->select(entity);
-            Model::Group* group = document->groupSelection("my group");
+            Model::GroupNode* group = document->groupSelection("my group");
             document->openGroup(group);
 
             ASSERT_EQ(group, document->currentGroup());
@@ -523,14 +523,14 @@ namespace TrenchBroom {
             document->addNode(innerEnt2, document->currentParent());
             document->select(std::vector<Model::Node*> {innerEnt1, innerEnt2});
 
-            Model::Group* inner = document->groupSelection("Inner");
+            Model::GroupNode* inner = document->groupSelection("Inner");
 
             document->deselectAll();
             document->addNode(outerEnt1, document->currentParent());
             document->addNode(outerEnt2, document->currentParent());
             document->select(std::vector<Model::Node*> {inner, outerEnt1, outerEnt2});
 
-            Model::Group* outer = document->groupSelection("Outer");
+            Model::GroupNode* outer = document->groupSelection("Outer");
             document->deselectAll();
 
             // check our assumptions
@@ -562,7 +562,7 @@ namespace TrenchBroom {
             document->addNode(ent1, document->currentParent());
             document->select(std::vector<Model::Node*> {ent1});
 
-            Model::Group* group = document->groupSelection("Group");
+            Model::GroupNode* group = document->groupSelection("Group");
             ASSERT_EQ((std::vector<Model::Node*> {group}), document->selectedNodes().nodes());
 
             document->ungroupSelection();
@@ -582,7 +582,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(ent1->selected());
             ASSERT_TRUE(brush1->selected());
 
-            Model::Group* group = document->groupSelection("Group");
+            Model::GroupNode* group = document->groupSelection("Group");
             ASSERT_EQ((std::vector<Model::Node*> {ent1}), group->children());
             ASSERT_EQ((std::vector<Model::Node*> {group}), document->selectedNodes().nodes());
 
@@ -600,13 +600,13 @@ namespace TrenchBroom {
             document->addNode(ent1, document->currentParent());
             document->deselectAll();
             document->select(std::vector<Model::Node*> {ent1});
-            Model::Group* group1 = document->groupSelection("group1");
+            Model::GroupNode* group1 = document->groupSelection("group1");
 
             Model::Entity* ent2 = new Model::Entity();
             document->addNode(ent2, document->currentParent());
             document->deselectAll();
             document->select(std::vector<Model::Node*> {ent2});
-            Model::Group* group2 = document->groupSelection("group2");
+            Model::GroupNode* group2 = document->groupSelection("group2");
 
             ASSERT_COLLECTIONS_EQUIVALENT(std::vector<Model::Node*>({ group1, group2 }), document->currentLayer()->children());
 

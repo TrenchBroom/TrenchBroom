@@ -58,7 +58,7 @@ namespace TrenchBroom {
             doVisit(layer);
         }
 
-        void NodeVisitor::visit(Group* group) {
+        void NodeVisitor::visit(GroupNode* group) {
             doVisit(group);
         }
 
@@ -83,7 +83,7 @@ namespace TrenchBroom {
             doVisit(layer);
         }
 
-        void ConstNodeVisitor::visit(const Group* group) {
+        void ConstNodeVisitor::visit(const GroupNode* group) {
             doVisit(group);
         }
 
@@ -99,7 +99,7 @@ namespace TrenchBroom {
         private:
             void doVisit(World*) override  {}
             void doVisit(LayerNode*) override  {}
-            void doVisit(Group*) override  {}
+            void doVisit(GroupNode*) override  {}
             void doVisit(Entity*) override {}
             void doVisit(BrushNode*) override  {}
         };
@@ -108,7 +108,7 @@ namespace TrenchBroom {
         private:
             void doVisit(const World*) override  {}
             void doVisit(const LayerNode*) override  {}
-            void doVisit(const Group*) override  {}
+            void doVisit(const GroupNode*) override  {}
             void doVisit(const Entity*) override {}
             void doVisit(const BrushNode*) override  {}
         };
@@ -119,7 +119,7 @@ namespace TrenchBroom {
     private:
         void doVisit(Model::World*) override  {}
         void doVisit(Model::LayerNode*) override  {}
-        void doVisit(Model::Group*) override  {}
+        void doVisit(Model::GroupNode*) override  {}
         void doVisit(Model::Entity*) override {}
         void doVisit(Model::BrushNode* ) override  {}
     };
@@ -128,7 +128,7 @@ namespace TrenchBroom {
     private:
         void doVisit(const Model::World*) override  {}
         void doVisit(const Model::LayerNode*) override  {}
-        void doVisit(const Model::Group*) override  {}
+        void doVisit(const Model::GroupNode*) override  {}
         void doVisit(const Model::Entity*) override {}
         void doVisit(const Model::BrushNode*) override  {}
     };

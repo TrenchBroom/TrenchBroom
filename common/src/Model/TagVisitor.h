@@ -25,7 +25,7 @@ namespace TrenchBroom {
         class BrushNode;
         class BrushFace;
         class Entity;
-        class Group;
+        class GroupNode;
         class LayerNode;
         class World;
 
@@ -35,7 +35,7 @@ namespace TrenchBroom {
 
             virtual void visit(World& world);
             virtual void visit(LayerNode& layer);
-            virtual void visit(Group& group);
+            virtual void visit(GroupNode& group);
             virtual void visit(Entity& entity);
             virtual void visit(BrushNode& brush);
             virtual void visit(BrushFace& face);
@@ -47,7 +47,7 @@ namespace TrenchBroom {
 
             virtual void visit(const World& world);
             virtual void visit(const LayerNode& layer);
-            virtual void visit(const Group& group);
+            virtual void visit(const GroupNode& group);
             virtual void visit(const Entity& entity);
             virtual void visit(const BrushNode& brush);
             virtual void visit(const BrushFace& face);

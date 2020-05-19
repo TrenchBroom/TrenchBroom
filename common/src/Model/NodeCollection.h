@@ -26,7 +26,7 @@ namespace TrenchBroom {
     namespace Model {
         class BrushNode;
         class Entity;
-        class Group;
+        class GroupNode;
         class LayerNode;
         class Node;
 
@@ -37,7 +37,7 @@ namespace TrenchBroom {
         private:
             std::vector<Node*> m_nodes;
             std::vector<LayerNode*> m_layers;
-            std::vector<Group*> m_groups;
+            std::vector<GroupNode*> m_groups;
             std::vector<Entity*> m_entities;
             std::vector<BrushNode*> m_brushes;
         public:
@@ -64,7 +64,7 @@ namespace TrenchBroom {
 
             const std::vector<Node*>& nodes() const;
             const std::vector<LayerNode*>& layers() const;
-            const std::vector<Group*>& groups() const;
+            const std::vector<GroupNode*>& groups() const;
             const std::vector<Entity*>& entities() const;
             const std::vector<BrushNode*>& brushes() const;
 

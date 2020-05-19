@@ -26,7 +26,7 @@
 #include "Model/BrushFace.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
@@ -332,7 +332,7 @@ namespace TrenchBroom {
             void doVisit(Model::World*) override   {}
             void doVisit(Model::LayerNode*) override   {}
 
-            void doVisit(Model::Group* group) override   {
+            void doVisit(Model::GroupNode* group) override   {
                 if (group->locked()) {
                     if (collectLocked()) m_lockedNodes.addNode(group);
                 } else if (selected(group) || group->opened()) {
@@ -509,11 +509,11 @@ namespace TrenchBroom {
             updateRenderers(Renderer_Default_Locked);
         }
 
-        void MapRenderer::groupWasOpened(Model::Group*) {
+        void MapRenderer::groupWasOpened(Model::GroupNode*) {
             updateRenderers(Renderer_Default_Selection);
         }
 
-        void MapRenderer::groupWasClosed(Model::Group*) {
+        void MapRenderer::groupWasClosed(Model::GroupNode*) {
             updateRenderers(Renderer_Default_Selection);
         }
 

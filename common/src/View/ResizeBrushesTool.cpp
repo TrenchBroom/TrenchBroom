@@ -107,7 +107,7 @@ namespace TrenchBroom {
         private:
             void doVisit(const Model::World*) override  {}
             void doVisit(const Model::LayerNode*) override  {}
-            void doVisit(const Model::Group*) override  {}
+            void doVisit(const Model::GroupNode*) override  {}
             void doVisit(const Model::Entity*) override {}
             void doVisit(const Model::BrushNode* brush) override   {
                 for (const auto* edge : brush->edges())

@@ -30,7 +30,7 @@ namespace TrenchBroom {
             cancel();
         }
 
-        void FindLayerVisitor::doVisit(Group*) {}
+        void FindLayerVisitor::doVisit(GroupNode*) {}
         void FindLayerVisitor::doVisit(Entity*) {}
         void FindLayerVisitor::doVisit(BrushNode*) {}
 

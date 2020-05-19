@@ -48,7 +48,7 @@ namespace TrenchBroom {
         class ChangeBrushFaceAttributesRequest;
         class Entity;
         class Game;
-        class Group;
+        class GroupNode;
         class LayerNode;
         class Node;
         class NodeCollection;
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             virtual std::shared_ptr<Model::Game> game() const = 0;
 
             virtual LayerNode* currentLayer() const = 0;
-            virtual Group* currentGroup() const = 0;
+            virtual GroupNode* currentGroup() const = 0;
             virtual Node* currentGroupOrWorld() const = 0;
             virtual Node* currentParent() const = 0;
 

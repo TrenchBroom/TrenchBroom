@@ -196,7 +196,7 @@ namespace TrenchBroom {
         private:
             void doVisit(const World*)  override   { setResult(false); }
             void doVisit(const LayerNode*)  override   { setResult(false); }
-            void doVisit(const Group*)  override   { setResult(true); }
+            void doVisit(const GroupNode*)  override   { setResult(true); }
             void doVisit(const Entity*) override { setResult(true); }
             void doVisit(const BrushNode*)  override   { setResult(true); }
         };
@@ -345,7 +345,7 @@ namespace TrenchBroom {
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
-        Group* Entity::doGetGroup() const {
+        GroupNode* Entity::doGetGroup() const {
             FindGroupVisitor visitor;
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
@@ -364,7 +364,7 @@ namespace TrenchBroom {
         private:
             void doVisit(World*) override  {}
             void doVisit(LayerNode*) override  {}
-            void doVisit(Group*) override  {}
+            void doVisit(GroupNode*) override  {}
             void doVisit(Entity*) override {}
             void doVisit(BrushNode* brush) override { brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
         };

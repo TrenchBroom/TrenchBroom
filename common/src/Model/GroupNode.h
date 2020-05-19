@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Group
-#define TrenchBroom_Group
+#ifndef TrenchBroom_GroupNode
+#define TrenchBroom_GroupNode
 
 #include "FloatType.h"
 #include "Macros.h"
@@ -32,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Group : public Node, public Object {
+        class GroupNode : public Node, public Object {
         private:
             typedef enum {
                 Edit_Open,
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             mutable vm::bbox3 m_physicalBounds;
             mutable bool m_boundsValid;
         public:
-            Group(const std::string& name);
+            GroupNode(const std::string& name);
 
             void setName(const std::string& name);
 
@@ -91,7 +91,7 @@ namespace TrenchBroom {
         private: // implement methods inherited from Object
             Node* doGetContainer() const override;
             LayerNode* doGetLayer() const override;
-            Group* doGetGroup() const override;
+            GroupNode* doGetGroup() const override;
 
             void doTransform(const vm::mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds) override;
             bool doContains(const Node* node) const override;
@@ -103,9 +103,9 @@ namespace TrenchBroom {
             void doAcceptTagVisitor(TagVisitor& visitor) override;
             void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
         private:
-            deleteCopyAndMove(Group)
+            deleteCopyAndMove(GroupNode)
         };
     }
 }
 
-#endif /* defined(TrenchBroom_Group) */
+#endif /* defined(TrenchBroom_GroupNode) */

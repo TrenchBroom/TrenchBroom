@@ -23,7 +23,7 @@
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/World.h"
 
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             deleteNode(layer);
         }
 
-        void MergeNodesIntoWorldVisitor::doVisit(Group* group) {
+        void MergeNodesIntoWorldVisitor::doVisit(GroupNode* group) {
             addNode(group);
         }
 

@@ -20,7 +20,7 @@
 #include "ComputeNodeBoundsVisitor.h"
 
 #include "Model/BrushNode.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/Entity.h"
 
 #include <vector>
@@ -43,7 +43,7 @@ namespace TrenchBroom {
         void ComputeNodeBoundsVisitor::doVisit(const World*) {}
         void ComputeNodeBoundsVisitor::doVisit(const LayerNode*) {}
 
-        void ComputeNodeBoundsVisitor::doVisit(const Group* group) {
+        void ComputeNodeBoundsVisitor::doVisit(const GroupNode* group) {
             if (m_boundsType == BoundsType::Physical) {
                 m_builder.add(group->physicalBounds());
             } else {

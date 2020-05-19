@@ -23,7 +23,7 @@
 
 #include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/NodeCollection.h"
 #include "Model/World.h"
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             Model::LayerNode* layer = new Model::LayerNode("Layer 1");
             document->addNode(layer, document->world());
 
-            Model::Group* group = new Model::Group("Unnamed");
+            Model::GroupNode* group = new Model::GroupNode("Unnamed");
             document->addNode(group, layer);
 
             Model::BrushBuilder builder(document->world(), document->worldBounds());
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             Model::LayerNode* layer = new Model::LayerNode("Layer 1");
             document->addNode(layer, document->world());
 
-            Model::Group* group = new Model::Group("Unnamed");
+            Model::GroupNode* group = new Model::GroupNode("Unnamed");
             document->addNode(group, layer);
 
             Model::BrushBuilder builder(document->world(), document->worldBounds());

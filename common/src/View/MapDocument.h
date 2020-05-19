@@ -153,8 +153,8 @@ namespace TrenchBroom {
             Notifier<const std::vector<Model::Node*>&> nodeVisibilityDidChangeNotifier;
             Notifier<const std::vector<Model::Node*>&> nodeLockingDidChangeNotifier;
 
-            Notifier<Model::Group*> groupWasOpenedNotifier;
-            Notifier<Model::Group*> groupWasClosedNotifier;
+            Notifier<Model::GroupNode*> groupWasOpenedNotifier;
+            Notifier<Model::GroupNode*> groupWasClosedNotifier;
 
             Notifier<const std::vector<Model::BrushFace*>&> brushFacesDidChangeNotifier;
 
@@ -185,7 +185,7 @@ namespace TrenchBroom {
             Model::LayerNode* currentLayer() const override;
             void setCurrentLayer(Model::LayerNode* currentLayer);
 
-            Model::Group* currentGroup() const override;
+            Model::GroupNode* currentGroup() const override;
             /**
              * Returns the current group if one is open, otherwise the world.
              */
@@ -329,8 +329,8 @@ namespace TrenchBroom {
             Model::Entity* createPointEntity(const Assets::PointEntityDefinition* definition, const vm::vec3& delta) override;
             Model::Entity* createBrushEntity(const Assets::BrushEntityDefinition* definition) override;
         public: // group management
-            Model::Group* groupSelection(const std::string& name);
-            void mergeSelectedGroupsWithGroup(Model::Group* group);
+            Model::GroupNode* groupSelection(const std::string& name);
+            void mergeSelectedGroupsWithGroup(Model::GroupNode* group);
         private:
             class MatchGroupableNodes;
             std::vector<Model::Node*> collectGroupableNodes(const std::vector<Model::Node*>& selectedNodes) const;
@@ -338,7 +338,7 @@ namespace TrenchBroom {
             void ungroupSelection();
             void renameGroups(const std::string& name);
 
-            void openGroup(Model::Group* group);
+            void openGroup(Model::GroupNode* group);
             void closeGroup();
         public: // modifying transient node attributes, declared in MapFacade interface
             void isolate();

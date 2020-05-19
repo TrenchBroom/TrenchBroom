@@ -76,10 +76,10 @@ namespace TrenchBroom {
             class RenameGroupsVisitor;
             class UndoRenameGroupsVisitor;
         public:
-            std::map<Model::Group*, std::string> performRenameGroups(const std::string& newName);
-            void performUndoRenameGroups(const std::map<Model::Group*, std::string>& newNames);
+            std::map<Model::GroupNode*, std::string> performRenameGroups(const std::string& newName);
+            void performUndoRenameGroups(const std::map<Model::GroupNode*, std::string>& newNames);
 
-            void performPushGroup(Model::Group* group);
+            void performPushGroup(Model::GroupNode* group);
             void performPopGroup();
         public: // transformation
             /**

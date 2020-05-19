@@ -21,7 +21,7 @@
 
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -32,7 +32,7 @@ namespace TrenchBroom {
 
         void TransformObjectVisitor::doVisit(World*)         {}
         void TransformObjectVisitor::doVisit(LayerNode*)         {}
-        void TransformObjectVisitor::doVisit(Group* group)   {  group->transform(m_transformation, m_lockTextures, m_worldBounds); }
+        void TransformObjectVisitor::doVisit(GroupNode* group)   {  group->transform(m_transformation, m_lockTextures, m_worldBounds); }
         void TransformObjectVisitor::doVisit(Entity* entity) { entity->transform(m_transformation, m_lockTextures, m_worldBounds); }
         void TransformObjectVisitor::doVisit(BrushNode* brush)   {  brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
     }

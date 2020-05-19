@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace Model {
         class BrushNode;
         class Entity;
-        class Group;
+        class GroupNode;
         class LayerNode;
         class World;
 
@@ -52,20 +52,20 @@ namespace TrenchBroom {
 
         class CollectGroupsStrategy {
         private:
-            std::vector<Group*> m_groups;
+            std::vector<GroupNode*> m_groups;
         public:
-            const std::vector<Group*>& groups() const;
+            const std::vector<GroupNode*>& groups() const;
         protected:
-            void addGroup(Group* group);
+            void addGroup(GroupNode* group);
         };
 
         class SkipGroupsStrategy {
         private:
-            static const std::vector<Group*> m_groups;
+            static const std::vector<GroupNode*> m_groups;
         public:
-            const std::vector<Group*>& groups() const;
+            const std::vector<GroupNode*>& groups() const;
         protected:
-            void addGroup(Group* group);
+            void addGroup(GroupNode* group);
         };
 
         class CollectEntitiesStrategy {
@@ -109,7 +109,7 @@ namespace TrenchBroom {
         private:
             void doVisit(World* /* world */)   override {}
             void doVisit(LayerNode* layer)   override {  LayerStrategy::addLayer(layer); }
-            void doVisit(Group* group)   override {  GroupStrategy::addGroup(group); }
+            void doVisit(GroupNode* group)   override {  GroupStrategy::addGroup(group); }
             void doVisit(Entity* entity) override { EntityStrategy::addEntity(entity); }
             void doVisit(BrushNode* brush)   override {  BrushStrategy::addBrush(brush); }
         };

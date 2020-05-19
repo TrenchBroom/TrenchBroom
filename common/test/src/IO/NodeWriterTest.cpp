@@ -26,7 +26,7 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
 #include "Model/World.h"
@@ -273,7 +273,7 @@ R"(// entity 0
             Model::World map(Model::MapFormat::Standard);
             map.addOrUpdateAttribute("classname", "worldspawn");
 
-            Model::Group* group = map.createGroup("Group");
+            Model::GroupNode* group = map.createGroup("Group");
             map.defaultLayer()->addChild(group);
 
             Model::BrushBuilder builder(&map, worldBounds);
@@ -319,7 +319,7 @@ R"(// entity 0
             Model::LayerNode* layer = map.createLayer("Custom Layer");
             map.addChild(layer);
 
-            Model::Group* group = map.createGroup("Group");
+            Model::GroupNode* group = map.createGroup("Group");
             layer->addChild(group);
 
             Model::BrushBuilder builder(&map, worldBounds);
@@ -373,10 +373,10 @@ R"(// entity 0
             Model::LayerNode* layer = map.createLayer("Custom Layer");
             map.addChild(layer);
 
-            Model::Group* outer = map.createGroup("Outer Group");
+            Model::GroupNode* outer = map.createGroup("Outer Group");
             layer->addChild(outer);
 
-            Model::Group* inner = map.createGroup("Inner Group");
+            Model::GroupNode* inner = map.createGroup("Inner Group");
             outer->addChild(inner);
 
             Model::BrushBuilder builder(&map, worldBounds);
@@ -439,8 +439,8 @@ R"(// entity 0
             Model::BrushBuilder builder(&map, worldBounds);
 
             Model::BrushNode* worldBrush = builder.createCube(64.0, "some");
-            Model::Group* outer = map.createGroup("Outer Group");
-            Model::Group* inner = map.createGroup("Inner Group");
+            Model::GroupNode* outer = map.createGroup("Outer Group");
+            Model::GroupNode* inner = map.createGroup("Inner Group");
             Model::BrushNode* innerBrush = builder.createCube(64.0, "none");
 
             inner->addChild(innerBrush);

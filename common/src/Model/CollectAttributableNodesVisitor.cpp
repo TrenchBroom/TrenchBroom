@@ -36,7 +36,7 @@ namespace TrenchBroom {
         }
 
         void CollectAttributableNodesVisitor::doVisit(LayerNode*) {}
-        void CollectAttributableNodesVisitor::doVisit(Group*) {}
+        void CollectAttributableNodesVisitor::doVisit(GroupNode*) {}
 
         void CollectAttributableNodesVisitor::doVisit(Entity* entity) {
             addNode(entity);

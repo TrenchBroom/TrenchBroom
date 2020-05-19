@@ -119,7 +119,7 @@ namespace TrenchBroom {
         private: // implement Object interface
             Node* doGetContainer() const override;
             LayerNode* doGetLayer() const override;
-            Group* doGetGroup() const override;
+            GroupNode* doGetGroup() const override;
 
             void doTransform(const vm::mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds) override;
             bool doContains(const Node* node) const override;
