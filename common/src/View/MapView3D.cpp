@@ -216,9 +216,8 @@ namespace TrenchBroom {
 
                 document->pick(pickRay, pickResult);
                 const auto& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
-
-                if (hit.isMatch()) {
-                    const auto* face = Model::hitToFace(hit);
+                if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                    const auto* face = faceHandle->face();
                     const auto dragPlane = vm::aligned_orthogonal_plane(hit.hitPoint(), face->boundary().normal);
                     return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay);
                 } else {
@@ -438,8 +437,8 @@ namespace TrenchBroom {
             const auto& worldBounds = document->worldBounds();
 
             const auto& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
-            if (hit.isMatch()) {
-                const auto* face = Model::hitToFace(hit);
+            if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                const auto* face = faceHandle->face();
                 return grid.moveDeltaForBounds(face->boundary(), bounds, worldBounds, pickRay());
             } else {
                 const auto newPosition = Renderer::Camera::defaultPoint(pickRay());

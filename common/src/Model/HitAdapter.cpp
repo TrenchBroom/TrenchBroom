@@ -21,7 +21,6 @@
 
 #include "Hit.h"
 #include "Model/Brush.h"
-#include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
@@ -62,22 +61,6 @@ namespace TrenchBroom {
                 return hit.target<BrushFaceHandle>();
             } else {
                 return std::nullopt;
-            }
-        }
-
-        BrushNode* hitToBrush(const Hit& hit) {
-            if (hit.type() == BrushNode::BrushHitType) {
-                return hit.target<BrushFaceHandle>().node();
-            } else {
-                return nullptr;
-            }
-        }
-
-        const BrushFace* hitToFace(const Hit& hit) {
-            if (hit.type() == BrushNode::BrushHitType) {
-                return hit.target<BrushFaceHandle>().face();
-            } else {
-                return nullptr;
             }
         }
     }

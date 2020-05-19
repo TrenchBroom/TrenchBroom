@@ -1258,8 +1258,8 @@ namespace TrenchBroom {
 
             auto document = kdl::mem_lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
-            if (hit.isMatch()) {
-                const Model::BrushNode* brush = Model::hitToBrush(hit);
+            if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                const Model::BrushNode* brush = faceHandle->node();
                 newParent = brush->entity();
             }
 

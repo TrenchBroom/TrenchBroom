@@ -24,8 +24,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushNode;
-        class BrushFace;
         class BrushFaceHandle;
         class EntityNode;
         class Hit;
@@ -36,8 +34,6 @@ namespace TrenchBroom {
         Object* hitToObject(const Hit& hit);
         EntityNode* hitToEntity(const Hit& hit);
         std::optional<BrushFaceHandle> hitToFaceHandle(const Hit& hit);
-        BrushNode* hitToBrush(const Hit& hit);
-        const BrushFace* hitToFace(const Hit& hit);
     }
 }
 

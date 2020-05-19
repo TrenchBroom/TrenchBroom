@@ -144,9 +144,9 @@ namespace TrenchBroom {
             const auto& editorContext = document->editorContext();
             if (isFaceClick(inputState)) {
                 const auto& hit = firstHit(inputState, Model::BrushNode::BrushHitType);
-                if (hit.isMatch()) {
-                    auto* brush = Model::hitToBrush(hit);
-                    auto* face = Model::hitToFace(hit);
+                if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                    auto* brush = faceHandle->node();
+                    const auto* face = faceHandle->face();
                     if (editorContext.selectable(brush, face)) {
                         if (isMultiClick(inputState)) {
                             if (document->hasSelectedNodes()) {
@@ -339,8 +339,8 @@ namespace TrenchBroom {
             if (isFaceClick(inputState)) {
                 const auto& hit = firstHit(inputState, Model::BrushNode::BrushHitType);
                 if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
-                    const auto* brush = Model::hitToBrush(hit);
-                    const auto* face = Model::hitToFace(hit);
+                    const auto* brush = faceHandle->node();
+                    const auto* face = faceHandle->face();
                     if (editorContext.selectable(brush, face)) {
                         document->startTransaction("Drag Select Brush Faces");
                         if (document->hasSelection() && !document->hasSelectedBrushFaces()) {
@@ -381,8 +381,8 @@ namespace TrenchBroom {
             if (document->hasSelectedBrushFaces()) {
                 const auto& hit = firstHit(inputState, Model::BrushNode::BrushHitType);
                 if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
-                    const auto* brush = Model::hitToBrush(hit);
-                    const auto* face = Model::hitToFace(hit);
+                    const auto* brush = faceHandle->node();
+                    const auto* face = faceHandle->face();
                     if (!face->selected() && editorContext.selectable(brush, face)) {
                         document->select(*faceHandle);
                     }
