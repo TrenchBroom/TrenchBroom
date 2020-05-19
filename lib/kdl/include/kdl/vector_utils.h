@@ -375,6 +375,8 @@ namespace kdl {
      * Applies the given lambda to each element of the given vector and returns a vector containing the resulting
      * values, in order in which their original elements appeared in v.
      *
+     * The elements are passed to the given lambda as const lvalue references.
+
      * @tparam T the type of the vector elements
      * @tparam A the vector's allocator type
      * @tparam L the type of the lambda to apply
@@ -390,6 +392,32 @@ namespace kdl {
         result.reserve(v.size());
         for (const auto& x : v) {
             result.push_back(lambda(x));
+        }
+
+        return result;
+    }
+    
+    /**
+     * Applies the given lambda to each element of the given vector and returns a vector containing the resulting
+     * values, in order in which their original elements appeared in v.
+     *
+     * The elements are passed to the given lambda as rvalue references.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @tparam L the type of the lambda to apply
+     * @param v the vector
+     * @param lambda the lambda to apply
+     * @return a vector containing the transformed values
+     */
+    template<typename T, typename A, typename L>
+    auto vec_transform(std::vector<T, A>&& v, L&& lambda) {
+        using ResultType = decltype(lambda(std::declval<T>()));
+
+        std::vector<ResultType> result;
+        result.reserve(v.size());
+        for (auto&& x : v) {
+            result.push_back(lambda(std::move(x)));
         }
 
         return result;
