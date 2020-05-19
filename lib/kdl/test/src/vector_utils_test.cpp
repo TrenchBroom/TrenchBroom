@@ -296,6 +296,13 @@ namespace kdl {
 
     struct X {};
 
+    TEST_CASE("vector_utils_test.vec_transform_lvalue", "[vector_utils_test]") {
+        std::vector<X> v{X{}, X{}, X{}};
+        
+        ASSERT_EQ(3u, vec_transform(v, [](X& x) { return x; }).size());
+        ASSERT_EQ(3u, vec_transform(v, [](X& x, std::size_t) { return x; }).size());
+    }
+
     TEST_CASE("vector_utils_test.vec_transform_rvalue", "[vector_utils_test]") {
         ASSERT_EQ(1u, vec_transform(std::vector<X>{ X() }, [](X&& x) { return std::move(x); }).size());
         ASSERT_EQ(1u, vec_transform(std::vector<X>{ X() }, [](X&& x, std::size_t) { return std::move(x); }).size());
