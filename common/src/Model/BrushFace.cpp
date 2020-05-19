@@ -637,17 +637,11 @@ namespace TrenchBroom {
         void BrushFace::select() {
             assert(!m_selected);
             m_selected = true;
-            if (m_brush != nullptr && m_brush->node() != nullptr) {
-                m_brush->node()->childWasSelected();
-            }
-        }
+       }
 
         void BrushFace::deselect() {
             assert(m_selected);
             m_selected = false;
-            if (m_brush != nullptr && m_brush->node() != nullptr) {
-                m_brush->node()->childWasDeselected();
-            }
         }
 
         vm::vec2f BrushFace::textureCoords(const vm::vec3& point) const {

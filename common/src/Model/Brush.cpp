@@ -349,11 +349,6 @@ namespace TrenchBroom {
 
             m_faces.push_back(face);
             face->setBrush(this);
-
-            // TODO: remove this, reduce Node::incChildSelectionCount visiblity to protected
-            if (m_node != nullptr && face->selected()) {
-                m_node->incChildSelectionCount(1);
-            }
         }
 
         std::vector<BrushFace*>::iterator Brush::doRemoveFace(std::vector<BrushFace*>::iterator begin, std::vector<BrushFace*>::iterator end, BrushFace* face) {
@@ -374,11 +369,6 @@ namespace TrenchBroom {
         void Brush::detachFace(BrushFace* face) {
             ensure(face != nullptr, "face is null");
             ensure(face->brush() == this, "invalid face brush");
-
-            // TODO: remove this, reduce Node::decChildSelectionCount visiblity to protected
-            if (m_node != nullptr && face->selected()) {
-                m_node->decChildSelectionCount(1);
-            }
 
             face->setGeometry(nullptr);
             face->setBrush(nullptr);
