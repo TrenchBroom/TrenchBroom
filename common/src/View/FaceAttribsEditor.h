@@ -46,7 +46,6 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             std::weak_ptr<MapDocument> m_document;
-            std::vector<Model::BrushFace*> m_faces;
 
             UVEditor* m_uvEditor;
             QLabel* m_textureName;

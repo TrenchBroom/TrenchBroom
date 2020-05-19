@@ -401,25 +401,19 @@ namespace TrenchBroom {
             }
         }
 
-        void FaceAttribsEditor::documentWasNewed(MapDocument* document) {
-            m_faces = Model::toFaces(document->allSelectedBrushFaces());
+        void FaceAttribsEditor::documentWasNewed(MapDocument*) {
             updateControls();
         }
 
-        void FaceAttribsEditor::documentWasLoaded(MapDocument* document) {
-            m_faces = Model::toFaces(document->allSelectedBrushFaces());
+        void FaceAttribsEditor::documentWasLoaded(MapDocument*) {
             updateControls();
         }
 
         void FaceAttribsEditor::brushFacesDidChange(const std::vector<Model::BrushFace*>&) {
-            auto document = kdl::mem_lock(m_document);
-            m_faces = Model::toFaces(document->allSelectedBrushFaces());
             updateControls();
         }
 
         void FaceAttribsEditor::selectionDidChange(const Selection&) {
-            auto document = kdl::mem_lock(m_document);
-            m_faces = Model::toFaces(document->allSelectedBrushFaces());
             updateControls();
         }
 
@@ -472,7 +466,8 @@ namespace TrenchBroom {
                 hideColorAttribEditor();
             }
 
-            if (!m_faces.empty()) {
+            const auto faceHandles = kdl::mem_lock(m_document)->allSelectedBrushFaces();
+            if (!faceHandles.empty()) {
                 bool textureMulti = false;
                 bool xOffsetMulti = false;
                 bool yOffsetMulti = false;
@@ -482,23 +477,24 @@ namespace TrenchBroom {
                 bool surfaceValueMulti = false;
                 bool colorValueMulti = false;
 
-                const std::string& textureName = m_faces[0]->attributes().textureName();
-                const float xOffset = m_faces[0]->attributes().xOffset();
-                const float yOffset = m_faces[0]->attributes().yOffset();
-                const float rotation = m_faces[0]->attributes().rotation();
-                const float xScale = m_faces[0]->attributes().xScale();
-                const float yScale = m_faces[0]->attributes().yScale();
-                int setSurfaceFlags = m_faces[0]->attributes().surfaceFlags();
-                int setSurfaceContents = m_faces[0]->attributes().surfaceContents();
+                const Model::BrushFace* firstFace = faceHandles[0].face();
+                const std::string& textureName = firstFace->attributes().textureName();
+                const float xOffset = firstFace->attributes().xOffset();
+                const float yOffset = firstFace->attributes().yOffset();
+                const float rotation = firstFace->attributes().rotation();
+                const float xScale = firstFace->attributes().xScale();
+                const float yScale = firstFace->attributes().yScale();
+                int setSurfaceFlags = firstFace->attributes().surfaceFlags();
+                int setSurfaceContents = firstFace->attributes().surfaceContents();
                 int mixedSurfaceFlags = 0;
                 int mixedSurfaceContents = 0;
-                const float surfaceValue = m_faces[0]->attributes().surfaceValue();
-                bool hasColorValue = m_faces[0]->attributes().hasColor();
-                const Color colorValue = m_faces[0]->attributes().color();
+                const float surfaceValue = firstFace->attributes().surfaceValue();
+                bool hasColorValue = firstFace->attributes().hasColor();
+                const Color colorValue = firstFace->attributes().color();
 
 
-                for (size_t i = 1; i < m_faces.size(); i++) {
-                    Model::BrushFace* face = m_faces[i];
+                for (size_t i = 1; i < faceHandles.size(); i++) {
+                    const Model::BrushFace* face = faceHandles[i].face();
                     textureMulti            |= (textureName     != face->attributes().textureName());
                     xOffsetMulti            |= (xOffset         != face->attributes().xOffset());
                     yOffsetMulti            |= (yOffset         != face->attributes().yOffset());
@@ -535,7 +531,7 @@ namespace TrenchBroom {
                         m_textureSize->setText("");
                         m_textureSize->setEnabled(false);
                     } else {
-                        const Assets::Texture* texture = m_faces[0]->texture();
+                        const Assets::Texture* texture = firstFace->texture();
                         if (texture != nullptr) {
                             m_textureName->setText(QString::fromStdString(textureName));
                             m_textureSize->setText(QStringLiteral("%1 * %2").arg(texture->width()).arg(texture->height()));
