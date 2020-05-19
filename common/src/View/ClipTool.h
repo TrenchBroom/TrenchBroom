@@ -31,6 +31,7 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushFace;
+        class BrushFaceHandle;
         class Node;
         class PickResult;
     }
@@ -192,7 +193,7 @@ namespace TrenchBroom {
             void selectionDidChange(const Selection& selection);
             void nodesWillChange(const std::vector<Model::Node*>& nodes);
             void nodesDidChange(const std::vector<Model::Node*>& nodes);
-            void facesDidChange(const std::vector<Model::BrushFace*>& nodes);
+            void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& nodes);
         };
     }
 }

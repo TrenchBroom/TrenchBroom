@@ -523,7 +523,7 @@ namespace TrenchBroom {
             updateRenderers(Renderer_Default_Selection);
         }
 
-        void MapRenderer::brushFacesDidChange(const std::vector<Model::BrushFace*>&) {
+        void MapRenderer::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&) {
             invalidateRenderers(Renderer_Selection);
         }
 

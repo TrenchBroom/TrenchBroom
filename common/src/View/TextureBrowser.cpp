@@ -220,7 +220,7 @@ namespace TrenchBroom {
             reload();
         }
 
-        void TextureBrowser::brushFacesDidChange(const std::vector<Model::BrushFace*>&) {
+        void TextureBrowser::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&) {
             reload();
         }
 

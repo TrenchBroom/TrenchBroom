@@ -143,7 +143,7 @@ namespace TrenchBroom {
             update();
         }
 
-        void UVView::brushFacesDidChange(const std::vector<Model::BrushFace*>&) {
+        void UVView::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&) {
             update();
         }
 

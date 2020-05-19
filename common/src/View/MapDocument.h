@@ -49,6 +49,8 @@ namespace TrenchBroom {
     }
 
     namespace Model {
+        class BrushFace;
+        class BrushFaceHandle;
         class BrushFaceAttributes;
         class EditorContext;
         enum class ExportFormat;
@@ -155,7 +157,7 @@ namespace TrenchBroom {
             Notifier<Model::GroupNode*> groupWasOpenedNotifier;
             Notifier<Model::GroupNode*> groupWasClosedNotifier;
 
-            Notifier<const std::vector<Model::BrushFace*>&> brushFacesDidChangeNotifier;
+            Notifier<const std::vector<Model::BrushFaceHandle>&> brushFacesDidChangeNotifier;
 
             Notifier<> textureCollectionsWillChangeNotifier;
             Notifier<> textureCollectionsDidChangeNotifier;
@@ -522,7 +524,7 @@ namespace TrenchBroom {
             void updateNodeTags(const std::vector<Model::Node*>& nodes);
 
             class InitializeFaceTagsVisitor;
-            void updateFaceTags(const std::vector<Model::BrushFace*>& faces);
+            void updateFaceTags(const std::vector<Model::BrushFaceHandle>& faces);
             void updateAllFaceTags();
         public: // document path
             bool persistent() const;
