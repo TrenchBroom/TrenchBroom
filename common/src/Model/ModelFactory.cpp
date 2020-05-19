@@ -50,7 +50,7 @@ namespace TrenchBroom {
             return doCreateBrush(worldBounds, faces);
         }
         
-        BrushNode* ModelFactory::createBrush(std::unique_ptr<Brush> brush) const {
+        BrushNode* ModelFactory::createBrush(Brush brush) const {
             return doCreateBrush(std::move(brush));
         }
 
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             return doCreateFace(point1, point2, point3, attribs, texAxisX, texAxisY);
         }
         
-        BrushNode* ModelFactory::doCreateBrush(std::unique_ptr<Brush> brush) const {
+        BrushNode* ModelFactory::doCreateBrush(Brush brush) const {
             return new BrushNode(std::move(brush));
         }
     }

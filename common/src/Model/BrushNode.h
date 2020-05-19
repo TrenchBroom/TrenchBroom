@@ -22,6 +22,7 @@
 
 #include "FloatType.h"
 #include "Macros.h"
+#include "Model/Brush.h"
 #include "Model/BrushGeometry.h"
 #include "Model/HitType.h"
 #include "Model/Node.h"
@@ -40,7 +41,6 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class Brush;
         class BrushFace;
         class BrushFaceSnapshot;
         class GroupNode;
@@ -56,10 +56,10 @@ namespace TrenchBroom {
             using EdgeList = BrushEdgeList;
         private:
             mutable std::unique_ptr<Renderer::BrushRendererBrushCache> m_brushRendererBrushCache; // unique_ptr for breaking header dependencies
-            std::unique_ptr<Brush> m_brush; // must be destroyed before the brush renderer cache
+            Brush m_brush; // must be destroyed before the brush renderer cache
         public:
             BrushNode(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces);
-            explicit BrushNode(std::unique_ptr<Brush> brush);
+            explicit BrushNode(Brush brush);
             ~BrushNode() override;
         public:
             BrushNode* clone(const vm::bbox3& worldBounds) const;
