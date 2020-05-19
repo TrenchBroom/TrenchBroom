@@ -244,6 +244,12 @@ namespace kdl {
             vec_transform(std::vector<int>({ 1, 2, 3 }), [](auto x) { return x + 10.0; }));
     }
 
+    struct X {};
+
+    TEST_CASE("vector_utils_test.vec_transform_rvalue", "[vector_utils_test]") {
+        ASSERT_EQ(1u, vec_transform(std::vector<X>{ X() }, [](X&& x) { return std::move(x); }).size());
+    }
+
     TEST_CASE("vector_utils_test.set_difference", "[vector_utils_test]") {
         using vec = std::vector<int>;
         using set = std::set<int>;
