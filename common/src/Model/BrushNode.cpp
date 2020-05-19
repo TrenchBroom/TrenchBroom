@@ -190,16 +190,6 @@ namespace TrenchBroom {
             m_brush.cloneInvertedFaceAttributesFrom(brush->m_brush);
         }
 
-        bool BrushNode::canMoveBoundary(const vm::bbox3& worldBounds, const BrushFace* face, const vm::vec3& delta) const {
-            return m_brush.canMoveBoundary(worldBounds, face, delta);
-        }
-
-        void BrushNode::moveBoundary(const vm::bbox3& worldBounds, BrushFace* face, const vm::vec3& delta, const bool lockTexture) {
-            const NotifyNodeChange nodeChange(this);
-            const NotifyPhysicalBoundsChange boundsChange(this);
-            m_brush.moveBoundary(worldBounds, face, delta, lockTexture);
-        }
-
         size_t BrushNode::vertexCount() const {
             return m_brush.vertexCount();
         }

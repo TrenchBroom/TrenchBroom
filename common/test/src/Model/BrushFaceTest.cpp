@@ -652,14 +652,16 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, world);
 
             std::vector<Node*> nodes = reader.read(worldBounds, status);
-            BrushNode* brush = static_cast<BrushNode*>(nodes.at(0)->children().at(0));
-            ASSERT_NE(nullptr, brush);
+            BrushNode* brushNode = static_cast<BrushNode*>(nodes.at(0)->children().at(0));
+            EXPECT_NE(nullptr, brushNode);
+            
+            Brush brush = brushNode->brush();
 
             // find the face
-            BrushFace* angledFace = brush->findFace(vm::vec3(-0.70710678118654746, 0.70710678118654746, 0));
-            ASSERT_NE(nullptr, angledFace);
+            BrushFace* angledFace = brush.findFace(vm::vec3(-0.70710678118654746, 0.70710678118654746, 0));
+            EXPECT_NE(nullptr, angledFace);
 
-            brush->moveBoundary(worldBounds, angledFace, vm::vec3(-7.9999999999999973, 7.9999999999999973, 0), true);
+            brush.moveBoundary(worldBounds, angledFace, vm::vec3(-7.9999999999999973, 7.9999999999999973, 0), true);
 
             kdl::vec_clear_and_delete(nodes);
         }

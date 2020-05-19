@@ -90,7 +90,9 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
             const auto& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().selected().first();
             if (hit.isMatch()) {
-                return Model::Hit(Resize3DHitType, hit.distance(), hit.hitPoint(), Model::hitToFace(hit));
+                auto* face = Model::hitToFace(hit);
+                auto* node = Model::hitToBrush(hit);
+                return Model::Hit(Resize3DHitType, hit.distance(), hit.hitPoint(), Model::BrushFaceHandle(node, face));
             } else {
                 return pickProximateFace(Resize3DHitType, pickRay);
             }
@@ -171,16 +173,13 @@ namespace TrenchBroom {
         }
 
         std::vector<Model::BrushFaceHandle> ResizeBrushesTool::dragFaces() const {
-            std::vector<Model::BrushFaceHandle> result;
-            for (const auto& handle : m_dragHandles) {
-                auto* brush = std::get<0>(handle);
-                const auto& normal = std::get<1>(handle);
+            return kdl::vec_transform(m_dragHandles, [](const auto& dragHandle) {
+                auto* brush = std::get<0>(dragHandle);
+                const auto& normal = std::get<1>(dragHandle);
                 auto* face = brush->findFace(normal);
-                if (face != nullptr) {
-                    result.push_back(Model::BrushFaceHandle(brush, face));
-                }
-            }
-            return result;
+                assert(face != nullptr);
+                return Model::BrushFaceHandle(brush, face);
+            });
         }
 
         void ResizeBrushesTool::updateDragFaces(const Model::PickResult& pickResult) {
@@ -266,9 +265,10 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushesTool::resize(const vm::ray3& pickRay, const Renderer::Camera& /* camera */) {
-            assert(hasDragFaces());
-
-            const auto dragFaceHandle = dragFaces().front();
+            const auto dragFaceHandles = dragFaces();
+            assert(!dragFaceHandles.empty());
+            
+            const auto dragFaceHandle = dragFaceHandles.front();
             auto* dragFace = dragFaceHandle.face();
             const auto& faceNormal = dragFace->boundary().normal;
 

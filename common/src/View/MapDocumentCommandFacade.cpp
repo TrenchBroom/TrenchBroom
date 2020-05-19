@@ -623,17 +623,16 @@ namespace TrenchBroom {
 
             const std::vector<Model::BrushNode*>& selectedBrushes = m_selectedNodes.brushes();
             std::vector<Model::Node*> changedNodes;
-            std::vector<Model::BrushFaceHandle> faceHandles;
 
-            for (Model::BrushNode* brush : selectedBrushes) {
-                Model::BrushFace* face = brush->findFace(polygons);
+            for (Model::BrushNode* brushNode : selectedBrushes) {
+                const Model::Brush& brush = brushNode->brush();
+                Model::BrushFace* face = brush.findFace(polygons);
                 if (face != nullptr) {
-                    if (!brush->canMoveBoundary(m_worldBounds, face, delta)) {
+                    if (!brush.canMoveBoundary(m_worldBounds, face, delta)) {
                         return result;
                     }
 
-                    changedNodes.push_back(brush);
-                    faceHandles.push_back(Model::BrushFaceHandle(brush, face));
+                    changedNodes.push_back(brushNode);
                 }
             }
 
@@ -641,14 +640,16 @@ namespace TrenchBroom {
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, changedNodes);
 
-            for (const auto& faceHandle : faceHandles) {
-                Model::BrushFace* face = faceHandle.face();
-                Model::BrushNode* brush = faceHandle.node();
-                assert(brush->selected());
-                brush->moveBoundary(m_worldBounds, face, delta, pref(Preferences::TextureLock));
-                result.push_back(face->polygon());
+            for (Model::BrushNode* brushNode : selectedBrushes) {
+                Model::Brush brush = brushNode->brush();
+                Model::BrushFace* face = brush.findFace(polygons);
+                if (face != nullptr) {
+                    brush.moveBoundary(m_worldBounds, face, delta, pref(Preferences::TextureLock));
+                    result.push_back(face->polygon());
+                    brushNode->setBrush(std::move(brush));
+                }
             }
-
+            
             invalidateSelectionBounds();
 
             return result;
