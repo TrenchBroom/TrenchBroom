@@ -25,22 +25,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        const std::vector<Model::Node*>& Selection::partiallySelectedNodes() const {
-            return m_partiallySelectedNodes;
-        }
-
-        const std::vector<Model::Node*>& Selection::partiallyDeselectedNodes() const {
-            return m_partiallyDeselectedNodes;
-        }
-
-        const std::vector<Model::Node*>& Selection::recursivelySelectedNodes() const {
-            return m_recursivelySelectedNodes;
-        }
-
-        const std::vector<Model::Node*>& Selection::recursivelyDeselectedNodes() const {
-            return m_recursivelyDeselectedNodes;
-        }
-
         const std::vector<Model::Node*>& Selection::selectedNodes() const {
             return m_selectedNodes;
         }
@@ -55,22 +39,6 @@ namespace TrenchBroom {
 
         const std::vector<Model::BrushFace*>& Selection::deselectedBrushFaces() const {
             return m_deselectedBrushFaces;
-        }
-
-        void Selection::addPartiallySelectedNodes(const std::vector<Model::Node*>& nodes) {
-            kdl::vec_append(m_partiallySelectedNodes, nodes);
-        }
-
-        void Selection::addPartiallyDeselectedNodes(const std::vector<Model::Node*>& nodes) {
-            kdl::vec_append(m_partiallyDeselectedNodes, nodes);
-        }
-
-        void Selection::addRecursivelySelectedNodes(const std::vector<Model::Node*>& nodes) {
-            kdl::vec_append(m_recursivelySelectedNodes, nodes);
-        }
-
-        void Selection::addRecursivelyDeselectedNodes(const std::vector<Model::Node*>& nodes) {
-            kdl::vec_append(m_recursivelyDeselectedNodes, nodes);
         }
 
         void Selection::addSelectedNodes(const std::vector<Model::Node*>& nodes) {
