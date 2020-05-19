@@ -31,7 +31,6 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
-#include "Model/BrushFaceSnapshot.h"
 #include "Model/MapFormat.h"
 #include "Model/NodeSnapshot.h"
 #include "Model/ParaxialTexCoordSystem.h"
@@ -465,49 +464,6 @@ namespace TrenchBroom {
 
             checkTextureLockOffWithVerticalFlip(cube);
             checkTextureLockOffWithScale(cube);
-        }
-
-        TEST_CASE("BrushFaceTest.testBrushFaceSnapshot", "[BrushFaceTest]") {
-            const vm::bbox3 worldBounds(8192.0);
-            Assets::Texture texture("testTexture", 64, 64);
-            WorldNode world(MapFormat::Valve);
-
-            BrushBuilder builder(&world, worldBounds);
-            BrushNode* cubeNode = world.createBrush(builder.createCube(128.0, ""));
-
-            auto topFaceIndex = cubeNode->brush().findFace(vm::vec3::pos_z());
-            REQUIRE(topFaceIndex);
-            BrushFace* topFace = cubeNode->brush().face(*topFaceIndex);
-            ASSERT_EQ(0.0, topFace->attributes().rotation());
-            BrushFaceSnapshot* snapshot = cubeNode->takeSnapshot(topFace);
-
-            // Rotate texture of topFace
-            topFace->rotateTexture(5.0);
-            ASSERT_EQ(5.0, topFace->attributes().rotation());
-
-            // Hack to get the Brush to delete and recreate its BrushFaces
-            {
-                NodeSnapshot* cubeSnapshot = cubeNode->takeSnapshot();
-                cubeSnapshot->restore(worldBounds);
-                delete cubeSnapshot;
-
-                // NOTE: topFace is a dangling pointer here
-                const auto newTopFaceIndex = cubeNode->brush().findFace(vm::vec3::pos_z());
-                REQUIRE(newTopFaceIndex);
-                const BrushFace* newTopFace = cubeNode->brush().face(*newTopFaceIndex);
-                ASSERT_NE(topFace, newTopFace);
-            }
-
-            topFaceIndex = cubeNode->brush().findFace(vm::vec3::pos_z());
-            REQUIRE(topFaceIndex);
-            topFace = cubeNode->brush().face(*topFaceIndex);
-
-            // Ensure that the snapshot can be restored, despite the Brush having a new BrushFace object
-            snapshot->restore();
-            ASSERT_EQ(0.0, topFace->attributes().rotation());
-
-            delete snapshot;
-            delete cubeNode;
         }
 
         // https://github.com/kduske/TrenchBroom/issues/2001

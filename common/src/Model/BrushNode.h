@@ -43,7 +43,6 @@ namespace TrenchBroom {
 
     namespace Model {
         class BrushFace;
-        class BrushFaceSnapshot;
         class GroupNode;
         class LayerNode;
 
@@ -74,7 +73,6 @@ namespace TrenchBroom {
             void deselectFace(size_t faceIndex);
             
             using Node::takeSnapshot;
-            BrushFaceSnapshot* takeSnapshot(BrushFace* face);
         private: // implement Node interface
             const std::string& doGetName() const override;
             const vm::bbox3& doGetLogicalBounds() const override;

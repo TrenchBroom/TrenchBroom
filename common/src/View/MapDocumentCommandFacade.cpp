@@ -885,9 +885,11 @@ namespace TrenchBroom {
                 invalidateSelectionBounds();
             }
 
-            const auto faces = Model::toFaces(allSelectedBrushFaces());
-            if (!faces.empty()) {
-                snapshot->restoreBrushFaces();
+            const auto& faceHandles = selectedBrushFaces();
+            if (!faceHandles.empty()) {
+                snapshot->restoreNodes(m_worldBounds);
+                
+                const auto faces = Model::toFaces(faceHandles);
                 setTextures(faces);
                 brushFacesDidChangeNotifier(faces);
             }
