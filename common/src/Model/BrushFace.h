@@ -39,7 +39,6 @@
 namespace TrenchBroom {
     namespace Assets {
         class Texture;
-        class TextureManager;
     }
 
     namespace Model {
@@ -151,7 +150,6 @@ namespace TrenchBroom {
             const Color& color() const;
             bool setColor(const Color& color);
 
-            void updateTexture(Assets::TextureManager& textureManager);
             bool setTexture(Assets::Texture* texture);
             bool unsetTexture();
 
