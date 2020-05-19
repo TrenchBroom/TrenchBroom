@@ -50,7 +50,7 @@ namespace TrenchBroom {
 
         NodeVisitor::~NodeVisitor() {}
 
-        void NodeVisitor::visit(World* world) {
+        void NodeVisitor::visit(WorldNode* world) {
             doVisit(world);
         }
 
@@ -75,7 +75,7 @@ namespace TrenchBroom {
 
         ConstNodeVisitor::~ConstNodeVisitor() {}
 
-        void ConstNodeVisitor::visit(const World* world) {
+        void ConstNodeVisitor::visit(const WorldNode* world) {
             doVisit(world);
         }
 
@@ -97,7 +97,7 @@ namespace TrenchBroom {
 
         class _NodeVisitorPrototype : public NodeVisitor {
         private:
-            void doVisit(World*) override  {}
+            void doVisit(WorldNode*) override  {}
             void doVisit(LayerNode*) override  {}
             void doVisit(GroupNode*) override  {}
             void doVisit(Entity*) override {}
@@ -106,7 +106,7 @@ namespace TrenchBroom {
 
         class _ConstNodeVisitorPrototype : public ConstNodeVisitor {
         private:
-            void doVisit(const World*) override  {}
+            void doVisit(const WorldNode*) override  {}
             void doVisit(const LayerNode*) override  {}
             void doVisit(const GroupNode*) override  {}
             void doVisit(const Entity*) override {}
@@ -117,7 +117,7 @@ namespace TrenchBroom {
 
     class _NodeVisitorPrototype : public Model::NodeVisitor {
     private:
-        void doVisit(Model::World*) override  {}
+        void doVisit(Model::WorldNode*) override  {}
         void doVisit(Model::LayerNode*) override  {}
         void doVisit(Model::GroupNode*) override  {}
         void doVisit(Model::Entity*) override {}
@@ -126,7 +126,7 @@ namespace TrenchBroom {
 
     class _ConstNodeVisitorPrototype : public Model::ConstNodeVisitor {
     private:
-        void doVisit(const Model::World*) override  {}
+        void doVisit(const Model::WorldNode*) override  {}
         void doVisit(const Model::LayerNode*) override  {}
         void doVisit(const Model::GroupNode*) override  {}
         void doVisit(const Model::Entity*) override {}

@@ -77,7 +77,7 @@ namespace TrenchBroom {
         public:
             SetEditStateVisitor(const EditState editState) : m_editState(editState) {}
         private:
-            void doVisit(World*) override       {}
+            void doVisit(WorldNode*) override       {}
             void doVisit(LayerNode*) override       {}
             void doVisit(GroupNode* group) override { group->setEditState(m_editState); }
             void doVisit(Entity*) override      {}
@@ -128,7 +128,7 @@ namespace TrenchBroom {
 
         class CanAddChildToGroup : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            void doVisit(const World*) override  { setResult(false); }
+            void doVisit(const WorldNode*) override  { setResult(false); }
             void doVisit(const LayerNode*) override  { setResult(false); }
             void doVisit(const GroupNode*) override  { setResult(true); }
             void doVisit(const Entity*) override { setResult(true); }

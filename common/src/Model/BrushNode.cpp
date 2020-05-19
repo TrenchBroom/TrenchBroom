@@ -36,7 +36,7 @@
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
 #include "Model/TexCoordSystem.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "Renderer/BrushRendererBrushCache.h"
 
 #include <kdl/vector_utils.h>
@@ -325,7 +325,7 @@ namespace TrenchBroom {
 
         class FindBrushOwner : public NodeVisitor, public NodeQuery<AttributableNode*> {
         private:
-            void doVisit(World* world) override       { setResult(world); cancel(); }
+            void doVisit(WorldNode* world) override       { setResult(world); cancel(); }
             void doVisit(LayerNode* /* layer */) override {}
             void doVisit(GroupNode* /* group */) override {}
             void doVisit(Entity* entity) override     { setResult(entity); cancel(); }
@@ -1466,7 +1466,7 @@ namespace TrenchBroom {
             Contains(const BrushNode* i_this) :
             m_this(i_this) {}
         private:
-            void doVisit(const World* /* world */) override { setResult(false); }
+            void doVisit(const WorldNode* /* world */) override { setResult(false); }
             void doVisit(const LayerNode* /* layer */) override { setResult(false); }
             void doVisit(const GroupNode* group) override       { setResult(contains(group->logicalBounds())); }
             void doVisit(const Entity* entity) override     { setResult(contains(entity->logicalBounds())); }
@@ -1505,7 +1505,7 @@ namespace TrenchBroom {
             Intersects(const BrushNode* i_this) :
             m_this(i_this) {}
         private:
-            void doVisit(const World* /* world */) override { setResult(false); }
+            void doVisit(const WorldNode* /* world */) override { setResult(false); }
             void doVisit(const LayerNode* /* layer */) override { setResult(false); }
             void doVisit(const GroupNode* group) override       { setResult(intersects(group->logicalBounds())); }
             void doVisit(const Entity* entity) override     { setResult(intersects(entity->logicalBounds())); }

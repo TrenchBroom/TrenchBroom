@@ -36,7 +36,7 @@ namespace TrenchBroom {
         public:
             const std::vector<AttributableNode*>& nodes() const;
         private:
-            void doVisit(World* world) override;
+            void doVisit(WorldNode* world) override;
             void doVisit(LayerNode* layer) override;
             void doVisit(GroupNode* group) override;
             void doVisit(Entity* entity) override;

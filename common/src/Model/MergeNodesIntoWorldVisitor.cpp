@@ -25,7 +25,7 @@
 #include "Model/EntityAttributes.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <kdl/vector_utils.h>
 
@@ -35,7 +35,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        MergeNodesIntoWorldVisitor::MergeNodesIntoWorldVisitor(World* world, Node* parent) :
+        MergeNodesIntoWorldVisitor::MergeNodesIntoWorldVisitor(WorldNode* world, Node* parent) :
         m_world(world),
         m_parent(parent != nullptr ? parent : m_world->defaultLayer()) {
             ensure(m_world != nullptr, "world is null");
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             return m_result;
         }
 
-        void MergeNodesIntoWorldVisitor::doVisit(World* world) {
+        void MergeNodesIntoWorldVisitor::doVisit(WorldNode* world) {
             world->iterate(*this);
             deleteNode(world);
         }

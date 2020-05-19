@@ -23,7 +23,7 @@
 #include "Model/CollectMatchingIssuesVisitor.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 
 #include <kdl/memory_utils.h>
@@ -131,7 +131,7 @@ namespace TrenchBroom {
 
         void IssueBrowserView::updateIssues() {
             auto document = kdl::mem_lock(m_document);
-            Model::World* world = document->world();
+            Model::WorldNode* world = document->world();
             if (world != nullptr) {
                 const std::vector<Model::IssueGenerator*>& issueGenerators = world->registeredIssueGenerators();
                 Model::CollectMatchingIssuesVisitor<IssueVisible> visitor(issueGenerators, IssueVisible(m_hiddenGenerators, m_showHiddenIssues));
@@ -184,7 +184,7 @@ namespace TrenchBroom {
             }
 
             auto document = kdl::mem_lock(m_document);
-            const Model::World* world = document->world();
+            const Model::WorldNode* world = document->world();
             return world->quickFixes(issueTypes);
         }
 

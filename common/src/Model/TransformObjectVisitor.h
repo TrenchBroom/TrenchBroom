@@ -33,7 +33,7 @@ namespace TrenchBroom {
         public:
             TransformObjectVisitor(const vm::mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds);
         private:
-            void doVisit(World* world) override;
+            void doVisit(WorldNode* world) override;
             void doVisit(LayerNode* layer) override;
             void doVisit(GroupNode* group) override;
             void doVisit(Entity* entity) override;

@@ -34,7 +34,7 @@ namespace TrenchBroom {
         class Issue;
         class IssueQuickFix;
         class LayerNode;
-        class World;
+        class WorldNode;
 
         class IssueGenerator {
         protected:
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             const std::string& description() const;
             const IssueQuickFixList& quickFixes() const;
 
-            void generate(World* world,   IssueList& issues) const;
+            void generate(WorldNode* world,   IssueList& issues) const;
             void generate(LayerNode* layer,   IssueList& issues) const;
             void generate(GroupNode* group,   IssueList& issues) const;
             void generate(Entity* entity, IssueList& issues) const;
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             IssueGenerator(IssueType type, const std::string& description);
             void addQuickFix(IssueQuickFix* quickFix);
         private:
-            virtual void doGenerate(World* world,           IssueList& issues) const;
+            virtual void doGenerate(WorldNode* world,           IssueList& issues) const;
             virtual void doGenerate(LayerNode* layer,           IssueList& issues) const;
             virtual void doGenerate(GroupNode* group,           IssueList& issues) const;
             virtual void doGenerate(Entity* entity,         IssueList& issues) const;

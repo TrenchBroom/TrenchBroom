@@ -29,7 +29,7 @@ namespace TrenchBroom {
         class GroupNode;
         class LayerNode;
         class Node;
-        class World;
+        class WorldNode;
 
         class BaseNodeVisitor {
         private:
@@ -52,13 +52,13 @@ namespace TrenchBroom {
         public:
             ~NodeVisitor() override;
 
-            virtual void visit(World* world);
+            virtual void visit(WorldNode* world);
             virtual void visit(LayerNode* layer);
             virtual void visit(GroupNode* group);
             virtual void visit(Entity* entity);
             virtual void visit(BrushNode* brush);
         private:
-            virtual void doVisit(World* world)   = 0;
+            virtual void doVisit(WorldNode* world)   = 0;
             virtual void doVisit(LayerNode* layer)   = 0;
             virtual void doVisit(GroupNode* group)   = 0;
             virtual void doVisit(Entity* entity) = 0;
@@ -71,13 +71,13 @@ namespace TrenchBroom {
         public:
             ~ConstNodeVisitor() override;
 
-            virtual void visit(const World* world);
+            virtual void visit(const WorldNode* world);
             virtual void visit(const LayerNode* layer);
             virtual void visit(const GroupNode* group);
             virtual void visit(const Entity* entity);
             virtual void visit(const BrushNode* brush);
         private:
-            virtual void doVisit(const World* world)   = 0;
+            virtual void doVisit(const WorldNode* world)   = 0;
             virtual void doVisit(const LayerNode* layer)   = 0;
             virtual void doVisit(const GroupNode* group)   = 0;
             virtual void doVisit(const Entity* entity) = 0;
@@ -103,7 +103,7 @@ namespace TrenchBroom {
         public:
             ~MatchingNodeVisitor() override = default;
 
-            void visit(World* world) override {
+            void visit(WorldNode* world) override {
                 const bool match = m_p(world);
                 if (match) NodeVisitor::visit(world);
                 if (m_s(world, match)) stopRecursion();
@@ -144,7 +144,7 @@ namespace TrenchBroom {
         public:
             ~ConstMatchingNodeVisitor() override = default;
 
-            void visit(const World* world) override {
+            void visit(const WorldNode* world) override {
                 const bool match = m_p(world);
                 if (match) ConstNodeVisitor::visit(world);
                 if (m_s(world, match)) stopRecursion();

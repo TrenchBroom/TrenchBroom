@@ -29,7 +29,7 @@
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             if (definition->type() != Assets::EntityDefinitionType::PointEntity)
                 return false;
 
-            const Model::World* world = document->world();
+            const Model::WorldNode* world = document->world();
             m_entity = world->createEntity();
             m_entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
 

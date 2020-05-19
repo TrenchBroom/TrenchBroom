@@ -21,7 +21,7 @@
 
 #include "Model/Issue.h"
 #include "Model/IssueGenerator.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "View/FlagsPopupEditor.h"
 #include "View/IssueBrowserView.h"
 #include "View/MapDocument.h"
@@ -127,7 +127,7 @@ namespace TrenchBroom {
 
         void IssueBrowser::updateFilterFlags() {
             auto document = kdl::mem_lock(m_document);
-            const Model::World* world = document->world();
+            const Model::WorldNode* world = document->world();
             const std::vector<Model::IssueGenerator*>& generators = world->registeredIssueGenerators();
 
             QList<int> flags;

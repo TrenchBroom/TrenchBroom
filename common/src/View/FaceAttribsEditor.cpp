@@ -26,7 +26,7 @@
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "View/BorderLine.h"
 #include "View/FlagsPopupEditor.h"
 #include "View/Grid.h"

@@ -23,7 +23,7 @@
 #include "Model/Entity.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -31,7 +31,7 @@ namespace TrenchBroom {
             return m_result;
         }
 
-        void TakeSnapshotVisitor::doVisit(World* world)   { handleNode(world); }
+        void TakeSnapshotVisitor::doVisit(WorldNode* world)   { handleNode(world); }
         void TakeSnapshotVisitor::doVisit(LayerNode* layer)   { handleNode(layer); }
         void TakeSnapshotVisitor::doVisit(GroupNode* group)   { handleNode(group); }
         void TakeSnapshotVisitor::doVisit(Entity* entity) { handleNode(entity); }

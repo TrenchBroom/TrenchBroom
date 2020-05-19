@@ -80,7 +80,7 @@
 #include "Model/Polyhedron3.h"
 #include "Model/PortalFile.h"
 #include "Model/TagManager.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "View/AddBrushVerticesCommand.h"
 #include "View/AddRemoveNodesCommand.h"
 #include "View/Actions.h"
@@ -192,7 +192,7 @@ namespace TrenchBroom {
             return m_worldBounds;
         }
 
-        Model::World* MapDocument::world() const {
+        Model::WorldNode* MapDocument::world() const {
             return m_world.get();
         }
 
@@ -975,11 +975,11 @@ namespace TrenchBroom {
 
         class MapDocument::MatchGroupableNodes {
         private:
-            const Model::World* m_world;
+            const Model::WorldNode* m_world;
         public:
-            explicit MatchGroupableNodes(const Model::World* world) : m_world(world) {}
+            explicit MatchGroupableNodes(const Model::WorldNode* world) : m_world(world) {}
         public:
-            bool operator()(const Model::World*) const  { return false; }
+            bool operator()(const Model::WorldNode*) const  { return false; }
             bool operator()(const Model::LayerNode*) const  { return false; }
             bool operator()(const Model::GroupNode*) const  { return true;  }
             bool operator()(const Model::Entity*) const { return true; }
@@ -1775,7 +1775,7 @@ namespace TrenchBroom {
             explicit SetTextures(Assets::TextureManager& manager) :
                 m_manager(manager) {}
         private:
-            void doVisit(Model::World*) override   {}
+            void doVisit(Model::WorldNode*) override   {}
             void doVisit(Model::LayerNode*) override   {}
             void doVisit(Model::GroupNode*) override   {}
             void doVisit(Model::Entity*) override {}
@@ -1788,7 +1788,7 @@ namespace TrenchBroom {
 
         class MapDocument::UnsetTextures : public Model::NodeVisitor {
         private:
-            void doVisit(Model::World*) override   {}
+            void doVisit(Model::WorldNode*) override   {}
             void doVisit(Model::LayerNode*) override   {}
             void doVisit(Model::GroupNode*) override   {}
             void doVisit(Model::Entity*) override {}
@@ -1832,7 +1832,7 @@ namespace TrenchBroom {
             explicit SetEntityDefinitions(Assets::EntityDefinitionManager& manager) :
             m_manager(manager) {}
         private:
-            void doVisit(Model::World* world) override   { handle(world); }
+            void doVisit(Model::WorldNode* world) override   { handle(world); }
             void doVisit(Model::LayerNode*) override         {}
             void doVisit(Model::GroupNode*) override         {}
             void doVisit(Model::Entity* entity) override { handle(entity); }
@@ -1845,7 +1845,7 @@ namespace TrenchBroom {
 
         class MapDocument::UnsetEntityDefinitions : public Model::NodeVisitor {
         private:
-            void doVisit(Model::World* world) override   { world->setDefinition(nullptr); }
+            void doVisit(Model::WorldNode* world) override   { world->setDefinition(nullptr); }
             void doVisit(Model::LayerNode*) override         {}
             void doVisit(Model::GroupNode*) override         {}
             void doVisit(Model::Entity* entity) override { entity->setDefinition(nullptr); }
@@ -1894,7 +1894,7 @@ namespace TrenchBroom {
             m_logger(logger),
             m_manager(manager) {}
         private:
-            void doVisit(Model::World*) override         {}
+            void doVisit(Model::WorldNode*) override         {}
             void doVisit(Model::LayerNode*) override         {}
             void doVisit(Model::GroupNode*) override         {}
             void doVisit(Model::Entity* entity) override {
@@ -1909,7 +1909,7 @@ namespace TrenchBroom {
 
         class MapDocument::UnsetEntityModels : public Model::NodeVisitor {
         private:
-            void doVisit(Model::World*) override         {}
+            void doVisit(Model::WorldNode*) override         {}
             void doVisit(Model::LayerNode*) override         {}
             void doVisit(Model::GroupNode*) override         {}
             void doVisit(Model::Entity* entity) override { entity->setModelFrame(nullptr); }
@@ -2026,7 +2026,7 @@ namespace TrenchBroom {
 
         class MapDocument::ClearNodeTagsVisitor : public Model::NodeVisitor {
         private:
-            void doVisit(Model::World* world)   override { initializeNodeTags(world); }
+            void doVisit(Model::WorldNode* world)   override { initializeNodeTags(world); }
             void doVisit(Model::LayerNode* layer)   override { initializeNodeTags(layer); }
             void doVisit(Model::GroupNode* group)   override { initializeNodeTags(group); }
             void doVisit(Model::Entity* entity) override { initializeNodeTags(entity); }
@@ -2044,7 +2044,7 @@ namespace TrenchBroom {
             explicit InitializeNodeTagsVisitor(Model::TagManager& tagManager) :
             m_tagManager(tagManager) {}
         private:
-            void doVisit(Model::World* world)   override { initializeNodeTags(world); }
+            void doVisit(Model::WorldNode* world)   override { initializeNodeTags(world); }
             void doVisit(Model::LayerNode* layer)   override { initializeNodeTags(layer); }
             void doVisit(Model::GroupNode* group)   override { initializeNodeTags(group); }
             void doVisit(Model::Entity* entity) override { initializeNodeTags(entity); }
@@ -2091,7 +2091,7 @@ namespace TrenchBroom {
             explicit InitializeFaceTagsVisitor(Model::TagManager& tagManager) :
                 m_tagManager(tagManager) {}
         private:
-            void doVisit(Model::World*) override         {}
+            void doVisit(Model::WorldNode*) override         {}
             void doVisit(Model::LayerNode*) override         {}
             void doVisit(Model::GroupNode*) override         {}
             void doVisit(Model::Entity*) override        {}

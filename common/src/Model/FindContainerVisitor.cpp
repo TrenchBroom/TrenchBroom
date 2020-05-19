@@ -22,11 +22,11 @@
 #include "Model/GroupNode.h"
 #include "Model/Entity.h"
 #include "Model/LayerNode.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 namespace TrenchBroom {
     namespace Model {
-        void FindContainerVisitor::doVisit(World* world) {
+        void FindContainerVisitor::doVisit(WorldNode* world) {
             setResult(world);
             cancel();
         }

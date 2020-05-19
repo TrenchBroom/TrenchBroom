@@ -30,7 +30,7 @@ namespace TrenchBroom {
         class Entity;
         class GroupNode;
         class LayerNode;
-        class World;
+        class WorldNode;
 
         class CollectLayersStrategy {
         private:
@@ -107,7 +107,7 @@ namespace TrenchBroom {
         template <class LayerStrategy, class GroupStrategy, class EntityStrategy, class BrushStrategy>
         class AssortNodesVisitorT : public NodeVisitor, public LayerStrategy, public GroupStrategy, public EntityStrategy, public BrushStrategy {
         private:
-            void doVisit(World* /* world */)   override {}
+            void doVisit(WorldNode* /* world */)   override {}
             void doVisit(LayerNode* layer)   override {  LayerStrategy::addLayer(layer); }
             void doVisit(GroupNode* group)   override {  GroupStrategy::addGroup(group); }
             void doVisit(Entity* entity) override { EntityStrategy::addEntity(entity); }

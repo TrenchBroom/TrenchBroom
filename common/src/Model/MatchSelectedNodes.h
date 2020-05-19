@@ -29,7 +29,7 @@ namespace TrenchBroom {
         template <bool MatchSelected>
         class MatchSelectedNodes {
         public:
-            bool operator()(const Model::World*) const           { return false; }
+            bool operator()(const Model::WorldNode*) const       { return false; }
             bool operator()(const Model::LayerNode*) const       { return false; }
             bool operator()(const Model::GroupNode* group) const { return MatchSelected == group->selected(); }
             bool operator()(const Model::Entity* entity) const   { return MatchSelected == entity->selected(); }
@@ -39,7 +39,7 @@ namespace TrenchBroom {
         template <bool MatchSelected>
         class MatchTransitivelySelectedNodes {
         public:
-            bool operator()(const Model::World*) const           { return false; }
+            bool operator()(const Model::WorldNode*) const       { return false; }
             bool operator()(const Model::LayerNode*) const       { return false; }
             bool operator()(const Model::GroupNode* group) const { return MatchSelected == group->transitivelySelected(); }
             bool operator()(const Model::Entity* entity) const   { return MatchSelected == entity->transitivelySelected(); }
@@ -54,7 +54,7 @@ namespace TrenchBroom {
         template <bool MatchSelected>
         class MatchTransitivelySelectedOrDescendantSelectedNodes {
         public:
-            bool operator()(const Model::World*) const           { return false; }
+            bool operator()(const Model::WorldNode*) const       { return false; }
             bool operator()(const Model::LayerNode*) const       { return false; }
             bool operator()(const Model::GroupNode* group) const { return MatchSelected == (group->transitivelySelected() || group->descendantSelected()); }
             bool operator()(const Model::Entity* entity) const   { return MatchSelected == (entity->transitivelySelected() || entity->descendantSelected()); }

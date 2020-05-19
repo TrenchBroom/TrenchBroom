@@ -26,7 +26,7 @@ namespace TrenchBroom {
     namespace Model {
         // FindGroupVisitor
 
-        void FindGroupVisitor::doVisit(World*) {}
+        void FindGroupVisitor::doVisit(WorldNode*) {}
         void FindGroupVisitor::doVisit(LayerNode*) {}
 
         void FindGroupVisitor::doVisit(GroupNode* group) {
@@ -39,7 +39,7 @@ namespace TrenchBroom {
 
         // FindOutermostClosedGroupVisitor
 
-        void FindOutermostClosedGroupVisitor::doVisit(World*) {}
+        void FindOutermostClosedGroupVisitor::doVisit(WorldNode*) {}
         void FindOutermostClosedGroupVisitor::doVisit(LayerNode*) {}
 
         void FindOutermostClosedGroupVisitor::doVisit(GroupNode* group) {

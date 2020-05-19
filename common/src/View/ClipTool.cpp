@@ -30,7 +30,7 @@
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderService.h"

@@ -27,7 +27,7 @@ namespace TrenchBroom {
         class Entity;
         class GroupNode;
         class LayerNode;
-        class World;
+        class WorldNode;
 
         class MatchSelectableNodes {
         private:
@@ -35,7 +35,7 @@ namespace TrenchBroom {
         public:
             explicit MatchSelectableNodes(const Model::EditorContext& editorContext);
 
-            bool operator()(const Model::World* world) const;
+            bool operator()(const Model::WorldNode* world) const;
             bool operator()(const Model::LayerNode* layer) const;
             bool operator()(const Model::GroupNode* group) const;
             bool operator()(const Model::Entity* entity) const;

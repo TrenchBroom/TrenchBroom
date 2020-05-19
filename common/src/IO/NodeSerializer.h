@@ -34,7 +34,7 @@ namespace TrenchBroom {
         class GroupNode;
         class LayerNode;
         class Node;
-        class World;
+        class WorldNode;
     }
 
     namespace IO {
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             void beginFile();
             void endFile();
         public:
-            void defaultLayer(Model::World& world);
+            void defaultLayer(Model::WorldNode& world);
             void customLayer(Model::LayerNode* layer);
             void group(Model::GroupNode* group, const std::vector<Model::EntityAttribute>& parentAttributes);
 

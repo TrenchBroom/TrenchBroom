@@ -61,7 +61,7 @@ namespace TrenchBroom {
         class SmartTag;
         class TagManager;
         class TexCoordSystemSnapshot;
-        class World;
+        class WorldNode;
         enum class WrapStyle;
     }
 
@@ -84,7 +84,7 @@ namespace TrenchBroom {
         protected:
             vm::bbox3 m_worldBounds;
             std::shared_ptr<Model::Game> m_game;
-            std::unique_ptr<Model::World> m_world;
+            std::unique_ptr<Model::WorldNode> m_world;
 
             std::unique_ptr<Model::PointFile> m_pointFile;
             std::unique_ptr<Model::PortalFile> m_portalFile;
@@ -178,7 +178,7 @@ namespace TrenchBroom {
 
             std::shared_ptr<Model::Game> game() const override;
             const vm::bbox3& worldBounds() const;
-            Model::World* world() const;
+            Model::WorldNode* world() const;
 
             bool isGamePathPreference(const IO::Path& path) const;
 

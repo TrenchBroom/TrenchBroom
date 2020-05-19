@@ -24,7 +24,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceReference.h"
 #include "Model/Entity.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <kdl/string_format.h>

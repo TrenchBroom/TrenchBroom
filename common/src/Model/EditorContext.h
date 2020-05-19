@@ -39,7 +39,7 @@ namespace TrenchBroom {
         class LayerNode;
         class Node;
         class Object;
-        class World;
+        class WorldNode;
 
         class EditorContext {
         public:
@@ -90,7 +90,7 @@ namespace TrenchBroom {
             void popGroup();
         public:
             bool visible(const Model::Node* node) const;
-            bool visible(const Model::World* world) const;
+            bool visible(const Model::WorldNode* world) const;
             bool visible(const Model::LayerNode* layer) const;
             bool visible(const Model::GroupNode* group) const;
             bool visible(const Model::Entity* entity) const;
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             class NodePickable;
         public:
             bool pickable(const Model::Node* node) const;
-            bool pickable(const Model::World* world) const;
+            bool pickable(const Model::WorldNode* world) const;
             bool pickable(const Model::LayerNode* layer) const;
             bool pickable(const Model::GroupNode* group) const;
             bool pickable(const Model::Entity* entity) const;
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             bool pickable(const Model::BrushFace* face) const;
 
             bool selectable(const Model::Node* node) const;
-            bool selectable(const Model::World* world) const;
+            bool selectable(const Model::WorldNode* world) const;
             bool selectable(const Model::LayerNode* layer) const;
             bool selectable(const Model::GroupNode* group) const;
             bool selectable(const Model::Entity* entity) const;

@@ -27,13 +27,13 @@ namespace TrenchBroom {
         class Entity;
         class GroupNode;
         class LayerNode;
-        class World;
+        class WorldNode;
 
         class TagVisitor {
         public:
             virtual ~TagVisitor();
 
-            virtual void visit(World& world);
+            virtual void visit(WorldNode& world);
             virtual void visit(LayerNode& layer);
             virtual void visit(GroupNode& group);
             virtual void visit(Entity& entity);
@@ -45,7 +45,7 @@ namespace TrenchBroom {
         public:
             virtual ~ConstTagVisitor();
 
-            virtual void visit(const World& world);
+            virtual void visit(const WorldNode& world);
             virtual void visit(const LayerNode& layer);
             virtual void visit(const GroupNode& group);
             virtual void visit(const Entity& entity);

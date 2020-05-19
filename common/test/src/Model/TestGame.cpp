@@ -31,7 +31,7 @@
 #include "IO/TextureLoader.h"
 #include "Model/BrushFace.h"
 #include "Model/GameConfig.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <kdl/string_utils.h>
 
@@ -72,15 +72,15 @@ namespace TrenchBroom {
             return m_smartTags;
         }
 
-        std::unique_ptr<World> TestGame::doNewMap(const MapFormat format, const vm::bbox3& /* worldBounds */, Logger& /* logger */) const {
-            return std::make_unique<World>(format);
+        std::unique_ptr<WorldNode> TestGame::doNewMap(const MapFormat format, const vm::bbox3& /* worldBounds */, Logger& /* logger */) const {
+            return std::make_unique<WorldNode>(format);
         }
 
-        std::unique_ptr<World> TestGame::doLoadMap(const MapFormat format, const vm::bbox3& /* worldBounds */, const IO::Path& /* path */, Logger& /* logger */) const {
-            return std::make_unique<World>(format);
+        std::unique_ptr<WorldNode> TestGame::doLoadMap(const MapFormat format, const vm::bbox3& /* worldBounds */, const IO::Path& /* path */, Logger& /* logger */) const {
+            return std::make_unique<WorldNode>(format);
         }
 
-        void TestGame::doWriteMap(World& world, const IO::Path& path) const {
+        void TestGame::doWriteMap(WorldNode& world, const IO::Path& path) const {
             const auto mapFormatName = formatName(world.format());
 
             IO::OpenFile open(path, true);
@@ -90,26 +90,26 @@ namespace TrenchBroom {
             writer.writeMap();
         }
 
-        void TestGame::doExportMap(World& /* world */, const Model::ExportFormat /* format */, const IO::Path& /* path */) const {}
+        void TestGame::doExportMap(WorldNode& /* world */, const Model::ExportFormat /* format */, const IO::Path& /* path */) const {}
 
-        std::vector<Node*> TestGame::doParseNodes(const std::string& str, World& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {
+        std::vector<Node*> TestGame::doParseNodes(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {
             IO::TestParserStatus status;
             IO::NodeReader reader(str, world);
             return reader.read(worldBounds, status);
         }
 
-        std::vector<BrushFace*> TestGame::doParseBrushFaces(const std::string& str, World& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {
+        std::vector<BrushFace*> TestGame::doParseBrushFaces(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {
             IO::TestParserStatus status;
             IO::BrushFaceReader reader(str, world);
             return reader.read(worldBounds, status);
         }
 
-        void TestGame::doWriteNodesToStream(World& world, const std::vector<Node*>& nodes, std::ostream& stream) const {
+        void TestGame::doWriteNodesToStream(WorldNode& world, const std::vector<Node*>& nodes, std::ostream& stream) const {
             IO::NodeWriter writer(world, stream);
             writer.writeNodes(nodes);
         }
 
-        void TestGame::doWriteBrushFacesToStream(World& world, const std::vector<BrushFace*>& faces, std::ostream& stream) const {
+        void TestGame::doWriteBrushFacesToStream(WorldNode& world, const std::vector<BrushFace*>& faces, std::ostream& stream) const {
             IO::NodeWriter writer(world, stream);
             writer.writeBrushFaces(faces);
         }

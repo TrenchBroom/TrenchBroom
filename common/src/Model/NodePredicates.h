@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class LayerNode;
         class Node;
         class Object;
-        class World;
+        class WorldNode;
 
         namespace NodePredicates {
             struct True {
@@ -50,8 +50,8 @@ namespace TrenchBroom {
                 explicit Id(const P& p) :
                 m_p(p) {}
 
-                bool operator()(const World* world) const   { return m_p(world);  }
-                bool operator()(World* world) const         { return m_p(world);  }
+                bool operator()(const WorldNode* world) const   { return m_p(world);  }
+                bool operator()(WorldNode* world) const         { return m_p(world);  }
                 bool operator()(const LayerNode* layer) const   { return m_p(layer);  }
                 bool operator()(LayerNode* layer) const         { return m_p(layer);  }
                 bool operator()(const GroupNode* group) const   { return m_p(group);  }
@@ -70,8 +70,8 @@ namespace TrenchBroom {
                 explicit Not(const P& p) :
                 m_p(p) {}
 
-                bool operator()(const World* world) const   { return !m_p(world);  }
-                bool operator()(World* world) const         { return !m_p(world);  }
+                bool operator()(const WorldNode* world) const   { return !m_p(world);  }
+                bool operator()(WorldNode* world) const         { return !m_p(world);  }
                 bool operator()(const LayerNode* layer) const   { return !m_p(layer);  }
                 bool operator()(LayerNode* layer) const         { return !m_p(layer);  }
                 bool operator()(const GroupNode* group) const   { return !m_p(group);  }
@@ -92,8 +92,8 @@ namespace TrenchBroom {
                 m_p1(p1),
                 m_p2(p2) {}
 
-                bool operator()(const World* world) const   { return m_p1(world)  && m_p2(world);  }
-                bool operator()(World* world) const         { return m_p1(world)  && m_p2(world);  }
+                bool operator()(const WorldNode* world) const   { return m_p1(world)  && m_p2(world);  }
+                bool operator()(WorldNode* world) const         { return m_p1(world)  && m_p2(world);  }
                 bool operator()(const LayerNode* layer) const   { return m_p1(layer)  && m_p2(layer);  }
                 bool operator()(LayerNode* layer) const         { return m_p1(layer)  && m_p2(layer);  }
                 bool operator()(const GroupNode* group) const   { return m_p1(group)  && m_p2(group);  }
@@ -114,8 +114,8 @@ namespace TrenchBroom {
                 m_p1(p1),
                 m_p2(p2) {}
 
-                bool operator()(const World* world) const   { return m_p1(world)  || m_p2(world);  }
-                bool operator()(World* world) const         { return m_p1(world)  || m_p2(world);  }
+                bool operator()(const WorldNode* world) const   { return m_p1(world)  || m_p2(world);  }
+                bool operator()(WorldNode* world) const         { return m_p1(world)  || m_p2(world);  }
                 bool operator()(const LayerNode* layer) const   { return m_p1(layer)  || m_p2(layer);  }
                 bool operator()(LayerNode* layer) const         { return m_p1(layer)  || m_p2(layer);  }
                 bool operator()(const GroupNode* group) const   { return m_p1(group)  || m_p2(group);  }
@@ -133,8 +133,8 @@ namespace TrenchBroom {
                 explicit EqualsNode(const Node* node) :
                 m_node(node) {}
 
-                bool operator()(const World* world) const;
-                bool operator()(World* world) const;
+                bool operator()(const WorldNode* world) const;
+                bool operator()(WorldNode* world) const;
                 bool operator()(const LayerNode* layer) const;
                 bool operator()(LayerNode* layer) const;
                 bool operator()(const GroupNode* group) const;
@@ -152,8 +152,8 @@ namespace TrenchBroom {
                 explicit EqualsObject(const Object* object) :
                 m_object(object) {}
 
-                bool operator()(const World* world) const;
-                bool operator()(World* world) const;
+                bool operator()(const WorldNode* world) const;
+                bool operator()(WorldNode* world) const;
                 bool operator()(const LayerNode* layer) const;
                 bool operator()(LayerNode* layer) const;
                 bool operator()(const GroupNode* group) const;

@@ -66,7 +66,7 @@ namespace TrenchBroom {
 
         class CanAddChildToLayer : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            void doVisit(const World*)  override { setResult(false); }
+            void doVisit(const WorldNode*)  override { setResult(false); }
             void doVisit(const LayerNode*)  override { setResult(false); }
             void doVisit(const GroupNode*)  override { setResult(true); }
             void doVisit(const Entity*) override { setResult(true); }

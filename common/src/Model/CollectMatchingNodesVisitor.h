@@ -25,7 +25,7 @@
 #include "Model/Entity.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <kdl/vector_set.h>
 
@@ -77,7 +77,7 @@ namespace TrenchBroom {
                     m_delegate.addNode(actual);
             }
         private:
-            virtual Node* getNode(World* world) const   { return world;  }
+            virtual Node* getNode(WorldNode* world) const   { return world;  }
             virtual Node* getNode(LayerNode* layer) const   { return layer;  }
             virtual Node* getNode(GroupNode* group) const   { return group;  }
             virtual Node* getNode(Entity* entity) const { return entity; }
@@ -93,7 +93,7 @@ namespace TrenchBroom {
         public:
             CollectMatchingNodesVisitor(const P& p = P(), const S& s = S()) : MatchingNodeVisitor<P,S>(p, s) {}
         private:
-            void doVisit(World* world)   override { C::addNode(world);  }
+            void doVisit(WorldNode* world)   override { C::addNode(world);  }
             void doVisit(LayerNode* layer)   override { C::addNode(layer);  }
             void doVisit(GroupNode* group)   override { C::addNode(group);  }
             void doVisit(Entity* entity) override { C::addNode(entity); }

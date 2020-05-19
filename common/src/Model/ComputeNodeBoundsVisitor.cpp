@@ -40,7 +40,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ComputeNodeBoundsVisitor::doVisit(const World*) {}
+        void ComputeNodeBoundsVisitor::doVisit(const WorldNode*) {}
         void ComputeNodeBoundsVisitor::doVisit(const LayerNode*) {}
 
         void ComputeNodeBoundsVisitor::doVisit(const GroupNode* group) {

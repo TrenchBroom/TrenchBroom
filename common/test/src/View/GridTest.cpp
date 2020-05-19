@@ -28,7 +28,7 @@
 #include "Model/BrushFace.h"
 #include "Assets/Texture.h"
 #include "Model/MapFormat.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <vecmath/polygon.h>
 #include <vecmath/segment.h>
@@ -192,7 +192,7 @@ namespace TrenchBroom {
 
         static Model::BrushNode* makeCube128() {
             Assets::Texture texture("testTexture", 64, 64);
-            Model::World world(Model::MapFormat::Standard);
+            Model::WorldNode world(Model::MapFormat::Standard);
             Model::BrushBuilder builder(&world, worldBounds);
             Model::BrushNode* cube = builder.createCube(128.0, "");
             return cube;

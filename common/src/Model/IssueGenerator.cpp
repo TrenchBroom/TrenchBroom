@@ -22,7 +22,7 @@
 #include "Ensure.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/Entity.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <kdl/vector_utils.h>
 
@@ -47,7 +47,7 @@ namespace TrenchBroom {
             return m_quickFixes;
         }
 
-        void IssueGenerator::generate(World* world, IssueList& issues) const {
+        void IssueGenerator::generate(WorldNode* world, IssueList& issues) const {
             doGenerate(world, issues);
         }
 
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             m_quickFixes.push_back(quickFix);
         }
 
-        void IssueGenerator::doGenerate(World* world,      IssueList& issues) const { doGenerate(static_cast<AttributableNode*>(world), issues); }
+        void IssueGenerator::doGenerate(WorldNode* world,      IssueList& issues) const { doGenerate(static_cast<AttributableNode*>(world), issues); }
         void IssueGenerator::doGenerate(LayerNode*,            IssueList&) const        {}
         void IssueGenerator::doGenerate(GroupNode*,            IssueList&) const        {}
         void IssueGenerator::doGenerate(Entity* entity,    IssueList& issues) const { doGenerate(static_cast<AttributableNode*>(entity), issues); }

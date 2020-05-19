@@ -39,7 +39,7 @@
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
 #include "Model/TestGame.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/PasteType.h"

@@ -35,7 +35,7 @@
 #include "Model/NodeVisitor.h"
 #include "Model/Object.h"
 #include "Model/PickResult.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <kdl/vector_utils.h>
 
@@ -482,7 +482,7 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
             EditorContext context;
 
-            World map(Model::MapFormat::Standard);
+            WorldNode map(Model::MapFormat::Standard);
             map.addOrUpdateAttribute("classname", "worldspawn");
 
             BrushBuilder builder(&map, worldBounds);

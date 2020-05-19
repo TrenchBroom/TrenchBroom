@@ -30,7 +30,7 @@
 #include "Model/NodeVisitor.h"
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron3.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderService.h"
 #include "View/AddBrushVerticesCommand.h"
@@ -517,7 +517,7 @@ namespace TrenchBroom {
                 explicit AddHandles(VertexHandleManagerBaseT<HT>& handles) :
                 m_handles(handles) {}
             private:
-                void doVisit(Model::World*) override  {}
+                void doVisit(Model::WorldNode*) override  {}
                 void doVisit(Model::LayerNode*) override  {}
                 void doVisit(Model::GroupNode*) override  {}
                 void doVisit(Model::Entity*) override {}
@@ -534,7 +534,7 @@ namespace TrenchBroom {
                 explicit RemoveHandles(VertexHandleManagerBaseT<HT>& handles) :
                 m_handles(handles) {}
             private:
-                void doVisit(Model::World*) override  {}
+                void doVisit(Model::WorldNode*) override  {}
                 void doVisit(Model::LayerNode*) override  {}
                 void doVisit(Model::GroupNode*) override  {}
                 void doVisit(Model::Entity*) override {}

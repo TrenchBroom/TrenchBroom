@@ -33,7 +33,7 @@ namespace TrenchBroom {
         public:
             explicit BoundsIntersectsNodeVisitor(const vm::bbox3& bounds);
         private:
-            void doVisit(const World* world) override;
+            void doVisit(const WorldNode* world) override;
             void doVisit(const LayerNode* layer) override;
             void doVisit(const GroupNode* group) override;
             void doVisit(const Entity* entity) override;

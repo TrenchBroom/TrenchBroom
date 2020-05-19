@@ -39,7 +39,7 @@
 #include "Model/ModelUtils.h"
 #include "Model/Snapshot.h"
 #include "Model/TransformObjectVisitor.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "Model/NodeVisitor.h"
 #include "View/CommandProcessor.h"
 #include "View/UndoableCommand.h"
@@ -401,7 +401,7 @@ namespace TrenchBroom {
             explicit RenameGroupsVisitor(const std::string& newName) : m_newName(newName) {}
             const std::map<Model::GroupNode*, std::string>& oldNames() const { return m_oldNames; }
         private:
-            void doVisit(Model::World*) override  {}
+            void doVisit(Model::WorldNode*) override  {}
             void doVisit(Model::LayerNode*) override  {}
             void doVisit(Model::GroupNode* group) override {
                 m_oldNames[group] = group->name();
@@ -417,7 +417,7 @@ namespace TrenchBroom {
         public:
             explicit UndoRenameGroupsVisitor(const std::map<Model::GroupNode*, std::string>& newNames) : m_newNames(newNames) {}
         private:
-            void doVisit(Model::World*) override  {}
+            void doVisit(Model::WorldNode*) override  {}
             void doVisit(Model::LayerNode*) override  {}
             void doVisit(Model::GroupNode* group) override {
                 assert(m_newNames.count(group) == 1);
@@ -471,7 +471,7 @@ namespace TrenchBroom {
                 m_transform(transform),
                 m_worldBounds(worldBounds) {}
         private:
-            void doVisit(const Model::World*) override  { setResult(true); }
+            void doVisit(const Model::WorldNode*) override  { setResult(true); }
             void doVisit(const Model::LayerNode*) override  { setResult(true); }
             void doVisit(const Model::GroupNode*) override  { setResult(true); }
             void doVisit(const Model::Entity*) override { setResult(true); }

@@ -23,7 +23,7 @@
 #include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Polyhedron.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "Model/Game.h"
 #include "View/MapDocument.h"
 

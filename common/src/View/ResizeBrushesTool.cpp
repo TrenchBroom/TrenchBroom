@@ -105,7 +105,7 @@ namespace TrenchBroom {
             m_pickRay(pickRay),
             m_closest(std::numeric_limits<FloatType>::max()) {}
         private:
-            void doVisit(const Model::World*) override  {}
+            void doVisit(const Model::WorldNode*) override  {}
             void doVisit(const Model::LayerNode*) override  {}
             void doVisit(const Model::GroupNode*) override  {}
             void doVisit(const Model::Entity*) override {}

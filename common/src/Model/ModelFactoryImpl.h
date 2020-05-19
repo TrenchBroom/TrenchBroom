@@ -39,7 +39,7 @@ namespace TrenchBroom {
             ModelFactoryImpl(MapFormat format);
         private: // implement ModelFactory interface
             MapFormat doGetFormat() const override;
-            World* doCreateWorld() const override;
+            WorldNode* doCreateWorld() const override;
             LayerNode* doCreateLayer(const std::string& name) const override;
             GroupNode* doCreateGroup(const std::string& name) const override;
             Entity* doCreateEntity() const override;

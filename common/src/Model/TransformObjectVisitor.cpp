@@ -30,7 +30,7 @@ namespace TrenchBroom {
         m_lockTextures(lockTextures),
         m_worldBounds(worldBounds) {}
 
-        void TransformObjectVisitor::doVisit(World*)         {}
+        void TransformObjectVisitor::doVisit(WorldNode*)         {}
         void TransformObjectVisitor::doVisit(LayerNode*)         {}
         void TransformObjectVisitor::doVisit(GroupNode* group)   {  group->transform(m_transformation, m_lockTextures, m_worldBounds); }
         void TransformObjectVisitor::doVisit(Entity* entity) { entity->transform(m_transformation, m_lockTextures, m_worldBounds); }

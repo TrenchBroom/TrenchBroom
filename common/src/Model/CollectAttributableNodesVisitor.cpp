@@ -23,7 +23,7 @@
 #include "Model/AttributableNode.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -31,7 +31,7 @@ namespace TrenchBroom {
             return m_nodes;
         }
 
-        void CollectAttributableNodesVisitor::doVisit(World* world) {
+        void CollectAttributableNodesVisitor::doVisit(WorldNode* world) {
             addNode(world);
         }
 

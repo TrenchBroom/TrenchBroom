@@ -34,7 +34,7 @@ namespace TrenchBroom {
         class Entity;
         class LayerNode;
         class Node;
-        class World;
+        class WorldNode;
     }
 
     namespace IO {
@@ -44,12 +44,12 @@ namespace TrenchBroom {
             class CollectEntityBrushesStrategy;
             class WriteNode;
 
-            Model::World& m_world;
+            Model::WorldNode& m_world;
             std::unique_ptr<NodeSerializer> m_serializer;
         public:
-            NodeWriter(Model::World& world, FILE* stream);
-            NodeWriter(Model::World& world, std::ostream& stream);
-            NodeWriter(Model::World& world, NodeSerializer* serializer);
+            NodeWriter(Model::WorldNode& world, FILE* stream);
+            NodeWriter(Model::WorldNode& world, std::ostream& stream);
+            NodeWriter(Model::WorldNode& world, NodeSerializer* serializer);
 
             void writeMap();
         private:

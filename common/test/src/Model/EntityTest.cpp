@@ -28,7 +28,7 @@
 #include "Model/EntityAttributes.h"
 #include "Model/MapFormat.h"
 #include "Model/LayerNode.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/mat_ext.h>
@@ -43,13 +43,13 @@ namespace TrenchBroom {
         protected:
             vm::bbox3d m_worldBounds;
             Entity* m_entity;
-            World* m_world;
+            WorldNode* m_world;
 
             EntityTest() {
                 m_worldBounds = vm::bbox3d(8192.0);
                 m_entity = new Entity();
                 m_entity->addOrUpdateAttribute(AttributeNames::Classname, TestClassname);
-                m_world = new World(MapFormat::Standard);
+                m_world = new WorldNode(MapFormat::Standard);
             }
 
             virtual ~EntityTest() {
