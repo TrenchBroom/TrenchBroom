@@ -131,11 +131,11 @@ namespace TrenchBroom {
 
         static void resetFaceTextureAlignment(BrushFace *face) {
             face->resetTextureAxes();
-            face->setXOffset(0.0);
-            face->setYOffset(0.0);
-            face->setRotation(0.0);
-            face->setXScale(1.0);
-            face->setYScale(1.0);
+            face->attributes().setXOffset(0.0);
+            face->attributes().setYOffset(0.0);
+            face->attributes().setRotation(0.0);
+            face->attributes().setXScale(1.0);
+            face->attributes().setYScale(1.0);
         }
 
         /**
@@ -473,12 +473,12 @@ namespace TrenchBroom {
 
             BrushFace* topFace = cubeNode->brush().findFace(vm::vec3(0.0, 0.0, 1.0));
             ASSERT_NE(nullptr, topFace);
-            ASSERT_EQ(0.0, topFace->rotation());
+            ASSERT_EQ(0.0, topFace->attributes().rotation());
             BrushFaceSnapshot* snapshot = cubeNode->takeSnapshot(topFace);
 
             // Rotate texture of topFace
             topFace->rotateTexture(5.0);
-            ASSERT_EQ(5.0, topFace->rotation());
+            ASSERT_EQ(5.0, topFace->attributes().rotation());
 
             // Hack to get the Brush to delete and recreate its BrushFaces
             {
@@ -495,7 +495,7 @@ namespace TrenchBroom {
 
             // Ensure that the snapshot can be restored, despite the Brush having a new BrushFace object
             snapshot->restore();
-            ASSERT_EQ(0.0, topFace->rotation());
+            ASSERT_EQ(0.0, topFace->attributes().rotation());
 
             delete snapshot;
             delete cubeNode;

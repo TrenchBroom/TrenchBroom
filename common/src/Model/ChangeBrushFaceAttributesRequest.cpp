@@ -241,22 +241,22 @@ namespace TrenchBroom {
             for (BrushFace* face : faces) {
                 switch (m_textureOp) {
                     case TextureOp_Set:
-                        result |= face->setTextureName(m_textureName);
+                        result |= face->attributes().setTextureName(m_textureName);
                         break;
                     case TextureOp_None:
                         break;
                     switchDefault();
                 }
 
-                result |= face->setXOffset(evaluateValueOp(face->xOffset(), m_xOffset, m_xOffsetOp));
-                result |= face->setYOffset(evaluateValueOp(face->yOffset(), m_yOffset, m_yOffsetOp));
-                result |= face->setRotation(evaluateValueOp(face->rotation(), m_rotation, m_rotationOp));
-                result |= face->setXScale(evaluateValueOp(face->xScale(), m_xScale, m_xScaleOp));
-                result |= face->setYScale(evaluateValueOp(face->yScale(), m_yScale, m_yScaleOp));
-                result |= face->setSurfaceFlags(evaluateFlagOp(face->surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
-                result |= face->setSurfaceContents(evaluateFlagOp(face->surfaceContents(), m_contentFlags, m_contentFlagsOp));
-                result |= face->setSurfaceValue(evaluateValueOp(face->surfaceValue(), m_surfaceValue, m_surfaceValueOp));
-                result |= face->setColor(evaluateValueOp(face->color(), m_colorValue, m_colorValueOp));
+                result |= face->attributes().setXOffset(evaluateValueOp(face->attributes().xOffset(), m_xOffset, m_xOffsetOp));
+                result |= face->attributes().setYOffset(evaluateValueOp(face->attributes().yOffset(), m_yOffset, m_yOffsetOp));
+                result |= face->attributes().setRotation(evaluateValueOp(face->attributes().rotation(), m_rotation, m_rotationOp));
+                result |= face->attributes().setXScale(evaluateValueOp(face->attributes().xScale(), m_xScale, m_xScaleOp));
+                result |= face->attributes().setYScale(evaluateValueOp(face->attributes().yScale(), m_yScale, m_yScaleOp));
+                result |= face->attributes().setSurfaceFlags(evaluateFlagOp(face->attributes().surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
+                result |= face->attributes().setSurfaceContents(evaluateFlagOp(face->attributes().surfaceContents(), m_contentFlags, m_contentFlagsOp));
+                result |= face->attributes().setSurfaceValue(evaluateValueOp(face->attributes().surfaceValue(), m_surfaceValue, m_surfaceValueOp));
+                result |= face->attributes().setColor(evaluateValueOp(face->attributes().color(), m_colorValue, m_colorValueOp));
 
                 switch (m_axisOp) {
                     case AxisOp_Reset:

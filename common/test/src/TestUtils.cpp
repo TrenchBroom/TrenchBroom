@@ -152,7 +152,7 @@ namespace TrenchBroom {
             BrushFace* face = brush.findFace(faceNormal);
             assert(face != nullptr);
 
-            ASSERT_EQ(expected, face->textureName());
+            ASSERT_EQ(expected, face->attributes().textureName());
         }
 
         void assertTexture(const std::string& expected, const Brush& brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3) {
@@ -171,7 +171,7 @@ namespace TrenchBroom {
             BrushFace* face = brush.findFace(vertices, 0.0001);
             assert(face != nullptr);
 
-            ASSERT_EQ(expected, face->textureName());
+            ASSERT_EQ(expected, face->attributes().textureName());
         }
     }
 

@@ -250,7 +250,7 @@ namespace TrenchBroom {
 
         BrushFace* Brush::findFace(const std::string& textureName) const {
             for (BrushFace* face : m_faces) {
-                if (face->textureName() == textureName) {
+                if (face->attributes().textureName() == textureName) {
                     return face;
                 }
             }

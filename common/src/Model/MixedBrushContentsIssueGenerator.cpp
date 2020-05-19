@@ -59,10 +59,10 @@ namespace TrenchBroom {
             auto end = std::end(faces);
             assert(it != end);
 
-            const int contentFlags = (*it)->surfaceContents();
+            const int contentFlags = (*it)->attributes().surfaceContents();
             ++it;
             while (it != end) {
-                if ((*it)->surfaceContents() != contentFlags) {
+                if ((*it)->attributes().surfaceContents() != contentFlags) {
                     issues.push_back(new MixedBrushContentsIssue(brushNode));
                 }
                 ++it;

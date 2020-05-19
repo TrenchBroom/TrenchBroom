@@ -161,7 +161,7 @@ namespace TrenchBroom {
                 indexedVertices.push_back(IndexedVertex(vertexIndex, texCoordsIndex, normalIndex));
             }
 
-            m_currentObject.faces.push_back(Face(indexedVertices, face->textureName()));
+            m_currentObject.faces.push_back(Face(indexedVertices, face->attributes().textureName()));
         }
     }
 }

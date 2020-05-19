@@ -133,7 +133,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            m_initalAngle = measureAngle(hitPointInFaceCoords) - face->rotation();
+            m_initalAngle = measureAngle(hitPointInFaceCoords) - face->attributes().rotation();
 
             auto document = kdl::mem_lock(m_document);
             document->startTransaction("Rotate Texture");
@@ -172,8 +172,8 @@ namespace TrenchBroom {
             const auto toFaceNew = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             const auto newCenterInFaceCoords = vm::vec2f(toFaceNew * oldCenterInWorldCoords);
 
-            const auto delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / face->scale();
-            const auto newOffset = correct(face->offset() + delta, 4, 0.0f);
+            const auto delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / face->attributes().scale();
+            const auto newOffset = correct(face->attributes().offset() + delta, 4, 0.0f);
 
             request.clear();
             request.setOffset(newOffset);

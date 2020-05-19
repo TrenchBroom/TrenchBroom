@@ -482,35 +482,35 @@ namespace TrenchBroom {
                 bool surfaceValueMulti = false;
                 bool colorValueMulti = false;
 
-                const std::string& textureName = m_faces[0]->textureName();
-                const float xOffset = m_faces[0]->xOffset();
-                const float yOffset = m_faces[0]->yOffset();
-                const float rotation = m_faces[0]->rotation();
-                const float xScale = m_faces[0]->xScale();
-                const float yScale = m_faces[0]->yScale();
-                int setSurfaceFlags = m_faces[0]->surfaceFlags();
-                int setSurfaceContents = m_faces[0]->surfaceContents();
+                const std::string& textureName = m_faces[0]->attributes().textureName();
+                const float xOffset = m_faces[0]->attributes().xOffset();
+                const float yOffset = m_faces[0]->attributes().yOffset();
+                const float rotation = m_faces[0]->attributes().rotation();
+                const float xScale = m_faces[0]->attributes().xScale();
+                const float yScale = m_faces[0]->attributes().yScale();
+                int setSurfaceFlags = m_faces[0]->attributes().surfaceFlags();
+                int setSurfaceContents = m_faces[0]->attributes().surfaceContents();
                 int mixedSurfaceFlags = 0;
                 int mixedSurfaceContents = 0;
-                const float surfaceValue = m_faces[0]->surfaceValue();
-                bool hasColorValue = m_faces[0]->hasColor();
-                const Color colorValue = m_faces[0]->color();
+                const float surfaceValue = m_faces[0]->attributes().surfaceValue();
+                bool hasColorValue = m_faces[0]->attributes().hasColor();
+                const Color colorValue = m_faces[0]->attributes().color();
 
 
                 for (size_t i = 1; i < m_faces.size(); i++) {
                     Model::BrushFace* face = m_faces[i];
-                    textureMulti            |= (textureName     != face->textureName());
-                    xOffsetMulti            |= (xOffset         != face->xOffset());
-                    yOffsetMulti            |= (yOffset         != face->yOffset());
-                    rotationMulti           |= (rotation        != face->rotation());
-                    xScaleMulti             |= (xScale          != face->xScale());
-                    yScaleMulti             |= (yScale          != face->yScale());
-                    surfaceValueMulti       |= (surfaceValue    != face->surfaceValue());
-                    colorValueMulti         |= (colorValue      != face->color());
-                    hasColorValue           |= face->hasColor();
+                    textureMulti            |= (textureName     != face->attributes().textureName());
+                    xOffsetMulti            |= (xOffset         != face->attributes().xOffset());
+                    yOffsetMulti            |= (yOffset         != face->attributes().yOffset());
+                    rotationMulti           |= (rotation        != face->attributes().rotation());
+                    xScaleMulti             |= (xScale          != face->attributes().xScale());
+                    yScaleMulti             |= (yScale          != face->attributes().yScale());
+                    surfaceValueMulti       |= (surfaceValue    != face->attributes().surfaceValue());
+                    colorValueMulti         |= (colorValue      != face->attributes().color());
+                    hasColorValue           |= face->attributes().hasColor();
 
-                    combineFlags(sizeof(int)*8, face->surfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
-                    combineFlags(sizeof(int)*8, face->surfaceContents(), setSurfaceContents, mixedSurfaceContents);
+                    combineFlags(sizeof(int)*8, face->attributes().surfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
+                    combineFlags(sizeof(int)*8, face->attributes().surfaceContents(), setSurfaceContents, mixedSurfaceContents);
                 }
 
                 m_xOffsetEditor->setEnabled(true);

@@ -131,7 +131,7 @@ namespace TrenchBroom {
             const auto curHandleDistTexCoords  = curHandlePosTexCoords  - originHandlePosTexCoords;
 
             auto* face = m_helper.face();
-            auto newScale = face->scale();
+            auto newScale = face->attributes().scale();
             for (size_t i = 0; i < 2; ++i) {
                 if (m_selector[i]) {
                     const auto value = newHandleDistFaceCoords[i] / curHandleDistTexCoords[i];
@@ -175,7 +175,7 @@ namespace TrenchBroom {
 
         vm::vec2f UVScaleTool::getHandlePos() const {
             const auto* face = m_helper.face();
-            const auto toWorld = face->fromTexCoordSystemMatrix(face->offset(), face->scale(), true);
+            const auto toWorld = face->fromTexCoordSystemMatrix(face->attributes().offset(), face->attributes().scale(), true);
             const auto toTex   = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
             return vm::vec2f(toTex * toWorld * vm::vec3(getScaledTranslatedHandlePos()));

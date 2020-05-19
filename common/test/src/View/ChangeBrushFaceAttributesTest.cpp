@@ -57,18 +57,18 @@ namespace TrenchBroom {
             for (size_t i = 0; i < 5; ++i)
                 document->setFaceAttributes(rotate);
 
-            ASSERT_FLOAT_EQ(10.0, face->rotation());
+            ASSERT_FLOAT_EQ(10.0, face->attributes().rotation());
 
             Model::ChangeBrushFaceAttributesRequest reset;
             reset.resetAll();
 
             document->setFaceAttributes(reset);
 
-            ASSERT_FLOAT_EQ(0.0f, face->xOffset());
-            ASSERT_FLOAT_EQ(0.0f, face->yOffset());
-            ASSERT_FLOAT_EQ(0.0f, face->rotation());
-            ASSERT_FLOAT_EQ(1.0f, face->xScale());
-            ASSERT_FLOAT_EQ(1.0f, face->yScale());
+            ASSERT_FLOAT_EQ(0.0f, face->attributes().xOffset());
+            ASSERT_FLOAT_EQ(0.0f, face->attributes().yOffset());
+            ASSERT_FLOAT_EQ(0.0f, face->attributes().rotation());
+            ASSERT_FLOAT_EQ(1.0f, face->attributes().xScale());
+            ASSERT_FLOAT_EQ(1.0f, face->attributes().yScale());
 
             ASSERT_VEC_EQ(initialX, face->textureXAxis());
             ASSERT_VEC_EQ(initialY, face->textureYAxis());

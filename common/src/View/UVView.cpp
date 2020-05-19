@@ -247,8 +247,8 @@ namespace TrenchBroom {
 
             void doRender(Renderer::RenderContext& renderContext) override {
                 const auto* face = m_helper.face();
-                const auto& offset = face->offset();
-                const auto& scale = face->scale();
+                const auto& offset = face->attributes().offset();
+                const auto& scale = face->attributes().scale();
                 const auto toTex = face->toTexCoordSystemMatrix(offset, scale, true);
 
                 const auto* texture = face->texture();

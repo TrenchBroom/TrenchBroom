@@ -44,7 +44,7 @@ namespace TrenchBroom {
             ASSERT_EQ(6u, faces.size());
 
             for (size_t i = 0; i < faces.size(); ++i) {
-                ASSERT_EQ(std::string("someName"), faces[i]->textureName());
+                ASSERT_EQ(std::string("someName"), faces[i]->attributes().textureName());
             }
         }
 
@@ -70,14 +70,14 @@ namespace TrenchBroom {
             ASSERT_EQ(6u, faces.size());
 
             for (size_t i = 0; i < faces.size(); ++i) {
-                ASSERT_EQ(std::string("someName"), faces[i]->textureName());
-                ASSERT_EQ(vm::vec2f(0.5f, 0.5f), faces[i]->offset());
-                ASSERT_EQ(vm::vec2f(0.5f, 0.5f), faces[i]->scale());
-                ASSERT_EQ(45.0f, faces[i]->rotation());
-                ASSERT_EQ(1, faces[i]->surfaceContents());
-                ASSERT_EQ(2, faces[i]->surfaceFlags());
-                ASSERT_EQ(0.1f, faces[i]->surfaceValue());
-                ASSERT_EQ(Color(255, 255, 255, 255), faces[i]->color());
+                ASSERT_EQ(std::string("someName"), faces[i]->attributes().textureName());
+                ASSERT_EQ(vm::vec2f(0.5f, 0.5f), faces[i]->attributes().offset());
+                ASSERT_EQ(vm::vec2f(0.5f, 0.5f), faces[i]->attributes().scale());
+                ASSERT_EQ(45.0f, faces[i]->attributes().rotation());
+                ASSERT_EQ(1, faces[i]->attributes().surfaceContents());
+                ASSERT_EQ(2, faces[i]->attributes().surfaceFlags());
+                ASSERT_EQ(0.1f, faces[i]->attributes().surfaceValue());
+                ASSERT_EQ(Color(255, 255, 255, 255), faces[i]->attributes().color());
             }
         }
     }

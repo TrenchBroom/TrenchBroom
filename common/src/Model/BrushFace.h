@@ -125,47 +125,17 @@ namespace TrenchBroom {
             FloatType area(vm::axis::type axis) const;
 
             const BrushFaceAttributes& attributes() const;
+            BrushFaceAttributes& attributes();
             void setAttributes(const BrushFaceAttributes& attributes);
+            bool setAttributes(const BrushFace* other);
 
             void resetTexCoordSystemCache();
-
-            const std::string& textureName() const;
-            bool setTextureName(const std::string& textureName);
-
-            const vm::vec2f& offset() const;
-            float xOffset() const;
-            float yOffset() const;
-
-            const vm::vec2f& scale() const;
-            float xScale() const;
-            float yScale() const;
-
-            float rotation() const;
-
-            int surfaceContents() const;
-            int surfaceFlags() const;
-            float surfaceValue() const;
-            bool hasSurfaceAttributes() const;
-
-            bool hasColor() const;
-            const Color& color() const;
-            bool setColor(const Color& color);
 
             Assets::Texture* texture() const;
             vm::vec2f textureSize() const;
             vm::vec2f modOffset(const vm::vec2f& offset) const;
 
             bool setTexture(Assets::Texture* texture);
-
-            bool setXOffset(float xOffset);
-            bool setYOffset(float yOffset);
-            bool setXScale(float xScale);
-            bool setYScale(float yScale);
-            bool setRotation(float rotation);
-            bool setSurfaceContents(int surfaceContents);
-            bool setSurfaceFlags(int surfaceFlags);
-            bool setSurfaceValue(float surfaceValue);
-            bool setAttributes(const BrushFace* other);
 
             vm::vec3 textureXAxis() const;
             vm::vec3 textureYAxis() const;

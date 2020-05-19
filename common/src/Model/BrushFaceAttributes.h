@@ -60,7 +60,6 @@ namespace TrenchBroom {
             BrushFaceAttributes takeSnapshot() const;
 
             const std::string& textureName() const;
-            void setTextureName(const std::string& textureName);
 
             const vm::vec2f& offset() const;
             float xOffset() const;
@@ -73,25 +72,28 @@ namespace TrenchBroom {
 
             float rotation() const;
 
+            bool hasSurfaceAttributes() const;
             int surfaceContents() const;
             int surfaceFlags() const;
             float surfaceValue() const;
 
+            bool hasColor() const;
+            const Color& color() const;
+
             bool valid() const;
 
-            void setOffset(const vm::vec2f& offset);
-            void setXOffset(float xOffset);
-            void setYOffset(float yOffset);
-            void setScale(const vm::vec2f& scale);
-            void setXScale(float xScale);
-            void setYScale(float yScale);
-            void setRotation(float rotation);
-            void setSurfaceContents(int surfaceContents);
-            void setSurfaceFlags(int surfaceFlags);
-            void setSurfaceValue(float surfaceValue);
-
-            const Color& color() const;
-            void setColor(const Color& color);
+            bool setTextureName(const std::string& textureName);
+            bool setOffset(const vm::vec2f& offset);
+            bool setXOffset(float xOffset);
+            bool setYOffset(float yOffset);
+            bool setScale(const vm::vec2f& scale);
+            bool setXScale(float xScale);
+            bool setYScale(float yScale);
+            bool setRotation(float rotation);
+            bool setSurfaceContents(int surfaceContents);
+            bool setSurfaceFlags(int surfaceFlags);
+            bool setSurfaceValue(float surfaceValue);
+            bool setColor(const Color& color);
         };
     }
 }

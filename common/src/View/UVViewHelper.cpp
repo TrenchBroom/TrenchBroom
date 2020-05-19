@@ -106,7 +106,7 @@ namespace TrenchBroom {
         const vm::vec2f UVViewHelper::originInTexCoords() const {
             assert(valid());
 
-            const vm::mat4x4 toFace  = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
+            const vm::mat4x4 toFace  = m_face->toTexCoordSystemMatrix(m_face->attributes().offset(), m_face->attributes().scale(), true);
             return vm::vec2f(toFace * origin());
         }
 
@@ -131,7 +131,7 @@ namespace TrenchBroom {
                 const auto& boundary = m_face->boundary();
                 const FloatType distance = vm::intersect_ray_plane(ray, boundary);
                 const vm::vec3  hitPointInWorldCoords = vm::point_at_distance(ray, distance);
-                const vm::vec2f hitPointInTexCoords = vm::vec2f(m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * hitPointInWorldCoords);
+                const vm::vec2f hitPointInTexCoords = vm::vec2f(m_face->toTexCoordSystemMatrix(m_face->attributes().offset(), m_face->attributes().scale(), true) * hitPointInWorldCoords);
                 const vm::vec2f hitPointInViewCoords = texToViewCoords(hitPointInTexCoords);
 
                 // X and Y distance in texels to the closest grid intersection.
@@ -196,8 +196,8 @@ namespace TrenchBroom {
         void UVViewHelper::computeScaleHandleVertices(const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const {
             assert(valid());
 
-            const vm::mat4x4 toTex   = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
-            const vm::mat4x4 toWorld = m_face->fromTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
+            const vm::mat4x4 toTex   = m_face->toTexCoordSystemMatrix(m_face->attributes().offset(), m_face->attributes().scale(), true);
+            const vm::mat4x4 toWorld = m_face->fromTexCoordSystemMatrix(m_face->attributes().offset(), m_face->attributes().scale(), true);
             computeLineVertices(pos, x1, x2, y1, y2, toTex, toWorld);
         }
 
@@ -214,7 +214,7 @@ namespace TrenchBroom {
         }
 
         vm::vec2f UVViewHelper::texToViewCoords(const vm::vec2f& pos) const {
-            const vm::vec3  posInWorldCoords = m_face->fromTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * vm::vec3(pos, 0.0f);
+            const vm::vec3  posInWorldCoords = m_face->fromTexCoordSystemMatrix(m_face->attributes().offset(), m_face->attributes().scale(), true) * vm::vec3(pos, 0.0f);
             const vm::vec2f posInViewCoords = m_camera.project(vm::vec3f(posInWorldCoords)).xy();
             return posInViewCoords;
         }
