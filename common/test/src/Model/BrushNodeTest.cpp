@@ -923,8 +923,6 @@ namespace TrenchBroom {
             std::vector<vm::vec3> newVertexPositions = brush->moveVertices(worldBounds, std::vector<vm::vec3>(1, top), vm::vec3(0.0, 0.0, -32.0));
             ASSERT_EQ(1u, newVertexPositions.size());
             ASSERT_VEC_EQ(vm::vec3(0.0, 0.0, -16.0), newVertexPositions[0]);
-
-            brush->rebuildGeometry(worldBounds);
             ASSERT_TRUE(brush->fullySpecified());
 
             delete brush;

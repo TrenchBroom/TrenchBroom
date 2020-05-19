@@ -388,8 +388,6 @@ namespace TrenchBroom {
             bool rotateTextures(float angle) override;
             bool shearTextures(const vm::vec2f& factors) override;
         public: // modifying vertices, declared in MapFacade interface
-            void rebuildBrushGeometry(const std::vector<Model::BrushNode*>& brushes) override;
-
             bool snapVertices(FloatType snapTo) override;
             bool findPlanePoints() override;
 
@@ -401,8 +399,6 @@ namespace TrenchBroom {
             bool removeVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices);
             bool removeEdges(const std::map<vm::segment3, std::vector<Model::BrushNode*>>& edges);
             bool removeFaces(const std::map<vm::polygon3, std::vector<Model::BrushNode*>>& faces);
-        private: // subclassing interface for certain operations which are available from this class, but can only be implemented in a subclass
-            virtual void performRebuildBrushGeometry(const std::vector<Model::BrushNode*>& brushes) = 0;
         public: // debug commands
             void printVertices();
             bool throwExceptionDuringCommand();
