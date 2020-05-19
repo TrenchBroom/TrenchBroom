@@ -925,14 +925,15 @@ namespace TrenchBroom {
             borderFirst->origin()->setLeaving(twinLast->next());
             twinFirst->origin()->setLeaving(borderLast->next());
 
-            HalfEdge* remainingFirst = borderLast->next();
-            HalfEdge* remainingLast = borderFirst->previous();
+            HalfEdge* remainingFirst = twinLast->next();
+            HalfEdge* remainingLast = twinFirst->previous();
 
-            HalfEdgeList edgesToRemove = face->removeFromBoundary(borderFirst, borderLast);
-            HalfEdgeList remainingEdges = face->removeFromBoundary(remainingFirst, remainingLast);
+            HalfEdgeList edgesToRemove = neighbour->removeFromBoundary(twinFirst, twinLast);
+            HalfEdgeList remainingEdges = neighbour->removeFromBoundary(remainingFirst, remainingLast);
+            assert(neighbour->boundary().empty());
 
-            // the replaced twin edges are deleted
-            neighbour->replaceBoundary(twinFirst, twinLast, std::move(remainingEdges));
+            // the replaced edges are deleted
+            face->replaceBoundary(borderFirst, borderLast, std::move(remainingEdges));
 
             // now delete any remaining vertices and edges
             // edgesToRemove are deleted when the container falls out of scope
@@ -949,8 +950,8 @@ namespace TrenchBroom {
 
                 m_edges.remove(edge);
 
-                // don't delete the origin of the first border edge!
-                if (curEdge != borderFirst) {
+                // don't delete the origin of the first twin edge!
+                if (curEdge != twinFirst) {
                     callback.vertexWillBeDeleted(origin);
                     m_vertices.remove(origin);
                 }
@@ -958,8 +959,8 @@ namespace TrenchBroom {
                 curEdge = next;
             } while (curEdge != firstEdge);
 
-            callback.facesWillBeMerged(neighbour, face);
-            m_faces.remove(face);
+            callback.facesWillBeMerged(face, neighbour);
+            m_faces.remove(neighbour);
 
             return validEdge;
         }

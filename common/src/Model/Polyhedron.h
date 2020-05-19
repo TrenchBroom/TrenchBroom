@@ -1541,9 +1541,10 @@ namespace TrenchBroom {
              * of this polyhedron.
              *
              * @param borderFirst a half edge that belongs to the edge to which the faces to be merged are incident
-             * @param validEdge an edge that is used for iteration of all edges (see result)
+             * @param validEdge an edge that is used for iteration of all edges (see result), can be null
              * @param callback the callback to inform of lifecycle events
-             * @return the given valid edge, or its first successor that was not deleted by this function
+             * @return the given valid edge, or its first successor that was not deleted by this function, or null if
+             * validEdge was null
              */
             Edge* mergeNeighbours(HalfEdge* borderFirst, Edge* validEdge, Callback& callback);
 
@@ -2034,9 +2035,10 @@ namespace TrenchBroom {
              * @param firstBoundaryEdge a half edge that belongs to the face being split
              * @param plane the intersecting plane
              * @param callback the callback to inform of lifecycle events
-             * @return a half edge as specified in the description above
+             * @return a half edge as specified in the description above and a bool indicating if a face was split, i.e.
+             * whether case 3. occurred
              */
-            HalfEdge* intersectWithPlane(HalfEdge* firstBoundaryEdge, const vm::plane<T,3>& plane, Callback& callback);
+            std::tuple<HalfEdge*, bool> intersectWithPlane(HalfEdge* firstBoundaryEdge, const vm::plane<T,3>& plane, Callback& callback);
 
             /**
              * Splits a face in two, creating a new face and a new edge. Expects that both given half edges
