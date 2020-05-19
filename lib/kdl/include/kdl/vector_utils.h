@@ -140,9 +140,9 @@ namespace kdl {
      * the given vector does not contain such a value
      */
     template<typename T, typename A, typename P,
-    typename std::enable_if<
+    typename std::enable_if_t<
         std::is_invocable_r_v<bool, P, const T&>
-    >::type* = nullptr>
+    >* = nullptr>
     std::optional<typename std::vector<T, A>::size_type> vec_index_of(const std::vector<T, A>& v, P&& p) {
         using IndexType = typename std::vector<T, A>::size_type;
         for (IndexType i = 0; i < v.size(); ++i) {
@@ -182,9 +182,9 @@ namespace kdl {
      * @return true if the given vector contains an element that satisfies the given predicate
      */
     template<typename T, typename A, typename P,
-    typename std::enable_if<
+    typename std::enable_if_t<
         std::is_invocable_r_v<bool, P, const T&>
-    >::type* = nullptr>
+    >* = nullptr>
     bool vec_contains(const std::vector<T, A>& v, P&& p) {
         return vec_index_of(v, std::forward<P>(p)).has_value();
     }
@@ -423,9 +423,9 @@ namespace kdl {
      * @return a vector containing the elements that passed the filter
      */
     template<typename T, typename A, typename F,
-        typename std::enable_if<
+        typename std::enable_if_t<
             std::is_invocable_v<F, const T&>
-        >::type* = nullptr>
+        >* = nullptr>
     std::vector<T, A> vec_filter(const std::vector<T, A>& v, F&& filter) {
         std::vector<T, A> result;
         result.reserve(v.size());
@@ -453,9 +453,9 @@ namespace kdl {
      * @return a vector containing the elements that passed the filter
      */
     template<typename T, typename A, typename F,
-        typename std::enable_if<
+        typename std::enable_if_t<
             std::is_invocable_v<F, const T&, std::size_t>
-        >::type* = nullptr>
+        >* = nullptr>
     std::vector<T, A> vec_filter(const std::vector<T, A>& v, F&& filter) {
         std::vector<T, A> result;
         result.reserve(v.size());
@@ -481,9 +481,9 @@ namespace kdl {
      * @return a vector containing the elements that passed the filter
      */
     template<typename T, typename A, typename F,
-        typename std::enable_if<
+        typename std::enable_if_t<
             std::is_invocable_r_v<bool, F, const T&>
-        >::type* = nullptr>
+        >* = nullptr>
     std::vector<T, A> vec_filter(std::vector<T, A>&& v, F&& filter) {
         std::vector<T, A> result;
         result.reserve(v.size());
@@ -511,9 +511,9 @@ namespace kdl {
      * @return a vector containing the elements that passed the filter
      */
     template<typename T, typename A, typename F,
-        typename std::enable_if<
+        typename std::enable_if_t<
             std::is_invocable_r_v<bool, F, const T&, std::size_t>
-        >::type* = nullptr>
+        >* = nullptr>
     std::vector<T, A> vec_filter(std::vector<T, A>&& v, F&& filter) {
         std::vector<T, A> result;
         result.reserve(v.size());
@@ -541,9 +541,9 @@ namespace kdl {
      * @return a vector containing the transformed values
      */
     template<typename T, typename A, typename L,
-        typename std::enable_if<
+        typename std::enable_if_t<
             std::is_invocable_v<L, const T&>
-        >::type* = nullptr>
+        >* = nullptr>
     auto vec_transform(const std::vector<T, A>& v, L&& transform) {
         using ResultType = decltype(transform(std::declval<const T&>()));
 
@@ -572,9 +572,9 @@ namespace kdl {
      * @return a vector containing the transformed values
      */
     template<typename T, typename A, typename L,
-        typename std::enable_if<
+        typename std::enable_if_t<
             std::is_invocable_v<L, const T&, std::size_t>
-        >::type* = nullptr>
+        >* = nullptr>
     auto vec_transform(const std::vector<T, A>& v, L&& transform) {
         using ResultType = decltype(transform(std::declval<const T&>(), std::declval<std::size_t>()));
 
@@ -602,9 +602,9 @@ namespace kdl {
      * @return a vector containing the transformed values
      */
     template<typename T, typename A, typename L,
-        typename std::enable_if<
+        typename std::enable_if_t<
             std::is_invocable_v<L, T&>
-        >::type* = nullptr>
+        >* = nullptr>
     auto vec_transform(std::vector<T, A>& v, L&& transform) {
         using ResultType = decltype(transform(std::declval<T&>()));
 
@@ -633,9 +633,9 @@ namespace kdl {
      * @return a vector containing the transformed values
      */
     template<typename T, typename A, typename L,
-        typename std::enable_if<
+        typename std::enable_if_t<
             std::is_invocable_v<L, T&, std::size_t>
-        >::type* = nullptr>
+        >* = nullptr>
     auto vec_transform(std::vector<T, A>& v, L&& transform) {
         using ResultType = decltype(transform(std::declval<T&>(), std::declval<std::size_t>()));
 
@@ -663,9 +663,9 @@ namespace kdl {
      * @return a vector containing the transformed values
      */
     template<typename T, typename A, typename L,
-        typename std::enable_if<
+        typename std::enable_if_t<
             std::is_invocable_v<L, T&&>
-        >::type* = nullptr>
+        >* = nullptr>
     auto vec_transform(std::vector<T, A>&& v, L&& transform) {
         using ResultType = decltype(transform(std::declval<T&&>()));
 
@@ -694,9 +694,9 @@ namespace kdl {
      * @return a vector containing the transformed values
      */
     template<typename T, typename A, typename L,
-        typename std::enable_if<
+        typename std::enable_if_t<
             std::is_invocable_v<L, T&&, std::size_t>
-        >::type* = nullptr>
+        >* = nullptr>
     auto vec_transform(std::vector<T, A>&& v, L&& transform) {
         using ResultType = decltype(transform(std::declval<T&&>(), std::declval<std::size_t>()));
 
