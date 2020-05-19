@@ -40,6 +40,14 @@ namespace TrenchBroom {
 
         TexCoordSystem::~TexCoordSystem() = default;
 
+        bool operator==(const TexCoordSystem& lhs, const TexCoordSystem& rhs) {
+            return lhs.xAxis() == rhs.xAxis() && lhs.yAxis() == rhs.yAxis();
+        }
+        
+        bool operator!=(const TexCoordSystem& lhs, const TexCoordSystem& rhs) {
+            return !(lhs == rhs);
+        }
+
         std::unique_ptr<TexCoordSystem> TexCoordSystem::clone() const {
             return doClone();
         }

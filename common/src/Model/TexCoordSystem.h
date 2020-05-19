@@ -58,6 +58,9 @@ namespace TrenchBroom {
             TexCoordSystem();
             virtual ~TexCoordSystem();
 
+            friend bool operator==(const TexCoordSystem& lhs, const TexCoordSystem& rhs);
+            friend bool operator!=(const TexCoordSystem& lhs, const TexCoordSystem& rhs);
+
             std::unique_ptr<TexCoordSystem> clone() const;
             std::unique_ptr<TexCoordSystemSnapshot> takeSnapshot() const;
 
