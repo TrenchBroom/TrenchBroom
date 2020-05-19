@@ -80,9 +80,6 @@ namespace TrenchBroom {
             void cloneInvertedFaceAttributesFrom(const std::vector<BrushNode*>& brushes);
             void cloneInvertedFaceAttributesFrom(const BrushNode* brush);
         public:
-            // geometry access
-            std::vector<BrushFace*> incidentFaces(const BrushVertex* vertex) const;
-        public:
             // transformation
             bool canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const;
         public:
