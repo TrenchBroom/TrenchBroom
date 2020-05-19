@@ -51,9 +51,9 @@ namespace TrenchBroom {
         }
 
         int CompareHitsByType::doCompare(const Hit& lhs, const Hit& rhs) const {
-            if (lhs.type() == BrushNode::BrushHit)
+            if (lhs.type() == BrushNode::BrushHitType)
                 return -1;
-            if (rhs.type() == BrushNode::BrushHit)
+            if (rhs.type() == BrushNode::BrushHitType)
                 return 1;
             return 0;
         }

@@ -1257,7 +1257,7 @@ namespace TrenchBroom {
             Model::Node* newParent = nullptr;
 
             auto document = kdl::mem_lock(m_document);
-            const Model::Hit& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHit).occluded().first();
+            const Model::Hit& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
             if (hit.isMatch()) {
                 const Model::BrushNode* brush = Model::hitToBrush(hit);
                 newParent = brush->entity();

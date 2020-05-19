@@ -48,8 +48,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::HitType::Type UVOriginTool::XHandleHit = Model::HitType::freeType();
-        const Model::HitType::Type UVOriginTool::YHandleHit = Model::HitType::freeType();
+        const Model::HitType::Type UVOriginTool::XHandleHitType = Model::HitType::freeType();
+        const Model::HitType::Type UVOriginTool::YHandleHitType = Model::HitType::freeType();
         const FloatType UVOriginTool::MaxPickDistance = 5.0;
         const float UVOriginTool::OriginHandleRadius =  5.0f;
 
@@ -79,8 +79,8 @@ namespace TrenchBroom {
                 const auto oDistance = vm::distance(pickRay, origin);
                 if (oDistance.distance <= static_cast<FloatType>(OriginHandleRadius / m_helper.cameraZoom())) {
                     const auto hitPoint = vm::point_at_distance(pickRay, oDistance.position);
-                    pickResult.addHit(Model::Hit(XHandleHit, oDistance.position, hitPoint, xHandle, oDistance.distance));
-                    pickResult.addHit(Model::Hit(YHandleHit, oDistance.position, hitPoint, xHandle, oDistance.distance));
+                    pickResult.addHit(Model::Hit(XHandleHitType, oDistance.position, hitPoint, xHandle, oDistance.distance));
+                    pickResult.addHit(Model::Hit(YHandleHitType, oDistance.position, hitPoint, xHandle, oDistance.distance));
                 } else {
                     const auto xDistance = vm::distance(pickRay, xHandle);
                     const auto yDistance = vm::distance(pickRay, yHandle);
@@ -91,12 +91,12 @@ namespace TrenchBroom {
                     const auto maxDistance  = MaxPickDistance / static_cast<FloatType>(m_helper.cameraZoom());
                     if (xDistance.distance <= maxDistance) {
                         const auto hitPoint = vm::point_at_distance(pickRay, xDistance.position1);
-                        pickResult.addHit(Model::Hit(XHandleHit, xDistance.position1, hitPoint, xHandle, xDistance.distance));
+                        pickResult.addHit(Model::Hit(XHandleHitType, xDistance.position1, hitPoint, xHandle, xDistance.distance));
                     }
 
                     if (yDistance.distance <= maxDistance) {
                         const auto hitPoint = vm::point_at_distance(pickRay, yDistance.position1);
-                        pickResult.addHit(Model::Hit(YHandleHit, yDistance.position1, hitPoint, yHandle, yDistance.distance));
+                        pickResult.addHit(Model::Hit(YHandleHitType, yDistance.position1, hitPoint, yHandle, yDistance.distance));
                     }
                 }
             }
@@ -122,8 +122,8 @@ namespace TrenchBroom {
             }
 
             const auto& pickResult = inputState.pickResult();
-            const auto& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
-            const auto& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
+            const auto& xHandleHit = pickResult.query().type(XHandleHitType).occluded().first();
+            const auto& yHandleHit = pickResult.query().type(YHandleHitType).occluded().first();
 
             if (!xHandleHit.isMatch() && !yHandleHit.isMatch()) {
                 return false;
@@ -238,8 +238,8 @@ namespace TrenchBroom {
 
         std::vector<UVOriginTool::EdgeVertex> UVOriginTool::getHandleVertices(const InputState& inputState) const {
             const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
-            const Model::Hit& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
+            const Model::Hit& xHandleHit = pickResult.query().type(XHandleHitType).occluded().first();
+            const Model::Hit& yHandleHit = pickResult.query().type(YHandleHitType).occluded().first();
 
             const bool highlightXHandle = (thisToolDragging() && m_selector.x() > 0.0f) || (!thisToolDragging() && xHandleHit.isMatch());
             const bool highlightYHandle = (thisToolDragging() && m_selector.y() > 0.0f) || (!thisToolDragging() && yHandleHit.isMatch());
@@ -311,8 +311,8 @@ namespace TrenchBroom {
                 return true;
             } else {
                 const auto& pickResult = inputState.pickResult();
-                const auto& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
-                const auto& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
+                const auto& xHandleHit = pickResult.query().type(XHandleHitType).occluded().first();
+                const auto& yHandleHit = pickResult.query().type(YHandleHitType).occluded().first();
                 return xHandleHit.isMatch() && yHandleHit.isMatch();
             }
         }

@@ -64,7 +64,7 @@ namespace TrenchBroom {
         }
 
         bool ClipToolController::Callback::setClipFace(const TrenchBroom::View::InputState &inputState) {
-            const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHit).occluded().first();
+            const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
             if (!hit.isMatch())
                 return false;
 
@@ -361,7 +361,7 @@ namespace TrenchBroom {
             DragRestricter* createDragRestricter(const InputState&, const vm::vec3& /* initialPoint */) const override {
                 SurfaceDragRestricter* restricter = new SurfaceDragRestricter();
                 restricter->setPickable(true);
-                restricter->setType(Model::BrushNode::BrushHit);
+                restricter->setType(Model::BrushNode::BrushHitType);
                 restricter->setOccluded(Model::HitType::AnyType);
                 return restricter;
             }
@@ -372,7 +372,7 @@ namespace TrenchBroom {
                 SurfaceDragSnapper(grid) {}
             private:
                 vm::plane3 doGetPlane(const InputState&, const Model::Hit& hit) const override {
-                    ensure(hit.type() == Model::BrushNode::BrushHit, "invalid hit type");
+                    ensure(hit.type() == Model::BrushNode::BrushHitType, "invalid hit type");
                     const Model::BrushFace* face = Model::hitToFace(hit);
                     return face->boundary();
                 }
@@ -381,15 +381,15 @@ namespace TrenchBroom {
             DragSnapper* createDragSnapper(const InputState&) const override {
                 SurfaceDragSnapper* snapper = new ClipPointSnapper(m_tool->grid());
                 snapper->setPickable(true);
-                snapper->setType(Model::BrushNode::BrushHit);
+                snapper->setType(Model::BrushNode::BrushHitType);
                 snapper->setOccluded(Model::HitType::AnyType);
                 return snapper;
             }
 
             std::vector<vm::vec3> getHelpVectors(const InputState& inputState, const vm::vec3& clipPoint) const override {
-                auto hit = inputState.pickResult().query().selected().type(Model::BrushNode::BrushHit).occluded().first();
+                auto hit = inputState.pickResult().query().selected().type(Model::BrushNode::BrushHitType).occluded().first();
                 if (!hit.isMatch()) {
-                    hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHit).occluded().first();
+                    hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
                 }
                 ensure(hit.isMatch(), "hit is not a match");
 
@@ -398,7 +398,7 @@ namespace TrenchBroom {
             }
 
             bool doGetNewClipPointPosition(const InputState& inputState, vm::vec3& position) const override {
-                auto hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHit).occluded().first();
+                auto hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
                 if (!hit.isMatch()) {
                     return false;
                 }

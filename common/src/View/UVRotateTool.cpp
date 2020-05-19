@@ -50,7 +50,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::HitType::Type UVRotateTool::AngleHandleHit = Model::HitType::freeType();
+        const Model::HitType::Type UVRotateTool::AngleHandleHitType = Model::HitType::freeType();
         const double UVRotateTool::CenterHandleRadius =  2.5;
         const double UVRotateTool::RotateHandleRadius = 32.0;
         const double UVRotateTool::RotateHandleWidth  =  5.0;
@@ -91,7 +91,7 @@ namespace TrenchBroom {
                 const auto zoom = static_cast<FloatType>(m_helper.cameraZoom());
                 const auto error = vm::abs(RotateHandleRadius / zoom - vm::distance(hitPointOnPlane, originOnPlane));
                 if (error <= RotateHandleWidth / zoom) {
-                    pickResult.addHit(Model::Hit(AngleHandleHit, distanceToFace, hitPoint, 0, error));
+                    pickResult.addHit(Model::Hit(AngleHandleHitType, distanceToFace, hitPoint, 0, error));
                 }
             }
         }
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             }
 
             const auto& pickResult = inputState.pickResult();
-            const auto& angleHandleHit = pickResult.query().type(AngleHandleHit).occluded().first();
+            const auto& angleHandleHit = pickResult.query().type(AngleHandleHitType).occluded().first();
 
             const auto* face = m_helper.face();
             if (!face->attribs().valid()) {
@@ -299,7 +299,7 @@ namespace TrenchBroom {
             }
 
             const auto& pickResult = inputState.pickResult();
-            const auto& angleHandleHit = pickResult.query().type(AngleHandleHit).occluded().first();
+            const auto& angleHandleHit = pickResult.query().type(AngleHandleHitType).occluded().first();
             const auto highlight = angleHandleHit.isMatch() || thisToolDragging();
 
             renderBatch.addOneShot(new Render(m_helper, static_cast<float>(CenterHandleRadius), static_cast<float>(RotateHandleRadius), highlight));

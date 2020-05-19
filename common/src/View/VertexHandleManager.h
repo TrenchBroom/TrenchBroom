@@ -543,7 +543,7 @@ namespace TrenchBroom {
          */
         class VertexHandleManager : public VertexHandleManagerBaseT<vm::vec3> {
         public:
-            static const Model::HitType::Type HandleHit;
+            static const Model::HitType::Type HandleHitType;
         public:
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;
@@ -577,7 +577,7 @@ namespace TrenchBroom {
          */
         class EdgeHandleManager : public VertexHandleManagerBaseT<vm::segment3> {
         public:
-            static const Model::HitType::Type HandleHit;
+            static const Model::HitType::Type HandleHitType;
             using HitType = std::tuple<vm::segment3, vm::vec3>;
         public:
             using VertexHandleManagerBase::addHandles;
@@ -622,7 +622,7 @@ namespace TrenchBroom {
         */
         class FaceHandleManager : public VertexHandleManagerBaseT<vm::polygon3> {
         public:
-            static const Model::HitType::Type HandleHit;
+            static const Model::HitType::Type HandleHitType;
             using HitType = std::tuple<vm::polygon3, vm::vec3>;
         public:
             using VertexHandleManagerBase::addHandles;
