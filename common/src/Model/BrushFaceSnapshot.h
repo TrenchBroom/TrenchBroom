@@ -38,7 +38,7 @@ namespace TrenchBroom {
         class BrushFaceSnapshot {
         private:
             BrushFaceReference m_faceRef;
-            BrushFaceAttributes m_attribs;
+            BrushFaceAttributes m_faceAttributes;
             std::unique_ptr<TexCoordSystemSnapshot> m_coordSystemSnapshot;
         public:
             BrushFaceSnapshot(BrushNode* node, const BrushFace* face);
