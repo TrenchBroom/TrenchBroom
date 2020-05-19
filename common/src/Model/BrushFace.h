@@ -112,8 +112,6 @@ namespace TrenchBroom {
 
             static void sortFaces(std::vector<BrushFace>& faces);
 
-            BrushFace* clone() const;
-
             std::unique_ptr<TexCoordSystemSnapshot> takeTexCoordSystemSnapshot() const;
             void restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot& coordSystemSnapshot);
             void copyTexCoordSystemFromFace(const TexCoordSystemSnapshot& coordSystemSnapshot, const BrushFaceAttributes& attributes, const vm::plane3& sourceFacePlane, WrapStyle wrapStyle);

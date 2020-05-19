@@ -94,13 +94,13 @@ namespace TrenchBroom {
                 EXPECT_EQ(1u, texture.usageCount());
                 EXPECT_EQ(0u, texture2.usageCount());
 
-                // test clone()
-                BrushFace* clone = face.clone();
-                EXPECT_EQ(2u, texture.usageCount());
+                {
+                    // test copy constructor
+                    BrushFace clone = face;
+                    EXPECT_EQ(2u, texture.usageCount());
+                }
 
                 // test destructor
-                delete clone;
-                clone = nullptr;
                 EXPECT_EQ(1u, texture.usageCount());
 
                 // test setTexture with different texture

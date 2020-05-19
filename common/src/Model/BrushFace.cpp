@@ -158,16 +158,6 @@ namespace TrenchBroom {
             });
         }
 
-        BrushFace* BrushFace::clone() const {
-            BrushFace* result = new BrushFace(points()[0], points()[1], points()[2], m_attributes.textureName(), m_texCoordSystem->clone());
-            result->m_attributes = m_attributes;
-            result->m_textureReference = m_textureReference;
-            result->setFilePosition(m_lineNumber, m_lineCount);
-            if (m_selected)
-                result->select();
-            return result;
-        }
-
         std::unique_ptr<TexCoordSystemSnapshot> BrushFace::takeTexCoordSystemSnapshot() const {
             return m_texCoordSystem->takeSnapshot();
         }
