@@ -155,6 +155,7 @@ namespace TrenchBroom {
 
         bool ChangeEntityAttributesCommand::doCollateWith(UndoableCommand* command) {
             auto* other = dynamic_cast<ChangeEntityAttributesCommand*>(command);
+            // cppcheck-suppress nullPointerRedundantCheck
             ensure(other != nullptr, "attempted to collate with wrong node type");
 
             if (other->m_action != m_action) {
