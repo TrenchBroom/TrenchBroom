@@ -55,6 +55,8 @@
 #include "Model/EmptyBrushEntityIssueGenerator.h"
 #include "Model/EmptyGroupIssueGenerator.h"
 #include "Model/Entity.h"
+#include "Model/FindGroupVisitor.h"
+#include "Model/FindLayerVisitor.h"
 #include "Model/LinkSourceIssueGenerator.h"
 #include "Model/LinkTargetIssueGenerator.h"
 #include "Model/Game.h"
@@ -1091,7 +1093,26 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::canMoveLayer(Model::Layer* layer, const int direction) const {
-            return false;
+            ensure(layer != nullptr, "null layer");
+            ensure(direction == -1 || direction == 1, "invalid direction");
+
+            Model::World* world = this->world();
+            if (layer == world->defaultLayer()) {
+                return false;
+            }
+
+            const std::vector<Model::Layer*> sorted = world->customLayersUserSorted();
+            if (sorted.empty()) {
+                return false;
+            }
+
+            if (direction > 0) {
+                // Can move down in the list if we're not already at the end
+                return layer != sorted.back();
+            } else {
+                // Can move up in the list if we're not already at the front
+                return layer != sorted.front();
+            }
         }
 
         class CollectMoveableNodes : public Model::NodeVisitor {
@@ -1167,11 +1188,33 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::canMoveSelectionToLayer(Model::Layer* layer) const {
-            return false;
+            ensure(layer != nullptr, "null layer");
+
+            const auto& nodes = selectedNodes().nodes();
+            if (nodes.empty()) {
+                return false;
+            }
+
+            for (auto* node : nodes) {
+                auto* nodeGroup = Model::findGroup(node);
+                if (nodeGroup != nullptr) {
+                    return false;
+                }
+            }
+
+            for (auto* node : nodes) {
+                auto* nodeLayer = Model::findLayer(node);
+                if (nodeLayer != layer) {
+                    return true;
+                }
+            }
+
+            return true;
         }
 
         void MapDocument::hideLayers(const std::vector<Model::Layer*>& layers) {
-            
+            Transaction transaction(this, "Hide Layers");
+            hide(std::vector<Model::Node*>(std::begin(layers), std::end(layers)));
         }
 
         bool MapDocument::canHideLayers(const std::vector<Model::Layer*>& layers) const {
@@ -1179,11 +1222,15 @@ namespace TrenchBroom {
         }
 
         void MapDocument::isolateLayers(const std::vector<Model::Layer*>& layers) {
-            
+            const auto allLayers = world()->allLayers();
+
+            Transaction transaction(this, "Isolate Layers");
+            hide(std::vector<Model::Node*>(std::begin(allLayers), std::end(allLayers)));
+            show(std::vector<Model::Node*>(std::begin(layers), std::end(layers)));
         }
 
         bool MapDocument::canIsolateLayers(const std::vector<Model::Layer*>& layers) const {
-            return false;
+            return true;
         }
 
         void MapDocument::isolate() {

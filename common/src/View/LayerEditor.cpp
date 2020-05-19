@@ -82,6 +82,8 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::onLayerRightClick(Model::Layer* layer) {
+            auto document = kdl::mem_lock(m_document);
+
             QMenu popupMenu;
             QAction* moveSelectionToLayerAction = popupMenu.addAction(tr("Move selection to layer"), this, &LayerEditor::onMoveSelectionToLayer);
             popupMenu.addAction(tr("Select all in layer"), this, &LayerEditor::onSelectAllInLayer);
@@ -108,6 +110,7 @@ namespace TrenchBroom {
 
             moveSelectionToLayerAction->setEnabled(canMoveSelectionToLayer());
             toggleLayerVisibleAction->setEnabled(canToggleLayerVisible());
+
             toggleLayerLockedAction->setEnabled(canToggleLayerLocked());
             moveLayerUpAction->setEnabled(canMoveLayer(-1));
             moveLayerDownAction->setEnabled(canMoveLayer(1));
@@ -158,12 +161,7 @@ namespace TrenchBroom {
 
         void LayerEditor::isolateLayer(Model::Layer* layer) {
             auto document = kdl::mem_lock(m_document);
-            const auto layers = document->world()->allLayers();
-
-            // FIXME: Move to a MapDocument method
-            Transaction transaction(document, "Isolate " + layer->name());
-            document->hide(std::vector<Model::Node*>(std::begin(layers), std::end(layers)));
-            document->show(std::vector<Model::Node*>{layer});
+            document->isolateLayers(std::vector<Model::Layer*>{layer});
         }
 
         void LayerEditor::onMoveSelectionToLayer() {
@@ -175,32 +173,13 @@ namespace TrenchBroom {
         }
 
         bool LayerEditor::canMoveSelectionToLayer() const {
-            const auto* layer = m_layerList->selectedLayer();
+            auto* layer = m_layerList->selectedLayer();
             if (layer == nullptr) {
                 return false;
             }
 
             auto document = kdl::mem_lock(m_document);
-            const auto& nodes = document->selectedNodes().nodes();
-            if (nodes.empty()) {
-                return false;
-            }
-
-            for (auto* node : nodes) {
-                auto* nodeGroup = Model::findGroup(node);
-                if (nodeGroup != nullptr) {
-                    return false;
-                }
-            }
-
-            for (auto* node : nodes) {
-                auto* nodeLayer = Model::findLayer(node);
-                if (nodeLayer != layer) {
-                    return true;
-                }
-            }
-
-            return true;
+            return document->canMoveSelectionToLayer(layer);
         }
 
         void LayerEditor::onSelectAllInLayer() {
@@ -321,31 +300,13 @@ namespace TrenchBroom {
                 return false;
             }
 
-            const auto* layer = m_layerList->selectedLayer();
+            auto* layer = m_layerList->selectedLayer();
             if (layer == nullptr) {
                 return false;
             }
 
             auto document = kdl::mem_lock(m_document);
-            Model::World* world = document->world();
-
-            if (layer == world->defaultLayer()) {
-                return false;
-            }
-
-            const std::vector<Model::Layer*> sorted = world->customLayersUserSorted();
-            if (sorted.empty()) {
-                return false;
-            }
-
-            if (direction > 0) {
-                return layer != sorted.back();
-            }
-            else if (direction < 0) {
-                return layer != sorted.front();
-            }
-
-            return false;
+            return document->canMoveLayer(layer, direction);
         }
 
         void LayerEditor::moveLayer(Model::Layer* layer, int direction) {
