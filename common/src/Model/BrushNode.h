@@ -71,8 +71,6 @@ namespace TrenchBroom {
 
             using Node::takeSnapshot;
             BrushFaceSnapshot* takeSnapshot(BrushFace* face);
-        public:
-            void findIntegerPlanePoints(const vm::bbox3& worldBounds);
         private: // implement Node interface
             const std::string& doGetName() const override;
             const vm::bbox3& doGetLogicalBounds() const override;
