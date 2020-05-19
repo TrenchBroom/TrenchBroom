@@ -23,6 +23,7 @@
 #include "PreferenceManager.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/TextureManager.h"
+#include "Model/Brush.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
@@ -120,7 +121,7 @@ namespace TrenchBroom {
 
             for (Model::BrushFace* face : faces) {
                 if (!face->selected() && m_editorContext->selectable(face)) {
-                    face->brush()->acceptAndEscalate(visitor);
+                    face->brush()->node()->acceptAndEscalate(visitor);
                     face->select();
                     selected.push_back(face);
                 }
@@ -210,7 +211,7 @@ namespace TrenchBroom {
                 if (face->selected()) {
                     face->deselect();
                     deselected.push_back(face);
-                    face->brush()->acceptAndEscalate(visitor);
+                    face->brush()->node()->acceptAndEscalate(visitor);
                 }
             }
 
@@ -682,7 +683,7 @@ namespace TrenchBroom {
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, changedNodes);
 
             for (auto* face : faces) {
-                auto* brush = face->brush();
+                Model::BrushNode* brush = face->brush()->node();
                 assert(brush->selected());
                 brush->moveBoundary(m_worldBounds, face, delta, pref(Preferences::TextureLock));
                 result.push_back(face->polygon());

@@ -40,9 +40,13 @@ namespace TrenchBroom {
     }
 
     namespace Model {
+        class Brush;
+        class BrushFace;
+        class GroupNode;
+        class LayerNode;
+        
         class ModelFactory;
-        template <typename P> class PolyhedronMatcher;
-
+        
         struct BrushAlgorithmResult;
 
         class BrushNode : public Node, public Object {
@@ -61,16 +65,12 @@ namespace TrenchBroom {
             using VertexList = BrushVertexList;
             using EdgeList = BrushEdgeList;
         private:
-            std::vector<BrushFace*> m_faces;
-            BrushGeometry* m_geometry;
-
-            mutable bool m_transparent;
             mutable std::unique_ptr<Renderer::BrushRendererBrushCache> m_brushRendererBrushCache; // unique_ptr for breaking header dependencies
+            std::unique_ptr<Brush> m_brush; // must be destroyed before the brush renderer cache
         public:
             BrushNode(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces);
+            BrushNode(std::unique_ptr<Brush> brush);
             ~BrushNode() override;
-        private:
-            void cleanup();
         public:
             BrushNode* clone(const vm::bbox3& worldBounds) const;
 
@@ -90,34 +90,6 @@ namespace TrenchBroom {
             bool fullySpecified() const;
 
             void faceDidChange();
-        private:
-            void addFaces(const std::vector<BrushFace*>& faces);
-            template <typename I>
-            void addFaces(I cur, I end, size_t count) {
-                m_faces.reserve(m_faces.size() + count);
-                while (cur != end) {
-                    addFace(*cur);
-                    ++cur;
-                }
-            }
-            void addFace(BrushFace* face);
-
-            template <typename I>
-            void removeFaces(I cur, I end) {
-                auto rem = std::end(m_faces);
-                while (cur != end) {
-                    rem = doRemoveFace(std::begin(m_faces), rem, *cur);
-                    ++cur;
-                }
-
-                m_faces.erase(rem, std::end(m_faces));
-            }
-
-            void removeFace(BrushFace* face);
-            std::vector<BrushFace*>::iterator doRemoveFace(std::vector<BrushFace*>::iterator begin, std::vector<BrushFace*>::iterator end, BrushFace* face);
-
-            void detachFaces(const std::vector<BrushFace*>& faces);
-            void detachFace(BrushFace* face);
         public: // clone face attributes from matching faces of other brushes
             void cloneFaceAttributesFrom(const std::vector<BrushNode*>& brushes);
             void cloneFaceAttributesFrom(const BrushNode* brush);
@@ -178,49 +150,6 @@ namespace TrenchBroom {
             // face operations
             bool canMoveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta) const;
             std::vector<vm::polygon3> moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta, bool uvLock = false);
-        private:
-            struct CanMoveVerticesResult {
-            public:
-                bool success;
-                std::unique_ptr<BrushGeometry> geometry;
-            private:
-                CanMoveVerticesResult(bool s, BrushGeometry&& g);
-            public:
-                static CanMoveVerticesResult rejectVertexMove();
-                static CanMoveVerticesResult acceptVertexMove(BrushGeometry&& result);
-            };
-
-            CanMoveVerticesResult doCanMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, vm::vec3 delta, bool allowVertexRemoval) const;
-            void doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, bool lockTexture);
-            /**
-             * Tries to find 3 vertices in `left` and `right` that are related according to the PolyhedronMatcher, and
-             * generates an affine transform for them which can then be used to implement UV lock.
-             *
-             * @param matcher a polyhedron matcher which is used to identify related vertices
-             * @param left the face of the left polyhedron
-             * @param right the face of the right polyhedron
-             * @return {true, transform} if a transform could be found, otherwise {false, unspecified}
-             */
-            static std::tuple<bool, vm::mat4x4> findTransformForUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right);
-            /**
-             * Helper function to apply UV lock to the face `right`.
-             *
-             * It's assumed that `left` and `right` have already been identified as "matching" faces for a vertex move
-             * where `left` is a face from the polyhedron before vertex manipulation, and `right` is from the newly
-             * modified brush.
-             *
-             * This function tries to pick 3 vertices from `left` and `right` to generate a transform
-             * (using findTransformForUVLock), and updates the texturing of `right` using that transform applied to `left`.
-             * If it can't perform UV lock, `right` remains unmodified.
-             *
-             * This is only meant to be called in the matcher callback in Brush::doSetNewGeometry
-             *
-             * @param matcher a polyhedron matcher which is used to identify related vertices
-             * @param left the face of the left polyhedron
-             * @param right the face of the right polyhedron
-             */
-            void applyUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right);
-            void doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, bool uvLock = false);
         public:
             // CSG operations
             /**
@@ -235,29 +164,8 @@ namespace TrenchBroom {
 
             // transformation
             bool canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const;
-        private:
-            /**
-             * Final step of CSG subtraction; takes the geometry that is the result of the subtraction, and turns it
-             * into a Brush by copying texturing from `this` (for un-clipped faces) or the brushes in `subtrahends`
-             * (for clipped faces).
-             *
-             * @param factory the model factory
-             * @param worldBounds the world bounds
-             * @param defaultTextureName default texture name
-             * @param geometry the geometry for the newly created brush
-             * @param subtrahends used as a source of texture alignment only
-             * @return the newly created brush
-             */
-            BrushNode* createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<BrushNode*>& subtrahends) const;
-        private:
-            void updateFacesFromGeometry(const vm::bbox3& worldBounds, const BrushGeometry& geometry);
-            void updatePointsFromVertices(const vm::bbox3& worldBounds);
         public: // brush geometry
             void rebuildGeometry(const vm::bbox3& worldBounds);
-        private:
-            void buildGeometry(const vm::bbox3& worldBounds);
-            void deleteGeometry();
-            bool checkGeometry() const;
         public:
             void findIntegerPlanePoints(const vm::bbox3& worldBounds);
         private: // implement Node interface

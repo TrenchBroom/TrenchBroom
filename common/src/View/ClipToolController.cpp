@@ -20,6 +20,7 @@
 #include "ClipToolController.h"
 
 #include "Ensure.h"
+#include "Model/Brush.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -329,7 +330,7 @@ namespace TrenchBroom {
 
             if (closestVertex != nullptr) {
                 const auto* brush = face->brush();
-                return brush->incidentFaces(closestVertex);
+                return brush->node()->incidentFaces(closestVertex);
             }
 
             // Next, try the edges:

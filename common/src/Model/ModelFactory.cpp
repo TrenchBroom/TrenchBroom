@@ -19,6 +19,9 @@
 
 #include "ModelFactory.h"
 
+#include "Model/Brush.h"
+#include "Model/BrushNode.h"
+
 namespace TrenchBroom {
     namespace Model {
         ModelFactory::~ModelFactory() {}
@@ -46,6 +49,10 @@ namespace TrenchBroom {
         BrushNode* ModelFactory::createBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {
             return doCreateBrush(worldBounds, faces);
         }
+        
+        BrushNode* ModelFactory::createBrush(std::unique_ptr<Brush> brush) const {
+            return doCreateBrush(std::move(brush));
+        }
 
         BrushFace* ModelFactory::createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
             return doCreateFace(point1, point2, point3, attribs);
@@ -53,6 +60,10 @@ namespace TrenchBroom {
 
         BrushFace* ModelFactory::createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
             return doCreateFace(point1, point2, point3, attribs, texAxisX, texAxisY);
+        }
+        
+        BrushNode* ModelFactory::doCreateBrush(std::unique_ptr<Brush> brush) const {
+            return new BrushNode(std::move(brush));
         }
     }
 }

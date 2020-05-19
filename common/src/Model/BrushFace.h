@@ -43,7 +43,7 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class BrushNode;
+        class Brush;
         class BrushFaceSnapshot;
         class TexCoordSystem;
         class TexCoordSystemSnapshot;
@@ -80,7 +80,9 @@ namespace TrenchBroom {
             using VertexList = kdl::transform_adapter<BrushHalfEdgeList, TransformHalfEdgeToVertex>;
             using EdgeList = kdl::transform_adapter<BrushHalfEdgeList, TransformHalfEdgeToEdge>;
         private:
-            BrushNode* m_brush;
+            // TODO: get rid of this
+            Brush* m_brush;
+            
             BrushFace::Points m_points;
             vm::plane3 m_boundary;
             size_t m_lineNumber;
@@ -111,8 +113,8 @@ namespace TrenchBroom {
             void restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot& coordSystemSnapshot);
             void copyTexCoordSystemFromFace(const TexCoordSystemSnapshot& coordSystemSnapshot, const BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, WrapStyle wrapStyle);
 
-            BrushNode* brush() const;
-            void setBrush(BrushNode* brush);
+            Brush* brush() const;
+            void setBrush(Brush* brush);
 
             const BrushFace::Points& points() const;
             bool arePointsOnPlane(const vm::plane3& plane) const;

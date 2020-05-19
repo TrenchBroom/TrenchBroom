@@ -20,6 +20,7 @@
 #include "HitAdapter.h"
 
 #include "Hit.h"
+#include "Model/Brush.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityNode.h"
@@ -32,7 +33,7 @@ namespace TrenchBroom {
                 return hit.target<EntityNode*>();
             } else if (hit.type() == BrushNode::BrushHitType) {
                 BrushFace* face = hit.target<BrushFace*>();
-                return face->brush();
+                return face->brush()->node();
             } else {
                 return nullptr;
             }
@@ -43,7 +44,7 @@ namespace TrenchBroom {
                 return hit.target<EntityNode*>();
             } else if (hit.type() == BrushNode::BrushHitType) {
                 BrushFace* face = hit.target<BrushFace*>();
-                return face->brush();
+                return face->brush()->node();
             } else {
                 return nullptr;
             }
@@ -59,7 +60,7 @@ namespace TrenchBroom {
 
         BrushNode* hitToBrush(const Hit& hit) {
             if (hit.type() == BrushNode::BrushHitType) {
-                return hit.target<BrushFace*>()->brush();
+                return hit.target<BrushFace*>()->brush()->node();
             } else {
                 return nullptr;
             }

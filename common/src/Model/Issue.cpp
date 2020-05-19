@@ -20,6 +20,7 @@
 #include "Model/Issue.h"
 
 #include "Ensure.h"
+#include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
@@ -107,7 +108,7 @@ namespace TrenchBroom {
         }
 
         BrushFaceIssue::BrushFaceIssue(BrushFace* face) :
-        Issue(face->brush()),
+        Issue(face->brush()->node()),
         m_face(face) {}
 
         BrushFaceIssue::~BrushFaceIssue() = default;

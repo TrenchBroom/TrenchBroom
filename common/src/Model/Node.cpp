@@ -353,6 +353,16 @@ namespace TrenchBroom {
             m_node->nodeDidChange();
         }
 
+        Node::NotifyPhysicalBoundsChange::NotifyPhysicalBoundsChange(Node* node) :
+        m_node(node),
+        m_oldBounds(m_node->physicalBounds()) {
+            ensure(m_node != nullptr, "node is null");
+        }
+        
+        Node::NotifyPhysicalBoundsChange::~NotifyPhysicalBoundsChange() {
+            m_node->nodePhysicalBoundsDidChange(m_oldBounds);
+        }
+
         // notice that we take a copy here so that we can safely propagate the old bounds up
         void Node::nodePhysicalBoundsDidChange(const vm::bbox3 oldBounds) {
             doNodePhysicalBoundsDidChange();

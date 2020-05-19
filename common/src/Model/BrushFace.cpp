@@ -26,6 +26,7 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "Model/TagMatcher.h"
+#include "Model/Brush.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFaceSnapshot.h"
 #include "Model/PlanePointFinder.h"
@@ -157,12 +158,11 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
 
-        BrushNode* BrushFace::brush() const {
+        Brush* BrushFace::brush() const {
             return m_brush;
         }
 
-        void BrushFace::setBrush(BrushNode* brush) {
-            assert((m_brush == nullptr) ^ (brush == nullptr));
+        void BrushFace::setBrush(Brush* brush) {
             m_brush = brush;
         }
 
@@ -642,16 +642,16 @@ namespace TrenchBroom {
         void BrushFace::select() {
             assert(!m_selected);
             m_selected = true;
-            if (m_brush != nullptr) {
-                m_brush->childWasSelected();
+            if (m_brush != nullptr && m_brush->node() != nullptr) {
+                m_brush->node()->childWasSelected();
             }
         }
 
         void BrushFace::deselect() {
             assert(m_selected);
             m_selected = false;
-            if (m_brush != nullptr) {
-                m_brush->childWasDeselected();
+            if (m_brush != nullptr && m_brush->node() != nullptr) {
+                m_brush->node()->childWasDeselected();
             }
         }
 
@@ -700,14 +700,11 @@ namespace TrenchBroom {
         void BrushFace::updateBrush() {
             if (m_brush != nullptr) {
                 m_brush->faceDidChange();
-                m_brush->invalidateVertexCache();
             }
         }
 
         void BrushFace::invalidateVertexCache() {
-            if (m_brush != nullptr) {
-                m_brush->invalidateVertexCache();
-            }
+            updateBrush();
         }
 
         void BrushFace::setMarked(const bool marked) const {
