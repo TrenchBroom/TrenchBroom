@@ -221,13 +221,13 @@ namespace TrenchBroom {
 
             if (copyTextureOnlyModifiersDown(inputState)) {
                 Model::ChangeBrushFaceAttributesRequest request;
-                request.setTextureName(sourceFaceHandle.face()->attributes().textureName());
+                request.setTextureName(sourceFaceHandle.face().attributes().textureName());
                 document->setFaceAttributes(request);
             } else {
-                auto snapshot = sourceFaceHandle.face()->takeTexCoordSystemSnapshot();
-                document->setFaceAttributes(sourceFaceHandle.face()->attributes());
+                auto snapshot = sourceFaceHandle.face().takeTexCoordSystemSnapshot();
+                document->setFaceAttributes(sourceFaceHandle.face().attributes());
                 if (snapshot != nullptr) {
-                    document->copyTexCoordSystemFromFace(*snapshot, sourceFaceHandle.face()->attributes().takeSnapshot(), sourceFaceHandle.face()->boundary(), style);
+                    document->copyTexCoordSystemFromFace(*snapshot, sourceFaceHandle.face().attributes().takeSnapshot(), sourceFaceHandle.face().boundary(), style);
                 }
             }
 

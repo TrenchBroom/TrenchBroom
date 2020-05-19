@@ -62,7 +62,7 @@ namespace TrenchBroom {
             void writeWorldBrushes(const std::vector<Model::BrushNode*>& brushes);
             void writeEntityBrushes(const EntityBrushesMap& entityBrushes);
         public:
-            void writeBrushFaces(const std::vector<const Model::BrushFace*>& faces);
+            void writeBrushFaces(const std::vector<Model::BrushFace>& faces);
         };
     }
 }

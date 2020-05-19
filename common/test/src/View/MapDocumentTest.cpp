@@ -93,9 +93,9 @@ namespace TrenchBroom {
         }
 
         static void checkPlanePointsIntegral(const Model::BrushNode* brushNode) {
-            for (const Model::BrushFace* face : brushNode->brush().faces()) {
+            for (const Model::BrushFace& face : brushNode->brush().faces()) {
                 for (size_t i=0; i<3; i++) {
-                    vm::vec3 point = face->points()[i];
+                    vm::vec3 point = face.points()[i];
                     ASSERT_POINT_INTEGRAL(point);
                 }
             }
@@ -275,16 +275,16 @@ namespace TrenchBroom {
             document->select(std::vector<Model::Node*>{brushNode});
 
             ASSERT_EQ(vm::vec3(200,200,200), brushNode->logicalBounds().size());
-            ASSERT_EQ(vm::plane3(100.0, vm::vec3::pos_z()), brush.face(*brush.findFace(vm::vec3::pos_z()))->boundary());
+            ASSERT_EQ(vm::plane3(100.0, vm::vec3::pos_z()), brush.face(*brush.findFace(vm::vec3::pos_z())).boundary());
 
             // attempting an invalid scale has no effect
             ASSERT_FALSE(document->scaleObjects(initialBBox, invalidBBox));
             ASSERT_EQ(vm::vec3(200,200,200), brushNode->logicalBounds().size());
-            ASSERT_EQ(vm::plane3(100.0, vm::vec3::pos_z()), brush.face(*brush.findFace(vm::vec3::pos_z()))->boundary());
+            ASSERT_EQ(vm::plane3(100.0, vm::vec3::pos_z()), brush.face(*brush.findFace(vm::vec3::pos_z())).boundary());
 
             ASSERT_TRUE(document->scaleObjects(initialBBox, doubleBBox));
             ASSERT_EQ(vm::vec3(400,400,400), brushNode->logicalBounds().size());
-            ASSERT_EQ(vm::plane3(200.0, vm::vec3::pos_z()), brush.face(*brush.findFace(vm::vec3::pos_z()))->boundary());
+            ASSERT_EQ(vm::plane3(200.0, vm::vec3::pos_z()), brush.face(*brush.findFace(vm::vec3::pos_z())).boundary());
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.scaleObjectsInGroup") {
@@ -355,8 +355,8 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, entity->children().size());
 
             const auto faceIndex = 0u;
-            const auto* face1 = brushNode1->brush().face(faceIndex);
-            const auto* face2 = brushNode2->brush().face(faceIndex);
+            const auto& face1 = brushNode1->brush().face(faceIndex);
+            const auto& face2 = brushNode2->brush().face(faceIndex);
 
             document->select({
                 { brushNode1, faceIndex },
@@ -371,8 +371,8 @@ namespace TrenchBroom {
             assert(brush3 != brushNode1);
             assert(brush3 != brushNode2);
 
-            const auto face1Verts = face1->vertexPositions();
-            const auto face2Verts = face2->vertexPositions();
+            const auto face1Verts = face1.vertexPositions();
+            const auto face2Verts = face2.vertexPositions();
 
             const auto bounds = vm::merge(
                 vm::bbox3::merge_all(std::begin(face1Verts), std::end(face1Verts)),
@@ -395,10 +395,10 @@ namespace TrenchBroom {
             auto texAlignmentSnapshot = texAlignment.takeSnapshot();
 
             Model::Brush brush1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 64, 64)), "texture");
-            brush1.face(*brush1.findFace(vm::vec3::pos_z()))->restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
+            brush1.face(*brush1.findFace(vm::vec3::pos_z())).restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
 
             Model::Brush brush2 = builder.createCuboid(vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 64, 64)), "texture");
-            brush2.face(*brush2.findFace(vm::vec3::pos_z()))->restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
+            brush2.face(*brush2.findFace(vm::vec3::pos_z())).restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
 
             Model::BrushNode* brushNode1 = document->world()->createBrush(std::move(brush1));
             Model::BrushNode* brushNode2 = document->world()->createBrush(std::move(brush2));
@@ -414,9 +414,9 @@ namespace TrenchBroom {
             Model::BrushNode* brushNode3 = static_cast<Model::BrushNode*>(entity->children()[0]);
             const Model::Brush& brush3 = brushNode3->brush();
             
-            const Model::BrushFace* top = brush3.face(*brush3.findFace(vm::vec3::pos_z()));
-            ASSERT_EQ(vm::vec3(1, 0, 0), top->textureXAxis());
-            ASSERT_EQ(vm::vec3(0, 1, 0), top->textureYAxis());
+            const Model::BrushFace& top = brush3.face(*brush3.findFace(vm::vec3::pos_z()));
+            ASSERT_EQ(vm::vec3(1, 0, 0), top.textureXAxis());
+            ASSERT_EQ(vm::vec3(0, 1, 0), top.textureYAxis());
         }
 
         TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturing") {
@@ -430,7 +430,7 @@ namespace TrenchBroom {
 
             Model::Brush brush1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture");
             Model::Brush brush2 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 32)), "texture");
-            brush2.face(*brush2.findFace(vm::vec3::pos_z()))->restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
+            brush2.face(*brush2.findFace(vm::vec3::pos_z())).restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
 
             Model::BrushNode* brushNode1 = document->world()->createBrush(std::move(brush1));
             Model::BrushNode* brushNode2 = document->world()->createBrush(std::move(brush2));
@@ -451,9 +451,9 @@ namespace TrenchBroom {
 
             // the texture alignment from the top of brush2 should have transferred
             // to the bottom face of brush3
-            const Model::BrushFace* top = brush3.face(*brush3.findFace(vm::vec3::neg_z()));
-            ASSERT_EQ(vm::vec3(1, 0, 0), top->textureXAxis());
-            ASSERT_EQ(vm::vec3(0, 1, 0), top->textureYAxis());
+            const Model::BrushFace& top = brush3.face(*brush3.findFace(vm::vec3::neg_z()));
+            ASSERT_EQ(vm::vec3(1, 0, 0), top.textureXAxis());
+            ASSERT_EQ(vm::vec3(0, 1, 0), top.textureYAxis());
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.csgSubtractMultipleBrushes") {

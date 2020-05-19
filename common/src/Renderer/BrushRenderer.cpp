@@ -64,7 +64,7 @@ namespace TrenchBroom {
             return m_context.visible(brush);
         }
 
-        bool BrushRenderer::DefaultFilter::visible(const Model::BrushNode* brush, const Model::BrushFace* face) const {
+        bool BrushRenderer::DefaultFilter::visible(const Model::BrushNode* brush, const Model::BrushFace& face) const {
             return m_context.visible(brush, face);
         }
 
@@ -74,8 +74,8 @@ namespace TrenchBroom {
             const auto secondFaceIndex = edge->secondFace()->payload();
             assert(firstFaceIndex && secondFaceIndex);
             
-            const Model::BrushFace* firstFace = brush.face(*firstFaceIndex);
-            const Model::BrushFace* secondFace = brush.face(*secondFaceIndex);
+            const Model::BrushFace& firstFace = brush.face(*firstFaceIndex);
+            const Model::BrushFace& secondFace = brush.face(*secondFaceIndex);
             
             return m_context.visible(brushNode, firstFace) || m_context.visible(brushNode, secondFace);
         }
@@ -84,7 +84,7 @@ namespace TrenchBroom {
             return m_context.editable(brush);
         }
 
-        bool BrushRenderer::DefaultFilter::editable(const Model::BrushNode* brush, const Model::BrushFace* face) const {
+        bool BrushRenderer::DefaultFilter::editable(const Model::BrushNode* brush, const Model::BrushFace& face) const {
             return m_context.editable(brush, face);
         }
 
@@ -92,8 +92,8 @@ namespace TrenchBroom {
             return brush->selected() || brush->parentSelected();
         }
 
-        bool BrushRenderer::DefaultFilter::selected(const Model::BrushNode*, const Model::BrushFace* face) const {
-            return face->selected();
+        bool BrushRenderer::DefaultFilter::selected(const Model::BrushNode*, const Model::BrushFace& face) const {
+            return face.selected();
         }
 
         bool BrushRenderer::DefaultFilter::selected(const Model::BrushNode* brushNode, const Model::BrushEdge* edge) const {
@@ -102,8 +102,8 @@ namespace TrenchBroom {
             const auto secondFaceIndex = edge->secondFace()->payload();
             assert(firstFaceIndex && secondFaceIndex);
             
-            const Model::BrushFace* firstFace = brush.face(*firstFaceIndex);
-            const Model::BrushFace* secondFace = brush.face(*secondFaceIndex);
+            const Model::BrushFace& firstFace = brush.face(*firstFaceIndex);
+            const Model::BrushFace& secondFace = brush.face(*secondFaceIndex);
 
             return selected(brushNode) || selected(brushNode, firstFace) || selected(brushNode, secondFace);
         }
@@ -116,8 +116,8 @@ namespace TrenchBroom {
 
         BrushRenderer::Filter::RenderSettings BrushRenderer::NoFilter::markFaces(const Model::BrushNode* brushNode) const {
             const Model::Brush& brush = brushNode->brush();
-            for (const Model::BrushFace* face : brush.faces()) {
-                face->setMarked(true);
+            for (const Model::BrushFace& face : brush.faces()) {
+                face.setMarked(true);
             }
             return std::make_tuple(FaceRenderPolicy::RenderMarked,
                                    EdgeRenderPolicy::RenderAll);
@@ -419,7 +419,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool BrushRenderer::shouldDrawFaceInTransparentPass(const Model::BrushNode* brush, const Model::BrushFace* face) const {
+        bool BrushRenderer::shouldDrawFaceInTransparentPass(const Model::BrushNode* brush, const Model::BrushFace& face) const {
             if (m_transparencyAlpha >= 1.0f) {
                 // In this case, draw everything in the opaque pass
                 // see: https://github.com/kduske/TrenchBroom/issues/2848
@@ -432,7 +432,7 @@ namespace TrenchBroom {
             if (brush->hasAttribute(Model::TagAttributes::Transparency)) {
                 return true;
             }
-            if (face->hasAttribute(Model::TagAttributes::Transparency)) {
+            if (face.hasAttribute(Model::TagAttributes::Transparency)) {
                 return true;
             }
             return false;
@@ -505,7 +505,7 @@ namespace TrenchBroom {
                     const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
                     if (cache.face->isMarked()) {
                         assert(cache.texture == texture);
-                        if (shouldDrawFaceInTransparentPass(brush, cache.face)) {
+                        if (shouldDrawFaceInTransparentPass(brush, *cache.face)) {
                             transparentIndexCount += triIndicesCountForPolygon(cache.vertexCount);
                         } else {
                             opaqueIndexCount += triIndicesCountForPolygon(cache.vertexCount);
@@ -528,7 +528,7 @@ namespace TrenchBroom {
                     GLuint *currentDest = insertDest;
                     for (size_t j = i; j < nextI; ++j) {
                         const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
-                        if (cache.face->isMarked() && shouldDrawFaceInTransparentPass(brush, cache.face)) {
+                        if (cache.face->isMarked() && shouldDrawFaceInTransparentPass(brush, *cache.face)) {
                             addTriIndicesForPolygon(currentDest,
                                                     static_cast<GLuint>(brushVerticesStartIndex +
                                                                         cache.indexOfFirstVertexRelativeToBrush),
@@ -555,7 +555,7 @@ namespace TrenchBroom {
                     GLuint *currentDest = insertDest;
                     for (size_t j = i; j < nextI; ++j) {
                         const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
-                        if (cache.face->isMarked() && !shouldDrawFaceInTransparentPass(brush, cache.face)) {
+                        if (cache.face->isMarked() && !shouldDrawFaceInTransparentPass(brush, *cache.face)) {
                             addTriIndicesForPolygon(currentDest,
                                                     static_cast<GLuint>(brushVerticesStartIndex +
                                                                         cache.indexOfFirstVertexRelativeToBrush),

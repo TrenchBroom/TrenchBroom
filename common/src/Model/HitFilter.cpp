@@ -106,7 +106,7 @@ namespace TrenchBroom {
             if (hit.type() == EntityNode::EntityHitType) {
                 return hitToEntity(hit)->selected();
             } else if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
-                return faceHandle->node()->selected() || faceHandle->face()->selected();
+                return faceHandle->node()->selected() || faceHandle->face().selected();
             } else {
                 return false;
             }
@@ -120,7 +120,7 @@ namespace TrenchBroom {
             if (hit.type() == EntityNode::EntityHitType) {
                 return hitToEntity(hit)->transitivelySelected();
             } else if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
-                return faceHandle->node()->transitivelySelected() || faceHandle->face()->selected();
+                return faceHandle->node()->transitivelySelected() || faceHandle->face().selected();
             } else {
                 return false;
             }

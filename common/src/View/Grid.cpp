@@ -213,8 +213,8 @@ namespace TrenchBroom {
             return actualDelta;
         }
 
-        vm::vec3 Grid::moveDelta(const Model::BrushFace* face, const vm::vec3& delta) const {
-            const auto dist = dot(delta, face->boundary().normal);
+        vm::vec3 Grid::moveDelta(const Model::BrushFace& face, const vm::vec3& delta) const {
+            const auto dist = dot(delta, face.boundary().normal);
             if (vm::is_zero(dist, vm::C::almost_zero())) {
                 return vm::vec3::zero();
             }
@@ -222,7 +222,7 @@ namespace TrenchBroom {
             // the edge rays indicate the direction into which each vertex of the given face moves if the face is dragged
             std::vector<vm::ray3> edgeRays;
 
-            for (const Model::BrushVertex* vertex : face->vertices()) {
+            for (const Model::BrushVertex* vertex : face.vertices()) {
                 const Model::BrushHalfEdge* firstEdge = vertex->leaving();
                 const Model::BrushHalfEdge* curEdge = firstEdge;
                 do {
@@ -240,7 +240,7 @@ namespace TrenchBroom {
                 } while (curEdge != firstEdge);
             }
 
-            auto normDelta = face->boundary().normal * dist;
+            auto normDelta = face.boundary().normal * dist;
             /**
              * Scalar projection of normDelta onto the nearest axial normal vector.
              */
@@ -267,7 +267,7 @@ namespace TrenchBroom {
                     const auto& ray = edgeRays[i];
                     const auto vertexDist = intersectWithRay(ray, gridSkip);
                     const auto vertexDelta = ray.direction * vertexDist;
-                    const auto vertexNormDist = dot(vertexDelta, face->boundary().normal);
+                    const auto vertexNormDist = dot(vertexDelta, face.boundary().normal);
 
                     const auto normDistDelta = vm::abs(vertexNormDist - dist);
                     if (normDistDelta < minDistDelta) {
@@ -278,7 +278,7 @@ namespace TrenchBroom {
                 ++gridSkip;
             } while (actualDist == std::numeric_limits<FloatType>::max());
 
-            normDelta = face->boundary().normal * actualDist;
+            normDelta = face.boundary().normal * actualDist;
             const auto deltaNormalized = normalize(delta);
             return deltaNormalized * dot(normDelta, deltaNormalized);
         }

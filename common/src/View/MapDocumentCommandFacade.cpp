@@ -106,8 +106,8 @@ namespace TrenchBroom {
 
             for (const auto& handle : faces) {
                 Model::BrushNode* node = handle.node();
-                const Model::BrushFace* face = handle.face();
-                if (!face->selected() && m_editorContext->selectable(node, face)) {
+                const Model::BrushFace& face = handle.face();
+                if (!face.selected() && m_editorContext->selectable(node, face)) {
                     node->selectFace(handle.faceIndex());
                     selected.push_back(handle);
                 }
@@ -177,8 +177,8 @@ namespace TrenchBroom {
             deselected.reserve(faces.size());
 
             for (const auto& handle : faces) {
-                const Model::BrushFace* face = handle.face();
-                if (face->selected()) {
+                const Model::BrushFace& face = handle.face();
+                if (face.selected()) {
                     Model::BrushNode* node = handle.node();
                     node->deselectFace(handle.faceIndex());
                     deselected.push_back(handle);
@@ -648,8 +648,8 @@ namespace TrenchBroom {
                 Model::Brush brush = brushNode->brush();
                 if (const auto faceIndex = brush.findFace(polygons)) {
                     brush.moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock));
-                    const Model::BrushFace* face = brush.face(*faceIndex);
-                    result.push_back(face->polygon());
+                    const Model::BrushFace& face = brush.face(*faceIndex);
+                    result.push_back(face.polygon());
                     brushNode->setBrush(std::move(brush));
                 }
             }
@@ -663,8 +663,8 @@ namespace TrenchBroom {
             for (const auto& faceHandle : m_selectedBrushFaces) {
                 Model::BrushNode* node = faceHandle.node();
                 Model::Brush brush = node->brush();
-                Model::BrushFace* face = brush.face(faceHandle.faceIndex());
-                face->moveTexture(vm::vec3(cameraUp), vm::vec3(cameraRight), delta);
+                Model::BrushFace& face = brush.face(faceHandle.faceIndex());
+                face.moveTexture(vm::vec3(cameraUp), vm::vec3(cameraRight), delta);
                 node->setBrush(brush);
             }
             brushFacesDidChangeNotifier(m_selectedBrushFaces);
@@ -674,8 +674,8 @@ namespace TrenchBroom {
             for (const auto& faceHandle : m_selectedBrushFaces) {
                 Model::BrushNode* node = faceHandle.node();
                 Model::Brush brush = node->brush();
-                Model::BrushFace* face = brush.face(faceHandle.faceIndex());
-                face->rotateTexture(angle);
+                Model::BrushFace& face = brush.face(faceHandle.faceIndex());
+                face.rotateTexture(angle);
                 node->setBrush(brush);
             }
             brushFacesDidChangeNotifier(m_selectedBrushFaces);
@@ -685,8 +685,8 @@ namespace TrenchBroom {
             for (const auto& faceHandle : m_selectedBrushFaces) {
                 Model::BrushNode* node = faceHandle.node();
                 Model::Brush brush = node->brush();
-                Model::BrushFace* face = brush.face(faceHandle.faceIndex());
-                face->shearTexture(factors);
+                Model::BrushFace& face = brush.face(faceHandle.faceIndex());
+                face.shearTexture(factors);
                 node->setBrush(brush);
             }
             brushFacesDidChangeNotifier(m_selectedBrushFaces);
@@ -696,8 +696,8 @@ namespace TrenchBroom {
             for (const auto& faceHandle : m_selectedBrushFaces) {
                 Model::BrushNode* node = faceHandle.node();
                 Model::Brush brush = node->brush();
-                Model::BrushFace* face = brush.face(faceHandle.faceIndex());
-                face->copyTexCoordSystemFromFace(coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle);
+                Model::BrushFace& face = brush.face(faceHandle.faceIndex());
+                face.copyTexCoordSystemFromFace(coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle);
                 node->setBrush(brush);
             }
             brushFacesDidChangeNotifier(m_selectedBrushFaces);

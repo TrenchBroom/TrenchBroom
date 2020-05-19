@@ -54,15 +54,15 @@ namespace TrenchBroom {
 
         void MixedBrushContentsIssueGenerator::doGenerate(BrushNode* brushNode, IssueList& issues) const {
             const Brush& brush = brushNode->brush();
-            const auto faces = brush.faces();
+            const auto& faces = brush.faces();
             auto it = std::begin(faces);
             auto end = std::end(faces);
             assert(it != end);
 
-            const int contentFlags = (*it)->attributes().surfaceContents();
+            const int contentFlags = it->attributes().surfaceContents();
             ++it;
             while (it != end) {
-                if ((*it)->attributes().surfaceContents() != contentFlags) {
+                if (it->attributes().surfaceContents() != contentFlags) {
                     issues.push_back(new MixedBrushContentsIssue(brushNode));
                 }
                 ++it;

@@ -113,19 +113,19 @@ namespace TrenchBroom {
         }
 
         void BrushNode::selectFace(const size_t faceIndex) {
-            m_brush.face(faceIndex)->select();
+            m_brush.face(faceIndex).select();
         }
         
         void BrushNode::deselectFace(const size_t faceIndex) {
-            m_brush.face(faceIndex)->deselect();
+            m_brush.face(faceIndex).deselect();
         }
 
         void BrushNode::updateFaceTags(const size_t faceIndex, TagManager& tagManager) {
-            m_brush.face(faceIndex)->updateTags(tagManager);
+            m_brush.face(faceIndex).updateTags(tagManager);
         }
 
         void BrushNode::setFaceTexture(const size_t faceIndex, Assets::Texture* texture) {
-            m_brush.face(faceIndex)->setTexture(texture);
+            m_brush.face(faceIndex).setTexture(texture);
             
             invalidateIssues();
             invalidateVertexCache();
@@ -198,8 +198,8 @@ namespace TrenchBroom {
         std::optional<std::tuple<FloatType, size_t>> BrushNode::findFaceHit(const vm::ray3& ray) const {
             if (!vm::is_nan(vm::intersect_ray_bbox(ray, logicalBounds()))) {
                 for (size_t i = 0u; i < m_brush.faceCount(); ++i) {
-                    const auto* face = m_brush.face(i);
-                    const auto distance = face->intersectWithRay(ray);
+                    const auto& face = m_brush.face(i);
+                    const auto distance = face.intersectWithRay(ray);
                     if (!vm::is_nan(distance)) {
                         return std::make_tuple(distance, i);
                     }
@@ -303,21 +303,21 @@ namespace TrenchBroom {
 
         void BrushNode::initializeTags(TagManager& tagManager) {
             Taggable::initializeTags(tagManager);
-            for (auto* face : m_brush.faces()) {
-                face->initializeTags(tagManager);
+            for (auto& face : m_brush.faces()) {
+                face.initializeTags(tagManager);
             }
         }
 
         void BrushNode::clearTags() {
-            for (auto* face : m_brush.faces()) {
-                face->clearTags();
+            for (auto& face : m_brush.faces()) {
+                face.clearTags();
             }
             Taggable::clearTags();
         }
 
         void BrushNode::updateTags(TagManager& tagManager) {
             for (auto& face : m_brush.faces()) {
-                face->updateTags(tagManager);
+                face.updateTags(tagManager);
             }
             Taggable::updateTags(tagManager);
         }
@@ -326,15 +326,15 @@ namespace TrenchBroom {
             // Possible optimization: Store the shared face tag mask in the brush and updated it when a face changes.
 
             TagType::Type sharedFaceTags = TagType::AnyType; // set all bits to 1
-            for (const auto* face : m_brush.faces()) {
-                sharedFaceTags &= face->tagMask();
+            for (const auto& face : m_brush.faces()) {
+                sharedFaceTags &= face.tagMask();
             }
             return (sharedFaceTags & tagMask) != 0;
         }
 
         bool BrushNode::anyFaceHasAnyTag() const {
-            for (const auto* face : m_brush.faces()) {
-                if (face->hasAnyTag()) {
+            for (const auto& face : m_brush.faces()) {
+                if (face.hasAnyTag()) {
                     return true;
                 }
             }
@@ -344,8 +344,8 @@ namespace TrenchBroom {
         bool BrushNode::anyFacesHaveAnyTagInMask(TagType::Type tagMask) const {
             // Possible optimization: Store the shared face tag mask in the brush and updated it when a face changes.
 
-            for (const auto* face : m_brush.faces()) {
-                if (face->hasTag(tagMask)) {
+            for (const auto& face : m_brush.faces()) {
+                if (face.hasTag(tagMask)) {
                     return true;
                 }
             }

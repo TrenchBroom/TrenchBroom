@@ -477,36 +477,36 @@ namespace TrenchBroom {
                 bool surfaceValueMulti = false;
                 bool colorValueMulti = false;
 
-                const Model::BrushFace* firstFace = faceHandles[0].face();
-                const std::string& textureName = firstFace->attributes().textureName();
-                const float xOffset = firstFace->attributes().xOffset();
-                const float yOffset = firstFace->attributes().yOffset();
-                const float rotation = firstFace->attributes().rotation();
-                const float xScale = firstFace->attributes().xScale();
-                const float yScale = firstFace->attributes().yScale();
-                int setSurfaceFlags = firstFace->attributes().surfaceFlags();
-                int setSurfaceContents = firstFace->attributes().surfaceContents();
+                const Model::BrushFace& firstFace = faceHandles[0].face();
+                const std::string& textureName = firstFace.attributes().textureName();
+                const float xOffset = firstFace.attributes().xOffset();
+                const float yOffset = firstFace.attributes().yOffset();
+                const float rotation = firstFace.attributes().rotation();
+                const float xScale = firstFace.attributes().xScale();
+                const float yScale = firstFace.attributes().yScale();
+                int setSurfaceFlags = firstFace.attributes().surfaceFlags();
+                int setSurfaceContents = firstFace.attributes().surfaceContents();
                 int mixedSurfaceFlags = 0;
                 int mixedSurfaceContents = 0;
-                const float surfaceValue = firstFace->attributes().surfaceValue();
-                bool hasColorValue = firstFace->attributes().hasColor();
-                const Color colorValue = firstFace->attributes().color();
+                const float surfaceValue = firstFace.attributes().surfaceValue();
+                bool hasColorValue = firstFace.attributes().hasColor();
+                const Color colorValue = firstFace.attributes().color();
 
 
                 for (size_t i = 1; i < faceHandles.size(); i++) {
-                    const Model::BrushFace* face = faceHandles[i].face();
-                    textureMulti            |= (textureName     != face->attributes().textureName());
-                    xOffsetMulti            |= (xOffset         != face->attributes().xOffset());
-                    yOffsetMulti            |= (yOffset         != face->attributes().yOffset());
-                    rotationMulti           |= (rotation        != face->attributes().rotation());
-                    xScaleMulti             |= (xScale          != face->attributes().xScale());
-                    yScaleMulti             |= (yScale          != face->attributes().yScale());
-                    surfaceValueMulti       |= (surfaceValue    != face->attributes().surfaceValue());
-                    colorValueMulti         |= (colorValue      != face->attributes().color());
-                    hasColorValue           |= face->attributes().hasColor();
+                    const Model::BrushFace& face = faceHandles[i].face();
+                    textureMulti            |= (textureName     != face.attributes().textureName());
+                    xOffsetMulti            |= (xOffset         != face.attributes().xOffset());
+                    yOffsetMulti            |= (yOffset         != face.attributes().yOffset());
+                    rotationMulti           |= (rotation        != face.attributes().rotation());
+                    xScaleMulti             |= (xScale          != face.attributes().xScale());
+                    yScaleMulti             |= (yScale          != face.attributes().yScale());
+                    surfaceValueMulti       |= (surfaceValue    != face.attributes().surfaceValue());
+                    colorValueMulti         |= (colorValue      != face.attributes().color());
+                    hasColorValue           |= face.attributes().hasColor();
 
-                    combineFlags(sizeof(int)*8, face->attributes().surfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
-                    combineFlags(sizeof(int)*8, face->attributes().surfaceContents(), setSurfaceContents, mixedSurfaceContents);
+                    combineFlags(sizeof(int)*8, face.attributes().surfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
+                    combineFlags(sizeof(int)*8, face.attributes().surfaceContents(), setSurfaceContents, mixedSurfaceContents);
                 }
 
                 m_xOffsetEditor->setEnabled(true);
@@ -531,7 +531,7 @@ namespace TrenchBroom {
                         m_textureSize->setText("");
                         m_textureSize->setEnabled(false);
                     } else {
-                        const Assets::Texture* texture = firstFace->texture();
+                        const Assets::Texture* texture = firstFace.texture();
                         if (texture != nullptr) {
                             m_textureName->setText(QString::fromStdString(textureName));
                             m_textureSize->setText(QStringLiteral("%1 * %2").arg(texture->width()).arg(texture->height()));

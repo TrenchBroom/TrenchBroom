@@ -30,9 +30,9 @@
 
 namespace TrenchBroom {
     namespace Model {
-        BrushFaceReference::BrushFaceReference(BrushNode* node, const BrushFace* face) :
+        BrushFaceReference::BrushFaceReference(BrushNode* node, const BrushFace& face) :
         m_node(node),
-        m_facePlane(face->boundary()) {
+        m_facePlane(face.boundary()) {
             assert(m_node != nullptr);
         }
 

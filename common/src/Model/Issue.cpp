@@ -117,14 +117,14 @@ namespace TrenchBroom {
             return m_faceIndex;
         }
 
-        const BrushFace* BrushFaceIssue::face() const {
+        const BrushFace& BrushFaceIssue::face() const {
             const BrushNode* brushNode = static_cast<const BrushNode*>(node());
             const Brush& brush = brushNode->brush();
             return brush.face(m_faceIndex);
         }
 
         size_t BrushFaceIssue::doGetLineNumber() const {
-            return face()->lineNumber();
+            return face().lineNumber();
         }
 
         AttributeIssue::~AttributeIssue() = default;

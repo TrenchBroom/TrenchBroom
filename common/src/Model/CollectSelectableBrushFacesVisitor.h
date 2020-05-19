@@ -30,17 +30,17 @@ namespace TrenchBroom {
         class BrushNode;
         class EditorContext;
 
-        using FacePredicate = std::function<bool(const Model::BrushNode*, const BrushFace*)>;
+        using FacePredicate = std::function<bool(const Model::BrushNode*, const BrushFace&)>;
 
         class MatchSelectableBrushFaces {
         private:
             const EditorContext& m_editorContext;
             FacePredicate m_predicate;
         private:
-            bool testPredicate(const Model::BrushNode* brush, const BrushFace* face) const;
+            bool testPredicate(const Model::BrushNode* brush, const BrushFace& face) const;
         public:
             MatchSelectableBrushFaces(const EditorContext& editorContext, FacePredicate predicate);
-            bool operator()(const Model::BrushNode* brush, const BrushFace* face) const;
+            bool operator()(const Model::BrushNode* brush, const BrushFace& face) const;
         };
 
         class CollectSelectableBrushFacesVisitor : public CollectMatchingBrushFacesVisitor<MatchSelectableBrushFaces> {

@@ -39,25 +39,25 @@
 
 namespace TrenchBroom {
     namespace IO {
-        inline const Model::BrushFace* findFaceByPoints(const std::vector<const Model::BrushFace*>& faces, const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2) {
-            for (const Model::BrushFace* face : faces) {
-                if (face->points()[0] == point0 &&
-                    face->points()[1] == point1 &&
-                    face->points()[2] == point2)
-                    return face;
+        inline const Model::BrushFace* findFaceByPoints(const std::vector<Model::BrushFace>& faces, const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2) {
+            for (const Model::BrushFace& face : faces) {
+                if (face.points()[0] == point0 &&
+                    face.points()[1] == point1 &&
+                    face.points()[2] == point2)
+                    return &face;
             }
             return nullptr;
         }
 
-        inline void checkFaceTexCoordSystem(const Model::BrushFace* face, const bool expectParallel) {
-            auto snapshot = face->takeTexCoordSystemSnapshot();
+        inline void checkFaceTexCoordSystem(const Model::BrushFace& face, const bool expectParallel) {
+            auto snapshot = face.takeTexCoordSystemSnapshot();
             auto* check = dynamic_cast<Model::ParallelTexCoordSystemSnapshot*>(snapshot.get());
             const bool isParallel = (check != nullptr);
             ASSERT_EQ(expectParallel, isParallel);
         }
 
         inline void checkBrushTexCoordSystem(const Model::BrushNode* brushNode, const bool expectParallel) {
-            const auto faces = brushNode->brush().faces();
+            const auto& faces = brushNode->brush().faces();
             ASSERT_EQ(6u, faces.size());
             checkFaceTexCoordSystem(faces[0], expectParallel);
             checkFaceTexCoordSystem(faces[1], expectParallel);
@@ -205,7 +205,7 @@ namespace TrenchBroom {
 
             Model::BrushNode* brushNode = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brushNode, false);
-            const auto faces = brushNode->brush().faces();
+            const auto& faces = brushNode->brush().faces();
             ASSERT_EQ(6u, faces.size());
 
             const Model::BrushFace* face1 = findFaceByPoints(faces, vm::vec3(0.0, 0.0, -16.0), vm::vec3(0.0, 0.0, 0.0),
@@ -256,7 +256,7 @@ namespace TrenchBroom {
 
             Model::BrushNode* brushNode = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brushNode, false);
-            const auto faces = brushNode->brush().faces();
+            const auto& faces = brushNode->brush().faces();
             ASSERT_EQ(6u, faces.size());
 
             const Model::BrushFace* face = findFaceByPoints(faces, vm::vec3(0.0, 0.0, -16.0), vm::vec3(0.0, 0.0, 0.0),
@@ -295,7 +295,7 @@ namespace TrenchBroom {
 
             Model::BrushNode* brushNode = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brushNode, false);
-            const auto faces = brushNode->brush().faces();
+            const auto& faces = brushNode->brush().faces();
             ASSERT_EQ(6u, faces.size());
 
             ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(0.0, 0.0, -16.0), vm::vec3(0.0, 0.0, 0.0),
@@ -338,7 +338,7 @@ namespace TrenchBroom {
 
             Model::BrushNode* brushNode = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brushNode, false);
-            const auto faces = brushNode->brush().faces();
+            const auto& faces = brushNode->brush().faces();
             ASSERT_EQ(6u, faces.size());
             ASSERT_TRUE(findFaceByPoints(faces, vm::vec3(308.0, 108.0, 176.0), vm::vec3(308.0, 132.0, 176.0),
                                          vm::vec3(252.0, 132.0, 176.0)) != nullptr);
@@ -557,12 +557,12 @@ namespace TrenchBroom {
             REQUIRE(b_rc_v16w_index);
             REQUIRE(c_mf_v3cww_index);
             
-            ASSERT_TRUE(vm::is_equal(Color(5, 6, 7), brush.face(*c_mf_v3cw_index)->attributes().color(), 0.1f));
-            ASSERT_EQ(1, brush.face(*b_rc_v16w_index)->attributes().surfaceContents());
-            ASSERT_EQ(2, brush.face(*b_rc_v16w_index)->attributes().surfaceFlags());
-            ASSERT_FLOAT_EQ(3.0, brush.face(*b_rc_v16w_index)->attributes().surfaceValue());
-            ASSERT_TRUE(vm::is_equal(Color(8, 9, 10), brush.face(*b_rc_v16w_index)->attributes().color(), 0.1f));
-            ASSERT_FALSE(brush.face(*c_mf_v3cww_index)->attributes().hasColor());
+            ASSERT_TRUE(vm::is_equal(Color(5, 6, 7), brush.face(*c_mf_v3cw_index).attributes().color(), 0.1f));
+            ASSERT_EQ(1, brush.face(*b_rc_v16w_index).attributes().surfaceContents());
+            ASSERT_EQ(2, brush.face(*b_rc_v16w_index).attributes().surfaceFlags());
+            ASSERT_FLOAT_EQ(3.0, brush.face(*b_rc_v16w_index).attributes().surfaceValue());
+            ASSERT_TRUE(vm::is_equal(Color(8, 9, 10), brush.face(*b_rc_v16w_index).attributes().color(), 0.1f));
+            ASSERT_FALSE(brush.face(*c_mf_v3cww_index).attributes().hasColor());
         }
 
         TEST_CASE("WorldReaderTest.parseDaikatanaMapHeader", "[WorldReaderTest]") {
@@ -1107,8 +1107,8 @@ common/caulk
             REQUIRE(brushNode != nullptr);
 
             CHECK(vm::bbox3(vm::vec3(-512, -512, -64), vm::vec3(512, 512, 0)) == brushNode->logicalBounds());
-            for (const Model::BrushFace* face : brushNode->brush().faces()) {
-                CHECK("general/sand1" == face->attributes().textureName());
+            for (const Model::BrushFace& face : brushNode->brush().faces()) {
+                CHECK("general/sand1" == face.attributes().textureName());
             }
         }
 
@@ -1144,9 +1144,9 @@ common/caulk
             Model::BrushNode* brush = dynamic_cast<Model::BrushNode*>(defaultLayer->children().front());
             REQUIRE(brush != nullptr);
 
-            for (const Model::BrushFace* face : brush->brush().faces()) {
-                CHECK(!face->attributes().textureName().empty());
-                CHECK(face->attributes().textureName() == Model::BrushFaceAttributes::NoTextureName);
+            for (const Model::BrushFace& face : brush->brush().faces()) {
+                CHECK(!face.attributes().textureName().empty());
+                CHECK(face.attributes().textureName() == Model::BrushFaceAttributes::NoTextureName);
             }
         }
     }

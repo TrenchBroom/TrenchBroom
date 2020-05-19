@@ -203,9 +203,9 @@ namespace TrenchBroom {
             const Model::Brush cube = makeCube128();
             const auto topFaceIndex = cube.findFace(vm::vec3::pos_z());
             REQUIRE(topFaceIndex);
-            const Model::BrushFace* topFace = cube.face(*topFaceIndex);
+            const Model::BrushFace& topFace = cube.face(*topFaceIndex);
 
-            ASSERT_DOUBLE_EQ(64.0, topFace->boundsCenter().z());
+            ASSERT_DOUBLE_EQ(64.0, topFace.boundsCenter().z());
 
             // try to move almost 4 grid increments up -> snaps to 3
             ASSERT_EQ(vm::vec3(0,0,48), grid16.moveDelta(topFace, vm::vec3(0, 0, 63)));
@@ -219,9 +219,9 @@ namespace TrenchBroom {
             const Model::Brush cube = makeCube128();
             const auto topFaceIndex = cube.findFace(vm::vec3::pos_z());
             REQUIRE(topFaceIndex);
-            const Model::BrushFace* topFace = cube.face(*topFaceIndex);
+            const Model::BrushFace& topFace = cube.face(*topFaceIndex);
 
-            ASSERT_DOUBLE_EQ(64.0, topFace->boundsCenter().z());
+            ASSERT_DOUBLE_EQ(64.0, topFace.boundsCenter().z());
 
             // try to move almost 4 grid increments up -> snaps to 3
             ASSERT_EQ(vm::vec3(0,0,1.5), grid05.moveDelta(topFace, vm::vec3(0, 0, 1.9)));

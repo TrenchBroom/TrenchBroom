@@ -78,7 +78,7 @@ namespace TrenchBroom {
                 const auto& hit = firstHit(inputState, Model::BrushNode::BrushHitType);
                 if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                     const auto* brush = faceHandle->node();
-                    const auto* face = faceHandle->face();;
+                    const auto& face = faceHandle->face();;
                     if (editorContext.selectable(brush, face)) {
                         if (isMultiClick(inputState)) {
                             const auto objects = document->hasSelectedNodes();
@@ -91,7 +91,7 @@ namespace TrenchBroom {
                                     document->select(*faceHandle);
                                 }
                             } else {
-                                if (face->selected()) {
+                                if (face.selected()) {
                                     document->deselect(*faceHandle);
                                 } else {
                                     document->select(*faceHandle);
@@ -146,7 +146,7 @@ namespace TrenchBroom {
                 const auto& hit = firstHit(inputState, Model::BrushNode::BrushHitType);
                 if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                     auto* brush = faceHandle->node();
-                    const auto* face = faceHandle->face();
+                    const auto& face = faceHandle->face();
                     if (editorContext.selectable(brush, face)) {
                         if (isMultiClick(inputState)) {
                             if (document->hasSelectedNodes()) {
@@ -340,13 +340,13 @@ namespace TrenchBroom {
                 const auto& hit = firstHit(inputState, Model::BrushNode::BrushHitType);
                 if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                     const auto* brush = faceHandle->node();
-                    const auto* face = faceHandle->face();
+                    const auto& face = faceHandle->face();
                     if (editorContext.selectable(brush, face)) {
                         document->startTransaction("Drag Select Brush Faces");
                         if (document->hasSelection() && !document->hasSelectedBrushFaces()) {
                             document->deselectAll();
                         }
-                        if (!face->selected()) {
+                        if (!face.selected()) {
                             document->select(*faceHandle);
                         }
 
@@ -382,8 +382,8 @@ namespace TrenchBroom {
                 const auto& hit = firstHit(inputState, Model::BrushNode::BrushHitType);
                 if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                     const auto* brush = faceHandle->node();
-                    const auto* face = faceHandle->face();
-                    if (!face->selected() && editorContext.selectable(brush, face)) {
+                    const auto& face = faceHandle->face();
+                    if (!face.selected() && editorContext.selectable(brush, face)) {
                         document->select(*faceHandle);
                     }
                 }

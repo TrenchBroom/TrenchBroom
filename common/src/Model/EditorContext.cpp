@@ -227,8 +227,8 @@ namespace TrenchBroom {
             return brush->visible();
         }
 
-        bool EditorContext::visible(const Model::BrushNode*, const Model::BrushFace* face) const {
-            return !face->hasTag(m_hiddenTags);
+        bool EditorContext::visible(const Model::BrushNode*, const Model::BrushFace& face) const {
+            return !face.hasTag(m_hiddenTags);
         }
 
         bool EditorContext::anyChildVisible(const Model::Node* node) const {
@@ -240,7 +240,7 @@ namespace TrenchBroom {
             return node->editable();
         }
 
-        bool EditorContext::editable(const Model::BrushNode* brush, const Model::BrushFace*) const {
+        bool EditorContext::editable(const Model::BrushNode* brush, const Model::BrushFace&) const {
             return editable(brush);
         }
 
@@ -287,7 +287,7 @@ namespace TrenchBroom {
             return visible(brush);
         }
 
-        bool EditorContext::pickable(const Model::BrushNode* brush, const Model::BrushFace* face) const {
+        bool EditorContext::pickable(const Model::BrushNode* brush, const Model::BrushFace& face) const {
             return brush->selected() || visible(brush, face);
         }
 
@@ -330,7 +330,7 @@ namespace TrenchBroom {
             return visible(brush) && editable(brush) && pickable(brush) && inOpenGroup(brush);
         }
 
-        bool EditorContext::selectable(const Model::BrushNode* brush, const Model::BrushFace* face) const {
+        bool EditorContext::selectable(const Model::BrushNode* brush, const Model::BrushFace& face) const {
             return visible(brush, face) && editable(brush, face) && pickable(brush, face);
         }
 

@@ -49,6 +49,7 @@
 
 #include <algorithm>
 #include <map>
+#include <optional>
 #include <vector>
 
 namespace TrenchBroom {
@@ -122,8 +123,8 @@ namespace TrenchBroom {
             doCancelDragPoint();
         }
 
-        bool ClipTool::ClipStrategy::setFace(const Model::BrushFace* face) {
-            return doSetFace(face);
+        bool ClipTool::ClipStrategy::setFace(const Model::BrushFaceHandle& faceHandle) {
+            return doSetFace(faceHandle);
         }
 
         void ClipTool::ClipStrategy::reset() {
@@ -346,7 +347,7 @@ namespace TrenchBroom {
                 m_dragIndex = 4;
             }
 
-            bool doSetFace(const Model::BrushFace* /* face */) override {
+            bool doSetFace(const Model::BrushFaceHandle& /* faceHandle */) override {
                 return false;
             }
 
@@ -422,18 +423,15 @@ namespace TrenchBroom {
 
         class ClipTool::FaceClipStrategy : public ClipTool::ClipStrategy {
         private:
-            const Model::BrushFace* m_face;
-        public:
-            FaceClipStrategy() :
-            m_face(nullptr) {}
+            std::optional<Model::BrushFaceHandle> m_faceHandle;
         private:
             void doPick(const vm::ray3& /* pickRay */, const Renderer::Camera& /* camera */, Model::PickResult&) const override {}
 
             void doRender(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult&) override {
-                if (m_face != nullptr) {
+                if (m_faceHandle) {
                     Renderer::RenderService renderService(renderContext, renderBatch);
 
-                    const auto vertices = m_face->vertices();
+                    const auto vertices = m_faceHandle->face().vertices();
 
                     std::vector<vm::vec3f> positions;
                     positions.reserve(vertices.size());
@@ -456,7 +454,7 @@ namespace TrenchBroom {
 
             bool doComputeThirdPoint(vm::vec3& /* point */) const override { return false; }
 
-            bool doCanClip() const override { return m_face != nullptr; }
+            bool doCanClip() const override { return m_faceHandle.has_value(); }
             bool doHasPoints() const override { return false; }
             bool doCanAddPoint(const vm::vec3& /* point */) const override { return false; }
             void doAddPoint(const vm::vec3& /* point */, const std::vector<vm::vec3>& /* helpVectors */) override {}
@@ -470,26 +468,25 @@ namespace TrenchBroom {
             void doEndDragPoint() override {}
             void doCancelDragPoint() override {}
 
-            bool doSetFace(const Model::BrushFace* face) override {
-                ensure(face != nullptr, "face is null");
-                m_face = face;
+            bool doSetFace(const Model::BrushFaceHandle& faceHandle) override {
+                m_faceHandle = faceHandle;
                 return true;
             }
 
             void doReset() override {
-                m_face = nullptr;
+                m_faceHandle = std::nullopt;
             }
 
             size_t doGetPoints(vm::vec3& point1, vm::vec3& point2, vm::vec3& point3) const override {
-                if (m_face == nullptr) {
+                if (m_faceHandle) {
+                    const auto& points = m_faceHandle->face().points();
+                    point1 = points[0];
+                    point2 = points[1];
+                    point3 = points[2];
+                    return 3;
+                } else {
                     return 0;
                 }
-
-                const auto& points = m_face->points();
-                point1 = points[0];
-                point2 = points[1];
-                point3 = points[2];
-                return 3;
             }
         };
 
@@ -709,9 +706,9 @@ namespace TrenchBroom {
             refreshViews();
         }
 
-        void ClipTool::setFace(const Model::BrushFace* face) {
+        void ClipTool::setFace(const Model::BrushFaceHandle& faceHandle) {
             m_strategy = std::make_unique<FaceClipStrategy>();
-            m_strategy->setFace(face);
+            m_strategy->setFace(faceHandle);
             update();
         }
 
@@ -781,27 +778,27 @@ namespace TrenchBroom {
             }
         }
 
-        void ClipTool::setFaceAttributes(const std::vector<const Model::BrushFace*>& faces, Model::BrushFace& frontFace, Model::BrushFace& backFace) const {
+        void ClipTool::setFaceAttributes(const std::vector<Model::BrushFace>& faces, Model::BrushFace& frontFace, Model::BrushFace& backFace) const {
             ensure(!faces.empty(), "no faces");
 
             auto faceIt = std::begin(faces);
             const auto faceEnd = std::end(faces);
-            const auto* bestFrontFace = *faceIt++;
+            const auto* bestFrontFace = &*faceIt++;
             const auto* bestBackFace = bestFrontFace;
 
             while (faceIt != faceEnd) {
-                const auto* face = *faceIt;
+                const auto& face = *faceIt;
 
                 const auto bestFrontDiff = bestFrontFace->boundary().normal - frontFace.boundary().normal;
-                const auto frontDiff = face->boundary().normal - frontFace.boundary().normal;
+                const auto frontDiff = face.boundary().normal - frontFace.boundary().normal;
                 if (vm::squared_length(frontDiff) < vm::squared_length(bestFrontDiff)) {
-                    bestFrontFace = face;
+                    bestFrontFace = &face;
                 }
 
                 const auto bestBackDiff = bestBackFace->boundary().normal - backFace.boundary().normal;
-                const auto backDiff = face->boundary().normal - backFace.boundary().normal;
+                const auto backDiff = face.boundary().normal - backFace.boundary().normal;
                 if (vm::squared_length(backDiff) < vm::squared_length(bestBackDiff)) {
-                    bestBackFace = face;
+                    bestBackFace = &face;
                 }
 
                 ++faceIt;

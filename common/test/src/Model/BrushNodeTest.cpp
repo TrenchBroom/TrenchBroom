@@ -278,7 +278,7 @@ namespace TrenchBroom {
 
             Hit hit1 = hits1.all().front();
             ASSERT_DOUBLE_EQ(8.0, hit1.distance());
-            ASSERT_EQ(vm::vec3::neg_y(), hitToFaceHandle(hit1)->face()->boundary().normal);
+            ASSERT_EQ(vm::vec3::neg_y(), hitToFaceHandle(hit1)->face().boundary().normal);
 
             PickResult hits2;
             brush.pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::neg_y()), hits2);
@@ -325,12 +325,12 @@ namespace TrenchBroom {
             BrushNode* clone = original.clone(worldBounds);
             
             ASSERT_EQ(original.brush().faceCount(), clone->brush().faceCount());
-            for (const auto* originalFace : original.brush().faces()) {
-                const auto cloneFaceIndex = clone->brush().findFace(originalFace->boundary());
+            for (const auto& originalFace : original.brush().faces()) {
+                const auto cloneFaceIndex = clone->brush().findFace(originalFace.boundary());
                 ASSERT_TRUE(cloneFaceIndex.has_value());
                 
-                const auto* cloneFace = clone->brush().face(*cloneFaceIndex);
-                ASSERT_EQ(*originalFace, *cloneFace);
+                const auto& cloneFace = clone->brush().face(*cloneFaceIndex);
+                ASSERT_EQ(originalFace, cloneFace);
             }
             
             delete clone;
@@ -495,16 +495,16 @@ namespace TrenchBroom {
             }
 
             // Check all textures are cleared
-            for (const BrushFace* face : cube->brush().faces()) {
-                EXPECT_EQ(nullptr, face->texture());
+            for (const BrushFace& face : cube->brush().faces()) {
+                EXPECT_EQ(nullptr, face.texture());
             }
 
             snapshot->restore(worldBounds);
 
             // Check just the texture names are restored
-            for (const BrushFace* face : cube->brush().faces()) {
-                EXPECT_EQ("testTexture", face->attributes().textureName());
-                EXPECT_EQ(nullptr, face->texture());
+            for (const BrushFace& face : cube->brush().faces()) {
+                EXPECT_EQ("testTexture", face.attributes().textureName());
+                EXPECT_EQ(nullptr, face.texture());
             }
 
             delete snapshot;

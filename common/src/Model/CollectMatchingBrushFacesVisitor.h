@@ -48,7 +48,7 @@ namespace TrenchBroom {
             void doVisit(BrushNode* brushNode) override {
                 const Brush& brush = brushNode->brush();
                 for (size_t i = 0u; i < brush.faceCount(); ++i) {
-                    const BrushFace* face = brush.face(i);
+                    const BrushFace& face = brush.face(i);
                     if (m_p(brushNode, face)) {
                         m_faces.push_back(BrushFaceHandle(brushNode, i));
                     }

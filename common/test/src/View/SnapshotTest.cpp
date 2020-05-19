@@ -49,8 +49,8 @@ namespace TrenchBroom {
             ASSERT_NE(nullptr, texture);
             ASSERT_EQ(6u, texture->usageCount());
 
-            for (const Model::BrushFace* face : brushNode->brush().faces())
-                ASSERT_EQ(texture, face->texture());
+            for (const Model::BrushFace& face : brushNode->brush().faces())
+                ASSERT_EQ(texture, face.texture());
 
             document->translateObjects(vm::vec3(1, 1, 1));
             ASSERT_EQ(6u, texture->usageCount());
@@ -58,8 +58,8 @@ namespace TrenchBroom {
             document->undoCommand();
             ASSERT_EQ(6u, texture->usageCount());
 
-            for (const Model::BrushFace* face : brushNode->brush().faces())
-                ASSERT_EQ(texture, face->texture());
+            for (const Model::BrushFace& face : brushNode->brush().faces())
+                ASSERT_EQ(texture, face.texture());
         }
 
         TEST_CASE_METHOD(SnapshotTest, "SnapshotTest.undoRotation", "[SnapshotTest]") {

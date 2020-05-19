@@ -81,7 +81,7 @@ namespace TrenchBroom {
             std::vector<BrushFace> parseBrushFaces(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& logger) const;
 
             void writeNodesToStream(WorldNode& world, const std::vector<Node*>& nodes, std::ostream& stream) const;
-            void writeBrushFacesToStream(WorldNode& world, const std::vector<const BrushFace*>& faces, std::ostream& stream) const;
+            void writeBrushFacesToStream(WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const;
         public: // texture collection handling
             TexturePackageType texturePackageType() const;
             void loadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const;
@@ -123,7 +123,7 @@ namespace TrenchBroom {
             virtual std::vector<Node*> doParseNodes(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& logger) const = 0;
             virtual std::vector<BrushFace> doParseBrushFaces(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& logger) const = 0;
             virtual void doWriteNodesToStream(WorldNode& world, const std::vector<Node*>& nodes, std::ostream& stream) const = 0;
-            virtual void doWriteBrushFacesToStream(WorldNode& world, const std::vector<const BrushFace*>& faces, std::ostream& stream) const = 0;
+            virtual void doWriteBrushFacesToStream(WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const = 0;
 
             virtual TexturePackageType doTexturePackageType() const = 0;
             virtual void doLoadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const = 0;
