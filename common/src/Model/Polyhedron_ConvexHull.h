@@ -276,7 +276,7 @@ namespace TrenchBroom {
             assert(polygon());
 
             Face* face = m_faces.front();
-            vm::plane<T,3> facePlane = callback.getPlane(face);
+            const vm::plane<T,3>& facePlane = face->plane();
 
             HalfEdge* firstVisibleEdge = nullptr;
             HalfEdge* lastVisibleEdge = nullptr;
@@ -392,7 +392,7 @@ namespace TrenchBroom {
         template <typename T, typename FP, typename VP>
         typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolyhedron(const vm::vec<T,3>& position, Callback& callback) {
             assert(polyhedron());
-            if (contains(position, callback)) {
+            if (contains(position)) {
                 return nullptr;
             }
 

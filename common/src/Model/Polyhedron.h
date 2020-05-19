@@ -1051,16 +1051,6 @@ namespace TrenchBroom {
                 virtual void vertexWillBeRemoved(Vertex* vertex);
 
                 /**
-                 * Called to compute the plane of a face. The face of a plane is the plane on which the vertices of that
-                 * face all lie. By default this method builds a plane using the given face's normal and origin.
-                 * Overriding this function allows to use other methods to get the face's plane, such as via its payload.
-                 *
-                 * @param face the face for which the plane should be computed
-                 * @return the face plane
-                 */
-                virtual vm::plane<T,3> getPlane(const Face* face) const;
-
-                /**
                  * Called after a new face was created.
                  *
                  * @param face the newly created face
@@ -2120,11 +2110,10 @@ namespace TrenchBroom {
              * the given polyhedron. This polyhedron remains unchanged.
              *
              * @param other the polyhedron to clip with
-             * @param callback the callback to use when determining the normals of the given subtrahend's faces
              * @return the result of the clipping operation
              * @throw GeometryException if the polyhedron cannot be intersected with any face of the given polyhedron
              */
-            Polyhedron intersect(Polyhedron other, const Callback& callback = Callback()) const;
+            Polyhedron intersect(Polyhedron other) const;
 
         public: // Subtraction
             /**
@@ -2139,10 +2128,9 @@ namespace TrenchBroom {
              * this polyhedron.
              *
              * @param subtrahend the polyhedron to subtract from this polyhedron
-             * @param callback the callback to use when determining the normals of the given subtrahend's faces
              * @return the resulting fragments
              */
-            std::vector<Polyhedron> subtract(const Polyhedron& subtrahend, const Callback& callback = Callback()) const;
+            std::vector<Polyhedron> subtract(const Polyhedron& subtrahend) const;
         private:
             class Subtract;
 
@@ -2153,10 +2141,9 @@ namespace TrenchBroom {
              * polyhedron if it isn't above any of its faces' planes.
              *
              * @param point the point to check
-             * @param callback the callback to use when determining plane normals
              * @return true if the given point is contained in this polyhedron and false otherwise
              */
-            bool contains(const vm::vec<T,3>& point, const Callback& callback = Callback()) const;
+            bool contains(const vm::vec<T,3>& point) const;
 
             /**
              * Checks whether this polyhedron contains the given polyhedron. A polyhedron is considered to be contained
@@ -2172,15 +2159,14 @@ namespace TrenchBroom {
              * is an empty polyhedron.
              *
              * @param other the polyhedron to check
-             * @param callback the callback to use when determining the normals of the given subtrahend's faces
              * @return true if this polyhedron intersects the other polyhedron
              */
-            bool intersects(const Polyhedron& other, const Callback& callback = Callback()) const;
+            bool intersects(const Polyhedron& other) const;
         private: // helper functions for all cases of polygon / polygon intersection
             static bool pointIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs);
             static bool pointIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs);
-            static bool pointIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
-            static bool pointIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
+            static bool pointIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs);
+            static bool pointIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs);
 
             static bool edgeIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs);
             static bool edgeIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs);
@@ -2189,17 +2175,17 @@ namespace TrenchBroom {
 
             static bool edgeIntersectsFace(const Edge* lhsEdge, const Face* rhsFace);
 
-            static bool polygonIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
+            static bool polygonIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs);
             static bool polygonIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs);
             static bool polygonIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs);
             static bool polygonIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs);
 
             static bool faceIntersectsFace(const Face* lhsFace, const Face* rhsFace);
 
-            static bool polyhedronIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
+            static bool polyhedronIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs);
             static bool polyhedronIntersectsEdge(const Polyhedron& lhs, const Polyhedron& rhs);
             static bool polyhedronIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs);
-            static bool polyhedronIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback = Callback());
+            static bool polyhedronIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs);
 
             /**
              * Checks whether there is a face among the given faces such that all of the given vertices are above that
@@ -2207,11 +2193,10 @@ namespace TrenchBroom {
              *
              * @param faces the faces to check
              * @param vertices the vertices to check against each face plane
-             * @param callback the callback to use when determining the normals of the given subtrahend's faces
              * @return true if a face was found such that all of the given vertices have their position above the face
              * plane and false otherwise
              */
-            static bool separate(const FaceList& faces, const VertexList& vertices, const Callback& callback);
+            static bool separate(const FaceList& faces, const VertexList& vertices);
 
             /**
              * Checks the relative positions of the given points to the given plane. Returns

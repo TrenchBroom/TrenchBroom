@@ -119,13 +119,6 @@ namespace TrenchBroom {
             }
         };
 
-        class Brush::QueryCallback : public BrushGeometry::Callback {
-        public:
-            vm::plane3 getPlane(const BrushFaceGeometry* face) const override {
-                return face->payload()->boundary();
-            }
-        };
-
         class Brush::CopyCallback : public BrushGeometry::CopyCallback {
         private:
             const std::unordered_map<const BrushFace*, BrushFace*>& m_faceMap;
@@ -992,7 +985,7 @@ namespace TrenchBroom {
         }
 
         bool Brush::intersects(const Brush& brush) const {
-            return m_geometry->intersects(*brush.m_geometry, QueryCallback());
+            return m_geometry->intersects(*brush.m_geometry);
         }
 
         Brush Brush::createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<const Brush*>& subtrahends) const {

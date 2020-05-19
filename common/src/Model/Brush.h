@@ -41,7 +41,6 @@ namespace TrenchBroom {
             class AddFaceToGeometryCallback;
             class HealEdgesCallback;
             class AddFacesToGeometry;
-            class QueryCallback;
             class CopyCallback;
         public:
             using VertexList = BrushVertexList;

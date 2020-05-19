@@ -60,31 +60,6 @@ namespace TrenchBroom {
         void Polyhedron<T,FP,VP>::Callback::vertexWillBeRemoved(Vertex* /* vertex */) {}
 
         template <typename T, typename FP, typename VP>
-        vm::plane<T,3> Polyhedron<T,FP,VP>::Callback::getPlane(const Face* face) const {
-            const auto& boundary = face->boundary();
-            assert(boundary.size() >= 3u);
-
-            for (const HalfEdge* curEdge : boundary) {
-                const auto* e1 = curEdge;
-                const auto* e2 = e1->next();
-                const auto* e3 = e2->next();
-
-                const auto& p1 = e1->origin()->position();
-                const auto& p2 = e2->origin()->position();
-                const auto& p3 = e3->origin()->position();
-
-                const auto [valid, result] = vm::from_points(p2, p1, p3);
-                if (valid) {
-                    return result;
-                }
-            }
-
-            // TODO: We should really throw an exception here.
-            assert(false);
-            return ::vm::plane<T,3>(); // Ooops!
-        }
-
-        template <typename T, typename FP, typename VP>
         void Polyhedron<T,FP,VP>::Callback::faceWasCreated(Face* /* face */) {}
 
         template <typename T, typename FP, typename VP>
