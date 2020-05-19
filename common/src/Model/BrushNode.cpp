@@ -246,12 +246,6 @@ namespace TrenchBroom {
             return m_brush.incidentFaces(vertex);
         }
 
-        void BrushNode::intersect(const vm::bbox3& worldBounds, const BrushNode* brush) {
-            const NotifyNodeChange nodeChange(this);
-            const NotifyPhysicalBoundsChange boundsChange(this);
-            m_brush.intersect(worldBounds, brush->m_brush);
-        }
-
         bool BrushNode::canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const {
             return m_brush.canTransform(transformation, worldBounds);
         }

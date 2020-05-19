@@ -1242,17 +1242,19 @@ namespace TrenchBroom {
 
         bool MapDocument::csgIntersect() {
             const std::vector<Model::BrushNode*> brushes = selectedNodes().brushes();
-            if (brushes.size() < 2)
+            if (brushes.size() < 2u) {
                 return false;
+            }
 
-            Model::BrushNode* result = brushes.front()->clone(m_worldBounds);
+            Model::Brush intersection = brushes.front()->brush();
 
             bool valid = true;
-            std::vector<Model::BrushNode*>::const_iterator it, end;
-            for (it = std::begin(brushes), end = std::end(brushes); it != end && valid; ++it) {
-                Model::BrushNode* brush = *it;
+            for (auto it = std::begin(brushes), end = std::end(brushes); it != end && valid; ++it) {
+                Model::BrushNode* brushNode = *it;
+                const Model::Brush& brush = brushNode->brush();
+                
                 try {
-                    result->intersect(m_worldBounds, brush);
+                    intersection.intersect(m_worldBounds, brush);
                 } catch (const GeometryException&) {
                     valid = false;
                 }
@@ -1264,12 +1266,12 @@ namespace TrenchBroom {
             deselect(toRemove);
 
             if (valid) {
-                addNode(result, currentParent());
+                Model::BrushNode* intersectionNode = new Model::BrushNode(std::move(intersection));
+                addNode(intersectionNode, currentParent());
                 removeNodes(toRemove);
-                select(result);
+                select(intersectionNode);
             } else {
                 removeNodes(toRemove);
-                delete result;
             }
 
             return true;
