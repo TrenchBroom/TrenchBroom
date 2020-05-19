@@ -54,9 +54,10 @@ namespace TrenchBroom {
         template <typename T, typename FP, typename VP>
         typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const vm::plane<T,3>& plane, Callback& callback) {
             const ClipResult vertexResult = checkIntersects(plane);
-            if (!vertexResult.success())
+            if (!vertexResult.success()) {
                 return vertexResult;
-
+            }
+            
             // The basic idea is now to split all faces which are intersected by the given plane so that the polyhedron
             // can be separated into two halves such that no face has vertices on opposite sides of the plane.
             // Sometimes building a seam fails due to floating point imprecisions. In that case, intersectWithPlane
@@ -76,7 +77,17 @@ namespace TrenchBroom {
                 assert(checkInvariant());
 
                 return ClipResult(ClipResult::Type_ClipSuccess);
-            } catch (const NoSeamException&) {
+            } catch (const NoSeamException& e) {
+                /*
+                 No seam could be constructed, but the polyhedron may have been modified by splitting
+                 some faces. The exception contains the edges connecting the split faces, and now we must
+                 merge them again if they are coplanar.
+                 */
+                for (const Edge* edge : e.splitFaces()) {
+                    mergeNeighbours(edge->firstEdge(), nullptr, callback);
+                }
+                assert(checkInvariant());
+
                 /*
                  We assume that the plane doesn't intersect the polyhedron. The result may either be
                  that the polyhedron remains unchanged or that it becomes empty. We need to look at
@@ -139,20 +150,39 @@ namespace TrenchBroom {
 
         template <typename T, typename FP, typename VP>
         class Polyhedron<T,FP,VP>::NoSeamException : public Exception {
-            using Exception::Exception;
+        private:
+            std::vector<Edge*> m_splitFaces;
+        public:
+            NoSeamException(std::vector<Edge*> splitFaces) :
+            m_splitFaces(std::move(splitFaces)) {}
+            
+            const std::vector<Edge*>& splitFaces() const {
+                return m_splitFaces;
+            }
         };
 
         template <typename T, typename FP, typename VP>
         typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::intersectWithPlane(const vm::plane<T,3>& plane, Callback& callback) {
             Seam seam;
+            std::vector<Edge*> splitFaces;
 
             // First, we find a half edge that is intersected by the given plane.
             HalfEdge* initialEdge = findInitialIntersectingEdge(plane);
             ensure(initialEdge != nullptr, "initialEdge is null");
 
+            HalfEdge* currentEdge;
+            bool faceWasSplit;
+            
             // Now we split the face to which this initial half edge belongs. The call returns the newly inserted edge
             // that connects the (possibly newly inserted) vertices which are now inside of the plane.
-            HalfEdge* currentEdge = intersectWithPlane(initialEdge, plane, callback);
+            std::tie(currentEdge, faceWasSplit) = intersectWithPlane(initialEdge, plane, callback);
+            
+            // Keep track of the faces that were split so that we can merge them if no seam can be created.
+            if (faceWasSplit) {
+                Edge* seamEdge = currentEdge->edge();
+                seamEdge->makeSecondEdge(currentEdge);
+                splitFaces.push_back(seamEdge);
+            }
 
             // The destination of that edge is the first vertex which we encountered (or inserted) which is inside the plane.
             // This is where our algorithm must stop. When we encounter that vertex again, we have completed the intersection
@@ -164,12 +194,12 @@ namespace TrenchBroom {
 
                 // If no edge could be found, then we cannot build a seam because the plane is barely touching the polyhedron.
                 if (currentEdge == nullptr) {
-                    throw NoSeamException();
+                    throw NoSeamException(std::move(splitFaces));
                 }
 
                 // Now we split that face. Again, the returned edge connects the two (possibly inserted) vertices of that
                 // face which are now inside the plane.
-                currentEdge = intersectWithPlane(currentEdge, plane, callback);
+                std::tie(currentEdge, faceWasSplit) = intersectWithPlane(currentEdge, plane, callback);
 
                 // Build a seam while intersecting the polyhedron by remembering the edges we just inserted. To ensure that
                 // the seam edges are correctly oriented, we check that the current edge is the second edge, as the current
@@ -177,9 +207,13 @@ namespace TrenchBroom {
                 Edge* seamEdge = currentEdge->edge();
                 seamEdge->makeSecondEdge(currentEdge);
 
+                if (faceWasSplit) {
+                    splitFaces.push_back(seamEdge);
+                }
+                
                 // Ensure that the seam remains valid.
                 if (!seam.empty() && seamEdge == seam.last()) {
-                    throw NoSeamException();
+                    throw NoSeamException(std::move(splitFaces));
                 }
 
                 seam.push_back(seamEdge);
@@ -237,7 +271,7 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::intersectWithPlane(HalfEdge* firstBoundaryEdge, const vm::plane<T,3>& plane, Callback& callback) {
+        std::tuple<typename Polyhedron<T,FP,VP>::HalfEdge*, bool> Polyhedron<T,FP,VP>::intersectWithPlane(HalfEdge* firstBoundaryEdge, const vm::plane<T,3>& plane, Callback& callback) {
 
             // Starting at the given edge, we search the boundary of the incident face until we find an edge that is either split in two by the given plane
             // or where its origin is inside it. In the first case, we split the found edge by inserting a vertex at the position where
@@ -287,9 +321,10 @@ namespace TrenchBroom {
 
             // The plane only touches one vertex of the face.
             if (seamDestination == nullptr) {
-                return seamOrigin->previous();
+                return std::make_tuple(seamOrigin->previous(), false);
             }
 
+            bool faceWasSplit = false;
             if (seamDestination->next() == seamOrigin) {
                 using std::swap;
                 swap(seamOrigin, seamDestination);
@@ -305,9 +340,10 @@ namespace TrenchBroom {
                 } else {
                     intersectWithPlane(seamDestination, seamOrigin, callback);
                 }
+                faceWasSplit = true;
             }
 
-            return seamDestination->previous();
+            return std::make_tuple(seamDestination->previous(), faceWasSplit);
         }
 
         template <typename T, typename FP, typename VP>

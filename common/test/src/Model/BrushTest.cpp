@@ -2809,7 +2809,7 @@ namespace TrenchBroom {
             IO::NodeReader reader(data, world);
 
             auto nodes = reader.read(worldBounds, status);
-            EXPECT_EQ(1u, nodes.size());
+            REQUIRE(nodes.size() == 1u);
 
             Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
 
