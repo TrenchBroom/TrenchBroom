@@ -1088,6 +1088,30 @@ namespace TrenchBroom {
                  */
                 virtual void facesWillBeMerged(Face* remaining, Face* toDelete);
             };
+            
+            /**
+             * A callback for the copy operation. Useful for setting up face and vertex payloads.
+             */
+            class CopyCallback {
+            public:
+                virtual ~CopyCallback();
+                
+                /**
+                 * Called when a vertex was copied.
+                 *
+                 * @param original the original vertex
+                 * @param copy the vertex copy
+                 */
+                virtual void vertexWasCopied(const Vertex* original, Vertex* copy);
+                
+                /**
+                 * Called when a face was copied.
+                 *
+                 * @param original the original face
+                 * @param copy the face copy
+                 */
+                virtual void faceWasCopied(const Face* original, Face* copy);
+            };
         private:
             /**
              * The vertices of this polyhedron, stored in a circular list that owns them.
@@ -1139,6 +1163,13 @@ namespace TrenchBroom {
              * Copy constructor.
              */
             Polyhedron(const Polyhedron<T,FP,VP>& other);
+
+            /**
+             * Copy constructor with callback. The callback can be used to set up the face and vertex payloads.
+             *
+             * @param callback the callback to call for every created face or vertex
+             */
+            Polyhedron(const Polyhedron<T,FP,VP>& other, CopyCallback& callback);
 
             /**
              * Move constructor.
