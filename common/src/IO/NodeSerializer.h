@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class BrushNode;
         class BrushFace;
         class EntityAttribute;
-        class Group;
+        class GroupNode;
         class LayerNode;
         class Node;
         class World;
@@ -73,7 +73,7 @@ namespace TrenchBroom {
         public:
             void defaultLayer(Model::World& world);
             void customLayer(Model::LayerNode* layer);
-            void group(Model::Group* group, const std::vector<Model::EntityAttribute>& parentAttributes);
+            void group(Model::GroupNode* group, const std::vector<Model::EntityAttribute>& parentAttributes);
 
             void entity(Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& parentAttributes, Model::Node* brushParent);
             void entity(Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& parentAttributes, const std::vector<Model::BrushNode*>& entityBrushes);
@@ -100,7 +100,7 @@ namespace TrenchBroom {
             std::vector<Model::EntityAttribute> parentAttributes(const Model::Node* node);
         private:
             std::vector<Model::EntityAttribute> layerAttributes(const Model::LayerNode* layer);
-            std::vector<Model::EntityAttribute> groupAttributes(const Model::Group* group);
+            std::vector<Model::EntityAttribute> groupAttributes(const Model::GroupNode* group);
         protected:
             std::string escapeEntityAttribute(const std::string& str) const;
         private:

@@ -19,7 +19,7 @@
 
 #include "CollectRecursivelySelectedNodesVisitor.h"
 
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 
 namespace TrenchBroom {
     namespace Model {

@@ -30,7 +30,7 @@
 #include "Model/FindContainerVisitor.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
@@ -327,7 +327,7 @@ namespace TrenchBroom {
         private:
             void doVisit(World* world) override       { setResult(world); cancel(); }
             void doVisit(LayerNode* /* layer */) override {}
-            void doVisit(Group* /* group */) override {}
+            void doVisit(GroupNode* /* group */) override {}
             void doVisit(Entity* entity) override     { setResult(entity); cancel(); }
             void doVisit(BrushNode* /* brush */) override {}
         };
@@ -1443,7 +1443,7 @@ namespace TrenchBroom {
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
-        Group* BrushNode::doGetGroup() const {
+        GroupNode* BrushNode::doGetGroup() const {
             FindGroupVisitor visitor;
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
@@ -1468,7 +1468,7 @@ namespace TrenchBroom {
         private:
             void doVisit(const World* /* world */) override { setResult(false); }
             void doVisit(const LayerNode* /* layer */) override { setResult(false); }
-            void doVisit(const Group* group) override       { setResult(contains(group->logicalBounds())); }
+            void doVisit(const GroupNode* group) override       { setResult(contains(group->logicalBounds())); }
             void doVisit(const Entity* entity) override     { setResult(contains(entity->logicalBounds())); }
             void doVisit(const BrushNode* brush) override       { setResult(contains(brush)); }
 
@@ -1507,7 +1507,7 @@ namespace TrenchBroom {
         private:
             void doVisit(const World* /* world */) override { setResult(false); }
             void doVisit(const LayerNode* /* layer */) override { setResult(false); }
-            void doVisit(const Group* group) override       { setResult(intersects(group->logicalBounds())); }
+            void doVisit(const GroupNode* group) override       { setResult(intersects(group->logicalBounds())); }
             void doVisit(const Entity* entity) override     { setResult(intersects(entity->logicalBounds())); }
             void doVisit(const BrushNode* brush) override       { setResult(intersects(brush)); }
 

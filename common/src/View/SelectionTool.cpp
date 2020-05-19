@@ -27,7 +27,7 @@
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/FindGroupVisitor.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/Node.h"
@@ -57,7 +57,7 @@ namespace TrenchBroom {
         }
 
         Model::Node* findOutermostClosedGroupOrNode(Model::Node* node) {
-            Model::Group* group = findOutermostClosedGroup(node);
+            Model::GroupNode* group = findOutermostClosedGroup(node);
             if (group != nullptr) {
                 return group;
             }

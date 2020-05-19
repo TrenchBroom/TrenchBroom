@@ -36,7 +36,7 @@ namespace TrenchBroom {
         private:
             void doVisit(World* world) override;
             void doVisit(LayerNode* layer) override;
-            void doVisit(Group* group) override;
+            void doVisit(GroupNode* group) override;
             void doVisit(Entity* entity) override;
             void doVisit(BrushNode* brush) override;
             void handleNode(Node* node);

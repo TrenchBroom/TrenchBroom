@@ -24,7 +24,7 @@
 #include "Model/AssortNodesVisitor.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/Node.h"
 #include "Model/World.h"
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             private:
                 void doVisit(Model::World* /* world */) override { m_worldBrushes.push_back(m_brush);  }
                 void doVisit(Model::LayerNode* /* layer */) override { m_worldBrushes.push_back(m_brush);  }
-                void doVisit(Model::Group* /* group */) override { m_worldBrushes.push_back(m_brush);  }
+                void doVisit(Model::GroupNode* /* group */) override { m_worldBrushes.push_back(m_brush);  }
                 void doVisit(Model::Entity* entity )    override { m_entityBrushes[entity].push_back(m_brush); }
                 void doVisit(Model::BrushNode* /* brush */) override {}
             };
@@ -85,7 +85,7 @@ namespace TrenchBroom {
             void doVisit(Model::World* /* world */) override   { stopRecursion(); }
             void doVisit(Model::LayerNode* /* layer */) override   { stopRecursion(); }
 
-            void doVisit(Model::Group* group) override   {
+            void doVisit(Model::GroupNode* group) override   {
                 m_serializer.group(group, m_parentAttributes);
                 WriteNode visitor(m_serializer, group);
                 group->iterate(visitor);
@@ -153,7 +153,7 @@ namespace TrenchBroom {
             writeWorldBrushes(collect.worldBrushes());
             writeEntityBrushes(collect.entityBrushes());
 
-            const std::vector<Model::Group*>& groups = collect.groups();
+            const std::vector<Model::GroupNode*>& groups = collect.groups();
             const std::vector<Model::Entity*>& entities = collect.entities();
 
             WriteNode visitor(*m_serializer);

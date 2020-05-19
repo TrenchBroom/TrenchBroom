@@ -30,7 +30,7 @@ namespace TrenchBroom {
         class AttributableNode;
         class BrushNode;
         class Entity;
-        class Group;
+        class GroupNode;
         class Issue;
         class IssueQuickFix;
         class LayerNode;
@@ -53,7 +53,7 @@ namespace TrenchBroom {
 
             void generate(World* world,   IssueList& issues) const;
             void generate(LayerNode* layer,   IssueList& issues) const;
-            void generate(Group* group,   IssueList& issues) const;
+            void generate(GroupNode* group,   IssueList& issues) const;
             void generate(Entity* entity, IssueList& issues) const;
             void generate(BrushNode* brush,   IssueList& issues) const;
         protected:
@@ -62,7 +62,7 @@ namespace TrenchBroom {
         private:
             virtual void doGenerate(World* world,           IssueList& issues) const;
             virtual void doGenerate(LayerNode* layer,           IssueList& issues) const;
-            virtual void doGenerate(Group* group,           IssueList& issues) const;
+            virtual void doGenerate(GroupNode* group,           IssueList& issues) const;
             virtual void doGenerate(Entity* entity,         IssueList& issues) const;
             virtual void doGenerate(BrushNode* brush,           IssueList& issues) const;
             virtual void doGenerate(AttributableNode* node, IssueList& issues) const;

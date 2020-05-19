@@ -48,7 +48,7 @@ namespace TrenchBroom {
         private:
             void doVisit(const World* world) override   { visitAttributableNode(world); }
             void doVisit(const LayerNode*) override         {}
-            void doVisit(const Group*) override         {}
+            void doVisit(const GroupNode*) override         {}
             void doVisit(const Entity* entity) override { visitAttributableNode(entity); }
             void doVisit(const BrushNode*) override         {}
 

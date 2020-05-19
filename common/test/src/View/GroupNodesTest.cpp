@@ -23,7 +23,7 @@
 
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/World.h"
 #include "View/MapDocumentTest.h"
@@ -44,7 +44,7 @@ namespace TrenchBroom {
             document->addNode(brush, document->currentParent());
             document->select(brush);
 
-            Model::Group* group = document->groupSelection("test");
+            Model::GroupNode* group = document->groupSelection("test");
             ASSERT_TRUE(group != nullptr);
 
             ASSERT_EQ(group, brush->parent());
@@ -70,7 +70,7 @@ namespace TrenchBroom {
 
             document->select(brush1);
 
-            Model::Group* group = document->groupSelection("test");
+            Model::GroupNode* group = document->groupSelection("test");
             ASSERT_TRUE(group != nullptr);
 
             ASSERT_EQ(entity, brush1->parent());
@@ -101,7 +101,7 @@ namespace TrenchBroom {
 
             document->select(std::vector<Model::Node*>({ brush1, brush2 }));
 
-            Model::Group* group = document->groupSelection("test");
+            Model::GroupNode* group = document->groupSelection("test");
             ASSERT_TRUE(group != nullptr);
 
             ASSERT_EQ(entity, brush1->parent());
@@ -133,7 +133,7 @@ namespace TrenchBroom {
             document->addNode(brush, document->currentParent());
             document->select(brush);
 
-            Model::Group* group = document->groupSelection("test");
+            Model::GroupNode* group = document->groupSelection("test");
             document->openGroup(group);
 
             ASSERT_EQ(PasteType::Node, document->paste(data));
@@ -165,7 +165,7 @@ namespace TrenchBroom {
 
             document->select(brush1);
 
-            Model::Group* group = document->groupSelection("test");
+            Model::GroupNode* group = document->groupSelection("test");
             ASSERT_TRUE(group->selected());
 
             ASSERT_TRUE(document->translateObjects(vm::vec3(16,0,0)));
@@ -189,7 +189,7 @@ namespace TrenchBroom {
 
             document->select(brush1);
 
-            Model::Group* group = document->groupSelection("test");
+            Model::GroupNode* group = document->groupSelection("test");
             ASSERT_TRUE(group->selected());
 
             EXPECT_FALSE(entity->hasAttribute("origin"));

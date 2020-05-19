@@ -37,7 +37,7 @@ namespace TrenchBroom {
         class BrushNode;
         class BrushFace;
         class EntityAttribute;
-        class Group;
+        class GroupNode;
         class LayerNode;
         class ModelFactory;
         class Node;
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             } EntityType;
 
             using LayerMap = std::map<Model::IdType, Model::LayerNode*>;
-            using GroupMap = std::map<Model::IdType, Model::Group*>;
+            using GroupMap = std::map<Model::IdType, Model::GroupNode*>;
 
             using NodeParentPair = std::pair<Model::Node*, ParentInfo>;
             using NodeParentList = std::vector<NodeParentPair>;

@@ -24,7 +24,7 @@ namespace TrenchBroom {
     namespace Model {
         class BrushNode;
         class Entity;
-        class Group;
+        class GroupNode;
         class LayerNode;
         class Node;
         enum class VisibilityState;
@@ -38,7 +38,7 @@ namespace TrenchBroom {
 
             bool operator()(const World* world) const;
             bool operator()(const LayerNode* layer) const;
-            bool operator()(const Group* group) const;
+            bool operator()(const GroupNode* group) const;
             bool operator()(const Entity* entity) const;
             bool operator()(const BrushNode* brush) const;
         private:

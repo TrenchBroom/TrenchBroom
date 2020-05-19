@@ -24,7 +24,7 @@
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/ModelFactory.h"
 
@@ -200,7 +200,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            Model::Group* group = m_factory->createGroup(name);
+            Model::GroupNode* group = m_factory->createGroup(name);
             setExtraAttributes(group, extraAttributes);
 
             storeNode(group, attributes, status);
@@ -259,8 +259,8 @@ namespace TrenchBroom {
                     const long rawId = std::atol(groupIdStr.c_str());
                     if (rawId > 0) {
                         const Model::IdType groupId = static_cast<Model::IdType>(rawId);
-                        Model::Group* group = kdl::map_find_or_default(m_groups, groupId,
-                            static_cast<Model::Group*>(nullptr));
+                        Model::GroupNode* group = kdl::map_find_or_default(m_groups, groupId,
+                            static_cast<Model::GroupNode*>(nullptr));
                         if (group != nullptr)
                             onNode(group, node, status);
                         else
@@ -309,7 +309,7 @@ namespace TrenchBroom {
                 return kdl::map_find_or_default(m_layers, layerId, static_cast<Model::LayerNode*>(nullptr));
             }
             const Model::IdType groupId = parentInfo.id();
-            return kdl::map_find_or_default(m_groups, groupId, static_cast<Model::Group*>(nullptr));
+            return kdl::map_find_or_default(m_groups, groupId, static_cast<Model::GroupNode*>(nullptr));
         }
 
         MapReader::EntityType MapReader::entityType(const std::vector<Model::EntityAttribute>& attributes) const {

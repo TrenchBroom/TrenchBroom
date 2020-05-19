@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Group;
+        class GroupNode;
     }
 
     namespace View {
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             static const CommandType Type;
         private:
             const std::string m_newName;
-            std::map<Model::Group*, std::string> m_oldNames;
+            std::map<Model::GroupNode*, std::string> m_oldNames;
         public:
             static std::unique_ptr<RenameGroupsCommand> rename(const std::string& newName);
 

@@ -23,7 +23,7 @@
 #include "Model/NodeVisitor.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/World.h"
 
@@ -79,7 +79,7 @@ namespace TrenchBroom {
         private:
             virtual Node* getNode(World* world) const   { return world;  }
             virtual Node* getNode(LayerNode* layer) const   { return layer;  }
-            virtual Node* getNode(Group* group) const   { return group;  }
+            virtual Node* getNode(GroupNode* group) const   { return group;  }
             virtual Node* getNode(Entity* entity) const { return entity; }
             virtual Node* getNode(BrushNode* brush) const   { return brush;  }
         };
@@ -95,7 +95,7 @@ namespace TrenchBroom {
         private:
             void doVisit(World* world)   override { C::addNode(world);  }
             void doVisit(LayerNode* layer)   override { C::addNode(layer);  }
-            void doVisit(Group* group)   override { C::addNode(group);  }
+            void doVisit(GroupNode* group)   override { C::addNode(group);  }
             void doVisit(Entity* entity) override { C::addNode(entity); }
             void doVisit(BrushNode* brush)   override { C::addNode(brush);  }
         };

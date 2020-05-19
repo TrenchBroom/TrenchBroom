@@ -34,7 +34,7 @@
 #include "Model/Entity.h"
 #include "Model/EntityAttributeSnapshot.h"
 #include "Model/Game.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/Issue.h"
 #include "Model/ModelUtils.h"
 #include "Model/Snapshot.h"
@@ -396,14 +396,14 @@ namespace TrenchBroom {
         class MapDocumentCommandFacade::RenameGroupsVisitor : public Model::NodeVisitor {
         private:
             const std::string& m_newName;
-            std::map<Model::Group*, std::string> m_oldNames;
+            std::map<Model::GroupNode*, std::string> m_oldNames;
         public:
             explicit RenameGroupsVisitor(const std::string& newName) : m_newName(newName) {}
-            const std::map<Model::Group*, std::string>& oldNames() const { return m_oldNames; }
+            const std::map<Model::GroupNode*, std::string>& oldNames() const { return m_oldNames; }
         private:
             void doVisit(Model::World*) override  {}
             void doVisit(Model::LayerNode*) override  {}
-            void doVisit(Model::Group* group) override {
+            void doVisit(Model::GroupNode* group) override {
                 m_oldNames[group] = group->name();
                 group->setName(m_newName);
             }
@@ -413,13 +413,13 @@ namespace TrenchBroom {
 
         class MapDocumentCommandFacade::UndoRenameGroupsVisitor : public Model::NodeVisitor {
         private:
-            const std::map<Model::Group*, std::string>& m_newNames;
+            const std::map<Model::GroupNode*, std::string>& m_newNames;
         public:
-            explicit UndoRenameGroupsVisitor(const std::map<Model::Group*, std::string>& newNames) : m_newNames(newNames) {}
+            explicit UndoRenameGroupsVisitor(const std::map<Model::GroupNode*, std::string>& newNames) : m_newNames(newNames) {}
         private:
             void doVisit(Model::World*) override  {}
             void doVisit(Model::LayerNode*) override  {}
-            void doVisit(Model::Group* group) override {
+            void doVisit(Model::GroupNode* group) override {
                 assert(m_newNames.count(group) == 1);
                 const std::string& newName = kdl::map_find_or_default(m_newNames, group, group->name());
                 group->setName(newName);
@@ -428,7 +428,7 @@ namespace TrenchBroom {
             void doVisit(Model::BrushNode*) override  {}
         };
 
-        std::map<Model::Group*, std::string> MapDocumentCommandFacade::performRenameGroups(const std::string& newName) {
+        std::map<Model::GroupNode*, std::string> MapDocumentCommandFacade::performRenameGroups(const std::string& newName) {
             const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
             const std::vector<Model::Node*> parents = collectParents(nodes);
 
@@ -440,7 +440,7 @@ namespace TrenchBroom {
             return visitor.oldNames();
         }
 
-        void MapDocumentCommandFacade::performUndoRenameGroups(const std::map<Model::Group*, std::string>& newNames) {
+        void MapDocumentCommandFacade::performUndoRenameGroups(const std::map<Model::GroupNode*, std::string>& newNames) {
             const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
             const std::vector<Model::Node*> parents = collectParents(nodes);
 
@@ -451,13 +451,13 @@ namespace TrenchBroom {
             Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
         }
 
-        void MapDocumentCommandFacade::performPushGroup(Model::Group* group) {
+        void MapDocumentCommandFacade::performPushGroup(Model::GroupNode* group) {
             m_editorContext->pushGroup(group);
             groupWasOpenedNotifier(group);
         }
 
         void MapDocumentCommandFacade::performPopGroup() {
-            Model::Group* previousGroup = m_editorContext->currentGroup();
+            Model::GroupNode* previousGroup = m_editorContext->currentGroup();
             m_editorContext->popGroup();
             groupWasClosedNotifier(previousGroup);
         }
@@ -473,7 +473,7 @@ namespace TrenchBroom {
         private:
             void doVisit(const Model::World*) override  { setResult(true); }
             void doVisit(const Model::LayerNode*) override  { setResult(true); }
-            void doVisit(const Model::Group*) override  { setResult(true); }
+            void doVisit(const Model::GroupNode*) override  { setResult(true); }
             void doVisit(const Model::Entity*) override { setResult(true); }
             void doVisit(const Model::BrushNode* brush) override { setResult(brush->canTransform(m_transform, m_worldBounds)); }
             bool doCombineResults(const bool oldResult, const bool newResult) const override {

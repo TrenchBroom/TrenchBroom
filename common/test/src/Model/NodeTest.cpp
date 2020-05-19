@@ -28,7 +28,7 @@
 #include "Model/BrushFaceAttributes.h"
 #include "Model/CollectTouchingNodesVisitor.h"
 #include "Model/EditorContext.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
 #include "Model/Node.h"

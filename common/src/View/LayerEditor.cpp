@@ -24,7 +24,7 @@
 #include "Model/Entity.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/World.h"
 #include "View/BorderLine.h"
@@ -171,7 +171,7 @@ namespace TrenchBroom {
             void doVisit(Model::World*) override   {}
             void doVisit(Model::LayerNode*) override   {}
 
-            void doVisit(Model::Group* group) override   {
+            void doVisit(Model::GroupNode* group) override   {
                 assert(group->selected());
 
                 if (!group->grouped()) {

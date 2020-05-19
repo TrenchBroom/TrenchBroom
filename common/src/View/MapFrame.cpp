@@ -33,7 +33,7 @@
 #include "Model/ExportFormat.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/Node.h"
 #include "View/Actions.h"
@@ -458,11 +458,11 @@ namespace TrenchBroom {
             result += QString::fromStdString(document->currentLayer()->name()) + DblArrow;
 
             // open groups
-            std::list<Model::Group*> groups;
-            for (Model::Group* group = document->currentGroup(); group != nullptr; group = group->group()) {
+            std::list<Model::GroupNode*> groups;
+            for (Model::GroupNode* group = document->currentGroup(); group != nullptr; group = group->group()) {
                 groups.push_front(group);
             }
-            for (Model::Group* group : groups) {
+            for (Model::GroupNode* group : groups) {
                 result += QString::fromStdString(group->name()) + Arrow;
             }
 
@@ -644,11 +644,11 @@ namespace TrenchBroom {
             updateStatusBar();
         }
 
-        void MapFrame::groupWasOpened(Model::Group*) {
+        void MapFrame::groupWasOpened(Model::GroupNode*) {
             updateStatusBar();
         }
 
-        void MapFrame::groupWasClosed(Model::Group*) {
+        void MapFrame::groupWasClosed(Model::GroupNode*) {
             updateStatusBar();
         }
 

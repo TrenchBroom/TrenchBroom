@@ -21,7 +21,7 @@
 
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/World.h"
 
@@ -33,7 +33,7 @@ namespace TrenchBroom {
 
         void TakeSnapshotVisitor::doVisit(World* world)   { handleNode(world); }
         void TakeSnapshotVisitor::doVisit(LayerNode* layer)   { handleNode(layer); }
-        void TakeSnapshotVisitor::doVisit(Group* group)   { handleNode(group); }
+        void TakeSnapshotVisitor::doVisit(GroupNode* group)   { handleNode(group); }
         void TakeSnapshotVisitor::doVisit(Entity* entity) { handleNode(entity); }
         void TakeSnapshotVisitor::doVisit(BrushNode* brush)   { handleNode(brush); }
 

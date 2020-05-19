@@ -41,7 +41,7 @@ namespace TrenchBroom {
             MapFormat doGetFormat() const override;
             World* doCreateWorld() const override;
             LayerNode* doCreateLayer(const std::string& name) const override;
-            Group* doCreateGroup(const std::string& name) const override;
+            GroupNode* doCreateGroup(const std::string& name) const override;
             Entity* doCreateEntity() const override;
             BrushNode* doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const override;
 
