@@ -32,6 +32,7 @@
 #include <QAbstractButton>
 #include <QListWidgetItem>
 #include <QMouseEvent>
+#include <QRadioButton>
 #include <QToolButton>
 #include <QtGlobal>
 
@@ -69,15 +70,16 @@ namespace TrenchBroom {
             m_infoText = new QLabel("");
             makeInfo(m_infoText);
 
-            m_activeButton = new QToolButton();
-            m_activeButton->setText(">>");
-            m_activeButton->setCheckable(true);
+            m_activeButton = new QRadioButton();
             m_hiddenButton = createBitmapToggleButton("Hidden.png", tr("Toggle hidden state"));
             m_lockButton = createBitmapToggleButton("Lock.png", tr("Toggle locked state"));
             m_moveLayerUpButton = createBitmapButton("Up.png", tr("Move the selected layer up"));
             m_moveLayerDownButton = createBitmapButton("Down.png", tr("Move the selected layer down"));
 
             auto documentS = kdl::mem_lock(m_document);
+            connect(m_activeButton, &QAbstractButton::clicked, this, [this]() {
+                emit layerActiveClicked(m_layer);
+            });
             connect(m_hiddenButton, &QAbstractButton::clicked, this, [this](){
                 emit layerVisibilityToggled(m_layer);
             });
@@ -266,6 +268,9 @@ namespace TrenchBroom {
             }
             auto* renderer = new LayerListBoxWidget(document, layer, parent);
 
+            connect(renderer, &LayerListBoxWidget::layerActiveClicked, this, [this](auto* layer){
+                emit layerSetCurrent(layer);
+            });
             connect(renderer, &LayerListBoxWidget::layerDoubleClicked, this, [this](auto* layer){
                 emit layerSetCurrent(layer);
             });

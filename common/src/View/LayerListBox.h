@@ -69,6 +69,7 @@ namespace TrenchBroom {
         private:
             bool eventFilter(QObject* target, QEvent* event) override;
         signals:
+            void layerActiveClicked(Model::Layer* layer);
             void layerVisibilityToggled(Model::Layer* layer);
             void layerLockToggled(Model::Layer* layer);
             void layerMovedUp(Model::Layer* layer);
