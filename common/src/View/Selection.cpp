@@ -33,11 +33,11 @@ namespace TrenchBroom {
             return m_deselectedNodes;
         }
 
-        const std::vector<Model::BrushFace*>& Selection::selectedBrushFaces() const {
+        const std::vector<Model::BrushFaceHandle>& Selection::selectedBrushFaces() const {
             return m_selectedBrushFaces;
         }
 
-        const std::vector<Model::BrushFace*>& Selection::deselectedBrushFaces() const {
+        const std::vector<Model::BrushFaceHandle>& Selection::deselectedBrushFaces() const {
             return m_deselectedBrushFaces;
         }
 
@@ -49,11 +49,11 @@ namespace TrenchBroom {
             kdl::vec_append(m_deselectedNodes, nodes);
         }
 
-        void Selection::addSelectedBrushFaces(const std::vector<Model::BrushFace*>& faces) {
+        void Selection::addSelectedBrushFaces(const std::vector<Model::BrushFaceHandle>& faces) {
             kdl::vec_append(m_selectedBrushFaces, faces);
         }
 
-        void Selection::addDeselectedBrushFaces(const std::vector<Model::BrushFace*>& faces) {
+        void Selection::addDeselectedBrushFaces(const std::vector<Model::BrushFaceHandle>& faces) {
             kdl::vec_append(m_deselectedBrushFaces, faces);
         }
     }

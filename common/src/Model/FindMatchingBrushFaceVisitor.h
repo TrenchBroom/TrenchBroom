@@ -39,7 +39,7 @@ namespace TrenchBroom {
             void doVisit(EntityNode*) override {}
             void doVisit(BrushNode* brush)   override {
                 for (BrushFace* face : brush->faces()) {
-                    if (m_p(face)) {
+                    if (m_p(brush, face)) {
                         setResult(face);
                         cancel();
                         return;

@@ -138,6 +138,9 @@ namespace TrenchBroom {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
             m_brush->setFaces(worldBounds, faces);
+            
+            invalidateIssues();
+            invalidateVertexCache();
         }
 
         BrushFaceSnapshot* BrushNode::takeSnapshot(BrushFace* face) {

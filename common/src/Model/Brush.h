@@ -69,7 +69,6 @@ namespace TrenchBroom {
         private:
             void cleanup();
         public:
-            BrushNode* node() const;
             void setNode(BrushNode* node);
 
             const vm::bbox3& bounds() const;

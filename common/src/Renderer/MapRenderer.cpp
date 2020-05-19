@@ -42,6 +42,7 @@
 #include "View/MapDocument.h"
 
 #include <kdl/memory_utils.h>
+#include <kdl/vector_set.h>
 
 #include <set>
 #include <vector>
@@ -60,7 +61,7 @@ namespace TrenchBroom {
 
                 const bool brushSelected = selected(brush);
                 for (Model::BrushFace* face : brush->faces()) {
-                    face->setMarked(brushSelected || selected(face));
+                    face->setMarked(brushSelected || selected(brush, face));
                 }
                 return std::make_tuple(FaceRenderPolicy::RenderMarked, EdgeRenderPolicy::RenderIfEitherFaceMarked);
             }
@@ -103,7 +104,7 @@ namespace TrenchBroom {
 
                 bool anyFaceVisible = false;
                 for (Model::BrushFace* face : brush->faces()) {
-                    const bool faceVisible = !selected(face) && visible(face);
+                    const bool faceVisible = !selected(brush, face) && visible(brush, face);
                     face->setMarked(faceVisible);
                     anyFaceVisible |= faceVisible;
                 }
@@ -529,21 +530,11 @@ namespace TrenchBroom {
             if (!selection.selectedBrushFaces().empty()
                 || !selection.deselectedBrushFaces().empty()) {
 
-                std::set<Model::BrushNode*> brushes;
-                for (auto& face : selection.selectedBrushFaces()) {
-                    brushes.insert(face->brush()->node());
-                }
-                for (auto& face : selection.deselectedBrushFaces()) {
-                    brushes.insert(face->brush()->node());
-                }
-
-                std::vector<Model::BrushNode*> brushesVec;
-                brushesVec.reserve(brushes.size());
-                for (auto& brush : brushes) {
-                    brushesVec.push_back(brush);
-                }
-
-                invalidateBrushesInRenderers(Renderer_All, brushesVec);
+                
+                const auto toBrush = [](const auto& handle) { return handle.node(); };
+                auto brushes = kdl::vec_concat(kdl::vec_transform(selection.selectedBrushFaces(), toBrush), kdl::vec_transform(selection.deselectedBrushFaces(), toBrush));
+                kdl::vec_sort_and_remove_duplicates(brushes);
+                invalidateBrushesInRenderers(Renderer_All, brushes);
             }
         }
 

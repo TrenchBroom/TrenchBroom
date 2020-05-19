@@ -147,7 +147,7 @@ namespace TrenchBroom {
             if (hit.type() == EntityNode::EntityHitType) {
                 return m_context.pickable(hitToEntity(hit));
             } else if (hit.type() == BrushNode::BrushHitType) {
-                return m_context.pickable(hitToFace(hit));
+                return m_context.pickable(hitToBrush(hit), hitToFace(hit));
             } else {
                 return false;
             }

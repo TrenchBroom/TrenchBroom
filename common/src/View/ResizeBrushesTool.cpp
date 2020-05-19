@@ -169,14 +169,15 @@ namespace TrenchBroom {
             return !m_dragHandles.empty();
         }
 
-        std::vector<Model::BrushFace*> ResizeBrushesTool::dragFaces() const {
-            std::vector<Model::BrushFace*> result;
+        std::vector<Model::BrushFaceHandle> ResizeBrushesTool::dragFaces() const {
+            std::vector<Model::BrushFaceHandle> result;
             for (const auto& handle : m_dragHandles) {
-                const auto* brush = std::get<0>(handle);
+                auto* brush = std::get<0>(handle);
                 const auto& normal = std::get<1>(handle);
                 auto* face = brush->findFace(normal);
-                assert(face != nullptr);
-                result.push_back(face);
+                if (face != nullptr) {
+                    result.push_back(Model::BrushFaceHandle(brush, face));
+                }
             }
             return result;
         }
@@ -209,7 +210,7 @@ namespace TrenchBroom {
                 ensure(m_reference != nullptr, "reference is null");
             }
 
-            bool operator()(Model::BrushFace* face) const {
+            bool operator()(const Model::BrushNode*, Model::BrushFace* face) const {
                 return face != m_reference && vm::is_equal(face->boundary(), m_reference->boundary(),
                     vm::C::almost_zero());
             }
@@ -266,7 +267,8 @@ namespace TrenchBroom {
         bool ResizeBrushesTool::resize(const vm::ray3& pickRay, const Renderer::Camera& /* camera */) {
             assert(hasDragFaces());
 
-            auto* dragFace = dragFaces().front();
+            const auto dragFaceHandle = dragFaces().front();
+            auto* dragFace = dragFaceHandle.face();
             const auto& faceNormal = dragFace->boundary().normal;
 
             const auto dist = vm::distance(pickRay, vm::line3(m_dragOrigin, faceNormal));
@@ -346,8 +348,10 @@ namespace TrenchBroom {
             }
 
             std::map<vm::polygon3, std::vector<Model::BrushNode*>> brushMap;
-            for (const auto* face : dragFaces()) {
-                brushMap[face->polygon()] = { face->brush()->node() };
+            for (const auto& handle : dragFaces()) {
+                auto* brush = handle.node();
+                auto* face = handle.face();
+                brushMap[face->polygon()] = { brush };
             }
 
             if (document->moveFaces(brushMap, delta)) {
@@ -394,14 +398,15 @@ namespace TrenchBroom {
             std::vector<FaceHandle> newDragHandles;
             std::map<Model::Node*, std::vector<Model::Node*>> newNodes;
 
-            for (auto* dragFace : dragFaces()) {
-                auto* brush = dragFace->brush()->node();
+            for (const auto& dragFaceHandle : dragFaces()) {
+                auto* dragFace = dragFaceHandle.face();
+                auto* brush = dragFaceHandle.node();
 
                 auto* newBrush = brush->clone(worldBounds);
                 auto* newDragFace = findMatchingFace(newBrush, dragFace);
 
                 newBrushes.push_back(newBrush);
-                newDragHandles.emplace_back(newDragFace->brush()->node(), newDragFace->boundary().normal);
+                newDragHandles.emplace_back(newBrush, newDragFace->boundary().normal);
 
                 if (!newBrush->canMoveBoundary(worldBounds, newDragFace, delta)) {
                     // There is a brush for which the move is not applicable. Abort.
@@ -454,8 +459,9 @@ namespace TrenchBroom {
             // so each newly created brush should be made a sibling of the brush it was cloned from.
             std::map<Model::Node*, std::vector<Model::Node*>> newNodes;
 
-            for (auto* dragFace : dragFaces()) {
-                auto* brush = dragFace->brush()->node();
+            for (const auto& dragFaceHandle : dragFaces()) {
+                auto* dragFace = dragFaceHandle.face();
+                auto* brush = dragFaceHandle.node();
 
                 auto* newBrush = brush->clone(worldBounds);
                 auto* newDragFace = findMatchingFace(newBrush, dragFace);
@@ -506,8 +512,9 @@ namespace TrenchBroom {
 
             std::vector<vm::polygon3> result;
             result.reserve(dragFaces.size());
-            for (const auto* face : dragFaces) {
-                result.push_back(face->polygon());
+            for (const auto& dragFaceHandle : dragFaces) {
+                const auto* dragFace = dragFaceHandle.face();
+                result.push_back(dragFace->polygon());
             }
 
             return result;

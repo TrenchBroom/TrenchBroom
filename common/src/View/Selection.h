@@ -20,11 +20,12 @@
 #ifndef TrenchBroom_Selection
 #define TrenchBroom_Selection
 
+#include "Model/BrushFaceHandle.h"
+
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushFace;
         class Node;
     }
 
@@ -33,18 +34,18 @@ namespace TrenchBroom {
         private:
             std::vector<Model::Node*> m_selectedNodes;
             std::vector<Model::Node*> m_deselectedNodes;
-            std::vector<Model::BrushFace*> m_selectedBrushFaces;
-            std::vector<Model::BrushFace*> m_deselectedBrushFaces;
+            std::vector<Model::BrushFaceHandle> m_selectedBrushFaces;
+            std::vector<Model::BrushFaceHandle> m_deselectedBrushFaces;
         public:
             const std::vector<Model::Node*>& selectedNodes() const;
             const std::vector<Model::Node*>& deselectedNodes() const;
-            const std::vector<Model::BrushFace*>& selectedBrushFaces() const;
-            const std::vector<Model::BrushFace*>& deselectedBrushFaces() const;
+            const std::vector<Model::BrushFaceHandle>& selectedBrushFaces() const;
+            const std::vector<Model::BrushFaceHandle>& deselectedBrushFaces() const;
 
             void addSelectedNodes(const std::vector<Model::Node*>& nodes);
             void addDeselectedNodes(const std::vector<Model::Node*>& nodes);
-            void addSelectedBrushFaces(const std::vector<Model::BrushFace*>& faces);
-            void addDeselectedBrushFaces(const std::vector<Model::BrushFace*>& faces);
+            void addSelectedBrushFaces(const std::vector<Model::BrushFaceHandle>& faces);
+            void addDeselectedBrushFaces(const std::vector<Model::BrushFaceHandle>& faces);
         };
     }
 }

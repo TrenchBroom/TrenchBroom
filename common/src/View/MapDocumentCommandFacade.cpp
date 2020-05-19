@@ -104,18 +104,19 @@ namespace TrenchBroom {
             std::vector<Model::BrushFaceHandle> selected;
             selected.reserve(faces.size());
 
-            for (const auto& pair : faces) {
-                Model::BrushFace* face = pair.face();
-                if (!face->selected() && m_editorContext->selectable(face)) {
+            for (const auto& handle : faces) {
+                Model::BrushNode* node = handle.node();
+                Model::BrushFace* face = handle.face();
+                if (!face->selected() && m_editorContext->selectable(node, face)) {
                     face->select();
-                    selected.push_back(pair);
+                    selected.push_back(handle);
                 }
             }
 
             kdl::vec_append(m_selectedBrushFaces, selected);
 
             Selection selection;
-            selection.addSelectedBrushFaces(Model::toFaces(selected));
+            selection.addSelectedBrushFaces(selected);
 
             selectionDidChangeNotifier(selection);
         }
@@ -175,18 +176,18 @@ namespace TrenchBroom {
             std::vector<Model::BrushFaceHandle> deselected;
             deselected.reserve(faces.size());
 
-            for (const auto& pair : faces) {
-                Model::BrushFace* face = pair.face();
+            for (const auto& handle : faces) {
+                Model::BrushFace* face = handle.face();
                 if (face->selected()) {
                     face->deselect();
-                    deselected.push_back(pair);
+                    deselected.push_back(handle);
                 }
             }
 
             kdl::vec_erase_all(m_selectedBrushFaces, deselected);
 
             Selection selection;
-            selection.addDeselectedBrushFaces(Model::toFaces(deselected));
+            selection.addDeselectedBrushFaces(deselected);
 
             selectionDidChangeNotifier(selection);
         }
@@ -218,13 +219,12 @@ namespace TrenchBroom {
         void MapDocumentCommandFacade::deselectAllBrushFaces() {
             selectionWillChangeNotifier();
 
-            const auto faces = kdl::vec_transform(m_selectedBrushFaces, [](const auto& handle) { return handle.face(); });
-            for (Model::BrushFace* face : faces) {
-                face->deselect();
+            for (const auto& handle : m_selectedBrushFaces) {
+                handle.face()->deselect();
             }
 
             Selection selection;
-            selection.addDeselectedBrushFaces(faces);
+            selection.addDeselectedBrushFaces(m_selectedBrushFaces);
 
             m_selectedBrushFaces.clear();
 
@@ -623,16 +623,17 @@ namespace TrenchBroom {
 
             const std::vector<Model::BrushNode*>& selectedBrushes = m_selectedNodes.brushes();
             std::vector<Model::Node*> changedNodes;
-            std::vector<Model::BrushFace*> faces;
+            std::vector<Model::BrushFaceHandle> faceHandles;
 
             for (Model::BrushNode* brush : selectedBrushes) {
                 Model::BrushFace* face = brush->findFace(polygons);
                 if (face != nullptr) {
-                    if (!brush->canMoveBoundary(m_worldBounds, face, delta))
+                    if (!brush->canMoveBoundary(m_worldBounds, face, delta)) {
                         return result;
+                    }
 
                     changedNodes.push_back(brush);
-                    faces.push_back(face);
+                    faceHandles.push_back(Model::BrushFaceHandle(brush, face));
                 }
             }
 
@@ -640,8 +641,9 @@ namespace TrenchBroom {
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, changedNodes);
 
-            for (auto* face : faces) {
-                Model::BrushNode* brush = face->brush()->node();
+            for (const auto& faceHandle : faceHandles) {
+                Model::BrushFace* face = faceHandle.face();
+                Model::BrushNode* brush = faceHandle.node();
                 assert(brush->selected());
                 brush->moveBoundary(m_worldBounds, face, delta, pref(Preferences::TextureLock));
                 result.push_back(face->polygon());

@@ -95,13 +95,13 @@ namespace TrenchBroom {
             bool visible(const Model::GroupNode* group) const;
             bool visible(const Model::EntityNode* entity) const;
             bool visible(const Model::BrushNode* brush) const;
-            bool visible(const Model::BrushFace* face) const;
+            bool visible(const Model::BrushNode* brush, const Model::BrushFace* face) const;
         private:
             bool anyChildVisible(const Model::Node* node) const;
 
         public:
             bool editable(const Model::Node* node) const;
-            bool editable(const Model::BrushFace* face) const;
+            bool editable(const Model::BrushNode* brush, const Model::BrushFace* face) const;
 
         private:
             class NodePickable;
@@ -112,7 +112,7 @@ namespace TrenchBroom {
             bool pickable(const Model::GroupNode* group) const;
             bool pickable(const Model::EntityNode* entity) const;
             bool pickable(const Model::BrushNode* brush) const;
-            bool pickable(const Model::BrushFace* face) const;
+            bool pickable(const Model::BrushNode* brush, const Model::BrushFace* face) const;
 
             bool selectable(const Model::Node* node) const;
             bool selectable(const Model::WorldNode* world) const;
@@ -120,7 +120,7 @@ namespace TrenchBroom {
             bool selectable(const Model::GroupNode* group) const;
             bool selectable(const Model::EntityNode* entity) const;
             bool selectable(const Model::BrushNode* brush) const;
-            bool selectable(const Model::BrushFace* face) const;
+            bool selectable(const Model::BrushNode* brush, const Model::BrushFace* face) const;
 
             bool canChangeSelection() const;
             bool inOpenGroup(const Model::Object* object) const;
