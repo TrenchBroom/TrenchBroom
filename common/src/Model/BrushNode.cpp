@@ -131,6 +131,13 @@ namespace TrenchBroom {
             m_brush.face(faceIndex)->updateTags(tagManager);
         }
 
+        void BrushNode::setFaceTexture(const size_t faceIndex, Assets::Texture* texture) {
+            m_brush.face(faceIndex)->setTexture(texture);
+            
+            invalidateIssues();
+            invalidateVertexCache();
+        }
+
         const std::string& BrushNode::doGetName() const {
             static const std::string name("brush");
             return name;

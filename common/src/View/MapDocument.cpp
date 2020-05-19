@@ -1739,9 +1739,10 @@ namespace TrenchBroom {
             void doVisit(Model::EntityNode*) override {}
             void doVisit(Model::BrushNode* brushNode) override   {
                 const Model::Brush& brush = brushNode->brush();
-                for (Model::BrushFace* face : brush.faces()) {
+                for (size_t i = 0u; i < brush.faceCount(); ++i) {
+                    const Model::BrushFace* face = brush.face(i);
                     Assets::Texture* texture = m_manager.texture(face->attributes().textureName());
-                    face->setTexture(texture);
+                    brushNode->setFaceTexture(i, texture);
                 }
             }
         };
@@ -1754,8 +1755,8 @@ namespace TrenchBroom {
             void doVisit(Model::EntityNode*) override {}
             void doVisit(Model::BrushNode* brushNode) override   {
                 const Model::Brush& brush = brushNode->brush();
-                for (Model::BrushFace* face : brush.faces()) {
-                    face->setTexture(nullptr);
+                for (size_t i = 0u; i < brush.faceCount(); ++i) {
+                    brushNode->setFaceTexture(i, nullptr);
                 }
             }
         };
@@ -1770,10 +1771,12 @@ namespace TrenchBroom {
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
         }
 
-        void MapDocument::setTextures(const std::vector<Model::BrushFace*>& faces) {
-            for (Model::BrushFace* face : faces) {
+        void MapDocument::setTextures(const std::vector<Model::BrushFaceHandle>& faceHandles) {
+            for (const auto& faceHandle : faceHandles) {
+                Model::BrushNode* node = faceHandle.node();
+                const Model::BrushFace* face = faceHandle.face();
                 Assets::Texture* texture = m_textureManager->texture(face->attributes().textureName());
-                face->setTexture(texture);
+                node->setFaceTexture(faceHandle.faceIndex(), texture);
             }
         }
 
