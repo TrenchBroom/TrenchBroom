@@ -135,7 +135,7 @@ namespace TrenchBroom {
         }
 
         void MapPropertiesEditor::createGui() {
-            auto* group = new QButtonGroup();
+            //auto* group = new QButtonGroup();
 
             m_softBoundsDisabled = new QRadioButton(tr("Soft bounds disabled"));
             m_softBoundsFromGame = new QRadioButton(tr("Game default bounds"));
