@@ -38,7 +38,7 @@ namespace TrenchBroom {
         class BrushFace;
         class EntityAttribute;
         class Group;
-        class Layer;
+        class LayerNode;
         class ModelFactory;
         class Node;
     }
@@ -76,7 +76,7 @@ namespace TrenchBroom {
                 EntityType_Default
             } EntityType;
 
-            using LayerMap = std::map<Model::IdType, Model::Layer*>;
+            using LayerMap = std::map<Model::IdType, Model::LayerNode*>;
             using GroupMap = std::map<Model::IdType, Model::Group*>;
 
             using NodeParentPair = std::pair<Model::Node*, ParentInfo>;
@@ -129,7 +129,7 @@ namespace TrenchBroom {
             virtual Model::ModelFactory& initialize(Model::MapFormat format) = 0;
             virtual Model::Node* onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) = 0;
             virtual void onWorldspawnFilePosition(size_t startLine, size_t lineCount, ParserStatus& status) = 0;
-            virtual void onLayer(Model::Layer* layer, ParserStatus& status) = 0;
+            virtual void onLayer(Model::LayerNode* layer, ParserStatus& status) = 0;
             virtual void onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) = 0;
             virtual void onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) = 0;
             virtual void onBrush(Model::Node* parent, Model::BrushNode* brush, ParserStatus& status) = 0;

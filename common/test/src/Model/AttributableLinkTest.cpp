@@ -23,7 +23,7 @@
 
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
 #include "Model/World.h"
 

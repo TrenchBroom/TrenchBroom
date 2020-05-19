@@ -27,7 +27,7 @@ namespace TrenchBroom {
         class FindGroupVisitor : public NodeVisitor, public NodeQuery<Group*> {
         private:
             void doVisit(World* world) override;
-            void doVisit(Layer* layer) override;
+            void doVisit(LayerNode* layer) override;
             void doVisit(Group* group) override;
             void doVisit(Entity* entity) override;
             void doVisit(BrushNode* brush) override;
@@ -36,7 +36,7 @@ namespace TrenchBroom {
         class FindOutermostClosedGroupVisitor : public NodeVisitor, public NodeQuery<Group*> {
         private:
             void doVisit(World* world) override;
-            void doVisit(Layer* layer) override;
+            void doVisit(LayerNode* layer) override;
             void doVisit(Group* group) override;
             void doVisit(Entity* entity) override;
             void doVisit(BrushNode* brush) override;

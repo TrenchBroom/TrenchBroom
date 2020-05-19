@@ -25,7 +25,7 @@
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Group.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/ModelFactory.h"
 
 #include <kdl/map_utils.h>
@@ -165,7 +165,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            Model::Layer* layer = m_factory->createLayer(name);
+            Model::LayerNode* layer = m_factory->createLayer(name);
             setExtraAttributes(layer, extraAttributes);
             m_layers.insert(std::make_pair(layerId, layer));
 
@@ -243,8 +243,8 @@ namespace TrenchBroom {
                 const long rawId = std::atol(layerIdStr.c_str());
                 if (rawId > 0) {
                     const Model::IdType layerId = static_cast<Model::IdType>(rawId);
-                    Model::Layer* layer = kdl::map_find_or_default(m_layers, layerId,
-                        static_cast<Model::Layer*>(nullptr));
+                    Model::LayerNode* layer = kdl::map_find_or_default(m_layers, layerId,
+                        static_cast<Model::LayerNode*>(nullptr));
                     if (layer != nullptr)
                         onNode(layer, node, status);
                     else
@@ -306,7 +306,7 @@ namespace TrenchBroom {
         Model::Node* MapReader::resolveParent(const ParentInfo& parentInfo) const {
             if (parentInfo.layer()) {
                 const Model::IdType layerId = parentInfo.id();
-                return kdl::map_find_or_default(m_layers, layerId, static_cast<Model::Layer*>(nullptr));
+                return kdl::map_find_or_default(m_layers, layerId, static_cast<Model::LayerNode*>(nullptr));
             }
             const Model::IdType groupId = parentInfo.id();
             return kdl::map_find_or_default(m_groups, groupId, static_cast<Model::Group*>(nullptr));

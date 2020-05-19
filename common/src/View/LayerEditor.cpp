@@ -25,7 +25,7 @@
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
 #include "Model/Group.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/World.h"
 #include "View/BorderLine.h"
 #include "View/LayerListBox.h"
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             updateButtons();
         }
 
-        void LayerEditor::onSetCurrentLayer(Model::Layer* layer) {
+        void LayerEditor::onSetCurrentLayer(Model::LayerNode* layer) {
             auto document = kdl::mem_lock(m_document);
             if (layer->locked()) {
                 document->resetLock(std::vector<Model::Node*>(1, layer));
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             updateButtons();
         }
 
-        void LayerEditor::onLayerRightClick(Model::Layer* layer) {
+        void LayerEditor::onLayerRightClick(Model::LayerNode* layer) {
             QMenu popupMenu;
             QAction* moveSelectionToLayerAction = popupMenu.addAction(tr("Move selection to layer"), this, &LayerEditor::onMoveSelectionToLayer);
             popupMenu.addAction(tr("Select all in layer"), this, &LayerEditor::onSelectAllInLayer);
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             toggleLayerVisible(m_layerList->selectedLayer());
         }
 
-        void LayerEditor::onToggleLayerVisibleFromList(Model::Layer* layer) {
+        void LayerEditor::onToggleLayerVisibleFromList(Model::LayerNode* layer) {
             toggleLayerVisible(layer);
         }
 
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void LayerEditor::toggleLayerVisible(Model::Layer* layer) {
+        void LayerEditor::toggleLayerVisible(Model::LayerNode* layer) {
             ensure(layer != nullptr, "layer is null");
             auto document = kdl::mem_lock(m_document);
             if (!layer->hidden()) {
@@ -124,7 +124,7 @@ namespace TrenchBroom {
             toggleLayerLocked(m_layerList->selectedLayer());
         }
 
-        void LayerEditor::onToggleLayerLockedFromList(Model::Layer* layer) {
+        void LayerEditor::onToggleLayerLockedFromList(Model::LayerNode* layer) {
             toggleLayerLocked(layer);
         }
 
@@ -142,7 +142,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void LayerEditor::toggleLayerLocked(Model::Layer* layer) {
+        void LayerEditor::toggleLayerLocked(Model::LayerNode* layer) {
             ensure(layer != nullptr, "layer is null");
             auto document = kdl::mem_lock(m_document);
             if (!layer->locked()) {
@@ -169,7 +169,7 @@ namespace TrenchBroom {
             }
         private:
             void doVisit(Model::World*) override   {}
-            void doVisit(Model::Layer*) override   {}
+            void doVisit(Model::LayerNode*) override   {}
 
             void doVisit(Model::Group* group) override   {
                 assert(group->selected());
@@ -333,7 +333,7 @@ namespace TrenchBroom {
             document->resetVisibility(std::vector<Model::Node*>(std::begin(layers), std::end(layers)));
         }
 
-        Model::Layer* LayerEditor::findVisibleAndUnlockedLayer(const Model::Layer* except) const {
+        Model::LayerNode* LayerEditor::findVisibleAndUnlockedLayer(const Model::LayerNode* except) const {
             auto document = kdl::mem_lock(m_document);
             if (!document->world()->defaultLayer()->locked() && !document->world()->defaultLayer()->hidden()) {
                 return document->world()->defaultLayer();
@@ -349,7 +349,7 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        void LayerEditor::moveSelectedNodesToLayer(std::shared_ptr<MapDocument> document, Model::Layer* layer) {
+        void LayerEditor::moveSelectedNodesToLayer(std::shared_ptr<MapDocument> document, Model::LayerNode* layer) {
             const auto& selectedNodes = document->selectedNodes().nodes();
 
             CollectMoveableNodes visitor(document->world());

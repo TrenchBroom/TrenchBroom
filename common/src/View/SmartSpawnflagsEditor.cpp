@@ -56,7 +56,7 @@ namespace TrenchBroom {
             m_setFlag(setFlag) {}
 
             void doVisit(Model::World*) override  { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
-            void doVisit(Model::Layer*) override  {}
+            void doVisit(Model::LayerNode*) override  {}
             void doVisit(Model::Group*) override  {}
             void doVisit(Model::Entity*) override { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
             void doVisit(Model::BrushNode*) override  {}

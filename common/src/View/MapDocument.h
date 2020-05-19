@@ -112,7 +112,7 @@ namespace TrenchBroom {
             Model::NodeCollection m_selectedNodes;
             std::vector<Model::BrushFace*> m_selectedBrushFaces;
 
-            Model::Layer* m_currentLayer;
+            Model::LayerNode* m_currentLayer;
             std::string m_currentTextureName;
             vm::bbox3 m_lastSelectionBounds;
             mutable vm::bbox3 m_selectionBounds;
@@ -138,7 +138,7 @@ namespace TrenchBroom {
 
             Notifier<> editorContextDidChangeNotifier;
             Notifier<> mapViewConfigDidChangeNotifier;
-            Notifier<const Model::Layer*> currentLayerDidChangeNotifier;
+            Notifier<const Model::LayerNode*> currentLayerDidChangeNotifier;
             Notifier<const std::string&> currentTextureNameDidChangeNotifier;
 
             Notifier<> selectionWillChangeNotifier;
@@ -182,8 +182,8 @@ namespace TrenchBroom {
 
             bool isGamePathPreference(const IO::Path& path) const;
 
-            Model::Layer* currentLayer() const override;
-            void setCurrentLayer(Model::Layer* currentLayer);
+            Model::LayerNode* currentLayer() const override;
+            void setCurrentLayer(Model::LayerNode* currentLayer);
 
             Model::Group* currentGroup() const override;
             /**

@@ -30,7 +30,7 @@ namespace TrenchBroom {
             return doGetContainer();
         }
 
-        Layer* Object::layer() const {
+        LayerNode* Object::layer() const {
             return doGetLayer();
         }
 

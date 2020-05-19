@@ -25,7 +25,7 @@
 #include "Model/TagManager.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
 #include "Model/World.h"
 

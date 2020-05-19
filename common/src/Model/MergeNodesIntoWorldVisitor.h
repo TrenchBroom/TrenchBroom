@@ -41,7 +41,7 @@ namespace TrenchBroom {
             const std::map<Node*, std::vector<Node*>>& result() const;
         private:
             void doVisit(World* world) override;
-            void doVisit(Layer* layer) override;
+            void doVisit(LayerNode* layer) override;
             void doVisit(Group* group) override;
             void doVisit(Entity* entity) override;
             void doVisit(BrushNode* brush) override;

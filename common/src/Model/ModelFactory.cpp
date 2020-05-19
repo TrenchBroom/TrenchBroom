@@ -31,7 +31,7 @@ namespace TrenchBroom {
             return doCreateWorld();
         }
 
-        Layer* ModelFactory::createLayer(const std::string& name) const {
+        LayerNode* ModelFactory::createLayer(const std::string& name) const {
             return doCreateLayer(name);
         }
 

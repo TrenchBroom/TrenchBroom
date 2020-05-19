@@ -38,7 +38,7 @@
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/PointFile.h"
 #include "Model/PortalFile.h"
 #include "Model/World.h"
@@ -990,7 +990,7 @@ namespace TrenchBroom {
             class IsEntity : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
             private:
                 void doVisit(const Model::World*) override  { setResult(false); }
-                void doVisit(const Model::Layer*) override  { setResult(false); }
+                void doVisit(const Model::LayerNode*) override  { setResult(false); }
                 void doVisit(const Model::Group*) override  { setResult(false); }
                 void doVisit(const Model::Entity*) override { setResult(true); }
                 void doVisit(const Model::BrushNode*) override  { setResult(false); }
@@ -1275,7 +1275,7 @@ namespace TrenchBroom {
                     return group;
                 }
 
-                Model::Layer* layer = Model::findLayer(lastNode);
+                Model::LayerNode* layer = Model::findLayer(lastNode);
                 if (layer != nullptr) {
                     return layer;
             }
@@ -1300,7 +1300,7 @@ namespace TrenchBroom {
             explicit BrushesToEntities(const Model::World* world) : m_world(world) {}
         public:
             bool operator()(const Model::World*) const       { return false; }
-            bool operator()(const Model::Layer*) const       { return false; }
+            bool operator()(const Model::LayerNode*) const       { return false; }
             bool operator()(const Model::Group*) const       { return true;  }
             bool operator()(const Model::Entity*) const      { return true; }
             bool operator()(const Model::BrushNode* brush) const { return brush->entity() == m_world; }

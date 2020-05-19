@@ -39,7 +39,7 @@ namespace TrenchBroom {
             const std::vector<BrushFace*>& faces() const { return m_faces; }
         private:
             void doVisit(World*)  override {}
-            void doVisit(Layer*)  override {}
+            void doVisit(LayerNode*)  override {}
             void doVisit(Group*)  override {}
             void doVisit(Entity*) override {}
             void doVisit(BrushNode* brush) override {

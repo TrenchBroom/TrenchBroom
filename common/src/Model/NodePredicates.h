@@ -28,7 +28,7 @@ namespace TrenchBroom {
         class BrushNode;
         class Entity;
         class Group;
-        class Layer;
+        class LayerNode;
         class Node;
         class Object;
         class World;
@@ -52,8 +52,8 @@ namespace TrenchBroom {
 
                 bool operator()(const World* world) const   { return m_p(world);  }
                 bool operator()(World* world) const         { return m_p(world);  }
-                bool operator()(const Layer* layer) const   { return m_p(layer);  }
-                bool operator()(Layer* layer) const         { return m_p(layer);  }
+                bool operator()(const LayerNode* layer) const   { return m_p(layer);  }
+                bool operator()(LayerNode* layer) const         { return m_p(layer);  }
                 bool operator()(const Group* group) const   { return m_p(group);  }
                 bool operator()(Group* group) const         { return m_p(group);  }
                 bool operator()(const Entity* entity) const { return m_p(entity); }
@@ -72,8 +72,8 @@ namespace TrenchBroom {
 
                 bool operator()(const World* world) const   { return !m_p(world);  }
                 bool operator()(World* world) const         { return !m_p(world);  }
-                bool operator()(const Layer* layer) const   { return !m_p(layer);  }
-                bool operator()(Layer* layer) const         { return !m_p(layer);  }
+                bool operator()(const LayerNode* layer) const   { return !m_p(layer);  }
+                bool operator()(LayerNode* layer) const         { return !m_p(layer);  }
                 bool operator()(const Group* group) const   { return !m_p(group);  }
                 bool operator()(Group* group) const         { return !m_p(group);  }
                 bool operator()(const Entity* entity) const { return !m_p(entity); }
@@ -94,8 +94,8 @@ namespace TrenchBroom {
 
                 bool operator()(const World* world) const   { return m_p1(world)  && m_p2(world);  }
                 bool operator()(World* world) const         { return m_p1(world)  && m_p2(world);  }
-                bool operator()(const Layer* layer) const   { return m_p1(layer)  && m_p2(layer);  }
-                bool operator()(Layer* layer) const         { return m_p1(layer)  && m_p2(layer);  }
+                bool operator()(const LayerNode* layer) const   { return m_p1(layer)  && m_p2(layer);  }
+                bool operator()(LayerNode* layer) const         { return m_p1(layer)  && m_p2(layer);  }
                 bool operator()(const Group* group) const   { return m_p1(group)  && m_p2(group);  }
                 bool operator()(Group* group) const         { return m_p1(group)  && m_p2(group);  }
                 bool operator()(const Entity* entity) const { return m_p1(entity) && m_p2(entity); }
@@ -116,8 +116,8 @@ namespace TrenchBroom {
 
                 bool operator()(const World* world) const   { return m_p1(world)  || m_p2(world);  }
                 bool operator()(World* world) const         { return m_p1(world)  || m_p2(world);  }
-                bool operator()(const Layer* layer) const   { return m_p1(layer)  || m_p2(layer);  }
-                bool operator()(Layer* layer) const         { return m_p1(layer)  || m_p2(layer);  }
+                bool operator()(const LayerNode* layer) const   { return m_p1(layer)  || m_p2(layer);  }
+                bool operator()(LayerNode* layer) const         { return m_p1(layer)  || m_p2(layer);  }
                 bool operator()(const Group* group) const   { return m_p1(group)  || m_p2(group);  }
                 bool operator()(Group* group) const         { return m_p1(group)  || m_p2(group);  }
                 bool operator()(const Entity* entity) const { return m_p1(entity) || m_p2(entity); }
@@ -135,8 +135,8 @@ namespace TrenchBroom {
 
                 bool operator()(const World* world) const;
                 bool operator()(World* world) const;
-                bool operator()(const Layer* layer) const;
-                bool operator()(Layer* layer) const;
+                bool operator()(const LayerNode* layer) const;
+                bool operator()(LayerNode* layer) const;
                 bool operator()(const Group* group) const;
                 bool operator()(Group* group) const;
                 bool operator()(const Entity* entity) const;
@@ -154,8 +154,8 @@ namespace TrenchBroom {
 
                 bool operator()(const World* world) const;
                 bool operator()(World* world) const;
-                bool operator()(const Layer* layer) const;
-                bool operator()(Layer* layer) const;
+                bool operator()(const LayerNode* layer) const;
+                bool operator()(LayerNode* layer) const;
                 bool operator()(const Group* group) const;
                 bool operator()(Group* group) const;
                 bool operator()(const Entity* entity) const;

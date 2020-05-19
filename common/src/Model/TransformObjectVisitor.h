@@ -34,7 +34,7 @@ namespace TrenchBroom {
             TransformObjectVisitor(const vm::mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds);
         private:
             void doVisit(World* world) override;
-            void doVisit(Layer* layer) override;
+            void doVisit(LayerNode* layer) override;
             void doVisit(Group* group) override;
             void doVisit(Entity* entity) override;
             void doVisit(BrushNode* brush) override;

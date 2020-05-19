@@ -29,25 +29,25 @@ namespace TrenchBroom {
         class BrushNode;
         class Entity;
         class Group;
-        class Layer;
+        class LayerNode;
         class World;
 
         class CollectLayersStrategy {
         private:
-            std::vector<Layer*> m_layers;
+            std::vector<LayerNode*> m_layers;
         public:
-            const std::vector<Layer*>& layers() const;
+            const std::vector<LayerNode*>& layers() const;
         protected:
-            void addLayer(Layer* layer);
+            void addLayer(LayerNode* layer);
         };
 
         class SkipLayersStrategy {
         private:
-            static const std::vector<Layer*> m_layers;
+            static const std::vector<LayerNode*> m_layers;
         public:
-            const std::vector<Layer*>& layers() const;
+            const std::vector<LayerNode*>& layers() const;
         protected:
-            void addLayer(Layer* layer);
+            void addLayer(LayerNode* layer);
         };
 
         class CollectGroupsStrategy {
@@ -108,7 +108,7 @@ namespace TrenchBroom {
         class AssortNodesVisitorT : public NodeVisitor, public LayerStrategy, public GroupStrategy, public EntityStrategy, public BrushStrategy {
         private:
             void doVisit(World* /* world */)   override {}
-            void doVisit(Layer* layer)   override {  LayerStrategy::addLayer(layer); }
+            void doVisit(LayerNode* layer)   override {  LayerStrategy::addLayer(layer); }
             void doVisit(Group* group)   override {  GroupStrategy::addGroup(group); }
             void doVisit(Entity* entity) override { EntityStrategy::addEntity(entity); }
             void doVisit(BrushNode* brush)   override {  BrushStrategy::addBrush(brush); }

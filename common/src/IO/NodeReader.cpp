@@ -23,7 +23,7 @@
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/ModelFactory.h"
 #include "Model/World.h"
 
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             m_nodes.front()->setFilePosition(lineNumber, lineCount);
         }
 
-        void NodeReader::onLayer(Model::Layer* layer, ParserStatus& /* status */) {
+        void NodeReader::onLayer(Model::LayerNode* layer, ParserStatus& /* status */) {
             m_nodes.push_back(layer);
         }
 

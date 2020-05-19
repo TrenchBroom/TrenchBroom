@@ -21,7 +21,7 @@
 
 #include "Model/Group.h"
 #include "Model/Entity.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/World.h"
 
 namespace TrenchBroom {
@@ -31,7 +31,7 @@ namespace TrenchBroom {
             cancel();
         }
 
-        void FindContainerVisitor::doVisit(Layer* layer) {
+        void FindContainerVisitor::doVisit(LayerNode* layer) {
             setResult(layer);
             cancel();
         }

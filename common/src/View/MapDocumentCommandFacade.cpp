@@ -402,7 +402,7 @@ namespace TrenchBroom {
             const std::map<Model::Group*, std::string>& oldNames() const { return m_oldNames; }
         private:
             void doVisit(Model::World*) override  {}
-            void doVisit(Model::Layer*) override  {}
+            void doVisit(Model::LayerNode*) override  {}
             void doVisit(Model::Group* group) override {
                 m_oldNames[group] = group->name();
                 group->setName(m_newName);
@@ -418,7 +418,7 @@ namespace TrenchBroom {
             explicit UndoRenameGroupsVisitor(const std::map<Model::Group*, std::string>& newNames) : m_newNames(newNames) {}
         private:
             void doVisit(Model::World*) override  {}
-            void doVisit(Model::Layer*) override  {}
+            void doVisit(Model::LayerNode*) override  {}
             void doVisit(Model::Group* group) override {
                 assert(m_newNames.count(group) == 1);
                 const std::string& newName = kdl::map_find_or_default(m_newNames, group, group->name());
@@ -472,7 +472,7 @@ namespace TrenchBroom {
                 m_worldBounds(worldBounds) {}
         private:
             void doVisit(const Model::World*) override  { setResult(true); }
-            void doVisit(const Model::Layer*) override  { setResult(true); }
+            void doVisit(const Model::LayerNode*) override  { setResult(true); }
             void doVisit(const Model::Group*) override  { setResult(true); }
             void doVisit(const Model::Entity*) override { setResult(true); }
             void doVisit(const Model::BrushNode* brush) override { setResult(brush->canTransform(m_transform, m_worldBounds)); }

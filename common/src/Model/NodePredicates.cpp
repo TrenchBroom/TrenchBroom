@@ -22,7 +22,7 @@
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/World.h"
 
 namespace TrenchBroom {
@@ -33,8 +33,8 @@ namespace TrenchBroom {
 
             bool EqualsNode::operator()(const World* world) const   { return world  == m_node; }
             bool EqualsNode::operator()(World* world) const         { return world  == m_node; }
-            bool EqualsNode::operator()(const Layer* layer) const   { return layer  == m_node; }
-            bool EqualsNode::operator()(Layer* layer) const         { return layer  == m_node; }
+            bool EqualsNode::operator()(const LayerNode* layer) const   { return layer  == m_node; }
+            bool EqualsNode::operator()(LayerNode* layer) const         { return layer  == m_node; }
             bool EqualsNode::operator()(const Group* group) const   { return group  == m_node; }
             bool EqualsNode::operator()(Group* group) const         { return group  == m_node; }
             bool EqualsNode::operator()(const Entity* entity) const { return entity == m_node; }
@@ -44,8 +44,8 @@ namespace TrenchBroom {
 
             bool EqualsObject::operator()(const World*) const         { return false; }
             bool EqualsObject::operator()(World*) const               { return false; }
-            bool EqualsObject::operator()(const Layer*) const         { return false; }
-            bool EqualsObject::operator()(Layer*) const               { return false; }
+            bool EqualsObject::operator()(const LayerNode*) const         { return false; }
+            bool EqualsObject::operator()(LayerNode*) const               { return false; }
             bool EqualsObject::operator()(const Group* group) const   { return group  == m_object; }
             bool EqualsObject::operator()(Group* group) const         { return group  == m_object; }
             bool EqualsObject::operator()(const Entity* entity) const { return entity == m_object; }

@@ -49,7 +49,7 @@ namespace TrenchBroom {
         class Entity;
         class Game;
         class Group;
-        class Layer;
+        class LayerNode;
         class Node;
         class NodeCollection;
 
@@ -59,7 +59,7 @@ namespace TrenchBroom {
         public: // getters
             virtual std::shared_ptr<Model::Game> game() const = 0;
 
-            virtual Layer* currentLayer() const = 0;
+            virtual LayerNode* currentLayer() const = 0;
             virtual Group* currentGroup() const = 0;
             virtual Node* currentGroupOrWorld() const = 0;
             virtual Node* currentParent() const = 0;

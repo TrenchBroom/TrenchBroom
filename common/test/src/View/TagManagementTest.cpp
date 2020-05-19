@@ -31,7 +31,7 @@
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Entity.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/Tag.h"
 #include "Model/TagMatcher.h"
 #include "Model/TestGame.h"

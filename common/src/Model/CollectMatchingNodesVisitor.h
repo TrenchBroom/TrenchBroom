@@ -24,7 +24,7 @@
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/World.h"
 
 #include <kdl/vector_set.h>
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             }
         private:
             virtual Node* getNode(World* world) const   { return world;  }
-            virtual Node* getNode(Layer* layer) const   { return layer;  }
+            virtual Node* getNode(LayerNode* layer) const   { return layer;  }
             virtual Node* getNode(Group* group) const   { return group;  }
             virtual Node* getNode(Entity* entity) const { return entity; }
             virtual Node* getNode(BrushNode* brush) const   { return brush;  }
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             CollectMatchingNodesVisitor(const P& p = P(), const S& s = S()) : MatchingNodeVisitor<P,S>(p, s) {}
         private:
             void doVisit(World* world)   override { C::addNode(world);  }
-            void doVisit(Layer* layer)   override { C::addNode(layer);  }
+            void doVisit(LayerNode* layer)   override { C::addNode(layer);  }
             void doVisit(Group* group)   override { C::addNode(group);  }
             void doVisit(Entity* entity) override { C::addNode(entity); }
             void doVisit(BrushNode* brush)   override { C::addNode(brush);  }

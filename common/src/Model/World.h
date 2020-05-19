@@ -43,7 +43,7 @@ namespace TrenchBroom {
         class World : public AttributableNode, public ModelFactory {
         private:
             std::unique_ptr<ModelFactory> m_factory;
-            Layer* m_defaultLayer;
+            LayerNode* m_defaultLayer;
             std::unique_ptr<AttributableNodeIndex> m_attributableIndex;
             std::unique_ptr<IssueGeneratorRegistry> m_issueGeneratorRegistry;
 
@@ -54,9 +54,9 @@ namespace TrenchBroom {
             World(MapFormat mapFormat);
             ~World() override;
         public: // layer management
-            Layer* defaultLayer() const;
-            std::vector<Layer*> allLayers() const;
-            std::vector<Layer*> customLayers() const;
+            LayerNode* defaultLayer() const;
+            std::vector<LayerNode*> allLayers() const;
+            std::vector<LayerNode*> customLayers() const;
         private:
             void createDefaultLayer();
         public: // index
@@ -112,7 +112,7 @@ namespace TrenchBroom {
         private: // implement ModelFactory interface
             MapFormat doGetFormat() const override;
             World* doCreateWorld() const override;
-            Layer* doCreateLayer(const std::string& name) const override;
+            LayerNode* doCreateLayer(const std::string& name) const override;
             Group* doCreateGroup(const std::string& name) const override;
             Entity* doCreateEntity() const override;
             BrushNode* doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const override;

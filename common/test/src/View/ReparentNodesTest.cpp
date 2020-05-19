@@ -24,7 +24,7 @@
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/World.h"
 #include "View/MapDocumentTest.h"
 #include "View/MapDocument.h"
@@ -34,20 +34,20 @@ namespace TrenchBroom {
         class ReparentNodesTest : public MapDocumentTest {};
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentLayerToLayer") {
-            Model::Layer* layer1 = new Model::Layer("Layer 1");
+            Model::LayerNode* layer1 = new Model::LayerNode("Layer 1");
             document->addNode(layer1, document->world());
 
-            Model::Layer* layer2 = new Model::Layer("Layer 2");
+            Model::LayerNode* layer2 = new Model::LayerNode("Layer 2");
             document->addNode(layer2, document->world());
 
             ASSERT_FALSE(document->reparentNodes(layer2, { layer1 }));
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentBetweenLayers") {
-            Model::Layer* oldParent = new Model::Layer("Layer 1");
+            Model::LayerNode* oldParent = new Model::LayerNode("Layer 1");
             document->addNode(oldParent, document->world());
 
-            Model::Layer* newParent = new Model::Layer("Layer 2");
+            Model::LayerNode* newParent = new Model::LayerNode("Layer 2");
             document->addNode(newParent, document->world());
 
             Model::Entity* entity = new Model::Entity();

@@ -22,7 +22,7 @@
 #include "Model/BrushNode.h"
 #include "Model/Group.h"
 #include "Model/Entity.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/Node.h"
 #include "Model/World.h"
 
@@ -32,7 +32,7 @@ namespace TrenchBroom {
         m_visibility(visibility) {}
 
         bool MatchNodesByVisibility::operator()(const Model::World* world) const   { return match(world);  }
-        bool MatchNodesByVisibility::operator()(const Model::Layer* layer) const   { return match(layer);  }
+        bool MatchNodesByVisibility::operator()(const Model::LayerNode* layer) const   { return match(layer);  }
         bool MatchNodesByVisibility::operator()(const Model::Group* group) const   { return match(group);  }
         bool MatchNodesByVisibility::operator()(const Model::Entity* entity) const { return match(entity); }
         bool MatchNodesByVisibility::operator()(const Model::BrushNode* brush) const   { return match(brush);  }

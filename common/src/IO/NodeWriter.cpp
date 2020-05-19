@@ -25,7 +25,7 @@
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/Node.h"
 #include "Model/World.h"
 
@@ -52,7 +52,7 @@ namespace TrenchBroom {
                 m_worldBrushes(worldBrushes) {}
             private:
                 void doVisit(Model::World* /* world */) override { m_worldBrushes.push_back(m_brush);  }
-                void doVisit(Model::Layer* /* layer */) override { m_worldBrushes.push_back(m_brush);  }
+                void doVisit(Model::LayerNode* /* layer */) override { m_worldBrushes.push_back(m_brush);  }
                 void doVisit(Model::Group* /* group */) override { m_worldBrushes.push_back(m_brush);  }
                 void doVisit(Model::Entity* entity )    override { m_entityBrushes[entity].push_back(m_brush); }
                 void doVisit(Model::BrushNode* /* brush */) override {}
@@ -83,7 +83,7 @@ namespace TrenchBroom {
             m_parentAttributes(m_serializer.parentAttributes(parent)) {}
 
             void doVisit(Model::World* /* world */) override   { stopRecursion(); }
-            void doVisit(Model::Layer* /* layer */) override   { stopRecursion(); }
+            void doVisit(Model::LayerNode* /* layer */) override   { stopRecursion(); }
 
             void doVisit(Model::Group* group) override   {
                 m_serializer.group(group, m_parentAttributes);
@@ -128,13 +128,13 @@ namespace TrenchBroom {
         }
 
         void NodeWriter::writeCustomLayers() {
-            const std::vector<Model::Layer*> customLayers = m_world.customLayers();
+            const std::vector<Model::LayerNode*> customLayers = m_world.customLayers();
             for (auto* layer : customLayers) {
                 writeCustomLayer(layer);
             }
         }
 
-        void NodeWriter::writeCustomLayer(Model::Layer* layer) {
+        void NodeWriter::writeCustomLayer(Model::LayerNode* layer) {
             m_serializer->customLayer(layer);
 
             const std::vector<Model::Node*>& children = layer->children();

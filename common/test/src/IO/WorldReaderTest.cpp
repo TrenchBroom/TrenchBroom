@@ -28,7 +28,7 @@
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/World.h"
 
@@ -1089,11 +1089,11 @@ common/caulk
             REQUIRE(world != nullptr);
             REQUIRE(1u == world->childCount());
 
-            auto* layer = dynamic_cast<Model::Layer*>(world->children().at(0));
-            REQUIRE(layer != nullptr);
-            REQUIRE(1u == layer->childCount());
+            auto* layerNode = dynamic_cast<Model::LayerNode*>(world->children().at(0));
+            REQUIRE(layerNode != nullptr);
+            REQUIRE(1u == layerNode->childCount());
 
-            auto* brushNode = dynamic_cast<Model::BrushNode*>(layer->children().at(0));
+            auto* brushNode = dynamic_cast<Model::BrushNode*>(layerNode->children().at(0));
             REQUIRE(brushNode != nullptr);
 
             CHECK(vm::bbox3(vm::vec3(-512, -512, -64), vm::vec3(512, 512, 0)) == brushNode->logicalBounds());
@@ -1127,7 +1127,7 @@ common/caulk
             REQUIRE(world != nullptr);
             REQUIRE(world->childCount() == 1u);
 
-            Model::Layer* defaultLayer = dynamic_cast<Model::Layer*>(world->children().front());
+            Model::LayerNode* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().front());
             REQUIRE(defaultLayer != nullptr);
             REQUIRE(defaultLayer->childCount() == 1u);
 

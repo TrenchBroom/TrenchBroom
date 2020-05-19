@@ -31,7 +31,7 @@
 #include "Model/HitQuery.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushBuilder.h"
 #include "Model/MapFormat.h"

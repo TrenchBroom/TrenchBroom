@@ -25,7 +25,7 @@ namespace TrenchBroom {
         class BrushNode;
         class Entity;
         class Group;
-        class Layer;
+        class LayerNode;
         class Node;
         enum class VisibilityState;
         class World;
@@ -37,7 +37,7 @@ namespace TrenchBroom {
             explicit MatchNodesByVisibility(VisibilityState visibility);
 
             bool operator()(const World* world) const;
-            bool operator()(const Layer* layer) const;
+            bool operator()(const LayerNode* layer) const;
             bool operator()(const Group* group) const;
             bool operator()(const Entity* entity) const;
             bool operator()(const BrushNode* brush) const;

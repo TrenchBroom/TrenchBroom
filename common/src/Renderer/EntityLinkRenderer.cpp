@@ -194,7 +194,7 @@ namespace TrenchBroom {
             m_links(links) {}
         private:
             void doVisit(Model::World*) override {}
-            void doVisit(Model::Layer*) override {}
+            void doVisit(Model::LayerNode*) override {}
             void doVisit(Model::Group*) override {}
             void doVisit(Model::BrushNode*) override {}
             void doVisit(Model::Entity* entity) override {

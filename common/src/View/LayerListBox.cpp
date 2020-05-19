@@ -19,7 +19,7 @@
 
 #include "LayerListBox.h"
 
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/World.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
@@ -35,7 +35,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        LayerListBoxWidget::LayerListBoxWidget(std::weak_ptr<MapDocument> document, Model::Layer* layer, QWidget* parent) :
+        LayerListBoxWidget::LayerListBoxWidget(std::weak_ptr<MapDocument> document, Model::LayerNode* layer, QWidget* parent) :
         ControlListBoxItemRenderer(parent),
         m_document(std::move(document)),
         m_layer(layer) {
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             m_hiddenButton->setVisible(m_layer->hidden() || m_layer != document->currentLayer());
         }
 
-        Model::Layer* LayerListBoxWidget::layer() const {
+        Model::LayerNode* LayerListBoxWidget::layer() const {
             return m_layer;
         }
 
@@ -140,11 +140,11 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
-        Model::Layer* LayerListBox::selectedLayer() const {
+        Model::LayerNode* LayerListBox::selectedLayer() const {
             return layerForRow(currentRow());
         }
 
-        void LayerListBox::setSelectedLayer(Model::Layer* layer) {
+        void LayerListBox::setSelectedLayer(Model::LayerNode* layer) {
             for (int i = 0; i < count(); ++i) {
                 if (layerForRow(i) == layer) {
                     setCurrentRow(i);
@@ -188,7 +188,7 @@ namespace TrenchBroom {
 
         void LayerListBox::nodesWereAddedOrRemoved(const std::vector<Model::Node*>& nodes) {
             for (const auto* node : nodes) {
-                if (dynamic_cast<const Model::Layer*>(node) != nullptr) {
+                if (dynamic_cast<const Model::LayerNode*>(node) != nullptr) {
                     // A layer was added or removed, so we need to clear and repopulate the list
                     reload();
                     return;
@@ -201,7 +201,7 @@ namespace TrenchBroom {
             updateItems();
         }
 
-        void LayerListBox::currentLayerDidChange(const Model::Layer*) {
+        void LayerListBox::currentLayerDidChange(const Model::LayerNode*) {
             updateItems();
         }
 
@@ -249,7 +249,7 @@ namespace TrenchBroom {
             }
         }
 
-        Model::Layer* LayerListBox::layerForRow(const int row) const {
+        Model::LayerNode* LayerListBox::layerForRow(const int row) const {
             const auto* widget = widgetAtRow(row);
             if (widget == nullptr) {
                 return nullptr;
