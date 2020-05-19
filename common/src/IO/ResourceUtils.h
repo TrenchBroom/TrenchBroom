@@ -53,7 +53,7 @@ namespace TrenchBroom {
         /**
          * Loads an SVG image into a QIcon
          */
-        QIcon loadIconResourceQt(const Path& imagePath);
+        QIcon loadSVGIcon(const Path& imagePath);
     }
 }
 

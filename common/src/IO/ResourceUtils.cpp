@@ -121,7 +121,7 @@ namespace TrenchBroom {
             icon.addPixmap(QPixmap::fromImage(createDisabledState(image)), QIcon::Disabled, state);
         }
 
-        QIcon loadIconResourceQt(const Path& imagePath) {
+        QIcon loadSVGIcon(const Path& imagePath) {
             // Simple caching layer.
             // Without it, the .svg files would be read from disk and decoded each time this is called, which is slow.
             // We never evict from the cache which is assumed to be OK because this is just used for icons

@@ -289,7 +289,7 @@ namespace TrenchBroom {
         }
 
         QAbstractButton* createBitmapButton(const std::string& image, const QString& tooltip, QWidget* parent) {
-            return createBitmapButton(loadIconResourceQt(IO::Path(image)), tooltip, parent);
+            return createBitmapButton(loadSVGIcon(IO::Path(image)), tooltip, parent);
         }
 
         QAbstractButton* createBitmapButton(const QIcon& icon, const QString& tooltip, QWidget* parent) {
@@ -421,7 +421,7 @@ namespace TrenchBroom {
             widget->setClearButtonEnabled(true);
             widget->setPlaceholderText(QLineEdit::tr("Search..."));
 
-            QIcon icon = loadIconResourceQt(IO::Path("Search.svg"));
+            QIcon icon = loadSVGIcon(IO::Path("Search.svg"));
             widget->addAction(icon, QLineEdit::LeadingPosition);
             return widget;
         }

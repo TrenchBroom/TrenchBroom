@@ -97,7 +97,7 @@ namespace TrenchBroom {
                     validDirectoryIcon->setIcon(QIcon());
                 } else {
                     validDirectoryIcon->setToolTip(tr("Directory not found"));
-                    validDirectoryIcon->setIcon(IO::loadIconResourceQt(IO::Path("IssueBrowser.svg")));
+                    validDirectoryIcon->setIcon(IO::loadSVGIcon(IO::Path("IssueBrowser.svg")));
                 }
             });
 
