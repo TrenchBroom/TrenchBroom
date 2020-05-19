@@ -110,8 +110,6 @@ namespace TrenchBroom {
 
             std::vector<BrushFace*> incidentFaces(const BrushVertex* vertex) const;
         public:
-            void intersect(const vm::bbox3& worldBounds, const BrushNode* brush);
-
             // transformation
             bool canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const;
         public:
