@@ -246,16 +246,6 @@ namespace TrenchBroom {
             return m_brush.incidentFaces(vertex);
         }
 
-        bool BrushNode::canRemoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions) const {
-            return m_brush.canRemoveVertices(worldBounds, vertexPositions);
-        }
-
-        void BrushNode::removeVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions) {
-            const NotifyNodeChange nodeChange(this);
-            const NotifyPhysicalBoundsChange boundsChange(this);
-            m_brush.removeVertices(worldBounds, vertexPositions);
-        }
-
         bool BrushNode::canSnapVertices(const vm::bbox3& worldBounds, const FloatType snapToF) {
             return m_brush.canSnapVertices(worldBounds, snapToF);
         }

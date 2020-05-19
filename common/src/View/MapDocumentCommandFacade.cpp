@@ -837,9 +837,12 @@ namespace TrenchBroom {
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
 
             for (const auto& entry : vertices) {
-                Model::BrushNode* brush = entry.first;
+                Model::BrushNode* brushNode = entry.first;
                 const std::vector<vm::vec3>& positions = entry.second;
-                brush->removeVertices(m_worldBounds, positions);
+                
+                Model::Brush brush = brushNode->brush();
+                brush.removeVertices(m_worldBounds, positions);
+                brushNode->setBrush(std::move(brush));
             }
 
             invalidateSelectionBounds();

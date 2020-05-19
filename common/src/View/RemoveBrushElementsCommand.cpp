@@ -35,10 +35,12 @@ namespace TrenchBroom {
         bool RemoveBrushElementsCommand::doCanDoVertexOperation(const MapDocument* document) const {
             const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_vertices) {
-                Model::BrushNode* brush = entry.first;
+                const Model::BrushNode* brushNode = entry.first;
+                const Model::Brush& brush = brushNode->brush();
                 const std::vector<vm::vec3>& vertices = entry.second;
-                if (!brush->canRemoveVertices(worldBounds, vertices))
+                if (!brush.canRemoveVertices(worldBounds, vertices)) {
                     return false;
+                }
             }
             return true;
         }
