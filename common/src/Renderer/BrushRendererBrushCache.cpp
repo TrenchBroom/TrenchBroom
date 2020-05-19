@@ -54,20 +54,21 @@ namespace TrenchBroom {
             m_cachedFacesSortedByTexture.clear();
         }
 
-        void BrushRendererBrushCache::validateVertexCache(const Model::BrushNode* brush) {
+        void BrushRendererBrushCache::validateVertexCache(const Model::BrushNode* brushNode) {
             if (m_rendererCacheValid) {
                 return;
             }
 
             // build vertex cache and face cache
+            const Model::Brush& brush = brushNode->brush();
 
             m_cachedVertices.clear();
-            m_cachedVertices.reserve(brush->vertexCount());
+            m_cachedVertices.reserve(brush.vertexCount());
 
             m_cachedFacesSortedByTexture.clear();
-            m_cachedFacesSortedByTexture.reserve(brush->faceCount());
+            m_cachedFacesSortedByTexture.reserve(brush.faceCount());
 
-            for (Model::BrushFace* face : brush->faces()) {
+            for (Model::BrushFace* face : brush.faces()) {
                 const auto indexOfFirstVertexRelativeToBrush = m_cachedVertices.size();
 
                 // The boundary is in CCW order, but the renderer expects CW order:
@@ -103,9 +104,9 @@ namespace TrenchBroom {
             // Build edge index cache
 
             m_cachedEdges.clear();
-            m_cachedEdges.reserve(brush->edgeCount());
+            m_cachedEdges.reserve(brush.edgeCount());
 
-            for (const Model::BrushEdge* currentEdge : brush->edges()) {
+            for (const Model::BrushEdge* currentEdge : brush.edges()) {
                 const auto face1 = currentEdge->firstFace()->payload();
                 const auto face2 = currentEdge->secondFace()->payload();
                 const auto vertexIndex1RelativeToBrush = currentEdge->firstVertex()->payload();
