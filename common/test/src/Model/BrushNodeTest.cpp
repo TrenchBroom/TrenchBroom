@@ -28,9 +28,10 @@
 #include "IO/NodeReader.h"
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"
-#include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushSnapshot.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
@@ -273,7 +274,7 @@ namespace TrenchBroom {
 
             Hit hit1 = hits1.all().front();
             ASSERT_DOUBLE_EQ(8.0, hit1.distance());
-            ASSERT_EQ(front, hitToFace(hit1));
+            ASSERT_EQ(front, hitToFaceHandle(hit1)->face());
 
             PickResult hits2;
             brush.pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::neg_y()), hits2);

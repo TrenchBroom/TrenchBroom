@@ -309,8 +309,8 @@ namespace TrenchBroom {
             const auto& worldBounds = document->worldBounds();
 
             const auto& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().selected().first();
-            if (hit.isMatch()) {
-                const auto* face = Model::hitToFace(hit);
+            if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                const auto* face = faceHandle->face();
                 return grid.moveDeltaForBounds(face->boundary(), bounds, worldBounds, pickRay());
             } else {
                 const auto referenceBounds = document->referenceBounds();

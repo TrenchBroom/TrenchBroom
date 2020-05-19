@@ -20,8 +20,9 @@
 #include "HitFilter.h"
 
 #include "Ensure.h"
-#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
+#include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
@@ -104,8 +105,8 @@ namespace TrenchBroom {
         bool SelectionHitFilter::doMatches(const Hit& hit) const {
             if (hit.type() == EntityNode::EntityHitType) {
                 return hitToEntity(hit)->selected();
-            } else if (hit.type() == BrushNode::BrushHitType) {
-                return hitToBrush(hit)->selected() || hitToFace(hit)->selected();
+            } else if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                return faceHandle->node()->selected() || faceHandle->face()->selected();
             } else {
                 return false;
             }
@@ -118,8 +119,8 @@ namespace TrenchBroom {
         bool TransitivelySelectedHitFilter::doMatches(const Hit& hit) const {
             if (hit.type() == EntityNode::EntityHitType) {
                 return hitToEntity(hit)->transitivelySelected();
-            } else if (hit.type() == BrushNode::BrushHitType) {
-                return hitToBrush(hit)->transitivelySelected() || hitToFace(hit)->selected();
+            } else if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                return faceHandle->node()->transitivelySelected() || faceHandle->face()->selected();
             } else {
                 return false;
             }
@@ -146,8 +147,8 @@ namespace TrenchBroom {
         bool ContextHitFilter::doMatches(const Hit& hit) const {
             if (hit.type() == EntityNode::EntityHitType) {
                 return m_context.pickable(hitToEntity(hit));
-            } else if (hit.type() == BrushNode::BrushHitType) {
-                return m_context.pickable(hitToBrush(hit), hitToFace(hit));
+            } else if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                return m_context.pickable(faceHandle->node(), faceHandle->face());
             } else {
                 return false;
             }

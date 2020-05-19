@@ -115,8 +115,8 @@ namespace TrenchBroom {
             vm::vec3 delta;
             const auto& grid = document->grid();
             const auto& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
-            if (hit.isMatch()) {
-                const auto* face = Model::hitToFace(hit);
+            if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                const auto* face = faceHandle->face();
                 const auto dragPlane = vm::aligned_orthogonal_plane(hit.hitPoint(), face->boundary().normal);
                 delta = grid.moveDeltaForBounds(dragPlane, m_entity->definitionBounds(), document->worldBounds(), pickRay);
             } else {

@@ -21,8 +21,9 @@
 
 #include "Ensure.h"
 #include "Model/Hit.h"
-#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
+#include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/HitAdapter.h"
 
@@ -79,13 +80,13 @@ namespace TrenchBroom {
         }
 
         FloatType CompareHitsBySize::getSize(const Hit& hit) const {
-            const BrushFace* face = hitToFace(hit);
-            if (face != nullptr)
-                return face->area(m_axis);
-            const EntityNode* entity = hitToEntity(hit);
-            if (entity != nullptr)
+            if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                return faceHandle->face()->area(m_axis);
+            } else if (const EntityNode* entity = hitToEntity(hit)) {
                 return entity->area(m_axis);
-            return 0.0;
+            } else {
+                return 0.0;
+            }
         }
     }
 }
