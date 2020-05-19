@@ -168,7 +168,7 @@ namespace TrenchBroom {
             f1b.push_back(f1h2);
             f1b.push_back(f1h3);
             f1b.push_back(f1h4);
-            m_faces.push_back(new Face(std::move(f1b)));
+            m_faces.push_back(new Face(std::move(f1b), vm::plane<T,3>(p1, vm::vec<T,3>::neg_y())));
 
             // Left face
             HalfEdge* f2h1 = new HalfEdge(v1);
@@ -180,7 +180,7 @@ namespace TrenchBroom {
             f2b.push_back(f2h2);
             f2b.push_back(f2h3);
             f2b.push_back(f2h4);
-            m_faces.push_back(new Face(std::move(f2b)));
+            m_faces.push_back(new Face(std::move(f2b), vm::plane<T,3>(p1, vm::vec<T,3>::neg_x())));
 
             // Bottom face
             HalfEdge* f3h1 = new HalfEdge(v1);
@@ -192,7 +192,7 @@ namespace TrenchBroom {
             f3b.push_back(f3h2);
             f3b.push_back(f3h3);
             f3b.push_back(f3h4);
-            m_faces.push_back(new Face(std::move(f3b)));
+            m_faces.push_back(new Face(std::move(f3b), vm::plane<T,3>(p1, vm::vec<T,3>::neg_z())));
 
             // Top face
             HalfEdge* f4h1 = new HalfEdge(v2);
@@ -204,7 +204,7 @@ namespace TrenchBroom {
             f4b.push_back(f4h2);
             f4b.push_back(f4h3);
             f4b.push_back(f4h4);
-            m_faces.push_back(new Face(std::move(f4b)));
+            m_faces.push_back(new Face(std::move(f4b), vm::plane<T,3>(p8, vm::vec<T,3>::pos_z())));
 
             // Back face
             HalfEdge* f5h1 = new HalfEdge(v3);
@@ -216,7 +216,7 @@ namespace TrenchBroom {
             f5b.push_back(f5h2);
             f5b.push_back(f5h3);
             f5b.push_back(f5h4);
-            m_faces.push_back(new Face(std::move(f5b)));
+            m_faces.push_back(new Face(std::move(f5b), vm::plane<T,3>(p8, vm::vec<T,3>::pos_y())));
 
             // Right face
             HalfEdge* f6h1 = new HalfEdge(v5);
@@ -228,7 +228,7 @@ namespace TrenchBroom {
             f6b.push_back(f6h2);
             f6b.push_back(f6h3);
             f6b.push_back(f6h4);
-            m_faces.push_back(new Face(std::move(f6b)));
+            m_faces.push_back(new Face(std::move(f6b), vm::plane<T,3>(p8, vm::vec<T,3>::pos_x())));
 
             m_edges.push_back(new Edge(f1h4, f2h1)); // v1, v2
             m_edges.push_back(new Edge(f2h4, f3h1)); // v1, v3
@@ -361,7 +361,7 @@ namespace TrenchBroom {
                     myBoundary.push_back(copyHalfEdge(currentHalfEdge));
                 }
 
-                Face* copy = new Face(std::move(myBoundary));
+                Face* copy = new Face(std::move(myBoundary), originalFace->plane());
                 callback.faceWasCopied(originalFace, copy);
                 m_faces.push_back(copy);
             }

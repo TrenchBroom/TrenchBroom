@@ -27,9 +27,10 @@
 #include <kdl/intrusive_circular_list.h>
 
 #include <vecmath/forward.h>
-#include <vecmath/vec.h>
 #include <vecmath/bbox.h>
+#include <vecmath/plane.h>
 #include <vecmath/util.h>
+#include <vecmath/vec.h>
 
 #include <initializer_list>
 #include <limits>
@@ -690,6 +691,11 @@ namespace TrenchBroom {
              * more (but in some cases less if the face is degenerate).
              */
             HalfEdgeList m_boundary;
+            
+            /**
+             * The plane that contains this face, i.e., the plane that contains all vertices of this face.
+             */
+            vm::plane<T,3> m_plane;
 
             /**
              * The payload attached to this face.
@@ -706,8 +712,9 @@ namespace TrenchBroom {
              * to this. The given boundary is moved into this face.
              *
              * @param boundary the boundary of the newly created face, which must contain at least three half edges
+             * @param plane the plane that contains the newly created face
              */
-            explicit Polyhedron_Face(HalfEdgeList&& boundary);
+            explicit Polyhedron_Face(HalfEdgeList&& boundary, const vm::plane<T,3>& plane);
         public:
             /**
              * Returns the circular list of half edges that make up the boundary of this face.
@@ -718,6 +725,16 @@ namespace TrenchBroom {
              * Returns the circular list of half edges that make up the boundary of this face.
              */
             HalfEdgeList& boundary();
+            
+            /**
+             * Returns the plane that contains this face.
+             */
+            const vm::plane<T,3>& plane() const;
+            
+            /**
+             * Sets the plane that contains this face.
+             */
+            void setPlane(const vm::plane<T,3>& plane);
 
             /**
              * Returns the next face in its containing circular list.
@@ -1853,9 +1870,10 @@ namespace TrenchBroom {
              * Assumes that this polyhedron is neither empty, nor a point, nor an edge, nor a polygon.
              *
              * @param seam the seam to weave a polygon onto
+             * @param plane the plane that contains the newly created face
              * @param callback the callback to inform of lifecycle events
              */
-            void sealWithSinglePolygon(const Seam& seam, Callback& callback);
+            void sealWithSinglePolygon(const Seam& seam, const vm::plane<T,3>& plane, Callback& callback);
 
             class ShiftSeamForWeaving;
 

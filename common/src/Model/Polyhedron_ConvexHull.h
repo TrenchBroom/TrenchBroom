@@ -23,6 +23,7 @@
 #include "Macros.h"
 
 #include "Polyhedron.h"
+#include "Exceptions.h"
 
 #include <vecmath/segment.h>
 #include <vecmath/plane.h>
@@ -36,6 +37,27 @@
 
 namespace TrenchBroom {
     namespace Model {
+        namespace {
+            template <typename T, typename FP, typename VP>
+            vm::plane<T,3> makePlaneFromBoundary(const Polyhedron_HalfEdgeList<T,FP,VP>& boundary) {
+                if (boundary.size() < 3) {
+                    throw GeometryException("boundary must have at least thee vertices");
+                }
+                
+                const auto* first = boundary.front();
+                const auto& p1 = first->next()->origin()->position();
+                const auto& p2 = first->origin()->position();
+                const auto& p3 = first->previous()->origin()->position();
+                
+                const auto [valid, plane] = vm::from_points(p1, p2, p3);
+                if (!valid) {
+                    throw GeometryException("boundary is colinear");
+                }
+                
+                return plane;
+            }
+        }
+        
         template <typename T, typename FP, typename VP>
         void Polyhedron<T,FP,VP>::addPoints(const std::vector<vm::vec<T,3>>& points) {
             addPoints(std::begin(points), std::end(points));
@@ -203,7 +225,8 @@ namespace TrenchBroom {
             boundary.push_back(h2);
             boundary.push_back(h3);
 
-            Face* face = new Face(std::move(boundary));
+            const vm::plane<T,3> plane = makePlaneFromBoundary(boundary);
+            Face* face = new Face(std::move(boundary), plane);
 
             Edge* e2 = new Edge(h2);
             Edge* e3 = new Edge(h3);
@@ -344,7 +367,8 @@ namespace TrenchBroom {
                 m_edges.push_back(e);
             }
 
-            Face* f = new Face(std::move(boundary));
+            const vm::plane<T,3> plane = makePlaneFromBoundary(boundary);
+            Face* f = new Face(std::move(boundary), plane);
             callback.faceWasCreated(f);
             m_faces.push_back(f);
         }
@@ -805,7 +829,7 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::sealWithSinglePolygon(const Seam& seam, Callback& callback) {
+        void Polyhedron<T,FP,VP>::sealWithSinglePolygon(const Seam& seam, const vm::plane<T,3>& plane, Callback& callback) {
             assert(seam.size() >= 3);
             assert(!seam.hasMultipleLoops());
             assert(!empty() && !point() && !edge() && !polygon());
@@ -820,7 +844,7 @@ namespace TrenchBroom {
                 seamEdge->setSecondEdge(boundaryEdge);
             }
 
-            Face* face = new Face(std::move(boundary));
+            Face* face = new Face(std::move(boundary), plane);
             callback.faceWasCreated(face);
             m_faces.push_back(face);
         }
@@ -918,14 +942,26 @@ namespace TrenchBroom {
                 boundary.push_back(h3);
                 edge->setSecondEdge(h2);
 
+                const vm::plane<T,3> plane = makePlaneFromBoundary(boundary);
                 if (it != std::end(seam)) {
-                    const auto [valid, plane] = vm::from_points(top->position(), v2->position(), v1->position());
-                    assert(valid); unused(valid);
-
                     auto* next = *it;
 
+                    const auto checkEdge = [&](const auto* e) {
+                        const auto& point = e->firstVertex()->position();
+                        
+                        // Is the point to be added inside the plane of the face being created?
+                        if (plane.point_status(point) != vm::plane_status::inside) {
+                            return false;
+                        }
+                        
+                        // Is the point to be added colinear with the first two vertices of the face being created?
+                        const auto [valid, p] = vm::from_points(top->position(), point, v1->position());
+                        unused(p);
+                        return valid;
+                    };
+                    
                     // TODO use same coplanarity check as in Face::coplanar(const Face*) const ?
-                    while (it != std::end(seam) && plane.point_status(next->firstVertex()->position()) == vm::plane_status::inside) {
+                    while (it != std::end(seam) && checkEdge(next)) {
                         next->setSecondEdge(h);
 
                         auto* v = next->firstVertex();
@@ -938,7 +974,7 @@ namespace TrenchBroom {
                     }
                 }
 
-                Face* newFace = new Face(std::move(boundary));
+                Face* newFace = new Face(std::move(boundary), plane);
                 callback.faceWasCreated(newFace);
                 m_faces.push_back(newFace);
 
