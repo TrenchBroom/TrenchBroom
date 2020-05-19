@@ -62,10 +62,6 @@ namespace TrenchBroom {
     namespace Model {
         const HitType::Type BrushNode::BrushHitType = HitType::freeType();
 
-        BrushNode::BrushNode(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) :
-        m_brushRendererBrushCache(std::make_unique<Renderer::BrushRendererBrushCache>()),
-        m_brush(worldBounds, faces) {}
-
         BrushNode::BrushNode(Brush brush) :
         m_brushRendererBrushCache(std::make_unique<Renderer::BrushRendererBrushCache>()),
         m_brush(std::move(brush)) {}

@@ -62,7 +62,6 @@ namespace TrenchBroom {
             mutable std::unique_ptr<Renderer::BrushRendererBrushCache> m_brushRendererBrushCache; // unique_ptr for breaking header dependencies
             Brush m_brush; // must be destroyed before the brush renderer cache
         public:
-            BrushNode(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces);
             explicit BrushNode(Brush brush);
             ~BrushNode() override;
         public:

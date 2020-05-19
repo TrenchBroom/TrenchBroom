@@ -266,7 +266,7 @@ namespace TrenchBroom {
             faces.push_back(top);
             faces.push_back(bottom);
 
-            BrushNode brush(worldBounds, faces);
+            BrushNode brush(Brush(worldBounds, faces));
 
             PickResult hits1;
             brush.pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::pos_y()), hits1);
@@ -338,7 +338,7 @@ namespace TrenchBroom {
             faces.push_back(top);
             faces.push_back(bottom);
 
-            BrushNode original(worldBounds, faces);
+            BrushNode original(Brush(worldBounds, faces));
             BrushNode* clone = original.clone(worldBounds);
 
             assertHasFace(*clone, *left);
