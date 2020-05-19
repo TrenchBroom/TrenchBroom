@@ -705,7 +705,7 @@ namespace TrenchBroom {
 
         void MapDocumentCommandFacade::performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) {
             if (request.evaluate(allSelectedBrushFaces())) {
-                setTextures(Model::toFaces(allSelectedBrushFaces()));
+                setTextures(allSelectedBrushFaces());
                 brushFacesDidChangeNotifier(allSelectedBrushFaces());
             }
         }
@@ -888,7 +888,7 @@ namespace TrenchBroom {
             if (!faceHandles.empty()) {
                 snapshot->restoreNodes(m_worldBounds);
                 
-                setTextures(Model::toFaces(faceHandles));
+                setTextures(faceHandles);
                 brushFacesDidChangeNotifier(faceHandles);
             }
         }

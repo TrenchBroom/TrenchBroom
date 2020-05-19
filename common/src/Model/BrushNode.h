@@ -37,6 +37,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+    
     namespace Renderer {
         class BrushRendererBrushCache;
     }
@@ -73,6 +77,8 @@ namespace TrenchBroom {
             void deselectFace(size_t faceIndex);
             
             void updateFaceTags(size_t faceIndex, TagManager& tagManager);
+            
+            void setFaceTexture(size_t faceIndex, Assets::Texture* texture);
             
             using Node::takeSnapshot;
         private: // implement Node interface
