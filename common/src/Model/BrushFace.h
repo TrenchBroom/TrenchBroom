@@ -33,6 +33,7 @@
 #include <vecmath/plane.h>
 #include <vecmath/util.h>
 
+#include <array>
 #include <memory>
 #include <string>
 #include <vector>
@@ -59,7 +60,7 @@ namespace TrenchBroom {
              * |
              * 0-----------2
              */
-            using Points = vm::vec3[3];
+            using Points = std::array<vm::vec3, 3u>;
         private:
             /**
              * For use in VertexList transformation below.
