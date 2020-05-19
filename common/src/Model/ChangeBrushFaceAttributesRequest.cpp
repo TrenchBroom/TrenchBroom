@@ -245,30 +245,30 @@ namespace TrenchBroom {
             for (const BrushFaceHandle& faceHandle : faceHandles) {
                 BrushNode* node  = faceHandle.node();
                 Brush brush = node->brush();
-                BrushFace* face = brush.face(faceHandle.faceIndex());
+                BrushFace& face = brush.face(faceHandle.faceIndex());
                 
                 switch (m_textureOp) {
                     case TextureOp_Set:
-                        result |= face->attributes().setTextureName(m_textureName);
+                        result |= face.attributes().setTextureName(m_textureName);
                         break;
                     case TextureOp_None:
                         break;
                     switchDefault();
                 }
 
-                result |= face->attributes().setXOffset(evaluateValueOp(face->attributes().xOffset(), m_xOffset, m_xOffsetOp));
-                result |= face->attributes().setYOffset(evaluateValueOp(face->attributes().yOffset(), m_yOffset, m_yOffsetOp));
-                result |= face->attributes().setRotation(evaluateValueOp(face->attributes().rotation(), m_rotation, m_rotationOp));
-                result |= face->attributes().setXScale(evaluateValueOp(face->attributes().xScale(), m_xScale, m_xScaleOp));
-                result |= face->attributes().setYScale(evaluateValueOp(face->attributes().yScale(), m_yScale, m_yScaleOp));
-                result |= face->attributes().setSurfaceFlags(evaluateFlagOp(face->attributes().surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
-                result |= face->attributes().setSurfaceContents(evaluateFlagOp(face->attributes().surfaceContents(), m_contentFlags, m_contentFlagsOp));
-                result |= face->attributes().setSurfaceValue(evaluateValueOp(face->attributes().surfaceValue(), m_surfaceValue, m_surfaceValueOp));
-                result |= face->attributes().setColor(evaluateValueOp(face->attributes().color(), m_colorValue, m_colorValueOp));
+                result |= face.attributes().setXOffset(evaluateValueOp(face.attributes().xOffset(), m_xOffset, m_xOffsetOp));
+                result |= face.attributes().setYOffset(evaluateValueOp(face.attributes().yOffset(), m_yOffset, m_yOffsetOp));
+                result |= face.attributes().setRotation(evaluateValueOp(face.attributes().rotation(), m_rotation, m_rotationOp));
+                result |= face.attributes().setXScale(evaluateValueOp(face.attributes().xScale(), m_xScale, m_xScaleOp));
+                result |= face.attributes().setYScale(evaluateValueOp(face.attributes().yScale(), m_yScale, m_yScaleOp));
+                result |= face.attributes().setSurfaceFlags(evaluateFlagOp(face.attributes().surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
+                result |= face.attributes().setSurfaceContents(evaluateFlagOp(face.attributes().surfaceContents(), m_contentFlags, m_contentFlagsOp));
+                result |= face.attributes().setSurfaceValue(evaluateValueOp(face.attributes().surfaceValue(), m_surfaceValue, m_surfaceValueOp));
+                result |= face.attributes().setColor(evaluateValueOp(face.attributes().color(), m_colorValue, m_colorValueOp));
 
                 switch (m_axisOp) {
                     case AxisOp_Reset:
-                        face->resetTextureAxes();
+                        face.resetTextureAxes();
                         result |= true;
                         break;
                     case AxisOp_None:
@@ -486,8 +486,8 @@ namespace TrenchBroom {
             m_colorValueOp = ValueOp_Set;
         }
 
-        void ChangeBrushFaceAttributesRequest::setAll(const Model::BrushFace* face) {
-            setAll(face->attributes());
+        void ChangeBrushFaceAttributesRequest::setAll(const Model::BrushFace& face) {
+            setAll(face.attributes());
         }
 
         void ChangeBrushFaceAttributesRequest::setAll(const Model::BrushFaceAttributes& attributes) {

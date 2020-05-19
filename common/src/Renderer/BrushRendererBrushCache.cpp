@@ -68,11 +68,11 @@ namespace TrenchBroom {
             m_cachedFacesSortedByTexture.clear();
             m_cachedFacesSortedByTexture.reserve(brush.faceCount());
 
-            for (const Model::BrushFace* face : brush.faces()) {
+            for (const Model::BrushFace& face : brush.faces()) {
                 const auto indexOfFirstVertexRelativeToBrush = m_cachedVertices.size();
 
                 // The boundary is in CCW order, but the renderer expects CW order:
-                auto& boundary = face->geometry()->boundary();
+                auto& boundary = face.geometry()->boundary();
                 for (auto it = std::rbegin(boundary), end = std::rend(boundary); it != end; ++it) {
                     Model::BrushHalfEdge* current = *it;
                     Model::BrushVertex* vertex = current->origin();
@@ -85,13 +85,13 @@ namespace TrenchBroom {
                     vertex->setPayload(static_cast<GLuint>(currentIndex));
 
                     const auto& position = vertex->position();
-                    m_cachedVertices.emplace_back(vm::vec3f(position), vm::vec3f(face->boundary().normal), face->textureCoords(position));
+                    m_cachedVertices.emplace_back(vm::vec3f(position), vm::vec3f(face.boundary().normal), face.textureCoords(position));
 
                     current = current->previous();
                 }
 
                 // face cache
-                m_cachedFacesSortedByTexture.emplace_back(face, indexOfFirstVertexRelativeToBrush);
+                m_cachedFacesSortedByTexture.emplace_back(&face, indexOfFirstVertexRelativeToBrush);
             }
 
             // Sort by texture so BrushRenderer can efficiently step through the BrushFaces
@@ -111,13 +111,13 @@ namespace TrenchBroom {
                 const auto faceIndex2 = currentEdge->secondFace()->payload();
                 assert(faceIndex1 && faceIndex2);
                 
-                const auto* face1 = brush.face(*faceIndex1);
-                const auto* face2 = brush.face(*faceIndex2);
+                const auto& face1 = brush.face(*faceIndex1);
+                const auto& face2 = brush.face(*faceIndex2);
                 
                 const auto vertexIndex1RelativeToBrush = currentEdge->firstVertex()->payload();
                 const auto vertexIndex2RelativeToBrush = currentEdge->secondVertex()->payload();
 
-                m_cachedEdges.emplace_back(face1, face2, vertexIndex1RelativeToBrush, vertexIndex2RelativeToBrush);
+                m_cachedEdges.emplace_back(&face1, &face2, vertexIndex1RelativeToBrush, vertexIndex2RelativeToBrush);
             }
 
             m_rendererCacheValid = true;

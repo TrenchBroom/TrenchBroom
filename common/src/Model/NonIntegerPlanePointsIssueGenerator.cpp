@@ -68,8 +68,8 @@ namespace TrenchBroom {
 
         void NonIntegerPlanePointsIssueGenerator::doGenerate(BrushNode* brushNode, IssueList& issues) const {
             const Brush& brush = brushNode->brush();
-            for (const BrushFace* face : brush.faces()) {
-                const BrushFace::Points& points = face->points();
+            for (const BrushFace& face : brush.faces()) {
+                const BrushFace::Points& points = face.points();
                 for (size_t i = 0; i < 3; ++i) {
                     const vm::vec3& point = points[i];
                     if (!vm::is_integral(point)) {

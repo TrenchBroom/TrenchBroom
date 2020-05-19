@@ -310,8 +310,8 @@ namespace TrenchBroom {
 
             const auto& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().selected().first();
             if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
-                const auto* face = faceHandle->face();
-                return grid.moveDeltaForBounds(face->boundary(), bounds, worldBounds, pickRay());
+                const auto& face = faceHandle->face();
+                return grid.moveDeltaForBounds(face.boundary(), bounds, worldBounds, pickRay());
             } else {
                 const auto referenceBounds = document->referenceBounds();
                 const auto& pickRay = MapView2D::pickRay();

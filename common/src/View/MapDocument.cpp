@@ -360,7 +360,8 @@ namespace TrenchBroom {
 
         std::string MapDocument::serializeSelectedBrushFaces() {
             std::stringstream stream;
-            m_game->writeBrushFacesToStream(*m_world, Model::toFaces(m_selectedBrushFaces), stream);
+            const auto faces = kdl::vec_transform(m_selectedBrushFaces, [](const auto& h) { return h.face(); });
+            m_game->writeBrushFacesToStream(*m_world, faces, stream);
             return stream.str();
         }
 
@@ -659,7 +660,7 @@ namespace TrenchBroom {
 
         void MapDocument::select(const Model::BrushFaceHandle& handle) {
             executeAndStore(SelectionCommand::select({ handle }));
-            setCurrentTextureName(handle.face()->attributes().textureName());
+            setCurrentTextureName(handle.face().attributes().textureName());
         }
 
         void MapDocument::convertToFaceSelection() {
@@ -667,12 +668,12 @@ namespace TrenchBroom {
         }
 
         void MapDocument::selectFacesWithTexture(const Assets::Texture* texture) {
-            Model::CollectSelectableBrushFacesVisitor visitor(*m_editorContext, [=](const Model::BrushNode* brush, const Model::BrushFace* face) {
+            Model::CollectSelectableBrushFacesVisitor visitor(*m_editorContext, [=](const Model::BrushNode* brush, const Model::BrushFace& face) {
                 // FIXME: we shouldn't need this extra check here to prevent hidden brushes from being included; fix it in EditorContext
                 if (brush->hidden()) {
                     return false;
                 }
-                return face->texture() == texture;
+                return face.texture() == texture;
             });
             m_world->acceptAndRecurse(visitor);
 
@@ -1160,7 +1161,7 @@ namespace TrenchBroom {
 
             if (hasSelectedBrushFaces()) {
                 for (const auto& handle : selectedBrushFaces()) {
-                    for (const Model::BrushVertex* vertex : handle.face()->vertices()) {
+                    for (const Model::BrushVertex* vertex : handle.face().vertices()) {
                         polyhedron.addPoint(vertex->position());
                     }
                 }
@@ -1447,7 +1448,7 @@ namespace TrenchBroom {
                 for (const auto& handle : m_selectedBrushFaces) {
                     std::stringstream str;
                     str.precision(17);
-                    for (const Model::BrushVertex* vertex : handle.face()->vertices()) {
+                    for (const Model::BrushVertex* vertex : handle.face().vertices()) {
                         str << "(" << vertex->position() << ") ";
                     }
                     info(str.str());
@@ -1735,8 +1736,8 @@ namespace TrenchBroom {
             void doVisit(Model::BrushNode* brushNode) override   {
                 const Model::Brush& brush = brushNode->brush();
                 for (size_t i = 0u; i < brush.faceCount(); ++i) {
-                    const Model::BrushFace* face = brush.face(i);
-                    Assets::Texture* texture = m_manager.texture(face->attributes().textureName());
+                    const Model::BrushFace& face = brush.face(i);
+                    Assets::Texture* texture = m_manager.texture(face.attributes().textureName());
                     brushNode->setFaceTexture(i, texture);
                 }
             }
@@ -1769,8 +1770,8 @@ namespace TrenchBroom {
         void MapDocument::setTextures(const std::vector<Model::BrushFaceHandle>& faceHandles) {
             for (const auto& faceHandle : faceHandles) {
                 Model::BrushNode* node = faceHandle.node();
-                const Model::BrushFace* face = faceHandle.face();
-                Assets::Texture* texture = m_textureManager->texture(face->attributes().textureName());
+                const Model::BrushFace& face = faceHandle.face();
+                Assets::Texture* texture = m_textureManager->texture(face.attributes().textureName());
                 node->setFaceTexture(faceHandle.faceIndex(), texture);
             }
         }

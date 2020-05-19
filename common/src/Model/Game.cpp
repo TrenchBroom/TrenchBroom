@@ -94,7 +94,7 @@ namespace TrenchBroom {
             doWriteNodesToStream(world, nodes, stream);
         }
 
-        void Game::writeBrushFacesToStream(WorldNode& world, const std::vector<const BrushFace*>& faces, std::ostream& stream) const {
+        void Game::writeBrushFacesToStream(WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const {
             doWriteBrushFacesToStream(world, faces, stream);
         }
 

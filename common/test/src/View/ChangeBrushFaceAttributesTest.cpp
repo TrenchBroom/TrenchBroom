@@ -46,8 +46,8 @@ namespace TrenchBroom {
             document->addNode(brushNode, document->currentParent());
 
             const size_t faceIndex = 0u;
-            const vm::vec3 initialX = brushNode->brush().face(faceIndex)->textureXAxis();
-            const vm::vec3 initialY = brushNode->brush().face(faceIndex)->textureYAxis();
+            const vm::vec3 initialX = brushNode->brush().face(faceIndex).textureXAxis();
+            const vm::vec3 initialY = brushNode->brush().face(faceIndex).textureYAxis();
 
             document->select(Model::BrushFaceHandle(brushNode, faceIndex));
 
@@ -57,21 +57,21 @@ namespace TrenchBroom {
                 document->setFaceAttributes(rotate);
             }
 
-            CHECK(brushNode->brush().face(faceIndex)->attributes().rotation() == 10.0f);
+            CHECK(brushNode->brush().face(faceIndex).attributes().rotation() == 10.0f);
 
             Model::ChangeBrushFaceAttributesRequest reset;
             reset.resetAll();
 
             document->setFaceAttributes(reset);
 
-            CHECK(brushNode->brush().face(faceIndex)->attributes().xOffset() == 0.0f);
-            CHECK(brushNode->brush().face(faceIndex)->attributes().yOffset() == 0.0f);
-            CHECK(brushNode->brush().face(faceIndex)->attributes().rotation() == 0.0f);
-            CHECK(brushNode->brush().face(faceIndex)->attributes().xScale() == 1.0f);
-            CHECK(brushNode->brush().face(faceIndex)->attributes().yScale() == 1.0f);
+            CHECK(brushNode->brush().face(faceIndex).attributes().xOffset() == 0.0f);
+            CHECK(brushNode->brush().face(faceIndex).attributes().yOffset() == 0.0f);
+            CHECK(brushNode->brush().face(faceIndex).attributes().rotation() == 0.0f);
+            CHECK(brushNode->brush().face(faceIndex).attributes().xScale() == 1.0f);
+            CHECK(brushNode->brush().face(faceIndex).attributes().yScale() == 1.0f);
 
-            CHECK(brushNode->brush().face(faceIndex)->textureXAxis() == initialX);
-            CHECK(brushNode->brush().face(faceIndex)->textureYAxis() == initialY);
+            CHECK(brushNode->brush().face(faceIndex).textureXAxis() == initialX);
+            CHECK(brushNode->brush().face(faceIndex).textureYAxis() == initialY);
         }
     }
 }

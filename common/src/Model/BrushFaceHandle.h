@@ -59,7 +59,7 @@ namespace TrenchBroom {
             /**
              * Returns the brush face.
              */
-            const BrushFace* face() const;
+            const BrushFace& face() const;
 
             /**
              * Returns true if the given handles represent the same face.
@@ -76,11 +76,6 @@ namespace TrenchBroom {
          * Returns a vector containing the nodes contained in the given handles.
          */
         std::vector<BrushNode*> toNodes(const std::vector<BrushFaceHandle>& handles);
-
-        /**
-         * Returns a vector containing the faces represented by the given handles.
-         */
-        std::vector<const BrushFace*> toFaces(const std::vector<BrushFaceHandle>& handles);
 
         /**
          * Returns a vector containing handles representing the faces of the given brush.

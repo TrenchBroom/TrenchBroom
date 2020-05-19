@@ -81,8 +81,8 @@ namespace TrenchBroom {
                 if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                     m_oldPolyhedron = m_tool->polyhedron();
 
-                    const Model::BrushFace* face = faceHandle->face();
-                    m_plane = face->boundary();
+                    const Model::BrushFace& face = faceHandle->face();
+                    m_plane = face.boundary();
                     m_initialPoint = hit.hitPoint();
                     updatePolyhedron(m_initialPoint);
 
@@ -227,8 +227,8 @@ namespace TrenchBroom {
             if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                 const Grid& grid = m_tool->grid();
 
-                const Model::BrushFace* face = faceHandle->face();
-                const vm::vec3 snapped = grid.snap(hit.hitPoint(), face->boundary());
+                const Model::BrushFace& face = faceHandle->face();
+                const vm::vec3 snapped = grid.snap(hit.hitPoint(), face.boundary());
 
                 Model::Polyhedron3 polyhedron = m_tool->polyhedron();
                 polyhedron.addPoint(snapped);
@@ -250,9 +250,9 @@ namespace TrenchBroom {
             const Model::Hit& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
             if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                 Model::Polyhedron3 polyhedron = m_tool->polyhedron();
-                const Model::BrushFace* face = faceHandle->face();
+                const Model::BrushFace& face = faceHandle->face();
 
-                for (const Model::BrushVertex* vertex : face->vertices())
+                for (const Model::BrushVertex* vertex : face.vertices())
                     polyhedron.addPoint(vertex->position());
                 m_tool->update(polyhedron);
 

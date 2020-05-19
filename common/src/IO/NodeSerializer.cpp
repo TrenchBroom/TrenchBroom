@@ -19,6 +19,7 @@
 
 #include "NodeSerializer.h"
 
+#include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/GroupNode.h"
 #include "Model/EntityAttributes.h"
@@ -161,13 +162,13 @@ namespace TrenchBroom {
             ++m_brushNo;
         }
 
-        void NodeSerializer::brushFaces(const std::vector<const Model::BrushFace*>& faces) {
-            for (const auto* face : faces) {
+        void NodeSerializer::brushFaces(const std::vector<Model::BrushFace>& faces) {
+            for (const auto& face : faces) {
                 brushFace(face);
             }
         }
 
-        void NodeSerializer::brushFace(const Model::BrushFace* face) {
+        void NodeSerializer::brushFace(const Model::BrushFace& face) {
             doBrushFace(face);
         }
 

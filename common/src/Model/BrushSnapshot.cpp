@@ -29,8 +29,8 @@ namespace TrenchBroom {
         BrushSnapshot::BrushSnapshot(BrushNode* brushNode) :
         m_brushNode(brushNode) {
             const Brush& brush = m_brushNode->brush();
-            for (const BrushFace* face : brush.faces()) {
-                BrushFace& copy = m_faces.emplace_back(*face);
+            for (const BrushFace& face : brush.faces()) {
+                BrushFace& copy = m_faces.emplace_back(face);
                 copy.setTexture(nullptr);
             }
         }

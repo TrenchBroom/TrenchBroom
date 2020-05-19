@@ -121,7 +121,7 @@ namespace TrenchBroom {
             if (faces.size() != 1) {
                 m_helper.setFace(nullptr);
             } else {
-                m_helper.setFace(faces.back().face());
+                m_helper.setFace(&faces.back().face());
             }
 
             if (m_helper.valid()) {

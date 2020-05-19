@@ -92,14 +92,14 @@ namespace TrenchBroom {
                 DefaultFilter(const DefaultFilter& other);
 
                 bool visible(const Model::BrushNode* brush) const;
-                bool visible(const Model::BrushNode* brush, const Model::BrushFace* face) const;
+                bool visible(const Model::BrushNode* brush, const Model::BrushFace& face) const;
                 bool visible(const Model::BrushNode* brush, const Model::BrushEdge* edge) const;
 
                 bool editable(const Model::BrushNode* brush) const;
-                bool editable(const Model::BrushNode* brush, const Model::BrushFace* face) const;
+                bool editable(const Model::BrushNode* brush, const Model::BrushFace& face) const;
 
                 bool selected(const Model::BrushNode* brush) const;
-                bool selected(const Model::BrushNode* brush, const Model::BrushFace* face) const;
+                bool selected(const Model::BrushNode* brush, const Model::BrushFace& face) const;
                 bool selected(const Model::BrushNode* brush, const Model::BrushEdge* edge) const;
                 bool hasSelectedFaces(const Model::BrushNode* brush) const;
             private:
@@ -281,7 +281,7 @@ namespace TrenchBroom {
              */
             void validate();
         private:
-            bool shouldDrawFaceInTransparentPass(const Model::BrushNode* brush, const Model::BrushFace* face) const;
+            bool shouldDrawFaceInTransparentPass(const Model::BrushNode* brush, const Model::BrushFace& face) const;
             void validateBrush(const Model::BrushNode* brush);
             void addBrush(const Model::BrushNode* brush);
             void removeBrush(const Model::BrushNode* brush);

@@ -183,26 +183,26 @@ namespace TrenchBroom {
             return std::nullopt;
         }
 
-        const BrushFace* Brush::face(const size_t index) const {
+        const BrushFace& Brush::face(const size_t index) const {
             assert(index < faceCount());
-            return &m_faces[index];
+            return m_faces[index];
         }
 
-        BrushFace* Brush::face(const size_t index) {
+        BrushFace& Brush::face(const size_t index) {
             assert(index < faceCount());
-            return &m_faces[index];
+            return m_faces[index];
         }
 
         size_t Brush::faceCount() const {
             return m_faces.size();
         }
 
-        std::vector<const BrushFace*> Brush::faces() const {
-            return kdl::vec_transform(m_faces, [](const BrushFace& f) { return &f; });
+        const std::vector<BrushFace>& Brush::faces() const {
+            return m_faces;
         }
 
-        std::vector<BrushFace*> Brush::faces() {
-            return kdl::vec_transform(m_faces, [](BrushFace& f) { return &f; });
+        std::vector<BrushFace>& Brush::faces() {
+            return m_faces;
         }
 
         bool Brush::closed() const {
@@ -224,12 +224,12 @@ namespace TrenchBroom {
         void Brush::cloneFaceAttributesFrom(const Brush& brush) {
             for (auto& destination : m_faces) {
                 if (const auto sourceIndex = brush.findFace(destination.boundary())) {
-                    const auto* source = brush.face(*sourceIndex);
-                    destination.setAttributes(source->attributes());
+                    const auto& source = brush.face(*sourceIndex);
+                    destination.setAttributes(source.attributes());
 
-                    auto snapshot = source->takeTexCoordSystemSnapshot();
+                    auto snapshot = source.takeTexCoordSystemSnapshot();
                     if (snapshot != nullptr) {
-                        destination.copyTexCoordSystemFromFace(*snapshot, source->attributes().takeSnapshot(), source->boundary(), WrapStyle::Projection);
+                        destination.copyTexCoordSystemFromFace(*snapshot, source.attributes().takeSnapshot(), source.boundary(), WrapStyle::Projection);
                     }
                 }
             }
@@ -238,13 +238,13 @@ namespace TrenchBroom {
         void Brush::cloneInvertedFaceAttributesFrom(const Brush& brush) {
             for (auto& destination : m_faces) {
                 if (const auto sourceIndex = brush.findFace(destination.boundary().flip())) {
-                    const auto* source = brush.face(*sourceIndex);
+                    const auto& source = brush.face(*sourceIndex);
                     // Todo: invert the face attributes?
-                    destination.setAttributes(source->attributes());
+                    destination.setAttributes(source.attributes());
 
-                    auto snapshot = source->takeTexCoordSystemSnapshot();
+                    auto snapshot = source.takeTexCoordSystemSnapshot();
                     if (snapshot != nullptr) {
-                        destination.copyTexCoordSystemFromFace(*snapshot, source->attributes().takeSnapshot(), destination.boundary(), WrapStyle::Projection);
+                        destination.copyTexCoordSystemFromFace(*snapshot, source.attributes().takeSnapshot(), destination.boundary(), WrapStyle::Projection);
                     }
                 }
             }
@@ -261,7 +261,7 @@ namespace TrenchBroom {
         }
 
         bool Brush::canMoveBoundary(const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta) const {
-            const auto& face = *this->face(faceIndex);
+            const auto& face = this->face(faceIndex);
             auto testFace = BrushFace(face);
             testFace.transform(vm::translation_matrix(delta), false);
 
@@ -290,8 +290,8 @@ namespace TrenchBroom {
         void Brush::moveBoundary(const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta, const bool lockTexture) {
             assert(canMoveBoundary(worldBounds, faceIndex, delta));
 
-            auto* face = this->face(faceIndex);
-            face->transform(vm::translation_matrix(delta), lockTexture);
+            auto& face = this->face(faceIndex);
+            face.transform(vm::translation_matrix(delta), lockTexture);
             updateGeometryFromFaces(worldBounds);
         }
 
@@ -880,8 +880,8 @@ namespace TrenchBroom {
         }
 
         void Brush::intersect(const vm::bbox3& worldBounds, const Brush& brush) {
-            for (const auto* face : brush.faces()) {
-                m_faces.emplace_back(*face);
+            for (const auto& face : brush.faces()) {
+                m_faces.emplace_back(face);
             }
 
             updateGeometryFromFaces(worldBounds);

@@ -61,8 +61,8 @@ namespace TrenchBroom {
 
                 const bool brushSelected = selected(brushNode);
                 const Model::Brush& brush = brushNode->brush();
-                for (const Model::BrushFace* face : brush.faces()) {
-                    face->setMarked(brushSelected || selected(brushNode, face));
+                for (const Model::BrushFace& face : brush.faces()) {
+                    face.setMarked(brushSelected || selected(brushNode, face));
                 }
                 return std::make_tuple(FaceRenderPolicy::RenderMarked, EdgeRenderPolicy::RenderIfEitherFaceMarked);
             }
@@ -79,8 +79,8 @@ namespace TrenchBroom {
                 }
 
                 const Model::Brush& brush = brushNode->brush();
-                for (const Model::BrushFace* face : brush.faces()) {
-                    face->setMarked(true);
+                for (const Model::BrushFace& face : brush.faces()) {
+                    face.setMarked(true);
                 }
 
                 return std::make_tuple(FaceRenderPolicy::RenderMarked,
@@ -107,9 +107,9 @@ namespace TrenchBroom {
                 const Model::Brush& brush = brushNode->brush();
                 
                 bool anyFaceVisible = false;
-                for (const Model::BrushFace* face : brush.faces()) {
+                for (const Model::BrushFace& face : brush.faces()) {
                     const bool faceVisible = !selected(brushNode, face) && visible(brushNode, face);
-                    face->setMarked(faceVisible);
+                    face.setMarked(faceVisible);
                     anyFaceVisible |= faceVisible;
                 }
 

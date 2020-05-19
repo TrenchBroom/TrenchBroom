@@ -184,7 +184,7 @@ namespace TrenchBroom {
             writer.writeNodes(nodes);
         }
 
-        void GameImpl::doWriteBrushFacesToStream(WorldNode& world, const std::vector<const BrushFace*>& faces, std::ostream& stream) const {
+        void GameImpl::doWriteBrushFacesToStream(WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const {
             IO::NodeWriter writer(world, stream);
             writer.writeBrushFaces(faces);
         }

@@ -164,15 +164,15 @@ namespace TrenchBroom {
 
         void FaceHandleManager::addHandles(const Model::BrushNode* brushNode) {
             const Model::Brush& brush = brushNode->brush();
-            for (const Model::BrushFace* face : brush.faces()) {
-                add(face->polygon());
+            for (const Model::BrushFace& face : brush.faces()) {
+                add(face.polygon());
             }
         }
 
         void FaceHandleManager::removeHandles(const Model::BrushNode* brushNode) {
             const Model::Brush& brush = brushNode->brush();
-            for (const Model::BrushFace* face : brush.faces()) {
-                assertResult(remove(face->polygon()))
+            for (const Model::BrushFace& face : brush.faces()) {
+                assertResult(remove(face.polygon()))
             }
         }
 

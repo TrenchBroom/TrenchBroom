@@ -47,9 +47,9 @@ namespace TrenchBroom {
              * Creates a new reference to the given face.
              *
              * @param node the containing brush node, must not be null
-             * @param face the face to reference, must not be null
+             * @param face the face to reference
              */
-            BrushFaceReference(Model::BrushNode* node, const Model::BrushFace* face);
+            BrushFaceReference(Model::BrushNode* node, const Model::BrushFace& face);
 
             /**
              * Resolves the referenced brush face.

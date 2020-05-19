@@ -123,10 +123,10 @@ namespace TrenchBroom {
                 const auto rightFaceIndex = edge->secondFace()->payload();
                 assert(leftFaceIndex && rightFaceIndex);
                 
-                const auto* leftFace = node->brush().face(*leftFaceIndex);
-                const auto* rightFace = node->brush().face(*rightFaceIndex);
-                const auto leftDot  = dot(leftFace->boundary().normal,  m_pickRay.direction);
-                const auto rightDot = dot(rightFace->boundary().normal, m_pickRay.direction);
+                const auto& leftFace = node->brush().face(*leftFaceIndex);
+                const auto& rightFace = node->brush().face(*rightFaceIndex);
+                const auto leftDot  = dot(leftFace.boundary().normal,  m_pickRay.direction);
+                const auto rightDot = dot(rightFace.boundary().normal, m_pickRay.direction);
 
                 const auto leftFaceHandle = Model::BrushFaceHandle(node, *leftFaceIndex);
                 const auto rightFaceHandle = Model::BrushFaceHandle(node, *rightFaceIndex);
@@ -211,16 +211,13 @@ namespace TrenchBroom {
 
         class ResizeBrushesTool::MatchFaceBoundary {
         private:
-            const Model::BrushFace* m_reference;
+            const Model::BrushFace& m_reference;
         public:
-            explicit MatchFaceBoundary(const Model::BrushFace* reference) :
-            m_reference(reference) {
-                ensure(m_reference != nullptr, "reference is null");
-            }
+            explicit MatchFaceBoundary(const Model::BrushFace& reference) :
+            m_reference(reference) {}
 
-            bool operator()(const Model::BrushNode*, const Model::BrushFace* face) const {
-                return face != m_reference && vm::is_equal(face->boundary(), m_reference->boundary(),
-                    vm::C::almost_zero());
+            bool operator()(const Model::BrushNode*, const Model::BrushFace& face) const {
+                return &face != &m_reference && vm::is_equal(face.boundary(), m_reference.boundary(), vm::C::almost_zero());
             }
         };
 
@@ -243,7 +240,7 @@ namespace TrenchBroom {
             }
 
             return kdl::vec_transform(result, [](const auto& handle) {
-                return std::make_tuple(handle.node(), handle.face()->boundary().normal);
+                return std::make_tuple(handle.node(), handle.face().boundary().normal);
             });
         }
 
@@ -277,8 +274,8 @@ namespace TrenchBroom {
             assert(!dragFaceHandles.empty());
             
             const auto dragFaceHandle = dragFaceHandles.front();
-            auto* dragFace = dragFaceHandle.face();
-            const auto& faceNormal = dragFace->boundary().normal;
+            auto& dragFace = dragFaceHandle.face();
+            const auto& faceNormal = dragFace.boundary().normal;
 
             const auto dist = vm::distance(pickRay, vm::line3(m_dragOrigin, faceNormal));
             if (dist.parallel) {
@@ -359,8 +356,8 @@ namespace TrenchBroom {
             std::map<vm::polygon3, std::vector<Model::BrushNode*>> brushMap;
             for (const auto& handle : dragFaces()) {
                 auto* brush = handle.node();
-                auto* face = handle.face();
-                brushMap[face->polygon()] = { brush };
+                auto& face = handle.face();
+                brushMap[face.polygon()] = { brush };
             }
 
             if (document->moveFaces(brushMap, delta)) {
@@ -407,11 +404,11 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> newNodes;
 
             for (const auto& dragFaceHandle : dragFaces()) {
-                auto* dragFace = dragFaceHandle.face();
+                auto& dragFace = dragFaceHandle.face();
                 auto* brushNode = dragFaceHandle.node();
 
                 auto newBrush = brushNode->brush();
-                const auto newDragFaceIndex = newBrush.findFace(dragFace->boundary());
+                const auto newDragFaceIndex = newBrush.findFace(dragFace.boundary());
                 if (!newDragFaceIndex) {
                     kdl::map_clear_and_delete(newNodes);
                     return false;
@@ -422,8 +419,8 @@ namespace TrenchBroom {
                     return false;
                 }
 
-                const auto* newDragFace = newBrush.face(*newDragFaceIndex);
-                auto clipFace = Model::BrushFace(*newDragFace);
+                const auto& newDragFace = newBrush.face(*newDragFaceIndex);
+                auto clipFace = newDragFace;
                 clipFace.invert();
                 newBrush.moveBoundary(worldBounds, *newDragFaceIndex, delta, lockTextures);
                 
@@ -434,7 +431,7 @@ namespace TrenchBroom {
                 
                 auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
                 newNodes[brushNode->parent()].push_back(newBrushNode);
-                newDragHandles.emplace_back(newBrushNode, newDragFace->boundary().normal);
+                newDragHandles.emplace_back(newBrushNode, newDragFace.boundary().normal);
             }
 
             document->deselectAll();
@@ -467,18 +464,18 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> newNodes;
 
             for (const auto& dragFaceHandle : dragFaces()) {
-                auto* dragFace = dragFaceHandle.face();
+                auto& dragFace = dragFaceHandle.face();
                 auto* brushNode = dragFaceHandle.node();
 
                 auto newBrush = brushNode->brush();
-                const auto newDragFaceIndex = newBrush.findFace(dragFace->boundary());
+                const auto newDragFaceIndex = newBrush.findFace(dragFace.boundary());
                 if (!newDragFaceIndex) {
                     kdl::map_clear_and_delete(newNodes);
                     return false;
                 }
 
-                auto* newDragFace = newBrush.face(*newDragFaceIndex);
-                auto clipFace = Model::BrushFace(*newDragFace);
+                auto& newDragFace = newBrush.face(*newDragFaceIndex);
+                auto clipFace = newDragFace;
                 clipFace.invert();
                 clipFace.transform(vm::translation_matrix(delta), lockTextures);
 
@@ -489,7 +486,7 @@ namespace TrenchBroom {
 
                 auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
                 newNodes[brushNode->parent()].push_back(newBrushNode);
-                newDragHandles.emplace_back(newBrushNode, newDragFace->boundary().normal);
+                newDragHandles.emplace_back(newBrushNode, newDragFace.boundary().normal);
             }
 
             // Now that the newly split off brushes are ready to insert (but not selected),
@@ -514,8 +511,8 @@ namespace TrenchBroom {
             std::vector<vm::polygon3> result;
             result.reserve(dragFaces.size());
             for (const auto& dragFaceHandle : dragFaces) {
-                const auto* dragFace = dragFaceHandle.face();
-                result.push_back(dragFace->polygon());
+                const auto& dragFace = dragFaceHandle.face();
+                result.push_back(dragFace.polygon());
             }
 
             return result;

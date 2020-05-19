@@ -92,7 +92,7 @@ namespace TrenchBroom {
                 faces = collect.faces();
             }
 
-            return kdl::vec_filter(faces, [&](const auto& handle) { return handle.face()->texture() == subject; });
+            return kdl::vec_filter(faces, [&](const auto& handle) { return handle.face().texture() == subject; });
         }
 
         void ReplaceTextureDialog::createGui(GLContextManager& contextManager) {

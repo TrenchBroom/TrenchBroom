@@ -68,7 +68,7 @@ namespace TrenchBroom {
         bool ClipToolController::Callback::setClipFace(const TrenchBroom::View::InputState &inputState) {
             const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
             if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
-                m_tool->setFace(faceHandle->face());
+                m_tool->setFace(*faceHandle);
                 return true;
             } else {
                 return false;
@@ -302,9 +302,7 @@ namespace TrenchBroom {
             addController(new MoveClipPointPart(new Callback2D(tool)));
         }
 
-        std::vector<vm::vec3> ClipToolController3D::selectHelpVectors(const Model::BrushNode* brushNode, const Model::BrushFace* face, const vm::vec3& hitPoint) {
-            ensure(face != nullptr, "face is null");
-
+        std::vector<vm::vec3> ClipToolController3D::selectHelpVectors(const Model::BrushNode* brushNode, const Model::BrushFace& face, const vm::vec3& hitPoint) {
             std::vector<vm::vec3> result;
             for (const Model::BrushFace* incidentFace : selectIncidentFaces(brushNode, face, hitPoint)) {
                 const vm::vec3& normal = incidentFace->boundary().normal;
@@ -315,13 +313,13 @@ namespace TrenchBroom {
             return result;
         }
 
-        std::vector<const Model::BrushFace*> ClipToolController3D::selectIncidentFaces(const Model::BrushNode* brushNode, const Model::BrushFace* face, const vm::vec3& hitPoint) {
+        std::vector<const Model::BrushFace*> ClipToolController3D::selectIncidentFaces(const Model::BrushNode* brushNode, const Model::BrushFace& face, const vm::vec3& hitPoint) {
             static const auto MaxDistance = vm::constants<FloatType>::almost_zero();
 
             // First, try to see if the clip point is almost equal to a vertex:
             FloatType closestVertexDistance = MaxDistance;
             const Model::BrushVertex* closestVertex = nullptr;
-            for (const auto* vertex : face->vertices()) {
+            for (const auto* vertex : face.vertices()) {
                 const auto distance = vm::distance(vertex->position(), hitPoint);
                 if (distance < closestVertexDistance) {
                     closestVertex = vertex;
@@ -337,7 +335,7 @@ namespace TrenchBroom {
             // Next, try the edges:
             FloatType closestEdgeDistance = MaxDistance;
             const Model::BrushEdge* closestEdge = nullptr;
-            for (const auto* edge : face->edges()) {
+            for (const auto* edge : face.edges()) {
                 const auto distance = vm::distance(vm::segment<FloatType,3>(edge->firstVertex()->position(), edge->secondVertex()->position()), hitPoint).distance;
                 if (distance < closestEdgeDistance) {
                     closestEdge = edge;
@@ -351,13 +349,13 @@ namespace TrenchBroom {
                 
                 if (firstFaceIndex && secondFaceIndex) {
                     return {
-                        brushNode->brush().face(*firstFaceIndex),
-                        brushNode->brush().face(*secondFaceIndex)
+                        &brushNode->brush().face(*firstFaceIndex),
+                        &brushNode->brush().face(*secondFaceIndex)
                     };
                 }
             }
 
-            return { face };
+            return { &face };
         }
 
         class ClipToolController3D::Callback3D : public Callback {
@@ -381,7 +379,7 @@ namespace TrenchBroom {
                 vm::plane3 doGetPlane(const InputState&, const Model::Hit& hit) const override {
                     const auto faceHandle = Model::hitToFaceHandle(hit);
                     ensure(faceHandle, "invalid hit type");
-                    return faceHandle->face()->boundary();
+                    return faceHandle->face().boundary();
                 }
             };
 
@@ -408,7 +406,7 @@ namespace TrenchBroom {
                 const auto hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
                 if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                     const Grid& grid = m_tool->grid();
-                    position = grid.snap(hit.hitPoint(), faceHandle->face()->boundary());
+                    position = grid.snap(hit.hitPoint(), faceHandle->face().boundary());
                     return true;
                 } else {
                     return false;

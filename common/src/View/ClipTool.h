@@ -81,7 +81,7 @@ namespace TrenchBroom {
                 void endDragPoint();
                 void cancelDragPoint();
 
-                bool setFace(const Model::BrushFace* face);
+                bool setFace(const Model::BrushFaceHandle& faceHandle);
                 void reset();
                 size_t getPoints(vm::vec3& point1, vm::vec3& point2, vm::vec3& point3) const;
             private:
@@ -106,7 +106,7 @@ namespace TrenchBroom {
                 virtual void doEndDragPoint() = 0;
                 virtual void doCancelDragPoint() = 0;
 
-                virtual bool doSetFace(const Model::BrushFace* face) = 0;
+                virtual bool doSetFace(const Model::BrushFaceHandle& face) = 0;
                 virtual void doReset() = 0;
                 virtual size_t doGetPoints(vm::vec3& point1, vm::vec3& point2, vm::vec3& point3) const = 0;
             };
@@ -165,7 +165,7 @@ namespace TrenchBroom {
             void endDragPoint();
             void cancelDragPoint();
 
-            void setFace(const Model::BrushFace* face);
+            void setFace(const Model::BrushFaceHandle& face);
             bool reset();
         private:
             void resetStrategy();
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             void clearBrushes();
             void updateBrushes();
 
-            void setFaceAttributes(const std::vector<const Model::BrushFace*>& faces, Model::BrushFace& frontFace, Model::BrushFace& backFace) const;
+            void setFaceAttributes(const std::vector<Model::BrushFace>& faces, Model::BrushFace& frontFace, Model::BrushFace& backFace) const;
 
             void clearRenderers();
             void updateRenderers();

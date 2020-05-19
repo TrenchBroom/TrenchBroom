@@ -144,16 +144,16 @@ namespace TrenchBroom {
             m_currentObject.faces.clear();
         }
 
-        void ObjFileSerializer::doBrushFace(const Model::BrushFace* face) {
-            const vm::vec3& normal = face->boundary().normal;
+        void ObjFileSerializer::doBrushFace(const Model::BrushFace& face) {
+            const vm::vec3& normal = face.boundary().normal;
             const size_t normalIndex = m_normals.index(normal);
 
             IndexedVertexList indexedVertices;
-            indexedVertices.reserve(face->vertexCount());
+            indexedVertices.reserve(face.vertexCount());
 
-            for (const Model::BrushVertex* vertex : face->vertices()) {
+            for (const Model::BrushVertex* vertex : face.vertices()) {
                 const vm::vec3& position = vertex->position();
-                const vm::vec2f texCoords = face->textureCoords(position);
+                const vm::vec2f texCoords = face.textureCoords(position);
 
                 const size_t vertexIndex = m_vertices.index(position);
                 const size_t texCoordsIndex = m_texCoords.index(texCoords);
@@ -161,7 +161,7 @@ namespace TrenchBroom {
                 indexedVertices.push_back(IndexedVertex(vertexIndex, texCoordsIndex, normalIndex));
             }
 
-            m_currentObject.faces.push_back(Face(indexedVertices, face->attributes().textureName()));
+            m_currentObject.faces.push_back(Face(indexedVertices, face.attributes().textureName()));
         }
     }
 }
