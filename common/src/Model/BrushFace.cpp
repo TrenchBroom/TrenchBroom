@@ -137,14 +137,14 @@ namespace TrenchBroom {
             return BrushFace(point0, point1, point2, attributes, std::make_unique<ParallelTexCoordSystem>(point0, point1, point2, attributes));
         }
 
-        void BrushFace::sortFaces(std::vector<BrushFace*>& faces) {
+        void BrushFace::sortFaces(std::vector<BrushFace>& faces) {
             // Originally, the idea to sort faces came from TxQBSP, but the sorting used there was not entirely clear to me.
             // But it is still desirable to have a deterministic order in which the faces are added to the brush, so I chose
             // to just sort the faces by their normals.
 
-            std::sort(std::begin(faces), std::end(faces), [](const auto* lhs, const auto* rhs) {
-                const auto& lhsBoundary = lhs->boundary();
-                const auto& rhsBoundary = rhs->boundary();
+            std::sort(std::begin(faces), std::end(faces), [](const auto& lhs, const auto& rhs) {
+                const auto& lhsBoundary = lhs.boundary();
+                const auto& rhsBoundary = rhs.boundary();
 
                 const auto cmp = vm::compare(lhsBoundary.normal, rhsBoundary.normal);
                 if (cmp < 0) {
@@ -482,13 +482,7 @@ namespace TrenchBroom {
         }
 
         void BrushFace::setGeometry(BrushFaceGeometry* geometry) {
-            if (m_geometry != nullptr) {
-                m_geometry->setPayload(nullptr);
-            }
             m_geometry = geometry;
-            if (m_geometry != nullptr) {
-                m_geometry->setPayload(this);
-            }
         }
 
         size_t BrushFace::lineNumber() const {

@@ -48,120 +48,33 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush::AddFaceToGeometryCallback : public BrushGeometry::Callback {
-        private:
-            BrushFace* m_addedFace;
-        public:
-            explicit AddFaceToGeometryCallback(BrushFace* addedFace) :
-            m_addedFace(addedFace) {
-                ensure(m_addedFace != nullptr, "addedFace is null");
-            }
-            
-            void faceWasCreated(BrushFaceGeometry* face) override {
-                assert(m_addedFace != nullptr);
-                m_addedFace->setGeometry(face);
-                m_addedFace = nullptr;
-            }
-
-            void faceWillBeDeleted(BrushFaceGeometry* toDelete) override {
-                auto* brushFace = toDelete->payload();
-                delete brushFace;
-            }
-        };
-
-        class Brush::HealEdgesCallback : public BrushGeometry::Callback {
-        public:
-            void facesWillBeMerged(BrushFaceGeometry*, BrushFaceGeometry* geometryToDelete) override {
-                auto* faceToDelete = geometryToDelete->payload();
-                delete faceToDelete;
-            }
-
-            void faceWillBeDeleted(BrushFaceGeometry* face) override {
-                auto* brushFace = face->payload();
-                delete brushFace;
-            }
-        };
-
-        class Brush::AddFacesToGeometry {
-        private:
-            BrushGeometry& m_geometry;
-            bool m_brushEmpty;
-            bool m_brushValid;
-        public:
-            AddFacesToGeometry(BrushGeometry& geometry, std::vector<BrushFace*> facesToAdd) :
-            m_geometry(geometry),
-            m_brushEmpty(false),
-            m_brushValid(true) {
-                // sort the faces by the weight of their plane normals like QBSP does
-                Model::BrushFace::sortFaces(facesToAdd);
-
-                for (auto it = std::begin(facesToAdd), end = std::end(facesToAdd); it != end && !m_brushEmpty; ++it) {
-                    auto* brushFace = *it;
-                    AddFaceToGeometryCallback addCallback(brushFace);
-                    const auto result = m_geometry.clip(brushFace->boundary(), addCallback);
-                    m_brushEmpty = result.empty();
-                }
-                if (!m_brushEmpty && m_brushValid) {
-                    m_geometry.correctVertexPositions();
-
-                    HealEdgesCallback healCallback;
-                    m_brushValid = m_geometry.healEdges(healCallback);
-                }
-            }
-
-            bool brushEmpty() const {
-                return m_brushEmpty;
-            }
-
-            bool brushValid() const {
-                return m_brushValid;
-            }
-        };
-
-        class Brush::CopyCallback : public BrushGeometry::CopyCallback {
-        private:
-            const std::unordered_map<const BrushFace*, BrushFace*>& m_faceMap;
-        public:
-            explicit CopyCallback(const std::unordered_map<const BrushFace*, BrushFace*>& faceMap) :
-            m_faceMap(faceMap) {}
-
-            void faceWasCopied(const BrushFaceGeometry* original, BrushFaceGeometry* copy) override {
-                auto it = m_faceMap.find(original->payload());
-                ensure(it != std::end(m_faceMap), "face payload not found");
-
-                auto* face = it->second;
-                copy->setPayload(face);
-                face->setGeometry(copy);
-            }
-        };
-
         Brush::Brush() :
         m_transparent(false) {}
 
         Brush::Brush(const vm::bbox3& worldBounds, std::vector<BrushFace> faces) :
+        m_faces(std::move(faces)),
         m_transparent(false) {
-            addFaces(kdl::vec_transform(faces, [](auto&& f) { return new BrushFace(std::move(f)); }));
-            try {
-                buildGeometry(worldBounds);
-            } catch (const GeometryException&) {
-                cleanup();
-                throw;
-            }
+            updateGeometryFromFaces(worldBounds);
         }
 
-        Brush::Brush(const Brush& other) :
-        m_transparent(other.m_transparent) {
-            auto faceMap = std::unordered_map<const BrushFace*, BrushFace*>();
-            m_faces.reserve(other.m_faces.size());
-            for (const auto* face : other.m_faces) {
-                auto* faceClone = face->clone();
-                addFace(faceClone);
-                faceMap.insert(std::make_pair(face, faceClone));
+        class Brush::CopyCallback : public BrushGeometry::CopyCallback {
+        public:
+            void faceWasCopied(const BrushFaceGeometry* original, BrushFaceGeometry* copy) const override {
+                copy->setPayload(original->payload());
             }
+        };
 
-            if (other.m_geometry != nullptr) {
-                CopyCallback callback(faceMap);
-                m_geometry = std::make_unique<BrushGeometry>(*other.m_geometry, callback);
+        Brush::Brush(const Brush& other) :
+        m_faces(other.m_faces),
+        m_geometry(other.m_geometry ? std::make_unique<BrushGeometry>(*other.m_geometry, CopyCallback()) : nullptr),
+        m_transparent(other.m_transparent) {
+            if (m_geometry) {
+                for (BrushFaceGeometry* faceGeometry : m_geometry->faces()) {
+                    if (const auto faceIndex = faceGeometry->payload()) {
+                        BrushFace& face = m_faces[*faceIndex];
+                        face.setGeometry(faceGeometry);
+                    }
+                }
             }
         }
 
@@ -182,79 +95,83 @@ namespace TrenchBroom {
             swap(lhs.m_geometry, rhs.m_geometry);
             swap(lhs.m_transparent, rhs.m_transparent);
         }
+        
+        Brush::~Brush() = default;
 
-        Brush::~Brush() {
-            cleanup();
-        }
-
-        void Brush::cleanup() {
-            kdl::vec_clear_and_delete(m_faces);
-        }
-
-        void Brush::updateFacesFromGeometry(const vm::bbox3& /* worldBounds */, const BrushGeometry& brushGeometry) {
-            m_faces.clear();
-
-            for (const auto* faceG : brushGeometry.faces()) {
-                auto* face = faceG->payload();
-                if (face != nullptr) { // could happen if the brush isn't fully specified
-                    assert(face->geometry() == faceG);
-                    addFace(face);
-                    face->resetTexCoordSystemCache();
-                }
+        class Brush::AddFaceCallback : public BrushGeometry::Callback {
+        private:
+            BrushFace& m_face;
+            const size_t m_faceIndex;
+        public:
+            AddFaceCallback(BrushFace& face, const size_t faceIndex) :
+            m_face(face),
+            m_faceIndex(faceIndex) {}
+            
+            void faceWasCreated(BrushFaceGeometry* face) override {
+                m_face.setGeometry(face);
+                face->setPayload(m_faceIndex);
             }
-        }
+        };
 
         void Brush::updateGeometryFromFaces(const vm::bbox3& worldBounds) {
-            deleteGeometry();
-            buildGeometry(worldBounds);
+            // First, add all faces to the brush geometry
+            BrushFace::sortFaces(m_faces);
+            
+            auto geometry = std::make_unique<BrushGeometry>(worldBounds);
+            
+            for (size_t i = 0u; i < m_faces.size(); ++i) {
+                BrushFace& face = m_faces[i];
+                AddFaceCallback callback(face, i);
+                const auto result = geometry->clip(face.boundary(), callback);
+                if (result.empty()) {
+                    throw GeometryException("Brush is empty");
+                }
+            }
+
+            // Correct vertex positions and heal short edges
+            geometry->correctVertexPositions();
+            if (!geometry->healEdges()) {
+                throw GeometryException("Brush is invalid");
+            }
+            
+            // Now collect all faces which still remain
+            std::vector<BrushFace> remainingFaces;
+            remainingFaces.reserve(m_faces.size());
+            
+            for (BrushFaceGeometry* faceGeometry : geometry->faces()) {
+                if (const auto faceIndex = faceGeometry->payload()) {
+                    remainingFaces.push_back(std::move(m_faces[*faceIndex]));
+                    faceGeometry->setPayload(remainingFaces.size() - 1u);
+                } else {
+                    throw GeometryException("Brush is not fully specified");
+                }
+            }
+
+            m_faces = std::move(remainingFaces);
+            m_geometry = std::move(geometry);
+            
+            assert(checkFaceLinks());
         }
         
-        void Brush::deleteGeometry() {
-            if (m_geometry != nullptr) {
-                // clear brush face geometry
-                for (auto* brushFace : m_faces) {
-                    brushFace->setGeometry(nullptr);
-                }
-                m_geometry.reset();
-            }
-        }
-
-        void Brush::buildGeometry(const vm::bbox3& worldBounds) {
-            assert(m_geometry == nullptr);
-
-            m_geometry = std::make_unique<BrushGeometry>(worldBounds.expand(1.0));
-
-            AddFacesToGeometry addFacesToGeometry(*m_geometry, m_faces);
-            updateFacesFromGeometry(worldBounds, *m_geometry);
-
-            if (addFacesToGeometry.brushEmpty()) {
-                throw GeometryException("Brush is empty");
-            } else  if (!addFacesToGeometry.brushValid()) {
-                throw GeometryException("Brush is invalid");
-            } else if (!fullySpecified()) {
-                throw GeometryException("Brush is not fully specified");
-            }
-        }
-
         const vm::bbox3& Brush::bounds() const {
             ensure(m_geometry != nullptr, "geometry is null");
             return m_geometry->bounds();
         }
 
         std::optional<size_t> Brush::findFace(const std::string& textureName) const {
-            return kdl::vec_index_of(m_faces, [&](const BrushFace* face) { return face->attributes().textureName() == textureName; });
+            return kdl::vec_index_of(m_faces, [&](const BrushFace& face) { return face.attributes().textureName() == textureName; });
         }
 
         std::optional<size_t> Brush::findFace(const vm::vec3& normal) const {
-            return kdl::vec_index_of(m_faces, [&](const BrushFace* face) { return vm::is_equal(face->boundary().normal, normal, vm::C::almost_zero()); });
+            return kdl::vec_index_of(m_faces, [&](const BrushFace& face) { return vm::is_equal(face.boundary().normal, normal, vm::C::almost_zero()); });
         }
 
         std::optional<size_t> Brush::findFace(const vm::plane3& boundary) const {
-            return kdl::vec_index_of(m_faces, [&](const BrushFace* face) { return vm::is_equal(face->boundary(), boundary, vm::C::almost_zero()); });
+            return kdl::vec_index_of(m_faces, [&](const BrushFace& face) { return vm::is_equal(face.boundary(), boundary, vm::C::almost_zero()); });
         }
 
         std::optional<size_t> Brush::findFace(const vm::polygon3& vertices, const FloatType epsilon) const {
-            return kdl::vec_index_of(m_faces, [&](const BrushFace* face) { return face->hasVertices(vertices, epsilon); });
+            return kdl::vec_index_of(m_faces, [&](const BrushFace& face) { return face.hasVertices(vertices, epsilon); });
         }
 
         std::optional<size_t> Brush::findFace(const std::vector<vm::polygon3>& candidates, const FloatType epsilon) const {
@@ -266,18 +183,14 @@ namespace TrenchBroom {
             return std::nullopt;
         }
 
-        std::optional<size_t> Brush::findFace(const BrushFace* face) const {
-            return kdl::vec_index_of(m_faces, face);
-        }
-
         const BrushFace* Brush::face(const size_t index) const {
             assert(index < faceCount());
-            return m_faces[index];
+            return &m_faces[index];
         }
 
         BrushFace* Brush::face(const size_t index) {
             assert(index < faceCount());
-            return m_faces[index];
+            return &m_faces[index];
         }
 
         size_t Brush::faceCount() const {
@@ -285,11 +198,11 @@ namespace TrenchBroom {
         }
 
         std::vector<const BrushFace*> Brush::faces() const {
-            return kdl::vec_transform(m_faces, [](const auto* f) { return f; });
+            return kdl::vec_transform(m_faces, [](const BrushFace& f) { return &f; });
         }
 
         std::vector<BrushFace*> Brush::faces() {
-            return m_faces;
+            return kdl::vec_transform(m_faces, [](BrushFace& f) { return &f; });
         }
 
         bool Brush::closed() const {
@@ -301,47 +214,37 @@ namespace TrenchBroom {
             ensure(m_geometry != nullptr, "geometry is null");
 
             for (auto* current : m_geometry->faces()) {
-                if (current->payload() == nullptr) {
+                if (!current->payload().has_value()) {
                     return false;
                 }
             }
             return true;
         }
 
-        void Brush::addFaces(const std::vector<BrushFace*>& faces) {
-            addFaces(std::begin(faces), std::end(faces), faces.size());
-        }
-
-        void Brush::addFace(BrushFace* face) {
-            ensure(face != nullptr, "face is null");
-            assert(!kdl::vec_contains(m_faces, face));
-            m_faces.push_back(face);
-        }
-
         void Brush::cloneFaceAttributesFrom(const Brush& brush) {
-            for (auto* destination : m_faces) {
-                if (const auto sourceIndex = brush.findFace(destination->boundary())) {
+            for (auto& destination : m_faces) {
+                if (const auto sourceIndex = brush.findFace(destination.boundary())) {
                     const auto* source = brush.face(*sourceIndex);
-                    destination->setAttributes(source->attributes());
+                    destination.setAttributes(source->attributes());
 
                     auto snapshot = source->takeTexCoordSystemSnapshot();
                     if (snapshot != nullptr) {
-                        destination->copyTexCoordSystemFromFace(*snapshot, source->attributes().takeSnapshot(), source->boundary(), WrapStyle::Projection);
+                        destination.copyTexCoordSystemFromFace(*snapshot, source->attributes().takeSnapshot(), source->boundary(), WrapStyle::Projection);
                     }
                 }
             }
         }
 
         void Brush::cloneInvertedFaceAttributesFrom(const Brush& brush) {
-            for (auto* destination : m_faces) {
-                if (const auto sourceIndex = brush.findFace(destination->boundary().flip())) {
+            for (auto& destination : m_faces) {
+                if (const auto sourceIndex = brush.findFace(destination.boundary().flip())) {
                     const auto* source = brush.face(*sourceIndex);
                     // Todo: invert the face attributes?
-                    destination->setAttributes(source->attributes());
+                    destination.setAttributes(source->attributes());
 
                     auto snapshot = source->takeTexCoordSystemSnapshot();
                     if (snapshot != nullptr) {
-                        destination->copyTexCoordSystemFromFace(*snapshot, source->attributes().takeSnapshot(), destination->boundary(), WrapStyle::Projection);
+                        destination.copyTexCoordSystemFromFace(*snapshot, source->attributes().takeSnapshot(), destination.boundary(), WrapStyle::Projection);
                     }
                 }
             }
@@ -349,7 +252,7 @@ namespace TrenchBroom {
 
         bool Brush::clip(const vm::bbox3& worldBounds, BrushFace face) {
             try {
-                addFace(new BrushFace(face));
+                m_faces.push_back(std::move(face));
                 updateGeometryFromFaces(worldBounds);
                 return !m_faces.empty();
             } catch (GeometryException&) {
@@ -358,17 +261,17 @@ namespace TrenchBroom {
         }
 
         bool Brush::canMoveBoundary(const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta) const {
-            const auto* face = this->face(faceIndex);
-            auto testFace = BrushFace(*face);
+            const auto& face = *this->face(faceIndex);
+            auto testFace = BrushFace(face);
             testFace.transform(vm::translation_matrix(delta), false);
 
             std::vector<BrushFace> testFaces;
             testFaces.reserve(faceCount());
             testFaces.push_back(std::move(testFace));
 
-            for (const auto* brushFace : m_faces) {
-                if (brushFace != face) {
-                    testFaces.emplace_back(*brushFace);
+            for (const auto& brushFace : m_faces) {
+                if (&brushFace != &face) {
+                    testFaces.emplace_back(brushFace);
                 }
             }
 
@@ -399,9 +302,9 @@ namespace TrenchBroom {
 
         bool Brush::expand(const vm::bbox3& worldBounds, const FloatType delta, const bool lockTexture) {
             // move the faces
-            for (BrushFace* face : m_faces) {
-                const vm::vec3 moveAmount = face->boundary().normal * delta;
-                face->transform(vm::translation_matrix(moveAmount), lockTexture);
+            for (BrushFace& face : m_faces) {
+                const vm::vec3 moveAmount = face.boundary().normal * delta;
+                face.transform(vm::translation_matrix(moveAmount), lockTexture);
             }
 
             // rebuild geometry
@@ -462,8 +365,8 @@ namespace TrenchBroom {
             if (!bounds().contains(point)) {
                 return false;
             } else {
-                for (const auto* face : m_faces) {
-                    if (face->boundary().point_status(point) == vm::plane_status::above) {
+                for (const auto& face : m_faces) {
+                    if (face.boundary().point_status(point) == vm::plane_status::above) {
                         return false;
                     }
                 }
@@ -478,7 +381,9 @@ namespace TrenchBroom {
             auto* first = vertex->leaving();
             auto* current = first;
             do {
-                result.push_back(current->face()->payload());
+                if (const auto faceIndex = current->face()->payload()) {
+                    result.push_back(&m_faces[*faceIndex]);
+                }
                 current = current->nextIncident();
             } while (current != first);
 
@@ -889,53 +794,53 @@ namespace TrenchBroom {
             return std::make_tuple(true, M);
         }
 
-        void Brush::applyUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right) {
-            const auto [success, M] = findTransformForUVLock(matcher, left, right);
+        void Brush::applyUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, const BrushFace& leftFace, BrushFace& rightFace) {
+            const auto [success, M] = findTransformForUVLock(matcher, leftFace.geometry(), rightFace.geometry());
             if (!success) {
                 return;
             }
-
-            auto* leftFace = left->payload();
-            auto* rightFace = right->payload();
 
             // We want to re-set the texturing of `rightFace` using the texturing from M * leftFace.
             // We don't want to disturb the actual geometry of `rightFace` which is already finalized.
             // So the idea is, clone `leftFace`, transform it by M using texture lock, then copy the texture
             // settings from the transformed clone (which should have an identical plane to `rightFace` within
             // FP error) to `rightFace`.
-            auto leftClone = std::unique_ptr<BrushFace>(leftFace->clone());
+            BrushFace leftClone = leftFace;
 
             try {
-                leftClone->transform(M, true);
+                leftClone.transform(M, true);
 
-                auto snapshot = std::unique_ptr<TexCoordSystemSnapshot>(leftClone->takeTexCoordSystemSnapshot());
-                rightFace->setAttributes(leftClone->attributes());
+                auto snapshot = std::unique_ptr<TexCoordSystemSnapshot>(leftClone.takeTexCoordSystemSnapshot());
+                rightFace.setAttributes(leftClone.attributes());
                 if (snapshot) {
                     // Note, the wrap style doesn't matter because the source and destination faces should have the same plane
-                    rightFace->copyTexCoordSystemFromFace(*snapshot, leftClone->attributes().takeSnapshot(),
-                                                          leftClone->boundary(), WrapStyle::Rotation);
+                    rightFace.copyTexCoordSystemFromFace(*snapshot, leftClone.attributes().takeSnapshot(),
+                                                          leftClone.boundary(), WrapStyle::Rotation);
                 }
-                rightFace->resetTexCoordSystemCache();
+                rightFace.resetTexCoordSystemCache();
             } catch (const GeometryException&) {
                 // do nothing
             }
         }
 
         void Brush::doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, const bool uvLock) {
+            std::vector<BrushFace> newFaces;
+            newFaces.reserve(newGeometry.faces().size());
             matcher.processRightFaces([&](BrushFaceGeometry* left, BrushFaceGeometry* right){
-                auto* leftFace = left->payload();
-                auto* rightFace = leftFace->clone();
+                if (const auto leftFaceIndex = left->payload()) {
+                    const BrushFace& leftFace = m_faces[*leftFaceIndex];
+                    BrushFace& rightFace = newFaces.emplace_back(leftFace);
 
-                rightFace->setGeometry(right);
-                rightFace->updatePointsFromVertices();
+                    rightFace.setGeometry(right);
+                    rightFace.updatePointsFromVertices();
 
-                if (uvLock) {
-                    applyUVLock(matcher, left, right);
+                    if (uvLock) {
+                        applyUVLock(matcher, leftFace, rightFace);
+                    }
                 }
             });
 
-            kdl::vec_clear_and_delete(m_faces);
-            updateFacesFromGeometry(worldBounds, newGeometry);
+            m_faces = std::move(newFaces);
             updateGeometryFromFaces(worldBounds);
         }
 
@@ -976,7 +881,7 @@ namespace TrenchBroom {
 
         void Brush::intersect(const vm::bbox3& worldBounds, const Brush& brush) {
             for (const auto* face : brush.faces()) {
-                addFace(face->clone());
+                m_faces.emplace_back(*face);
             }
 
             updateGeometryFromFaces(worldBounds);
@@ -993,8 +898,8 @@ namespace TrenchBroom {
         }
 
         void Brush::transform(const vm::mat4x4& transformation, const bool lockTextures, const vm::bbox3& worldBounds) {
-            for (auto* face : m_faces) {
-                face->transform(transformation, lockTextures);
+            for (auto& face : m_faces) {
+                face.transform(transformation, lockTextures);
             }
 
             updateGeometryFromFaces(worldBounds);
@@ -1052,10 +957,61 @@ namespace TrenchBroom {
         }
 
         void Brush::findIntegerPlanePoints(const vm::bbox3& worldBounds) {
-            for (auto* face : m_faces) {
-                face->findIntegerPlanePoints();
+            for (auto& face : m_faces) {
+                face.findIntegerPlanePoints();
             }
             updateGeometryFromFaces(worldBounds);
+        }
+
+        bool Brush::checkFaceLinks() const {
+            if (faceCount() != m_geometry->faceCount()) {
+                return false;
+            }
+            
+            const auto findFaceGeometry = [&](const BrushFaceGeometry* g) {
+                for (const auto* fg : m_geometry->faces()) {
+                    if (fg == g) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+            
+            for (const auto* faceGeometry : m_geometry->faces()) {
+                if (const auto faceIndex = faceGeometry->payload()) {
+                    if (*faceIndex >= m_faces.size()) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+            
+            std::set<const BrushFaceGeometry*> faceGeometries;
+            for (const auto& face : m_faces) {
+                const auto* faceGeometry = face.geometry();
+                if (faceGeometry == nullptr) {
+                    return false;
+                }
+                if (!findFaceGeometry(faceGeometry)) {
+                    return false;
+                }
+                if (const auto faceIndex = faceGeometry->payload()) {
+                    if (*faceIndex >= m_faces.size()) {
+                        return false;
+                    }
+                    if (&m_faces[*faceIndex] != &face) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+                if (!faceGeometries.insert(faceGeometry).second) {
+                    return false;
+                }
+            }
+            
+            return true;
         }
     }
 }

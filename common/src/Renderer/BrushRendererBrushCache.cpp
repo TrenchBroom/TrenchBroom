@@ -107,8 +107,13 @@ namespace TrenchBroom {
             m_cachedEdges.reserve(brush.edgeCount());
 
             for (const Model::BrushEdge* currentEdge : brush.edges()) {
-                const auto face1 = currentEdge->firstFace()->payload();
-                const auto face2 = currentEdge->secondFace()->payload();
+                const auto faceIndex1 = currentEdge->firstFace()->payload();
+                const auto faceIndex2 = currentEdge->secondFace()->payload();
+                assert(faceIndex1 && faceIndex2);
+                
+                const auto* face1 = brush.face(*faceIndex1);
+                const auto* face2 = brush.face(*faceIndex2);
+                
                 const auto vertexIndex1RelativeToBrush = currentEdge->firstVertex()->payload();
                 const auto vertexIndex2RelativeToBrush = currentEdge->secondVertex()->payload();
 

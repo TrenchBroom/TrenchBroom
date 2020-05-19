@@ -346,10 +346,15 @@ namespace TrenchBroom {
             }
 
             if (closestEdge != nullptr) {
-                return {
-                    closestEdge->firstFace()->payload(),
-                    closestEdge->secondFace()->payload()
-                };
+                const auto firstFaceIndex = closestEdge->firstFace()->payload();
+                const auto secondFaceIndex = closestEdge->secondFace()->payload();
+                
+                if (firstFaceIndex && secondFaceIndex) {
+                    return {
+                        brushNode->brush().face(*firstFaceIndex),
+                        brushNode->brush().face(*secondFaceIndex)
+                    };
+                }
             }
 
             return { face };

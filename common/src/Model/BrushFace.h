@@ -110,7 +110,7 @@ namespace TrenchBroom {
             static BrushFace createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
             static BrushFace createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
 
-            static void sortFaces(std::vector<BrushFace*>& faces);
+            static void sortFaces(std::vector<BrushFace>& faces);
 
             BrushFace* clone() const;
 
