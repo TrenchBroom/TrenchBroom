@@ -13,7 +13,7 @@ if(APPLE)
     set_source_files_properties(${MACOSX_ICON_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
     # Configure button bitmaps etc.
-    file(GLOB_RECURSE MACOSX_IMAGE_FILES "${APP_RESOURCE_DIR}/graphics/images/*.svg")
+    file(GLOB_RECURSE MACOSX_IMAGE_FILES "${APP_RESOURCE_DIR}/graphics/images/*")
     set(APP_SOURCE ${APP_SOURCE} ${MACOSX_IMAGE_FILES})
     set_source_files_properties(${MACOSX_IMAGE_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/images)
 
