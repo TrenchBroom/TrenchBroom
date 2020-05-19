@@ -25,8 +25,6 @@
 #include "Polyhedron.h"
 #include "Assets/Texture.h"
 #include "Model/TagMatcher.h"
-#include "Model/Brush.h"
-#include "Model/BrushNode.h"
 #include "Model/PlanePointFinder.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
@@ -57,7 +55,6 @@ namespace TrenchBroom {
         }
 
         BrushFace::BrushFace(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem) :
-        m_brush(nullptr),
         m_lineNumber(0),
         m_lineCount(0),
         m_selected(false),
@@ -104,7 +101,6 @@ namespace TrenchBroom {
             for (size_t i = 0; i < 3; ++i) {
                 m_points[i] = vm::vec3::zero();
             }
-            m_brush = nullptr;
             m_lineNumber = 0;
             m_lineCount = 0;
             m_selected = false;
@@ -128,7 +124,6 @@ namespace TrenchBroom {
 
         void BrushFace::restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot& coordSystemSnapshot) {
             coordSystemSnapshot.restore(*m_texCoordSystem);
-            invalidateVertexCache();
         }
 
         void BrushFace::copyTexCoordSystemFromFace(const TexCoordSystemSnapshot& coordSystemSnapshot, const BrushFaceAttributes& attributes, const vm::plane3& sourceFacePlane, const WrapStyle wrapStyle) {
@@ -149,16 +144,6 @@ namespace TrenchBroom {
                 const auto offsetChange = desriedCoords - currentCoords;
                 m_attributes.setOffset(correct(modOffset(m_attributes.offset() + offsetChange), 4));
             }
-
-            invalidateVertexCache();
-        }
-
-        Brush* BrushFace::brush() const {
-            return m_brush;
-        }
-
-        void BrushFace::setBrush(Brush* brush) {
-            m_brush = brush;
         }
 
         const BrushFace::Points& BrushFace::points() const {
@@ -245,7 +230,6 @@ namespace TrenchBroom {
             const float oldRotation = m_attributes.rotation();
             m_attributes = attributes;
             m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attributes.rotation());
-            updateBrush();
         }
 
         bool BrushFace::setAttributes(const BrushFace* other) {
@@ -291,7 +275,6 @@ namespace TrenchBroom {
             }
 
             m_textureReference = Assets::TextureReference(texture);
-            updateBrush();
             return true;
         }
 
@@ -305,24 +288,20 @@ namespace TrenchBroom {
 
         void BrushFace::resetTextureAxes() {
             m_texCoordSystem->resetTextureAxes(m_boundary.normal);
-            invalidateVertexCache();
         }
 
         void BrushFace::moveTexture(const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset) {
             m_texCoordSystem->moveTexture(m_boundary.normal, up, right, offset, m_attributes);
-            invalidateVertexCache();
         }
 
         void BrushFace::rotateTexture(const float angle) {
             const float oldRotation = m_attributes.rotation();
             m_texCoordSystem->rotateTexture(m_boundary.normal, angle, m_attributes);
             m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attributes.rotation());
-            invalidateVertexCache();
         }
 
         void BrushFace::shearTexture(const vm::vec2f& factors) {
             m_texCoordSystem->shearTexture(m_boundary.normal, factors);
-            invalidateVertexCache();
         }
 
         void BrushFace::transform(const vm::mat4x4& transform, const bool lockTexture) {
@@ -350,7 +329,6 @@ namespace TrenchBroom {
 
             m_boundary = m_boundary.flip();
             swap(m_points[1], m_points[2]);
-            invalidateVertexCache();
         }
 
         void BrushFace::updatePointsFromVertices() {
@@ -461,11 +439,6 @@ namespace TrenchBroom {
             if (m_geometry != nullptr) {
                 m_geometry->setPayload(this);
             }
-            invalidateVertexCache();
-        }
-
-        void BrushFace::invalidate() {
-            invalidateVertexCache();
         }
 
         size_t BrushFace::lineNumber() const {
@@ -523,24 +496,12 @@ namespace TrenchBroom {
             } else {
                 m_boundary = plane;
             }
-
-            invalidateVertexCache();
         }
 
         void BrushFace::correctPoints() {
             for (size_t i = 0; i < 3; ++i) {
                 m_points[i] = correct(m_points[i]);
             }
-        }
-
-        void BrushFace::updateBrush() {
-            if (m_brush != nullptr) {
-                m_brush->faceDidChange();
-            }
-        }
-
-        void BrushFace::invalidateVertexCache() {
-            updateBrush();
         }
 
         void BrushFace::setMarked(const bool marked) const {
