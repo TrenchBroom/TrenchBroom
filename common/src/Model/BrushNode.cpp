@@ -175,11 +175,11 @@ namespace TrenchBroom {
         }
 
         void BrushNode::doPick(const vm::ray3& ray, PickResult& pickResult) {
-            const auto hit = findFaceHit(ray);
-            if (hit.face != nullptr) {
-                ensure(!vm::is_nan(hit.distance), "nan hit distance");
-                const auto hitPoint = vm::point_at_distance(ray, hit.distance);
-                pickResult.addHit(Hit(BrushHitType, hit.distance, hitPoint, BrushFaceHandle(this, hit.face)));
+            if (const auto hit = findFaceHit(ray)) {
+                const auto [distance, faceIndex] = *hit;
+                ensure(!vm::is_nan(distance), "nan hit distance");
+                const auto hitPoint = vm::point_at_distance(ray, distance);
+                pickResult.addHit(Hit(BrushHitType, distance, hitPoint, BrushFaceHandle(this, m_brush.face(faceIndex))));
             }
         }
 
@@ -189,22 +189,17 @@ namespace TrenchBroom {
             }
         }
 
-        BrushNode::BrushFaceHit::BrushFaceHit() : face(nullptr), distance(vm::nan<FloatType>()) {}
-
-        BrushNode::BrushFaceHit::BrushFaceHit(BrushFace* i_face, const FloatType i_distance) : face(i_face), distance(i_distance) {}
-
-        BrushNode::BrushFaceHit BrushNode::findFaceHit(const vm::ray3& ray) const {
-            if (vm::is_nan(vm::intersect_ray_bbox(ray, logicalBounds()))) {
-                return BrushFaceHit();
-            }
-
-            for (auto* face : m_brush.faces()) {
-                const auto distance = face->intersectWithRay(ray);
-                if (!vm::is_nan(distance)) {
-                    return BrushFaceHit(face, distance);
+        std::optional<std::tuple<FloatType, size_t>> BrushNode::findFaceHit(const vm::ray3& ray) const {
+            if (!vm::is_nan(vm::intersect_ray_bbox(ray, logicalBounds()))) {
+                for (size_t i = 0u; i < m_brush.faceCount(); ++i) {
+                    const auto* face = m_brush.face(i);
+                    const auto distance = face->intersectWithRay(ray);
+                    if (!vm::is_nan(distance)) {
+                        return std::make_tuple(distance, i);
+                    }
                 }
             }
-            return BrushFaceHit();
+            return std::nullopt;
         }
 
         Node* BrushNode::doGetContainer() const {
