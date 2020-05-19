@@ -98,33 +98,21 @@ namespace TrenchBroom {
             return disabledImage;
         }
         
-        static void addImagePathToIcon(QIcon& icon, const QString& imagePath, const QIcon::State state, const bool invert, const qreal devicePixelRatio) {
-            QSvgRenderer svgr(imagePath);
-            qDebug() << "image: " << imagePath;
-            qDebug() << "valid "  << svgr.isValid();
-            qDebug() << "vbox "  << svgr.viewBox();
-            qDebug() << "ds "  << svgr.defaultSize();
-            qDebug() << "ds "  << &svgr;
-
-            QImage image(static_cast<int>(svgr.defaultSize().width() * devicePixelRatio),
-                static_cast<int>(svgr.defaultSize().height() * devicePixelRatio),
-                QImage::Format_ARGB32_Premultiplied);
-            image.fill(Qt::transparent);
-            
-
-            {
-                QPainter paint(&image);
-                svgr.render(&paint);
-            }
-
-            image.setDevicePixelRatio(devicePixelRatio);
-
-            //auto image = QImage(imagePath);
-            if (image.isNull()) {
-                qWarning() << "Failed loading image " << imagePath;
+        static void renderSvgToIcon(QSvgRenderer& svgSource, QIcon& icon, const QIcon::State state, const bool invert, const qreal devicePixelRatio) {
+            if (!svgSource.isValid()) {
                 return;
             }
 
+            QImage image(static_cast<int>(svgSource.defaultSize().width() * devicePixelRatio),
+                static_cast<int>(svgSource.defaultSize().height() * devicePixelRatio),
+                QImage::Format_ARGB32_Premultiplied);
+            image.fill(Qt::transparent);            
+            {
+                QPainter paint(&image);
+                svgSource.render(&paint);
+            }
+            image.setDevicePixelRatio(devicePixelRatio);
+            
             if (invert && image.isGrayscale()) {
                 image.invertPixels();
             }
@@ -135,7 +123,7 @@ namespace TrenchBroom {
 
         QIcon loadIconResourceQt(const Path& imagePath) {
             // Simple caching layer.
-            // Without it, the .png files would be read from disk and decoded each time this is called, which is slow.
+            // Without it, the .svg files would be read from disk and decoded each time this is called, which is slow.
             // We never evict from the cache which is assumed to be OK because this is just used for icons
             // and there's a relatively small set of them.
 
@@ -161,13 +149,28 @@ namespace TrenchBroom {
                 const auto imagePathString = imagePathToString(imagePath);
 
                 if (!onPath.isEmpty() && !offPath.isEmpty()) {
-                    addImagePathToIcon(result, onPath, QIcon::On, darkTheme,   1.0);
-                    addImagePathToIcon(result, onPath, QIcon::On, darkTheme,   2.0);
-                    addImagePathToIcon(result, offPath, QIcon::Off, darkTheme, 1.0);
-                    addImagePathToIcon(result, offPath, QIcon::Off, darkTheme, 2.0);
+                    QSvgRenderer onRenderer(onPath);
+                    if (!onRenderer.isValid()) {
+                        qWarning() << "Failed to load SVG " << onPath;
+                    }
+
+                    QSvgRenderer offRenderer(offPath);
+                    if (!offRenderer.isValid()) {
+                        qWarning() << "Failed to load SVG " << offPath;
+                    }
+
+                    renderSvgToIcon(onRenderer,  result, QIcon::On,  darkTheme, 1.0);
+                    renderSvgToIcon(onRenderer,  result, QIcon::On,  darkTheme, 2.0);
+                    renderSvgToIcon(offRenderer, result, QIcon::Off, darkTheme, 1.0);
+                    renderSvgToIcon(offRenderer, result, QIcon::Off, darkTheme, 2.0);                    
                 } else if (!imagePathString.isEmpty()) {
-                    addImagePathToIcon(result, imagePathString, QIcon::Off, darkTheme, 1.0);
-                    addImagePathToIcon(result, imagePathString, QIcon::Off, darkTheme, 2.0);
+                    QSvgRenderer renderer(imagePathString);
+                    if (!renderer.isValid()) {
+                        qWarning() << "Failed to load SVG " << imagePathString;
+                    }
+
+                    renderSvgToIcon(renderer,    result, QIcon::Off, darkTheme, 1.0);
+                    renderSvgToIcon(renderer,    result, QIcon::Off, darkTheme, 2.0);
                 } else {
                     qWarning() << "Couldn't find image for path: " << pathAsQString(imagePath);
                 }
