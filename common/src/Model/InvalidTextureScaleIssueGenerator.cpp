@@ -40,8 +40,8 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            explicit InvalidTextureScaleIssue(BrushNode* node, BrushFace* face) :
-            BrushFaceIssue(node, face) {}
+            explicit InvalidTextureScaleIssue(BrushNode* node, const size_t faceIndex) :
+            BrushFaceIssue(node, faceIndex) {}
 
             IssueType doGetType() const override {
                 return Type;
@@ -87,9 +87,10 @@ namespace TrenchBroom {
 
         void InvalidTextureScaleIssueGenerator::doGenerate(BrushNode* brushNode, IssueList& issues) const {
             const Brush& brush = brushNode->brush();
-            for (BrushFace* face : brush.faces()) {
+            for (size_t i = 0u; i < brush.faceCount(); ++i) {
+                const BrushFace* face = brush.face(i);
                 if (!face->attributes().valid()) {
-                    issues.push_back(new InvalidTextureScaleIssue(brushNode, face));
+                    issues.push_back(new InvalidTextureScaleIssue(brushNode, i));
                 }
             }
         }
