@@ -236,6 +236,30 @@ namespace kdl {
         ASSERT_EQ(std::vector<int>({ 1, 2, 3 }), v);
     }
 
+    TEST_CASE("vector_utils_test.vec_filter", "[vector_utils_test]") {
+        ASSERT_EQ(std::vector<int>({}), vec_filter(std::vector<int>({}), [](auto) { return false; }));
+        ASSERT_EQ(std::vector<int>({}), vec_filter(std::vector<int>({ 1, 2, 3 }), [](auto) { return false; }));
+        ASSERT_EQ(std::vector<int>({ 1, 2, 3}), vec_filter(std::vector<int>({ 1, 2, 3 }), [](auto) { return true; }));
+        ASSERT_EQ(std::vector<int>({ 2 }), vec_filter(std::vector<int>({ 1, 2, 3 }), [](auto x) { return x % 2 == 0; }));
+    }
+
+    struct MoveOnly {
+        MoveOnly() = default;
+
+        MoveOnly(const MoveOnly& other) = delete;
+        MoveOnly& operator=(const MoveOnly& other) = delete;
+
+        MoveOnly(MoveOnly&& other) noexcept = default;
+        MoveOnly& operator=(MoveOnly&& other) = default;
+    };
+
+    TEST_CASE("vector_utils_test.vec_filter_rvalue", "[vector_utils_test]") {
+        auto vec = std::vector<MoveOnly>{};
+        vec.emplace_back();
+        vec.emplace_back();
+        ASSERT_EQ(2u, vec_filter(std::move(vec), [](const auto&) { return true; }).size());
+    }
+    
     TEST_CASE("vector_utils_test.vec_transform", "[vector_utils_test]") {
         ASSERT_EQ(std::vector<int>({}), vec_transform(std::vector<int>({}), [](auto x) { return x + 10; }));
         ASSERT_EQ(std::vector<int>({ 11, 12, 13 }),
