@@ -29,7 +29,7 @@ namespace TrenchBroom {
         bool MatchSelectableNodes::operator()(const Model::WorldNode* world) const   { return m_editorContext.selectable(world); }
         bool MatchSelectableNodes::operator()(const Model::LayerNode* layer) const   { return m_editorContext.selectable(layer); }
         bool MatchSelectableNodes::operator()(const Model::GroupNode* group) const   { return m_editorContext.selectable(group); }
-        bool MatchSelectableNodes::operator()(const Model::Entity* entity) const { return m_editorContext.selectable(entity); }
+        bool MatchSelectableNodes::operator()(const Model::EntityNode* entity) const { return m_editorContext.selectable(entity); }
         bool MatchSelectableNodes::operator()(const Model::BrushNode* brush) const   { return m_editorContext.selectable(brush); }
     }
 }

@@ -22,7 +22,7 @@
 #include "Color.h"
 #include "Assets/ColorRange.h"
 #include "Model/AttributableNode.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/EntityColor.h"
 #include "Model/NodeVisitor.h"
 #include "Model/WorldNode.h"
@@ -161,7 +161,7 @@ namespace TrenchBroom {
             void doVisit(const Model::WorldNode* world) override   { visitAttributableNode(world); }
             void doVisit(const Model::LayerNode*) override         {}
             void doVisit(const Model::GroupNode*) override         {}
-            void doVisit(const Model::Entity* entity) override { visitAttributableNode(entity); stopRecursion(); }
+            void doVisit(const Model::EntityNode* entity) override { visitAttributableNode(entity); stopRecursion(); }
             void doVisit(const Model::BrushNode*) override         {}
 
             void visitAttributableNode(const Model::AttributableNode* attributable) {

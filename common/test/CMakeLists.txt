@@ -45,7 +45,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Model/BrushFaceTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/BrushNodeTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/EditorContextTest.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/Model/EntityTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Model/EntityNodeTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/GameTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/NodeTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/PlanePointFinderTest.cpp"

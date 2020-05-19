@@ -21,7 +21,7 @@
 
 #include "Ensure.h"
 #include "Model/BrushNode.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             addNode(group);
         }
 
-        void MergeNodesIntoWorldVisitor::doVisit(Entity* entity) {
+        void MergeNodesIntoWorldVisitor::doVisit(EntityNode* entity) {
             if (isWorldspawn(entity->classname(), entity->attributes())) {
                 entity->iterate(*this);
                 deleteNode(entity);

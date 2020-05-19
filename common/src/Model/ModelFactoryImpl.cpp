@@ -21,7 +21,7 @@
 
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/ParallelTexCoordSystem.h"
@@ -59,9 +59,9 @@ namespace TrenchBroom {
             return new GroupNode(name);
         }
 
-        Entity* ModelFactoryImpl::doCreateEntity() const {
+        EntityNode* ModelFactoryImpl::doCreateEntity() const {
             assert(m_format != MapFormat::Unknown);
-            return new Entity();
+            return new EntityNode();
         }
 
         BrushNode* ModelFactoryImpl::doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {

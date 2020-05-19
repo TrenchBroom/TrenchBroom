@@ -37,7 +37,7 @@ namespace TrenchBroom {
     namespace Model {
         class BrushNode;
         class EditorContext;
-        class Entity;
+        class EntityNode;
         class GroupNode;
     }
 
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             m_entityRenderer(logger, entityModelManager, editorContext),
             m_brushRenderer(brushFilter) {}
         public: // object management
-            void setObjects(const std::vector<Model::GroupNode*>& groups, const std::vector<Model::Entity*>& entities, const std::vector<Model::BrushNode*>& brushes);
+            void setObjects(const std::vector<Model::GroupNode*>& groups, const std::vector<Model::EntityNode*>& entities, const std::vector<Model::BrushNode*>& brushes);
             void invalidate();
             void invalidateBrushes(const std::vector<Model::BrushNode*>& brushes);
             void clear();

@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace Model {
         class BrushNode;
         class BrushFace;
-        class Entity;
+        class EntityNode;
         class LayerNode;
         class Node;
         class WorldNode;
@@ -40,7 +40,7 @@ namespace TrenchBroom {
     namespace IO {
         class NodeWriter {
         private:
-            using EntityBrushesMap = std::map<Model::Entity*, std::vector<Model::BrushNode*>>;
+            using EntityBrushesMap = std::map<Model::EntityNode*, std::vector<Model::BrushNode*>>;
             class CollectEntityBrushesStrategy;
             class WriteNode;
 

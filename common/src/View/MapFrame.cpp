@@ -29,7 +29,7 @@
 #include "Model/AttributableNode.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/ExportFormat.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
@@ -424,14 +424,14 @@ namespace TrenchBroom {
             }
         }
 
-        static std::string commonClassnameForEntityList(const std::vector<Model::Entity*>& list) {
+        static std::string commonClassnameForEntityList(const std::vector<Model::EntityNode*>& list) {
             if (list.empty())
                 return "";
 
             const std::string firstClassname = list.front()->classname();
             bool multipleClassnames = false;
 
-            for (const Model::Entity* entity : list) {
+            for (const Model::EntityNode* entity : list) {
                 if (entity->classname() != firstClassname) {
                     multipleClassnames = true;
                 }

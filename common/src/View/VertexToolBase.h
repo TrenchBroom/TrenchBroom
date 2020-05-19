@@ -520,7 +520,7 @@ namespace TrenchBroom {
                 void doVisit(Model::WorldNode*) override  {}
                 void doVisit(Model::LayerNode*) override  {}
                 void doVisit(Model::GroupNode*) override  {}
-                void doVisit(Model::Entity*) override {}
+                void doVisit(Model::EntityNode*) override {}
                 void doVisit(Model::BrushNode* brush) override   {
                     m_handles.addHandles(brush);
                 }
@@ -537,7 +537,7 @@ namespace TrenchBroom {
                 void doVisit(Model::WorldNode*) override  {}
                 void doVisit(Model::LayerNode*) override  {}
                 void doVisit(Model::GroupNode*) override  {}
-                void doVisit(Model::Entity*) override {}
+                void doVisit(Model::EntityNode*) override {}
                 void doVisit(Model::BrushNode* brush) override   {
                     m_handles.removeHandles(brush);
                 }

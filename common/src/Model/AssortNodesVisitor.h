@@ -27,7 +27,7 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushNode;
-        class Entity;
+        class EntityNode;
         class GroupNode;
         class LayerNode;
         class WorldNode;
@@ -70,20 +70,20 @@ namespace TrenchBroom {
 
         class CollectEntitiesStrategy {
         private:
-            std::vector<Entity*> m_entities;
+            std::vector<EntityNode*> m_entities;
         public:
-            const std::vector<Entity*>& entities() const;
+            const std::vector<EntityNode*>& entities() const;
         protected:
-            void addEntity(Entity* entity);
+            void addEntity(EntityNode* entity);
         };
 
         class SkipEntitiesStrategy {
         private:
-            static const std::vector<Entity*> m_entities;
+            static const std::vector<EntityNode*> m_entities;
         public:
-            const std::vector<Entity*>& entities() const;
+            const std::vector<EntityNode*>& entities() const;
         protected:
-            void addEntity(Entity* entity);
+            void addEntity(EntityNode* entity);
         };
 
         class CollectBrushesStrategy {
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             void doVisit(WorldNode* /* world */)   override {}
             void doVisit(LayerNode* layer)   override {  LayerStrategy::addLayer(layer); }
             void doVisit(GroupNode* group)   override {  GroupStrategy::addGroup(group); }
-            void doVisit(Entity* entity) override { EntityStrategy::addEntity(entity); }
+            void doVisit(EntityNode* entity) override { EntityStrategy::addEntity(entity); }
             void doVisit(BrushNode* brush)   override {  BrushStrategy::addBrush(brush); }
         };
 

@@ -26,7 +26,7 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushGeometry.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
@@ -272,7 +272,7 @@ namespace TrenchBroom {
             void doVisit(const Model::LayerNode*) override   {}
             void doVisit(const Model::GroupNode*) override   {}
 
-            void doVisit(const Model::Entity* entity) override {
+            void doVisit(const Model::EntityNode* entity) override {
                 if (!entity->hasChildren()) {
                     const auto& bounds = entity->logicalBounds();
                     bounds.for_each_vertex([&](const vm::vec3& v) { addPoint(v); });
@@ -316,7 +316,7 @@ namespace TrenchBroom {
             void doVisit(const Model::LayerNode*) override   {}
             void doVisit(const Model::GroupNode*) override   {}
 
-            void doVisit(const Model::Entity* entity) override {
+            void doVisit(const Model::EntityNode* entity) override {
                 if (!entity->hasChildren()) {
                     const auto& bounds = entity->logicalBounds();
                     bounds.for_each_vertex([&](const vm::vec3& v) {

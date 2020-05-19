@@ -26,7 +26,7 @@
 #include "Assets/TextureManager.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
@@ -63,7 +63,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(SnapshotTest, "SnapshotTest.undoRotation", "[SnapshotTest]") {
-            auto* entity = new Model::Entity();
+            auto* entity = new Model::EntityNode();
             entity->addOrUpdateAttribute(Model::AttributeNames::Classname, "test");
 
             document->addNode(entity, document->currentParent());            

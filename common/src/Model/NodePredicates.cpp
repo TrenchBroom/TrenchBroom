@@ -20,7 +20,7 @@
 #include "NodePredicates.h"
 
 #include "Model/BrushNode.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
@@ -37,8 +37,8 @@ namespace TrenchBroom {
             bool EqualsNode::operator()(LayerNode* layer) const         { return layer  == m_node; }
             bool EqualsNode::operator()(const GroupNode* group) const   { return group  == m_node; }
             bool EqualsNode::operator()(GroupNode* group) const         { return group  == m_node; }
-            bool EqualsNode::operator()(const Entity* entity) const { return entity == m_node; }
-            bool EqualsNode::operator()(Entity* entity) const       { return entity == m_node; }
+            bool EqualsNode::operator()(const EntityNode* entity) const { return entity == m_node; }
+            bool EqualsNode::operator()(EntityNode* entity) const       { return entity == m_node; }
             bool EqualsNode::operator()(const BrushNode* brush) const   { return brush  == m_node; }
             bool EqualsNode::operator()(BrushNode* brush) const         { return brush  == m_node; }
 
@@ -48,8 +48,8 @@ namespace TrenchBroom {
             bool EqualsObject::operator()(LayerNode*) const               { return false; }
             bool EqualsObject::operator()(const GroupNode* group) const   { return group  == m_object; }
             bool EqualsObject::operator()(GroupNode* group) const         { return group  == m_object; }
-            bool EqualsObject::operator()(const Entity* entity) const { return entity == m_object; }
-            bool EqualsObject::operator()(Entity* entity) const       { return entity == m_object; }
+            bool EqualsObject::operator()(const EntityNode* entity) const { return entity == m_object; }
+            bool EqualsObject::operator()(EntityNode* entity) const       { return entity == m_object; }
             bool EqualsObject::operator()(const BrushNode* brush) const   { return brush  == m_object; }
             bool EqualsObject::operator()(BrushNode* brush) const         { return brush  == m_object; }
         }

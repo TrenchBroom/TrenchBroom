@@ -20,7 +20,7 @@
 #include "FaceInspector.h"
 
 #include "Assets/Texture.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "View/BorderLine.h"
 #include "View/CollapsibleTitledPanel.h"
 #include "View/FaceAttribsEditor.h"

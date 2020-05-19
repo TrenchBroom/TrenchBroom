@@ -20,7 +20,7 @@
 #include "FindContainerVisitor.h"
 
 #include "Model/GroupNode.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
 
@@ -41,7 +41,7 @@ namespace TrenchBroom {
             cancel();
         }
 
-        void FindContainerVisitor::doVisit(Entity* entity) {
+        void FindContainerVisitor::doVisit(EntityNode* entity) {
             setResult(entity);
             cancel();
         }

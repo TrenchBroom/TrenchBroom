@@ -21,7 +21,7 @@
 
 #include "Notifier.h"
 #include "PreferenceManager.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/Game.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"

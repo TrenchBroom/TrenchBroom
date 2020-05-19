@@ -58,7 +58,7 @@ namespace TrenchBroom {
             bool operator()(const Model::WorldNode*) const         { return false; }
             bool operator()(const Model::LayerNode*) const         { return false; }
             bool operator()(const Model::GroupNode*) const         { return true; }
-            bool operator()(const Model::Entity* entity) const { return !entity->hasChildren(); }
+            bool operator()(const Model::EntityNode* entity) const { return !entity->hasChildren(); }
             bool operator()(const Model::BrushNode*) const         { return true; }
         };
 

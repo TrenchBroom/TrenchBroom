@@ -42,7 +42,7 @@ namespace TrenchBroom {
             void doVisit(Model::WorldNode* /* world */) override   {}
             void doVisit(Model::LayerNode* /* layer */) override   {}
             void doVisit(Model::GroupNode* /* group */) override   {}
-            void doVisit(Model::Entity* /* entity */) override {}
+            void doVisit(Model::EntityNode* /* entity */) override {}
             void doVisit(Model::BrushNode* brush) override   { m_serializer.brush(brush); }
         };
 
@@ -188,7 +188,7 @@ namespace TrenchBroom {
             void doVisit(const Model::WorldNode* /* world */) override   {}
             void doVisit(const Model::LayerNode* layer) override   { m_attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Layer, m_layerIds.getId(layer)));}
             void doVisit(const Model::GroupNode* group) override   { m_attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Group, m_groupIds.getId(group))); }
-            void doVisit(const Model::Entity* /* entity */) override {}
+            void doVisit(const Model::EntityNode* /* entity */) override {}
             void doVisit(const Model::BrushNode* /* brush */) override   {}
         };
 

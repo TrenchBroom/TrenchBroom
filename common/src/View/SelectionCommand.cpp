@@ -23,7 +23,7 @@
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceReference.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/WorldNode.h"
 #include "View/MapDocumentCommandFacade.h"
 

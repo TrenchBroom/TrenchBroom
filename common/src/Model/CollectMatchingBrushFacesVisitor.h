@@ -41,7 +41,7 @@ namespace TrenchBroom {
             void doVisit(WorldNode*)  override {}
             void doVisit(LayerNode*)  override {}
             void doVisit(GroupNode*)  override {}
-            void doVisit(Entity*) override {}
+            void doVisit(EntityNode*) override {}
             void doVisit(BrushNode* brush) override {
                 for (BrushFace* face : brush->faces()) {
                     if (m_p(face)) {

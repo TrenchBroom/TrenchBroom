@@ -22,14 +22,14 @@
 #include "Hit.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 
 namespace TrenchBroom {
     namespace Model {
         Node* hitToNode(const Hit& hit) {
-            if (hit.type() == Entity::EntityHit) {
-                return hit.target<Entity*>();
+            if (hit.type() == EntityNode::EntityHit) {
+                return hit.target<EntityNode*>();
             } else if (hit.type() == BrushNode::BrushHit) {
                 BrushFace* face = hit.target<BrushFace*>();
                 return face->brush();
@@ -39,8 +39,8 @@ namespace TrenchBroom {
         }
 
         Object* hitToObject(const Hit& hit) {
-            if (hit.type() == Entity::EntityHit) {
-                return hit.target<Entity*>();
+            if (hit.type() == EntityNode::EntityHit) {
+                return hit.target<EntityNode*>();
             } else if (hit.type() == BrushNode::BrushHit) {
                 BrushFace* face = hit.target<BrushFace*>();
                 return face->brush();
@@ -49,9 +49,9 @@ namespace TrenchBroom {
             }
         }
 
-        Entity* hitToEntity(const Hit& hit) {
-            if (hit.type() == Entity::EntityHit) {
-                return hit.target<Entity*>();
+        EntityNode* hitToEntity(const Hit& hit) {
+            if (hit.type() == EntityNode::EntityHit) {
+                return hit.target<EntityNode*>();
             } else {
                 return nullptr;
             }
