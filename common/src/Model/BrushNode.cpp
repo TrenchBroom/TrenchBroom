@@ -125,12 +125,6 @@ namespace TrenchBroom {
             return new BrushFaceSnapshot(this, face);
         }
 
-        void BrushNode::findIntegerPlanePoints(const vm::bbox3& worldBounds) {
-            const NotifyNodeChange nodeChange(this);
-            const NotifyPhysicalBoundsChange boundsChange(this);
-            m_brush.findIntegerPlanePoints(worldBounds);
-        }
-
         const std::string& BrushNode::doGetName() const {
             static const std::string name("brush");
             return name;
