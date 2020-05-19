@@ -19,7 +19,8 @@
 
 #include "ChangeBrushFaceAttributesCommand.h"
 
-#include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
+#include "Model/BrushNode.h"
 #include "Model/Snapshot.h"
 #include "View/MapDocumentCommandFacade.h"
 
@@ -40,11 +41,13 @@ namespace TrenchBroom {
         ChangeBrushFaceAttributesCommand::~ChangeBrushFaceAttributesCommand() = default;
 
         std::unique_ptr<CommandResult> ChangeBrushFaceAttributesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            const auto faces = document->allSelectedBrushFaces();
-            assert(!faces.empty());
+            const auto faceHandles = document->allSelectedBrushFaces();
+            assert(!faceHandles.empty());
+            
+            const auto nodes = Model::toNodes(faceHandles);
 
             assert(m_snapshot == nullptr);
-            m_snapshot = std::make_unique<Model::Snapshot>(std::begin(faces), std::end(faces));
+            m_snapshot = std::make_unique<Model::Snapshot>(std::begin(nodes), std::end(nodes));
 
             document->performChangeBrushFaceAttributes(m_request);
             return std::make_unique<CommandResult>(true);

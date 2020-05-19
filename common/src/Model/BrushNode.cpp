@@ -26,7 +26,6 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
-#include "Model/BrushFaceSnapshot.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushSnapshot.h"
 #include "Model/EntityNode.h"
@@ -126,11 +125,6 @@ namespace TrenchBroom {
         
         void BrushNode::deselectFace(const size_t faceIndex) {
             m_brush.face(faceIndex)->deselect();
-        }
-
-        BrushFaceSnapshot* BrushNode::takeSnapshot(BrushFace* face) {
-            ensure(face != nullptr, "face must not be null");
-            return new BrushFaceSnapshot(this, face);
         }
 
         const std::string& BrushNode::doGetName() const {
