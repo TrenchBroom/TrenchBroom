@@ -81,7 +81,6 @@ namespace TrenchBroom {
 
             size_t faceCount() const;
             const std::vector<BrushFace*>& faces() const;
-            void setFaces(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces);
 
             bool closed() const;
             bool fullySpecified() const;
@@ -98,11 +97,6 @@ namespace TrenchBroom {
                 }
             }
             void addFace(BrushFace* face);
-
-            std::vector<BrushFace*>::iterator doRemoveFace(std::vector<BrushFace*>::iterator begin, std::vector<BrushFace*>::iterator end, BrushFace* face);
-
-            void detachFaces(const std::vector<BrushFace*>& faces);
-            void detachFace(BrushFace* face);
         public: // clone face attributes from matching faces of other brushes
             void cloneFaceAttributesFrom(const Brush& brush);
             void cloneInvertedFaceAttributesFrom(const Brush& brush);
