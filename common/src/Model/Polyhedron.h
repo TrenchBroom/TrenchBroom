@@ -34,6 +34,8 @@
 
 #include <initializer_list>
 #include <limits>
+#include <optional>
+#include <variant>
 #include <vector>
 
 namespace TrenchBroom {
@@ -1867,8 +1869,9 @@ namespace TrenchBroom {
              * @param seam the seam to weave a polygon onto
              * @param plane the plane that contains the newly created face
              * @param callback the callback to inform of lifecycle events
+             * @return the newly created face
              */
-            void sealWithSinglePolygon(const Seam& seam, const vm::plane<T,3>& plane, Callback& callback);
+            Face* sealWithSinglePolygon(const Seam& seam, const vm::plane<T,3>& plane, Callback& callback);
 
             class ShiftSeamForWeaving;
 
@@ -1894,34 +1897,34 @@ namespace TrenchBroom {
             /**
              * The result of clipping this polyhedron with a plane.
              */
-            struct ClipResult {
-                typedef enum {
+            class ClipResult {
+            public:
+                enum class FailureReason {
                     /**
                      * Clipping did not change this polyhedron.
                      */
-                        Type_ClipUnchanged,
+                    Unchanged,
 
                     /**
                      * Clipping resulted in an empty polyhedron.
                      */
-                        Type_ClipEmpty,
-
-                    /**
-                     * Clipping was successful and effective.
-                     */
-                        Type_ClipSuccess
-                } Type;
+                    Empty
+                };
+            private:
+                /**
+                 * The value of the result, either the newly created face or a failure reason.
+                 */
+                const std::variant<Face*, FailureReason> m_value;
+            public:
+                /**
+                 * Creates a successful clip result with the given newly created face.
+                 */
+                ClipResult(Face* face);
 
                 /**
-                 * The type of result.
+                 * Creates a failed clip result with the given reason.
                  */
-                const Type type;
-
-                /**
-                 * Creates a new clip result of the given type.
-                 * @param i_type the type of the clip result
-                 */
-                ClipResult(const Type i_type);
+                ClipResult(FailureReason reason);
 
                 /**
                  * Indicates whether clipping this polyhedron had any effect.
@@ -1937,6 +1940,11 @@ namespace TrenchBroom {
                  * Indicates whether clipping this polyhedron was successful and effective.
                  */
                 bool success() const;
+                
+                /**
+                 * Returns the newly created face or nullptr if clipping has failed.
+                 */
+                Face* face() const;
             };
 
             /**
@@ -1960,19 +1968,13 @@ namespace TrenchBroom {
 
         private:
             /**
-             * Checks whether this polyhedron is intersected by the given plane. Returns either of the following results.
-             *
-             * - a clip result of type Type_ClipUnchanged if intersecting this polyhedron with the given plane would leave
-             *   it unchanged
-             * - a clip result of Type_ClipEmpty if intersecting this polyhedron with the given plane would leave it
-             *   empty
-             * - a clip result of Type_ClipSuccess if intersecting this polyhedron with the given plane would be successful
-             *    and effective.
+             * Checks whether this polyhedron is intersected by the given plane.
              *
              * @param plane the plane to check
-             * @return a clip result
+             * @return a failure reason if clipping with the given plane would likely fail, or an empty optional
+             * otherwise
              */
-            ClipResult checkIntersects(const vm::plane<T,3>& plane) const;
+            std::optional<typename ClipResult::FailureReason> checkIntersects(const vm::plane<T,3>& plane) const;
 
             class NoSeamException;
 

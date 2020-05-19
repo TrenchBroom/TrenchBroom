@@ -33,17 +33,32 @@
 namespace TrenchBroom {
     namespace Model {
         template <typename T, typename FP, typename VP>
-        Polyhedron<T,FP,VP>::ClipResult::ClipResult(const Type i_type) :
-            type(i_type) {}
+        Polyhedron<T,FP,VP>::ClipResult::ClipResult(Face* face) :
+            m_value(face) {}
 
         template <typename T, typename FP, typename VP>
-        bool Polyhedron<T,FP,VP>::ClipResult::unchanged() const { return type == Type_ClipUnchanged; }
+        Polyhedron<T,FP,VP>::ClipResult::ClipResult(const FailureReason reason) :
+            m_value(reason) {}
 
         template <typename T, typename FP, typename VP>
-        bool Polyhedron<T,FP,VP>::ClipResult::empty() const     { return type == Type_ClipEmpty; }
+        bool Polyhedron<T,FP,VP>::ClipResult::unchanged() const {
+            return std::holds_alternative<FailureReason>(m_value) && std::get<FailureReason>(m_value) == FailureReason::Unchanged;
+        }
 
         template <typename T, typename FP, typename VP>
-        bool Polyhedron<T,FP,VP>::ClipResult::success() const   { return type == Type_ClipSuccess; }
+        bool Polyhedron<T,FP,VP>::ClipResult::empty() const {
+            return std::holds_alternative<FailureReason>(m_value) && std::get<FailureReason>(m_value) == FailureReason::Empty;
+        }
+
+        template <typename T, typename FP, typename VP>
+        bool Polyhedron<T,FP,VP>::ClipResult::success() const {
+            return std::holds_alternative<Face*>(m_value);
+        }
+
+        template <typename T, typename FP, typename VP>
+        typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::ClipResult::face() const {
+            return success() ? std::get<Face*>(m_value) : nullptr;
+        }
 
         template <typename T, typename FP, typename VP>
         typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const vm::plane<T,3>& plane) {
@@ -53,9 +68,8 @@ namespace TrenchBroom {
 
         template <typename T, typename FP, typename VP>
         typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const vm::plane<T,3>& plane, Callback& callback) {
-            const ClipResult vertexResult = checkIntersects(plane);
-            if (!vertexResult.success()) {
-                return vertexResult;
+            if (const auto vertexResult = checkIntersects(plane)) {
+                return ClipResult(*vertexResult);
             }
             
             // The basic idea is now to split all faces which are intersected by the given plane so that the polyhedron
@@ -71,12 +85,13 @@ namespace TrenchBroom {
                 split(seam, callback);
 
                 // We seal the polyhedron by creating a new face.
-                sealWithSinglePolygon(seam, plane, callback);
+                Face* newFace = sealWithSinglePolygon(seam, plane, callback);
                 updateBounds();
 
+                assert(newFace != nullptr);
                 assert(checkInvariant());
 
-                return ClipResult(ClipResult::Type_ClipSuccess);
+                return ClipResult(newFace);
             } catch (const NoSeamException& e) {
                 /*
                  No seam could be constructed, but the polyhedron may have been modified by splitting
@@ -106,20 +121,19 @@ namespace TrenchBroom {
                 assert(it != std::end(m_vertices));
                 if (plane.point_status((*it)->position()) == vm::plane_status::below) {
                     // The furthest point is below the plane.
-                    return ClipResult(ClipResult::Type_ClipUnchanged);
+                    return ClipResult(ClipResult::FailureReason::Unchanged);
                 } else {
                     // The furthest point is above or inside the plane.
-                    return ClipResult(ClipResult::Type_ClipEmpty);
+                    return ClipResult(ClipResult::FailureReason::Empty);
                 }
             }
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::checkIntersects(const vm::plane<T,3>& plane) const {
+        std::optional<typename Polyhedron<T,FP,VP>::ClipResult::FailureReason> Polyhedron<T,FP,VP>::checkIntersects(const vm::plane<T,3>& plane) const {
             std::size_t above = 0u;
             std::size_t below = 0u;
             std::size_t inside = 0u;
-
 
             for (const Vertex* currentVertex : m_vertices) {
                 const vm::plane_status status = plane.point_status(currentVertex->position());
@@ -140,11 +154,11 @@ namespace TrenchBroom {
             assert(above + below + inside == m_vertices.size());
 
             if (below + inside == m_vertices.size()) {
-                return ClipResult(ClipResult::Type_ClipUnchanged);
+                return ClipResult::FailureReason::Unchanged;
             } else if (above + inside == m_vertices.size()) {
-                return ClipResult(ClipResult::Type_ClipEmpty);
+                return ClipResult::FailureReason::Empty;
             } else {
-                return ClipResult(ClipResult::Type_ClipSuccess);
+                return std::nullopt;
             }
         }
 

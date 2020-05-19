@@ -829,7 +829,7 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::sealWithSinglePolygon(const Seam& seam, const vm::plane<T,3>& plane, Callback& callback) {
+        typename Polyhedron<T,FP,VP>::Face* Polyhedron<T,FP,VP>::sealWithSinglePolygon(const Seam& seam, const vm::plane<T,3>& plane, Callback& callback) {
             assert(seam.size() >= 3);
             assert(!seam.hasMultipleLoops());
             assert(!empty() && !point() && !edge() && !polygon());
@@ -847,6 +847,7 @@ namespace TrenchBroom {
             Face* face = new Face(std::move(boundary), plane);
             callback.faceWasCreated(face);
             m_faces.push_back(face);
+            return face;
         }
 
         template <typename T, typename FP, typename VP>
