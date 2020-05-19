@@ -43,26 +43,14 @@ namespace TrenchBroom {
         class Brush;
         class BrushFace;
         class BrushFaceSnapshot;
-        class BrushNode;
         class GroupNode;
         class LayerNode;
 
         class ModelFactory;
 
-        struct BrushAlgorithmResult;
-
         class BrushNode : public Node, public Object {
-        private:
-            friend class SetTempFaceLinks;
         public:
             static const HitType::Type BrushHitType;
-        private:
-            class AddFaceToGeometryCallback;
-            class HealEdgesCallback;
-            class AddFacesToGeometry;
-            class MoveVerticesCallback;
-            using RemoveVertexCallback = MoveVerticesCallback;
-            class QueryCallback;
         public:
             using VertexList = BrushVertexList;
             using EdgeList = BrushEdgeList;
@@ -71,7 +59,7 @@ namespace TrenchBroom {
             std::unique_ptr<Brush> m_brush; // must be destroyed before the brush renderer cache
         public:
             BrushNode(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces);
-            BrushNode(std::unique_ptr<Brush> brush);
+            explicit BrushNode(std::unique_ptr<Brush> brush);
             ~BrushNode() override;
         public:
             BrushNode* clone(const vm::bbox3& worldBounds) const;
@@ -117,11 +105,8 @@ namespace TrenchBroom {
             vm::vec3 findClosestVertexPosition(const vm::vec3& position) const;
 
             bool hasVertex(const vm::vec3& position, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            bool hasVertices(const std::vector<vm::vec3>& positions, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasEdge(const vm::segment3& edge, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            bool hasEdges(const std::vector<vm::segment3>& edges, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasFace(const vm::polygon3& face, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            bool hasFaces(const std::vector<vm::polygon3>& faces, FloatType epsilon = static_cast<FloatType>(0.0)) const;
 
             bool hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& p4, FloatType epsilon = static_cast<FloatType>(0.0)) const;
@@ -167,8 +152,6 @@ namespace TrenchBroom {
 
             // transformation
             bool canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const;
-        public: // brush geometry
-            void rebuildGeometry(const vm::bbox3& worldBounds);
         public:
             void findIntegerPlanePoints(const vm::bbox3& worldBounds);
         private: // implement Node interface
