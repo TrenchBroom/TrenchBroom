@@ -24,7 +24,6 @@
 #include "FloatType.h"
 #include "Polyhedron.h"
 #include "Assets/Texture.h"
-#include "Assets/TextureManager.h"
 #include "Model/TagMatcher.h"
 #include "Model/Brush.h"
 #include "Model/BrushNode.h"
@@ -325,11 +324,6 @@ namespace TrenchBroom {
 
             m_attributes.setColor(color);
             return true;
-        }
-
-        void BrushFace::updateTexture(Assets::TextureManager& textureManager) {
-            Assets::Texture* texture = textureManager.texture(textureName());
-            setTexture(texture);
         }
 
         bool BrushFace::setTexture(Assets::Texture* texture) {
