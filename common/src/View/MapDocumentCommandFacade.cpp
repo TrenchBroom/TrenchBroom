@@ -801,9 +801,11 @@ namespace TrenchBroom {
 
             std::vector<vm::polygon3> newFacePositions;
             for (const auto& entry : faces) {
-                Model::BrushNode* brush = entry.first;
+                Model::BrushNode* brushNode = entry.first;
+                Model::Brush brush = brushNode->brush();
                 const std::vector<vm::polygon3>& oldPositions = entry.second;
-                const std::vector<vm::polygon3> newPositions = brush->moveFaces(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
+                const std::vector<vm::polygon3> newPositions = brush.moveFaces(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
+                brushNode->setBrush(std::move(brush));
                 kdl::vec_append(newFacePositions, newPositions);
             }
 
