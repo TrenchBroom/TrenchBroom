@@ -1767,7 +1767,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
         bool findAndRemove(std::vector<Polyhedron3d>& result, const std::vector<vm::vec3d>& vertices) {
             for (auto it = std::begin(result), end = std::end(result); it != end; ++it) {
                 const Polyhedron3d& polyhedron = *it;
-                if (polyhedron.hasAllVertices(vertices)) {
+                if (polyhedron.hasAllVertices(vertices, vm::Cd::almost_zero())) {
                     result.erase(it);
                     return true;
                 }
@@ -1985,18 +1985,18 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             const Polyhedron3d subtrahend(subtrahendVertices);
 
             auto result = minuend.subtract(subtrahend);
-
+            
             std::vector<vm::vec3d> f1, f2, f3, f4;
             vm::parse_all<double, 3>("(64 64 64) (-32 64 -64) (64 -32 -64) (64 -32 64) (-32 64 64) (64 64 -64)", std::back_inserter(f1));
             vm::parse_all<double, 3>("(-64 32 64) (-64 32 -64) (-32 -0 64) (-32 -0 -64) (-0 32 -64) (-0 32 64) (-64 64 64) (-32 64 -64) (-32 64 64) (-64 64 -64)", std::back_inserter(f2));
             vm::parse_all<double, 3>("(64 -32 64) (64 -32 -64) (64 -64 64) (64 -64 -64) (-0 -32 64) (32 -0 64) (32 -0 -64) (-0 -32 -64) (32 -64 -64) (32 -64 64)", std::back_inserter(f3));
             vm::parse_all<double, 3>("(-64 -64 64) (-64 -64 -64) (-64 32 -64) (-64 32 64) (32 -64 64) (32 -64 -64)", std::back_inserter(f4));
-            ASSERT_TRUE(findAndRemove(result, f1));
-            ASSERT_TRUE(findAndRemove(result, f2));
-            ASSERT_TRUE(findAndRemove(result, f3));
-            ASSERT_TRUE(findAndRemove(result, f4));
+            CHECK(findAndRemove(result, f1));
+            CHECK(findAndRemove(result, f2));
+            CHECK(findAndRemove(result, f3));
+            CHECK(findAndRemove(result, f4));
 
-            ASSERT_TRUE(result.empty());
+            CHECK(result.size() == 0u);
         }
 
         TEST_CASE("PolyhedronTest.subtractFailWithMissingFragments", "[PolyhedronTest]") {
