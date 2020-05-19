@@ -94,6 +94,9 @@ namespace kdl {
         }
     };
 
+    template <typename T>
+    set_later(T& value, T newValue) -> set_later<T>;
+
     /**
      * RAII class that increases a value and decreases it again when going out of scope.
      *
@@ -122,6 +125,9 @@ namespace kdl {
         }
     };
 
+    template <typename T>
+    inc_temp(T& value) -> inc_temp<T>;
+
     /**
      * RAII class that decreases a value and increases it again when going out of scope.
      *
@@ -149,6 +155,9 @@ namespace kdl {
             ++m_value;
         }
     };
+    
+    template <typename T>
+    dec_temp(T& value) -> dec_temp<T>;
 }
 
 #endif //KDL_SET_TEMP_H
