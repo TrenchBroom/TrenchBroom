@@ -301,7 +301,7 @@ namespace TrenchBroom {
             addController(new MoveClipPointPart(new Callback2D(tool)));
         }
 
-        std::vector<vm::vec3> ClipToolController3D::selectHelpVectors(Model::BrushNode* brushNode, Model::BrushFace* face, const vm::vec3& hitPoint) {
+        std::vector<vm::vec3> ClipToolController3D::selectHelpVectors(const Model::BrushNode* brushNode, const Model::BrushFace* face, const vm::vec3& hitPoint) {
             ensure(face != nullptr, "face is null");
 
             std::vector<vm::vec3> result;
@@ -314,7 +314,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        std::vector<Model::BrushFace*> ClipToolController3D::selectIncidentFaces(Model::BrushNode* brushNode, Model::BrushFace* face, const vm::vec3& hitPoint) {
+        std::vector<const Model::BrushFace*> ClipToolController3D::selectIncidentFaces(const Model::BrushNode* brushNode, const Model::BrushFace* face, const vm::vec3& hitPoint) {
             static const auto MaxDistance = vm::constants<FloatType>::almost_zero();
 
             // First, try to see if the clip point is almost equal to a vertex:
@@ -395,7 +395,7 @@ namespace TrenchBroom {
                 ensure(hit.isMatch(), "hit is not a match");
 
                 Model::BrushNode* node = Model::hitToBrush(hit);
-                Model::BrushFace* face = Model::hitToFace(hit);
+                const Model::BrushFace* face = Model::hitToFace(hit);
                 return selectHelpVectors(node, face, clipPoint);
             }
 
@@ -405,7 +405,7 @@ namespace TrenchBroom {
                     return false;
                 }
 
-                Model::BrushFace* face = Model::hitToFace(hit);
+                const Model::BrushFace* face = Model::hitToFace(hit);
                 const Grid& grid = m_tool->grid();
                 position = grid.snap(hit.hitPoint(), face->boundary());
                 return true;

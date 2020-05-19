@@ -478,8 +478,8 @@ namespace TrenchBroom {
             }
         }
 
-        std::vector<BrushFace*> Brush::incidentFaces(const BrushVertex* vertex) const {
-            std::vector<BrushFace*> result;
+        std::vector<const BrushFace*> Brush::incidentFaces(const BrushVertex* vertex) const {
+            std::vector<const BrushFace*> result;
             result.reserve(m_faces.size());
 
             auto* first = vertex->leaving();

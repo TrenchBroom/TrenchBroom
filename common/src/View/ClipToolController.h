@@ -129,8 +129,8 @@ namespace TrenchBroom {
 
         class ClipToolController3D : public ClipToolController {
         private:
-            static std::vector<vm::vec3> selectHelpVectors(Model::BrushNode* brushNode, Model::BrushFace* face, const vm::vec3& hitPoint);
-            static std::vector<Model::BrushFace*> selectIncidentFaces(Model::BrushNode* brushNode, Model::BrushFace* face, const vm::vec3& hitPoint);
+            static std::vector<vm::vec3> selectHelpVectors(const Model::BrushNode* brushNode, const Model::BrushFace* face, const vm::vec3& hitPoint);
+            static std::vector<const Model::BrushFace*> selectIncidentFaces(const Model::BrushNode* brushNode, const Model::BrushFace* face, const vm::vec3& hitPoint);
         private:
             class Callback3D;
         public:

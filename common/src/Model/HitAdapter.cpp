@@ -73,7 +73,7 @@ namespace TrenchBroom {
             }
         }
 
-        BrushFace* hitToFace(const Hit& hit) {
+        const BrushFace* hitToFace(const Hit& hit) {
             if (hit.type() == BrushNode::BrushHitType) {
                 return hit.target<BrushFaceHandle>().face();
             } else {
