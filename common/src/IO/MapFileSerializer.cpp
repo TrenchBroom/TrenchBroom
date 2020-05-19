@@ -256,7 +256,7 @@ namespace TrenchBroom {
             ++m_line;
         }
 
-        void MapFileSerializer::doEndEntity(Model::Node* node) {
+        void MapFileSerializer::doEndEntity(const Model::Node* node) {
             std::fprintf(m_stream, "}\n");
             ++m_line;
             setFilePosition(node);
@@ -277,7 +277,7 @@ namespace TrenchBroom {
             ++m_line;
         }
 
-        void MapFileSerializer::doEndBrush(Model::BrushNode* brush) {
+        void MapFileSerializer::doEndBrush(const Model::BrushNode* brush) {
             std::fprintf(m_stream, "}\n");
             ++m_line;
             setFilePosition(brush);
@@ -289,7 +289,7 @@ namespace TrenchBroom {
             m_line += lines;
         }
 
-        void MapFileSerializer::setFilePosition(Model::Node* node) {
+        void MapFileSerializer::setFilePosition(const Model::Node* node) {
             const size_t start = startLine();
             node->setFilePosition(start, m_line - start);
         }
