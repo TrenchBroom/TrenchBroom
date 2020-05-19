@@ -201,7 +201,7 @@ namespace TrenchBroom {
         m_geometry(other.m_geometry),
         m_transparent(other.m_transparent) {
             other.m_geometry = nullptr;
-            
+
             for (auto* face : m_faces) {
                 face->setBrush(this);
             }
@@ -218,13 +218,13 @@ namespace TrenchBroom {
             swap(lhs.m_faces, rhs.m_faces);
             swap(lhs.m_geometry, rhs.m_geometry);
             swap(lhs.m_transparent, rhs.m_transparent);
-            
+
             const auto resetFaces = [](Brush& brush) {
                 for (auto* face : brush.m_faces) {
                     face->setBrush(&brush);
                 }
             };
-            
+
             resetFaces(lhs);
             resetFaces(rhs);
         }
@@ -302,16 +302,6 @@ namespace TrenchBroom {
             return m_faces;
         }
 
-        void Brush::setFaces(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) {
-            deleteGeometry();
-
-            detachFaces(m_faces);
-            kdl::vec_clear_and_delete(m_faces);
-            addFaces(faces);
-
-            buildGeometry(worldBounds);
-        }
-
         bool Brush::closed() const {
             ensure(m_geometry != nullptr, "geometry is null");
             return m_geometry->closed();
@@ -346,30 +336,6 @@ namespace TrenchBroom {
 
             m_faces.push_back(face);
             face->setBrush(this);
-        }
-
-        std::vector<BrushFace*>::iterator Brush::doRemoveFace(std::vector<BrushFace*>::iterator begin, std::vector<BrushFace*>::iterator end, BrushFace* face) {
-            ensure(face != nullptr, "face is null");
-
-            std::vector<BrushFace*>::iterator it = std::remove(begin, end, face);
-            ensure(it != std::end(m_faces), "face to remove not found");
-            detachFace(face);
-            return it;
-        }
-
-        void Brush::detachFaces(const std::vector<BrushFace*>& faces) {
-            for (auto* face : faces) {
-                detachFace(face);
-            }
-        }
-
-        void Brush::detachFace(BrushFace* face) {
-            ensure(face != nullptr, "face is null");
-            ensure(face->brush() == this, "invalid face brush");
-
-            face->setGeometry(nullptr);
-            face->setBrush(nullptr);
-            m_node->invalidateVertexCache();
         }
 
         void Brush::cloneFaceAttributesFrom(const Brush& brush) {
