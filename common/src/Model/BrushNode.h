@@ -81,12 +81,6 @@ namespace TrenchBroom {
             void cloneInvertedFaceAttributesFrom(const BrushNode* brush);
         public:
             // geometry access
-
-            bool hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            bool hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& p4, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            bool hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& p4, const vm::vec3& p5, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-
-            size_t edgeCount() const;
             const EdgeList& edges() const;
             bool containsPoint(const vm::vec3& point) const;
 

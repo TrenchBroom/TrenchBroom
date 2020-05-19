@@ -696,15 +696,15 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p7, p9)));
 
 
-            ASSERT_TRUE(brush.hasFace(p1, p5, p6, p2));
-            ASSERT_TRUE(brush.hasFace(p1, p2, p4, p3));
-            ASSERT_TRUE(brush.hasFace(p1, p3, p7, p5));
-            ASSERT_TRUE(brush.hasFace(p2, p6, p4));
-            ASSERT_TRUE(brush.hasFace(p5, p7, p6));
-            ASSERT_TRUE(brush.hasFace(p3, p4, p7));
-            ASSERT_TRUE(brush.hasFace(p9, p6, p7));
-            ASSERT_TRUE(brush.hasFace(p9, p4, p6));
-            ASSERT_TRUE(brush.hasFace(p9, p7, p4));
+            ASSERT_TRUE(brush.hasFace({p1, p5, p6, p2}));
+            ASSERT_TRUE(brush.hasFace({p1, p2, p4, p3}));
+            ASSERT_TRUE(brush.hasFace({p1, p3, p7, p5}));
+            ASSERT_TRUE(brush.hasFace({p2, p6, p4}));
+            ASSERT_TRUE(brush.hasFace({p5, p7, p6}));
+            ASSERT_TRUE(brush.hasFace({p3, p4, p7}));
+            ASSERT_TRUE(brush.hasFace({p9, p6, p7}));
+            ASSERT_TRUE(brush.hasFace({p9, p4, p6}));
+            ASSERT_TRUE(brush.hasFace({p9, p7, p4}));
         }
 
         TEST_CASE("BrushTest.moveVertexOutwardWithoutMerges", "[BrushTest]") {
@@ -767,15 +767,15 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p9)));
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p7, p9)));
 
-            ASSERT_TRUE(brush.hasFace(p1, p5, p6, p2));
-            ASSERT_TRUE(brush.hasFace(p1, p2, p4, p3));
-            ASSERT_TRUE(brush.hasFace(p1, p3, p7, p5));
-            ASSERT_TRUE(brush.hasFace(p2, p6, p9));
-            ASSERT_TRUE(brush.hasFace(p2, p9, p4));
-            ASSERT_TRUE(brush.hasFace(p3, p4, p9));
-            ASSERT_TRUE(brush.hasFace(p3, p9, p7));
-            ASSERT_TRUE(brush.hasFace(p5, p9, p6));
-            ASSERT_TRUE(brush.hasFace(p5, p7, p9));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p9})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p9, p4})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p9})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p9, p7})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p9, p6})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p9})));
         }
 
         TEST_CASE("BrushTest.moveVertexWithOneOuterNeighbourMerge", "[BrushTest]") {
@@ -837,14 +837,14 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p9)));
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p7, p9)));
 
-            ASSERT_TRUE(brush.hasFace(p1, p5, p6, p2));
-            ASSERT_TRUE(brush.hasFace(p1, p2, p4, p3));
-            ASSERT_TRUE(brush.hasFace(p1, p3, p7, p5));
-            ASSERT_TRUE(brush.hasFace(p2, p6, p9, p4));
-            ASSERT_TRUE(brush.hasFace(p5, p7, p6));
-            ASSERT_TRUE(brush.hasFace(p3, p4, p7));
-            ASSERT_TRUE(brush.hasFace(p9, p6, p7));
-            ASSERT_TRUE(brush.hasFace(p9, p7, p4));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p9, p4})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p6})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p7})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p9, p6, p7})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p9, p7, p4})));
         }
 
         TEST_CASE("BrushTest.moveVertexWithTwoOuterNeighbourMerges", "[BrushTest]") {
@@ -905,13 +905,13 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p9)));
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p7, p9)));
 
-            ASSERT_TRUE(brush.hasFace(p1, p5, p6, p2));
-            ASSERT_TRUE(brush.hasFace(p1, p2, p4, p3));
-            ASSERT_TRUE(brush.hasFace(p1, p3, p7, p5));
-            ASSERT_TRUE(brush.hasFace(p5, p7, p9, p6));
-            ASSERT_TRUE(brush.hasFace(p3, p4, p9, p7));
-            ASSERT_TRUE(brush.hasFace(p2, p6, p4));
-            ASSERT_TRUE(brush.hasFace(p9, p4, p6));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p9, p6})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p9, p7})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p4})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p9, p4, p6})));
         }
 
         TEST_CASE("BrushTest.moveVertexWithAllOuterNeighbourMerges", "[BrushTest]") {
@@ -971,12 +971,12 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p9)));
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p7, p9)));
 
-            ASSERT_TRUE(brush.hasFace(p1, p5, p6, p2));
-            ASSERT_TRUE(brush.hasFace(p1, p2, p4, p3));
-            ASSERT_TRUE(brush.hasFace(p1, p3, p7, p5));
-            ASSERT_TRUE(brush.hasFace(p2, p6, p9, p4));
-            ASSERT_TRUE(brush.hasFace(p3, p4, p9, p7));
-            ASSERT_TRUE(brush.hasFace(p5, p7, p9, p6));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p9, p4})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p9, p7})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p9, p6})));
         }
 
         TEST_CASE("BrushTest.moveVertexWithAllInnerNeighbourMerge", "[BrushTest]") {
@@ -1034,13 +1034,13 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p7)));
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p7)));
 
-            ASSERT_TRUE(brush.hasFace(p1, p5, p6, p2));
-            ASSERT_TRUE(brush.hasFace(p1, p2, p4, p3));
-            ASSERT_TRUE(brush.hasFace(p1, p3, p7, p5));
-            ASSERT_TRUE(brush.hasFace(p2, p6, p4));
-            ASSERT_TRUE(brush.hasFace(p3, p4, p7));
-            ASSERT_TRUE(brush.hasFace(p5, p7, p6));
-            ASSERT_TRUE(brush.hasFace(p4, p6, p7));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p4})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p7})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p6})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p4, p6, p7})));
         }
 
         TEST_CASE("BrushTest.moveVertexUpThroughPlane", "[BrushTest]") {
@@ -1101,13 +1101,13 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p9)));
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p7, p9)));
 
-            ASSERT_TRUE(brush.hasFace(p1, p5, p6, p2));
-            ASSERT_TRUE(brush.hasFace(p1, p2, p4, p3));
-            ASSERT_TRUE(brush.hasFace(p1, p3, p7, p5));
-            ASSERT_TRUE(brush.hasFace(p3, p4, p9, p7));
-            ASSERT_TRUE(brush.hasFace(p5, p7, p9, p6));
-            ASSERT_TRUE(brush.hasFace(p2, p9, p4));
-            ASSERT_TRUE(brush.hasFace(p2, p6, p9));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p9, p7})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p9, p6})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p9, p4})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p9})));
         }
 
         TEST_CASE("BrushTest.moveVertexOntoEdge", "[BrushTest]") {
@@ -1165,13 +1165,13 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p7)));
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p7)));
 
-            ASSERT_TRUE(brush.hasFace(p1, p5, p6, p2));
-            ASSERT_TRUE(brush.hasFace(p1, p2, p4, p3));
-            ASSERT_TRUE(brush.hasFace(p1, p3, p7, p5));
-            ASSERT_TRUE(brush.hasFace(p2, p6, p4));
-            ASSERT_TRUE(brush.hasFace(p3, p4, p7));
-            ASSERT_TRUE(brush.hasFace(p5, p7, p6));
-            ASSERT_TRUE(brush.hasFace(p4, p6, p7));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p4})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p7})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p6})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p4, p6, p7})));
         }
 
         TEST_CASE("BrushTest.moveVertexOntoIncidentVertex", "[BrushTest]") {
@@ -1229,13 +1229,13 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p7)));
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p7)));
 
-            ASSERT_TRUE(brush.hasFace(p1, p5, p6, p2));
-            ASSERT_TRUE(brush.hasFace(p1, p2, p4, p3));
-            ASSERT_TRUE(brush.hasFace(p1, p3, p7, p5));
-            ASSERT_TRUE(brush.hasFace(p2, p6, p4));
-            ASSERT_TRUE(brush.hasFace(p3, p4, p7));
-            ASSERT_TRUE(brush.hasFace(p5, p7, p6));
-            ASSERT_TRUE(brush.hasFace(p4, p6, p7));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p4})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p7})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p6})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p4, p6, p7})));
         }
 
         TEST_CASE("BrushTest.moveVertexOntoIncidentVertexInOppositeDirection", "[BrushTest]") {
@@ -1293,13 +1293,13 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p8)));
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p8)));
 
-            ASSERT_TRUE(brush.hasFace(p1, p5, p6, p2));
-            ASSERT_TRUE(brush.hasFace(p1, p2, p4, p3));
-            ASSERT_TRUE(brush.hasFace(p2, p6, p8, p4));
-            ASSERT_TRUE(brush.hasFace(p1, p3, p5));
-            ASSERT_TRUE(brush.hasFace(p3, p4, p8));
-            ASSERT_TRUE(brush.hasFace(p5, p8, p6));
-            ASSERT_TRUE(brush.hasFace(p3, p8, p5));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p8, p4})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p5})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p8})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p8, p6})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p8, p5})));
         }
 
         TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithoutDeletingVertex", "[BrushTest]") {
@@ -1358,13 +1358,13 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p9)));
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p7, p9)));
 
-            ASSERT_TRUE(brush.hasFace(p1, p2, p4, p3));
-            ASSERT_TRUE(brush.hasFace(p1, p3, p7, p5));
-            ASSERT_TRUE(brush.hasFace(p3, p4, p9, p7));
-            ASSERT_TRUE(brush.hasFace(p1, p5, p2));
-            ASSERT_TRUE(brush.hasFace(p2, p5, p9));
-            ASSERT_TRUE(brush.hasFace(p2, p9, p4));
-            ASSERT_TRUE(brush.hasFace(p5, p7, p9));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p9, p7})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p2})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p5, p9})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p9, p4})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p9})));
         }
 
         TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithoutDeletingVertex2", "[BrushTest]") {
@@ -1423,13 +1423,13 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p5, p9)));
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p7, p9)));
 
-            ASSERT_TRUE(brush.hasFace(p1, p2, p4, p3));
-            ASSERT_TRUE(brush.hasFace(p1, p3, p7, p5));
-            ASSERT_TRUE(brush.hasFace(p1, p5, p9, p2));
-            ASSERT_TRUE(brush.hasFace(p2, p9, p4));
-            ASSERT_TRUE(brush.hasFace(p3, p4, p7));
-            ASSERT_TRUE(brush.hasFace(p4, p9, p7));
-            ASSERT_TRUE(brush.hasFace(p5, p7, p9));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p9, p2})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p9, p4})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p7})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p4, p9, p7})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p9})));
         }
 
         TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithDeletingVertex", "[BrushTest]") {
@@ -1490,12 +1490,12 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p6, p8)));
             ASSERT_TRUE(brush.hasEdge(vm::segment3d(p7, p8)));
 
-            ASSERT_TRUE(brush.hasFace(p1, p2, p4, p3));
-            ASSERT_TRUE(brush.hasFace(p1, p3, p7, p5));
-            ASSERT_TRUE(brush.hasFace(p1, p5, p6, p2));
-            ASSERT_TRUE(brush.hasFace(p2, p6, p8, p4));
-            ASSERT_TRUE(brush.hasFace(p3, p4, p8, p7));
-            ASSERT_TRUE(brush.hasFace(p5, p7, p8, p6));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p2, p4, p3})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p3, p7, p5})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p1, p5, p6, p2})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p2, p6, p8, p4})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p3, p4, p8, p7})));
+            ASSERT_TRUE(brush.hasFace(vm::polygon3d({p5, p7, p8, p6})));
         }
         
         TEST_CASE("BrushTest.moveVerticesPastWorldBounds", "[BrushTest]") {
