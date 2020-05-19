@@ -267,7 +267,7 @@ namespace TrenchBroom {
              * it's a list of the contained brushes (excluding the Entity itself).
              */
             virtual std::vector<Node*> nodesRequiredForViewSelection();
-        public: // TODO: reduce visiblity to private when Brush no longer needs to call this
+        private:
             void incChildSelectionCount(size_t delta);
             void decChildSelectionCount(size_t delta);
         private:
