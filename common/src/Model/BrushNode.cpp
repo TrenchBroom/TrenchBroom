@@ -125,10 +125,6 @@ namespace TrenchBroom {
             return new BrushFaceSnapshot(this, face);
         }
 
-        bool BrushNode::canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const {
-            return m_brush.canTransform(transformation, worldBounds);
-        }
-
         void BrushNode::findIntegerPlanePoints(const vm::bbox3& worldBounds) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);

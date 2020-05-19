@@ -434,7 +434,10 @@ namespace TrenchBroom {
             void doVisit(const Model::LayerNode*) override  { setResult(true); }
             void doVisit(const Model::GroupNode*) override  { setResult(true); }
             void doVisit(const Model::EntityNode*) override { setResult(true); }
-            void doVisit(const Model::BrushNode* brush) override { setResult(brush->canTransform(m_transform, m_worldBounds)); }
+            void doVisit(const Model::BrushNode* brushNode) override {
+                const Model::Brush& brush = brushNode->brush();
+                setResult(brush.canTransform(m_transform, m_worldBounds));
+            }
             bool doCombineResults(const bool oldResult, const bool newResult) const override {
                 return newResult && oldResult;
             }
