@@ -68,8 +68,16 @@ namespace TrenchBroom {
             return m_context.visible(brush, face);
         }
 
-        bool BrushRenderer::DefaultFilter::visible(const Model::BrushNode* brush, const Model::BrushEdge* edge) const {
-            return m_context.visible(brush, edge->firstFace()->payload()) || m_context.visible(brush, edge->secondFace()->payload());
+        bool BrushRenderer::DefaultFilter::visible(const Model::BrushNode* brushNode, const Model::BrushEdge* edge) const {
+            const Model::Brush& brush = brushNode->brush();
+            const auto firstFaceIndex = edge->firstFace()->payload();
+            const auto secondFaceIndex = edge->secondFace()->payload();
+            assert(firstFaceIndex && secondFaceIndex);
+            
+            const Model::BrushFace* firstFace = brush.face(*firstFaceIndex);
+            const Model::BrushFace* secondFace = brush.face(*secondFaceIndex);
+            
+            return m_context.visible(brushNode, firstFace) || m_context.visible(brushNode, secondFace);
         }
 
         bool BrushRenderer::DefaultFilter::editable(const Model::BrushNode* brush) const {
@@ -88,10 +96,16 @@ namespace TrenchBroom {
             return face->selected();
         }
 
-        bool BrushRenderer::DefaultFilter::selected(const Model::BrushNode* brush, const Model::BrushEdge* edge) const {
-            const Model::BrushFace* first = edge->firstFace()->payload();
-            const Model::BrushFace* second = edge->secondFace()->payload();
-            return selected(brush) || selected(brush, first) || selected(brush, second);
+        bool BrushRenderer::DefaultFilter::selected(const Model::BrushNode* brushNode, const Model::BrushEdge* edge) const {
+            const Model::Brush& brush = brushNode->brush();
+            const auto firstFaceIndex = edge->firstFace()->payload();
+            const auto secondFaceIndex = edge->secondFace()->payload();
+            assert(firstFaceIndex && secondFaceIndex);
+            
+            const Model::BrushFace* firstFace = brush.face(*firstFaceIndex);
+            const Model::BrushFace* secondFace = brush.face(*secondFaceIndex);
+
+            return selected(brushNode) || selected(brushNode, firstFace) || selected(brushNode, secondFace);
         }
 
         bool BrushRenderer::DefaultFilter::hasSelectedFaces(const Model::BrushNode* brush) const {

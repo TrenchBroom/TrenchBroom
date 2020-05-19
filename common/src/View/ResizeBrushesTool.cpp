@@ -119,13 +119,17 @@ namespace TrenchBroom {
             }
 
             void visitEdge(Model::BrushNode* node, const Model::BrushEdge* edge) {
-                auto* leftFace = edge->firstFace()->payload();
-                auto* rightFace = edge->secondFace()->payload();
+                const auto leftFaceIndex = edge->firstFace()->payload();
+                const auto rightFaceIndex = edge->secondFace()->payload();
+                assert(leftFaceIndex && rightFaceIndex);
+                
+                const auto* leftFace = node->brush().face(*leftFaceIndex);
+                const auto* rightFace = node->brush().face(*rightFaceIndex);
                 const auto leftDot  = dot(leftFace->boundary().normal,  m_pickRay.direction);
                 const auto rightDot = dot(rightFace->boundary().normal, m_pickRay.direction);
 
-                const auto leftFaceHandle = Model::BrushFaceHandle(node, *node->brush().findFace(leftFace));
-                const auto rightFaceHandle = Model::BrushFaceHandle(node, *node->brush().findFace(rightFace));
+                const auto leftFaceHandle = Model::BrushFaceHandle(node, *leftFaceIndex);
+                const auto rightFaceHandle = Model::BrushFaceHandle(node, *rightFaceIndex);
                 
                 if ((leftDot > 0.0) != (rightDot > 0.0)) {
                     const auto result = vm::distance(m_pickRay, vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));

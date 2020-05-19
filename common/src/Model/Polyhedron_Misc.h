@@ -81,10 +81,10 @@ namespace TrenchBroom {
         Polyhedron<T,FP,VP>::CopyCallback::~CopyCallback() = default;
 
         template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::CopyCallback::vertexWasCopied(const Vertex* /* original */, Vertex* /* copy */) {}
+        void Polyhedron<T,FP,VP>::CopyCallback::vertexWasCopied(const Vertex* /* original */, Vertex* /* copy */) const {}
 
         template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::CopyCallback::faceWasCopied(const Face* /* original */, Face* /* copy */) {}
+        void Polyhedron<T,FP,VP>::CopyCallback::faceWasCopied(const Face* /* original */, Face* /* copy */) const {}
 
         template <typename T, typename FP, typename VP>
         Polyhedron<T,FP,VP>::Polyhedron() {
@@ -226,12 +226,11 @@ namespace TrenchBroom {
 
         template <typename T, typename FP, typename VP>
         Polyhedron<T,FP,VP>::Polyhedron(const Polyhedron<T,FP,VP>& other) {
-            CopyCallback callback;
-            Copy copy(other.faces(), other.edges(), other.vertices(), *this, callback);
+            Copy copy(other.faces(), other.edges(), other.vertices(), *this, CopyCallback());
         }
 
         template <typename T, typename FP, typename VP>
-        Polyhedron<T,FP,VP>::Polyhedron(const Polyhedron<T,FP,VP>& other, CopyCallback& callback) {
+        Polyhedron<T,FP,VP>::Polyhedron(const Polyhedron<T,FP,VP>& other, const CopyCallback& callback) {
             Copy copy(other.faces(), other.edges(), other.vertices(), *this, callback);
         }
 
@@ -304,7 +303,7 @@ namespace TrenchBroom {
              * @param destination the destination polyhedron that will become a copy
              * @param callback the callback to call for every created face or vertex             *
              */
-            Copy(const FaceList& originalFaces, const EdgeList& originalEdges, const VertexList& originalVertices, Polyhedron& destination, CopyCallback& callback) :
+            Copy(const FaceList& originalFaces, const EdgeList& originalEdges, const VertexList& originalVertices, Polyhedron& destination, const CopyCallback& callback) :
                 m_destination(destination) {
                 copyVertices(originalVertices, callback);
                 copyFaces(originalFaces, callback);
@@ -312,7 +311,7 @@ namespace TrenchBroom {
                 swapContents();
             }
         private:
-            void copyVertices(const VertexList& originalVertices, CopyCallback& callback) {
+            void copyVertices(const VertexList& originalVertices, const CopyCallback& callback) {
                 for (const Vertex* currentVertex : originalVertices) {
                     Vertex* copy = new Vertex(currentVertex->position());
                     callback.vertexWasCopied(currentVertex, copy);
@@ -323,13 +322,13 @@ namespace TrenchBroom {
                 }
             }
 
-            void copyFaces(const FaceList& originalFaces, CopyCallback& callback) {
+            void copyFaces(const FaceList& originalFaces, const CopyCallback& callback) {
                 for (const Face* currentFace : originalFaces) {
                     copyFace(currentFace, callback);
                 }
             }
 
-            void copyFace(const Face* originalFace, CopyCallback& callback) {
+            void copyFace(const Face* originalFace, const CopyCallback& callback) {
                 HalfEdgeList myBoundary;
 
                 for (const HalfEdge* currentHalfEdge : originalFace->boundary()) {
@@ -475,6 +474,11 @@ namespace TrenchBroom {
 
         template <typename T, typename FP, typename VP>
         const typename Polyhedron<T,FP,VP>::FaceList& Polyhedron<T,FP,VP>::faces() const {
+            return m_faces;
+        }
+
+        template <typename T, typename FP, typename VP>
+        typename Polyhedron<T,FP,VP>::FaceList& Polyhedron<T,FP,VP>::faces() {
             return m_faces;
         }
 

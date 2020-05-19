@@ -38,15 +38,13 @@ namespace TrenchBroom {
 
         class Brush {
         private:
-            class AddFaceToGeometryCallback;
-            class HealEdgesCallback;
-            class AddFacesToGeometry;
+            class AddFaceCallback;
             class CopyCallback;
         public:
             using VertexList = BrushVertexList;
             using EdgeList = BrushEdgeList;
         private:
-            std::vector<BrushFace*> m_faces;
+            std::vector<BrushFace> m_faces;
             std::unique_ptr<BrushGeometry> m_geometry;
 
             mutable bool m_transparent;
@@ -64,10 +62,7 @@ namespace TrenchBroom {
         private:
             void cleanup();
         private:
-            void updateFacesFromGeometry(const vm::bbox3& worldBounds, const BrushGeometry& geometry);
             void updateGeometryFromFaces(const vm::bbox3& worldBounds);
-            void deleteGeometry();
-            void buildGeometry(const vm::bbox3& worldBounds);
         public:
             const vm::bbox3& bounds() const;
         public: // face management:
@@ -76,7 +71,6 @@ namespace TrenchBroom {
             std::optional<size_t> findFace(const vm::plane3& boundary) const;
             std::optional<size_t> findFace(const vm::polygon3& vertices, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             std::optional<size_t> findFace(const std::vector<vm::polygon3>& candidates, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            std::optional<size_t> findFace(const BrushFace* face) const;
 
             const BrushFace* face(size_t index) const;
             BrushFace* face(size_t index);
@@ -86,17 +80,6 @@ namespace TrenchBroom {
 
             bool closed() const;
             bool fullySpecified() const;
-        private:
-            void addFaces(const std::vector<BrushFace*>& faces);
-            template <typename I>
-            void addFaces(I cur, I end, size_t count) {
-                m_faces.reserve(m_faces.size() + count);
-                while (cur != end) {
-                    addFace(*cur);
-                    ++cur;
-                }
-            }
-            void addFace(BrushFace* face);
         public: // clone face attributes from matching faces of other brushes
             void cloneFaceAttributesFrom(const Brush& brush);
             void cloneInvertedFaceAttributesFrom(const Brush& brush);
@@ -186,10 +169,10 @@ namespace TrenchBroom {
              * This is only meant to be called in the matcher callback in Brush::doSetNewGeometry
              *
              * @param matcher a polyhedron matcher which is used to identify related vertices
-             * @param left the face of the left polyhedron
-             * @param right the face of the right polyhedron
+             * @param leftFace the face of the left polyhedron
+             * @param rightFace the face of the right polyhedron
              */
-            void applyUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right);
+            void applyUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, const BrushFace& leftFace, BrushFace& rightFace);
             void doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, bool uvLock = false);
         public:
             // CSG operations
@@ -227,6 +210,8 @@ namespace TrenchBroom {
             Brush createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<const Brush*>& subtrahends) const;
         public:
             void findIntegerPlanePoints(const vm::bbox3& worldBounds);
+        private:
+            bool checkFaceLinks() const;
         };
     }
 }

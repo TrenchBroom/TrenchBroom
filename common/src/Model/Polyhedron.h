@@ -1109,7 +1109,7 @@ namespace TrenchBroom {
                  * @param original the original vertex
                  * @param copy the vertex copy
                  */
-                virtual void vertexWasCopied(const Vertex* original, Vertex* copy);
+                virtual void vertexWasCopied(const Vertex* original, Vertex* copy) const;
                 
                 /**
                  * Called when a face was copied.
@@ -1117,7 +1117,7 @@ namespace TrenchBroom {
                  * @param original the original face
                  * @param copy the face copy
                  */
-                virtual void faceWasCopied(const Face* original, Face* copy);
+                virtual void faceWasCopied(const Face* original, Face* copy) const;
             };
         private:
             /**
@@ -1176,7 +1176,7 @@ namespace TrenchBroom {
              *
              * @param callback the callback to call for every created face or vertex
              */
-            Polyhedron(const Polyhedron<T,FP,VP>& other, CopyCallback& callback);
+            Polyhedron(const Polyhedron<T,FP,VP>& other, const CopyCallback& callback);
 
             /**
              * Move constructor.
@@ -1266,6 +1266,11 @@ namespace TrenchBroom {
              * Returns the faces of this polyhedron as a reference to the containing circular list.
              */
             const FaceList& faces() const;
+
+            /**
+             * Returns the faces of this polyhedron as a reference to the containing circular list.
+             */
+            FaceList& faces();
 
             /**
              * Checks whether this polyhedron has any face with the given vertex positions, up to the given epsilon.
