@@ -42,14 +42,13 @@ namespace TrenchBroom {
 
             const auto topFaceIndex = brushNode->brush().findFace(vm::vec3::pos_z());
             REQUIRE(topFaceIndex);
-            Model::BrushFace* topFace = brushNode->brush().face(*topFaceIndex);
 
             // select the top face
-            document->select({ brushNode, topFace });
-            ASSERT_EQ(std::vector<Model::BrushFaceHandle>({{ brushNode, topFace }}), document->selectedBrushFaces());
+            document->select({ brushNode, *topFaceIndex });
+            ASSERT_EQ(std::vector<Model::BrushFaceHandle>({{ brushNode, *topFaceIndex }}), document->selectedBrushFaces());
 
             // deselect it
-            document->deselect({ brushNode, topFace });
+            document->deselect({ brushNode, *topFaceIndex });
             ASSERT_EQ(std::vector<Model::BrushFaceHandle>({}), document->selectedBrushFaces());
 
             // select the brush
@@ -72,7 +71,7 @@ namespace TrenchBroom {
             ASSERT_EQ(std::vector<Model::BrushFaceHandle>({}), document->selectedBrushFaces());
 
             document->undoCommand();
-            ASSERT_EQ(std::vector<Model::BrushFaceHandle>({{ brushNode, brushNode->brush().face(*topFaceIndex) }}), document->selectedBrushFaces());
+            ASSERT_EQ(std::vector<Model::BrushFaceHandle>({{ brushNode, *topFaceIndex}}), document->selectedBrushFaces());
         }
     }
 }

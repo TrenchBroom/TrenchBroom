@@ -89,10 +89,8 @@ namespace TrenchBroom {
         Model::Hit ResizeBrushesTool::pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
             auto document = kdl::mem_lock(m_document);
             const auto& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().selected().first();
-            if (hit.isMatch()) {
-                auto* face = Model::hitToFace(hit);
-                auto* node = Model::hitToBrush(hit);
-                return Model::Hit(Resize3DHitType, hit.distance(), hit.hitPoint(), Model::BrushFaceHandle(node, face));
+            if (const auto faceHandle = hitToFaceHandle(hit)) {
+                return Model::Hit(Resize3DHitType, hit.distance(), hit.hitPoint(), *faceHandle);
             } else {
                 return pickProximateFace(Resize3DHitType, pickRay);
             }
@@ -121,11 +119,14 @@ namespace TrenchBroom {
             }
 
             void visitEdge(Model::BrushNode* node, const Model::BrushEdge* edge) {
-                auto* left = edge->firstFace()->payload();
-                auto* right = edge->secondFace()->payload();
-                const auto leftDot  = dot(left->boundary().normal,  m_pickRay.direction);
-                const auto rightDot = dot(right->boundary().normal, m_pickRay.direction);
+                auto* leftFace = edge->firstFace()->payload();
+                auto* rightFace = edge->secondFace()->payload();
+                const auto leftDot  = dot(leftFace->boundary().normal,  m_pickRay.direction);
+                const auto rightDot = dot(rightFace->boundary().normal, m_pickRay.direction);
 
+                const auto leftFaceHandle = Model::BrushFaceHandle(node, *node->brush().findFace(leftFace));
+                const auto rightFaceHandle = Model::BrushFaceHandle(node, *node->brush().findFace(rightFace));
+                
                 if ((leftDot > 0.0) != (rightDot > 0.0)) {
                     const auto result = vm::distance(m_pickRay, vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
                     if (!vm::is_nan(result.distance) && result.distance < m_closest) {
@@ -134,21 +135,21 @@ namespace TrenchBroom {
                         if (m_hitType == ResizeBrushesTool::Resize2DHitType) {
                             Resize2DHitData data;
                             if (vm::is_zero(leftDot, vm::C::almost_zero())) {
-                                data.push_back(Model::BrushFaceHandle(node, left));
+                                data.push_back(leftFaceHandle);
                             } else if (vm::is_zero(rightDot, vm::C::almost_zero())) {
-                                data.push_back(Model::BrushFaceHandle(node, right));
+                                data.push_back(rightFaceHandle);
                             } else {
                                 if (vm::abs(leftDot) < 1.0) {
-                                    data.push_back(Model::BrushFaceHandle(node, left));
+                                    data.push_back(leftFaceHandle);
                                 }
                                 if (vm::abs(rightDot) < 1.0) {
-                                    data.push_back(Model::BrushFaceHandle(node, right));
+                                    data.push_back(rightFaceHandle);
                                 }
                             }
                             setResult(Model::Hit(m_hitType, result.position1, hitPoint, data));
                         } else {
-                            Model::BrushFace* face = leftDot > rightDot ? left : right;
-                            setResult(Model::Hit(m_hitType, result.position1, hitPoint, Model::BrushFaceHandle(node, face)));
+                            const auto faceHandle = leftDot > rightDot ? leftFaceHandle : rightFaceHandle;
+                            setResult(Model::Hit(m_hitType, result.position1, hitPoint, faceHandle));
                         }
                     }
                 }
@@ -181,7 +182,7 @@ namespace TrenchBroom {
                 const auto& brush = brushNode->brush();
                 const auto faceIndex = brush.findFace(normal);
                 assert(faceIndex);
-                return Model::BrushFaceHandle(brushNode, brush.face(*faceIndex));
+                return Model::BrushFaceHandle(brushNode, *faceIndex);
             });
         }
 
@@ -213,7 +214,7 @@ namespace TrenchBroom {
                 ensure(m_reference != nullptr, "reference is null");
             }
 
-            bool operator()(const Model::BrushNode*, Model::BrushFace* face) const {
+            bool operator()(const Model::BrushNode*, const Model::BrushFace* face) const {
                 return face != m_reference && vm::is_equal(face->boundary(), m_reference->boundary(),
                     vm::C::almost_zero());
             }

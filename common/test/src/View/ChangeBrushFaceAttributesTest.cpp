@@ -45,11 +45,12 @@ namespace TrenchBroom {
             Model::BrushNode* brushNode = createBrushNode();
             document->addNode(brushNode, document->currentParent());
 
-            Model::BrushFace* face = brushNode->brush().faces().front();
+            const size_t faceIndex = 0u;
+            const Model::BrushFace* face = brushNode->brush().face(faceIndex);
             const vm::vec3 initialX = face->textureXAxis();
             const vm::vec3 initialY = face->textureYAxis();
 
-            document->select(Model::BrushFaceHandle(brushNode, face));
+            document->select(Model::BrushFaceHandle(brushNode, faceIndex));
 
             const Model::BrushFaceAttributes originalAttribs = face->attributes();
             Model::ChangeBrushFaceAttributesRequest rotate;

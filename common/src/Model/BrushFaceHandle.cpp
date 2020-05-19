@@ -27,12 +27,11 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 namespace TrenchBroom {
     namespace Model {
-        BrushFaceHandle::BrushFaceHandle(BrushNode* node, BrushFace* face) :
+        BrushFaceHandle::BrushFaceHandle(BrushNode* node, const size_t faceIndex) :
         m_node(node),
-        m_face(face) {
+        m_faceIndex(faceIndex) {
             assert(m_node != nullptr);
-            assert(m_face != nullptr);
-            ensure(kdl::vec_contains(m_node->brush().faces(), face), "face must belong to node");
+            ensure(m_faceIndex < m_node->brush().faceCount(), "face index must be valid");
         }
 
         BrushNode* BrushFaceHandle::node() const {
@@ -40,11 +39,11 @@ namespace TrenchBroom {
         }
 
         BrushFace* BrushFaceHandle::face() const {
-            return m_face;
+            return m_node->brush().face(m_faceIndex);
         }
 
         bool operator==(const BrushFaceHandle& lhs, const BrushFaceHandle& rhs) {
-            return lhs.m_node == rhs.m_node && lhs.m_face == rhs.m_face;
+            return lhs.m_node == rhs.m_node && lhs.m_faceIndex == rhs.m_faceIndex;
         }
 
         std::vector<BrushFace*> toFaces(const std::vector<BrushFaceHandle>& handles) {
@@ -52,7 +51,12 @@ namespace TrenchBroom {
         }
 
         std::vector<BrushFaceHandle> toHandles(BrushNode* brushNode) {
-            return kdl::vec_transform(brushNode->brush().faces(), [&](auto* face) { return BrushFaceHandle(brushNode, face); });
+            std::vector<BrushFaceHandle> result;
+            result.reserve(brushNode->brush().faceCount());
+            for (size_t i = 0u; i < brushNode->brush().faceCount(); ++i) {
+                result.emplace_back(brushNode, i);
+            }
+            return result;
         }
     }
 }

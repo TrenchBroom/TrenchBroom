@@ -113,6 +113,10 @@ namespace TrenchBroom {
 
         BrushFaceIssue::~BrushFaceIssue() = default;
 
+        size_t BrushFaceIssue::faceIndex() const {
+            return m_faceIndex;
+        }
+
         BrushFace* BrushFaceIssue::face() const {
             const BrushNode* brushNode = static_cast<const BrushNode*>(node());
             const Brush& brush = brushNode->brush();

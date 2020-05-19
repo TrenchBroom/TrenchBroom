@@ -66,8 +66,8 @@ namespace TrenchBroom {
                 for (const auto* issue : issues) {
                     if (issue->type() == InvalidTextureScaleIssue::Type) {
                         BrushNode* node = static_cast<BrushNode*>(issue->node());
-                        BrushFace* face = static_cast<const InvalidTextureScaleIssue*>(issue)->face();
-                        faceHandles.push_back(BrushFaceHandle(node, face));
+                        const auto faceIndex = static_cast<const InvalidTextureScaleIssue*>(issue)->faceIndex();
+                        faceHandles.push_back(BrushFaceHandle(node, faceIndex));
                     }
                 }
 
