@@ -83,10 +83,12 @@ namespace TrenchBroom {
             m_brushEntityDef = nullptr;
         }
 
-        Model::BrushNode* MapDocumentTest::createBrushNode(const std::string& textureName) {
+        Model::BrushNode* MapDocumentTest::createBrushNode(const std::string& textureName, const std::function<void(Model::Brush&)>& brushFunc) {
             const Model::WorldNode* world = document->world();
             Model::BrushBuilder builder(world, document->worldBounds(), document->game()->defaultFaceAttribs());
-            return world->createBrush(builder.createCube(32.0, textureName));
+            Model::Brush brush = builder.createCube(32.0, textureName);
+            brushFunc(brush);
+            return world->createBrush(std::move(brush));
         }
 
         static void checkPlanePointsIntegral(const Model::BrushNode* brushNode) {
@@ -391,14 +393,15 @@ namespace TrenchBroom {
             Model::ParallelTexCoordSystem texAlignment(vm::vec3(1, 0, 0), vm::vec3(0, 1, 0));
             auto texAlignmentSnapshot = texAlignment.takeSnapshot();
 
-            Model::BrushNode* brushNode1 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 64, 64)), "texture"));
-            Model::BrushNode* brushNode2 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 64, 64)), "texture"));
-            
-            const Model::Brush& brush1 = brushNode1->brush();
-            const Model::Brush& brush2 = brushNode2->brush();
-            
+            Model::Brush brush1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 64, 64)), "texture");
             brush1.face(*brush1.findFace(vm::vec3::pos_z()))->restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
+
+            Model::Brush brush2 = builder.createCuboid(vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 64, 64)), "texture");
             brush2.face(*brush2.findFace(vm::vec3::pos_z()))->restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
+
+            Model::BrushNode* brushNode1 = document->world()->createBrush(std::move(brush1));
+            Model::BrushNode* brushNode2 = document->world()->createBrush(std::move(brush2));
+            
             document->addNode(brushNode1, entity);
             document->addNode(brushNode2, entity);
             ASSERT_EQ(2u, entity->children().size());
@@ -410,7 +413,7 @@ namespace TrenchBroom {
             Model::BrushNode* brushNode3 = static_cast<Model::BrushNode*>(entity->children()[0]);
             const Model::Brush& brush3 = brushNode3->brush();
             
-            Model::BrushFace* top = brush3.face(*brush3.findFace(vm::vec3::pos_z()));
+            const Model::BrushFace* top = brush3.face(*brush3.findFace(vm::vec3::pos_z()));
             ASSERT_EQ(vm::vec3(1, 0, 0), top->textureXAxis());
             ASSERT_EQ(vm::vec3(0, 1, 0), top->textureYAxis());
         }
@@ -424,11 +427,13 @@ namespace TrenchBroom {
             Model::ParallelTexCoordSystem texAlignment(vm::vec3(1, 0, 0), vm::vec3(0, 1, 0));
             auto texAlignmentSnapshot = texAlignment.takeSnapshot();
 
-            Model::BrushNode* brushNode1 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture"));
-            Model::BrushNode* brushNode2 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 32)), "texture"));
-            
-            const Model::Brush& brush2 = brushNode2->brush();
+            Model::Brush brush1 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture");
+            Model::Brush brush2 = builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 32)), "texture");
             brush2.face(*brush2.findFace(vm::vec3::pos_z()))->restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
+
+            Model::BrushNode* brushNode1 = document->world()->createBrush(std::move(brush1));
+            Model::BrushNode* brushNode2 = document->world()->createBrush(std::move(brush2));
+            
             document->addNode(brushNode1, entity);
             document->addNode(brushNode2, entity);
             ASSERT_EQ(2u, entity->children().size());
@@ -445,7 +450,7 @@ namespace TrenchBroom {
 
             // the texture alignment from the top of brush2 should have transferred
             // to the bottom face of brush3
-            Model::BrushFace* top = brush3.face(*brush3.findFace(vm::vec3::neg_z()));
+            const Model::BrushFace* top = brush3.face(*brush3.findFace(vm::vec3::neg_z()));
             ASSERT_EQ(vm::vec3(1, 0, 0), top->textureXAxis());
             ASSERT_EQ(vm::vec3(0, 1, 0), top->textureYAxis());
         }

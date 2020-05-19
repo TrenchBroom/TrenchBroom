@@ -170,12 +170,12 @@ namespace TrenchBroom {
             auto texture = std::make_unique<Assets::Texture>("texturename", 16, 16);
             texture->setSurfaceParms({"some_parm"});
 
-            auto matchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("some_texture"));
+            auto matchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("some_texture", [&](auto& b) {
+                for (auto* face : b.faces()) {
+                    face->setTexture(texture.get());
+                }
+            }));
             auto nonMatchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf"));
-
-            for (auto* face : matchingBrushNode->brush().faces()) {
-                face->setTexture(texture.get());
-            }
 
             const auto& tag = document->smartTag("surfaceparm");
             for (const auto* face : matchingBrushNode->brush().faces()) {
@@ -197,15 +197,16 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchContentFlagsTag") {
-            auto matchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf"));
-            auto nonMatchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf"));
-
-            for (auto* face : matchingBrushNode->brush().faces()) {
-                face->attributes().setSurfaceContents(1);
-            }
-            for (auto* face : nonMatchingBrushNode->brush().faces()) {
-                face->attributes().setSurfaceContents(2);
-            }
+            auto matchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf", [](auto& b) {
+                for (auto* face : b.faces()) {
+                    face->attributes().setSurfaceContents(1);
+                }
+            }));
+            auto nonMatchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf", [](auto& b) {
+                for (auto* face : b.faces()) {
+                    face->attributes().setSurfaceContents(2);
+                }
+            }));
 
             const auto& tag = document->smartTag("contentflags");
             for (const auto* face : matchingBrushNode->brush().faces()) {
@@ -235,10 +236,11 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableContentFlagsTag") {
-            auto* matchingBrushNode = createBrushNode("asdf");
-            for (auto* face : matchingBrushNode->brush().faces()) {
-                face->attributes().setSurfaceContents(1);
-            }
+            auto* matchingBrushNode = createBrushNode("asdf", [](auto& b) {
+                for (auto* face : b.faces()) {
+                    face->attributes().setSurfaceContents(1);
+                }
+            });
 
             document->addNode(matchingBrushNode, document->currentParent());
 
@@ -257,15 +259,16 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchSurfaceFlagsTag") {
-            auto matchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf"));
-            auto nonMatchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf"));
-
-            for (auto* face : matchingBrushNode->brush().faces()) {
-                face->attributes().setSurfaceFlags(1);
-            }
-            for (auto* face : nonMatchingBrushNode->brush().faces()) {
-                face->attributes().setSurfaceFlags(2);
-            }
+            auto matchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf", [](auto& b) {
+                for (auto* face : b.faces()) {
+                    face->attributes().setSurfaceFlags(1);
+                }
+            }));
+            auto nonMatchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf", [](auto& b) {
+                for (auto* face : b.faces()) {
+                    face->attributes().setSurfaceFlags(2);
+                }
+            }));
 
             const auto& tag = document->smartTag("surfaceflags");
             for (const auto* face : matchingBrushNode->brush().faces()) {
@@ -295,10 +298,11 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableSurfaceFlagsTag") {
-            auto* matchingBrushNode = createBrushNode("asdf");
-            for (auto* face : matchingBrushNode->brush().faces()) {
-                face->attributes().setSurfaceFlags(1);
-            }
+            auto* matchingBrushNode = createBrushNode("asdf", [](auto& b) {
+                for (auto* face : b.faces()) {
+                    face->attributes().setSurfaceFlags(1);
+                }
+            });
 
             document->addNode(matchingBrushNode, document->currentParent());
 

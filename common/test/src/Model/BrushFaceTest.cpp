@@ -434,11 +434,11 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            const Brush cube = builder.createCube(128.0, "");
-            const std::vector<BrushFace*>& faces = cube.faces();
+            Brush cube = builder.createCube(128.0, "");
+            const auto faces = cube.faces();
 
             for (size_t i = 0; i < faces.size(); ++i) {
-                BrushFace *face = faces[i];
+                BrushFace* face = faces[i];
                 face->setTexture(&texture);
                 checkTextureLockForFace(face, false);
             }
@@ -453,8 +453,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Valve);
 
             BrushBuilder builder(&world, worldBounds);
-            const Brush cube = builder.createCube(128.0, "");
-            const std::vector<BrushFace*>& faces = cube.faces();
+            Brush cube = builder.createCube(128.0, "");
+            const auto faces = cube.faces();
 
             for (size_t i = 0; i < faces.size(); ++i) {
                 BrushFace *face = faces[i];
@@ -488,17 +488,19 @@ namespace TrenchBroom {
 
             std::vector<Node*> nodes = reader.read(worldBounds, status);
             BrushNode* pyramidLight = static_cast<BrushNode*>(nodes.at(0)->children().at(0));
-            ASSERT_NE(nullptr, pyramidLight);
+            REQUIRE(pyramidLight != nullptr);
+            
+            Brush brush = pyramidLight->brush();
 
             // find the faces
             BrushFace* negXFace = nullptr;
-            for (BrushFace* face : pyramidLight->brush().faces()) {
+            for (BrushFace* face : brush.faces()) {
                 if (vm::get_abs_max_component_axis(face->boundary().normal) == vm::vec3::neg_x()) {
-                    ASSERT_EQ(negXFace, nullptr);
+                    REQUIRE(negXFace == nullptr);
                     negXFace = face;
                 }
             }
-            ASSERT_NE(nullptr, negXFace);
+            REQUIRE(negXFace != nullptr);
 
             ASSERT_EQ(vm::vec3::pos_y(), negXFace->textureXAxis());
             ASSERT_EQ(vm::vec3::neg_z(), negXFace->textureYAxis());
@@ -544,22 +546,24 @@ namespace TrenchBroom {
 
             std::vector<Node*> nodes = reader.read(worldBounds, status);
             BrushNode* pyramidLight = static_cast<BrushNode*>(nodes.at(0)->children().at(0));
-            ASSERT_NE(nullptr, pyramidLight);
+            REQUIRE(pyramidLight != nullptr);
+            
+            Brush brush = pyramidLight->brush();
 
             // find the faces
             BrushFace* negYFace = nullptr;
             BrushFace* posXFace = nullptr;
-            for (BrushFace* face : pyramidLight->brush().faces()) {
+            for (BrushFace* face : brush.faces()) {
                 if (vm::get_abs_max_component_axis(face->boundary().normal) == vm::vec3::neg_y()) {
-                    ASSERT_EQ(negYFace, nullptr);
+                    REQUIRE(negYFace == nullptr);
                     negYFace = face;
                 } else if (vm::get_abs_max_component_axis(face->boundary().normal) == vm::vec3::pos_x()) {
-                    ASSERT_EQ(posXFace, nullptr);
+                    REQUIRE(posXFace == nullptr);
                     posXFace = face;
                 }
             }
-            ASSERT_NE(nullptr, negYFace);
-            ASSERT_NE(nullptr, posXFace);
+            REQUIRE(negYFace != nullptr);
+            REQUIRE(posXFace != nullptr);
 
             ASSERT_EQ(vm::vec3::pos_x(), negYFace->textureXAxis());
             ASSERT_EQ(vm::vec3::neg_z(), negYFace->textureYAxis());

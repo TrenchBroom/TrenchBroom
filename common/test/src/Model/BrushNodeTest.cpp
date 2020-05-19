@@ -301,8 +301,8 @@ namespace TrenchBroom {
         };
 
         static void assertHasFace(const BrushNode& brushNode, const BrushFace& face) {
-            const std::vector<BrushFace*>& faces = brushNode.brush().faces();
-            const std::vector<BrushFace*>::const_iterator it = std::find_if(std::begin(faces), std::end(faces), MatchFace(face));
+            const auto faces = brushNode.brush().faces();
+            const auto it = std::find_if(std::begin(faces), std::end(faces), MatchFace(face));
             ASSERT_TRUE(it != std::end(faces));
         }
 
@@ -493,8 +493,8 @@ namespace TrenchBroom {
             // Temporarily set a texture on `cube`, take a snapshot, then clear the texture
             {
                 Assets::Texture texture("testTexture", 64, 64);
-                for (BrushFace* face : cube->brush().faces()) {
-                    face->setTexture(&texture);
+                for (size_t i = 0u; i < cube->brush().faceCount(); ++i) {
+                    cube->setFaceTexture(i, &texture);
                 }
                 ASSERT_EQ(6U, texture.usageCount());
 
@@ -502,21 +502,21 @@ namespace TrenchBroom {
                 ASSERT_NE(nullptr, snapshot);
                 ASSERT_EQ(6U, texture.usageCount());
 
-                for (BrushFace* face : cube->brush().faces()) {
-                    face->setTexture(nullptr);
+                for (size_t i = 0u; i < cube->brush().faceCount(); ++i) {
+                    cube->setFaceTexture(i, nullptr);
                 }
                 ASSERT_EQ(0U, texture.usageCount());
             }
 
             // Check all textures are cleared
-            for (BrushFace* face : cube->brush().faces()) {
+            for (const BrushFace* face : cube->brush().faces()) {
                 EXPECT_EQ(nullptr, face->texture());
             }
 
             snapshot->restore(worldBounds);
 
             // Check just the texture names are restored
-            for (BrushFace* face : cube->brush().faces()) {
+            for (const BrushFace* face : cube->brush().faces()) {
                 EXPECT_EQ("testTexture", face->attributes().textureName());
                 EXPECT_EQ(nullptr, face->texture());
             }

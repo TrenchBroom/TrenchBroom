@@ -77,10 +77,11 @@ namespace TrenchBroom {
             map.addOrUpdateAttribute("classname", "worldspawn");
 
             Model::BrushBuilder builder(&map, worldBounds);
-            Model::BrushNode* brushNode1 = map.createBrush(builder.createCube(64.0, "none"));
-            for (auto* face : brushNode1->brush().faces()) {
+            Model::Brush brush1 = builder.createCube(64.0, "none");
+            for (Model::BrushFace* face : brush1.faces()) {
                 face->attributes().setColor(Color(1.0f, 2.0f, 3.0f));
             }
+            Model::BrushNode* brushNode1 = map.createBrush(std::move(brush1));
             map.defaultLayer()->addChild(brushNode1);
 
             Model::BrushNode* brushNode2 = map.createBrush(builder.createCube(64.0, "none"));
@@ -126,10 +127,12 @@ R"(// entity 0
             map.addOrUpdateAttribute("classname", "worldspawn");
 
             Model::BrushBuilder builder(&map, worldBounds);
-            Model::BrushNode* brushNode1 = map.createBrush(builder.createCube(64.0, "none"));
-            for (auto* face : brushNode1->brush().faces()) {
+            Model::Brush brush1 = builder.createCube(64.0, "none");
+            for (Model::BrushFace* face : brush1.faces()) {
                 face->attributes().setSurfaceValue(32.0f);
             }
+            
+            Model::BrushNode* brushNode1 = map.createBrush(std::move(brush1));
             map.defaultLayer()->addChild(brushNode1);
 
             std::stringstream str;
