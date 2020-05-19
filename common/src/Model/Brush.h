@@ -52,7 +52,7 @@ namespace TrenchBroom {
             mutable bool m_transparent;
         public:
             Brush();
-            Brush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces);
+            Brush(const vm::bbox3& worldBounds, std::vector<BrushFace> faces);
 
             Brush(const Brush& other);
             Brush(Brush&& other) noexcept;
@@ -101,7 +101,7 @@ namespace TrenchBroom {
             void cloneFaceAttributesFrom(const Brush& brush);
             void cloneInvertedFaceAttributesFrom(const Brush& brush);
         public: // clipping
-            bool clip(const vm::bbox3& worldBounds, BrushFace* face);
+            bool clip(const vm::bbox3& worldBounds, BrushFace face);
         public: // move face along normal
             bool canMoveBoundary(const vm::bbox3& worldBounds, size_t faceIndex, const vm::vec3& delta) const;
             void moveBoundary(const vm::bbox3& worldBounds, size_t faceIndex, const vm::vec3& delta, bool lockTexture);

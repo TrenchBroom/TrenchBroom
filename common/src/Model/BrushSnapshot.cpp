@@ -30,19 +30,13 @@ namespace TrenchBroom {
         m_brushNode(brushNode) {
             const Brush& brush = m_brushNode->brush();
             for (const BrushFace* face : brush.faces()) {
-                BrushFace* faceClone = face->clone();
-                faceClone->setTexture(nullptr);
-                m_faces.push_back(faceClone);
+                BrushFace& copy = m_faces.emplace_back(*face);
+                copy.setTexture(nullptr);
             }
         }
 
-        BrushSnapshot::~BrushSnapshot() {
-            kdl::vec_clear_and_delete(m_faces);
-        }
-
         void BrushSnapshot::doRestore(const vm::bbox3& worldBounds) {
-            m_brushNode->setBrush(Brush(worldBounds, m_faces));
-            m_faces.clear();
+            m_brushNode->setBrush(Brush(worldBounds, std::move(m_faces)));
         }
     }
 }

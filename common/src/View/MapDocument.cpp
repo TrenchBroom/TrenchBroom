@@ -371,7 +371,7 @@ namespace TrenchBroom {
                     return PasteType::Node;
             } catch (const ParserException& e) {
                 try {
-                    const std::vector<Model::BrushFace*> faces = m_game->parseBrushFaces(str, *m_world, m_worldBounds, logger());
+                    const std::vector<Model::BrushFace> faces = m_game->parseBrushFaces(str, *m_world, m_worldBounds, logger());
                     if (!faces.empty() && pasteBrushFaces(faces)) {
                         return PasteType::BrushFace;
                     }
@@ -399,14 +399,9 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MapDocument::pasteBrushFaces(const std::vector<Model::BrushFace*>& faces) {
+        bool MapDocument::pasteBrushFaces(const std::vector<Model::BrushFace>& faces) {
             assert(!faces.empty());
-            const Model::BrushFace* face = faces.back();
-
-            const bool result = setFaceAttributes(face->attributes());
-            kdl::col_delete_all(faces);
-
-            return result;
+            return setFaceAttributes(faces.back().attributes());
         }
 
         void MapDocument::loadPointFile(const IO::Path path) {
@@ -1321,10 +1316,10 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> clippedBrushes;
 
             for (const Model::BrushNode* originalBrush : brushes) {
-                Model::BrushFace* clipFace = m_world->createFace(p1, p2, p3, Model::BrushFaceAttributes(currentTextureName()));
+                Model::BrushFace clipFace = m_world->createFace(p1, p2, p3, Model::BrushFaceAttributes(currentTextureName()));
                 Model::Brush clippedBrush = originalBrush->brush();
-                if (clippedBrush.clip(m_worldBounds, clipFace)) {
-                    clippedBrushes[originalBrush->parent()].push_back(new Model::BrushNode(clippedBrush));
+                if (clippedBrush.clip(m_worldBounds, std::move(clipFace))) {
+                    clippedBrushes[originalBrush->parent()].push_back(new Model::BrushNode(std::move(clippedBrush)));
                 }
             }
 

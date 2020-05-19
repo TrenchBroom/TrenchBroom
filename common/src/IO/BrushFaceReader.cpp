@@ -36,12 +36,11 @@ namespace TrenchBroom {
         MapReader(str),
         m_factory(factory) {}
 
-        const std::vector<Model::BrushFace*>& BrushFaceReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
+        std::vector<Model::BrushFace> BrushFaceReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
             try {
                 readBrushFaces(m_factory.format(), worldBounds, status);
-                return m_brushFaces;
+                return std::move(m_brushFaces);
             } catch (const ParserException&) {
-                kdl::vec_clear_and_delete(m_brushFaces);
                 throw;
             }
         }
@@ -58,8 +57,8 @@ namespace TrenchBroom {
         void BrushFaceReader::onUnresolvedNode(const ParentInfo& /* parentInfo */, Model::Node* /* node */, ParserStatus& /* status */) {}
         void BrushFaceReader::onBrush(Model::Node* /* parent */, Model::BrushNode* /* brush */, ParserStatus& /* status */) {}
 
-        void BrushFaceReader::onBrushFace(Model::BrushFace* face, ParserStatus& /* status */) {
-            m_brushFaces.push_back(face);
+        void BrushFaceReader::onBrushFace(Model::BrushFace face, ParserStatus& /* status */) {
+            m_brushFaces.push_back(std::move(face));
         }
     }
 }

@@ -419,12 +419,11 @@ namespace TrenchBroom {
                 }
 
                 const auto* newDragFace = newBrush.face(*newDragFaceIndex);
-                auto* clipFace = newDragFace->clone();
-                clipFace->invert();
+                auto clipFace = Model::BrushFace(*newDragFace);
+                clipFace.invert();
                 newBrush.moveBoundary(worldBounds, *newDragFaceIndex, delta, lockTextures);
                 
-                if (!newBrush.clip(worldBounds, clipFace)) {
-                    delete clipFace;
+                if (!newBrush.clip(worldBounds, std::move(clipFace))) {
                     kdl::map_clear_and_delete(newNodes);
                     return false;
                 }
@@ -475,12 +474,11 @@ namespace TrenchBroom {
                 }
 
                 auto* newDragFace = newBrush.face(*newDragFaceIndex);
-                auto* clipFace = newDragFace->clone();
-                clipFace->invert();
-                clipFace->transform(vm::translation_matrix(delta), lockTextures);
+                auto clipFace = Model::BrushFace(*newDragFace);
+                clipFace.invert();
+                clipFace.transform(vm::translation_matrix(delta), lockTextures);
 
-                if (!newBrush.clip(worldBounds, clipFace)) {
-                    delete clipFace;
+                if (!newBrush.clip(worldBounds, std::move(clipFace))) {
                     kdl::map_clear_and_delete(newNodes);
                     return false;
                 }
