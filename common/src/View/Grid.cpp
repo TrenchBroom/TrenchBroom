@@ -219,45 +219,14 @@ namespace TrenchBroom {
                 return vm::vec3::zero();
             }
 
-            const auto* brush = face->brush();
-            const auto& brushEdges = brush->edges();
-            const auto faceVertices = face->vertices();
-
             // the edge rays indicate the direction into which each vertex of the given face moves if the face is dragged
             std::vector<vm::ray3> edgeRays;
 
-            for (const Model::BrushEdge* edge : brushEdges) {
-                size_t c = 0;
-                bool originAtStart = true;
-
-                bool startFound = false;
-                bool endFound = false;
-
-                for (const Model::BrushVertex* vertex : faceVertices) {
-                    startFound |= (vertex->position() == edge->firstVertex()->position());
-                    endFound |= (vertex->position() == edge->secondVertex()->position());
-                    if (startFound && endFound) {
-                        break;
-                    }
-                }
-
-                if (startFound) {
-                    c++;
-                }
-                if (endFound) {
-                    c++;
-                    originAtStart = false;
-                }
-
-                if (c == 1) {
-                    vm::ray3 ray;
-                    if (originAtStart) {
-                        ray.origin = edge->firstVertex()->position();
-                        ray.direction = normalize(edge->vector());
-                    } else {
-                        ray.origin = edge->secondVertex()->position();
-                        ray.direction = normalize(-edge->vector());
-                    }
+            for (const Model::BrushVertex* vertex : face->vertices()) {
+                const Model::BrushHalfEdge* firstEdge = vertex->leaving();
+                const Model::BrushHalfEdge* curEdge = firstEdge;
+                do {
+                    vm::ray3 ray(vertex->position(), vm::normalize(curEdge->vector()));
 
                     // depending on the direction of the drag vector, the rays must be inverted to reflect the
                     // actual movement of the vertices
@@ -266,7 +235,9 @@ namespace TrenchBroom {
                     }
 
                     edgeRays.push_back(ray);
-                }
+
+                    curEdge = curEdge->twin()->next();
+                } while (curEdge != firstEdge);
             }
 
             auto normDelta = face->boundary().normal * dist;
