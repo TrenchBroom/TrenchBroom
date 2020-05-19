@@ -20,22 +20,23 @@
 #include "BrushFaceSnapshot.h"
 
 #include "Model/BrushFace.h"
+#include "Model/BrushNode.h"
 #include "Model/TexCoordSystem.h"
 
 namespace TrenchBroom {
     namespace Model {
-        BrushFaceSnapshot::BrushFaceSnapshot(BrushFace* face, const TexCoordSystem& coordSystem) :
-        m_faceRef(face),
+        BrushFaceSnapshot::BrushFaceSnapshot(BrushNode* node, const BrushFace* face) :
+        m_faceRef(node, face),
         m_attribs(face->attribs().takeSnapshot()),
-        m_coordSystemSnapshot(coordSystem.takeSnapshot()) {}
+        m_coordSystemSnapshot(face->takeTexCoordSystemSnapshot()) {}
 
         BrushFaceSnapshot::~BrushFaceSnapshot() = default;
 
         void BrushFaceSnapshot::restore() {
-            auto* face = m_faceRef.resolve();
-            face->setAttribs(m_attribs);
+            const auto faceHandle = m_faceRef.resolve();
+            faceHandle.face()->setAttribs(m_attribs);
             if (m_coordSystemSnapshot != nullptr) {
-                face->restoreTexCoordSystemSnapshot(*m_coordSystemSnapshot);
+                faceHandle.face()->restoreTexCoordSystemSnapshot(*m_coordSystemSnapshot);
             }
         }
     }

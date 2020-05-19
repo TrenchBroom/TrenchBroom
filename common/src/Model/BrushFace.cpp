@@ -28,7 +28,6 @@
 #include "Model/TagMatcher.h"
 #include "Model/Brush.h"
 #include "Model/BrushNode.h"
-#include "Model/BrushFaceSnapshot.h"
 #include "Model/PlanePointFinder.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
@@ -121,10 +120,6 @@ namespace TrenchBroom {
             if (m_selected)
                 result->select();
             return result;
-        }
-
-        BrushFaceSnapshot* BrushFace::takeSnapshot() {
-            return new BrushFaceSnapshot(this, *m_texCoordSystem);
         }
 
         std::unique_ptr<TexCoordSystemSnapshot> BrushFace::takeTexCoordSystemSnapshot() const {

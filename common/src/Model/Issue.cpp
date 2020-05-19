@@ -107,8 +107,8 @@ namespace TrenchBroom {
             return m_node->lineNumber();
         }
 
-        BrushFaceIssue::BrushFaceIssue(BrushFace* face) :
-        Issue(face->brush()->node()),
+        BrushFaceIssue::BrushFaceIssue(BrushNode* node, BrushFace* face) :
+        Issue(node),
         m_face(face) {}
 
         BrushFaceIssue::~BrushFaceIssue() = default;

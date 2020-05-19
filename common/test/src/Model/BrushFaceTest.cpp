@@ -488,7 +488,7 @@ namespace TrenchBroom {
             BrushFace* topFace = cube->findFace(vm::vec3(0.0, 0.0, 1.0));
             ASSERT_NE(nullptr, topFace);
             ASSERT_EQ(0.0, topFace->rotation());
-            BrushFaceSnapshot* snapshot = topFace->takeSnapshot();
+            BrushFaceSnapshot* snapshot = cube->takeSnapshot(topFace);
 
             // Rotate texture of topFace
             topFace->rotateTexture(5.0);

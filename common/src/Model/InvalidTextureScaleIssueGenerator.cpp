@@ -22,6 +22,7 @@
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -39,8 +40,8 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            explicit InvalidTextureScaleIssue(BrushFace* face) :
-            BrushFaceIssue(face) {}
+            explicit InvalidTextureScaleIssue(BrushNode* node, BrushFace* face) :
+            BrushFaceIssue(node, face) {}
 
             IssueType doGetType() const override {
                 return Type;
@@ -61,11 +62,12 @@ namespace TrenchBroom {
             void doApply(MapFacade* facade, const IssueList& issues) const override {
                 const PushSelection push(facade);
 
-                std::vector<BrushFace*> faces;
+                std::vector<BrushFaceHandle> faceHandles;
                 for (const auto* issue : issues) {
                     if (issue->type() == InvalidTextureScaleIssue::Type) {
-                        auto* face = static_cast<const InvalidTextureScaleIssue*>(issue)->face();
-                        faces.push_back(face);
+                        BrushNode* node = static_cast<BrushNode*>(issue->node());
+                        BrushFace* face = static_cast<const InvalidTextureScaleIssue*>(issue)->face();
+                        faceHandles.push_back(BrushFaceHandle(node, face));
                     }
                 }
 
@@ -73,7 +75,7 @@ namespace TrenchBroom {
                 request.setScale(vm::vec2f::one());
 
                 facade->deselectAll();
-                facade->select(faces);
+                facade->select(faceHandles);
                 facade->setFaceAttributes(request);
             }
         };
@@ -86,7 +88,7 @@ namespace TrenchBroom {
         void InvalidTextureScaleIssueGenerator::doGenerate(BrushNode* brush, IssueList& issues) const {
             for (const auto& face : brush->faces()) {
                 if (!face->attribs().valid()) {
-                    issues.push_back(new InvalidTextureScaleIssue(face));
+                    issues.push_back(new InvalidTextureScaleIssue(brush, face));
                 }
             }
         }

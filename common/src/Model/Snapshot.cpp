@@ -20,7 +20,9 @@
 #include "Snapshot.h"
 
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/BrushFaceSnapshot.h"
+#include "Model/BrushNode.h"
 #include "Model/Node.h"
 #include "Model/NodeSnapshot.h"
 
@@ -49,8 +51,8 @@ namespace TrenchBroom {
                 m_nodeSnapshots.push_back(snapshot);
         }
 
-        void Snapshot::takeSnapshot(BrushFace* face) {
-            BrushFaceSnapshot* snapshot = face->takeSnapshot();
+        void Snapshot::takeSnapshot(const BrushFaceHandle& handle) {
+            BrushFaceSnapshot* snapshot = handle.node()->takeSnapshot(handle.face());
             if (snapshot != nullptr)
                 m_brushFaceSnapshots.push_back(snapshot);
         }

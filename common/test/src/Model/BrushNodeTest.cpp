@@ -33,6 +33,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushSnapshot.h"
 #include "Model/Hit.h"
+#include "Model/HitAdapter.h"
 #include "Model/MapFormat.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
@@ -591,8 +592,7 @@ namespace TrenchBroom {
 
             Hit hit1 = hits1.all().front();
             ASSERT_DOUBLE_EQ(8.0, hit1.distance());
-            BrushFace* face1 = hit1.target<BrushFace*>();
-            ASSERT_EQ(front, face1);
+            ASSERT_EQ(front, hitToFace(hit1));
 
             PickResult hits2;
             brush.pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::neg_y()), hits2);

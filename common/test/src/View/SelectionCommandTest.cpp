@@ -21,8 +21,9 @@
 
 #include "GTestCompat.h"
 
-#include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
+#include "Model/BrushFaceHandle.h"
+#include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
@@ -40,12 +41,12 @@ namespace TrenchBroom {
             document->addNode(brush, document->currentParent());
 
             // select the top face
-            document->select(brush->findFace(vm::vec3::pos_z()));
-            ASSERT_EQ(std::vector<Model::BrushFace*>({ brush->findFace(vm::vec3::pos_z()) }), document->selectedBrushFaces());
+            document->select({ brush, brush->findFace(vm::vec3::pos_z()) });
+            ASSERT_EQ(std::vector<Model::BrushFaceHandle>({{ brush, brush->findFace(vm::vec3::pos_z()) }}), document->selectedBrushFaces());
 
             // deselect it
-            document->deselect(brush->findFace(vm::vec3::pos_z()));
-            ASSERT_EQ(std::vector<Model::BrushFace*>({}), document->selectedBrushFaces());
+            document->deselect({ brush, brush->findFace(vm::vec3::pos_z()) });
+            ASSERT_EQ(std::vector<Model::BrushFaceHandle>({}), document->selectedBrushFaces());
 
             // select the brush
             document->select(brush);
@@ -60,14 +61,14 @@ namespace TrenchBroom {
             document->undoCommand();
             ASSERT_EQ(vm::vec3::zero(), brush->logicalBounds().center());
             ASSERT_EQ(std::vector<Model::BrushNode*>({ brush }), document->selectedNodes().brushes());
-            ASSERT_EQ(std::vector<Model::BrushFace*>({}), document->selectedBrushFaces());
+            ASSERT_EQ(std::vector<Model::BrushFaceHandle>({}), document->selectedBrushFaces());
 
             document->undoCommand();
             ASSERT_EQ(std::vector<Model::BrushNode*>({}), document->selectedNodes().brushes());
-            ASSERT_EQ(std::vector<Model::BrushFace*>({}), document->selectedBrushFaces());
+            ASSERT_EQ(std::vector<Model::BrushFaceHandle>({}), document->selectedBrushFaces());
 
             document->undoCommand();
-            ASSERT_EQ(std::vector<Model::BrushFace*>({ brush->findFace(vm::vec3::pos_z()) }), document->selectedBrushFaces());
+            ASSERT_EQ(std::vector<Model::BrushFaceHandle>({{ brush, brush->findFace(vm::vec3::pos_z()) }}), document->selectedBrushFaces());
         }
     }
 }

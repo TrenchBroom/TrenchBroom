@@ -21,6 +21,7 @@
 #define TrenchBroom_MapFacade
 
 #include "FloatType.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/EntityColor.h"
 
 #include <vecmath/forward.h>
@@ -42,8 +43,8 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class BrushNode;
         class BrushFace;
+        class BrushNode;
         class BrushFaceAttributes;
         class ChangeBrushFaceAttributesRequest;
         class EntityNode;
@@ -75,8 +76,8 @@ namespace TrenchBroom {
 
             virtual std::vector<AttributableNode*> allSelectedAttributableNodes() const = 0;
             virtual const NodeCollection& selectedNodes() const = 0;
-            virtual std::vector<BrushFace*> allSelectedBrushFaces() const = 0;
-            virtual std::vector<BrushFace*> selectedBrushFaces() const = 0;
+            virtual std::vector<BrushFaceHandle> allSelectedBrushFaces() const = 0;
+            virtual std::vector<BrushFaceHandle> selectedBrushFaces() const = 0;
 
             virtual const vm::bbox3& referenceBounds() const = 0;
             virtual const vm::bbox3& lastSelectionBounds() const = 0;
@@ -91,14 +92,14 @@ namespace TrenchBroom {
             virtual void selectNodesWithFilePosition(const std::vector<size_t>& positions) = 0;
             virtual void select(const std::vector<Node*>& nodes) = 0;
             virtual void select(Node* node) = 0;
-            virtual void select(const std::vector<BrushFace*>& faces) = 0;
-            virtual void select(BrushFace* face) = 0;
+            virtual void select(const std::vector<BrushFaceHandle>& handles) = 0;
+            virtual void select(const BrushFaceHandle& handle) = 0;
             virtual void convertToFaceSelection() = 0;
 
             virtual void deselectAll() = 0;
             virtual void deselect(Node* node) = 0;
             virtual void deselect(const std::vector<Node*>& nodes) = 0;
-            virtual void deselect(BrushFace* face) = 0;
+            virtual void deselect(const BrushFaceHandle& handle) = 0;
         public: // adding, removing, reparenting, and duplicating nodes
             virtual void addNode(Node* node, Node* parent) = 0;
             virtual void removeNode(Node* node) = 0;

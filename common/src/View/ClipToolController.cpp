@@ -301,11 +301,11 @@ namespace TrenchBroom {
             addController(new MoveClipPointPart(new Callback2D(tool)));
         }
 
-        std::vector<vm::vec3> ClipToolController3D::selectHelpVectors(Model::BrushFace* face, const vm::vec3& hitPoint) {
+        std::vector<vm::vec3> ClipToolController3D::selectHelpVectors(Model::BrushNode* node, Model::BrushFace* face, const vm::vec3& hitPoint) {
             ensure(face != nullptr, "face is null");
 
             std::vector<vm::vec3> result;
-            for (const Model::BrushFace* incidentFace : selectIncidentFaces(face, hitPoint)) {
+            for (const Model::BrushFace* incidentFace : selectIncidentFaces(node, face, hitPoint)) {
                 const vm::vec3& normal = incidentFace->boundary().normal;
                 result.push_back(vm::get_abs_max_component_axis(normal));
             }
@@ -314,7 +314,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        std::vector<Model::BrushFace*> ClipToolController3D::selectIncidentFaces(Model::BrushFace* face, const vm::vec3& hitPoint) {
+        std::vector<Model::BrushFace*> ClipToolController3D::selectIncidentFaces(Model::BrushNode* node, Model::BrushFace* face, const vm::vec3& hitPoint) {
             static const auto MaxDistance = vm::constants<FloatType>::almost_zero();
 
             // First, try to see if the clip point is almost equal to a vertex:
@@ -329,8 +329,7 @@ namespace TrenchBroom {
             }
 
             if (closestVertex != nullptr) {
-                const auto* brush = face->brush();
-                return brush->node()->incidentFaces(closestVertex);
+                return node->incidentFaces(closestVertex);
             }
 
             // Next, try the edges:
@@ -394,8 +393,9 @@ namespace TrenchBroom {
                 }
                 ensure(hit.isMatch(), "hit is not a match");
 
+                Model::BrushNode* node = Model::hitToBrush(hit);
                 Model::BrushFace* face = Model::hitToFace(hit);
-                return selectHelpVectors(face, clipPoint);
+                return selectHelpVectors(node, face, clipPoint);
             }
 
             bool doGetNewClipPointPosition(const InputState& inputState, vm::vec3& position) const override {

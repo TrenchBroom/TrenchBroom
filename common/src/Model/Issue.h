@@ -28,6 +28,7 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushFace;
+        class BrushNode;
         class EditorContext;
         class Node;
 
@@ -66,7 +67,7 @@ namespace TrenchBroom {
         private:
             BrushFace* const m_face;
         protected:
-            explicit BrushFaceIssue(BrushFace* face);
+            explicit BrushFaceIssue(BrushNode* node, BrushFace* face);
         public:
             ~BrushFaceIssue() override;
             BrushFace* face() const;

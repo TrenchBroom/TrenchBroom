@@ -44,7 +44,6 @@ namespace TrenchBroom {
 
     namespace Model {
         class Brush;
-        class BrushFaceSnapshot;
         class TexCoordSystem;
         class TexCoordSystemSnapshot;
         enum class WrapStyle;
@@ -108,7 +107,6 @@ namespace TrenchBroom {
 
             BrushFace* clone() const;
 
-            BrushFaceSnapshot* takeSnapshot();
             std::unique_ptr<TexCoordSystemSnapshot> takeTexCoordSystemSnapshot() const;
             void restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot& coordSystemSnapshot);
             void copyTexCoordSystemFromFace(const TexCoordSystemSnapshot& coordSystemSnapshot, const BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, WrapStyle wrapStyle);

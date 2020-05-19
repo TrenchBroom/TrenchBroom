@@ -21,8 +21,9 @@
 
 #include "Hit.h"
 #include "Model/Brush.h"
-#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
+#include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 
@@ -32,8 +33,7 @@ namespace TrenchBroom {
             if (hit.type() == EntityNode::EntityHitType) {
                 return hit.target<EntityNode*>();
             } else if (hit.type() == BrushNode::BrushHitType) {
-                BrushFace* face = hit.target<BrushFace*>();
-                return face->brush()->node();
+                return hit.target<BrushFaceHandle>().node();
             } else {
                 return nullptr;
             }
@@ -43,8 +43,7 @@ namespace TrenchBroom {
             if (hit.type() == EntityNode::EntityHitType) {
                 return hit.target<EntityNode*>();
             } else if (hit.type() == BrushNode::BrushHitType) {
-                BrushFace* face = hit.target<BrushFace*>();
-                return face->brush()->node();
+                return hit.target<BrushFaceHandle>().node();
             } else {
                 return nullptr;
             }
@@ -58,9 +57,17 @@ namespace TrenchBroom {
             }
         }
 
+        std::optional<BrushFaceHandle> hitToFaceHandle(const Hit& hit) {
+            if (hit.type() == BrushNode::BrushHitType) {
+                return hit.target<BrushFaceHandle>();
+            } else {
+                return std::nullopt;
+            }
+        }
+
         BrushNode* hitToBrush(const Hit& hit) {
             if (hit.type() == BrushNode::BrushHitType) {
-                return hit.target<BrushFace*>()->brush()->node();
+                return hit.target<BrushFaceHandle>().node();
             } else {
                 return nullptr;
             }
@@ -68,7 +75,7 @@ namespace TrenchBroom {
 
         BrushFace* hitToFace(const Hit& hit) {
             if (hit.type() == BrushNode::BrushHitType) {
-                return hit.target<BrushFace*>();
+                return hit.target<BrushFaceHandle>().face();
             } else {
                 return nullptr;
             }
