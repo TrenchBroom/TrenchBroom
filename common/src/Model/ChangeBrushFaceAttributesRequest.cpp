@@ -18,8 +18,12 @@
  */
 
 #include "ChangeBrushFaceAttributesRequest.h"
+
 #include "Macros.h"
+#include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
+#include "Model/BrushNode.h"
 
 #include <cassert>
 #include <string>
@@ -236,9 +240,13 @@ namespace TrenchBroom {
             return "Change Face Attributes";
         }
 
-        bool ChangeBrushFaceAttributesRequest::evaluate(const std::vector<BrushFace*>& faces) const {
+        bool ChangeBrushFaceAttributesRequest::evaluate(const std::vector<BrushFaceHandle>& faceHandles) const {
             auto result = false;
-            for (BrushFace* face : faces) {
+            for (const BrushFaceHandle& faceHandle : faceHandles) {
+                BrushNode* node  = faceHandle.node();
+                Brush brush = node->brush();
+                BrushFace* face = brush.face(faceHandle.faceIndex());
+                
                 switch (m_textureOp) {
                     case TextureOp_Set:
                         result |= face->attributes().setTextureName(m_textureName);
@@ -269,6 +277,8 @@ namespace TrenchBroom {
                         break;
                     switchDefault()
                 }
+                
+                node->setBrush(std::move(brush));
             }
             return result;
         }

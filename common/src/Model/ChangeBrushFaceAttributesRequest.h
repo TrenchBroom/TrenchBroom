@@ -30,6 +30,7 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushFace;
+        class BrushFaceHandle;
         class BrushFaceAttributes;
 
         class ChangeBrushFaceAttributesRequest {
@@ -92,7 +93,7 @@ namespace TrenchBroom {
             void clear();
 
             const std::string name() const;
-            bool evaluate(const std::vector<BrushFace*>& faces) const;
+            bool evaluate(const std::vector<BrushFaceHandle>& faceHandles) const;
 
             void resetAll();
 
