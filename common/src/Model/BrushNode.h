@@ -110,15 +110,6 @@ namespace TrenchBroom {
 
             std::vector<BrushFace*> incidentFaces(const BrushVertex* vertex) const;
         public:
-            // CSG operations
-            /**
-             * Subtracts the given subtrahends from `this`, returning the result but without modifying `this`.
-             *
-             * @param subtrahends brushes to subtract from `this`. The passed-in brushes are not modified.
-             * @return the subtraction result
-             */
-            std::vector<BrushNode*> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<BrushNode*>& subtrahends) const;
-            std::vector<BrushNode*> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, BrushNode* subtrahend) const;
             void intersect(const vm::bbox3& worldBounds, const BrushNode* brush);
 
             // transformation

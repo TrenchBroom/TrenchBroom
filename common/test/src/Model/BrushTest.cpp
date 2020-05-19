@@ -23,6 +23,7 @@
 
 #include "FloatType.h"
 #include "Assets/Texture.h"
+#include "IO/DiskIO.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
 #include "Model/Brush.h"
@@ -41,6 +42,7 @@
 #include <kdl/intrusive_circular_list.h>
 #include <kdl/vector_utils.h>
 
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -2608,6 +2610,282 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, -16.0, 0.0)));
             ASSERT_TRUE(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, 0.0, +16.0)));
             ASSERT_TRUE(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, 0.0, -16.0)));
+        }
+        
+        TEST_CASE("BrushTest.subtractCuboidFromCuboid", "[BrushTest]") {
+            const vm::bbox3 worldBounds(4096.0);
+            WorldNode world(MapFormat::Standard);
+
+            const std::string minuendTexture("minuend");
+            const std::string subtrahendTexture("subtrahend");
+            const std::string defaultTexture("default");
+
+            BrushBuilder builder(&world, worldBounds);
+            const Brush minuend = builder.createCuboid(vm::bbox3(vm::vec3(-32.0, -16.0, -32.0), vm::vec3(32.0, 16.0, 32.0)), minuendTexture);
+            const Brush subtrahend = builder.createCuboid(vm::bbox3(vm::vec3(-16.0, -32.0, -64.0), vm::vec3(16.0, 32.0, 0.0)), subtrahendTexture);
+
+            const std::vector<Brush> result = minuend.subtract(world, worldBounds, defaultTexture, subtrahend);
+            ASSERT_EQ(3u, result.size());
+
+            const Brush* left = nullptr;
+            const Brush* top = nullptr;
+            const Brush* right = nullptr;
+
+            for (const Brush& brush : result) {
+                if (brush.findFace(vm::plane3(32.0, vm::vec3::neg_x())) != nullptr) {
+                    left = &brush;
+                } else if (brush.findFace(vm::plane3(32.0, vm::vec3::pos_x())) != nullptr) {
+                    right = &brush;
+                } else if (brush.findFace(vm::plane3(16.0, vm::vec3::neg_x())) != nullptr) {
+                    top = &brush;
+                }
+            }
+
+            ASSERT_TRUE(left != nullptr);
+            ASSERT_TRUE(top != nullptr);
+            ASSERT_TRUE(right != nullptr);
+            
+            // left brush faces
+            ASSERT_EQ(6u, left->faceCount());
+            ASSERT_TRUE(left->findFace(vm::plane3(-16.0, vm::vec3::pos_x())) != nullptr);
+            ASSERT_TRUE(left->findFace(vm::plane3(+32.0, vm::vec3::neg_x())) != nullptr);
+            ASSERT_TRUE(left->findFace(vm::plane3(+16.0, vm::vec3::pos_y())) != nullptr);
+            ASSERT_TRUE(left->findFace(vm::plane3(+16.0, vm::vec3::neg_y())) != nullptr);
+            ASSERT_TRUE(left->findFace(vm::plane3(+32.0, vm::vec3::pos_z())) != nullptr);
+            ASSERT_TRUE(left->findFace(vm::plane3(+32.0, vm::vec3::neg_z())) != nullptr);
+
+            // left brush textures
+            ASSERT_EQ(subtrahendTexture, left->findFace(vm::vec3::pos_x())->textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::neg_x())->textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::pos_y())->textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::neg_y())->textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::pos_z())->textureName());
+            ASSERT_EQ(minuendTexture, left->findFace(vm::vec3::neg_z())->textureName());
+
+            // top brush faces
+            ASSERT_EQ(6u, top->faceCount());
+            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::pos_x())) != nullptr);
+            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::neg_x())) != nullptr);
+            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::pos_y())) != nullptr);
+            ASSERT_TRUE(top->findFace(vm::plane3(+16.0, vm::vec3::neg_y())) != nullptr);
+            ASSERT_TRUE(top->findFace(vm::plane3(+32.0, vm::vec3::pos_z())) != nullptr);
+            ASSERT_TRUE(top->findFace(vm::plane3(0.0, vm::vec3::neg_z())) != nullptr);
+
+            // top brush textures
+            ASSERT_EQ(defaultTexture, top->findFace(vm::vec3::pos_x())->textureName());
+            ASSERT_EQ(defaultTexture, top->findFace(vm::vec3::neg_x())->textureName());
+            ASSERT_EQ(minuendTexture, top->findFace(vm::vec3::pos_y())->textureName());
+            ASSERT_EQ(minuendTexture, top->findFace(vm::vec3::neg_y())->textureName());
+            ASSERT_EQ(minuendTexture, top->findFace(vm::vec3::pos_z())->textureName());
+            ASSERT_EQ(subtrahendTexture, top->findFace(vm::vec3::neg_z())->textureName());
+
+            // right brush faces
+            ASSERT_EQ(6u, right->faceCount());
+            ASSERT_TRUE(right->findFace(vm::plane3(+32.0, vm::vec3::pos_x())) != nullptr);
+            ASSERT_TRUE(right->findFace(vm::plane3(-16.0, vm::vec3::neg_x())) != nullptr);
+            ASSERT_TRUE(right->findFace(vm::plane3(+16.0, vm::vec3::pos_y())) != nullptr);
+            ASSERT_TRUE(right->findFace(vm::plane3(+16.0, vm::vec3::neg_y())) != nullptr);
+            ASSERT_TRUE(right->findFace(vm::plane3(+32.0, vm::vec3::pos_z())) != nullptr);
+            ASSERT_TRUE(right->findFace(vm::plane3(+32.0, vm::vec3::neg_z())) != nullptr);
+
+            // right brush textures
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_x())->textureName());
+            ASSERT_EQ(subtrahendTexture, right->findFace(vm::vec3::neg_x())->textureName());
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_y())->textureName());
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::neg_y())->textureName());
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::pos_z())->textureName());
+            ASSERT_EQ(minuendTexture, right->findFace(vm::vec3::neg_z())->textureName());
+        }
+
+        TEST_CASE("BrushTest.subtractDisjoint", "[BrushTest]") {
+            const vm::bbox3 worldBounds(4096.0);
+            WorldNode world(MapFormat::Standard);
+
+            const vm::bbox3 brush1Bounds(vm::vec3::fill(-8.0), vm::vec3::fill(+8.0));
+            const vm::bbox3 brush2Bounds(vm::vec3(124.0, 124.0, -4.0), vm::vec3(132.0, 132.0, +4.0));
+            ASSERT_FALSE(brush1Bounds.intersects(brush2Bounds));
+
+            BrushBuilder builder(&world, worldBounds);
+            const Brush brush1 = builder.createCuboid(brush1Bounds, "texture");
+            const Brush brush2 = builder.createCuboid(brush2Bounds, "texture");
+
+            const std::vector<Brush> result = brush1.subtract(world, worldBounds, "texture", brush2);
+            ASSERT_EQ(1u, result.size());
+
+            const Brush& subtraction = result.at(0);
+            ASSERT_COLLECTIONS_EQUIVALENT(brush1.vertexPositions(), subtraction.vertexPositions());
+        }
+
+        TEST_CASE("BrushTest.subtractEnclosed", "[BrushTest]") {
+            const vm::bbox3 worldBounds(4096.0);
+            WorldNode world(MapFormat::Standard);
+
+            const vm::bbox3 brush1Bounds(vm::vec3::fill(-8.0), vm::vec3::fill(+8.0));
+            const vm::bbox3 brush2Bounds(vm::vec3::fill(-9.0), vm::vec3::fill(+9.0));
+            ASSERT_TRUE(brush1Bounds.intersects(brush2Bounds));
+
+            BrushBuilder builder(&world, worldBounds);
+            const Brush brush1 = builder.createCuboid(brush1Bounds, "texture");
+            const Brush brush2 = builder.createCuboid(brush2Bounds, "texture");
+
+            const std::vector<Brush> result = brush1.subtract(world, worldBounds, "texture", brush2);
+            ASSERT_EQ(0u, result.size());
+        }
+
+        TEST_CASE("BrushTest.subtractTruncatedCones", "[BrushTest]") {
+            // https://github.com/kduske/TrenchBroom/issues/1469
+
+            const std::string minuendStr(R"({
+                ( 29.393876913416079 -16.970562748463635 32 ) ( 16.970562748495468 29.393876913411077 32 ) ( 11.313708499003496 19.595917942278447 -16 ) __TB_empty [ -0.258819 0.965926 0 -0.507559 ] [ -0.158797 -0.0425496 -0.986394 -0.257094 ] -0 1 1
+                ( 32.784609690844263 -8.784609690813113 32 ) ( 8.7846096908451727 32.784609690839488 32 ) ( 5.856406460569815 21.856406460564131 -16 ) __TB_empty [ -0.5 0.866025 0 -0.77533 ] [ -0.142374 -0.0821995 -0.986394 -0.0887003 ] -0 1 1
+                ( 33.94112549697229 -0 32 ) ( -0 33.941125496967288 32 ) ( -0 22.627416997982664 -16 ) __TB_empty [ -0.707107 0.707107 0 -0.176551 ] [ -0.116248 -0.116248 -0.986394 -0.46579 ] -0 1 1
+                ( 32.784609690844718 8.7846096908399431 32 ) ( -8.7846096908083382 32.784609690839488 32 ) ( -5.8564064605325257 21.856406460564131 -16 ) __TB_empty [ -0.866025 0.5 0 -0.0124664 ] [ -0.0821995 -0.142374 -0.986394 -0.870919 ] -0 1 1
+                ( 29.393876913416534 16.970562748490465 32 ) ( -16.970562748458633 29.393876913411304 32 ) ( -11.313708498966207 19.595917942278675 -16 ) __TB_empty [ -0.965926 0.258819 0 -0.373029 ] [ -0.0425496 -0.158797 -0.986394 -0.805874 ] -0 1 1
+                ( -11.313708498966662 -19.595917942252527 -16 ) ( -16.970562748458633 -29.393876913384929 32 ) ( 29.393876913416079 -16.970562748463635 32 ) __TB_empty [ -0.0425496 0.158797 -0.986394 -0.30125 ] [ -0.965926 -0.258819 0 -0.00242329 ] -0 1 1
+                ( -5.8564064605325257 -21.85640646053821 -16 ) ( -8.7846096908078835 -32.784609690813113 32 ) ( 32.784609690844263 -8.784609690813113 32 ) __TB_empty [ -0.0821995 0.142374 -0.986394 -0.474954 ] [ -0.866025 -0.5 0 -0.0709991 ] -0 1 1
+                ( -0 -22.627416997956516 -16 ) ( -0 -33.941125496940913 32 ) ( 33.94112549697229 -0 32 ) __TB_empty [ -0.116248 0.116248 -0.986394 -0.298004 ] [ -0.707107 -0.707107 0 -0.689445 ] -0 1 1
+                ( 5.856406460569815 -21.856406460537755 -16 ) ( 8.7846096908451727 -32.784609690813113 32 ) ( 32.784609690844718 8.7846096908399431 32 ) __TB_empty [ -0.142374 0.0821995 -0.986394 -0.219636 ] [ -0.5 -0.866025 0 -0.872314 ] -0 1 1
+                ( 11.313708499003496 -19.595917942252072 -16 ) ( 16.970562748495922 -29.393876913384702 32 ) ( 29.393876913416534 16.970562748490465 32 ) __TB_empty [ -0.158797 0.0425496 -0.986394 -0.818881 ] [ -0.258819 -0.965926 0 -0.590811 ] -0 1 1
+                ( 16 -16 -16 ) ( 24 -24 32 ) ( 24 24 32 ) __TB_empty [ -0.164399 0 -0.986394 -0.283475 ] [ 0 -1 0 -0 ] -0 1 1
+                ( 16.970562748495468 29.393876913411077 32 ) ( -29.3938769133797 16.970562748490465 32 ) ( -19.595917942246615 11.313708498997812 -16 ) __TB_empty [ -0.0425496 0.158797 0.986394 0.0475388 ] [ -0.965926 -0.258819 0 -0.238751 ] -0 1 1
+                ( 8.7846096908451727 32.784609690839488 32 ) ( -32.784609690807883 8.7846096908399431 32 ) ( -21.856406460532071 5.8564064605641306 -16 ) __TB_empty [ -0.0821995 0.142374 0.986394 -0.902102 ] [ -0.866025 -0.5 0 -0.660111 ] -0 1 1
+                ( -0 33.941125496967288 32 ) ( -33.941125496935911 -0 32 ) ( -22.627416997950604 -0 -16 ) __TB_empty [ -0.116248 0.116248 0.986394 -0.50108 ] [ -0.707107 -0.707107 0 -0.631095 ] -0 1 1
+                ( -8.7846096908083382 32.784609690839488 32 ) ( -32.784609690807883 -8.7846096908135678 32 ) ( -21.856406460532071 -5.8564064605377553 -16 ) __TB_empty [ -0.142374 0.0821995 0.986394 -0.198669 ] [ -0.5 -0.866025 0 -0.166748 ] -0 1 1
+                ( -16.970562748458633 29.393876913411304 32 ) ( -29.393876913379245 -16.970562748463863 32 ) ( -19.595917942246615 -11.313708498971437 -16 ) __TB_empty [ -0.158797 0.0425496 0.986394 -0.573831 ] [ -0.258819 -0.965926 0 -0.238028 ] -0 1 1
+                ( -29.3938769133797 16.970562748490465 32 ) ( -16.970562748458633 -29.393876913384929 32 ) ( -11.313708498966662 -19.595917942252527 -16 ) __TB_empty [ -0.258819 0.965926 0 -0.271353 ] [ -0.158797 -0.0425496 0.986394 -0.908333 ] -0 1 1
+                ( -32.784609690807883 8.7846096908399431 32 ) ( -8.7846096908078835 -32.784609690813113 32 ) ( -5.8564064605325257 -21.85640646053821 -16 ) __TB_empty [ -0.5 0.866025 0 -0.18634 ] [ -0.142374 -0.0821995 0.986394 -0.51593 ] -0 1 1
+                ( -33.941125496935911 -0 32 ) ( -0 -33.941125496940913 32 ) ( -0 -22.627416997956516 -16 ) __TB_empty [ -0.707107 0.707107 0 -0.234839 ] [ -0.116248 -0.116248 0.986394 -0.668957 ] -0 1 1
+                ( -32.784609690807883 -8.7846096908135678 32 ) ( 8.7846096908451727 -32.784609690813113 32 ) ( 5.856406460569815 -21.856406460537755 -16 ) __TB_empty [ -0.866025 0.5 0 -0.717973 ] [ -0.0821995 -0.142374 0.986394 -0.849948 ] -0 1 1
+                ( -29.393876913379245 -16.970562748463863 32 ) ( 16.970562748495922 -29.393876913384702 32 ) ( 11.313708499003496 -19.595917942252072 -16 ) __TB_empty [ -0.965926 0.258819 0 -0.72569 ] [ -0.0425496 -0.158797 0.986394 -0.560825 ] -0 1 1
+                ( -24 24 32 ) ( -24 -24 32 ) ( -16 -16 -16 ) __TB_empty [ -0.164399 0 0.986394 -0.81431 ] [ 0 -1 0 -0 ] -0 1 1
+                ( 24 24 32 ) ( -24 24 32 ) ( -16 16 -16 ) __TB_empty [ -1 0 0 -0 ] [ 0 -0.164399 -0.986394 -0.827715 ] -0 1 1
+                ( -24 -24 32 ) ( 24 -24 32 ) ( 16 -16 -16 ) __TB_empty [ -1 0 0 -0 ] [ 0 -0.164399 0.986394 0.641451 ] -0 1 1
+                ( 24 24 32 ) ( 24 -24 32 ) ( -24 -24 32 ) __TB_empty [ 1 0 0 -0 ] [ 0 -1 0 -0 ] -0 1 1
+                ( -16 -16 -16 ) ( 16 16 -16 ) ( -16 16 -16 ) __TB_empty [ -1 0 0 -0 ] [ 0 -1 0 -0 ] -0 1 1
+            })");
+
+            const std::string subtrahendStr(R"({
+                ( 29.393876913416079 -16.970562748463635 48 ) ( 16.970562748495468 29.393876913411077 48 ) ( 11.313708499003496 19.595917942278447 -0 ) __TB_empty [ -0.258819 0.965926 0 -0.507559 ] [ -0.158797 -0.0425496 -0.986394 -0.474791 ] -0 1 1
+                ( 32.784609690844263 -8.784609690813113 48 ) ( 8.7846096908451727 32.784609690839488 48 ) ( 5.856406460569815 21.856406460564131 -0 ) __TB_empty [ -0.5 0.866025 0 -0.77533 ] [ -0.142374 -0.0821995 -0.986394 -0.306396 ] -0 1 1
+                ( 33.94112549697229 -0 48 ) ( -0 33.941125496967288 48 ) ( -0 22.627416997982664 -0 ) __TB_empty [ -0.707107 0.707107 0 -0.176551 ] [ -0.116248 -0.116248 -0.986394 -0.683485 ] -0 1 1
+                ( 32.784609690844718 8.7846096908399431 48 ) ( -8.7846096908083382 32.784609690839488 48 ) ( -5.8564064605325257 21.856406460564131 -0 ) __TB_empty [ -0.866025 0.5 0 -0.0124664 ] [ -0.0821995 -0.142374 -0.986394 -0.0886002 ] -0 1 1
+                ( 29.393876913416534 16.970562748490465 48 ) ( -16.970562748458633 29.393876913411304 48 ) ( -11.313708498966207 19.595917942278675 -0 ) __TB_empty [ -0.965926 0.258819 0 -0.373029 ] [ -0.0425496 -0.158797 -0.986394 -0.0235691 ] -0 1 1
+                ( -11.313708498966662 -19.595917942252527 -0 ) ( -16.970562748458633 -29.393876913384929 48 ) ( 29.393876913416079 -16.970562748463635 48 ) __TB_empty [ -0.0425496 0.158797 -0.986394 -0.5189 ] [ -0.965926 -0.258819 0 -0.00242329 ] -0 1 1
+                ( -5.8564064605325257 -21.85640646053821 -0 ) ( -8.7846096908078835 -32.784609690813113 48 ) ( 32.784609690844263 -8.784609690813113 48 ) __TB_empty [ -0.0821995 0.142374 -0.986394 -0.692604 ] [ -0.866025 -0.5 0 -0.0709991 ] -0 1 1
+                ( -0 -22.627416997956516 -0 ) ( -0 -33.941125496940913 48 ) ( 33.94112549697229 -0 48 ) __TB_empty [ -0.116248 0.116248 -0.986394 -0.515699 ] [ -0.707107 -0.707107 0 -0.689445 ] -0 1 1
+                ( 5.856406460569815 -21.856406460537755 -0 ) ( 8.7846096908451727 -32.784609690813113 48 ) ( 32.784609690844718 8.7846096908399431 48 ) __TB_empty [ -0.142374 0.0821995 -0.986394 -0.437332 ] [ -0.5 -0.866025 0 -0.872314 ] -0 1 1
+                ( 11.313708499003496 -19.595917942252072 -0 ) ( 16.970562748495922 -29.393876913384702 48 ) ( 29.393876913416534 16.970562748490465 48 ) __TB_empty [ -0.158797 0.0425496 -0.986394 -0.0365772 ] [ -0.258819 -0.965926 0 -0.590811 ] -0 1 1
+                ( 16 -16 -0 ) ( 24 -24 48 ) ( 24 24 48 ) __TB_empty [ -0.164399 0 -0.986394 -0.501169 ] [ 0 -1 0 -0 ] -0 1 1
+                ( 16.970562748495468 29.393876913411077 48 ) ( -29.3938769133797 16.970562748490465 48 ) ( -19.595917942246615 11.313708498997812 -0 ) __TB_empty [ -0.0425496 0.158797 0.986394 0.265238 ] [ -0.965926 -0.258819 0 -0.238751 ] -0 1 1
+                ( 8.7846096908451727 32.784609690839488 48 ) ( -32.784609690807883 8.7846096908399431 48 ) ( -21.856406460532071 5.8564064605641306 -0 ) __TB_empty [ -0.0821995 0.142374 0.986394 -0.684406 ] [ -0.866025 -0.5 0 -0.660111 ] -0 1 1
+                ( -0 33.941125496967288 48 ) ( -33.941125496935911 -0 48 ) ( -22.627416997950604 -0 -0 ) __TB_empty [ -0.116248 0.116248 0.986394 -0.283369 ] [ -0.707107 -0.707107 0 -0.631095 ] -0 1 1
+                ( -8.7846096908083382 32.784609690839488 48 ) ( -32.784609690807883 -8.7846096908135678 48 ) ( -21.856406460532071 -5.8564064605377553 -0 ) __TB_empty [ -0.142374 0.0821995 0.986394 -0.980953 ] [ -0.5 -0.866025 0 -0.166748 ] -0 1 1
+                ( -16.970562748458633 29.393876913411304 48 ) ( -29.393876913379245 -16.970562748463863 48 ) ( -19.595917942246615 -11.313708498971437 -0 ) __TB_empty [ -0.158797 0.0425496 0.986394 -0.35615 ] [ -0.258819 -0.965926 0 -0.238028 ] -0 1 1
+                ( -29.3938769133797 16.970562748490465 48 ) ( -16.970562748458633 -29.393876913384929 48 ) ( -11.313708498966662 -19.595917942252527 -0 ) __TB_empty [ -0.258819 0.965926 0 -0.271353 ] [ -0.158797 -0.0425496 0.986394 -0.690683 ] -0 1 1
+                ( -32.784609690807883 8.7846096908399431 48 ) ( -8.7846096908078835 -32.784609690813113 48 ) ( -5.8564064605325257 -21.85640646053821 -0 ) __TB_empty [ -0.5 0.866025 0 -0.18634 ] [ -0.142374 -0.0821995 0.986394 -0.298214 ] -0 1 1
+                ( -33.941125496935911 -0 48 ) ( -0 -33.941125496940913 48 ) ( -0 -22.627416997956516 -0 ) __TB_empty [ -0.707107 0.707107 0 -0.234839 ] [ -0.116248 -0.116248 0.986394 -0.451246 ] -0 1 1
+                ( -32.784609690807883 -8.7846096908135678 48 ) ( 8.7846096908451727 -32.784609690813113 48 ) ( 5.856406460569815 -21.856406460537755 -0 ) __TB_empty [ -0.866025 0.5 0 -0.717973 ] [ -0.0821995 -0.142374 0.986394 -0.632298 ] -0 1 1
+                ( -29.393876913379245 -16.970562748463863 48 ) ( 16.970562748495922 -29.393876913384702 48 ) ( 11.313708499003496 -19.595917942252072 -0 ) __TB_empty [ -0.965926 0.258819 0 -0.72569 ] [ -0.0425496 -0.158797 0.986394 -0.343115 ] -0 1 1
+                ( -24 24 48 ) ( -24 -24 48 ) ( -16 -16 -0 ) __TB_empty [ -0.164399 0 0.986394 -0.596628 ] [ 0 -1 0 -0 ] -0 1 1
+                ( 24 24 48 ) ( -24 24 48 ) ( -16 16 -0 ) __TB_empty [ -1 0 0 -0 ] [ 0 -0.164399 -0.986394 -0.0454121 ] -0 1 1
+                ( -24 -24 48 ) ( 24 -24 48 ) ( 16 -16 -0 ) __TB_empty [ -1 0 0 -0 ] [ 0 -0.164399 0.986394 0.859102 ] -0 1 1
+                ( 24 24 48 ) ( 24 -24 48 ) ( -24 -24 48 ) __TB_empty [ 1 0 0 -0 ] [ 0 -1 0 -0 ] -0 1 1
+                ( -16 -16 -0 ) ( 16 16 -0 ) ( -16 16 -0 ) __TB_empty [ -1 0 0 -0 ] [ 0 -1 0 -0 ] -0 1 1
+            })");
+
+            const vm::bbox3 worldBounds(8192.0);
+            WorldNode world(Model::MapFormat::Valve);
+
+            IO::TestParserStatus status;
+            const std::vector<Node*> minuendNodes = IO::NodeReader::read(minuendStr, world, worldBounds, status);
+            const std::vector<Node*> subtrahendNodes = IO::NodeReader::read(subtrahendStr, world, worldBounds, status);
+            
+            const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
+            const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
+
+            const std::vector<Brush> result = minuend.subtract(world, worldBounds, "some_texture", subtrahend);
+            ASSERT_FALSE(result.empty());
+
+            kdl::col_delete_all(minuendNodes);
+            kdl::col_delete_all(subtrahendNodes);
+        }
+
+        TEST_CASE("BrushTest.subtractDome", "[BrushTest]") {
+            // see https://github.com/kduske/TrenchBroom/issues/2707
+
+            const std::string minuendStr(R"({
+                ( -1598.09391534391647838 -277.57717407067275417 -20 ) ( -1598.09391534391647838 54.02274375211438695 -20 ) ( -1598.09391534391647838 -277.57717407067275417 -12 ) 128_gold_2 -14.94120025634765625 -108 -0 0.72087001800537109 1
+                ( -1178.96031746031826515 -277.57717407067275417 -20 ) ( -1598.09391534391647838 -277.57717407067275417 -20 ) ( -1178.96031746031826515 -277.57717407067275417 -12 ) 128_gold_2 28.92790031433105469 -108 -0 0.8250659704208374 1
+                ( -1178.96031746031826515 54.02274375211438695 -20 ) ( -1598.09391534391647838 54.02274375211438695 -20 ) ( -1178.96031746031826515 -277.57717407067275417 -20 ) 128_gold_2 -28.98690032958984375 -4.01778984069824219 -0 0.77968800067901611 0.65970498323440552
+                ( -1178.96031746031826515 -277.57717407067275417 -12 ) ( -1598.09391534391647838 -277.57717407067275417 -12 ) ( -1178.96031746031826515 54.02274375211438695 -12 ) 128_gold_2 -28.98690032958984375 -4.01778984069824219 -0 0.77968800067901611 0.65970498323440552
+                ( -1598.09391534391647838 54.02274375211438695 -20 ) ( -1178.96031746031826515 54.02274375211438695 -20 ) ( -1598.09391534391647838 54.02274375211438695 -12 ) 128_gold_2 28.92790031433105469 -108 -0 0.8250659704208374 1
+                ( -1178 54.02274375211438695 -20 ) ( -1178 -277.57717407067275417 -20 ) ( -1178 54.02274375211438695 -12 ) 128_gold_2 -14.94120025634765625 -108 -0 0.72087001800537109 1
+            })");
+
+
+            const auto subtrahendPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Brush/subtrahend.map");
+            std::ifstream stream(subtrahendPath.asString());
+            std::stringstream subtrahendStr;
+            subtrahendStr << stream.rdbuf();
+
+            const vm::bbox3 worldBounds(8192.0);
+            WorldNode world(MapFormat::Standard);
+
+            IO::TestParserStatus status;
+            const std::vector<Node*> minuendNodes = IO::NodeReader::read(minuendStr, world, worldBounds, status);
+            const std::vector<Node*> subtrahendNodes = IO::NodeReader::read(subtrahendStr.str(), world, worldBounds, status);
+            
+            const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
+            const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
+
+            const auto result = minuend.subtract(world, worldBounds, "some_texture", subtrahend);
+
+            kdl::col_delete_all(minuendNodes);
+            kdl::col_delete_all(subtrahendNodes);
+        }
+
+        TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments", "[BrushTest]") {
+            // see https://github.com/kduske/TrenchBroom/pull/1764#issuecomment-296341588
+            // subtract creates missing fragments
+
+            const std::string minuendStr("{\n"
+                                    "( -64 -64 -48 ) ( -64 -63 -48 ) ( -64 -64 -47 ) __TB_empty -0 -0 -0 1 1\n"
+                                    "( 64 64 -16 ) ( 64 64 -15 ) ( 64 65 -16 ) __TB_empty -0 -0 -0 1 1\n"
+                                    "( -64 -64 -48 ) ( -64 -64 -47 ) ( -63 -64 -48 ) __TB_empty -0 -0 -0 1 1\n"
+                                    "( 64 64 -16 ) ( 65 64 -16 ) ( 64 64 -15 ) __TB_empty -0 -0 -0 1 1\n"
+                                    "( 64 64 48 ) ( 64 65 48 ) ( 65 64 48 ) __TB_empty -0 -0 -0 1 1\n"
+                                    "( -64 -64 -48 ) ( -63 -64 -48 ) ( -64 -63 -48 ) __TB_empty -0 -0 -0 1 1\n"
+                                    "}\n");
+
+            const std::string subtrahendStr("{\n"
+                                       "( 174.71990352490863074 -62.14359353944905706 75.16563707012221585 ) ( 175.1529162268008406 -62.39359353944905706 76.03166247390666399 ) ( 175.60378700139182229 -61.83740732160116238 74.81208367952893923 ) __TB_empty 0.78229904174804688 -0.29628753662109375 338.198577880859375 0.95197159051895142 0.96824586391448975\n"
+                                       "( 36.41270357552525638 -34.54767559718354875 115.33507514292870155 ) ( 36.84571627741747335 -34.79767559718354875 116.2011005467131497 ) ( 36.58948027082188759 -35.46623425072723279 114.98152175233542494 ) __TB_empty -0.04352569580078125 0.71729850769042969 201.0517425537109375 0.98425096273422241 -0.90138787031173706\n"
+                                       "( 199.8900184844443686 -128.93134736624534753 80.25103299325476769 ) ( 200.77390196092756014 -128.62516114839746706 79.89747960266149107 ) ( 200.0667951797410069 -129.84990601978904579 79.89747960266149107 ) __TB_empty -0.59069061279296875 -0.1404876708984375 280.89337158203125 0.93541437387466431 0.93541431427001953\n"
+                                       "( -116.00776749053582648 53.45232440281647257 -189.5058669891937484 ) ( -115.83099079523915975 52.53376574927277431 -189.85942037978702501 ) ( -115.12388401405260652 53.75851062066436725 -189.85942037978702501 ) __TB_empty -0.02112197875976562 -0.22997283935546875 280.89337158203125 0.93541437387466431 0.93541431427001953\n"
+                                       "( 72.6107978708658095 -94.6384909672807737 153.79013823665565042 ) ( 145.00698646154697258 -136.4364499384135172 253.32768142207908113 ) ( 89.58136061934294503 -104.43644993841348878 142.47642973767091235 ) __TB_empty 0.93064975738525391 -0.637969970703125 326.3099365234375 1.27475488185882568 0.96824580430984497\n"
+                                       "( 69.78237074611962498 -79.94155251058168687 159.44699248614801945 ) ( 81.0960792451044199 -60.34563456831627803 159.44699248614801945 ) ( 136.52170508730841902 -92.34563456831628514 270.29824417055618824 ) __TB_empty 0.81418228149414062 0.05062103271484375 -0 1.22474479675292969 0.90138781070709229\n"
+                                       "( 81.0960792451044199 -60.34563456831627803 159.44699248614801945 ) ( 95.23821486883537091 -55.4466550827499276 153.79013823665565042 ) ( 150.66384071103937003 -87.44665508274994181 264.6413899210638192 ) __TB_empty 0.67885684967041016 -0.27746772766113281 338.198577880859375 0.95197159051895142 0.96824586391448975\n"
+                                       "( 95.23821486883537091 -55.4466550827499276 153.79013823665565042 ) ( 112.20877761731250644 -65.24461405388265689 142.47642973767091235 ) ( 167.63440345951653399 -97.2446140538826711 253.32768142207908113 ) __TB_empty 0.16141700744628906 -0.67490577697753906 326.3099365234375 1.27475488185882568 0.96824580430984497\n"
+                                       "( 112.20877761731250644 -65.24461405388265689 142.47642973767091235 ) ( 115.03720474205866253 -79.9415525105817153 136.81957548817854331 ) ( 170.46283058426269008 -111.94155251058172951 247.67082717258671209 ) __TB_empty -0.30159759521484375 0.28987884521484375 201.0517425537109375 0.98425096273422241 -0.90138787031173706\n"
+                                       "( 115.03720474205866253 -79.9415525105817153 136.81957548817854331 ) ( 103.72349624307389604 -99.53747045284714545 136.81957548817854331 ) ( 159.14912208527792359 -131.53747045284714545 247.67082717258671209 ) __TB_empty 0.81418418884277344 0.94775390625 -0 1.22474479675292969 0.90138781070709229\n"
+                                       "}\n");
+
+
+            const vm::bbox3 worldBounds(8192.0);
+            WorldNode world(MapFormat::Standard);
+
+            IO::TestParserStatus status;
+            const std::vector<Node*> minuendNodes = IO::NodeReader::read(minuendStr, world, worldBounds, status);
+            const std::vector<Node*> subtrahendNodes = IO::NodeReader::read(subtrahendStr, world, worldBounds, status);
+            
+            const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
+            const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
+
+            const std::vector<Brush> result = minuend.subtract(world, worldBounds, "some_texture", subtrahend);
+            ASSERT_EQ(8u, result.size());
+
+            kdl::col_delete_all(minuendNodes);
+            kdl::col_delete_all(subtrahendNodes);
         }
     }
 }

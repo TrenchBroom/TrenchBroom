@@ -246,17 +246,6 @@ namespace TrenchBroom {
             return m_brush.incidentFaces(vertex);
         }
 
-        std::vector<BrushNode*> BrushNode::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<BrushNode*>& subtrahends) const {
-            const std::vector<const Brush*> subtrahendBrushes = kdl::vec_transform(subtrahends, [](const auto* brushNode) { return &brushNode->m_brush; });
-            auto result = m_brush.subtract(factory, worldBounds, defaultTextureName, subtrahendBrushes);
-            return kdl::vec_transform(std::move(result), [&](auto brush) { return factory.createBrush(std::move(brush)); });
-        }
-
-        std::vector<BrushNode*> BrushNode::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, BrushNode* subtrahend) const {
-            auto result = m_brush.subtract(factory, worldBounds, defaultTextureName, subtrahend->m_brush);
-            return kdl::vec_transform(std::move(result), [&](auto brush) { return factory.createBrush(std::move(brush)); });
-        }
-
         void BrushNode::intersect(const vm::bbox3& worldBounds, const BrushNode* brush) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);

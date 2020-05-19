@@ -1207,8 +1207,8 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::csgSubtract() {
-            const auto subtrahends = std::vector<Model::BrushNode*>{selectedNodes().brushes()};
-            if (subtrahends.size() == 0) {
+            const auto subtrahendNodes = std::vector<Model::BrushNode*>{selectedNodes().brushes()};
+            if (subtrahendNodes.empty()) {
                 return false;
             }
 
@@ -1216,22 +1216,20 @@ namespace TrenchBroom {
             // Select touching, but don't delete the subtrahends yet
             selectTouching(false);
 
-            const auto minuends = std::vector<Model::BrushNode*>{selectedNodes().brushes()};
+            const auto minuendNodes = std::vector<Model::BrushNode*>{selectedNodes().brushes()};
 
             std::map<Model::Node*, std::vector<Model::Node*>> toAdd;
-            std::vector<Model::Node*> toRemove;
-
-            for (auto* subtrahend : subtrahends) {
-                toRemove.push_back(subtrahend);
-            }
-
-            for (auto* minuend : minuends) {
-                const std::vector<Model::BrushNode*> result = minuend->subtract(*m_world, m_worldBounds, currentTextureName(), subtrahends);
-
-                if (!result.empty()) {
-                    kdl::vec_append(toAdd[minuend->parent()], result);
+            std::vector<Model::Node*> toRemove(std::begin(subtrahendNodes), std::end(subtrahendNodes));
+            const std::vector<const Model::Brush*> subtrahends = kdl::vec_transform(subtrahendNodes, [](const auto* subtrahendNode) { return &subtrahendNode->brush(); });
+            
+            for (Model::BrushNode* minuendNode : minuendNodes) {
+                const Model::Brush& minuend = minuendNode->brush();
+                std::vector<Model::Brush> resultBrushes = minuend.subtract(*m_world, m_worldBounds, currentTextureName(), subtrahends);
+                if (!resultBrushes.empty()) {
+                    const std::vector<Model::BrushNode*> resultNodes = kdl::vec_transform(std::move(resultBrushes), [&](auto brush) { return m_world->createBrush(std::move(brush)); });
+                    kdl::vec_append(toAdd[minuendNode->parent()], resultNodes);
                 }
-                toRemove.push_back(minuend);
+                toRemove.push_back(minuendNode);
             }
 
             deselectAll();
