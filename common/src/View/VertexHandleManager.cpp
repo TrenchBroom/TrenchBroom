@@ -102,14 +102,16 @@ namespace TrenchBroom {
             }
         }
 
-        void EdgeHandleManager::addHandles(const Model::BrushNode* brush) {
-            for (const Model::BrushEdge* edge : brush->edges()) {
+        void EdgeHandleManager::addHandles(const Model::BrushNode* brushNode) {
+            const Model::Brush& brush = brushNode->brush();
+            for (const Model::BrushEdge* edge : brush.edges()) {
                 add(vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
             }
         }
 
-        void EdgeHandleManager::removeHandles(const Model::BrushNode* brush) {
-            for (const Model::BrushEdge* edge : brush->edges()) {
+        void EdgeHandleManager::removeHandles(const Model::BrushNode* brushNode) {
+            const Model::Brush& brush = brushNode->brush();
+            for (const Model::BrushEdge* edge : brush.edges()) {
                 assertResult(remove(vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position())))
             }
         }
