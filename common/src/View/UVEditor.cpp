@@ -37,10 +37,15 @@ namespace TrenchBroom {
     namespace View {
         UVEditor::UVEditor(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent) :
         QWidget(parent),
-        m_document(document),
+        m_document(std::move(document)),
         m_uvView(nullptr),
         m_xSubDivisionEditor(nullptr),
-        m_ySubDivisionEditor(nullptr) {
+        m_ySubDivisionEditor(nullptr),
+        m_resetTextureButton(nullptr),
+        m_flipTextureHButton(nullptr),
+        m_flipTextureVButton(nullptr),
+        m_rotateTextureCCWButton(nullptr),
+        m_rotateTextureCWButton(nullptr) {
             createGui(contextManager);
             bindObservers();
         }
