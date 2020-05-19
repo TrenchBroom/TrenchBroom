@@ -153,10 +153,6 @@ namespace TrenchBroom {
             m_brush.cloneInvertedFaceAttributesFrom(brush->m_brush);
         }
 
-        const BrushNode::EdgeList& BrushNode::edges() const {
-            return m_brush.edges();
-        }
-
         bool BrushNode::containsPoint(const vm::vec3& point) const {
             return m_brush.containsPoint(point);
         }

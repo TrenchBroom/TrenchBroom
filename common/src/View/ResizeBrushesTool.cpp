@@ -114,9 +114,10 @@ namespace TrenchBroom {
             void doVisit(Model::LayerNode*) override  {}
             void doVisit(Model::GroupNode*) override  {}
             void doVisit(Model::EntityNode*) override {}
-            void doVisit(Model::BrushNode* brush) override   {
-                for (const auto* edge : brush->edges())
-                    visitEdge(brush, edge);
+            void doVisit(Model::BrushNode* brushNode) override   {
+                const Model::Brush& brush = brushNode->brush();
+                for (const auto* edge : brush.edges())
+                    visitEdge(brushNode, edge);
             }
 
             void visitEdge(Model::BrushNode* node, const Model::BrushEdge* edge) {

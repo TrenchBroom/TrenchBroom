@@ -65,9 +65,9 @@ namespace TrenchBroom {
             /**
              * Adds all handles of the given brush to this handle manager.
              *
-             * @param brush the brush whose handles to add
+             * @param brushNode the brush whose handles to add
              */
-            virtual void addHandles(const Model::BrushNode* brush) = 0;
+            virtual void addHandles(const Model::BrushNode* brushNode) = 0;
 
             /**
              * Removes all handles of the given range of brushes from this handle manager.
@@ -87,9 +87,9 @@ namespace TrenchBroom {
             /**
              * Removes all handles of the given brush from this handle manager.
              *
-             * @param brush the brush whose handles to remove
+             * @param brushNode the brush whose handles to remove
              */
-            virtual void removeHandles(const Model::BrushNode* brush) = 0;
+            virtual void removeHandles(const Model::BrushNode* brushNode) = 0;
         };
 
         template <typename H>
@@ -532,10 +532,10 @@ namespace TrenchBroom {
              * Checks whether the given brush is incident to the given handle.
              *
              * @param handle the handle to check
-             * @param brush the brush to check
+             * @param brushNode the brush to check
              * @return true if and only if the given brush is incident to the given handle
              */
-            virtual bool isIncident(const Handle& handle, const Model::BrushNode* brush) const = 0;
+            virtual bool isIncident(const Handle& handle, const Model::BrushNode* brushNode) const = 0;
         };
 
         /**
@@ -558,12 +558,12 @@ namespace TrenchBroom {
              */
             void pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
-            void addHandles(const Model::BrushNode* brush) override;
-            void removeHandles(const Model::BrushNode* brush) override;
+            void addHandles(const Model::BrushNode* brushNode) override;
+            void removeHandles(const Model::BrushNode* brushNode) override;
 
             Model::HitType::Type hitType() const override;
         private:
-            bool isIncident(const Handle& handle, const Model::BrushNode* brush) const override;
+            bool isIncident(const Handle& handle, const Model::BrushNode* brushNode) const override;
         };
 
         /**
@@ -603,12 +603,12 @@ namespace TrenchBroom {
              */
             void pickCenterHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
-            void addHandles(const Model::BrushNode* brush) override;
-            void removeHandles(const Model::BrushNode* brush) override;
+            void addHandles(const Model::BrushNode* brushNode) override;
+            void removeHandles(const Model::BrushNode* brushNode) override;
 
             Model::HitType::Type hitType() const override;
         private:
-            bool isIncident(const Handle& handle, const Model::BrushNode* brush) const override;
+            bool isIncident(const Handle& handle, const Model::BrushNode* brushNode) const override;
         };
 
         /**
@@ -654,7 +654,7 @@ namespace TrenchBroom {
 
             Model::HitType::Type hitType() const override;
         private:
-            bool isIncident(const Handle& handle, const Model::BrushNode* brush) const override;
+            bool isIncident(const Handle& handle, const Model::BrushNode* brushNode) const override;
         };
     }
 }
