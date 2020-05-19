@@ -71,7 +71,7 @@ namespace TrenchBroom {
                 split(seam, callback);
 
                 // We seal the polyhedron by creating a new face.
-                sealWithSinglePolygon(seam, callback);
+                sealWithSinglePolygon(seam, plane, callback);
                 updateBounds();
 
                 assert(checkInvariant());
@@ -357,7 +357,7 @@ namespace TrenchBroom {
             oldFace->insertIntoBoundaryAfter(newBoundaryLast, HalfEdgeList({ newBoundarySplitter }));
             HalfEdgeList newBoundary = oldFace->replaceBoundary(newBoundaryFirst, newBoundarySplitter, HalfEdgeList({ oldBoundarySplitter }));
 
-            Face* newFace = new Face(std::move(newBoundary));
+            Face* newFace = new Face(std::move(newBoundary), oldFace->plane());
             Edge* newEdge = new Edge(oldBoundarySplitter, newBoundarySplitter);
 
             m_edges.push_back(newEdge);
