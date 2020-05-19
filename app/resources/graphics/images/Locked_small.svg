@@ -7,18 +7,18 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
-   sodipodi:docname="Locked_small.svg"
-   id="svg88"
-   viewBox="0 0 12 12"
-   height="12"
-   width="12"
-   y="0"
-   x="0"
-   version="1.1"
-   inkscape:export-filename="/media/psf/Home/Documents/Code/TrenchBroom_qt/app/resources/graphics/images/Locked_small.png"
+   inkscape:export-ydpi="96"
    inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96">
+   inkscape:export-filename="/media/psf/Home/Documents/Code/TrenchBroom_qt/app/resources/graphics/images/Locked_small.png"
+   version="1.1"
+   x="0"
+   y="0"
+   width="12"
+   height="12"
+   viewBox="0 0 12 12"
+   id="svg88"
+   sodipodi:docname="Locked_small.svg"
+   inkscape:version="1.0rc1 (09960d6f05, 2020-04-09)">
   <metadata
      id="metadata94">
     <rdf:RDF>
@@ -34,45 +34,45 @@
   <defs
      id="defs92" />
   <sodipodi:namedview
-     units="px"
-     inkscape:current-layer="svg88"
-     inkscape:window-maximized="1"
-     inkscape:window-y="30"
-     inkscape:window-x="72"
-     inkscape:cy="5.1470439"
-     inkscape:cx="-1.6644551"
-     inkscape:zoom="45.254834"
-     showgrid="true"
-     id="namedview90"
-     inkscape:window-height="1373"
-     inkscape:window-width="2488"
-     inkscape:pageshadow="2"
-     inkscape:pageopacity="0"
-     guidetolerance="10"
-     gridtolerance="10"
-     objecttolerance="10"
-     borderopacity="1"
-     bordercolor="#666666"
-     pagecolor="#ffffff"
-     inkscape:document-rotation="0"
+     inkscape:bbox-nodes="true"
      inkscape:snap-bbox="true"
-     inkscape:bbox-nodes="true">
+     inkscape:document-rotation="0"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2560"
+     inkscape:window-height="1377"
+     id="namedview90"
+     showgrid="true"
+     inkscape:zoom="90.509668"
+     inkscape:cx="5.1035512"
+     inkscape:cy="5.7915929"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg88"
+     units="px">
     <inkscape:grid
-       type="xygrid"
-       id="grid834" />
+       id="grid834"
+       type="xygrid" />
   </sodipodi:namedview>
   <path
-     inkscape:connector-curvature="0"
-     style="fill:#3f3f3f;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0, 10.9999999;stroke-dashoffset:0;stroke-opacity:1"
+     id="path4576"
      d="M 2.2493914,5 C 1.6244132,5 0.99999999,5.5004885 0.99999999,6.000488 V 9.9995119 C 0.99999999,10.499512 1.6244132,11 2.2493914,11 H 9.748986 C 10.373964,11 11,10.499512 11,9.9995119 V 6.000488 C 11,5.5004885 10.373964,5 9.748986,5 Z M 5.9845855,6.5 A 1.6615284,1.5 0 0 1 7.646114,8 1.6615284,1.5 0 0 1 5.9845855,9.5 1.6615284,1.5 0 0 1 4.323057,8 1.6615284,1.5 0 0 1 5.9845855,6.5 Z"
-     id="path4576" />
+     style="fill:#3f3f3f;fill-opacity:1;stroke:none;stroke-width:0.393;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:15.93;stroke-opacity:1"
+     inkscape:connector-curvature="0" />
   <path
-     style="fill:none;fill-opacity:1;stroke:#3f3f3f;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-     d="m 3.0220971,6.47978 v -2 c 0,0 -0.353553,-2.97978 2.97978,-2.97978 3.333334,0 3.02022,2.97978 3.02022,2.97978 v 2"
-     id="path4578"
-     inkscape:connector-curvature="0"
-     sodipodi:nodetypes="ccscc"
-     inkscape:export-filename="./path4578.png"
+     inkscape:export-ydpi="96"
      inkscape:export-xdpi="96"
-     inkscape:export-ydpi="96" />
+     inkscape:export-filename="./path4578.png"
+     sodipodi:nodetypes="ccscc"
+     inkscape:connector-curvature="0"
+     id="path4578"
+     d="m 3.0220971,6.47978 v -2 c 0,0 -0.353553,-2.97978 2.97978,-2.97978 3.333334,0 3.02022,2.97978 3.02022,2.97978 v 2"
+     style="fill:none;fill-opacity:1;stroke:#3f3f3f;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
 </svg>
