@@ -57,7 +57,7 @@ namespace kdl {
          * @param v the value
          * @return a successful result that wraps the given value
          */
-        template <typename V, typename std::enable_if<std::is_convertible_v<V, Value>>::type* = nullptr>
+        template <typename V, typename std::enable_if_t<std::is_convertible_v<V, Value>>* = nullptr>
         static result success(V&& v) {
             return result(variant_type(std::in_place_index_t<0>(), std::forward<V>(v)));
         }
@@ -71,7 +71,7 @@ namespace kdl {
          * @param e the error
          * @return a failure result that wraps the given error
          */
-        template <typename E, typename std::enable_if<std::disjunction_v<std::is_convertible<E, Errors>...>>::type* = nullptr>
+        template <typename E, typename std::enable_if_t<std::disjunction_v<std::is_convertible<E, Errors>...>>* = nullptr>
         static result error(E&& e) {
             return result(variant_type(std::forward<E>(e)));
         }
@@ -177,7 +177,7 @@ namespace kdl {
         /**
          * Indicates whether the given result contains the given type of error.
          */
-        template <class E, typename std::enable_if<std::disjunction_v<std::is_convertible<E, Errors>...>>::type* = nullptr>
+        template <class E, typename std::enable_if_t<std::disjunction_v<std::is_convertible<E, Errors>...>>* = nullptr>
         bool is_error_type() const {
             return std::holds_alternative<E>(m_value);
         }
@@ -232,7 +232,7 @@ namespace kdl {
          * @param e the error
          * @return a failure result that wraps the given error
          */
-        template <typename E, typename std::enable_if<std::disjunction_v<std::is_convertible<E, Errors>...>>::type* = nullptr>
+        template <typename E, typename std::enable_if_t<std::disjunction_v<std::is_convertible<E, Errors>...>>* = nullptr>
         static result error(E&& e) {
             return result(variant_type(std::forward<E>(e)));
         }
@@ -345,7 +345,7 @@ namespace kdl {
         /**
          * Indicates whether the given result contains the given type of error.
          */
-        template <class E, typename std::enable_if<std::disjunction_v<std::is_convertible<E, Errors>...>>::type* = nullptr>
+        template <class E, typename std::enable_if_t<std::disjunction_v<std::is_convertible<E, Errors>...>>* = nullptr>
         bool is_error_type() const {
             return std::holds_alternative<E>(m_value);
         }
@@ -397,7 +397,7 @@ namespace kdl {
          * @param e the error
          * @return a failure result that wraps the given error
          */
-        template <typename E, typename std::enable_if<std::disjunction_v<std::is_convertible<E, Errors>...>>::type* = nullptr>
+        template <typename E, typename std::enable_if_t<std::disjunction_v<std::is_convertible<E, Errors>...>>* = nullptr>
         static result error(E&& e) {
             return result(variant_type(std::forward<E>(e)));
         }
@@ -464,7 +464,7 @@ namespace kdl {
         /**
          * Indicates whether the given result contains the given type of error.
          */
-        template <class E, typename std::enable_if<std::disjunction_v<std::is_convertible<E, Errors>...>>::type* = nullptr>
+        template <class E, typename std::enable_if_t<std::disjunction_v<std::is_convertible<E, Errors>...>>* = nullptr>
         bool is_error_type() const {
             if (m_error.has_value()) { 
                 return std::holds_alternative<E>(m_error.value());
@@ -528,7 +528,7 @@ namespace kdl {
          * @param v the value
          * @return a successful result that wraps the given value
          */
-        template <typename V, typename std::enable_if<std::is_convertible_v<V, Value>>::type* = nullptr>
+        template <typename V, typename std::enable_if_t<std::is_convertible_v<V, Value>>* = nullptr>
         static result success(V&& v) {
             return result(variant_type(std::in_place_index_t<0>(), std::forward<V>(v)));
         }
@@ -542,7 +542,7 @@ namespace kdl {
          * @param e the error
          * @return a failure result that wraps the given error
          */
-        template <typename E, typename std::enable_if<std::disjunction_v<std::is_convertible<E, Errors>...>>::type* = nullptr>
+        template <typename E, typename std::enable_if_t<std::disjunction_v<std::is_convertible<E, Errors>...>>* = nullptr>
         static result error(E&& e) {
             return result(variant_type(std::forward<E>(e)));
         }
@@ -618,7 +618,7 @@ namespace kdl {
         /**
          * Indicates whether the given result contains the given type of error.
          */
-        template <class E, typename std::enable_if<std::disjunction_v<std::is_convertible<E, Errors>...>>::type* = nullptr>
+        template <class E, typename std::enable_if_t<std::disjunction_v<std::is_convertible<E, Errors>...>>* = nullptr>
         bool is_error_type() const {
             return std::holds_alternative<E>(m_value);
         }

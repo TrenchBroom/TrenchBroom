@@ -50,7 +50,7 @@ namespace kdl {
          * @tparam B the type of the value to set (must be bool)
          * @param value the value to set to true temporarily
          */
-        template <typename B, typename X = typename std::enable_if<std::is_same<B, bool>::value>::type>
+        template <typename B, typename std::enable_if_t<std::is_same_v<B, bool>>* = nullptr>
         explicit set_temp(B& value) :
         set_temp(value, true) {}
 
