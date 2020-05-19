@@ -73,7 +73,7 @@ namespace TrenchBroom {
             }
         };
 
-        class NodeWriter::WriteNode : public Model::NodeVisitor {
+        class NodeWriter::WriteNode : public Model::ConstNodeVisitor {
         private:
             NodeSerializer& m_serializer;
             const std::vector<Model::EntityAttribute> m_parentAttributes;
@@ -82,33 +82,33 @@ namespace TrenchBroom {
             m_serializer(serializer),
             m_parentAttributes(m_serializer.parentAttributes(parent)) {}
 
-            void doVisit(Model::WorldNode* /* world */) override   { stopRecursion(); }
-            void doVisit(Model::LayerNode* /* layer */) override   { stopRecursion(); }
+            void doVisit(const Model::WorldNode* /* world */) override   { stopRecursion(); }
+            void doVisit(const Model::LayerNode* /* layer */) override   { stopRecursion(); }
 
-            void doVisit(Model::GroupNode* group) override   {
+            void doVisit(const Model::GroupNode* group) override   {
                 m_serializer.group(group, m_parentAttributes);
                 WriteNode visitor(m_serializer, group);
                 group->iterate(visitor);
                 stopRecursion();
             }
 
-            void doVisit(Model::EntityNode* entity) override {
+            void doVisit(const Model::EntityNode* entity) override {
                 m_serializer.entity(entity, entity->attributes(), m_parentAttributes, entity);
                 stopRecursion();
             }
 
-            void doVisit(Model::BrushNode* /* brush */) override   { stopRecursion();  }
+            void doVisit(const Model::BrushNode* /* brush */) override   { stopRecursion();  }
         };
 
-        NodeWriter::NodeWriter(Model::WorldNode& world, FILE* stream) :
+        NodeWriter::NodeWriter(const Model::WorldNode& world, FILE* stream) :
         m_world(world),
         m_serializer(MapFileSerializer::create(m_world.format(), stream)) {}
 
-        NodeWriter::NodeWriter(Model::WorldNode& world, std::ostream& stream) :
+        NodeWriter::NodeWriter(const Model::WorldNode& world, std::ostream& stream) :
         m_world(world),
         m_serializer(MapStreamSerializer::create(m_world.format(), stream)) {}
 
-        NodeWriter::NodeWriter(Model::WorldNode& world, NodeSerializer* serializer) :
+        NodeWriter::NodeWriter(const Model::WorldNode& world, NodeSerializer* serializer) :
         m_world(world),
         m_serializer(serializer) {}
 
@@ -134,7 +134,7 @@ namespace TrenchBroom {
             }
         }
 
-        void NodeWriter::writeCustomLayer(Model::LayerNode* layer) {
+        void NodeWriter::writeCustomLayer(const Model::LayerNode* layer) {
             m_serializer->customLayer(layer);
 
             const std::vector<Model::Node*>& children = layer->children();
