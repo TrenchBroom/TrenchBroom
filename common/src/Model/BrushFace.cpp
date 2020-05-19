@@ -472,7 +472,7 @@ namespace TrenchBroom {
             return m_lineNumber;
         }
 
-        void BrushFace::setFilePosition(const size_t lineNumber, const size_t lineCount) {
+        void BrushFace::setFilePosition(const size_t lineNumber, const size_t lineCount) const {
             m_lineNumber = lineNumber;
             m_lineCount = lineCount;
         }

@@ -592,7 +592,7 @@ namespace TrenchBroom {
             return m_lineNumber;
         }
 
-        void Node::setFilePosition(const size_t lineNumber, const size_t lineCount) {
+        void Node::setFilePosition(const size_t lineNumber, const size_t lineCount) const {
             m_lineNumber = lineNumber;
             m_lineCount = lineCount;
         }

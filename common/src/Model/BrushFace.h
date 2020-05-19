@@ -84,8 +84,8 @@ namespace TrenchBroom {
             
             BrushFace::Points m_points;
             vm::plane3 m_boundary;
-            size_t m_lineNumber;
-            size_t m_lineCount;
+            mutable size_t m_lineNumber;
+            mutable size_t m_lineCount;
             bool m_selected;
 
             std::unique_ptr<TexCoordSystem> m_texCoordSystem;
@@ -170,7 +170,7 @@ namespace TrenchBroom {
             void invalidate();
 
             size_t lineNumber() const;
-            void setFilePosition(size_t lineNumber, size_t lineCount);
+            void setFilePosition(size_t lineNumber, size_t lineCount) const;
 
             bool selected() const;
             void select();
