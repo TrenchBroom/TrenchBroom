@@ -27,7 +27,7 @@
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/Node.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <vector>
 
@@ -51,7 +51,7 @@ namespace TrenchBroom {
                 m_entityBrushes(entityBrushes),
                 m_worldBrushes(worldBrushes) {}
             private:
-                void doVisit(Model::World* /* world */) override { m_worldBrushes.push_back(m_brush);  }
+                void doVisit(Model::WorldNode* /* world */) override { m_worldBrushes.push_back(m_brush);  }
                 void doVisit(Model::LayerNode* /* layer */) override { m_worldBrushes.push_back(m_brush);  }
                 void doVisit(Model::GroupNode* /* group */) override { m_worldBrushes.push_back(m_brush);  }
                 void doVisit(Model::Entity* entity )    override { m_entityBrushes[entity].push_back(m_brush); }
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             m_serializer(serializer),
             m_parentAttributes(m_serializer.parentAttributes(parent)) {}
 
-            void doVisit(Model::World* /* world */) override   { stopRecursion(); }
+            void doVisit(Model::WorldNode* /* world */) override   { stopRecursion(); }
             void doVisit(Model::LayerNode* /* layer */) override   { stopRecursion(); }
 
             void doVisit(Model::GroupNode* group) override   {
@@ -100,15 +100,15 @@ namespace TrenchBroom {
             void doVisit(Model::BrushNode* /* brush */) override   { stopRecursion();  }
         };
 
-        NodeWriter::NodeWriter(Model::World& world, FILE* stream) :
+        NodeWriter::NodeWriter(Model::WorldNode& world, FILE* stream) :
         m_world(world),
         m_serializer(MapFileSerializer::create(m_world.format(), stream)) {}
 
-        NodeWriter::NodeWriter(Model::World& world, std::ostream& stream) :
+        NodeWriter::NodeWriter(Model::WorldNode& world, std::ostream& stream) :
         m_world(world),
         m_serializer(MapStreamSerializer::create(m_world.format(), stream)) {}
 
-        NodeWriter::NodeWriter(Model::World& world, NodeSerializer* serializer) :
+        NodeWriter::NodeWriter(Model::WorldNode& world, NodeSerializer* serializer) :
         m_world(world),
         m_serializer(serializer) {}
 

@@ -25,7 +25,7 @@
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/NodeVisitor.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/PrimType.h"
@@ -193,7 +193,7 @@ namespace TrenchBroom {
             m_selectedColor(selectedColor),
             m_links(links) {}
         private:
-            void doVisit(Model::World*) override {}
+            void doVisit(Model::WorldNode*) override {}
             void doVisit(Model::LayerNode*) override {}
             void doVisit(Model::GroupNode*) override {}
             void doVisit(Model::BrushNode*) override {}
@@ -328,7 +328,7 @@ namespace TrenchBroom {
 
             CollectAllLinksVisitor collectLinks(editorContext, m_defaultColor, m_selectedColor, links);
 
-            Model::World* world = document->world();
+            Model::WorldNode* world = document->world();
             if (world != nullptr)
                 world->acceptAndRecurse(collectLinks);
         }

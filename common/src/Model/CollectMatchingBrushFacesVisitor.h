@@ -38,7 +38,7 @@ namespace TrenchBroom {
             CollectMatchingBrushFacesVisitor(const P& p = P()) : m_p(p) {}
             const std::vector<BrushFace*>& faces() const { return m_faces; }
         private:
-            void doVisit(World*)  override {}
+            void doVisit(WorldNode*)  override {}
             void doVisit(LayerNode*)  override {}
             void doVisit(GroupNode*)  override {}
             void doVisit(Entity*) override {}

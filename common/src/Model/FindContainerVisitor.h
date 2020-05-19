@@ -26,7 +26,7 @@ namespace TrenchBroom {
     namespace Model {
         class FindContainerVisitor : public NodeVisitor, public NodeQuery<Node*> {
         private:
-            void doVisit(World* world) override;
+            void doVisit(WorldNode* world) override;
             void doVisit(LayerNode* layer) override;
             void doVisit(GroupNode* group) override;
             void doVisit(Entity* entity) override;

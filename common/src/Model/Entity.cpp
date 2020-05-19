@@ -194,7 +194,7 @@ namespace TrenchBroom {
 
         class CanAddChildToEntity : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            void doVisit(const World*)  override   { setResult(false); }
+            void doVisit(const WorldNode*)  override   { setResult(false); }
             void doVisit(const LayerNode*)  override   { setResult(false); }
             void doVisit(const GroupNode*)  override   { setResult(true); }
             void doVisit(const Entity*) override { setResult(true); }
@@ -362,7 +362,7 @@ namespace TrenchBroom {
             m_lockTextures(lockTextures),
             m_worldBounds(worldBounds) {}
         private:
-            void doVisit(World*) override  {}
+            void doVisit(WorldNode*) override  {}
             void doVisit(LayerNode*) override  {}
             void doVisit(GroupNode*) override  {}
             void doVisit(Entity*) override {}

@@ -25,7 +25,7 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/MapFormat.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <string>
 
@@ -33,7 +33,7 @@ namespace TrenchBroom {
     namespace Model {
         TEST_CASE("BrushBuilderTest.createCube", "[BrushBuilderTest]") {
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             const BrushNode* cube = builder.createCube(128.0, "someName");
@@ -52,7 +52,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushBuilderTest.createCubeDefaults", "[BrushBuilderTest]") {
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushFaceAttributes defaultAttribs("defaultTexture");
             defaultAttribs.setOffset(vm::vec2f(0.5f, 0.5f));

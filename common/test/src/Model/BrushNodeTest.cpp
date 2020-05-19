@@ -36,7 +36,7 @@
 #include "Model/MapFormat.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <kdl/collection_utils.h>
 #include <kdl/vector_utils.h>
@@ -388,7 +388,7 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
@@ -413,7 +413,7 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
@@ -520,7 +520,7 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Valve);
+            WorldNode world(MapFormat::Valve);
 
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
@@ -543,7 +543,7 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
@@ -863,7 +863,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.moveVertex", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
@@ -907,7 +907,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.moveTetrahedronVertexToOpposideSide", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             const vm::vec3 top(0.0, 0.0, +16.0);
 
@@ -932,7 +932,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.moveEdge", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
@@ -987,7 +987,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.moveFace", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createCube(64.0, "asdf");
@@ -1027,7 +1027,7 @@ namespace TrenchBroom {
             auto format = GENERATE(MapFormat::Valve, MapFormat::Standard);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(format);
+            WorldNode world(format);
 
             Assets::Texture testTexture("testTexture", 64, 64);
 
@@ -1093,7 +1093,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.moveFaceDownFailure", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName);
@@ -1240,7 +1240,7 @@ namespace TrenchBroom {
         // point moves that flip the normal of the remaining polygon
         TEST_CASE("BrushNodeTest.movePointRemainingPolygon", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             const vm::vec3 peakPosition(0.0, 0.0, +64.0);
             const std::vector<vm::vec3> baseQuadVertexPositions{
@@ -1295,7 +1295,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.movePointRemainingPolyhedron", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             const vm::vec3 peakPosition(0.0, 0.0, 128.0);
             const std::vector<vm::vec3> vertexPositions {
@@ -1324,7 +1324,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.moveEdgeRemainingPolyhedron", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             // Taller than the cube, starts to the left of the +-64 unit cube
             const vm::segment3 edge(vm::vec3(-128, 0, -128), vm::vec3(-128, 0, +128));
@@ -1350,7 +1350,7 @@ namespace TrenchBroom {
         // Same as above, but moving 2 edges
         TEST_CASE("BrushNodeTest.moveEdgesRemainingPolyhedron", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             // Taller than the cube, starts to the left of the +-64 unit cube
             const vm::segment3 edge1(vm::vec3(-128, -32, -128), vm::vec3(-128, -32, +128));
@@ -1381,7 +1381,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.movePolygonRemainingPoint", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             const std::vector<vm::vec3> vertexPositions{
                     vm::vec3(-64.0, -64.0, +64.0), // top quad
@@ -1402,7 +1402,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.movePolygonRemainingEdge", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             const std::vector<vm::vec3> vertexPositions{
                     vm::vec3(-64.0, -64.0, +64.0), // top quad
@@ -1424,7 +1424,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.movePolygonRemainingPolygon", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createCube(128.0, Model::BrushFaceAttributes::NoTextureName);
@@ -1436,7 +1436,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.movePolygonRemainingPolygon2", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             // Same brush as movePolygonRemainingPolygon, but this particular order of vertices triggers a failure in Brush::doCanMoveVertices
             // where the polygon inserted into the "remaining" BrushGeometry gets the wrong normal.
@@ -1461,7 +1461,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.movePolygonRemainingPolygon_DisallowVertexCombining", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             //       z = +192  //
             // |\              //
@@ -1500,7 +1500,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.movePolygonRemainingPolyhedron", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             //   _   z = +64   //
             //  / \            //
@@ -1555,7 +1555,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.moveTwoFaces", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             //               //
             // |\    z = 64  //
@@ -1607,7 +1607,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.movePolyhedronRemainingEdge", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             // Edge to the left of the cube, shorter, extends down to Z=-256
             const vm::segment3 edge(vm::vec3(-128, 0, -256), vm::vec3(-128, 0, 0));
@@ -1688,7 +1688,7 @@ namespace TrenchBroom {
             points.push_back(p12);
 
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createBrush(points, "asdf");
@@ -1726,7 +1726,7 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
@@ -1764,7 +1764,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createBrush(oldPositions, "texture");
@@ -1836,7 +1836,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createBrush(oldPositions, "texture");
@@ -1907,7 +1907,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createBrush(oldPositions, "texture");
@@ -1976,7 +1976,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createBrush(oldPositions, "texture");
@@ -2043,7 +2043,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createBrush(oldPositions, "texture");
@@ -2108,7 +2108,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createBrush(oldPositions, "texture");
@@ -2172,7 +2172,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createBrush(oldPositions, "texture");
@@ -2239,7 +2239,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createBrush(oldPositions, "texture");
@@ -2302,7 +2302,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createBrush(oldPositions, "texture");
@@ -2366,7 +2366,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createBrush(oldPositions, "texture");
@@ -2431,7 +2431,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createBrush(oldPositions, "texture");
@@ -2496,7 +2496,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p8);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createBrush(oldPositions, "texture");
@@ -2563,7 +2563,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p9);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createBrush(oldPositions, "texture");
@@ -2618,7 +2618,7 @@ namespace TrenchBroom {
             oldPositions.push_back(p4);
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createBrush(oldPositions, "texture");
@@ -2634,7 +2634,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.subtractCuboidFromCuboid", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             const std::string minuendTexture("minuend");
             const std::string subtrahendTexture("subtrahend");
@@ -2722,7 +2722,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.subtractDisjoint", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             const vm::bbox3 brush1Bounds(vm::vec3::fill(-8.0), vm::vec3::fill(+8.0));
             const vm::bbox3 brush2Bounds(vm::vec3(124.0, 124.0, -4.0), vm::vec3(132.0, 132.0, +4.0));
@@ -2743,7 +2743,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.subtractEnclosed", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             const vm::bbox3 brush1Bounds(vm::vec3::fill(-8.0), vm::vec3::fill(+8.0));
             const vm::bbox3 brush2Bounds(vm::vec3::fill(-9.0), vm::vec3::fill(+9.0));
@@ -2822,7 +2822,7 @@ namespace TrenchBroom {
                                        "}\n");
 
             const vm::bbox3 worldBounds(8192.0);
-            World world(Model::MapFormat::Valve);
+            WorldNode world(Model::MapFormat::Valve);
 
             IO::TestParserStatus status;
             BrushNode* minuend = static_cast<BrushNode*>(IO::NodeReader::read(minuendStr, world, worldBounds, status).front());
@@ -2855,7 +2855,7 @@ namespace TrenchBroom {
             subtrahendStr << stream.rdbuf();
 
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
             const auto* minuend = static_cast<BrushNode*>(IO::NodeReader::read(minuendStr, world, worldBounds, status).front());
@@ -2897,7 +2897,7 @@ namespace TrenchBroom {
 
 
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
             BrushNode* minuend = static_cast<BrushNode*>(IO::NodeReader::read(minuendStr, world, worldBounds, status).front());
@@ -2924,7 +2924,7 @@ namespace TrenchBroom {
             // This brush is almost degenerate. It should be rejected by the map loader.
 
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
@@ -2935,7 +2935,7 @@ namespace TrenchBroom {
 
         static void assertCannotSnapTo(const std::string& data, const FloatType gridSize) {
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
@@ -2953,7 +2953,7 @@ namespace TrenchBroom {
 
         static void assertSnapTo(const std::string& data, const FloatType gridSize) {
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
@@ -3176,7 +3176,7 @@ namespace TrenchBroom {
                               "}");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
@@ -3227,7 +3227,7 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
@@ -3254,7 +3254,7 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
@@ -3282,7 +3282,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.removeSingleVertex", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             BrushNode* brush = builder.createCube(64.0, "asdf");
@@ -3351,7 +3351,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.removeMultipleVertices", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
             BrushBuilder builder(&world, worldBounds);
 
             std::vector<vm::vec3> vertices;
@@ -3390,7 +3390,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.snapshotTextureTest", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
             const BrushBuilder builder(&world, worldBounds);
 
             BrushNode* cube = builder.createCube(128.0, "");
@@ -3433,7 +3433,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.resizePastWorldBounds", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
             const BrushBuilder builder(&world, worldBounds);
 
             Model::BrushNode* brush1 = builder.createBrush(std::vector<vm::vec3>{vm::vec3(64, -64, 16), vm::vec3(64, 64, 16), vm::vec3(64, -64, -16), vm::vec3(64, 64, -16), vm::vec3(48, 64, 16), vm::vec3(48, 64, -16)}, "texture");
@@ -3447,7 +3447,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.moveVerticesPastWorldBounds", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
             const BrushBuilder builder(&world, worldBounds);
 
             Model::BrushNode* brush1 = builder.createCube(128.0, "texture");
@@ -3504,7 +3504,7 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(8192.0);
-            World world(Model::MapFormat::Valve);
+            WorldNode world(Model::MapFormat::Valve);
 
             IO::TestParserStatus status;
             IO::NodeReader reader(data, world);
@@ -3525,7 +3525,7 @@ namespace TrenchBroom {
             // see https://github.com/kduske/TrenchBroom/issues/2082
 
             const vm::bbox3 worldBounds(4096.0);
-            World world(Model::MapFormat::Valve);
+            WorldNode world(Model::MapFormat::Valve);
 
             const std::string data = R"(
 {
@@ -3609,7 +3609,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.expand", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
             const BrushBuilder builder(&world, worldBounds);
 
             Model::BrushNode *brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
@@ -3624,7 +3624,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.contract", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
             const BrushBuilder builder(&world, worldBounds);
 
             Model::BrushNode *brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
@@ -3639,7 +3639,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.contractToZero", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
             const BrushBuilder builder(&world, worldBounds);
 
             Model::BrushNode *brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
@@ -3650,7 +3650,7 @@ namespace TrenchBroom {
         TEST_CASE("BrushNodeTest.moveVerticesFail_2158", "[BrushNodeTest]") {
             // see https://github.com/kduske/TrenchBroom/issues/2158
             const vm::bbox3 worldBounds(4096.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             const std::string data = R"(
 {
@@ -3717,7 +3717,7 @@ namespace TrenchBroom {
             // see https://github.com/kduske/TrenchBroom/issues/2361
 
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             const std::string data = R"(
 {
@@ -3814,7 +3814,7 @@ namespace TrenchBroom {
             // see https://github.com/kduske/TrenchBroom/pull/2372#issuecomment-432893836
 
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             const std::string data = R"(
 {
@@ -3904,7 +3904,7 @@ namespace TrenchBroom {
             // see https://github.com/kduske/TrenchBroom/issues/2491
 
             const vm::bbox3 worldBounds(8192.0);
-            World world(MapFormat::Standard);
+            WorldNode world(MapFormat::Standard);
 
             const std::string data = R"(
             {
@@ -3927,7 +3927,7 @@ namespace TrenchBroom {
             // see https://github.com/kduske/TrenchBroom/issues/2686
 
             const vm::bbox3 worldBounds(8192.0);
-            World world(Model::MapFormat::Valve);
+            WorldNode world(Model::MapFormat::Valve);
 
             const std::string data = R"(
 {

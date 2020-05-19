@@ -31,7 +31,7 @@
 #include "Model/GroupNode.h"
 #include "Model/MapFacade.h"
 #include "Model/NodeCollection.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>

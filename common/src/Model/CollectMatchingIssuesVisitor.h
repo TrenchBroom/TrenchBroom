@@ -25,7 +25,7 @@
 #include "Model/Entity.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <vector>
 
@@ -46,7 +46,7 @@ namespace TrenchBroom {
                 return m_issues;
             }
         private:
-            void doVisit(World* world)   override { collectIssues(world);  }
+            void doVisit(WorldNode* world)   override { collectIssues(world);  }
             void doVisit(LayerNode* layer)   override { collectIssues(layer);  }
             void doVisit(GroupNode* group)   override { collectIssues(group);  }
             void doVisit(Entity* entity) override { collectIssues(entity); }

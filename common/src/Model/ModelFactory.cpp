@@ -27,7 +27,7 @@ namespace TrenchBroom {
             return doGetFormat();
         }
 
-        World* ModelFactory::createWorld() const {
+        WorldNode* ModelFactory::createWorld() const {
             return doCreateWorld();
         }
 

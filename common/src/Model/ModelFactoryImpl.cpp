@@ -26,7 +26,7 @@
 #include "Model/LayerNode.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <cassert>
 
@@ -44,9 +44,9 @@ namespace TrenchBroom {
             return m_format;
         }
 
-        World* ModelFactoryImpl::doCreateWorld() const {
+        WorldNode* ModelFactoryImpl::doCreateWorld() const {
             assert(m_format != MapFormat::Unknown);
-            return new World(m_format);
+            return new WorldNode(m_format);
         }
 
         LayerNode* ModelFactoryImpl::doCreateLayer(const std::string& name) const {

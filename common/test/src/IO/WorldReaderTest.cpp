@@ -30,7 +30,7 @@
 #include "Model/Entity.h"
 #include "Model/LayerNode.h"
 #include "Model/ParallelTexCoordSystem.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <vecmath/vec.h>
 
@@ -1084,12 +1084,12 @@ common/caulk
             IO::WorldReader worldReader(std::begin(fileReader), std::end(fileReader));
 
             const auto worldBounds = vm::bbox3(8192.0);
-            auto world = worldReader.read(Model::MapFormat::Quake2, worldBounds, status);
+            auto worldNode = worldReader.read(Model::MapFormat::Quake2, worldBounds, status);
 
-            REQUIRE(world != nullptr);
-            REQUIRE(1u == world->childCount());
+            REQUIRE(worldNode != nullptr);
+            REQUIRE(1u == worldNode->childCount());
 
-            auto* layerNode = dynamic_cast<Model::LayerNode*>(world->children().at(0));
+            auto* layerNode = dynamic_cast<Model::LayerNode*>(worldNode->children().at(0));
             REQUIRE(layerNode != nullptr);
             REQUIRE(1u == layerNode->childCount());
 

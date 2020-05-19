@@ -25,7 +25,7 @@
 #include "Model/Entity.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "View/MapDocumentTest.h"
 #include "View/MapDocument.h"
 

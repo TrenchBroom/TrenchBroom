@@ -25,7 +25,7 @@
 #include "Model/Entity.h"
 #include "Model/EntityColor.h"
 #include "Model/NodeVisitor.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "View/BorderLine.h"
 #include "View/ColorButton.h"
 #include "View/ColorTable.h"
@@ -158,7 +158,7 @@ namespace TrenchBroom {
 
             const std::vector<QColor>& colors() const { return m_colors.get_data(); }
         private:
-            void doVisit(const Model::World* world) override   { visitAttributableNode(world); }
+            void doVisit(const Model::WorldNode* world) override   { visitAttributableNode(world); }
             void doVisit(const Model::LayerNode*) override         {}
             void doVisit(const Model::GroupNode*) override         {}
             void doVisit(const Model::Entity* entity) override { visitAttributableNode(entity); stopRecursion(); }

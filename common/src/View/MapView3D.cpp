@@ -268,7 +268,7 @@ namespace TrenchBroom {
                 return m_center / static_cast<FloatType>(m_count);
             }
         private:
-            void doVisit(const Model::World*) override   {}
+            void doVisit(const Model::WorldNode*) override   {}
             void doVisit(const Model::LayerNode*) override   {}
             void doVisit(const Model::GroupNode*) override   {}
 
@@ -312,7 +312,7 @@ namespace TrenchBroom {
                 return m_offset;
             }
         private:
-            void doVisit(const Model::World*) override   {}
+            void doVisit(const Model::WorldNode*) override   {}
             void doVisit(const Model::LayerNode*) override   {}
             void doVisit(const Model::GroupNode*) override   {}
 

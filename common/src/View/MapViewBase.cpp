@@ -41,7 +41,7 @@
 #include "Model/LayerNode.h"
 #include "Model/PointFile.h"
 #include "Model/PortalFile.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Compass.h"
 #include "Renderer/FontDescriptor.h"
@@ -989,7 +989,7 @@ namespace TrenchBroom {
         static bool isEntity(const Model::Node* node) {
             class IsEntity : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
             private:
-                void doVisit(const Model::World*) override  { setResult(false); }
+                void doVisit(const Model::WorldNode*) override  { setResult(false); }
                 void doVisit(const Model::LayerNode*) override  { setResult(false); }
                 void doVisit(const Model::GroupNode*) override  { setResult(false); }
                 void doVisit(const Model::Entity*) override { setResult(true); }
@@ -1295,18 +1295,18 @@ namespace TrenchBroom {
 
         class BrushesToEntities {
         private:
-            const Model::World* m_world;
+            const Model::WorldNode* m_world;
         public:
-            explicit BrushesToEntities(const Model::World* world) : m_world(world) {}
+            explicit BrushesToEntities(const Model::WorldNode* world) : m_world(world) {}
         public:
-            bool operator()(const Model::World*) const       { return false; }
+            bool operator()(const Model::WorldNode*) const       { return false; }
             bool operator()(const Model::LayerNode*) const       { return false; }
             bool operator()(const Model::GroupNode*) const       { return true;  }
             bool operator()(const Model::Entity*) const      { return true; }
             bool operator()(const Model::BrushNode* brush) const { return brush->entity() == m_world; }
         };
 
-        static std::vector<Model::Node*> collectEntitiesForBrushes(const std::vector<Model::Node*>& selectedNodes, const Model::World* world) {
+        static std::vector<Model::Node*> collectEntitiesForBrushes(const std::vector<Model::Node*>& selectedNodes, const Model::WorldNode* world) {
             using BrushesToEntitiesVisitor = Model::CollectMatchingNodesVisitor<BrushesToEntities, Model::UniqueNodeCollectionStrategy, Model::StopRecursionIfMatched>;
 
             BrushesToEntitiesVisitor collect((BrushesToEntities(world)));

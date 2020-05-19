@@ -26,7 +26,7 @@
 #include "Model/FindLayerVisitor.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "View/BorderLine.h"
 #include "View/LayerListBox.h"
 #include "View/MapDocument.h"
@@ -154,11 +154,11 @@ namespace TrenchBroom {
 
         class LayerEditor::CollectMoveableNodes : public Model::NodeVisitor {
         private:
-            Model::World* m_world;
+            Model::WorldNode* m_world;
             std::set<Model::Node*> m_selectNodes;
             std::set<Model::Node*> m_moveNodes;
         public:
-            explicit CollectMoveableNodes(Model::World* world) : m_world(world) {}
+            explicit CollectMoveableNodes(Model::WorldNode* world) : m_world(world) {}
 
             const std::vector<Model::Node*> selectNodes() const {
                 return std::vector<Model::Node*>(std::begin(m_selectNodes), std::end(m_selectNodes));
@@ -168,7 +168,7 @@ namespace TrenchBroom {
                 return std::vector<Model::Node*>(std::begin(m_moveNodes), std::end(m_moveNodes));
             }
         private:
-            void doVisit(Model::World*) override   {}
+            void doVisit(Model::WorldNode*) override   {}
             void doVisit(Model::LayerNode*) override   {}
 
             void doVisit(Model::GroupNode* group) override   {

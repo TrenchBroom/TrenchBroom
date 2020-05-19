@@ -28,7 +28,7 @@
 #include "Model/LayerNode.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -146,7 +146,7 @@ namespace TrenchBroom {
         public:
             explicit NodeVisible(const EditorContext& i_this) : m_this(i_this) {}
         private:
-            void doVisit(const Model::World* world) override   { setResult(m_this.visible(world)); }
+            void doVisit(const Model::WorldNode* world) override   { setResult(m_this.visible(world)); }
             void doVisit(const Model::LayerNode* layer) override   { setResult(m_this.visible(layer)); }
             void doVisit(const Model::GroupNode* group) override   { setResult(m_this.visible(group)); }
             void doVisit(const Model::Entity* entity) override { setResult(m_this.visible(entity)); }
@@ -159,7 +159,7 @@ namespace TrenchBroom {
             return visitor.result();
         }
 
-        bool EditorContext::visible(const Model::World* world) const {
+        bool EditorContext::visible(const Model::WorldNode* world) const {
             return world->visible();
         }
 
@@ -249,7 +249,7 @@ namespace TrenchBroom {
         public:
             explicit NodePickable(const EditorContext& i_this) : m_this(i_this) {}
         private:
-            void doVisit(const Model::World* world) override   { setResult(m_this.pickable(world)); }
+            void doVisit(const Model::WorldNode* world) override   { setResult(m_this.pickable(world)); }
             void doVisit(const Model::LayerNode* layer) override   { setResult(m_this.pickable(layer)); }
             void doVisit(const Model::GroupNode* group) override   { setResult(m_this.pickable(group)); }
             void doVisit(const Model::Entity* entity) override { setResult(m_this.pickable(entity)); }
@@ -262,7 +262,7 @@ namespace TrenchBroom {
             return visitor.result();
         }
 
-        bool EditorContext::pickable(const Model::World* /* world */) const {
+        bool EditorContext::pickable(const Model::WorldNode* /* world */) const {
             return false;
         }
 
@@ -296,7 +296,7 @@ namespace TrenchBroom {
         public:
             explicit NodeSelectable(const EditorContext& i_this) : m_this(i_this) {}
         private:
-            void doVisit(const Model::World* world) override   { setResult(m_this.selectable(world)); }
+            void doVisit(const Model::WorldNode* world) override   { setResult(m_this.selectable(world)); }
             void doVisit(const Model::LayerNode* layer) override   { setResult(m_this.selectable(layer)); }
             void doVisit(const Model::GroupNode* group) override   { setResult(m_this.selectable(group)); }
             void doVisit(const Model::Entity* entity) override { setResult(m_this.selectable(entity)); }
@@ -309,7 +309,7 @@ namespace TrenchBroom {
             return visitor.result();
         }
 
-        bool EditorContext::selectable(const Model::World*) const {
+        bool EditorContext::selectable(const Model::WorldNode*) const {
             return false;
         }
 

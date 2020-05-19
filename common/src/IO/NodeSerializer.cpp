@@ -24,7 +24,7 @@
 #include "Model/EntityAttributes.h"
 #include "Model/LayerNode.h"
 #include "Model/NodeVisitor.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
@@ -39,7 +39,7 @@ namespace TrenchBroom {
         public:
             explicit BrushSerializer(NodeSerializer& serializer) : m_serializer(serializer) {}
 
-            void doVisit(Model::World* /* world */) override   {}
+            void doVisit(Model::WorldNode* /* world */) override   {}
             void doVisit(Model::LayerNode* /* layer */) override   {}
             void doVisit(Model::GroupNode* /* group */) override   {}
             void doVisit(Model::Entity* /* entity */) override {}
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             doEndFile();
         }
 
-        void NodeSerializer::defaultLayer(Model::World& world) {
+        void NodeSerializer::defaultLayer(Model::WorldNode& world) {
             entity(&world, world.attributes(), {}, world.defaultLayer());
         }
 
@@ -185,7 +185,7 @@ namespace TrenchBroom {
                 return m_attributes;
             }
         private:
-            void doVisit(const Model::World* /* world */) override   {}
+            void doVisit(const Model::WorldNode* /* world */) override   {}
             void doVisit(const Model::LayerNode* layer) override   { m_attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Layer, m_layerIds.getId(layer)));}
             void doVisit(const Model::GroupNode* group) override   { m_attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Group, m_groupIds.getId(group))); }
             void doVisit(const Model::Entity* /* entity */) override {}

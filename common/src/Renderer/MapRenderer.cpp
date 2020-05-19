@@ -30,7 +30,7 @@
 #include "Model/LayerNode.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/EntityLinkRenderer.h"
 #include "Renderer/ObjectRenderer.h"
@@ -329,7 +329,7 @@ namespace TrenchBroom {
             const Model::NodeCollection& selectedNodes() const { return m_selectedNodes; }
             const Model::NodeCollection& lockedNodes() const   { return m_lockedNodes;   }
         private:
-            void doVisit(Model::World*) override   {}
+            void doVisit(Model::WorldNode*) override   {}
             void doVisit(Model::LayerNode*) override   {}
 
             void doVisit(Model::GroupNode* group) override   {
@@ -374,7 +374,7 @@ namespace TrenchBroom {
 
         void MapRenderer::updateRenderers(const Renderer renderers) {
             auto document = kdl::mem_lock(m_document);
-            Model::World* world = document->world();
+            Model::WorldNode* world = document->world();
 
             CollectRenderableNodes collect(renderers);
             world->acceptAndRecurse(collect);

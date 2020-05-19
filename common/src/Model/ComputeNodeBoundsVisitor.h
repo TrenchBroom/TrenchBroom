@@ -51,7 +51,7 @@ namespace TrenchBroom {
             explicit ComputeNodeBoundsVisitor(BoundsType type, const vm::bbox3& defaultBounds = vm::bbox3());
             const vm::bbox3& bounds() const;
         private:
-            void doVisit(const World* world) override;
+            void doVisit(const WorldNode* world) override;
             void doVisit(const LayerNode* layer) override;
             void doVisit(const GroupNode* group) override;
             void doVisit(const Entity* entity) override;

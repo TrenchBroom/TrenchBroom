@@ -24,7 +24,7 @@
 #include "Model/Entity.h"
 #include "Model/LayerNode.h"
 #include "Model/ModelFactory.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <kdl/vector_utils.h>
 

@@ -36,14 +36,14 @@ namespace TrenchBroom {
         class GroupNode;
         class LayerNode;
         enum class MapFormat;
-        class World;
+        class WorldNode;
 
         class ModelFactory {
         public:
             virtual ~ModelFactory();
 
             MapFormat format() const;
-            World* createWorld() const;
+            WorldNode* createWorld() const;
             LayerNode* createLayer(const std::string& name) const;
             GroupNode* createGroup(const std::string& name) const;
             Entity* createEntity() const;
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             BrushFace* createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const;
         private:
             virtual MapFormat doGetFormat() const = 0;
-            virtual World* doCreateWorld() const = 0;
+            virtual WorldNode* doCreateWorld() const = 0;
             virtual LayerNode* doCreateLayer(const std::string& name) const = 0;
             virtual GroupNode* doCreateGroup(const std::string& name) const = 0;
             virtual Entity* doCreateEntity() const = 0;

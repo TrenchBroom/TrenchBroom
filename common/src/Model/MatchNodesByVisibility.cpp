@@ -24,14 +24,14 @@
 #include "Model/Entity.h"
 #include "Model/LayerNode.h"
 #include "Model/Node.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 namespace TrenchBroom {
     namespace Model {
         MatchNodesByVisibility::MatchNodesByVisibility(const VisibilityState visibility) :
         m_visibility(visibility) {}
 
-        bool MatchNodesByVisibility::operator()(const Model::World* world) const   { return match(world);  }
+        bool MatchNodesByVisibility::operator()(const Model::WorldNode* world) const   { return match(world);  }
         bool MatchNodesByVisibility::operator()(const Model::LayerNode* layer) const   { return match(layer);  }
         bool MatchNodesByVisibility::operator()(const Model::GroupNode* group) const   { return match(group);  }
         bool MatchNodesByVisibility::operator()(const Model::Entity* entity) const { return match(entity); }

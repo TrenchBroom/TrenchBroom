@@ -25,7 +25,7 @@
 #include "Model/EditorContext.h"
 #include "Model/LockState.h"
 #include "Model/VisibilityState.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "Model/LayerNode.h"
 #include "Model/GroupNode.h"
 #include "Model/Entity.h"
@@ -36,12 +36,12 @@ namespace TrenchBroom {
         class EditorContextTest {
         protected:
             vm::bbox3d worldBounds;
-            World* world;
+            WorldNode* world;
             EditorContext context;
 
             EditorContextTest() {
                 worldBounds = vm::bbox3d(8192.0);
-                world = new World(MapFormat::Standard);
+                world = new WorldNode(MapFormat::Standard);
             }
 
             virtual ~EditorContextTest() {

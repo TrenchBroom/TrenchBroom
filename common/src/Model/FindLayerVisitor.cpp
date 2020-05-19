@@ -23,7 +23,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        void FindLayerVisitor::doVisit(World*) {}
+        void FindLayerVisitor::doVisit(WorldNode*) {}
 
         void FindLayerVisitor::doVisit(LayerNode* layer) {
             setResult(layer);

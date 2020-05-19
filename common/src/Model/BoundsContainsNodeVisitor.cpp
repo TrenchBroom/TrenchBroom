@@ -27,7 +27,7 @@ namespace TrenchBroom {
         BoundsContainsNodeVisitor::BoundsContainsNodeVisitor(const vm::bbox3& bounds) :
         m_bounds(bounds) {}
 
-        void BoundsContainsNodeVisitor::doVisit(const World*)         { setResult(false); }
+        void BoundsContainsNodeVisitor::doVisit(const WorldNode*)         { setResult(false); }
         void BoundsContainsNodeVisitor::doVisit(const LayerNode*)         { setResult(false); }
         void BoundsContainsNodeVisitor::doVisit(const GroupNode* group)   { setResult(m_bounds.contains(group->logicalBounds())); }
         void BoundsContainsNodeVisitor::doVisit(const Entity* entity) { setResult(m_bounds.contains(entity->logicalBounds())); }
