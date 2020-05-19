@@ -153,10 +153,6 @@ namespace TrenchBroom {
             m_brush.cloneInvertedFaceAttributesFrom(brush->m_brush);
         }
 
-        std::vector<vm::vec3> BrushNode::vertexPositions() const {
-            return m_brush.vertexPositions();
-        }
-
         bool BrushNode::hasVertex(const vm::vec3& position, const FloatType epsilon) const {
             return m_brush.hasVertex(position, epsilon);
         }

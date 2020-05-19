@@ -82,7 +82,6 @@ namespace TrenchBroom {
         public:
             // geometry access
         public:
-            std::vector<vm::vec3> vertexPositions() const;
             vm::vec3 findClosestVertexPosition(const vm::vec3& position) const;
 
             bool hasVertex(const vm::vec3& position, FloatType epsilon = static_cast<FloatType>(0.0)) const;
