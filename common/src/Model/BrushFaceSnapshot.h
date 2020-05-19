@@ -20,14 +20,18 @@
 #ifndef TrenchBroom_BrushFaceSnapshot
 #define TrenchBroom_BrushFaceSnapshot
 
+#include "FloatType.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushFaceReference.h"
+
+#include <vecmath/plane.h>
 
 #include <memory>
 
 namespace TrenchBroom {
     namespace Model {
         class BrushFace;
+        class BrushNode;
         class TexCoordSystem;
         class TexCoordSystemSnapshot;
 
@@ -37,7 +41,7 @@ namespace TrenchBroom {
             BrushFaceAttributes m_attribs;
             std::unique_ptr<TexCoordSystemSnapshot> m_coordSystemSnapshot;
         public:
-            BrushFaceSnapshot(BrushFace* face, const TexCoordSystem& coordSystem);
+            BrushFaceSnapshot(BrushNode* node, const BrushFace* face);
             ~BrushFaceSnapshot();
 
             void restore();

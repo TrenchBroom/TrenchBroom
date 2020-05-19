@@ -22,6 +22,7 @@
 #include "Color.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
@@ -401,24 +402,24 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::documentWasNewed(MapDocument* document) {
-            m_faces = document->allSelectedBrushFaces();
+            m_faces = Model::toFaces(document->allSelectedBrushFaces());
             updateControls();
         }
 
         void FaceAttribsEditor::documentWasLoaded(MapDocument* document) {
-            m_faces = document->allSelectedBrushFaces();
+            m_faces = Model::toFaces(document->allSelectedBrushFaces());
             updateControls();
         }
 
         void FaceAttribsEditor::brushFacesDidChange(const std::vector<Model::BrushFace*>&) {
             auto document = kdl::mem_lock(m_document);
-            m_faces = document->allSelectedBrushFaces();
+            m_faces = Model::toFaces(document->allSelectedBrushFaces());
             updateControls();
         }
 
         void FaceAttribsEditor::selectionDidChange(const Selection&) {
             auto document = kdl::mem_lock(m_document);
-            m_faces = document->allSelectedBrushFaces();
+            m_faces = Model::toFaces(document->allSelectedBrushFaces());
             updateControls();
         }
 

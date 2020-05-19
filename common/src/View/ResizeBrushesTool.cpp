@@ -23,9 +23,10 @@
 #include "PreferenceManager.h"
 #include "FloatType.h"
 #include "Model/Brush.h"
-#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/BrushGeometry.h"
+#include "Model/BrushNode.h"
 #include "Model/CollectMatchingBrushFacesVisitor.h"
 #include "Model/FindMatchingBrushFaceVisitor.h"
 #include "Model/HitAdapter.h"
@@ -94,7 +95,7 @@ namespace TrenchBroom {
             }
         }
 
-        class ResizeBrushesTool::PickProximateFace : public Model::ConstNodeVisitor, public Model::NodeQuery<Model::Hit> {
+        class ResizeBrushesTool::PickProximateFace : public Model::NodeVisitor, public Model::NodeQuery<Model::Hit> {
         private:
             const Model::HitType::Type m_hitType;
             const vm::ray3& m_pickRay;
@@ -106,16 +107,16 @@ namespace TrenchBroom {
             m_pickRay(pickRay),
             m_closest(std::numeric_limits<FloatType>::max()) {}
         private:
-            void doVisit(const Model::WorldNode*) override  {}
-            void doVisit(const Model::LayerNode*) override  {}
-            void doVisit(const Model::GroupNode*) override  {}
-            void doVisit(const Model::EntityNode*) override {}
-            void doVisit(const Model::BrushNode* brush) override   {
+            void doVisit(Model::WorldNode*) override  {}
+            void doVisit(Model::LayerNode*) override  {}
+            void doVisit(Model::GroupNode*) override  {}
+            void doVisit(Model::EntityNode*) override {}
+            void doVisit(Model::BrushNode* brush) override   {
                 for (const auto* edge : brush->edges())
-                    visitEdge(edge);
+                    visitEdge(brush, edge);
             }
 
-            void visitEdge(const Model::BrushEdge* edge) {
+            void visitEdge(Model::BrushNode* node, const Model::BrushEdge* edge) {
                 auto* left = edge->firstFace()->payload();
                 auto* right = edge->secondFace()->payload();
                 const auto leftDot  = dot(left->boundary().normal,  m_pickRay.direction);
@@ -127,23 +128,23 @@ namespace TrenchBroom {
                         m_closest = result.distance;
                         const auto hitPoint = vm::point_at_distance(m_pickRay, result.position1);
                         if (m_hitType == ResizeBrushesTool::Resize2DHitType) {
-                            std::vector<Model::BrushFace*> faces;
+                            Resize2DHitData data;
                             if (vm::is_zero(leftDot, vm::C::almost_zero())) {
-                                faces.push_back(left);
+                                data.push_back(Model::BrushFaceHandle(node, left));
                             } else if (vm::is_zero(rightDot, vm::C::almost_zero())) {
-                                faces.push_back(right);
+                                data.push_back(Model::BrushFaceHandle(node, right));
                             } else {
                                 if (vm::abs(leftDot) < 1.0) {
-                                    faces.push_back(left);
+                                    data.push_back(Model::BrushFaceHandle(node, left));
                                 }
                                 if (vm::abs(rightDot) < 1.0) {
-                                    faces.push_back(right);
+                                    data.push_back(Model::BrushFaceHandle(node, right));
                                 }
                             }
-                            setResult(Model::Hit(m_hitType, result.position1, hitPoint, faces));
+                            setResult(Model::Hit(m_hitType, result.position1, hitPoint, data));
                         } else {
-                            auto* face = leftDot > rightDot ? left : right;
-                            setResult(Model::Hit(m_hitType, result.position1, hitPoint, face));
+                            Model::BrushFace* face = leftDot > rightDot ? left : right;
+                            setResult(Model::Hit(m_hitType, result.position1, hitPoint, Model::BrushFaceHandle(node, face)));
                         }
                     }
                 }
@@ -218,38 +219,32 @@ namespace TrenchBroom {
             assert(hit.isMatch());
             assert(hit.type() == Resize2DHitType || hit.type() == Resize3DHitType);
 
-            std::vector<Model::BrushFace*> result;
+            std::vector<Model::BrushFaceHandle> result;
             if (hit.type() == Resize2DHitType) {
-                const std::vector<Model::BrushFace*>& faces = hit.target<const std::vector<Model::BrushFace*>&>();
-                assert(!faces.empty());
-                kdl::vec_append(result, faces, collectDragFaces(faces[0]));
-                if (faces.size() > 1) {
-                    kdl::vec_append(result, collectDragFaces(faces[1]));
+                const Resize2DHitData& data = hit.target<const Resize2DHitData&>();
+                assert(!data.empty());
+                kdl::vec_append(result, data, collectDragFaces(data[0]));
+                if (data.size() > 1) {
+                    kdl::vec_append(result, collectDragFaces(data[1]));
                 }
             } else {
-                Model::BrushFace* face = hit.target<Model::BrushFace*>();
-                result.push_back(face);
-                kdl::vec_append(result, collectDragFaces(face));
+                const Resize3DHitData& data = hit.target<const Resize3DHitData&>();
+                result.push_back(data);
+                kdl::vec_append(result, collectDragFaces(data));
             }
 
-            return getDragHandles(result);
+            return kdl::vec_transform(result, [](const auto& handle) {
+                return std::make_tuple(handle.node(), handle.face()->boundary().normal);
+            });
         }
 
-        std::vector<Model::BrushFace*> ResizeBrushesTool::collectDragFaces(Model::BrushFace* face) const {
-            Model::CollectMatchingBrushFacesVisitor<MatchFaceBoundary> visitor((MatchFaceBoundary(face)));
+        std::vector<Model::BrushFaceHandle> ResizeBrushesTool::collectDragFaces(const Model::BrushFaceHandle& faceHandle) const {
+            Model::CollectMatchingBrushFacesVisitor<MatchFaceBoundary> visitor((MatchFaceBoundary(faceHandle.face())));
 
             auto document = kdl::mem_lock(m_document);
             const auto& nodes = document->selectedNodes().nodes();
             Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
             return visitor.faces();
-        }
-
-        std::vector<ResizeBrushesTool::FaceHandle> ResizeBrushesTool::getDragHandles(const std::vector<Model::BrushFace*>& faces) const {
-            std::vector<FaceHandle> result;
-            for (auto* face : faces) {
-                result.push_back(std::make_tuple(face->brush()->node(), face->boundary().normal));
-            }
-            return result;
         }
 
         bool ResizeBrushesTool::beginResize(const Model::PickResult& pickResult, const bool split) {

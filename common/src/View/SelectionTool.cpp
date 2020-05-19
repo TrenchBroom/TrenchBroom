@@ -22,8 +22,9 @@
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Model/Brush.h"
-#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
+#include "Model/BrushNode.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
@@ -76,30 +77,30 @@ namespace TrenchBroom {
             if (isFaceClick(inputState)) {
                 const auto& hit = firstHit(inputState, Model::BrushNode::BrushHitType);
                 if (hit.isMatch()) {
+                    auto* brush = Model::hitToBrush(hit);
                     auto* face = Model::hitToFace(hit);
                     if (editorContext.selectable(face)) {
                         if (isMultiClick(inputState)) {
                             const auto objects = document->hasSelectedNodes();
                             if (objects) {
-                                const auto* brush = face->brush()->node();
                                 if (brush->selected()) {
-                                    document->deselect(face);
+                                    document->deselect({ brush, face });
                                 } else {
                                     Transaction transaction(document, "Select Brush Face");
                                     document->convertToFaceSelection();
-                                    document->select(face);
+                                    document->select({ brush, face });
                                 }
                             } else {
                                 if (face->selected()) {
-                                    document->deselect(face);
+                                    document->deselect({ brush, face });
                                 } else {
-                                    document->select(face);
+                                    document->select({ brush, face });
                                 }
                             }
                         } else {
                             Transaction transaction(document, "Select Brush Face");
                             document->deselectAll();
-                            document->select(face);
+                            document->select({ brush, face });
                         }
                     }
                 } else {
@@ -146,16 +147,16 @@ namespace TrenchBroom {
                 if (hit.isMatch()) {
                     auto* face = Model::hitToFace(hit);
                     if (editorContext.selectable(face)) {
-                        const auto* brush = face->brush();
+                        auto* brush = Model::hitToBrush(hit);
                         if (isMultiClick(inputState)) {
                             if (document->hasSelectedNodes()) {
                                 document->convertToFaceSelection();
                             }
-                            document->select(brush->faces());
+                            document->select(Model::toHandles(brush));
                         } else {
                             Transaction transaction(document, "Select Brush Faces");
                             document->deselectAll();
-                            document->select(brush->faces());
+                            document->select(Model::toHandles(brush));
                         }
                     }
                 }
@@ -348,7 +349,8 @@ namespace TrenchBroom {
                         document->deselectAll();
                     }
                     if (!face->selected()) {
-                        document->select(face);
+                        auto* brush = Model::hitToBrush(hit);
+                        document->select({ brush, face });
                     }
 
                     return true;
@@ -383,7 +385,8 @@ namespace TrenchBroom {
                 if (hit.isMatch()) {
                     auto* face = Model::hitToFace(hit);
                     if (!face->selected() && editorContext.selectable(face)) {
-                        document->select(face);
+                        auto* brush = Model::hitToBrush(hit);
+                        document->select({ brush, face });
                     }
                 }
             } else {

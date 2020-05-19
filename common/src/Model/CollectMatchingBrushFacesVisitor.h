@@ -20,11 +20,13 @@
 #ifndef TrenchBroom_CollectMatchingBrushFacesVisitor
 #define TrenchBroom_CollectMatchingBrushFacesVisitor
 
-#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/BrushFacePredicates.h"
+#include "Model/BrushNode.h"
 #include "Model/NodeVisitor.h"
 
+#include <tuple>
 #include <vector>
 
 namespace TrenchBroom {
@@ -33,10 +35,10 @@ namespace TrenchBroom {
         class CollectMatchingBrushFacesVisitor : public NodeVisitor {
         private:
             P m_p;
-            std::vector<BrushFace*> m_faces;
+            std::vector<BrushFaceHandle> m_faces;
         public:
             CollectMatchingBrushFacesVisitor(const P& p = P()) : m_p(p) {}
-            const std::vector<BrushFace*>& faces() const { return m_faces; }
+            const std::vector<BrushFaceHandle>& faces() const { return m_faces; }
         private:
             void doVisit(WorldNode*)  override {}
             void doVisit(LayerNode*)  override {}
@@ -45,7 +47,7 @@ namespace TrenchBroom {
             void doVisit(BrushNode* brush) override {
                 for (BrushFace* face : brush->faces()) {
                     if (m_p(face)) {
-                        m_faces.push_back(face);
+                        m_faces.push_back(BrushFaceHandle(brush, face));
                     }
                 }
             }

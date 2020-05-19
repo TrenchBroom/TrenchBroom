@@ -24,6 +24,7 @@
 #include "FloatType.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/Polyhedron.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
@@ -116,11 +117,11 @@ namespace TrenchBroom {
 
         void UVView::selectionDidChange(const Selection&) {
             auto document = kdl::mem_lock(m_document);
-            const std::vector<Model::BrushFace*> faces = document->selectedBrushFaces();
+            const auto faces = document->selectedBrushFaces();
             if (faces.size() != 1) {
                 m_helper.setFace(nullptr);
             } else {
-                m_helper.setFace(faces.back());
+                m_helper.setFace(faces.back().face());
             }
 
             if (m_helper.valid()) {

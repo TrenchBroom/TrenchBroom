@@ -25,6 +25,8 @@
 #include "Polyhedron_Matcher.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
+#include "Model/BrushFaceSnapshot.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushSnapshot.h"
 #include "Model/EntityNode.h"
@@ -72,7 +74,7 @@ namespace TrenchBroom {
         }
 
         BrushNode::~BrushNode() = default;
-        
+
         BrushNode* BrushNode::clone(const vm::bbox3& worldBounds) const {
             return static_cast<BrushNode*>(Node::clone(worldBounds));
         }
@@ -138,6 +140,11 @@ namespace TrenchBroom {
             m_brush->setFaces(worldBounds, faces);
         }
 
+        BrushFaceSnapshot* BrushNode::takeSnapshot(BrushFace* face) {
+            ensure(face != nullptr, "face must not be null");
+            return new BrushFaceSnapshot(this, face);
+        }
+
         bool BrushNode::closed() const {
             return m_brush->closed();
         }
@@ -145,11 +152,6 @@ namespace TrenchBroom {
         bool BrushNode::fullySpecified() const {
             return m_brush->fullySpecified();
         }
-
-        void BrushNode::faceDidChange() {
-            invalidateIssues();
-        }
-
 
         void BrushNode::cloneFaceAttributesFrom(const std::vector<BrushNode*>& brushes) {
             for (const auto* brush : brushes) {
@@ -205,7 +207,7 @@ namespace TrenchBroom {
             return m_brush->vertices();
         }
 
-        const std::vector<vm::vec3> BrushNode::vertexPositions() const {
+        std::vector<vm::vec3> BrushNode::vertexPositions() const {
             return m_brush->vertexPositions();
         }
 
@@ -407,7 +409,7 @@ namespace TrenchBroom {
             if (hit.face != nullptr) {
                 ensure(!vm::is_nan(hit.distance), "nan hit distance");
                 const auto hitPoint = vm::point_at_distance(ray, hit.distance);
-                pickResult.addHit(Hit(BrushHitType, hit.distance, hitPoint, hit.face));
+                pickResult.addHit(Hit(BrushHitType, hit.distance, hitPoint, BrushFaceHandle(this, hit.face)));
             }
         }
 

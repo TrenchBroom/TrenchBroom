@@ -42,11 +42,13 @@ namespace TrenchBroom {
     namespace Model {
         class Brush;
         class BrushFace;
+        class BrushFaceSnapshot;
+        class BrushNode;
         class GroupNode;
         class LayerNode;
-        
+
         class ModelFactory;
-        
+
         struct BrushAlgorithmResult;
 
         class BrushNode : public Node, public Object {
@@ -86,10 +88,11 @@ namespace TrenchBroom {
             const std::vector<BrushFace*>& faces() const;
             void setFaces(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces);
 
+            using Node::takeSnapshot;
+            BrushFaceSnapshot* takeSnapshot(BrushFace* face);
+
             bool closed() const;
             bool fullySpecified() const;
-
-            void faceDidChange();
         public: // clone face attributes from matching faces of other brushes
             void cloneFaceAttributesFrom(const std::vector<BrushNode*>& brushes);
             void cloneFaceAttributesFrom(const BrushNode* brush);
@@ -110,7 +113,7 @@ namespace TrenchBroom {
             // geometry access
             size_t vertexCount() const;
             const VertexList& vertices() const;
-            const std::vector<vm::vec3> vertexPositions() const;
+            std::vector<vm::vec3> vertexPositions() const;
             vm::vec3 findClosestVertexPosition(const vm::vec3& position) const;
 
             bool hasVertex(const vm::vec3& position, FloatType epsilon = static_cast<FloatType>(0.0)) const;

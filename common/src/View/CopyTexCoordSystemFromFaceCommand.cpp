@@ -47,7 +47,7 @@ namespace TrenchBroom {
         CopyTexCoordSystemFromFaceCommand::~CopyTexCoordSystemFromFaceCommand() = default;
 
         std::unique_ptr<CommandResult> CopyTexCoordSystemFromFaceCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            const std::vector<Model::BrushFace*> faces = document->allSelectedBrushFaces();
+            const auto faces = document->allSelectedBrushFaces();
             assert(!faces.empty());
 
             assert(m_snapshot == nullptr);

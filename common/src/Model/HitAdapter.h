@@ -20,10 +20,13 @@
 #ifndef TrenchBroom_HitAdapter
 #define TrenchBroom_HitAdapter
 
+#include <optional>
+
 namespace TrenchBroom {
     namespace Model {
         class BrushNode;
         class BrushFace;
+        class BrushFaceHandle;
         class EntityNode;
         class Hit;
         class Node;
@@ -32,6 +35,7 @@ namespace TrenchBroom {
         Node* hitToNode(const Hit& hit);
         Object* hitToObject(const Hit& hit);
         EntityNode* hitToEntity(const Hit& hit);
+        std::optional<BrushFaceHandle> hitToFaceHandle(const Hit& hit);
         BrushNode* hitToBrush(const Hit& hit);
         BrushFace* hitToFace(const Hit& hit);
     }

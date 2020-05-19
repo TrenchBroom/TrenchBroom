@@ -19,22 +19,36 @@
 
 #include "BrushFaceReference.h"
 
-#include "Ensure.h"
-#include "Model/Brush.h"
+#include "Exceptions.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushNode.h"
+
+#include <kdl/vector_utils.h>
+
+#include <cassert>
 
 namespace TrenchBroom {
     namespace Model {
-        BrushFaceReference::BrushFaceReference(Model::BrushFace* face) :
-        m_facePlane(face->boundary()),
-        m_brush(face->brush()) {
-            ensure(m_brush != nullptr, "face without a brush");
+        BrushFaceReference::BrushFaceReference(BrushNode* node, const BrushFace* face) :
+        m_node(node),
+        m_facePlane(face->boundary()) {
+            assert(m_node != nullptr);
         }
 
-        Model::BrushFace* BrushFaceReference::resolve() const {
-            Model::BrushFace* face = m_brush->findFace(m_facePlane);
-            ensure(face != nullptr, "couldn't find face");
-            return face;
+        BrushFaceHandle BrushFaceReference::resolve() const {
+            Model::BrushFace* face = m_node->findFace(m_facePlane);
+            if (face == nullptr) {
+                throw BrushFaceReferenceException();
+            }
+            return BrushFaceHandle(m_node, face);
+        }
+
+        std::vector<BrushFaceReference> createRefs(const std::vector<BrushFaceHandle>& handles) {
+            return kdl::vec_transform(handles, [](const auto& handle) { return BrushFaceReference(handle.node(), handle.face()); });
+        }
+
+        std::vector<BrushFaceHandle> resolveAllRefs(const std::vector<BrushFaceReference>& faceRefs) {
+            return kdl::vec_transform(faceRefs, [](const auto& faceRef) { return faceRef.resolve(); });
         }
     }
 }

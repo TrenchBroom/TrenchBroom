@@ -27,6 +27,7 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushFace;
+        class BrushFaceHandle;
         class BrushFaceSnapshot;
         class Node;
         class NodeSnapshot;
@@ -50,7 +51,7 @@ namespace TrenchBroom {
             void restoreBrushFaces();
         private:
             void takeSnapshot(Node* node);
-            void takeSnapshot(BrushFace* face);
+            void takeSnapshot(const BrushFaceHandle& pair);
         private:
             Snapshot(const Snapshot&);
             Snapshot& operator=(const Snapshot&);

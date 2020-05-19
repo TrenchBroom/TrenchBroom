@@ -39,6 +39,11 @@ namespace TrenchBroom {
         using Exception::Exception;
     };
 
+    class BrushFaceReferenceException : public Exception {
+    public:
+        using Exception::Exception;
+    };
+
     class EntityAttributeException : public Exception {
     public:
         using Exception::Exception;

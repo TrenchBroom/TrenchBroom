@@ -19,6 +19,7 @@
 
 #include "UVEditor.h"
 
+#include "Model/BrushFaceHandle.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "View/MapDocument.h"
 #include "View/UVView.h"
