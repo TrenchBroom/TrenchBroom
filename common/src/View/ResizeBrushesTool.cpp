@@ -412,15 +412,15 @@ namespace TrenchBroom {
                     return false;
                 }
 
-                auto* newDragFace = newBrush.face(*newDragFaceIndex);
-                if (!newBrush.canMoveBoundary(worldBounds, newDragFace, delta)) {
+                if (!newBrush.canMoveBoundary(worldBounds, *newDragFaceIndex, delta)) {
                     kdl::map_clear_and_delete(newNodes);
                     return false;
                 }
 
+                const auto* newDragFace = newBrush.face(*newDragFaceIndex);
                 auto* clipFace = newDragFace->clone();
                 clipFace->invert();
-                newBrush.moveBoundary(worldBounds, newDragFace, delta, lockTextures);
+                newBrush.moveBoundary(worldBounds, *newDragFaceIndex, delta, lockTextures);
                 
                 if (!newBrush.clip(worldBounds, clipFace)) {
                     delete clipFace;

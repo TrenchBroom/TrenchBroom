@@ -630,8 +630,7 @@ namespace TrenchBroom {
             for (Model::BrushNode* brushNode : selectedBrushes) {
                 const Model::Brush& brush = brushNode->brush();
                 if (const auto faceIndex = brush.findFace(polygons)) {
-                    Model::BrushFace* face = brush.face(*faceIndex);
-                    if (!brush.canMoveBoundary(m_worldBounds, face, delta)) {
+                    if (!brush.canMoveBoundary(m_worldBounds, *faceIndex, delta)) {
                         return result;
                     }
 
@@ -646,8 +645,8 @@ namespace TrenchBroom {
             for (Model::BrushNode* brushNode : selectedBrushes) {
                 Model::Brush brush = brushNode->brush();
                 if (const auto faceIndex = brush.findFace(polygons)) {
-                    Model::BrushFace* face = brush.face(*faceIndex);
-                    brush.moveBoundary(m_worldBounds, face, delta, pref(Preferences::TextureLock));
+                    brush.moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock));
+                    const Model::BrushFace* face = brush.face(*faceIndex);
                     result.push_back(face->polygon());
                     brushNode->setBrush(std::move(brush));
                 }

@@ -105,8 +105,8 @@ namespace TrenchBroom {
         public: // clipping
             bool clip(const vm::bbox3& worldBounds, BrushFace* face);
         public: // move face along normal
-            bool canMoveBoundary(const vm::bbox3& worldBounds, const BrushFace* face, const vm::vec3& delta) const;
-            void moveBoundary(const vm::bbox3& worldBounds, BrushFace* face, const vm::vec3& delta, bool lockTexture);
+            bool canMoveBoundary(const vm::bbox3& worldBounds, size_t faceIndex, const vm::vec3& delta) const;
+            void moveBoundary(const vm::bbox3& worldBounds, size_t faceIndex, const vm::vec3& delta, bool lockTexture);
             bool canExpand(const vm::bbox3& worldBounds, FloatType delta, bool lockTexture) const;
             /**
              * Moves all faces by `delta` units along their normals; negative values shrink the brush.

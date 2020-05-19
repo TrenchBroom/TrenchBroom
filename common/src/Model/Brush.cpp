@@ -361,7 +361,8 @@ namespace TrenchBroom {
             }
         }
 
-        bool Brush::canMoveBoundary(const vm::bbox3& worldBounds, const BrushFace* face, const vm::vec3& delta) const {
+        bool Brush::canMoveBoundary(const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta) const {
+            const auto* face = this->face(faceIndex);
             auto* testFace = face->clone();
             testFace->transform(vm::translation_matrix(delta), false);
 
@@ -386,9 +387,10 @@ namespace TrenchBroom {
             }
         }
 
-        void Brush::moveBoundary(const vm::bbox3& worldBounds, BrushFace* face, const vm::vec3& delta, const bool lockTexture) {
-            assert(canMoveBoundary(worldBounds, face, delta));
+        void Brush::moveBoundary(const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta, const bool lockTexture) {
+            assert(canMoveBoundary(worldBounds, faceIndex, delta));
 
+            auto* face = this->face(faceIndex);
             face->transform(vm::translation_matrix(delta), lockTexture);
             rebuildGeometry(worldBounds);
         }
