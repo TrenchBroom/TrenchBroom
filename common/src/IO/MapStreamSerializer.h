@@ -46,10 +46,10 @@ namespace TrenchBroom {
             void doEndFile() override;
 
             void doBeginEntity(const Model::Node* node) override;
-            void doEndEntity(Model::Node* node) override;
+            void doEndEntity(const Model::Node* node) override;
             void doEntityAttribute(const Model::EntityAttribute& attribute) override;
             void doBeginBrush(const Model::BrushNode* brush) override;
-            void doEndBrush(Model::BrushNode* brush) override;
+            void doEndBrush(const Model::BrushNode* brush) override;
             void doBrushFace(const Model::BrushFace* face) override;
         private:
             virtual void doWriteBrushFace(std::ostream& stream, const Model::BrushFace* face) = 0;

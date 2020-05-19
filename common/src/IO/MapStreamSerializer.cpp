@@ -247,7 +247,7 @@ namespace TrenchBroom {
             m_stream << "{\n";
         }
 
-        void MapStreamSerializer::doEndEntity(Model::Node* /* node */) {
+        void MapStreamSerializer::doEndEntity(const Model::Node* /* node */) {
             m_stream << "}\n";
         }
 
@@ -260,7 +260,7 @@ namespace TrenchBroom {
             m_stream << "{\n";
         }
 
-        void MapStreamSerializer::doEndBrush(Model::BrushNode* /* brush */) {
+        void MapStreamSerializer::doEndBrush(const Model::BrushNode* /* brush */) {
             m_stream << "}\n";
         }
 
