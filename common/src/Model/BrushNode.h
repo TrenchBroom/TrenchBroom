@@ -68,12 +68,9 @@ namespace TrenchBroom {
             
             const Brush& brush() const;
             void setBrush(Brush brush);
-        public:
+
             using Node::takeSnapshot;
             BrushFaceSnapshot* takeSnapshot(BrushFace* face);
-        public:
-            // transformation
-            bool canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const;
         public:
             void findIntegerPlanePoints(const vm::bbox3& worldBounds);
         private: // implement Node interface
