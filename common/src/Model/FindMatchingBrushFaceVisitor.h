@@ -27,19 +27,19 @@
 namespace TrenchBroom {
     namespace Model {
         template <typename P>
-        class FindMatchingBrushFaceVisitor : public NodeVisitor, public NodeQuery<BrushFace*> {
+        class FindMatchingBrushFaceVisitor : public ConstNodeVisitor, public NodeQuery<const BrushFace*> {
         private:
             P m_p;
         public:
             FindMatchingBrushFaceVisitor(const P& p = P()) : m_p(p) {}
         private:
-            void doVisit(WorldNode*)  override {}
-            void doVisit(LayerNode*)  override {}
-            void doVisit(GroupNode*)  override {}
-            void doVisit(EntityNode*) override {}
-            void doVisit(BrushNode* brushNode)   override {
+            void doVisit(const WorldNode*)  override {}
+            void doVisit(const LayerNode*)  override {}
+            void doVisit(const GroupNode*)  override {}
+            void doVisit(const EntityNode*) override {}
+            void doVisit(const BrushNode* brushNode)   override {
                 const Brush& brush = brushNode->brush();
-                for (BrushFace* face : brush.faces()) {
+                for (const BrushFace* face : brush.faces()) {
                     if (m_p(brushNode, face)) {
                         setResult(face);
                         cancel();
