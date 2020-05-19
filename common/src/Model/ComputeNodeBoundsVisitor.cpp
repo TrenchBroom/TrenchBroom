@@ -41,7 +41,7 @@ namespace TrenchBroom {
         }
 
         void ComputeNodeBoundsVisitor::doVisit(const World*) {}
-        void ComputeNodeBoundsVisitor::doVisit(const Layer*) {}
+        void ComputeNodeBoundsVisitor::doVisit(const LayerNode*) {}
 
         void ComputeNodeBoundsVisitor::doVisit(const Group* group) {
             if (m_boundsType == BoundsType::Physical) {

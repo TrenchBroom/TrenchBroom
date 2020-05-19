@@ -22,7 +22,7 @@
 #include "IO/ParserStatus.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityAttributes.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/World.h"
 
 #include <kdl/string_utils.h>
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             m_world->setFilePosition(lineNumber, lineCount);
         }
 
-        void WorldReader::onLayer(Model::Layer* layer, ParserStatus& /* status */) {
+        void WorldReader::onLayer(Model::LayerNode* layer, ParserStatus& /* status */) {
             m_world->addChild(layer);
         }
 

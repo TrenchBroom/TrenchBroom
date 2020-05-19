@@ -54,18 +54,18 @@ namespace TrenchBroom {
 
         World::~World() = default;
 
-        Layer* World::defaultLayer() const {
+        LayerNode* World::defaultLayer() const {
             ensure(m_defaultLayer != nullptr, "defaultLayer is null");
             return m_defaultLayer;
         }
 
-        std::vector<Layer*> World::allLayers() const {
+        std::vector<LayerNode*> World::allLayers() const {
             CollectLayersVisitor visitor;
             iterate(visitor);
             return visitor.layers();
         }
 
-        std::vector<Layer*> World::customLayers() const {
+        std::vector<LayerNode*> World::customLayers() const {
             const std::vector<Node*>& children = Node::children();
             CollectLayersVisitor visitor;
             accept(std::next(std::begin(children)), std::end(children), visitor);
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             m_nodeTree(nodeTree) {}
         private:
             void doVisit(World*) override         {}
-            void doVisit(Layer*) override         {}
+            void doVisit(LayerNode*) override         {}
             void doVisit(Group*) override         {}
             void doVisit(Entity* entity) override { m_nodeTree.insert(entity->physicalBounds(), entity); }
             void doVisit(BrushNode* brush) override   { m_nodeTree.insert(brush->physicalBounds(), brush); }
@@ -121,7 +121,7 @@ namespace TrenchBroom {
             m_nodeTree(nodeTree) {}
         private:
             void doVisit(World*) override         {}
-            void doVisit(Layer*) override         {}
+            void doVisit(LayerNode*) override         {}
             void doVisit(Group*) override         {}
             void doVisit(Entity* entity) override { doRemove(entity, entity->physicalBounds()); }
             void doVisit(BrushNode* brush) override   { doRemove(brush, brush->physicalBounds()); }
@@ -143,7 +143,7 @@ namespace TrenchBroom {
             m_nodeTree(nodeTree) {}
         private:
             void doVisit(World*) override         {}
-            void doVisit(Layer*) override         {}
+            void doVisit(LayerNode*) override         {}
             void doVisit(Group*) override         {}
             void doVisit(Entity* entity) override { m_nodeTree.update(entity->physicalBounds(), entity); }
             void doVisit(BrushNode* brush) override   { m_nodeTree.update(brush->physicalBounds(), brush); }
@@ -174,7 +174,7 @@ namespace TrenchBroom {
         class World::InvalidateAllIssuesVisitor : public NodeVisitor {
         private:
             void doVisit(World* world) override   { invalidateIssues(world);  }
-            void doVisit(Layer* layer) override   { invalidateIssues(layer);  }
+            void doVisit(LayerNode* layer) override   { invalidateIssues(layer);  }
             void doVisit(Group* group) override   { invalidateIssues(group);  }
             void doVisit(Entity* entity) override { invalidateIssues(entity); }
             void doVisit(BrushNode* brush) override   { invalidateIssues(brush);  }
@@ -225,7 +225,7 @@ namespace TrenchBroom {
         class CanAddChildToWorld : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
             void doVisit(const World*) override  { setResult(false); }
-            void doVisit(const Layer*) override  { setResult(true); }
+            void doVisit(const LayerNode*) override  { setResult(true); }
             void doVisit(const Group*) override  { setResult(false); }
             void doVisit(const Entity*) override { setResult(false); }
             void doVisit(const BrushNode*) override  { setResult(false); }
@@ -245,7 +245,7 @@ namespace TrenchBroom {
             m_this(i_this) {}
         private:
             void doVisit(const World*) override        { setResult(false); }
-            void doVisit(const Layer* layer) override  { setResult(layer != m_this->defaultLayer()); }
+            void doVisit(const LayerNode* layer) override  { setResult(layer != m_this->defaultLayer()); }
             void doVisit(const Group*) override        { setResult(false); }
             void doVisit(const Entity*) override       { setResult(false); }
             void doVisit(const BrushNode*) override        { setResult(false); }
@@ -379,7 +379,7 @@ namespace TrenchBroom {
             return m_factory->createWorld();
         }
 
-        Layer* World::doCreateLayer(const std::string& name) const {
+        LayerNode* World::doCreateLayer(const std::string& name) const {
             return m_factory->createLayer(name);
         }
 

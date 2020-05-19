@@ -90,7 +90,7 @@ namespace TrenchBroom {
             void doAccept(ConstNodeVisitor& visitor) const override;
         private: // implement methods inherited from Object
             Node* doGetContainer() const override;
-            Layer* doGetLayer() const override;
+            LayerNode* doGetLayer() const override;
             Group* doGetGroup() const override;
 
             void doTransform(const vm::mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds) override;

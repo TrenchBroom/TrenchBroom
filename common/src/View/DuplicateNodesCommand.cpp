@@ -95,7 +95,7 @@ namespace TrenchBroom {
         class DuplicateNodesCommand::CloneParentQuery : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
         private:
             void doVisit(const Model::World*) override  { setResult(false); }
-            void doVisit(const Model::Layer*) override  { setResult(false); }
+            void doVisit(const Model::LayerNode*) override  { setResult(false); }
             void doVisit(const Model::Group*) override  { setResult(false);  }
             void doVisit(const Model::Entity*) override { setResult(true);  }
             void doVisit(const Model::BrushNode*) override  { setResult(false); }

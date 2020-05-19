@@ -326,7 +326,7 @@ namespace TrenchBroom {
         class FindBrushOwner : public NodeVisitor, public NodeQuery<AttributableNode*> {
         private:
             void doVisit(World* world) override       { setResult(world); cancel(); }
-            void doVisit(Layer* /* layer */) override {}
+            void doVisit(LayerNode* /* layer */) override {}
             void doVisit(Group* /* group */) override {}
             void doVisit(Entity* entity) override     { setResult(entity); cancel(); }
             void doVisit(BrushNode* /* brush */) override {}
@@ -1437,7 +1437,7 @@ namespace TrenchBroom {
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
-        Layer* BrushNode::doGetLayer() const {
+        LayerNode* BrushNode::doGetLayer() const {
             FindLayerVisitor visitor;
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
@@ -1467,7 +1467,7 @@ namespace TrenchBroom {
             m_this(i_this) {}
         private:
             void doVisit(const World* /* world */) override { setResult(false); }
-            void doVisit(const Layer* /* layer */) override { setResult(false); }
+            void doVisit(const LayerNode* /* layer */) override { setResult(false); }
             void doVisit(const Group* group) override       { setResult(contains(group->logicalBounds())); }
             void doVisit(const Entity* entity) override     { setResult(contains(entity->logicalBounds())); }
             void doVisit(const BrushNode* brush) override       { setResult(contains(brush)); }
@@ -1506,7 +1506,7 @@ namespace TrenchBroom {
             m_this(i_this) {}
         private:
             void doVisit(const World* /* world */) override { setResult(false); }
-            void doVisit(const Layer* /* layer */) override { setResult(false); }
+            void doVisit(const LayerNode* /* layer */) override { setResult(false); }
             void doVisit(const Group* group) override       { setResult(intersects(group->logicalBounds())); }
             void doVisit(const Entity* entity) override     { setResult(intersects(entity->logicalBounds())); }
             void doVisit(const BrushNode* brush) override       { setResult(intersects(brush)); }

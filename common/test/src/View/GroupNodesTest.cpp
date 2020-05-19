@@ -24,7 +24,7 @@
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/World.h"
 #include "View/MapDocumentTest.h"
 #include "View/PasteType.h"

@@ -25,7 +25,7 @@ namespace TrenchBroom {
     namespace Model {
         void FindLayerVisitor::doVisit(World*) {}
 
-        void FindLayerVisitor::doVisit(Layer* layer) {
+        void FindLayerVisitor::doVisit(LayerNode* layer) {
             setResult(layer);
             cancel();
         }
@@ -34,7 +34,7 @@ namespace TrenchBroom {
         void FindLayerVisitor::doVisit(Entity*) {}
         void FindLayerVisitor::doVisit(BrushNode*) {}
 
-        Model::Layer* findLayer(Model::Node* node) {
+        Model::LayerNode* findLayer(Model::Node* node) {
             FindLayerVisitor visitor;
             node->acceptAndEscalate(visitor);
             return visitor.result();

@@ -24,7 +24,7 @@
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Group.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/World.h"
 
 #include <kdl/vector_utils.h>
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             deleteNode(world);
         }
 
-        void MergeNodesIntoWorldVisitor::doVisit(Layer* layer) {
+        void MergeNodesIntoWorldVisitor::doVisit(LayerNode* layer) {
             layer->iterate(*this);
             deleteNode(layer);
         }

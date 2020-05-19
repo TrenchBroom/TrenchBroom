@@ -106,7 +106,7 @@ namespace TrenchBroom {
             m_closest(std::numeric_limits<FloatType>::max()) {}
         private:
             void doVisit(const Model::World*) override  {}
-            void doVisit(const Model::Layer*) override  {}
+            void doVisit(const Model::LayerNode*) override  {}
             void doVisit(const Model::Group*) override  {}
             void doVisit(const Model::Entity*) override {}
             void doVisit(const Model::BrushNode* brush) override   {

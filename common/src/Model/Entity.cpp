@@ -195,7 +195,7 @@ namespace TrenchBroom {
         class CanAddChildToEntity : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
             void doVisit(const World*)  override   { setResult(false); }
-            void doVisit(const Layer*)  override   { setResult(false); }
+            void doVisit(const LayerNode*)  override   { setResult(false); }
             void doVisit(const Group*)  override   { setResult(true); }
             void doVisit(const Entity*) override { setResult(true); }
             void doVisit(const BrushNode*)  override   { setResult(true); }
@@ -339,7 +339,7 @@ namespace TrenchBroom {
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
-        Layer* Entity::doGetLayer() const {
+        LayerNode* Entity::doGetLayer() const {
             FindLayerVisitor visitor;
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
@@ -363,7 +363,7 @@ namespace TrenchBroom {
             m_worldBounds(worldBounds) {}
         private:
             void doVisit(World*) override  {}
-            void doVisit(Layer*) override  {}
+            void doVisit(LayerNode*) override  {}
             void doVisit(Group*) override  {}
             void doVisit(Entity*) override {}
             void doVisit(BrushNode* brush) override { brush->transform(m_transformation, m_lockTextures, m_worldBounds); }

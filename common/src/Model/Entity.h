@@ -118,7 +118,7 @@ namespace TrenchBroom {
             vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement Object interface
             Node* doGetContainer() const override;
-            Layer* doGetLayer() const override;
+            LayerNode* doGetLayer() const override;
             Group* doGetGroup() const override;
 
             void doTransform(const vm::mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds) override;

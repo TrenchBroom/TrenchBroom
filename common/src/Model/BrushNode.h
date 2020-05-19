@@ -293,7 +293,7 @@ namespace TrenchBroom {
             BrushFaceHit findFaceHit(const vm::ray3& ray) const;
 
             Node* doGetContainer() const override;
-            Layer* doGetLayer() const override;
+            LayerNode* doGetLayer() const override;
             Group* doGetGroup() const override;
 
             void doTransform(const vm::mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds) override;

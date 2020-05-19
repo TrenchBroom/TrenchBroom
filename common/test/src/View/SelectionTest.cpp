@@ -24,7 +24,7 @@
 #include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Group.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/NodeCollection.h"
 #include "Model/World.h"
 #include "View/MapDocumentTest.h"
@@ -39,7 +39,7 @@ namespace TrenchBroom {
             document->deleteObjects();
             assert(document->selectedNodes().nodeCount() == 0);
 
-            Model::Layer* layer = new Model::Layer("Layer 1");
+            Model::LayerNode* layer = new Model::LayerNode("Layer 1");
             document->addNode(layer, document->world());
 
             Model::Group* group = new Model::Group("Unnamed");
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             document->deleteObjects();
             assert(document->selectedNodes().nodeCount() == 0);
 
-            Model::Layer* layer = new Model::Layer("Layer 1");
+            Model::LayerNode* layer = new Model::LayerNode("Layer 1");
             document->addNode(layer, document->world());
 
             Model::Group* group = new Model::Group("Unnamed");

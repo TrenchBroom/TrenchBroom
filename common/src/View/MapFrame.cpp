@@ -34,7 +34,7 @@
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/Group.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/Node.h"
 #include "View/Actions.h"
 #include "View/Autosaver.h"
@@ -640,7 +640,7 @@ namespace TrenchBroom {
             updateStatusBar();
         }
 
-        void MapFrame::currentLayerDidChange(const TrenchBroom::Model::Layer*) {
+        void MapFrame::currentLayerDidChange(const TrenchBroom::Model::LayerNode*) {
             updateStatusBar();
         }
 

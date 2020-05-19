@@ -27,7 +27,7 @@ namespace TrenchBroom {
         // FindGroupVisitor
 
         void FindGroupVisitor::doVisit(World*) {}
-        void FindGroupVisitor::doVisit(Layer*) {}
+        void FindGroupVisitor::doVisit(LayerNode*) {}
 
         void FindGroupVisitor::doVisit(Group* group) {
             setResult(group);
@@ -40,7 +40,7 @@ namespace TrenchBroom {
         // FindOutermostClosedGroupVisitor
 
         void FindOutermostClosedGroupVisitor::doVisit(World*) {}
-        void FindOutermostClosedGroupVisitor::doVisit(Layer*) {}
+        void FindOutermostClosedGroupVisitor::doVisit(LayerNode*) {}
 
         void FindOutermostClosedGroupVisitor::doVisit(Group* group) {
             const bool closed = !(group->opened() || group->hasOpenedDescendant());

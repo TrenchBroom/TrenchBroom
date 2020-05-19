@@ -26,7 +26,7 @@
 #include "Model/LockState.h"
 #include "Model/VisibilityState.h"
 #include "Model/World.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/Group.h"
 #include "Model/Entity.h"
 #include "Model/BrushNode.h"

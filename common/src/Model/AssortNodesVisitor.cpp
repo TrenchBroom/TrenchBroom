@@ -21,13 +21,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const std::vector<Layer*>& CollectLayersStrategy::layers() const { return m_layers; }
-        void CollectLayersStrategy::addLayer(TrenchBroom::Model::Layer* layer) { m_layers.push_back(layer); }
+        const std::vector<LayerNode*>& CollectLayersStrategy::layers() const { return m_layers; }
+        void CollectLayersStrategy::addLayer(TrenchBroom::Model::LayerNode* layer) { m_layers.push_back(layer); }
 
-        const std::vector<Layer*> SkipLayersStrategy::m_layers{};
+        const std::vector<LayerNode*> SkipLayersStrategy::m_layers{};
 
-        const std::vector<Layer*>& SkipLayersStrategy::layers() const { return m_layers; }
-        void SkipLayersStrategy::addLayer(TrenchBroom::Model::Layer* /* layer */) {}
+        const std::vector<LayerNode*>& SkipLayersStrategy::layers() const { return m_layers; }
+        void SkipLayersStrategy::addLayer(TrenchBroom::Model::LayerNode* /* layer */) {}
 
 
         const std::vector<Group*>& CollectGroupsStrategy::groups() const { return m_groups; }

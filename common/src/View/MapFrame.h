@@ -53,7 +53,7 @@ namespace TrenchBroom {
         enum class ExportFormat;
         class Game;
         class Group;
-        class Layer;
+        class LayerNode;
     }
 
     namespace View {
@@ -152,7 +152,7 @@ namespace TrenchBroom {
             void toolDeactivated(Tool* tool);
             void toolHandleSelectionChanged(Tool* tool);
             void selectionDidChange(const Selection& selection);
-            void currentLayerDidChange(const TrenchBroom::Model::Layer* layer);
+            void currentLayerDidChange(const TrenchBroom::Model::LayerNode* layer);
             void groupWasOpened(Model::Group* group);
             void groupWasClosed(Model::Group* group);
         private: // menu event handlers

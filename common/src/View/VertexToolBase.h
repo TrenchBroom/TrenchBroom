@@ -518,7 +518,7 @@ namespace TrenchBroom {
                 m_handles(handles) {}
             private:
                 void doVisit(Model::World*) override  {}
-                void doVisit(Model::Layer*) override  {}
+                void doVisit(Model::LayerNode*) override  {}
                 void doVisit(Model::Group*) override  {}
                 void doVisit(Model::Entity*) override {}
                 void doVisit(Model::BrushNode* brush) override   {
@@ -535,7 +535,7 @@ namespace TrenchBroom {
                 m_handles(handles) {}
             private:
                 void doVisit(Model::World*) override  {}
-                void doVisit(Model::Layer*) override  {}
+                void doVisit(Model::LayerNode*) override  {}
                 void doVisit(Model::Group*) override  {}
                 void doVisit(Model::Entity*) override {}
                 void doVisit(Model::BrushNode* brush) override   {

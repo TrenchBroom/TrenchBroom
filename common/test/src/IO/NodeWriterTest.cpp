@@ -27,7 +27,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/Group.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
 #include "Model/World.h"
 
@@ -229,7 +229,7 @@ R"(// entity 0
             Model::World map(Model::MapFormat::Standard);
             map.addOrUpdateAttribute("classname", "worldspawn");
 
-            Model::Layer* layer = map.createLayer("Custom Layer");
+            Model::LayerNode* layer = map.createLayer("Custom Layer");
             map.addChild(layer);
 
             Model::BrushBuilder builder(&map, worldBounds);
@@ -316,7 +316,7 @@ R"(// entity 0
             Model::World map(Model::MapFormat::Standard);
             map.addOrUpdateAttribute("classname", "worldspawn");
 
-            Model::Layer* layer = map.createLayer("Custom Layer");
+            Model::LayerNode* layer = map.createLayer("Custom Layer");
             map.addChild(layer);
 
             Model::Group* group = map.createGroup("Group");
@@ -370,7 +370,7 @@ R"(// entity 0
             Model::World map(Model::MapFormat::Standard);
             map.addOrUpdateAttribute("classname", "worldspawn");
 
-            Model::Layer* layer = map.createLayer("Custom Layer");
+            Model::LayerNode* layer = map.createLayer("Custom Layer");
             map.addChild(layer);
 
             Model::Group* outer = map.createGroup("Outer Group");

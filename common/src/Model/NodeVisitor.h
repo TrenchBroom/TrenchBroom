@@ -27,7 +27,7 @@ namespace TrenchBroom {
         class BrushNode;
         class Entity;
         class Group;
-        class Layer;
+        class LayerNode;
         class Node;
         class World;
 
@@ -53,13 +53,13 @@ namespace TrenchBroom {
             ~NodeVisitor() override;
 
             virtual void visit(World* world);
-            virtual void visit(Layer* layer);
+            virtual void visit(LayerNode* layer);
             virtual void visit(Group* group);
             virtual void visit(Entity* entity);
             virtual void visit(BrushNode* brush);
         private:
             virtual void doVisit(World* world)   = 0;
-            virtual void doVisit(Layer* layer)   = 0;
+            virtual void doVisit(LayerNode* layer)   = 0;
             virtual void doVisit(Group* group)   = 0;
             virtual void doVisit(Entity* entity) = 0;
             virtual void doVisit(BrushNode* brush)   = 0;
@@ -72,13 +72,13 @@ namespace TrenchBroom {
             ~ConstNodeVisitor() override;
 
             virtual void visit(const World* world);
-            virtual void visit(const Layer* layer);
+            virtual void visit(const LayerNode* layer);
             virtual void visit(const Group* group);
             virtual void visit(const Entity* entity);
             virtual void visit(const BrushNode* brush);
         private:
             virtual void doVisit(const World* world)   = 0;
-            virtual void doVisit(const Layer* layer)   = 0;
+            virtual void doVisit(const LayerNode* layer)   = 0;
             virtual void doVisit(const Group* group)   = 0;
             virtual void doVisit(const Entity* entity) = 0;
             virtual void doVisit(const BrushNode* brush)   = 0;
@@ -109,7 +109,7 @@ namespace TrenchBroom {
                 if (m_s(world, match)) stopRecursion();
             }
 
-            void visit(Layer* layer) override {
+            void visit(LayerNode* layer) override {
                 const bool match = m_p(layer);
                 if (match) NodeVisitor::visit(layer);
                 if (m_s(layer, match)) stopRecursion();
@@ -150,7 +150,7 @@ namespace TrenchBroom {
                 if (m_s(world, match)) stopRecursion();
             }
 
-            void visit(const Layer* layer) override {
+            void visit(const LayerNode* layer) override {
                 const bool match = m_p(layer);
                 if (match) ConstNodeVisitor::visit(layer);
                 if (m_s(layer, match)) stopRecursion();

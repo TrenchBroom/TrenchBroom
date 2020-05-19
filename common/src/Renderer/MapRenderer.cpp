@@ -27,7 +27,7 @@
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
 #include "Model/World.h"
@@ -330,7 +330,7 @@ namespace TrenchBroom {
             const Model::NodeCollection& lockedNodes() const   { return m_lockedNodes;   }
         private:
             void doVisit(Model::World*) override   {}
-            void doVisit(Model::Layer*) override   {}
+            void doVisit(Model::LayerNode*) override   {}
 
             void doVisit(Model::Group* group) override   {
                 if (group->locked()) {

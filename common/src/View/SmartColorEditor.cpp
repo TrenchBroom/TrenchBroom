@@ -159,7 +159,7 @@ namespace TrenchBroom {
             const std::vector<QColor>& colors() const { return m_colors.get_data(); }
         private:
             void doVisit(const Model::World* world) override   { visitAttributableNode(world); }
-            void doVisit(const Model::Layer*) override         {}
+            void doVisit(const Model::LayerNode*) override         {}
             void doVisit(const Model::Group*) override         {}
             void doVisit(const Model::Entity* entity) override { visitAttributableNode(entity); stopRecursion(); }
             void doVisit(const Model::BrushNode*) override         {}

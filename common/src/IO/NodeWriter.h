@@ -32,7 +32,7 @@ namespace TrenchBroom {
         class BrushNode;
         class BrushFace;
         class Entity;
-        class Layer;
+        class LayerNode;
         class Node;
         class World;
     }
@@ -55,7 +55,7 @@ namespace TrenchBroom {
         private:
             void writeDefaultLayer();
             void writeCustomLayers();
-            void writeCustomLayer(Model::Layer* layer);
+            void writeCustomLayer(Model::LayerNode* layer);
         public:
             void writeNodes(const std::vector<Model::Node*>& nodes);
         private:

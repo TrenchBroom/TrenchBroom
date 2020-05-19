@@ -30,7 +30,7 @@ namespace TrenchBroom {
         class MatchSelectedNodes {
         public:
             bool operator()(const Model::World*) const           { return false; }
-            bool operator()(const Model::Layer*) const           { return false; }
+            bool operator()(const Model::LayerNode*) const       { return false; }
             bool operator()(const Model::Group* group) const     { return MatchSelected == group->selected(); }
             bool operator()(const Model::Entity* entity) const   { return MatchSelected == entity->selected(); }
             bool operator()(const Model::BrushNode* brush) const { return MatchSelected == brush->selected(); }
@@ -40,7 +40,7 @@ namespace TrenchBroom {
         class MatchTransitivelySelectedNodes {
         public:
             bool operator()(const Model::World*) const           { return false; }
-            bool operator()(const Model::Layer*) const           { return false; }
+            bool operator()(const Model::LayerNode*) const       { return false; }
             bool operator()(const Model::Group* group) const     { return MatchSelected == group->transitivelySelected(); }
             bool operator()(const Model::Entity* entity) const   { return MatchSelected == entity->transitivelySelected(); }
             bool operator()(const Model::BrushNode* brush) const { return MatchSelected == brush->transitivelySelected(); }
@@ -55,7 +55,7 @@ namespace TrenchBroom {
         class MatchTransitivelySelectedOrDescendantSelectedNodes {
         public:
             bool operator()(const Model::World*) const           { return false; }
-            bool operator()(const Model::Layer*) const           { return false; }
+            bool operator()(const Model::LayerNode*) const       { return false; }
             bool operator()(const Model::Group* group) const     { return MatchSelected == (group->transitivelySelected() || group->descendantSelected()); }
             bool operator()(const Model::Entity* entity) const   { return MatchSelected == (entity->transitivelySelected() || entity->descendantSelected()); }
             bool operator()(const Model::BrushNode* brush) const { return MatchSelected == (brush->transitivelySelected() || brush->descendantSelected()); }

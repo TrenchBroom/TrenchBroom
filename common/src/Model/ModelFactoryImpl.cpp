@@ -23,7 +23,7 @@
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/World.h"
@@ -49,9 +49,9 @@ namespace TrenchBroom {
             return new World(m_format);
         }
 
-        Layer* ModelFactoryImpl::doCreateLayer(const std::string& name) const {
+        LayerNode* ModelFactoryImpl::doCreateLayer(const std::string& name) const {
             assert(m_format != MapFormat::Unknown);
-            return new Layer(name);
+            return new LayerNode(name);
         }
 
         Group* ModelFactoryImpl::doCreateGroup(const std::string& name) const {

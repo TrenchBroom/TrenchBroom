@@ -30,7 +30,7 @@ namespace TrenchBroom {
         m_bounds(bounds) {}
 
         void BoundsIntersectsNodeVisitor::doVisit(const World*)         { setResult(false); }
-        void BoundsIntersectsNodeVisitor::doVisit(const Layer*)         { setResult(false); }
+        void BoundsIntersectsNodeVisitor::doVisit(const LayerNode*)         { setResult(false); }
         void BoundsIntersectsNodeVisitor::doVisit(const Group* group)   { setResult(m_bounds.intersects(group->logicalBounds())); }
         void BoundsIntersectsNodeVisitor::doVisit(const Entity* entity) { setResult(m_bounds.intersects(entity->logicalBounds())); }
         void BoundsIntersectsNodeVisitor::doVisit(const BrushNode* brush)   {

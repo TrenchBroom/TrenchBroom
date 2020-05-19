@@ -24,7 +24,7 @@
 #include "MapDocumentTest.h"
 
 #include "Model/BrushNode.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/World.h"
 #include "Renderer/PerspectiveCamera.h"
 #include "View/ClipTool.h"
