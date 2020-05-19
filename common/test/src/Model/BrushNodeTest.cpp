@@ -285,35 +285,18 @@ namespace TrenchBroom {
             const BrushFace& m_face;
         public:
             explicit MatchFace(const BrushFace& face) :
-                    m_face(face) {}
+            m_face(face) {}
 
             bool operator()(const BrushFace* candidate) const {
-                for (size_t i = 0; i < 3; ++i)
-                    if (candidate->points()[i] != m_face.points()[i])
+                for (size_t i = 0; i < 3; ++i) {
+                    if (candidate->points()[i] != m_face.points()[i]) {
                         return false;
-                if (candidate->selected() != m_face.selected())
+                    }
+                }
+                if (candidate->selected() != m_face.selected()) {
                     return false;
-                if (candidate->attributes().textureName() != m_face.attributes().textureName())
-                    return false;
-                if (candidate->texture() != m_face.texture())
-                    return false;
-                if (candidate->attributes().xOffset() != m_face.attributes().xOffset())
-                    return false;
-                if (candidate->attributes().yOffset() != m_face.attributes().yOffset())
-                    return false;
-                if (candidate->attributes().rotation() != m_face.attributes().rotation())
-                    return false;
-                if (candidate->attributes().xScale() != m_face.attributes().xScale())
-                    return false;
-                if (candidate->attributes().yScale() != m_face.attributes().yScale())
-                    return false;
-                if (candidate->attributes().surfaceContents() != m_face.attributes().surfaceContents())
-                    return false;
-                if (candidate->attributes().surfaceFlags() != m_face.attributes().surfaceFlags())
-                    return false;
-                if (candidate->attributes().surfaceValue() != m_face.attributes().surfaceValue())
-                    return false;
-                return true;
+                }
+                return candidate->attributes() == m_face.attributes();
             }
         };
 
