@@ -120,15 +120,6 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
 
-        void BrushNode::setFaces(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) {
-            const NotifyNodeChange nodeChange(this);
-            const NotifyPhysicalBoundsChange boundsChange(this);
-            m_brush.setFaces(worldBounds, faces);
-            
-            invalidateIssues();
-            invalidateVertexCache();
-        }
-
         BrushFaceSnapshot* BrushNode::takeSnapshot(BrushFace* face) {
             ensure(face != nullptr, "face must not be null");
             return new BrushFaceSnapshot(this, face);

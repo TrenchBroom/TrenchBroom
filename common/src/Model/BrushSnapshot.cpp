@@ -28,24 +28,20 @@ namespace TrenchBroom {
     namespace Model {
         BrushSnapshot::BrushSnapshot(BrushNode* brushNode) :
         m_brushNode(brushNode) {
-            takeSnapshot(m_brushNode);
+            const Brush& brush = m_brushNode->brush();
+            for (BrushFace* face : brush.faces()) {
+                BrushFace* faceClone = face->clone();
+                faceClone->setTexture(nullptr);
+                m_faces.push_back(faceClone);
+            }
         }
 
         BrushSnapshot::~BrushSnapshot() {
             kdl::vec_clear_and_delete(m_faces);
         }
 
-        void BrushSnapshot::takeSnapshot(BrushNode* brushNode) {
-            const Brush& brush = brushNode->brush();
-            for (BrushFace* face : brush.faces()) {
-                BrushFace *faceClone = face->clone();
-                faceClone->setTexture(nullptr);
-                m_faces.push_back(faceClone);
-            }
-        }
-
         void BrushSnapshot::doRestore(const vm::bbox3& worldBounds) {
-            m_brushNode->setFaces(worldBounds, m_faces);
+            m_brushNode->setBrush(Brush(worldBounds, m_faces));
             m_faces.clear();
         }
     }
