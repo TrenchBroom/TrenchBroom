@@ -71,11 +71,6 @@ namespace TrenchBroom {
         public:
             using Node::takeSnapshot;
             BrushFaceSnapshot* takeSnapshot(BrushFace* face);
-        public: // clone face attributes from matching faces of other brushes
-            void cloneFaceAttributesFrom(const std::vector<BrushNode*>& brushes);
-            void cloneFaceAttributesFrom(const BrushNode* brush);
-            void cloneInvertedFaceAttributesFrom(const std::vector<BrushNode*>& brushes);
-            void cloneInvertedFaceAttributesFrom(const BrushNode* brush);
         public:
             // transformation
             bool canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const;
