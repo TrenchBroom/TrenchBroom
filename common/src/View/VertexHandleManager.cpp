@@ -67,8 +67,9 @@ namespace TrenchBroom {
             return HandleHitType;
         }
 
-        bool VertexHandleManager::isIncident(const Handle& handle, const Model::BrushNode* brush) const {
-            return brush->hasVertex(handle);
+        bool VertexHandleManager::isIncident(const Handle& handle, const Model::BrushNode* brushNode) const {
+            const Model::Brush& brush = brushNode->brush();
+            return brush.hasVertex(handle);
         }
 
         const Model::HitType::Type EdgeHandleManager::HandleHitType = Model::HitType::freeType();
