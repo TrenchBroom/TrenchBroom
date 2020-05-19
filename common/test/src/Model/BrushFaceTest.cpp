@@ -441,7 +441,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            const BrushNode* cube = builder.createCube(128.0, "");
+            const BrushNode* cube = world.createBrush(builder.createCube(128.0, ""));
             const std::vector<BrushFace*>& faces = cube->faces();
 
             for (size_t i = 0; i < faces.size(); ++i) {
@@ -462,7 +462,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Valve);
 
             BrushBuilder builder(&world, worldBounds);
-            const BrushNode* cube = builder.createCube(128.0, "");
+            const BrushNode* cube = world.createBrush(builder.createCube(128.0, ""));
             const std::vector<BrushFace*>& faces = cube->faces();
 
             for (size_t i = 0; i < faces.size(); ++i) {
@@ -483,7 +483,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Valve);
 
             BrushBuilder builder(&world, worldBounds);
-            BrushNode* cube = builder.createCube(128.0, "");
+            BrushNode* cube = world.createBrush(builder.createCube(128.0, ""));
 
             BrushFace* topFace = cube->findFace(vm::vec3(0.0, 0.0, 1.0));
             ASSERT_NE(nullptr, topFace);

@@ -36,7 +36,7 @@ namespace TrenchBroom {
             WorldNode world{MapFormat::Standard};
 
             BrushBuilder builder{&world, worldBounds};
-            BrushNode* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
+            BrushNode* brush = world.createBrush(builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom"));
 
             world.defaultLayer()->addChild(brush);
 

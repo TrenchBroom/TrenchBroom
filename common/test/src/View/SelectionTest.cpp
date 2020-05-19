@@ -49,13 +49,13 @@ namespace TrenchBroom {
             const vm::bbox3 brushBounds(vm::vec3(-32.0, -32.0, -32.0),
                                     vm::vec3(+32.0, +32.0, +32.0));
 
-            Model::BrushNode* brush = builder.createCuboid(brushBounds, "texture");
+            Model::BrushNode* brush = new Model::BrushNode(builder.createCuboid(brushBounds, "texture"));
             document->addNode(brush, group);
 
             const vm::bbox3 selectionBounds(vm::vec3(-16.0, -16.0, -48.0),
                                         vm::vec3(+16.0, +16.0, +48.0));
 
-            Model::BrushNode* selectionBrush = builder.createCuboid(selectionBounds, "texture");
+            Model::BrushNode* selectionBrush = new Model::BrushNode(builder.createCuboid(selectionBounds, "texture"));
             document->addNode(selectionBrush, layer);
 
             document->select(selectionBrush);
@@ -79,13 +79,13 @@ namespace TrenchBroom {
             const vm::bbox3 brushBounds(vm::vec3(-32.0, -32.0, -32.0),
                                     vm::vec3(+32.0, +32.0, +32.0));
 
-            Model::BrushNode* brush = builder.createCuboid(brushBounds, "texture");
+            Model::BrushNode* brush = new Model::BrushNode(builder.createCuboid(brushBounds, "texture"));
             document->addNode(brush, group);
 
             const vm::bbox3 selectionBounds(vm::vec3(-48.0, -48.0, -48.0),
                                         vm::vec3(+48.0, +48.0, +48.0));
 
-            Model::BrushNode* selectionBrush = builder.createCuboid(selectionBounds, "texture");
+            Model::BrushNode* selectionBrush = new Model::BrushNode(builder.createCuboid(selectionBounds, "texture"));
             document->addNode(selectionBrush, layer);
 
             document->select(selectionBrush);

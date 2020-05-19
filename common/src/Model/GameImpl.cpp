@@ -130,7 +130,7 @@ namespace TrenchBroom {
                 auto world = std::make_unique<WorldNode>(format);
 
                 const Model::BrushBuilder builder(world.get(), worldBounds, defaultFaceAttribs());
-                auto* brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName);
+                auto* brush = world->createBrush(builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName));
                 world->defaultLayer()->addChild(brush);
 
                 if (format == MapFormat::Valve || format == MapFormat::Quake2_Valve || format == MapFormat::Quake3_Valve) {

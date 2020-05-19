@@ -21,6 +21,7 @@
 
 #include "Ensure.h"
 #include "Polyhedron.h"
+#include "Model/Brush.h"
 #include "Model/ModelFactory.h"
 
 #include <cassert>
@@ -28,41 +29,41 @@
 
 namespace TrenchBroom {
     namespace Model {
-        BrushBuilder::BrushBuilder(ModelFactory* factory, const vm::bbox3& worldBounds) :
+        BrushBuilder::BrushBuilder(const ModelFactory* factory, const vm::bbox3& worldBounds) :
         m_factory(factory),
         m_worldBounds(worldBounds),
         m_defaultAttribs(BrushFaceAttributes::NoTextureName) {
             ensure(m_factory != nullptr, "factory is null");
         }
 
-        BrushBuilder::BrushBuilder(ModelFactory* factory, const vm::bbox3& worldBounds, const BrushFaceAttributes& defaultAttribs) :
+        BrushBuilder::BrushBuilder(const ModelFactory* factory, const vm::bbox3& worldBounds, const BrushFaceAttributes& defaultAttribs) :
         m_factory(factory),
         m_worldBounds(worldBounds),
         m_defaultAttribs(defaultAttribs) {
             ensure(m_factory != nullptr, "factory is null");
         }
 
-        BrushNode* BrushBuilder::createCube(const FloatType size, const std::string& textureName) const {
+        Brush BrushBuilder::createCube(const FloatType size, const std::string& textureName) const {
             return createCuboid(vm::bbox3(size / 2.0), textureName, textureName, textureName, textureName, textureName, textureName);
         }
 
-        BrushNode* BrushBuilder::createCube(FloatType size, const std::string& leftTexture, const std::string& rightTexture, const std::string& frontTexture, const std::string& backTexture, const std::string& topTexture, const std::string& bottomTexture) const {
+        Brush BrushBuilder::createCube(FloatType size, const std::string& leftTexture, const std::string& rightTexture, const std::string& frontTexture, const std::string& backTexture, const std::string& topTexture, const std::string& bottomTexture) const {
             return createCuboid(vm::bbox3(size / 2.0), leftTexture, rightTexture, frontTexture, backTexture, topTexture, bottomTexture);
         }
-
-        BrushNode* BrushBuilder::createCuboid(const vm::vec3& size, const std::string& textureName) const {
+        
+        Brush BrushBuilder::createCuboid(const vm::vec3& size, const std::string& textureName) const {
             return createCuboid(vm::bbox3(-size / 2.0, size / 2.0), textureName, textureName, textureName, textureName, textureName, textureName);
         }
 
-        BrushNode* BrushBuilder::createCuboid(const vm::vec3& size, const std::string& leftTexture, const std::string& rightTexture, const std::string& frontTexture, const std::string& backTexture, const std::string& topTexture, const std::string& bottomTexture) const {
+        Brush BrushBuilder::createCuboid(const vm::vec3& size, const std::string& leftTexture, const std::string& rightTexture, const std::string& frontTexture, const std::string& backTexture, const std::string& topTexture, const std::string& bottomTexture) const {
             return createCuboid(vm::bbox3(-size / 2.0, size / 2.0), leftTexture, rightTexture, frontTexture, backTexture, topTexture, bottomTexture);
         }
 
-        BrushNode* BrushBuilder::createCuboid(const vm::bbox3& bounds, const std::string& textureName) const {
+        Brush BrushBuilder::createCuboid(const vm::bbox3& bounds, const std::string& textureName) const {
             return createCuboid(bounds, textureName, textureName, textureName, textureName, textureName, textureName);
         }
 
-        BrushNode* BrushBuilder::createCuboid(const vm::bbox3& bounds, const std::string& leftTexture, const std::string& rightTexture, const std::string& frontTexture, const std::string& backTexture, const std::string& topTexture, const std::string& bottomTexture) const {
+        Brush BrushBuilder::createCuboid(const vm::bbox3& bounds, const std::string& leftTexture, const std::string& rightTexture, const std::string& frontTexture, const std::string& backTexture, const std::string& topTexture, const std::string& bottomTexture) const {
             std::vector<BrushFace*> faces(6);
 
             // left face
@@ -96,14 +97,14 @@ namespace TrenchBroom {
                                              bounds.min + vm::vec3::pos_y(),
                                              BrushFaceAttributes(bottomTexture, m_defaultAttribs));
 
-            return m_factory->createBrush(m_worldBounds, faces);
+            return Brush(m_worldBounds, faces);
         }
-
-        BrushNode* BrushBuilder::createBrush(const std::vector<vm::vec3>& points, const std::string& textureName) const {
+        
+        Brush BrushBuilder::createBrush(const std::vector<vm::vec3>& points, const std::string& textureName) const {
             return createBrush(Polyhedron3(points), textureName);
         }
 
-        BrushNode* BrushBuilder::createBrush(const Polyhedron3& polyhedron, const std::string& textureName) const {
+        Brush BrushBuilder::createBrush(const Polyhedron3& polyhedron, const std::string& textureName) const {
             assert(polyhedron.closed());
 
             std::vector<BrushFace*> brushFaces;
@@ -126,7 +127,7 @@ namespace TrenchBroom {
                 brushFaces.push_back(m_factory->createFace(p1, p3, p2, textureName));
             }
 
-            return m_factory->createBrush(m_worldBounds, brushFaces);
+            return Brush(m_worldBounds, brushFaces);
         }
     }
 }

@@ -275,7 +275,7 @@ namespace TrenchBroom {
                 auto document = kdl::mem_lock(m_document);
                 auto game = document->game();
                 const Model::BrushBuilder builder(document->world(), document->worldBounds(), game->defaultFaceAttribs());
-                auto* brush = builder.createBrush(polyhedron, document->currentTextureName());
+                auto* brush = document->world()->createBrush(builder.createBrush(polyhedron, document->currentTextureName()));
                 brush->cloneFaceAttributesFrom(document->selectedNodes().brushes());
 
                 const Transaction transaction(document, "CSG Convex Merge");

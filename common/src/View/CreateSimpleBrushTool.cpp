@@ -20,6 +20,7 @@
 #include "CreateSimpleBrushTool.h"
 
 #include "FloatType.h"
+#include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/WorldNode.h"
 #include "Model/Game.h"
@@ -35,8 +36,9 @@ namespace TrenchBroom {
         void CreateSimpleBrushTool::update(const vm::bbox3& bounds) {
             auto document = kdl::mem_lock(m_document);
             const auto game = document->game();
-            const Model::BrushBuilder builder(document->world(), document->worldBounds(), game->defaultFaceAttribs());
-            updateBrush(builder.createCuboid(bounds, document->currentTextureName()));
+            const auto builder = Model::BrushBuilder(document->world(), document->worldBounds(), game->defaultFaceAttribs());
+            auto* brush = document->world()->createBrush(builder.createCuboid(bounds, document->currentTextureName()));
+            updateBrush(brush);
         }
 
     }
