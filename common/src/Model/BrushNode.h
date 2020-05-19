@@ -72,6 +72,8 @@ namespace TrenchBroom {
             void selectFace(size_t faceIndex);
             void deselectFace(size_t faceIndex);
             
+            void updateFaceTags(size_t faceIndex, TagManager& tagManager);
+            
             using Node::takeSnapshot;
         private: // implement Node interface
             const std::string& doGetName() const override;

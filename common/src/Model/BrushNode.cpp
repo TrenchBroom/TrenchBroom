@@ -127,6 +127,10 @@ namespace TrenchBroom {
             m_brush.face(faceIndex)->deselect();
         }
 
+        void BrushNode::updateFaceTags(const size_t faceIndex, TagManager& tagManager) {
+            m_brush.face(faceIndex)->updateTags(tagManager);
+        }
+
         const std::string& BrushNode::doGetName() const {
             static const std::string name("brush");
             return name;
