@@ -626,7 +626,7 @@ namespace TrenchBroom {
             doSetNewGeometry(worldBounds, matcher, newGeometry);
         }
 
-        bool Brush::canSnapVertices(const vm::bbox3& /* worldBounds */, const FloatType snapToF) {
+        bool Brush::canSnapVertices(const vm::bbox3& /* worldBounds */, const FloatType snapToF) const {
             BrushGeometry newGeometry;
 
             for (const auto* vertex : m_geometry->vertices()) {

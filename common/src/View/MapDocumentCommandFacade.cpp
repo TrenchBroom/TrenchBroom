@@ -712,9 +712,9 @@ namespace TrenchBroom {
         }
 
         bool MapDocumentCommandFacade::performSnapVertices(const FloatType snapTo) {
-            const std::vector<Model::BrushNode*>& brushes = m_selectedNodes.brushes();
+            const std::vector<Model::BrushNode*>& brushNodes = m_selectedNodes.brushes();
 
-            const std::vector<Model::Node*> nodes(std::begin(brushes), std::end(brushes));
+            const std::vector<Model::Node*> nodes(std::begin(brushNodes), std::end(brushNodes));
             const std::vector<Model::Node*> parents = collectParents(nodes);
 
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
@@ -723,9 +723,11 @@ namespace TrenchBroom {
             size_t succeededBrushCount = 0;
             size_t failedBrushCount = 0;
 
-            for (Model::BrushNode* brush : brushes) {
-                if (brush->canSnapVertices(m_worldBounds, snapTo)) {
-                    brush->snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock));
+            for (Model::BrushNode* brushNode : brushNodes) {
+                if (brushNode->brush().canSnapVertices(m_worldBounds, snapTo)) {
+                    Model::Brush brush = brushNode->brush();
+                    brush.snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock));
+                    brushNode->setBrush(std::move(brush));
                     succeededBrushCount += 1;
                 } else {
                     failedBrushCount += 1;

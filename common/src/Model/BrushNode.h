@@ -111,10 +111,6 @@ namespace TrenchBroom {
             std::vector<BrushFace*> incidentFaces(const BrushVertex* vertex) const;
         public:
             // vertex operations
-        public:
-            bool canSnapVertices(const vm::bbox3& worldBounds, FloatType snapTo);
-            void snapVertices(const vm::bbox3& worldBounds, FloatType snapTo, bool uvLock = false);
-
             // edge operations
             bool canMoveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) const;
             std::vector<vm::segment3> moveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta, bool uvLock = false);

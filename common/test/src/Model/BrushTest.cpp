@@ -1193,111 +1193,6 @@ namespace TrenchBroom {
             EXPECT_TRUE(brush.canMoveVertices(worldBounds, allVertexPositions, vm::vec3(16, 0, 0)));
             EXPECT_FALSE(brush.canMoveVertices(worldBounds, allVertexPositions, vm::vec3(8192, 0, 0)));
         }
-
-        TEST_CASE("BrushTest.removeSingleVertex", "[BrushTest]") {
-            const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Standard);
-
-            BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createCube(64.0, "asdf");
-
-
-            brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, +32.0, +32.0)));
-
-            ASSERT_EQ(7u, brush.vertexCount());
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
-
-
-            brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, +32.0, -32.0)));
-
-            ASSERT_EQ(6u, brush.vertexCount());
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
-
-
-            brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, -32.0, +32.0)));
-
-            ASSERT_EQ(5u, brush.vertexCount());
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
-
-
-            brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(-32.0, -32.0, -32.0)));
-
-            ASSERT_EQ(4u, brush.vertexCount());
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
-            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
-            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
-
-
-            ASSERT_FALSE(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(-32.0, -32.0, +32.0))));
-            ASSERT_FALSE(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(-32.0, +32.0, -32.0))));
-            ASSERT_FALSE(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(-32.0, +32.0, +32.0))));
-            ASSERT_FALSE(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, -32.0, -32.0))));
-        }
-
-
-        TEST_CASE("BrushTest.removeMultipleVertices", "[BrushTest]") {
-            const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Standard);
-            BrushBuilder builder(&world, worldBounds);
-
-            std::vector<vm::vec3> vertices;
-            vertices.push_back(vm::vec3(-32.0, -32.0, -32.0));
-            vertices.push_back(vm::vec3(-32.0, -32.0, +32.0));
-            vertices.push_back(vm::vec3(-32.0, +32.0, -32.0));
-            vertices.push_back(vm::vec3(-32.0, +32.0, +32.0));
-            vertices.push_back(vm::vec3(+32.0, -32.0, -32.0));
-            vertices.push_back(vm::vec3(+32.0, -32.0, +32.0));
-            vertices.push_back(vm::vec3(+32.0, +32.0, -32.0));
-            vertices.push_back(vm::vec3(+32.0, +32.0, +32.0));
-
-            for (size_t i = 0; i < 6; ++i) {
-                for (size_t j = i + 1; j < 7; ++j) {
-                    for (size_t k = j + 1; k < 8; ++k) {
-                        std::vector<vm::vec3> toRemove;
-                        toRemove.push_back(vertices[i]);
-                        toRemove.push_back(vertices[j]);
-                        toRemove.push_back(vertices[k]);
-
-                        Brush brush = builder.createBrush(vertices, "asdf");
-                        ASSERT_TRUE(brush.canRemoveVertices(worldBounds, toRemove));
-                        brush.removeVertices(worldBounds, toRemove);
-
-                        for (size_t l = 0; l < 8; ++l) {
-                            if (l != i && l != j && l != k) {
-                                ASSERT_TRUE(brush.hasVertex(vertices[l]));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         
         static void assertCanMoveVertices(const Brush& brush, const std::vector<vm::vec3> vertexPositions, const vm::vec3 delta) {
             const vm::bbox3 worldBounds(4096.0);
@@ -1423,6 +1318,171 @@ namespace TrenchBroom {
             assertCanNotMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -129.0)); // Through and out the other side is disallowed
         }
         
+        // add vertex tests
+        
+        // TODO: add tests for Brush::addVertex
+        
+        // remove vertex tests
+        
+        TEST_CASE("BrushTest.removeSingleVertex", "[BrushTest]") {
+            const vm::bbox3 worldBounds(4096.0);
+            WorldNode world(MapFormat::Standard);
+
+            BrushBuilder builder(&world, worldBounds);
+            Brush brush = builder.createCube(64.0, "asdf");
+
+
+            brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, +32.0, +32.0)));
+
+            ASSERT_EQ(7u, brush.vertexCount());
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
+            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
+
+
+            brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, +32.0, -32.0)));
+
+            ASSERT_EQ(6u, brush.vertexCount());
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
+            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
+            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
+
+
+            brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, -32.0, +32.0)));
+
+            ASSERT_EQ(5u, brush.vertexCount());
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
+            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
+            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
+            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
+
+
+            brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(-32.0, -32.0, -32.0)));
+
+            ASSERT_EQ(4u, brush.vertexCount());
+            ASSERT_FALSE(brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, +32.0)));
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, -32.0)));
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, +32.0, +32.0)));
+            ASSERT_TRUE (brush.hasVertex(vm::vec3(+32.0, -32.0, -32.0)));
+            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, -32.0, +32.0)));
+            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, -32.0)));
+            ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
+
+
+            ASSERT_FALSE(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(-32.0, -32.0, +32.0))));
+            ASSERT_FALSE(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(-32.0, +32.0, -32.0))));
+            ASSERT_FALSE(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(-32.0, +32.0, +32.0))));
+            ASSERT_FALSE(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, -32.0, -32.0))));
+        }
+
+
+        TEST_CASE("BrushTest.removeMultipleVertices", "[BrushTest]") {
+            const vm::bbox3 worldBounds(4096.0);
+            WorldNode world(MapFormat::Standard);
+            BrushBuilder builder(&world, worldBounds);
+
+            std::vector<vm::vec3> vertices;
+            vertices.push_back(vm::vec3(-32.0, -32.0, -32.0));
+            vertices.push_back(vm::vec3(-32.0, -32.0, +32.0));
+            vertices.push_back(vm::vec3(-32.0, +32.0, -32.0));
+            vertices.push_back(vm::vec3(-32.0, +32.0, +32.0));
+            vertices.push_back(vm::vec3(+32.0, -32.0, -32.0));
+            vertices.push_back(vm::vec3(+32.0, -32.0, +32.0));
+            vertices.push_back(vm::vec3(+32.0, +32.0, -32.0));
+            vertices.push_back(vm::vec3(+32.0, +32.0, +32.0));
+
+            for (size_t i = 0; i < 6; ++i) {
+                for (size_t j = i + 1; j < 7; ++j) {
+                    for (size_t k = j + 1; k < 8; ++k) {
+                        std::vector<vm::vec3> toRemove;
+                        toRemove.push_back(vertices[i]);
+                        toRemove.push_back(vertices[j]);
+                        toRemove.push_back(vertices[k]);
+
+                        Brush brush = builder.createBrush(vertices, "asdf");
+                        ASSERT_TRUE(brush.canRemoveVertices(worldBounds, toRemove));
+                        brush.removeVertices(worldBounds, toRemove);
+
+                        for (size_t l = 0; l < 8; ++l) {
+                            if (l != i && l != j && l != k) {
+                                ASSERT_TRUE(brush.hasVertex(vertices[l]));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // snap vertices tests
+        
+        static void assertCannotSnapTo(const std::string& data, const FloatType gridSize) {
+            const vm::bbox3 worldBounds(8192.0);
+            WorldNode world(MapFormat::Standard);
+
+            IO::TestParserStatus status;
+            IO::NodeReader reader(data, world);
+
+            const std::vector<Node*> nodes = reader.read(worldBounds, status);
+            EXPECT_EQ(1u, nodes.size());
+
+            Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
+            ASSERT_FALSE(brush.canSnapVertices(worldBounds, gridSize));
+            
+            kdl::col_delete_all(nodes);
+        }
+
+        static void assertCannotSnap(const std::string& data) {
+            assertCannotSnapTo(data, 1.0);
+        }
+
+        static void assertSnapTo(const std::string& data, const FloatType gridSize) {
+            const vm::bbox3 worldBounds(8192.0);
+            WorldNode world(MapFormat::Standard);
+
+            IO::TestParserStatus status;
+            IO::NodeReader reader(data, world);
+
+            const std::vector<Node*> nodes = reader.read(worldBounds, status);
+            EXPECT_EQ(1u, nodes.size());
+
+            Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
+            ASSERT_TRUE(brush.canSnapVertices(worldBounds, gridSize));
+
+            brush.snapVertices(worldBounds, gridSize);
+            ASSERT_TRUE(brush.fullySpecified());
+
+            // Ensure they were actually snapped
+            {
+                for (const Model::BrushVertex* vertex : brush.vertices()) {
+                    const vm::vec3& pos = vertex->position();
+                    ASSERT_TRUE(vm::is_integral(pos, 0.001));
+                }
+            }
+            
+            kdl::col_delete_all(nodes);
+        }
+
+        static void assertSnapToInteger(const std::string& data) {
+            assertSnapTo(data, 1.0);
+        }
+
+        // TODO: add tests for Brush::snapVertices (there are some issue tests below)
+                
         // "Move edge" tests
 
         static void assertCanMoveEdges(const Brush& brush, const std::vector<vm::segment3> edges, const vm::vec3 delta) {
@@ -2025,6 +2085,196 @@ namespace TrenchBroom {
             assertTexture("*teleport", brush, std::vector<vm::vec3d>{p9, p10, p11});
 
             kdl::col_delete_all(nodes);
+        }
+
+        TEST_CASE("BrushTest.snapIssue1198", "[BrushTest]") {
+            // https://github.com/kduske/TrenchBroom/issues/1198
+            const std::string data("{\n"
+                              "( 167.63423 -46.88446 472.36551 ) ( 66.06285 -1.98675 573.93711 ) ( 139.12681 -168.36963 500.87299 ) rock_1736 -158 527 166.79401 0.97488 -0.85268 //TX1\n"
+                              "( 208 -298.77704 309.53674 ) ( 208 -283.89740 159.77713 ) ( 208 -425.90924 294.65701 ) rock_1736 -261 -291 186.67561 1 1.17558 //TX1\n"
+                              "( -495.37965 -970.19919 2420.40004 ) ( -369.12126 -979.60987 2439.22145 ) ( -516.42274 -1026.66357 2533.32892 ) skill_ground -2752 -44 100.55540 0.89744 -0.99664 //TX1\n"
+                              "( 208 -103.52284 489.43151 ) ( 208 -63.04567 610.86296 ) ( 80 -103.52284 489.43151 ) rock_1736 208 516 0 -1 0.94868 //TX1\n"
+                              "( -450.79344 -2050.77028 440.48261 ) ( -333.56544 -2071.81325 487.37381 ) ( -470.33140 -2177.02858 432.66743 ) skill_ground -2100 -142 261.20348 0.99813 0.93021 //TX1\n"
+                              "( -192.25073 -2050.77026 159.49851 ) ( -135.78626 -2071.81323 272.42748 ) ( -201.66146 -2177.02856 140.67705 ) skill_ground -2010 513 188.47871 0.99729 -0.89685 //TX1\n"
+                              "( 181.06874 -76.56186 495.11416 ) ( 172.37248 -56.19832 621.18438 ) ( 63.35341 -126.83229 495.11416 ) rock_1736 197 503 0 -0.91965 0.98492 //TX1\n"
+                              "( 171.46251 -48.09583 474.98238 ) ( 129.03154 -21.91225 616.98017 ) ( 105.41315 -157.70143 477.82758 ) rock_1736 -71 425 178.51302 0.85658 -1.11429 //TX1\n"
+                              "( -37.21422 -6.81390 22.01408 ) ( -12.34518 -24.34492 146.34503 ) ( -92.55376 -122.11616 16.82534 ) skill_ground -6 23 182.57664 0.90171 -0.97651 //TX1\n"
+                              "( -975.92228 -1778.45799 1072.52401 ) ( -911.46425 -1772.13654 1182.92865 ) ( -1036.18913 -1883.59588 1113.72975 ) skill_ground -2320 426 158.59875 0.88222 -0.82108 //TX1\n"
+                              "( -984.28431 -1006.06166 2136.35663 ) ( -881.58265 -976.76783 2206.91312 ) ( -1039.55007 -1059.19179 2238.85958 ) skill_ground -2580 152 118.33189 0.90978 -0.96784 //TX1\n"
+                              "( -495.37960 -2050.77026 672 ) ( -369.12118 -2071.81323 672 ) ( -516.42263 -2177.02856 672 ) skill_ground -2104 -151 260.53769 1 1 //TX1\n"
+                              "( 0 -192 512 ) ( 0 -192 640 ) ( 128 -192 512 ) skill_ground 0 512 0 1 1 //TX1\n"
+                              "( 0 0 512 ) ( 0 -128 512 ) ( 128 0 512 ) skill_ground 0 0 0 1 -1 //TX1\n"
+                              "}");
+            assertSnapToInteger(data);
+        }
+
+        TEST_CASE("BrushTest.snapIssue1202", "[BrushTest]") {
+            // https://github.com/kduske/TrenchBroom/issues/1202
+            const std::string data("{\n"
+                              "( -384 -1440 416 ) ( -384 -1440 544 ) ( -512 -1440 416 ) skip -384 416 0 -1 1 //TX1\n"
+                              "( -479.20200 -1152 448 ) ( -388.69232 -1242.50967 448 ) ( -607.20203 -1152 448 ) skip -476 1631 -45 1 -0.70711 //TX2\n"
+                              "( -202.75913 -1259.70123 365.61488 ) ( -293.26877 -1169.19156 365.61487 ) ( -288.09239 -1345.03450 408.28175 ) city6_8 747 1097 135 1 0.94281 //TX2\n"
+                              "( -672 -1664 112 ) ( -800 -1664 112 ) ( -672 -1664 240 ) bricka2_4 -672 112 0 -1 1 //TX2\n"
+                              "( -166.47095 -1535.24850 432 ) ( -294.41554 -1539.01482 432 ) ( -38.47095 -1663.24847 432 ) bricka2_4 -212 1487 181.68613 1 1.02899 //TX2\n"
+                              "( 96 -2840.62573 176 ) ( 96 -3021.64502 176 ) ( 96 -2840.62573 304 ) bricka2_4 -2009 176 0 -1.41421 1 //TX2\n"
+                              "( -128 -288 176 ) ( -128 -160 176 ) ( -128 -288 304 ) bricka2_4 288 176 0 1 1 //TX2\n"
+                              "}");
+            assertSnapToInteger(data);
+        }
+
+        TEST_CASE("BrushTest.snapIssue1203", "[BrushTest]") {
+            // https://github.com/kduske/TrenchBroom/issues/1203
+            const std::string data("{\n"
+                              "( -2255.07542 -1621.75354 1184 ) ( -2340.26373 -1524.09826 1184 ) ( -2255.07542 -1621.75354 1312 ) metal5_6 2126 1184 0 0.76293 1 //TX2\n"
+                              "( -2274.59294 -1572.67199 1077.14252 ) ( -2216.18139 -1643.55025 1214.27523 ) ( -2179.93925 -1486.72565 1086.37772 ) metal1_2 -86 -3857 66.92847 1.16449 -0.65206 //TX2\n"
+                              "( -2294.68465 -1559.17687 1145.06418 ) ( -2209.49633 -1656.83209 1145.06409 ) ( -2226.47948 -1499.67881 1009.29941 ) metal1_2 -2044 -1080 180.00005 0.76293 1.06066 //TX2\n"
+                              "( -2277.90664 -1569.35830 1229.87757 ) ( -2219.49502 -1640.23662 1092.74492 ) ( -2183.25294 -1483.41196 1220.64238 ) metal1_2 1738 -2475 -66.92843 1.16449 0.65206 //TX2\n"
+                              "( -2291.16152 -1556.10351 1161.99537 ) ( -2205.97305 -1653.75857 1161.99532 ) ( -2222.95604 -1496.60517 1297.75964 ) metal1_2 -2040 1096 180.00003 0.76293 -1.06066 //TX2\n"
+                              "( -2081.99036 -1805.83188 1184 ) ( -2022.45370 -1920.93607 1184 ) ( -2195.68224 -1864.63800 1184 ) skinsore -640 2679 -62.65012 1.01242 -1 //TX2\n"
+                              "( -2243.07853 -1621.15697 1184 ) ( -2243.07799 -1621.15750 1312 ) ( -2152.56935 -1530.64682 1184 ) metal5_6 2293 1184 0 0.70711 1 //TX1\n"
+                              "( -2288.33311 -1643.78464 1184 ) ( -2197.82344 -1553.27497 1184 ) ( -2288.33311 -1643.78464 1312 ) metal5_6 2325 1184 0 0.70711 1 //TX2\n"
+                              "( -2243.76171 -1610.43983 1184 ) ( -2243.76171 -1610.43983 1312 ) ( -2327.90482 -1513.98290 1184 ) metal5_6 2137 1184 0 0.75357 1 //TX1\n"
+                              "}");
+            assertSnapToInteger(data);
+        }
+
+        TEST_CASE("BrushTest.snapIssue1205", "[BrushTest]") {
+            // https://github.com/kduske/TrenchBroom/issues/1205
+            const std::string data("{\n"
+                              "( 304 -895.52890 1232 ) ( 304 -763.64662 1232 ) ( 304 -895.52890 1104 ) bookshelf1w 1232 -869 -90 1 1.03033 //TX1\n"
+                              "( -23.76447 -759.76453 1232 ) ( 69.49032 -666.50962 1232 ) ( -23.76447 -759.76453 1104 ) bookshelf1w 1232 -1043 -90 1 0.72855 //TX1\n"
+                              "( -139.64675 -480 1232 ) ( -7.76448 -480 1232 ) ( -139.64675 -480 1104 ) bookshelf1w 1232 -136 -90 1 1.03033 //TX1\n"
+                              "( -42.50967 -245.49033 1232 ) ( 50.74518 -338.74518 1232 ) ( -42.50967 -245.49033 1104 ) bookshelf1w 1232 337 -90 1 -0.72855 //TX1\n"
+                              "( 323.88225 -320 1232 ) ( 191.99998 -320 1232 ) ( 323.88225 -320 1104 ) bookshelf1w 1232 -314 -90 1 -1.03033 //TX1\n"
+                              "( 144 -168.23550 1232 ) ( 144 -300.11777 1232 ) ( 144 -168.23550 1104 ) bookshelf1w 1232 163 -90 1 -1.03033 //TX1\n"
+                              "( 303.99988 -432.00012 1248.00050 ) ( 278.89702 -432.00012 1373.51482 ) ( 303.99988 -304.00012 1248.00050 ) rfslte1 432 1273 0 1 0.98058 //TX1\n"
+                              "( 303.99995 -367.99981 1248 ) ( 286.42119 -385.57861 1373.56263 ) ( 213.49015 -277.49027 1248 ) rfslte1 430 1272 0 -0.70711 0.98096 //TX1\n"
+                              "( 256 -320 1247.99999 ) ( 256 -345.10286 1373.51432 ) ( 128 -320.00005 1247.99999 ) rfslte1 256 1273 0 -1 0.98058 //TX1\n"
+                              "( 191.99988 -320.00012 1248.00049 ) ( 209.57867 -337.57891 1373.56311 ) ( 101.49021 -410.50979 1248.00049 ) rfslte1 -453 1272 0 -0.70711 0.98096 //TX1\n"
+                              "( 144 -368 1248.00049 ) ( 169.10289 -368 1373.51481 ) ( 144 -496 1248.00049 ) rfslte1 -368 1273 0 -1 0.98058 //TX1\n"
+                              "( 144 -432 1248.00049 ) ( 161.57879 -414.42121 1373.56311 ) ( 234.50967 -522.50967 1248.00049 ) rfslte1 -611 1272 0 -0.70711 0.98096 //TX1\n"
+                              "( 192 -480 1248.00049 ) ( 192 -454.89711 1373.51481 ) ( 320 -480 1248.00049 ) rfslte1 -192 1273 0 1 0.98058 //TX1\n"
+                              "( 256 -480 1248.00049 ) ( 238.42121 -462.42121 1373.56311 ) ( 346.50967 -389.49033 1248.00049 ) rfslte1 679 1272 0 0.70711 0.98096 //TX1\n"
+                              "( 144 -320 1232 ) ( 144 -448 1232 ) ( 272 -320 1232 ) rfslte1 -144 320 0 1 -1 //TX1\n"
+                              "( 285.25483 -226.74517 1232 ) ( 191.99999 -320.00001 1232 ) ( 285.25483 -226.74517 1104 ) bookshelf1w 1232 311 -90 1 -0.72855 //TX1\n"
+                              "( 304 -368 1232 ) ( 210.74516 -274.74516 1232 ) ( 304 -368 1104 ) bookshelf1w 1232 -505 -90 1 0.72855 //TX1\n"
+                              "}");
+            assertSnapToInteger(data);
+        }
+
+        TEST_CASE("BrushTest.snapIssue1206", "[BrushTest]") {
+            // https://github.com/kduske/TrenchBroom/issues/1206
+            const std::string data("{\n"
+                              "( -637.50000 1446.44631 1339.47316 ) ( -637.50000 1560.93298 1396.71649 ) ( -765.50000 1446.44631 1339.47316 ) column01_3 -638 1617 0 -1 0.89443 //TX1\n"
+                              "( -632.50000 1438.33507 1340.33194 ) ( -632.50000 1538.28627 1260.37098 ) ( -760.50000 1438.33507 1340.33194 ) column01_3 -632 1842 0 -1 0.78087 //TX1\n"
+                              "( -646 1397.33116 1362.08442 ) ( -646 1511.81782 1304.84109 ) ( -518 1397.33116 1362.08442 ) column01_3 646 1562 0 1 0.89443 //TX1\n"
+                              "( -637.50000 1436 1338 ) ( -637.50000 1436 1466 ) ( -637.50000 1308 1338 ) column01_3 1436 1338 0 -1 1 //TX1\n"
+                              "( -637 1438.91806 1338.87292 ) ( -637 1367.91644 1445.37534 ) ( -509 1438.91806 1338.87292 ) column01_3 637 1609 0 1 0.83205 //TX1\n"
+                              "( -637 1440.50000 1338 ) ( -637 1440.50000 1466 ) ( -637 1568.50000 1338 ) column01_3 -1440 1338 0 1 1 //TX1\n"
+                              "( -638 1435.27452 1340.35014 ) ( -638 1312.19946 1375.51444 ) ( -510 1435.27452 1340.35014 ) column01_3 638 -1493 0 1 -0.96152 //TX1\n"
+                              "}");
+            assertSnapToInteger(data);
+        }
+
+        TEST_CASE("BrushTest.snapIssue1207", "[BrushTest]") {
+            // https://github.com/kduske/TrenchBroom/issues/1207
+            const std::string data("{\n"
+                              "( -635.50000 1442.50000 1353.50012 ) ( -763.50000 1442.50000 1353.50012 ) ( -635.50000 1314.50000 1353.50012 ) column01_3 1442 635 -90 1 -1 //TX1\n"
+                              "( -635.50000 1442.50000 1355 ) ( -507.50000 1442.50000 1355 ) ( -635.50000 1314.50000 1355 ) column01_3 1442 -635 -90 1 1 //TX1\n"
+                              "( -636 1442.50000 1354 ) ( -636 1442.50000 1482 ) ( -764 1442.50000 1354 ) column01_3 -636 1354 0 -1 1 //TX1\n"
+                              "( -636 1438 1354 ) ( -636 1438 1482 ) ( -636 1310 1354 ) column01_3 1438 1354 0 -1 1 //TX1\n"
+                              "( -635.50000 1438 1354 ) ( -635.50000 1438 1482 ) ( -507.50000 1438 1354 ) column01_3 636 1354 0 1 1 //TX1\n"
+                              "( -635.50000 1442.50000 1354 ) ( -635.50000 1442.50000 1482 ) ( -635.50000 1570.50000 1354 ) column01_3 -1442 1354 0 1 1 //TX1\n"
+                              "}\n");
+            assertCannotSnap(data);
+        }
+
+        TEST_CASE("BrushTest.snapIssue1232", "[BrushTest]") {
+            // https://github.com/kduske/TrenchBroom/issues/1232
+            const std::string data("{\n"
+                              "  ( 2152.22540 381.27455 2072 ) ( 2152.22540 381.27455 2200 ) ( 2020.34268 513.15633 2072 ) wbord05 2089 2072 0 -1.03033 1 //TX1\n"
+                              "  ( 2042 335.61771 2072 ) ( 2042 335.61771 2200 ) ( 2042 522.12738 2072 ) wbord05 -230 2072 0 1.45711 1 //TX1\n"
+                              "  ( 1948.74515 374.24515 2072 ) ( 1948.74515 374.24515 2200 ) ( 2080.62741 506.12741 2072 ) wbord05 -363 2072 0 1.03033 1 //TX1\n"
+                              "  ( 1916.74515 451.50000 2072 ) ( 1916.74515 451.50000 2200 ) ( 2103.25482 451.50000 2072 ) wbord05 -1315 2072 0 1.45711 1 //TX1\n"
+                              "  ( 2043.56919 493.06919 2026.43074 ) ( 1969.66841 419.16841 2100.33167 ) ( 2134.07889 402.55957 2026.43079 ) kjwall2 -1096 -2197 -44.99997 1 -0.81650 //TX1\n"
+                              "  ( 2028.72645 441.39868 2036.31307 ) ( 2140.35950 385.25273 2064.05640 ) ( 2063.24398 543.87358 2104.80712 ) kjwall2 -1262 1843 71.38448 0.84478 -0.96653 //TX1\n"
+                              "  ( 1980.74480 497.22377 2022.51040 ) ( 2011.04246 392.71223 2089.91507 ) ( 2093.59579 549.47972 2052.80842 ) kjwall2 -2065 453 24.84662 0.97158 -0.84038 //TX1\n"
+                              "  ( 2026.09563 451.97825 2028.19126 ) ( 1995.79798 556.48977 2095.59597 ) ( 1913.24475 399.72220 2058.48949 ) kjwall2 2088 -525 204.84669 0.97158 -0.84038 //TX1\n"
+                              "  ( 1994 515.89878 2035.80067 ) ( 1994 401.41210 2093.04401 ) ( 2122 515.89859 2035.80028 ) kjwall2 -1994 -577 -0.00009 1 -0.89443 //TX1\n"
+                              "  ( 2010 443.10126 2035.80060 ) ( 2010 557.58793 2093.04394 ) ( 1881.99999 443.10145 2035.80021 ) kjwall2 2010 495 179.99991 1 -0.89443 //TX1\n"
+                              "  ( 2018.70638 436.61696 2056.35332 ) ( 2119.11026 375.11218 2106.55513 ) ( 2073.71821 548.87185 2083.85853 ) kjwall2 -1311 1770 63.89229 0.97664 -0.91582 //TX1\n"
+                              "  ( 2034 453.83437 2044 ) ( 1982.79994 568.32105 2069.59989 ) ( 1931.59947 396.59103 2095.19895 ) kjwall2 2179 -611 209.20580 0.91652 -0.97590 //TX1\n"
+                              "  ( 2018 507.50000 2072 ) ( 2018 507.50000 2200 ) ( 1831.49033 507.50000 2072 ) wbord05 1385 2072 0 -1.45711 1 //TX1\n"
+                              "  ( 1986 530.12743 2072 ) ( 1986 530.12743 2200 ) ( 1986 343.61775 2072 ) wbord05 364 2072 0 -1.45711 1 //TX1\n"
+                              "  ( 2010 479.50000 2072 ) ( 2010 607.50000 2072 ) ( 2138 479.50000 2072 ) kjwall2 -2010 480 0 1 1 //TX1\n"
+                              "  ( 2010 479.50000 2060 ) ( 2010 351.50000 2060 ) ( 2138 479.50000 2060 ) kjwall2 -2010 -480 0 1 -1 //TX1\n"
+                              "  ( 2013.31371 518.81371 2072 ) ( 2013.31371 518.81371 2200 ) ( 1881.43146 386.93146 2072 ) wbord05 504 2072 0 -1.03033 1 //TX1\n"
+                              "  ( 1941.71572 511.78427 2072 ) ( 1941.71572 511.78427 2200 ) ( 2073.59785 379.90191 2072 ) wbord05 497 2072 0 -1.03033 1 //TX1\n"
+                              " }\n");
+
+            assertSnapToInteger(data);
+        }
+
+        TEST_CASE("BrushTest.snapIssue1395_24202", "[BrushTest]") {
+            // https://github.com/kduske/TrenchBroom/issues/1395 brush at line 24202
+            const std::string data("{\n"
+                              "( -4 -325 952 ) ( -16 -356 1032 ) ( -44 -309 1016 ) rock3_8 -1.28601 -6.46194 113.395 0.943603 1.06043\n"
+                              "( -17.57635498046875 -263.510009765625 988.9852294921875 ) ( -137.5655517578125 -375.941162109375 743.296875 ) ( 34.708740234375 -300.228759765625 1073.855712890625 ) rock3_8 -1.28595 -6.46191 113.395 0.943603 1.06043\n"
+                              "( -135.7427978515625 -370.1265869140625 739.753173828125 ) ( -15.768181800842285 -257.6954345703125 985.42547607421875 ) ( -449.98324584960937 -364.254638671875 589.064697265625 ) rock3_8 -26.8653 -10.137 25.6205 1.15394 -1\n"
+                              "( -399.50726318359375 -406.7877197265625 677.47894287109375 ) ( -137.5655517578125 -375.941162109375 743.296875 ) ( -451.79229736328125 -370.0692138671875 592.6083984375 ) rock3_8 26.1202 -7.68527 81.5004 0.875611 -1\n"
+                              "( -280.1622314453125 -291.92608642578125 924.623779296875 ) ( -18.227519989013672 -261.07952880859375 990.43829345703125 ) ( -227.88420104980469 -328.64483642578125 1009.49853515625 ) rock3_8 -28.9783 0.638519 81.5019 0.875609 -1\n"
+                              "( -195.9036865234375 -282.3568115234375 876.8590087890625 ) ( -143.6192626953125 -319.08740234375 961.7213134765625 ) ( -368.19818115234375 -358.08740234375 546.27716064453125 ) rock3_8 -25.9692 -19.1265 113.395 0.943603 1.06043\n"
+                              "( -276.88287353515625 -332.21014404296875 930.47674560546875 ) ( -449.17929077148437 -407.92318725585937 599.90850830078125 ) ( -14.952971458435059 -301.37832641601562 996.28533935546875 ) rock3_8 -20.4888 -8.56413 -87.0938 1.30373 1.02112\n"
+                              "( 37.161830902099609 -335.35406494140625 1080.605712890625 ) ( -135.12174987792969 -411.084716796875 750.062744140625 ) ( -224.79318237304687 -366.23345947265625 1014.8262329101562 ) rock3_8 8.91101 4.43578 -87.0938 1.30373 1.02112\n"
+                              "( -290.354736328125 -397.304931640625 703.53790283203125 ) ( -470.618896484375 -265.4686279296875 632.53790283203125 ) ( -400.5767822265625 -391.6395263671875 703.53790283203125 ) rock3_8 8.25781 -11.1122 -165 0.865994 1\n"
+                              "( -96 -299 1019 ) ( -96 -171 1019 ) ( 50 -400 1017 ) rock3_8 -28.9783 0.638519 81.5019 0.875609 -1\n"
+                              "}\n");
+
+            assertSnapToInteger(data);
+        }
+
+        TEST_CASE("BrushTest.snapIssue1395_18995", "[BrushTest]") {
+            // https://github.com/kduske/TrenchBroom/issues/1395 brush at line 24202
+            const std::string data("{\n"
+                              "( 335 891 680 ) ( 314 881 665 ) ( 451 826 680 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 450 813 671 ) ( 451 826 680 ) ( 446 807 665 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 451 826 680 ) ( 314 881 665 ) ( 446 807 665 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 446 807 665 ) ( 446 754 665 ) ( 450 813 671 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 446 754 680 ) ( 451 826 680 ) ( 446 754 665 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 313 880 680 ) ( 310 879 677 ) ( 335 891 680 ) wswamp1_2 -16 0 0 1 1\n"
+                              "( 304 876 670 ) ( 312 880 665 ) ( 310 879 677 ) wswamp1_2 -16 0 0 1 1\n"
+                              "( 314 881 665 ) ( 335 891 680 ) ( 310 879 677 ) wswamp1_2 -16 0 0 1 1\n"
+                              "( 330 754 667 ) ( 328 754 665 ) ( 342 757 680 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 342 757 680 ) ( 328 754 665 ) ( 310 879 677 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 304 876 670 ) ( 310 879 677 ) ( 328 754 665 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 312 823 665 ) ( 304 876 670 ) ( 328 754 665 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 310.50375366210937 879.1187744140625 676.45660400390625 ) ( 313.50375366210937 880.1187744140625 679.45660400390625 ) ( 342.50375366210937 757.1187744140625 679.45660400390625 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 308.35256958007812 876 676.95867919921875 ) ( 316.35256958007813 823 671.95867919921875 ) ( 316.35256958007813 880 671.95867919921875 ) wswamp1_2 2 0 0 1 1\n"
+                              "( 342 757 680 ) ( 446 754 680 ) ( 330 754 667 ) wswamp1_2 -16 0 0 1 1\n"
+                              "( 446 754 665 ) ( 328 754 665 ) ( 446 754 680 ) wswamp1_2 -16 0 0 1 1\n"
+                              "( 446 754 680 ) ( 342 757 680 ) ( 451 826 680 ) wswamp1_2 -16 -2 0 1 1\n"
+                              "( 446 754 665 ) ( 446 807 665 ) ( 328 754 665 ) wswamp1_2 -16 -2 0 1 1\n"
+                              "}\n"
+                              "\n");
+
+            assertSnapToInteger(data);
+        }
+        
+        TEST_CASE("BrushTest.snapToGrid64", "[BrushTest]") {
+            // https://github.com/kduske/TrenchBroom/issues/1415
+            const std::string data("{\n"
+                              "    ( 400 224 272 ) ( 416 272 224 ) ( 304 224 224 ) techrock 128 -0 -0 1 1\n"
+                              "    ( 416 448 224 ) ( 416 272 224 ) ( 400 448 272 ) techrock 64 -0 -0 1 1\n"
+                              "    ( 304 272 32 ) ( 304 832 48 ) ( 304 272 48 ) techrock 64 -0 -0 1 1\n"
+                              "    ( 304 448 224 ) ( 416 448 224 ) ( 304 448 272 ) techrock 128 0 0 1 1\n"
+                              "    ( 400 224 224 ) ( 304 224 224 ) ( 400 224 272 ) techrock 128 -0 -0 1 1\n"
+                              "    ( 352 272 272 ) ( 400 832 272 ) ( 400 272 272 ) techrock 128 -64 -0 1 1\n"
+                              "    ( 304 448 224 ) ( 304 224 224 ) ( 416 448 224 ) techrock 128 -64 0 1 1\n"
+                              "}\n");
+
+            // Seems reasonable for this to fail to snap to grid 64; it's only 48 units tall.
+            // If it was able to snap, that would be OK too.
+            assertCannotSnapTo(data, 64.0);
         }
     }
 }

@@ -246,16 +246,6 @@ namespace TrenchBroom {
             return m_brush.incidentFaces(vertex);
         }
 
-        bool BrushNode::canSnapVertices(const vm::bbox3& worldBounds, const FloatType snapToF) {
-            return m_brush.canSnapVertices(worldBounds, snapToF);
-        }
-
-        void BrushNode::snapVertices(const vm::bbox3& worldBounds, const FloatType snapToF, const bool uvLock) {
-            const NotifyNodeChange nodeChange(this);
-            const NotifyPhysicalBoundsChange boundsChange(this);
-            m_brush.snapVertices(worldBounds, snapToF, uvLock);
-        }
-
         bool BrushNode::canMoveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) const {
             return m_brush.canMoveEdges(worldBounds, edgePositions, delta);
         }
