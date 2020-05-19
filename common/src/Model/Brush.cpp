@@ -273,6 +273,10 @@ namespace TrenchBroom {
             return std::nullopt;
         }
 
+        std::optional<size_t> Brush::findFace(const BrushFace* face) const {
+            return kdl::vec_index_of(m_faces, face);
+        }
+
         BrushFace* Brush::face(const size_t index) const {
             assert(index < faceCount());
             return m_faces[index];
