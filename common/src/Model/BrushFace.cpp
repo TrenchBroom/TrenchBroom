@@ -112,6 +112,21 @@ namespace TrenchBroom {
 
         BrushFace::~BrushFace() = default;
         
+        bool operator==(const BrushFace& lhs, const BrushFace& rhs) {
+            return lhs.m_points == rhs.m_points &&
+            lhs.m_boundary == rhs.m_boundary &&
+            lhs.m_attributes == rhs.m_attributes &&
+            *lhs.m_texCoordSystem == *rhs.m_texCoordSystem &&
+            lhs.m_lineNumber == rhs.m_lineNumber &&
+            lhs.m_lineCount == rhs.m_lineCount &&
+            lhs.m_selected == rhs.m_selected;
+                    
+        }
+        
+        bool operator!=(const BrushFace& lhs, const BrushFace& rhs) {
+            return !(lhs == rhs);
+        }
+
         BrushFace* BrushFace::createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName) {
             const BrushFaceAttributes attributes(textureName);
             return new BrushFace(point0, point1, point2, attributes, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attributes));
