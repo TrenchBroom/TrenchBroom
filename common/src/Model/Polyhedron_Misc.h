@@ -103,6 +103,15 @@ namespace TrenchBroom {
         void Polyhedron<T,FP,VP>::Callback::facesWillBeMerged(Face* /* remaining */, Face* /* toDelete */) {}
 
         template <typename T, typename FP, typename VP>
+        Polyhedron<T,FP,VP>::CopyCallback::~CopyCallback() = default;
+
+        template <typename T, typename FP, typename VP>
+        void Polyhedron<T,FP,VP>::CopyCallback::vertexWasCopied(const Vertex* /* original */, Vertex* /* copy */) {}
+
+        template <typename T, typename FP, typename VP>
+        void Polyhedron<T,FP,VP>::CopyCallback::faceWasCopied(const Face* /* original */, Face* /* copy */) {}
+
+        template <typename T, typename FP, typename VP>
         Polyhedron<T,FP,VP>::Polyhedron() {
             updateBounds();
         }
@@ -242,7 +251,13 @@ namespace TrenchBroom {
 
         template <typename T, typename FP, typename VP>
         Polyhedron<T,FP,VP>::Polyhedron(const Polyhedron<T,FP,VP>& other) {
-            Copy copy(other.faces(), other.edges(), other.vertices(), *this);
+            CopyCallback callback;
+            Copy copy(other.faces(), other.edges(), other.vertices(), *this, callback);
+        }
+
+        template <typename T, typename FP, typename VP>
+        Polyhedron<T,FP,VP>::Polyhedron(const Polyhedron<T,FP,VP>& other, CopyCallback& callback) {
+            Copy copy(other.faces(), other.edges(), other.vertices(), *this, callback);
         }
 
         template <typename T, typename FP, typename VP>
@@ -306,23 +321,26 @@ namespace TrenchBroom {
         public:
             /**
              * Copies a polyhedron with the given faces, edges and vertices into the given destination polyhedron.
+             * The callback can be used to set up the face and vertex payloads.
              *
              * @param originalFaces the faces to copy
              * @param originalEdges the edges to copy
              * @param originalVertices the vertices to copy
              * @param destination the destination polyhedron that will become a copy
+             * @param callback the callback to call for every created face or vertex             *
              */
-            Copy(const FaceList& originalFaces, const EdgeList& originalEdges, const VertexList& originalVertices, Polyhedron& destination) :
+            Copy(const FaceList& originalFaces, const EdgeList& originalEdges, const VertexList& originalVertices, Polyhedron& destination, CopyCallback& callback) :
                 m_destination(destination) {
-                copyVertices(originalVertices);
-                copyFaces(originalFaces);
+                copyVertices(originalVertices, callback);
+                copyFaces(originalFaces, callback);
                 copyEdges(originalEdges);
                 swapContents();
             }
         private:
-            void copyVertices(const VertexList& originalVertices) {
+            void copyVertices(const VertexList& originalVertices, CopyCallback& callback) {
                 for (const Vertex* currentVertex : originalVertices) {
                     Vertex* copy = new Vertex(currentVertex->position());
+                    callback.vertexWasCopied(currentVertex, copy);
                     assert(m_vertexMap.count(currentVertex) == 0u);
                     m_vertexMap.insert(std::make_pair(currentVertex, copy));
                     m_vertices.push_back(copy);
@@ -330,13 +348,13 @@ namespace TrenchBroom {
                 }
             }
 
-            void copyFaces(const FaceList& originalFaces) {
+            void copyFaces(const FaceList& originalFaces, CopyCallback& callback) {
                 for (const Face* currentFace : originalFaces) {
-                    copyFace(currentFace);
+                    copyFace(currentFace, callback);
                 }
             }
 
-            void copyFace(const Face* originalFace) {
+            void copyFace(const Face* originalFace, CopyCallback& callback) {
                 HalfEdgeList myBoundary;
 
                 for (const HalfEdge* currentHalfEdge : originalFace->boundary()) {
@@ -344,6 +362,7 @@ namespace TrenchBroom {
                 }
 
                 Face* copy = new Face(std::move(myBoundary));
+                callback.faceWasCopied(originalFace, copy);
                 m_faces.push_back(copy);
             }
 
