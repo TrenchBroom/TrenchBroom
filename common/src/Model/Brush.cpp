@@ -251,7 +251,7 @@ namespace TrenchBroom {
             return kdl::vec_transform(m_faces, [](const auto* f) { return f; });
         }
 
-        const std::vector<BrushFace*>& Brush::faces() {
+        std::vector<BrushFace*> Brush::faces() {
             return m_faces;
         }
 
