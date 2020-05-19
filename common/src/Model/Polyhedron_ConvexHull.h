@@ -25,6 +25,8 @@
 #include "Polyhedron.h"
 #include "Exceptions.h"
 
+#include <kdl/vector_utils.h>
+
 #include <vecmath/segment.h>
 #include <vecmath/plane.h>
 #include <vecmath/bbox.h>
@@ -59,14 +61,10 @@ namespace TrenchBroom {
         }
         
         template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::addPoints(const std::vector<vm::vec<T,3>>& points) {
-            addPoints(std::begin(points), std::end(points));
-        }
-
-        template <typename T, typename FP, typename VP> template <typename I>
-        void Polyhedron<T,FP,VP>::addPoints(I cur, I end) {
-            while (cur != end) {
-                addPoint(*cur++);
+        void Polyhedron<T,FP,VP>::addPoints(std::vector<vm::vec<T,3>> points) {
+            kdl::vec_sort_and_remove_duplicates(points);
+            for (const auto& point : points) {
+                addPoint(point);
             }
         }
 

@@ -412,8 +412,7 @@ namespace TrenchBroom {
         BrushVertex* Brush::addVertex(const vm::bbox3& worldBounds, const vm::vec3& position) {
             assert(canAddVertex(worldBounds, position));
 
-            BrushGeometry newGeometry(*m_geometry);
-            newGeometry.addPoint(position);
+            BrushGeometry newGeometry(kdl::vec_concat(m_geometry->vertexPositions(), std::vector<vm::vec3>({position})));
 
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry);
             doSetNewGeometry(worldBounds, matcher, newGeometry);
@@ -423,22 +422,27 @@ namespace TrenchBroom {
             return newVertex;
         }
 
+        namespace {
+            BrushGeometry removeVerticesFromGeometry(const BrushGeometry& geometry, const std::vector<vm::vec3>& vertexPositions) {
+                std::vector<vm::vec3> points;
+                points.reserve(geometry.vertexCount());
+                
+                for (const auto* vertex : geometry.vertices()) {
+                    const auto& position = vertex->position();
+                    if (!kdl::vec_contains(vertexPositions, position)) {
+                        points.push_back(position);
+                    }
+                }
+                
+                return BrushGeometry(points);
+            }
+        }
 
         bool Brush::canRemoveVertices(const vm::bbox3& /* worldBounds */, const std::vector<vm::vec3>& vertexPositions) const {
             ensure(m_geometry != nullptr, "geometry is null");
             ensure(!vertexPositions.empty(), "no vertex positions");
 
-            BrushGeometry testGeometry;
-            const auto vertexSet = std::set<vm::vec3>(std::begin(vertexPositions), std::end(vertexPositions));
-
-            for (const auto* vertex : m_geometry->vertices()) {
-                const auto& position = vertex->position();
-                if (!vertexSet.count(position)) {
-                    testGeometry.addPoint(position);
-                }
-            }
-
-            return testGeometry.polyhedron();
+            return removeVerticesFromGeometry(*m_geometry, vertexPositions).polyhedron();
         }
 
         void Brush::removeVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions) {
@@ -446,45 +450,35 @@ namespace TrenchBroom {
             ensure(!vertexPositions.empty(), "no vertex positions");
             assert(canRemoveVertices(worldBounds, vertexPositions));
 
-            BrushGeometry newGeometry;
-            const auto vertexSet = std::set<vm::vec3>(std::begin(vertexPositions), std::end(vertexPositions));
-
-            for (const auto* vertex : m_geometry->vertices()) {
-                const auto& position = vertex->position();
-                if (!vertexSet.count(position)) {
-                    newGeometry.addPoint(position);
-                }
-            }
-
+            const BrushGeometry newGeometry = removeVerticesFromGeometry(*m_geometry, vertexPositions);
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry);
             doSetNewGeometry(worldBounds, matcher, newGeometry);
         }
 
-        bool Brush::canSnapVertices(const vm::bbox3& /* worldBounds */, const FloatType snapToF) const {
-            BrushGeometry newGeometry;
+        namespace {
+            BrushGeometry snappedGeometry(const BrushGeometry& geometry, const FloatType snapToF) {
+                std::vector<vm::vec3> points;
+                points.reserve(geometry.vertexCount());
+                
+                for (const auto* vertex : geometry.vertices()) {
+                    points.push_back(snapToF * vm::round(vertex->position() / snapToF));
+                }
 
-            for (const auto* vertex : m_geometry->vertices()) {
-                const auto& origin = vertex->position();
-                const auto destination = snapToF * round(origin / snapToF);
-                newGeometry.addPoint(destination);
+                return BrushGeometry(std::move(points));
             }
-
-            return newGeometry.polyhedron();
+        }
+        
+        bool Brush::canSnapVertices(const vm::bbox3& /* worldBounds */, const FloatType snapToF) const {
+            ensure(m_geometry != nullptr, "geometry is null");
+            return snappedGeometry(*m_geometry, snapToF).polyhedron();
         }
 
         void Brush::snapVertices(const vm::bbox3& worldBounds, const FloatType snapToF, const bool uvLock) {
             ensure(m_geometry != nullptr, "geometry is null");
+            
+            const BrushGeometry newGeometry = snappedGeometry(*m_geometry, snapToF);
 
-            BrushGeometry newGeometry;
-
-            for (const auto* vertex : m_geometry->vertices()) {
-                const auto& origin = vertex->position();
-                const auto destination = snapToF * round(origin / snapToF);
-                newGeometry.addPoint(destination);
-            }
-
-            using VecMap = std::map<vm::vec3,vm::vec3>;
-            VecMap vertexMapping;
+            std::map<vm::vec3,vm::vec3> vertexMapping;
             for (const auto* vertex : m_geometry->vertices()) {
                 const auto& origin = vertex->position();
                 const auto destination = snapToF * round(origin / snapToF);
@@ -631,21 +625,31 @@ namespace TrenchBroom {
 
             const auto vertexSet = std::set<vm::vec3>(std::begin(vertexPositions), std::end(vertexPositions));
 
-            BrushGeometry remaining;
-            BrushGeometry moving;
-            BrushGeometry result;
+            std::vector<vm::vec3> remainingPoints;
+            remainingPoints.reserve(vertexCount());
+            
+            std::vector<vm::vec3> movingPoints;
+            movingPoints.reserve(vertexCount());
+            
+            std::vector<vm::vec3> resultPoints;
+            resultPoints.reserve(vertexCount());
+            
             for (const auto* vertex : m_geometry->vertices()) {
                 const auto& position = vertex->position();
                 if (!vertexSet.count(position)) {
                     // the vertex is not moving
-                    remaining.addPoint(position);
-                    result.addPoint(position);
+                    remainingPoints.push_back(position);
+                    resultPoints.push_back(position);
                 } else {
                     // the vertex is moving
-                    moving.addPoint(position);
-                    result.addPoint(position + delta);
+                    movingPoints.push_back(position);
+                    resultPoints.push_back(position + delta);
                 }
             }
+
+            BrushGeometry remaining(remainingPoints);
+            BrushGeometry moving(movingPoints);
+            BrushGeometry result(resultPoints);
 
             // Will the result go out of world bounds?
             if (!worldBounds.contains(result.bounds())) {
@@ -710,23 +714,25 @@ namespace TrenchBroom {
             ensure(!vertexPositions.empty(), "no vertex positions");
             assert(canMoveVertices(worldBounds, vertexPositions, delta));
 
-            BrushGeometry newGeometry;
-            const auto vertexSet = std::set<vm::vec3>(std::begin(vertexPositions), std::end(vertexPositions));
-
-            for (auto* vertex : m_geometry->vertices()) {
+            std::vector<vm::vec3> newVertices;
+            newVertices.reserve(vertexCount());
+            
+            for (const auto* vertex : m_geometry->vertices()) {
                 const auto& position = vertex->position();
-                if (vertexSet.count(position)) {
-                    newGeometry.addPoint(position + delta);
+                if (kdl::vec_contains(vertexPositions, position)) {
+                    newVertices.push_back(position + delta);
                 } else {
-                    newGeometry.addPoint(position);
+                    newVertices.push_back(position);
                 }
             }
+            
+            BrushGeometry newGeometry(newVertices);
 
             using VecMap = std::map<vm::vec3, vm::vec3>;
             VecMap vertexMapping;
             for (auto* oldVertex : m_geometry->vertices()) {
                 const auto& oldPosition = oldVertex->position();
-                const auto moved = vertexSet.count(oldPosition);
+                const auto moved = kdl::vec_contains(vertexPositions, oldPosition);
                 const auto newPosition = moved ? oldPosition + delta : oldPosition;
                 const auto* newVertex = newGeometry.findClosestVertex(newPosition, vm::C::almost_zero());
                 if (newVertex != nullptr) {

@@ -1086,7 +1086,7 @@ namespace TrenchBroom {
              *
              * @param positions the points from which the convex hull is computed
              */
-            explicit Polyhedron(const std::vector<vm::vec<T,3>>& positions);
+            explicit Polyhedron(std::vector<vm::vec<T,3>> positions);
 
             /**
              * Copy constructor.
@@ -1199,7 +1199,7 @@ namespace TrenchBroom {
              *
              * @param positions the list of positions
              * @param epsilon the epsilon value to use for comparison
-             * @return true if this polyhedron has an edge with the given vertex positions
+             * @return true if this polyhedron has a face with the given vertex positions
              */
             bool hasFace(const std::vector<vm::vec<T,3>>& positions, T epsilon = static_cast<T>(0.0)) const;
 
@@ -1477,26 +1477,15 @@ namespace TrenchBroom {
             std::string exportObjSelectedFaces(const std::vector<const Face*>& faces) const;
 
             /* ====================== Implementation in Polyhedron_ConvexHull.h ====================== */
-        public: // Convex hull; adding and removing points
+        private: // Convex hull; adding and removing points
             /**
              * Adds the given points to this polyhedron. The effect of adding the given points to a polyhedron is that
              * the resulting polyhedron is the convex hull of the union of the polyhedron's vertices and the given points.
              *
              * @param points the points to add to this polyhedron
              */
-            void addPoints(const std::vector<vm::vec<T,3>>& points);
-        private:
-            /**
-             * Adds the points in range [cur, end) to this polyhedron. The effect of adding the given points to a
-             * polyhedron is that the resulting polyhedron is the convex hull of the union of the polyhedron's vertices
-             * and the given points.
-             *
-             * @tparam I the type of the given iterators
-             * @param cur start of the range of points to add
-             * @param end end of the range of points to add
-             */
-            template <typename I> void addPoints(I cur, I end);
-        public:
+            void addPoints(std::vector<vm::vec<T,3>> points);
+
             /**
              * Adds the given point to this polyhedron. The effect of adding the given point to a polyhedron is that the
              * resulting polyhedron is the convex hull of the union of the polyhedron's vertices and the given point.

@@ -64,7 +64,7 @@ namespace TrenchBroom {
 
         template <typename T, typename FP, typename VP>
         Polyhedron<T,FP,VP>::Polyhedron(std::initializer_list<vm::vec<T,3>> positions) {
-            addPoints(std::begin(positions), std::end(positions));
+            addPoints(std::vector<vm::vec<T,3>>(std::begin(positions), std::end(positions)));
         }
 
         template <typename T, typename FP, typename VP>
@@ -191,8 +191,8 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        Polyhedron<T,FP,VP>::Polyhedron(const std::vector<vm::vec<T,3>>& positions) {
-            addPoints(std::begin(positions), std::end(positions));
+        Polyhedron<T,FP,VP>::Polyhedron(std::vector<vm::vec<T,3>> positions) {
+            addPoints(std::move(positions));
         }
 
         template <typename T, typename FP, typename VP>
