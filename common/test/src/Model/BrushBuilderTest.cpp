@@ -40,7 +40,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(cube.fullySpecified());
             ASSERT_EQ(vm::bbox3d(-64.0, +64.0), cube.bounds());
 
-            const std::vector<BrushFace*>& faces = cube.faces();
+            const auto faces = cube.faces();
             ASSERT_EQ(6u, faces.size());
 
             for (size_t i = 0; i < faces.size(); ++i) {
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(cube.fullySpecified());
             ASSERT_EQ(vm::bbox3d(-64.0, +64.0), cube.bounds());
 
-            const std::vector<BrushFace*>& faces = cube.faces();
+            const auto faces = cube.faces();
             ASSERT_EQ(6u, faces.size());
 
             for (size_t i = 0; i < faces.size(); ++i) {

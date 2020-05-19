@@ -152,7 +152,7 @@ namespace TrenchBroom {
             const auto faceIndex = brush.findFace(faceNormal);
             REQUIRE(faceIndex);
             
-            BrushFace* face = brush.face(*faceIndex);
+            const BrushFace* face = brush.face(*faceIndex);
             ASSERT_EQ(expected, face->attributes().textureName());
         }
 
@@ -172,7 +172,7 @@ namespace TrenchBroom {
             const auto faceIndex = brush.findFace(vertices, 0.0001);
             REQUIRE(faceIndex);
 
-            BrushFace* face = brush.face(*faceIndex);
+            const BrushFace* face = brush.face(*faceIndex);
             ASSERT_EQ(expected, face->attributes().textureName());
         }
     }
