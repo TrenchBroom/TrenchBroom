@@ -52,9 +52,10 @@ namespace TrenchBroom {
             const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_vertices) {
                 const vm::vec3& position = entry.first;
-                const std::vector<Model::BrushNode*>& brushes = entry.second;
-                for (const Model::BrushNode* brush : brushes) {
-                    if (!brush->canAddVertex(worldBounds, position)) {
+                const std::vector<Model::BrushNode*>& brushNodes = entry.second;
+                for (const Model::BrushNode* brushNode : brushNodes) {
+                    const Model::Brush& brush = brushNode->brush();
+                    if (!brush.canAddVertex(worldBounds, position)) {
                         return false;
                     }
                 }

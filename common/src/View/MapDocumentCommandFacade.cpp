@@ -818,9 +818,12 @@ namespace TrenchBroom {
 
             for (const auto& entry : vertices) {
                 const vm::vec3& position = entry.first;
-                const std::vector<Model::BrushNode*>& brushes = entry.second;
-                for (Model::BrushNode* brush : brushes)
-                    brush->addVertex(m_worldBounds, position);
+                const std::vector<Model::BrushNode*>& brushNodes = entry.second;
+                for (Model::BrushNode* brushNode : brushNodes) {
+                    Model::Brush brush = brushNode->brush();
+                    brush.addVertex(m_worldBounds, position);
+                    brushNode->setBrush(std::move(brush));
+                }
             }
 
             invalidateSelectionBounds();
