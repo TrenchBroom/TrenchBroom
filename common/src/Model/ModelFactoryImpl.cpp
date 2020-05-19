@@ -64,11 +64,6 @@ namespace TrenchBroom {
             return new EntityNode();
         }
 
-        BrushNode* ModelFactoryImpl::doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {
-            assert(m_format != MapFormat::Unknown);
-            return new BrushNode(Brush(worldBounds, faces));
-        }
-
         BrushFace* ModelFactoryImpl::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
             assert(m_format != MapFormat::Unknown);
             if (m_format == MapFormat::Valve || m_format == MapFormat::Quake2_Valve || m_format == MapFormat::Quake3_Valve) {

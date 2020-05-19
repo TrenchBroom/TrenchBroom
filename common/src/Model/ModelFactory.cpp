@@ -46,10 +46,6 @@ namespace TrenchBroom {
             return doCreateEntity();
         }
 
-        BrushNode* ModelFactory::createBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {
-            return doCreateBrush(worldBounds, faces);
-        }
-        
         BrushNode* ModelFactory::createBrush(Brush brush) const {
             return doCreateBrush(std::move(brush));
         }
