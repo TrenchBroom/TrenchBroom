@@ -146,7 +146,6 @@ namespace TrenchBroom {
             virtual bool rotateTextures(float angle) = 0;
             virtual bool shearTextures(const vm::vec2f& factors) = 0;
         public: // modifying vertices
-            virtual void rebuildBrushGeometry(const std::vector<BrushNode*>& brushes) = 0;
             virtual bool snapVertices(FloatType snapTo) = 0;
             virtual bool findPlanePoints() = 0;
 
