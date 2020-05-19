@@ -23,11 +23,12 @@
 #include "Model/CollectMatchingIssuesVisitor.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 
 #include <kdl/memory_utils.h>
 #include <kdl/vector_utils.h>
+#include <kdl/vector_set.h>
 
 #include <vector>
 
@@ -130,7 +131,7 @@ namespace TrenchBroom {
 
         void IssueBrowserView::updateIssues() {
             auto document = kdl::mem_lock(m_document);
-            Model::World* world = document->world();
+            Model::WorldNode* world = document->world();
             if (world != nullptr) {
                 const std::vector<Model::IssueGenerator*>& issueGenerators = world->registeredIssueGenerators();
                 Model::CollectMatchingIssuesVisitor<IssueVisible> visitor(issueGenerators, IssueVisible(m_hiddenGenerators, m_showHiddenIssues));
@@ -154,14 +155,18 @@ namespace TrenchBroom {
         }
 
         std::vector<Model::Issue*> IssueBrowserView::collectIssues(const QList<QModelIndex>& indices) const {
-            std::vector<Model::Issue*> result;
+            // Use a vector_set to filter out duplicates.
+            // The QModelIndex list returned by getSelection() contains duplicates
+            // (not sure why, current row and selected row?)
+            kdl::vector_set<Model::Issue*> result;
+            result.reserve(static_cast<size_t>(indices.size()));
             for (QModelIndex index : indices) {
                 if (index.isValid()) {
                     const auto row = static_cast<size_t>(index.row());
-                    result.push_back(m_tableModel->issues().at(row));
+                    result.insert(m_tableModel->issues().at(row));
                 }
             }
-            return result;
+            return result.release_data();
         }
 
         std::vector<Model::IssueQuickFix*> IssueBrowserView::collectQuickFixes(const QList<QModelIndex>& indices) const {
@@ -179,7 +184,7 @@ namespace TrenchBroom {
             }
 
             auto document = kdl::mem_lock(m_document);
-            const Model::World* world = document->world();
+            const Model::WorldNode* world = document->world();
             return world->quickFixes(issueTypes);
         }
 

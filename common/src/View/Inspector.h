@@ -31,6 +31,8 @@ namespace TrenchBroom {
         class GLContextManager;
         class MapDocument;
         class MapInspector;
+        class MapViewBar;
+        class SyncHeightEventFilter;
         class TabBook;
 
         enum class InspectorPage {
@@ -47,22 +49,12 @@ namespace TrenchBroom {
             EntityInspector* m_entityInspector;
             FaceInspector* m_faceInspector;
 
-            QWidget* m_topWidgetMaster;
+            SyncHeightEventFilter* m_syncTabBarEventFilter;
         public:
             Inspector(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
-            void connectTopWidgets(QWidget* master);
+            void connectTopWidgets(MapViewBar* mapViewBar);
             void switchToPage(InspectorPage page);
             bool cancelMouseDrag();
-        private:
-            /**
-             * Event filter used to capture resize events of the top widget, used to synchronize the inspectors tab bar
-             * height to the height of the map view's top bar.
-             *
-             * @param target the target that receives an event
-             * @param event the event
-             * @return true if the event should not be propagated to the target and false otherwise
-             */
-            bool eventFilter(QObject* target, QEvent* event) override;
         };
     }
 }

@@ -104,7 +104,7 @@ namespace TrenchBroom {
 
             auto* layout = new QHBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
-            layout->setSpacing(LayoutConstants::NarrowHMargin);
+            layout->setSpacing(LayoutConstants::MediumHMargin);
 
             layout->addWidget(text, 0, Qt::AlignVCenter);
             layout->addWidget(m_scaleFactorsOrSize, 0, Qt::AlignVCenter);

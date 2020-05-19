@@ -24,6 +24,7 @@
 
 #include <cstdint>
 #include <limits>
+#include <optional>
 
 namespace TrenchBroom {
     namespace Model {
@@ -37,9 +38,9 @@ namespace TrenchBroom {
         };
 
         struct BrushFacePayload {
-            using Type = BrushFace*;
+            using Type = std::optional<size_t>;
             static Type defaultValue() {
-                return nullptr;
+                return std::nullopt;
             }
         };
     }

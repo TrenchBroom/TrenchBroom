@@ -24,42 +24,44 @@
 
 #include <vecmath/forward.h>
 
+#include <memory>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class Brush;
+        class BrushNode;
         class BrushFace;
         class BrushFaceAttributes;
-        class Entity;
-        class Group;
-        class Layer;
+        class EntityNode;
+        class GroupNode;
+        class LayerNode;
         enum class MapFormat;
-        class World;
+        class WorldNode;
 
         class ModelFactory {
         public:
             virtual ~ModelFactory();
 
             MapFormat format() const;
-            World* createWorld() const;
-            Layer* createLayer(const std::string& name) const;
-            Group* createGroup(const std::string& name) const;
-            Entity* createEntity() const;
-            Brush* createBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const;
+            WorldNode* createWorld() const;
+            LayerNode* createLayer(const std::string& name) const;
+            GroupNode* createGroup(const std::string& name) const;
+            EntityNode* createEntity() const;
+            BrushNode* createBrush(Brush brush) const;
 
-            BrushFace* createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const;
-            BrushFace* createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const;
+            BrushFace createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const;
+            BrushFace createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const;
         private:
             virtual MapFormat doGetFormat() const = 0;
-            virtual World* doCreateWorld() const = 0;
-            virtual Layer* doCreateLayer(const std::string& name) const = 0;
-            virtual Group* doCreateGroup(const std::string& name) const = 0;
-            virtual Entity* doCreateEntity() const = 0;
-            virtual Brush* doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const = 0;
-            virtual BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const = 0;
-            virtual BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const = 0;
+            virtual WorldNode* doCreateWorld() const = 0;
+            virtual LayerNode* doCreateLayer(const std::string& name) const = 0;
+            virtual GroupNode* doCreateGroup(const std::string& name) const = 0;
+            virtual EntityNode* doCreateEntity() const = 0;
+            virtual BrushNode* doCreateBrush(Brush brush) const;
+            virtual BrushFace doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const = 0;
+            virtual BrushFace doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const = 0;
         };
     }
 }

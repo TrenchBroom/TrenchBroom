@@ -28,7 +28,7 @@
 #include "Assets/ModelDefinition.h"
 #include "EL/ELExceptions.h"
 #include "Model/EditorContext.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             clear();
         }
 
-        void EntityModelRenderer::addEntity(Model::Entity* entity) {
+        void EntityModelRenderer::addEntity(Model::EntityNode* entity) {
             const auto modelSpec = Assets::safeGetModelSpecification(m_logger, entity->classname(), [&]() {
                 return entity->modelSpecification();
             });
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityModelRenderer::updateEntity(Model::Entity* entity) {
+        void EntityModelRenderer::updateEntity(Model::EntityNode* entity) {
             const auto modelSpec = Assets::safeGetModelSpecification(m_logger, entity->classname(), [&]() {
                 return entity->modelSpecification();
             });

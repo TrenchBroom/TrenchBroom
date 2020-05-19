@@ -40,10 +40,10 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class Brush;
-        class BrushFace;
-        class Group;
-        class Layer;
+        class BrushNode;
+        class BrushFaceHandle;
+        class GroupNode;
+        class LayerNode;
         class Node;
     }
 
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             class LockedBrushRendererFilter;
             class UnselectedBrushRendererFilter;
 
-            using RendererMap = std::map<Model::Layer*, ObjectRenderer*>;
+            using RendererMap = std::map<Model::LayerNode*, ObjectRenderer*>;
 
             std::weak_ptr<View::MapDocument> m_document;
 
@@ -118,7 +118,7 @@ namespace TrenchBroom {
              */
             void updateRenderers(Renderer renderers);
             void invalidateRenderers(Renderer renderers);
-            void invalidateBrushesInRenderers(Renderer renderers, const std::vector<Model::Brush*>& brushes);
+            void invalidateBrushesInRenderers(Renderer renderers, const std::vector<Model::BrushNode*>& brushes);
             void invalidateEntityLinkRenderer();
             void reloadEntityModels();
         private: // notification
@@ -135,10 +135,10 @@ namespace TrenchBroom {
             void nodeVisibilityDidChange(const std::vector<Model::Node*>& nodes);
             void nodeLockingDidChange(const std::vector<Model::Node*>& nodes);
 
-            void groupWasOpened(Model::Group* group);
-            void groupWasClosed(Model::Group* group);
+            void groupWasOpened(Model::GroupNode* group);
+            void groupWasClosed(Model::GroupNode* group);
 
-            void brushFacesDidChange(const std::vector<Model::BrushFace*>& faces);
+            void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
 
             void selectionDidChange(const View::Selection& selection);
 

@@ -129,9 +129,9 @@ namespace TrenchBroom {
             layout->setSpacing(0);
 
             layout->addWidget(centerText, 0, Qt::AlignVCenter);
-            layout->addSpacing(LayoutConstants::NarrowHMargin);
+            layout->addSpacing(LayoutConstants::MediumHMargin);
             layout->addWidget(m_recentlyUsedCentersList, 0, Qt::AlignVCenter);
-            layout->addSpacing(LayoutConstants::NarrowHMargin);
+            layout->addSpacing(LayoutConstants::MediumHMargin);
             layout->addWidget(m_resetCenterButton, 0, Qt::AlignVCenter);
             layout->addSpacing(LayoutConstants::WideHMargin);
             layout->addWidget(new BorderLine(BorderLine::Direction::Vertical), 0);
@@ -142,7 +142,7 @@ namespace TrenchBroom {
             layout->addSpacing(LayoutConstants::NarrowHMargin);
             layout->addWidget(text2, 0, Qt::AlignVCenter);
             layout->addSpacing(LayoutConstants::NarrowHMargin);
-            layout->addWidget(m_axis, 0);
+            layout->addWidget(m_axis, 0, Qt::AlignVCenter);
             layout->addSpacing(LayoutConstants::NarrowHMargin);
             layout->addWidget(text3, 0, Qt::AlignVCenter);
             layout->addSpacing(LayoutConstants::NarrowHMargin);

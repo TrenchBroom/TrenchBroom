@@ -34,7 +34,7 @@ namespace TrenchBroom {
 
     namespace Model {
         class EditorContext;
-        class Entity;
+        class EntityNode;
     }
 
     namespace Renderer {
@@ -43,7 +43,7 @@ namespace TrenchBroom {
 
         class EntityModelRenderer : public DirectRenderable {
         private:
-            using EntityMap = std::map<Model::Entity*, TexturedRenderer*>;
+            using EntityMap = std::map<Model::EntityNode*, TexturedRenderer*>;
 
             Logger& m_logger;
 
@@ -82,8 +82,8 @@ namespace TrenchBroom {
                 }
             }
 
-            void addEntity(Model::Entity* entity);
-            void updateEntity(Model::Entity* entity);
+            void addEntity(Model::EntityNode* entity);
+            void updateEntity(Model::EntityNode* entity);
             void clear();
 
             bool applyTinting() const;

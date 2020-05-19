@@ -19,6 +19,8 @@
 
 #include "TrenchBroomApp.h"
 
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "RecoverableExceptions.h"
 #include "TrenchBroomStackWalker.h"
 #include "IO/Path.h"
@@ -68,6 +70,9 @@
 #include <QStandardPaths>
 #include <QSysInfo>
 #include <QUrl>
+#include <QColor>
+#include <QPalette>
+#include <QProxyStyle>
 
 namespace TrenchBroom {
     namespace View {
@@ -89,6 +94,9 @@ namespace TrenchBroom {
         m_welcomeWindow(nullptr) {
             // When this flag is enabled, font and palette changes propagate as though the user had manually called the corresponding QWidget methods.
             setAttribute(Qt::AA_UseStyleSheetPropagationInWidgetStyles);
+            
+            // Don't show icons in menus, they are scaled down and don't look very good.
+            setAttribute(Qt::AA_DontShowIconsInMenus);
 
 #if defined(_WIN32) && defined(_MSC_VER)
             // with MSVC, set our own handler for segfaults so we can access the context
@@ -114,6 +122,7 @@ namespace TrenchBroom {
             }
 
             loadStyleSheets();
+            loadStyle();
 
             // these must be initialized here and not earlier
             m_frameManager = std::make_unique<FrameManager>(useSDI());
@@ -166,6 +175,48 @@ namespace TrenchBroom {
             return m_frameManager.get();
         }
 
+        QPalette TrenchBroomApp::darkPalette() {
+            const auto button = QColor(35, 35, 35);
+            const auto text = QColor(207, 207, 207);
+            const auto highlight = QColor(62, 112, 205);
+
+            // Build an initial palette based on the button color
+            QPalette palette = QPalette(button);
+
+            // Window colors
+            palette.setColor(QPalette::Active,   QPalette::Window, QColor(50, 50, 50));
+            palette.setColor(QPalette::Inactive, QPalette::Window, QColor(40, 40, 40));
+            palette.setColor(QPalette::Disabled, QPalette::Window, QColor(50, 50, 50).darker(200));
+
+            // List box backgrounds, text entry backgrounds, menu backgrounds
+            palette.setColor(QPalette::Base, button.darker(130));
+
+            // Button text
+            palette.setColor(QPalette::Active,   QPalette::ButtonText, text);
+            palette.setColor(QPalette::Inactive, QPalette::ButtonText, text);
+            palette.setColor(QPalette::Disabled, QPalette::ButtonText, text.darker(200));
+
+            // WindowText is supposed to be against QPalette::Window
+            palette.setColor(QPalette::Active,   QPalette::WindowText, text);
+            palette.setColor(QPalette::Inactive, QPalette::WindowText, text);
+            palette.setColor(QPalette::Disabled, QPalette::WindowText, text.darker(200));
+
+            // Menu text, text edit text, table cell text
+            palette.setColor(QPalette::Active,   QPalette::Text,  text.darker(115));
+            palette.setColor(QPalette::Inactive, QPalette::Text,  text.darker(115)); 
+            palette.setColor(QPalette::Disabled, QPalette::Text,  QColor(102, 102, 102)); // Disabled menu item text color
+
+            // Disabled menu item text shadow
+            palette.setColor(QPalette::Disabled, QPalette::Light, button.darker(200));
+
+            // Highlight (selected list box row, selected grid cell background, selected tab text
+            palette.setColor(QPalette::Active,   QPalette::Highlight, highlight);
+            palette.setColor(QPalette::Inactive, QPalette::Highlight, highlight);
+            palette.setColor(QPalette::Disabled, QPalette::Highlight, highlight);            
+
+            return palette;
+        }
+
         bool TrenchBroomApp::loadStyleSheets() {
             const auto path = IO::SystemPaths::findResourceFile(IO::Path("stylesheets/base.qss"));
             auto file = QFile(IO::pathAsQString(path));
@@ -179,6 +230,43 @@ namespace TrenchBroom {
                 return true;
             } else {
                 return false;
+            }
+        }
+
+        void TrenchBroomApp::loadStyle() {
+            // We can't use auto mnemonics in TrenchBroom. e.g. by default with Qt, Alt+D opens the "Debug" menu,
+            // Alt+S activates the "Show default properties" checkbox in the entity inspector.
+            // Flying with Alt held down and pressing WASD is a fundamental behaviour in TB, so we can't have
+            // shortcuts randomly activating.
+            //
+            // Previously were calling `qt_set_sequence_auto_mnemonic(false);` in main(), but it turns out we
+            // also need to suppress an Alt press followed by release from focusing the menu bar
+            // (https://github.com/kduske/TrenchBroom/issues/3140), so the following QProxyStyle disables
+            // that completely.
+            
+            class TrenchBroomProxyStyle : public QProxyStyle {
+            public:
+                TrenchBroomProxyStyle(const QString &key)
+                : QProxyStyle(key) {}
+
+                TrenchBroomProxyStyle(QStyle* style = nullptr)
+                : QProxyStyle(style) {}
+
+                int styleHint(StyleHint hint, const QStyleOption* option = 0, const QWidget* widget = nullptr, QStyleHintReturn* returnData = 0) const override {
+                    if (hint == QStyle::SH_MenuBar_AltKeyNavigation) {
+                        return 0;
+                    }
+                    return QProxyStyle::styleHint(hint, option, widget, returnData);
+                }
+            };
+
+            // Apply either the Fusion style + dark palette, or the system style
+            if (pref(Preferences::Theme) == Preferences::darkTheme()) {
+                setStyle(new TrenchBroomProxyStyle("Fusion"));
+                setPalette(darkPalette());
+            } else {
+                // System
+                setStyle(new TrenchBroomProxyStyle());    
             }
         }
 
@@ -219,7 +307,7 @@ namespace TrenchBroom {
                 auto game = gameFactory.createGame(gameName, frame->logger());
                 ensure(game.get() != nullptr, "game is null");
 
-                hideWelcomeWindow();
+                closeWelcomeWindow();
                 frame->openDocument(game, mapFormat, path);
                 return true;
             } catch (const FileNotFoundException& e) {
@@ -462,7 +550,7 @@ namespace TrenchBroom {
                 auto game = gameFactory.createGame(gameName, frame->logger());
                 ensure(game.get() != nullptr, "game is null");
 
-                hideWelcomeWindow();
+                closeWelcomeWindow();
                 frame->newDocument(game, mapFormat);
                 return true;
             } catch (const RecoverableException& e) {
@@ -534,7 +622,7 @@ namespace TrenchBroom {
                 const auto pathStr = openEvent->file().toStdString();
                 const auto path = IO::Path(pathStr);
                 if (openDocument(path)) {
-                    hideWelcomeWindow();
+                    closeWelcomeWindow();
                     return true;
                 } else {
                     return false;
@@ -575,19 +663,9 @@ namespace TrenchBroom {
             m_welcomeWindow->show();
         }
 
-        void TrenchBroomApp::hideWelcomeWindow() {
-            if (m_welcomeWindow != nullptr) {
-                m_welcomeWindow->hide();
-                if (quitOnLastWindowClosed() && m_frameManager->allFramesClosed()) {
-                    closeWelcomeWindow();
-                }
-            }
-        }
-
         void TrenchBroomApp::closeWelcomeWindow() {
             if (m_welcomeWindow != nullptr) {
                 m_welcomeWindow->close();
-                m_welcomeWindow = nullptr;
             }
         }
 

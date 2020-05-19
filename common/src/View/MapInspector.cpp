@@ -20,7 +20,7 @@
 #include "MapInspector.h"
 
 #include "Model/EntityAttributes.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "View/BorderLine.h"
 #include "View/CollapsibleTitledPanel.h"
 #include "View/LayerEditor.h"

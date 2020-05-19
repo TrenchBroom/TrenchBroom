@@ -29,7 +29,7 @@ class QAbstractButton;
 
 namespace TrenchBroom {
     namespace Model {
-        class Layer;
+        class LayerNode;
     }
 
     namespace View {
@@ -48,22 +48,22 @@ namespace TrenchBroom {
         public:
             explicit LayerEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
-            void onSetCurrentLayer(Model::Layer* layer);
-            void onLayerRightClick(Model::Layer* layer);
+            void onSetCurrentLayer(Model::LayerNode* layer);
+            void onLayerRightClick(Model::LayerNode* layer);
 
             class CollectMoveableNodes;
             void onMoveSelectionToLayer();
             bool canMoveSelectionToLayer() const;
 
             void onToggleLayerVisibleFromMenu();
-            void onToggleLayerVisibleFromList(Model::Layer* layer);
+            void onToggleLayerVisibleFromList(Model::LayerNode* layer);
             bool canToggleLayerVisible() const;
-            void toggleLayerVisible(Model::Layer* layer);
+            void toggleLayerVisible(Model::LayerNode* layer);
 
             void onToggleLayerLockedFromMenu();
-            void onToggleLayerLockedFromList(Model::Layer* layer);
+            void onToggleLayerLockedFromList(Model::LayerNode* layer);
             bool canToggleLayerLocked() const;
-            void toggleLayerLocked(Model::Layer* layer);
+            void toggleLayerLocked(Model::LayerNode* layer);
 
             void onSelectAllInLayer();
 
@@ -75,8 +75,8 @@ namespace TrenchBroom {
 
             void onShowAllLayers();
         private:
-            Model::Layer* findVisibleAndUnlockedLayer(const Model::Layer* except) const;
-            void moveSelectedNodesToLayer(std::shared_ptr<MapDocument> document, Model::Layer* layer);
+            Model::LayerNode* findVisibleAndUnlockedLayer(const Model::LayerNode* except) const;
+            void moveSelectedNodesToLayer(std::shared_ptr<MapDocument> document, Model::LayerNode* layer);
             void createGui();
         private slots:
             void updateButtons();

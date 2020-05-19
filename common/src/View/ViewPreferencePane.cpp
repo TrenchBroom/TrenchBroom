@@ -85,6 +85,17 @@ namespace TrenchBroom {
             auto* viewPrefsHeader = new QLabel("Map Views");
             makeEmphasized(viewPrefsHeader);
 
+            m_themeCombo = new QComboBox();
+            m_themeCombo->addItems({Preferences::systemTheme(), Preferences::darkTheme()});
+            auto* themeInfo = new QLabel();
+            themeInfo->setText(tr("Requires restart after changing"));
+            makeInfo(themeInfo);
+            auto* themeLayout = new QHBoxLayout();
+            themeLayout->addWidget(m_themeCombo);
+            themeLayout->addSpacing(LayoutConstants::NarrowHMargin);
+            themeLayout->addWidget(themeInfo);
+            themeLayout->setContentsMargins(0, 0, 0, 0);
+
             m_layoutCombo = new QComboBox();
             m_layoutCombo->setToolTip("Sets the layout of the editing views.");
             m_layoutCombo->addItem("One Pane");
@@ -140,6 +151,9 @@ namespace TrenchBroom {
             // override the default to make the sliders take up maximum width
             layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
+            layout->addSection("User Interface");
+            layout->addRow("Theme", themeLayout);
+
             layout->addSection("Map Views");
             layout->addRow("Layout", m_layoutCombo);
             layout->addRow("Brightness", m_brightnessSlider);
@@ -174,6 +188,7 @@ namespace TrenchBroom {
             connect(m_backgroundColorButton, &ColorButton::colorChanged, this, &ViewPreferencePane::backgroundColorChanged);
             connect(m_gridColorButton, &ColorButton::colorChanged, this, &ViewPreferencePane::gridColorChanged);
             connect(m_edgeColorButton, &ColorButton::colorChanged, this, &ViewPreferencePane::edgeColorChanged);
+            connect(m_themeCombo, QOverload<int>::of(&QComboBox::activated), this, &ViewPreferencePane::themeChanged);
             connect(m_textureModeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ViewPreferencePane::textureModeChanged);
             connect(m_textureBrowserIconSizeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ViewPreferencePane::textureBrowserIconSizeChanged);
             connect(m_rendererFontSizeCombo, &QComboBox::currentTextChanged, this, &ViewPreferencePane::rendererFontSizeChanged);
@@ -195,6 +210,7 @@ namespace TrenchBroom {
             prefs.resetToDefault(Preferences::BackgroundColor);
             prefs.resetToDefault(Preferences::GridColor2D);
             prefs.resetToDefault(Preferences::EdgeColor);
+            prefs.resetToDefault(Preferences::Theme);
             prefs.resetToDefault(Preferences::TextureBrowserIconSize);
             prefs.resetToDefault(Preferences::RendererFontSize);
         }
@@ -213,6 +229,7 @@ namespace TrenchBroom {
             m_backgroundColorButton->setColor(toQColor(pref(Preferences::BackgroundColor)));
             m_gridColorButton->setColor(toQColor(pref(Preferences::GridColor2D)));
             m_edgeColorButton->setColor(toQColor(pref(Preferences::EdgeColor)));
+            m_themeCombo->setCurrentIndex(findThemeIndex(pref(Preferences::Theme)));
 
             const auto textureBrowserIconSize = pref(Preferences::TextureBrowserIconSize);
             if (textureBrowserIconSize == 0.25f) {
@@ -248,6 +265,14 @@ namespace TrenchBroom {
             return TextureModes.size();
         }
 
+        int ViewPreferencePane::findThemeIndex(const QString& theme) {
+            for (int i = 0; i < m_themeCombo->count(); ++i) {
+                if (m_themeCombo->itemText(i) == theme) {
+                    return i;
+                }
+            }
+            return 0;
+        }
 
         void ViewPreferencePane::layoutChanged(const int index) {
             assert(index >= 0 && index < 4);
@@ -305,6 +330,11 @@ namespace TrenchBroom {
             const auto value = Color(fromQColor(color), 1.0f);
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::EdgeColor, value);
+        }
+
+        void ViewPreferencePane::themeChanged(int /*index*/) {
+            auto& prefs = PreferenceManager::instance();
+            prefs.set(Preferences::Theme, m_themeCombo->currentText());
         }
 
         void ViewPreferencePane::textureBrowserIconSizeChanged(const int index) {

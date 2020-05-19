@@ -27,7 +27,7 @@
 #include "IO/File.h"
 #include "IO/MdlParser.h"
 #include "IO/Reader.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Assets/EntityModel.h"
 #include "Assets/Palette.h"
 

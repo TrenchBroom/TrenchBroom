@@ -20,17 +20,21 @@
 #ifndef TrenchBroom_SelectionCommand
 #define TrenchBroom_SelectionCommand
 
+#include "FloatType.h"
 #include "Macros.h"
 #include "View/UndoableCommand.h"
 
 #include <memory>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class BrushFace;
+        class BrushFaceHandle;
         class BrushFaceReference;
+        class BrushNode;
         class Node;
     }
 
@@ -59,20 +63,20 @@ namespace TrenchBroom {
             std::vector<Model::BrushFaceReference> m_previouslySelectedFaceRefs;
         public:
             static std::unique_ptr<SelectionCommand> select(const std::vector<Model::Node*>& nodes);
-            static std::unique_ptr<SelectionCommand> select(const std::vector<Model::BrushFace*>& faces);
+            static std::unique_ptr<SelectionCommand> select(const std::vector<Model::BrushFaceHandle>& faces);
 
             static std::unique_ptr<SelectionCommand> convertToFaces();
             static std::unique_ptr<SelectionCommand> selectAllNodes();
             static std::unique_ptr<SelectionCommand> selectAllFaces();
 
             static std::unique_ptr<SelectionCommand> deselect(const std::vector<Model::Node*>& nodes);
-            static std::unique_ptr<SelectionCommand> deselect(const std::vector<Model::BrushFace*>& faces);
+            static std::unique_ptr<SelectionCommand> deselect(const std::vector<Model::BrushFaceHandle>& faces);
             static std::unique_ptr<SelectionCommand> deselectAll();
 
-            SelectionCommand(Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces);
+            SelectionCommand(Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFaceHandle>& faces);
             ~SelectionCommand() override;
         private:
-            static std::string makeName(Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces);
+            static std::string makeName(Action action, size_t nodeCount, size_t faceCount);
 
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
             std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;

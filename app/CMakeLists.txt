@@ -97,8 +97,10 @@ if(WIN32)
     endif()
 endif()
 
-# Extract version information and configure CPack with it
-set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}")
+# Set CPACK_PACKAGE_VERSION which is used by CPack.
+# Strip the "v" prefix off GIT_DESCRIBE (e.g. "v2020.1-RC1") to produce a CPACK_PACKAGE_VERSION of "2020.1-RC1"
+# Debian wants the first character to be a number
+string(REGEX REPLACE "^v(.*)" "\\1" CPACK_PACKAGE_VERSION "${GIT_DESCRIBE}")
 get_build_platform(APP_PLATFORM_NAME)
 
 macro(configure_app_target APP_TARGET_NAME SHOULD_BUILD_MANUAL)

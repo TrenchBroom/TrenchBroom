@@ -20,7 +20,9 @@
 #include "FaceInspector.h"
 
 #include "Assets/Texture.h"
-#include "Model/Entity.h"
+#include "Model/BrushFaceAttributes.h"
+#include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "Model/EntityNode.h"
 #include "View/BorderLine.h"
 #include "View/CollapsibleTitledPanel.h"
 #include "View/FaceAttribsEditor.h"
@@ -109,8 +111,19 @@ namespace TrenchBroom {
         }
 
         void FaceInspector::textureSelected(Assets::Texture* texture) {
+            Model::ChangeBrushFaceAttributesRequest request;
+            if (texture != nullptr) {
+                request.setTextureName(texture->name());
+            } else {
+                request.setTextureName(Model::BrushFaceAttributes::NoTextureName);
+            }
+
             auto document = kdl::mem_lock(m_document);
-            document->setTexture(texture);
+            if (document->setFaceAttributes(request)) {
+                if (texture != nullptr) {
+                    document->setCurrentTextureName(texture->name());
+                }
+            }
         }
     }
 }

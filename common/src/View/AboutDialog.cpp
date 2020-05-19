@@ -50,6 +50,8 @@ namespace TrenchBroom {
 
         AboutDialog::AboutDialog() :
         QDialog() {
+            // This makes it so the About dialog doesn't prevent the application from quitting
+            setAttribute(Qt::WA_QuitOnClose, false);
             createGui();
         }
 
@@ -84,10 +86,7 @@ namespace TrenchBroom {
                                              "GLEW (OpenGL extension library)\n"
                                              "tinyxml2 (XML parsing library)\n"
                                              "miniz (Archive library)\n"
-                                             "any-lite (C++ library)\n"
-                                             "optional-lite (C++ library)\n"
-                                             "Google Test (C++ testing framework)\n"
-                                             "Google Mock (C++ mocking framework)\n"
+                                             "Catch 2 (C++ testing framework)\n"
                                              "StackWalker (C++ stack trace analyzer)\n"
                                              "CMake (Cross platform build manager)\n"
                                              "Pandoc (Universal document converter)\n"

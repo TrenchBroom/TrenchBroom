@@ -42,6 +42,7 @@ namespace TrenchBroom {
             ColorButton* m_backgroundColorButton;
             ColorButton* m_gridColorButton;
             ColorButton* m_edgeColorButton;
+            QComboBox* m_themeCombo;
             QComboBox* m_textureBrowserIconSizeCombo;
             QComboBox* m_rendererFontSizeCombo;
         public:
@@ -58,6 +59,7 @@ namespace TrenchBroom {
             bool doValidate() override;
 
             size_t findTextureMode(int minFilter, int magFilter) const;
+            int findThemeIndex(const QString& theme);
         private slots:
             void layoutChanged(int index);
             void brightnessChanged(int value);
@@ -68,6 +70,7 @@ namespace TrenchBroom {
             void backgroundColorChanged(const QColor& color);
             void gridColorChanged(const QColor& color);
             void edgeColorChanged(const QColor& color);
+            void themeChanged(int index);
             void textureBrowserIconSizeChanged(int index);
             void rendererFontSizeChanged(const QString& text);
         };

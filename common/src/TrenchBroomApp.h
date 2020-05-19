@@ -60,9 +60,11 @@ namespace TrenchBroom {
             void parseCommandLineAndShowFrame();
 
             FrameManager* frameManager();
-
+        private:
+            static QPalette darkPalette();
             bool loadStyleSheets();
-
+            void loadStyle();
+        public:
             const std::vector<IO::Path>& recentDocuments() const;
             void addRecentDocumentMenu(QMenu* menu);
             void removeRecentDocumentMenu(QMenu* menu);
@@ -89,7 +91,6 @@ namespace TrenchBroom {
             bool openFilesOrWelcomeFrame(const QStringList& fileNames);
         public:
             void showWelcomeWindow();
-            void hideWelcomeWindow();
             void closeWelcomeWindow();
         private:
             static bool useSDI();

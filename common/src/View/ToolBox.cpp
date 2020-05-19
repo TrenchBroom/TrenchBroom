@@ -27,6 +27,7 @@
 
 #include <cassert>
 #include <string>
+#include <utility>
 
 #include <QDateTime>
 #include <QDebug>
@@ -208,17 +209,17 @@ namespace TrenchBroom {
         void ToolBox::toggleTool(Tool* tool) {
             if (tool == nullptr) {
                 if (m_modalTool != nullptr) {
-                    deactivateTool(m_modalTool);
-                    m_modalTool = nullptr;
+                    Tool* previousModalTool = std::exchange(m_modalTool, nullptr);
+                    deactivateTool(previousModalTool);                    
                 }
             } else {
                 if (m_modalTool == tool) {
-                    deactivateTool(m_modalTool);
-                    m_modalTool = nullptr;
+                    Tool* previousModalTool = std::exchange(m_modalTool, nullptr);
+                    deactivateTool(previousModalTool);
                 } else {
                     if (m_modalTool != nullptr) {
-                        deactivateTool(m_modalTool);
-                        m_modalTool = nullptr;
+                        Tool* previousModalTool = std::exchange(m_modalTool, nullptr);
+                        deactivateTool(previousModalTool);
                     }
                     if (activateTool(tool)) {
                         m_modalTool = tool;

@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class World;
+        class WorldNode;
         class Game;
         class Node;
 
@@ -39,13 +39,13 @@ namespace TrenchBroom {
             class WorldBoundsIssueQuickFix;
         private:
             std::weak_ptr<Game> m_game;
-            const World* m_world;
+            const WorldNode* m_world;
         public:
-            explicit WorldBoundsIssueGenerator(std::weak_ptr<Game> game, const World* world);
+            explicit WorldBoundsIssueGenerator(std::weak_ptr<Game> game, const WorldNode* world);
         private:
             void generateInternal(Node* node, IssueList& issues) const;
-            void doGenerate(Entity* brush, IssueList& issues) const override;
-            void doGenerate(Brush* brush, IssueList& issues) const override;
+            void doGenerate(EntityNode* brush, IssueList& issues) const override;
+            void doGenerate(BrushNode* brush, IssueList& issues) const override;
         };
     }
 }

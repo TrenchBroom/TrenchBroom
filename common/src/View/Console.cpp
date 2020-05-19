@@ -60,15 +60,17 @@ namespace TrenchBroom {
         }
 
         void Console::logToConsole(const LogLevel level, const QString& message) {
+            // NOTE: QPalette::Text is the correct color role for contrast against QPalette::Base
+            // which is the background of text entry widgets 
             QTextCharFormat format;
             switch (level) {
                 case LogLevel::Debug:
-                    format.setForeground(QBrush(Colors::disabledText()));
+                    format.setForeground(QBrush(m_textView->palette().color(QPalette::Disabled, QPalette::Text)));
                     break;
                 case LogLevel::Info:
                     break;
                 case LogLevel::Warn:
-                    format.setForeground(QBrush(Colors::defaultText()));
+                    format.setForeground(QBrush(m_textView->palette().color(QPalette::Active, QPalette::Text)));
                     break;
                 case LogLevel::Error:
                     format.setForeground(QBrush(QColor(250, 30, 60)));

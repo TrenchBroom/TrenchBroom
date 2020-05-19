@@ -81,9 +81,11 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionFileChooser::createGui() {
-            TitledPanel* builtinContainer = new TitledPanel(tr("Builtin"), false, false);
-            //builtinContainer->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            m_builtin = new SingleSelectionListWidget(); //builtinContainer->getPanel(), wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxBORDER_NONE);
+            TitledPanel* builtinContainer = new TitledPanel(tr("Builtin"), false, true);
+            builtinContainer->setBackgroundRole(QPalette::Base);
+            builtinContainer->setAutoFillBackground(true);
+
+            m_builtin = new SingleSelectionListWidget();
             m_builtin->setAllowDeselectAll(false);
 
             auto* builtinSizer = new QVBoxLayout();
@@ -92,7 +94,10 @@ namespace TrenchBroom {
 
             builtinContainer->getPanel()->setLayout(builtinSizer);
 
-            TitledPanel* externalContainer = new TitledPanel(tr("External"), false, false);
+            TitledPanel* externalContainer = new TitledPanel(tr("External"), false, true);
+            externalContainer->setBackgroundRole(QPalette::Base);
+            externalContainer->setAutoFillBackground(true);
+            
             m_external = new QLabel(tr("use builtin"));
             m_chooseExternal = new QPushButton(tr("Browse..."));
             m_chooseExternal->setToolTip(tr("Click to browse for an entity definition file"));
@@ -100,13 +105,9 @@ namespace TrenchBroom {
             m_reloadExternal->setToolTip(tr("Reload the currently loaded entity definition file"));
 
             auto* externalSizer = new QHBoxLayout();
-            //externalSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            externalSizer->addWidget(m_external, 1);//, wxEXPAND | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            //externalSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            externalSizer->addWidget(m_chooseExternal, 0);//, Qt::AlignVCenter | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            //externalSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            externalSizer->addWidget(m_reloadExternal, 0);//, Qt::AlignVCenter | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            //externalSizer->addSpacing(LayoutConstants::NarrowHMargin);
+            externalSizer->addWidget(m_external, 1);
+            externalSizer->addWidget(m_chooseExternal, 0);
+            externalSizer->addWidget(m_reloadExternal, 0);
 
             externalContainer->getPanel()->setLayout(externalSizer);
 
@@ -114,7 +115,7 @@ namespace TrenchBroom {
             sizer->setContentsMargins(0, 0, 0, 0);
             sizer->setSpacing(0);
             sizer->addWidget(builtinContainer, 1);
-            sizer->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 0);
+            sizer->addWidget(new BorderLine(), 0);
             sizer->addWidget(externalContainer, 0);
             m_builtin->setMinimumSize(100, 70);
 
@@ -179,11 +180,10 @@ namespace TrenchBroom {
 
             const Assets::EntityDefinitionFileSpec spec = document->entityDefinitionFile();
             if (spec.builtin()) {
-                const auto index = kdl::vec_index_of(specs, spec);
-                if (index < specs.size()) {
+                if (const auto index = kdl::vec_index_of(specs, spec)) {
                     // the chosen builtin entity definition file might not be in the game config anymore if the config
                     // has changed after the definition file was chosen
-                    m_builtin->setCurrentRow(static_cast<int>(index));
+                    m_builtin->setCurrentRow(static_cast<int>(*index));
                 }
                 m_external->setText(tr("use builtin"));
 

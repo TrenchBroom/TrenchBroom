@@ -47,8 +47,9 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        Polyhedron_Face<T,FP,VP>::Polyhedron_Face(HalfEdgeList&& boundary) :
+        Polyhedron_Face<T,FP,VP>::Polyhedron_Face(HalfEdgeList&& boundary, const vm::plane<T,3>& plane) :
             m_boundary(std::move(boundary)),
+            m_plane(plane),
             m_payload(FP::defaultValue()),
 #ifdef _MSC_VER
         // MSVC throws a warning because we're passing this to the FaceLink constructor, but it's okay because we just store the pointer there.
@@ -72,6 +73,16 @@ m_link(this)
         template <typename T, typename FP, typename VP>
         typename Polyhedron_Face<T,FP,VP>::HalfEdgeList& Polyhedron_Face<T,FP,VP>::boundary() {
             return m_boundary;
+        }
+        
+        template <typename T, typename FP, typename VP>
+        const vm::plane<T,3>& Polyhedron_Face<T,FP,VP>::plane() const {
+            return m_plane;
+        }
+        
+        template <typename T, typename FP, typename VP>
+        void Polyhedron_Face<T,FP,VP>::setPlane(const vm::plane<T,3>& plane) {
+            m_plane = plane;
         }
 
         template <typename T, typename FP, typename VP>
@@ -290,6 +301,7 @@ m_link(this)
         template <typename T, typename FP, typename VP>
         void Polyhedron_Face<T,FP,VP>::flip() {
             m_boundary.reverse();
+            m_plane = m_plane.flip();
         }
 
         template <typename T, typename FP, typename VP> template <typename H>

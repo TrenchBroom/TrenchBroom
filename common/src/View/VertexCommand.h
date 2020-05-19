@@ -36,7 +36,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
+        class BrushNode;
         class Snapshot;
     }
 
@@ -47,27 +47,27 @@ namespace TrenchBroom {
 
         class VertexCommand : public DocumentCommand {
         protected:
-            using VertexToBrushesMap = std::map<vm::vec3, std::vector<Model::Brush*>>;
-            using EdgeToBrushesMap = std::map<vm::segment3, std::vector<Model::Brush*>>;
-            using FaceToBrushesMap = std::map<vm::polygon3, std::vector<Model::Brush*>>;
+            using VertexToBrushesMap = std::map<vm::vec3, std::vector<Model::BrushNode*>>;
+            using EdgeToBrushesMap = std::map<vm::segment3, std::vector<Model::BrushNode*>>;
+            using FaceToBrushesMap = std::map<vm::polygon3, std::vector<Model::BrushNode*>>;
             using VertexToFacesMap = std::map<vm::vec3, std::set<Model::BrushFace*>>;
-            using BrushVerticesMap = std::map<Model::Brush*, std::vector<vm::vec3>>;
-            using BrushEdgesMap = std::map<Model::Brush*, std::vector<vm::segment3>>;
-            using BrushFacesMap = std::map<Model::Brush*, std::vector<vm::polygon3>>;
+            using BrushVerticesMap = std::map<Model::BrushNode*, std::vector<vm::vec3>>;
+            using BrushEdgesMap = std::map<Model::BrushNode*, std::vector<vm::segment3>>;
+            using BrushFacesMap = std::map<Model::BrushNode*, std::vector<vm::polygon3>>;
         private:
-            std::vector<Model::Brush*> m_brushes;
+            std::vector<Model::BrushNode*> m_brushes;
             std::unique_ptr<Model::Snapshot> m_snapshot;
         protected:
-            VertexCommand(CommandType type, const std::string& name, const std::vector<Model::Brush*>& brushes);
+            VertexCommand(CommandType type, const std::string& name, const std::vector<Model::BrushNode*>& brushes);
         public:
             ~VertexCommand() override;
         protected:
             template <typename H, typename C>
-            static void extract(const std::map<H, std::vector<Model::Brush*>, C>& handleToBrushes, std::vector<Model::Brush*>& brushes, std::map<Model::Brush*, std::vector<H>>& brushToHandles, std::vector<H>& handles) {
+            static void extract(const std::map<H, std::vector<Model::BrushNode*>, C>& handleToBrushes, std::vector<Model::BrushNode*>& brushes, std::map<Model::BrushNode*, std::vector<H>>& brushToHandles, std::vector<H>& handles) {
                 for (const auto& entry : handleToBrushes) {
                     const H& handle = entry.first;
-                    const std::vector<Model::Brush*>& mappedBrushes = entry.second;
-                    for (Model::Brush* brush : mappedBrushes) {
+                    const std::vector<Model::BrushNode*>& mappedBrushes = entry.second;
+                    for (Model::BrushNode* brush : mappedBrushes) {
                         const auto result = brushToHandles.insert(std::make_pair(brush, std::vector<H>()));
                         if (result.second) {
                             brushes.push_back(brush);
@@ -78,14 +78,9 @@ namespace TrenchBroom {
                 }
             }
 
-            static void extractVertexMap(const VertexToBrushesMap& vertices, std::vector<Model::Brush*>& brushes, BrushVerticesMap& brushVertices, std::vector<vm::vec3>& vertexPositions);
-            static void extractEdgeMap(const EdgeToBrushesMap& edges, std::vector<Model::Brush*>& brushes, BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions);
-            static void extractFaceMap(const FaceToBrushesMap& faces, std::vector<Model::Brush*>& brushes, BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions);
-
-            using BrushEdgeSet = std::set<Model::BrushEdge*>;
-            using VertexToEdgesMap = std::map<vm::vec3, BrushEdgeSet>;
-            static void extractEdgeMap(const VertexToEdgesMap& edges, std::vector<Model::Brush*>& brushes, BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions);
-            static void extractFaceMap(const VertexToFacesMap& faces, std::vector<Model::Brush*>& brushes, BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions);
+            static void extractVertexMap(const VertexToBrushesMap& vertices, std::vector<Model::BrushNode*>& brushes, BrushVerticesMap& brushVertices, std::vector<vm::vec3>& vertexPositions);
+            static void extractEdgeMap(const EdgeToBrushesMap& edges, std::vector<Model::BrushNode*>& brushes, BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions);
+            static void extractFaceMap(const FaceToBrushesMap& faces, std::vector<Model::BrushNode*>& brushes, BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions);
 
             static BrushVerticesMap brushVertexMap(const BrushEdgesMap& edges);
             static BrushVerticesMap brushVertexMap(const BrushFacesMap& faces);

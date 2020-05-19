@@ -27,10 +27,12 @@
 #include "IO/ResourceUtils.h"
 #include "View/BorderLine.h"
 #include "View/MapFrame.h"
+#include "View/MapTextEncoding.h"
 #include "View/ViewConstants.h"
 
 #include <QtGlobal>
 #include <QAbstractButton>
+#include <QApplication>
 #include <QBoxLayout>
 #include <QButtonGroup>
 #include <QColor>
@@ -43,12 +45,15 @@
 #include <QLineEdit>
 #include <QPalette>
 #include <QSettings>
+#include <QResizeEvent>
 #include <QScreen>
 #include <QString>
 #include <QStringBuilder>
 #include <QStandardPaths>
 #include <QTableView>
+#include <QTextCodec>
 #include <QToolButton>
+#include <QVBoxLayout>
 #include <QWindow>
 
 // QDesktopWidget was deprecated in Qt 5.10 and we should use QGuiApplication::screenAt in 5.10 and above
@@ -70,6 +75,35 @@ namespace TrenchBroom {
 
         DisableWindowUpdates::~DisableWindowUpdates() {
             m_widget->setUpdatesEnabled(true);
+        }
+
+        SyncHeightEventFilter::SyncHeightEventFilter(QWidget* master, QWidget* slave, QObject* parent) :
+        QObject(parent),
+        m_master(master),
+        m_slave(slave) {
+            ensure(m_master != nullptr, "master is not null");
+            ensure(m_slave != nullptr, "slave is not null");
+            
+            m_master->installEventFilter(this);
+        }
+        
+        SyncHeightEventFilter::~SyncHeightEventFilter() {
+            if (m_master) {
+                m_master->removeEventFilter(this);
+            }
+        }
+
+        bool SyncHeightEventFilter::eventFilter(QObject* target, QEvent* event) {
+            if (target == m_master && event->type() == QEvent::Resize) {
+                const auto* sizeEvent = static_cast<QResizeEvent*>(event);
+                const auto height = sizeEvent->size().height();
+                if (m_slave->height() != height) {
+                    m_slave->setFixedHeight(height);
+                }
+                return false;
+            } else {
+                return QObject::eventFilter(target, event);
+            }
         }
 
         static QString fileDialogDirToString(const FileDialogDir dir) {
@@ -133,6 +167,19 @@ namespace TrenchBroom {
             window->restoreGeometry(settings.value(path).toByteArray());
         }
 
+        bool widgetOrChildHasFocus(const QWidget* widget) {
+            ensure(widget != nullptr, "widget must not be null");
+            
+            const QObject* currentWidget = QApplication::focusWidget();
+            while (currentWidget != nullptr) {
+                if (currentWidget == widget) {
+                    return true;
+                }
+                currentWidget = currentWidget->parent();
+            }
+            return false;
+        }
+
         MapFrame* findMapFrame(QWidget* widget) {
             return dynamic_cast<MapFrame*>(widget->window());
         }
@@ -184,8 +231,9 @@ namespace TrenchBroom {
 
             const auto defaultPalette = QPalette();
             auto palette = widget->palette();
-            palette.setColor(QPalette::Normal, QPalette::WindowText, defaultPalette.color(QPalette::Disabled, QPalette::WindowText));
-            palette.setColor(QPalette::Normal, QPalette::Text, defaultPalette.color(QPalette::Disabled, QPalette::WindowText));
+            // Set all color groups (active, inactive, disabled) to use the disabled color, so it's dimmer
+            palette.setColor(QPalette::WindowText, defaultPalette.color(QPalette::Disabled, QPalette::WindowText));
+            palette.setColor(QPalette::Text, defaultPalette.color(QPalette::Disabled, QPalette::Text));
             widget->setPalette(palette);
             return widget;
         }
@@ -351,17 +399,18 @@ namespace TrenchBroom {
         }
 
         void setDefaultWindowColor(QWidget* widget) {
-            auto palette = QPalette();
-            palette.setColor(QPalette::Window, palette.color(QPalette::Normal, QPalette::Window));
             widget->setAutoFillBackground(true);
-            widget->setPalette(palette);
+            widget->setBackgroundRole(QPalette::Window);
         }
 
         void setBaseWindowColor(QWidget* widget) {
-            auto palette = QPalette();
-            palette.setColor(QPalette::Window, palette.color(QPalette::Normal, QPalette::Base));
             widget->setAutoFillBackground(true);
-            widget->setPalette(palette);
+            widget->setBackgroundRole(QPalette::Base);
+        }
+
+        void setHighlightWindowColor(QWidget* widget) {
+            widget->setAutoFillBackground(true);
+            widget->setBackgroundRole(QPalette::Highlight);
         }
 
         QLineEdit* createSearchBox() {
@@ -380,6 +429,13 @@ namespace TrenchBroom {
                 return;
             }
             button->setChecked(checked);
+        }
+
+        void insertTitleBarSeparator(QVBoxLayout* layout) {
+#ifdef _WIN32
+            layout->insertWidget(0, new BorderLine(), 1);
+#endif
+            unused(layout);
         }
 
         AutoResizeRowsEventFilter::AutoResizeRowsEventFilter(QTableView* tableView) :
@@ -416,6 +472,35 @@ namespace TrenchBroom {
             dialog->show();
             dialog->raise();
             dialog->activateWindow();
+        }
+
+        static QTextCodec* codecForEncoding(const MapTextEncoding encoding) {
+            switch (encoding) {
+            case MapTextEncoding::Quake:
+                // Quake uses the full 1-255 range for its bitmap font.
+                // So using a "just assume UTF-8" approach would not work here.
+                // See: https://github.com/kduske/TrenchBroom/issues/3122
+                return QTextCodec::codecForLocale();
+            case MapTextEncoding::Iso88591:
+                return QTextCodec::codecForName("ISO 8859-1");
+            case MapTextEncoding::Utf8:
+                return QTextCodec::codecForName("UTF-8");
+            switchDefault()
+            }
+        }
+
+        QString mapStringToUnicode(const MapTextEncoding encoding, const std::string& string) {
+            QTextCodec* codec = codecForEncoding(encoding);
+            ensure(codec != nullptr, "null codec");
+
+            return codec->toUnicode(QByteArray::fromStdString(string));
+        }
+
+        std::string mapStringFromUnicode(const MapTextEncoding encoding, const QString& string) {
+            QTextCodec* codec = codecForEncoding(encoding);
+            ensure(codec != nullptr, "null codec");
+
+            return codec->fromUnicode(string).toStdString();
         }
     }
 }

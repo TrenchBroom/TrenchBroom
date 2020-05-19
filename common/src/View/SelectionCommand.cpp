@@ -19,15 +19,18 @@
 
 #include "SelectionCommand.h"
 
+#include "Ensure.h"
 #include "Macros.h"
-#include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/BrushFaceReference.h"
-#include "Model/Entity.h"
-#include "Model/World.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
+#include "Model/WorldNode.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <kdl/string_format.h>
+#include <kdl/vector_utils.h>
 
 #include <sstream>
 #include <string>
@@ -37,69 +40,53 @@ namespace TrenchBroom {
         const Command::CommandType SelectionCommand::Type = Command::freeType();
 
         std::unique_ptr<SelectionCommand> SelectionCommand::select(const std::vector<Model::Node*>& nodes) {
-            return std::make_unique<SelectionCommand>(Action::SelectNodes, nodes, std::vector<Model::BrushFace*>({}));
+            return std::make_unique<SelectionCommand>(Action::SelectNodes, nodes, std::vector<Model::BrushFaceHandle>{});
         }
 
-        std::unique_ptr<SelectionCommand> SelectionCommand::select(const std::vector<Model::BrushFace*>& faces) {
-            return std::make_unique<SelectionCommand>(Action::SelectFaces, std::vector<Model::Node*>({}), faces);
+        std::unique_ptr<SelectionCommand> SelectionCommand::select(const std::vector<Model::BrushFaceHandle>& faces) {
+            return std::make_unique<SelectionCommand>(Action::SelectFaces, std::vector<Model::Node*>{}, faces);
         }
 
         std::unique_ptr<SelectionCommand> SelectionCommand::convertToFaces() {
-            return std::make_unique<SelectionCommand>(Action::ConvertToFaces, std::vector<Model::Node*>({}), std::vector<Model::BrushFace*>({}));
+            return std::make_unique<SelectionCommand>(Action::ConvertToFaces, std::vector<Model::Node*>{}, std::vector<Model::BrushFaceHandle>{});
         }
 
         std::unique_ptr<SelectionCommand> SelectionCommand::selectAllNodes() {
-            return std::make_unique<SelectionCommand>(Action::SelectAllNodes, std::vector<Model::Node*>({}), std::vector<Model::BrushFace*>({}));
+            return std::make_unique<SelectionCommand>(Action::SelectAllNodes, std::vector<Model::Node*>{}, std::vector<Model::BrushFaceHandle>{});
         }
 
         std::unique_ptr<SelectionCommand> SelectionCommand::selectAllFaces() {
-            return std::make_unique<SelectionCommand>(Action::SelectAllFaces, std::vector<Model::Node*>({}), std::vector<Model::BrushFace*>({}));
+            return std::make_unique<SelectionCommand>(Action::SelectAllFaces, std::vector<Model::Node*>{}, std::vector<Model::BrushFaceHandle>{});
         }
 
         std::unique_ptr<SelectionCommand> SelectionCommand::deselect(const std::vector<Model::Node*>& nodes) {
-            return std::make_unique<SelectionCommand>(Action::DeselectNodes, nodes, std::vector<Model::BrushFace*>({}));
+            return std::make_unique<SelectionCommand>(Action::DeselectNodes, nodes, std::vector<Model::BrushFaceHandle>{});
         }
 
-        std::unique_ptr<SelectionCommand> SelectionCommand::deselect(const std::vector<Model::BrushFace*>& faces) {
-            return std::make_unique<SelectionCommand>(Action::DeselectFaces, std::vector<Model::Node*>({}), faces);
+        std::unique_ptr<SelectionCommand> SelectionCommand::deselect(const std::vector<Model::BrushFaceHandle>& faces) {
+            return std::make_unique<SelectionCommand>(Action::DeselectFaces, std::vector<Model::Node*>{}, faces);
         }
 
         std::unique_ptr<SelectionCommand> SelectionCommand::deselectAll() {
-            return std::make_unique<SelectionCommand>(Action::DeselectAll, std::vector<Model::Node*>({}), std::vector<Model::BrushFace*>({}));
+            return std::make_unique<SelectionCommand>(Action::DeselectAll, std::vector<Model::Node*>{}, std::vector<Model::BrushFaceHandle>{});
         }
 
-        static std::vector<Model::BrushFaceReference> faceRefs(const std::vector<Model::BrushFace*>& faces) {
-            std::vector<Model::BrushFaceReference> result;
-            for (Model::BrushFace* face : faces) {
-                result.push_back(Model::BrushFaceReference(face));
-            }
-            return result;
-        }
-
-        static std::vector<Model::BrushFace*> resolveFaceRefs(const std::vector<Model::BrushFaceReference>& refs) {
-            std::vector<Model::BrushFace*> result;
-            for (const Model::BrushFaceReference& ref : refs) {
-                result.push_back(ref.resolve());
-            }
-            return result;
-        }
-
-        SelectionCommand::SelectionCommand(const Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces) :
-        UndoableCommand(Type, makeName(action, nodes, faces)),
+        SelectionCommand::SelectionCommand(const Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFaceHandle>& faces) :
+        UndoableCommand(Type, makeName(action, nodes.size(), faces.size())),
         m_action(action),
         m_nodes(nodes),
-        m_faceRefs(faceRefs(faces)) {}
+        m_faceRefs(Model::createRefs(faces)) {}
 
         SelectionCommand::~SelectionCommand() = default;
 
-        std::string SelectionCommand::makeName(const Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFace*>& faces) {
+        std::string SelectionCommand::makeName(const Action action, const size_t nodeCount, const size_t faceCount) {
             std::stringstream result;
             switch (action) {
                 case Action::SelectNodes:
-                    result << "Select " << nodes.size() << " " << kdl::str_plural(nodes.size(), "Object", "Objects");
+                    result << "Select " << nodeCount << " " << kdl::str_plural(nodeCount, "Object", "Objects");
                     break;
                 case Action::SelectFaces:
-                    result << "Select " << faces.size() << " " << kdl::str_plural(nodes.size(), "Brush Face", "Brush Faces");
+                    result << "Select " << faceCount << " " << kdl::str_plural(faceCount, "Brush Face", "Brush Faces");
                     break;
                 case Action::SelectAllNodes:
                     result << "Select All Objects";
@@ -111,10 +98,10 @@ namespace TrenchBroom {
                     result << "Convert to Brush Face Selection";
                     break;
                 case Action::DeselectNodes:
-                    result << "Deselect " << nodes.size() << " " << kdl::str_plural(nodes.size(), "Object", "Objects");
+                    result << "Deselect " << nodeCount << " " << kdl::str_plural(nodeCount, "Object", "Objects");
                     break;
                 case Action::DeselectFaces:
-                    result << "Deselect " << faces.size() << " " << kdl::str_plural(nodes.size(), "Brush Face", "Brush Faces");
+                    result << "Deselect " << faceCount << " " << kdl::str_plural(faceCount, "Brush Face", "Brush Faces");
                     break;
                 case Action::DeselectAll:
                     return "Select None";
@@ -125,14 +112,14 @@ namespace TrenchBroom {
 
         std::unique_ptr<CommandResult> SelectionCommand::doPerformDo(MapDocumentCommandFacade* document) {
             m_previouslySelectedNodes = document->selectedNodes().nodes();
-            m_previouslySelectedFaceRefs = faceRefs(document->selectedBrushFaces());
+            m_previouslySelectedFaceRefs = Model::createRefs(document->selectedBrushFaces());
 
             switch (m_action) {
                 case Action::SelectNodes:
                     document->performSelect(m_nodes);
                     break;
                 case Action::SelectFaces:
-                    document->performSelect(resolveFaceRefs(m_faceRefs));
+                    document->performSelect(Model::resolveAllRefs(m_faceRefs));
                     break;
                 case Action::SelectAllNodes:
                     document->performSelectAllNodes();
@@ -147,7 +134,7 @@ namespace TrenchBroom {
                     document->performDeselect(m_nodes);
                     break;
                 case Action::DeselectFaces:
-                    document->performDeselect(resolveFaceRefs(m_faceRefs));
+                    document->performDeselect(Model::resolveAllRefs(m_faceRefs));
                     break;
                 case Action::DeselectAll:
                     document->performDeselectAll();
@@ -162,7 +149,7 @@ namespace TrenchBroom {
                 document->performSelect(m_previouslySelectedNodes);
             }
             if (!m_previouslySelectedFaceRefs.empty()) {
-                document->performSelect(resolveFaceRefs(m_previouslySelectedFaceRefs));
+                document->performSelect(Model::resolveAllRefs(m_previouslySelectedFaceRefs));
             }
             return std::make_unique<CommandResult>(true);
         }

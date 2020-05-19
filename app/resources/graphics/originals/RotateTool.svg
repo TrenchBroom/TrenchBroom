@@ -14,11 +14,11 @@
    viewBox="0 0 24.000001 24"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="RotateTool.svg"
-   inkscape:export-filename="/Users/kristian/Documents/Code/TrenchBroom/app/resources/graphics/images/RotateTool.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90">
+   inkscape:export-filename="/media/psf/Home/Documents/Code/TrenchBroom_qt/app/resources/graphics/images/RotateTool.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
   <defs
      id="defs4">
     <inkscape:perspective
@@ -37,8 +37,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="32"
-     inkscape:cx="5.850663"
-     inkscape:cy="7.7525352"
+     inkscape:cx="15.172587"
+     inkscape:cy="15.259474"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -46,16 +46,17 @@
      inkscape:showpageshadow="false"
      showguides="false"
      inkscape:snap-grids="true"
-     inkscape:window-width="2560"
-     inkscape:window-height="1315"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-width="2488"
+     inkscape:window-height="1373"
+     inkscape:window-x="72"
+     inkscape:window-y="30"
      inkscape:window-maximized="1"
      inkscape:snap-bbox="false"
      inkscape:bbox-paths="true"
      objecttolerance="10000"
      inkscape:object-nodes="true"
-     inkscape:snap-smooth-nodes="true">
+     inkscape:snap-smooth-nodes="true"
+     inkscape:snap-global="true">
     <inkscape:grid
        type="xygrid"
        id="grid3336"
@@ -87,44 +88,48 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-1028.3623)">
-    <path
-       style="opacity:1;fill:none;fill-opacity:1;stroke:#007fff;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 2,1040.3623 c 0,-1.9375 3.0000003,-4.5 8.000001,-5"
-       id="path5728"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
-    <path
-       sodipodi:nodetypes="cc"
-       inkscape:connector-curvature="0"
-       id="path5741"
-       d="m 2,1040.3623 c 0,1.9375 3.0000003,5 10.000001,5"
-       style="opacity:1;fill:none;fill-opacity:1;stroke:#007fff;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    <path
-       style="opacity:1;fill:none;fill-opacity:1;stroke:#007fff;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 22.000001,1040.3623 c 0,1.9375 -3,5 -10,5"
-       id="path5743"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
-    <path
-       sodipodi:nodetypes="cc"
-       inkscape:connector-curvature="0"
-       id="path5745"
-       d="m 22.000001,1040.3623 c 0,-1.9375 -3,-4.5 -8.000001,-5"
-       style="opacity:1;fill:none;fill-opacity:1;stroke:#007fff;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    <path
-       style="opacity:1;fill:none;fill-opacity:1;stroke:#007fff;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 12,1030.3623 0,12"
-       id="path5747"
-       inkscape:connector-curvature="0" />
-    <path
-       style="opacity:1;fill:none;fill-opacity:1;stroke:#007fff;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 12,1048.3623 0,2"
-       id="path5749"
-       inkscape:connector-curvature="0" />
-    <path
-       style="opacity:1;fill:none;fill-opacity:1;stroke:#007fff;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 12,1040.3623 8.5,2.5"
-       id="path5755"
-       inkscape:connector-curvature="0" />
+    <g
+       id="g931">
+      <ellipse
+         ry="10.656868"
+         rx="10.500067"
+         cy="1040.3715"
+         cx="11.776646"
+         id="path1647"
+         style="fill:#109cff;fill-opacity:0.24888892;stroke:none;stroke-width:1.00000024;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:10;stroke-opacity:1" />
+      <g
+         style="stroke-width:0.6230486"
+         transform="matrix(1.5952054,0,0,1.614877,24.629095,-646.20418)"
+         id="g1672">
+        <path
+           style="fill:none;fill-opacity:0.24888892;stroke:#109cff;stroke-width:0.6230486;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:10;stroke-opacity:1"
+           d="m -1.9160156,1042.1123 c -0.950743,-2.5366 -3.3750163,-4.2177 -6.0839844,-4.2187 -3.589852,0 -6.500001,2.9101 -6.5,6.5 -10e-7,3.5898 2.910148,6.5 6.5,6.5 2.7073187,0 5.128776,-1.6853 6.078125,-4.2208"
+           id="path1647-7"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="ccscc" />
+        <path
+           style="fill:#109cff;fill-opacity:1;stroke:none;stroke-width:0.6230486px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="m -3.8467341,1047.3854 2.8447853,0.9524 -0.4699073,-3.321 z"
+           id="path1668"
+           inkscape:connector-curvature="0" />
+      </g>
+    </g>
+    <rect
+       style="fill:#ff7f01;fill-opacity:0.24705882;stroke:#ff7f01;stroke-width:0.99999994;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:10;stroke-opacity:1"
+       id="rect826-3"
+       width="9"
+       height="9.0000076"
+       x="-202.56125"
+       y="1016.9056"
+       inkscape:export-filename="/media/psf/Home/Documents/Code/TrenchBroom_qt/app/resources/graphics/images/rect826.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       transform="rotate(-11.634904)" />
+    <circle
+       style="fill:#109cff;fill-opacity:1;stroke:none;stroke-width:1.00000024;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:10;stroke-opacity:1"
+       id="path820"
+       cx="12"
+       cy="1040.3623"
+       r="1" />
   </g>
 </svg>

@@ -62,36 +62,25 @@ namespace TrenchBroom {
             return backupNo > 0u;
         }
 
-        Autosaver::Autosaver(std::weak_ptr<MapDocument> document, const std::time_t saveInterval, const std::time_t idleInterval, const size_t maxBackups) :
+        Autosaver::Autosaver(std::weak_ptr<MapDocument> document, const std::chrono::milliseconds saveInterval, const size_t maxBackups) :
         m_document(document),
         m_saveInterval(saveInterval),
-        m_idleInterval(idleInterval),
         m_maxBackups(maxBackups),
-        m_lastSaveTime(time(nullptr)),
-        m_lastModificationTime(0),
-        m_lastModificationCount(kdl::mem_lock(m_document)->modificationCount()) {
-            bindObservers();
-        }
-
-        Autosaver::~Autosaver() {
-            unbindObservers();
-        }
+        m_lastSaveTime(Clock::now()),
+        m_lastModificationCount(kdl::mem_lock(m_document)->modificationCount()) {}
 
         void Autosaver::triggerAutosave(Logger& logger) {
             if (kdl::mem_expired(m_document)) {
                 return;
             }
 
-            const auto currentTime = std::time(nullptr);
+            const auto currentTime = Clock::now();
 
             auto document = kdl::mem_lock(m_document);
             if (!document->modified()) {
                 return;
             }
             if (document->modificationCount() == m_lastModificationCount) {
-                return;
-            }
-            if (currentTime - m_lastModificationTime < m_idleInterval) {
                 return;
             }
             if (currentTime - m_lastSaveTime < m_saveInterval) {
@@ -128,7 +117,7 @@ namespace TrenchBroom {
 
                 const auto backupFilePath = fs.makeAbsolute(makeBackupName(mapBasename, backupNo));
 
-                m_lastSaveTime = std::time(nullptr);
+                m_lastSaveTime = Clock::now();
                 m_lastModificationCount = document->modificationCount();
                 document->saveDocumentTo(backupFilePath);
 
@@ -196,22 +185,6 @@ namespace TrenchBroom {
                 // valid backup file names, so this should not go wrong, but if it does, sort the invalid file names to
                 // the end to avoid modifying them
                 return kdl::str_to_size(path.deleteExtension().extension()).value_or(std::numeric_limits<size_t>::max());
-        }
-
-        void Autosaver::bindObservers() {
-            auto document = kdl::mem_lock(m_document);
-            document->documentModificationStateDidChangeNotifier.addObserver(this, &Autosaver::documentModificationCountDidChangeNotifier);
-        }
-
-        void Autosaver::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-                document->documentModificationStateDidChangeNotifier.removeObserver(this, &Autosaver::documentModificationCountDidChangeNotifier);
-            }
-        }
-
-        void Autosaver::documentModificationCountDidChangeNotifier() {
-            m_lastModificationTime = std::time(nullptr);
         }
     }
 }

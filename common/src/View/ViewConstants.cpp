@@ -60,30 +60,25 @@ namespace TrenchBroom {
                 return result;
             }
 
+            /**
+             * Table cell/text edit widget disabled text. Intended for use against a QPalette::Base background.
+             */
+            QColor disabledCellText() {
+                QPalette pal;
+                QColor result = pal.color(QPalette::Disabled, QPalette::Text);
+                return result;
+            }
+
             QColor disabledText(const QWidget* widget) {
                 const QPalette& pal = widget->palette();
                 QColor result = pal.color(QPalette::Disabled, QPalette::WindowText);
                 return result;
             }
-
-            QColor borderColor() {
-                static const QColor col =
-#if defined __APPLE__
-                QColor(90, 90, 90);
-#else
-                QColor(Qt::black);
-#endif
-                return col;
-            }
-
-            QColor separatorColor() {
-                static const QColor col =
-#if defined __APPLE__
-                QColor(183, 183, 183);
-#else
-                QColor(Qt::lightGray);
-#endif
-                return col;
+            
+            QColor window() {
+                QPalette pal;
+                QColor result = pal.color(QPalette::Active, QPalette::Window);
+                return result;
             }
         }
     }

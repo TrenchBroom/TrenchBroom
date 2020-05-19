@@ -16,6 +16,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.cpp
         ${COMMON_SOURCE_DIR}/Assets/TextureCollection.cpp
         ${COMMON_SOURCE_DIR}/Assets/TextureManager.cpp
+        ${COMMON_SOURCE_DIR}/Assets/TextureReference.cpp
         ${COMMON_SOURCE_DIR}/EL/ELExceptions.cpp
         ${COMMON_SOURCE_DIR}/EL/EvaluationContext.cpp
         ${COMMON_SOURCE_DIR}/EL/Expression.cpp
@@ -104,15 +105,14 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/BrushBuilder.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushFace.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushFaceAttributes.cpp
+        ${COMMON_SOURCE_DIR}/Model/BrushFaceHandle.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushFacePredicates.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushFaceReference.cpp
-        ${COMMON_SOURCE_DIR}/Model/BrushFaceSnapshot.cpp
+        ${COMMON_SOURCE_DIR}/Model/BrushNode.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushSnapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/ChangeBrushFaceAttributesRequest.cpp
         ${COMMON_SOURCE_DIR}/Model/CollectAttributableNodesVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/CollectMatchingNodesVisitor.cpp
-        ${COMMON_SOURCE_DIR}/Model/CollectNodesWithDescendantSelectionCountVisitor.cpp
-        ${COMMON_SOURCE_DIR}/Model/CollectRecursivelySelectedNodesVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/CollectSelectableBrushFacesVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/CollectSelectableNodesWithFilePositionVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/CompareHits.cpp
@@ -125,11 +125,11 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/EmptyAttributeValueIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/EmptyBrushEntityIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/EmptyGroupIssueGenerator.cpp
-        ${COMMON_SOURCE_DIR}/Model/Entity.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityAttributes.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityAttributeSnapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityAttributesVariableStore.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityColor.cpp
+        ${COMMON_SOURCE_DIR}/Model/EntityNode.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityRotationPolicy.cpp
         ${COMMON_SOURCE_DIR}/Model/EntitySnapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/FindContainerVisitor.cpp
@@ -142,7 +142,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/GameFactory.cpp
         ${COMMON_SOURCE_DIR}/Model/GameFileSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/GameImpl.cpp
-        ${COMMON_SOURCE_DIR}/Model/Group.cpp
+        ${COMMON_SOURCE_DIR}/Model/GroupNode.cpp
         ${COMMON_SOURCE_DIR}/Model/GroupSnapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/Hit.cpp
         ${COMMON_SOURCE_DIR}/Model/HitAdapter.cpp
@@ -154,7 +154,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/IssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/IssueGeneratorRegistry.cpp
         ${COMMON_SOURCE_DIR}/Model/IssueQuickFix.cpp
-        ${COMMON_SOURCE_DIR}/Model/Layer.cpp
+        ${COMMON_SOURCE_DIR}/Model/LayerNode.cpp
         ${COMMON_SOURCE_DIR}/Model/LinkSourceIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/LinkTargetIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/LongAttributeNameIssueGenerator.cpp
@@ -199,8 +199,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/TransformEntityAttributesQuickFix.cpp
         ${COMMON_SOURCE_DIR}/Model/TransformObjectVisitor.cpp
-        ${COMMON_SOURCE_DIR}/Model/World.cpp
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.cpp
+        ${COMMON_SOURCE_DIR}/Model/WorldNode.cpp
         ${COMMON_SOURCE_DIR}/RecoverableExceptions.cpp
         ${COMMON_SOURCE_DIR}/Renderer/ActiveShader.cpp
         ${COMMON_SOURCE_DIR}/Renderer/AllocationTracker.cpp
@@ -520,6 +520,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.h
         ${COMMON_SOURCE_DIR}/Assets/TextureCollection.h
         ${COMMON_SOURCE_DIR}/Assets/TextureManager.h
+        ${COMMON_SOURCE_DIR}/Assets/TextureReference.h
         ${COMMON_SOURCE_DIR}/EL/EL_Forward.h
         ${COMMON_SOURCE_DIR}/EL/ELExceptions.h
         ${COMMON_SOURCE_DIR}/EL/EvaluationContext.h
@@ -612,10 +613,11 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/BrushBuilder.h
         ${COMMON_SOURCE_DIR}/Model/BrushFace.h
         ${COMMON_SOURCE_DIR}/Model/BrushFaceAttributes.h
+        ${COMMON_SOURCE_DIR}/Model/BrushFaceHandle.h
         ${COMMON_SOURCE_DIR}/Model/BrushFacePredicates.h
         ${COMMON_SOURCE_DIR}/Model/BrushFaceReference.h
-        ${COMMON_SOURCE_DIR}/Model/BrushFaceSnapshot.h
         ${COMMON_SOURCE_DIR}/Model/BrushGeometry.h
+        ${COMMON_SOURCE_DIR}/Model/BrushNode.h
         ${COMMON_SOURCE_DIR}/Model/BrushSnapshot.h
         ${COMMON_SOURCE_DIR}/Model/ChangeBrushFaceAttributesRequest.h
         ${COMMON_SOURCE_DIR}/Model/CollectAttributableNodesVisitor.h
@@ -625,8 +627,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/CollectMatchingNodesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectNodesByVisibilityVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectNodesVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/CollectNodesWithDescendantSelectionCountVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/CollectRecursivelySelectedNodesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectSelectableBrushFacesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectSelectableNodesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectSelectableNodesWithFilePositionVisitor.h
@@ -643,11 +643,11 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/EmptyAttributeValueIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/EmptyBrushEntityIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/EmptyGroupIssueGenerator.h
-        ${COMMON_SOURCE_DIR}/Model/Entity.h
         ${COMMON_SOURCE_DIR}/Model/EntityAttributes.h
         ${COMMON_SOURCE_DIR}/Model/EntityAttributeSnapshot.h
         ${COMMON_SOURCE_DIR}/Model/EntityAttributesVariableStore.h
         ${COMMON_SOURCE_DIR}/Model/EntityColor.h
+        ${COMMON_SOURCE_DIR}/Model/EntityNode.h
         ${COMMON_SOURCE_DIR}/Model/EntityRotationPolicy.h
         ${COMMON_SOURCE_DIR}/Model/EntitySnapshot.h
         ${COMMON_SOURCE_DIR}/Model/ExportFormat.h
@@ -662,7 +662,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/GameFactory.h
         ${COMMON_SOURCE_DIR}/Model/GameFileSystem.h
         ${COMMON_SOURCE_DIR}/Model/GameImpl.h
-        ${COMMON_SOURCE_DIR}/Model/Group.h
+        ${COMMON_SOURCE_DIR}/Model/GroupNode.h
         ${COMMON_SOURCE_DIR}/Model/GroupSnapshot.h
         ${COMMON_SOURCE_DIR}/Model/Hit.h
         ${COMMON_SOURCE_DIR}/Model/HitAdapter.h
@@ -676,7 +676,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/IssueGeneratorRegistry.h
         ${COMMON_SOURCE_DIR}/Model/IssueQuickFix.h
         ${COMMON_SOURCE_DIR}/Model/IssueType.h
-        ${COMMON_SOURCE_DIR}/Model/Layer.h
+        ${COMMON_SOURCE_DIR}/Model/LayerNode.h
         ${COMMON_SOURCE_DIR}/Model/LinkSourceIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/LinkTargetIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/LockState.h
@@ -742,8 +742,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/TransformEntityAttributesQuickFix.h
         ${COMMON_SOURCE_DIR}/Model/TransformObjectVisitor.h
         ${COMMON_SOURCE_DIR}/Model/VisibilityState.h
-        ${COMMON_SOURCE_DIR}/Model/World.h
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/WorldNode.h
         ${COMMON_SOURCE_DIR}/Renderer/ActiveShader.h
         ${COMMON_SOURCE_DIR}/Renderer/AllocationTracker.h
         ${COMMON_SOURCE_DIR}/Renderer/AttrString.h

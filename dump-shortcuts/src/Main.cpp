@@ -21,6 +21,7 @@
 
 #include "KeyStrings.h"
 #include "IO/Path.h"
+#include "Preferences.h"
 
 #include <QApplication>
 #include <QFileInfo>
@@ -33,32 +34,27 @@
 
 namespace TrenchBroom {
     namespace View {
-        void printKeys(QTextStream& out);
-        QString toString(const IO::Path& path, const QString& suffix);
-        QString toString(const QKeySequence& keySequence);
+        static QString escapeString(const QString& str) {
+            if (str == "'") {
+                return "\\'";
+            } else if (str == "\\") {
+                return "\\\\";
+            } else {
+                return str;
+            }
+        }
 
-        void printMenuShortcuts(QTextStream& out);
-        void printActionShortcuts(QTextStream& out);
-
-        void printKeys(QTextStream& out) {
+        static void printKeys(QTextStream& out) {
             const auto keyStrings = KeyStrings();
 
             out << "const keys = {\n";
-            for (const auto& [key, str] : keyStrings) {
-                out << "    " << key << ": '";
-                if (str == "'") {
-                    out << "\\'";
-                } else if (str == "\\") {
-                    out << "\\\\";
-                } else {
-                    out << str;
-                }
-                out << "',\n";
+            for (const auto& [portable, native] : keyStrings) {
+                out << "    '" << escapeString(portable) << "': '" << escapeString(native) << "',\n";
             }
             out << "};\n";
         }
 
-        QString toString(const IO::Path& path, const QString& suffix) {
+        static QString toString(const IO::Path& path, const QString& suffix) {
             QString result;
             result += "[";
             for (const auto& component : path.components()) {
@@ -69,31 +65,33 @@ namespace TrenchBroom {
             return result;
         }
 
-        QString toString(const QKeySequence& keySequence) {
-            static constexpr std::array<std::tuple<int, Qt::Key>, 4> Modifiers = {
-                std::make_tuple(static_cast<int>(Qt::SHIFT), Qt::Key_Shift),
-                std::make_tuple(static_cast<int>(Qt::ALT), Qt::Key_Alt),
-                std::make_tuple(static_cast<int>(Qt::CTRL), Qt::Key_Control),
-                std::make_tuple(static_cast<int>(Qt::META), Qt::Key_Meta),
+        static QString toString(const QKeySequence& keySequence) {
+            static const std::array<std::tuple<int, QString>, 4> Modifiers = {
+                std::make_tuple(static_cast<int>(Qt::CTRL),  QString::fromLatin1("Ctrl")),
+                std::make_tuple(static_cast<int>(Qt::ALT),   QString::fromLatin1("Alt")),
+                std::make_tuple(static_cast<int>(Qt::SHIFT), QString::fromLatin1("Shift")),
+                std::make_tuple(static_cast<int>(Qt::META),  QString::fromLatin1("Meta")),
             };
 
             QString result;
             result += "{ ";
 
             if (keySequence.count() > 0) {
-                const auto rawKey = keySequence[0];
-                const auto key = rawKey & ~(static_cast<int>(Qt::KeyboardModifierMask));
+                const int keyWithModifier = keySequence[0];
+                const int key = keyWithModifier & ~(static_cast<int>(Qt::KeyboardModifierMask));
 
-                result += "key: " + QString::number(key) + ", ";
+                const QString keyPortableText = QKeySequence(key).toString(QKeySequence::PortableText);
+
+                result += "key: '" + escapeString(keyPortableText) + "', ";
                 result += "modifiers: [";
-                for (const auto& [modifier, keyCode] : Modifiers) {
-                    if ((rawKey & modifier) != 0) {
-                        result += QString::number(keyCode) + ", ";
+                for (const auto& [modifier, portableText] : Modifiers) {
+                    if ((keyWithModifier & modifier) != 0) {
+                        result += "'" + escapeString(portableText) + "', ";
                     }
                 }
                 result += "]";
             } else {
-                result += "key: 0, modifiers: []";
+                result += "key: '', modifiers: []";
             }
             result += " }";
             return result;
@@ -120,7 +118,7 @@ namespace TrenchBroom {
             }
         };
 
-        void printMenuShortcuts(QTextStream& out) {
+        static void printMenuShortcuts(QTextStream& out) {
             out << "const menu = {\n";
 
             const auto& actionManager = ActionManager::instance();
@@ -130,14 +128,44 @@ namespace TrenchBroom {
             out << "};\n";
         }
 
-        void printActionShortcuts(QTextStream& out) {
+        static void printActionShortcuts(QTextStream& out) {
             out << "const actions = {\n";
 
+            auto printPref = [&out](const IO::Path& prefPath, const QKeySequence& keySequence) {
+                out << "    '" << QString::fromStdString(prefPath.asString("/")) << "': ";
+                out << toString(keySequence) << ",\n";
+            };
+
+            class ToolbarVisitor : public MenuVisitor {
+            public:
+                std::vector<const Action*> toolbarActions;
+
+                void visit(const Menu& menu) override {
+                    menu.visitEntries(*this);
+                }
+
+                void visit(const MenuSeparatorItem&) override {}
+
+                void visit(const MenuActionItem& item) override {
+                    const Action* tAction = &item.action();
+                    toolbarActions.push_back(tAction);
+                }
+            };
+
             const auto& actionManager = ActionManager::instance();
-            actionManager.visitMapViewActions([&out](const auto& action) {
-                out << "    '" << QString::fromStdString(action.preferencePath().asString("/")) << "': ";
-                out << toString(action.keySequence()) << ",\n";
+            ToolbarVisitor visitor;
+            actionManager.visitToolBarActions(visitor);
+            for (const Action* action : visitor.toolbarActions) {
+                printPref(action->preferencePath(), action->keySequence());
+            }
+            actionManager.visitMapViewActions([&printPref](const auto& action) {
+                printPref(action.preferencePath(), action.keySequence());
             });
+
+            // some keys are just Preferences (e.g. WASD)
+            for (Preference<QKeySequence>* keyPref : Preferences::keyPreferences()) {
+                printPref(keyPref->path(), keyPref->defaultValue());
+            }
 
             out << "};\n";
         }
@@ -171,6 +199,7 @@ int main(int argc, char *argv[]) {
     }
 
     QTextStream out(&file);
+    out.setCodec("UTF-8");
 
     // QKeySequence requires that an application instance is created!
     QApplication app(argc, argv);
@@ -183,4 +212,11 @@ int main(int argc, char *argv[]) {
     TrenchBroom::View::printKeys(out);
     TrenchBroom::View::printMenuShortcuts(out);
     TrenchBroom::View::printActionShortcuts(out);
+
+    out.flush();
+    if (out.status() == QTextStream::Ok) {
+        return 0;
+    } else {
+        return 1;
+    }
 }

@@ -346,7 +346,7 @@ namespace TrenchBroom {
              * Given `delta`, a vector in the direction of the face's normal,
              * returns a copy of it, also in the direction of the face's normal, that will try to keep the face on-grid.
              */
-            vm::vec3 moveDelta(const Model::BrushFace* face, const vm::vec3& delta) const;
+            vm::vec3 moveDelta(const Model::BrushFace& face, const vm::vec3& delta) const;
             vm::vec3 combineDeltas(const vm::vec3& delta1, const vm::vec3& delta2) const;
             vm::vec3 referencePoint(const vm::bbox3& bounds) const;
         };

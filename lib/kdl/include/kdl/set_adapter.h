@@ -523,6 +523,15 @@ namespace kdl {
         }
 
         /**
+         * Increases capacity of the underlying vector.
+         * All iterators may be invalidated.
+         */
+        void reserve(const size_t newCapacity) {
+            m_data.reserve(newCapacity);
+            assert(check_invariant());
+        }
+
+        /**
          * Inserts a copy of the given value into this set. If this set already contains a value that is equivalent to the
          * given value, nothing happens.
          *

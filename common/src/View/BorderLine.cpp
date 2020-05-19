@@ -28,11 +28,13 @@ namespace TrenchBroom {
             setObjectName("borderLine");
             setContentsMargins(0, 0, 0, 0);
             setFrameShadow(QFrame::Plain);
-            setStyleSheet("QFrame#borderLine { color: " + Colors::borderColor().name() + "; }");
+            setForegroundRole(QPalette::Mid);
             setLineWidth(thickness - 1);
             if (direction == Direction::Horizontal) {
                 setFrameShape(QFrame::HLine);
+#if !defined __APPLE__
                 setFixedHeight(thickness); // necessary to remove extra space around the horizontal line
+#endif
             } else {
                 setFrameShape(QFrame::VLine);
 #if !defined __APPLE__

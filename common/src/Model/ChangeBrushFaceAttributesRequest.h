@@ -28,12 +28,9 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
     namespace Model {
         class BrushFace;
+        class BrushFaceHandle;
         class BrushFaceAttributes;
 
         class ChangeBrushFaceAttributesRequest {
@@ -65,11 +62,10 @@ namespace TrenchBroom {
             // TODO: replace with class based enum
             typedef enum {
                 TextureOp_None,
-                TextureOp_Set,
-                TextureOp_Unset
+                TextureOp_Set
             } TextureOp;
         private:
-            Assets::Texture* m_texture;
+            std::string m_textureName;
             float m_xOffset;
             float m_yOffset;
             float m_rotation;
@@ -97,12 +93,11 @@ namespace TrenchBroom {
             void clear();
 
             const std::string name() const;
-            bool evaluate(const std::vector<BrushFace*>& faces) const;
+            bool evaluate(const std::vector<BrushFaceHandle>& faceHandles) const;
 
             void resetAll();
 
-            void setTexture(Assets::Texture* texture);
-            void unsetTexture();
+            void setTextureName(const std::string& textureName);
 
             void resetTextureAxes();
             void resetTextureAxesToParaxial();
@@ -154,7 +149,7 @@ namespace TrenchBroom {
 
             void setColor(const Color& colorValue);
 
-            void setAll(const Model::BrushFace* face);
+            void setAll(const Model::BrushFace& face);
             void setAll(const Model::BrushFaceAttributes& attributes);
 
             bool collateWith(ChangeBrushFaceAttributesRequest& other);

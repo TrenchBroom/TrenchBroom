@@ -19,7 +19,7 @@
 
 #include "NonIntegerPlanePointsIssueGenerator.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -36,7 +36,7 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            explicit NonIntegerPlanePointsIssue(Brush* brush) :
+            explicit NonIntegerPlanePointsIssue(BrushNode* brush) :
             Issue(brush) {}
 
             IssueType doGetType() const override {
@@ -62,16 +62,18 @@ namespace TrenchBroom {
 
         NonIntegerPlanePointsIssueGenerator::NonIntegerPlanePointsIssueGenerator() :
         IssueGenerator(NonIntegerPlanePointsIssue::Type, "Non-integer plane points") {
-            addQuickFix(new NonIntegerPlanePointsIssueQuickFix());
+            // Disabled until findPlanePoints() is fixed, see: https://github.com/kduske/TrenchBroom/issues/2780
+            // addQuickFix(new NonIntegerPlanePointsIssueQuickFix());
         }
 
-        void NonIntegerPlanePointsIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
-            for (const BrushFace* face : brush->faces()) {
-                const BrushFace::Points& points = face->points();
+        void NonIntegerPlanePointsIssueGenerator::doGenerate(BrushNode* brushNode, IssueList& issues) const {
+            const Brush& brush = brushNode->brush();
+            for (const BrushFace& face : brush.faces()) {
+                const BrushFace::Points& points = face.points();
                 for (size_t i = 0; i < 3; ++i) {
                     const vm::vec3& point = points[i];
                     if (!vm::is_integral(point)) {
-                        issues.push_back(new NonIntegerPlanePointsIssue(brush));
+                        issues.push_back(new NonIntegerPlanePointsIssue(brushNode));
                         return;
                     }
                 }

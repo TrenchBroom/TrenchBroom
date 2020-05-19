@@ -35,12 +35,11 @@
 namespace TrenchBroom {
     namespace View {
         WelcomeWindow::WelcomeWindow() :
-        QMainWindow(),
+        QMainWindow(nullptr, Qt::Dialog), // Qt::Dialog window flag causes the window to be centered on Ubuntu
         m_recentDocumentListBox(nullptr),
         m_createNewDocumentButton(nullptr),
         m_openOtherDocumentButton(nullptr) {
             createGui();
-            centerOnScreen(this);
         }
 
         void WelcomeWindow::createGui() {
@@ -69,8 +68,9 @@ namespace TrenchBroom {
             outerLayout->setContentsMargins(QMargins());
             outerLayout->setSpacing(0);
 
-            // outerLayout->addWidget(new BorderLine());
             outerLayout->addLayout(innerLayout);
+            insertTitleBarSeparator(outerLayout);
+
             container->setLayout(outerLayout);
 
             setCentralWidget(container);

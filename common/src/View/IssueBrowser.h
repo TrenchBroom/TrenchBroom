@@ -31,7 +31,7 @@ class QWidget;
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushFace;
+        class BrushFaceHandle;
         class Issue;
         class Node;
     }
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             void nodesWereAdded(const std::vector<Model::Node*>& nodes);
             void nodesWereRemoved(const std::vector<Model::Node*>& nodes);
             void nodesDidChange(const std::vector<Model::Node*>& nodes);
-            void brushFacesDidChange(const std::vector<Model::BrushFace*>& faces);
+            void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
             void issueIgnoreChanged(Model::Issue* issue);
 
             void updateFilterFlags();

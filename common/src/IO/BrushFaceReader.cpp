@@ -19,12 +19,12 @@
 
 #include "BrushFaceReader.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/Entity.h"
-#include "Model/Layer.h"
+#include "Model/EntityNode.h"
+#include "Model/LayerNode.h"
 #include "Model/ModelFactory.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <kdl/vector_utils.h>
 
@@ -36,12 +36,11 @@ namespace TrenchBroom {
         MapReader(str),
         m_factory(factory) {}
 
-        const std::vector<Model::BrushFace*>& BrushFaceReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
+        std::vector<Model::BrushFace> BrushFaceReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
             try {
                 readBrushFaces(m_factory.format(), worldBounds, status);
-                return m_brushFaces;
+                return std::move(m_brushFaces);
             } catch (const ParserException&) {
-                kdl::vec_clear_and_delete(m_brushFaces);
                 throw;
             }
         }
@@ -53,13 +52,13 @@ namespace TrenchBroom {
 
         Model::Node* BrushFaceReader::onWorldspawn(const std::vector<Model::EntityAttribute>& /* attributes */, const ExtraAttributes& /* extraAttributes */, ParserStatus& /* status */) { return nullptr; }
         void BrushFaceReader::onWorldspawnFilePosition(const size_t /* lineNumber */, const size_t /* lineCount */, ParserStatus& /* status */) {}
-        void BrushFaceReader::onLayer(Model::Layer* /* layer */, ParserStatus& /* status */) {}
+        void BrushFaceReader::onLayer(Model::LayerNode* /* layer */, ParserStatus& /* status */) {}
         void BrushFaceReader::onNode(Model::Node* /* parent */, Model::Node* /* node */, ParserStatus& /* status */) {}
         void BrushFaceReader::onUnresolvedNode(const ParentInfo& /* parentInfo */, Model::Node* /* node */, ParserStatus& /* status */) {}
-        void BrushFaceReader::onBrush(Model::Node* /* parent */, Model::Brush* /* brush */, ParserStatus& /* status */) {}
+        void BrushFaceReader::onBrush(Model::Node* /* parent */, Model::BrushNode* /* brush */, ParserStatus& /* status */) {}
 
-        void BrushFaceReader::onBrushFace(Model::BrushFace* face, ParserStatus& /* status */) {
-            m_brushFaces.push_back(face);
+        void BrushFaceReader::onBrushFace(Model::BrushFace face, ParserStatus& /* status */) {
+            m_brushFaces.push_back(std::move(face));
         }
     }
 }

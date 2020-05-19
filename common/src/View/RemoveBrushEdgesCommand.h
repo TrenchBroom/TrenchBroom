@@ -38,7 +38,7 @@ namespace TrenchBroom {
         public:
             static std::unique_ptr<RemoveBrushEdgesCommand> remove(const EdgeToBrushesMap& edges);
 
-            RemoveBrushEdgesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::segment3>& edgePositions);
+            RemoveBrushEdgesCommand(const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::segment3>& edgePositions);
             ~RemoveBrushEdgesCommand() override;
         private:
             void doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const override;

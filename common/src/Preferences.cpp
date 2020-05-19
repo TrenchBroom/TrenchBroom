@@ -29,6 +29,14 @@ namespace TrenchBroom {
     namespace Preferences {
         Preference<int> MapViewLayout(IO::Path("Views/Map view layout"), static_cast<int>(View::MapViewLayout::OnePane));
 
+        QString systemTheme() {
+            return QStringLiteral("System");
+        }
+        QString darkTheme() {
+            return QStringLiteral("Dark");
+        }
+        Preference<QString> Theme(IO::Path("Theme"), systemTheme());
+
         Preference<bool>  ShowAxes(IO::Path("Renderer/Show axes"), true);
         Preference<bool>  ShowBounds(IO::Path("Renderer/Show bounds"), true);
         Preference<Color> SoftMapBoundsColor(IO::Path("Renderer/Colors/Soft map bounds color"), Color(241, 125, 37));
@@ -100,12 +108,12 @@ namespace TrenchBroom {
         Preference<float> RotateHandleRadius(IO::Path("Controls/Rotate handle radius"), 64.0f);
         Preference<Color> RotateHandleColor(IO::Path("Renderer/Colors/Rotate handle"), Color(248, 230, 60, 1.0f));
 
-        Preference<Color> ScaleHandleColor(IO::Path("Renderer/Colors/Scale handle"),   Color(0, 255, 145, 1.0f));
-        Preference<Color> ScaleFillColor(IO::Path("Renderer/Colors/Scale fill"),       Color(0, 255, 145, 0.125f));
-        Preference<Color> ScaleOutlineColor(IO::Path("Renderer/Colors/Scale outline"), Color(0, 255, 145, 1.0f));
-        Preference<Color> ScaleOutlineDimColor(IO::Path("Renderer/Colors/Scale outline dim"), Color(0, 255, 145, 0.3f));
-        Preference<Color> ShearFillColor(IO::Path("Renderer/Colors/Shear fill"),       Color(128, 128, 255, 0.125f));
-        Preference<Color> ShearOutlineColor(IO::Path("Renderer/Colors/Shear outline"), Color(128, 128, 255, 1.0f));
+        Preference<Color> ScaleHandleColor(IO::Path("Renderer/Colors/Scale handle"),   Color(77, 255, 80, 1.0f));
+        Preference<Color> ScaleFillColor(IO::Path("Renderer/Colors/Scale fill"),       Color(77, 255, 80, 0.125f));
+        Preference<Color> ScaleOutlineColor(IO::Path("Renderer/Colors/Scale outline"), Color(77, 255, 80, 1.0f));
+        Preference<Color> ScaleOutlineDimColor(IO::Path("Renderer/Colors/Scale outline dim"), Color(77, 255, 80, 0.3f));
+        Preference<Color> ShearFillColor(IO::Path("Renderer/Colors/Shear fill"),       Color(45, 133, 255, 0.125f));
+        Preference<Color> ShearOutlineColor(IO::Path("Renderer/Colors/Shear outline"), Color(45, 133, 255, 1.0f));
 
         Preference<Color> MoveTraceColor(IO::Path("Renderer/Colors/Move trace"), Color(0.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> OccludedMoveTraceColor(IO::Path("Renderer/Colors/Move trace"), Color(0.0f, 1.0f, 1.0f, 0.4f));
@@ -188,6 +196,7 @@ namespace TrenchBroom {
         const std::vector<PreferenceBase*>& staticPreferences() {
             static const std::vector<PreferenceBase*> list {
                 &MapViewLayout,
+                &Theme,
                 &ShowAxes,
                 &BackgroundColor,
                 &AxisLength,
@@ -298,6 +307,19 @@ namespace TrenchBroom {
             }
 
             return map;
+        }
+
+        std::vector<Preference<QKeySequence>*> keyPreferences() {
+            std::vector<Preference<QKeySequence>*> result;
+
+            for (PreferenceBase* pref : staticPreferences()) {
+                auto* keyPref = dynamic_cast<Preference<QKeySequence>*>(pref);
+                if (keyPref != nullptr) {
+                    result.push_back(keyPref);
+                }
+            }
+
+            return result;
         }
 
         DynamicPreferencePattern<QString>      GamesPath(IO::Path("Games/*/Path"));

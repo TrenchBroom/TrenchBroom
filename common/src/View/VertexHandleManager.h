@@ -21,7 +21,7 @@
 #define VertexHandleManager_h
 
 #include "FloatType.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/HitType.h"
 #include "Model/PickResult.h"
@@ -65,9 +65,9 @@ namespace TrenchBroom {
             /**
              * Adds all handles of the given brush to this handle manager.
              *
-             * @param brush the brush whose handles to add
+             * @param brushNode the brush whose handles to add
              */
-            virtual void addHandles(const Model::Brush* brush) = 0;
+            virtual void addHandles(const Model::BrushNode* brushNode) = 0;
 
             /**
              * Removes all handles of the given range of brushes from this handle manager.
@@ -87,9 +87,9 @@ namespace TrenchBroom {
             /**
              * Removes all handles of the given brush from this handle manager.
              *
-             * @param brush the brush whose handles to remove
+             * @param brushNode the brush whose handles to remove
              */
-            virtual void removeHandles(const Model::Brush* brush) = 0;
+            virtual void removeHandles(const Model::BrushNode* brushNode) = 0;
         };
 
         template <typename H>
@@ -482,8 +482,8 @@ namespace TrenchBroom {
              * @return a set of all brushes that are incident to the given handle
              */
             template <typename I>
-            std::vector<Model::Brush*> findIncidentBrushes(const Handle& handle, I begin, I end) const {
-                kdl::vector_set<Model::Brush*> result;
+            std::vector<Model::BrushNode*> findIncidentBrushes(const Handle& handle, I begin, I end) const {
+                kdl::vector_set<Model::BrushNode*> result;
                 findIncidentBrushes(handle, begin, end, std::inserter(result, result.end()));
                 return result.release_data();
             }
@@ -500,8 +500,8 @@ namespace TrenchBroom {
              * @return a set containing all incident brushes
              */
             template <typename I1, typename I2>
-            std::vector<Model::Brush*> findIncidentBrushes(I1 hBegin, I1 hEnd, I2 bBegin, I2 bEnd) const {
-                kdl::vector_set<Model::Brush*> result;
+            std::vector<Model::BrushNode*> findIncidentBrushes(I1 hBegin, I1 hEnd, I2 bBegin, I2 bEnd) const {
+                kdl::vector_set<Model::BrushNode*> result;
                 auto out = std::inserter(result, std::end(result));
                 for (auto hCur = hBegin; hCur != hEnd; ++hCur) {
                     findIncidentBrushes(*hCur, bBegin, bEnd, out);
@@ -532,10 +532,10 @@ namespace TrenchBroom {
              * Checks whether the given brush is incident to the given handle.
              *
              * @param handle the handle to check
-             * @param brush the brush to check
+             * @param brushNode the brush to check
              * @return true if and only if the given brush is incident to the given handle
              */
-            virtual bool isIncident(const Handle& handle, const Model::Brush* brush) const = 0;
+            virtual bool isIncident(const Handle& handle, const Model::BrushNode* brushNode) const = 0;
         };
 
         /**
@@ -543,7 +543,7 @@ namespace TrenchBroom {
          */
         class VertexHandleManager : public VertexHandleManagerBaseT<vm::vec3> {
         public:
-            static const Model::HitType::Type HandleHit;
+            static const Model::HitType::Type HandleHitType;
         public:
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;
@@ -558,12 +558,12 @@ namespace TrenchBroom {
              */
             void pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
-            void addHandles(const Model::Brush* brush) override;
-            void removeHandles(const Model::Brush* brush) override;
+            void addHandles(const Model::BrushNode* brushNode) override;
+            void removeHandles(const Model::BrushNode* brushNode) override;
 
             Model::HitType::Type hitType() const override;
         private:
-            bool isIncident(const Handle& handle, const Model::Brush* brush) const override;
+            bool isIncident(const Handle& handle, const Model::BrushNode* brushNode) const override;
         };
 
         /**
@@ -577,7 +577,7 @@ namespace TrenchBroom {
          */
         class EdgeHandleManager : public VertexHandleManagerBaseT<vm::segment3> {
         public:
-            static const Model::HitType::Type HandleHit;
+            static const Model::HitType::Type HandleHitType;
             using HitType = std::tuple<vm::segment3, vm::vec3>;
         public:
             using VertexHandleManagerBase::addHandles;
@@ -603,12 +603,12 @@ namespace TrenchBroom {
              */
             void pickCenterHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
-            void addHandles(const Model::Brush* brush) override;
-            void removeHandles(const Model::Brush* brush) override;
+            void addHandles(const Model::BrushNode* brushNode) override;
+            void removeHandles(const Model::BrushNode* brushNode) override;
 
             Model::HitType::Type hitType() const override;
         private:
-            bool isIncident(const Handle& handle, const Model::Brush* brush) const override;
+            bool isIncident(const Handle& handle, const Model::BrushNode* brushNode) const override;
         };
 
         /**
@@ -622,7 +622,7 @@ namespace TrenchBroom {
         */
         class FaceHandleManager : public VertexHandleManagerBaseT<vm::polygon3> {
         public:
-            static const Model::HitType::Type HandleHit;
+            static const Model::HitType::Type HandleHitType;
             using HitType = std::tuple<vm::polygon3, vm::vec3>;
         public:
             using VertexHandleManagerBase::addHandles;
@@ -649,12 +649,12 @@ namespace TrenchBroom {
              */
             void pickCenterHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
-            void addHandles(const Model::Brush* brush) override;
-            void removeHandles(const Model::Brush* brush) override;
+            void addHandles(const Model::BrushNode* brushNode) override;
+            void removeHandles(const Model::BrushNode* brushNode) override;
 
             Model::HitType::Type hitType() const override;
         private:
-            bool isIncident(const Handle& handle, const Model::Brush* brush) const override;
+            bool isIncident(const Handle& handle, const Model::BrushNode* brushNode) const override;
         };
     }
 }

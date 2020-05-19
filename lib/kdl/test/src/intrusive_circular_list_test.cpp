@@ -106,7 +106,7 @@ namespace kdl {
     }
 
     template <typename List>
-    void assertList(const std::vector<typename List::item*>& expected, const List& actual) {
+    void assertList(const std::vector<typename List::value_type*>& expected, const List& actual) {
         ASSERT_EQ(actual.empty(), expected.empty());
         ASSERT_EQ(actual.size(), expected.size());
 

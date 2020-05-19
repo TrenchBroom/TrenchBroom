@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
+        class BrushNode;
         class BrushFace;
         class ChangeBrushFaceAttributesRequest;
         class Game;
@@ -60,12 +60,12 @@ namespace TrenchBroom {
 
         class BrushMatchVisitor : public MatchVisitor {
         private:
-            std::function<bool(const Brush&)> m_matcher;
+            std::function<bool(const BrushNode&)> m_matcher;
         public:
-            explicit BrushMatchVisitor(std::function<bool(const Brush&)> matcher) :
+            explicit BrushMatchVisitor(std::function<bool(const BrushNode&)> matcher) :
             m_matcher(std::move(matcher)) {}
 
-            void visit(const Brush& brush) override;
+            void visit(const BrushNode& brush) override;
         };
 
         class TextureNameTagMatcher : public TagMatcher {

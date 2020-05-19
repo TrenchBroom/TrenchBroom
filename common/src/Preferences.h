@@ -37,6 +37,10 @@ namespace TrenchBroom {
 
         extern Preference<int> MapViewLayout;
 
+        QString systemTheme();
+        QString darkTheme();
+        extern Preference<QString> Theme;
+
         extern Preference<bool>  ShowAxes;
         extern Preference<bool>  ShowBounds;
         extern Preference<Color> SoftMapBoundsColor;
@@ -168,6 +172,10 @@ namespace TrenchBroom {
          */
         const std::vector<PreferenceBase*>& staticPreferences();
         const std::map<IO::Path, PreferenceBase*>& staticPreferencesMap();
+        /**
+         * Returns the subset of staticPreferences() that are key sequences, used by dump-shortcuts.
+         */
+        std::vector<Preference<QKeySequence>*> keyPreferences();
 
         extern DynamicPreferencePattern<QString> GamesPath;
         extern DynamicPreferencePattern<QString> GamesDefaultEngine;

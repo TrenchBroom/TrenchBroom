@@ -27,6 +27,7 @@
 #include "Model/MapFormat.h"
 #include "View/MapDocument.h"
 
+#include <functional>
 #include <memory>
 #include <string>
 
@@ -37,6 +38,7 @@ namespace TrenchBroom {
     }
 
     namespace Model {
+        class Brush;
         class TestGame;
     }
 
@@ -58,7 +60,7 @@ namespace TrenchBroom {
         protected:
             virtual ~MapDocumentTest();
 
-            Model::Brush* createBrush(const std::string& textureName = "texture");
+            Model::BrushNode* createBrushNode(const std::string& textureName = "texture", const std::function<void(Model::Brush&)>& brushFunc = [](Model::Brush&) {});
         };
 
         class ValveMapDocumentTest : public MapDocumentTest {

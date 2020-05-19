@@ -19,7 +19,7 @@
 
 #include "AddBrushVerticesCommand.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
@@ -34,9 +34,9 @@ namespace TrenchBroom {
         const Command::CommandType AddBrushVerticesCommand::Type = Command::freeType();
 
         std::unique_ptr<AddBrushVerticesCommand> AddBrushVerticesCommand::add(const VertexToBrushesMap& vertices) {
-            kdl::vector_set<Model::Brush*> allBrushes;
+            kdl::vector_set<Model::BrushNode*> allBrushes;
             for (const auto& entry : vertices) {
-                const std::vector<Model::Brush*>& brushes = entry.second;
+                const std::vector<Model::BrushNode*>& brushes = entry.second;
                 allBrushes.insert(std::begin(brushes), std::end(brushes));
             }
 
@@ -44,7 +44,7 @@ namespace TrenchBroom {
             return std::make_unique<AddBrushVerticesCommand>(Type, actionName, allBrushes.release_data(), vertices);
         }
 
-        AddBrushVerticesCommand::AddBrushVerticesCommand(CommandType type, const std::string& name, const std::vector<Model::Brush*>& brushes, const VertexToBrushesMap& vertices) :
+        AddBrushVerticesCommand::AddBrushVerticesCommand(CommandType type, const std::string& name, const std::vector<Model::BrushNode*>& brushes, const VertexToBrushesMap& vertices) :
         VertexCommand(type, name, brushes),
         m_vertices(vertices) {}
 
@@ -52,9 +52,10 @@ namespace TrenchBroom {
             const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_vertices) {
                 const vm::vec3& position = entry.first;
-                const std::vector<Model::Brush*>& brushes = entry.second;
-                for (const Model::Brush* brush : brushes) {
-                    if (!brush->canAddVertex(worldBounds, position)) {
+                const std::vector<Model::BrushNode*>& brushNodes = entry.second;
+                for (const Model::BrushNode* brushNode : brushNodes) {
+                    const Model::Brush& brush = brushNode->brush();
+                    if (!brush.canAddVertex(worldBounds, position)) {
                         return false;
                     }
                 }

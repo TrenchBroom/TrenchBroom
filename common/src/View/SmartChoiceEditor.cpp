@@ -21,6 +21,7 @@
 #include "Assets/AttributeDefinition.h"
 #include "Model/AttributableNode.h"
 #include "View/MapDocument.h"
+#include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
 #include <kdl/set_temp.h>
@@ -45,14 +46,14 @@ namespace TrenchBroom {
         void SmartChoiceEditor::comboBoxActivated(const int /* index */) {
             const kdl::set_temp ignoreTextChanged(m_ignoreEditTextChanged);
 
-            const auto valueDescStr = m_comboBox->currentText().toStdString();
+            const auto valueDescStr = mapStringFromUnicode(document()->encoding(), m_comboBox->currentText());
             const auto valueStr = valueDescStr.substr(0, valueDescStr.find_first_of(':') - 1);
             document()->setAttribute(name(), valueStr);
         }
 
         void SmartChoiceEditor::comboBoxEditTextChanged(const QString& text) {
             if (!m_ignoreEditTextChanged) {
-                document()->setAttribute(name(), text.toStdString());
+                document()->setAttribute(name(), mapStringFromUnicode(document()->encoding(), text));
             }
         }
 
@@ -95,11 +96,11 @@ namespace TrenchBroom {
                 const auto& options = choiceDef->options();
 
                 for (const Assets::ChoiceAttributeOption& option : options) {
-                    m_comboBox->addItem(QString::fromStdString(option.value() + " : " + option.description()));
+                    m_comboBox->addItem(mapStringToUnicode(document()->encoding(), option.value() + " : " + option.description()));
                 }
 
                 const auto value = Model::AttributableNode::selectAttributeValue(name(), attributables);
-                m_comboBox->setCurrentText(QString::fromStdString(value));
+                m_comboBox->setCurrentText(mapStringToUnicode(document()->encoding(), value));
             }
         }
     }

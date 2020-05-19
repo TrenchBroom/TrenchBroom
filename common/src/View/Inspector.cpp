@@ -22,9 +22,11 @@
 #include "View/EntityInspector.h"
 #include "View/FaceInspector.h"
 #include "View/MapInspector.h"
+#include "View/MapViewBar.h"
+#include "View/QtUtils.h"
+#include "View/TabBar.h"
 #include "View/TabBook.h"
 
-#include <QResizeEvent>
 #include <QVBoxLayout>
 
 namespace TrenchBroom {
@@ -35,7 +37,7 @@ namespace TrenchBroom {
         m_mapInspector(nullptr),
         m_entityInspector(nullptr),
         m_faceInspector(nullptr),
-        m_topWidgetMaster(nullptr) {
+        m_syncTabBarEventFilter(nullptr) {
             m_tabBook = new TabBook();
 
             m_mapInspector = new MapInspector(document);
@@ -52,14 +54,12 @@ namespace TrenchBroom {
             setLayout(layout);
         }
 
-        void Inspector::connectTopWidgets(QWidget* master) {
-            if (m_topWidgetMaster != nullptr) {
-                m_topWidgetMaster->removeEventFilter(this);
+        void Inspector::connectTopWidgets(MapViewBar* mapViewBar) {
+            if (m_syncTabBarEventFilter != nullptr) {
+                delete std::exchange(m_syncTabBarEventFilter, nullptr);
             }
-            m_topWidgetMaster = master;
-            if (m_topWidgetMaster != nullptr) {
-                m_topWidgetMaster->installEventFilter(this);
-            }
+
+            m_syncTabBarEventFilter = new SyncHeightEventFilter(mapViewBar, m_tabBook->tabBar(), this);
         }
 
         void Inspector::switchToPage(const InspectorPage page) {
@@ -68,16 +68,6 @@ namespace TrenchBroom {
 
         bool Inspector::cancelMouseDrag() {
             return m_faceInspector->cancelMouseDrag();
-        }
-
-        bool Inspector::eventFilter(QObject* target, QEvent* event) {
-            if (target == m_topWidgetMaster && event->type() == QEvent::Resize) {
-                auto* sizeEvent = static_cast<QResizeEvent*>(event);
-                m_tabBook->setTabBarHeight(sizeEvent->size().height());
-                return false;
-            } else {
-                return QObject::eventFilter(target, event);
-            }
         }
     }
 }

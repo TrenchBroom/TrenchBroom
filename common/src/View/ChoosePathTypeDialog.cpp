@@ -81,26 +81,39 @@ namespace TrenchBroom {
             m_gameRelativeRadio->setFont(boldFont);
             QLabel* gameRelativePathText = new QLabel(m_gameRelativePath.isEmpty() ? tr("Could not build a path.") : IO::pathAsQString(m_gameRelativePath));
 
-            auto* innerSizer = new QVBoxLayout();
+            auto* innerLayout = new QVBoxLayout();
+            innerLayout->setContentsMargins(LayoutConstants::WideHMargin, LayoutConstants::WideVMargin, LayoutConstants::WideHMargin, LayoutConstants::WideVMargin);
+            innerLayout->setSpacing(0);
 
-            innerSizer->addWidget(infoText);
+            innerLayout->addWidget(infoText);
+            innerLayout->addSpacing(LayoutConstants::WideVMargin);
 
-            innerSizer->addWidget(m_absRadio);
-            innerSizer->addWidget(absolutePathText);
+            innerLayout->addWidget(m_absRadio);
+            innerLayout->addWidget(absolutePathText);
+            innerLayout->addSpacing(LayoutConstants::WideVMargin);
 
-            innerSizer->addWidget(m_docRelativeRadio);
-            innerSizer->addWidget(mapRelativePathText);
+            innerLayout->addWidget(m_docRelativeRadio);
+            innerLayout->addWidget(mapRelativePathText);
+            innerLayout->addSpacing(LayoutConstants::WideVMargin);
 
-            innerSizer->addWidget(m_appRelativeRadio);
-            innerSizer->addWidget(appRelativePathText);
+            innerLayout->addWidget(m_appRelativeRadio);
+            innerLayout->addWidget(appRelativePathText);
+            innerLayout->addSpacing(LayoutConstants::WideVMargin);
 
-            innerSizer->addWidget(m_gameRelativeRadio);
-            innerSizer->addWidget(gameRelativePathText);
+            innerLayout->addWidget(m_gameRelativeRadio);
+            innerLayout->addWidget(gameRelativePathText);
+
+            auto* outerLayout = new QVBoxLayout();
+            outerLayout->setContentsMargins(0, 0, 0, 0);
+            outerLayout->setSpacing(LayoutConstants::MediumVMargin);
+            outerLayout->addLayout(innerLayout);
 
             auto* okCancelButtons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-            innerSizer->addWidget(okCancelButtons);
+            outerLayout->addLayout(wrapDialogButtonBox(okCancelButtons));
 
-            setLayout(innerSizer);
+            insertTitleBarSeparator(outerLayout);
+
+            setLayout(outerLayout);
 
             connect(okCancelButtons, &QDialogButtonBox::accepted, this, &QDialog::accept);
             connect(okCancelButtons, &QDialogButtonBox::rejected, this, &QDialog::reject);

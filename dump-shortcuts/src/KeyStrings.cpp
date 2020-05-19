@@ -21,10 +21,11 @@
 
 #include <QKeySequence>
 
+#include <cassert>
+
 namespace TrenchBroom {
     namespace View {
-        KeyStrings::KeyStrings() :
-        m_separator("+") {
+        KeyStrings::KeyStrings() {
             putKey(Qt::Key_Escape);
             putKey(Qt::Key_Tab);
             putKey(Qt::Key_Backtab);
@@ -45,10 +46,10 @@ namespace TrenchBroom {
             putKey(Qt::Key_Down);
             putKey(Qt::Key_PageUp);
             putKey(Qt::Key_PageDown);
-            putKey(Qt::Key_Shift);
-            putKey(Qt::Key_Control);
-            putKey(Qt::Key_Meta);
-            putKey(Qt::Key_Alt);
+            putModifier(Qt::SHIFT);
+            putModifier(Qt::CTRL);
+            putModifier(Qt::META);
+            putModifier(Qt::ALT);
             putKey(Qt::Key_CapsLock);
             putKey(Qt::Key_NumLock);
             putKey(Qt::Key_ScrollLock);
@@ -243,7 +244,32 @@ namespace TrenchBroom {
         }
 
         void KeyStrings::putKey(const Qt::Key key) {
-            m_keys.insert(std::make_pair(key, QKeySequence(key).toString(QKeySequence::NativeText)));
+            const auto keySequence = QKeySequence(key);
+
+            m_keys.push_back(std::make_pair(keySequence.toString(QKeySequence::PortableText),
+                                            keySequence.toString(QKeySequence::NativeText)));
+        }
+
+        void KeyStrings::putModifier(int key) {
+            const auto keySequence = QKeySequence(key);
+
+            // QKeySequence doesn't totally support being given just a modifier
+            // but it does seem to handle the key codes like Qt::SHIFT, which
+            // it turns into native text as "Shift+" or the Shift symbol on macOS,
+            // and portable text as "Shift+".
+
+            QString portableLabel = keySequence.toString(QKeySequence::PortableText);
+            assert(portableLabel.endsWith("+")); // This will be something like "Ctrl+"
+            portableLabel.chop(1); // Remove last character
+
+            QString nativeLabel = keySequence.toString(QKeySequence::NativeText);
+            if (nativeLabel.endsWith("+")) {
+                // On Linux we get nativeLabel as something like "Ctrl+"
+                // On macOS it's just the special Command character, with no +
+                nativeLabel.chop(1); // Remove last character
+            }
+
+            m_keys.push_back(std::make_pair(portableLabel, nativeLabel));
         }
     }
 }

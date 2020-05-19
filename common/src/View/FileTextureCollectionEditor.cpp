@@ -31,11 +31,14 @@
 #include <kdl/memory_utils.h>
 #include <kdl/vector_utils.h>
 
-#include <QListWidget>
-#include <QVBoxLayout>
 #include <QAbstractButton>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 #include <QFileDialog>
+#include <QListWidget>
+#include <QMimeData>
 #include <QSignalBlocker>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
@@ -248,6 +251,8 @@ namespace TrenchBroom {
                 &FileTextureCollectionEditor::moveSelectedTextureCollectionsDown);
             connect(m_reloadTextureCollectionsButton, &QAbstractButton::clicked, this,
                 &FileTextureCollectionEditor::reloadTextureCollections);
+
+            setAcceptDrops(true);
         }
 
         void FileTextureCollectionEditor::updateButtons() {
@@ -303,6 +308,27 @@ namespace TrenchBroom {
 
             // Manually update the button states, since QSignalBlocker is blocking the automatic updates
             updateButtons();
+        }
+
+        void FileTextureCollectionEditor::dragEnterEvent(QDragEnterEvent* event) {
+            if (event->mimeData()->hasUrls()) {
+                event->acceptProposedAction();
+            }
+        }
+
+        void FileTextureCollectionEditor::dropEvent(QDropEvent* event) {
+            const QMimeData* mimeData = event->mimeData();
+            event->acceptProposedAction();
+
+            // Activate and bring the TB window to the front so the dialog
+            // box that's about to open can be seen (needed on macOS at least)
+            window()->activateWindow();
+            window()->raise();
+
+            for (const QUrl& url : mimeData->urls()) {
+               const QString path = url.toLocalFile();
+               loadTextureCollection(m_document, this, path);
+            }
         }
     }
 }

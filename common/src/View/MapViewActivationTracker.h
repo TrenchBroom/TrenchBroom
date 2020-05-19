@@ -133,6 +133,7 @@ namespace TrenchBroom {
              * @param widget the window that received the event
              */
             void enterEvent(QEvent* event, QWidget* widget);
+            void dragEnterEvent(QEvent* event, QWidget* widget);
 
             /**
              * Called when the group is activated.

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:export-ydpi="96"
+   inkscape:export-xdpi="96"
+   inkscape:export-filename="/media/psf/Home/Documents/Code/TrenchBroom_qt/app/resources/graphics/images/UVLock_off.png"
+   version="1.1"
+   x="0"
+   y="0"
+   width="24"
+   height="24"
+   viewBox="0 0 24 24"
+   id="svg88"
+   sodipodi:docname="UVLock_off.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
+  <metadata
+     id="metadata94">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs92">
+    <pattern
+       inkscape:collect="always"
+       xlink:href="#Checkerboard"
+       id="pattern2823"
+       patternTransform="matrix(5.4,0,0,5.4,1.2,1.2)" />
+    <pattern
+       inkscape:stockid="Checkerboard"
+       id="Checkerboard"
+       patternTransform="translate(0,0) scale(10,10)"
+       height="2"
+       width="2"
+       patternUnits="userSpaceOnUse"
+       inkscape:collect="always">
+      <rect
+         id="rect2179"
+         height="1"
+         width="1"
+         y="0"
+         x="0"
+         style="fill:black;stroke:none" />
+      <rect
+         id="rect2181"
+         height="1"
+         width="1"
+         y="1"
+         x="1"
+         style="fill:black;stroke:none" />
+    </pattern>
+  </defs>
+  <sodipodi:namedview
+     inkscape:document-rotation="0"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2488"
+     inkscape:window-height="1373"
+     id="namedview90"
+     showgrid="true"
+     inkscape:zoom="32"
+     inkscape:cx="-2.5815939"
+     inkscape:cy="11.64492"
+     inkscape:window-x="72"
+     inkscape:window-y="30"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg88"
+     inkscape:snap-bbox="true"
+     inkscape:bbox-nodes="true"
+     inkscape:snap-nodes="true"
+     inkscape:snap-others="false">
+    <inkscape:grid
+       empspacing="4"
+       type="xygrid"
+       id="grid834"
+       dotted="false"
+       spacingx="1"
+       spacingy="1" />
+  </sodipodi:namedview>
+  <rect
+     style="fill:#7f7f7f;fill-opacity:0.24705882;stroke:#7f7f7f;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:10;stroke-opacity:1"
+     id="rect826-3"
+     width="19"
+     height="19"
+     x="2.5"
+     y="2.5"
+     inkscape:export-filename="/media/psf/Home/Documents/Code/TrenchBroom_qt/app/resources/graphics/images/rect826.png"
+     inkscape:export-xdpi="96"
+     inkscape:export-ydpi="96" />
+  <rect
+     style="opacity:0.2;fill:url(#pattern2823);fill-opacity:1;stroke:none;stroke-width:0.99999994;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+     id="rect822-8-5-6"
+     width="18"
+     height="18"
+     x="3"
+     y="3"
+     ry="0"
+     inkscape:export-filename="/media/psf/Home/Documents/Code/TrenchBroom_qt/app/resources/graphics/images/rect822-8.png"
+     inkscape:export-xdpi="96"
+     inkscape:export-ydpi="96" />
+  <circle
+     style="fill:#006dd0;fill-opacity:1;stroke:#0077e4;stroke-width:0.5;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:0, 5.49999994;stroke-dashoffset:0;stroke-opacity:1"
+     id="path4927-9-1"
+     cx="2.5"
+     cy="2.5"
+     r="2.5" />
+  <ellipse
+     style="fill:#006dd0;fill-opacity:1;stroke:#0077e4;stroke-width:0.5;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:0, 5.49999995;stroke-dashoffset:0;stroke-opacity:1"
+     id="path4927-9-1-7"
+     cx="2.34375"
+     cy="21.500002"
+     rx="2.34375"
+     ry="2.5000014" />
+  <ellipse
+     style="fill:#006dd0;fill-opacity:1;stroke:#0077e4;stroke-width:0.5;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:0, 5.49999996;stroke-dashoffset:0;stroke-opacity:1"
+     id="path4927-9-1-7-5"
+     cx="21.5"
+     cy="21.500002"
+     rx="2.5"
+     ry="2.5000014" />
+</svg>

@@ -20,12 +20,12 @@
 #include "NodeReader.h"
 
 #include "IO/ParserStatus.h"
-#include "Model/Brush.h"
-#include "Model/Entity.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
 #include "Model/EntityAttributes.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/ModelFactory.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <kdl/vector_utils.h>
 
@@ -67,7 +67,7 @@ namespace TrenchBroom {
         }
 
         Model::Node* NodeReader::onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
-            Model::Entity* worldspawn = m_factory.createEntity();
+            Model::EntityNode* worldspawn = m_factory.createEntity();
             worldspawn->setAttributes(attributes);
             setExtraAttributes(worldspawn, extraAttributes);
 
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             m_nodes.front()->setFilePosition(lineNumber, lineCount);
         }
 
-        void NodeReader::onLayer(Model::Layer* layer, ParserStatus& /* status */) {
+        void NodeReader::onLayer(Model::LayerNode* layer, ParserStatus& /* status */) {
             m_nodes.push_back(layer);
         }
 
@@ -105,7 +105,7 @@ namespace TrenchBroom {
             m_nodes.push_back(node);
         }
 
-        void NodeReader::onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& /* status */) {
+        void NodeReader::onBrush(Model::Node* parent, Model::BrushNode* brush, ParserStatus& /* status */) {
             if (parent != nullptr) {
                 parent->addChild(brush);
             } else {

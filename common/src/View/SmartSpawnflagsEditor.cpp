@@ -22,9 +22,9 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
 #include "Model/AttributableNode.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/NodeVisitor.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "View/FlagsEditor.h"
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
@@ -55,11 +55,11 @@ namespace TrenchBroom {
             m_flagIndex(flagIndex),
             m_setFlag(setFlag) {}
 
-            void doVisit(Model::World*) override  { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
-            void doVisit(Model::Layer*) override  {}
-            void doVisit(Model::Group*) override  {}
-            void doVisit(Model::Entity*) override { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
-            void doVisit(Model::Brush*) override  {}
+            void doVisit(Model::WorldNode*) override  { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
+            void doVisit(Model::LayerNode*) override  {}
+            void doVisit(Model::GroupNode*) override  {}
+            void doVisit(Model::EntityNode*) override { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
+            void doVisit(Model::BrushNode*) override  {}
         };
 
         SmartSpawnflagsEditor::SmartSpawnflagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :

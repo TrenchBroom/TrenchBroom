@@ -26,6 +26,8 @@
 
 class QListWidget;
 class QAbstractButton;
+class QDragEnterEvent;
+class QDropEvent;
 
 namespace TrenchBroom {
     namespace IO {
@@ -74,6 +76,9 @@ namespace TrenchBroom {
             void preferenceDidChange(const IO::Path& path);
 
             void updateControls();
+        protected:
+            void dragEnterEvent(QDragEnterEvent* event) override;
+            void dropEvent(QDropEvent* event) override;
         };
     }
 }

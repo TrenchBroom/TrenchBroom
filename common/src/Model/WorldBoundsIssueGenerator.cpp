@@ -20,12 +20,12 @@
 #include "WorldBoundsIssueGenerator.h"
 
 #include "Model/Game.h"
-#include "Model/Brush.h"
-#include "Model/Entity.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <kdl/memory_utils.h>
 
@@ -64,7 +64,7 @@ namespace TrenchBroom {
 
         const IssueType WorldBoundsIssueGenerator::WorldBoundsIssue::Type = Issue::freeType();
 
-        WorldBoundsIssueGenerator::WorldBoundsIssueGenerator(std::weak_ptr<Game> game, const World* world) :
+        WorldBoundsIssueGenerator::WorldBoundsIssueGenerator(std::weak_ptr<Game> game, const WorldNode* world) :
         IssueGenerator(WorldBoundsIssue::Type, "Objects out of world bounds"),
         m_game(game),
         m_world(world) {
@@ -83,11 +83,11 @@ namespace TrenchBroom {
             }
         }
 
-        void WorldBoundsIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
+        void WorldBoundsIssueGenerator::doGenerate(EntityNode* entity, IssueList& issues) const {
             generateInternal(entity, issues);
         }
 
-        void WorldBoundsIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
+        void WorldBoundsIssueGenerator::doGenerate(BrushNode* brush, IssueList& issues) const {
             generateInternal(brush, issues);
         }
     }

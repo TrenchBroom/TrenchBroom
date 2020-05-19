@@ -36,6 +36,9 @@ namespace TrenchBroom {
         using CollectUnselectedNodesVisitor = CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, MatchSelectedNodes<false> >;
         using CollectTransitivelySelectedNodesVisitor = CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, MatchTransitivelySelectedNodes<true> > ;
         using CollectTransitivelyUnselectedNodesVisitor = CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, MatchTransitivelySelectedNodes<false> >;
+
+        using CollectTransitivelySelectedOrDescendantSelectedNodesVisitor = CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, MatchTransitivelySelectedOrDescendantSelectedNodes<true>>;
+        using CollectNotTransitivelySelectedOrDescendantSelectedNodesVisitor = CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, MatchTransitivelySelectedOrDescendantSelectedNodes<false>>;
     }
 }
 

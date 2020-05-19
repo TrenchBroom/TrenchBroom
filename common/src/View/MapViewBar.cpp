@@ -20,8 +20,10 @@
 #include "MapViewBar.h"
 
 #include "PreferenceManager.h"
+#include "Preferences.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
+#include "View/QtUtils.h"
 #include "View/ViewEditor.h"
 
 #include <QHBoxLayout>
@@ -43,17 +45,25 @@ namespace TrenchBroom {
         }
 
         void MapViewBar::createGui(std::weak_ptr<MapDocument> document) {
+            setAttribute(Qt::WA_MacSmallSize);
+
             m_toolBook = new QStackedLayout();
             m_toolBook->setContentsMargins(0, 0, 0, 0);
 
             m_viewEditor = new ViewPopupEditor(std::move(document));
 
+#ifdef __APPLE__
+            const auto vMargin = pref(Preferences::Theme) == Preferences::darkTheme() ? LayoutConstants::MediumVMargin : 0;
+#else
+            const auto vMargin = LayoutConstants::MediumVMargin;
+#endif
+            
             auto* layout = new QHBoxLayout();
             layout->setContentsMargins(
                 LayoutConstants::WideHMargin,
-                0,
+                vMargin,
                 LayoutConstants::WideHMargin,
-                0);
+                vMargin);
             layout->setSpacing(LayoutConstants::WideHMargin);
             layout->addLayout(m_toolBook, 1);
             layout->addWidget(m_viewEditor, 0, Qt::AlignVCenter);

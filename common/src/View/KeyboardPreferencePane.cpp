@@ -52,23 +52,27 @@ namespace TrenchBroom {
             m_table = new QTableView();
             m_table->setModel(m_proxy);
 
-            autoResizeRows(m_table);
-
             m_table->setHorizontalHeader(new QHeaderView(Qt::Horizontal));
-            m_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::ResizeToContents);
+            m_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Fixed);
+            m_table->horizontalHeader()->resizeSection(0, 150);
             m_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::ResizeToContents);
             m_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::Stretch);
+
+            // Tighter than default vertical row height, without the overhead of autoresizing
+            m_table->verticalHeader()->setDefaultSectionSize(m_table->fontMetrics().lineSpacing() + 2);
 
             m_table->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
             m_table->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
 
-            m_table->setEditTriggers(QAbstractItemView::EditTrigger::SelectedClicked);
+            m_table->setEditTriggers(QAbstractItemView::EditTrigger::SelectedClicked
+                                     | QAbstractItemView::EditTrigger::DoubleClicked
+                                     | QAbstractItemView::EditTrigger::EditKeyPressed);
             m_table->setItemDelegate(new KeyboardShortcutItemDelegate());
 
             QLineEdit* searchBox = createSearchBox();
             makeSmall(searchBox);
 
-            auto* infoLabel = new QLabel(tr("Select an item and click on the shortcut to begin editing it. Click anywhere else to end editing."));
+            auto* infoLabel = new QLabel(tr("Double-click an item to begin editing it. Click anywhere else to end editing."));
             makeInfo(infoLabel);
 
             auto* infoAndSearchLayout = new QHBoxLayout();
@@ -92,9 +96,6 @@ namespace TrenchBroom {
 
             connect(searchBox, &QLineEdit::textChanged, this, [&](const QString& newText){
                 m_proxy->setFilterFixedString(newText);
-
-                // fix a bug where the rows get oddly sized if a filter that applies to no rows is reset
-                QTimer::singleShot(1, m_table, &QTableView::resizeRowsToContents);
             });
         }
 

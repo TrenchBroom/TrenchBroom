@@ -23,18 +23,18 @@
 
 namespace TrenchBroom {
     namespace Model {
-        void FindLayerVisitor::doVisit(World*) {}
+        void FindLayerVisitor::doVisit(WorldNode*) {}
 
-        void FindLayerVisitor::doVisit(Layer* layer) {
+        void FindLayerVisitor::doVisit(LayerNode* layer) {
             setResult(layer);
             cancel();
         }
 
-        void FindLayerVisitor::doVisit(Group*) {}
-        void FindLayerVisitor::doVisit(Entity*) {}
-        void FindLayerVisitor::doVisit(Brush*) {}
+        void FindLayerVisitor::doVisit(GroupNode*) {}
+        void FindLayerVisitor::doVisit(EntityNode*) {}
+        void FindLayerVisitor::doVisit(BrushNode*) {}
 
-        Model::Layer* findLayer(Model::Node* node) {
+        Model::LayerNode* findLayer(Model::Node* node) {
             FindLayerVisitor visitor;
             node->acceptAndEscalate(visitor);
             return visitor.result();

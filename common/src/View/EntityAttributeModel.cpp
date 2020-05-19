@@ -27,7 +27,7 @@
 #include "Model/AttributableNode.h"
 #include "Model/AttributableNodeIndex.h"
 #include "Model/EntityAttributes.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
@@ -44,14 +44,15 @@
 #include <vector>
 
 #include <QBrush>
+#include <QByteArray>
 #include <QDebug>
 #include <QIcon>
 #include <QMessageBox>
+#include <QString>
 #include <QTimer>
 
 namespace TrenchBroom {
     namespace View {
-
         // AttributeRow
 
         AttributeRow::AttributeRow() :
@@ -292,6 +293,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeModel::setRows(const std::map<std::string, AttributeRow>& newRowsKeyMap) {
+            auto document = kdl::mem_lock(m_document);
             const auto newRowSet = kdl::vector_set(kdl::map_values(newRowsKeyMap));
             const auto oldRowSet = kdl::vector_set(std::begin(m_rows), std::end(m_rows));
 
@@ -313,16 +315,17 @@ namespace TrenchBroom {
                 const AttributeRow oldDeletion = *oldMinusNew.begin();
                 const AttributeRow newAddition = *newMinusOld.begin();
 
-                qDebug() << "EntityAttributeModel::setRows: one row changed: " << QString::fromStdString(oldDeletion.name()) << " -> " << QString::fromStdString(newAddition.name());
+                qDebug() << "EntityAttributeModel::setRows: one row changed: " << mapStringToUnicode(document->encoding(), oldDeletion.name()) << " -> " << mapStringToUnicode(document->encoding(), newAddition.name());
 
-                const size_t oldIndex = kdl::vec_index_of(m_rows, oldDeletion);
-                m_rows.at(oldIndex) = newAddition;
+                const auto oldIndex = kdl::vec_index_of(m_rows, oldDeletion);
+                ensure(oldIndex, "deleted row must be found");
+
+                m_rows.at(*oldIndex) = newAddition;
 
                 // Notify Qt
-                const QModelIndex topLeft = index(static_cast<int>(oldIndex), 0);
-                const QModelIndex bottomRight = index(static_cast<int>(oldIndex), 1);
+                const QModelIndex topLeft = index(static_cast<int>(*oldIndex), 0);
+                const QModelIndex bottomRight = index(static_cast<int>(*oldIndex), 1);
                 emit dataChanged(topLeft, bottomRight);
-
                 return;
             }
 
@@ -347,11 +350,11 @@ namespace TrenchBroom {
                 qDebug() << "EntityAttributeModel::setRows: deleting " << oldMinusNew.size() << " rows";
 
                 for (const AttributeRow& row : oldMinusNew) {
-                    const int index = static_cast<int>(kdl::vec_index_of(m_rows, row));
-                    assert(index < static_cast<int>(m_rows.size()));
+                    const auto index = kdl::vec_index_of(m_rows, row);
+                    assert(index);
 
-                    beginRemoveRows(QModelIndex(), index, index);
-                    m_rows.erase(std::next(m_rows.begin(), index));
+                    beginRemoveRows(QModelIndex(), static_cast<int>(*index), static_cast<int>(*index));
+                    m_rows.erase(std::next(m_rows.begin(), static_cast<int>(*index)));
                     endRemoveRows();
                 }
                 return;
@@ -530,6 +533,7 @@ namespace TrenchBroom {
                 return QVariant();
             }
 
+            auto document = kdl::mem_lock(m_document);
             const AttributeRow& row = m_rows.at(static_cast<size_t>(index.row()));
 
             if (role == Qt::DecorationRole) {
@@ -549,11 +553,11 @@ namespace TrenchBroom {
 
             if (role == Qt::ForegroundRole) {
                 if (row.isDefault() || row.subset()) {
-                    return QVariant(QBrush(Colors::disabledText()));
+                    return QVariant(QBrush(Colors::disabledCellText()));
                 }
                 if (index.column() == 1) {
                     if (row.multi()) {
-                        return QVariant(QBrush(Colors::disabledText()));
+                        return QVariant(QBrush(Colors::disabledCellText()));
                     }
                 }
                 return QVariant();
@@ -577,15 +581,15 @@ namespace TrenchBroom {
 
             if (role == Qt::DisplayRole || role == Qt::EditRole) {
                 if (index.column() == 0) {
-                    return QVariant(QString::fromStdString(row.name()));
+                    return QVariant(mapStringToUnicode(document->encoding(), row.name()));
                 } else {
-                    return QVariant(QString::fromStdString(row.value()));
+                    return QVariant(mapStringToUnicode(document->encoding(), row.value()));
                 }
             }
 
             if (role == Qt::ToolTipRole) {
                 if (!row.tooltip().empty()) {
-                    return QVariant(QString::fromStdString(row.tooltip()));
+                    return QVariant(mapStringToUnicode(document->encoding(), row.tooltip()));
                 }
             }
 
@@ -609,17 +613,17 @@ namespace TrenchBroom {
 
             if (index.column() == 0) {
                 // rename key
-                qDebug() << "tried to rename " << QString::fromStdString(attributeRow.name()) << " to " << value.toString();
+                qDebug() << "tried to rename " << mapStringToUnicode(document->encoding(), attributeRow.name()) << " to " << value.toString();
 
-                const std::string newName = value.toString().toStdString();
+                const std::string newName = mapStringFromUnicode(document->encoding(), value.toString());
                 if (renameAttribute(rowIndex, newName, attributables)) {
                     return true;
                 }
             } else if (index.column() == 1) {
-                qDebug() << "tried to set " << QString::fromStdString(attributeRow.name()) << " to "
+                qDebug() << "tried to set " << mapStringToUnicode(document->encoding(), attributeRow.name()) << " to "
                          << value.toString();
 
-                if (updateAttribute(rowIndex, value.toString().toStdString(), attributables)) {
+                if (updateAttribute(rowIndex, mapStringFromUnicode(document->encoding(), value.toString()), attributables)) {
                     return true;
                 }
             }
@@ -672,10 +676,14 @@ namespace TrenchBroom {
         }
 
         bool EntityAttributeModel::canRemove(const int rowIndexInt) {
-            if (rowIndexInt < 0 || static_cast<size_t>(rowIndexInt) >= m_rows.size())
+            if (rowIndexInt < 0 || static_cast<size_t>(rowIndexInt) >= m_rows.size()) {
                 return false;
+            }
 
             const AttributeRow& row = m_rows.at(static_cast<size_t>(rowIndexInt));
+            if (row.isDefault()) {
+                return false;
+            }
             return row.nameMutable() && row.valueMutable();
         }
 
@@ -686,6 +694,7 @@ namespace TrenchBroom {
         bool EntityAttributeModel::renameAttribute(const size_t rowIndex, const std::string& newName, const std::vector<Model::AttributableNode*>& /* attributables */) {
             ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
+            auto document = kdl::mem_lock(m_document);
             const AttributeRow& row = m_rows.at(rowIndex);
             const std::string& oldName = row.name();
 
@@ -705,15 +714,14 @@ namespace TrenchBroom {
                 QMessageBox msgBox;
                 msgBox.setWindowTitle(tr("Error"));
                 msgBox.setText(tr("A property with key '%1' already exists.\n\n Do you wish to overwrite it?")
-                    .arg(QString::fromStdString(newName)));
+                    .arg(mapStringToUnicode(document->encoding(), newName)));
                 msgBox.setIcon(QMessageBox::Critical);
                 msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
                 if (msgBox.exec() == QMessageBox::No) {
                     return false;
                 }
             }
-
-            auto document = kdl::mem_lock(m_document);
+            
             return document->renameAttribute(oldName, newName);
         }
 

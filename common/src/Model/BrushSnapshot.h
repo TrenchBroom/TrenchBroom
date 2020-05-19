@@ -26,18 +26,17 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
+        class BrushNode;
         class BrushFace;
 
         class BrushSnapshot : public NodeSnapshot {
         private:
-            Brush* m_brush;
-            std::vector<BrushFace*> m_faces;
+            BrushNode* m_brushNode;
+            std::vector<BrushFace> m_faces;
         public:
-            BrushSnapshot(Brush* brush);
-            ~BrushSnapshot() override;
+            BrushSnapshot(BrushNode* brushNode);
         private:
-            void takeSnapshot(Brush* brush);
+            void takeSnapshot(BrushNode* brushNode);
             void doRestore(const vm::bbox3& worldBounds) override;
         };
     }

@@ -20,30 +20,45 @@
 #ifndef MatchSelectedNodes_h
 #define MatchSelectedNodes_h
 
-#include "Model/Brush.h"
-#include "Model/Entity.h"
-#include "Model/Group.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
 
 namespace TrenchBroom {
     namespace Model {
         template <bool MatchSelected>
         class MatchSelectedNodes {
         public:
-            bool operator()(const Model::World*) const   { return false; }
-            bool operator()(const Model::Layer*) const   { return false; }
-            bool operator()(const Model::Group* group) const   { return MatchSelected == group->selected(); }
-            bool operator()(const Model::Entity* entity) const { return MatchSelected == entity->selected(); }
-            bool operator()(const Model::Brush* brush) const   { return MatchSelected == brush->selected(); }
+            bool operator()(const Model::WorldNode*) const         { return false; }
+            bool operator()(const Model::LayerNode*) const         { return false; }
+            bool operator()(const Model::GroupNode* group) const   { return MatchSelected == group->selected(); }
+            bool operator()(const Model::EntityNode* entity) const { return MatchSelected == entity->selected(); }
+            bool operator()(const Model::BrushNode* brush) const   { return MatchSelected == brush->selected(); }
         };
 
         template <bool MatchSelected>
         class MatchTransitivelySelectedNodes {
         public:
-            bool operator()(const Model::World*) const   { return false; }
-            bool operator()(const Model::Layer*) const   { return false; }
-            bool operator()(const Model::Group* group) const   { return MatchSelected == group->transitivelySelected(); }
-            bool operator()(const Model::Entity* entity) const { return MatchSelected == entity->transitivelySelected(); }
-            bool operator()(const Model::Brush* brush) const   { return MatchSelected == brush->transitivelySelected(); }
+            bool operator()(const Model::WorldNode*) const         { return false; }
+            bool operator()(const Model::LayerNode*) const         { return false; }
+            bool operator()(const Model::GroupNode* group) const   { return MatchSelected == group->transitivelySelected(); }
+            bool operator()(const Model::EntityNode* entity) const { return MatchSelected == entity->transitivelySelected(); }
+            bool operator()(const Model::BrushNode* brush) const   { return MatchSelected == brush->transitivelySelected(); }
+        };
+
+        /**
+         * If MatchSelected == true, it matches nodes that have either the node itself, a parent, or a descendant selected.
+         * If MatchSelected == false, it matches nodes where the node itself is unselected, no parent is selected, and no descendant is selected.
+         * Used e.g. for isolating on the selection.
+         */
+        template <bool MatchSelected>
+        class MatchTransitivelySelectedOrDescendantSelectedNodes {
+        public:
+            bool operator()(const Model::WorldNode*) const         { return false; }
+            bool operator()(const Model::LayerNode*) const         { return false; }
+            bool operator()(const Model::GroupNode* group) const   { return MatchSelected == (group->transitivelySelected() || group->descendantSelected()); }
+            bool operator()(const Model::EntityNode* entity) const { return MatchSelected == (entity->transitivelySelected() || entity->descendantSelected()); }
+            bool operator()(const Model::BrushNode* brush) const   { return MatchSelected == (brush->transitivelySelected() || brush->descendantSelected()); }
         };
     }
 }

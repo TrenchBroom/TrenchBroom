@@ -73,7 +73,14 @@ namespace TrenchBroom {
 
             for (const auto& defaultFolderPath : defaultFolderPaths) {
                 const auto defaultAssetsPath = defaultFolderPath + IO::Path("assets");
-                if (IO::Disk::directoryExists(defaultAssetsPath)) {
+                auto exists = [](const IO::Path& path) {
+                    try {
+                        return IO::Disk::directoryExists(path);
+                    } catch (const FileSystemException&) {
+                        return false;
+                    }    
+                };
+                if (exists(defaultAssetsPath)) {
                     addFileSystemPath(defaultAssetsPath, logger);
                 }
             }

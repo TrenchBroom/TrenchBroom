@@ -22,20 +22,20 @@
 #include "GTestCompat.h"
 
 #include "IO/NodeWriter.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/CollectTouchingNodesVisitor.h"
 #include "Model/EditorContext.h"
-#include "Model/Group.h"
-#include "Model/Layer.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
 #include "Model/Object.h"
 #include "Model/PickResult.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <kdl/vector_utils.h>
 
@@ -482,13 +482,13 @@ namespace TrenchBroom {
             const vm::bbox3 worldBounds(8192.0);
             EditorContext context;
 
-            World map(Model::MapFormat::Standard);
+            WorldNode map(Model::MapFormat::Standard);
             map.addOrUpdateAttribute("classname", "worldspawn");
 
             BrushBuilder builder(&map, worldBounds);
-            Brush* brush1 = builder.createCube(64.0, "none");
-            Brush* brush2 = builder.createCube(64.0, "none");
-            Brush* brush3 = builder.createCube(64.0, "none");
+            BrushNode* brush1 = map.createBrush(builder.createCube(64.0, "none"));
+            BrushNode* brush2 = map.createBrush(builder.createCube(64.0, "none"));
+            BrushNode* brush3 = map.createBrush(builder.createCube(64.0, "none"));
 
             brush2->transform(vm::translation_matrix(vm::vec3(10.0, 0.0, 0.0)), false, worldBounds);
             brush3->transform(vm::translation_matrix(vm::vec3(100.0, 0.0, 0.0)), false, worldBounds);
@@ -503,7 +503,7 @@ namespace TrenchBroom {
             CHECK(!brush1->intersects(brush3));
             CHECK(!brush3->intersects(brush1));
 
-            const auto query = std::vector<Brush*>{brush1};
+            const auto query = std::vector<BrushNode*>{brush1};
             auto visitor = CollectTouchingNodesVisitor(std::begin(query), std::end(query), context);
             map.acceptAndRecurse(visitor);
 

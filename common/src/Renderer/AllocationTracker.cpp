@@ -154,6 +154,7 @@ namespace TrenchBroom {
             // to avoid doing a redundant binary search)
             Block* block = *it;
             assert(block != nullptr);
+            // cppcheck-suppress nullPointerRedundantCheck
             assert(block->free);
             assert(block->prevOfSameSize == nullptr);
             {

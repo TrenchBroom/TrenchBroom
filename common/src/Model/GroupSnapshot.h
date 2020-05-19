@@ -27,16 +27,16 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Group;
+        class GroupNode;
 
         class GroupSnapshot : public NodeSnapshot {
         private:
             std::vector<NodeSnapshot*> m_snapshots;
         public:
-            GroupSnapshot(Group* group);
+            GroupSnapshot(GroupNode* group);
             ~GroupSnapshot() override;
         private:
-            void takeSnapshot(Group* group);
+            void takeSnapshot(GroupNode* group);
             void doRestore(const vm::bbox3& worldBounds) override;
         };
     }

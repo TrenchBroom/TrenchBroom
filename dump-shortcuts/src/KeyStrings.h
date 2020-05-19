@@ -23,18 +23,21 @@
 #include <Qt>
 #include <QString>
 
-#include <unordered_map>
+#include <vector>
+#include <utility>
 
 namespace TrenchBroom {
     namespace View {
         class KeyStrings {
         private:
-            using KeyMap = std::unordered_map<Qt::Key, QString>;
+            /**
+             * Maps Qt portable key name to Qt native key name
+             */
+            using KeyMap = std::vector<std::pair<QString, QString>>;
         public:
             using const_iterator = typename KeyMap::const_iterator;
         private:
             KeyMap m_keys;
-            QString m_separator;
         public:
             KeyStrings();
 
@@ -42,6 +45,7 @@ namespace TrenchBroom {
             const_iterator end() const;
         private:
             void putKey(Qt::Key key);
+            void putModifier(int key);
         };
     }
 }

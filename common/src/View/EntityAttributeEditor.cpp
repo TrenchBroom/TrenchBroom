@@ -271,7 +271,7 @@ namespace TrenchBroom {
             layout->addWidget(m_splitter, 1);
             setLayout(layout);
 
-            connect(m_attributeGrid, &EntityAttributeGrid::selectedRow, this, &EntityAttributeEditor::OnCurrentRowChanged);
+            connect(m_attributeGrid, &EntityAttributeGrid::currentRowChanged, this, &EntityAttributeEditor::OnCurrentRowChanged);
         }
 
         void EntityAttributeEditor::updateMinimumSize() {

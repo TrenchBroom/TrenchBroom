@@ -21,20 +21,20 @@
 #define TrenchBroom_Snapshot
 
 #include "FloatType.h"
+#include "Macros.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class BrushFace;
-        class BrushFaceSnapshot;
+        class BrushFaceHandle;
         class Node;
         class NodeSnapshot;
 
         class Snapshot {
         private:
             std::vector<NodeSnapshot*> m_nodeSnapshots;
-            std::vector<BrushFaceSnapshot*> m_brushFaceSnapshots;
         public:
             template <typename I>
             Snapshot(I cur, I end) {
@@ -47,13 +47,10 @@ namespace TrenchBroom {
             ~Snapshot();
 
             void restoreNodes(const vm::bbox3& worldBounds);
-            void restoreBrushFaces();
         private:
             void takeSnapshot(Node* node);
-            void takeSnapshot(BrushFace* face);
-        private:
-            Snapshot(const Snapshot&);
-            Snapshot& operator=(const Snapshot&);
+            
+            deleteCopyAndMove(Snapshot)
         };
     }
 }
