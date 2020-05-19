@@ -28,15 +28,15 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        BrushRendererBrushCache::CachedFace::CachedFace(Model::BrushFace* i_face,
+        BrushRendererBrushCache::CachedFace::CachedFace(const Model::BrushFace* i_face,
                                                         const size_t i_indexOfFirstVertexRelativeToBrush)
                 : texture(i_face->texture()),
                   face(i_face),
                   vertexCount(i_face->vertexCount()),
                   indexOfFirstVertexRelativeToBrush(i_indexOfFirstVertexRelativeToBrush) {}
 
-        BrushRendererBrushCache::CachedEdge::CachedEdge(Model::BrushFace* i_face1,
-                                                        Model::BrushFace* i_face2,
+        BrushRendererBrushCache::CachedEdge::CachedEdge(const Model::BrushFace* i_face1,
+                                                        const Model::BrushFace* i_face2,
                                                         const size_t i_vertexIndex1RelativeToBrush,
                                                         const size_t i_vertexIndex2RelativeToBrush)
                 : face1(i_face1),
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             m_cachedFacesSortedByTexture.clear();
             m_cachedFacesSortedByTexture.reserve(brush.faceCount());
 
-            for (Model::BrushFace* face : brush.faces()) {
+            for (const Model::BrushFace* face : brush.faces()) {
                 const auto indexOfFirstVertexRelativeToBrush = m_cachedVertices.size();
 
                 // The boundary is in CCW order, but the renderer expects CW order:
