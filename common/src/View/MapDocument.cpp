@@ -1317,11 +1317,10 @@ namespace TrenchBroom {
 
             for (const Model::BrushNode* originalBrush : brushes) {
                 Model::BrushFace* clipFace = m_world->createFace(p1, p2, p3, Model::BrushFaceAttributes(currentTextureName()));
-                Model::BrushNode* clippedBrush = originalBrush->clone(m_worldBounds);
-                if (clippedBrush->clip(m_worldBounds, clipFace))
-                    clippedBrushes[originalBrush->parent()].push_back(clippedBrush);
-                else
-                    delete clippedBrush;
+                Model::Brush clippedBrush = originalBrush->brush();
+                if (clippedBrush.clip(m_worldBounds, clipFace)) {
+                    clippedBrushes[originalBrush->parent()].push_back(new Model::BrushNode(clippedBrush));
+                }
             }
 
             Transaction transaction(this, "Clip Brushes");

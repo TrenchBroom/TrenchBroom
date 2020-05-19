@@ -89,8 +89,6 @@ namespace TrenchBroom {
             void cloneFaceAttributesFrom(const BrushNode* brush);
             void cloneInvertedFaceAttributesFrom(const std::vector<BrushNode*>& brushes);
             void cloneInvertedFaceAttributesFrom(const BrushNode* brush);
-        public: // clipping
-            bool clip(const vm::bbox3& worldBounds, BrushFace* face);
         public: // move face along normal
             bool canMoveBoundary(const vm::bbox3& worldBounds, const BrushFace* face, const vm::vec3& delta) const;
             void moveBoundary(const vm::bbox3& worldBounds, BrushFace* face, const vm::vec3& delta, bool lockTexture);

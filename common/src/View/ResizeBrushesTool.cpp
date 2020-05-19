@@ -39,6 +39,7 @@
 #include "View/MapDocument.h"
 
 #include <kdl/collection_utils.h>
+#include <kdl/map_utils.h>
 #include <kdl/memory_utils.h>
 #include <kdl/vector_utils.h>
 
@@ -394,39 +395,34 @@ namespace TrenchBroom {
                 }
             }
 
-            std::vector<Model::BrushNode*> newBrushes;
             std::vector<FaceHandle> newDragHandles;
             std::map<Model::Node*, std::vector<Model::Node*>> newNodes;
 
             for (const auto& dragFaceHandle : dragFaces()) {
                 auto* dragFace = dragFaceHandle.face();
-                auto* brush = dragFaceHandle.node();
+                auto* brushNode = dragFaceHandle.node();
 
-                auto* newBrush = brush->clone(worldBounds);
-                auto* newDragFace = findMatchingFace(newBrush, dragFace);
+                auto newBrush = brushNode->brush();
+                auto* newDragFace = newBrush.findFace(dragFace->boundary());
 
-                newBrushes.push_back(newBrush);
-                newDragHandles.emplace_back(newBrush, newDragFace->boundary().normal);
-
-                if (!newBrush->canMoveBoundary(worldBounds, newDragFace, delta)) {
-                    // There is a brush for which the move is not applicable. Abort.
-                    kdl::col_delete_all(newBrushes);
+                if (!newBrush.canMoveBoundary(worldBounds, newDragFace, delta)) {
+                    kdl::map_clear_and_delete(newNodes);
                     return false;
-                } else {
-                    auto* clipFace = newDragFace->clone();
-                    clipFace->invert();
-
-                    newBrush->moveBoundary(worldBounds, newDragFace, delta, lockTextures);
-
-                    // This should never happen, but let's be on the safe side.
-                    if (!newBrush->clip(worldBounds, clipFace)) {
-                        delete clipFace;
-                        kdl::col_delete_all(newBrushes);
-                        return false;
-                    }
-
-                    newNodes[brush->parent()].push_back(newBrush);
                 }
+
+                auto* clipFace = newDragFace->clone();
+                clipFace->invert();
+                newBrush.moveBoundary(worldBounds, newDragFace, delta, lockTextures);
+                
+                if (!newBrush.clip(worldBounds, clipFace)) {
+                    delete clipFace;
+                    kdl::map_clear_and_delete(newNodes);
+                    return false;
+                }
+                
+                auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
+                newNodes[brushNode->parent()].push_back(newBrushNode);
+                newDragHandles.emplace_back(newBrushNode, newDragFace->boundary().normal);
             }
 
             document->deselectAll();
@@ -452,7 +448,6 @@ namespace TrenchBroom {
             }
 
             const std::vector<FaceHandle> oldDragHandles = m_dragHandles;
-            std::vector<Model::BrushNode*> newBrushes;
             std::vector<FaceHandle> newDragHandles;
             // This map is to handle the case when the brushes being
             // extruded have different parents (e.g. different brush entities),
@@ -461,30 +456,30 @@ namespace TrenchBroom {
 
             for (const auto& dragFaceHandle : dragFaces()) {
                 auto* dragFace = dragFaceHandle.face();
-                auto* brush = dragFaceHandle.node();
+                auto* brushNode = dragFaceHandle.node();
 
-                auto* newBrush = brush->clone(worldBounds);
-                auto* newDragFace = findMatchingFace(newBrush, dragFace);
+                auto newBrush = brushNode->brush();
+                auto* newDragFace = newBrush.findFace(dragFace->boundary());
 
                 auto* clipFace = newDragFace->clone();
                 clipFace->invert();
                 clipFace->transform(vm::translation_matrix(delta), lockTextures);
 
-                if (!newBrush->clip(worldBounds, clipFace)) {
+                if (!newBrush.clip(worldBounds, clipFace)) {
                     delete clipFace;
-                    kdl::col_delete_all(newBrushes);
+                    kdl::map_clear_and_delete(newNodes);
                     return false;
                 }
 
-                newBrushes.push_back(newBrush);
-                newDragHandles.emplace_back(newBrush, clipFace->boundary().normal);
-                newNodes[brush->parent()].push_back(newBrush);
+                auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
+                newNodes[brushNode->parent()].push_back(newBrushNode);
+                newDragHandles.emplace_back(newBrushNode, newDragFace->boundary().normal);
             }
 
             // Now that the newly split off brushes are ready to insert (but not selected),
             // resize the original brushes, which are still selected at this point.
             if (!document->resizeBrushes(dragFaceDescriptors(), delta)) {
-                kdl::col_delete_all(newBrushes);
+                kdl::map_clear_and_delete(newNodes);
                 return false;
             }
 
@@ -495,16 +490,6 @@ namespace TrenchBroom {
             m_dragHandles = kdl::vec_concat(oldDragHandles, newDragHandles);
 
             return true;
-        }
-
-        Model::BrushFace* ResizeBrushesTool::findMatchingFace(Model::BrushNode* brush, const Model::BrushFace* reference) const {
-            Model::FindMatchingBrushFaceVisitor<MatchFaceBoundary> visitor((MatchFaceBoundary(reference)));
-            visitor.visit(brush);
-            if (!visitor.hasResult()) {
-                return nullptr;
-            } else {
-                return visitor.result();
-            }
         }
 
         std::vector<vm::polygon3> ResizeBrushesTool::dragFaceDescriptors() const {

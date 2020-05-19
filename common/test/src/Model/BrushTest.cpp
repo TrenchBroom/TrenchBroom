@@ -98,6 +98,52 @@ namespace TrenchBroom {
             }
         }
         
+        TEST_CASE("BrushTest.clip", "[BrushTest]") {
+            const vm::bbox3 worldBounds(4096.0);
+
+            // build a cube with length 16 at the origin
+            BrushFace* left = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                        vm::vec3(0.0, 1.0, 0.0),
+                                                        vm::vec3(0.0, 0.0, 1.0));
+            BrushFace* right = BrushFace::createParaxial(vm::vec3(16.0, 0.0, 0.0),
+                                                         vm::vec3(16.0, 0.0, 1.0),
+                                                         vm::vec3(16.0, 1.0, 0.0));
+            BrushFace* front = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                         vm::vec3(0.0, 0.0, 1.0),
+                                                         vm::vec3(1.0, 0.0, 0.0));
+            BrushFace* back = BrushFace::createParaxial(vm::vec3(0.0, 16.0, 0.0),
+                                                        vm::vec3(1.0, 16.0, 0.0),
+                                                        vm::vec3(0.0, 16.0, 1.0));
+            BrushFace* top = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 16.0),
+                                                       vm::vec3(0.0, 1.0, 16.0),
+                                                       vm::vec3(1.0, 0.0, 16.0));
+            BrushFace* bottom = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                          vm::vec3(1.0, 0.0, 0.0),
+                                                          vm::vec3(0.0, 1.0, 0.0));
+            BrushFace* clip = BrushFace::createParaxial(vm::vec3(8.0, 0.0, 0.0),
+                                                        vm::vec3(8.0, 0.0, 1.0),
+                                                        vm::vec3(8.0, 1.0, 0.0));
+
+            std::vector<BrushFace*> faces;
+            faces.push_back(left);
+            faces.push_back(right);
+            faces.push_back(front);
+            faces.push_back(back);
+            faces.push_back(top);
+            faces.push_back(bottom);
+
+            Brush brush(worldBounds, faces);
+            ASSERT_TRUE(brush.clip(worldBounds, clip));
+
+            ASSERT_EQ(6u, brush.faces().size());
+            ASSERT_TRUE(kdl::vec_contains(brush.faces(), left));
+            ASSERT_TRUE(kdl::vec_contains(brush.faces(), clip));
+            ASSERT_TRUE(kdl::vec_contains(brush.faces(), front));
+            ASSERT_TRUE(kdl::vec_contains(brush.faces(), back));
+            ASSERT_TRUE(kdl::vec_contains(brush.faces(), top));
+            ASSERT_TRUE(kdl::vec_contains(brush.faces(), bottom));
+        }
+        
         TEST_CASE("BrushTest.expand", "[BrushTest]") {
             const vm::bbox3 worldBounds(8192.0);
             WorldNode world(MapFormat::Standard);
