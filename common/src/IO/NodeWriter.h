@@ -44,18 +44,18 @@ namespace TrenchBroom {
             class CollectEntityBrushesStrategy;
             class WriteNode;
 
-            Model::WorldNode& m_world;
+            const Model::WorldNode& m_world;
             std::unique_ptr<NodeSerializer> m_serializer;
         public:
-            NodeWriter(Model::WorldNode& world, FILE* stream);
-            NodeWriter(Model::WorldNode& world, std::ostream& stream);
-            NodeWriter(Model::WorldNode& world, NodeSerializer* serializer);
+            NodeWriter(const Model::WorldNode& world, FILE* stream);
+            NodeWriter(const Model::WorldNode& world, std::ostream& stream);
+            NodeWriter(const Model::WorldNode& world, NodeSerializer* serializer);
 
             void writeMap();
         private:
             void writeDefaultLayer();
             void writeCustomLayers();
-            void writeCustomLayer(Model::LayerNode* layer);
+            void writeCustomLayer(const Model::LayerNode* layer);
         public:
             void writeNodes(const std::vector<Model::Node*>& nodes);
         private:
