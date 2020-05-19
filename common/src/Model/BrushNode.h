@@ -65,6 +65,9 @@ namespace TrenchBroom {
             BrushNode* clone(const vm::bbox3& worldBounds) const;
 
             AttributableNode* entity() const;
+            
+            const Brush& brush() const;
+            void setBrush(Brush brush);
         public: // face management:
             BrushFace* findFace(const std::string& textureName) const;
             BrushFace* findFace(const vm::vec3& normal) const;
