@@ -394,10 +394,6 @@ namespace TrenchBroom {
             return m_factory->createEntity();
         }
 
-        BrushNode* WorldNode::doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {
-            return m_factory->createBrush(worldBounds, faces);
-        }
-
         BrushFace* WorldNode::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
             return m_factory->createFace(point1, point2, point3, attribs);
         }
