@@ -77,7 +77,7 @@ namespace TrenchBroom {
             BrushFace* face(size_t index);
             size_t faceCount() const;
             std::vector<const BrushFace*> faces() const;
-            const std::vector<BrushFace*>& faces();
+            std::vector<BrushFace*> faces();
 
             bool closed() const;
             bool fullySpecified() const;
