@@ -120,26 +120,6 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
 
-        BrushFace* BrushNode::findFace(const std::string& textureName) const {
-            return m_brush.findFace(textureName);
-        }
-
-        BrushFace* BrushNode::findFace(const vm::vec3& normal) const {
-            return m_brush.findFace(normal);
-        }
-
-        BrushFace* BrushNode::findFace(const vm::plane3& boundary) const {
-            return m_brush.findFace(boundary);
-        }
-
-        BrushFace* BrushNode::findFace(const vm::polygon3& vertices, const FloatType epsilon) const {
-            return m_brush.findFace(vertices, epsilon);
-        }
-
-        BrushFace* BrushNode::findFace(const std::vector<vm::polygon3>& candidates, const FloatType epsilon) const {
-            return m_brush.findFace(candidates, epsilon);
-        }
-
         size_t BrushNode::faceCount() const {
             return m_brush.faceCount();
         }

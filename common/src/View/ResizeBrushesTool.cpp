@@ -174,11 +174,11 @@ namespace TrenchBroom {
 
         std::vector<Model::BrushFaceHandle> ResizeBrushesTool::dragFaces() const {
             return kdl::vec_transform(m_dragHandles, [](const auto& dragHandle) {
-                auto* brush = std::get<0>(dragHandle);
+                auto* brushNode = std::get<0>(dragHandle);
                 const auto& normal = std::get<1>(dragHandle);
-                auto* face = brush->findFace(normal);
+                auto* face = brushNode->brush().findFace(normal);
                 assert(face != nullptr);
-                return Model::BrushFaceHandle(brush, face);
+                return Model::BrushFaceHandle(brushNode, face);
             });
         }
 

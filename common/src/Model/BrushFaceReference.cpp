@@ -20,6 +20,7 @@
 #include "BrushFaceReference.h"
 
 #include "Exceptions.h"
+#include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 
@@ -36,7 +37,7 @@ namespace TrenchBroom {
         }
 
         BrushFaceHandle BrushFaceReference::resolve() const {
-            Model::BrushFace* face = m_node->findFace(m_facePlane);
+            Model::BrushFace* face = m_node->brush().findFace(m_facePlane);
             if (face == nullptr) {
                 throw BrushFaceReferenceException();
             }

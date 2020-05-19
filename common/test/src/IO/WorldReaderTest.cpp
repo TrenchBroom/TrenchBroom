@@ -545,14 +545,15 @@ namespace TrenchBroom {
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
 
-            const auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
-            checkBrushTexCoordSystem(brush, false);
-            ASSERT_TRUE(vm::is_equal(Color(5, 6, 7), brush->findFace("rtz/c_mf_v3cw")->color(), 0.1f));
-            ASSERT_EQ(1, brush->findFace("rtz/b_rc_v16w")->surfaceContents());
-            ASSERT_EQ(2, brush->findFace("rtz/b_rc_v16w")->surfaceFlags());
-            ASSERT_FLOAT_EQ(3.0, brush->findFace("rtz/b_rc_v16w")->surfaceValue());
-            ASSERT_TRUE(vm::is_equal(Color(8, 9, 10), brush->findFace("rtz/b_rc_v16w")->color(), 0.1f));
-            ASSERT_FALSE(brush->findFace("rtz/c_mf_v3cww")->hasColor());
+            const auto* brushNode = static_cast<Model::BrushNode*>(defaultLayer->children().front());
+            checkBrushTexCoordSystem(brushNode, false);
+            const auto& brush = brushNode->brush();
+            ASSERT_TRUE(vm::is_equal(Color(5, 6, 7), brush.findFace("rtz/c_mf_v3cw")->color(), 0.1f));
+            ASSERT_EQ(1, brush.findFace("rtz/b_rc_v16w")->surfaceContents());
+            ASSERT_EQ(2, brush.findFace("rtz/b_rc_v16w")->surfaceFlags());
+            ASSERT_FLOAT_EQ(3.0, brush.findFace("rtz/b_rc_v16w")->surfaceValue());
+            ASSERT_TRUE(vm::is_equal(Color(8, 9, 10), brush.findFace("rtz/b_rc_v16w")->color(), 0.1f));
+            ASSERT_FALSE(brush.findFace("rtz/c_mf_v3cww")->hasColor());
         }
 
         TEST_CASE("WorldReaderTest.parseDaikatanaMapHeader", "[WorldReaderTest]") {
