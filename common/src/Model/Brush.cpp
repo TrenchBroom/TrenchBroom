@@ -56,23 +56,16 @@ namespace TrenchBroom {
             m_addedFace(addedFace) {
                 ensure(m_addedFace != nullptr, "addedFace is null");
             }
-
+            
             void faceWasCreated(BrushFaceGeometry* face) override {
                 assert(m_addedFace != nullptr);
                 m_addedFace->setGeometry(face);
+                face->setPayload(m_addedFace);
                 m_addedFace = nullptr;
             }
 
-            void faceWasSplit(BrushFaceGeometry* original, BrushFaceGeometry* clone) override {
-                auto* brushFace = original->payload();
-                if (brushFace != nullptr) {
-                    auto* brushFaceClone = brushFace->clone();
-                    brushFaceClone->setGeometry(clone);
-                }
-            }
-
-            void faceWillBeDeleted(BrushFaceGeometry* face) override {
-                auto* brushFace = face->payload();
+            void faceWillBeDeleted(BrushFaceGeometry* toDelete) override {
+                auto* brushFace = toDelete->payload();
                 delete brushFace;
             }
         };
