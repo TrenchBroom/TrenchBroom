@@ -65,9 +65,9 @@ namespace TrenchBroom {
 
         class BrushFaceIssue : public Issue {
         private:
-            BrushFace* const m_face;
+            const size_t m_faceIndex;
         protected:
-            explicit BrushFaceIssue(BrushNode* node, BrushFace* face);
+            explicit BrushFaceIssue(BrushNode* node, size_t faceIndex);
         public:
             ~BrushFaceIssue() override;
             BrushFace* face() const;
