@@ -144,6 +144,65 @@ namespace TrenchBroom {
             ASSERT_TRUE(kdl::vec_contains(brush.faces(), bottom));
         }
         
+        TEST_CASE("BrushTest.moveBoundary", "[BrushTest]") {
+            const vm::bbox3 worldBounds(4096.0);
+
+            // left and right a are slanted!
+            BrushFace* left = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                        vm::vec3(0.0, 1.0, 0.0),
+                                                        vm::vec3(1.0, 0.0, 1.0));
+            BrushFace* right = BrushFace::createParaxial(vm::vec3(16.0, 0.0, 0.0),
+                                                         vm::vec3(15.0, 0.0, 1.0),
+                                                         vm::vec3(16.0, 1.0, 0.0));
+            BrushFace* front = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                         vm::vec3(0.0, 0.0, 1.0),
+                                                         vm::vec3(1.0, 0.0, 0.0));
+            BrushFace* back = BrushFace::createParaxial(vm::vec3(0.0, 16.0, 0.0),
+                                                        vm::vec3(1.0, 16.0, 0.0),
+                                                        vm::vec3(0.0, 16.0, 1.0));
+            BrushFace* top = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 6.0),
+                                                       vm::vec3(0.0, 1.0, 6.0),
+                                                       vm::vec3(1.0, 0.0, 6.0));
+            BrushFace* bottom = BrushFace::createParaxial(vm::vec3(0.0, 0.0, 0.0),
+                                                          vm::vec3(1.0, 0.0, 0.0),
+                                                          vm::vec3(0.0, 1.0, 0.0));
+            std::vector<BrushFace*> faces;
+            faces.push_back(left);
+            faces.push_back(right);
+            faces.push_back(front);
+            faces.push_back(back);
+            faces.push_back(top);
+            faces.push_back(bottom);
+
+            Brush brush(worldBounds, faces);
+            ASSERT_EQ(6u, brush.faces().size());
+
+            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, +16.0)));
+            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, -16.0)));
+            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, +2.0)));
+            ASSERT_FALSE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, -6.0)));
+            ASSERT_TRUE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, +1.0)));
+            ASSERT_TRUE(brush.canMoveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, -5.0)));
+
+            brush.moveBoundary(worldBounds, top, vm::vec3(0.0, 0.0, 1.0), false);
+            ASSERT_EQ(6u, brush.faces().size());
+            ASSERT_DOUBLE_EQ(7.0, brush.bounds().size().z());
+        }
+
+        TEST_CASE("BrushTest.resizePastWorldBounds", "[BrushTest]") {
+            const vm::bbox3 worldBounds(8192.0);
+            WorldNode world(MapFormat::Standard);
+            const BrushBuilder builder(&world, worldBounds);
+
+            Brush brush1 = builder.createBrush(std::vector<vm::vec3>{vm::vec3(64, -64, 16), vm::vec3(64, 64, 16), vm::vec3(64, -64, -16), vm::vec3(64, 64, -16), vm::vec3(48, 64, 16), vm::vec3(48, 64, -16)}, "texture");
+
+            BrushFace* rightFace = brush1.findFace(vm::vec3(1, 0, 0));
+            EXPECT_NE(nullptr, rightFace);
+
+            EXPECT_TRUE(brush1.canMoveBoundary(worldBounds, rightFace, vm::vec3(16, 0, 0)));
+            EXPECT_FALSE(brush1.canMoveBoundary(worldBounds, rightFace, vm::vec3(8000, 0, 0)));
+        }
+
         TEST_CASE("BrushTest.expand", "[BrushTest]") {
             const vm::bbox3 worldBounds(8192.0);
             WorldNode world(MapFormat::Standard);
