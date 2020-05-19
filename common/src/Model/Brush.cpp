@@ -192,6 +192,51 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(m_faces);
         }
 
+        void Brush::updateFacesFromGeometry(const vm::bbox3& /* worldBounds */, const BrushGeometry& brushGeometry) {
+            m_faces.clear();
+
+            for (const auto* faceG : brushGeometry.faces()) {
+                auto* face = faceG->payload();
+                if (face != nullptr) { // could happen if the brush isn't fully specified
+                    assert(face->geometry() == faceG);
+                    addFace(face);
+                    face->resetTexCoordSystemCache();
+                }
+            }
+        }
+
+        void Brush::updateGeometryFromFaces(const vm::bbox3& worldBounds) {
+            deleteGeometry();
+            buildGeometry(worldBounds);
+        }
+        
+        void Brush::deleteGeometry() {
+            if (m_geometry != nullptr) {
+                // clear brush face geometry
+                for (auto* brushFace : m_faces) {
+                    brushFace->setGeometry(nullptr);
+                }
+                m_geometry.reset();
+            }
+        }
+
+        void Brush::buildGeometry(const vm::bbox3& worldBounds) {
+            assert(m_geometry == nullptr);
+
+            m_geometry = std::make_unique<BrushGeometry>(worldBounds.expand(1.0));
+
+            AddFacesToGeometry addFacesToGeometry(*m_geometry, m_faces);
+            updateFacesFromGeometry(worldBounds, *m_geometry);
+
+            if (addFacesToGeometry.brushEmpty()) {
+                throw GeometryException("Brush is empty");
+            } else  if (!addFacesToGeometry.brushValid()) {
+                throw GeometryException("Brush is invalid");
+            } else if (!fullySpecified()) {
+                throw GeometryException("Brush is not fully specified");
+            }
+        }
+
         const vm::bbox3& Brush::bounds() const {
             ensure(m_geometry != nullptr, "geometry is null");
             return m_geometry->bounds();
@@ -306,7 +351,7 @@ namespace TrenchBroom {
         bool Brush::clip(const vm::bbox3& worldBounds, BrushFace* face) {
             try {
                 addFace(face);
-                rebuildGeometry(worldBounds);
+                updateGeometryFromFaces(worldBounds);
                 return !m_faces.empty();
             } catch (GeometryException&) {
                 return false;
@@ -344,7 +389,7 @@ namespace TrenchBroom {
 
             auto* face = this->face(faceIndex);
             face->transform(vm::translation_matrix(delta), lockTexture);
-            rebuildGeometry(worldBounds);
+            updateGeometryFromFaces(worldBounds);
         }
 
         bool Brush::canExpand(const vm::bbox3& worldBounds, const FloatType delta, const bool lockTexture) const {
@@ -361,7 +406,7 @@ namespace TrenchBroom {
 
             // rebuild geometry
             try {
-                rebuildGeometry(worldBounds);
+                updateGeometryFromFaces(worldBounds);
                 return !m_faces.empty();
             } catch (GeometryException&) {
                 return false;
@@ -891,7 +936,7 @@ namespace TrenchBroom {
 
             kdl::vec_clear_and_delete(m_faces);
             updateFacesFromGeometry(worldBounds, newGeometry);
-            rebuildGeometry(worldBounds);
+            updateGeometryFromFaces(worldBounds);
         }
 
         std::vector<Brush> Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<const Brush*>& subtrahends) const {
@@ -934,7 +979,7 @@ namespace TrenchBroom {
                 addFace(face->clone());
             }
 
-            rebuildGeometry(worldBounds);
+            updateGeometryFromFaces(worldBounds);
         }
 
         bool Brush::canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const {
@@ -952,7 +997,7 @@ namespace TrenchBroom {
                 face->transform(transformation, lockTextures);
             }
 
-            rebuildGeometry(worldBounds);
+            updateGeometryFromFaces(worldBounds);
         }
 
         bool Brush::contains(const vm::bbox3& bounds) const {
@@ -1006,56 +1051,11 @@ namespace TrenchBroom {
             return brush;
         }
 
-        void Brush::updateFacesFromGeometry(const vm::bbox3& /* worldBounds */, const BrushGeometry& brushGeometry) {
-            m_faces.clear();
-
-            for (const auto* faceG : brushGeometry.faces()) {
-                auto* face = faceG->payload();
-                if (face != nullptr) { // could happen if the brush isn't fully specified
-                    assert(face->geometry() == faceG);
-                    addFace(face);
-                    face->resetTexCoordSystemCache();
-                }
-            }
-        }
-
-        void Brush::rebuildGeometry(const vm::bbox3& worldBounds) {
-            deleteGeometry();
-            buildGeometry(worldBounds);
-        }
-
-        void Brush::buildGeometry(const vm::bbox3& worldBounds) {
-            assert(m_geometry == nullptr);
-
-            m_geometry = std::make_unique<BrushGeometry>(worldBounds.expand(1.0));
-
-            AddFacesToGeometry addFacesToGeometry(*m_geometry, m_faces);
-            updateFacesFromGeometry(worldBounds, *m_geometry);
-
-            if (addFacesToGeometry.brushEmpty()) {
-                throw GeometryException("Brush is empty");
-            } else  if (!addFacesToGeometry.brushValid()) {
-                throw GeometryException("Brush is invalid");
-            } else if (!fullySpecified()) {
-                throw GeometryException("Brush is not fully specified");
-            }
-        }
-
-        void Brush::deleteGeometry() {
-            if (m_geometry != nullptr) {
-                // clear brush face geometry
-                for (auto* brushFace : m_faces) {
-                    brushFace->setGeometry(nullptr);
-                }
-                m_geometry.reset();
-            }
-        }
-
         void Brush::findIntegerPlanePoints(const vm::bbox3& worldBounds) {
             for (auto* face : m_faces) {
                 face->findIntegerPlanePoints();
             }
-            rebuildGeometry(worldBounds);
+            updateGeometryFromFaces(worldBounds);
         }
     }
 }

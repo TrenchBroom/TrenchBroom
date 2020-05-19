@@ -63,6 +63,11 @@ namespace TrenchBroom {
             ~Brush();
         private:
             void cleanup();
+        private:
+            void updateFacesFromGeometry(const vm::bbox3& worldBounds, const BrushGeometry& geometry);
+            void updateGeometryFromFaces(const vm::bbox3& worldBounds);
+            void deleteGeometry();
+            void buildGeometry(const vm::bbox3& worldBounds);
         public:
             const vm::bbox3& bounds() const;
         public: // face management:
@@ -220,13 +225,6 @@ namespace TrenchBroom {
              * @return the newly created brush
              */
             Brush createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<const Brush*>& subtrahends) const;
-        private:
-            void updateFacesFromGeometry(const vm::bbox3& worldBounds, const BrushGeometry& geometry);
-        public: // brush geometry
-            void rebuildGeometry(const vm::bbox3& worldBounds);
-        private:
-            void buildGeometry(const vm::bbox3& worldBounds);
-            void deleteGeometry();
         public:
             void findIntegerPlanePoints(const vm::bbox3& worldBounds);
         };
