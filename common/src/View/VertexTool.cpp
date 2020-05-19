@@ -85,9 +85,9 @@ namespace TrenchBroom {
 
         bool VertexTool::startMove(const std::vector<Model::Hit>& hits) {
             const auto& hit = hits.front();
-            if (hit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit)) {
+            if (hit.hasType(EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType)) {
                 m_vertexHandles->deselectAll();
-                if (hit.hasType(EdgeHandleManager::HandleHit)) {
+                if (hit.hasType(EdgeHandleManager::HandleHitType)) {
                     const vm::segment3& handle = std::get<0>(hit.target<const EdgeHandleManager::HitType&>());
                     m_edgeHandles->select(handle);
                     m_mode = Mode_Split_Edge;
@@ -174,11 +174,11 @@ namespace TrenchBroom {
 
         vm::vec3 VertexTool::getHandlePosition(const Model::Hit& hit) const {
             assert(hit.isMatch());
-            assert(hit.hasType(VertexHandleManager::HandleHit | EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit));
+            assert(hit.hasType(VertexHandleManager::HandleHitType | EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType));
 
-            if (hit.hasType(VertexHandleManager::HandleHit)) {
+            if (hit.hasType(VertexHandleManager::HandleHitType)) {
                 return hit.target<vm::vec3>();
-            } else if (hit.hasType(EdgeHandleManager::HandleHit)) {
+            } else if (hit.hasType(EdgeHandleManager::HandleHitType)) {
                 return std::get<1>(hit.target<EdgeHandleManager::HitType>());
             } else {
                 return std::get<1>(hit.target<FaceHandleManager::HitType>());

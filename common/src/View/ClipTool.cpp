@@ -53,7 +53,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::HitType::Type ClipTool::PointHit = Model::HitType::freeType();
+        const Model::HitType::Type ClipTool::PointHitType = Model::HitType::freeType();
 
         ClipTool::ClipStrategy::~ClipStrategy() = default;
 
@@ -162,7 +162,7 @@ namespace TrenchBroom {
                     const auto distance = camera.pickPointHandle(pickRay, point, static_cast<FloatType>(pref(Preferences::HandleRadius)));
                     if (!vm::is_nan(distance)) {
                         const auto hitPoint = vm::point_at_distance(pickRay, distance);
-                        pickResult.addHit(Model::Hit(PointHit, distance, hitPoint, i));
+                        pickResult.addHit(Model::Hit(PointHitType, distance, hitPoint, i));
                     }
                 }
             }
@@ -272,7 +272,7 @@ namespace TrenchBroom {
             }
 
             bool doCanDragPoint(const Model::PickResult& pickResult, vm::vec3& initialPosition) const override {
-                const auto& hit = pickResult.query().type(PointHit).occluded().first();
+                const auto& hit = pickResult.query().type(PointHitType).occluded().first();
                 if (!hit.isMatch()) {
                     return false;
                 } else {
@@ -283,7 +283,7 @@ namespace TrenchBroom {
             }
 
             void doBeginDragPoint(const Model::PickResult& pickResult) override {
-                const auto& hit = pickResult.query().type(PointHit).occluded().first();
+                const auto& hit = pickResult.query().type(PointHitType).occluded().first();
                 assert(hit.isMatch());
                 m_dragIndex = hit.target<size_t>();
                 m_originalPoint = m_points[m_dragIndex];
@@ -405,7 +405,7 @@ namespace TrenchBroom {
                 if (m_dragIndex < m_numPoints) {
                     renderHighlight(renderContext, renderBatch, m_dragIndex);
                 } else {
-                    const auto& hit = pickResult.query().type(PointHit).occluded().first();
+                    const auto& hit = pickResult.query().type(PointHitType).occluded().first();
                     if (hit.isMatch()) {
                         const auto index = hit.target<size_t>();
                         renderHighlight(renderContext, renderBatch, index);

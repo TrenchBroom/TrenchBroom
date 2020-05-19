@@ -53,8 +53,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::HitType::Type ResizeBrushesTool::ResizeHit2D = Model::HitType::freeType();
-        const Model::HitType::Type ResizeBrushesTool::ResizeHit3D = Model::HitType::freeType();
+        const Model::HitType::Type ResizeBrushesTool::Resize2DHitType = Model::HitType::freeType();
+        const Model::HitType::Type ResizeBrushesTool::Resize3DHitType = Model::HitType::freeType();
 
         ResizeBrushesTool::ResizeBrushesTool(std::weak_ptr<MapDocument> document) :
         Tool(true),
@@ -75,21 +75,21 @@ namespace TrenchBroom {
 
         Model::Hit ResizeBrushesTool::pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
             auto document = kdl::mem_lock(m_document);
-            const auto& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHit).occluded().selected().first();
+            const auto& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().selected().first();
             if (hit.isMatch()) {
                 return Model::Hit::NoHit;
             } else {
-                return pickProximateFace(ResizeHit2D, pickRay);
+                return pickProximateFace(Resize2DHitType, pickRay);
             }
         }
 
         Model::Hit ResizeBrushesTool::pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
             auto document = kdl::mem_lock(m_document);
-            const auto& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHit).occluded().selected().first();
+            const auto& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().selected().first();
             if (hit.isMatch()) {
-                return Model::Hit(ResizeHit3D, hit.distance(), hit.hitPoint(), Model::hitToFace(hit));
+                return Model::Hit(Resize3DHitType, hit.distance(), hit.hitPoint(), Model::hitToFace(hit));
             } else {
-                return pickProximateFace(ResizeHit3D, pickRay);
+                return pickProximateFace(Resize3DHitType, pickRay);
             }
         }
 
@@ -125,7 +125,7 @@ namespace TrenchBroom {
                     if (!vm::is_nan(result.distance) && result.distance < m_closest) {
                         m_closest = result.distance;
                         const auto hitPoint = vm::point_at_distance(m_pickRay, result.position1);
-                        if (m_hitType == ResizeBrushesTool::ResizeHit2D) {
+                        if (m_hitType == ResizeBrushesTool::Resize2DHitType) {
                             std::vector<Model::BrushFace*> faces;
                             if (vm::is_zero(leftDot, vm::C::almost_zero())) {
                                 faces.push_back(left);
@@ -180,7 +180,7 @@ namespace TrenchBroom {
         }
 
         void ResizeBrushesTool::updateDragFaces(const Model::PickResult& pickResult) {
-            const auto& hit = pickResult.query().type(ResizeHit2D | ResizeHit3D).occluded().first();
+            const auto& hit = pickResult.query().type(Resize2DHitType | Resize3DHitType).occluded().first();
             auto newDragHandles = getDragHandles(hit);
             if (newDragHandles != m_dragHandles) {
                 refreshViews();
@@ -215,10 +215,10 @@ namespace TrenchBroom {
 
         std::vector<ResizeBrushesTool::FaceHandle> ResizeBrushesTool::collectDragHandles(const Model::Hit& hit) const {
             assert(hit.isMatch());
-            assert(hit.type() == ResizeHit2D || hit.type() == ResizeHit3D);
+            assert(hit.type() == Resize2DHitType || hit.type() == Resize3DHitType);
 
             std::vector<Model::BrushFace*> result;
-            if (hit.type() == ResizeHit2D) {
+            if (hit.type() == Resize2DHitType) {
                 const std::vector<Model::BrushFace*>& faces = hit.target<const std::vector<Model::BrushFace*>&>();
                 assert(!faces.empty());
                 kdl::vec_append(result, faces, collectDragFaces(faces[0]));
@@ -252,7 +252,7 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushesTool::beginResize(const Model::PickResult& pickResult, const bool split) {
-            const auto& hit = pickResult.query().type(ResizeHit2D | ResizeHit3D).occluded().first();
+            const auto& hit = pickResult.query().type(Resize2DHitType | Resize3DHitType).occluded().first();
             if (!hit.isMatch()) {
                 return false;
             }
@@ -318,7 +318,7 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushesTool::beginMove(const Model::PickResult& pickResult) {
-            const auto& hit = pickResult.query().type(ResizeHit2D).occluded().first();
+            const auto& hit = pickResult.query().type(Resize2DHitType).occluded().first();
             if (!hit.isMatch()) {
                 return false;
             }

@@ -67,7 +67,7 @@ namespace TrenchBroom {
         class UVView : public RenderView, public ToolBoxConnector {
             Q_OBJECT
         public:
-            static const Model::HitType::Type FaceHit;
+            static const Model::HitType::Type FaceHitType;
         private:
             std::weak_ptr<MapDocument> m_document;
 

@@ -75,7 +75,7 @@ namespace TrenchBroom {
                     return false;
                 }
 
-                const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
+                const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHitType).occluded().first();
                 if (!hit.isMatch()) {
                     return false;
                 }
@@ -95,7 +95,7 @@ namespace TrenchBroom {
                     return DragInfo();
                 }
 
-                const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
+                const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHitType).occluded().first();
                 if (!hit.isMatch()) {
                     return DragInfo();
                 }
@@ -148,7 +148,7 @@ namespace TrenchBroom {
                     renderAngleIndicator(renderContext, renderBatch);
                     renderAngleText(renderContext, renderBatch);
                 } else {
-                    const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
+                    const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHitType).occluded().first();
                     if (hit.isMatch()) {
                         const RotateObjectsHandle::HitArea area = hit.target<RotateObjectsHandle::HitArea>();
                         if (area != RotateObjectsHandle::HitArea::Center)
@@ -242,7 +242,7 @@ namespace TrenchBroom {
                     return MoveInfo();
                 }
 
-                const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
+                const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHitType).occluded().first();
                 if (!hit.isMatch()) {
                     return MoveInfo();
                 }
@@ -270,7 +270,7 @@ namespace TrenchBroom {
                 if (thisToolDragging()) {
                     doRenderHighlight(inputState, renderContext, renderBatch, RotateObjectsHandle::HitArea::Center);
                 } else if (!anyToolDragging(inputState)) {
-                    const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
+                    const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHitType).occluded().first();
                     if (hit.isMatch() && hit.target<RotateObjectsHandle::HitArea>() == RotateObjectsHandle::HitArea::Center) {
                         doRenderHighlight(inputState, renderContext, renderBatch, RotateObjectsHandle::HitArea::Center);
                     }
@@ -305,7 +305,7 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
+            const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHitType).occluded().first();
             if (thisToolDragging() || hit.isMatch()) {
                 renderContext.setForceShowSelectionGuide();
             }

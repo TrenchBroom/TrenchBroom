@@ -46,7 +46,7 @@ namespace TrenchBroom {
 
         class ShearObjectsTool : public Tool {
         public:
-            static const Model::HitType::Type ShearToolSideHit;
+            static const Model::HitType::Type ShearToolSideHitType;
         private:
             std::weak_ptr<MapDocument> m_document;
             bool m_resizing;

@@ -215,7 +215,7 @@ namespace TrenchBroom {
                 auto pickResult = Model::PickResult::byDistance(editorContext);
 
                 document->pick(pickRay, pickResult);
-                const auto& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHit).occluded().first();
+                const auto& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
 
                 if (hit.isMatch()) {
                     const auto* face = Model::hitToFace(hit);
@@ -435,7 +435,7 @@ namespace TrenchBroom {
             auto& grid = document->grid();
             const auto& worldBounds = document->worldBounds();
 
-            const auto& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHit).occluded().first();
+            const auto& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
             if (hit.isMatch()) {
                 const auto* face = Model::hitToFace(hit);
                 return grid.moveDeltaForBounds(face->boundary(), bounds, worldBounds, pickRay());

@@ -58,7 +58,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const HitType::Type BrushNode::BrushHit = HitType::freeType();
+        const HitType::Type BrushNode::BrushHitType = HitType::freeType();
 
         class BrushNode::AddFaceToGeometryCallback : public BrushGeometry::Callback {
         private:
@@ -1403,7 +1403,7 @@ namespace TrenchBroom {
             if (hit.face != nullptr) {
                 ensure(!vm::is_nan(hit.distance), "nan hit distance");
                 const auto hitPoint = vm::point_at_distance(ray, hit.distance);
-                pickResult.addHit(Hit(BrushHit, hit.distance, hitPoint, hit.face));
+                pickResult.addHit(Hit(BrushHitType, hit.distance, hitPoint, hit.face));
             }
         }
 

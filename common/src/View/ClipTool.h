@@ -49,7 +49,7 @@ namespace TrenchBroom {
 
         class ClipTool : public Tool {
         public:
-            static const Model::HitType::Type PointHit;
+            static const Model::HitType::Type PointHitType;
         private:
             enum ClipSide {
                 ClipSide_Front,

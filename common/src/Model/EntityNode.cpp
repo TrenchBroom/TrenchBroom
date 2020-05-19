@@ -50,7 +50,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const HitType::Type EntityNode::EntityHit = HitType::freeType();
+        const HitType::Type EntityNode::EntityHitType = HitType::freeType();
         const vm::bbox3 EntityNode::DefaultBounds(8.0);
 
         EntityNode::EntityNode() :
@@ -250,7 +250,7 @@ namespace TrenchBroom {
                     const FloatType distance = vm::intersect_ray_bbox(ray, myBounds);
                     if (!vm::is_nan(distance)) {
                         const vm::vec3 hitPoint = vm::point_at_distance(ray, distance);
-                        pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
+                        pickResult.addHit(Hit(EntityHitType, distance, hitPoint, this));
                         return;
                     }
                 }
@@ -267,7 +267,7 @@ namespace TrenchBroom {
                             // transform back to world space
                             const auto transformedHitPoint = vm::vec3(point_at_distance(transformedRay, distance));
                             const auto hitPoint = transform * transformedHitPoint;
-                            pickResult.addHit(Hit(EntityHit, static_cast<FloatType>(distance), hitPoint, this));
+                            pickResult.addHit(Hit(EntityHitType, static_cast<FloatType>(distance), hitPoint, this));
                             return;
                         }
                     }

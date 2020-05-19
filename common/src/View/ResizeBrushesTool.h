@@ -50,8 +50,8 @@ namespace TrenchBroom {
 
         class ResizeBrushesTool : public Tool {
         private:
-            static const Model::HitType::Type ResizeHit3D;
-            static const Model::HitType::Type ResizeHit2D;
+            static const Model::HitType::Type Resize3DHitType;
+            static const Model::HitType::Type Resize2DHitType;
 
             /**
              * Brush and face normal pair.

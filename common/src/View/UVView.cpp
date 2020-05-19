@@ -54,7 +54,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::HitType::Type UVView::FaceHit = Model::HitType::freeType();
+        const Model::HitType::Type UVView::FaceHitType = Model::HitType::freeType();
 
         UVView::UVView(std::weak_ptr<MapDocument> document, GLContextManager& contextManager) :
         RenderView(contextManager),
@@ -354,7 +354,7 @@ namespace TrenchBroom {
             const FloatType distance = face->intersectWithRay(pickRay);
             if (!vm::is_nan(distance)) {
                 const vm::vec3 hitPoint = vm::point_at_distance(pickRay, distance);
-                pickResult.addHit(Model::Hit(UVView::FaceHit, distance, hitPoint, face));
+                pickResult.addHit(Model::Hit(UVView::FaceHitType, distance, hitPoint, face));
             }
             return pickResult;
         }

@@ -102,9 +102,9 @@ namespace TrenchBroom {
         }
 
         bool SelectionHitFilter::doMatches(const Hit& hit) const {
-            if (hit.type() == EntityNode::EntityHit) {
+            if (hit.type() == EntityNode::EntityHitType) {
                 return hitToEntity(hit)->selected();
-            } else if (hit.type() == BrushNode::BrushHit) {
+            } else if (hit.type() == BrushNode::BrushHitType) {
                 return hitToBrush(hit)->selected() || hitToFace(hit)->selected();
             } else {
                 return false;
@@ -116,9 +116,9 @@ namespace TrenchBroom {
         }
 
         bool TransitivelySelectedHitFilter::doMatches(const Hit& hit) const {
-            if (hit.type() == EntityNode::EntityHit) {
+            if (hit.type() == EntityNode::EntityHitType) {
                 return hitToEntity(hit)->transitivelySelected();
-            } else if (hit.type() == BrushNode::BrushHit) {
+            } else if (hit.type() == BrushNode::BrushHitType) {
                 return hitToBrush(hit)->transitivelySelected() || hitToFace(hit)->selected();
             } else {
                 return false;
@@ -144,9 +144,9 @@ namespace TrenchBroom {
         }
 
         bool ContextHitFilter::doMatches(const Hit& hit) const {
-            if (hit.type() == EntityNode::EntityHit) {
+            if (hit.type() == EntityNode::EntityHitType) {
                 return m_context.pickable(hitToEntity(hit));
-            } else if (hit.type() == BrushNode::BrushHit) {
+            } else if (hit.type() == BrushNode::BrushHitType) {
                 return m_context.pickable(hitToFace(hit));
             } else {
                 return false;
