@@ -49,7 +49,7 @@ namespace TrenchBroom {
             ASSERT_NE(nullptr, texture);
             ASSERT_EQ(6u, texture->usageCount());
 
-            for (Model::BrushFace* face : brushNode->brush().faces())
+            for (const Model::BrushFace* face : brushNode->brush().faces())
                 ASSERT_EQ(texture, face->texture());
 
             document->translateObjects(vm::vec3(1, 1, 1));
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             document->undoCommand();
             ASSERT_EQ(6u, texture->usageCount());
 
-            for (Model::BrushFace* face : brushNode->brush().faces())
+            for (const Model::BrushFace* face : brushNode->brush().faces())
                 ASSERT_EQ(texture, face->texture());
         }
 
