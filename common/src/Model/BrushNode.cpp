@@ -65,12 +65,12 @@ namespace TrenchBroom {
 
         BrushNode::BrushNode(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) :
         m_brushRendererBrushCache(std::make_unique<Renderer::BrushRendererBrushCache>()),
-        m_brush(std::make_unique<Brush>(this, worldBounds, faces)) {}
+        m_brush(this, worldBounds, faces) {}
 
-        BrushNode::BrushNode(std::unique_ptr<Brush> brush) :
+        BrushNode::BrushNode(Brush brush) :
         m_brushRendererBrushCache(std::make_unique<Renderer::BrushRendererBrushCache>()),
         m_brush(std::move(brush)) {
-            m_brush->setNode(this);
+            m_brush.setNode(this);
         }
 
         BrushNode::~BrushNode() = default;
@@ -107,37 +107,37 @@ namespace TrenchBroom {
         }
 
         BrushFace* BrushNode::findFace(const std::string& textureName) const {
-            return m_brush->findFace(textureName);
+            return m_brush.findFace(textureName);
         }
 
         BrushFace* BrushNode::findFace(const vm::vec3& normal) const {
-            return m_brush->findFace(normal);
+            return m_brush.findFace(normal);
         }
 
         BrushFace* BrushNode::findFace(const vm::plane3& boundary) const {
-            return m_brush->findFace(boundary);
+            return m_brush.findFace(boundary);
         }
 
         BrushFace* BrushNode::findFace(const vm::polygon3& vertices, const FloatType epsilon) const {
-            return m_brush->findFace(vertices, epsilon);
+            return m_brush.findFace(vertices, epsilon);
         }
 
         BrushFace* BrushNode::findFace(const std::vector<vm::polygon3>& candidates, const FloatType epsilon) const {
-            return m_brush->findFace(candidates, epsilon);
+            return m_brush.findFace(candidates, epsilon);
         }
 
         size_t BrushNode::faceCount() const {
-            return m_brush->faceCount();
+            return m_brush.faceCount();
         }
 
         const std::vector<BrushFace*>& BrushNode::faces() const {
-            return m_brush->faces();
+            return m_brush.faces();
         }
 
         void BrushNode::setFaces(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
-            m_brush->setFaces(worldBounds, faces);
+            m_brush.setFaces(worldBounds, faces);
             
             invalidateIssues();
             invalidateVertexCache();
@@ -149,11 +149,11 @@ namespace TrenchBroom {
         }
 
         bool BrushNode::closed() const {
-            return m_brush->closed();
+            return m_brush.closed();
         }
 
         bool BrushNode::fullySpecified() const {
-            return m_brush->fullySpecified();
+            return m_brush.fullySpecified();
         }
 
         void BrushNode::cloneFaceAttributesFrom(const std::vector<BrushNode*>& brushes) {
@@ -163,7 +163,7 @@ namespace TrenchBroom {
         }
 
         void BrushNode::cloneFaceAttributesFrom(const BrushNode* brush) {
-            m_brush->cloneFaceAttributesFrom(brush->m_brush.get());
+            m_brush.cloneFaceAttributesFrom(brush->m_brush);
         }
 
         void BrushNode::cloneInvertedFaceAttributesFrom(const std::vector<BrushNode*>& brushes) {
@@ -173,177 +173,177 @@ namespace TrenchBroom {
         }
 
         void BrushNode::cloneInvertedFaceAttributesFrom(const BrushNode* brush) {
-            m_brush->cloneInvertedFaceAttributesFrom(brush->m_brush.get());
+            m_brush.cloneInvertedFaceAttributesFrom(brush->m_brush);
         }
 
         bool BrushNode::clip(const vm::bbox3& worldBounds, BrushFace* face) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
-            return m_brush->clip(worldBounds, face);
+            return m_brush.clip(worldBounds, face);
         }
 
         bool BrushNode::canMoveBoundary(const vm::bbox3& worldBounds, const BrushFace* face, const vm::vec3& delta) const {
-            return m_brush->canMoveBoundary(worldBounds, face, delta);
+            return m_brush.canMoveBoundary(worldBounds, face, delta);
         }
 
         void BrushNode::moveBoundary(const vm::bbox3& worldBounds, BrushFace* face, const vm::vec3& delta, const bool lockTexture) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
-            m_brush->moveBoundary(worldBounds, face, delta, lockTexture);
+            m_brush.moveBoundary(worldBounds, face, delta, lockTexture);
         }
 
         bool BrushNode::canExpand(const vm::bbox3& worldBounds, const FloatType delta, const bool lockTexture) const {
-            return m_brush->canExpand(worldBounds, delta, lockTexture);
+            return m_brush.canExpand(worldBounds, delta, lockTexture);
         }
 
         bool BrushNode::expand(const vm::bbox3& worldBounds, const FloatType delta, const bool lockTexture) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
-            return m_brush->expand(worldBounds, delta, lockTexture);
+            return m_brush.expand(worldBounds, delta, lockTexture);
         }
 
         size_t BrushNode::vertexCount() const {
-            return m_brush->vertexCount();
+            return m_brush.vertexCount();
         }
 
         const BrushNode::VertexList& BrushNode::vertices() const {
-            return m_brush->vertices();
+            return m_brush.vertices();
         }
 
         std::vector<vm::vec3> BrushNode::vertexPositions() const {
-            return m_brush->vertexPositions();
+            return m_brush.vertexPositions();
         }
 
         bool BrushNode::hasVertex(const vm::vec3& position, const FloatType epsilon) const {
-            return m_brush->hasVertex(position, epsilon);
+            return m_brush.hasVertex(position, epsilon);
         }
 
         vm::vec3 BrushNode::findClosestVertexPosition(const vm::vec3& position) const {
-            return m_brush->findClosestVertexPosition(position);
+            return m_brush.findClosestVertexPosition(position);
         }
 
         bool BrushNode::hasEdge(const vm::segment3& edge, const FloatType epsilon) const {
-            return m_brush->hasEdge(edge, epsilon);
+            return m_brush.hasEdge(edge, epsilon);
         }
 
         bool BrushNode::hasFace(const vm::polygon3& face, const FloatType epsilon) const {
-            return m_brush->hasFace(face, epsilon);
+            return m_brush.hasFace(face, epsilon);
         }
 
         bool BrushNode::hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const FloatType epsilon) const {
-            return m_brush->hasFace(p1, p2, p3, epsilon);
+            return m_brush.hasFace(p1, p2, p3, epsilon);
         }
 
         bool BrushNode::hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& p4, const FloatType epsilon) const {
-            return m_brush->hasFace(p1, p2, p3, p4, epsilon);
+            return m_brush.hasFace(p1, p2, p3, p4, epsilon);
         }
 
         bool BrushNode::hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& p4, const vm::vec3& p5, const FloatType epsilon) const {
-            return m_brush->hasFace(p1, p2, p3, p4, p5, epsilon);
+            return m_brush.hasFace(p1, p2, p3, p4, p5, epsilon);
         }
 
         size_t BrushNode::edgeCount() const {
-            return m_brush->edgeCount();
+            return m_brush.edgeCount();
         }
 
         const BrushNode::EdgeList& BrushNode::edges() const {
-            return m_brush->edges();
+            return m_brush.edges();
         }
 
         bool BrushNode::containsPoint(const vm::vec3& point) const {
-            return m_brush->containsPoint(point);
+            return m_brush.containsPoint(point);
         }
 
         std::vector<BrushFace*> BrushNode::incidentFaces(const BrushVertex* vertex) const {
-            return m_brush->incidentFaces(vertex);
+            return m_brush.incidentFaces(vertex);
         }
 
         bool BrushNode::canMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertices, const vm::vec3& delta) const {
-            return m_brush->canMoveVertices(worldBounds, vertices, delta);
+            return m_brush.canMoveVertices(worldBounds, vertices, delta);
         }
 
         std::vector<vm::vec3> BrushNode::moveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, const bool uvLock) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
-            return m_brush->moveVertices(worldBounds, vertexPositions, delta, uvLock);
+            return m_brush.moveVertices(worldBounds, vertexPositions, delta, uvLock);
         }
 
         bool BrushNode::canAddVertex(const vm::bbox3& worldBounds, const vm::vec3& position) const {
-            return m_brush->canAddVertex(worldBounds, position);
+            return m_brush.canAddVertex(worldBounds, position);
         }
 
         BrushVertex* BrushNode::addVertex(const vm::bbox3& worldBounds, const vm::vec3& position) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
-            return m_brush->addVertex(worldBounds, position);
+            return m_brush.addVertex(worldBounds, position);
         }
 
 
         bool BrushNode::canRemoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions) const {
-            return m_brush->canRemoveVertices(worldBounds, vertexPositions);
+            return m_brush.canRemoveVertices(worldBounds, vertexPositions);
         }
 
         void BrushNode::removeVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
-            m_brush->removeVertices(worldBounds, vertexPositions);
+            m_brush.removeVertices(worldBounds, vertexPositions);
         }
 
         bool BrushNode::canSnapVertices(const vm::bbox3& worldBounds, const FloatType snapToF) {
-            return m_brush->canSnapVertices(worldBounds, snapToF);
+            return m_brush.canSnapVertices(worldBounds, snapToF);
         }
 
         void BrushNode::snapVertices(const vm::bbox3& worldBounds, const FloatType snapToF, const bool uvLock) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
-            m_brush->snapVertices(worldBounds, snapToF, uvLock);
+            m_brush.snapVertices(worldBounds, snapToF, uvLock);
         }
 
         bool BrushNode::canMoveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) const {
-            return m_brush->canMoveEdges(worldBounds, edgePositions, delta);
+            return m_brush.canMoveEdges(worldBounds, edgePositions, delta);
         }
 
         std::vector<vm::segment3> BrushNode::moveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta, const bool uvLock) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
-            return m_brush->moveEdges(worldBounds, edgePositions, delta, uvLock);
+            return m_brush.moveEdges(worldBounds, edgePositions, delta, uvLock);
         }
 
         bool BrushNode::canMoveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta) const {
-            return m_brush->canMoveFaces(worldBounds, facePositions, delta);
+            return m_brush.canMoveFaces(worldBounds, facePositions, delta);
         }
 
         std::vector<vm::polygon3> BrushNode::moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta, const bool uvLock) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
-            return m_brush->moveFaces(worldBounds, facePositions, delta, uvLock);
+            return m_brush.moveFaces(worldBounds, facePositions, delta, uvLock);
         }
 
         std::vector<BrushNode*> BrushNode::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<BrushNode*>& subtrahends) const {
-            const auto subtrahendBrushes = kdl::vec_transform(subtrahends, [](const auto* brushNode) { return brushNode->m_brush.get(); });
-            auto result = m_brush->subtract(factory, worldBounds, defaultTextureName, subtrahendBrushes);
+            const std::vector<const Brush*> subtrahendBrushes = kdl::vec_transform(subtrahends, [](const auto* brushNode) { return &brushNode->m_brush; });
+            auto result = m_brush.subtract(factory, worldBounds, defaultTextureName, subtrahendBrushes);
             return kdl::vec_transform(std::move(result), [&](auto brush) { return factory.createBrush(std::move(brush)); });
         }
 
         std::vector<BrushNode*> BrushNode::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, BrushNode* subtrahend) const {
-            auto result = m_brush->subtract(factory, worldBounds, defaultTextureName, subtrahend->m_brush.get());
+            auto result = m_brush.subtract(factory, worldBounds, defaultTextureName, subtrahend->m_brush);
             return kdl::vec_transform(std::move(result), [&](auto brush) { return factory.createBrush(std::move(brush)); });
         }
 
         void BrushNode::intersect(const vm::bbox3& worldBounds, const BrushNode* brush) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
-            m_brush->intersect(worldBounds, brush->m_brush.get());
+            m_brush.intersect(worldBounds, brush->m_brush);
         }
 
         bool BrushNode::canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const {
-            return m_brush->canTransform(transformation, worldBounds);
+            return m_brush.canTransform(transformation, worldBounds);
         }
 
         void BrushNode::findIntegerPlanePoints(const vm::bbox3& worldBounds) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
-            m_brush->findIntegerPlanePoints(worldBounds);
+            m_brush.findIntegerPlanePoints(worldBounds);
         }
 
         const std::string& BrushNode::doGetName() const {
@@ -352,7 +352,7 @@ namespace TrenchBroom {
         }
 
         const vm::bbox3& BrushNode::doGetLogicalBounds() const {
-            return m_brush->bounds();
+            return m_brush.bounds();
         }
 
         const vm::bbox3& BrushNode::doGetPhysicalBounds() const {
@@ -360,7 +360,7 @@ namespace TrenchBroom {
         }
 
         Node* BrushNode::doClone(const vm::bbox3& /* worldBounds */) const {
-            return new BrushNode(std::make_unique<Brush>(*m_brush.get()));
+            return new BrushNode(m_brush);
         }
 
         bool BrushNode::doCanAddChild(const Node* /* child */) const {
@@ -419,7 +419,7 @@ namespace TrenchBroom {
                 return BrushFaceHit();
             }
 
-            for (auto* face : m_brush->faces()) {
+            for (auto* face : m_brush.faces()) {
                 const auto distance = face->intersectWithRay(ray);
                 if (!vm::is_nan(distance)) {
                     return BrushFaceHit(face, distance);
@@ -449,7 +449,7 @@ namespace TrenchBroom {
         void BrushNode::doTransform(const vm::mat4x4& transformation, const bool lockTextures, const vm::bbox3& worldBounds) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
-            m_brush->transform(transformation, lockTextures, worldBounds);
+            m_brush.transform(transformation, lockTextures, worldBounds);
         }
 
         class BrushNode::Contains : public ConstNodeVisitor, public NodeQuery<bool> {
@@ -470,12 +470,12 @@ namespace TrenchBroom {
             }
 
             bool contains(const BrushNode* brush) const {
-                return m_brush.contains(brush->m_brush.get());
+                return m_brush.contains(brush->m_brush);
             }
         };
 
         bool BrushNode::doContains(const Node* node) const {
-            Contains contains(*m_brush.get());
+            Contains contains(m_brush);
             node->accept(contains);
             assert(contains.hasResult());
             return contains.result();
@@ -499,12 +499,12 @@ namespace TrenchBroom {
             }
 
             bool intersects(const BrushNode* brush) {
-                return m_brush.intersects(brush->m_brush.get());
+                return m_brush.intersects(brush->m_brush);
             }
         };
 
         bool BrushNode::doIntersects(const Node* node) const {
-            Intersects intersects(*m_brush.get());
+            Intersects intersects(m_brush);
             node->accept(intersects);
             assert(intersects.hasResult());
             return intersects.result();
@@ -520,20 +520,20 @@ namespace TrenchBroom {
 
         void BrushNode::initializeTags(TagManager& tagManager) {
             Taggable::initializeTags(tagManager);
-            for (auto* face : m_brush->faces()) {
+            for (auto* face : m_brush.faces()) {
                 face->initializeTags(tagManager);
             }
         }
 
         void BrushNode::clearTags() {
-            for (auto* face : m_brush->faces()) {
+            for (auto* face : m_brush.faces()) {
                 face->clearTags();
             }
             Taggable::clearTags();
         }
 
         void BrushNode::updateTags(TagManager& tagManager) {
-            for (auto& face : m_brush->faces()) {
+            for (auto& face : m_brush.faces()) {
                 face->updateTags(tagManager);
             }
             Taggable::updateTags(tagManager);
@@ -543,14 +543,14 @@ namespace TrenchBroom {
             // Possible optimization: Store the shared face tag mask in the brush and updated it when a face changes.
 
             TagType::Type sharedFaceTags = TagType::AnyType; // set all bits to 1
-            for (const auto* face : m_brush->faces()) {
+            for (const auto* face : m_brush.faces()) {
                 sharedFaceTags &= face->tagMask();
             }
             return (sharedFaceTags & tagMask) != 0;
         }
 
         bool BrushNode::anyFaceHasAnyTag() const {
-            for (const auto* face : m_brush->faces()) {
+            for (const auto* face : m_brush.faces()) {
                 if (face->hasAnyTag()) {
                     return true;
                 }
@@ -561,7 +561,7 @@ namespace TrenchBroom {
         bool BrushNode::anyFacesHaveAnyTagInMask(TagType::Type tagMask) const {
             // Possible optimization: Store the shared face tag mask in the brush and updated it when a face changes.
 
-            for (const auto* face : m_brush->faces()) {
+            for (const auto* face : m_brush.faces()) {
                 if (face->hasTag(tagMask)) {
                     return true;
                 }
