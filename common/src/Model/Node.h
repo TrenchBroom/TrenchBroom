@@ -25,6 +25,7 @@
 #include "Model/Tag.h"
 
 #include <vecmath/forward.h>
+#include <vecmath/bbox.h>
 
 #include <string>
 #include <vector>
@@ -54,8 +55,8 @@ namespace TrenchBroom {
             VisibilityState m_visibilityState;
             LockState m_lockState;
 
-            size_t m_lineNumber;
-            size_t m_lineCount;
+            mutable size_t m_lineNumber;
+            mutable size_t m_lineCount;
 
             mutable std::vector<Issue*> m_issues;
             mutable bool m_issuesValid;
@@ -217,6 +218,15 @@ namespace TrenchBroom {
             void nodeWillChange();
             void nodeDidChange();
 
+            friend class NotifyPhysicalBoundsChange;
+            class NotifyPhysicalBoundsChange {
+            private:
+                Node* m_node;
+                vm::bbox3 m_oldBounds;
+            public:
+                explicit NotifyPhysicalBoundsChange(Node* node);
+                ~NotifyPhysicalBoundsChange();
+            };
             void nodePhysicalBoundsDidChange(vm::bbox3 oldBounds);
         private:
             void childWillChange(Node* node);
@@ -257,7 +267,7 @@ namespace TrenchBroom {
              * it's a list of the contained brushes (excluding the Entity itself).
              */
             virtual std::vector<Node*> nodesRequiredForViewSelection();
-        protected:
+        private:
             void incChildSelectionCount(size_t delta);
             void decChildSelectionCount(size_t delta);
         private:
@@ -282,7 +292,7 @@ namespace TrenchBroom {
             void findNodesContaining(const vm::vec3& point, std::vector<Node*>& result);
         public: // file position
             size_t lineNumber() const;
-            void setFilePosition(size_t lineNumber, size_t lineCount);
+            void setFilePosition(size_t lineNumber, size_t lineCount) const;
             bool containsLine(size_t lineNumber) const;
         public: // issue management
             const std::vector<Issue*>& issues(const std::vector<IssueGenerator*>& issueGenerators);

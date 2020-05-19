@@ -39,7 +39,7 @@ namespace TrenchBroom {
 
     namespace Model {
         class EditorContext;
-        class Entity;
+        class EntityNode;
     }
 
     namespace Renderer {
@@ -51,7 +51,7 @@ namespace TrenchBroom {
 
             Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;
-            std::vector<Model::Entity*> m_entities;
+            std::vector<Model::EntityNode*> m_entities;
 
             DirectEdgeRenderer m_pointEntityWireframeBoundsRenderer;
             DirectEdgeRenderer m_brushEntityWireframeBoundsRenderer;
@@ -76,7 +76,7 @@ namespace TrenchBroom {
         public:
             EntityRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
 
-            void setEntities(const std::vector<Model::Entity*>& entities);
+            void setEntities(const std::vector<Model::EntityNode*>& entities);
             void invalidate();
             void clear();
             void reloadModels();
@@ -118,8 +118,8 @@ namespace TrenchBroom {
             void invalidateBounds();
             void validateBounds();
 
-            AttrString entityString(const Model::Entity* entity) const;
-            const Color& boundsColor(const Model::Entity* entity) const;
+            AttrString entityString(const Model::EntityNode* entity) const;
+            const Color& boundsColor(const Model::EntityNode* entity) const;
         };
     }
 }

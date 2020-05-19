@@ -33,7 +33,7 @@
 namespace TrenchBroom {
     namespace Model {
         template <typename T, typename FP, typename VP>
-        bool Polyhedron<T,FP,VP>::contains(const vm::vec<T,3>& point, const Callback& callback) const {
+        bool Polyhedron<T,FP,VP>::contains(const vm::vec<T,3>& point) const {
             if (!polyhedron()) {
                 return false;
             }
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             }
 
             for (const Face* face : m_faces) {
-                const vm::plane<T,3> plane = callback.getPlane(face);
+                const vm::plane<T,3>& plane = face->plane();
                 if (plane.point_status(point) == vm::plane_status::above) {
                     return false;
                 }
@@ -70,7 +70,7 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        bool Polyhedron<T,FP,VP>::intersects(const Polyhedron& other, const Callback& callback) const {
+        bool Polyhedron<T,FP,VP>::intersects(const Polyhedron& other) const {
             if (!bounds().intersects(other.bounds())) {
                 return false;
             }
@@ -85,9 +85,9 @@ namespace TrenchBroom {
                 } else if (other.edge()) {
                     return pointIntersectsEdge(*this, other);
                 } else if (other.polygon()) {
-                    return pointIntersectsPolygon(*this, other, callback);
+                    return pointIntersectsPolygon(*this, other);
                 } else {
-                    return pointIntersectsPolyhedron(*this, other, callback);
+                    return pointIntersectsPolyhedron(*this, other);
                 }
             } else if (edge()) {
                 if (other.point()) {
@@ -101,7 +101,7 @@ namespace TrenchBroom {
                 }
             } else if (polygon()) {
                 if (other.point()) {
-                    return polygonIntersectsPoint(*this, other, callback);
+                    return polygonIntersectsPoint(*this, other);
                 } else if (other.edge()) {
                     return polygonIntersectsEdge(*this, other);
                 } else if (other.polygon()) {
@@ -111,13 +111,13 @@ namespace TrenchBroom {
                 }
             } else {
                 if (other.point()) {
-                    return polyhedronIntersectsPoint(*this, other, callback);
+                    return polyhedronIntersectsPoint(*this, other);
                 } else if (other.edge()) {
                     return polyhedronIntersectsEdge(*this, other);
                 } else if (other.polygon()) {
                     return polyhedronIntersectsPolygon(*this, other);
                 } else {
-                    return polyhedronIntersectsPolyhedron(*this, other, callback);
+                    return polyhedronIntersectsPolyhedron(*this, other);
                 }
             }
         }
@@ -146,25 +146,25 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        bool Polyhedron<T,FP,VP>::pointIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback) {
+        bool Polyhedron<T,FP,VP>::pointIntersectsPolygon(const Polyhedron& lhs, const Polyhedron& rhs) {
             assert(lhs.point());
             assert(rhs.polygon());
 
             const vm::vec<T,3>& lhsPos = lhs.m_vertices.front()->position();
             const Face* rhsFace = rhs.m_faces.front();
-            const vm::vec<T,3> rhsNormal = callback.getPlane(rhsFace).normal;
+            const vm::vec<T,3>& rhsNormal = rhsFace->plane().normal;
             const HalfEdgeList& rhsBoundary = rhsFace->boundary();
 
             return vm::polygon_contains_point(lhsPos, rhsNormal, std::begin(rhsBoundary), std::end(rhsBoundary), GetVertexPosition());
         }
 
         template <typename T, typename FP, typename VP>
-        bool Polyhedron<T,FP,VP>::pointIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback) {
+        bool Polyhedron<T,FP,VP>::pointIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs) {
             assert(lhs.point());
             assert(rhs.polyhedron());
 
             const vm::vec<T,3>& lhsPos = lhs.m_vertices.front()->position();
-            return rhs.contains(lhsPos, callback);
+            return rhs.contains(lhsPos);
         }
 
         template <typename T, typename FP, typename VP>
@@ -286,8 +286,8 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        bool Polyhedron<T,FP,VP>::polygonIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback) {
-            return pointIntersectsPolygon(rhs, lhs, callback);
+        bool Polyhedron<T,FP,VP>::polygonIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs) {
+            return pointIntersectsPolygon(rhs, lhs);
         }
 
         template <typename T, typename FP, typename VP>
@@ -342,8 +342,8 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        bool Polyhedron<T,FP,VP>::polyhedronIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback) {
-            return pointIntersectsPolyhedron(rhs, lhs, callback);
+        bool Polyhedron<T,FP,VP>::polyhedronIntersectsPoint(const Polyhedron& lhs, const Polyhedron& rhs) {
+            return pointIntersectsPolyhedron(rhs, lhs);
         }
 
         template <typename T, typename FP, typename VP>
@@ -357,17 +357,17 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        bool Polyhedron<T,FP,VP>::polyhedronIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs, const Callback& callback) {
+        bool Polyhedron<T,FP,VP>::polyhedronIntersectsPolyhedron(const Polyhedron& lhs, const Polyhedron& rhs) {
             assert(lhs.polyhedron());
             assert(rhs.polyhedron());
 
             // separating axis theorem
             // http://www.geometrictools.com/Documentation/MethodOfSeparatingAxes.pdf
 
-            if (separate(lhs.m_faces, rhs.vertices(), callback)) {
+            if (separate(lhs.m_faces, rhs.vertices())) {
                 return false;
             }
-            if (separate(rhs.faces(), lhs.m_vertices, callback)) {
+            if (separate(rhs.faces(), lhs.m_vertices)) {
                 return false;
             }
 
@@ -399,9 +399,9 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        bool Polyhedron<T,FP,VP>::separate(const FaceList& faces, const VertexList& vertices, const Callback& callback) {
+        bool Polyhedron<T,FP,VP>::separate(const FaceList& faces, const VertexList& vertices) {
             for (const auto* face : faces) {
-                const auto plane = callback.getPlane(face);
+                const auto& plane = face->plane();
                 if (pointStatus(plane, vertices) == vm::plane_status::above) {
                     return true;
                 }

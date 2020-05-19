@@ -23,15 +23,15 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/MapFacade.h"
 #include "Model/NodeCollection.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             }
         }
 
-        void BrushMatchVisitor::visit(const Brush& brush) {
+        void BrushMatchVisitor::visit(const BrushNode& brush) {
             if (m_matcher(brush)) {
                 setMatches();
             }
@@ -72,7 +72,7 @@ namespace TrenchBroom {
 
         bool TextureNameTagMatcher::matches(const Taggable& taggable) const {
             BrushFaceMatchVisitor visitor([this](const BrushFace& face) {
-                return matchesTextureName(face.textureName());
+                return matchesTextureName(face.attributes().textureName());
             });
 
             taggable.accept(visitor);
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             assert(texture != nullptr);
 
             ChangeBrushFaceAttributesRequest request;
-            request.setTexture(texture);
+            request.setTextureName(texture->name());
             facade.setFaceAttributes(request);
         }
 
@@ -224,7 +224,7 @@ namespace TrenchBroom {
 
         ContentFlagsTagMatcher::ContentFlagsTagMatcher(const int i_flags) :
         FlagsTagMatcher(i_flags,
-            [](const BrushFace& face) { return face.surfaceContents(); },
+            [](const BrushFace& face) { return face.attributes().surfaceContents(); },
             [](ChangeBrushFaceAttributesRequest& request, const int flags) { request.setContentFlags(flags); },
             [](ChangeBrushFaceAttributesRequest& request, const int flags) { request.unsetContentFlags(flags); },
             [](const Game& game, const int flags) { return game.contentFlags().flagNames(flags); }
@@ -236,7 +236,7 @@ namespace TrenchBroom {
 
         SurfaceFlagsTagMatcher::SurfaceFlagsTagMatcher(const int i_flags) :
         FlagsTagMatcher(i_flags,
-            [](const BrushFace& face) { return face.surfaceFlags(); },
+            [](const BrushFace& face) { return face.attributes().surfaceFlags(); },
             [](ChangeBrushFaceAttributesRequest& request, const int flags) { request.setSurfaceFlags(flags); },
             [](ChangeBrushFaceAttributesRequest& request, const int flags) { request.unsetSurfaceFlags(flags); },
             [](const Game& game, const int flags) { return game.surfaceFlags().flagNames(flags); }
@@ -256,7 +256,7 @@ namespace TrenchBroom {
         }
 
         bool EntityClassNameTagMatcher::matches(const Taggable& taggable) const {
-            BrushMatchVisitor visitor([this](const Brush& brush) {
+            BrushMatchVisitor visitor([this](const BrushNode& brush) {
                 const auto* entity = brush.entity();
                 if (entity == nullptr) {
                     return false;
@@ -305,13 +305,9 @@ namespace TrenchBroom {
             facade.createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
 
             if (!m_texture.empty()) {
-                const auto& textureManager = facade.textureManager();
-                auto* texture = textureManager.texture(m_texture);
-                if (texture != nullptr) {
-                    ChangeBrushFaceAttributesRequest request;
-                    request.setTexture(texture);
-                    facade.setFaceAttributes(request);
-                }
+                ChangeBrushFaceAttributesRequest request;
+                request.setTextureName(m_texture);
+                facade.setFaceAttributes(request);
             }
 
         }

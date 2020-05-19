@@ -214,16 +214,19 @@ namespace TrenchBroom {
 
             connect(m_table->selectionModel(), &QItemSelectionModel::selectionChanged, this, [=](){
                 updateControlsEnabled();
+                emit currentRowChanged();
             });
 
             // e.g. handles setting a value of a default attribute so it becomes non-default
             connect(m_proxyModel, &QAbstractItemModel::dataChanged, this, [=]() {
                 updateControlsEnabled();
+                emit currentRowChanged();
             });
 
             // e.g. handles deleting 2 rows
             connect(m_proxyModel, &QAbstractItemModel::modelReset, this, [=]() {
                 updateControlsEnabled();
+                emit currentRowChanged();
             });
 
             // Shortcuts

@@ -44,9 +44,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::HitType::Type ScaleObjectsTool::ScaleToolSideHit = Model::HitType::freeType();
-        const Model::HitType::Type ScaleObjectsTool::ScaleToolEdgeHit = Model::HitType::freeType();
-        const Model::HitType::Type ScaleObjectsTool::ScaleToolCornerHit = Model::HitType::freeType();
+        const Model::HitType::Type ScaleObjectsTool::ScaleToolSideHitType = Model::HitType::freeType();
+        const Model::HitType::Type ScaleObjectsTool::ScaleToolEdgeHitType = Model::HitType::freeType();
+        const Model::HitType::Type ScaleObjectsTool::ScaleToolCornerHitType = Model::HitType::freeType();
 
         // Scale tool helper functions
 
@@ -410,13 +410,13 @@ namespace TrenchBroom {
             // because all of these lines go through the center of the box anyway, so the resulting line would be the
             // same.
 
-            if (hit.type() == ScaleObjectsTool::ScaleToolSideHit) {
+            if (hit.type() == ScaleObjectsTool::ScaleToolSideHitType) {
                 const auto draggingSide = hit.target<BBoxSide>();
 
                 // We could use centerForBBoxSide(draggingSide) here, but this gives better dragging behaviour.
                 // See pickBackSideOfBox() for how hit.hitPoint() is determined.
                 handleLine = vm::line3(hit.hitPoint(), draggingSide.normal);
-            } else if (hit.type() == ScaleObjectsTool::ScaleToolEdgeHit) {
+            } else if (hit.type() == ScaleObjectsTool::ScaleToolEdgeHitType) {
                 const auto endEdge = hit.target<BBoxEdge>();
                 const auto startEdge = oppositeEdge(endEdge);
 
@@ -427,7 +427,7 @@ namespace TrenchBroom {
                 const vm::vec3 handleLineEnd = endEdgeActual.center();
 
                 handleLine = vm::line3(handleLineStart, normalize(handleLineEnd - handleLineStart));
-            } else if (hit.type() == ScaleObjectsTool::ScaleToolCornerHit) {
+            } else if (hit.type() == ScaleObjectsTool::ScaleToolCornerHitType) {
                 const auto endCorner = hit.target<BBoxCorner>();
                 const auto startCorner = oppositeCorner(endCorner);
 
@@ -447,15 +447,15 @@ namespace TrenchBroom {
                              const vm::vec3& delta,
                              const ProportionalAxes& proportional,
                              const AnchorPos anchor) {
-            if (dragStartHit.type() == ScaleObjectsTool::ScaleToolSideHit) {
+            if (dragStartHit.type() == ScaleObjectsTool::ScaleToolSideHitType) {
                 const auto endSide = dragStartHit.target<BBoxSide>();
 
                 return moveBBoxSide(bboxAtDragStart, endSide, delta, proportional, anchor);
-            } else if (dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHit) {
+            } else if (dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHitType) {
                 const auto endEdge = dragStartHit.target<BBoxEdge>();
 
                 return moveBBoxEdge(bboxAtDragStart, endEdge, delta, proportional, anchor);
-            } else if (dragStartHit.type() == ScaleObjectsTool::ScaleToolCornerHit) {
+            } else if (dragStartHit.type() == ScaleObjectsTool::ScaleToolCornerHitType) {
                 const auto endCorner = dragStartHit.target<BBoxCorner>();
 
                 return moveBBoxCorner(bboxAtDragStart, endCorner, delta, anchor);
@@ -538,7 +538,7 @@ namespace TrenchBroom {
                 // The hit point is the closest point on the pick ray to one of the edges of the face.
                 // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
                 assert(result.pickedSideNormal != vm::vec3::zero());
-                pickResult.addHit(Model::Hit(ScaleToolSideHit, result.distAlongRay, vm::point_at_distance(pickRay, result.distAlongRay), BBoxSide{result.pickedSideNormal}));
+                pickResult.addHit(Model::Hit(ScaleToolSideHitType, result.distAlongRay, vm::point_at_distance(pickRay, result.distAlongRay), BBoxSide{result.pickedSideNormal}));
             }
         }
 
@@ -563,7 +563,7 @@ namespace TrenchBroom {
                     for (const vm::vec3& point : std::vector<vm::vec3>{points.start(), points.end()}) {
                         const FloatType dist = camera.pickPointHandle(pickRay, point, static_cast<FloatType>(pref(Preferences::HandleRadius)));
                         if (!vm::is_nan(dist)) {
-                            localPickResult.addHit(Model::Hit(ScaleToolEdgeHit, dist, vm::point_at_distance(pickRay, dist), edge));
+                            localPickResult.addHit(Model::Hit(ScaleToolEdgeHitType, dist, vm::point_at_distance(pickRay, dist), edge));
                         }
                     }
                 }
@@ -600,7 +600,7 @@ namespace TrenchBroom {
                 const auto cornerRadius = static_cast<FloatType>(pref(Preferences::HandleRadius)) * 2.0;
                 const auto dist = camera.pickPointHandle(pickRay, point, cornerRadius);
                 if (!vm::is_nan(dist)) {
-                    localPickResult.addHit(Model::Hit(ScaleToolCornerHit, dist, vm::point_at_distance(pickRay, dist), corner));
+                    localPickResult.addHit(Model::Hit(ScaleToolCornerHitType, dist, vm::point_at_distance(pickRay, dist), corner));
                 }
             }
 
@@ -610,7 +610,7 @@ namespace TrenchBroom {
 
                 const auto dist = camera.pickLineSegmentHandle(pickRay, points, static_cast<FloatType>(pref(Preferences::HandleRadius)));
                 if (!vm::is_nan(dist)) {
-                    localPickResult.addHit(Model::Hit(ScaleToolEdgeHit, dist, vm::point_at_distance(pickRay, dist), edge));
+                    localPickResult.addHit(Model::Hit(ScaleToolEdgeHitType, dist, vm::point_at_distance(pickRay, dist), edge));
                 }
             }
 
@@ -620,7 +620,7 @@ namespace TrenchBroom {
 
                 const auto dist = vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly));
                 if (!vm::is_nan(dist)) {
-                    localPickResult.addHit(Model::Hit(ScaleToolSideHit, dist, vm::point_at_distance(pickRay, dist), side));
+                    localPickResult.addHit(Model::Hit(ScaleToolSideHitType, dist, vm::point_at_distance(pickRay, dist), side));
                 }
             }
 
@@ -703,7 +703,7 @@ namespace TrenchBroom {
         std::vector<vm::polygon3f> ScaleObjectsTool::polygonsHighlightedByDrag() const {
             std::vector<BBoxSide> sides;
 
-            if (m_dragStartHit.type() == ScaleToolSideHit) {
+            if (m_dragStartHit.type() == ScaleToolSideHitType) {
                 const auto side = m_dragStartHit.target<BBoxSide>();
                 sides = {side};
 
@@ -726,10 +726,10 @@ namespace TrenchBroom {
                         sides.emplace_back(side2);
                     }
                 }
-            } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
+            } else if (m_dragStartHit.type() == ScaleToolEdgeHitType) {
                 const auto edge = m_dragStartHit.target<BBoxEdge>();
                 sides = sidesForEdgeSelection(edge);
-            } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
+            } else if (m_dragStartHit.type() == ScaleToolCornerHitType) {
                 const auto corner = m_dragStartHit.target<BBoxCorner>();
                 sides = sidesForCornerSelection(corner);
             } else {
@@ -749,7 +749,7 @@ namespace TrenchBroom {
         }
 
         vm::polygon3f ScaleObjectsTool::dragSide() const {
-            if (m_dragStartHit.type() == ScaleToolSideHit) {
+            if (m_dragStartHit.type() == ScaleToolSideHitType) {
                 const auto side = m_dragStartHit.target<BBoxSide>();
                 return vm::polygon3f(polygonForBBoxSide(bounds(), side));
             }
@@ -758,7 +758,7 @@ namespace TrenchBroom {
         }
 
         bool ScaleObjectsTool::hasDragEdge() const {
-            return m_dragStartHit.type() == ScaleToolEdgeHit;
+            return m_dragStartHit.type() == ScaleToolEdgeHitType;
         }
 
         vm::segment3f ScaleObjectsTool::dragEdge() const {
@@ -768,7 +768,7 @@ namespace TrenchBroom {
         }
 
         bool ScaleObjectsTool::hasDragCorner() const {
-            return m_dragStartHit.type() == ScaleToolCornerHit;
+            return m_dragStartHit.type() == ScaleToolCornerHitType;
         }
 
         vm::vec3f ScaleObjectsTool::dragCorner() const {
@@ -783,9 +783,9 @@ namespace TrenchBroom {
             }
 
             const auto type = m_dragStartHit.type();
-            return type == ScaleToolEdgeHit
-                   || type == ScaleToolCornerHit
-                   || type == ScaleToolSideHit;
+            return type == ScaleToolEdgeHitType
+                   || type == ScaleToolCornerHitType
+                   || type == ScaleToolSideHitType;
         }
 
         vm::vec3f ScaleObjectsTool::dragAnchor() const {
@@ -793,19 +793,19 @@ namespace TrenchBroom {
                 return vm::vec3f(bounds().center());
             }
 
-            if (m_dragStartHit.type() == ScaleToolSideHit) {
+            if (m_dragStartHit.type() == ScaleToolSideHitType) {
                 const auto endSide = m_dragStartHit.target<BBoxSide>();
                 const auto startSide = oppositeSide(endSide);
 
                 return vm::vec3f(centerForBBoxSide(bounds(), startSide));
-            } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
+            } else if (m_dragStartHit.type() == ScaleToolEdgeHitType) {
                 const auto endEdge = m_dragStartHit.target<BBoxEdge>();
                 const auto startEdge = oppositeEdge(endEdge);
 
                 const vm::segment3 startEdgeActual = pointsForBBoxEdge(bounds(), startEdge);
 
                 return vm::vec3f(startEdgeActual.center());
-            } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
+            } else if (m_dragStartHit.type() == ScaleToolCornerHitType) {
                 const auto endCorner = m_dragStartHit.target<BBoxCorner>();
                 const auto startCorner = oppositeCorner(endCorner);
 
@@ -837,18 +837,18 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsTool::updatePickedHandle(const Model::PickResult &pickResult) {
-            const Model::Hit& hit = pickResult.query().type(ScaleToolSideHit | ScaleToolEdgeHit | ScaleToolCornerHit).occluded().first();
+            const Model::Hit& hit = pickResult.query().type(ScaleToolSideHitType | ScaleToolEdgeHitType | ScaleToolCornerHitType).occluded().first();
 
             // extract the highlighted handle from the hit here, and only refresh views if it changed
-            if (hit.type() == ScaleToolSideHit && m_dragStartHit.type() == ScaleToolSideHit) {
+            if (hit.type() == ScaleToolSideHitType && m_dragStartHit.type() == ScaleToolSideHitType) {
                 if (hit.target<BBoxSide>() == m_dragStartHit.target<BBoxSide>()) {
                     return;
                 }
-            } else if (hit.type() == ScaleToolEdgeHit && m_dragStartHit.type() == ScaleToolEdgeHit) {
+            } else if (hit.type() == ScaleToolEdgeHitType && m_dragStartHit.type() == ScaleToolEdgeHitType) {
                 if (hit.target<BBoxEdge>() == m_dragStartHit.target<BBoxEdge>()) {
                     return;
                 }
-            } else if (hit.type() == ScaleToolCornerHit && m_dragStartHit.type() == ScaleToolCornerHit) {
+            } else if (hit.type() == ScaleToolCornerHitType && m_dragStartHit.type() == ScaleToolCornerHitType) {
                 if (hit.target<BBoxCorner>() == m_dragStartHit.target<BBoxCorner>()) {
                     return;
                 }
@@ -878,9 +878,9 @@ namespace TrenchBroom {
 
         void ScaleObjectsTool::startScaleWithHit(const Model::Hit& hit) {
             ensure(hit.isMatch(), "must start with matching hit");
-            ensure(hit.type() == ScaleToolCornerHit
-                   || hit.type() == ScaleToolEdgeHit
-                   || hit.type() == ScaleToolSideHit, "wrong hit type");
+            ensure(hit.type() == ScaleToolCornerHitType
+                   || hit.type() == ScaleToolEdgeHitType
+                   || hit.type() == ScaleToolSideHitType, "wrong hit type");
             ensure(!m_resizing, "must not be resizing already");
 
             m_bboxAtDragStart = bounds();

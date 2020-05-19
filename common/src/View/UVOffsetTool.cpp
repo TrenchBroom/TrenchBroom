@@ -76,9 +76,9 @@ namespace TrenchBroom {
             const auto snapped  = snapDelta(delta);
 
             const auto* face = m_helper.face();
-            const auto corrected = correct(face->offset() - snapped, 4, 0.0f);
+            const auto corrected = correct(face->attributes().offset() - snapped, 4, 0.0f);
 
-            if (corrected == face->offset()) {
+            if (corrected == face->attributes().offset()) {
                 return true;
             }
 
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             const auto distance = vm::intersect_ray_plane(ray, boundary);
             const auto hitPoint = vm::point_at_distance(ray, distance);
 
-            const auto transform = face->toTexCoordSystemMatrix(vm::vec2f::zero(), face->scale(), true);
+            const auto transform = face->toTexCoordSystemMatrix(vm::vec2f::zero(), face->attributes().scale(), true);
             return vm::vec2f(transform * hitPoint);
         }
 
@@ -121,7 +121,7 @@ namespace TrenchBroom {
                 return round(delta);
             }
 
-            const auto transform = face->toTexCoordSystemMatrix(face->offset() - delta, face->scale(), true);
+            const auto transform = face->toTexCoordSystemMatrix(face->attributes().offset() - delta, face->attributes().scale(), true);
 
             auto distance = vm::vec2f::max();
             for (const Model::BrushVertex* vertex : face->vertices()) {

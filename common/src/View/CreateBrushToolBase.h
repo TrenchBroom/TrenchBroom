@@ -26,7 +26,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
+        class BrushNode;
     }
 
     namespace Renderer {
@@ -43,7 +43,7 @@ namespace TrenchBroom {
         protected:
             std::weak_ptr<MapDocument> m_document;
         private:
-            Model::Brush* m_brush;
+            Model::BrushNode* m_brush;
             Renderer::BrushRenderer* m_brushRenderer;
         public:
             CreateBrushToolBase(bool initiallyActive, std::weak_ptr<MapDocument> document);
@@ -58,7 +58,7 @@ namespace TrenchBroom {
         private:
             void renderBrush(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         protected:
-            void updateBrush(Model::Brush* brush);
+            void updateBrush(Model::BrushNode* brush);
         private:
             virtual void doBrushWasCreated();
         };

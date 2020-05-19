@@ -28,13 +28,13 @@
 namespace TrenchBroom {
     namespace Model {
         class AttributableNode;
-        class Brush;
-        class Entity;
-        class Group;
+        class BrushNode;
+        class EntityNode;
+        class GroupNode;
         class Issue;
         class IssueQuickFix;
-        class Layer;
-        class World;
+        class LayerNode;
+        class WorldNode;
 
         class IssueGenerator {
         protected:
@@ -51,20 +51,20 @@ namespace TrenchBroom {
             const std::string& description() const;
             const IssueQuickFixList& quickFixes() const;
 
-            void generate(World* world,   IssueList& issues) const;
-            void generate(Layer* layer,   IssueList& issues) const;
-            void generate(Group* group,   IssueList& issues) const;
-            void generate(Entity* entity, IssueList& issues) const;
-            void generate(Brush* brush,   IssueList& issues) const;
+            void generate(WorldNode* worldNode,   IssueList& issues) const;
+            void generate(LayerNode* layerNode,   IssueList& issues) const;
+            void generate(GroupNode* groupNode,   IssueList& issues) const;
+            void generate(EntityNode* entityNode, IssueList& issues) const;
+            void generate(BrushNode* brushNode,   IssueList& issues) const;
         protected:
             IssueGenerator(IssueType type, const std::string& description);
             void addQuickFix(IssueQuickFix* quickFix);
         private:
-            virtual void doGenerate(World* world,           IssueList& issues) const;
-            virtual void doGenerate(Layer* layer,           IssueList& issues) const;
-            virtual void doGenerate(Group* group,           IssueList& issues) const;
-            virtual void doGenerate(Entity* entity,         IssueList& issues) const;
-            virtual void doGenerate(Brush* brush,           IssueList& issues) const;
+            virtual void doGenerate(WorldNode* worldNode,           IssueList& issues) const;
+            virtual void doGenerate(LayerNode* layerNode,           IssueList& issues) const;
+            virtual void doGenerate(GroupNode* groupNode,           IssueList& issues) const;
+            virtual void doGenerate(EntityNode* entityNode,         IssueList& issues) const;
+            virtual void doGenerate(BrushNode* brushNode,           IssueList& issues) const;
             virtual void doGenerate(AttributableNode* node, IssueList& issues) const;
         };
     }

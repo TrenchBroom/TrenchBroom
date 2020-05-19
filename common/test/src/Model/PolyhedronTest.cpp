@@ -1395,20 +1395,6 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             p.addPoint(p2); // Assertion failure here - re-adding p2
         }
 
-        class ClipCallback : public Polyhedron3d::Callback {
-        private:
-            using FaceSet = std::set<PFace*>;
-            FaceSet m_originals;
-        public:
-            void faceWillBeDeleted(PFace* face) override {
-                ASSERT_TRUE(m_originals.find(face) == std::end(m_originals));
-            }
-
-            void faceWasSplit(PFace* original, PFace* /* clone */) override {
-                m_originals.insert(original);
-            }
-        };
-
         TEST_CASE("PolyhedronTest.clipCubeWithHorizontalPlane", "[PolyhedronTest]") {
             const vm::vec3d p1(-64.0, -64.0, -64.0);
             const vm::vec3d p2(-64.0, -64.0, +64.0);
@@ -1432,9 +1418,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             Polyhedron3d p(positions);
 
             const vm::plane3d plane(vm::vec3d::zero(), vm::vec3d::pos_z());
-            ClipCallback callback;
-
-            ASSERT_TRUE(p.clip(plane, callback).success());
+            ASSERT_TRUE(p.clip(plane).success());
 
             const vm::vec3d d(0.0, 0.0, -64.0);
             ASSERT_EQ(12u, p.edgeCount());
@@ -1482,9 +1466,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             Polyhedron3d p(positions);
 
             const vm::plane3d plane(vm::vec3d(0.0, 0.0, 64.0), vm::vec3d::pos_z());
-            ClipCallback callback;
-
-            ASSERT_TRUE(p.clip(plane, callback).unchanged());
+            ASSERT_TRUE(p.clip(plane).unchanged());
 
             ASSERT_EQ(12u, p.edgeCount());
             ASSERT_TRUE(hasEdge(p, p1, p2));
@@ -1531,9 +1513,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             Polyhedron3d p(positions);
 
             const vm::plane3d plane(vm::vec3d(0.0, 0.0, 72.0), vm::vec3d::pos_z());
-            ClipCallback callback;
-
-            ASSERT_TRUE(p.clip(plane, callback).unchanged());
+            ASSERT_TRUE(p.clip(plane).unchanged());
 
             ASSERT_EQ(12u, p.edgeCount());
             ASSERT_TRUE(hasEdge(p, p1, p2));
@@ -1580,18 +1560,14 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             Polyhedron3d p(positions);
 
             const vm::plane3d plane(vm::vec3d(0.0, 0.0, -64.0), vm::vec3d::pos_z());
-            ClipCallback callback;
-
-            ASSERT_TRUE(p.clip(plane, callback).empty());
+            ASSERT_TRUE(p.clip(plane).empty());
         }
 
         TEST_CASE("PolyhedronTest.clipCubeWithSlantedPlane", "[PolyhedronTest]") {
             Polyhedron3d p(vm::bbox3d(64.0));
 
             const vm::plane3d plane(vm::vec3d(64.0, 64.0, 0.0), normalize(vm::vec3d(1.0, 1.0, 1.0)));
-            ClipCallback callback;
-
-            ASSERT_TRUE(p.clip(plane, callback).success());
+            ASSERT_TRUE(p.clip(plane).success());
 
             const vm::vec3d  p1(-64.0, -64.0, -64.0);
             const vm::vec3d  p2(-64.0, -64.0, +64.0);
@@ -1647,9 +1623,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             Polyhedron3d p(vm::bbox3d(64.0));
 
             const vm::plane3d plane(vm::vec3d::zero(), normalize(vm::vec3d(1.0, 1.0, 0.0)));
-            ClipCallback callback;
-
-            ASSERT_TRUE(p.clip(plane, callback).success());
+            ASSERT_TRUE(p.clip(plane).success());
 
             const vm::vec3d  p1(-64.0, -64.0, -64.0);
             const vm::vec3d  p2(-64.0, -64.0, +64.0);
@@ -1689,9 +1663,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             Polyhedron3d p(vm::bbox3d(64.0));
 
             const vm::plane3d plane(vm::vec3d(  0.0, -64.0, 0.0), normalize(vm::vec3d(2.0, 1.0, 0.0)));
-            ClipCallback callback;
-
-            ASSERT_TRUE(p.clip(plane, callback).success());
+            ASSERT_TRUE(p.clip(plane).success());
 
             const vm::vec3d  p1(-64.0, -64.0, -64.0);
             const vm::vec3d  p2(-64.0, -64.0, +64.0);
@@ -1767,7 +1739,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
         bool findAndRemove(std::vector<Polyhedron3d>& result, const std::vector<vm::vec3d>& vertices) {
             for (auto it = std::begin(result), end = std::end(result); it != end; ++it) {
                 const Polyhedron3d& polyhedron = *it;
-                if (polyhedron.hasAllVertices(vertices)) {
+                if (polyhedron.hasAllVertices(vertices, vm::Cd::almost_zero())) {
                     result.erase(it);
                     return true;
                 }
@@ -1985,18 +1957,18 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             const Polyhedron3d subtrahend(subtrahendVertices);
 
             auto result = minuend.subtract(subtrahend);
-
+            
             std::vector<vm::vec3d> f1, f2, f3, f4;
             vm::parse_all<double, 3>("(64 64 64) (-32 64 -64) (64 -32 -64) (64 -32 64) (-32 64 64) (64 64 -64)", std::back_inserter(f1));
             vm::parse_all<double, 3>("(-64 32 64) (-64 32 -64) (-32 -0 64) (-32 -0 -64) (-0 32 -64) (-0 32 64) (-64 64 64) (-32 64 -64) (-32 64 64) (-64 64 -64)", std::back_inserter(f2));
             vm::parse_all<double, 3>("(64 -32 64) (64 -32 -64) (64 -64 64) (64 -64 -64) (-0 -32 64) (32 -0 64) (32 -0 -64) (-0 -32 -64) (32 -64 -64) (32 -64 64)", std::back_inserter(f3));
             vm::parse_all<double, 3>("(-64 -64 64) (-64 -64 -64) (-64 32 -64) (-64 32 64) (32 -64 64) (32 -64 -64)", std::back_inserter(f4));
-            ASSERT_TRUE(findAndRemove(result, f1));
-            ASSERT_TRUE(findAndRemove(result, f2));
-            ASSERT_TRUE(findAndRemove(result, f3));
-            ASSERT_TRUE(findAndRemove(result, f4));
+            CHECK(findAndRemove(result, f1));
+            CHECK(findAndRemove(result, f2));
+            CHECK(findAndRemove(result, f3));
+            CHECK(findAndRemove(result, f4));
 
-            ASSERT_TRUE(result.empty());
+            CHECK(result.size() == 0u);
         }
 
         TEST_CASE("PolyhedronTest.subtractFailWithMissingFragments", "[PolyhedronTest]") {

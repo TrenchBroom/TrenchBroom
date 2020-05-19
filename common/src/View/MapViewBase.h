@@ -50,7 +50,7 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class Group;
+        class GroupNode;
         class Node;
         class NodeCollection;
         class SmartTag;
@@ -188,7 +188,7 @@ namespace TrenchBroom {
             Model::Node* findNewGroupForObjects(const std::vector<Model::Node*>& nodes) const;
 
             void mergeSelectedGroups();
-            Model::Group* findGroupToMergeGroupsInto(const Model::NodeCollection& selectedNodes) const;
+            Model::GroupNode* findGroupToMergeGroupsInto(const Model::NodeCollection& selectedNodes) const;
 
             /**
              * Checks whether the given node can be reparented under the given new parent.

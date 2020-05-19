@@ -50,23 +50,23 @@ namespace TrenchBroom {
 
         NodeVisitor::~NodeVisitor() {}
 
-        void NodeVisitor::visit(World* world) {
+        void NodeVisitor::visit(WorldNode* world) {
             doVisit(world);
         }
 
-        void NodeVisitor::visit(Layer* layer) {
+        void NodeVisitor::visit(LayerNode* layer) {
             doVisit(layer);
         }
 
-        void NodeVisitor::visit(Group* group) {
+        void NodeVisitor::visit(GroupNode* group) {
             doVisit(group);
         }
 
-        void NodeVisitor::visit(Entity* entity) {
+        void NodeVisitor::visit(EntityNode* entity) {
             doVisit(entity);
         }
 
-        void NodeVisitor::visit(Brush* brush) {
+        void NodeVisitor::visit(BrushNode* brush) {
             doVisit(brush);
         }
 
@@ -75,61 +75,61 @@ namespace TrenchBroom {
 
         ConstNodeVisitor::~ConstNodeVisitor() {}
 
-        void ConstNodeVisitor::visit(const World* world) {
+        void ConstNodeVisitor::visit(const WorldNode* world) {
             doVisit(world);
         }
 
-        void ConstNodeVisitor::visit(const Layer* layer) {
+        void ConstNodeVisitor::visit(const LayerNode* layer) {
             doVisit(layer);
         }
 
-        void ConstNodeVisitor::visit(const Group* group) {
+        void ConstNodeVisitor::visit(const GroupNode* group) {
             doVisit(group);
         }
 
-        void ConstNodeVisitor::visit(const Entity* entity) {
+        void ConstNodeVisitor::visit(const EntityNode* entity) {
             doVisit(entity);
         }
 
-        void ConstNodeVisitor::visit(const Brush* brush) {
+        void ConstNodeVisitor::visit(const BrushNode* brush) {
             doVisit(brush);
         }
 
         class _NodeVisitorPrototype : public NodeVisitor {
         private:
-            void doVisit(World*) override  {}
-            void doVisit(Layer*) override  {}
-            void doVisit(Group*) override  {}
-            void doVisit(Entity*) override {}
-            void doVisit(Brush*) override  {}
+            void doVisit(WorldNode*) override  {}
+            void doVisit(LayerNode*) override  {}
+            void doVisit(GroupNode*) override  {}
+            void doVisit(EntityNode*) override {}
+            void doVisit(BrushNode*) override  {}
         };
 
         class _ConstNodeVisitorPrototype : public ConstNodeVisitor {
         private:
-            void doVisit(const World*) override  {}
-            void doVisit(const Layer*) override  {}
-            void doVisit(const Group*) override  {}
-            void doVisit(const Entity*) override {}
-            void doVisit(const Brush*) override  {}
+            void doVisit(const WorldNode*) override  {}
+            void doVisit(const LayerNode*) override  {}
+            void doVisit(const GroupNode*) override  {}
+            void doVisit(const EntityNode*) override {}
+            void doVisit(const BrushNode*) override  {}
         };
     }
 
 
     class _NodeVisitorPrototype : public Model::NodeVisitor {
     private:
-        void doVisit(Model::World*) override  {}
-        void doVisit(Model::Layer*) override  {}
-        void doVisit(Model::Group*) override  {}
-        void doVisit(Model::Entity*) override {}
-        void doVisit(Model::Brush* ) override  {}
+        void doVisit(Model::WorldNode*) override  {}
+        void doVisit(Model::LayerNode*) override  {}
+        void doVisit(Model::GroupNode*) override  {}
+        void doVisit(Model::EntityNode*) override {}
+        void doVisit(Model::BrushNode* ) override  {}
     };
 
     class _ConstNodeVisitorPrototype : public Model::ConstNodeVisitor {
     private:
-        void doVisit(const Model::World*) override  {}
-        void doVisit(const Model::Layer*) override  {}
-        void doVisit(const Model::Group*) override  {}
-        void doVisit(const Model::Entity*) override {}
-        void doVisit(const Model::Brush*) override  {}
+        void doVisit(const Model::WorldNode*) override  {}
+        void doVisit(const Model::LayerNode*) override  {}
+        void doVisit(const Model::GroupNode*) override  {}
+        void doVisit(const Model::EntityNode*) override {}
+        void doVisit(const Model::BrushNode*) override  {}
     };
 }

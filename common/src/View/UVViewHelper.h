@@ -48,7 +48,7 @@ namespace TrenchBroom {
             Renderer::OrthographicCamera& m_camera;
             bool m_zoomValid;
 
-            Model::BrushFace* m_face;
+            const Model::BrushFace* m_face;
 
             vm::vec2i m_subDivisions;
 
@@ -60,9 +60,9 @@ namespace TrenchBroom {
             explicit UVViewHelper(Renderer::OrthographicCamera& camera);
 
             bool valid() const;
-            Model::BrushFace* face() const;
+            const Model::BrushFace* face() const;
             const Assets::Texture* texture() const;
-            void setFace(Model::BrushFace* face);
+            void setFace(const Model::BrushFace* face);
             void cameraViewportChanged();
 
             const vm::vec2i& subDivisions() const;

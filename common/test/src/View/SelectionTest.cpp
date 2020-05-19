@@ -21,12 +21,12 @@
 
 #include "GTestCompat.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
-#include "Model/Group.h"
-#include "Model/Layer.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
 #include "Model/NodeCollection.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "View/MapDocumentTest.h"
 #include "View/MapDocument.h"
 
@@ -39,23 +39,23 @@ namespace TrenchBroom {
             document->deleteObjects();
             assert(document->selectedNodes().nodeCount() == 0);
 
-            Model::Layer* layer = new Model::Layer("Layer 1");
+            Model::LayerNode* layer = new Model::LayerNode("Layer 1");
             document->addNode(layer, document->world());
 
-            Model::Group* group = new Model::Group("Unnamed");
+            Model::GroupNode* group = new Model::GroupNode("Unnamed");
             document->addNode(group, layer);
 
             Model::BrushBuilder builder(document->world(), document->worldBounds());
             const vm::bbox3 brushBounds(vm::vec3(-32.0, -32.0, -32.0),
                                     vm::vec3(+32.0, +32.0, +32.0));
 
-            Model::Brush* brush = builder.createCuboid(brushBounds, "texture");
+            Model::BrushNode* brush = new Model::BrushNode(builder.createCuboid(brushBounds, "texture"));
             document->addNode(brush, group);
 
             const vm::bbox3 selectionBounds(vm::vec3(-16.0, -16.0, -48.0),
                                         vm::vec3(+16.0, +16.0, +48.0));
 
-            Model::Brush* selectionBrush = builder.createCuboid(selectionBounds, "texture");
+            Model::BrushNode* selectionBrush = new Model::BrushNode(builder.createCuboid(selectionBounds, "texture"));
             document->addNode(selectionBrush, layer);
 
             document->select(selectionBrush);
@@ -69,23 +69,23 @@ namespace TrenchBroom {
             document->deleteObjects();
             assert(document->selectedNodes().nodeCount() == 0);
 
-            Model::Layer* layer = new Model::Layer("Layer 1");
+            Model::LayerNode* layer = new Model::LayerNode("Layer 1");
             document->addNode(layer, document->world());
 
-            Model::Group* group = new Model::Group("Unnamed");
+            Model::GroupNode* group = new Model::GroupNode("Unnamed");
             document->addNode(group, layer);
 
             Model::BrushBuilder builder(document->world(), document->worldBounds());
             const vm::bbox3 brushBounds(vm::vec3(-32.0, -32.0, -32.0),
                                     vm::vec3(+32.0, +32.0, +32.0));
 
-            Model::Brush* brush = builder.createCuboid(brushBounds, "texture");
+            Model::BrushNode* brush = new Model::BrushNode(builder.createCuboid(brushBounds, "texture"));
             document->addNode(brush, group);
 
             const vm::bbox3 selectionBounds(vm::vec3(-48.0, -48.0, -48.0),
                                         vm::vec3(+48.0, +48.0, +48.0));
 
-            Model::Brush* selectionBrush = builder.createCuboid(selectionBounds, "texture");
+            Model::BrushNode* selectionBrush = new Model::BrushNode(builder.createCuboid(selectionBounds, "texture"));
             document->addNode(selectionBrush, layer);
 
             document->select(selectionBrush);

@@ -27,13 +27,13 @@
 namespace TrenchBroom {
     namespace Model {
         template <typename T, typename FP, typename VP>
-        Polyhedron<T,FP,VP> Polyhedron<T,FP,VP>::intersect(Polyhedron other, const Callback& callback) const {
+        Polyhedron<T,FP,VP> Polyhedron<T,FP,VP>::intersect(Polyhedron other) const {
             if (!polyhedron() || !other.polyhedron()) {
                 return Polyhedron();
             }
 
             for (const Face* currentFace : m_faces) {
-                const vm::plane<T,3> plane = callback.getPlane(currentFace);
+                const vm::plane<T,3>& plane = currentFace->plane();
                 const ClipResult result = other.clip(plane);
                 if (result.empty()) {
                     return Polyhedron();
@@ -44,8 +44,8 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        std::vector<Polyhedron<T,FP,VP>> Polyhedron<T,FP,VP>::subtract(const Polyhedron& subtrahend, const Callback& callback) const {
-            Subtract subtract(*this, subtrahend, callback);
+        std::vector<Polyhedron<T,FP,VP>> Polyhedron<T,FP,VP>::subtract(const Polyhedron& subtrahend) const {
+            Subtract subtract(*this, subtrahend);
             return subtract.result();
         }
 
@@ -54,17 +54,15 @@ namespace TrenchBroom {
         private:
             const Polyhedron& m_minuend;
             Polyhedron m_subtrahend;
-            const Callback& m_callback;
 
             using Fragments = std::vector<Polyhedron<T,FP,VP>>;
             Fragments m_fragments;
 
             using PlaneList = std::vector<vm::plane<T,3>>;
         public:
-            Subtract(const Polyhedron& minuend, const Polyhedron& subtrahend, const Callback& callback) :
+            Subtract(const Polyhedron& minuend, const Polyhedron& subtrahend) :
                 m_minuend(minuend),
-                m_subtrahend(subtrahend),
-                m_callback(callback) {
+                m_subtrahend(subtrahend) {
                 if (clipSubtrahend()) {
                     subtract();
                 } else {
@@ -87,7 +85,7 @@ namespace TrenchBroom {
              */
             bool clipSubtrahend() {
                 for (const Face* face : m_minuend.faces()) {
-                    const ClipResult result = m_subtrahend.clip(m_callback.getPlane(face));
+                    const ClipResult result = m_subtrahend.clip(face->plane());
                     if (result.empty()) {
                         return false;
                     }
@@ -111,7 +109,7 @@ namespace TrenchBroom {
                 result.reserve(m_subtrahend.faceCount());
 
                 for (const auto* face : m_subtrahend.faces()) {
-                    result.push_back(m_callback.getPlane(face));
+                    result.push_back(face->plane());
                 }
 
                 return result;

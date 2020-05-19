@@ -26,7 +26,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityModelManager.h"
 #include "Model/EditorContext.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Renderer/Camera.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderBatch.h"
@@ -47,9 +47,9 @@ namespace TrenchBroom {
     namespace Renderer {
         class EntityRenderer::EntityClassnameAnchor : public TextAnchor3D {
         private:
-            const Model::Entity* m_entity;
+            const Model::EntityNode* m_entity;
         public:
-            EntityClassnameAnchor(const Model::Entity* entity) :
+            EntityClassnameAnchor(const Model::EntityNode* entity) :
             m_entity(entity) {}
         private:
             vm::vec3f basePosition() const override {
@@ -77,7 +77,7 @@ namespace TrenchBroom {
         m_showAngles(false),
         m_showHiddenEntities(false) {}
 
-        void EntityRenderer::setEntities(const std::vector<Model::Entity*>& entities) {
+        void EntityRenderer::setEntities(const std::vector<Model::EntityNode*>& entities) {
             m_entities = entities;
             m_modelRenderer.setEntities(std::begin(m_entities), std::end(m_entities));
             invalidate();
@@ -212,7 +212,7 @@ namespace TrenchBroom {
                 renderService.setForegroundColor(m_overlayTextColor);
                 renderService.setBackgroundColor(m_overlayBackgroundColor);
 
-                for (const Model::Entity* entity : m_entities) {
+                for (const Model::EntityNode* entity : m_entities) {
                     if (m_showHiddenEntities || m_editorContext.visible(entity)) {
                         if (entity->group() == nullptr || entity->group() == m_editorContext.currentGroup()) {
                             if (m_showOccludedOverlays)
@@ -346,7 +346,7 @@ namespace TrenchBroom {
                 BuildWireframeBoundsVertices pointEntityWireframeBoundsBuilder(pointEntityWireframeVertices);
                 BuildWireframeBoundsVertices brushEntityWireframeBoundsBuilder(brushEntityWireframeVertices);
 
-                for (const Model::Entity* entity : m_entities) {
+                for (const Model::EntityNode* entity : m_entities) {
                     if (m_editorContext.visible(entity)) {
                         const bool pointEntity = !entity->hasChildren();
                         if (pointEntity) {
@@ -372,7 +372,7 @@ namespace TrenchBroom {
                 pointEntityWireframeVertices.reserve(24 * m_entities.size());
                 brushEntityWireframeVertices.reserve(24 * m_entities.size());
 
-                for (const Model::Entity* entity : m_entities) {
+                for (const Model::EntityNode* entity : m_entities) {
                     if (m_editorContext.visible(entity)) {
                         const bool pointEntity = !entity->hasChildren();
 
@@ -400,7 +400,7 @@ namespace TrenchBroom {
             m_boundsValid = true;
         }
 
-        AttrString EntityRenderer::entityString(const Model::Entity* entity) const {
+        AttrString EntityRenderer::entityString(const Model::EntityNode* entity) const {
             const auto& classname = entity->classname();
             // const Model::AttributeValue& targetname = entity->attribute(Model::AttributeNames::Targetname);
 
@@ -411,7 +411,7 @@ namespace TrenchBroom {
             return str;
         }
 
-        const Color& EntityRenderer::boundsColor(const Model::Entity* entity) const {
+        const Color& EntityRenderer::boundsColor(const Model::EntityNode* entity) const {
             const Assets::EntityDefinition* definition = entity->definition();
             if (definition == nullptr) {
                 return m_boundsColor;

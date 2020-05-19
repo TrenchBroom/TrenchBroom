@@ -20,43 +20,32 @@
 #ifndef TrenchBroom_Selection
 #define TrenchBroom_Selection
 
+#include "Model/BrushFaceHandle.h"
+
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushFace;
         class Node;
     }
 
     namespace View {
         class Selection {
         private:
-            std::vector<Model::Node*> m_partiallySelectedNodes;
-            std::vector<Model::Node*> m_partiallyDeselectedNodes;
-            std::vector<Model::Node*> m_recursivelySelectedNodes;
-            std::vector<Model::Node*> m_recursivelyDeselectedNodes;
             std::vector<Model::Node*> m_selectedNodes;
             std::vector<Model::Node*> m_deselectedNodes;
-            std::vector<Model::BrushFace*> m_selectedBrushFaces;
-            std::vector<Model::BrushFace*> m_deselectedBrushFaces;
+            std::vector<Model::BrushFaceHandle> m_selectedBrushFaces;
+            std::vector<Model::BrushFaceHandle> m_deselectedBrushFaces;
         public:
-            const std::vector<Model::Node*>& partiallySelectedNodes() const;
-            const std::vector<Model::Node*>& partiallyDeselectedNodes() const;
-            const std::vector<Model::Node*>& recursivelySelectedNodes() const;
-            const std::vector<Model::Node*>& recursivelyDeselectedNodes() const;
             const std::vector<Model::Node*>& selectedNodes() const;
             const std::vector<Model::Node*>& deselectedNodes() const;
-            const std::vector<Model::BrushFace*>& selectedBrushFaces() const;
-            const std::vector<Model::BrushFace*>& deselectedBrushFaces() const;
+            const std::vector<Model::BrushFaceHandle>& selectedBrushFaces() const;
+            const std::vector<Model::BrushFaceHandle>& deselectedBrushFaces() const;
 
-            void addPartiallySelectedNodes(const std::vector<Model::Node*>& nodes);
-            void addPartiallyDeselectedNodes(const std::vector<Model::Node*>& nodes);
-            void addRecursivelySelectedNodes(const std::vector<Model::Node*>& nodes);
-            void addRecursivelyDeselectedNodes(const std::vector<Model::Node*>& nodes);
             void addSelectedNodes(const std::vector<Model::Node*>& nodes);
             void addDeselectedNodes(const std::vector<Model::Node*>& nodes);
-            void addSelectedBrushFaces(const std::vector<Model::BrushFace*>& faces);
-            void addDeselectedBrushFaces(const std::vector<Model::BrushFace*>& faces);
+            void addSelectedBrushFaces(const std::vector<Model::BrushFaceHandle>& faces);
+            void addDeselectedBrushFaces(const std::vector<Model::BrushFaceHandle>& faces);
         };
     }
 }

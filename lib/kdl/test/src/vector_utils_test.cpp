@@ -81,25 +81,44 @@ namespace kdl {
     TEST_CASE("vector_utils_test.vec_index_of", "[vector_utils_test]") {
         using vec = std::vector<int>;
 
-        ASSERT_EQ(0u, vec_index_of(vec({}), 1));
-        ASSERT_EQ(1u, vec_index_of(vec({ 2 }), 1));
+        ASSERT_EQ(std::nullopt, vec_index_of(vec({}), 1));
+        ASSERT_EQ(std::nullopt, vec_index_of(vec({ 2 }), 1));
         ASSERT_EQ(0u, vec_index_of(vec({ 1 }), 1));
         ASSERT_EQ(0u, vec_index_of(vec({ 1, 2, 3 }), 1));
         ASSERT_EQ(1u, vec_index_of(vec({ 1, 2, 3 }), 2));
         ASSERT_EQ(2u, vec_index_of(vec({ 1, 2, 3 }), 3));
-        ASSERT_EQ(3u, vec_index_of(vec({ 1, 2, 3 }), 4));
+        ASSERT_EQ(1u, vec_index_of(vec({ 1, 2, 2 }), 2));
+        ASSERT_EQ(std::nullopt, vec_index_of(vec({ 1, 2, 3 }), 4));
+
+        
+        ASSERT_EQ(std::nullopt, vec_index_of(vec({}), [](const auto& i) { return i == 1; }));
+        ASSERT_EQ(std::nullopt, vec_index_of(vec({ 2 }), [](const auto& i) { return i == 1; }));
+        ASSERT_EQ(0u, vec_index_of(vec({ 1 }), [](const auto& i) { return i == 1; }));
+        ASSERT_EQ(0u, vec_index_of(vec({ 1, 2, 3 }), [](const auto& i) { return i == 1; }));
+        ASSERT_EQ(1u, vec_index_of(vec({ 1, 2, 3 }), [](const auto& i) { return i == 2; }));
+        ASSERT_EQ(2u, vec_index_of(vec({ 1, 2, 3 }), [](const auto& i) { return i == 3; }));
+        ASSERT_EQ(1u, vec_index_of(vec({ 1, 2, 2 }), [](const auto& i) { return i == 2; }));
+        ASSERT_EQ(std::nullopt, vec_index_of(vec({ 1, 2, 3 }), [](const auto& i) { return i == 4; }));
     }
 
     TEST_CASE("vector_utils_test.vec_contains", "[vector_utils_test]") {
         using vec = std::vector<int>;
 
-        ASSERT_FALSE(vec_contains(vec({}), 1));
-        ASSERT_FALSE(vec_contains(vec({ 2 }), 1));
-        ASSERT_TRUE(vec_contains(vec({ 1 }), 1));
-        ASSERT_TRUE(vec_contains(vec({ 1, 2, 3 }), 1));
-        ASSERT_TRUE(vec_contains(vec({ 1, 2, 3 }), 2));
-        ASSERT_TRUE(vec_contains(vec({ 1, 2, 3 }), 3));
-        ASSERT_FALSE(vec_contains(vec({ 1, 2, 3 }), 4));
+        ASSERT_EQ(false, vec_contains(vec({}), 1));
+        ASSERT_EQ(false, vec_contains(vec({ 2 }), 1));
+        ASSERT_EQ(true, vec_contains(vec({ 1 }), 1));
+        ASSERT_EQ(true, vec_contains(vec({ 1, 2, 3 }), 1));
+        ASSERT_EQ(true, vec_contains(vec({ 1, 2, 3 }), 2));
+        ASSERT_EQ(true, vec_contains(vec({ 1, 2, 3 }), 3));
+        ASSERT_EQ(false, vec_contains(vec({ 1, 2, 3 }), 4));
+        
+        ASSERT_EQ(false, vec_contains(vec({}), [](const auto& i) { return i == 1; }));
+        ASSERT_EQ(false, vec_contains(vec({ 2 }), [](const auto& i) { return i == 1; }));
+        ASSERT_EQ(true, vec_contains(vec({ 1 }), [](const auto& i) { return i == 1; }));
+        ASSERT_EQ(true, vec_contains(vec({ 1, 2, 3 }), [](const auto& i) { return i == 1; }));
+        ASSERT_EQ(true, vec_contains(vec({ 1, 2, 3 }), [](const auto& i) { return i == 2; }));
+        ASSERT_EQ(true, vec_contains(vec({ 1, 2, 3 }), [](const auto& i) { return i == 3; }));
+        ASSERT_EQ(false, vec_contains(vec({ 1, 2, 3 }), [](const auto& i) { return i == 4; }));
     }
 
     template <typename T, typename... Args>
@@ -236,13 +255,59 @@ namespace kdl {
         ASSERT_EQ(std::vector<int>({ 1, 2, 3 }), v);
     }
 
+    TEST_CASE("vector_utils_test.vec_filter", "[vector_utils_test]") {
+        ASSERT_EQ(std::vector<int>({}), vec_filter(std::vector<int>({}), [](auto) { return false; }));
+        ASSERT_EQ(std::vector<int>({}), vec_filter(std::vector<int>({ 1, 2, 3 }), [](auto) { return false; }));
+        ASSERT_EQ(std::vector<int>({ 1, 2, 3}), vec_filter(std::vector<int>({ 1, 2, 3 }), [](auto) { return true; }));
+        ASSERT_EQ(std::vector<int>({ 2 }), vec_filter(std::vector<int>({ 1, 2, 3 }), [](auto x) { return x % 2 == 0; }));
+
+        ASSERT_EQ(std::vector<int>({ 1, 3 }), vec_filter(std::vector<int>({ 1, 2, 3 }), [](auto, auto i) { return i % 2 == 0; }));
+    }
+
+    struct MoveOnly {
+        MoveOnly() = default;
+
+        MoveOnly(const MoveOnly& other) = delete;
+        MoveOnly& operator=(const MoveOnly& other) = delete;
+
+        MoveOnly(MoveOnly&& other) noexcept = default;
+        MoveOnly& operator=(MoveOnly&& other) = default;
+    };
+
+    TEST_CASE("vector_utils_test.vec_filter_rvalue", "[vector_utils_test]") {
+        auto vec = std::vector<MoveOnly>{};
+        vec.emplace_back();
+        vec.emplace_back();
+        ASSERT_EQ(2u, vec_filter(std::move(vec), [](const auto&) { return true; }).size());
+
+        ASSERT_EQ(1u, vec_filter(std::move(vec), [](const auto&, auto i) { return i % 2u == 1u; }).size());
+    }
+
     TEST_CASE("vector_utils_test.vec_transform", "[vector_utils_test]") {
         ASSERT_EQ(std::vector<int>({}), vec_transform(std::vector<int>({}), [](auto x) { return x + 10; }));
         ASSERT_EQ(std::vector<int>({ 11, 12, 13 }),
             vec_transform(std::vector<int>({ 1, 2, 3 }), [](auto x) { return x + 10; }));
         ASSERT_EQ(std::vector<double>({ 11.0, 12.0, 13.0 }),
             vec_transform(std::vector<int>({ 1, 2, 3 }), [](auto x) { return x + 10.0; }));
+
+        ASSERT_EQ(std::vector<double>({ 1.0, 3.0, 5.0 }),
+            vec_transform(std::vector<int>({ 1, 2, 3 }), [](auto x, auto i) { return x + static_cast<double>(i); }));
     }
+
+    struct X {};
+
+    TEST_CASE("vector_utils_test.vec_transform_lvalue", "[vector_utils_test]") {
+        std::vector<X> v{X{}, X{}, X{}};
+        
+        ASSERT_EQ(3u, vec_transform(v, [](X& x) { return x; }).size());
+        ASSERT_EQ(3u, vec_transform(v, [](X& x, std::size_t) { return x; }).size());
+    }
+
+    TEST_CASE("vector_utils_test.vec_transform_rvalue", "[vector_utils_test]") {
+        ASSERT_EQ(1u, vec_transform(std::vector<X>{ X() }, [](X&& x) { return std::move(x); }).size());
+        ASSERT_EQ(1u, vec_transform(std::vector<X>{ X() }, [](X&& x, std::size_t) { return std::move(x); }).size());
+    }
+
 
     TEST_CASE("vector_utils_test.set_difference", "[vector_utils_test]") {
         using vec = std::vector<int>;

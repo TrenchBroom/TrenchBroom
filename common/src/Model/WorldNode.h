@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_World
-#define TrenchBroom_World
+#ifndef TrenchBroom_WorldNode
+#define TrenchBroom_WorldNode
 
 #include "FloatType.h"
 #include "Macros.h"
@@ -40,10 +40,10 @@ namespace TrenchBroom {
         class IssueQuickFix;
         class PickResult;
 
-        class World : public AttributableNode, public ModelFactory {
+        class WorldNode : public AttributableNode, public ModelFactory {
         private:
             std::unique_ptr<ModelFactory> m_factory;
-            Layer* m_defaultLayer;
+            LayerNode* m_defaultLayer;
             std::unique_ptr<AttributableNodeIndex> m_attributableIndex;
             std::unique_ptr<IssueGeneratorRegistry> m_issueGeneratorRegistry;
 
@@ -51,12 +51,12 @@ namespace TrenchBroom {
             std::unique_ptr<NodeTree> m_nodeTree;
             bool m_updateNodeTree;
         public:
-            World(MapFormat mapFormat);
-            ~World() override;
+            WorldNode(MapFormat mapFormat);
+            ~WorldNode() override;
         public: // layer management
-            Layer* defaultLayer() const;
-            std::vector<Layer*> allLayers() const;
-            std::vector<Layer*> customLayers() const;
+            LayerNode* defaultLayer() const;
+            std::vector<LayerNode*> allLayers() const;
+            std::vector<LayerNode*> customLayers() const;
         private:
             void createDefaultLayer();
         public: // index
@@ -111,20 +111,19 @@ namespace TrenchBroom {
             vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement ModelFactory interface
             MapFormat doGetFormat() const override;
-            World* doCreateWorld() const override;
-            Layer* doCreateLayer(const std::string& name) const override;
-            Group* doCreateGroup(const std::string& name) const override;
-            Entity* doCreateEntity() const override;
-            Brush* doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const override;
-            BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;
-            BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const override;
+            WorldNode* doCreateWorld() const override;
+            LayerNode* doCreateLayer(const std::string& name) const override;
+            GroupNode* doCreateGroup(const std::string& name) const override;
+            EntityNode* doCreateEntity() const override;
+            BrushFace doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;
+            BrushFace doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const override;
         private: // implement Taggable interface
             void doAcceptTagVisitor(TagVisitor& visitor) override;
             void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
         private:
-            deleteCopyAndMove(World)
+            deleteCopyAndMove(WorldNode)
         };
     }
 }
 
-#endif /* defined(TrenchBroom_World) */
+#endif /* defined(TrenchBroom_WorldNode) */

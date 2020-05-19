@@ -50,7 +50,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::HitType::Type UVRotateTool::AngleHandleHit = Model::HitType::freeType();
+        const Model::HitType::Type UVRotateTool::AngleHandleHitType = Model::HitType::freeType();
         const double UVRotateTool::CenterHandleRadius =  2.5;
         const double UVRotateTool::RotateHandleRadius = 32.0;
         const double UVRotateTool::RotateHandleWidth  =  5.0;
@@ -91,7 +91,7 @@ namespace TrenchBroom {
                 const auto zoom = static_cast<FloatType>(m_helper.cameraZoom());
                 const auto error = vm::abs(RotateHandleRadius / zoom - vm::distance(hitPointOnPlane, originOnPlane));
                 if (error <= RotateHandleWidth / zoom) {
-                    pickResult.addHit(Model::Hit(AngleHandleHit, distanceToFace, hitPoint, 0, error));
+                    pickResult.addHit(Model::Hit(AngleHandleHitType, distanceToFace, hitPoint, 0, error));
                 }
             }
         }
@@ -108,10 +108,10 @@ namespace TrenchBroom {
             }
 
             const auto& pickResult = inputState.pickResult();
-            const auto& angleHandleHit = pickResult.query().type(AngleHandleHit).occluded().first();
+            const auto& angleHandleHit = pickResult.query().type(AngleHandleHitType).occluded().first();
 
             const auto* face = m_helper.face();
-            if (!face->attribs().valid()) {
+            if (!face->attributes().valid()) {
                 return false;
             }
 
@@ -133,7 +133,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            m_initalAngle = measureAngle(hitPointInFaceCoords) - face->rotation();
+            m_initalAngle = measureAngle(hitPointInFaceCoords) - face->attributes().rotation();
 
             auto document = kdl::mem_lock(m_document);
             document->startTransaction("Rotate Texture");
@@ -172,8 +172,8 @@ namespace TrenchBroom {
             const auto toFaceNew = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             const auto newCenterInFaceCoords = vm::vec2f(toFaceNew * oldCenterInWorldCoords);
 
-            const auto delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / face->scale();
-            const auto newOffset = correct(face->offset() + delta, 4, 0.0f);
+            const auto delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / face->attributes().scale();
+            const auto newOffset = correct(face->attributes().offset() + delta, 4, 0.0f);
 
             request.clear();
             request.setOffset(newOffset);
@@ -294,12 +294,12 @@ namespace TrenchBroom {
             }
 
             const auto* face = m_helper.face();
-            if (!face->attribs().valid()) {
+            if (!face->attributes().valid()) {
                 return;
             }
 
             const auto& pickResult = inputState.pickResult();
-            const auto& angleHandleHit = pickResult.query().type(AngleHandleHit).occluded().first();
+            const auto& angleHandleHit = pickResult.query().type(AngleHandleHitType).occluded().first();
             const auto highlight = angleHandleHit.isMatch() || thisToolDragging();
 
             renderBatch.addOneShot(new Render(m_helper, static_cast<float>(CenterHandleRadius), static_cast<float>(RotateHandleRadius), highlight));

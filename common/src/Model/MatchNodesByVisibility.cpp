@@ -19,23 +19,23 @@
 
 #include "MatchNodesByVisibility.h"
 
-#include "Model/Brush.h"
-#include "Model/Group.h"
-#include "Model/Entity.h"
-#include "Model/Layer.h"
+#include "Model/BrushNode.h"
+#include "Model/GroupNode.h"
+#include "Model/EntityNode.h"
+#include "Model/LayerNode.h"
 #include "Model/Node.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 namespace TrenchBroom {
     namespace Model {
         MatchNodesByVisibility::MatchNodesByVisibility(const VisibilityState visibility) :
         m_visibility(visibility) {}
 
-        bool MatchNodesByVisibility::operator()(const Model::World* world) const   { return match(world);  }
-        bool MatchNodesByVisibility::operator()(const Model::Layer* layer) const   { return match(layer);  }
-        bool MatchNodesByVisibility::operator()(const Model::Group* group) const   { return match(group);  }
-        bool MatchNodesByVisibility::operator()(const Model::Entity* entity) const { return match(entity); }
-        bool MatchNodesByVisibility::operator()(const Model::Brush* brush) const   { return match(brush);  }
+        bool MatchNodesByVisibility::operator()(const Model::WorldNode* world) const   { return match(world);  }
+        bool MatchNodesByVisibility::operator()(const Model::LayerNode* layer) const   { return match(layer);  }
+        bool MatchNodesByVisibility::operator()(const Model::GroupNode* group) const   { return match(group);  }
+        bool MatchNodesByVisibility::operator()(const Model::EntityNode* entity) const { return match(entity); }
+        bool MatchNodesByVisibility::operator()(const Model::BrushNode* brush) const   { return match(brush);  }
 
         bool MatchNodesByVisibility::match(const Model::Node* node) const {
             return node->visibilityState() == m_visibility;

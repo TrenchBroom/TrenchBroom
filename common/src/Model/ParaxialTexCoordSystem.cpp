@@ -116,8 +116,8 @@ namespace TrenchBroom {
             return index % 2 == 0;
         }
 
-        vm::vec2f ParaxialTexCoordSystem::doGetTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs) const {
-            return (computeTexCoords(point, attribs.scale()) + attribs.offset()) / attribs.textureSize();
+        vm::vec2f ParaxialTexCoordSystem::doGetTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs, const vm::vec2f& textureSize) const {
+            return (computeTexCoords(point, attribs.scale()) + attribs.offset()) / textureSize;
         }
 
         void ParaxialTexCoordSystem::doSetRotation(const vm::vec3& normal, const float /* oldAngle */, const float newAngle) {
@@ -126,7 +126,7 @@ namespace TrenchBroom {
             rotateAxes(m_xAxis, m_yAxis, vm::to_radians(static_cast<FloatType>(newAngle)), m_index);
         }
 
-        void ParaxialTexCoordSystem::doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& oldInvariant) {
+        void ParaxialTexCoordSystem::doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, const vm::vec2f& textureSize, bool lockTexture, const vm::vec3& oldInvariant) {
             const vm::vec3 offset     = transformation * vm::vec3::zero();
             const vm::vec3& oldNormal = oldBoundary.normal;
                   vm::vec3 newNormal  = newBoundary.normal;
@@ -155,7 +155,6 @@ namespace TrenchBroom {
             const vm::vec3 transformedXAxis = transformation * oldXAxisOnBoundary - offset;
             const vm::vec3 transformedYAxis = transformation * oldYAxisOnBoundary - offset;
 
-            const vm::vec2f textureSize = attribs.textureSize();
             const bool preferX = textureSize.x() >= textureSize.y();
 
             // obtain the new texture plane norm and the new base texture axes
@@ -217,7 +216,7 @@ namespace TrenchBroom {
 
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordiknates of the center
-            const vm::vec2f newOffset = correct(attribs.modOffset(oldInvariantTexCoords - newInvariantTexCoords), 4);
+            const vm::vec2f newOffset = correct(attribs.modOffset(oldInvariantTexCoords - newInvariantTexCoords, textureSize), 4);
 
             assert(!vm::is_nan(newOffset));
             assert(!vm::is_nan(newScale));

@@ -24,12 +24,12 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/Entity.h"
-#include "Model/Group.h"
-#include "Model/Layer.h"
-#include "Model/World.h"
+#include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
+#include "Model/WorldNode.h"
 #include "View/MapDocumentTest.h"
 #include "View/MapDocument.h"
 
@@ -42,15 +42,15 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(SnapshotTest, "SnapshotTest.setTexturesAfterRestore", "[SnapshotTest]") {
             document->setEnabledTextureCollections(std::vector<IO::Path>{ IO::Path("fixture/test/IO/Wad/cr8_czg.wad") });
 
-            Model::Brush* brush = createBrush("coffin1");
-            document->addNode(brush, document->currentParent());
+            Model::BrushNode* brushNode = createBrushNode("coffin1");
+            document->addNode(brushNode, document->currentParent());
 
             const Assets::Texture* texture = document->textureManager().texture("coffin1");
             ASSERT_NE(nullptr, texture);
             ASSERT_EQ(6u, texture->usageCount());
 
-            for (Model::BrushFace* face : brush->faces())
-                ASSERT_EQ(texture, face->texture());
+            for (const Model::BrushFace& face : brushNode->brush().faces())
+                ASSERT_EQ(texture, face.texture());
 
             document->translateObjects(vm::vec3(1, 1, 1));
             ASSERT_EQ(6u, texture->usageCount());
@@ -58,12 +58,12 @@ namespace TrenchBroom {
             document->undoCommand();
             ASSERT_EQ(6u, texture->usageCount());
 
-            for (Model::BrushFace* face : brush->faces())
-                ASSERT_EQ(texture, face->texture());
+            for (const Model::BrushFace& face : brushNode->brush().faces())
+                ASSERT_EQ(texture, face.texture());
         }
 
         TEST_CASE_METHOD(SnapshotTest, "SnapshotTest.undoRotation", "[SnapshotTest]") {
-            auto* entity = new Model::Entity();
+            auto* entity = new Model::EntityNode();
             entity->addOrUpdateAttribute(Model::AttributeNames::Classname, "test");
 
             document->addNode(entity, document->currentParent());            

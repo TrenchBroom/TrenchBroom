@@ -40,7 +40,7 @@ namespace TrenchBroom {
     namespace View {
         class RotateObjectsHandle {
         public:
-            static const Model::HitType::Type HandleHit;
+            static const Model::HitType::Type HandleHitType;
 
             enum class HitArea {
                 None = 0,

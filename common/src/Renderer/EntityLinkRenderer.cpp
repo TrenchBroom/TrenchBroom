@@ -23,9 +23,9 @@
 #include "Model/AttributableNode.h"
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/EditorContext.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/NodeVisitor.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/PrimType.h"
@@ -173,7 +173,7 @@ namespace TrenchBroom {
 
         class EntityLinkRenderer::MatchEntities {
         public:
-            bool operator()(const Model::Entity*) { return true; }
+            bool operator()(const Model::EntityNode*) { return true; }
             bool operator()(const Model::Node*) { return false; }
         };
 
@@ -193,18 +193,18 @@ namespace TrenchBroom {
             m_selectedColor(selectedColor),
             m_links(links) {}
         private:
-            void doVisit(Model::World*) override {}
-            void doVisit(Model::Layer*) override {}
-            void doVisit(Model::Group*) override {}
-            void doVisit(Model::Brush*) override {}
-            void doVisit(Model::Entity* entity) override {
+            void doVisit(Model::WorldNode*) override {}
+            void doVisit(Model::LayerNode*) override {}
+            void doVisit(Model::GroupNode*) override {}
+            void doVisit(Model::BrushNode*) override {}
+            void doVisit(Model::EntityNode* entity) override {
                 if (m_editorContext.visible(entity)) {
                     visitEntity(entity);
                 }
                 stopRecursion();
             }
 
-            virtual void visitEntity(Model::Entity* entity) = 0;
+            virtual void visitEntity(Model::EntityNode* entity) = 0;
         protected:
             void addLink(const Model::AttributableNode* source, const Model::AttributableNode* target) {
                 const auto anySelected = source->selected() || source->descendantSelected() || target->selected() || target->descendantSelected();
@@ -221,14 +221,14 @@ namespace TrenchBroom {
             CollectAllLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, std::vector<Vertex>& links) :
             CollectLinksVisitor(editorContext, defaultColor, selectedColor, links) {}
         private:
-            void visitEntity(Model::Entity* entity) override {
+            void visitEntity(Model::EntityNode* entity) override {
                 if (m_editorContext.visible(entity)) {
                     addTargets(entity, entity->linkTargets());
                     addTargets(entity, entity->killTargets());
                 }
             }
 
-            void addTargets(Model::Entity* source, const std::vector<Model::AttributableNode*>& targets) {
+            void addTargets(Model::EntityNode* source, const std::vector<Model::AttributableNode*>& targets) {
                 for (const Model::AttributableNode* target : targets) {
                     if (m_editorContext.visible(target))
                         addLink(source, target);
@@ -243,7 +243,7 @@ namespace TrenchBroom {
             CollectTransitiveSelectedLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, std::vector<Vertex>& links) :
             CollectLinksVisitor(editorContext, defaultColor, selectedColor, links) {}
         private:
-            void visitEntity(Model::Entity* entity) override {
+            void visitEntity(Model::EntityNode* entity) override {
                 if (m_editorContext.visible(entity)) {
                     const bool visited = !m_visited.insert(entity).second;
                     if (!visited) {
@@ -255,7 +255,7 @@ namespace TrenchBroom {
                 }
             }
 
-            void addSources(const std::vector<Model::AttributableNode*>& sources, Model::Entity* target) {
+            void addSources(const std::vector<Model::AttributableNode*>& sources, Model::EntityNode* target) {
                 for (Model::AttributableNode* source : sources) {
                     if (m_editorContext.visible(source)) {
                         addLink(source, target);
@@ -264,7 +264,7 @@ namespace TrenchBroom {
                 }
             }
 
-            void addTargets(Model::Entity* source, const std::vector<Model::AttributableNode*>& targets) {
+            void addTargets(Model::EntityNode* source, const std::vector<Model::AttributableNode*>& targets) {
                 for (Model::AttributableNode* target : targets) {
                     if (m_editorContext.visible(target)) {
                         addLink(source, target);
@@ -279,7 +279,7 @@ namespace TrenchBroom {
             CollectDirectSelectedLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, std::vector<Vertex>& links) :
             CollectLinksVisitor(editorContext, defaultColor, selectedColor, links) {}
         private:
-            void visitEntity(Model::Entity* entity) override {
+            void visitEntity(Model::EntityNode* entity) override {
                 if (entity->selected() || entity->descendantSelected()) {
                     addSources(entity->linkSources(), entity);
                     addSources(entity->killSources(), entity);
@@ -288,14 +288,14 @@ namespace TrenchBroom {
                 }
             }
 
-            void addSources(const std::vector<Model::AttributableNode*>& sources, Model::Entity* target) {
+            void addSources(const std::vector<Model::AttributableNode*>& sources, Model::EntityNode* target) {
                 for (const Model::AttributableNode* source : sources) {
                     if (!source->selected() && !source->descendantSelected() && m_editorContext.visible(source))
                         addLink(source, target);
                 }
             }
 
-            void addTargets(Model::Entity* source, const std::vector<Model::AttributableNode*>& targets) {
+            void addTargets(Model::EntityNode* source, const std::vector<Model::AttributableNode*>& targets) {
                 for (const Model::AttributableNode* target : targets) {
                     if (m_editorContext.visible(target))
                         addLink(source, target);
@@ -328,7 +328,7 @@ namespace TrenchBroom {
 
             CollectAllLinksVisitor collectLinks(editorContext, m_defaultColor, m_selectedColor, links);
 
-            Model::World* world = document->world();
+            Model::WorldNode* world = document->world();
             if (world != nullptr)
                 world->acceptAndRecurse(collectLinks);
         }

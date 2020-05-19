@@ -23,12 +23,12 @@
 
 #include "GTestCompat.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
-#include "Model/Entity.h"
-#include "Model/Group.h"
-#include "Model/Layer.h"
-#include "Model/World.h"
+#include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
+#include "Model/WorldNode.h"
 #include "View/MapDocumentTest.h"
 #include "View/MapDocument.h"
 
@@ -37,7 +37,7 @@ namespace TrenchBroom {
         class RemoveNodesTest : public MapDocumentTest {};
 
         TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.removeLayer") {
-            Model::Layer* layer = new Model::Layer("Layer 1");
+            Model::LayerNode* layer = new Model::LayerNode("Layer 1");
             document->addNode(layer, document->world());
 
             document->removeNode(layer);
@@ -48,13 +48,13 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.removeEmptyBrushEntity") {
-            Model::Layer* layer = new Model::Layer("Layer 1");
+            Model::LayerNode* layer = new Model::LayerNode("Layer 1");
             document->addNode(layer, document->world());
 
-            Model::Entity* entity = new Model::Entity();
+            Model::EntityNode* entity = new Model::EntityNode();
             document->addNode(entity, layer);
 
-            Model::Brush* brush = createBrush();
+            Model::BrushNode* brush = createBrushNode();
             document->addNode(brush, entity);
 
             document->removeNode(brush);
@@ -67,12 +67,12 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.removeEmptyGroup") {
-            Model::Group* group = new Model::Group("group");
+            Model::GroupNode* group = new Model::GroupNode("group");
             document->addNode(group, document->currentParent());
 
             document->openGroup(group);
 
-            Model::Brush* brush = createBrush();
+            Model::BrushNode* brush = createBrushNode();
             document->addNode(brush, document->currentParent());
 
             document->removeNode(brush);
@@ -87,17 +87,17 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(RemoveNodesTest, "RemoveNodesTest.recursivelyRemoveEmptyGroups") {
-            Model::Group* outer = new Model::Group("outer");
+            Model::GroupNode* outer = new Model::GroupNode("outer");
             document->addNode(outer, document->currentParent());
 
             document->openGroup(outer);
 
-            Model::Group* inner = new Model::Group("inner");
+            Model::GroupNode* inner = new Model::GroupNode("inner");
             document->addNode(inner, document->currentParent());
 
             document->openGroup(inner);
 
-            Model::Brush* brush = createBrush();
+            Model::BrushNode* brush = createBrushNode();
             document->addNode(brush, document->currentParent());
 
             document->removeNode(brush);

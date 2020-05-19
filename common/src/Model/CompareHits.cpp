@@ -21,9 +21,10 @@
 
 #include "Ensure.h"
 #include "Model/Hit.h"
-#include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Model/Entity.h"
+#include "Model/BrushFaceHandle.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
 #include "Model/HitAdapter.h"
 
 #include <vecmath/util.h>
@@ -51,9 +52,9 @@ namespace TrenchBroom {
         }
 
         int CompareHitsByType::doCompare(const Hit& lhs, const Hit& rhs) const {
-            if (lhs.type() == Brush::BrushHit)
+            if (lhs.type() == BrushNode::BrushHitType)
                 return -1;
-            if (rhs.type() == Brush::BrushHit)
+            if (rhs.type() == BrushNode::BrushHitType)
                 return 1;
             return 0;
         }
@@ -79,13 +80,13 @@ namespace TrenchBroom {
         }
 
         FloatType CompareHitsBySize::getSize(const Hit& hit) const {
-            const BrushFace* face = hitToFace(hit);
-            if (face != nullptr)
-                return face->area(m_axis);
-            const Entity* entity = hitToEntity(hit);
-            if (entity != nullptr)
+            if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                return faceHandle->face().area(m_axis);
+            } else if (const EntityNode* entity = hitToEntity(hit)) {
                 return entity->area(m_axis);
-            return 0.0;
+            } else {
+                return 0.0;
+            }
         }
     }
 }

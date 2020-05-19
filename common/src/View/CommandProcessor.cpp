@@ -73,16 +73,16 @@ namespace TrenchBroom {
         public:
             TransactionCommand(
                 const std::string& name, std::vector<std::unique_ptr<UndoableCommand>>&& commands,
-                Notifier<Command*>& commandDoNotifier,
-                Notifier<Command*>& commandDoneNotifier,
-                Notifier<UndoableCommand*>& commandUndoNotifier,
-                Notifier<UndoableCommand*>& commandUndoneNotifier) :
+                Notifier<Command*>& i_commandDoNotifier,
+                Notifier<Command*>& i_commandDoneNotifier,
+                Notifier<UndoableCommand*>& i_commandUndoNotifier,
+                Notifier<UndoableCommand*>& i_commandUndoneNotifier) :
                 UndoableCommand(Type, name),
                 m_commands(std::move(commands)),
-                m_commandDoNotifier(commandDoNotifier),
-                m_commandDoneNotifier(commandDoneNotifier),
-                m_commandUndoNotifier(commandUndoNotifier),
-                m_commandUndoneNotifier(commandUndoneNotifier),
+                m_commandDoNotifier(i_commandDoNotifier),
+                m_commandDoneNotifier(i_commandDoneNotifier),
+                m_commandUndoNotifier(i_commandUndoNotifier),
+                m_commandUndoneNotifier(i_commandUndoneNotifier),
                 m_isRepeatDelimiter(false) {
                 for (const auto& command : m_commands) {
                     if (command->isRepeatDelimiter()) {

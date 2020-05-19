@@ -30,7 +30,7 @@ namespace TrenchBroom {
         VertexToolBase(document),
         m_faceHandles(std::make_unique<FaceHandleManager>()) {}
 
-        std::vector<Model::Brush*> FaceTool::findIncidentBrushes(const vm::polygon3& handle) const {
+        std::vector<Model::BrushNode*> FaceTool::findIncidentBrushes(const vm::polygon3& handle) const {
             return findIncidentBrushes(*m_faceHandles, handle);
         }
 

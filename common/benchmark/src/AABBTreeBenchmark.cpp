@@ -30,11 +30,11 @@
 #include "IO/Reader.h"
 #include "IO/TestParserStatus.h"
 #include "IO/WorldReader.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/NodeVisitor.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 #include <vecmath/bbox.h>
 
@@ -48,13 +48,13 @@ namespace TrenchBroom {
     public:
         explicit TreeBuilder(AABB& tree) : m_tree(tree) {}
     private:
-        void doVisit(Model::World*) override {}
-        void doVisit(Model::Layer*) override {}
-        void doVisit(Model::Group*) override {}
-        void doVisit(Model::Entity* entity) override {
+        void doVisit(Model::WorldNode*) override {}
+        void doVisit(Model::LayerNode*) override {}
+        void doVisit(Model::GroupNode*) override {}
+        void doVisit(Model::EntityNode* entity) override {
             doInsert(entity);
         }
-        void doVisit(Model::Brush* brush) override {
+        void doVisit(Model::BrushNode* brush) override {
             doInsert(brush);
         }
 

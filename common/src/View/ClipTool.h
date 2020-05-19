@@ -31,6 +31,7 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushFace;
+        class BrushFaceHandle;
         class Node;
         class PickResult;
     }
@@ -49,7 +50,7 @@ namespace TrenchBroom {
 
         class ClipTool : public Tool {
         public:
-            static const Model::HitType::Type PointHit;
+            static const Model::HitType::Type PointHitType;
         private:
             enum ClipSide {
                 ClipSide_Front,
@@ -80,7 +81,7 @@ namespace TrenchBroom {
                 void endDragPoint();
                 void cancelDragPoint();
 
-                bool setFace(const Model::BrushFace* face);
+                bool setFace(const Model::BrushFaceHandle& faceHandle);
                 void reset();
                 size_t getPoints(vm::vec3& point1, vm::vec3& point2, vm::vec3& point3) const;
             private:
@@ -105,7 +106,7 @@ namespace TrenchBroom {
                 virtual void doEndDragPoint() = 0;
                 virtual void doCancelDragPoint() = 0;
 
-                virtual bool doSetFace(const Model::BrushFace* face) = 0;
+                virtual bool doSetFace(const Model::BrushFaceHandle& face) = 0;
                 virtual void doReset() = 0;
                 virtual size_t doGetPoints(vm::vec3& point1, vm::vec3& point2, vm::vec3& point3) const = 0;
             };
@@ -164,7 +165,7 @@ namespace TrenchBroom {
             void endDragPoint();
             void cancelDragPoint();
 
-            void setFace(const Model::BrushFace* face);
+            void setFace(const Model::BrushFaceHandle& face);
             bool reset();
         private:
             void resetStrategy();
@@ -173,7 +174,7 @@ namespace TrenchBroom {
             void clearBrushes();
             void updateBrushes();
 
-            void setFaceAttributes(const std::vector<Model::BrushFace*>& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const;
+            void setFaceAttributes(const std::vector<Model::BrushFace>& faces, Model::BrushFace& frontFace, Model::BrushFace& backFace) const;
 
             void clearRenderers();
             void updateRenderers();
@@ -192,7 +193,7 @@ namespace TrenchBroom {
             void selectionDidChange(const Selection& selection);
             void nodesWillChange(const std::vector<Model::Node*>& nodes);
             void nodesDidChange(const std::vector<Model::Node*>& nodes);
-            void facesDidChange(const std::vector<Model::BrushFace*>& nodes);
+            void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& nodes);
         };
     }
 }

@@ -26,22 +26,22 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/EditorContext.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/PointFile.h"
 #include "Model/PortalFile.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Compass.h"
 #include "Renderer/FontDescriptor.h"
@@ -989,11 +989,11 @@ namespace TrenchBroom {
         static bool isEntity(const Model::Node* node) {
             class IsEntity : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
             private:
-                void doVisit(const Model::World*) override  { setResult(false); }
-                void doVisit(const Model::Layer*) override  { setResult(false); }
-                void doVisit(const Model::Group*) override  { setResult(false); }
-                void doVisit(const Model::Entity*) override { setResult(true); }
-                void doVisit(const Model::Brush*) override  { setResult(false); }
+                void doVisit(const Model::WorldNode*) override  { setResult(false); }
+                void doVisit(const Model::LayerNode*) override  { setResult(false); }
+                void doVisit(const Model::GroupNode*) override  { setResult(false); }
+                void doVisit(const Model::EntityNode*) override { setResult(true); }
+                void doVisit(const Model::BrushNode*) override  { setResult(false); }
             };
 
             IsEntity visitor;
@@ -1205,12 +1205,12 @@ namespace TrenchBroom {
             document->mergeSelectedGroupsWithGroup(newGroup);
         }
 
-        Model::Group* MapViewBase::findGroupToMergeGroupsInto(const Model::NodeCollection& selectedNodes) const {
+        Model::GroupNode* MapViewBase::findGroupToMergeGroupsInto(const Model::NodeCollection& selectedNodes) const {
             if (!(selectedNodes.hasOnlyGroups() && selectedNodes.groupCount() >= 2)) {
                 return nullptr;
             }
 
-            Model::Group* mergeTarget = nullptr;
+            Model::GroupNode* mergeTarget = nullptr;
 
             auto document = kdl::mem_lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().first();
@@ -1257,9 +1257,9 @@ namespace TrenchBroom {
             Model::Node* newParent = nullptr;
 
             auto document = kdl::mem_lock(m_document);
-            const Model::Hit& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
-            if (hit.isMatch()) {
-                const Model::Brush* brush = Model::hitToBrush(hit);
+            const Model::Hit& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+            if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                const Model::BrushNode* brush = faceHandle->node();
                 newParent = brush->entity();
             }
 
@@ -1270,12 +1270,12 @@ namespace TrenchBroom {
             if (!nodes.empty()) {
                 Model::Node* lastNode = nodes.back();
 
-                Model::Group* group = Model::findGroup(lastNode);
+                Model::GroupNode* group = Model::findGroup(lastNode);
                 if (group != nullptr) {
                     return group;
                 }
 
-                Model::Layer* layer = Model::findLayer(lastNode);
+                Model::LayerNode* layer = Model::findLayer(lastNode);
                 if (layer != nullptr) {
                     return layer;
             }
@@ -1295,18 +1295,18 @@ namespace TrenchBroom {
 
         class BrushesToEntities {
         private:
-            const Model::World* m_world;
+            const Model::WorldNode* m_world;
         public:
-            explicit BrushesToEntities(const Model::World* world) : m_world(world) {}
+            explicit BrushesToEntities(const Model::WorldNode* world) : m_world(world) {}
         public:
-            bool operator()(const Model::World*) const       { return false; }
-            bool operator()(const Model::Layer*) const       { return false; }
-            bool operator()(const Model::Group*) const       { return true;  }
-            bool operator()(const Model::Entity*) const      { return true; }
-            bool operator()(const Model::Brush* brush) const { return brush->entity() == m_world; }
+            bool operator()(const Model::WorldNode*) const       { return false; }
+            bool operator()(const Model::LayerNode*) const       { return false; }
+            bool operator()(const Model::GroupNode*) const       { return true;  }
+            bool operator()(const Model::EntityNode*) const      { return true; }
+            bool operator()(const Model::BrushNode* brush) const { return brush->entity() == m_world; }
         };
 
-        static std::vector<Model::Node*> collectEntitiesForBrushes(const std::vector<Model::Node*>& selectedNodes, const Model::World* world) {
+        static std::vector<Model::Node*> collectEntitiesForBrushes(const std::vector<Model::Node*>& selectedNodes, const Model::WorldNode* world) {
             using BrushesToEntitiesVisitor = Model::CollectMatchingNodesVisitor<BrushesToEntities, Model::UniqueNodeCollectionStrategy, Model::StopRecursionIfMatched>;
 
             BrushesToEntitiesVisitor collect((BrushesToEntities(world)));
@@ -1356,7 +1356,7 @@ namespace TrenchBroom {
         bool MapViewBase::canMakeStructural() const {
             auto document = kdl::mem_lock(m_document);
             if (document->selectedNodes().hasOnlyBrushes()) {
-                const std::vector<Model::Brush*>& brushes = document->selectedNodes().brushes();
+                const std::vector<Model::BrushNode*>& brushes = document->selectedNodes().brushes();
                 for (const auto* brush : brushes) {
                     if (brush->hasAnyTag() || brush->entity() != document->world() || brush->anyFaceHasAnyTag()) {
                         return true;

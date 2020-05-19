@@ -22,22 +22,22 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
+        class BrushNode;
         class BrushFace;
-        class Entity;
-        class Group;
-        class Layer;
-        class World;
+        class EntityNode;
+        class GroupNode;
+        class LayerNode;
+        class WorldNode;
 
         class TagVisitor {
         public:
             virtual ~TagVisitor();
 
-            virtual void visit(World& world);
-            virtual void visit(Layer& layer);
-            virtual void visit(Group& group);
-            virtual void visit(Entity& entity);
-            virtual void visit(Brush& brush);
+            virtual void visit(WorldNode& world);
+            virtual void visit(LayerNode& layer);
+            virtual void visit(GroupNode& group);
+            virtual void visit(EntityNode& entity);
+            virtual void visit(BrushNode& brush);
             virtual void visit(BrushFace& face);
         };
 
@@ -45,11 +45,11 @@ namespace TrenchBroom {
         public:
             virtual ~ConstTagVisitor();
 
-            virtual void visit(const World& world);
-            virtual void visit(const Layer& layer);
-            virtual void visit(const Group& group);
-            virtual void visit(const Entity& entity);
-            virtual void visit(const Brush& brush);
+            virtual void visit(const WorldNode& world);
+            virtual void visit(const LayerNode& layer);
+            virtual void visit(const GroupNode& group);
+            virtual void visit(const EntityNode& entity);
+            virtual void visit(const BrushNode& brush);
             virtual void visit(const BrushFace& face);
         };
     }

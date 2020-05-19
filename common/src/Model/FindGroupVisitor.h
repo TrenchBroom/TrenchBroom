@@ -24,31 +24,31 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class FindGroupVisitor : public NodeVisitor, public NodeQuery<Group*> {
+        class FindGroupVisitor : public NodeVisitor, public NodeQuery<GroupNode*> {
         private:
-            void doVisit(World* world) override;
-            void doVisit(Layer* layer) override;
-            void doVisit(Group* group) override;
-            void doVisit(Entity* entity) override;
-            void doVisit(Brush* brush) override;
+            void doVisit(WorldNode* world) override;
+            void doVisit(LayerNode* layer) override;
+            void doVisit(GroupNode* group) override;
+            void doVisit(EntityNode* entity) override;
+            void doVisit(BrushNode* brush) override;
         };
 
-        class FindOutermostClosedGroupVisitor : public NodeVisitor, public NodeQuery<Group*> {
+        class FindOutermostClosedGroupVisitor : public NodeVisitor, public NodeQuery<GroupNode*> {
         private:
-            void doVisit(World* world) override;
-            void doVisit(Layer* layer) override;
-            void doVisit(Group* group) override;
-            void doVisit(Entity* entity) override;
-            void doVisit(Brush* brush) override;
+            void doVisit(WorldNode* world) override;
+            void doVisit(LayerNode* layer) override;
+            void doVisit(GroupNode* group) override;
+            void doVisit(EntityNode* entity) override;
+            void doVisit(BrushNode* brush) override;
         };
 
-        Model::Group* findGroup(Model::Node* node);
+        Model::GroupNode* findGroup(Model::Node* node);
 
         /**
          * Searches the ancestor chain of `node` for the outermost closed group and returns
          * it if one is found, otherwise returns nullptr.
          */
-        Model::Group* findOutermostClosedGroup(Model::Node* node);
+        Model::GroupNode* findOutermostClosedGroup(Model::Node* node);
     }
 }
 

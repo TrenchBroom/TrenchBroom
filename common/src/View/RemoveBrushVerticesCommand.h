@@ -39,7 +39,7 @@ namespace TrenchBroom {
         public:
             static std::unique_ptr<RemoveBrushVerticesCommand> remove(const VertexToBrushesMap& vertices);
 
-            RemoveBrushVerticesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions);
+            RemoveBrushVerticesCommand(const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions);
 
             void selectNewHandlePositions(VertexHandleManager& manager) const;
             void selectOldHandlePositions(VertexHandleManager& manager) const;

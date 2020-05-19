@@ -24,11 +24,13 @@
 
 #include "GTestCompat.h"
 
+#include "FloatType.h"
+
 #include <kdl/vector_set.h>
 
 #include <vecmath/forward.h>
-#include <vecmath/vec.h>
 #include <vecmath/mat.h>
+#include <vecmath/vec.h>
 
 #include <string>
 
@@ -44,12 +46,22 @@ namespace TrenchBroom {
 
     namespace Model {
         class Brush;
+        class BrushNode;
 
-        void assertTexture(const std::string& expected, const Brush* brush, const vm::vec3d& faceNormal);
-        void assertTexture(const std::string& expected, const Brush* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3);
-        void assertTexture(const std::string& expected, const Brush* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3, const vm::vec3d& v4);
-        void assertTexture(const std::string& expected, const Brush* brush, const std::vector<vm::vec3d>& vertices);
-        void assertTexture(const std::string& expected, const Brush* brush, const vm::polygon3d& vertices);
+        std::vector<vm::vec3> asVertexList(const std::vector<vm::segment3>& edges);
+        std::vector<vm::vec3> asVertexList(const std::vector<vm::polygon3>& faces);
+
+        void assertTexture(const std::string& expected, const BrushNode* brush, const vm::vec3d& faceNormal);
+        void assertTexture(const std::string& expected, const BrushNode* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3);
+        void assertTexture(const std::string& expected, const BrushNode* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3, const vm::vec3d& v4);
+        void assertTexture(const std::string& expected, const BrushNode* brush, const std::vector<vm::vec3d>& vertices);
+        void assertTexture(const std::string& expected, const BrushNode* brush, const vm::polygon3d& vertices);
+
+        void assertTexture(const std::string& expected, const Brush& brush, const vm::vec3d& faceNormal);
+        void assertTexture(const std::string& expected, const Brush& brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3);
+        void assertTexture(const std::string& expected, const Brush& brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3, const vm::vec3d& v4);
+        void assertTexture(const std::string& expected, const Brush& brush, const std::vector<vm::vec3d>& vertices);
+        void assertTexture(const std::string& expected, const Brush& brush, const vm::polygon3d& vertices);
     }
 
     enum class Component {

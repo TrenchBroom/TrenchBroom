@@ -20,7 +20,8 @@
 #include "Snapshot.h"
 
 #include "Model/BrushFace.h"
-#include "Model/BrushFaceSnapshot.h"
+#include "Model/BrushFaceHandle.h"
+#include "Model/BrushNode.h"
 #include "Model/Node.h"
 #include "Model/NodeSnapshot.h"
 
@@ -30,7 +31,6 @@ namespace TrenchBroom {
     namespace Model {
         Snapshot::~Snapshot() {
             kdl::vec_clear_and_delete(m_nodeSnapshots);
-            kdl::vec_clear_and_delete(m_brushFaceSnapshots);
         }
 
         void Snapshot::restoreNodes(const vm::bbox3& worldBounds) {
@@ -38,21 +38,10 @@ namespace TrenchBroom {
                 snapshot->restore(worldBounds);
         }
 
-        void Snapshot::restoreBrushFaces() {
-            for (BrushFaceSnapshot* snapshot : m_brushFaceSnapshots)
-                snapshot->restore();
-        }
-
         void Snapshot::takeSnapshot(Node* node) {
             NodeSnapshot* snapshot = node->takeSnapshot();
             if (snapshot != nullptr)
                 m_nodeSnapshots.push_back(snapshot);
-        }
-
-        void Snapshot::takeSnapshot(BrushFace* face) {
-            BrushFaceSnapshot* snapshot = face->takeSnapshot();
-            if (snapshot != nullptr)
-                m_brushFaceSnapshots.push_back(snapshot);
         }
     }
 }

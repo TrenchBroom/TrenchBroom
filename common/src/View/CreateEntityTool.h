@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Entity;
+        class EntityNode;
         class PickResult;
     }
 
@@ -40,7 +40,7 @@ namespace TrenchBroom {
         class CreateEntityTool : public Tool {
         private:
             std::weak_ptr<MapDocument> m_document;
-            Model::Entity* m_entity;
+            Model::EntityNode* m_entity;
             vm::bbox3 m_referenceBounds;
         public:
             explicit CreateEntityTool(std::weak_ptr<MapDocument> document);

@@ -21,7 +21,7 @@
 
 #include "Ensure.h"
 #include "Assets/EntityDefinition.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
@@ -34,7 +34,7 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            explicit EmptyGroupIssue(Group* group) :
+            explicit EmptyGroupIssue(GroupNode* group) :
             Issue(group) {}
         private:
             IssueType doGetType() const override {
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             }
 
             std::string doGetDescription() const override {
-                const Group* group = static_cast<Group*>(node());
+                const GroupNode* group = static_cast<GroupNode*>(node());
                 return "Group '" + group->name() + "' does not contain any objects";
             }
         };
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             addQuickFix(new EmptyGroupIssueQuickFix());
         }
 
-        void EmptyGroupIssueGenerator::doGenerate(Group* group, IssueList& issues) const {
+        void EmptyGroupIssueGenerator::doGenerate(GroupNode* group, IssueList& issues) const {
             ensure(group != nullptr, "group is null");
             if (!group->hasChildren())
                 issues.push_back(new EmptyGroupIssue(group));

@@ -27,14 +27,14 @@
 #include "TrenchBroomApp.h"
 #include "IO/PathQt.h"
 #include "Model/AttributableNode.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/ExportFormat.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
-#include "Model/Group.h"
-#include "Model/Layer.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
 #include "Model/Node.h"
 #include "View/Actions.h"
 #include "View/Autosaver.h"
@@ -408,14 +408,14 @@ namespace TrenchBroom {
             statusBar()->addWidget(m_statusBarLabel);
         }
 
-        static Model::AttributableNode* commonEntityForBrushList(const std::vector<Model::Brush*>& list) {
+        static Model::AttributableNode* commonEntityForBrushList(const std::vector<Model::BrushNode*>& list) {
             if (list.empty())
                 return nullptr;
 
             Model::AttributableNode* firstEntity = list.front()->entity();
             bool multipleEntities = false;
 
-            for (const Model::Brush* brush : list) {
+            for (const Model::BrushNode* brush : list) {
                 if (brush->entity() != firstEntity) {
                     multipleEntities = true;
                 }
@@ -428,14 +428,14 @@ namespace TrenchBroom {
             }
         }
 
-        static std::string commonClassnameForEntityList(const std::vector<Model::Entity*>& list) {
+        static std::string commonClassnameForEntityList(const std::vector<Model::EntityNode*>& list) {
             if (list.empty())
                 return "";
 
             const std::string firstClassname = list.front()->classname();
             bool multipleClassnames = false;
 
-            for (const Model::Entity* entity : list) {
+            for (const Model::EntityNode* entity : list) {
                 if (entity->classname() != firstClassname) {
                     multipleClassnames = true;
                 }
@@ -462,11 +462,11 @@ namespace TrenchBroom {
             result += QString::fromStdString(document->currentLayer()->name()) + DblArrow;
 
             // open groups
-            std::list<Model::Group*> groups;
-            for (Model::Group* group = document->currentGroup(); group != nullptr; group = group->group()) {
+            std::list<Model::GroupNode*> groups;
+            for (Model::GroupNode* group = document->currentGroup(); group != nullptr; group = group->group()) {
                 groups.push_front(group);
             }
-            for (Model::Group* group : groups) {
+            for (Model::GroupNode* group : groups) {
                 result += QString::fromStdString(group->name()) + Arrow;
             }
 
@@ -644,15 +644,15 @@ namespace TrenchBroom {
             updateStatusBar();
         }
 
-        void MapFrame::currentLayerDidChange(const TrenchBroom::Model::Layer*) {
+        void MapFrame::currentLayerDidChange(const TrenchBroom::Model::LayerNode*) {
             updateStatusBar();
         }
 
-        void MapFrame::groupWasOpened(Model::Group*) {
+        void MapFrame::groupWasOpened(Model::GroupNode*) {
             updateStatusBar();
         }
 
-        void MapFrame::groupWasClosed(Model::Group*) {
+        void MapFrame::groupWasClosed(Model::GroupNode*) {
             updateStatusBar();
         }
 

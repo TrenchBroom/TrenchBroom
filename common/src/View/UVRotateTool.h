@@ -42,7 +42,7 @@ namespace TrenchBroom {
 
         class UVRotateTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         public:
-            static const Model::HitType::Type AngleHandleHit;
+            static const Model::HitType::Type AngleHandleHitType;
         private:
             static const FloatType CenterHandleRadius;
             static const FloatType RotateHandleRadius;

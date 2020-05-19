@@ -25,6 +25,7 @@
 #include <algorithm> // for std::sort, std::unique, std::find, std::find_if, std::remove, std::remove_if
 #include <iterator> // std::back_inserter
 #include <functional> // for std::less
+#include <optional>
 #include <type_traits> // for std::less
 #include <vector>
 
@@ -125,6 +126,32 @@ namespace kdl {
             return result;
         }
     }
+    
+    /**
+     * Finds the smallest index at which the given predicate is satisified in the given vector. If the given vector does
+     * not such a value, an empty optional is returned.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @tparam P the predicate type
+     * @param v the vector to check
+     * @param p the predicate
+     * @return the smallest index at which the given predicate is satisfied in the given vector or an empty optional if
+     * the given vector does not contain such a value
+     */
+    template<typename T, typename A, typename P,
+    typename std::enable_if_t<
+        std::is_invocable_r_v<bool, P, const T&>
+    >* = nullptr>
+    std::optional<typename std::vector<T, A>::size_type> vec_index_of(const std::vector<T, A>& v, P&& p) {
+        using IndexType = typename std::vector<T, A>::size_type;
+        for (IndexType i = 0; i < v.size(); ++i) {
+            if (p(v[i])) {
+                return i;
+            }
+        }
+        return std::nullopt;
+    }
 
     /**
      * Finds the smallest index at which the given value is found in the given vector. If the given vector does not
@@ -139,14 +166,27 @@ namespace kdl {
      * given vector does not contain the given value
      */
     template<typename T, typename A, typename X>
-    typename std::vector<T, A>::size_type vec_index_of(const std::vector<T, A>& v, const X& x) {
-        using IndexType = typename std::vector<T, A>::size_type;
-        for (IndexType i = 0; i < v.size(); ++i) {
-            if (v[i] == x) {
-                return i;
-            }
-        }
-        return v.size();
+    std::optional<typename std::vector<T, A>::size_type> vec_index_of(const std::vector<T, A>& v, const X& x) {
+        return vec_index_of(v, [&](const auto& e) { return e == x; });
+    }
+    
+    /**
+     * Finds the smallest index at which the given predicate is satisified in the given vector. If the given vector does
+     * not such a value, an empty optional is returned.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @tparam P the predicate type
+     * @param v the vector to check
+     * @param p the predicate
+     * @return true if the given vector contains an element that satisfies the given predicate
+     */
+    template<typename T, typename A, typename P,
+    typename std::enable_if_t<
+        std::is_invocable_r_v<bool, P, const T&>
+    >* = nullptr>
+    bool vec_contains(const std::vector<T, A>& v, P&& p) {
+        return vec_index_of(v, std::forward<P>(p)).has_value();
     }
 
     /**
@@ -161,7 +201,7 @@ namespace kdl {
      */
     template<typename T, typename A, typename X>
     bool vec_contains(const std::vector<T, A>& v, const X& x) {
-        return vec_index_of(v, x) < v.size();
+        return vec_index_of(v, x).has_value();
     }
 
     namespace detail {
@@ -372,24 +412,299 @@ namespace kdl {
     }
 
     /**
+     * Returns a vector containing every element of the given vector that passes the given filter.
+     * The elements are copied into the returned vector in the same order as they are in the given vector.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @tparam F the type of the filter to apply, must be of type `bool(const T&)`
+     * @param v the vector
+     * @param filter the filter to apply
+     * @return a vector containing the elements that passed the filter
+     */
+    template<typename T, typename A, typename F,
+        typename std::enable_if_t<
+            std::is_invocable_v<F, const T&>
+        >* = nullptr>
+    std::vector<T, A> vec_filter(const std::vector<T, A>& v, F&& filter) {
+        std::vector<T, A> result;
+        result.reserve(v.size());
+
+        for (const auto& x : v) {
+            if (filter(x)) {
+                result.push_back(x);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Returns a vector containing every element of the given vector that passes the given filter.
+     * The elements are copied into the returned vector in the same order as they are in the given vector.
+     *
+     * This version passes the vector element indices to the filter function.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @tparam F the type of the filter to apply, must be of type `bool(const T&, std::size_t)`
+     * @param v the vector
+     * @param filter the filter to apply
+     * @return a vector containing the elements that passed the filter
+     */
+    template<typename T, typename A, typename F,
+        typename std::enable_if_t<
+            std::is_invocable_v<F, const T&, std::size_t>
+        >* = nullptr>
+    std::vector<T, A> vec_filter(const std::vector<T, A>& v, F&& filter) {
+        std::vector<T, A> result;
+        result.reserve(v.size());
+
+        for (std::size_t i = 0u; i < v.size(); ++i) {
+            if (filter(v[i], i)) {
+                result.push_back(v[i]);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Returns a vector containing every element of the given vector that passes the given filter.
+     * The elements are moved into the returned vector in the same order as they are in the given vector.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @tparam F the type of the filter to apply, must be of type `bool(const T&)`
+     * @param v the vector
+     * @param filter the filter to apply
+     * @return a vector containing the elements that passed the filter
+     */
+    template<typename T, typename A, typename F,
+        typename std::enable_if_t<
+            std::is_invocable_r_v<bool, F, const T&>
+        >* = nullptr>
+    std::vector<T, A> vec_filter(std::vector<T, A>&& v, F&& filter) {
+        std::vector<T, A> result;
+        result.reserve(v.size());
+
+        for (auto&& x : v) {
+            if (filter(x)) {
+                result.push_back(std::move(x));
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Returns a vector containing every element of the given vector that passes the given filter.
+     * The elements are moved into the returned vector in the same order as they are in the given vector.
+     *
+     * This version passes the vector element indices to the filter function.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @tparam F the type of the filter to apply, must be of type `bool(const T&, std::size_t)`
+     * @param v the vector
+     * @param filter the filter to apply
+     * @return a vector containing the elements that passed the filter
+     */
+    template<typename T, typename A, typename F,
+        typename std::enable_if_t<
+            std::is_invocable_r_v<bool, F, const T&, std::size_t>
+        >* = nullptr>
+    std::vector<T, A> vec_filter(std::vector<T, A>&& v, F&& filter) {
+        std::vector<T, A> result;
+        result.reserve(v.size());
+
+        for (std::size_t i = 0u; i < v.size(); ++i) {
+            if (filter(v[i], i)) {
+                result.push_back(std::move(v[i]));
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Applies the given lambda to each element of the given vector and returns a vector containing the resulting
      * values, in order in which their original elements appeared in v.
+     *
+     * The elements are passed to the given lambda as const lvalue references.
      *
      * @tparam T the type of the vector elements
      * @tparam A the vector's allocator type
      * @tparam L the type of the lambda to apply
      * @param v the vector
-     * @param lambda the lambda to apply
+     * @param transform the lambda to apply, must be of type `auto(const T&)`
      * @return a vector containing the transformed values
      */
-    template<typename T, typename A, typename L>
-    auto vec_transform(const std::vector<T, A>& v, L&& lambda) {
-        using ResultType = decltype(lambda(std::declval<T>()));
+    template<typename T, typename A, typename L,
+        typename std::enable_if_t<
+            std::is_invocable_v<L, const T&>
+        >* = nullptr>
+    auto vec_transform(const std::vector<T, A>& v, L&& transform) {
+        using ResultType = decltype(transform(std::declval<const T&>()));
 
         std::vector<ResultType> result;
         result.reserve(v.size());
         for (const auto& x : v) {
-            result.push_back(lambda(x));
+            result.push_back(transform(x));
+        }
+
+        return result;
+    }
+
+    /**
+     * Applies the given lambda to each element of the given vector and returns a vector containing the resulting
+     * values, in order in which their original elements appeared in v.
+     *
+     * The elements are passed to the given lambda as const lvalue references.
+     *
+     * This version passes the vector element indices to the filter function.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @tparam L the type of the lambda to apply
+     * @param v the vector
+     * @param transform the lambda to apply, must be of type `auto(const T&, std::size_t)`
+     * @return a vector containing the transformed values
+     */
+    template<typename T, typename A, typename L,
+        typename std::enable_if_t<
+            std::is_invocable_v<L, const T&, std::size_t>
+        >* = nullptr>
+    auto vec_transform(const std::vector<T, A>& v, L&& transform) {
+        using ResultType = decltype(transform(std::declval<const T&>(), std::declval<std::size_t>()));
+
+        std::vector<ResultType> result;
+        result.reserve(v.size());
+        
+        for (std::size_t i = 0u; i < v.size(); ++i) {
+            result.push_back(transform(v[i], i));
+        }
+
+        return result;
+    }
+    
+    /**
+     * Applies the given lambda to each element of the given vector and returns a vector containing the resulting
+     * values, in order in which their original elements appeared in v.
+     *
+     * The elements are passed to the given lambda as lvalue references.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @tparam L the type of the lambda to apply
+     * @param v the vector
+     * @param transform the lambda to apply, must be of type `auto(const T&)`
+     * @return a vector containing the transformed values
+     */
+    template<typename T, typename A, typename L,
+        typename std::enable_if_t<
+            std::is_invocable_v<L, T&>
+        >* = nullptr>
+    auto vec_transform(std::vector<T, A>& v, L&& transform) {
+        using ResultType = decltype(transform(std::declval<T&>()));
+
+        std::vector<ResultType> result;
+        result.reserve(v.size());
+        for (auto& x : v) {
+            result.push_back(transform(x));
+        }
+
+        return result;
+    }
+
+    /**
+     * Applies the given lambda to each element of the given vector and returns a vector containing the resulting
+     * values, in order in which their original elements appeared in v.
+     *
+     * The elements are passed to the given lambda as lvalue references.
+     *
+     * This version passes the vector element indices to the filter function.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @tparam L the type of the lambda to apply
+     * @param v the vector
+     * @param transform the lambda to apply, must be of type `auto(const T&, std::size_t)`
+     * @return a vector containing the transformed values
+     */
+    template<typename T, typename A, typename L,
+        typename std::enable_if_t<
+            std::is_invocable_v<L, T&, std::size_t>
+        >* = nullptr>
+    auto vec_transform(std::vector<T, A>& v, L&& transform) {
+        using ResultType = decltype(transform(std::declval<T&>(), std::declval<std::size_t>()));
+
+        std::vector<ResultType> result;
+        result.reserve(v.size());
+        
+        for (std::size_t i = 0u; i < v.size(); ++i) {
+            result.push_back(transform(v[i], i));
+        }
+
+        return result;
+    }
+
+    /**
+     * Applies the given lambda to each element of the given vector and returns a vector containing the resulting
+     * values, in order in which their original elements appeared in v.
+     *
+     * The elements are passed to the given lambda as rvalue references.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @tparam L the type of the lambda to apply, must be of type auto(T&&)
+     * @param v the vector
+     * @param transform the lambda to apply
+     * @return a vector containing the transformed values
+     */
+    template<typename T, typename A, typename L,
+        typename std::enable_if_t<
+            std::is_invocable_v<L, T&&>
+        >* = nullptr>
+    auto vec_transform(std::vector<T, A>&& v, L&& transform) {
+        using ResultType = decltype(transform(std::declval<T&&>()));
+
+        std::vector<ResultType> result;
+        result.reserve(v.size());
+        for (auto&& x : v) {
+            result.push_back(transform(std::move(x)));
+        }
+
+        return result;
+    }
+
+    /**
+     * Applies the given lambda to each element of the given vector and returns a vector containing the resulting
+     * values, in order in which their original elements appeared in v.
+     *
+     * The elements are passed to the given lambda as rvalue references.
+     *
+     * This version passes the vector element indices to the filter function.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @tparam L the type of the lambda to apply
+     * @param v the vector
+     * @param transform the lambda to apply, must be of type auto(T&&, std::size_t)
+     * @return a vector containing the transformed values
+     */
+    template<typename T, typename A, typename L,
+        typename std::enable_if_t<
+            std::is_invocable_v<L, T&&, std::size_t>
+        >* = nullptr>
+    auto vec_transform(std::vector<T, A>&& v, L&& transform) {
+        using ResultType = decltype(transform(std::declval<T&&>(), std::declval<std::size_t>()));
+
+        std::vector<ResultType> result;
+        result.reserve(v.size());
+        
+        for (std::size_t i = 0u; i < v.size(); ++i) {
+            result.push_back(transform(std::move(v[i]), i));
         }
 
         return result;

@@ -24,7 +24,7 @@
 #include "TestUtils.h"
 #include "Model/AttributableNode.h"
 #include "Model/AttributableNodeIndex.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 
 #include <kdl/vector_utils.h>
 
@@ -44,10 +44,10 @@ namespace TrenchBroom {
         TEST_CASE("EntityAttributeIndexTest.addAttributableNode", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
-            Entity* entity1 = new Entity();
+            EntityNode* entity1 = new EntityNode();
             entity1->addOrUpdateAttribute("test", "somevalue");
 
-            Entity* entity2 = new Entity();
+            EntityNode* entity2 = new EntityNode();
             entity2->addOrUpdateAttribute("test", "somevalue");
             entity2->addOrUpdateAttribute("other", "someothervalue");
 
@@ -72,10 +72,10 @@ namespace TrenchBroom {
         TEST_CASE("EntityAttributeIndexTest.removeAttributableNode", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
-            Entity* entity1 = new Entity();
+            EntityNode* entity1 = new EntityNode();
             entity1->addOrUpdateAttribute("test", "somevalue");
 
-            Entity* entity2 = new Entity();
+            EntityNode* entity2 = new EntityNode();
             entity2->addOrUpdateAttribute("test", "somevalue");
             entity2->addOrUpdateAttribute("other", "someothervalue");
 
@@ -95,10 +95,10 @@ namespace TrenchBroom {
         TEST_CASE("EntityAttributeIndexTest.addAttribute", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
-            Entity* entity1 = new Entity();
+            EntityNode* entity1 = new EntityNode();
             entity1->addOrUpdateAttribute("test", "somevalue");
 
-            Entity* entity2 = new Entity();
+            EntityNode* entity2 = new EntityNode();
             entity2->addOrUpdateAttribute("test", "somevalue");
 
             index.addAttributableNode(entity1);
@@ -125,10 +125,10 @@ namespace TrenchBroom {
         TEST_CASE("EntityAttributeIndexTest.removeAttribute", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
-            Entity* entity1 = new Entity();
+            EntityNode* entity1 = new EntityNode();
             entity1->addOrUpdateAttribute("test", "somevalue");
 
-            Entity* entity2 = new Entity();
+            EntityNode* entity2 = new EntityNode();
             entity2->addOrUpdateAttribute("test", "somevalue");
             entity2->addOrUpdateAttribute("other", "someothervalue");
 
@@ -151,7 +151,7 @@ namespace TrenchBroom {
         TEST_CASE("EntityAttributeIndexTest.addNumberedEntityAttribute", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
-            Entity* entity1 = new Entity();
+            EntityNode* entity1 = new EntityNode();
             entity1->addOrUpdateAttribute("test1", "somevalue");
             entity1->addOrUpdateAttribute("test2", "somevalue");
 
@@ -170,7 +170,7 @@ namespace TrenchBroom {
         TEST_CASE("EntityAttributeIndexTest.addRemoveFloatProperty", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
-            Entity* entity1 = new Entity();
+            EntityNode* entity1 = new EntityNode();
             entity1->addOrUpdateAttribute("delay", "3.5");
 
             index.addAttributableNode(entity1);
@@ -187,10 +187,10 @@ namespace TrenchBroom {
         TEST_CASE("EntityAttributeIndexTest.allNames", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
-            Entity* entity1 = new Entity();
+            EntityNode* entity1 = new EntityNode();
             entity1->addOrUpdateAttribute("test", "somevalue");
 
-            Entity* entity2 = new Entity();
+            EntityNode* entity2 = new EntityNode();
             entity2->addOrUpdateAttribute("test", "somevalue");
             entity2->addOrUpdateAttribute("other", "someothervalue");
 
@@ -203,10 +203,10 @@ namespace TrenchBroom {
         TEST_CASE("EntityAttributeIndexTest.allValuesForNames", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
-            Entity* entity1 = new Entity();
+            EntityNode* entity1 = new EntityNode();
             entity1->addOrUpdateAttribute("test", "somevalue");
 
-            Entity* entity2 = new Entity();
+            EntityNode* entity2 = new EntityNode();
             entity2->addOrUpdateAttribute("test", "somevalue2");
             entity2->addOrUpdateAttribute("other", "someothervalue");
 

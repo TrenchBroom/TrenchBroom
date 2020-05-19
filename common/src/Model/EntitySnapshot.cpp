@@ -19,11 +19,11 @@
 
 #include "EntitySnapshot.h"
 
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 
 namespace TrenchBroom {
     namespace Model {
-        EntitySnapshot::EntitySnapshot(Entity* entity) :
+        EntitySnapshot::EntitySnapshot(EntityNode* entity) :
         m_entity(entity),
         m_attributesSnapshot(entity->attributes()) {}
 

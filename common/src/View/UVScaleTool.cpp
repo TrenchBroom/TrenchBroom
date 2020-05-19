@@ -46,8 +46,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::HitType::Type UVScaleTool::XHandleHit = Model::HitType::freeType();
-        const Model::HitType::Type UVScaleTool::YHandleHit = Model::HitType::freeType();
+        const Model::HitType::Type UVScaleTool::XHandleHitType = Model::HitType::freeType();
+        const Model::HitType::Type UVScaleTool::YHandleHitType = Model::HitType::freeType();
 
         UVScaleTool::UVScaleTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper) :
         ToolControllerBase(),
@@ -64,7 +64,7 @@ namespace TrenchBroom {
         }
 
         void UVScaleTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
-            static const Model::HitType::Type HitTypes[] = { XHandleHit, YHandleHit };
+            static const Model::HitType::Type HitTypes[] = { XHandleHitType, YHandleHitType };
             if (m_helper.valid()) {
                 m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, pickResult);
             }
@@ -95,13 +95,13 @@ namespace TrenchBroom {
             }
 
             auto* face = m_helper.face();
-            if (!face->attribs().valid()) {
+            if (!face->attributes().valid()) {
                 return false;
             }
 
             const auto& pickResult = inputState.pickResult();
-            const auto& xHit = pickResult.query().type(XHandleHit).occluded().first();
-            const auto& yHit = pickResult.query().type(YHandleHit).occluded().first();
+            const auto& xHit = pickResult.query().type(XHandleHitType).occluded().first();
+            const auto& yHit = pickResult.query().type(YHandleHitType).occluded().first();
 
             if (!xHit.isMatch() && !yHit.isMatch()) {
                 return false;
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             const auto curHandleDistTexCoords  = curHandlePosTexCoords  - originHandlePosTexCoords;
 
             auto* face = m_helper.face();
-            auto newScale = face->scale();
+            auto newScale = face->attributes().scale();
             for (size_t i = 0; i < 2; ++i) {
                 if (m_selector[i]) {
                     const auto value = newHandleDistFaceCoords[i] / curHandleDistTexCoords[i];
@@ -175,7 +175,7 @@ namespace TrenchBroom {
 
         vm::vec2f UVScaleTool::getHandlePos() const {
             const auto* face = m_helper.face();
-            const auto toWorld = face->fromTexCoordSystemMatrix(face->offset(), face->scale(), true);
+            const auto toWorld = face->fromTexCoordSystemMatrix(face->attributes().offset(), face->attributes().scale(), true);
             const auto toTex   = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
             return vm::vec2f(toTex * toWorld * vm::vec3(getScaledTranslatedHandlePos()));
@@ -207,13 +207,13 @@ namespace TrenchBroom {
             }
 
             const auto* face = m_helper.face();
-            if (!face->attribs().valid()) {
+            if (!face->attributes().valid()) {
                 return;
             }
 
             // don't overdraw the origin handles
             const auto& pickResult = inputState.pickResult();
-            if (!pickResult.query().type(UVOriginTool::XHandleHit | UVOriginTool::YHandleHit).occluded().first().isMatch()) {
+            if (!pickResult.query().type(UVOriginTool::XHandleHitType | UVOriginTool::YHandleHitType).occluded().first().isMatch()) {
                 const Color color(1.0f, 0.0f, 0.0f, 1.0f);
 
                 Renderer::DirectEdgeRenderer handleRenderer(Renderer::VertexArray::move(getHandleVertices(pickResult)), Renderer::PrimType::Lines);
@@ -222,8 +222,8 @@ namespace TrenchBroom {
         }
 
         std::vector<UVScaleTool::EdgeVertex> UVScaleTool::getHandleVertices(const Model::PickResult& pickResult) const {
-            const auto& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
-            const auto& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
+            const auto& xHandleHit = pickResult.query().type(XHandleHitType).occluded().first();
+            const auto& yHandleHit = pickResult.query().type(YHandleHitType).occluded().first();
             const auto stripeSize = m_helper.stripeSize();
 
             const auto xIndex = xHandleHit.isMatch() ? xHandleHit.target<int>() : 0;

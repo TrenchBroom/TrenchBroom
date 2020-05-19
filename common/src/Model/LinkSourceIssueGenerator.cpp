@@ -19,7 +19,7 @@
 
 #include "LinkSourceIssueGenerator.h"
 
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"

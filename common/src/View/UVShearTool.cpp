@@ -34,8 +34,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::HitType::Type UVShearTool::XHandleHit = Model::HitType::freeType();
-        const Model::HitType::Type UVShearTool::YHandleHit = Model::HitType::freeType();
+        const Model::HitType::Type UVShearTool::XHandleHitType = Model::HitType::freeType();
+        const Model::HitType::Type UVShearTool::YHandleHitType = Model::HitType::freeType();
 
         UVShearTool::UVShearTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper) :
         ToolControllerBase(),
@@ -52,7 +52,7 @@ namespace TrenchBroom {
         }
 
         void UVShearTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
-            static const Model::HitType::Type HitTypes[] = { XHandleHit, YHandleHit };
+            static const Model::HitType::Type HitTypes[] = { XHandleHitType, YHandleHitType };
             if (m_helper.valid())
                 m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, pickResult);
         }
@@ -65,13 +65,13 @@ namespace TrenchBroom {
                 return false;
 
             const auto* face = m_helper.face();
-            if (!face->attribs().valid()) {
+            if (!face->attributes().valid()) {
                 return false;
             }
 
             const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& xHit = pickResult.query().type(XHandleHit).occluded().first();
-            const Model::Hit& yHit = pickResult.query().type(YHandleHit).occluded().first();
+            const Model::Hit& xHit = pickResult.query().type(XHandleHitType).occluded().first();
+            const Model::Hit& yHit = pickResult.query().type(YHandleHitType).occluded().first();
 
             if (!(xHit.isMatch() ^ yHit.isMatch()))
                 return false;
@@ -99,7 +99,7 @@ namespace TrenchBroom {
 
             auto* face = m_helper.face();
             const auto origin = m_helper.origin();
-            const auto oldCoords = vm::vec2f(face->toTexCoordSystemMatrix(vm::vec2f::zero(), face->scale(), true) * origin);
+            const auto oldCoords = vm::vec2f(face->toTexCoordSystemMatrix(vm::vec2f::zero(), face->attributes().scale(), true) * origin);
 
             auto document = kdl::mem_lock(m_document);
             if (m_selector[0]) {
@@ -114,8 +114,8 @@ namespace TrenchBroom {
                 }
             }
 
-            const auto newCoords = vm::vec2f(face->toTexCoordSystemMatrix(vm::vec2f::zero(), face->scale(), true) * origin);
-            const auto newOffset = face->offset() + oldCoords - newCoords;
+            const auto newCoords = vm::vec2f(face->toTexCoordSystemMatrix(vm::vec2f::zero(), face->attributes().scale(), true) * origin);
+            const auto newOffset = face->attributes().offset() + oldCoords - newCoords;
 
             Model::ChangeBrushFaceAttributesRequest request;
             request.setOffset(newOffset);

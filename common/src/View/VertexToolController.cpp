@@ -32,12 +32,12 @@ namespace TrenchBroom {
          * to contain this method due to the call to the inherited findDraggableHandle method.
          */
         Model::Hit VertexToolController::findHandleHit(const InputState& inputState, const VertexToolController::PartBase& base) {
-            const auto vertexHit = base.findDraggableHandle(inputState, VertexHandleManager::HandleHit);
+            const auto vertexHit = base.findDraggableHandle(inputState, VertexHandleManager::HandleHitType);
             if (vertexHit.isMatch())
                 return vertexHit;
             if (inputState.modifierKeysDown(ModifierKeys::MKShift)) {
                 const auto &firstHit = inputState.pickResult().query().first();
-                if (firstHit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit))
+                if (firstHit.hasType(EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType))
                     return firstHit;
             }
             return Model::Hit::NoHit;
@@ -45,17 +45,17 @@ namespace TrenchBroom {
 
 
         std::vector<Model::Hit> VertexToolController::findHandleHits(const InputState& inputState, const VertexToolController::PartBase& base) {
-            const auto vertexHits = base.findDraggableHandles(inputState, VertexHandleManager::HandleHit);
+            const auto vertexHits = base.findDraggableHandles(inputState, VertexHandleManager::HandleHitType);
             if (!vertexHits.empty())
                 return vertexHits;
             if (inputState.modifierKeysDown(ModifierKeys::MKShift)) {
                 const auto& firstHit = inputState.pickResult().query().first();
-                if (firstHit.hasType(EdgeHandleManager::HandleHit)) {
-                    const std::vector<Model::Hit> edgeHits = inputState.pickResult().query().type(EdgeHandleManager::HandleHit).all();
+                if (firstHit.hasType(EdgeHandleManager::HandleHitType)) {
+                    const std::vector<Model::Hit> edgeHits = inputState.pickResult().query().type(EdgeHandleManager::HandleHitType).all();
                     if (!edgeHits.empty())
                         return edgeHits;
-                } else if (firstHit.hasType(FaceHandleManager::HandleHit)) {
-                    const std::vector<Model::Hit> faceHits = inputState.pickResult().query().type(FaceHandleManager::HandleHit).all();
+                } else if (firstHit.hasType(FaceHandleManager::HandleHitType)) {
+                    const std::vector<Model::Hit> faceHits = inputState.pickResult().query().type(FaceHandleManager::HandleHitType).all();
                     if (!faceHits.empty())
                         return faceHits;
                 }
@@ -66,7 +66,7 @@ namespace TrenchBroom {
         class VertexToolController::SelectVertexPart : public SelectPartBase<vm::vec3> {
         public:
             explicit SelectVertexPart(VertexTool* tool) :
-            SelectPartBase(tool, VertexHandleManager::HandleHit) {}
+            SelectPartBase(tool, VertexHandleManager::HandleHitType) {}
         private:
             Model::Hit doFindDraggableHandle(const InputState& inputState) const override {
                 return VertexToolController::findHandleHit(inputState, *this);
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             vm::vec3 m_handleOffset;
         public:
             explicit MoveVertexPart(VertexTool* tool) :
-            MovePartBase(tool, VertexHandleManager::HandleHit),
+            MovePartBase(tool, VertexHandleManager::HandleHitType),
             m_lastSnapType(SnapType::Relative) {}
         private:
             void doModifierKeyChange(const InputState& inputState) override {
@@ -113,7 +113,7 @@ namespace TrenchBroom {
                     m_tool->handleManager().selectedHandleCount() == 1) {
 
                     const Model::Hit hit = VertexToolController::findHandleHit(inputState, *this);
-                    if (hit.hasType(VertexHandleManager::HandleHit)) {
+                    if (hit.hasType(VertexHandleManager::HandleHitType)) {
                         const vm::vec3 sourcePos = m_tool->handleManager().selectedHandles().front();
                         const vm::vec3 targetPos = hit.target<vm::vec3>();
                         const vm::vec3 delta = targetPos - sourcePos;
@@ -164,7 +164,7 @@ namespace TrenchBroom {
 
                 if (!thisToolDragging()) {
                     const Model::Hit hit = findDraggableHandle(inputState);
-                    if (hit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit)) {
+                    if (hit.hasType(EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType)) {
                         const vm::vec3 handle = m_tool->getHandlePosition(hit);
                         if (inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                             m_tool->renderHandle(renderContext, renderBatch, handle, pref(Preferences::SelectedHandleColor));

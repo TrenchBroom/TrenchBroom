@@ -23,14 +23,14 @@
 #include "FloatType.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Game.h"
 #include "Model/Hit.h"
 #include "Model/NodeVisitor.h"
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron3.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderService.h"
 #include "View/AddBrushVerticesCommand.h"
@@ -107,15 +107,15 @@ namespace TrenchBroom {
                 return kdl::mem_lock(m_document)->grid();
             }
 
-            const std::vector<Model::Brush*>& selectedBrushes() const {
+            const std::vector<Model::BrushNode*>& selectedBrushes() const {
                 auto document = kdl::mem_lock(m_document);
                 return document->selectedNodes().brushes();
             }
         public:
             template <typename M, typename I>
-            std::map<typename M::Handle, std::vector<Model::Brush*>> buildBrushMap(const M& manager, I cur, I end) const {
+            std::map<typename M::Handle, std::vector<Model::BrushNode*>> buildBrushMap(const M& manager, I cur, I end) const {
                 using H2 = typename M::Handle;
-                std::map<H2, std::vector<Model::Brush*>> result;
+                std::map<H2, std::vector<Model::BrushNode*>> result;
                 while (cur != end) {
                     const H2& handle = *cur++;
                     result[handle] = findIncidentBrushes(manager, handle);
@@ -125,16 +125,16 @@ namespace TrenchBroom {
 
             // FIXME: use vector_set
             template <typename M, typename H2>
-            std::vector<Model::Brush*> findIncidentBrushes(const M& manager, const H2& handle) const {
-                const std::vector<Model::Brush*>& brushes = selectedBrushes();
+            std::vector<Model::BrushNode*> findIncidentBrushes(const M& manager, const H2& handle) const {
+                const std::vector<Model::BrushNode*>& brushes = selectedBrushes();
                 return manager.findIncidentBrushes(handle, std::begin(brushes), std::end(brushes));
             }
 
             // FIXME: use vector_set
             template <typename M, typename I>
-            std::vector<Model::Brush*> findIncidentBrushes(const M& manager, I cur, I end) const {
-                const std::vector<Model::Brush*>& brushes = selectedBrushes();
-                kdl::vector_set<Model::Brush*> result;
+            std::vector<Model::BrushNode*> findIncidentBrushes(const M& manager, I cur, I end) const {
+                const std::vector<Model::BrushNode*>& brushes = selectedBrushes();
+                kdl::vector_set<Model::BrushNode*> result;
                 auto out = std::inserter(result, std::end(result));
 
                 while (cur != end) {
@@ -274,13 +274,17 @@ namespace TrenchBroom {
 
                 auto document = kdl::mem_lock(m_document);
                 auto game = document->game();
+                
                 const Model::BrushBuilder builder(document->world(), document->worldBounds(), game->defaultFaceAttribs());
-                auto* brush = builder.createBrush(polyhedron, document->currentTextureName());
-                brush->cloneFaceAttributesFrom(document->selectedNodes().brushes());
+                Model::Brush brush = builder.createBrush(polyhedron, document->currentTextureName());
+                
+                for (const Model::BrushNode* selectedBrushNode : document->selectedNodes().brushes()) {
+                    brush.cloneFaceAttributesFrom(selectedBrushNode->brush());
+                }
 
                 const Transaction transaction(document, "CSG Convex Merge");
                 deselectAll();
-                document->addNode(brush, document->currentParent());
+                document->addNode(new Model::BrushNode(std::move(brush)), document->currentParent());
             }
 
             virtual H getHandlePosition(const Model::Hit& hit) const {
@@ -368,7 +372,7 @@ namespace TrenchBroom {
                 m_changeCount = 0;
                 bindObservers();
 
-                const std::vector<Model::Brush*>& brushes = selectedBrushes();
+                const std::vector<Model::BrushNode*>& brushes = selectedBrushes();
                 handleManager().clear();
                 handleManager().addHandles(std::begin(brushes), std::end(brushes));
 
@@ -517,11 +521,11 @@ namespace TrenchBroom {
                 explicit AddHandles(VertexHandleManagerBaseT<HT>& handles) :
                 m_handles(handles) {}
             private:
-                void doVisit(Model::World*) override  {}
-                void doVisit(Model::Layer*) override  {}
-                void doVisit(Model::Group*) override  {}
-                void doVisit(Model::Entity*) override {}
-                void doVisit(Model::Brush* brush) override   {
+                void doVisit(Model::WorldNode*) override  {}
+                void doVisit(Model::LayerNode*) override  {}
+                void doVisit(Model::GroupNode*) override  {}
+                void doVisit(Model::EntityNode*) override {}
+                void doVisit(Model::BrushNode* brush) override   {
                     m_handles.addHandles(brush);
                 }
             };
@@ -534,11 +538,11 @@ namespace TrenchBroom {
                 explicit RemoveHandles(VertexHandleManagerBaseT<HT>& handles) :
                 m_handles(handles) {}
             private:
-                void doVisit(Model::World*) override  {}
-                void doVisit(Model::Layer*) override  {}
-                void doVisit(Model::Group*) override  {}
-                void doVisit(Model::Entity*) override {}
-                void doVisit(Model::Brush* brush) override   {
+                void doVisit(Model::WorldNode*) override  {}
+                void doVisit(Model::LayerNode*) override  {}
+                void doVisit(Model::GroupNode*) override  {}
+                void doVisit(Model::EntityNode*) override {}
+                void doVisit(Model::BrushNode* brush) override   {
                     m_handles.removeHandles(brush);
                 }
             };

@@ -22,7 +22,7 @@
 #include "Logger.h"
 #include "Macros.h"
 #include "Assets/EntityDefinitionManager.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/CollectContainedNodesVisitor.h"
 #include "Model/HitAdapter.h"
@@ -199,30 +199,32 @@ namespace TrenchBroom {
             const vm::plane3 minPlane(min, vm::vec3(m_camera->direction()));
             const vm::plane3 maxPlane(max, vm::vec3(m_camera->direction()));
 
-            const std::vector<Model::Brush*>& selectionBrushes = document->selectedNodes().brushes();
-            assert(!selectionBrushes.empty());
+            const std::vector<Model::BrushNode*>& selectionBrushNodes = document->selectedNodes().brushes();
+            assert(!selectionBrushNodes.empty());
 
             const Model::BrushBuilder brushBuilder(document->world(), worldBounds);
-            std::vector<Model::Brush*> tallBrushes;
-            tallBrushes.reserve(selectionBrushes.size());
+            std::vector<Model::BrushNode*> tallBrushes;
+            tallBrushes.reserve(selectionBrushNodes.size());
 
-            for (const Model::Brush* selectionBrush : selectionBrushes) {
+            for (const Model::BrushNode* selectionBrushNode : selectionBrushNodes) {
+                const Model::Brush& selectionBrush = selectionBrushNode->brush();
+                
                 std::vector<vm::vec3> tallVertices;
-                tallVertices.reserve(2 * selectionBrush->vertexCount());
+                tallVertices.reserve(2 * selectionBrush.vertexCount());
 
-                for (const Model::BrushVertex* vertex : selectionBrush->vertices()) {
+                for (const Model::BrushVertex* vertex : selectionBrush.vertices()) {
                     tallVertices.push_back(minPlane.project_point(vertex->position()));
                     tallVertices.push_back(maxPlane.project_point(vertex->position()));
                 }
 
-                Model::Brush* tallBrush = brushBuilder.createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName);
+                Model::BrushNode* tallBrush = document->world()->createBrush(brushBuilder.createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName));
                 tallBrushes.push_back(tallBrush);
             }
 
             Transaction transaction(document, "Select Tall");
             document->deleteObjects();
 
-            Model::CollectContainedNodesVisitor<std::vector<Model::Brush*>::const_iterator> visitor(std::begin(tallBrushes), std::end(tallBrushes), document->editorContext());
+            Model::CollectContainedNodesVisitor<std::vector<Model::BrushNode*>::const_iterator> visitor(std::begin(tallBrushes), std::end(tallBrushes), document->editorContext());
             document->world()->acceptAndRecurse(visitor);
             document->select(visitor.nodes());
 
@@ -306,10 +308,10 @@ namespace TrenchBroom {
             const auto& grid = document->grid();
             const auto& worldBounds = document->worldBounds();
 
-            const auto& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().selected().first();
-            if (hit.isMatch()) {
-                const auto* face = Model::hitToFace(hit);
-                return grid.moveDeltaForBounds(face->boundary(), bounds, worldBounds, pickRay());
+            const auto& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().selected().first();
+            if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                const auto& face = faceHandle->face();
+                return grid.moveDeltaForBounds(face.boundary(), bounds, worldBounds, pickRay());
             } else {
                 const auto referenceBounds = document->referenceBounds();
                 const auto& pickRay = MapView2D::pickRay();

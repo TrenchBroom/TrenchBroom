@@ -22,7 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/EditorContext.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderBatch.h"
@@ -38,9 +38,9 @@ namespace TrenchBroom {
     namespace Renderer {
         class GroupRenderer::GroupNameAnchor : public TextAnchor3D {
         private:
-            const Model::Group* m_group;
+            const Model::GroupNode* m_group;
         public:
-            GroupNameAnchor(const Model::Group* group) :
+            GroupNameAnchor(const Model::GroupNode* group) :
             m_group(group) {}
         private:
             vm::vec3f basePosition() const override {
@@ -63,7 +63,7 @@ namespace TrenchBroom {
         m_overrideBoundsColor(false),
         m_showOccludedBounds(false) {}
 
-        void GroupRenderer::setGroups(const std::vector<Model::Group*>& groups) {
+        void GroupRenderer::setGroups(const std::vector<Model::GroupNode*>& groups) {
             m_groups = groups;
             invalidate();
         }
@@ -187,7 +187,7 @@ namespace TrenchBroom {
                 vertices.reserve(24 * m_groups.size());
 
                 BuildBoundsVertices boundsBuilder(vertices);
-                for (const Model::Group* group : m_groups) {
+                for (const Model::GroupNode* group : m_groups) {
                     if (shouldRenderGroup(group)) {
                         group->logicalBounds().for_each_edge(boundsBuilder);
                     }
@@ -198,7 +198,7 @@ namespace TrenchBroom {
                 std::vector<GLVertexTypes::P3C4::Vertex> vertices;
                 vertices.reserve(24 * m_groups.size());
 
-                for (const Model::Group* group : m_groups) {
+                for (const Model::GroupNode* group : m_groups) {
                     if (shouldRenderGroup(group)) {
                         BuildColoredBoundsVertices boundsBuilder(vertices, boundsColor(group));
                         group->logicalBounds().for_each_edge(boundsBuilder);
@@ -211,17 +211,17 @@ namespace TrenchBroom {
             m_boundsValid = true;
         }
 
-        bool GroupRenderer::shouldRenderGroup(const Model::Group* group) const {
+        bool GroupRenderer::shouldRenderGroup(const Model::GroupNode* group) const {
             const auto& currentGroup = m_editorContext.currentGroup();
             const auto* parentGroup = group->group();
             return parentGroup == currentGroup && m_editorContext.visible(group);
         }
 
-        AttrString GroupRenderer::groupString(const Model::Group* group) const {
+        AttrString GroupRenderer::groupString(const Model::GroupNode* group) const {
             return group->name();
         }
 
-        const Color& GroupRenderer::boundsColor(const Model::Group* /* group */) const {
+        const Color& GroupRenderer::boundsColor(const Model::GroupNode* /* group */) const {
             return pref(Preferences::DefaultGroupColor);
         }
     }

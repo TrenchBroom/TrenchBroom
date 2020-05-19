@@ -52,13 +52,13 @@ namespace TrenchBroom {
             ~MapDocumentCommandFacade() override;
         public: // selection modification
             void performSelect(const std::vector<Model::Node*>& nodes);
-            void performSelect(const std::vector<Model::BrushFace*>& faces);
+            void performSelect(const std::vector<Model::BrushFaceHandle>& faces);
             void performSelectAllNodes();
             void performSelectAllBrushFaces();
             void performConvertToBrushFaceSelection();
 
             void performDeselect(const std::vector<Model::Node*>& nodes);
-            void performDeselect(const std::vector<Model::BrushFace*>& faces);
+            void performDeselect(const std::vector<Model::BrushFaceHandle>& faces);
             void performDeselectAll();
         private:
             void deselectAllNodes();
@@ -76,10 +76,10 @@ namespace TrenchBroom {
             class RenameGroupsVisitor;
             class UndoRenameGroupsVisitor;
         public:
-            std::map<Model::Group*, std::string> performRenameGroups(const std::string& newName);
-            void performUndoRenameGroups(const std::map<Model::Group*, std::string>& newNames);
+            std::map<Model::GroupNode*, std::string> performRenameGroups(const std::string& newName);
+            void performUndoRenameGroups(const std::map<Model::GroupNode*, std::string>& newNames);
 
-            void performPushGroup(Model::Group* group);
+            void performPushGroup(Model::GroupNode* group);
             void performPopGroup();
         public: // transformation
             /**
@@ -106,13 +106,11 @@ namespace TrenchBroom {
         public: // vertices
             bool performFindPlanePoints();
             bool performSnapVertices(FloatType snapTo);
-            std::vector<vm::vec3> performMoveVertices(const std::map<Model::Brush*, std::vector<vm::vec3>>& vertices, const vm::vec3& delta);
-            std::vector<vm::segment3> performMoveEdges(const std::map<Model::Brush*, std::vector<vm::segment3>>& edges, const vm::vec3& delta);
-            std::vector<vm::polygon3> performMoveFaces(const std::map<Model::Brush*, std::vector<vm::polygon3>>& faces, const vm::vec3& delta);
-            void performAddVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices);
-            void performRemoveVertices(const std::map<Model::Brush*, std::vector<vm::vec3>>& vertices);
-        private: // implement MapDocument operations
-            void performRebuildBrushGeometry(const std::vector<Model::Brush*>& brushes) override;
+            std::vector<vm::vec3> performMoveVertices(const std::map<Model::BrushNode*, std::vector<vm::vec3>>& vertices, const vm::vec3& delta);
+            std::vector<vm::segment3> performMoveEdges(const std::map<Model::BrushNode*, std::vector<vm::segment3>>& edges, const vm::vec3& delta);
+            std::vector<vm::polygon3> performMoveFaces(const std::map<Model::BrushNode*, std::vector<vm::polygon3>>& faces, const vm::vec3& delta);
+            void performAddVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices);
+            void performRemoveVertices(const std::map<Model::BrushNode*, std::vector<vm::vec3>>& vertices);
         public: // snapshots and restoration
             void restoreSnapshot(Model::Snapshot* snapshot);
         public: // entity definition file management

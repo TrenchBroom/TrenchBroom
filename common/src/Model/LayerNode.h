@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Layer
-#define TrenchBroom_Layer
+#ifndef TrenchBroom_LayerNode
+#define TrenchBroom_LayerNode
 
 #include "FloatType.h"
 #include "Macros.h"
@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Layer : public Node {
+        class LayerNode : public Node {
         private:
             std::string m_name;
 
@@ -39,7 +39,7 @@ namespace TrenchBroom {
             mutable vm::bbox3 m_physicalBounds;
             mutable bool m_boundsValid;
         public:
-            Layer(const std::string& name);
+            LayerNode(const std::string& name);
 
             void setName(const std::string& name);
         private: // implement Node interface
@@ -68,9 +68,9 @@ namespace TrenchBroom {
             void doAcceptTagVisitor(TagVisitor& visitor) override;
             void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
         private:
-            deleteCopyAndMove(Layer)
+            deleteCopyAndMove(LayerNode)
         };
     }
 }
 
-#endif /* defined(TrenchBroom_Layer) */
+#endif /* defined(TrenchBroom_LayerNode) */

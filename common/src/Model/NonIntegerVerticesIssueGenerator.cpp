@@ -20,7 +20,7 @@
 #include "NonIntegerVerticesIssueGenerator.h"
 
 #include "Polyhedron.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -36,7 +36,7 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            explicit NonIntegerVerticesIssue(Brush* brush) :
+            explicit NonIntegerVerticesIssue(BrushNode* brush) :
             Issue(brush) {}
 
             IssueType doGetType() const override {
@@ -65,10 +65,11 @@ namespace TrenchBroom {
             addQuickFix(new NonIntegerVerticesIssueQuickFix());
         }
 
-        void NonIntegerVerticesIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
-            for (const BrushVertex* vertex : brush->vertices()) {
+        void NonIntegerVerticesIssueGenerator::doGenerate(BrushNode* brushNode, IssueList& issues) const {
+            const Brush& brush = brushNode->brush();
+            for (const BrushVertex* vertex : brush.vertices()) {
                 if (!vm::is_integral(vertex->position())) {
-                    issues.push_back(new NonIntegerVerticesIssue(brush));
+                    issues.push_back(new NonIntegerVerticesIssue(brushNode));
                     return;
                 }
             }
