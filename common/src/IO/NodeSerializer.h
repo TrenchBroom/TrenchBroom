@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
+        class BrushNode;
         class BrushFace;
         class EntityAttribute;
         class Group;
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             void group(Model::Group* group, const std::vector<Model::EntityAttribute>& parentAttributes);
 
             void entity(Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& parentAttributes, Model::Node* brushParent);
-            void entity(Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& parentAttributes, const std::vector<Model::Brush*>& entityBrushes);
+            void entity(Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& parentAttributes, const std::vector<Model::BrushNode*>& entityBrushes);
         private:
             void beginEntity(const Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& extraAttributes);
             void beginEntity(const Model::Node* node);
@@ -85,11 +85,11 @@ namespace TrenchBroom {
             void entityAttributes(const std::vector<Model::EntityAttribute>& attributes);
             void entityAttribute(const Model::EntityAttribute& attribute);
 
-            void brushes(const std::vector<Model::Brush*>& brushes);
-            void brush(Model::Brush* brush);
+            void brushes(const std::vector<Model::BrushNode*>& brushes);
+            void brush(Model::BrushNode* brush);
 
-            void beginBrush(const Model::Brush* brush);
-            void endBrush(Model::Brush* brush);
+            void beginBrush(const Model::BrushNode* brush);
+            void endBrush(Model::BrushNode* brush);
         public:
             void brushFaces(const std::vector<Model::BrushFace*>& faces);
         private:
@@ -111,8 +111,8 @@ namespace TrenchBroom {
             virtual void doEndEntity(Model::Node* node) = 0;
             virtual void doEntityAttribute(const Model::EntityAttribute& attribute) = 0;
 
-            virtual void doBeginBrush(const Model::Brush* brush) = 0;
-            virtual void doEndBrush(Model::Brush* brush) = 0;
+            virtual void doBeginBrush(const Model::BrushNode* brush) = 0;
+            virtual void doEndBrush(Model::BrushNode* brush) = 0;
             virtual void doBrushFace(Model::BrushFace* face) = 0;
         };
     }

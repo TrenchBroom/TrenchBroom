@@ -23,7 +23,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        void ObjectRenderer::setObjects(const std::vector<Model::Group*>& groups, const std::vector<Model::Entity*>& entities, const std::vector<Model::Brush*>& brushes) {
+        void ObjectRenderer::setObjects(const std::vector<Model::Group*>& groups, const std::vector<Model::Entity*>& entities, const std::vector<Model::BrushNode*>& brushes) {
             m_groupRenderer.setGroups(groups);
             m_entityRenderer.setEntities(entities);
             m_brushRenderer.setBrushes(brushes);
@@ -35,7 +35,7 @@ namespace TrenchBroom {
             m_brushRenderer.invalidate();
         }
 
-        void ObjectRenderer::invalidateBrushes(const std::vector<Model::Brush*>& brushes) {
+        void ObjectRenderer::invalidateBrushes(const std::vector<Model::BrushNode*>& brushes) {
             m_brushRenderer.invalidateBrushes(brushes);
         }
 

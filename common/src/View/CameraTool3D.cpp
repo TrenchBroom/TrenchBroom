@@ -21,7 +21,7 @@
 
 #include "Preferences.h"
 #include "PreferenceManager.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/Hit.h"
 #include "Model/HitQuery.h"
@@ -102,7 +102,7 @@ namespace TrenchBroom {
 
         bool CameraTool3D::doStartMouseDrag(const InputState& inputState) {
             if (orbit(inputState)) {
-                const auto& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit | Model::Entity::EntityHit).occluded().minDistance(3.0).first();
+                const auto& hit = inputState.pickResult().query().pickable().type(Model::BrushNode::BrushHit | Model::Entity::EntityHit).occluded().minDistance(3.0).first();
                 if (hit.isMatch()) {
                     m_orbitCenter = vm::vec3f(hit.hitPoint());
                 } else {

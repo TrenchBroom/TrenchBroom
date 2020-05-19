@@ -28,7 +28,7 @@
 namespace TrenchBroom {
     namespace Model {
         class AttributableNode;
-        class Brush;
+        class BrushNode;
         class Entity;
         class Group;
         class Issue;
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             void generate(Layer* layer,   IssueList& issues) const;
             void generate(Group* group,   IssueList& issues) const;
             void generate(Entity* entity, IssueList& issues) const;
-            void generate(Brush* brush,   IssueList& issues) const;
+            void generate(BrushNode* brush,   IssueList& issues) const;
         protected:
             IssueGenerator(IssueType type, const std::string& description);
             void addQuickFix(IssueQuickFix* quickFix);
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             virtual void doGenerate(Layer* layer,           IssueList& issues) const;
             virtual void doGenerate(Group* group,           IssueList& issues) const;
             virtual void doGenerate(Entity* entity,         IssueList& issues) const;
-            virtual void doGenerate(Brush* brush,           IssueList& issues) const;
+            virtual void doGenerate(BrushNode* brush,           IssueList& issues) const;
             virtual void doGenerate(AttributableNode* node, IssueList& issues) const;
         };
     }

@@ -22,7 +22,7 @@
 #include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Renderer/RenderBatch.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
@@ -46,15 +46,15 @@ namespace TrenchBroom {
         m_faceHandles(std::make_unique<FaceHandleManager>()),
         m_guideRenderer(document) {}
 
-        std::vector<Model::Brush*> VertexTool::findIncidentBrushes(const vm::vec3& handle) const {
+        std::vector<Model::BrushNode*> VertexTool::findIncidentBrushes(const vm::vec3& handle) const {
             return findIncidentBrushes(*m_vertexHandles, handle);
         }
 
-        std::vector<Model::Brush*> VertexTool::findIncidentBrushes(const vm::segment3& handle) const {
+        std::vector<Model::BrushNode*> VertexTool::findIncidentBrushes(const vm::segment3& handle) const {
             return findIncidentBrushes(*m_edgeHandles, handle);
         }
 
-        std::vector<Model::Brush*> VertexTool::findIncidentBrushes(const vm::polygon3& handle) const {
+        std::vector<Model::BrushNode*> VertexTool::findIncidentBrushes(const vm::polygon3& handle) const {
             return findIncidentBrushes(*m_faceHandles, handle);
         }
 
@@ -128,7 +128,7 @@ namespace TrenchBroom {
                     return MR_Deny;
                 }
             } else {
-                std::vector<Model::Brush*> brushes;
+                std::vector<Model::BrushNode*> brushes;
                 if (m_mode == Mode_Split_Edge) {
                     if (m_edgeHandles->selectedHandleCount() == 1) {
                         const vm::segment3 handle = m_edgeHandles->selectedHandles().front();
@@ -143,7 +143,7 @@ namespace TrenchBroom {
                 }
 
                 if (!brushes.empty()) {
-                    const std::map<vm::vec3, std::vector<Model::Brush*>> vertices { std::make_pair(m_dragHandlePosition + delta, brushes) };
+                    const std::map<vm::vec3, std::vector<Model::BrushNode*>> vertices { std::make_pair(m_dragHandlePosition + delta, brushes) };
                     if (document->addVertices(vertices)) {
                         m_mode = Mode_Move;
                         m_edgeHandles->deselectAll();
@@ -219,7 +219,7 @@ namespace TrenchBroom {
             m_edgeHandles->clear();
             m_faceHandles->clear();
 
-            const std::vector<Model::Brush*>& brushes = selectedBrushes();
+            const std::vector<Model::BrushNode*>& brushes = selectedBrushes();
             m_edgeHandles->addHandles(std::begin(brushes), std::end(brushes));
             m_faceHandles->addHandles(std::begin(brushes), std::end(brushes));
 

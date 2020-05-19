@@ -19,14 +19,14 @@
 
 #include "BrushSnapshot.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 
 #include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace Model {
-        BrushSnapshot::BrushSnapshot(Brush* brush) :
+        BrushSnapshot::BrushSnapshot(BrushNode* brush) :
         m_brush(brush) {
             takeSnapshot(brush);
         }
@@ -35,7 +35,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(m_faces);
         }
 
-        void BrushSnapshot::takeSnapshot(Brush* brush) {
+        void BrushSnapshot::takeSnapshot(BrushNode* brush) {
             for (BrushFace* face : brush->faces()) {
                 BrushFace *faceClone = face->clone();
                 faceClone->setTexture(nullptr);

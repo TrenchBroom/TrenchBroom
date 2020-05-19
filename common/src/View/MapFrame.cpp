@@ -27,7 +27,7 @@
 #include "TrenchBroomApp.h"
 #include "IO/PathQt.h"
 #include "Model/AttributableNode.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/ExportFormat.h"
@@ -404,14 +404,14 @@ namespace TrenchBroom {
             statusBar()->addWidget(m_statusBarLabel);
         }
 
-        static Model::AttributableNode* commonEntityForBrushList(const std::vector<Model::Brush*>& list) {
+        static Model::AttributableNode* commonEntityForBrushList(const std::vector<Model::BrushNode*>& list) {
             if (list.empty())
                 return nullptr;
 
             Model::AttributableNode* firstEntity = list.front()->entity();
             bool multipleEntities = false;
 
-            for (const Model::Brush* brush : list) {
+            for (const Model::BrushNode* brush : list) {
                 if (brush->entity() != firstEntity) {
                     multipleEntities = true;
                 }

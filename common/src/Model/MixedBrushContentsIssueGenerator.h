@@ -32,7 +32,7 @@ namespace TrenchBroom {
         public:
             MixedBrushContentsIssueGenerator();
         private:
-            void doGenerate(Brush* brush, IssueList& issues) const override;
+            void doGenerate(BrushNode* brush, IssueList& issues) const override;
         };
     }
 }

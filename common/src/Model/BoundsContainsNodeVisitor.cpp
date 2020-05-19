@@ -18,7 +18,7 @@
  */
 
 #include "BoundsContainsNodeVisitor.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 
@@ -31,6 +31,6 @@ namespace TrenchBroom {
         void BoundsContainsNodeVisitor::doVisit(const Layer*)         { setResult(false); }
         void BoundsContainsNodeVisitor::doVisit(const Group* group)   { setResult(m_bounds.contains(group->logicalBounds())); }
         void BoundsContainsNodeVisitor::doVisit(const Entity* entity) { setResult(m_bounds.contains(entity->logicalBounds())); }
-        void BoundsContainsNodeVisitor::doVisit(const Brush* brush)   { setResult(m_bounds.contains(brush->logicalBounds())); }
+        void BoundsContainsNodeVisitor::doVisit(const BrushNode* brush)   { setResult(m_bounds.contains(brush->logicalBounds())); }
     }
 }

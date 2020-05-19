@@ -26,7 +26,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
+        class BrushNode;
         class Entity;
         class Group;
         class Layer;
@@ -88,20 +88,20 @@ namespace TrenchBroom {
 
         class CollectBrushesStrategy {
         private:
-            std::vector<Brush*> m_brushes;
+            std::vector<BrushNode*> m_brushes;
         public:
-            const std::vector<Brush*>& brushes() const;
+            const std::vector<BrushNode*>& brushes() const;
         protected:
-            void addBrush(Brush* brush);
+            void addBrush(BrushNode* brush);
         };
 
         class SkipBrushesStrategy {
         private:
-            static const std::vector<Brush*> m_brushes;
+            static const std::vector<BrushNode*> m_brushes;
         public:
-            const std::vector<Brush*>& brushes() const;
+            const std::vector<BrushNode*>& brushes() const;
         protected:
-            void addBrush(Brush* brush);
+            void addBrush(BrushNode* brush);
         };
 
         template <class LayerStrategy, class GroupStrategy, class EntityStrategy, class BrushStrategy>
@@ -111,7 +111,7 @@ namespace TrenchBroom {
             void doVisit(Layer* layer)   override {  LayerStrategy::addLayer(layer); }
             void doVisit(Group* group)   override {  GroupStrategy::addGroup(group); }
             void doVisit(Entity* entity) override { EntityStrategy::addEntity(entity); }
-            void doVisit(Brush* brush)   override {  BrushStrategy::addBrush(brush); }
+            void doVisit(BrushNode* brush)   override {  BrushStrategy::addBrush(brush); }
         };
 
         using AssortNodesVisitor = AssortNodesVisitorT<CollectLayersStrategy, CollectGroupsStrategy, CollectEntitiesStrategy, CollectBrushesStrategy>;

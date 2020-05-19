@@ -20,7 +20,7 @@
 #include "HitFilter.h"
 
 #include "Ensure.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
@@ -104,7 +104,7 @@ namespace TrenchBroom {
         bool SelectionHitFilter::doMatches(const Hit& hit) const {
             if (hit.type() == Entity::EntityHit) {
                 return hitToEntity(hit)->selected();
-            } else if (hit.type() == Brush::BrushHit) {
+            } else if (hit.type() == BrushNode::BrushHit) {
                 return hitToBrush(hit)->selected() || hitToFace(hit)->selected();
             } else {
                 return false;
@@ -118,7 +118,7 @@ namespace TrenchBroom {
         bool TransitivelySelectedHitFilter::doMatches(const Hit& hit) const {
             if (hit.type() == Entity::EntityHit) {
                 return hitToEntity(hit)->transitivelySelected();
-            } else if (hit.type() == Brush::BrushHit) {
+            } else if (hit.type() == BrushNode::BrushHit) {
                 return hitToBrush(hit)->transitivelySelected() || hitToFace(hit)->selected();
             } else {
                 return false;
@@ -146,7 +146,7 @@ namespace TrenchBroom {
         bool ContextHitFilter::doMatches(const Hit& hit) const {
             if (hit.type() == Entity::EntityHit) {
                 return m_context.pickable(hitToEntity(hit));
-            } else if (hit.type() == Brush::BrushHit) {
+            } else if (hit.type() == BrushNode::BrushHit) {
                 return m_context.pickable(hitToFace(hit));
             } else {
                 return false;

@@ -33,7 +33,7 @@ namespace TrenchBroom {
         public:
             NonIntegerVerticesIssueGenerator();
         private:
-            void doGenerate(Brush* brush, IssueList& issues) const override;
+            void doGenerate(BrushNode* brush, IssueList& issues) const override;
         };
     }
 }

@@ -22,7 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/EntityDefinitionManager.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             SelectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
 
-            RenderSettings markFaces(const Model::Brush* brush) const override {
+            RenderSettings markFaces(const Model::BrushNode* brush) const override {
                 if (!(visible(brush) && editable(brush))) {
                     return renderNothing();
                 }
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             LockedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
 
-            RenderSettings markFaces(const Model::Brush* brush) const override {
+            RenderSettings markFaces(const Model::BrushNode* brush) const override {
                 if (!visible(brush)) {
                     return renderNothing();
                 }
@@ -89,7 +89,7 @@ namespace TrenchBroom {
             UnselectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
 
-            RenderSettings markFaces(const Model::Brush* brush) const override {
+            RenderSettings markFaces(const Model::BrushNode* brush) const override {
                 const bool brushVisible = visible(brush);
                 const bool brushEditable = editable(brush);
 
@@ -352,7 +352,7 @@ namespace TrenchBroom {
                 }
             }
 
-            void doVisit(Model::Brush* brush) override   {
+            void doVisit(Model::BrushNode* brush) override   {
                 if (brush->locked()) {
                     if (collectLocked()) m_lockedNodes.addNode(brush);
                 } else if (selected(brush)) {
@@ -406,7 +406,7 @@ namespace TrenchBroom {
                 m_lockedRenderer->invalidate();
         }
 
-        void MapRenderer::invalidateBrushesInRenderers(Renderer renderers, const std::vector<Model::Brush*>& brushes) {
+        void MapRenderer::invalidateBrushesInRenderers(Renderer renderers, const std::vector<Model::BrushNode*>& brushes) {
             if ((renderers & Renderer_Default) != 0) {
                 m_defaultRenderer->invalidateBrushes(brushes);
             }
@@ -528,7 +528,7 @@ namespace TrenchBroom {
             if (!selection.selectedBrushFaces().empty()
                 || !selection.deselectedBrushFaces().empty()) {
 
-                std::set<Model::Brush*> brushes;
+                std::set<Model::BrushNode*> brushes;
                 for (auto& face : selection.selectedBrushFaces()) {
                     brushes.insert(face->brush());
                 }
@@ -536,7 +536,7 @@ namespace TrenchBroom {
                     brushes.insert(face->brush());
                 }
 
-                std::vector<Model::Brush*> brushesVec;
+                std::vector<Model::BrushNode*> brushesVec;
                 brushesVec.reserve(brushes.size());
                 for (auto& brush : brushes) {
                     brushesVec.push_back(brush);

@@ -22,7 +22,7 @@
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "FloatType.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/CollectMatchingBrushFacesVisitor.h"
@@ -75,7 +75,7 @@ namespace TrenchBroom {
 
         Model::Hit ResizeBrushesTool::pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
             auto document = kdl::mem_lock(m_document);
-            const auto& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().selected().first();
+            const auto& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHit).occluded().selected().first();
             if (hit.isMatch()) {
                 return Model::Hit::NoHit;
             } else {
@@ -85,7 +85,7 @@ namespace TrenchBroom {
 
         Model::Hit ResizeBrushesTool::pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult) {
             auto document = kdl::mem_lock(m_document);
-            const auto& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().selected().first();
+            const auto& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHit).occluded().selected().first();
             if (hit.isMatch()) {
                 return Model::Hit(ResizeHit3D, hit.distance(), hit.hitPoint(), Model::hitToFace(hit));
             } else {
@@ -109,7 +109,7 @@ namespace TrenchBroom {
             void doVisit(const Model::Layer*) override  {}
             void doVisit(const Model::Group*) override  {}
             void doVisit(const Model::Entity*) override {}
-            void doVisit(const Model::Brush* brush) override   {
+            void doVisit(const Model::BrushNode* brush) override   {
                 for (const auto* edge : brush->edges())
                     visitEdge(edge);
             }
@@ -349,7 +349,7 @@ namespace TrenchBroom {
                 return true;
             }
 
-            std::map<vm::polygon3, std::vector<Model::Brush*>> brushMap;
+            std::map<vm::polygon3, std::vector<Model::BrushNode*>> brushMap;
             for (const auto* face : dragFaces()) {
                 brushMap[face->polygon()] = { face->brush() };
             }
@@ -394,7 +394,7 @@ namespace TrenchBroom {
                 }
             }
 
-            std::vector<Model::Brush*> newBrushes;
+            std::vector<Model::BrushNode*> newBrushes;
             std::vector<FaceHandle> newDragHandles;
             std::map<Model::Node*, std::vector<Model::Node*>> newNodes;
 
@@ -451,7 +451,7 @@ namespace TrenchBroom {
             }
 
             const std::vector<FaceHandle> oldDragHandles = m_dragHandles;
-            std::vector<Model::Brush*> newBrushes;
+            std::vector<Model::BrushNode*> newBrushes;
             std::vector<FaceHandle> newDragHandles;
             // This map is to handle the case when the brushes being
             // extruded have different parents (e.g. different brush entities),
@@ -495,7 +495,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        Model::BrushFace* ResizeBrushesTool::findMatchingFace(Model::Brush* brush, const Model::BrushFace* reference) const {
+        Model::BrushFace* ResizeBrushesTool::findMatchingFace(Model::BrushNode* brush, const Model::BrushFace* reference) const {
             Model::FindMatchingBrushFaceVisitor<MatchFaceBoundary> visitor((MatchFaceBoundary(reference)));
             visitor.visit(brush);
             if (!visitor.hasResult()) {

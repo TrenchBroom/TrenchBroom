@@ -20,7 +20,7 @@
 #include "BrushFaceReference.h"
 
 #include "Ensure.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 
 namespace TrenchBroom {

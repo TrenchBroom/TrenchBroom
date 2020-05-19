@@ -22,7 +22,7 @@
 #include "FloatType.h"
 #include "Model/BoundsContainsNodeVisitor.h"
 #include "Model/BoundsIntersectsNodeVisitor.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/Entity.h"
 #include "Model/FindContainerVisitor.h"
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             void doVisit(Layer*) override       {}
             void doVisit(Group* group) override { group->setEditState(m_editState); }
             void doVisit(Entity*) override      {}
-            void doVisit(Brush*) override       {}
+            void doVisit(BrushNode*) override       {}
         };
 
         void Group::openAncestors() {
@@ -132,7 +132,7 @@ namespace TrenchBroom {
             void doVisit(const Layer*) override  { setResult(false); }
             void doVisit(const Group*) override  { setResult(true); }
             void doVisit(const Entity*) override { setResult(true); }
-            void doVisit(const Brush*) override  { setResult(true); }
+            void doVisit(const BrushNode*) override  { setResult(true); }
         };
 
         bool Group::doCanAddChild(const Node* child) const {

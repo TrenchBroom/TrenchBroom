@@ -19,7 +19,7 @@
 
 #include "Layer.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/Group.h"
 #include "Model/Entity.h"
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             void doVisit(const Layer*)  override { setResult(false); }
             void doVisit(const Group*)  override { setResult(true); }
             void doVisit(const Entity*) override { setResult(true); }
-            void doVisit(const Brush*)  override { setResult(true); }
+            void doVisit(const BrushNode*)  override { setResult(true); }
         };
 
         bool Layer::doCanAddChild(const Node* child) const {

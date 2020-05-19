@@ -30,7 +30,7 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class Brush;
+        class BrushNode;
         class BrushFace;
     }
 
@@ -83,7 +83,7 @@ namespace TrenchBroom {
              * (default/selected/locked), or need to re-evaluate the BrushRenderer::Filter to exclude certain
              * faces/edges.
              */
-            void validateVertexCache(const Model::Brush* brush);
+            void validateVertexCache(const Model::BrushNode* brush);
 
             /**
              * Returns all vertices for all faces of the brush.

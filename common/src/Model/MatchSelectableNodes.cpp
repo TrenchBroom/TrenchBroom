@@ -30,6 +30,6 @@ namespace TrenchBroom {
         bool MatchSelectableNodes::operator()(const Model::Layer* layer) const   { return m_editorContext.selectable(layer); }
         bool MatchSelectableNodes::operator()(const Model::Group* group) const   { return m_editorContext.selectable(group); }
         bool MatchSelectableNodes::operator()(const Model::Entity* entity) const { return m_editorContext.selectable(entity); }
-        bool MatchSelectableNodes::operator()(const Model::Brush* brush) const   { return m_editorContext.selectable(brush); }
+        bool MatchSelectableNodes::operator()(const Model::BrushNode* brush) const   { return m_editorContext.selectable(brush); }
     }
 }

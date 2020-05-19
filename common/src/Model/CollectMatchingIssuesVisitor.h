@@ -21,7 +21,7 @@
 #define TrenchBroom_CollectMatchingIssuesVisitor
 
 #include "Model/NodeVisitor.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             void doVisit(Layer* layer)   override { collectIssues(layer);  }
             void doVisit(Group* group)   override { collectIssues(group);  }
             void doVisit(Entity* entity) override { collectIssues(entity); }
-            void doVisit(Brush* brush)   override { collectIssues(brush);  }
+            void doVisit(BrushNode* brush)   override { collectIssues(brush);  }
 
             void collectIssues(Node* node) {
                 for (Issue* issue : node->issues(m_issueGenerators)) {

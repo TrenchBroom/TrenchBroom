@@ -22,7 +22,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
+        class BrushNode;
         class BrushFace;
         class Entity;
         class Hit;
@@ -32,7 +32,7 @@ namespace TrenchBroom {
         Node* hitToNode(const Hit& hit);
         Object* hitToObject(const Hit& hit);
         Entity* hitToEntity(const Hit& hit);
-        Brush* hitToBrush(const Hit& hit);
+        BrushNode* hitToBrush(const Hit& hit);
         BrushFace* hitToFace(const Hit& hit);
     }
 }

@@ -30,7 +30,7 @@
 #include "IO/Reader.h"
 #include "IO/TestParserStatus.h"
 #include "IO/WorldReader.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/NodeVisitor.h"
@@ -54,7 +54,7 @@ namespace TrenchBroom {
         void doVisit(Model::Entity* entity) override {
             doInsert(entity);
         }
-        void doVisit(Model::Brush* brush) override {
+        void doVisit(Model::BrushNode* brush) override {
             doInsert(brush);
         }
 

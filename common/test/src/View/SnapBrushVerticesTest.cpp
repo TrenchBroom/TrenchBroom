@@ -21,7 +21,7 @@
 
 #include "GTestCompat.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/NodeCollection.h"
 #include "View/MapDocumentTest.h"
 #include "View/MapDocument.h"

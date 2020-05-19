@@ -196,7 +196,7 @@ namespace TrenchBroom {
             void doVisit(Model::World*) override {}
             void doVisit(Model::Layer*) override {}
             void doVisit(Model::Group*) override {}
-            void doVisit(Model::Brush*) override {}
+            void doVisit(Model::BrushNode*) override {}
             void doVisit(Model::Entity* entity) override {
                 if (m_editorContext.visible(entity)) {
                     visitEntity(entity);

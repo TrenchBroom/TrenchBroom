@@ -40,7 +40,7 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class Brush;
+        class BrushNode;
         class BrushFace;
         class Group;
         class Layer;
@@ -118,7 +118,7 @@ namespace TrenchBroom {
              */
             void updateRenderers(Renderer renderers);
             void invalidateRenderers(Renderer renderers);
-            void invalidateBrushesInRenderers(Renderer renderers, const std::vector<Model::Brush*>& brushes);
+            void invalidateBrushesInRenderers(Renderer renderers, const std::vector<Model::BrushNode*>& brushes);
             void invalidateEntityLinkRenderer();
             void reloadEntityModels();
         private: // notification

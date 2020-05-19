@@ -34,7 +34,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
+        class BrushNode;
         class BrushFace;
         class EditorContext;
     }
@@ -73,7 +73,7 @@ namespace TrenchBroom {
                  * Otherwise, markFaces() should call BrushFace::setMarked() on *all* faces, passing true or false
                  * as needed to select the faces to be rendered.
                  */
-                virtual RenderSettings markFaces(const Model::Brush* brush) const = 0;
+                virtual RenderSettings markFaces(const Model::BrushNode* brush) const = 0;
 
             protected:
                 /**
@@ -91,17 +91,17 @@ namespace TrenchBroom {
                 explicit DefaultFilter(const Model::EditorContext& context);
                 DefaultFilter(const DefaultFilter& other);
 
-                bool visible(const Model::Brush* brush) const;
+                bool visible(const Model::BrushNode* brush) const;
                 bool visible(const Model::BrushFace* face) const;
                 bool visible(const Model::BrushEdge* edge) const;
 
-                bool editable(const Model::Brush* brush) const;
+                bool editable(const Model::BrushNode* brush) const;
                 bool editable(const Model::BrushFace* face) const;
 
-                bool selected(const Model::Brush* brush) const;
+                bool selected(const Model::BrushNode* brush) const;
                 bool selected(const Model::BrushFace* face) const;
                 bool selected(const Model::BrushEdge* edge) const;
-                bool hasSelectedFaces(const Model::Brush* brush) const;
+                bool hasSelectedFaces(const Model::BrushNode* brush) const;
             private:
                 DefaultFilter& operator=(const DefaultFilter& other);
             };
@@ -109,7 +109,7 @@ namespace TrenchBroom {
             class NoFilter : public Filter {
             public:
                 using Filter::Filter;
-                RenderSettings markFaces(const Model::Brush* brush) const override;
+                RenderSettings markFaces(const Model::BrushNode* brush) const override;
             private:
                 deleteCopyAndMove(NoFilter)
             };
@@ -128,7 +128,7 @@ namespace TrenchBroom {
              * Tracks all brushes that are stored in the VBO, with the information necessary to remove them
              * from the VBO later.
              */
-            std::unordered_map<const Model::Brush*, BrushInfo> m_brushInfo;
+            std::unordered_map<const Model::BrushNode*, BrushInfo> m_brushInfo;
 
             /**
              * If a brush is in the VBO, it's always valid.
@@ -136,8 +136,8 @@ namespace TrenchBroom {
              *
              * Do not attempt to use vector_set here, it turns out to be slower.
              */
-            std::unordered_set<const Model::Brush*> m_allBrushes;
-            std::unordered_set<const Model::Brush*> m_invalidBrushes;
+            std::unordered_set<const Model::BrushNode*> m_allBrushes;
+            std::unordered_set<const Model::BrushNode*> m_invalidBrushes;
 
             std::shared_ptr<BrushVertexArray> m_vertexArray;
             std::shared_ptr<BrushIndexArray> m_edgeIndices;
@@ -181,11 +181,11 @@ namespace TrenchBroom {
             /**
              * New brushes are invalidated, brushes already in the BrushRenderer are not invalidated.
              */
-            void addBrushes(const std::vector<Model::Brush*>& brushes);
+            void addBrushes(const std::vector<Model::BrushNode*>& brushes);
             /**
              * New brushes are invalidated, brushes already in the BrushRenderer are not invalidated.
              */
-            void setBrushes(const std::vector<Model::Brush*>& brushes);
+            void setBrushes(const std::vector<Model::BrushNode*>& brushes);
             void clear();
 
             /**
@@ -199,7 +199,7 @@ namespace TrenchBroom {
              * maps will be empty, so the BrushRenderer will not have any lingering Texture* pointers.
              */
             void invalidate();
-            void invalidateBrushes(const std::vector<Model::Brush*>& brushes);
+            void invalidateBrushes(const std::vector<Model::BrushNode*>& brushes);
             bool valid() const;
 
             /**
@@ -281,17 +281,17 @@ namespace TrenchBroom {
              */
             void validate();
         private:
-            bool shouldDrawFaceInTransparentPass(const Model::Brush* brush, const Model::BrushFace* face) const;
-            void validateBrush(const Model::Brush* brush);
-            void addBrush(const Model::Brush* brush);
-            void removeBrush(const Model::Brush* brush);
+            bool shouldDrawFaceInTransparentPass(const Model::BrushNode* brush, const Model::BrushFace* face) const;
+            void validateBrush(const Model::BrushNode* brush);
+            void addBrush(const Model::BrushNode* brush);
+            void removeBrush(const Model::BrushNode* brush);
 
             /**
              * If the given brush is not currently in the VBO, it's silently ignored.
              * Otherwise, it's removed from the VBO (having its indices zeroed out, causing it to no longer draw).
              * The brush's "valid" state is not touched inside here, but the m_brushInfo is updated.
              */
-            void removeBrushFromVbo(const Model::Brush* brush);
+            void removeBrushFromVbo(const Model::BrushNode* brush);
         private:
             BrushRenderer(const BrushRenderer& other);
             BrushRenderer& operator=(const BrushRenderer& other);

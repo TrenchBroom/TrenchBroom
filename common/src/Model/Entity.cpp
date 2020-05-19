@@ -23,7 +23,7 @@
 #include "Assets/EntityModel.h"
 #include "Model/BoundsContainsNodeVisitor.h"
 #include "Model/BoundsIntersectsNodeVisitor.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/EntityRotationPolicy.h"
 #include "Model/EntitySnapshot.h"
@@ -198,7 +198,7 @@ namespace TrenchBroom {
             void doVisit(const Layer*)  override   { setResult(false); }
             void doVisit(const Group*)  override   { setResult(true); }
             void doVisit(const Entity*) override { setResult(true); }
-            void doVisit(const Brush*)  override   { setResult(true); }
+            void doVisit(const BrushNode*)  override   { setResult(true); }
         };
 
         bool Entity::doCanAddChild(const Node* child) const {
@@ -366,7 +366,7 @@ namespace TrenchBroom {
             void doVisit(Layer*) override  {}
             void doVisit(Group*) override  {}
             void doVisit(Entity*) override {}
-            void doVisit(Brush* brush) override { brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
+            void doVisit(BrushNode* brush) override { brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
         };
 
         void Entity::doTransform(const vm::mat4x4& transformation, const bool lockTextures, const vm::bbox3& worldBounds) {

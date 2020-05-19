@@ -20,7 +20,7 @@
 #include "WorldReader.h"
 
 #include "IO/ParserStatus.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Layer.h"
 #include "Model/World.h"
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             m_world->defaultLayer()->addChild(node);
         }
 
-        void WorldReader::onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& /* status */) {
+        void WorldReader::onBrush(Model::Node* parent, Model::BrushNode* brush, ParserStatus& /* status */) {
             if (parent != nullptr) {
                 parent->addChild(brush);
             } else {

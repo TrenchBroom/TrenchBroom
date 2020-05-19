@@ -63,7 +63,7 @@ namespace TrenchBroom {
             doGenerate(entity, issues);
         }
 
-        void IssueGenerator::generate(Brush* brush, IssueList& issues) const {
+        void IssueGenerator::generate(BrushNode* brush, IssueList& issues) const {
             doGenerate(brush, issues);
         }
 
@@ -81,7 +81,7 @@ namespace TrenchBroom {
         void IssueGenerator::doGenerate(Layer*,            IssueList&) const        {}
         void IssueGenerator::doGenerate(Group*,            IssueList&) const        {}
         void IssueGenerator::doGenerate(Entity* entity,    IssueList& issues) const { doGenerate(static_cast<AttributableNode*>(entity), issues); }
-        void IssueGenerator::doGenerate(Brush*,            IssueList&) const        {}
+        void IssueGenerator::doGenerate(BrushNode*,            IssueList&) const        {}
         void IssueGenerator::doGenerate(AttributableNode*, IssueList&) const        {}
     }
 }

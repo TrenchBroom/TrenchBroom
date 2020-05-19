@@ -20,7 +20,7 @@
 #include "MergeNodesIntoWorldVisitor.h"
 
 #include "Ensure.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Group.h"
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MergeNodesIntoWorldVisitor::doVisit(Brush* brush) {
+        void MergeNodesIntoWorldVisitor::doVisit(BrushNode* brush) {
             addNode(brush);
         }
 

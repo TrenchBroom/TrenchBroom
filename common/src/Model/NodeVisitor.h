@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
+        class BrushNode;
         class Entity;
         class Group;
         class Layer;
@@ -56,13 +56,13 @@ namespace TrenchBroom {
             virtual void visit(Layer* layer);
             virtual void visit(Group* group);
             virtual void visit(Entity* entity);
-            virtual void visit(Brush* brush);
+            virtual void visit(BrushNode* brush);
         private:
             virtual void doVisit(World* world)   = 0;
             virtual void doVisit(Layer* layer)   = 0;
             virtual void doVisit(Group* group)   = 0;
             virtual void doVisit(Entity* entity) = 0;
-            virtual void doVisit(Brush* brush)   = 0;
+            virtual void doVisit(BrushNode* brush)   = 0;
         };
 
         class ConstNodeVisitor : public BaseNodeVisitor {
@@ -75,13 +75,13 @@ namespace TrenchBroom {
             virtual void visit(const Layer* layer);
             virtual void visit(const Group* group);
             virtual void visit(const Entity* entity);
-            virtual void visit(const Brush* brush);
+            virtual void visit(const BrushNode* brush);
         private:
             virtual void doVisit(const World* world)   = 0;
             virtual void doVisit(const Layer* layer)   = 0;
             virtual void doVisit(const Group* group)   = 0;
             virtual void doVisit(const Entity* entity) = 0;
-            virtual void doVisit(const Brush* brush)   = 0;
+            virtual void doVisit(const BrushNode* brush)   = 0;
         };
 
 
@@ -127,7 +127,7 @@ namespace TrenchBroom {
                 if (m_s(entity, match)) stopRecursion();
             }
 
-            void visit(Brush* brush) override {
+            void visit(BrushNode* brush) override {
                 const bool match = m_p(brush);
                 if (match) NodeVisitor::visit(brush);
                 if (m_s(brush, match)) stopRecursion();
@@ -168,7 +168,7 @@ namespace TrenchBroom {
                 if (m_s(entity, match)) stopRecursion();
             }
 
-            void visit(const Brush* brush) override {
+            void visit(const BrushNode* brush) override {
                 const bool match = m_p(brush);
                 if (match) ConstNodeVisitor::visit(brush);
                 if (m_s(brush, match)) stopRecursion();

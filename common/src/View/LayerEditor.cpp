@@ -19,7 +19,7 @@
 
 #include "LayerEditor.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/Entity.h"
 #include "Model/FindGroupVisitor.h"
@@ -189,7 +189,7 @@ namespace TrenchBroom {
                 }
             }
 
-            void doVisit(Model::Brush* brush) override   {
+            void doVisit(Model::BrushNode* brush) override   {
                 assert(brush->selected());
                 if (!brush->grouped()) {
                     auto* entity = brush->entity();

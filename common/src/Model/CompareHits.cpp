@@ -21,7 +21,7 @@
 
 #include "Ensure.h"
 #include "Model/Hit.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
@@ -51,9 +51,9 @@ namespace TrenchBroom {
         }
 
         int CompareHitsByType::doCompare(const Hit& lhs, const Hit& rhs) const {
-            if (lhs.type() == Brush::BrushHit)
+            if (lhs.type() == BrushNode::BrushHit)
                 return -1;
-            if (rhs.type() == Brush::BrushHit)
+            if (rhs.type() == BrushNode::BrushHit)
                 return 1;
             return 0;
         }

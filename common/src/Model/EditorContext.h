@@ -32,7 +32,7 @@ namespace TrenchBroom {
 
     namespace Model {
         class AttributableNode;
-        class Brush;
+        class BrushNode;
         class BrushFace;
         class Entity;
         class Group;
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             bool visible(const Model::Layer* layer) const;
             bool visible(const Model::Group* group) const;
             bool visible(const Model::Entity* entity) const;
-            bool visible(const Model::Brush* brush) const;
+            bool visible(const Model::BrushNode* brush) const;
             bool visible(const Model::BrushFace* face) const;
         private:
             bool anyChildVisible(const Model::Node* node) const;
@@ -111,7 +111,7 @@ namespace TrenchBroom {
             bool pickable(const Model::Layer* layer) const;
             bool pickable(const Model::Group* group) const;
             bool pickable(const Model::Entity* entity) const;
-            bool pickable(const Model::Brush* brush) const;
+            bool pickable(const Model::BrushNode* brush) const;
             bool pickable(const Model::BrushFace* face) const;
 
             bool selectable(const Model::Node* node) const;
@@ -119,7 +119,7 @@ namespace TrenchBroom {
             bool selectable(const Model::Layer* layer) const;
             bool selectable(const Model::Group* group) const;
             bool selectable(const Model::Entity* entity) const;
-            bool selectable(const Model::Brush* brush) const;
+            bool selectable(const Model::BrushNode* brush) const;
             bool selectable(const Model::BrushFace* face) const;
 
             bool canChangeSelection() const;

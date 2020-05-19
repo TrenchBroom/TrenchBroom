@@ -49,13 +49,13 @@ namespace TrenchBroom {
             }
         }
 
-        void VertexHandleManager::addHandles(const Model::Brush* brush) {
+        void VertexHandleManager::addHandles(const Model::BrushNode* brush) {
             for (const Model::BrushVertex* vertex : brush->vertices()) {
                 add(vertex->position());
             }
         }
 
-        void VertexHandleManager::removeHandles(const Model::Brush* brush) {
+        void VertexHandleManager::removeHandles(const Model::BrushNode* brush) {
             for (const Model::BrushVertex* vertex : brush->vertices()) {
                 assertResult(remove(vertex->position()))
             }
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             return HandleHit;
         }
 
-        bool VertexHandleManager::isIncident(const Handle& handle, const Model::Brush* brush) const {
+        bool VertexHandleManager::isIncident(const Handle& handle, const Model::BrushNode* brush) const {
             return brush->hasVertex(handle);
         }
 
@@ -99,13 +99,13 @@ namespace TrenchBroom {
             }
         }
 
-        void EdgeHandleManager::addHandles(const Model::Brush* brush) {
+        void EdgeHandleManager::addHandles(const Model::BrushNode* brush) {
             for (const Model::BrushEdge* edge : brush->edges()) {
                 add(vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
             }
         }
 
-        void EdgeHandleManager::removeHandles(const Model::Brush* brush) {
+        void EdgeHandleManager::removeHandles(const Model::BrushNode* brush) {
             for (const Model::BrushEdge* edge : brush->edges()) {
                 assertResult(remove(vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position())))
             }
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             return HandleHit;
         }
 
-        bool EdgeHandleManager::isIncident(const Handle& handle, const Model::Brush* brush) const {
+        bool EdgeHandleManager::isIncident(const Handle& handle, const Model::BrushNode* brush) const {
             return brush->hasEdge(handle);
         }
 
@@ -156,13 +156,13 @@ namespace TrenchBroom {
             }
         }
 
-        void FaceHandleManager::addHandles(const Model::Brush* brush) {
+        void FaceHandleManager::addHandles(const Model::BrushNode* brush) {
             for (const Model::BrushFace* face : brush->faces()) {
                 add(face->polygon());
             }
         }
 
-        void FaceHandleManager::removeHandles(const Model::Brush* brush) {
+        void FaceHandleManager::removeHandles(const Model::BrushNode* brush) {
             for (const Model::BrushFace* face : brush->faces()) {
                 assertResult(remove(face->polygon()))
             }
@@ -172,7 +172,7 @@ namespace TrenchBroom {
             return HandleHit;
         }
 
-        bool FaceHandleManager::isIncident(const Handle& handle, const Model::Brush* brush) const {
+        bool FaceHandleManager::isIncident(const Handle& handle, const Model::BrushNode* brush) const {
             return brush->hasFace(handle);
         }
     }

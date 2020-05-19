@@ -34,7 +34,7 @@
 namespace TrenchBroom {
     namespace Model {
         class AttributableNode;
-        class Brush;
+        class BrushNode;
         class BrushFace;
         class EntityAttribute;
         class Group;
@@ -132,7 +132,7 @@ namespace TrenchBroom {
             virtual void onLayer(Model::Layer* layer, ParserStatus& status) = 0;
             virtual void onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) = 0;
             virtual void onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) = 0;
-            virtual void onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& status) = 0;
+            virtual void onBrush(Model::Node* parent, Model::BrushNode* brush, ParserStatus& status) = 0;
             virtual void onBrushFace(Model::BrushFace* face, ParserStatus& status);
         };
     }

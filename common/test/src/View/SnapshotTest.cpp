@@ -24,7 +24,7 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
@@ -42,7 +42,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(SnapshotTest, "SnapshotTest.setTexturesAfterRestore", "[SnapshotTest]") {
             document->setEnabledTextureCollections(std::vector<IO::Path>{ IO::Path("fixture/test/IO/Wad/cr8_czg.wad") });
 
-            Model::Brush* brush = createBrush("coffin1");
+            Model::BrushNode* brush = createBrush("coffin1");
             document->addNode(brush, document->currentParent());
 
             const Assets::Texture* texture = document->textureManager().texture("coffin1");

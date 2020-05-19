@@ -23,7 +23,7 @@
 
 #include "MapDocumentTest.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/Layer.h"
 #include "Model/World.h"
 #include "Renderer/PerspectiveCamera.h"
@@ -127,7 +127,7 @@ namespace TrenchBroom {
             const std::vector<Model::Node*>& objects = document->world()->defaultLayer()->children();
             ASSERT_EQ(1u, objects.size());
 
-            auto* brush = dynamic_cast<Model::Brush*>(objects.at(0));
+            auto* brush = dynamic_cast<Model::BrushNode*>(objects.at(0));
             ASSERT_NE(nullptr, brush);
 
             ASSERT_EQ(vm::bbox3(vm::vec3(-16, -16, 52), vm::vec3(20, 16, 72)), brush->logicalBounds());

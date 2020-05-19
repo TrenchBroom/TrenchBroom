@@ -32,7 +32,7 @@ namespace TrenchBroom {
         VertexToolBase(document),
         m_edgeHandles(std::make_unique<EdgeHandleManager>()){}
 
-        std::vector<Model::Brush*> EdgeTool::findIncidentBrushes(const vm::segment3& handle) const {
+        std::vector<Model::BrushNode*> EdgeTool::findIncidentBrushes(const vm::segment3& handle) const {
             return findIncidentBrushes(*m_edgeHandles, handle);
         }
 

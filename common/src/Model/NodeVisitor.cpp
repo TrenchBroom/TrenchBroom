@@ -66,7 +66,7 @@ namespace TrenchBroom {
             doVisit(entity);
         }
 
-        void NodeVisitor::visit(Brush* brush) {
+        void NodeVisitor::visit(BrushNode* brush) {
             doVisit(brush);
         }
 
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             doVisit(entity);
         }
 
-        void ConstNodeVisitor::visit(const Brush* brush) {
+        void ConstNodeVisitor::visit(const BrushNode* brush) {
             doVisit(brush);
         }
 
@@ -101,7 +101,7 @@ namespace TrenchBroom {
             void doVisit(Layer*) override  {}
             void doVisit(Group*) override  {}
             void doVisit(Entity*) override {}
-            void doVisit(Brush*) override  {}
+            void doVisit(BrushNode*) override  {}
         };
 
         class _ConstNodeVisitorPrototype : public ConstNodeVisitor {
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             void doVisit(const Layer*) override  {}
             void doVisit(const Group*) override  {}
             void doVisit(const Entity*) override {}
-            void doVisit(const Brush*) override  {}
+            void doVisit(const BrushNode*) override  {}
         };
     }
 
@@ -121,7 +121,7 @@ namespace TrenchBroom {
         void doVisit(Model::Layer*) override  {}
         void doVisit(Model::Group*) override  {}
         void doVisit(Model::Entity*) override {}
-        void doVisit(Model::Brush* ) override  {}
+        void doVisit(Model::BrushNode* ) override  {}
     };
 
     class _ConstNodeVisitorPrototype : public Model::ConstNodeVisitor {
@@ -130,6 +130,6 @@ namespace TrenchBroom {
         void doVisit(const Model::Layer*) override  {}
         void doVisit(const Model::Group*) override  {}
         void doVisit(const Model::Entity*) override {}
-        void doVisit(const Model::Brush*) override  {}
+        void doVisit(const Model::BrushNode*) override  {}
     };
 }

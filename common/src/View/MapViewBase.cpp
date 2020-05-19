@@ -26,7 +26,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/EditorContext.h"
@@ -993,7 +993,7 @@ namespace TrenchBroom {
                 void doVisit(const Model::Layer*) override  { setResult(false); }
                 void doVisit(const Model::Group*) override  { setResult(false); }
                 void doVisit(const Model::Entity*) override { setResult(true); }
-                void doVisit(const Model::Brush*) override  { setResult(false); }
+                void doVisit(const Model::BrushNode*) override  { setResult(false); }
             };
 
             IsEntity visitor;
@@ -1257,9 +1257,9 @@ namespace TrenchBroom {
             Model::Node* newParent = nullptr;
 
             auto document = kdl::mem_lock(m_document);
-            const Model::Hit& hit = pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
+            const Model::Hit& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHit).occluded().first();
             if (hit.isMatch()) {
-                const Model::Brush* brush = Model::hitToBrush(hit);
+                const Model::BrushNode* brush = Model::hitToBrush(hit);
                 newParent = brush->entity();
             }
 
@@ -1303,7 +1303,7 @@ namespace TrenchBroom {
             bool operator()(const Model::Layer*) const       { return false; }
             bool operator()(const Model::Group*) const       { return true;  }
             bool operator()(const Model::Entity*) const      { return true; }
-            bool operator()(const Model::Brush* brush) const { return brush->entity() == m_world; }
+            bool operator()(const Model::BrushNode* brush) const { return brush->entity() == m_world; }
         };
 
         static std::vector<Model::Node*> collectEntitiesForBrushes(const std::vector<Model::Node*>& selectedNodes, const Model::World* world) {
@@ -1356,7 +1356,7 @@ namespace TrenchBroom {
         bool MapViewBase::canMakeStructural() const {
             auto document = kdl::mem_lock(m_document);
             if (document->selectedNodes().hasOnlyBrushes()) {
-                const std::vector<Model::Brush*>& brushes = document->selectedNodes().brushes();
+                const std::vector<Model::BrushNode*>& brushes = document->selectedNodes().brushes();
                 for (const auto* brush : brushes) {
                     if (brush->hasAnyTag() || brush->entity() != document->world() || brush->anyFaceHasAnyTag()) {
                         return true;
