@@ -104,6 +104,9 @@ macro(set_compiler_config TARGET)
 
         # FIXME: Suppress warnings in moc generated files:
         target_compile_options(${TARGET} PRIVATE -Wno-redundant-parens)
+
+        # Disable a warning in clang when using PCH:
+        target_compile_options(${TARGET} PRIVATE -Wno-pragma-system-header-outside-header)
     elseif(COMPILER_IS_GNU)
         target_compile_options(${TARGET} PRIVATE -Wall -Wextra -Wconversion -pedantic)
         target_compile_options(${TARGET} PRIVATE "$<$<CONFIG:RELEASE>:-O3>")
