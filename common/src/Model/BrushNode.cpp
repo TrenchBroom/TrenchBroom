@@ -106,6 +106,20 @@ namespace TrenchBroom {
             }
         }
 
+        const Brush& BrushNode::brush() const {
+            return m_brush;
+        }
+        
+        void BrushNode::setBrush(Brush brush) {
+            const NotifyNodeChange nodeChange(this);
+            const NotifyPhysicalBoundsChange boundsChange(this);
+            m_brush = std::move(brush);
+            m_brush.setNode(this);
+            
+            invalidateIssues();
+            invalidateVertexCache();
+        }
+
         BrushFace* BrushNode::findFace(const std::string& textureName) const {
             return m_brush.findFace(textureName);
         }
