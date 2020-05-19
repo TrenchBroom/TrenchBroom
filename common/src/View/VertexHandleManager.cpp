@@ -178,8 +178,9 @@ namespace TrenchBroom {
             return HandleHitType;
         }
 
-        bool FaceHandleManager::isIncident(const Handle& handle, const Model::BrushNode* brush) const {
-            return brush->hasFace(handle);
+        bool FaceHandleManager::isIncident(const Handle& handle, const Model::BrushNode* brushNode) const {
+            const Model::Brush& brush = brushNode->brush();
+            return brush.hasFace(handle);
         }
     }
 }
