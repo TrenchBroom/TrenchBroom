@@ -73,6 +73,11 @@ namespace TrenchBroom {
         };
 
         /**
+         * Returns a vector containing the nodes contained in the given handles.
+         */
+        std::vector<BrushNode*> toNodes(const std::vector<BrushFaceHandle>& handles);
+
+        /**
          * Returns a vector containing the faces represented by the given handles.
          */
         std::vector<BrushFace*> toFaces(const std::vector<BrushFaceHandle>& handles);

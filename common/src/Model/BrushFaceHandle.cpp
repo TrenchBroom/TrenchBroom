@@ -50,6 +50,10 @@ namespace TrenchBroom {
             return lhs.m_node == rhs.m_node && lhs.m_faceIndex == rhs.m_faceIndex;
         }
 
+        std::vector<BrushNode*> toNodes(const std::vector<BrushFaceHandle>& handles) {
+            return kdl::vec_transform(handles, [](const auto& handle) { return handle.node(); });
+        }
+
         std::vector<BrushFace*> toFaces(const std::vector<BrushFaceHandle>& handles) {
             return kdl::vec_transform(handles, [](const auto& handle) { return handle.face(); });
         }
