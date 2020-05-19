@@ -181,10 +181,10 @@ namespace TrenchBroom {
             const vm::bbox3 initialBBox(vm::vec3(100,100,100), vm::vec3(200,200,200));
 
             Model::BrushBuilder builder(document->world(), document->worldBounds());
-            Model::BrushNode* brush1 = document->world()->createBrush(builder.createCuboid(initialBBox, "texture"));
+            Model::BrushNode* brushNode = document->world()->createBrush(builder.createCuboid(initialBBox, "texture"));
 
-            document->addNode(brush1, document->currentParent());
-            document->select(std::vector<Model::Node*>{brush1});
+            document->addNode(brushNode, document->currentParent());
+            document->select(std::vector<Model::Node*>{brushNode});
 
             const std::vector<vm::vec3> initialPositions{
                 // bottom face
@@ -198,7 +198,7 @@ namespace TrenchBroom {
                 {200,200,200},
                 {100,200,200},
             };
-            ASSERT_COLLECTIONS_EQUIVALENT(initialPositions, brush1->vertexPositions());
+            ASSERT_COLLECTIONS_EQUIVALENT(initialPositions, brushNode->brush().vertexPositions());
 
             // Shear the -Y face by (50, 0, 0). That means the verts with Y=100 will get sheared.
             ASSERT_TRUE(document->shearObjects(initialBBox, vm::vec3::neg_y(), vm::vec3(50,0,0)));
@@ -215,17 +215,17 @@ namespace TrenchBroom {
                 {200,200,200},
                 {100,200,200},
             };
-            ASSERT_COLLECTIONS_EQUIVALENT(shearedPositions, brush1->vertexPositions());
+            ASSERT_COLLECTIONS_EQUIVALENT(shearedPositions, brushNode->brush().vertexPositions());
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.shearPillar") {
             const vm::bbox3 initialBBox(vm::vec3(0,0,0), vm::vec3(100,100,400));
 
             Model::BrushBuilder builder(document->world(), document->worldBounds());
-            Model::BrushNode* brush1 = document->world()->createBrush(builder.createCuboid(initialBBox, "texture"));
+            Model::BrushNode* brushNode = document->world()->createBrush(builder.createCuboid(initialBBox, "texture"));
 
-            document->addNode(brush1, document->currentParent());
-            document->select(std::vector<Model::Node*>{brush1});
+            document->addNode(brushNode, document->currentParent());
+            document->select(std::vector<Model::Node*>{brushNode});
 
             const std::vector<vm::vec3> initialPositions{
                 // bottom face
@@ -239,7 +239,7 @@ namespace TrenchBroom {
                 {100,100,400},
                 {0,  100,400},
             };
-            ASSERT_COLLECTIONS_EQUIVALENT(initialPositions, brush1->vertexPositions());
+            ASSERT_COLLECTIONS_EQUIVALENT(initialPositions, brushNode->brush().vertexPositions());
 
             // Shear the +Z face by (50, 0, 0). That means the verts with Z=400 will get sheared.
             ASSERT_TRUE(document->shearObjects(initialBBox, vm::vec3::pos_z(), vm::vec3(50,0,0)));
@@ -256,7 +256,7 @@ namespace TrenchBroom {
                 {150,100,400},
                 {50, 100,400},
             };
-            ASSERT_COLLECTIONS_EQUIVALENT(shearedPositions, brush1->vertexPositions());
+            ASSERT_COLLECTIONS_EQUIVALENT(shearedPositions, brushNode->brush().vertexPositions());
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.scaleObjects") {
