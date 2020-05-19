@@ -25,9 +25,12 @@
 #include "Model/AttributableNodeIndex.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
+#include "Model/CollectMatchingNodesVisitor.h"
+#include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
 #include "Model/IssueGenerator.h"
 #include "Model/IssueGeneratorRegistry.h"
+#include "Model/LayerNode.h"
 #include "Model/ModelFactoryImpl.h"
 #include "Model/TagVisitor.h"
 

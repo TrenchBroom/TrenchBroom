@@ -27,8 +27,6 @@
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
-#include "Model/CollectRecursivelySelectedNodesVisitor.h"
 #include "Model/CollectSelectableBrushFacesVisitor.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
@@ -80,32 +78,21 @@ namespace TrenchBroom {
             std::vector<Model::Node*> selected;
             selected.reserve(nodes.size());
 
-            Model::CollectNodesWithDescendantSelectionCountVisitor ancestors(0);
-            Model::CollectRecursivelySelectedNodesVisitor descendants(false);
-
             for (Model::Node* initialNode : nodes) {
                 ensure(initialNode->isDescendantOf(m_world.get()) || initialNode == m_world.get(), "to select a node, it must be world or a descendant");
                 const auto nodesToSelect = initialNode->nodesRequiredForViewSelection();
                 for (Model::Node* node : nodesToSelect) {
                     if (!node->selected() /* && m_editorContext->selectable(node) remove check to allow issue objects to be selected */) {
-                        node->escalate(ancestors);
-                        node->recurse(descendants);
                         node->select();
                         selected.push_back(node);
                     }
                 }
             }
 
-            const std::vector<Model::Node*>& partiallySelected = ancestors.nodes();
-            const std::vector<Model::Node*>& recursivelySelected = descendants.nodes();
-
             m_selectedNodes.addNodes(selected);
-            m_partiallySelectedNodes.addNodes(partiallySelected);
 
             Selection selection;
             selection.addSelectedNodes(selected);
-            selection.addPartiallySelectedNodes(partiallySelected);
-            selection.addRecursivelySelectedNodes(recursivelySelected);
 
             selectionDidChangeNotifier(selection);
             invalidateSelectionBounds();
@@ -117,26 +104,18 @@ namespace TrenchBroom {
             std::vector<Model::BrushFaceHandle> selected;
             selected.reserve(faces.size());
 
-            Model::CollectNodesWithDescendantSelectionCountVisitor visitor(0);
-
             for (const auto& pair : faces) {
-                Model::BrushNode* node = pair.node();
                 Model::BrushFace* face = pair.face();
                 if (!face->selected() && m_editorContext->selectable(face)) {
-                    node->acceptAndEscalate(visitor);
                     face->select();
                     selected.push_back(pair);
                 }
             }
 
-            const std::vector<Model::Node*>& partiallySelected = visitor.nodes();
-
             kdl::vec_append(m_selectedBrushFaces, selected);
-            m_partiallySelectedNodes.addNodes(partiallySelected);
 
             Selection selection;
             selection.addSelectedBrushFaces(Model::toFaces(selected));
-            selection.addPartiallySelectedNodes(partiallySelected);
 
             selectionDidChangeNotifier(selection);
         }
@@ -174,28 +153,17 @@ namespace TrenchBroom {
             std::vector<Model::Node*> deselected;
             deselected.reserve(nodes.size());
 
-            Model::CollectNodesWithDescendantSelectionCountVisitor ancestors(0);
-            Model::CollectRecursivelySelectedNodesVisitor descendants(false);
-
             for (Model::Node* node : nodes) {
                 if (node->selected()) {
                     node->deselect();
                     deselected.push_back(node);
-                    node->escalate(ancestors);
-                    node->recurse(descendants);
                 }
             }
 
-            const std::vector<Model::Node*>& partiallyDeselected = ancestors.nodes();
-            const std::vector<Model::Node*>& recursivelyDeselected = descendants.nodes();
-
             m_selectedNodes.removeNodes(deselected);
-            m_partiallySelectedNodes.removeNodes(partiallyDeselected);
 
             Selection selection;
             selection.addDeselectedNodes(deselected);
-            selection.addPartiallyDeselectedNodes(partiallyDeselected);
-            selection.addRecursivelyDeselectedNodes(recursivelyDeselected);
 
             selectionDidChangeNotifier(selection);
             invalidateSelectionBounds();
@@ -207,26 +175,18 @@ namespace TrenchBroom {
             std::vector<Model::BrushFaceHandle> deselected;
             deselected.reserve(faces.size());
 
-            Model::CollectNodesWithDescendantSelectionCountVisitor visitor(0);
-
             for (const auto& pair : faces) {
-                Model::BrushNode* node = pair.node();
                 Model::BrushFace* face = pair.face();
                 if (face->selected()) {
                     face->deselect();
                     deselected.push_back(pair);
-                    node->acceptAndEscalate(visitor);
                 }
             }
 
-            const std::vector<Model::Node*>& partiallyDeselected = visitor.nodes();
-
             kdl::vec_erase_all(m_selectedBrushFaces, deselected);
-            m_selectedNodes.removeNodes(partiallyDeselected);
 
             Selection selection;
             selection.addDeselectedBrushFaces(Model::toFaces(deselected));
-            selection.addPartiallyDeselectedNodes(partiallyDeselected);
 
             selectionDidChangeNotifier(selection);
         }
@@ -242,20 +202,14 @@ namespace TrenchBroom {
             selectionWillChangeNotifier();
             updateLastSelectionBounds();
 
-            Model::CollectRecursivelySelectedNodesVisitor descendants(false);
-
             for (Model::Node* node : m_selectedNodes) {
                 node->deselect();
-                node->recurse(descendants);
             }
 
             Selection selection;
             selection.addDeselectedNodes(m_selectedNodes.nodes());
-            selection.addPartiallyDeselectedNodes(m_partiallySelectedNodes.nodes());
-            selection.addRecursivelyDeselectedNodes(descendants.nodes());
 
             m_selectedNodes.clear();
-            m_partiallySelectedNodes.clear();
 
             selectionDidChangeNotifier(selection);
             invalidateSelectionBounds();
@@ -271,10 +225,8 @@ namespace TrenchBroom {
 
             Selection selection;
             selection.addDeselectedBrushFaces(faces);
-            selection.addPartiallyDeselectedNodes(m_partiallySelectedNodes.nodes());
 
             m_selectedBrushFaces.clear();
-            m_partiallySelectedNodes.clear();
 
             selectionDidChangeNotifier(selection);
         }

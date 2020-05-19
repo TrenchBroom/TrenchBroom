@@ -113,8 +113,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/ChangeBrushFaceAttributesRequest.cpp
         ${COMMON_SOURCE_DIR}/Model/CollectAttributableNodesVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/CollectMatchingNodesVisitor.cpp
-        ${COMMON_SOURCE_DIR}/Model/CollectNodesWithDescendantSelectionCountVisitor.cpp
-        ${COMMON_SOURCE_DIR}/Model/CollectRecursivelySelectedNodesVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/CollectSelectableBrushFacesVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/CollectSelectableNodesWithFilePositionVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/CompareHits.cpp
@@ -628,8 +626,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/CollectMatchingNodesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectNodesByVisibilityVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectNodesVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/CollectNodesWithDescendantSelectionCountVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/CollectRecursivelySelectedNodesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectSelectableBrushFacesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectSelectableNodesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectSelectableNodesWithFilePositionVisitor.h
