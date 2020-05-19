@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/EntityDefinitionManager.h"
+#include "Model/Brush.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/EditorContext.h"
@@ -530,10 +531,10 @@ namespace TrenchBroom {
 
                 std::set<Model::BrushNode*> brushes;
                 for (auto& face : selection.selectedBrushFaces()) {
-                    brushes.insert(face->brush());
+                    brushes.insert(face->brush()->node());
                 }
                 for (auto& face : selection.deselectedBrushFaces()) {
-                    brushes.insert(face->brush());
+                    brushes.insert(face->brush()->node());
                 }
 
                 std::vector<Model::BrushNode*> brushesVec;

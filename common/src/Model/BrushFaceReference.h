@@ -26,13 +26,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushNode;
+        class Brush;
         class BrushFace;
 
         class BrushFaceReference {
         private:
             vm::plane3 m_facePlane;
-            Model::BrushNode* m_brush;
+            Model::Brush* m_brush;
         public:
             BrushFaceReference(Model::BrushFace* face);
 

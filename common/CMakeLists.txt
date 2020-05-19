@@ -100,6 +100,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/AttributeValueWithDoubleQuotationMarksIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/BoundsContainsNodeVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/BoundsIntersectsNodeVisitor.cpp
+        ${COMMON_SOURCE_DIR}/Model/Brush.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushBuilder.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushFace.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushFaceAttributes.cpp
@@ -607,6 +608,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/AttributeValueWithDoubleQuotationMarksIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/BoundsContainsNodeVisitor.h
         ${COMMON_SOURCE_DIR}/Model/BoundsIntersectsNodeVisitor.h
+        ${COMMON_SOURCE_DIR}/Model/Brush.h
         ${COMMON_SOURCE_DIR}/Model/BrushBuilder.h
         ${COMMON_SOURCE_DIR}/Model/BrushFace.h
         ${COMMON_SOURCE_DIR}/Model/BrushFaceAttributes.h

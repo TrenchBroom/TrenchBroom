@@ -35,6 +35,7 @@
 #include "IO/SystemPaths.h"
 #include "Model/AttributeNameWithDoubleQuotationMarksIssueGenerator.h"
 #include "Model/AttributeValueWithDoubleQuotationMarksIssueGenerator.h"
+#include "Model/Brush.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushGeometry.h"
@@ -673,7 +674,7 @@ namespace TrenchBroom {
         void MapDocument::selectFacesWithTexture(const Assets::Texture* texture) {
             Model::CollectSelectableBrushFacesVisitor visitor(*m_editorContext, [=](const Model::BrushFace* face) {
                 // FIXME: we shouldn't need this extra check here to prevent hidden brushes from being included; fix it in EditorContext
-                if (face->brush()->hidden()) {
+                if (face->brush()->node()->hidden()) {
                     return false;
                 }
                 return face->texture() == texture;
@@ -1192,7 +1193,7 @@ namespace TrenchBroom {
             if (!selectedNodes().brushes().empty()) {
                 parent = selectedNodes().brushes().front()->parent();
             } else if (!selectedBrushFaces().empty()) {
-                parent = selectedBrushFaces().front()->brush()->parent();
+                parent = selectedBrushFaces().front()->brush()->node()->parent();
             } else {
                 parent = currentParent();
             }

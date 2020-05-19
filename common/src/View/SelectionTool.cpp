@@ -21,6 +21,7 @@
 
 #include "Preferences.h"
 #include "PreferenceManager.h"
+#include "Model/Brush.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectSelectableNodesVisitor.h"
@@ -80,7 +81,7 @@ namespace TrenchBroom {
                         if (isMultiClick(inputState)) {
                             const auto objects = document->hasSelectedNodes();
                             if (objects) {
-                                const auto* brush = face->brush();
+                                const auto* brush = face->brush()->node();
                                 if (brush->selected()) {
                                     document->deselect(face);
                                 } else {

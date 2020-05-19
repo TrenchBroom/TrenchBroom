@@ -21,6 +21,7 @@
 
 #include "Preferences.h"
 #include "PreferenceManager.h"
+#include "Model/Brush.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/EditorContext.h"
@@ -90,8 +91,8 @@ namespace TrenchBroom {
         bool BrushRenderer::DefaultFilter::selected(const Model::BrushEdge* edge) const {
             const Model::BrushFace* first = edge->firstFace()->payload();
             const Model::BrushFace* second = edge->secondFace()->payload();
-            const Model::BrushNode* brush = first->brush();
-            assert(second->brush() == brush);
+            const Model::BrushNode* brush = first->brush()->node();
+            assert(second->brush()->node() == brush);
             return selected(brush) || selected(first) || selected(second);
         }
 

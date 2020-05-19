@@ -19,6 +19,7 @@
 
 #include "VertexCommand.h"
 
+#include "Model/Brush.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -58,7 +59,7 @@ namespace TrenchBroom {
             for (const auto& entry : edges) {
                 const BrushEdgeSet& mappedEdges = entry.second;
                 for (Model::BrushEdge* edge : mappedEdges) {
-                    Model::BrushNode* brush = edge->firstFace()->payload()->brush();
+                    Model::BrushNode* brush = edge->firstFace()->payload()->brush()->node();
                     const vm::segment3 edgePosition(edge->firstVertex()->position(), edge->secondVertex()->position());
 
                     const auto result = brushEdges.insert(std::make_pair(brush, std::vector<vm::segment3>()));
@@ -78,7 +79,7 @@ namespace TrenchBroom {
             for (const auto& entry : faces) {
                 const std::set<Model::BrushFace*>& mappedFaces = entry.second;
                 for (Model::BrushFace* face : mappedFaces) {
-                    Model::BrushNode* brush = face->brush();
+                    Model::BrushNode* brush = face->brush()->node();
                     const auto result = brushFaces.insert(std::make_pair(brush, std::vector<vm::polygon3>()));
                     if (result.second) {
                         brushes.push_back(brush);

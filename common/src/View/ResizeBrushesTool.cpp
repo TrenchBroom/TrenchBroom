@@ -22,6 +22,7 @@
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "FloatType.h"
+#include "Model/Brush.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -246,7 +247,7 @@ namespace TrenchBroom {
         std::vector<ResizeBrushesTool::FaceHandle> ResizeBrushesTool::getDragHandles(const std::vector<Model::BrushFace*>& faces) const {
             std::vector<FaceHandle> result;
             for (auto* face : faces) {
-                result.push_back(std::make_tuple(face->brush(), face->boundary().normal));
+                result.push_back(std::make_tuple(face->brush()->node(), face->boundary().normal));
             }
             return result;
         }
@@ -351,7 +352,7 @@ namespace TrenchBroom {
 
             std::map<vm::polygon3, std::vector<Model::BrushNode*>> brushMap;
             for (const auto* face : dragFaces()) {
-                brushMap[face->polygon()] = { face->brush() };
+                brushMap[face->polygon()] = { face->brush()->node() };
             }
 
             if (document->moveFaces(brushMap, delta)) {
@@ -399,13 +400,13 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> newNodes;
 
             for (auto* dragFace : dragFaces()) {
-                auto* brush = dragFace->brush();
+                auto* brush = dragFace->brush()->node();
 
                 auto* newBrush = brush->clone(worldBounds);
                 auto* newDragFace = findMatchingFace(newBrush, dragFace);
 
                 newBrushes.push_back(newBrush);
-                newDragHandles.emplace_back(newDragFace->brush(), newDragFace->boundary().normal);
+                newDragHandles.emplace_back(newDragFace->brush()->node(), newDragFace->boundary().normal);
 
                 if (!newBrush->canMoveBoundary(worldBounds, newDragFace, delta)) {
                     // There is a brush for which the move is not applicable. Abort.
@@ -459,7 +460,7 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> newNodes;
 
             for (auto* dragFace : dragFaces()) {
-                auto* brush = dragFace->brush();
+                auto* brush = dragFace->brush()->node();
 
                 auto* newBrush = brush->clone(worldBounds);
                 auto* newDragFace = findMatchingFace(newBrush, dragFace);

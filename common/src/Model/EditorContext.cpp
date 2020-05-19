@@ -21,6 +21,7 @@
 
 #include "Ensure.h"
 #include "Assets/EntityDefinition.h"
+#include "Model/Brush.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityNode.h"
@@ -240,7 +241,7 @@ namespace TrenchBroom {
         }
 
         bool EditorContext::editable(const Model::BrushFace* face) const {
-            return editable(face->brush());
+            return editable(face->brush()->node());
         }
 
         class EditorContext::NodePickable : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
@@ -287,7 +288,7 @@ namespace TrenchBroom {
         }
 
         bool EditorContext::pickable(const Model::BrushFace* face) const {
-            return face->brush()->selected() || visible(face);
+            return face->brush()->node()->selected() || visible(face);
         }
 
         class NodeSelectable : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
