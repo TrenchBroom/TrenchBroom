@@ -107,10 +107,10 @@ namespace TrenchBroom {
 
             itemPanelLayout->addWidget(m_activeButton);
             itemPanelLayout->addLayout(textLayout, 1);
-            itemPanelLayout->addWidget(m_hiddenButton);
-            itemPanelLayout->addWidget(m_lockButton);
             itemPanelLayout->addWidget(m_moveLayerUpButton, 0, Qt::AlignVCenter);
             itemPanelLayout->addWidget(m_moveLayerDownButton, 0, Qt::AlignVCenter);
+            itemPanelLayout->addWidget(m_hiddenButton);
+            itemPanelLayout->addWidget(m_lockButton);
             setLayout(itemPanelLayout);
 
             updateLayerItem();
@@ -143,12 +143,12 @@ namespace TrenchBroom {
             m_lockButton->setChecked(m_layer->locked());
             m_hiddenButton->setChecked(m_layer->hidden());
 
-            m_lockButton->setEnabled(m_layer->locked());
-            m_hiddenButton->setEnabled(m_layer->hidden());
-
             const auto* world = document->world();
-            m_moveLayerUpButton->setEnabled(m_layer != world->allLayers().front());
-            m_moveLayerDownButton->setEnabled(m_layer != world->allLayers().back());
+            // defaultLayer can never move so just hide the buttons
+            m_moveLayerUpButton->setVisible(m_layer != world->defaultLayer());
+            m_moveLayerDownButton->setVisible(m_layer != world->defaultLayer());
+            m_moveLayerUpButton->setEnabled(document->canMoveLayer(m_layer, -1));
+            m_moveLayerDownButton->setEnabled(document->canMoveLayer(m_layer, 1));
         }
 
         Model::Layer* LayerListBoxWidget::layer() const {
