@@ -246,16 +246,6 @@ namespace TrenchBroom {
             return m_brush.incidentFaces(vertex);
         }
 
-        bool BrushNode::canMoveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta) const {
-            return m_brush.canMoveFaces(worldBounds, facePositions, delta);
-        }
-
-        std::vector<vm::polygon3> BrushNode::moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta, const bool uvLock) {
-            const NotifyNodeChange nodeChange(this);
-            const NotifyPhysicalBoundsChange boundsChange(this);
-            return m_brush.moveFaces(worldBounds, facePositions, delta, uvLock);
-        }
-
         std::vector<BrushNode*> BrushNode::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<BrushNode*>& subtrahends) const {
             const std::vector<const Brush*> subtrahendBrushes = kdl::vec_transform(subtrahends, [](const auto* brushNode) { return &brushNode->m_brush; });
             auto result = m_brush.subtract(factory, worldBounds, defaultTextureName, subtrahendBrushes);

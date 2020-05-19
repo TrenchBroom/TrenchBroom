@@ -110,10 +110,6 @@ namespace TrenchBroom {
 
             std::vector<BrushFace*> incidentFaces(const BrushVertex* vertex) const;
         public:
-            // face operations
-            bool canMoveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta) const;
-            std::vector<vm::polygon3> moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta, bool uvLock = false);
-        public:
             // CSG operations
             /**
              * Subtracts the given subtrahends from `this`, returning the result but without modifying `this`.
