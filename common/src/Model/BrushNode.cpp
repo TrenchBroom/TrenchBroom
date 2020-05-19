@@ -153,10 +153,6 @@ namespace TrenchBroom {
             m_brush.cloneInvertedFaceAttributesFrom(brush->m_brush);
         }
 
-        bool BrushNode::containsPoint(const vm::vec3& point) const {
-            return m_brush.containsPoint(point);
-        }
-
         std::vector<BrushFace*> BrushNode::incidentFaces(const BrushVertex* vertex) const {
             return m_brush.incidentFaces(vertex);
         }
@@ -230,7 +226,7 @@ namespace TrenchBroom {
         }
 
         void BrushNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) {
-            if (containsPoint(point)) {
+            if (m_brush.containsPoint(point)) {
                 result.push_back(this);
             }
         }
