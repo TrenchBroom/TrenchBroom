@@ -38,8 +38,7 @@ namespace TrenchBroom {
 
         BrushFaceHandle BrushFaceReference::resolve() const {
             if (const auto faceIndex = m_node->brush().findFace(m_facePlane)) {
-                Model::BrushFace* face = m_node->brush().face(*faceIndex);
-                return BrushFaceHandle(m_node, face);
+                return BrushFaceHandle(m_node, *faceIndex);
             } else {
                 throw BrushFaceReferenceException();
             }

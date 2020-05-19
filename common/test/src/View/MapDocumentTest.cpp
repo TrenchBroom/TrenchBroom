@@ -351,12 +351,13 @@ namespace TrenchBroom {
             document->addNode(brushNode2, document->currentParent());
             ASSERT_EQ(1u, entity->children().size());
 
-            auto* face1 = brushNode1->brush().faces().front();
-            auto* face2 = brushNode2->brush().faces().front();
+            const auto faceIndex = 0u;
+            const auto* face1 = brushNode1->brush().face(faceIndex);
+            const auto* face2 = brushNode2->brush().face(faceIndex);
 
             document->select({
-                { brushNode1, face1 },
-                { brushNode2, face2 }
+                { brushNode1, faceIndex },
+                { brushNode2, faceIndex }
             });
             ASSERT_TRUE(document->csgConvexMerge());
             ASSERT_EQ(2u, entity->children().size()); // added to the parent of the first brush, original brush is not deleted

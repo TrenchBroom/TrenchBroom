@@ -179,7 +179,7 @@ namespace TrenchBroom {
                 const auto [distance, faceIndex] = *hit;
                 ensure(!vm::is_nan(distance), "nan hit distance");
                 const auto hitPoint = vm::point_at_distance(ray, distance);
-                pickResult.addHit(Hit(BrushHitType, distance, hitPoint, BrushFaceHandle(this, m_brush.face(faceIndex))));
+                pickResult.addHit(Hit(BrushHitType, distance, hitPoint, BrushFaceHandle(this, faceIndex)));
             }
         }
 

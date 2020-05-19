@@ -150,10 +150,11 @@ namespace TrenchBroom {
             const auto& tag = document->smartTag("texture");
             ASSERT_TRUE(tag.canEnable());
 
-            auto* face = nonMatchingBrushNode->brush().faces().front();
+            const auto faceIndex = 0u;
+            const auto* face = nonMatchingBrushNode->brush().face(faceIndex);
             ASSERT_FALSE(tag.matches(*face));
 
-            document->select({ nonMatchingBrushNode, face });
+            document->select({ nonMatchingBrushNode, faceIndex });
 
             TestCallback callback(0);
             tag.enable(callback, *document);
@@ -223,10 +224,11 @@ namespace TrenchBroom {
             const auto& tag = document->smartTag("contentflags");
             ASSERT_TRUE(tag.canEnable());
 
-            auto* face = nonMatchingBrushNode->brush().faces().front();
+            const auto faceIndex = 0u;
+            const auto* face = nonMatchingBrushNode->brush().face(faceIndex);
             ASSERT_FALSE(tag.matches(*face));
 
-            document->select({ nonMatchingBrushNode, face });
+            document->select({ nonMatchingBrushNode, faceIndex });
 
             TestCallback callback(0);
             tag.enable(callback, *document);
@@ -245,10 +247,11 @@ namespace TrenchBroom {
             const auto& tag = document->smartTag("contentflags");
             ASSERT_TRUE(tag.canDisable());
 
-            auto* face = matchingBrushNode->brush().faces().front();
+            const auto faceIndex = 0u;
+            const auto* face = matchingBrushNode->brush().face(faceIndex);
             ASSERT_TRUE(tag.matches(*face));
 
-            document->select({ matchingBrushNode, face });
+            document->select({ matchingBrushNode, faceIndex });
 
             TestCallback callback(0);
             tag.disable(callback, *document);
@@ -283,10 +286,11 @@ namespace TrenchBroom {
             const auto& tag = document->smartTag("surfaceflags");
             ASSERT_TRUE(tag.canEnable());
 
-            auto* face = nonMatchingBrushNode->brush().faces().front();
+            const auto faceIndex = 0u;
+            const auto* face = nonMatchingBrushNode->brush().face(faceIndex);
             ASSERT_FALSE(tag.matches(*face));
 
-            document->select({ nonMatchingBrushNode, face });
+            document->select({ nonMatchingBrushNode, faceIndex });
 
             TestCallback callback(0);
             tag.enable(callback, *document);
@@ -305,10 +309,11 @@ namespace TrenchBroom {
             const auto& tag = document->smartTag("surfaceflags");
             ASSERT_TRUE(tag.canDisable());
 
-            auto* face = matchingBrushNode->brush().faces().front();
+            const auto faceIndex = 0u;
+            const auto* face = matchingBrushNode->brush().face(faceIndex);
             ASSERT_TRUE(tag.matches(*face));
 
-            document->select({ matchingBrushNode, face });
+            document->select({ matchingBrushNode, faceIndex });
 
             TestCallback callback(0);
             tag.disable(callback, *document);
@@ -517,13 +522,14 @@ namespace TrenchBroom {
 
             const auto& tag = document->smartTag("contentflags");
 
-            auto* face = brushNode->brush().faces().front();
+            const auto faceIndex = 0u;
+            const auto* face = brushNode->brush().face(faceIndex);
             ASSERT_FALSE(face->hasTag(tag));
 
             Model::ChangeBrushFaceAttributesRequest request;
             request.setContentFlag(0);
 
-            document->select({ brushNode, face });
+            document->select({ brushNode, faceIndex });
             document->setFaceAttributes(request);
             document->deselectAll();
 

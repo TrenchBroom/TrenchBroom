@@ -36,15 +36,15 @@ namespace TrenchBroom {
         class BrushFaceHandle {
         private:
             BrushNode* m_node;
-            BrushFace* m_face;
+            size_t m_faceIndex;
         public:
             /**
              * Creates a n brush face handle.
              *
              * @param node the containing brush node, must not be null
-             * @param face the brush face, must not be null and must belong to the given brush node
+             * @param faceIndex the brush face index, must be valid for the given brush node
              */
-            BrushFaceHandle(BrushNode* node, BrushFace* face);
+            BrushFaceHandle(BrushNode* node, size_t faceIndex);
 
             /**
              * Returns the containing brush node.
