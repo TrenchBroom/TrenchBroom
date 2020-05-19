@@ -71,8 +71,6 @@ namespace TrenchBroom {
         public:
             using Node::takeSnapshot;
             BrushFaceSnapshot* takeSnapshot(BrushFace* face);
-        public:
-            bool fullySpecified() const;
         public: // clone face attributes from matching faces of other brushes
             void cloneFaceAttributesFrom(const std::vector<BrushNode*>& brushes);
             void cloneFaceAttributesFrom(const BrushNode* brush);

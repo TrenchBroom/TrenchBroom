@@ -125,10 +125,6 @@ namespace TrenchBroom {
             return new BrushFaceSnapshot(this, face);
         }
 
-        bool BrushNode::fullySpecified() const {
-            return m_brush.fullySpecified();
-        }
-
         void BrushNode::cloneFaceAttributesFrom(const std::vector<BrushNode*>& brushes) {
             for (const auto* brush : brushes) {
                 cloneFaceAttributesFrom(brush);
