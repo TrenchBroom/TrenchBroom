@@ -212,7 +212,7 @@ namespace TrenchBroom {
                 std::vector<vm::vec3> tallVertices;
                 tallVertices.reserve(2 * selectionBrush.vertexCount());
 
-                for (const Model::BrushVertex* vertex : selectionBrushNode->vertices()) {
+                for (const Model::BrushVertex* vertex : selectionBrush.vertices()) {
                     tallVertices.push_back(minPlane.project_point(vertex->position()));
                     tallVertices.push_back(maxPlane.project_point(vertex->position()));
                 }
