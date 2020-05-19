@@ -26,6 +26,7 @@
 
 #include <vecmath/polygon.h>
 #include <vecmath/scalar.h>
+#include <vecmath/segment.h>
 
 #include <string>
 
@@ -115,6 +116,18 @@ namespace TrenchBroom {
     }
 
     namespace Model {
+        std::vector<vm::vec3> asVertexList(const std::vector<vm::segment3>& edges) {
+            std::vector<vm::vec3> result;
+            vm::segment3::get_vertices(std::begin(edges), std::end(edges), std::back_inserter(result));
+            return result;
+        }
+
+        std::vector<vm::vec3> asVertexList(const std::vector<vm::polygon3>& faces) {
+            std::vector<vm::vec3> result;
+            vm::polygon3::get_vertices(std::begin(faces), std::end(faces), std::back_inserter(result));
+            return result;
+        }
+
         void assertTexture(const std::string& expected, const BrushNode* brush, const vm::vec3& faceNormal) {
             assert(brush != nullptr);
             BrushFace* face = brush->findFace(faceNormal);
@@ -138,6 +151,32 @@ namespace TrenchBroom {
         void assertTexture(const std::string& expected, const BrushNode* brush, const vm::polygon3d& vertices) {
             assert(brush != nullptr);
             BrushFace* face = brush->findFace(vertices, 0.0001);
+            assert(face != nullptr);
+
+            ASSERT_EQ(expected, face->textureName());
+        }
+
+        void assertTexture(const std::string& expected, const Brush& brush, const vm::vec3& faceNormal) {
+            BrushFace* face = brush.findFace(faceNormal);
+            assert(face != nullptr);
+
+            ASSERT_EQ(expected, face->textureName());
+        }
+
+        void assertTexture(const std::string& expected, const Brush& brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3) {
+            return assertTexture(expected, brush, std::vector<vm::vec3d>({ v1, v2, v3 }));
+        }
+
+        void assertTexture(const std::string& expected, const Brush& brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3, const vm::vec3d& v4) {
+            return assertTexture(expected, brush, std::vector<vm::vec3d>({ v1, v2, v3, v4 }));
+        }
+
+        void assertTexture(const std::string& expected, const Brush& brush, const std::vector<vm::vec3d>& vertices) {
+            return assertTexture(expected, brush, vm::polygon3d(vertices));
+        }
+
+        void assertTexture(const std::string& expected, const Brush& brush, const vm::polygon3d& vertices) {
+            BrushFace* face = brush.findFace(vertices, 0.0001);
             assert(face != nullptr);
 
             ASSERT_EQ(expected, face->textureName());
