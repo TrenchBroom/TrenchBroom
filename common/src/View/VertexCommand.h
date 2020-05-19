@@ -82,11 +82,6 @@ namespace TrenchBroom {
             static void extractEdgeMap(const EdgeToBrushesMap& edges, std::vector<Model::BrushNode*>& brushes, BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions);
             static void extractFaceMap(const FaceToBrushesMap& faces, std::vector<Model::BrushNode*>& brushes, BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions);
 
-            using BrushEdgeSet = std::set<Model::BrushEdge*>;
-            using VertexToEdgesMap = std::map<vm::vec3, BrushEdgeSet>;
-            static void extractEdgeMap(const VertexToEdgesMap& edges, std::vector<Model::BrushNode*>& brushes, BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions);
-            static void extractFaceMap(const VertexToFacesMap& faces, std::vector<Model::BrushNode*>& brushes, BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions);
-
             static BrushVerticesMap brushVertexMap(const BrushEdgesMap& edges);
             static BrushVerticesMap brushVertexMap(const BrushFacesMap& faces);
         private:

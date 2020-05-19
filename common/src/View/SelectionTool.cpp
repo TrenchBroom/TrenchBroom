@@ -79,7 +79,7 @@ namespace TrenchBroom {
                 if (hit.isMatch()) {
                     auto* brush = Model::hitToBrush(hit);
                     auto* face = Model::hitToFace(hit);
-                    if (editorContext.selectable(face)) {
+                    if (editorContext.selectable(brush, face)) {
                         if (isMultiClick(inputState)) {
                             const auto objects = document->hasSelectedNodes();
                             if (objects) {
@@ -145,9 +145,9 @@ namespace TrenchBroom {
             if (isFaceClick(inputState)) {
                 const auto& hit = firstHit(inputState, Model::BrushNode::BrushHitType);
                 if (hit.isMatch()) {
+                    auto* brush = Model::hitToBrush(hit);
                     auto* face = Model::hitToFace(hit);
-                    if (editorContext.selectable(face)) {
-                        auto* brush = Model::hitToBrush(hit);
+                    if (editorContext.selectable(brush, face)) {
                         if (isMultiClick(inputState)) {
                             if (document->hasSelectedNodes()) {
                                 document->convertToFaceSelection();
@@ -342,14 +342,14 @@ namespace TrenchBroom {
                     return false;
                 }
 
+                auto* brush = Model::hitToBrush(hit);
                 auto* face = Model::hitToFace(hit);
-                if (editorContext.selectable(face)) {
+                if (editorContext.selectable(brush, face)) {
                     document->startTransaction("Drag Select Brush Faces");
                     if (document->hasSelection() && !document->hasSelectedBrushFaces()) {
                         document->deselectAll();
                     }
                     if (!face->selected()) {
-                        auto* brush = Model::hitToBrush(hit);
                         document->select({ brush, face });
                     }
 
@@ -383,9 +383,9 @@ namespace TrenchBroom {
             if (document->hasSelectedBrushFaces()) {
                 const auto& hit = firstHit(inputState, Model::BrushNode::BrushHitType);
                 if (hit.isMatch()) {
+                    auto* brush = Model::hitToBrush(hit);
                     auto* face = Model::hitToFace(hit);
-                    if (!face->selected() && editorContext.selectable(face)) {
-                        auto* brush = Model::hitToBrush(hit);
+                    if (!face->selected() && editorContext.selectable(brush, face)) {
                         document->select({ brush, face });
                     }
                 }

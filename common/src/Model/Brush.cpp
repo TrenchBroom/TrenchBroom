@@ -238,10 +238,6 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(m_faces);
         }
 
-        BrushNode* Brush::node() const {
-            return m_node;
-        }
-
         void Brush::setNode(BrushNode* node) {
             m_node = node;
         }

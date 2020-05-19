@@ -672,9 +672,9 @@ namespace TrenchBroom {
         }
 
         void MapDocument::selectFacesWithTexture(const Assets::Texture* texture) {
-            Model::CollectSelectableBrushFacesVisitor visitor(*m_editorContext, [=](const Model::BrushFace* face) {
+            Model::CollectSelectableBrushFacesVisitor visitor(*m_editorContext, [=](const Model::BrushNode* brush, const Model::BrushFace* face) {
                 // FIXME: we shouldn't need this extra check here to prevent hidden brushes from being included; fix it in EditorContext
-                if (face->brush()->node()->hidden()) {
+                if (brush->hidden()) {
                     return false;
                 }
                 return face->texture() == texture;

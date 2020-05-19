@@ -54,49 +54,6 @@ namespace TrenchBroom {
             extract(faces, brushes, brushFaces, facePositions);
         }
 
-        void VertexCommand::extractEdgeMap(const VertexToEdgesMap& edges, std::vector<Model::BrushNode*>& brushes, BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions) {
-
-            for (const auto& entry : edges) {
-                const BrushEdgeSet& mappedEdges = entry.second;
-                for (Model::BrushEdge* edge : mappedEdges) {
-                    Model::BrushNode* brush = edge->firstFace()->payload()->brush()->node();
-                    const vm::segment3 edgePosition(edge->firstVertex()->position(), edge->secondVertex()->position());
-
-                    const auto result = brushEdges.insert(std::make_pair(brush, std::vector<vm::segment3>()));
-                    if (result.second) {
-                        brushes.push_back(brush);
-                    }
-                    result.first->second.push_back(edgePosition);
-                    edgePositions.push_back(edgePosition);
-                }
-            }
-
-            assert(!brushes.empty());
-            assert(brushes.size() == brushEdges.size());
-        }
-
-        void VertexCommand::extractFaceMap(const VertexToFacesMap& faces, std::vector<Model::BrushNode*>& brushes, BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions) {
-            for (const auto& entry : faces) {
-                const std::set<Model::BrushFace*>& mappedFaces = entry.second;
-                for (Model::BrushFace* face : mappedFaces) {
-                    Model::BrushNode* brush = face->brush()->node();
-                    const auto result = brushFaces.insert(std::make_pair(brush, std::vector<vm::polygon3>()));
-                    if (result.second) {
-                        brushes.push_back(brush);
-                    }
-
-                    const vm::polygon3 facePosition = face->polygon();
-                    result.first->second.push_back(facePosition);
-                    facePositions.push_back(facePosition);
-                }
-            }
-
-            kdl::vec_sort(facePositions);
-
-            assert(!brushes.empty());
-            assert(brushes.size() == brushFaces.size());
-        }
-
         VertexCommand::BrushVerticesMap VertexCommand::brushVertexMap(const BrushEdgesMap& edges) {
             BrushVerticesMap result;
             for (const auto& entry : edges) {
