@@ -1183,27 +1183,31 @@ namespace TrenchBroom {
             }
 
             const Model::BrushBuilder builder(m_world.get(), m_worldBounds, m_game->defaultFaceAttribs());
-            auto* brush = m_world->createBrush(builder.createBrush(polyhedron, currentTextureName()));
-            brush->cloneFaceAttributesFrom(selectedNodes().brushes());
+            Model::Brush brush = builder.createBrush(polyhedron, currentTextureName());
+            for (const Model::BrushNode* selectedBrushNode : selectedNodes().brushes()) {
+                brush.cloneFaceAttributesFrom(selectedBrushNode->brush());
+            }
 
             // The nodelist is either empty or contains only brushes.
             const auto toRemove = selectedNodes().nodes();
 
             // We could be merging brushes that have different parents; use the parent of the first brush.
-            Model::Node* parent = nullptr;
+            Model::Node* parentNode = nullptr;
             if (!selectedNodes().brushes().empty()) {
-                parent = selectedNodes().brushes().front()->parent();
+                parentNode = selectedNodes().brushes().front()->parent();
             } else if (!selectedBrushFaces().empty()) {
-                parent = selectedBrushFaces().front().node()->parent();
+                parentNode = selectedBrushFaces().front().node()->parent();
             } else {
-                parent = currentParent();
+                parentNode = currentParent();
             }
 
+            Model::BrushNode* brushNode = new Model::BrushNode(std::move(brush));
+            
             const Transaction transaction(this, "CSG Convex Merge");
             deselectAll();
-            addNode(brush, parent);
+            addNode(brushNode, parentNode);
             removeNodes(toRemove);
-            select(brush);
+            select(brushNode);
             return true;
         }
 

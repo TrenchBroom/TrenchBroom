@@ -125,26 +125,6 @@ namespace TrenchBroom {
             return new BrushFaceSnapshot(this, face);
         }
 
-        void BrushNode::cloneFaceAttributesFrom(const std::vector<BrushNode*>& brushes) {
-            for (const auto* brush : brushes) {
-                cloneFaceAttributesFrom(brush);
-            }
-        }
-
-        void BrushNode::cloneFaceAttributesFrom(const BrushNode* brush) {
-            m_brush.cloneFaceAttributesFrom(brush->m_brush);
-        }
-
-        void BrushNode::cloneInvertedFaceAttributesFrom(const std::vector<BrushNode*>& brushes) {
-            for (const auto* brush : brushes) {
-                cloneInvertedFaceAttributesFrom(brush);
-            }
-        }
-
-        void BrushNode::cloneInvertedFaceAttributesFrom(const BrushNode* brush) {
-            m_brush.cloneInvertedFaceAttributesFrom(brush->m_brush);
-        }
-
         bool BrushNode::canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const {
             return m_brush.canTransform(transformation, worldBounds);
         }

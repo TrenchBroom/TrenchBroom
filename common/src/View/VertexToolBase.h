@@ -274,13 +274,17 @@ namespace TrenchBroom {
 
                 auto document = kdl::mem_lock(m_document);
                 auto game = document->game();
+                
                 const Model::BrushBuilder builder(document->world(), document->worldBounds(), game->defaultFaceAttribs());
-                auto* brush = document->world()->createBrush(builder.createBrush(polyhedron, document->currentTextureName()));
-                brush->cloneFaceAttributesFrom(document->selectedNodes().brushes());
+                Model::Brush brush = builder.createBrush(polyhedron, document->currentTextureName());
+                
+                for (const Model::BrushNode* selectedBrushNode : document->selectedNodes().brushes()) {
+                    brush.cloneFaceAttributesFrom(selectedBrushNode->brush());
+                }
 
                 const Transaction transaction(document, "CSG Convex Merge");
                 deselectAll();
-                document->addNode(brush, document->currentParent());
+                document->addNode(new Model::BrushNode(std::move(brush)), document->currentParent());
             }
 
             virtual H getHandlePosition(const Model::Hit& hit) const {
