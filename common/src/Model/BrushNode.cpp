@@ -157,10 +157,6 @@ namespace TrenchBroom {
             return m_brush.hasVertex(position, epsilon);
         }
 
-        vm::vec3 BrushNode::findClosestVertexPosition(const vm::vec3& position) const {
-            return m_brush.findClosestVertexPosition(position);
-        }
-
         bool BrushNode::hasEdge(const vm::segment3& edge, const FloatType epsilon) const {
             return m_brush.hasEdge(edge, epsilon);
         }
