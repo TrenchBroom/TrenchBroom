@@ -23,7 +23,7 @@
 
 #include "TestUtils.h"
 #include "View/Grid.h"
-#include "Model/BrushNode.h"
+#include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Assets/Texture.h"
@@ -190,19 +190,18 @@ namespace TrenchBroom {
             ASSERT_EQ(pointOnGrid, pointOffGrid + grid05.moveDeltaForPoint(pointOffGrid, inputDelta));
         }
 
-        static Model::BrushNode* makeCube128() {
+        static Model::Brush makeCube128() {
             Assets::Texture texture("testTexture", 64, 64);
             Model::WorldNode world(Model::MapFormat::Standard);
             Model::BrushBuilder builder(&world, worldBounds);
-            Model::BrushNode* cube = world.createBrush(builder.createCube(128.0, ""));
-            return cube;
+            return builder.createCube(128.0, "");
         }
 
         TEST_CASE("GridTest.moveDeltaForFace", "[GridTest]") {
             const auto grid16 = Grid(4);
 
-            Model::BrushNode* cube = makeCube128();
-            Model::BrushFace* topFace = cube->findFace(vm::vec3::pos_z());
+            Model::Brush cube = makeCube128();
+            Model::BrushFace* topFace = cube.findFace(vm::vec3::pos_z());
 
             ASSERT_DOUBLE_EQ(64.0, topFace->boundsCenter().z());
 
@@ -210,15 +209,13 @@ namespace TrenchBroom {
             ASSERT_EQ(vm::vec3(0,0,48), grid16.moveDelta(topFace, vm::vec3(0, 0, 63)));
             ASSERT_EQ(vm::vec3(0,0,64), grid16.moveDelta(topFace, vm::vec3(0, 0, 64)));
             ASSERT_EQ(vm::vec3(0,0,64), grid16.moveDelta(topFace, vm::vec3(0, 0, 65)));
-
-            delete cube;
         }
 
         TEST_CASE("GridTest.moveDeltaForFace_SubInteger", "[GridTest]") {
             const auto grid05 = Grid(-1);
 
-            Model::BrushNode* cube = makeCube128();
-            Model::BrushFace* topFace = cube->findFace(vm::vec3::pos_z());
+            Model::Brush cube = makeCube128();
+            Model::BrushFace* topFace = cube.findFace(vm::vec3::pos_z());
 
             ASSERT_DOUBLE_EQ(64.0, topFace->boundsCenter().z());
 
@@ -226,8 +223,6 @@ namespace TrenchBroom {
             ASSERT_EQ(vm::vec3(0,0,1.5), grid05.moveDelta(topFace, vm::vec3(0, 0, 1.9)));
             ASSERT_EQ(vm::vec3(0,0,2), grid05.moveDelta(topFace, vm::vec3(0, 0, 2)));
             ASSERT_EQ(vm::vec3(0,0,2), grid05.moveDelta(topFace, vm::vec3(0, 0, 2.1)));
-
-            delete cube;
         }
     }
 }

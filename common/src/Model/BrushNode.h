@@ -68,13 +68,7 @@ namespace TrenchBroom {
             
             const Brush& brush() const;
             void setBrush(Brush brush);
-        public: // face management:
-            BrushFace* findFace(const std::string& textureName) const;
-            BrushFace* findFace(const vm::vec3& normal) const;
-            BrushFace* findFace(const vm::plane3& boundary) const;
-            BrushFace* findFace(const vm::polygon3& vertices, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            BrushFace* findFace(const std::vector<vm::polygon3>& candidates, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-
+        public:
             size_t faceCount() const;
             const std::vector<BrushFace*>& faces() const;
             void setFaces(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces);

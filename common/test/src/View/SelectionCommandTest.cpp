@@ -35,32 +35,32 @@ namespace TrenchBroom {
         class SelectionCommandTest : public MapDocumentTest {};
 
         TEST_CASE_METHOD(SelectionCommandTest, "SelectionCommandTest.faceSelectionUndoAfterTranslationUndo") {
-            Model::BrushNode* brush = createBrush();
-            ASSERT_EQ(vm::vec3::zero(), brush->logicalBounds().center());
+            Model::BrushNode* brushNode = createBrush();
+            ASSERT_EQ(vm::vec3::zero(), brushNode->logicalBounds().center());
 
-            document->addNode(brush, document->currentParent());
+            document->addNode(brushNode, document->currentParent());
 
             // select the top face
-            document->select({ brush, brush->findFace(vm::vec3::pos_z()) });
-            ASSERT_EQ(std::vector<Model::BrushFaceHandle>({{ brush, brush->findFace(vm::vec3::pos_z()) }}), document->selectedBrushFaces());
+            document->select({ brushNode, brushNode->brush().findFace(vm::vec3::pos_z()) });
+            ASSERT_EQ(std::vector<Model::BrushFaceHandle>({{ brushNode, brushNode->brush().findFace(vm::vec3::pos_z()) }}), document->selectedBrushFaces());
 
             // deselect it
-            document->deselect({ brush, brush->findFace(vm::vec3::pos_z()) });
+            document->deselect({ brushNode, brushNode->brush().findFace(vm::vec3::pos_z()) });
             ASSERT_EQ(std::vector<Model::BrushFaceHandle>({}), document->selectedBrushFaces());
 
             // select the brush
-            document->select(brush);
-            ASSERT_EQ(std::vector<Model::BrushNode*>({ brush }), document->selectedNodes().brushes());
+            document->select(brushNode);
+            ASSERT_EQ(std::vector<Model::BrushNode*>({ brushNode }), document->selectedNodes().brushes());
 
             // translate the brush
             document->translateObjects(vm::vec3(10.0, 0.0, 0.0));
-            ASSERT_EQ(vm::vec3(10.0, 0.0, 0.0), brush->logicalBounds().center());
+            ASSERT_EQ(vm::vec3(10.0, 0.0, 0.0), brushNode->logicalBounds().center());
 
             // Start undoing changes
 
             document->undoCommand();
-            ASSERT_EQ(vm::vec3::zero(), brush->logicalBounds().center());
-            ASSERT_EQ(std::vector<Model::BrushNode*>({ brush }), document->selectedNodes().brushes());
+            ASSERT_EQ(vm::vec3::zero(), brushNode->logicalBounds().center());
+            ASSERT_EQ(std::vector<Model::BrushNode*>({ brushNode }), document->selectedNodes().brushes());
             ASSERT_EQ(std::vector<Model::BrushFaceHandle>({}), document->selectedBrushFaces());
 
             document->undoCommand();
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             ASSERT_EQ(std::vector<Model::BrushFaceHandle>({}), document->selectedBrushFaces());
 
             document->undoCommand();
-            ASSERT_EQ(std::vector<Model::BrushFaceHandle>({{ brush, brush->findFace(vm::vec3::pos_z()) }}), document->selectedBrushFaces());
+            ASSERT_EQ(std::vector<Model::BrushFaceHandle>({{ brushNode, brushNode->brush().findFace(vm::vec3::pos_z()) }}), document->selectedBrushFaces());
         }
     }
 }
