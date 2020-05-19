@@ -37,11 +37,12 @@ namespace TrenchBroom {
         }
 
         BrushFaceHandle BrushFaceReference::resolve() const {
-            Model::BrushFace* face = m_node->brush().findFace(m_facePlane);
-            if (face == nullptr) {
+            if (const auto faceIndex = m_node->brush().findFace(m_facePlane)) {
+                Model::BrushFace* face = m_node->brush().face(*faceIndex);
+                return BrushFaceHandle(m_node, face);
+            } else {
                 throw BrushFaceReferenceException();
             }
-            return BrushFaceHandle(m_node, face);
         }
 
         std::vector<BrushFaceReference> createRefs(const std::vector<BrushFaceHandle>& handles) {

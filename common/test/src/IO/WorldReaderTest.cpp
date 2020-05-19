@@ -549,12 +549,20 @@ namespace TrenchBroom {
             const auto* brushNode = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brushNode, false);
             const auto& brush = brushNode->brush();
-            ASSERT_TRUE(vm::is_equal(Color(5, 6, 7), brush.findFace("rtz/c_mf_v3cw")->attributes().color(), 0.1f));
-            ASSERT_EQ(1, brush.findFace("rtz/b_rc_v16w")->attributes().surfaceContents());
-            ASSERT_EQ(2, brush.findFace("rtz/b_rc_v16w")->attributes().surfaceFlags());
-            ASSERT_FLOAT_EQ(3.0, brush.findFace("rtz/b_rc_v16w")->attributes().surfaceValue());
-            ASSERT_TRUE(vm::is_equal(Color(8, 9, 10), brush.findFace("rtz/b_rc_v16w")->attributes().color(), 0.1f));
-            ASSERT_FALSE(brush.findFace("rtz/c_mf_v3cww")->attributes().hasColor());
+            
+            const auto c_mf_v3cw_index = brush.findFace("rtz/c_mf_v3cw");
+            const auto b_rc_v16w_index = brush.findFace("rtz/b_rc_v16w");
+            const auto c_mf_v3cww_index = brush.findFace("rtz/c_mf_v3cww");
+            REQUIRE(c_mf_v3cw_index);
+            REQUIRE(b_rc_v16w_index);
+            REQUIRE(c_mf_v3cww_index);
+            
+            ASSERT_TRUE(vm::is_equal(Color(5, 6, 7), brush.face(*c_mf_v3cw_index)->attributes().color(), 0.1f));
+            ASSERT_EQ(1, brush.face(*b_rc_v16w_index)->attributes().surfaceContents());
+            ASSERT_EQ(2, brush.face(*b_rc_v16w_index)->attributes().surfaceFlags());
+            ASSERT_FLOAT_EQ(3.0, brush.face(*b_rc_v16w_index)->attributes().surfaceValue());
+            ASSERT_TRUE(vm::is_equal(Color(8, 9, 10), brush.face(*b_rc_v16w_index)->attributes().color(), 0.1f));
+            ASSERT_FALSE(brush.face(*c_mf_v3cww_index)->attributes().hasColor());
         }
 
         TEST_CASE("WorldReaderTest.parseDaikatanaMapHeader", "[WorldReaderTest]") {

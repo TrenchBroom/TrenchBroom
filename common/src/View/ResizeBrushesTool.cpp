@@ -177,9 +177,11 @@ namespace TrenchBroom {
             return kdl::vec_transform(m_dragHandles, [](const auto& dragHandle) {
                 auto* brushNode = std::get<0>(dragHandle);
                 const auto& normal = std::get<1>(dragHandle);
-                auto* face = brushNode->brush().findFace(normal);
-                assert(face != nullptr);
-                return Model::BrushFaceHandle(brushNode, face);
+                
+                const auto& brush = brushNode->brush();
+                const auto faceIndex = brush.findFace(normal);
+                assert(faceIndex);
+                return Model::BrushFaceHandle(brushNode, brush.face(*faceIndex));
             });
         }
 
@@ -404,8 +406,13 @@ namespace TrenchBroom {
                 auto* brushNode = dragFaceHandle.node();
 
                 auto newBrush = brushNode->brush();
-                auto* newDragFace = newBrush.findFace(dragFace->boundary());
+                const auto newDragFaceIndex = newBrush.findFace(dragFace->boundary());
+                if (!newDragFaceIndex) {
+                    kdl::map_clear_and_delete(newNodes);
+                    return false;
+                }
 
+                auto* newDragFace = newBrush.face(*newDragFaceIndex);
                 if (!newBrush.canMoveBoundary(worldBounds, newDragFace, delta)) {
                     kdl::map_clear_and_delete(newNodes);
                     return false;
@@ -460,8 +467,13 @@ namespace TrenchBroom {
                 auto* brushNode = dragFaceHandle.node();
 
                 auto newBrush = brushNode->brush();
-                auto* newDragFace = newBrush.findFace(dragFace->boundary());
+                const auto newDragFaceIndex = newBrush.findFace(dragFace->boundary());
+                if (!newDragFaceIndex) {
+                    kdl::map_clear_and_delete(newNodes);
+                    return false;
+                }
 
+                auto* newDragFace = newBrush.face(*newDragFaceIndex);
                 auto* clipFace = newDragFace->clone();
                 clipFace->invert();
                 clipFace->transform(vm::translation_matrix(delta), lockTextures);

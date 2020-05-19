@@ -200,8 +200,10 @@ namespace TrenchBroom {
         TEST_CASE("GridTest.moveDeltaForFace", "[GridTest]") {
             const auto grid16 = Grid(4);
 
-            Model::Brush cube = makeCube128();
-            Model::BrushFace* topFace = cube.findFace(vm::vec3::pos_z());
+            const Model::Brush cube = makeCube128();
+            const auto topFaceIndex = cube.findFace(vm::vec3::pos_z());
+            REQUIRE(topFaceIndex);
+            const Model::BrushFace* topFace = cube.face(*topFaceIndex);
 
             ASSERT_DOUBLE_EQ(64.0, topFace->boundsCenter().z());
 
@@ -214,8 +216,10 @@ namespace TrenchBroom {
         TEST_CASE("GridTest.moveDeltaForFace_SubInteger", "[GridTest]") {
             const auto grid05 = Grid(-1);
 
-            Model::Brush cube = makeCube128();
-            Model::BrushFace* topFace = cube.findFace(vm::vec3::pos_z());
+            const Model::Brush cube = makeCube128();
+            const auto topFaceIndex = cube.findFace(vm::vec3::pos_z());
+            REQUIRE(topFaceIndex);
+            const Model::BrushFace* topFace = cube.face(*topFaceIndex);
 
             ASSERT_DOUBLE_EQ(64.0, topFace->boundsCenter().z());
 
