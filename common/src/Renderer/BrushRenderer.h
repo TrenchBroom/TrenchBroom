@@ -109,7 +109,7 @@ namespace TrenchBroom {
             class NoFilter : public Filter {
             public:
                 using Filter::Filter;
-                RenderSettings markFaces(const Model::BrushNode* brush) const override;
+                RenderSettings markFaces(const Model::BrushNode* brushNode) const override;
             private:
                 deleteCopyAndMove(NoFilter)
             };

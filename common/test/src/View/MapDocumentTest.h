@@ -58,7 +58,7 @@ namespace TrenchBroom {
         protected:
             virtual ~MapDocumentTest();
 
-            Model::BrushNode* createBrush(const std::string& textureName = "texture");
+            Model::BrushNode* createBrushNode(const std::string& textureName = "texture");
         };
 
         class ValveMapDocumentTest : public MapDocumentTest {

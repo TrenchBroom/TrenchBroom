@@ -31,13 +31,13 @@ namespace TrenchBroom {
 
         class BrushSnapshot : public NodeSnapshot {
         private:
-            BrushNode* m_brush;
+            BrushNode* m_brushNode;
             std::vector<BrushFace*> m_faces;
         public:
-            BrushSnapshot(BrushNode* brush);
+            BrushSnapshot(BrushNode* brushNode);
             ~BrushSnapshot() override;
         private:
-            void takeSnapshot(BrushNode* brush);
+            void takeSnapshot(BrushNode* brushNode);
             void doRestore(const vm::bbox3& worldBounds) override;
         };
     }

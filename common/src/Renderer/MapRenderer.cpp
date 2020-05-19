@@ -54,14 +54,15 @@ namespace TrenchBroom {
             SelectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
 
-            RenderSettings markFaces(const Model::BrushNode* brush) const override {
-                if (!(visible(brush) && editable(brush))) {
+            RenderSettings markFaces(const Model::BrushNode* brushNode) const override {
+                if (!(visible(brushNode) && editable(brushNode))) {
                     return renderNothing();
                 }
 
-                const bool brushSelected = selected(brush);
-                for (Model::BrushFace* face : brush->faces()) {
-                    face->setMarked(brushSelected || selected(brush, face));
+                const bool brushSelected = selected(brushNode);
+                const Model::Brush& brush = brushNode->brush();
+                for (Model::BrushFace* face : brush.faces()) {
+                    face->setMarked(brushSelected || selected(brushNode, face));
                 }
                 return std::make_tuple(FaceRenderPolicy::RenderMarked, EdgeRenderPolicy::RenderIfEitherFaceMarked);
             }
@@ -72,12 +73,13 @@ namespace TrenchBroom {
             LockedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
 
-            RenderSettings markFaces(const Model::BrushNode* brush) const override {
-                if (!visible(brush)) {
+            RenderSettings markFaces(const Model::BrushNode* brushNode) const override {
+                if (!visible(brushNode)) {
                     return renderNothing();
                 }
 
-                for (Model::BrushFace* face : brush->faces()) {
+                const Model::Brush& brush = brushNode->brush();
+                for (Model::BrushFace* face : brush.faces()) {
                     face->setMarked(true);
                 }
 
@@ -91,20 +93,22 @@ namespace TrenchBroom {
             UnselectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
 
-            RenderSettings markFaces(const Model::BrushNode* brush) const override {
-                const bool brushVisible = visible(brush);
-                const bool brushEditable = editable(brush);
+            RenderSettings markFaces(const Model::BrushNode* brushNode) const override {
+                const bool brushVisible = visible(brushNode);
+                const bool brushEditable = editable(brushNode);
 
                 const bool renderFaces = (brushVisible && brushEditable);
-                      bool renderEdges = (brushVisible && !selected(brush));
+                      bool renderEdges = (brushVisible && !selected(brushNode));
 
                 if (!renderFaces && !renderEdges) {
                     return renderNothing();
                 }
 
+                const Model::Brush& brush = brushNode->brush();
+                
                 bool anyFaceVisible = false;
-                for (Model::BrushFace* face : brush->faces()) {
-                    const bool faceVisible = !selected(brush, face) && visible(brush, face);
+                for (Model::BrushFace* face : brush.faces()) {
+                    const bool faceVisible = !selected(brushNode, face) && visible(brushNode, face);
                     face->setMarked(faceVisible);
                     anyFaceVisible |= faceVisible;
                 }

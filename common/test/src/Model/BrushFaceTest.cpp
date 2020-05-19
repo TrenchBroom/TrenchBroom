@@ -169,7 +169,7 @@ namespace TrenchBroom {
          * alignment is reset before applying the transform.
          */
         static void checkTextureLockOffWithTransform(const vm::mat4x4 &transform,
-                                                     const BrushFace *origFace) {
+                                                     const BrushFace* origFace) {
 
             // reset alignment, transform the face (texture lock off)
             BrushFace *face = origFace->clone();
@@ -215,7 +215,7 @@ namespace TrenchBroom {
          * i.e. checks that texture lock worked.
          */
         static void checkTextureLockOnWithTransform(const vm::mat4x4 &transform,
-                                                    const BrushFace *origFace) {
+                                                    const BrushFace* origFace) {
             std::vector<vm::vec3> verts;
             std::vector<vm::vec2f> uvs;
             getFaceVertsAndTexCoords(origFace, &verts, &uvs);
@@ -257,7 +257,7 @@ namespace TrenchBroom {
          * generates many different transformations and checks that the UVs are
          * stable after these transformations.
          */
-        static void checkTextureLockWithTranslationAnd90DegreeRotations(const BrushFace *origFace) {
+        static void checkTextureLockWithTranslationAnd90DegreeRotations(const BrushFace* origFace) {
             for (int i=0; i<(1 << 7); i++) {
                 vm::mat4x4 xform;
 
@@ -295,7 +295,7 @@ namespace TrenchBroom {
          * Tests texture lock by rotating by the given amount, in each axis alone,
          * as well as in all combinations of axes.
          */
-        static void checkTextureLockWithMultiAxisRotations(const BrushFace *origFace,
+        static void checkTextureLockWithMultiAxisRotations(const BrushFace* origFace,
                                                            double degrees) {
             const double rotateRadians = vm::to_radians(degrees);
 
@@ -323,7 +323,7 @@ namespace TrenchBroom {
         /**
          * Tests texture lock by rotating +/- the given amount, in one axis at a time.
          */
-        static void checkTextureLockWithSingleAxisRotations(const BrushFace *origFace,
+        static void checkTextureLockWithSingleAxisRotations(const BrushFace* origFace,
                                                             double degrees) {
             const double rotateRadians = vm::to_radians(degrees);
 
@@ -343,23 +343,23 @@ namespace TrenchBroom {
             }
         }
 
-        static void checkTextureLockOffWithTranslation(const BrushFace *origFace) {
+        static void checkTextureLockOffWithTranslation(const BrushFace* origFace) {
             vm::mat4x4 xform = vm::translation_matrix(vm::vec3(100.0, 100.0, 100.0));
             checkTextureLockOffWithTransform(xform, origFace);
         }
 
-        static void checkTextureLockWithScale(const BrushFace *origFace, const vm::vec3& scaleFactors) {
+        static void checkTextureLockWithScale(const BrushFace* origFace, const vm::vec3& scaleFactors) {
             vm::mat4x4 xform = vm::scaling_matrix(scaleFactors);
             checkTextureLockOnWithTransform(xform, origFace);
         }
 
-        static void checkTextureLockWithShear(const BrushFace *origFace) {
+        static void checkTextureLockWithShear(const BrushFace* origFace) {
             // shear the x axis towards the y axis
             vm::mat4x4 xform = vm::shear_matrix(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
             checkTextureLockOnWithTransform(xform, origFace);
         }
 
-        static void checkTextureLockForFace(const BrushFace *origFace, bool doParallelTests) {
+        static void checkTextureLockForFace(const BrushFace* origFace, bool doParallelTests) {
             checkTextureLockWithTranslationAnd90DegreeRotations(origFace);
             checkTextureLockWithSingleAxisRotations(origFace, 30);
             checkTextureLockWithSingleAxisRotations(origFace, 45);
@@ -381,9 +381,9 @@ namespace TrenchBroom {
          * For the sides of a cube, a horizontal or vertical flip should have no effect on texturing
          * when texture lock is off.
          */
-        static void checkTextureLockOffWithVerticalFlip(const BrushNode* cubeNode) {
+        static void checkTextureLockOffWithVerticalFlip(const Brush& cube) {
             const vm::mat4x4 transform = vm::mirror_matrix<double>(vm::axis::z);
-            const BrushFace* origFace = cubeNode->brush().findFace(vm::vec3::pos_x());
+            const BrushFace* origFace = cube.findFace(vm::vec3::pos_x());
 
             // transform the face (texture lock off)
             BrushFace* face = origFace->clone();
@@ -404,12 +404,12 @@ namespace TrenchBroom {
             delete face;
         }
 
-        static void checkTextureLockOffWithScale(const BrushNode* cubeNode) {
-            const vm::vec3 mins(cubeNode->logicalBounds().min);
+        static void checkTextureLockOffWithScale(const Brush& cube) {
+            const vm::vec3 mins(cube.bounds().min);
 
             // translate the cube mins to the origin, scale by 2 in the X axis, then translate back
             const vm::mat4x4 transform = vm::translation_matrix(mins) * vm::scaling_matrix(vm::vec3(2.0, 1.0, 1.0)) * vm::translation_matrix(-1.0 * mins);
-            const BrushFace* origFace = cubeNode->brush().findFace(vm::vec3::neg_y());
+            const BrushFace* origFace = cube.findFace(vm::vec3::neg_y());
 
             // transform the face (texture lock off)
             BrushFace* face = origFace->clone();
@@ -422,8 +422,8 @@ namespace TrenchBroom {
             EXPECT_TC_EQ(left_origTC, left_transformedTC);
 
             // get UVs at mins, plus the X size of the cube
-            const vm::vec2f right_origTC = origFace->textureCoords(mins + vm::vec3(cubeNode->logicalBounds().size().x(), 0, 0));
-            const vm::vec2f right_transformedTC = face->textureCoords(mins + vm::vec3(2.0 * cubeNode->logicalBounds().size().x(), 0, 0));
+            const vm::vec2f right_origTC = origFace->textureCoords(mins + vm::vec3(cube.bounds().size().x(), 0, 0));
+            const vm::vec2f right_transformedTC = face->textureCoords(mins + vm::vec3(2.0 * cube.bounds().size().x(), 0, 0));
 
             // this assumes that the U axis of the texture was scaled (i.e. the texture is oriented upright)
             const vm::vec2f orig_U_width = right_origTC - left_origTC;
@@ -441,8 +441,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            const BrushNode* cubeNode = world.createBrush(builder.createCube(128.0, ""));
-            const std::vector<BrushFace*>& faces = cubeNode->faces();
+            const Brush cube = builder.createCube(128.0, "");
+            const std::vector<BrushFace*>& faces = cube.faces();
 
             for (size_t i = 0; i < faces.size(); ++i) {
                 BrushFace *face = faces[i];
@@ -450,10 +450,8 @@ namespace TrenchBroom {
                 checkTextureLockForFace(face, false);
             }
 
-            checkTextureLockOffWithVerticalFlip(cubeNode);
-            checkTextureLockOffWithScale(cubeNode);
-
-            delete cubeNode;
+            checkTextureLockOffWithVerticalFlip(cube);
+            checkTextureLockOffWithScale(cube);
         }
 
         TEST_CASE("BrushFaceTest.testTextureLock_Parallel", "[BrushFaceTest]") {
@@ -462,8 +460,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Valve);
 
             BrushBuilder builder(&world, worldBounds);
-            const BrushNode* cube = world.createBrush(builder.createCube(128.0, ""));
-            const std::vector<BrushFace*>& faces = cube->faces();
+            const Brush cube = builder.createCube(128.0, "");
+            const std::vector<BrushFace*>& faces = cube.faces();
 
             for (size_t i = 0; i < faces.size(); ++i) {
                 BrushFace *face = faces[i];
@@ -473,8 +471,6 @@ namespace TrenchBroom {
 
             checkTextureLockOffWithVerticalFlip(cube);
             checkTextureLockOffWithScale(cube);
-
-            delete cube;
         }
 
         TEST_CASE("BrushFaceTest.testBrushFaceSnapshot", "[BrushFaceTest]") {
@@ -541,7 +537,7 @@ namespace TrenchBroom {
 
             // find the faces
             BrushFace* negXFace = nullptr;
-            for (BrushFace* face : pyramidLight->faces()) {
+            for (BrushFace* face : pyramidLight->brush().faces()) {
                 if (vm::get_abs_max_component_axis(face->boundary().normal) == vm::vec3::neg_x()) {
                     ASSERT_EQ(negXFace, nullptr);
                     negXFace = face;
@@ -598,7 +594,7 @@ namespace TrenchBroom {
             // find the faces
             BrushFace* negYFace = nullptr;
             BrushFace* posXFace = nullptr;
-            for (BrushFace* face : pyramidLight->faces()) {
+            for (BrushFace* face : pyramidLight->brush().faces()) {
                 if (vm::get_abs_max_component_axis(face->boundary().normal) == vm::vec3::neg_y()) {
                     ASSERT_EQ(negYFace, nullptr);
                     negYFace = face;

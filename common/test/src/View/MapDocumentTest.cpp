@@ -83,14 +83,14 @@ namespace TrenchBroom {
             m_brushEntityDef = nullptr;
         }
 
-        Model::BrushNode* MapDocumentTest::createBrush(const std::string& textureName) {
+        Model::BrushNode* MapDocumentTest::createBrushNode(const std::string& textureName) {
             const Model::WorldNode* world = document->world();
             Model::BrushBuilder builder(world, document->worldBounds(), document->game()->defaultFaceAttribs());
             return world->createBrush(builder.createCube(32.0, textureName));
         }
 
-        static void checkPlanePointsIntegral(const Model::BrushNode* brush) {
-            for (const Model::BrushFace* face : brush->faces()) {
+        static void checkPlanePointsIntegral(const Model::BrushNode* brushNode) {
+            for (const Model::BrushFace* face : brushNode->brush().faces()) {
                 for (size_t i=0; i<3; i++) {
                     vm::vec3 point = face->points()[i];
                     ASSERT_POINT_INTEGRAL(point);
@@ -348,8 +348,8 @@ namespace TrenchBroom {
             document->addNode(brushNode2, document->currentParent());
             ASSERT_EQ(1u, entity->children().size());
 
-            auto* face1 = brushNode1->faces().front();
-            auto* face2 = brushNode2->faces().front();
+            auto* face1 = brushNode1->brush().faces().front();
+            auto* face2 = brushNode2->brush().faces().front();
 
             document->select({
                 { brushNode1, face1 },
@@ -384,7 +384,7 @@ namespace TrenchBroom {
 
             document->setTexture(nullptr, false);
 
-            CHECK(brush1->faces().at(0u)->textureName() == Model::BrushFaceAttributes::NoTextureName);
+            CHECK(brush1->brush().faces().at(0u)->textureName() == Model::BrushFaceAttributes::NoTextureName);
         }
 
         ValveMapDocumentTest::ValveMapDocumentTest() :

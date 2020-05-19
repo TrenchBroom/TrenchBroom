@@ -58,7 +58,7 @@ namespace TrenchBroom {
             Autosaver autosaver(document, 10s);
 
             // modify the map
-            document->addNode(createBrush("some_texture"), document->currentLayer());
+            document->addNode(createBrushNode("some_texture"), document->currentLayer());
 
             autosaver.triggerAutosave(logger);
 
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             Autosaver autosaver(document, 100ms);
 
             // modify the map
-            document->addNode(createBrush("some_texture"), document->currentLayer());
+            document->addNode(createBrushNode("some_texture"), document->currentLayer());
 
             // Wait for 2 seconds.
             using namespace std::chrono_literals;
@@ -118,7 +118,7 @@ namespace TrenchBroom {
             Autosaver autosaver(document, 100ms);
 
             // modify the map
-            document->addNode(createBrush("some_texture"), document->currentLayer());
+            document->addNode(createBrushNode("some_texture"), document->currentLayer());
 
             // Wait for 2 seconds.
             using namespace std::chrono_literals;
@@ -137,7 +137,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(env.fileExists(IO::Path("autosave/test.2.map")));
 
             // modify the map
-            document->addNode(createBrush("some_texture"), document->currentLayer());
+            document->addNode(createBrushNode("some_texture"), document->currentLayer());
 
             autosaver.triggerAutosave(logger);
             ASSERT_TRUE(env.fileExists(IO::Path("autosave/test.2.map")));
@@ -162,7 +162,7 @@ namespace TrenchBroom {
             Autosaver autosaver(document, 0s);
 
             // modify the map
-            document->addNode(createBrush("some_texture"), document->currentLayer());
+            document->addNode(createBrushNode("some_texture"), document->currentLayer());
 
             autosaver.triggerAutosave(logger);
 

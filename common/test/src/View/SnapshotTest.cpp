@@ -42,14 +42,14 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(SnapshotTest, "SnapshotTest.setTexturesAfterRestore", "[SnapshotTest]") {
             document->setEnabledTextureCollections(std::vector<IO::Path>{ IO::Path("fixture/test/IO/Wad/cr8_czg.wad") });
 
-            Model::BrushNode* brush = createBrush("coffin1");
-            document->addNode(brush, document->currentParent());
+            Model::BrushNode* brushNode = createBrushNode("coffin1");
+            document->addNode(brushNode, document->currentParent());
 
             const Assets::Texture* texture = document->textureManager().texture("coffin1");
             ASSERT_NE(nullptr, texture);
             ASSERT_EQ(6u, texture->usageCount());
 
-            for (Model::BrushFace* face : brush->faces())
+            for (Model::BrushFace* face : brushNode->brush().faces())
                 ASSERT_EQ(texture, face->texture());
 
             document->translateObjects(vm::vec3(1, 1, 1));
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             document->undoCommand();
             ASSERT_EQ(6u, texture->usageCount());
 
-            for (Model::BrushFace* face : brush->faces())
+            for (Model::BrushFace* face : brushNode->brush().faces())
                 ASSERT_EQ(texture, face->texture());
         }
 

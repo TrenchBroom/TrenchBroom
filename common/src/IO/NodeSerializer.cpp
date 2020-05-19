@@ -140,24 +140,24 @@ namespace TrenchBroom {
             doEntityAttribute(attribute);
         }
 
-        void NodeSerializer::brushes(const std::vector<Model::BrushNode*>& brushes) {
-            for (auto* brush : brushes) {
+        void NodeSerializer::brushes(const std::vector<Model::BrushNode*>& brushNodes) {
+            for (auto* brush : brushNodes) {
                 this->brush(brush);
             }
         }
 
-        void NodeSerializer::brush(Model::BrushNode* brush) {
-            beginBrush(brush);
-            brushFaces(brush->faces());
-            endBrush(brush);
+        void NodeSerializer::brush(Model::BrushNode* brushNode) {
+            beginBrush(brushNode);
+            brushFaces(brushNode->brush().faces());
+            endBrush(brushNode);
         }
 
-        void NodeSerializer::beginBrush(const Model::BrushNode* brush) {
-            doBeginBrush(brush);
+        void NodeSerializer::beginBrush(const Model::BrushNode* brushNode) {
+            doBeginBrush(brushNode);
         }
 
-        void NodeSerializer::endBrush(Model::BrushNode* brush) {
-            doEndBrush(brush);
+        void NodeSerializer::endBrush(Model::BrushNode* brushNode) {
+            doEndBrush(brushNode);
             ++m_brushNo;
         }
 
