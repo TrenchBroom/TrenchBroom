@@ -660,40 +660,52 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::performMoveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) {
-            const auto faces = Model::toFaces(m_selectedBrushFaces);
-            for (auto* face : faces) {
+            for (const auto& faceHandle : m_selectedBrushFaces) {
+                Model::BrushNode* node = faceHandle.node();
+                Model::Brush brush = node->brush();
+                Model::BrushFace* face = brush.face(faceHandle.faceIndex());
                 face->moveTexture(vm::vec3(cameraUp), vm::vec3(cameraRight), delta);
+                node->setBrush(brush);
             }
-            brushFacesDidChangeNotifier(faces);
+            brushFacesDidChangeNotifier(Model::toFaces(m_selectedBrushFaces));
         }
 
         void MapDocumentCommandFacade::performRotateTextures(const float angle) {
-            const auto faces = Model::toFaces(m_selectedBrushFaces);
-            for (auto* face : faces) {
+            for (const auto& faceHandle : m_selectedBrushFaces) {
+                Model::BrushNode* node = faceHandle.node();
+                Model::Brush brush = node->brush();
+                Model::BrushFace* face = brush.face(faceHandle.faceIndex());
                 face->rotateTexture(angle);
+                node->setBrush(brush);
             }
-            brushFacesDidChangeNotifier(faces);
+            brushFacesDidChangeNotifier(Model::toFaces(m_selectedBrushFaces));
         }
 
         void MapDocumentCommandFacade::performShearTextures(const vm::vec2f& factors) {
-            const auto faces = Model::toFaces(m_selectedBrushFaces);
-            for (auto* face : faces) {
+            for (const auto& faceHandle : m_selectedBrushFaces) {
+                Model::BrushNode* node = faceHandle.node();
+                Model::Brush brush = node->brush();
+                Model::BrushFace* face = brush.face(faceHandle.faceIndex());
                 face->shearTexture(factors);
+                node->setBrush(brush);
             }
-            brushFacesDidChangeNotifier(faces);
+            brushFacesDidChangeNotifier(Model::toFaces(m_selectedBrushFaces));
         }
 
         void MapDocumentCommandFacade::performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot& coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle) {
-            const auto faces = Model::toFaces(m_selectedBrushFaces);
-            for (auto* face : faces) {
+            for (const auto& faceHandle : m_selectedBrushFaces) {
+                Model::BrushNode* node = faceHandle.node();
+                Model::Brush brush = node->brush();
+                Model::BrushFace* face = brush.face(faceHandle.faceIndex());
                 face->copyTexCoordSystemFromFace(coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle);
+                node->setBrush(brush);
             }
-            brushFacesDidChangeNotifier(faces);
+            brushFacesDidChangeNotifier(Model::toFaces(m_selectedBrushFaces));
         }
 
         void MapDocumentCommandFacade::performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) {
-            const auto faces = Model::toFaces(allSelectedBrushFaces());
-            if (request.evaluate(faces)) {
+            if (request.evaluate(allSelectedBrushFaces())) {
+                const auto faces = Model::toFaces(allSelectedBrushFaces());
                 setTextures(faces);
                 brushFacesDidChangeNotifier(faces);
             }

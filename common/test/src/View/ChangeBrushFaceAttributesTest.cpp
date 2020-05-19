@@ -46,33 +46,32 @@ namespace TrenchBroom {
             document->addNode(brushNode, document->currentParent());
 
             const size_t faceIndex = 0u;
-            const Model::BrushFace* face = brushNode->brush().face(faceIndex);
-            const vm::vec3 initialX = face->textureXAxis();
-            const vm::vec3 initialY = face->textureYAxis();
+            const vm::vec3 initialX = brushNode->brush().face(faceIndex)->textureXAxis();
+            const vm::vec3 initialY = brushNode->brush().face(faceIndex)->textureYAxis();
 
             document->select(Model::BrushFaceHandle(brushNode, faceIndex));
 
-            const Model::BrushFaceAttributes originalAttribs = face->attributes();
             Model::ChangeBrushFaceAttributesRequest rotate;
             rotate.addRotation(2.0);
-            for (size_t i = 0; i < 5; ++i)
+            for (size_t i = 0; i < 5; ++i) {
                 document->setFaceAttributes(rotate);
+            }
 
-            ASSERT_FLOAT_EQ(10.0, face->attributes().rotation());
+            CHECK(brushNode->brush().face(faceIndex)->attributes().rotation() == 10.0f);
 
             Model::ChangeBrushFaceAttributesRequest reset;
             reset.resetAll();
 
             document->setFaceAttributes(reset);
 
-            ASSERT_FLOAT_EQ(0.0f, face->attributes().xOffset());
-            ASSERT_FLOAT_EQ(0.0f, face->attributes().yOffset());
-            ASSERT_FLOAT_EQ(0.0f, face->attributes().rotation());
-            ASSERT_FLOAT_EQ(1.0f, face->attributes().xScale());
-            ASSERT_FLOAT_EQ(1.0f, face->attributes().yScale());
+            CHECK(brushNode->brush().face(faceIndex)->attributes().xOffset() == 0.0f);
+            CHECK(brushNode->brush().face(faceIndex)->attributes().yOffset() == 0.0f);
+            CHECK(brushNode->brush().face(faceIndex)->attributes().rotation() == 0.0f);
+            CHECK(brushNode->brush().face(faceIndex)->attributes().xScale() == 1.0f);
+            CHECK(brushNode->brush().face(faceIndex)->attributes().yScale() == 1.0f);
 
-            ASSERT_VEC_EQ(initialX, face->textureXAxis());
-            ASSERT_VEC_EQ(initialY, face->textureYAxis());
+            CHECK(brushNode->brush().face(faceIndex)->textureXAxis() == initialX);
+            CHECK(brushNode->brush().face(faceIndex)->textureYAxis() == initialY);
         }
     }
 }
