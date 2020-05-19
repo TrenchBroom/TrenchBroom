@@ -98,20 +98,7 @@ namespace TrenchBroom {
         
         Brush::~Brush() = default;
 
-        class Brush::AddFaceCallback : public BrushGeometry::Callback {
-        private:
-            BrushFace& m_face;
-            const size_t m_faceIndex;
-        public:
-            AddFaceCallback(BrushFace& face, const size_t faceIndex) :
-            m_face(face),
-            m_faceIndex(faceIndex) {}
-            
-            void faceWasCreated(BrushFaceGeometry* face) override {
-                m_face.setGeometry(face);
-                face->setPayload(m_faceIndex);
-            }
-        };
+        class Brush::AddFaceCallback : public BrushGeometry::Callback {};
 
         void Brush::updateGeometryFromFaces(const vm::bbox3& worldBounds) {
             // First, add all faces to the brush geometry
@@ -121,9 +108,13 @@ namespace TrenchBroom {
             
             for (size_t i = 0u; i < m_faces.size(); ++i) {
                 BrushFace& face = m_faces[i];
-                AddFaceCallback callback(face, i);
+                AddFaceCallback callback;
                 const auto result = geometry->clip(face.boundary(), callback);
-                if (result.empty()) {
+                if (result.success()) {
+                    BrushFaceGeometry* faceGeometry = result.face();
+                    face.setGeometry(faceGeometry);
+                    faceGeometry->setPayload(i);
+                } else  if (result.empty()) {
                     throw GeometryException("Brush is empty");
                 }
             }
