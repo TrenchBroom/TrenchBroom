@@ -40,6 +40,7 @@ namespace TrenchBroom {
     }
 
     namespace Model {
+        class BrushFaceHandle;
         class Node;
     }
 
@@ -89,7 +90,7 @@ namespace TrenchBroom {
             void selectionDidChange(const Selection& selection);
             void documentWasCleared(MapDocument* document);
             void nodesDidChange(const std::vector<Model::Node*>& nodes);
-            void brushFacesDidChange(const std::vector<Model::BrushFace*>& faces);
+            void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
             void gridDidChange();
             void cameraDidChange(const Renderer::Camera* camera);
             void preferenceDidChange(const IO::Path& path);

@@ -117,7 +117,7 @@ namespace TrenchBroom {
             m_view->reload();
         }
 
-        void IssueBrowser::brushFacesDidChange(const std::vector<Model::BrushFace*>&) {
+        void IssueBrowser::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&) {
             m_view->reload();
         }
 

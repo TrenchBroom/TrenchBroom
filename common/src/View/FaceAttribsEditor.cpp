@@ -409,7 +409,7 @@ namespace TrenchBroom {
             updateControls();
         }
 
-        void FaceAttribsEditor::brushFacesDidChange(const std::vector<Model::BrushFace*>&) {
+        void FaceAttribsEditor::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&) {
             updateControls();
         }
 

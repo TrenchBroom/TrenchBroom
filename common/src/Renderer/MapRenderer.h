@@ -41,7 +41,7 @@ namespace TrenchBroom {
 
     namespace Model {
         class BrushNode;
-        class BrushFace;
+        class BrushFaceHandle;
         class GroupNode;
         class LayerNode;
         class Node;
@@ -138,7 +138,7 @@ namespace TrenchBroom {
             void groupWasOpened(Model::GroupNode* group);
             void groupWasClosed(Model::GroupNode* group);
 
-            void brushFacesDidChange(const std::vector<Model::BrushFace*>& faces);
+            void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
 
             void selectionDidChange(const View::Selection& selection);
 
