@@ -36,17 +36,11 @@ namespace TrenchBroom {
         class ModelFactory;
         template <typename P> class PolyhedronMatcher;
 
-        struct BrushAlgorithmResult;
-
         class Brush {
-        private:
-            friend class SetTempFaceLinks;
         private:
             class AddFaceToGeometryCallback;
             class HealEdgesCallback;
             class AddFacesToGeometry;
-            class MoveVerticesCallback;
-            using RemoveVertexCallback = MoveVerticesCallback;
             class QueryCallback;
             class CopyCallback;
         public:
@@ -106,26 +100,12 @@ namespace TrenchBroom {
             }
             void addFace(BrushFace* face);
 
-            template <typename I>
-            void removeFaces(I cur, I end) {
-                auto rem = std::end(m_faces);
-                while (cur != end) {
-                    rem = doRemoveFace(std::begin(m_faces), rem, *cur);
-                    ++cur;
-                }
-
-                m_faces.erase(rem, std::end(m_faces));
-            }
-
-            void removeFace(BrushFace* face);
             std::vector<BrushFace*>::iterator doRemoveFace(std::vector<BrushFace*>::iterator begin, std::vector<BrushFace*>::iterator end, BrushFace* face);
 
             void detachFaces(const std::vector<BrushFace*>& faces);
             void detachFace(BrushFace* face);
         public: // clone face attributes from matching faces of other brushes
-            void cloneFaceAttributesFrom(const std::vector<Brush*>& brushes);
             void cloneFaceAttributesFrom(const Brush* brush);
-            void cloneInvertedFaceAttributesFrom(const std::vector<Brush*>& brushes);
             void cloneInvertedFaceAttributesFrom(const Brush* brush);
         public: // clipping
             bool clip(const vm::bbox3& worldBounds, BrushFace* face);
@@ -146,11 +126,8 @@ namespace TrenchBroom {
             vm::vec3 findClosestVertexPosition(const vm::vec3& position) const;
 
             bool hasVertex(const vm::vec3& position, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            bool hasVertices(const std::vector<vm::vec3>& positions, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasEdge(const vm::segment3& edge, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            bool hasEdges(const std::vector<vm::segment3>& edges, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasFace(const vm::polygon3& face, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-            bool hasFaces(const std::vector<vm::polygon3>& faces, FloatType epsilon = static_cast<FloatType>(0.0)) const;
 
             bool hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& p4, FloatType epsilon = static_cast<FloatType>(0.0)) const;
@@ -261,13 +238,11 @@ namespace TrenchBroom {
             std::unique_ptr<Brush> createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<Brush*>& subtrahends) const;
         private:
             void updateFacesFromGeometry(const vm::bbox3& worldBounds, const BrushGeometry& geometry);
-            void updatePointsFromVertices(const vm::bbox3& worldBounds);
         public: // brush geometry
             void rebuildGeometry(const vm::bbox3& worldBounds);
         private:
             void buildGeometry(const vm::bbox3& worldBounds);
             void deleteGeometry();
-            bool checkGeometry() const;
         public:
             void findIntegerPlanePoints(const vm::bbox3& worldBounds);
         };

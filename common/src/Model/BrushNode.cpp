@@ -215,10 +215,6 @@ namespace TrenchBroom {
             return m_brush->hasVertex(position, epsilon);
         }
 
-        bool BrushNode::hasVertices(const std::vector<vm::vec3>& positions, const FloatType epsilon) const {
-            return m_brush->hasVertices(positions, epsilon);
-        }
-
         vm::vec3 BrushNode::findClosestVertexPosition(const vm::vec3& position) const {
             return m_brush->findClosestVertexPosition(position);
         }
@@ -227,16 +223,8 @@ namespace TrenchBroom {
             return m_brush->hasEdge(edge, epsilon);
         }
 
-        bool BrushNode::hasEdges(const std::vector<vm::segment3>& edges, const FloatType epsilon) const {
-            return m_brush->hasEdges(edges, epsilon);
-        }
-
         bool BrushNode::hasFace(const vm::polygon3& face, const FloatType epsilon) const {
             return m_brush->hasFace(face, epsilon);
-        }
-
-        bool BrushNode::hasFaces(const std::vector<vm::polygon3>& faces, const FloatType epsilon) const {
-            return m_brush->hasFaces(faces, epsilon);
         }
 
         bool BrushNode::hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const FloatType epsilon) const {
