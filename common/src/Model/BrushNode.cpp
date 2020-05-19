@@ -153,10 +153,6 @@ namespace TrenchBroom {
             m_brush.cloneInvertedFaceAttributesFrom(brush->m_brush);
         }
 
-        bool BrushNode::hasFace(const vm::polygon3& face, const FloatType epsilon) const {
-            return m_brush.hasFace(face, epsilon);
-        }
-
         bool BrushNode::hasFace(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const FloatType epsilon) const {
             return m_brush.hasFace(p1, p2, p3, epsilon);
         }
