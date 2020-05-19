@@ -21,7 +21,7 @@
 #define TrenchBroom_CollectMatchingNodesVisitor
 
 #include "Model/NodeVisitor.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             virtual Node* getNode(Layer* layer) const   { return layer;  }
             virtual Node* getNode(Group* group) const   { return group;  }
             virtual Node* getNode(Entity* entity) const { return entity; }
-            virtual Node* getNode(Brush* brush) const   { return brush;  }
+            virtual Node* getNode(BrushNode* brush) const   { return brush;  }
         };
 
         template <
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             void doVisit(Layer* layer)   override { C::addNode(layer);  }
             void doVisit(Group* group)   override { C::addNode(group);  }
             void doVisit(Entity* entity) override { C::addNode(entity); }
-            void doVisit(Brush* brush)   override { C::addNode(brush);  }
+            void doVisit(BrushNode* brush)   override { C::addNode(brush);  }
         };
 
         template <typename V, typename I>

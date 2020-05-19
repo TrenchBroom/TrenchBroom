@@ -388,21 +388,21 @@ namespace TrenchBroom {
             bool rotateTextures(float angle) override;
             bool shearTextures(const vm::vec2f& factors) override;
         public: // modifying vertices, declared in MapFacade interface
-            void rebuildBrushGeometry(const std::vector<Model::Brush*>& brushes) override;
+            void rebuildBrushGeometry(const std::vector<Model::BrushNode*>& brushes) override;
 
             bool snapVertices(FloatType snapTo) override;
             bool findPlanePoints() override;
 
-            MoveVerticesResult moveVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices, const vm::vec3& delta) override;
-            bool moveEdges(const std::map<vm::segment3, std::vector<Model::Brush*>>& edges, const vm::vec3& delta) override;
-            bool moveFaces(const std::map<vm::polygon3, std::vector<Model::Brush*>>& faces, const vm::vec3& delta) override;
+            MoveVerticesResult moveVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices, const vm::vec3& delta) override;
+            bool moveEdges(const std::map<vm::segment3, std::vector<Model::BrushNode*>>& edges, const vm::vec3& delta) override;
+            bool moveFaces(const std::map<vm::polygon3, std::vector<Model::BrushNode*>>& faces, const vm::vec3& delta) override;
 
-            bool addVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices);
-            bool removeVertices(const std::map<vm::vec3, std::vector<Model::Brush*>>& vertices);
-            bool removeEdges(const std::map<vm::segment3, std::vector<Model::Brush*>>& edges);
-            bool removeFaces(const std::map<vm::polygon3, std::vector<Model::Brush*>>& faces);
+            bool addVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices);
+            bool removeVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices);
+            bool removeEdges(const std::map<vm::segment3, std::vector<Model::BrushNode*>>& edges);
+            bool removeFaces(const std::map<vm::polygon3, std::vector<Model::BrushNode*>>& faces);
         private: // subclassing interface for certain operations which are available from this class, but can only be implemented in a subclass
-            virtual void performRebuildBrushGeometry(const std::vector<Model::Brush*>& brushes) = 0;
+            virtual void performRebuildBrushGeometry(const std::vector<Model::BrushNode*>& brushes) = 0;
         public: // debug commands
             void printVertices();
             bool throwExceptionDuringCommand();

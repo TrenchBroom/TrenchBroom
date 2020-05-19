@@ -23,7 +23,7 @@
 #include "Ensure.h"
 #include "Model/AssortNodesVisitor.h"
 #include "Model/AttributableNodeIndex.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
 #include "Model/IssueGenerator.h"
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             void doVisit(Layer*) override         {}
             void doVisit(Group*) override         {}
             void doVisit(Entity* entity) override { m_nodeTree.insert(entity->physicalBounds(), entity); }
-            void doVisit(Brush* brush) override   { m_nodeTree.insert(brush->physicalBounds(), brush); }
+            void doVisit(BrushNode* brush) override   { m_nodeTree.insert(brush->physicalBounds(), brush); }
         };
 
         class World::RemoveNodeFromNodeTree : public NodeVisitor {
@@ -124,7 +124,7 @@ namespace TrenchBroom {
             void doVisit(Layer*) override         {}
             void doVisit(Group*) override         {}
             void doVisit(Entity* entity) override { doRemove(entity, entity->physicalBounds()); }
-            void doVisit(Brush* brush) override   { doRemove(brush, brush->physicalBounds()); }
+            void doVisit(BrushNode* brush) override   { doRemove(brush, brush->physicalBounds()); }
 
             void doRemove(Node* node, const vm::bbox3& bounds) {
                 if (!m_nodeTree.remove(node)) {
@@ -146,7 +146,7 @@ namespace TrenchBroom {
             void doVisit(Layer*) override         {}
             void doVisit(Group*) override         {}
             void doVisit(Entity* entity) override { m_nodeTree.update(entity->physicalBounds(), entity); }
-            void doVisit(Brush* brush) override   { m_nodeTree.update(brush->physicalBounds(), brush); }
+            void doVisit(BrushNode* brush) override   { m_nodeTree.update(brush->physicalBounds(), brush); }
         };
 
         class World::MatchTreeNodes {
@@ -177,7 +177,7 @@ namespace TrenchBroom {
             void doVisit(Layer* layer) override   { invalidateIssues(layer);  }
             void doVisit(Group* group) override   { invalidateIssues(group);  }
             void doVisit(Entity* entity) override { invalidateIssues(entity); }
-            void doVisit(Brush* brush) override   { invalidateIssues(brush);  }
+            void doVisit(BrushNode* brush) override   { invalidateIssues(brush);  }
 
             void invalidateIssues(Node* node) { node->invalidateIssues(); }
         };
@@ -228,7 +228,7 @@ namespace TrenchBroom {
             void doVisit(const Layer*) override  { setResult(true); }
             void doVisit(const Group*) override  { setResult(false); }
             void doVisit(const Entity*) override { setResult(false); }
-            void doVisit(const Brush*) override  { setResult(false); }
+            void doVisit(const BrushNode*) override  { setResult(false); }
         };
 
         bool World::doCanAddChild(const Node* child) const {
@@ -248,7 +248,7 @@ namespace TrenchBroom {
             void doVisit(const Layer* layer) override  { setResult(layer != m_this->defaultLayer()); }
             void doVisit(const Group*) override        { setResult(false); }
             void doVisit(const Entity*) override       { setResult(false); }
-            void doVisit(const Brush*) override        { setResult(false); }
+            void doVisit(const BrushNode*) override        { setResult(false); }
         };
 
         bool World::doCanRemoveChild(const Node* child) const {
@@ -391,7 +391,7 @@ namespace TrenchBroom {
             return m_factory->createEntity();
         }
 
-        Brush* World::doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {
+        BrushNode* World::doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {
             return m_factory->createBrush(worldBounds, faces);
         }
 

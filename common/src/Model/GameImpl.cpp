@@ -49,7 +49,7 @@
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
 #include "IO/TextureLoader.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/EntityAttributes.h"
 #include "Model/ExportFormat.h"

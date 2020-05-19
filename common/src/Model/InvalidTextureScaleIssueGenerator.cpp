@@ -19,7 +19,7 @@
 
 #include "InvalidTextureScaleIssueGenerator.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
@@ -83,7 +83,7 @@ namespace TrenchBroom {
             addQuickFix(new InvalidTextureScaleIssueQuickFix());
         }
 
-        void InvalidTextureScaleIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
+        void InvalidTextureScaleIssueGenerator::doGenerate(BrushNode* brush, IssueList& issues) const {
             for (const auto& face : brush->faces()) {
                 if (!face->attribs().valid()) {
                     issues.push_back(new InvalidTextureScaleIssue(face));

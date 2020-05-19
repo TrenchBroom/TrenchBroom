@@ -33,7 +33,7 @@ namespace TrenchBroom {
         const Command::CommandType RemoveBrushEdgesCommand::Type = Command::freeType();
 
         std::unique_ptr<RemoveBrushEdgesCommand> RemoveBrushEdgesCommand::remove(const EdgeToBrushesMap& edges) {
-            std::vector<Model::Brush*> brushes;
+            std::vector<Model::BrushNode*> brushes;
             BrushEdgesMap brushEdges;
             std::vector<vm::segment3> edgePositions;
 
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             return std::make_unique<RemoveBrushEdgesCommand>(brushes, brushVertices, edgePositions);
         }
 
-        RemoveBrushEdgesCommand::RemoveBrushEdgesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::segment3>& edgePositions) :
+        RemoveBrushEdgesCommand::RemoveBrushEdgesCommand(const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::segment3>& edgePositions) :
         RemoveBrushElementsCommand(Type, "Remove Brush Edges", brushes, vertices),
         m_oldEdgePositions(edgePositions) {}
 

@@ -19,7 +19,7 @@
 
 #include "AttributeNameWithDoubleQuotationMarksIssueGenerator.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/Issue.h"
 #include "Model/RemoveEntityAttributesQuickFix.h"

@@ -20,7 +20,7 @@
 #include "NodeReader.h"
 
 #include "IO/ParserStatus.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Layer.h"
@@ -105,7 +105,7 @@ namespace TrenchBroom {
             m_nodes.push_back(node);
         }
 
-        void NodeReader::onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& /* status */) {
+        void NodeReader::onBrush(Model::Node* parent, Model::BrushNode* brush, ParserStatus& /* status */) {
             if (parent != nullptr) {
                 parent->addChild(brush);
             } else {

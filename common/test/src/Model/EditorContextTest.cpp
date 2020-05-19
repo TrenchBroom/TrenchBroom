@@ -29,7 +29,7 @@
 #include "Model/Layer.h"
 #include "Model/Group.h"
 #include "Model/Entity.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -62,7 +62,7 @@ namespace TrenchBroom {
                 return entity;
             }
 
-            std::tuple<Entity*, Brush*> createTopLevelBrushEntity() {
+            std::tuple<Entity*, BrushNode*> createTopLevelBrushEntity() {
                 BrushBuilder builder(world, worldBounds);
                 auto* brush = builder.createCube(32.0, "sometex");
                 auto* entity = world->createEntity();
@@ -71,7 +71,7 @@ namespace TrenchBroom {
                 return std::make_tuple(entity, brush);
             }
 
-            Brush* createTopLevelBrush() {
+            BrushNode* createTopLevelBrush() {
                 BrushBuilder builder(world, worldBounds);
                 auto* brush = builder.createCube(32.0, "sometex");
                 world->defaultLayer()->addChild(brush);
@@ -86,7 +86,7 @@ namespace TrenchBroom {
                 return std::make_tuple(outerGroup, innerGroup);
             }
 
-            std::tuple<Group*, Brush*> createGroupedBrush() {
+            std::tuple<Group*, BrushNode*> createGroupedBrush() {
                 BrushBuilder builder(world, worldBounds);
                 auto* brush = builder.createCube(32.0, "sometex");
                 auto* group = world->createGroup("somegroup");
@@ -108,7 +108,7 @@ namespace TrenchBroom {
                 return std::make_tuple(group, entity);
             }
 
-            std::tuple<Group*, Entity*, Brush*> createGroupedBrushEntity() {
+            std::tuple<Group*, Entity*, BrushNode*> createGroupedBrushEntity() {
                 BrushBuilder builder(world, worldBounds);
                 auto* brush = builder.createCube(32.0, "sometex");
                 auto* entity = world->createEntity();
@@ -121,7 +121,7 @@ namespace TrenchBroom {
                 return std::make_tuple(group, entity, brush);
             }
 
-            std::tuple<Group*, Group*, Brush*> createdNestedGroupedBrush() {
+            std::tuple<Group*, Group*, BrushNode*> createdNestedGroupedBrush() {
                 BrushBuilder builder(world, worldBounds);
                 auto* innerBrush = builder.createCube(32.0, "sometex");
                 auto* innerGroup = world->createGroup("inner");
@@ -326,7 +326,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelBrushEntityVisible") {
             Entity* entity;
-            Brush* brush;
+            BrushNode* brush;
             std::tie(entity, brush) = createTopLevelBrushEntity();
 
             assertVisible(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
@@ -347,7 +347,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelBrushEntityEditable") {
             Entity* entity;
-            Brush* brush;
+            BrushNode* brush;
             std::tie(entity, brush) = createTopLevelBrushEntity();
 
             assertEditable(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
@@ -363,7 +363,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelBrushEntityPickable") {
             Entity* entity;
-            Brush* brush;
+            BrushNode* brush;
             std::tie(entity, brush) = createTopLevelBrushEntity();
 
             assertPickable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
@@ -379,7 +379,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelBrushEntitySelectable") {
             Entity* entity;
-            Brush* brush;
+            BrushNode* brush;
             std::tie(entity, brush) = createTopLevelBrushEntity();
 
             assertSelectable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
@@ -513,7 +513,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedBrushVisible") {
             Group* group;
-            Brush* brush;
+            BrushNode* brush;
             std::tie(group, brush) = createGroupedBrush();
 
             assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
@@ -531,7 +531,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedBrushEditable") {
             Group* group;
-            Brush* brush;
+            BrushNode* brush;
             std::tie(group, brush) = createGroupedBrush();
 
             assertEditable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
@@ -547,7 +547,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedBrushPickable") {
             Group* group;
-            Brush* brush;
+            BrushNode* brush;
             std::tie(group, brush) = createGroupedBrush();
 
             assertPickable(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
@@ -563,7 +563,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedBrushSelectable") {
             Group* group;
-            Brush* brush;
+            BrushNode* brush;
             std::tie(group, brush) = createGroupedBrush();
 
             assertSelectable(false, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
@@ -658,7 +658,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedBrushEntityVisible") {
             Group* group;
             Entity* entity;
-            Brush* brush;
+            BrushNode* brush;
             std::tie(group, entity, brush) = createGroupedBrushEntity();
 
             assertVisible(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
@@ -681,7 +681,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedBrushEntityEditable") {
             Group* group;
             Entity* entity;
-            Brush* brush;
+            BrushNode* brush;
             std::tie(group, entity, brush) = createGroupedBrushEntity();
 
             assertEditable(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
@@ -705,7 +705,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedBrushEntityPickable") {
             Group* group;
             Entity* entity;
-            Brush* brush;
+            BrushNode* brush;
             std::tie(group, entity, brush) = createGroupedBrushEntity();
 
             assertPickable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
@@ -729,7 +729,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedBrushEntitySelectable") {
             Group* group;
             Entity* entity;
-            Brush* brush;
+            BrushNode* brush;
             std::tie(group, entity, brush) = createGroupedBrushEntity();
 
             assertSelectable(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
@@ -755,7 +755,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testNestedGroupedBrushVisible") {
             Group* outerGroup;
             Group* innerGroup;
-            Brush* brush;
+            BrushNode* brush;
             std::tie(outerGroup, innerGroup, brush) = createdNestedGroupedBrush();
 
             assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);

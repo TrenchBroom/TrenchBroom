@@ -21,7 +21,7 @@
 
 #include "Ensure.h"
 #include "Model/AttributableNode.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/World.h"
 
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             addNode(entity);
         }
 
-        void CollectAttributableNodesVisitor::doVisit(Brush* brush) {
+        void CollectAttributableNodesVisitor::doVisit(BrushNode* brush) {
             Model::AttributableNode* entity = brush->entity();
             ensure(entity != nullptr, "entity is null");
             addNode(entity);

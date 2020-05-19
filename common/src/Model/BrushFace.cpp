@@ -26,7 +26,7 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "Model/TagMatcher.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFaceSnapshot.h"
 #include "Model/PlanePointFinder.h"
 #include "Model/ParallelTexCoordSystem.h"
@@ -157,11 +157,11 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
 
-        Brush* BrushFace::brush() const {
+        BrushNode* BrushFace::brush() const {
             return m_brush;
         }
 
-        void BrushFace::setBrush(Brush* brush) {
+        void BrushFace::setBrush(BrushNode* brush) {
             assert((m_brush == nullptr) ^ (brush == nullptr));
             m_brush = brush;
         }

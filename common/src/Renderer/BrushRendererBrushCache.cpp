@@ -19,7 +19,7 @@
 
 #include "BrushRendererBrushCache.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Polyhedron.h"
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             m_cachedFacesSortedByTexture.clear();
         }
 
-        void BrushRendererBrushCache::validateVertexCache(const Model::Brush* brush) {
+        void BrushRendererBrushCache::validateVertexCache(const Model::BrushNode* brush) {
             if (m_rendererCacheValid) {
                 return;
             }

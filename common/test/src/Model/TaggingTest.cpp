@@ -23,7 +23,7 @@
 
 #include "Model/Tag.h"
 #include "Model/TagManager.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Layer.h"
 #include "Model/MapFormat.h"
@@ -36,7 +36,7 @@ namespace TrenchBroom {
             World world{MapFormat::Standard};
 
             BrushBuilder builder{&world, worldBounds};
-            Brush* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
+            BrushNode* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
 
             world.defaultLayer()->addChild(brush);
 

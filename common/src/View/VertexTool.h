@@ -64,9 +64,9 @@ namespace TrenchBroom {
         public:
             explicit VertexTool(const std::weak_ptr<MapDocument>& document);
         public:
-            std::vector<Model::Brush*> findIncidentBrushes(const vm::vec3& handle) const;
-            std::vector<Model::Brush*> findIncidentBrushes(const vm::segment3& handle) const;
-            std::vector<Model::Brush*> findIncidentBrushes(const vm::polygon3& handle) const;
+            std::vector<Model::BrushNode*> findIncidentBrushes(const vm::vec3& handle) const;
+            std::vector<Model::BrushNode*> findIncidentBrushes(const vm::segment3& handle) const;
+            std::vector<Model::BrushNode*> findIncidentBrushes(const vm::polygon3& handle) const;
         private:
             using VertexToolBase::findIncidentBrushes;
         public:

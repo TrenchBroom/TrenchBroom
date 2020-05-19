@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_CollectMatchingBrushFacesVisitor
 #define TrenchBroom_CollectMatchingBrushFacesVisitor
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFacePredicates.h"
 #include "Model/NodeVisitor.h"
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             void doVisit(Layer*)  override {}
             void doVisit(Group*)  override {}
             void doVisit(Entity*) override {}
-            void doVisit(Brush* brush) override {
+            void doVisit(BrushNode* brush) override {
                 for (BrushFace* face : brush->faces()) {
                     if (m_p(face)) {
                         m_faces.push_back(face);

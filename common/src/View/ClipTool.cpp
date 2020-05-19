@@ -24,7 +24,7 @@
 #include "Preferences.h"
 #include "FloatType.h"
 #include "Model/AssortNodesVisitor.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/HitQuery.h"

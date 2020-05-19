@@ -35,7 +35,7 @@ namespace TrenchBroom {
         }
 
         void FindGroupVisitor::doVisit(Entity*) {}
-        void FindGroupVisitor::doVisit(Brush*) {}
+        void FindGroupVisitor::doVisit(BrushNode*) {}
 
         // FindOutermostClosedGroupVisitor
 
@@ -51,7 +51,7 @@ namespace TrenchBroom {
         }
 
         void FindOutermostClosedGroupVisitor::doVisit(Entity*) {}
-        void FindOutermostClosedGroupVisitor::doVisit(Brush*) {}
+        void FindOutermostClosedGroupVisitor::doVisit(BrushNode*) {}
 
         // Helper functions
 

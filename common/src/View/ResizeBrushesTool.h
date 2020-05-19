@@ -33,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
+        class BrushNode;
         class BrushFace;
         class Hit;
         class Node;
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             /**
              * Brush and face normal pair.
              */
-            using FaceHandle = std::tuple<Model::Brush*, vm::vec3>;
+            using FaceHandle = std::tuple<Model::BrushNode*, vm::vec3>;
 
             std::weak_ptr<MapDocument> m_document;
             std::vector<FaceHandle> m_dragHandles;
@@ -104,7 +104,7 @@ namespace TrenchBroom {
         private:
             bool splitBrushesOutward(const vm::vec3& delta);
             bool splitBrushesInward(const vm::vec3& delta);
-            Model::BrushFace* findMatchingFace(Model::Brush* brush, const Model::BrushFace* reference) const;
+            Model::BrushFace* findMatchingFace(Model::BrushNode* brush, const Model::BrushFace* reference) const;
             std::vector<vm::polygon3> dragFaceDescriptors() const;
         private:
             void bindObservers();

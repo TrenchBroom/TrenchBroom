@@ -19,7 +19,7 @@
 
 #include "ModelFactoryImpl.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
@@ -64,9 +64,9 @@ namespace TrenchBroom {
             return new Entity();
         }
 
-        Brush* ModelFactoryImpl::doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {
+        BrushNode* ModelFactoryImpl::doCreateBrush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) const {
             assert(m_format != MapFormat::Unknown);
-            return new Brush(worldBounds, faces);
+            return new BrushNode(worldBounds, faces);
         }
 
         BrushFace* ModelFactoryImpl::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {

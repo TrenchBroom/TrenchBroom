@@ -21,7 +21,7 @@
 
 #include "GTestCompat.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
@@ -119,7 +119,7 @@ namespace TrenchBroom {
             Model::Entity* entity = new Model::Entity();
             document->addNode(entity, document->currentParent());
 
-            Model::Brush* brush = createBrush();
+            Model::BrushNode* brush = createBrush();
             document->addNode(brush, entity);
 
             ASSERT_TRUE(document->reparentNodes(document->currentParent(), { brush }));
@@ -138,7 +138,7 @@ namespace TrenchBroom {
             Model::Entity* entity = new Model::Entity();
             document->addNode(entity, group);
 
-            Model::Brush* brush = createBrush();
+            Model::BrushNode* brush = createBrush();
             document->addNode(brush, entity);
 
             ASSERT_TRUE(document->reparentNodes(document->currentParent(), { brush }));

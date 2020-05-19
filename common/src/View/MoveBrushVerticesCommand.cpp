@@ -20,7 +20,7 @@
 #include "MoveBrushVerticesCommand.h"
 
 #include "FloatType.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/VertexHandleManager.h"
@@ -43,7 +43,7 @@ namespace TrenchBroom {
         const Command::CommandType MoveBrushVerticesCommand::Type = Command::freeType();
 
         std::unique_ptr<MoveBrushVerticesCommand> MoveBrushVerticesCommand::move(const VertexToBrushesMap& vertices, const vm::vec3& delta) {
-            std::vector<Model::Brush*> brushes;
+            std::vector<Model::BrushNode*> brushes;
             BrushVerticesMap brushVertices;
             std::vector<vm::vec3> vertexPositions;
             extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             return std::make_unique<MoveBrushVerticesCommand>(brushes, brushVertices, vertexPositions, delta);
         }
 
-        MoveBrushVerticesCommand::MoveBrushVerticesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta) :
+        MoveBrushVerticesCommand::MoveBrushVerticesCommand(const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta) :
         VertexCommand(Type, "Move Brush Vertices", brushes),
         m_vertices(vertices),
         m_oldVertexPositions(vertexPositions),
@@ -62,7 +62,7 @@ namespace TrenchBroom {
         bool MoveBrushVerticesCommand::doCanDoVertexOperation(const MapDocument* document) const {
             const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_vertices) {
-                Model::Brush* brush = entry.first;
+                Model::BrushNode* brush = entry.first;
                 const std::vector<vm::vec3>& vertices = entry.second;
                 if (!brush->canMoveVertices(worldBounds, vertices, m_delta))
                     return false;

@@ -255,12 +255,12 @@ namespace TrenchBroom {
             m_stream << "\"" << escapeEntityAttribute(attribute.name()) << "\" \"" << escapeEntityAttribute(attribute.value()) << "\"\n";
         }
 
-        void MapStreamSerializer::doBeginBrush(const Model::Brush* /* brush */) {
+        void MapStreamSerializer::doBeginBrush(const Model::BrushNode* /* brush */) {
             m_stream << "// brush " << brushNo() << "\n";
             m_stream << "{\n";
         }
 
-        void MapStreamSerializer::doEndBrush(Model::Brush* /* brush */) {
+        void MapStreamSerializer::doEndBrush(Model::BrushNode* /* brush */) {
             m_stream << "}\n";
         }
 

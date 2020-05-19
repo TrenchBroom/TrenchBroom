@@ -19,7 +19,7 @@
 
 #include "RemoveBrushElementsCommand.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
@@ -28,14 +28,14 @@
 
 namespace TrenchBroom {
     namespace View {
-        RemoveBrushElementsCommand::RemoveBrushElementsCommand(const CommandType type, const std::string& name, const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices) :
+        RemoveBrushElementsCommand::RemoveBrushElementsCommand(const CommandType type, const std::string& name, const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices) :
         VertexCommand(type, name, brushes),
         m_vertices(vertices) {}
 
         bool RemoveBrushElementsCommand::doCanDoVertexOperation(const MapDocument* document) const {
             const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_vertices) {
-                Model::Brush* brush = entry.first;
+                Model::BrushNode* brush = entry.first;
                 const std::vector<vm::vec3>& vertices = entry.second;
                 if (!brush->canRemoveVertices(worldBounds, vertices))
                     return false;

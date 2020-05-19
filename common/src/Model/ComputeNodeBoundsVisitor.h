@@ -55,7 +55,7 @@ namespace TrenchBroom {
             void doVisit(const Layer* layer) override;
             void doVisit(const Group* group) override;
             void doVisit(const Entity* entity) override;
-            void doVisit(const Brush* brush) override;
+            void doVisit(const BrushNode* brush) override;
             void mergeWith(const vm::bbox3& bounds);
         };
 

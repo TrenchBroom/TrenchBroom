@@ -20,7 +20,7 @@
 #include "NodeCollection.h"
 
 #include "Ensure.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             void doVisit(Layer* layer) override   { m_collection.m_nodes.push_back(layer);  m_collection.m_layers.push_back(layer); }
             void doVisit(Group* group) override   { m_collection.m_nodes.push_back(group);  m_collection.m_groups.push_back(group); }
             void doVisit(Entity* entity) override { m_collection.m_nodes.push_back(entity); m_collection.m_entities.push_back(entity); }
-            void doVisit(Brush* brush) override   { m_collection.m_nodes.push_back(brush);  m_collection.m_brushes.push_back(brush); }
+            void doVisit(BrushNode* brush) override   { m_collection.m_nodes.push_back(brush);  m_collection.m_brushes.push_back(brush); }
         };
 
         class NodeCollection::RemoveNode : public NodeVisitor {
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             std::vector<Layer*>::iterator m_layerRem;
             std::vector<Model::Group*>::iterator m_groupRem;
             std::vector<Entity*>::iterator m_entityRem;
-            std::vector<Brush*>::iterator m_brushRem;
+            std::vector<BrushNode*>::iterator m_brushRem;
         public:
             RemoveNode(NodeCollection& collection) :
             m_collection(collection),
@@ -75,7 +75,7 @@ namespace TrenchBroom {
             void doVisit(Layer* layer) override   { remove(m_collection.m_nodes, m_nodeRem, layer);  remove(m_collection.m_layers, m_layerRem, layer); }
             void doVisit(Group* group) override   { remove(m_collection.m_nodes, m_nodeRem, group);  remove(m_collection.m_groups, m_groupRem, group); }
             void doVisit(Entity* entity) override { remove(m_collection.m_nodes, m_nodeRem, entity); remove(m_collection.m_entities, m_entityRem, entity); }
-            void doVisit(Brush* brush) override   { remove(m_collection.m_nodes, m_nodeRem, brush);  remove(m_collection.m_brushes, m_brushRem, brush); }
+            void doVisit(BrushNode* brush) override   { remove(m_collection.m_nodes, m_nodeRem, brush);  remove(m_collection.m_brushes, m_brushRem, brush); }
 
             template <typename V, typename E>
             void remove(V& collection, typename V::iterator& rem, E& elem) {
@@ -171,7 +171,7 @@ namespace TrenchBroom {
             return m_entities;
         }
 
-        const std::vector<Brush*>& NodeCollection::brushes() const {
+        const std::vector<BrushNode*>& NodeCollection::brushes() const {
             return m_brushes;
         }
 

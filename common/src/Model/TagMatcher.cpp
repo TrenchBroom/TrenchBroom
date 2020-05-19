@@ -23,7 +23,7 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Game.h"
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             }
         }
 
-        void BrushMatchVisitor::visit(const Brush& brush) {
+        void BrushMatchVisitor::visit(const BrushNode& brush) {
             if (m_matcher(brush)) {
                 setMatches();
             }
@@ -256,7 +256,7 @@ namespace TrenchBroom {
         }
 
         bool EntityClassNameTagMatcher::matches(const Taggable& taggable) const {
-            BrushMatchVisitor visitor([this](const Brush& brush) {
+            BrushMatchVisitor visitor([this](const BrushNode& brush) {
                 const auto* entity = brush.entity();
                 if (entity == nullptr) {
                     return false;

@@ -19,7 +19,7 @@
 
 #include "WorldBoundsIssueGenerator.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -70,7 +70,7 @@ namespace TrenchBroom {
                 issues.push_back(new WorldBoundsIssue(entity));
         }
 
-        void WorldBoundsIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
+        void WorldBoundsIssueGenerator::doGenerate(BrushNode* brush, IssueList& issues) const {
             if (!m_bounds.contains(brush->logicalBounds()))
                 issues.push_back(new WorldBoundsIssue(brush));
         }

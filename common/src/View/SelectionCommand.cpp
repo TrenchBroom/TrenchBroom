@@ -20,7 +20,7 @@
 #include "SelectionCommand.h"
 
 #include "Macros.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceReference.h"
 #include "Model/Entity.h"

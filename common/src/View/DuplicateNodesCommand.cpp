@@ -98,7 +98,7 @@ namespace TrenchBroom {
             void doVisit(const Model::Layer*) override  { setResult(false); }
             void doVisit(const Model::Group*) override  { setResult(false);  }
             void doVisit(const Model::Entity*) override { setResult(true);  }
-            void doVisit(const Model::Brush*) override  { setResult(false); }
+            void doVisit(const Model::BrushNode*) override  { setResult(false); }
         };
 
         bool DuplicateNodesCommand::cloneParent(const Model::Node* node) const {

@@ -23,7 +23,7 @@
 #include "PreferenceManager.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
@@ -114,7 +114,7 @@ namespace TrenchBroom {
 
             vm::vec3 delta;
             const auto& grid = document->grid();
-            const auto& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
+            const auto& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHit).occluded().first();
             if (hit.isMatch()) {
                 const auto* face = Model::hitToFace(hit);
                 const auto dragPlane = vm::aligned_orthogonal_plane(hit.hitPoint(), face->boundary().normal);

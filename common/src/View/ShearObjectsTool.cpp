@@ -23,7 +23,7 @@
 #include "Ensure.h"
 #include "FloatType.h"
 #include "Preferences.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/HitQuery.h"

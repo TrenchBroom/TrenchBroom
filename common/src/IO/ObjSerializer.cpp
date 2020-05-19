@@ -21,7 +21,7 @@
 
 #include "Ensure.h"
 #include "IO/Path.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Polyhedron.h"
@@ -132,14 +132,14 @@ namespace TrenchBroom {
         void ObjFileSerializer::doEndEntity(Model::Node* /* node */) {}
         void ObjFileSerializer::doEntityAttribute(const Model::EntityAttribute& /* attribute */) {}
 
-        void ObjFileSerializer::doBeginBrush(const Model::Brush* /* brush */) {
+        void ObjFileSerializer::doBeginBrush(const Model::BrushNode* /* brush */) {
             m_currentObject.entityNo = entityNo();
             m_currentObject.brushNo = brushNo();
             // Vertex positions inserted from now on should get new indices
             m_vertices.clearIndices();
         }
 
-        void ObjFileSerializer::doEndBrush(Model::Brush* /* brush */) {
+        void ObjFileSerializer::doEndBrush(Model::BrushNode* /* brush */) {
             m_objects.push_back(m_currentObject);
             m_currentObject.faces.clear();
         }

@@ -27,7 +27,7 @@
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"
 #include "IO/WorldReader.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/NodeVisitor.h"
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             void doVisit(Entity* entity) override {
                 doInsert(entity);
             }
-            void doVisit(Brush* brush) override {
+            void doVisit(BrushNode* brush) override {
                 doInsert(brush);
             }
 

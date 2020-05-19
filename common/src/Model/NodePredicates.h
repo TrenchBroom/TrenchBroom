@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
+        class BrushNode;
         class Entity;
         class Group;
         class Layer;
@@ -58,8 +58,8 @@ namespace TrenchBroom {
                 bool operator()(Group* group) const         { return m_p(group);  }
                 bool operator()(const Entity* entity) const { return m_p(entity); }
                 bool operator()(Entity* entity) const       { return m_p(entity); }
-                bool operator()(const Brush* brush) const   { return m_p(brush);  }
-                bool operator()(Brush* brush) const         { return m_p(brush);  }
+                bool operator()(const BrushNode* brush) const   { return m_p(brush);  }
+                bool operator()(BrushNode* brush) const         { return m_p(brush);  }
             };
 
             template <typename P>
@@ -78,8 +78,8 @@ namespace TrenchBroom {
                 bool operator()(Group* group) const         { return !m_p(group);  }
                 bool operator()(const Entity* entity) const { return !m_p(entity); }
                 bool operator()(Entity* entity) const       { return !m_p(entity); }
-                bool operator()(const Brush* brush) const   { return !m_p(brush);  }
-                bool operator()(Brush* brush) const         { return !m_p(brush);  }
+                bool operator()(const BrushNode* brush) const   { return !m_p(brush);  }
+                bool operator()(BrushNode* brush) const         { return !m_p(brush);  }
             };
 
             template <typename P1, typename P2>
@@ -100,8 +100,8 @@ namespace TrenchBroom {
                 bool operator()(Group* group) const         { return m_p1(group)  && m_p2(group);  }
                 bool operator()(const Entity* entity) const { return m_p1(entity) && m_p2(entity); }
                 bool operator()(Entity* entity) const       { return m_p1(entity) && m_p2(entity); }
-                bool operator()(const Brush* brush) const   { return m_p1(brush)  && m_p2(brush);  }
-                bool operator()(Brush* brush) const         { return m_p1(brush)  && m_p2(brush);  }
+                bool operator()(const BrushNode* brush) const   { return m_p1(brush)  && m_p2(brush);  }
+                bool operator()(BrushNode* brush) const         { return m_p1(brush)  && m_p2(brush);  }
             };
 
             template <typename P1, typename P2>
@@ -122,8 +122,8 @@ namespace TrenchBroom {
                 bool operator()(Group* group) const         { return m_p1(group)  || m_p2(group);  }
                 bool operator()(const Entity* entity) const { return m_p1(entity) || m_p2(entity); }
                 bool operator()(Entity* entity) const       { return m_p1(entity) || m_p2(entity); }
-                bool operator()(const Brush* brush) const   { return m_p1(brush)  || m_p2(brush);  }
-                bool operator()(Brush* brush) const         { return m_p1(brush)  || m_p2(brush);  }
+                bool operator()(const BrushNode* brush) const   { return m_p1(brush)  || m_p2(brush);  }
+                bool operator()(BrushNode* brush) const         { return m_p1(brush)  || m_p2(brush);  }
             };
 
             class EqualsNode {
@@ -141,8 +141,8 @@ namespace TrenchBroom {
                 bool operator()(Group* group) const;
                 bool operator()(const Entity* entity) const;
                 bool operator()(Entity* entity) const;
-                bool operator()(const Brush* brush) const;
-                bool operator()(Brush* brush) const;
+                bool operator()(const BrushNode* brush) const;
+                bool operator()(BrushNode* brush) const;
             };
 
             class EqualsObject {
@@ -160,8 +160,8 @@ namespace TrenchBroom {
                 bool operator()(Group* group) const;
                 bool operator()(const Entity* entity) const;
                 bool operator()(Entity* entity) const;
-                bool operator()(const Brush* brush) const;
-                bool operator()(Brush* brush) const;
+                bool operator()(const BrushNode* brush) const;
+                bool operator()(BrushNode* brush) const;
             };
         }
     }

@@ -59,7 +59,7 @@ namespace TrenchBroom {
             void doVisit(Model::Layer*) override  {}
             void doVisit(Model::Group*) override  {}
             void doVisit(Model::Entity*) override { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
-            void doVisit(Model::Brush*) override  {}
+            void doVisit(Model::BrushNode*) override  {}
         };
 
         SmartSpawnflagsEditor::SmartSpawnflagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :

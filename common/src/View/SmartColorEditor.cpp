@@ -162,7 +162,7 @@ namespace TrenchBroom {
             void doVisit(const Model::Layer*) override         {}
             void doVisit(const Model::Group*) override         {}
             void doVisit(const Model::Entity* entity) override { visitAttributableNode(entity); stopRecursion(); }
-            void doVisit(const Model::Brush*) override         {}
+            void doVisit(const Model::BrushNode*) override         {}
 
             void visitAttributableNode(const Model::AttributableNode* attributable) {
                 static const auto NullValue("");

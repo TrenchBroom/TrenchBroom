@@ -30,7 +30,7 @@ namespace TrenchBroom {
             void doVisit(Layer* layer) override;
             void doVisit(Group* group) override;
             void doVisit(Entity* entity) override;
-            void doVisit(Brush* brush) override;
+            void doVisit(BrushNode* brush) override;
         };
 
         Model::Layer* findLayer(Model::Node* node);

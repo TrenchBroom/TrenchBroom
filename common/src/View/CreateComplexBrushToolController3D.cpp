@@ -22,7 +22,7 @@
 #include "FloatType.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/HitAdapter.h"
@@ -77,7 +77,7 @@ namespace TrenchBroom {
                 }
 
                 const Model::PickResult& pickResult = inputState.pickResult();
-                const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
+                const Model::Hit& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHit).occluded().first();
                 if (!hit.isMatch()) {
                     return DragInfo();
                 }
@@ -91,7 +91,7 @@ namespace TrenchBroom {
 
                 auto* restricter = new SurfaceDragRestricter();
                 restricter->setPickable(true);
-                restricter->setType(Model::Brush::BrushHit);
+                restricter->setType(Model::BrushNode::BrushHit);
                 restricter->setOccluded(true);
                 return DragInfo(restricter, new NoDragSnapper(), m_initialPoint);
             }
@@ -223,7 +223,7 @@ namespace TrenchBroom {
                 return false;
 
             const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
+            const Model::Hit& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHit).occluded().first();
             if (!hit.isMatch())
                 return false;
 
@@ -246,7 +246,7 @@ namespace TrenchBroom {
                 return false;
 
             const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
+            const Model::Hit& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHit).occluded().first();
             if (!hit.isMatch())
                 return false;
 

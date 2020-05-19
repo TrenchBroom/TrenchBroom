@@ -32,7 +32,7 @@ namespace TrenchBroom {
         const Command::CommandType RemoveBrushVerticesCommand::Type = Command::freeType();
 
         std::unique_ptr<RemoveBrushVerticesCommand> RemoveBrushVerticesCommand::remove(const VertexToBrushesMap& vertices) {
-            std::vector<Model::Brush*> brushes;
+            std::vector<Model::BrushNode*> brushes;
             BrushVerticesMap brushVertices;
             std::vector<vm::vec3> vertexPositions;
             extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             return std::make_unique<RemoveBrushVerticesCommand>(brushes, brushVertices, vertexPositions);
         }
 
-        RemoveBrushVerticesCommand::RemoveBrushVerticesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions) :
+        RemoveBrushVerticesCommand::RemoveBrushVerticesCommand(const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions) :
         RemoveBrushElementsCommand(Type, "Remove Brush Vertices", brushes, vertices),
         m_oldVertexPositions(vertexPositions) {}
     }

@@ -30,7 +30,7 @@ namespace TrenchBroom {
             void doVisit(Layer* layer) override;
             void doVisit(Group* group) override;
             void doVisit(Entity* entity) override;
-            void doVisit(Brush* brush) override;
+            void doVisit(BrushNode* brush) override;
         };
 
         class FindOutermostClosedGroupVisitor : public NodeVisitor, public NodeQuery<Group*> {
@@ -39,7 +39,7 @@ namespace TrenchBroom {
             void doVisit(Layer* layer) override;
             void doVisit(Group* group) override;
             void doVisit(Entity* entity) override;
-            void doVisit(Brush* brush) override;
+            void doVisit(BrushNode* brush) override;
         };
 
         Model::Group* findGroup(Model::Node* node);

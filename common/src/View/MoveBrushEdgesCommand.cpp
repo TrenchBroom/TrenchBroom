@@ -20,7 +20,7 @@
 #include "MoveBrushEdgesCommand.h"
 
 #include "FloatType.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/VertexHandleManager.h"
@@ -35,7 +35,7 @@ namespace TrenchBroom {
         const Command::CommandType MoveBrushEdgesCommand::Type = Command::freeType();
 
         std::unique_ptr<MoveBrushEdgesCommand> MoveBrushEdgesCommand::move(const EdgeToBrushesMap& edges, const vm::vec3& delta) {
-            std::vector<Model::Brush*> brushes;
+            std::vector<Model::BrushNode*> brushes;
             BrushEdgesMap brushEdges;
             std::vector<vm::segment3> edgePositions;
             extractEdgeMap(edges, brushes, brushEdges, edgePositions);
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             return std::make_unique<MoveBrushEdgesCommand>(brushes, brushEdges, edgePositions, delta);
         }
 
-        MoveBrushEdgesCommand::MoveBrushEdgesCommand(const std::vector<Model::Brush*>& brushes, const BrushEdgesMap& edges, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) :
+        MoveBrushEdgesCommand::MoveBrushEdgesCommand(const std::vector<Model::BrushNode*>& brushes, const BrushEdgesMap& edges, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) :
         VertexCommand(Type, "Move Brush Edges", brushes),
         m_edges(edges),
         m_oldEdgePositions(edgePositions),
@@ -56,7 +56,7 @@ namespace TrenchBroom {
         bool MoveBrushEdgesCommand::doCanDoVertexOperation(const MapDocument* document) const {
             const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_edges) {
-                Model::Brush* brush = entry.first;
+                Model::BrushNode* brush = entry.first;
                 const std::vector<vm::segment3>& edges = entry.second;
                 if (!brush->canMoveEdges(worldBounds, edges, m_delta))
                     return false;

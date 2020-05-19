@@ -50,7 +50,7 @@ namespace TrenchBroom {
             void doVisit(const Layer*) override         {}
             void doVisit(const Group*) override         {}
             void doVisit(const Entity* entity) override { visitAttributableNode(entity); }
-            void doVisit(const Brush*) override         {}
+            void doVisit(const BrushNode*) override         {}
 
             void visitAttributableNode(const AttributableNode* attributable) {
                 static const auto NullValue("");

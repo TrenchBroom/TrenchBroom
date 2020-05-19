@@ -21,7 +21,7 @@
 #include "MoveBrushFacesCommand.h"
 
 #include "FloatType.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
@@ -36,7 +36,7 @@ namespace TrenchBroom {
         const Command::CommandType MoveBrushFacesCommand::Type = Command::freeType();
 
         std::unique_ptr<MoveBrushFacesCommand> MoveBrushFacesCommand::move(const FaceToBrushesMap& faces, const vm::vec3& delta) {
-            std::vector<Model::Brush*> brushes;
+            std::vector<Model::BrushNode*> brushes;
             BrushFacesMap brushFaces;
             std::vector<vm::polygon3> facePositions;
             extractFaceMap(faces, brushes, brushFaces, facePositions);
@@ -44,7 +44,7 @@ namespace TrenchBroom {
             return std::make_unique<MoveBrushFacesCommand>(brushes, brushFaces, facePositions, delta);
         }
 
-        MoveBrushFacesCommand::MoveBrushFacesCommand(const std::vector<Model::Brush*>& brushes, const BrushFacesMap& faces, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta) :
+        MoveBrushFacesCommand::MoveBrushFacesCommand(const std::vector<Model::BrushNode*>& brushes, const BrushFacesMap& faces, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta) :
         VertexCommand(Type, "Move Brush Faces", brushes),
         m_faces(faces),
         m_oldFacePositions(facePositions),
@@ -55,7 +55,7 @@ namespace TrenchBroom {
         bool MoveBrushFacesCommand::doCanDoVertexOperation(const MapDocument* document) const {
             const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_faces) {
-                Model::Brush* brush = entry.first;
+                Model::BrushNode* brush = entry.first;
                 const std::vector<vm::polygon3>& faces = entry.second;
                 if (!brush->canMoveFaces(worldBounds, faces, m_delta))
                     return false;

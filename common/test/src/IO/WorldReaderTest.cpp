@@ -25,7 +25,7 @@
 #include "IO/File.h"
 #include "IO/TestParserStatus.h"
 #include "IO/WorldReader.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/Layer.h"
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             ASSERT_EQ(expectParallel, isParallel);
         }
 
-        inline void checkBrushTexCoordSystem(const Model::Brush* brush, const bool expectParallel) {
+        inline void checkBrushTexCoordSystem(const Model::BrushNode* brush, const bool expectParallel) {
             const std::vector<Model::BrushFace*> faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
             checkFaceTexCoordSystem(faces[0], expectParallel);
@@ -202,7 +202,7 @@ namespace TrenchBroom {
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
 
-            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            Model::BrushNode* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brush, false);
             const std::vector<Model::BrushFace*>& faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
@@ -253,7 +253,7 @@ namespace TrenchBroom {
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
 
-            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            Model::BrushNode* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brush, false);
             const std::vector<Model::BrushFace*>& faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
@@ -292,7 +292,7 @@ namespace TrenchBroom {
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
 
-            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            Model::BrushNode* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brush, false);
             const std::vector<Model::BrushFace*> faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
@@ -335,7 +335,7 @@ namespace TrenchBroom {
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
 
-            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            Model::BrushNode* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brush, false);
             const std::vector<Model::BrushFace*> faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
@@ -376,7 +376,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
-            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            Model::BrushNode* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brush, false);
         }
 
@@ -403,7 +403,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
-            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            Model::BrushNode* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brush, false);
         }
 
@@ -430,7 +430,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
-            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            Model::BrushNode* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brush, true);
         }
 
@@ -457,7 +457,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
-            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            Model::BrushNode* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brush, false);
         }
 
@@ -487,7 +487,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
-            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            Model::BrushNode* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brush, true);
         }
 
@@ -517,7 +517,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
-            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            Model::BrushNode* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brush, true);
         }
 
@@ -545,7 +545,7 @@ namespace TrenchBroom {
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
 
-            const auto* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            const auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brush, false);
             ASSERT_TRUE(vm::is_equal(Color(5, 6, 7), brush->findFace("rtz/c_mf_v3cw")->color(), 0.1f));
             ASSERT_EQ(1, brush->findFace("rtz/b_rc_v16w")->surfaceContents());
@@ -594,7 +594,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
-            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            Model::BrushNode* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brush, false);
         }
 
@@ -621,7 +621,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
             ASSERT_EQ(1u, defaultLayer->childCount());
-            Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
+            Model::BrushNode* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
             checkBrushTexCoordSystem(brush, false);
         }
 
@@ -1093,11 +1093,11 @@ common/caulk
             REQUIRE(layer != nullptr);
             REQUIRE(1u == layer->childCount());
 
-            auto* brush = dynamic_cast<Model::Brush*>(layer->children().at(0));
-            REQUIRE(brush != nullptr);
+            auto* brushNode = dynamic_cast<Model::BrushNode*>(layer->children().at(0));
+            REQUIRE(brushNode != nullptr);
 
-            CHECK(vm::bbox3(vm::vec3(-512, -512, -64), vm::vec3(512, 512, 0)) == brush->logicalBounds());
-            for (Model::BrushFace* face : brush->faces()) {
+            CHECK(vm::bbox3(vm::vec3(-512, -512, -64), vm::vec3(512, 512, 0)) == brushNode->logicalBounds());
+            for (Model::BrushFace* face : brushNode->faces()) {
                 CHECK("general/sand1" == face->textureName());
             }
         }
@@ -1131,7 +1131,7 @@ common/caulk
             REQUIRE(defaultLayer != nullptr);
             REQUIRE(defaultLayer->childCount() == 1u);
 
-            Model::Brush* brush = dynamic_cast<Model::Brush*>(defaultLayer->children().front());
+            Model::BrushNode* brush = dynamic_cast<Model::BrushNode*>(defaultLayer->children().front());
             REQUIRE(brush != nullptr);
 
             for (Model::BrushFace* face : brush->faces()) {

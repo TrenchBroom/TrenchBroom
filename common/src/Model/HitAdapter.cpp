@@ -20,7 +20,7 @@
 #include "HitAdapter.h"
 
 #include "Hit.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
@@ -30,7 +30,7 @@ namespace TrenchBroom {
         Node* hitToNode(const Hit& hit) {
             if (hit.type() == Entity::EntityHit) {
                 return hit.target<Entity*>();
-            } else if (hit.type() == Brush::BrushHit) {
+            } else if (hit.type() == BrushNode::BrushHit) {
                 BrushFace* face = hit.target<BrushFace*>();
                 return face->brush();
             } else {
@@ -41,7 +41,7 @@ namespace TrenchBroom {
         Object* hitToObject(const Hit& hit) {
             if (hit.type() == Entity::EntityHit) {
                 return hit.target<Entity*>();
-            } else if (hit.type() == Brush::BrushHit) {
+            } else if (hit.type() == BrushNode::BrushHit) {
                 BrushFace* face = hit.target<BrushFace*>();
                 return face->brush();
             } else {
@@ -57,8 +57,8 @@ namespace TrenchBroom {
             }
         }
 
-        Brush* hitToBrush(const Hit& hit) {
-            if (hit.type() == Brush::BrushHit) {
+        BrushNode* hitToBrush(const Hit& hit) {
+            if (hit.type() == BrushNode::BrushHit) {
                 return hit.target<BrushFace*>()->brush();
             } else {
                 return nullptr;
@@ -66,7 +66,7 @@ namespace TrenchBroom {
         }
 
         BrushFace* hitToFace(const Hit& hit) {
-            if (hit.type() == Brush::BrushHit) {
+            if (hit.type() == BrushNode::BrushHit) {
                 return hit.target<BrushFace*>();
             } else {
                 return nullptr;

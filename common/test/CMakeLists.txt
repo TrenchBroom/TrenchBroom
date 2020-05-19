@@ -43,7 +43,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Model/AttributableLinkTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/BrushBuilderTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/BrushFaceTest.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/Model/BrushTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Model/BrushNodeTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/EditorContextTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/EntityTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/GameTest.cpp"

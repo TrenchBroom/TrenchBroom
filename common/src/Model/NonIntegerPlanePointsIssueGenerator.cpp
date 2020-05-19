@@ -19,7 +19,7 @@
 
 #include "NonIntegerPlanePointsIssueGenerator.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -36,7 +36,7 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            explicit NonIntegerPlanePointsIssue(Brush* brush) :
+            explicit NonIntegerPlanePointsIssue(BrushNode* brush) :
             Issue(brush) {}
 
             IssueType doGetType() const override {
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             // addQuickFix(new NonIntegerPlanePointsIssueQuickFix());
         }
 
-        void NonIntegerPlanePointsIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
+        void NonIntegerPlanePointsIssueGenerator::doGenerate(BrushNode* brush, IssueList& issues) const {
             for (const BrushFace* face : brush->faces()) {
                 const BrushFace::Points& points = face->points();
                 for (size_t i = 0; i < 3; ++i) {

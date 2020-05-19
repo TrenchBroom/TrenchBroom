@@ -22,7 +22,7 @@
 #include "IO/MapFileSerializer.h"
 #include "IO/MapStreamSerializer.h"
 #include "Model/AssortNodesVisitor.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
@@ -38,15 +38,15 @@ namespace TrenchBroom {
             using AssortNodesVisitor = Model::AssortNodesVisitorT<Model::SkipLayersStrategy, Model::CollectGroupsStrategy, Model::CollectEntitiesStrategy, CollectEntityBrushesStrategy>;
         private:
             EntityBrushesMap m_entityBrushes;
-            std::vector<Model::Brush*> m_worldBrushes;
+            std::vector<Model::BrushNode*> m_worldBrushes;
 
             class VisitParent : public Model::NodeVisitor {
             private:
-                Model::Brush* m_brush;
+                Model::BrushNode* m_brush;
                 EntityBrushesMap& m_entityBrushes;
-                std::vector<Model::Brush*>& m_worldBrushes;
+                std::vector<Model::BrushNode*>& m_worldBrushes;
             public:
-                VisitParent(Model::Brush* brush, EntityBrushesMap& entityBrushes, std::vector<Model::Brush*>& worldBrushes) :
+                VisitParent(Model::BrushNode* brush, EntityBrushesMap& entityBrushes, std::vector<Model::BrushNode*>& worldBrushes) :
                 m_brush(brush),
                 m_entityBrushes(entityBrushes),
                 m_worldBrushes(worldBrushes) {}
@@ -55,18 +55,18 @@ namespace TrenchBroom {
                 void doVisit(Model::Layer* /* layer */) override { m_worldBrushes.push_back(m_brush);  }
                 void doVisit(Model::Group* /* group */) override { m_worldBrushes.push_back(m_brush);  }
                 void doVisit(Model::Entity* entity )    override { m_entityBrushes[entity].push_back(m_brush); }
-                void doVisit(Model::Brush* /* brush */) override {}
+                void doVisit(Model::BrushNode* /* brush */) override {}
             };
         public:
             const EntityBrushesMap& entityBrushes() const {
                 return m_entityBrushes;
             }
 
-            const std::vector<Model::Brush*>& worldBrushes() const {
+            const std::vector<Model::BrushNode*>& worldBrushes() const {
                 return m_worldBrushes;
             }
 
-            void addBrush(Model::Brush* brush) {
+            void addBrush(Model::BrushNode* brush) {
                 VisitParent visitParent(brush, m_entityBrushes, m_worldBrushes);
                 Model::Node* parent = brush->parent();
                 parent->accept(visitParent);
@@ -97,7 +97,7 @@ namespace TrenchBroom {
                 stopRecursion();
             }
 
-            void doVisit(Model::Brush* /* brush */) override   { stopRecursion();  }
+            void doVisit(Model::BrushNode* /* brush */) override   { stopRecursion();  }
         };
 
         NodeWriter::NodeWriter(Model::World& world, FILE* stream) :
@@ -163,7 +163,7 @@ namespace TrenchBroom {
             m_serializer->endFile();
         }
 
-        void NodeWriter::writeWorldBrushes(const std::vector<Model::Brush*>& brushes) {
+        void NodeWriter::writeWorldBrushes(const std::vector<Model::BrushNode*>& brushes) {
             if (!brushes.empty()) {
                 m_serializer->entity(&m_world, m_world.attributes(), {}, brushes);
             }

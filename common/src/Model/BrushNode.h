@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Brush
-#define TrenchBroom_Brush
+#ifndef TrenchBroom_BrushNode
+#define TrenchBroom_BrushNode
 
 #include "FloatType.h"
 #include "Macros.h"
@@ -45,7 +45,7 @@ namespace TrenchBroom {
 
         struct BrushAlgorithmResult;
 
-        class Brush : public Node, public Object {
+        class BrushNode : public Node, public Object {
         private:
             friend class SetTempFaceLinks;
         public:
@@ -67,12 +67,12 @@ namespace TrenchBroom {
             mutable bool m_transparent;
             mutable std::unique_ptr<Renderer::BrushRendererBrushCache> m_brushRendererBrushCache; // unique_ptr for breaking header dependencies
         public:
-            Brush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces);
-            ~Brush() override;
+            BrushNode(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces);
+            ~BrushNode() override;
         private:
             void cleanup();
         public:
-            Brush* clone(const vm::bbox3& worldBounds) const;
+            BrushNode* clone(const vm::bbox3& worldBounds) const;
 
             AttributableNode* entity() const;
         public: // face management:
@@ -119,10 +119,10 @@ namespace TrenchBroom {
             void detachFaces(const std::vector<BrushFace*>& faces);
             void detachFace(BrushFace* face);
         public: // clone face attributes from matching faces of other brushes
-            void cloneFaceAttributesFrom(const std::vector<Brush*>& brushes);
-            void cloneFaceAttributesFrom(const Brush* brush);
-            void cloneInvertedFaceAttributesFrom(const std::vector<Brush*>& brushes);
-            void cloneInvertedFaceAttributesFrom(const Brush* brush);
+            void cloneFaceAttributesFrom(const std::vector<BrushNode*>& brushes);
+            void cloneFaceAttributesFrom(const BrushNode* brush);
+            void cloneInvertedFaceAttributesFrom(const std::vector<BrushNode*>& brushes);
+            void cloneInvertedFaceAttributesFrom(const BrushNode* brush);
         public: // clipping
             bool clip(const vm::bbox3& worldBounds, BrushFace* face);
         public: // move face along normal
@@ -229,9 +229,9 @@ namespace TrenchBroom {
              * @param subtrahends brushes to subtract from `this`. The passed-in brushes are not modified.
              * @return the subtraction result
              */
-            std::vector<Brush*> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<Brush*>& subtrahends) const;
-            std::vector<Brush*> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, Brush* subtrahend) const;
-            void intersect(const vm::bbox3& worldBounds, const Brush* brush);
+            std::vector<BrushNode*> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<BrushNode*>& subtrahends) const;
+            std::vector<BrushNode*> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, BrushNode* subtrahend) const;
+            void intersect(const vm::bbox3& worldBounds, const BrushNode* brush);
 
             // transformation
             bool canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const;
@@ -248,7 +248,7 @@ namespace TrenchBroom {
              * @param subtrahends used as a source of texture alignment only
              * @return the newly created brush
              */
-            Brush* createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<Brush*>& subtrahends) const;
+            BrushNode* createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<BrushNode*>& subtrahends) const;
         private:
             void updateFacesFromGeometry(const vm::bbox3& worldBounds, const BrushGeometry& geometry);
             void updatePointsFromVertices(const vm::bbox3& worldBounds);
@@ -341,9 +341,9 @@ namespace TrenchBroom {
             void doAcceptTagVisitor(TagVisitor& visitor) override;
             void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
         private:
-            deleteCopyAndMove(Brush)
+            deleteCopyAndMove(BrushNode)
         };
     }
 }
 
-#endif /* defined(TrenchBroom_Brush) */
+#endif /* defined(TrenchBroom_BrushNode) */

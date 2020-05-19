@@ -19,7 +19,7 @@
 
 #include "MixedBrushContentsIssueGenerator.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/Issue.h"
 
@@ -35,7 +35,7 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            explicit MixedBrushContentsIssue(Brush* brush) :
+            explicit MixedBrushContentsIssue(BrushNode* brush) :
             Issue(brush) {}
 
             IssueType doGetType() const override {
@@ -52,7 +52,7 @@ namespace TrenchBroom {
         MixedBrushContentsIssueGenerator::MixedBrushContentsIssueGenerator() :
         IssueGenerator(MixedBrushContentsIssue::Type, "Mixed brush content flags") {}
 
-        void MixedBrushContentsIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
+        void MixedBrushContentsIssueGenerator::doGenerate(BrushNode* brush, IssueList& issues) const {
             const std::vector<BrushFace*>& faces = brush->faces();
             auto it = std::begin(faces);
             auto end = std::end(faces);

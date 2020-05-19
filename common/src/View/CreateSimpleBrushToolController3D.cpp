@@ -21,7 +21,7 @@
 
 #include "FloatType.h"
 #include "PreferenceManager.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             }
 
             const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
+            const Model::Hit& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHit).occluded().first();
             if (hit.isMatch()) {
                 m_initialPoint = hit.hitPoint();
             } else {

@@ -22,7 +22,7 @@
 #include "Ensure.h"
 #include "Exceptions.h"
 #include "Macros.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityAttributes.h"
 
@@ -269,7 +269,7 @@ namespace TrenchBroom {
             ++m_line;
         }
 
-        void MapFileSerializer::doBeginBrush(const Model::Brush* /* brush */) {
+        void MapFileSerializer::doBeginBrush(const Model::BrushNode* /* brush */) {
             std::fprintf(m_stream, "// brush %u\n", brushNo());
             ++m_line;
             m_startLineStack.push_back(m_line);
@@ -277,7 +277,7 @@ namespace TrenchBroom {
             ++m_line;
         }
 
-        void MapFileSerializer::doEndBrush(Model::Brush* brush) {
+        void MapFileSerializer::doEndBrush(Model::BrushNode* brush) {
             std::fprintf(m_stream, "}\n");
             ++m_line;
             setFilePosition(brush);

@@ -21,7 +21,7 @@
 
 #include "Ensure.h"
 #include "Assets/EntityDefinition.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"

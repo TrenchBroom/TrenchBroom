@@ -19,7 +19,7 @@
 
 #include "BrushFaceReader.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/Layer.h"
@@ -56,7 +56,7 @@ namespace TrenchBroom {
         void BrushFaceReader::onLayer(Model::Layer* /* layer */, ParserStatus& /* status */) {}
         void BrushFaceReader::onNode(Model::Node* /* parent */, Model::Node* /* node */, ParserStatus& /* status */) {}
         void BrushFaceReader::onUnresolvedNode(const ParentInfo& /* parentInfo */, Model::Node* /* node */, ParserStatus& /* status */) {}
-        void BrushFaceReader::onBrush(Model::Node* /* parent */, Model::Brush* /* brush */, ParserStatus& /* status */) {}
+        void BrushFaceReader::onBrush(Model::Node* /* parent */, Model::BrushNode* /* brush */, ParserStatus& /* status */) {}
 
         void BrushFaceReader::onBrushFace(Model::BrushFace* face, ParserStatus& /* status */) {
             m_brushFaces.push_back(face);

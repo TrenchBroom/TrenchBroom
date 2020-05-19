@@ -19,7 +19,7 @@
 
 #include "NodeSerializer.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/Group.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Layer.h"
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             void doVisit(Model::Layer* /* layer */) override   {}
             void doVisit(Model::Group* /* group */) override   {}
             void doVisit(Model::Entity* /* entity */) override {}
-            void doVisit(Model::Brush* brush) override   { m_serializer.brush(brush); }
+            void doVisit(Model::BrushNode* brush) override   { m_serializer.brush(brush); }
         };
 
         const std::string& NodeSerializer::IdManager::getId(const Model::Node* t) const {
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             endEntity(node);
         }
 
-        void NodeSerializer::entity(Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& parentAttributes, const std::vector<Model::Brush*>& entityBrushes) {
+        void NodeSerializer::entity(Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& parentAttributes, const std::vector<Model::BrushNode*>& entityBrushes) {
             beginEntity(node, attributes, parentAttributes);
             brushes(entityBrushes);
             endEntity(node);
@@ -140,23 +140,23 @@ namespace TrenchBroom {
             doEntityAttribute(attribute);
         }
 
-        void NodeSerializer::brushes(const std::vector<Model::Brush*>& brushes) {
+        void NodeSerializer::brushes(const std::vector<Model::BrushNode*>& brushes) {
             for (auto* brush : brushes) {
                 this->brush(brush);
             }
         }
 
-        void NodeSerializer::brush(Model::Brush* brush) {
+        void NodeSerializer::brush(Model::BrushNode* brush) {
             beginBrush(brush);
             brushFaces(brush->faces());
             endBrush(brush);
         }
 
-        void NodeSerializer::beginBrush(const Model::Brush* brush) {
+        void NodeSerializer::beginBrush(const Model::BrushNode* brush) {
             doBeginBrush(brush);
         }
 
-        void NodeSerializer::endBrush(Model::Brush* brush) {
+        void NodeSerializer::endBrush(Model::BrushNode* brush) {
             doEndBrush(brush);
             ++m_brushNo;
         }
@@ -189,7 +189,7 @@ namespace TrenchBroom {
             void doVisit(const Model::Layer* layer) override   { m_attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Layer, m_layerIds.getId(layer)));}
             void doVisit(const Model::Group* group) override   { m_attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Group, m_groupIds.getId(group))); }
             void doVisit(const Model::Entity* /* entity */) override {}
-            void doVisit(const Model::Brush* /* brush */) override   {}
+            void doVisit(const Model::BrushNode* /* brush */) override   {}
         };
 
         std::vector<Model::EntityAttribute> NodeSerializer::parentAttributes(const Model::Node* node) {

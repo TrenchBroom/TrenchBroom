@@ -20,7 +20,7 @@
 #include "MapReader.h"
 
 #include "IO/ParserStatus.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
@@ -224,7 +224,7 @@ namespace TrenchBroom {
 
         void MapReader::createBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             try {
-                Model::Brush* brush = m_factory->createBrush(m_worldBounds, m_faces);
+                Model::BrushNode* brush = m_factory->createBrush(m_worldBounds, m_faces);
                 setFilePosition(brush, startLine, lineCount);
                 setExtraAttributes(brush, extraAttributes);
 

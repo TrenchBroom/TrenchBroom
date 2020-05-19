@@ -21,8 +21,8 @@
 
 #include "Assets/Texture.h"
 #include "Ensure.h"
-#include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushNode.h"
 
 #include <vecmath/polygon.h>
 #include <vecmath/scalar.h>
@@ -115,7 +115,7 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        void assertTexture(const std::string& expected, const Brush* brush, const vm::vec3& faceNormal) {
+        void assertTexture(const std::string& expected, const BrushNode* brush, const vm::vec3& faceNormal) {
             assert(brush != nullptr);
             BrushFace* face = brush->findFace(faceNormal);
             assert(face != nullptr);
@@ -123,19 +123,19 @@ namespace TrenchBroom {
             ASSERT_EQ(expected, face->textureName());
         }
 
-        void assertTexture(const std::string& expected, const Brush* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3) {
+        void assertTexture(const std::string& expected, const BrushNode* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3) {
             return assertTexture(expected, brush, std::vector<vm::vec3d>({ v1, v2, v3 }));
         }
 
-        void assertTexture(const std::string& expected, const Brush* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3, const vm::vec3d& v4) {
+        void assertTexture(const std::string& expected, const BrushNode* brush, const vm::vec3d& v1, const vm::vec3d& v2, const vm::vec3d& v3, const vm::vec3d& v4) {
             return assertTexture(expected, brush, std::vector<vm::vec3d>({ v1, v2, v3, v4 }));
         }
 
-        void assertTexture(const std::string& expected, const Brush* brush, const std::vector<vm::vec3d>& vertices) {
+        void assertTexture(const std::string& expected, const BrushNode* brush, const std::vector<vm::vec3d>& vertices) {
             return assertTexture(expected, brush, vm::polygon3d(vertices));
         }
 
-        void assertTexture(const std::string& expected, const Brush* brush, const vm::polygon3d& vertices) {
+        void assertTexture(const std::string& expected, const BrushNode* brush, const vm::polygon3d& vertices) {
             assert(brush != nullptr);
             BrushFace* face = brush->findFace(vertices, 0.0001);
             assert(face != nullptr);

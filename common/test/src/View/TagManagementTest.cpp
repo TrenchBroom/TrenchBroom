@@ -27,7 +27,7 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Entity.h"
@@ -120,6 +120,7 @@ namespace TrenchBroom {
             CHECK(16u == document->smartTag("entity").type());
         }
     
+
         // https://github.com/kduske/TrenchBroom/issues/2905
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.duplicateTag") {
             game->setSmartTags({
@@ -130,8 +131,8 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchTextureNameTag") {
-            auto matchingBrush = std::unique_ptr<Model::Brush>(createBrush("some_texture"));
-            auto nonMatchingBrush = std::unique_ptr<Model::Brush>(createBrush("asdf"));
+            auto matchingBrush = std::unique_ptr<Model::BrushNode>(createBrush("some_texture"));
+            auto nonMatchingBrush = std::unique_ptr<Model::BrushNode>(createBrush("asdf"));
 
             const auto& tag = document->smartTag("texture");
             for (const auto* face : matchingBrush->faces()) {
@@ -169,8 +170,8 @@ namespace TrenchBroom {
             auto texture = std::make_unique<Assets::Texture>("texturename", 16, 16);
             texture->setSurfaceParms({"some_parm"});
 
-            auto matchingBrush = std::unique_ptr<Model::Brush>(createBrush("some_texture"));
-            auto nonMatchingBrush = std::unique_ptr<Model::Brush>(createBrush("asdf"));
+            auto matchingBrush = std::unique_ptr<Model::BrushNode>(createBrush("some_texture"));
+            auto nonMatchingBrush = std::unique_ptr<Model::BrushNode>(createBrush("asdf"));
 
             for (auto* face : matchingBrush->faces()) {
                 face->setTexture(texture.get());
@@ -196,8 +197,8 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchContentFlagsTag") {
-            auto matchingBrush = std::unique_ptr<Model::Brush>(createBrush("asdf"));
-            auto nonMatchingBrush = std::unique_ptr<Model::Brush>(createBrush("asdf"));
+            auto matchingBrush = std::unique_ptr<Model::BrushNode>(createBrush("asdf"));
+            auto nonMatchingBrush = std::unique_ptr<Model::BrushNode>(createBrush("asdf"));
 
             for (auto* face : matchingBrush->faces()) {
                 face->setSurfaceContents(1);
@@ -256,8 +257,8 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchSurfaceFlagsTag") {
-            auto matchingBrush = std::unique_ptr<Model::Brush>(createBrush("asdf"));
-            auto nonMatchingBrush = std::unique_ptr<Model::Brush>(createBrush("asdf"));
+            auto matchingBrush = std::unique_ptr<Model::BrushNode>(createBrush("asdf"));
+            auto nonMatchingBrush = std::unique_ptr<Model::BrushNode>(createBrush("asdf"));
 
             for (auto* face : matchingBrush->faces()) {
                 face->setSurfaceFlags(1);
@@ -479,7 +480,7 @@ namespace TrenchBroom {
             SECTION("No modification to brush") {
             }
             SECTION("Vertex manipulation") {
-                const auto verticesToMove = std::map<vm::vec3, std::vector<Model::Brush*>>{ { vm::vec3::fill(16.0), { brushWithTags } } };
+                const auto verticesToMove = std::map<vm::vec3, std::vector<Model::BrushNode*>>{ { vm::vec3::fill(16.0), { brushWithTags } } };
                 const auto result = document->moveVertices(verticesToMove, vm::vec3::fill(1.0));
                 REQUIRE(result.success);
                 REQUIRE(result.hasRemainingVertices);

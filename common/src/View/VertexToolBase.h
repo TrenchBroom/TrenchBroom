@@ -23,7 +23,7 @@
 #include "FloatType.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Game.h"
 #include "Model/Hit.h"
@@ -107,15 +107,15 @@ namespace TrenchBroom {
                 return kdl::mem_lock(m_document)->grid();
             }
 
-            const std::vector<Model::Brush*>& selectedBrushes() const {
+            const std::vector<Model::BrushNode*>& selectedBrushes() const {
                 auto document = kdl::mem_lock(m_document);
                 return document->selectedNodes().brushes();
             }
         public:
             template <typename M, typename I>
-            std::map<typename M::Handle, std::vector<Model::Brush*>> buildBrushMap(const M& manager, I cur, I end) const {
+            std::map<typename M::Handle, std::vector<Model::BrushNode*>> buildBrushMap(const M& manager, I cur, I end) const {
                 using H2 = typename M::Handle;
-                std::map<H2, std::vector<Model::Brush*>> result;
+                std::map<H2, std::vector<Model::BrushNode*>> result;
                 while (cur != end) {
                     const H2& handle = *cur++;
                     result[handle] = findIncidentBrushes(manager, handle);
@@ -125,16 +125,16 @@ namespace TrenchBroom {
 
             // FIXME: use vector_set
             template <typename M, typename H2>
-            std::vector<Model::Brush*> findIncidentBrushes(const M& manager, const H2& handle) const {
-                const std::vector<Model::Brush*>& brushes = selectedBrushes();
+            std::vector<Model::BrushNode*> findIncidentBrushes(const M& manager, const H2& handle) const {
+                const std::vector<Model::BrushNode*>& brushes = selectedBrushes();
                 return manager.findIncidentBrushes(handle, std::begin(brushes), std::end(brushes));
             }
 
             // FIXME: use vector_set
             template <typename M, typename I>
-            std::vector<Model::Brush*> findIncidentBrushes(const M& manager, I cur, I end) const {
-                const std::vector<Model::Brush*>& brushes = selectedBrushes();
-                kdl::vector_set<Model::Brush*> result;
+            std::vector<Model::BrushNode*> findIncidentBrushes(const M& manager, I cur, I end) const {
+                const std::vector<Model::BrushNode*>& brushes = selectedBrushes();
+                kdl::vector_set<Model::BrushNode*> result;
                 auto out = std::inserter(result, std::end(result));
 
                 while (cur != end) {
@@ -368,7 +368,7 @@ namespace TrenchBroom {
                 m_changeCount = 0;
                 bindObservers();
 
-                const std::vector<Model::Brush*>& brushes = selectedBrushes();
+                const std::vector<Model::BrushNode*>& brushes = selectedBrushes();
                 handleManager().clear();
                 handleManager().addHandles(std::begin(brushes), std::end(brushes));
 
@@ -521,7 +521,7 @@ namespace TrenchBroom {
                 void doVisit(Model::Layer*) override  {}
                 void doVisit(Model::Group*) override  {}
                 void doVisit(Model::Entity*) override {}
-                void doVisit(Model::Brush* brush) override   {
+                void doVisit(Model::BrushNode* brush) override   {
                     m_handles.addHandles(brush);
                 }
             };
@@ -538,7 +538,7 @@ namespace TrenchBroom {
                 void doVisit(Model::Layer*) override  {}
                 void doVisit(Model::Group*) override  {}
                 void doVisit(Model::Entity*) override {}
-                void doVisit(Model::Brush* brush) override   {
+                void doVisit(Model::BrushNode* brush) override   {
                     m_handles.removeHandles(brush);
                 }
             };

@@ -48,7 +48,7 @@ namespace TrenchBroom {
         public:
             static std::unique_ptr<MoveBrushVerticesCommand> move(const VertexToBrushesMap& vertices, const vm::vec3& delta);
 
-            MoveBrushVerticesCommand(const std::vector<Model::Brush*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta);
+            MoveBrushVerticesCommand(const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta);
         private:
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;
