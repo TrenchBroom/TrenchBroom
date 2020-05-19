@@ -43,7 +43,6 @@ namespace TrenchBroom {
                 m_p(p) {}
 
                 bool operator()(const Model::BrushNode* brush, const BrushFace* face) const { return !m_p(brush, face);  }
-                bool operator()(Model::BrushNode* brush, BrushFace* face) const       { return !m_p(brush, face);  }
             };
 
             template <typename P1, typename P2>
@@ -57,7 +56,6 @@ namespace TrenchBroom {
                 m_p2(p2) {}
 
                 bool operator()(const Model::BrushNode* brush, const BrushFace* face) const { return m_p1(brush, face) && m_p2(brush, face);  }
-                bool operator()(Model::BrushNode* brush, BrushFace* face) const       { return m_p1(brush, face) && m_p2(brush, face);  }
             };
 
             template <typename P1, typename P2>
@@ -71,7 +69,6 @@ namespace TrenchBroom {
                 m_p2(p2) {}
 
                 bool operator()(const Model::BrushNode* brush, const BrushFace* face) const { return m_p1(brush, face) || m_p2(brush, face);  }
-                bool operator()(Model::BrushNode* brush, BrushFace* face) const       { return m_p1(brush, face) || m_p2(brush, face);  }
             };
         }
     }
