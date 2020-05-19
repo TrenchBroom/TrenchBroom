@@ -19,7 +19,7 @@
 
 #include "Object.h"
 
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -30,11 +30,11 @@ namespace TrenchBroom {
             return doGetContainer();
         }
 
-        Layer* Object::layer() const {
+        LayerNode* Object::layer() const {
             return doGetLayer();
         }
 
-        Group* Object::group() const {
+        GroupNode* Object::group() const {
             return doGetGroup();
         }
 

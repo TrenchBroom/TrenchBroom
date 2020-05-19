@@ -41,7 +41,7 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class BrushFace;
+        class BrushFaceHandle;
         class Node;
     }
 
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             void nodesWereAdded(const std::vector<Model::Node*>& nodes);
             void nodesWereRemoved(const std::vector<Model::Node*>& nodes);
             void nodesDidChange(const std::vector<Model::Node*>& nodes);
-            void brushFacesDidChange(const std::vector<Model::BrushFace*>& faces);
+            void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
             void textureCollectionsDidChange();
             void currentTextureNameDidChange(const std::string& textureName);
             void preferenceDidChange(const IO::Path& path);

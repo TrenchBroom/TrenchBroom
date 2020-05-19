@@ -27,7 +27,7 @@
 #include "Model/AttributableNode.h"
 #include "Model/AttributableNodeIndex.h"
 #include "Model/EntityAttributes.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/QtUtils.h"
@@ -317,14 +317,15 @@ namespace TrenchBroom {
 
                 qDebug() << "EntityAttributeModel::setRows: one row changed: " << mapStringToUnicode(document->encoding(), oldDeletion.name()) << " -> " << mapStringToUnicode(document->encoding(), newAddition.name());
 
-                const size_t oldIndex = kdl::vec_index_of(m_rows, oldDeletion);
-                m_rows.at(oldIndex) = newAddition;
+                const auto oldIndex = kdl::vec_index_of(m_rows, oldDeletion);
+                ensure(oldIndex, "deleted row must be found");
+
+                m_rows.at(*oldIndex) = newAddition;
 
                 // Notify Qt
-                const QModelIndex topLeft = index(static_cast<int>(oldIndex), 0);
-                const QModelIndex bottomRight = index(static_cast<int>(oldIndex), 1);
+                const QModelIndex topLeft = index(static_cast<int>(*oldIndex), 0);
+                const QModelIndex bottomRight = index(static_cast<int>(*oldIndex), 1);
                 emit dataChanged(topLeft, bottomRight);
-
                 return;
             }
 
@@ -349,11 +350,11 @@ namespace TrenchBroom {
                 qDebug() << "EntityAttributeModel::setRows: deleting " << oldMinusNew.size() << " rows";
 
                 for (const AttributeRow& row : oldMinusNew) {
-                    const int index = static_cast<int>(kdl::vec_index_of(m_rows, row));
-                    assert(index < static_cast<int>(m_rows.size()));
+                    const auto index = kdl::vec_index_of(m_rows, row);
+                    assert(index);
 
-                    beginRemoveRows(QModelIndex(), index, index);
-                    m_rows.erase(std::next(m_rows.begin(), index));
+                    beginRemoveRows(QModelIndex(), static_cast<int>(*index), static_cast<int>(*index));
+                    m_rows.erase(std::next(m_rows.begin(), static_cast<int>(*index)));
                     endRemoveRows();
                 }
                 return;

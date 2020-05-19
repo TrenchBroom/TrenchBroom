@@ -23,7 +23,7 @@
 #include "Ensure.h"
 #include "FloatType.h"
 #include "Preferences.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/HitQuery.h"
@@ -43,7 +43,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::HitType::Type ShearObjectsTool::ShearToolSideHit = Model::HitType::freeType();
+        const Model::HitType::Type ShearObjectsTool::ShearToolSideHitType = Model::HitType::freeType();
 
         ShearObjectsTool::ShearObjectsTool(std::weak_ptr<MapDocument> document) :
         Tool(false),
@@ -67,7 +67,7 @@ namespace TrenchBroom {
                 // The hit point is the closest point on the pick ray to one of the edges of the face.
                 // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
                 assert(result.pickedSideNormal != vm::vec3::zero());
-                pickResult.addHit(Model::Hit(ShearToolSideHit, result.distAlongRay, vm::point_at_distance(pickRay, result.distAlongRay), BBoxSide{result.pickedSideNormal}));
+                pickResult.addHit(Model::Hit(ShearToolSideHitType, result.distAlongRay, vm::point_at_distance(pickRay, result.distAlongRay), BBoxSide{result.pickedSideNormal}));
             }
         }
 
@@ -109,7 +109,7 @@ namespace TrenchBroom {
 
                 const auto dist = vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly));
                 if (!vm::is_nan(dist)) {
-                    localPickResult.addHit(Model::Hit(ShearToolSideHit, dist, vm::point_at_distance(pickRay, dist), side));
+                    localPickResult.addHit(Model::Hit(ShearToolSideHitType, dist, vm::point_at_distance(pickRay, dist), side));
                 }
             }
 
@@ -135,7 +135,7 @@ namespace TrenchBroom {
         }
 
         vm::polygon3f ShearObjectsTool::dragPolygon() const {
-            if (m_dragStartHit.type() == ShearToolSideHit) {
+            if (m_dragStartHit.type() == ShearToolSideHitType) {
                 const auto side = m_dragStartHit.target<BBoxSide>();
                 return vm::polygon3f(polygonForBBoxSide(bounds(), side));
             }
@@ -154,7 +154,7 @@ namespace TrenchBroom {
 
         void ShearObjectsTool::startShearWithHit(const Model::Hit& hit) {
             ensure(hit.isMatch(), "must start with matching hit");
-            ensure(hit.type() == ShearToolSideHit, "wrong hit type");
+            ensure(hit.type() == ShearToolSideHitType, "wrong hit type");
             ensure(!m_resizing, "must not be resizing already");
 
             m_bboxAtDragStart = bounds();
@@ -210,7 +210,7 @@ namespace TrenchBroom {
             }
 
             // happens if you cmd+drag on an edge or corner
-            if (m_dragStartHit.type() != ShearToolSideHit) {
+            if (m_dragStartHit.type() != ShearToolSideHitType) {
                 return vm::mat4x4::identity();
             }
 
@@ -220,7 +220,7 @@ namespace TrenchBroom {
 
         vm::polygon3f ShearObjectsTool::shearHandle() const {
             // happens if you cmd+drag on an edge or corner
-            if (m_dragStartHit.type() != ShearToolSideHit) {
+            if (m_dragStartHit.type() != ShearToolSideHitType) {
                 return vm::polygon3f();
             }
 
@@ -233,10 +233,10 @@ namespace TrenchBroom {
         }
 
         void ShearObjectsTool::updatePickedSide(const Model::PickResult &pickResult) {
-            const Model::Hit& hit = pickResult.query().type(ShearToolSideHit).occluded().first();
+            const Model::Hit& hit = pickResult.query().type(ShearToolSideHitType).occluded().first();
 
             // extract the highlighted handle from the hit here, and only refresh views if it changed
-            if (hit.type() == ShearToolSideHit && m_dragStartHit.type() == ShearToolSideHit) {
+            if (hit.type() == ShearToolSideHitType && m_dragStartHit.type() == ShearToolSideHitType) {
                 if (hit.target<BBoxSide>() == m_dragStartHit.target<BBoxSide>()) {
                     return;
                 }

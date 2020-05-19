@@ -22,7 +22,7 @@
 #include "Model/FindLayerVisitor.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <kdl/map_utils.h>
@@ -54,7 +54,7 @@ namespace TrenchBroom {
                 m_previouslySelectedNodes = document->selectedNodes().nodes();
 
                 for (Model::Node* original : m_previouslySelectedNodes) {
-                    Model::Layer* originalLayer = Model::findLayer(original);
+                    Model::LayerNode* originalLayer = Model::findLayer(original);
                     Model::Node* clone = original->cloneRecursively(worldBounds);
 
                     Model::Node* parent = original->parent();
@@ -98,11 +98,11 @@ namespace TrenchBroom {
 
         class DuplicateNodesCommand::CloneParentQuery : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
         private:
-            void doVisit(const Model::World*) override  { setResult(false); }
-            void doVisit(const Model::Layer*) override  { setResult(false); }
-            void doVisit(const Model::Group*) override  { setResult(false);  }
-            void doVisit(const Model::Entity*) override { setResult(true);  }
-            void doVisit(const Model::Brush*) override  { setResult(false); }
+            void doVisit(const Model::WorldNode*) override  { setResult(false); }
+            void doVisit(const Model::LayerNode*) override  { setResult(false); }
+            void doVisit(const Model::GroupNode*) override  { setResult(false);  }
+            void doVisit(const Model::EntityNode*) override { setResult(true);  }
+            void doVisit(const Model::BrushNode*) override  { setResult(false); }
         };
 
         bool DuplicateNodesCommand::cloneParent(const Model::Node* node) const {

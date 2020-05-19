@@ -19,7 +19,7 @@
 
 #include "LinkTargetIssueGenerator.h"
 
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"

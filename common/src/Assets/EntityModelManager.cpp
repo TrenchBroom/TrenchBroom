@@ -25,7 +25,7 @@
 #include "Assets/EntityModel.h"
 #include "Assets/ModelDefinition.h"
 #include "IO/EntityModelLoader.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"
 
 namespace TrenchBroom {

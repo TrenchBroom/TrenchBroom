@@ -156,7 +156,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
 
             const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().type(ShearObjectsTool::ShearToolSideHit).occluded().first();
+            const Model::Hit& hit = pickResult.query().type(ShearObjectsTool::ShearToolSideHitType).occluded().first();
             if (!hit.isMatch()) {
                 return DragInfo();
             }

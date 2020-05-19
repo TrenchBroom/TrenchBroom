@@ -180,11 +180,10 @@ namespace TrenchBroom {
 
             const Assets::EntityDefinitionFileSpec spec = document->entityDefinitionFile();
             if (spec.builtin()) {
-                const auto index = kdl::vec_index_of(specs, spec);
-                if (index < specs.size()) {
+                if (const auto index = kdl::vec_index_of(specs, spec)) {
                     // the chosen builtin entity definition file might not be in the game config anymore if the config
                     // has changed after the definition file was chosen
-                    m_builtin->setCurrentRow(static_cast<int>(index));
+                    m_builtin->setCurrentRow(static_cast<int>(*index));
                 }
                 m_external->setText(tr("use builtin"));
 

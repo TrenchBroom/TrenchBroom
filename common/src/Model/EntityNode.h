@@ -17,51 +17,71 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Group
-#define TrenchBroom_Group
+#ifndef TrenchBroom_EntityNode
+#define TrenchBroom_EntityNode
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Model/Node.h"
+#include "Model/AttributableNode.h"
+#include "Model/HitType.h"
 #include "Model/Object.h"
 
+#include <vecmath/forward.h>
 #include <vecmath/bbox.h>
+#include <vecmath/util.h>
 
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Group : public Node, public Object {
-        private:
-            typedef enum {
-                Edit_Open,
-                Edit_Closed,
-                Edit_DescendantOpen
-            } EditState;
+    namespace Assets {
+        enum class PitchType;
+        class EntityModelFrame;
+        struct ModelSpecification;
+    }
 
-            std::string m_name;
-            EditState m_editState;
+    namespace Model {
+        class EntityNode : public AttributableNode, public Object {
+        public:
+            static const HitType::Type EntityHitType;
+            static const vm::bbox3 DefaultBounds;
+        private:
+            mutable vm::bbox3 m_definitionBounds;
+            mutable vm::bbox3 m_modelBounds;
             mutable vm::bbox3 m_logicalBounds;
             mutable vm::bbox3 m_physicalBounds;
             mutable bool m_boundsValid;
+            mutable vm::vec3 m_cachedOrigin;
+            mutable vm::mat4x4 m_cachedRotation;
+
+            const Assets::EntityModelFrame* m_modelFrame;
         public:
-            Group(const std::string& name);
+            EntityNode();
 
-            void setName(const std::string& name);
+            bool brushEntity() const;
+            bool pointEntity() const;
+            bool hasEntityDefinition() const;
+            bool hasBrushEntityDefinition() const;
+            bool hasPointEntityDefinition() const;
+            bool hasPointEntityModel() const;
 
-            bool opened() const;
-            bool hasOpenedDescendant() const;
-            void open();
-            void close();
+            const vm::bbox3& definitionBounds() const;
+
+            const vm::vec3& origin() const;
+            const vm::mat4x4& rotation() const;
+            const vm::mat4x4 modelTransformation() const;
+            Assets::PitchType pitchType() const;
+            FloatType area(vm::axis::type axis) const;
         private:
-            void setEditState(EditState editState);
-
-            class SetEditStateVisitor;
-            void openAncestors();
-            void closeAncestors();
-        private: // implement methods inherited from Node
-            const std::string& doGetName() const override;
+            void cacheAttributes();
+            void setOrigin(const vm::vec3& origin);
+            void applyRotation(const vm::mat4x4& transformation);
+        public: // entity model
+            Assets::ModelSpecification modelSpecification() const;
+            const vm::bbox3& modelBounds() const;
+            const Assets::EntityModelFrame* modelFrame() const;
+            void setModelFrame(const Assets::EntityModelFrame* modelFrame);
+        private: // implement Node interface
             const vm::bbox3& doGetLogicalBounds() const override;
             const vm::bbox3& doGetPhysicalBounds() const override;
 
@@ -88,10 +108,18 @@ namespace TrenchBroom {
             void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
-        private: // implement methods inherited from Object
+
+            std::vector<Node*> nodesRequiredForViewSelection() override;
+        private: // implement AttributableNode interface
+            void doAttributesDidChange(const vm::bbox3& oldBounds) override;
+            bool doIsAttributeNameMutable(const std::string& name) const override;
+            bool doIsAttributeValueMutable(const std::string& name) const override;
+            vm::vec3 doGetLinkSourceAnchor() const override;
+            vm::vec3 doGetLinkTargetAnchor() const override;
+        private: // implement Object interface
             Node* doGetContainer() const override;
-            Layer* doGetLayer() const override;
-            Group* doGetGroup() const override;
+            LayerNode* doGetLayer() const override;
+            GroupNode* doGetGroup() const override;
 
             void doTransform(const vm::mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds) override;
             bool doContains(const Node* node) const override;
@@ -103,9 +131,9 @@ namespace TrenchBroom {
             void doAcceptTagVisitor(TagVisitor& visitor) override;
             void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
         private:
-            deleteCopyAndMove(Group)
+            deleteCopyAndMove(EntityNode)
         };
     }
 }
 
-#endif /* defined(TrenchBroom_Group) */
+#endif /* defined(TrenchBroom_EntityNode) */

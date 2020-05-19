@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Layer
-#define TrenchBroom_Layer
+#ifndef TrenchBroom_LayerNode
+#define TrenchBroom_LayerNode
 
 #include "Color.h"
 #include "FloatType.h"
@@ -37,13 +37,13 @@ namespace TrenchBroom {
          * Sort indices: the default layer doesn't have a sort index, because it's pinned at the top of the layer
          * list. Custom layers have sort indices, if there are N custom layers they will use the sort indices 0, 1, ..., N - 1.
          */
-        class Layer : public AttributableNode {
+        class LayerNode : public AttributableNode {
         private:
             mutable vm::bbox3 m_logicalBounds;
             mutable vm::bbox3 m_physicalBounds;
             mutable bool m_boundsValid;
         public:
-            Layer(const std::string& name);
+            LayerNode(const std::string& name);
 
             void setName(const std::string& name);
 
@@ -53,7 +53,7 @@ namespace TrenchBroom {
             int sortIndex() const;
             void setSortIndex(int index);
 
-            static void sortLayers(std::vector<Layer*>& layers);
+            static void sortLayers(std::vector<LayerNode*>& layers);
 
             std::optional<Color> groupColor() const;
             void setGroupColor(const Color& color);
@@ -89,9 +89,9 @@ namespace TrenchBroom {
             void doAcceptTagVisitor(TagVisitor& visitor) override;
             void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
         private:
-            deleteCopyAndMove(Layer)
+            deleteCopyAndMove(LayerNode)
         };
     }
 }
 
-#endif /* defined(TrenchBroom_Layer) */
+#endif /* defined(TrenchBroom_LayerNode) */

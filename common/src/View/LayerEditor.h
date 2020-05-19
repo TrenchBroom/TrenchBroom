@@ -29,7 +29,7 @@ class QAbstractButton;
 
 namespace TrenchBroom {
     namespace Model {
-        class Layer;
+        class LayerNode;
     }
 
     namespace View {
@@ -53,21 +53,21 @@ namespace TrenchBroom {
         public:
             explicit LayerEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:            
-            void onSetCurrentLayer(Model::Layer* layer);
-            bool canSetCurrentLayer(Model::Layer* layer) const;
+            void onSetCurrentLayer(Model::LayerNode* layer);
+            bool canSetCurrentLayer(Model::LayerNode* layer) const;
 
-            void onLayerRightClick(Model::Layer* layer);
+            void onLayerRightClick(Model::LayerNode* layer);
 
             void onMoveSelectionToLayer();
             bool canMoveSelectionToLayer() const;
 
             bool canToggleLayerVisible() const;
-            void toggleLayerVisible(Model::Layer* layer);
+            void toggleLayerVisible(Model::LayerNode* layer);
 
             bool canToggleLayerLocked() const;
-            void toggleLayerLocked(Model::Layer* layer);
+            void toggleLayerLocked(Model::LayerNode* layer);
 
-            void isolateLayer(Model::Layer* layer);
+            void isolateLayer(Model::LayerNode* layer);
 
             void onSelectAllInLayer();
 
@@ -84,9 +84,9 @@ namespace TrenchBroom {
             void onHideAllLayers();
 
             bool canMoveLayer(int direction) const;
-            void moveLayer(Model::Layer* layer, int direction);
+            void moveLayer(Model::LayerNode* layer, int direction);
         private:
-            Model::Layer* findVisibleAndUnlockedLayer(const Model::Layer* except) const;
+            Model::LayerNode* findVisibleAndUnlockedLayer(const Model::LayerNode* except) const;
             void createGui();
         private slots:
             void updateButtons();

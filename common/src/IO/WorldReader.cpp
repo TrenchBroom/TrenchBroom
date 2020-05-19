@@ -20,10 +20,10 @@
 #include "WorldReader.h"
 
 #include "IO/ParserStatus.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/EntityAttributes.h"
-#include "Model/Layer.h"
-#include "Model/World.h"
+#include "Model/LayerNode.h"
+#include "Model/WorldNode.h"
 
 #include <kdl/string_utils.h>
 
@@ -40,7 +40,7 @@ namespace TrenchBroom {
         WorldReader::WorldReader(const std::string& str) :
         MapReader(str) {}
 
-        std::unique_ptr<Model::World> WorldReader::read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
+        std::unique_ptr<Model::WorldNode> WorldReader::read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             readEntities(format, worldBounds, status);
             sanitizeLayerIndicies(status);
             m_world->rebuildNodeTree();
@@ -54,20 +54,20 @@ namespace TrenchBroom {
                 return;
             }
 
-            std::vector<Model::Layer*> customLayers;
+            std::vector<Model::LayerNode*> customLayers;
             customLayers.reserve(m_layerList.size());
-            for (Model::Layer* layer : m_layerList) {
+            for (Model::LayerNode* layer : m_layerList) {
                 if (layer != m_world->defaultLayer()) {
                     customLayers.push_back(layer);
                 }
             }
 
-            std::stable_sort(customLayers.begin(), customLayers.end(), [](Model::Layer* a, Model::Layer* b) {
+            std::stable_sort(customLayers.begin(), customLayers.end(), [](Model::LayerNode* a, Model::LayerNode* b) {
                 return a->sortIndex() < b->sortIndex();
             });
 
             int i = 0;
-            for (Model::Layer* layer : customLayers) {
+            for (Model::LayerNode* layer : customLayers) {
                 if (layer->sortIndex() != i) {
                     qDebug() << "sanitizing " << layer->sortIndex() << " to " << i << " for " << QString::fromStdString(layer->name());
                     layer->setSortIndex(i);
@@ -77,7 +77,7 @@ namespace TrenchBroom {
         }
 
         Model::ModelFactory& WorldReader::initialize(const Model::MapFormat format) {
-            m_world = std::make_unique<Model::World>(format);
+            m_world = std::make_unique<Model::WorldNode>(format);
             m_world->disableNodeTreeUpdates();
             return *m_world;
         }
@@ -100,7 +100,7 @@ namespace TrenchBroom {
             m_world->setFilePosition(lineNumber, lineCount);
         }
 
-        void WorldReader::onLayer(Model::Layer* layer, ParserStatus& /* status */) {
+        void WorldReader::onLayer(Model::LayerNode* layer, ParserStatus& /* status */) {
             m_world->addChild(layer);
             m_layerList.push_back(layer); // record for sanitizeLayerIndicies()
         }
@@ -122,7 +122,7 @@ namespace TrenchBroom {
             m_world->defaultLayer()->addChild(node);
         }
 
-        void WorldReader::onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& /* status */) {
+        void WorldReader::onBrush(Model::Node* parent, Model::BrushNode* brush, ParserStatus& /* status */) {
             if (parent != nullptr) {
                 parent->addChild(brush);
             } else {

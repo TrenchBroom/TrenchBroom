@@ -24,6 +24,7 @@
 #include "FloatType.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/Polyhedron.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
@@ -54,7 +55,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::HitType::Type UVView::FaceHit = Model::HitType::freeType();
+        const Model::HitType::Type UVView::FaceHitType = Model::HitType::freeType();
 
         UVView::UVView(std::weak_ptr<MapDocument> document, GLContextManager& contextManager) :
         RenderView(contextManager),
@@ -116,11 +117,11 @@ namespace TrenchBroom {
 
         void UVView::selectionDidChange(const Selection&) {
             auto document = kdl::mem_lock(m_document);
-            const std::vector<Model::BrushFace*>& faces = document->selectedBrushFaces();
+            const auto faces = document->selectedBrushFaces();
             if (faces.size() != 1) {
                 m_helper.setFace(nullptr);
             } else {
-                m_helper.setFace(faces.back());
+                m_helper.setFace(&faces.back().face());
             }
 
             if (m_helper.valid()) {
@@ -142,7 +143,7 @@ namespace TrenchBroom {
             update();
         }
 
-        void UVView::brushFacesDidChange(const std::vector<Model::BrushFace*>&) {
+        void UVView::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&) {
             update();
         }
 
@@ -246,8 +247,8 @@ namespace TrenchBroom {
 
             void doRender(Renderer::RenderContext& renderContext) override {
                 const auto* face = m_helper.face();
-                const auto& offset = face->offset();
-                const auto& scale = face->scale();
+                const auto& offset = face->attributes().offset();
+                const auto& scale = face->attributes().scale();
                 const auto toTex = face->toTexCoordSystemMatrix(offset, scale, true);
 
                 const auto* texture = face->texture();
@@ -350,11 +351,11 @@ namespace TrenchBroom {
             if (!m_helper.valid())
                 return pickResult;
 
-            Model::BrushFace* face = m_helper.face();
+            const Model::BrushFace* face = m_helper.face();
             const FloatType distance = face->intersectWithRay(pickRay);
             if (!vm::is_nan(distance)) {
                 const vm::vec3 hitPoint = vm::point_at_distance(pickRay, distance);
-                pickResult.addHit(Model::Hit(UVView::FaceHit, distance, hitPoint, face));
+                pickResult.addHit(Model::Hit(UVView::FaceHitType, distance, hitPoint, face));
             }
             return pickResult;
         }

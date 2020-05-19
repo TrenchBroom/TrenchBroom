@@ -22,7 +22,7 @@
 #include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Renderer/RenderBatch.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
@@ -46,15 +46,15 @@ namespace TrenchBroom {
         m_faceHandles(std::make_unique<FaceHandleManager>()),
         m_guideRenderer(document) {}
 
-        std::vector<Model::Brush*> VertexTool::findIncidentBrushes(const vm::vec3& handle) const {
+        std::vector<Model::BrushNode*> VertexTool::findIncidentBrushes(const vm::vec3& handle) const {
             return findIncidentBrushes(*m_vertexHandles, handle);
         }
 
-        std::vector<Model::Brush*> VertexTool::findIncidentBrushes(const vm::segment3& handle) const {
+        std::vector<Model::BrushNode*> VertexTool::findIncidentBrushes(const vm::segment3& handle) const {
             return findIncidentBrushes(*m_edgeHandles, handle);
         }
 
-        std::vector<Model::Brush*> VertexTool::findIncidentBrushes(const vm::polygon3& handle) const {
+        std::vector<Model::BrushNode*> VertexTool::findIncidentBrushes(const vm::polygon3& handle) const {
             return findIncidentBrushes(*m_faceHandles, handle);
         }
 
@@ -85,9 +85,9 @@ namespace TrenchBroom {
 
         bool VertexTool::startMove(const std::vector<Model::Hit>& hits) {
             const auto& hit = hits.front();
-            if (hit.hasType(EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit)) {
+            if (hit.hasType(EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType)) {
                 m_vertexHandles->deselectAll();
-                if (hit.hasType(EdgeHandleManager::HandleHit)) {
+                if (hit.hasType(EdgeHandleManager::HandleHitType)) {
                     const vm::segment3& handle = std::get<0>(hit.target<const EdgeHandleManager::HitType&>());
                     m_edgeHandles->select(handle);
                     m_mode = Mode_Split_Edge;
@@ -128,7 +128,7 @@ namespace TrenchBroom {
                     return MR_Deny;
                 }
             } else {
-                std::vector<Model::Brush*> brushes;
+                std::vector<Model::BrushNode*> brushes;
                 if (m_mode == Mode_Split_Edge) {
                     if (m_edgeHandles->selectedHandleCount() == 1) {
                         const vm::segment3 handle = m_edgeHandles->selectedHandles().front();
@@ -143,7 +143,7 @@ namespace TrenchBroom {
                 }
 
                 if (!brushes.empty()) {
-                    const std::map<vm::vec3, std::vector<Model::Brush*>> vertices { std::make_pair(m_dragHandlePosition + delta, brushes) };
+                    const std::map<vm::vec3, std::vector<Model::BrushNode*>> vertices { std::make_pair(m_dragHandlePosition + delta, brushes) };
                     if (document->addVertices(vertices)) {
                         m_mode = Mode_Move;
                         m_edgeHandles->deselectAll();
@@ -174,11 +174,11 @@ namespace TrenchBroom {
 
         vm::vec3 VertexTool::getHandlePosition(const Model::Hit& hit) const {
             assert(hit.isMatch());
-            assert(hit.hasType(VertexHandleManager::HandleHit | EdgeHandleManager::HandleHit | FaceHandleManager::HandleHit));
+            assert(hit.hasType(VertexHandleManager::HandleHitType | EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType));
 
-            if (hit.hasType(VertexHandleManager::HandleHit)) {
+            if (hit.hasType(VertexHandleManager::HandleHitType)) {
                 return hit.target<vm::vec3>();
-            } else if (hit.hasType(EdgeHandleManager::HandleHit)) {
+            } else if (hit.hasType(EdgeHandleManager::HandleHitType)) {
                 return std::get<1>(hit.target<EdgeHandleManager::HitType>());
             } else {
                 return std::get<1>(hit.target<FaceHandleManager::HitType>());
@@ -219,7 +219,7 @@ namespace TrenchBroom {
             m_edgeHandles->clear();
             m_faceHandles->clear();
 
-            const std::vector<Model::Brush*>& brushes = selectedBrushes();
+            const std::vector<Model::BrushNode*>& brushes = selectedBrushes();
             m_edgeHandles->addHandles(std::begin(brushes), std::end(brushes));
             m_faceHandles->addHandles(std::begin(brushes), std::end(brushes));
 

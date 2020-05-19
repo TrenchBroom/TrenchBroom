@@ -100,7 +100,7 @@ namespace kdl {
     class intrusive_circular_list {
         static_assert(!std::is_pointer<T>::value, "intrusive lists do not accept pointer arguments");
     public:
-        using item = T;
+        using value_type = T;
         using get_link_info = GetLink;
         using link_info = intrusive_circular_link<T>;
     public: // iterators

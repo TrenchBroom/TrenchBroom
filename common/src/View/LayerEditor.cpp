@@ -19,14 +19,14 @@
 
 #include "LayerEditor.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/CollectSelectableNodesVisitor.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
-#include "Model/Group.h"
-#include "Model/Layer.h"
-#include "Model/World.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
+#include "Model/WorldNode.h"
 #include "View/BorderLine.h"
 #include "View/LayerListBox.h"
 #include "View/MapDocument.h"
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             updateButtons();
         }
 
-        void LayerEditor::onSetCurrentLayer(Model::Layer* layer) {
+        void LayerEditor::onSetCurrentLayer(Model::LayerNode* layer) {
             auto document = kdl::mem_lock(m_document);
             if (layer->locked()) {
                 document->resetLock(std::vector<Model::Node*>(1, layer));
@@ -81,12 +81,12 @@ namespace TrenchBroom {
             updateButtons();
         }
 
-        bool LayerEditor::canSetCurrentLayer(Model::Layer* layer) const {
+        bool LayerEditor::canSetCurrentLayer(Model::LayerNode* layer) const {
             auto document = kdl::mem_lock(m_document);
             return document->currentLayer() != layer;
         }
 
-        void LayerEditor::onLayerRightClick(Model::Layer* layer) {
+        void LayerEditor::onLayerRightClick(Model::LayerNode* layer) {
             auto document = kdl::mem_lock(m_document);
 
             QMenu popupMenu;
@@ -134,7 +134,7 @@ namespace TrenchBroom {
             return layer != nullptr;
         }
 
-        void LayerEditor::toggleLayerVisible(Model::Layer* layer) {
+        void LayerEditor::toggleLayerVisible(Model::LayerNode* layer) {
             ensure(layer != nullptr, "layer is null");
             auto document = kdl::mem_lock(m_document);
             if (!layer->hidden()) {
@@ -158,7 +158,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void LayerEditor::toggleLayerLocked(Model::Layer* layer) {
+        void LayerEditor::toggleLayerLocked(Model::LayerNode* layer) {
             ensure(layer != nullptr, "layer is null");
             auto document = kdl::mem_lock(m_document);
             if (!layer->locked()) {
@@ -168,9 +168,9 @@ namespace TrenchBroom {
             }
         }
 
-        void LayerEditor::isolateLayer(Model::Layer* layer) {
+        void LayerEditor::isolateLayer(Model::LayerNode* layer) {
             auto document = kdl::mem_lock(m_document);
-            document->isolateLayers(std::vector<Model::Layer*>{layer});
+            document->isolateLayers(std::vector<Model::LayerNode*>{layer});
         }
 
         void LayerEditor::onMoveSelectionToLayer() {
@@ -213,7 +213,7 @@ namespace TrenchBroom {
                 auto* layer = world->createLayer(name);
 
                 // Sort it at the bottom of the list
-                const std::vector<Model::Layer*> customLayers = world->customLayersUserSorted();
+                const std::vector<Model::LayerNode*> customLayers = world->customLayersUserSorted();
                 if (customLayers.empty()) {
                     layer->setSortIndex(0);
                 } else {
@@ -285,7 +285,7 @@ namespace TrenchBroom {
         void LayerEditor::onRenameLayer() {
             if (canRenameLayer()) {
                 auto document = kdl::mem_lock(m_document);
-                Model::Layer* layer = m_layerList->selectedLayer();
+                Model::LayerNode* layer = m_layerList->selectedLayer();
 
                 const std::string name = queryLayerName(layer->name());
                 if (!name.empty()) {                    
@@ -318,7 +318,7 @@ namespace TrenchBroom {
             return document->canMoveLayer(layer, direction);
         }
 
-        void LayerEditor::moveLayer(Model::Layer* layer, int direction) {
+        void LayerEditor::moveLayer(Model::LayerNode* layer, int direction) {
             if (direction == 0) {
                 return;
             }
@@ -340,7 +340,7 @@ namespace TrenchBroom {
             document->hide(std::vector<Model::Node*>(std::begin(layers), std::end(layers)));
         }
 
-        Model::Layer* LayerEditor::findVisibleAndUnlockedLayer(const Model::Layer* except) const {
+        Model::LayerNode* LayerEditor::findVisibleAndUnlockedLayer(const Model::LayerNode* except) const {
             auto document = kdl::mem_lock(m_document);
             if (!document->world()->defaultLayer()->locked() && !document->world()->defaultLayer()->hidden()) {
                 return document->world()->defaultLayer();
@@ -360,16 +360,16 @@ namespace TrenchBroom {
             m_layerList = new LayerListBox(m_document, this);
             connect(m_layerList, &LayerListBox::layerSetCurrent, this, &LayerEditor::onSetCurrentLayer);
             connect(m_layerList, &LayerListBox::layerRightClicked, this, &LayerEditor::onLayerRightClick);
-            connect(m_layerList, &LayerListBox::layerVisibilityToggled, this, [this](Model::Layer* layer){
+            connect(m_layerList, &LayerListBox::layerVisibilityToggled, this, [this](Model::LayerNode* layer){
                 toggleLayerVisible(layer);
             });
-            connect(m_layerList, &LayerListBox::layerLockToggled, this, [this](Model::Layer* layer){
+            connect(m_layerList, &LayerListBox::layerLockToggled, this, [this](Model::LayerNode* layer){
                 toggleLayerLocked(layer);
             });
-            connect(m_layerList, &LayerListBox::layerMovedUp, this, [this](Model::Layer* layer){
+            connect(m_layerList, &LayerListBox::layerMovedUp, this, [this](Model::LayerNode* layer){
                 moveLayer(layer, -1);
             });
-            connect(m_layerList, &LayerListBox::layerMovedDown, this, [this](Model::Layer* layer){
+            connect(m_layerList, &LayerListBox::layerMovedDown, this, [this](Model::LayerNode* layer){
                 moveLayer(layer, 1);
             });
             connect(m_layerList, &LayerListBox::itemSelectionChanged, this, &LayerEditor::updateButtons);
@@ -398,11 +398,11 @@ namespace TrenchBroom {
             connect(m_showAllLayersButton, &QAbstractButton::pressed, this, &LayerEditor::onShowAllLayers);
             connect(m_hideAllLayersButton, &QAbstractButton::pressed, this, &LayerEditor::onHideAllLayers);
             connect(m_moveLayerUpButton, &QAbstractButton::pressed, this, [=](){
-                Model::Layer* layer = m_layerList->selectedLayer();
+                Model::LayerNode* layer = m_layerList->selectedLayer();
                 moveLayer(layer, -1);
             });
             connect(m_moveLayerDownButton, &QAbstractButton::pressed, this, [=](){
-                Model::Layer* layer = m_layerList->selectedLayer();
+                Model::LayerNode* layer = m_layerList->selectedLayer();
                 moveLayer(layer, 1);
             });
 

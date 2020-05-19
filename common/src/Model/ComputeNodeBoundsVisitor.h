@@ -51,11 +51,11 @@ namespace TrenchBroom {
             explicit ComputeNodeBoundsVisitor(BoundsType type, const vm::bbox3& defaultBounds = vm::bbox3());
             const vm::bbox3& bounds() const;
         private:
-            void doVisit(const World* world) override;
-            void doVisit(const Layer* layer) override;
-            void doVisit(const Group* group) override;
-            void doVisit(const Entity* entity) override;
-            void doVisit(const Brush* brush) override;
+            void doVisit(const WorldNode* world) override;
+            void doVisit(const LayerNode* layer) override;
+            void doVisit(const GroupNode* group) override;
+            void doVisit(const EntityNode* entity) override;
+            void doVisit(const BrushNode* brush) override;
             void mergeWith(const vm::bbox3& bounds);
         };
 

@@ -20,6 +20,7 @@
 #include "Model/Issue.h"
 
 #include "Ensure.h"
+#include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
@@ -55,11 +56,11 @@ namespace TrenchBroom {
 
         class Issue::MatchSelectableIssueNodes {
         public:
-            bool operator()(const Model::World*) const         { return false; }
-            bool operator()(const Model::Layer*) const         { return false; }
-            bool operator()(const Model::Group*) const         { return true; }
-            bool operator()(const Model::Entity* entity) const { return !entity->hasChildren(); }
-            bool operator()(const Model::Brush*) const         { return true; }
+            bool operator()(const Model::WorldNode*) const         { return false; }
+            bool operator()(const Model::LayerNode*) const         { return false; }
+            bool operator()(const Model::GroupNode*) const         { return true; }
+            bool operator()(const Model::EntityNode* entity) const { return !entity->hasChildren(); }
+            bool operator()(const Model::BrushNode*) const         { return true; }
         };
 
         bool Issue::addSelectableNodes(const EditorContext& /* editorContext */, std::vector<Model::Node*>& nodes) const {
@@ -106,18 +107,24 @@ namespace TrenchBroom {
             return m_node->lineNumber();
         }
 
-        BrushFaceIssue::BrushFaceIssue(BrushFace* face) :
-        Issue(face->brush()),
-        m_face(face) {}
+        BrushFaceIssue::BrushFaceIssue(BrushNode* node, const size_t faceIndex) :
+        Issue(node),
+        m_faceIndex(faceIndex) {}
 
         BrushFaceIssue::~BrushFaceIssue() = default;
 
-        BrushFace* BrushFaceIssue::face() const {
-            return m_face;
+        size_t BrushFaceIssue::faceIndex() const {
+            return m_faceIndex;
+        }
+
+        const BrushFace& BrushFaceIssue::face() const {
+            const BrushNode* brushNode = static_cast<const BrushNode*>(node());
+            const Brush& brush = brushNode->brush();
+            return brush.face(m_faceIndex);
         }
 
         size_t BrushFaceIssue::doGetLineNumber() const {
-            return m_face->lineNumber();
+            return face().lineNumber();
         }
 
         AttributeIssue::~AttributeIssue() = default;

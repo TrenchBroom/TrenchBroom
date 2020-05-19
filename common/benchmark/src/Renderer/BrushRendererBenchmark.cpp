@@ -24,10 +24,10 @@
 #include "BenchmarkUtils.h"
 
 #include "Assets/Texture.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "Model/MapFormat.h"
 #include "Renderer/BrushRenderer.h"
 
@@ -45,7 +45,7 @@ namespace TrenchBroom {
         /**
          * Both returned vectors need to be freed with VecUtils::clearAndDelete
          */
-        static std::pair<std::vector<Model::Brush*>, std::vector<Assets::Texture*>> makeBrushes() {
+        static std::pair<std::vector<Model::BrushNode*>, std::vector<Assets::Texture*>> makeBrushes() {
             // make textures
             std::vector<Assets::Texture*> textures;
             for (size_t i = 0; i < NumTextures; ++i) {
@@ -55,18 +55,19 @@ namespace TrenchBroom {
 
             // make brushes, cycling through the textures for each face
             const vm::bbox3 worldBounds(4096.0);
-            Model::World world(Model::MapFormat::Standard);
+            Model::WorldNode world(Model::MapFormat::Standard);
 
             Model::BrushBuilder builder(&world, worldBounds);
 
-            std::vector<Model::Brush*> result;
+            std::vector<Model::BrushNode*> result;
             size_t currentTextureIndex = 0;
             for (size_t i = 0; i < NumBrushes; ++i) {
-                Model::Brush* brush = builder.createCube(64.0, "");
-                for (auto* face : brush->faces()) {
-                    face->setTexture(textures.at((currentTextureIndex++) % NumTextures));
+                Model::Brush brush =builder.createCube(64.0, "");
+                for (Model::BrushFace& face : brush.faces()) {
+                    face.setTexture(textures.at((currentTextureIndex++) % NumTextures));
                 }
-                result.push_back(brush);
+                Model::BrushNode* brushNode = world.createBrush(std::move(brush));
+                result.push_back(brushNode);
             }
 
             // ensure the brushes have their vertices cached.
@@ -83,7 +84,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushRendererBenchmark.benchBrushRenderer", "[BrushRendererBenchmark]") {
             auto brushesTextures = makeBrushes();
-            std::vector<Model::Brush*> brushes = brushesTextures.first;
+            std::vector<Model::BrushNode*> brushes = brushesTextures.first;
             std::vector<Assets::Texture*> textures = brushesTextures.second;
 
             BrushRenderer r;
@@ -96,7 +97,7 @@ namespace TrenchBroom {
             }, "validate after adding " + std::to_string(brushes.size()) + " brushes to BrushRenderer");
 
             // Tiny change: remove the last brush
-            std::vector<Model::Brush*> brushesMinusOne = brushes;
+            std::vector<Model::BrushNode*> brushesMinusOne = brushes;
             assert(!brushesMinusOne.empty());
             brushesMinusOne.pop_back();
 
@@ -108,7 +109,7 @@ namespace TrenchBroom {
             }, "validate after removing one brush");
 
             // Large change: keep every second brush
-            std::vector<Model::Brush*> brushesToKeep;
+            std::vector<Model::BrushNode*> brushesToKeep;
             for (size_t i = 0; i < brushes.size(); ++i) {
                 if ((i % 2) == 0) {
                     brushesToKeep.push_back(brushes.at(i));

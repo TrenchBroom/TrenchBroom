@@ -25,34 +25,34 @@
 
 namespace TrenchBroom {
     namespace Model {
-        void FindLayerVisitor::doVisit(World*) {}
+        void FindLayerVisitor::doVisit(WorldNode*) {}
 
-        void FindLayerVisitor::doVisit(Layer* layer) {
+        void FindLayerVisitor::doVisit(LayerNode* layer) {
             setResult(layer);
             cancel();
         }
 
-        void FindLayerVisitor::doVisit(Group*) {}
-        void FindLayerVisitor::doVisit(Entity*) {}
-        void FindLayerVisitor::doVisit(Brush*) {}
+        void FindLayerVisitor::doVisit(GroupNode*) {}
+        void FindLayerVisitor::doVisit(EntityNode*) {}
+        void FindLayerVisitor::doVisit(BrushNode*) {}
 
-        Model::Layer* findLayer(Model::Node* node) {
+        Model::LayerNode* findLayer(Model::Node* node) {
             FindLayerVisitor visitor;
             node->acceptAndEscalate(visitor);
             return visitor.result();
         }
 
-        std::vector<Model::Layer*> findLayers(const std::vector<Model::Node*>& nodes) {
-            kdl::vector_set<Model::Layer*> layersSet;
+        std::vector<Model::LayerNode*> findLayers(const std::vector<Model::Node*>& nodes) {
+            kdl::vector_set<Model::LayerNode*> layersSet;
             for (Model::Node* node : nodes) {
-                Model::Layer* layer = findLayer(node);
+                Model::LayerNode* layer = findLayer(node);
                 if (layer != nullptr) {
                     layersSet.insert(layer);
                 }
             }
 
-            std::vector<Model::Layer*> layers = layersSet.release_data();
-            Layer::sortLayers(layers);
+            std::vector<Model::LayerNode*> layers = layersSet.release_data();
+            LayerNode::sortLayers(layers);
             return layers;
         }
     }

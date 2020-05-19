@@ -32,7 +32,7 @@ class QListWidget;
 
 namespace TrenchBroom {
     namespace Model {
-        class Layer;
+        class LayerNode;
         class Node;
     }
 
@@ -50,7 +50,7 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             std::weak_ptr<MapDocument> m_document;
-            Model::Layer* m_layer;
+            Model::LayerNode* m_layer;
             QAbstractButton* m_activeButton;
             QLabel* m_nameText;
             QLabel* m_infoText;
@@ -59,23 +59,23 @@ namespace TrenchBroom {
             QAbstractButton* m_moveLayerUpButton;
             QAbstractButton* m_moveLayerDownButton;
         public:
-            LayerListBoxWidget(std::weak_ptr<MapDocument> document, Model::Layer* layer, QWidget* parent = nullptr);
+            LayerListBoxWidget(std::weak_ptr<MapDocument> document, Model::LayerNode* layer, QWidget* parent = nullptr);
 
             void updateItem() override;
         private:
             void updateLayerItem();
         public:
-            Model::Layer* layer() const;
+            Model::LayerNode* layer() const;
         private:
             bool eventFilter(QObject* target, QEvent* event) override;
         signals:
-            void layerActiveClicked(Model::Layer* layer);
-            void layerVisibilityToggled(Model::Layer* layer);
-            void layerLockToggled(Model::Layer* layer);
-            void layerMovedUp(Model::Layer* layer);
-            void layerMovedDown(Model::Layer* layer);
-            void layerDoubleClicked(Model::Layer* layer);
-            void layerRightClicked(Model::Layer* layer);
+            void layerActiveClicked(Model::LayerNode* layer);
+            void layerVisibilityToggled(Model::LayerNode* layer);
+            void layerLockToggled(Model::LayerNode* layer);
+            void layerMovedUp(Model::LayerNode* layer);
+            void layerMovedDown(Model::LayerNode* layer);
+            void layerDoubleClicked(Model::LayerNode* layer);
+            void layerRightClicked(Model::LayerNode* layer);
         };
 
         class LayerListBox : public ControlListBox {
@@ -86,8 +86,8 @@ namespace TrenchBroom {
             explicit LayerListBox(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~LayerListBox() override;
 
-            Model::Layer* selectedLayer() const;
-            void setSelectedLayer(Model::Layer* layer);
+            Model::LayerNode* selectedLayer() const;
+            void setSelectedLayer(Model::LayerNode* layer);
         private:
             size_t itemCount() const override;
 
@@ -100,18 +100,18 @@ namespace TrenchBroom {
 
             void documentDidChange(MapDocument* document);
             void nodesDidChange(const std::vector<Model::Node*>& nodes);
-            void currentLayerDidChange(const Model::Layer* layer);
+            void currentLayerDidChange(const Model::LayerNode* layer);
 
             const LayerListBoxWidget* widgetAtRow(int row) const;
-            Model::Layer* layerForRow(int row) const;
+            Model::LayerNode* layerForRow(int row) const;
         signals:
-            void layerSelected(Model::Layer* layer);
-            void layerSetCurrent(Model::Layer* layer);
-            void layerRightClicked(Model::Layer* layer);
-            void layerVisibilityToggled(Model::Layer* layer);
-            void layerLockToggled(Model::Layer* layer);
-            void layerMovedUp(Model::Layer* layer);
-            void layerMovedDown(Model::Layer* layer);
+            void layerSelected(Model::LayerNode* layer);
+            void layerSetCurrent(Model::LayerNode* layer);
+            void layerRightClicked(Model::LayerNode* layer);
+            void layerVisibilityToggled(Model::LayerNode* layer);
+            void layerLockToggled(Model::LayerNode* layer);
+            void layerMovedUp(Model::LayerNode* layer);
+            void layerMovedDown(Model::LayerNode* layer);
         };
     }
 }

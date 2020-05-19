@@ -21,8 +21,8 @@
 
 #include "Ensure.h"
 #include "Assets/EntityDefinition.h"
-#include "Model/Brush.h"
-#include "Model/Entity.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
@@ -35,7 +35,7 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            explicit EmptyBrushEntityIssue(Entity* entity) :
+            explicit EmptyBrushEntityIssue(EntityNode* entity) :
             Issue(entity) {}
         private:
             IssueType doGetType() const override {
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             }
 
             std::string doGetDescription() const override {
-                const Entity* entity = static_cast<Entity*>(node());
+                const EntityNode* entity = static_cast<EntityNode*>(node());
                 return "Entity '" + entity->classname() + "' does not contain any brushes";
             }
         };
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             addQuickFix(new EmptyBrushEntityIssueQuickFix());
         }
 
-        void EmptyBrushEntityIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
+        void EmptyBrushEntityIssueGenerator::doGenerate(EntityNode* entity, IssueList& issues) const {
             ensure(entity != nullptr, "entity is null");
             const Assets::EntityDefinition* definition = entity->definition();
             if (definition != nullptr && definition->type() == Assets::EntityDefinitionType::BrushEntity && !entity->hasChildren())

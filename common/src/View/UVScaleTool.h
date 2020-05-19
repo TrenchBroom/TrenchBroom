@@ -44,8 +44,8 @@ namespace TrenchBroom {
 
         class UVScaleTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         private:
-            static const Model::HitType::Type XHandleHit;
-            static const Model::HitType::Type YHandleHit;
+            static const Model::HitType::Type XHandleHitType;
+            static const Model::HitType::Type YHandleHitType;
         private:
             using EdgeVertex = Renderer::GLVertexTypes::P3::Vertex;
 

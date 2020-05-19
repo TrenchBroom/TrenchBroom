@@ -20,27 +20,28 @@
 #ifndef TrenchBroom_FindMatchingBrushFaceVisitor
 #define TrenchBroom_FindMatchingBrushFaceVisitor
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {
     namespace Model {
         template <typename P>
-        class FindMatchingBrushFaceVisitor : public NodeVisitor, public NodeQuery<BrushFace*> {
+        class FindMatchingBrushFaceVisitor : public ConstNodeVisitor, public NodeQuery<const BrushFace*> {
         private:
             P m_p;
         public:
             FindMatchingBrushFaceVisitor(const P& p = P()) : m_p(p) {}
         private:
-            void doVisit(World*)  override {}
-            void doVisit(Layer*)  override {}
-            void doVisit(Group*)  override {}
-            void doVisit(Entity*) override {}
-            void doVisit(Brush* brush)   override {
-                for (BrushFace* face : brush->faces()) {
-                    if (m_p(face)) {
-                        setResult(face);
+            void doVisit(const WorldNode*)  override {}
+            void doVisit(const LayerNode*)  override {}
+            void doVisit(const GroupNode*)  override {}
+            void doVisit(const EntityNode*) override {}
+            void doVisit(const BrushNode* brushNode)   override {
+                const Brush& brush = brushNode->brush();
+                for (const BrushFace& face : brush.faces()) {
+                    if (m_p(brushNode, face)) {
+                        setResult(&face);
                         cancel();
                         return;
                     }

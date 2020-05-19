@@ -58,7 +58,7 @@ namespace TrenchBroom {
             return { xAxis, yAxis, zAxis };
         }
 
-        const Model::HitType::Type RotateObjectsHandle::HandleHit = Model::HitType::freeType();
+        const Model::HitType::Type RotateObjectsHandle::HandleHitType = Model::HitType::freeType();
 
         RotateObjectsHandle::Handle::Handle(const vm::vec3& position) :
         m_position(position) {}
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             if (vm::is_nan(distance)) {
                 return Model::Hit::NoHit;
             } else {
-                return Model::Hit(HandleHit, distance, vm::point_at_distance(pickRay, distance), HitArea::Center);
+                return Model::Hit(HandleHitType, distance, vm::point_at_distance(pickRay, distance), HitArea::Center);
             }
         }
 
@@ -102,7 +102,7 @@ namespace TrenchBroom {
                     const auto transformedHitPoint = vm::point_at_distance(transformedRay, transformedDistance);
                     const auto hitPoint = transform * transformedHitPoint;
                     const auto distance = vm::dot(hitPoint - pickRay.origin, pickRay.direction);
-                    return Model::Hit(HandleHit, distance, hitPoint, area);
+                    return Model::Hit(HandleHitType, distance, hitPoint, area);
                 }
             }
 

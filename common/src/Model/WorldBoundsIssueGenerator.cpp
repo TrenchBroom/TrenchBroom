@@ -19,8 +19,8 @@
 
 #include "WorldBoundsIssueGenerator.h"
 
-#include "Model/Brush.h"
-#include "Model/Entity.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
@@ -65,12 +65,12 @@ namespace TrenchBroom {
             addQuickFix(new WorldBoundsIssueQuickFix());
         }
 
-        void WorldBoundsIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
+        void WorldBoundsIssueGenerator::doGenerate(EntityNode* entity, IssueList& issues) const {
             if (!m_bounds.contains(entity->logicalBounds()))
                 issues.push_back(new WorldBoundsIssue(entity));
         }
 
-        void WorldBoundsIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
+        void WorldBoundsIssueGenerator::doGenerate(BrushNode* brush, IssueList& issues) const {
             if (!m_bounds.contains(brush->logicalBounds()))
                 issues.push_back(new WorldBoundsIssue(brush));
         }

@@ -23,20 +23,20 @@
 
 #include "Model/Tag.h"
 #include "Model/TagManager.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
-#include "Model/Layer.h"
+#include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 
 namespace TrenchBroom {
     namespace Model {
         TEST_CASE("TaggingTest.testTagBrush", "[TaggingTest]") {
             const vm::bbox3 worldBounds{4096.0};
-            World world{MapFormat::Standard};
+            WorldNode world{MapFormat::Standard};
 
             BrushBuilder builder{&world, worldBounds};
-            Brush* brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
+            BrushNode* brush = world.createBrush(builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom"));
 
             world.defaultLayer()->addChild(brush);
 

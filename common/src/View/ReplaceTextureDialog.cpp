@@ -21,8 +21,10 @@
 
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
+#include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectMatchingBrushFacesVisitor.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
 #include "View/TextureBrowser.h"
@@ -30,6 +32,7 @@
 #include "View/QtUtils.h"
 
 #include <kdl/memory_utils.h>
+#include <kdl/vector_utils.h>
 
 #include <QDialogButtonBox>
 #include <QMessageBox>
@@ -57,16 +60,19 @@ namespace TrenchBroom {
             ensure(replacement != nullptr, "replacement is null");
 
             auto document = kdl::mem_lock(m_document);
-            const std::vector<Model::BrushFace*> faces = getApplicableFaces();
+            const auto faces = getApplicableFaces();
 
             if (faces.empty()) {
                 QMessageBox::warning(this, tr("Replace Failed"), tr("None of the selected faces has the selected texture"));
                 return;
             }
 
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.setTextureName(replacement->name());
+            
             Transaction transaction(document, "Replace Textures");
             document->select(faces);
-            document->setTexture(replacement, false);
+            document->setFaceAttributes(request);
 
             std::stringstream msg;
             msg << "Replaced texture '" << subject->name() << "' with '" << replacement->name() << "' on " << faces.size() << " faces.";
@@ -74,25 +80,19 @@ namespace TrenchBroom {
             QMessageBox::information(this, tr("Replace Succeeded"), QString::fromStdString(msg.str()));
         }
 
-        std::vector<Model::BrushFace*> ReplaceTextureDialog::getApplicableFaces() const {
+        std::vector<Model::BrushFaceHandle> ReplaceTextureDialog::getApplicableFaces() const {
+            const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
+            ensure(subject != nullptr, "subject is null");
+
             auto document = kdl::mem_lock(m_document);
-            std::vector<Model::BrushFace*> faces = document->allSelectedBrushFaces();
+            auto faces = document->allSelectedBrushFaces();
             if (faces.empty()) {
                 Model::CollectBrushFacesVisitor collect;
                 document->world()->acceptAndRecurse(collect);
                 faces = collect.faces();
             }
 
-            const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
-            ensure(subject != nullptr, "subject is null");
-
-            std::vector<Model::BrushFace*> result;
-            for (auto* face : faces) {
-                if (face->texture() == subject) {
-                    result.push_back(face);
-                }
-            }
-            return result;
+            return kdl::vec_filter(faces, [&](const auto& handle) { return handle.face().texture() == subject; });
         }
 
         void ReplaceTextureDialog::createGui(GLContextManager& contextManager) {

@@ -72,7 +72,7 @@ namespace TrenchBroom {
             DragRestricter* restricter = nullptr;
             DragSnapper* snapper = nullptr;
 
-            if (dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHit
+            if (dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHitType
                 && inputState.camera().orthographicProjection()
                 && !scaleAllAxes)
             {
@@ -81,9 +81,9 @@ namespace TrenchBroom {
                 restricter = new PlaneDragRestricter(plane);
                 snapper = new DeltaDragSnapper(grid);
             } else {
-                assert(dragStartHit.type() == ScaleObjectsTool::ScaleToolSideHit
-                       || dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHit
-                       || dragStartHit.type() == ScaleObjectsTool::ScaleToolCornerHit);
+                assert(dragStartHit.type() == ScaleObjectsTool::ScaleToolSideHitType
+                       || dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHitType
+                       || dragStartHit.type() == ScaleObjectsTool::ScaleToolCornerHitType);
 
                 const vm::line3 handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
 
@@ -168,9 +168,9 @@ namespace TrenchBroom {
             const Model::PickResult& pickResult = inputState.pickResult();
 
             const Model::Hit& hit = pickResult.query().type(
-                    ScaleObjectsTool::ScaleToolSideHit
-                    | ScaleObjectsTool::ScaleToolEdgeHit
-                    | ScaleObjectsTool::ScaleToolCornerHit).occluded().first();
+                    ScaleObjectsTool::ScaleToolSideHitType
+                    | ScaleObjectsTool::ScaleToolEdgeHitType
+                    | ScaleObjectsTool::ScaleToolCornerHitType).occluded().first();
             if (!hit.isMatch()) {
                 return DragInfo();
             }
@@ -232,7 +232,7 @@ namespace TrenchBroom {
                         Model::PickResult pr;
                         doPick(ray, renderContext.camera(), pr);
 
-                        if (pr.query().first().type() != ScaleObjectsTool::ScaleToolCornerHit) {
+                        if (pr.query().first().type() != ScaleObjectsTool::ScaleToolCornerHitType) {
                             // this corner is occluded => don't render it.
                             continue;
                         }

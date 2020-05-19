@@ -25,11 +25,13 @@
 
 #include <vecmath/forward.h>
 
+#include <array>
+
 namespace TrenchBroom {
     namespace Model {
         class PlanePointFinder {
         private:
-            using FacePoints = vm::vec3[3];
+            using FacePoints = std::array<vm::vec3, 3u>;
         public:
             static void findPoints(const vm::plane3& plane, FacePoints& points, size_t numPoints);
         };

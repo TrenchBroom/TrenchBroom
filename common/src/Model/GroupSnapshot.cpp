@@ -19,7 +19,7 @@
 
 #include "GroupSnapshot.h"
 
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/Node.h"
 #include "Model/TakeSnapshotVisitor.h"
 
@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GroupSnapshot::GroupSnapshot(Group* group) {
+        GroupSnapshot::GroupSnapshot(GroupNode* group) {
             takeSnapshot(group);
         }
 
@@ -35,7 +35,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(m_snapshots);
         }
 
-        void GroupSnapshot::takeSnapshot(Group* group) {
+        void GroupSnapshot::takeSnapshot(GroupNode* group) {
             const auto& children = group->children();
 
             TakeSnapshotVisitor visitor;

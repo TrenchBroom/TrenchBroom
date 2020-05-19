@@ -19,9 +19,9 @@
 
 #include "TransformObjectVisitor.h"
 
-#include "Model/Brush.h"
-#include "Model/Entity.h"
-#include "Model/Group.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -30,10 +30,10 @@ namespace TrenchBroom {
         m_lockTextures(lockTextures),
         m_worldBounds(worldBounds) {}
 
-        void TransformObjectVisitor::doVisit(World*)         {}
-        void TransformObjectVisitor::doVisit(Layer*)         {}
-        void TransformObjectVisitor::doVisit(Group* group)   {  group->transform(m_transformation, m_lockTextures, m_worldBounds); }
-        void TransformObjectVisitor::doVisit(Entity* entity) { entity->transform(m_transformation, m_lockTextures, m_worldBounds); }
-        void TransformObjectVisitor::doVisit(Brush* brush)   {  brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
+        void TransformObjectVisitor::doVisit(WorldNode*)         {}
+        void TransformObjectVisitor::doVisit(LayerNode*)         {}
+        void TransformObjectVisitor::doVisit(GroupNode* group)   {  group->transform(m_transformation, m_lockTextures, m_worldBounds); }
+        void TransformObjectVisitor::doVisit(EntityNode* entity) { entity->transform(m_transformation, m_lockTextures, m_worldBounds); }
+        void TransformObjectVisitor::doVisit(BrushNode* brush)   {  brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
     }
 }

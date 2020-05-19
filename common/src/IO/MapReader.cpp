@@ -20,12 +20,12 @@
 #include "MapReader.h"
 
 #include "IO/ParserStatus.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/EntityAttributes.h"
-#include "Model/Group.h"
-#include "Model/Layer.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
 #include "Model/ModelFactory.h"
 
 #include <kdl/map_utils.h>
@@ -74,10 +74,6 @@ namespace TrenchBroom {
         m_factory(nullptr),
         m_brushParent(nullptr),
         m_currentNode(nullptr) {}
-
-        MapReader::~MapReader() {
-            kdl::vec_clear_and_delete(m_faces);
-        }
 
         void MapReader::readEntities(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
@@ -135,9 +131,9 @@ namespace TrenchBroom {
         }
 
         void MapReader::onBrushFace(const size_t line, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) {
-            Model::BrushFace* face = m_factory->createFace(point1, point2, point3, attribs, texAxisX, texAxisY);
-            face->setFilePosition(line, 1);
-            onBrushFace(face, status);
+            Model::BrushFace face = m_factory->createFace(point1, point2, point3, attribs, texAxisX, texAxisY);
+            face.setFilePosition(line, 1u);
+            onBrushFace(std::move(face), status);
         }
 
         void MapReader::createLayer(const size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
@@ -165,7 +161,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            Model::Layer* layer = m_factory->createLayer(name);
+            Model::LayerNode* layer = m_factory->createLayer(name);
 
             const std::string& layerSortIndex = findAttribute(attributes, Model::AttributeNames::LayerSortIndex);
             if (!kdl::str_is_blank(layerSortIndex)) {
@@ -207,7 +203,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            Model::Group* group = m_factory->createGroup(name);
+            Model::GroupNode* group = m_factory->createGroup(name);
             setExtraAttributes(group, extraAttributes);
 
             storeNode(group, attributes, status);
@@ -218,7 +214,7 @@ namespace TrenchBroom {
         }
 
         void MapReader::createEntity(const size_t /* line */, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
-            Model::Entity* entity = m_factory->createEntity();
+            Model::EntityNode* entity = m_factory->createEntity();
             entity->setAttributes(attributes);
             setExtraAttributes(entity, extraAttributes);
 
@@ -231,7 +227,7 @@ namespace TrenchBroom {
 
         void MapReader::createBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             try {
-                Model::Brush* brush = m_factory->createBrush(m_worldBounds, m_faces);
+                Model::BrushNode* brush = m_factory->createBrush(Model::Brush(m_worldBounds, std::move(m_faces)));
                 setFilePosition(brush, startLine, lineCount);
                 setExtraAttributes(brush, extraAttributes);
 
@@ -250,8 +246,8 @@ namespace TrenchBroom {
                 const long rawId = std::atol(layerIdStr.c_str());
                 if (rawId > 0) {
                     const Model::IdType layerId = static_cast<Model::IdType>(rawId);
-                    Model::Layer* layer = kdl::map_find_or_default(m_layers, layerId,
-                        static_cast<Model::Layer*>(nullptr));
+                    Model::LayerNode* layer = kdl::map_find_or_default(m_layers, layerId,
+                        static_cast<Model::LayerNode*>(nullptr));
                     if (layer != nullptr)
                         onNode(layer, node, status);
                     else
@@ -266,8 +262,8 @@ namespace TrenchBroom {
                     const long rawId = std::atol(groupIdStr.c_str());
                     if (rawId > 0) {
                         const Model::IdType groupId = static_cast<Model::IdType>(rawId);
-                        Model::Group* group = kdl::map_find_or_default(m_groups, groupId,
-                            static_cast<Model::Group*>(nullptr));
+                        Model::GroupNode* group = kdl::map_find_or_default(m_groups, groupId,
+                            static_cast<Model::GroupNode*>(nullptr));
                         if (group != nullptr)
                             onNode(group, node, status);
                         else
@@ -316,10 +312,10 @@ namespace TrenchBroom {
         Model::Node* MapReader::resolveParent(const ParentInfo& parentInfo) const {
             if (parentInfo.layer()) {
                 const Model::IdType layerId = parentInfo.id();
-                return kdl::map_find_or_default(m_layers, layerId, static_cast<Model::Layer*>(nullptr));
+                return kdl::map_find_or_default(m_layers, layerId, static_cast<Model::LayerNode*>(nullptr));
             }
             const Model::IdType groupId = parentInfo.id();
-            return kdl::map_find_or_default(m_groups, groupId, static_cast<Model::Group*>(nullptr));
+            return kdl::map_find_or_default(m_groups, groupId, static_cast<Model::GroupNode*>(nullptr));
         }
 
         MapReader::EntityType MapReader::entityType(const std::vector<Model::EntityAttribute>& attributes) const {
@@ -348,8 +344,8 @@ namespace TrenchBroom {
             }
         }
 
-        void MapReader::onBrushFace(Model::BrushFace* face, ParserStatus& /* status */) {
-            m_faces.push_back(face);
+        void MapReader::onBrushFace(Model::BrushFace face, ParserStatus& /* status */) {
+            m_faces.push_back(std::move(face));
         }
     }
 }

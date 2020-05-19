@@ -23,13 +23,13 @@
 #include "PreferenceManager.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             if (definition->type() != Assets::EntityDefinitionType::PointEntity)
                 return false;
 
-            const Model::World* world = document->world();
+            const Model::WorldNode* world = document->world();
             m_entity = world->createEntity();
             m_entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
 
@@ -114,10 +114,10 @@ namespace TrenchBroom {
 
             vm::vec3 delta;
             const auto& grid = document->grid();
-            const auto& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
-            if (hit.isMatch()) {
-                const auto* face = Model::hitToFace(hit);
-                const auto dragPlane = vm::aligned_orthogonal_plane(hit.hitPoint(), face->boundary().normal);
+            const auto& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+            if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                const auto& face = faceHandle->face();
+                const auto dragPlane = vm::aligned_orthogonal_plane(hit.hitPoint(), face.boundary().normal);
                 delta = grid.moveDeltaForBounds(dragPlane, m_entity->definitionBounds(), document->worldBounds(), pickRay);
             } else {
                 const auto newPosition = vm::point_at_distance(pickRay, static_cast<FloatType>(Renderer::Camera::DefaultPointDistance));

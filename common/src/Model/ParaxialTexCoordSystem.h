@@ -60,10 +60,10 @@ namespace TrenchBroom {
             void doResetTextureAxesToParallel(const vm::vec3& normal, float angle) override;
 
             bool isRotationInverted(const vm::vec3& normal) const override;
-            vm::vec2f doGetTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs) const override;
+            vm::vec2f doGetTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs, const vm::vec2f& textureSize) const override;
 
             void doSetRotation(const vm::vec3& normal, float oldAngle, float newAngle) override;
-            void doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant) override;
+            void doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, const vm::vec2f& textureSize, bool lockTexture, const vm::vec3& invariant) override;
 
             void doUpdateNormalWithProjection(const vm::vec3& newNormal, const BrushFaceAttributes& attribs) override;
             void doUpdateNormalWithRotation(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) override;

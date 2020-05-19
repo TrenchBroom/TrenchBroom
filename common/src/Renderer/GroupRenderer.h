@@ -29,7 +29,7 @@
 namespace TrenchBroom {
     namespace Model {
         class EditorContext;
-        class Group;
+        class GroupNode;
     }
 
     namespace Renderer {
@@ -41,7 +41,7 @@ namespace TrenchBroom {
             class GroupNameAnchor;
 
             const Model::EditorContext& m_editorContext;
-            std::vector<Model::Group*> m_groups;
+            std::vector<Model::GroupNode*> m_groups;
 
             DirectEdgeRenderer m_boundsRenderer;
             bool m_boundsValid;
@@ -57,7 +57,7 @@ namespace TrenchBroom {
         public:
             GroupRenderer(const Model::EditorContext& editorContext);
 
-            void setGroups(const std::vector<Model::Group*>& groups);
+            void setGroups(const std::vector<Model::GroupNode*>& groups);
             void invalidate();
             void clear();
 
@@ -106,10 +106,10 @@ namespace TrenchBroom {
             void invalidateBounds();
             void validateBounds();
 
-            bool shouldRenderGroup(const Model::Group* group) const;
+            bool shouldRenderGroup(const Model::GroupNode* group) const;
 
-            AttrString groupString(const Model::Group* group) const;
-            const Color& boundsColor(const Model::Group* group) const;
+            AttrString groupString(const Model::GroupNode* group) const;
+            const Color& boundsColor(const Model::GroupNode* group) const;
         };
     }
 }

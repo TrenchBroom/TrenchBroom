@@ -20,7 +20,8 @@
 #include "CopyTexCoordSystemFromFaceCommand.h"
 
 #include "FloatType.h"
-#include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
+#include "Model/BrushNode.h"
 #include "Model/Snapshot.h"
 #include "Model/TexCoordSystem.h"
 #include "View/MapDocumentCommandFacade.h"
@@ -47,11 +48,13 @@ namespace TrenchBroom {
         CopyTexCoordSystemFromFaceCommand::~CopyTexCoordSystemFromFaceCommand() = default;
 
         std::unique_ptr<CommandResult> CopyTexCoordSystemFromFaceCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            const std::vector<Model::BrushFace*> faces = document->allSelectedBrushFaces();
-            assert(!faces.empty());
+            const auto faceHandles = document->allSelectedBrushFaces();
+            assert(!faceHandles.empty());
+            
+            const auto nodes = Model::toNodes(faceHandles);
 
             assert(m_snapshot == nullptr);
-            m_snapshot = std::make_unique<Model::Snapshot>(std::begin(faces), std::end(faces));
+            m_snapshot = std::make_unique<Model::Snapshot>(std::begin(nodes), std::end(nodes));
 
             document->performCopyTexCoordSystemFromFace(*m_coordSystemSnapshot, m_attribs, m_sourceFacePlane, m_wrapStyle);
             return std::make_unique<CommandResult>(true);

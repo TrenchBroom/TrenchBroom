@@ -19,9 +19,9 @@
 
 #include "ComputeNodeBoundsVisitor.h"
 
-#include "Model/Brush.h"
-#include "Model/Group.h"
-#include "Model/Entity.h"
+#include "Model/BrushNode.h"
+#include "Model/GroupNode.h"
+#include "Model/EntityNode.h"
 
 #include <vector>
 
@@ -40,10 +40,10 @@ namespace TrenchBroom {
             }
         }
 
-        void ComputeNodeBoundsVisitor::doVisit(const World*) {}
-        void ComputeNodeBoundsVisitor::doVisit(const Layer*) {}
+        void ComputeNodeBoundsVisitor::doVisit(const WorldNode*) {}
+        void ComputeNodeBoundsVisitor::doVisit(const LayerNode*) {}
 
-        void ComputeNodeBoundsVisitor::doVisit(const Group* group) {
+        void ComputeNodeBoundsVisitor::doVisit(const GroupNode* group) {
             if (m_boundsType == BoundsType::Physical) {
                 m_builder.add(group->physicalBounds());
             } else {
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ComputeNodeBoundsVisitor::doVisit(const Entity* entity) {
+        void ComputeNodeBoundsVisitor::doVisit(const EntityNode* entity) {
             if (m_boundsType == BoundsType::Physical) {
                 m_builder.add(entity->physicalBounds());
             } else {
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ComputeNodeBoundsVisitor::doVisit(const Brush* brush) {
+        void ComputeNodeBoundsVisitor::doVisit(const BrushNode* brush) {
             if (m_boundsType == BoundsType::Physical) {
                 m_builder.add(brush->physicalBounds());
             } else {
