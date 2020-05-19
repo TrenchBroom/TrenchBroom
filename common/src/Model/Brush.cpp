@@ -25,7 +25,6 @@
 #include "Polyhedron_Matcher.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
-#include "Model/BrushNode.h"
 #include "Model/ModelFactory.h"
 #include "Model/TexCoordSystem.h"
 
@@ -80,12 +79,7 @@ namespace TrenchBroom {
 
         class Brush::HealEdgesCallback : public BrushGeometry::Callback {
         public:
-            void facesWillBeMerged(BrushFaceGeometry* remainingGeometry, BrushFaceGeometry* geometryToDelete) override {
-                auto* remainingFace = remainingGeometry->payload();
-                if (remainingFace != nullptr) {
-                    remainingFace->invalidate();
-                }
-
+            void facesWillBeMerged(BrushFaceGeometry*, BrushFaceGeometry* geometryToDelete) override {
                 auto* faceToDelete = geometryToDelete->payload();
                 delete faceToDelete;
             }
@@ -157,12 +151,10 @@ namespace TrenchBroom {
         };
 
         Brush::Brush() :
-        m_node(nullptr),
         m_geometry(nullptr),
         m_transparent(false) {}
 
-        Brush::Brush(BrushNode* node, const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) :
-        m_node(node),
+        Brush::Brush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) :
         m_geometry(nullptr),
         m_transparent(false) {
             addFaces(faces);
@@ -174,11 +166,7 @@ namespace TrenchBroom {
             }
         }
 
-        Brush::Brush(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) :
-        Brush::Brush(nullptr, worldBounds, faces) {}
-
         Brush::Brush(const Brush& other) :
-        m_node(nullptr),
         m_geometry(nullptr),
         m_transparent(other.m_transparent) {
             auto faceMap = std::unordered_map<const BrushFace*, BrushFace*>();
@@ -196,15 +184,10 @@ namespace TrenchBroom {
         }
 
         Brush::Brush(Brush&& other) noexcept :
-        m_node(nullptr),
         m_faces(std::move(other.m_faces)),
         m_geometry(other.m_geometry),
         m_transparent(other.m_transparent) {
             other.m_geometry = nullptr;
-
-            for (auto* face : m_faces) {
-                face->setBrush(this);
-            }
         }
 
         Brush& Brush::operator=(Brush other) noexcept {
@@ -218,15 +201,6 @@ namespace TrenchBroom {
             swap(lhs.m_faces, rhs.m_faces);
             swap(lhs.m_geometry, rhs.m_geometry);
             swap(lhs.m_transparent, rhs.m_transparent);
-
-            const auto resetFaces = [](Brush& brush) {
-                for (auto* face : brush.m_faces) {
-                    face->setBrush(&brush);
-                }
-            };
-
-            resetFaces(lhs);
-            resetFaces(rhs);
         }
 
         Brush::~Brush() {
@@ -237,10 +211,6 @@ namespace TrenchBroom {
             delete m_geometry;
             m_geometry = nullptr;
             kdl::vec_clear_and_delete(m_faces);
-        }
-
-        void Brush::setNode(BrushNode* node) {
-            m_node = node;
         }
 
         const vm::bbox3& Brush::bounds() const {
@@ -315,24 +285,14 @@ namespace TrenchBroom {
             return true;
         }
 
-        void Brush::faceDidChange() {
-            if (m_node != nullptr) {
-                m_node->invalidateIssues();
-                m_node->invalidateVertexCache();
-            }
-        }
-
         void Brush::addFaces(const std::vector<BrushFace*>& faces) {
             addFaces(std::begin(faces), std::end(faces), faces.size());
         }
 
         void Brush::addFace(BrushFace* face) {
             ensure(face != nullptr, "face is null");
-            ensure(face->brush() == nullptr, "face brush is null");
             assert(!kdl::vec_contains(m_faces, face));
-
             m_faces.push_back(face);
-            face->setBrush(this);
         }
 
         void Brush::cloneFaceAttributesFrom(const Brush& brush) {
@@ -1074,17 +1034,9 @@ namespace TrenchBroom {
                 auto* face = faceG->payload();
                 if (face != nullptr) { // could happen if the brush isn't fully specified
                     assert(face->geometry() == faceG);
-                    if (face->brush() == nullptr) {
-                        addFace(face);
-                    } else {
-                        m_faces.push_back(face);
-                    }
+                    addFace(face);
                     face->resetTexCoordSystemCache();
                 }
-            }
-
-            if (m_node) {
-                m_node->invalidateVertexCache();
             }
         }
 

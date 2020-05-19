@@ -64,13 +64,11 @@ namespace TrenchBroom {
 
         BrushNode::BrushNode(const vm::bbox3& worldBounds, const std::vector<BrushFace*>& faces) :
         m_brushRendererBrushCache(std::make_unique<Renderer::BrushRendererBrushCache>()),
-        m_brush(this, worldBounds, faces) {}
+        m_brush(worldBounds, faces) {}
 
         BrushNode::BrushNode(Brush brush) :
         m_brushRendererBrushCache(std::make_unique<Renderer::BrushRendererBrushCache>()),
-        m_brush(std::move(brush)) {
-            m_brush.setNode(this);
-        }
+        m_brush(std::move(brush)) {}
 
         BrushNode::~BrushNode() = default;
 
@@ -113,7 +111,6 @@ namespace TrenchBroom {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
             m_brush = std::move(brush);
-            m_brush.setNode(this);
             
             invalidateIssues();
             invalidateVertexCache();
@@ -237,6 +234,9 @@ namespace TrenchBroom {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
             m_brush.transform(transformation, lockTextures, worldBounds);
+            
+            invalidateIssues();
+            invalidateVertexCache();
         }
 
         class BrushNode::Contains : public ConstNodeVisitor, public NodeQuery<bool> {

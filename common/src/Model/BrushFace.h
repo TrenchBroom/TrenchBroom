@@ -43,7 +43,6 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class Brush;
         class TexCoordSystem;
         class TexCoordSystemSnapshot;
         enum class WrapStyle;
@@ -79,9 +78,6 @@ namespace TrenchBroom {
             using VertexList = kdl::transform_adapter<BrushHalfEdgeList, TransformHalfEdgeToVertex>;
             using EdgeList = kdl::transform_adapter<BrushHalfEdgeList, TransformHalfEdgeToEdge>;
         private:
-            // TODO: get rid of this
-            Brush* m_brush;
-            
             BrushFace::Points m_points;
             vm::plane3 m_boundary;
             mutable size_t m_lineNumber;
@@ -112,9 +108,6 @@ namespace TrenchBroom {
             std::unique_ptr<TexCoordSystemSnapshot> takeTexCoordSystemSnapshot() const;
             void restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot& coordSystemSnapshot);
             void copyTexCoordSystemFromFace(const TexCoordSystemSnapshot& coordSystemSnapshot, const BrushFaceAttributes& attributes, const vm::plane3& sourceFacePlane, WrapStyle wrapStyle);
-
-            Brush* brush() const;
-            void setBrush(Brush* brush);
 
             const BrushFace::Points& points() const;
             bool arePointsOnPlane(const vm::plane3& plane) const;
@@ -167,7 +160,6 @@ namespace TrenchBroom {
         public:
             BrushFaceGeometry* geometry() const;
             void setGeometry(BrushFaceGeometry* geometry);
-            void invalidate();
 
             size_t lineNumber() const;
             void setFilePosition(size_t lineNumber, size_t lineCount) const;
@@ -182,11 +174,6 @@ namespace TrenchBroom {
         private:
             void setPoints(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2);
             void correctPoints();
-
-            void updateBrush();
-
-            // renderer cache
-            void invalidateVertexCache();
         public: // brush renderer
             /**
              * This is used to cache results of evaluating the BrushRenderer Filter.
