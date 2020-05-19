@@ -372,6 +372,56 @@ namespace kdl {
     }
 
     /**
+     * Returns a vector containing every element of the given vector that passes the given filter.
+     * The elements are copied into the returned vector in the same order as they are in the given vector.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @tparam F the type of the filter to apply
+     * @param v the vector
+     * @param filter the filter to apply
+     * @return a vector containing the elements that passed the filter
+     */
+    template<typename T, typename A, typename F>
+    std::vector<T, A> vec_filter(const std::vector<T, A>& v, F&& filter) {
+        std::vector<T, A> result;
+        result.reserve(v.size());
+
+        for (const auto& x : v) {
+            if (filter(x)) {
+                result.push_back(x);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Returns a vector containing every element of the given vector that passes the given filter.
+     * The elements are moved into the returned vector in the same order as they are in the given vector.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @tparam F the type of the filter to apply
+     * @param v the vector
+     * @param filter the filter to apply
+     * @return a vector containing the elements that passed the filter
+     */
+    template<typename T, typename A, typename F>
+    std::vector<T, A> vec_filter(std::vector<T, A>&& v, F&& filter) {
+        std::vector<T, A> result;
+        result.reserve(v.size());
+
+        for (auto&& x : v) {
+            if (filter(x)) {
+                result.push_back(std::move(x));
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Applies the given lambda to each element of the given vector and returns a vector containing the resulting
      * values, in order in which their original elements appeared in v.
      *
@@ -381,22 +431,22 @@ namespace kdl {
      * @tparam A the vector's allocator type
      * @tparam L the type of the lambda to apply
      * @param v the vector
-     * @param lambda the lambda to apply
+     * @param transform the lambda to apply
      * @return a vector containing the transformed values
      */
     template<typename T, typename A, typename L>
-    auto vec_transform(const std::vector<T, A>& v, L&& lambda) {
-        using ResultType = decltype(lambda(std::declval<T>()));
+    auto vec_transform(const std::vector<T, A>& v, L&& transform) {
+        using ResultType = decltype(transform(std::declval<T>()));
 
         std::vector<ResultType> result;
         result.reserve(v.size());
         for (const auto& x : v) {
-            result.push_back(lambda(x));
+            result.push_back(transform(x));
         }
 
         return result;
     }
-    
+
     /**
      * Applies the given lambda to each element of the given vector and returns a vector containing the resulting
      * values, in order in which their original elements appeared in v.
@@ -407,17 +457,17 @@ namespace kdl {
      * @tparam A the vector's allocator type
      * @tparam L the type of the lambda to apply
      * @param v the vector
-     * @param lambda the lambda to apply
+     * @param transform the lambda to apply
      * @return a vector containing the transformed values
      */
     template<typename T, typename A, typename L>
-    auto vec_transform(std::vector<T, A>&& v, L&& lambda) {
-        using ResultType = decltype(lambda(std::declval<T>()));
+    auto vec_transform(std::vector<T, A>&& v, L&& transform) {
+        using ResultType = decltype(transform(std::declval<T>()));
 
         std::vector<ResultType> result;
         result.reserve(v.size());
         for (auto&& x : v) {
-            result.push_back(lambda(std::move(x)));
+            result.push_back(transform(std::move(x)));
         }
 
         return result;
