@@ -545,7 +545,7 @@ namespace kdl {
             std::is_invocable_v<L, const T&>
         >::type* = nullptr>
     auto vec_transform(const std::vector<T, A>& v, L&& transform) {
-        using ResultType = decltype(transform(std::declval<T>()));
+        using ResultType = decltype(transform(std::declval<const T&>()));
 
         std::vector<ResultType> result;
         result.reserve(v.size());
@@ -576,7 +576,68 @@ namespace kdl {
             std::is_invocable_v<L, const T&, std::size_t>
         >::type* = nullptr>
     auto vec_transform(const std::vector<T, A>& v, L&& transform) {
-        using ResultType = decltype(transform(std::declval<T>(), std::declval<std::size_t>()));
+        using ResultType = decltype(transform(std::declval<const T&>(), std::declval<std::size_t>()));
+
+        std::vector<ResultType> result;
+        result.reserve(v.size());
+        
+        for (std::size_t i = 0u; i < v.size(); ++i) {
+            result.push_back(transform(v[i], i));
+        }
+
+        return result;
+    }
+    
+    /**
+     * Applies the given lambda to each element of the given vector and returns a vector containing the resulting
+     * values, in order in which their original elements appeared in v.
+     *
+     * The elements are passed to the given lambda as lvalue references.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @tparam L the type of the lambda to apply
+     * @param v the vector
+     * @param transform the lambda to apply, must be of type `auto(const T&)`
+     * @return a vector containing the transformed values
+     */
+    template<typename T, typename A, typename L,
+        typename std::enable_if<
+            std::is_invocable_v<L, T&>
+        >::type* = nullptr>
+    auto vec_transform(std::vector<T, A>& v, L&& transform) {
+        using ResultType = decltype(transform(std::declval<T&>()));
+
+        std::vector<ResultType> result;
+        result.reserve(v.size());
+        for (auto& x : v) {
+            result.push_back(transform(x));
+        }
+
+        return result;
+    }
+
+    /**
+     * Applies the given lambda to each element of the given vector and returns a vector containing the resulting
+     * values, in order in which their original elements appeared in v.
+     *
+     * The elements are passed to the given lambda as lvalue references.
+     *
+     * This version passes the vector element indices to the filter function.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @tparam L the type of the lambda to apply
+     * @param v the vector
+     * @param transform the lambda to apply, must be of type `auto(const T&, std::size_t)`
+     * @return a vector containing the transformed values
+     */
+    template<typename T, typename A, typename L,
+        typename std::enable_if<
+            std::is_invocable_v<L, T&, std::size_t>
+        >::type* = nullptr>
+    auto vec_transform(std::vector<T, A>& v, L&& transform) {
+        using ResultType = decltype(transform(std::declval<T&>(), std::declval<std::size_t>()));
 
         std::vector<ResultType> result;
         result.reserve(v.size());
@@ -606,7 +667,7 @@ namespace kdl {
             std::is_invocable_v<L, T&&>
         >::type* = nullptr>
     auto vec_transform(std::vector<T, A>&& v, L&& transform) {
-        using ResultType = decltype(transform(std::declval<T>()));
+        using ResultType = decltype(transform(std::declval<T&&>()));
 
         std::vector<ResultType> result;
         result.reserve(v.size());
@@ -637,7 +698,7 @@ namespace kdl {
             std::is_invocable_v<L, T&&, std::size_t>
         >::type* = nullptr>
     auto vec_transform(std::vector<T, A>&& v, L&& transform) {
-        using ResultType = decltype(transform(std::declval<T>(), std::declval<std::size_t>()));
+        using ResultType = decltype(transform(std::declval<T&&>(), std::declval<std::size_t>()));
 
         std::vector<ResultType> result;
         result.reserve(v.size());
