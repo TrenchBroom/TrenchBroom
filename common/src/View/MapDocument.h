@@ -271,7 +271,7 @@ namespace TrenchBroom {
             std::vector<Model::AttributableNode*> allSelectedAttributableNodes() const override;
             const Model::NodeCollection& selectedNodes() const override;
             std::vector<Model::BrushFace*> allSelectedBrushFaces() const override;
-            const std::vector<Model::BrushFace*>& selectedBrushFaces() const override;
+            std::vector<Model::BrushFace*> selectedBrushFaces() const override;
 
             const vm::bbox3& referenceBounds() const override;
             const vm::bbox3& lastSelectionBounds() const override;
