@@ -153,10 +153,6 @@ namespace TrenchBroom {
             m_brush.cloneInvertedFaceAttributesFrom(brush->m_brush);
         }
 
-        size_t BrushNode::vertexCount() const {
-            return m_brush.vertexCount();
-        }
-
         const BrushNode::VertexList& BrushNode::vertices() const {
             return m_brush.vertices();
         }

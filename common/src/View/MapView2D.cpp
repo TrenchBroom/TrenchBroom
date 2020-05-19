@@ -199,18 +199,20 @@ namespace TrenchBroom {
             const vm::plane3 minPlane(min, vm::vec3(m_camera->direction()));
             const vm::plane3 maxPlane(max, vm::vec3(m_camera->direction()));
 
-            const std::vector<Model::BrushNode*>& selectionBrushes = document->selectedNodes().brushes();
-            assert(!selectionBrushes.empty());
+            const std::vector<Model::BrushNode*>& selectionBrushNodes = document->selectedNodes().brushes();
+            assert(!selectionBrushNodes.empty());
 
             const Model::BrushBuilder brushBuilder(document->world(), worldBounds);
             std::vector<Model::BrushNode*> tallBrushes;
-            tallBrushes.reserve(selectionBrushes.size());
+            tallBrushes.reserve(selectionBrushNodes.size());
 
-            for (const Model::BrushNode* selectionBrush : selectionBrushes) {
+            for (const Model::BrushNode* selectionBrushNode : selectionBrushNodes) {
+                const Model::Brush& selectionBrush = selectionBrushNode->brush();
+                
                 std::vector<vm::vec3> tallVertices;
-                tallVertices.reserve(2 * selectionBrush->vertexCount());
+                tallVertices.reserve(2 * selectionBrush.vertexCount());
 
-                for (const Model::BrushVertex* vertex : selectionBrush->vertices()) {
+                for (const Model::BrushVertex* vertex : selectionBrushNode->vertices()) {
                     tallVertices.push_back(minPlane.project_point(vertex->position()));
                     tallVertices.push_back(maxPlane.project_point(vertex->position()));
                 }

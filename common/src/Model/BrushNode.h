@@ -81,7 +81,6 @@ namespace TrenchBroom {
             void cloneInvertedFaceAttributesFrom(const BrushNode* brush);
         public:
             // geometry access
-            size_t vertexCount() const;
             const VertexList& vertices() const;
             std::vector<vm::vec3> vertexPositions() const;
             vm::vec3 findClosestVertexPosition(const vm::vec3& position) const;
