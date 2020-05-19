@@ -27,6 +27,7 @@
 #include "TestUtils.h"
 #include "Model/PlanePointFinder.h"
 
+#include <array>
 
 /* see https://github.com/kduske/TrenchBroom/issues/1033
  commented out because it breaks the release build process
@@ -52,7 +53,7 @@ TEST_CASE("PlaneTest.planePointFinder", "[PlaneTest]") {
 
     // Now find a similar plane with integer points
 
-    vm::vec3 intpoints[3];
+    std::array<vm::vec3, 3u> intpoints;
     for (size_t i=0; i<3; i++)
         intpoints[i] = points[i];
 
