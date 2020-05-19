@@ -120,6 +120,14 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
 
+        void BrushNode::selectFace(const size_t faceIndex) {
+            m_brush.face(faceIndex)->select();
+        }
+        
+        void BrushNode::deselectFace(const size_t faceIndex) {
+            m_brush.face(faceIndex)->deselect();
+        }
+
         BrushFaceSnapshot* BrushNode::takeSnapshot(BrushFace* face) {
             ensure(face != nullptr, "face must not be null");
             return new BrushFaceSnapshot(this, face);
