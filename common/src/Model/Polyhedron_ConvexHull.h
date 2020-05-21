@@ -809,7 +809,18 @@ namespace TrenchBroom {
                 if (firstFace->coplanar(secondFace, planeEpsilon)) {
                     // If the vertex has only three incident edges, then it will be removed when the faces are merged.
                     const bool hasThreeIncidentEdges = leaving == leaving->nextIncident()->nextIncident()->nextIncident();
-                    mergeNeighbours(leaving, nullptr);
+
+                    // Choose the face to retain. We prefer the face that produces minimal error, i.e. the face such
+                    // such that the maximum distance of the other face's vertices to the face plane is minimal.
+                    if (firstFace->maximumVertexDistance(secondFace->plane()) <
+                        secondFace->maximumVertexDistance(firstFace->plane())) {
+                        // firstFace->plane() will introduce a smaller error, so merge secondFace into firstFace
+                        mergeNeighbours(edge->firstEdge(), nullptr);
+                    } else {
+                        // secondFace->plane() will introduce a smaller error, so merge firstFace into secondFace
+                        mergeNeighbours(edge->secondEdge(), nullptr);
+                    }
+                    
                     if (hasThreeIncidentEdges) {
                         return nullptr;
                     }

@@ -903,6 +903,14 @@ namespace TrenchBroom {
              * @return true if all vertices of this face lie on the given plane, and false otherwise
              */
             bool verticesOnPlane(const vm::plane<T,3>& plane, T epsilon) const;
+            
+            /**
+             * Returns the maximal distance of the vertices of this face to the given plane.
+             *
+             * @param plane the plane
+             * @return the maximal distance
+             */
+            T maximumVertexDistance(const vm::plane<T,3>& plane) const;
 
             /**
              * Flips this face by reversing the order of its half edges.

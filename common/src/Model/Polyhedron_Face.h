@@ -299,6 +299,17 @@ m_link(this)
         }
 
         template <typename T, typename FP, typename VP>
+        T Polyhedron_Face<T,FP,VP>::maximumVertexDistance(const vm::plane<T,3>& plane) const {
+            T maximumDistance = static_cast<T>(0);
+            for (const HalfEdge* halfEdge : m_boundary) {
+                const auto* vertex = halfEdge->origin();
+                maximumDistance = vm::max(plane.point_distance(vertex->position()), maximumDistance);
+            }
+
+            return maximumDistance;
+        }
+
+        template <typename T, typename FP, typename VP>
         void Polyhedron_Face<T,FP,VP>::flip() {
             m_boundary.reverse();
             m_plane = m_plane.flip();
