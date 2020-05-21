@@ -1471,6 +1471,21 @@ namespace TrenchBroom {
              * validEdge was null
              */
             Edge* mergeNeighbours(HalfEdge* borderFirst, Edge* validEdge);
+            
+            /**
+             * Merges the two incident edges of the given vertex. If either of the two incident faces is a
+             * triangle, the faces will be merged.
+             *
+             * Preconditions:
+             * - The given vertex has exactly two incident edges.
+             * - The given vertex has exactly two incident faces.
+             *
+             * If neither of the given faces is a triangle, then the given vertex, its leaving half edge and its twin
+             * and the corresponding edge will be removed. Otherwise, the faces will be merged.
+             *
+             * @param vertex the vertex to remove
+             */
+            void mergeIncidentEdges(Vertex* vertex);
         public:
             /**
              * Exports to .obj format for debugging.

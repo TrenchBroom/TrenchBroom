@@ -905,6 +905,55 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
+        void  Polyhedron<T,FP,VP>::mergeIncidentEdges(Vertex* vertex) {
+            assert(vertex != nullptr);
+            
+            /*
+                             face1
+             
+                 *-arriving->   *  -leaving->*
+              prev<----------vertex<---------next
+             
+                             face2
+             */
+            
+            HalfEdge* leaving = vertex->leaving();
+            assert(leaving != nullptr);
+            
+            // vertex has exactly two incident edges
+            assert(leaving != leaving->nextIncident());
+            assert(leaving == leaving->nextIncident()->nextIncident());
+            
+            // different faces on each side of the leaving edge
+            assert(leaving->face() != leaving->twin()->face());
+            
+            // only two incident faces in total
+            assert(leaving->face() == leaving->previous()->face());
+            assert(leaving->twin()->face() == leaving->twin()->next()->face());
+            
+            Face* face1 = leaving->face();
+            Face* face2 = leaving->twin()->face();
+
+            // each incident face has more than three vertices
+            assert(face1->vertexCount() > 3u);
+            assert(face2->vertexCount() > 3u);
+
+            HalfEdge* arriving = leaving->previous();
+            Vertex* next = leaving->destination();
+            
+            Edge* edgeToRemove = leaving->edge();
+            
+            face2->removeFromBoundary(leaving->twin(), leaving->twin());
+            face1->removeFromBoundary(leaving, leaving);
+            
+            arriving->twin()->setOrigin(next);
+            next->setLeaving(arriving->twin());
+            
+            m_edges.remove(edgeToRemove);
+            m_vertices.remove(vertex);
+        }
+        
+        template <typename T, typename FP, typename VP>
         std::string Polyhedron<T,FP,VP>::exportObj() const {
             std::vector<const Face*> faces;
             for (const Face* face : m_faces) {
@@ -937,7 +986,7 @@ namespace TrenchBroom {
                     assert(indexOptional.has_value());
         
                     // .obj indices are 1-based
-                    ss << (*indexOptional + 1) << " ";   
+                    ss << (*indexOptional + 1) << " ";
                 }
                 ss << "\n";
             }
