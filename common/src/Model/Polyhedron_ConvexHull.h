@@ -62,14 +62,18 @@ namespace TrenchBroom {
         
         template <typename T, typename FP, typename VP>
         void Polyhedron<T,FP,VP>::addPoints(std::vector<vm::vec<T,3>> points) {
-            kdl::vec_sort_and_remove_duplicates(points);
-            for (const auto& point : points) {
-                addPoint(point);
+            if (!points.empty()) {
+                kdl::vec_sort_and_remove_duplicates(points);
+                
+                const auto planeEpsilon = vm::constants<T>::point_status_epsilon();
+                for (const auto& point : points) {
+                    addPoint(point, planeEpsilon);
+                }
             }
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPoint(const vm::vec<T,3>& position) {
+        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPoint(const vm::vec<T,3>& position, const T planeEpsilon) {
             assert(checkInvariant());
 
             // quick test to discard vertices
@@ -94,7 +98,7 @@ namespace TrenchBroom {
                     m_bounds = vm::merge(m_bounds, position);
                     break;
                 default:
-                    result = addFurtherPoint(position);
+                    result = addFurtherPoint(position, planeEpsilon);
                     if (result != nullptr) {
                         m_bounds = vm::merge(m_bounds, position);
                     }
@@ -210,34 +214,34 @@ namespace TrenchBroom {
 
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPoint(const vm::vec<T,3>& position) {
+        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPoint(const vm::vec<T,3>& position, const T planeEpsilon) {
             assert(faceCount() > 0u);
             if (faceCount() == 1u) {
-                return addFurtherPointToPolygon(position);
+                return addFurtherPointToPolygon(position, planeEpsilon);
             } else {
-                return addFurtherPointToPolyhedron(position);
+                return addFurtherPointToPolyhedron(position, planeEpsilon);
             }
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolygon(const vm::vec<T,3>& position) {
+        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolygon(const vm::vec<T,3>& position, const T planeEpsilon) {
             Face* face = m_faces.front();
-            const vm::plane_status status = face->pointStatus(position);
+            const vm::plane_status status = face->pointStatus(position, planeEpsilon);
             switch (status) {
                 case vm::plane_status::inside:
-                    return addPointToPolygon(position);
+                    return addPointToPolygon(position, planeEpsilon);
                 case vm::plane_status::above:
                     face->flip();
                     switchFallthrough();
                 case vm::plane_status::below:
-                    return makePolyhedron(position);
+                    return makePolyhedron(position, planeEpsilon);
             }
             // will never be reached
             return nullptr;
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(const vm::vec<T,3>& position) {
+        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPointToPolygon(const vm::vec<T,3>& position, const T planeEpsilon) {
             assert(polygon());
 
             Face* face = m_faces.front();
@@ -249,9 +253,9 @@ namespace TrenchBroom {
             for (HalfEdge* curEdge : face->boundary()) {
                 HalfEdge* prevEdge = curEdge->previous();
                 HalfEdge* nextEdge = curEdge->next();
-                const vm::plane_status prevStatus = prevEdge->pointStatus(facePlane.normal, position);
-                const vm::plane_status curStatus = curEdge->pointStatus(facePlane.normal, position);
-                const vm::plane_status nextStatus = nextEdge->pointStatus(facePlane.normal, position);
+                const vm::plane_status prevStatus = prevEdge->pointStatus(facePlane.normal, position, planeEpsilon);
+                const vm::plane_status curStatus = curEdge->pointStatus(facePlane.normal, position, planeEpsilon);
+                const vm::plane_status nextStatus = nextEdge->pointStatus(facePlane.normal, position, planeEpsilon);
 
                 // If the current edge contains the point, it will not be added anyway.
                 if (curStatus == vm::plane_status::inside &&
@@ -334,7 +338,7 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::makePolyhedron(const vm::vec<T,3>& position) {
+        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::makePolyhedron(const vm::vec<T,3>& position, const T planeEpsilon) {
             assert(polygon());
 
             Seam seam;
@@ -346,14 +350,14 @@ namespace TrenchBroom {
                 seam.push_back((*it)->edge());
             }
 
-            return weave(seam, position);
+            return weave(seam, position, planeEpsilon);
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolyhedron(const vm::vec<T,3>& position) {
+        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolyhedron(const vm::vec<T,3>& position, const T planeEpsilon) {
             assert(polyhedron());
             
-            auto seam = createSeamForHorizon(position);
+            auto seam = createSeamForHorizon(position, planeEpsilon);
 
             // If no correct seam could be created, we assume that the vertex was inside the polyhedron.
             // If the seam has multiple loops, this indicates that the point to be added is very close to
@@ -372,8 +376,8 @@ namespace TrenchBroom {
             }
             
             split(*seam);
-            
-            return weave(*seam, position);
+
+            return weave(*seam, position, planeEpsilon);
         }
 
         template <typename T, typename FP, typename VP>
@@ -563,7 +567,7 @@ namespace TrenchBroom {
         };
         
         template <typename T, typename FP, typename VP>
-        std::optional<typename Polyhedron<T,FP,VP>::Seam> Polyhedron<T,FP,VP>::createSeamForHorizon(const vm::vec<T,3>& position) {
+        std::optional<typename Polyhedron<T,FP,VP>::Seam> Polyhedron<T,FP,VP>::createSeamForHorizon(const vm::vec<T,3>& position, const T planeEpsilon) {
             Face* initialVisibleFace = nullptr;
             for (Face* face : m_faces) {
                 if (face->plane().point_status(position, planeEpsilon) != vm::plane_status::below) {
@@ -579,19 +583,19 @@ namespace TrenchBroom {
             Seam seam;
             
             std::unordered_set<Face*> visitedFaces{initialVisibleFace};
-            visitFace(position, initialVisibleFace->boundary().front(), visitedFaces, seam);
-            
+            visitFace(position, initialVisibleFace->boundary().front(), visitedFaces, seam, planeEpsilon);
+
             return seam;
         }
         
         template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::visitFace(const vm::vec<T,3>& position, HalfEdge* initialBoundaryEdge, std::unordered_set<Face*>& visitedFaces, Seam& seam) {
+        void Polyhedron<T,FP,VP>::visitFace(const vm::vec<T,3>& position, HalfEdge* initialBoundaryEdge, std::unordered_set<Face*>& visitedFaces, Seam& seam, const T planeEpsilon) {
             HalfEdge* currentBoundaryEdge = initialBoundaryEdge;
             do {
                 Face* neighbour = currentBoundaryEdge->twin()->face();
                 if (neighbour->plane().point_status(position, planeEpsilon) != vm::plane_status::below) {
                     if (visitedFaces.insert(neighbour).second) {
-                        visitFace(position, currentBoundaryEdge->twin(), visitedFaces, seam);
+                        visitFace(position, currentBoundaryEdge->twin(), visitedFaces, seam, planeEpsilon);
                     }
                 } else {
                     Edge* edge = currentBoundaryEdge->edge();
@@ -727,7 +731,7 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(const Seam& seam, const vm::vec<T,3>& position) {
+        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(const Seam& seam, const vm::vec<T,3>& position, const T planeEpsilon) {
             assert(seam.size() >= 3);
             assert(!seam.hasMultipleLoops());
             assert(!empty() && !point() && !edge());
@@ -771,7 +775,7 @@ namespace TrenchBroom {
             m_edges.push_back(new Edge(first, last));
             m_vertices.push_back(top);
 
-            if (mergeCoplanarIncidentFaces(top)) {
+            if (mergeCoplanarIncidentFaces(top, planeEpsilon)) {
                 return top;
             } else {
                 return nullptr;
@@ -779,7 +783,7 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        bool Polyhedron<T,FP,VP>::mergeCoplanarIncidentFaces(Vertex* vertex) {
+        bool Polyhedron<T,FP,VP>::mergeCoplanarIncidentFaces(Vertex* vertex, const T planeEpsilon) {
             assert(vertex != nullptr);
             assert(checkInvariant());
             
@@ -789,7 +793,7 @@ namespace TrenchBroom {
                 Face* firstFace = edge->firstFace();
                 Face* secondFace = edge->secondFace();
 
-                if (firstFace->coplanar(secondFace)) {
+                if (firstFace->coplanar(secondFace, planeEpsilon)) {
                     // If the vertex has only three incident edges, then it will be removed when the faces are merged.
                     const bool hasThreeIncidentEdges = leaving == leaving->nextIncident()->nextIncident()->nextIncident();
                     mergeNeighbours(leaving, nullptr);

@@ -695,8 +695,8 @@ namespace TrenchBroom {
                 const auto newPos = oldPos + delta;
 
                 for (const auto* face : remaining.faces()) {
-                    if (face->pointStatus(oldPos) == vm::plane_status::below &&
-                        face->pointStatus(newPos) == vm::plane_status::above) {
+                    if (face->pointStatus(oldPos, vm::constants<FloatType>::point_status_epsilon()) == vm::plane_status::below &&
+                        face->pointStatus(newPos, vm::constants<FloatType>::point_status_epsilon()) == vm::plane_status::above) {
                         const auto ray = vm::ray3(oldPos, normalize(newPos - oldPos));
                         const auto distance = face->intersectWithRay(ray, vm::side::back);
                         if (!vm::is_nan(distance)) {

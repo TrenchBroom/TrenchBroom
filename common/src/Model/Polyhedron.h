@@ -363,9 +363,10 @@ namespace TrenchBroom {
              * This function assumes that the vertices of this edge are on opposite sides of the given plane.
              *
              * @param plane the plane at which to split this edge
+             * @param epsilon the epsilon value to use for point status checks
              * @return the newly created edge
              */
-            Edge* split(const vm::plane<T,3>& plane);
+            Edge* split(const vm::plane<T,3>& plane, T epsilon);
 
             /**
              * Inserts a new vertex at the given position into this edge, creating two new half edges, and a new edge.
@@ -606,9 +607,10 @@ namespace TrenchBroom {
              *
              * @param normal the normal vector, this is expected to be a unit vector
              * @param point the point to check
+             * @param epsilon value to use for point status checks
              * @return the relative location of the given point and the plane p
              */
-            vm::plane_status pointStatus(const vm::vec<T,3>& normal, const vm::vec<T,3>& point) const;
+            vm::plane_status pointStatus(const vm::vec<T,3>& normal, const vm::vec<T,3>& point, T epsilon) const;
 
             /**
              * Determines whether this half edge is colinear to the given half edge, which is expected to have this
@@ -882,23 +884,25 @@ namespace TrenchBroom {
              * @param epsilon the epsilon value to use for the position check
              * @return the relative position of the given point
              */
-            vm::plane_status pointStatus(const vm::vec<T,3>& point, T epsilon = vm::constants<T>::point_status_epsilon()) const;
+            vm::plane_status pointStatus(const vm::vec<T,3>& point, T epsilon) const;
         private:
             /**
              * Checks whether this face is coplanar with the given face, that is, if both faces lie in the same plane.
              *
              * @param other the other face
+             * @param epsilon value to use for point status checks
              * @return true if the faces are coplanar and false otherwise
              */
-            bool coplanar(const Face* other) const;
+            bool coplanar(const Face* other, T epsilon) const;
 
             /**
              * Checks whether all vertices of this face lie in the given plane.
              *
              * @param plane the plane to check
+             * @param epsilon value to use for point status checks
              * @return true if all vertices of this face lie on the given plane, and false otherwise
              */
-            bool verticesOnPlane(const vm::plane<T,3>& plane) const;
+            bool verticesOnPlane(const vm::plane<T,3>& plane, T epsilon) const;
 
             /**
              * Flips this face by reversing the order of its half edges.
@@ -1528,9 +1532,10 @@ namespace TrenchBroom {
              * To add multiple points at once, prefer to call addPoints.
              *
              * @param position the point to add
+             * @param planeEpsilon the plane epsilon to use for point status checks
              * @return the newly created vertex, or null if the given point was not added to this polyhedron
              */
-            Vertex* addPoint(const vm::vec<T,3>& position);
+            Vertex* addPoint(const vm::vec<T,3>& position, T planeEpsilon);
         private:
             /**
              * Helper function that adds the given point to an empty polyhedron. Afterwards, this polyhedron will be a
@@ -1606,9 +1611,10 @@ namespace TrenchBroom {
              * Assumes that this is either a polygon or a convex volume.
              *
              * @param position the point to add
+             * @param planeEpsilon the plane epsilon to use for point status checks
              * @return the newly created vertex or null if no vertex was created
              */
-            Vertex* addFurtherPoint(const vm::vec<T,3>& position);
+            Vertex* addFurtherPoint(const vm::vec<T,3>& position, T planeEpsilon);
 
             /**
              * Helper function that adds the given point to a polygon.
@@ -1619,9 +1625,10 @@ namespace TrenchBroom {
              * Assumes that this polyhedron is a polygon.
              *
              * @param position the point to add
+             * @param planeEpsilon the plane epsilon to use for point status checks
              * @return the newly created vertex or null if no vertex was created
              */
-            Vertex* addFurtherPointToPolygon(const vm::vec<T,3>& position);
+            Vertex* addFurtherPointToPolygon(const vm::vec<T,3>& position, T planeEpsilon);
 
             /**
              * Helper function that adds a coplanar point to a polygon.
@@ -1630,9 +1637,10 @@ namespace TrenchBroom {
              * polygon.
              *
              * @param position the point to add
+             * @param planeEpsilon the plane epsilon to use for point status checks
              * @return the newly created vertex or null if no vertex was created
              */
-            Vertex* addPointToPolygon(const vm::vec<T,3>& position);
+            Vertex* addPointToPolygon(const vm::vec<T,3>& position, T planeEpsilon);
 
             /**
              * Helper function that creates a new polygon from the given vector of coplanar points.
@@ -1651,9 +1659,10 @@ namespace TrenchBroom {
              * polygon.
              *
              * @param position the point to add
+             * @param planeEpsilon the plane epsilon to use for point status checks
              * @return the newly created vertex or null if no vertex was created
              */
-            Vertex* makePolyhedron(const vm::vec<T,3>& position);
+            Vertex* makePolyhedron(const vm::vec<T,3>& position, T planeEpsilon);
 
             /**
              * Helper function that adds the given point to a convex volume.
@@ -1661,9 +1670,10 @@ namespace TrenchBroom {
              * Assumes that this polyhedron is a convex volume.
              *
              * @param position the point to add
+             * @param planeEpsilon the plane epsilon to use for point status checks
              * @return the newly created vertex or null if no vertex was created
              */
-            Vertex* addFurtherPointToPolyhedron(const vm::vec<T,3>& position);
+            Vertex* addFurtherPointToPolyhedron(const vm::vec<T,3>& position, T planeEpsilon);
 
             /**
              * A seam is a circular sequence of consecutive edges. For each edge of a seam, it must hold that its first
@@ -1691,12 +1701,13 @@ namespace TrenchBroom {
              * faces does not.
              *
              * @param position the vertex position
+             * @param planeEpsilon the plane epsilon to use for point status checks
              * @return a seam that separates the faces that are visible from the given position from those that do not,
              * or an empty optional if no seam could be created
              */
-            std::optional<Seam> createSeamForHorizon(const vm::vec<T,3>& position);
+            std::optional<Seam> createSeamForHorizon(const vm::vec<T,3>& position, T planeEpsilon);
 
-            void visitFace(const vm::vec<T,3>& position, HalfEdge* initialBoundaryEdge, std::unordered_set<Face*>& visitedFaces, Seam& seam);
+            void visitFace(const vm::vec<T,3>& position, HalfEdge* initialBoundaryEdge, std::unordered_set<Face*>& visitedFaces, Seam& seam, T planeEpsilon);
 
             /**
              * Splits this polyhedron along the given seam. The edges of the seam must be oriented in such a way that
@@ -1770,9 +1781,10 @@ namespace TrenchBroom {
              *
              * @param seam the seam to weave a cone onto
              * @param position the position of the cone's tip
+             * @param planeEpsilon the plane epsilon to use for point status checks
              * @return the newly created vertex at the tip of the newly created cone
              */
-            Vertex* weave(const Seam& seam, const vm::vec<T,3>& position);
+            Vertex* weave(const Seam& seam, const vm::vec<T,3>& position, T planeEpsilon);
 
             /**
              * Inspects all incident faces of the given vertex and merges those which are coplanar. If all the faces
@@ -1784,10 +1796,11 @@ namespace TrenchBroom {
              * retained and the faces incident to the given vertex are removed.
              *
              * @param vertex the vertex whose incident faces should be merged
+             * @param planeEpsilon the plane epsilon to use for point status checks
              * @return true if the given vertex remains or false if all incident faces were merged and the vertex was
              * deleted
              */
-            bool mergeCoplanarIncidentFaces(Vertex* vertex);
+            bool mergeCoplanarIncidentFaces(Vertex* vertex, T planeEpsilon);
         public: // Clipping
             /**
              * The result of clipping this polyhedron with a plane.
@@ -2029,9 +2042,10 @@ namespace TrenchBroom {
              * polyhedron if it isn't above any of its faces' planes.
              *
              * @param point the point to check
+             * @param epsilon custom epsilon
              * @return true if the given point is contained in this polyhedron and false otherwise
              */
-            bool contains(const vm::vec<T,3>& point) const;
+            bool contains(const vm::vec<T,3>& point, T epsilon) const;
 
             /**
              * Checks whether this polyhedron contains the given polyhedron. A polyhedron is considered to be contained

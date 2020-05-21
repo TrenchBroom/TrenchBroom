@@ -71,7 +71,7 @@ namespace TrenchBroom {
         Polyhedron<T,FP,VP>::Polyhedron(const vm::bbox<T,3>& bounds) :
             m_bounds(bounds) {
             if (m_bounds.min == m_bounds.max) {
-                addPoint(m_bounds.min);
+                addPoint(m_bounds.min, vm::constants<T>::point_status_epsilon());
                 return;
             }
 
@@ -778,7 +778,7 @@ namespace TrenchBroom {
                     auto* nextEdge = currentEdge->nextIncident();
                     auto* currentFace = firstEdge->face();
                     auto* neighbour = firstEdge->twin()->face();
-                    if (currentFace->coplanar(neighbour)) {
+                    if (currentFace->coplanar(neighbour, vm::constants<T>::point_status_epsilon())) {
                         result = mergeNeighbours(currentEdge, result);
                     }
                     currentEdge = nextEdge;

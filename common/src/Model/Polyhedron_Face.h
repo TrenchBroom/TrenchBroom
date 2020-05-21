@@ -269,7 +269,7 @@ m_link(this)
         }
 
         template <typename T, typename FP, typename VP>
-        bool Polyhedron_Face<T,FP,VP>::coplanar(const Face* other) const {
+        bool Polyhedron_Face<T,FP,VP>::coplanar(const Face* other, const T epsilon) const {
             assert(other != nullptr);
 
             // Test if the normals are colinear by checking their enclosed angle.
@@ -278,19 +278,19 @@ m_link(this)
             }
 
             const vm::plane<T,3> myPlane(m_boundary.front()->origin()->position(), normal());
-            if (!other->verticesOnPlane(myPlane)) {
+            if (!other->verticesOnPlane(myPlane, epsilon)) {
                 return false;
             }
 
             const vm::plane<T,3> otherPlane(other->boundary().front()->origin()->position(), other->normal());
-            return verticesOnPlane(otherPlane);
+            return verticesOnPlane(otherPlane, epsilon);
         }
 
         template <typename T, typename FP, typename VP>
-        bool Polyhedron_Face<T,FP,VP>::verticesOnPlane(const vm::plane<T,3>& plane) const {
+        bool Polyhedron_Face<T,FP,VP>::verticesOnPlane(const vm::plane<T,3>& plane, const T epsilon) const {
             for (const HalfEdge* halfEdge : m_boundary) {
                 const auto* vertex = halfEdge->origin();
-                if (plane.point_status(vertex->position()) != vm::plane_status::inside) {
+                if (plane.point_status(vertex->position(), epsilon) != vm::plane_status::inside) {
                     return false;
                 }
             }

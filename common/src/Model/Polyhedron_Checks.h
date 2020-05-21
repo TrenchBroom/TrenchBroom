@@ -179,7 +179,7 @@ namespace TrenchBroom {
 
             for (const Face* face : m_faces) {
                 for (const Vertex* vertex : m_vertices) {
-                    if (face->pointStatus(vertex->position()) == vm::plane_status::above) {
+                    if (face->pointStatus(vertex->position(), vm::constants<T>::point_status_epsilon()) == vm::plane_status::above) {
                         return false;
                     }
                 }
@@ -219,7 +219,7 @@ namespace TrenchBroom {
                 if (firstFace == secondFace) {
                     return false;
                 }
-                if (firstFace->coplanar(secondFace)) {
+                if (firstFace->coplanar(secondFace, vm::constants<T>::point_status_epsilon())) {
                     return false;
                 }
             }

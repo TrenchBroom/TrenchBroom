@@ -124,7 +124,7 @@ namespace TrenchBroom {
                     });
 
                 assert(it != std::end(m_vertices));
-                if (plane.point_status((*it)->position()) == vm::plane_status::below) {
+                if (plane.point_status((*it)->position(), vm::constants<T>::point_status_epsilon()) == vm::plane_status::below) {
                     // The furthest point is below the plane.
                     return ClipResult(ClipResult::FailureReason::Unchanged);
                 } else {
@@ -141,7 +141,7 @@ namespace TrenchBroom {
             std::size_t inside = 0u;
 
             for (const Vertex* currentVertex : m_vertices) {
-                const vm::plane_status status = plane.point_status(currentVertex->position());
+                const vm::plane_status status = plane.point_status(currentVertex->position(), vm::constants<T>::point_status_epsilon());
                 switch (status) {
                     case vm::plane_status::above:
                         ++above;
@@ -245,8 +245,8 @@ namespace TrenchBroom {
         typename Polyhedron<T,FP,VP>::HalfEdge* Polyhedron<T,FP,VP>::findInitialIntersectingEdge(const vm::plane<T,3>& plane) const {
             for (const Edge* currentEdge : m_edges) {
                 HalfEdge* halfEdge = currentEdge->firstEdge();
-                const vm::plane_status os = plane.point_status(halfEdge->origin()->position());
-                const vm::plane_status ds = plane.point_status(halfEdge->destination()->position());
+                const vm::plane_status os = plane.point_status(halfEdge->origin()->position(), vm::constants<T>::point_status_epsilon());
+                const vm::plane_status ds = plane.point_status(halfEdge->destination()->position(), vm::constants<T>::point_status_epsilon());
 
 
                 if ((os == vm::plane_status::inside && ds == vm::plane_status::above) ||
@@ -264,14 +264,14 @@ namespace TrenchBroom {
                     // to be clipped away, we must examine the destination of its successor(s). If that is below the plane,
                     // we return the twin, otherwise we return the half edge.
                     HalfEdge* nextEdge = halfEdge->next();
-                    vm::plane_status ss = plane.point_status(nextEdge->destination()->position());
+                    vm::plane_status ss = plane.point_status(nextEdge->destination()->position(), vm::constants<T>::point_status_epsilon());
 
                     while (ss == vm::plane_status::inside && nextEdge != halfEdge) {
                         // Due to floating point imprecision, we might run into the case where the successor's destination is
                         // still considered "inside" the plane. In this case, we consider the successor's successor and so on
                         // until we find an edge whose destination is not inside the plane.
                         nextEdge = nextEdge->next();
-                        ss = plane.point_status(nextEdge->destination()->position());
+                        ss = plane.point_status(nextEdge->destination()->position(), vm::constants<T>::point_status_epsilon());
                     }
 
                     if (ss == vm::plane_status::inside) {
@@ -307,8 +307,8 @@ namespace TrenchBroom {
 
             HalfEdge* currentBoundaryEdge = firstBoundaryEdge;
             do {
-                const vm::plane_status os = plane.point_status(currentBoundaryEdge->origin()->position());
-                const vm::plane_status ds = plane.point_status(currentBoundaryEdge->destination()->position());
+                const vm::plane_status os = plane.point_status(currentBoundaryEdge->origin()->position(), vm::constants<T>::point_status_epsilon());
+                const vm::plane_status ds = plane.point_status(currentBoundaryEdge->destination()->position(), vm::constants<T>::point_status_epsilon());
 
                 if (os == vm::plane_status::inside) {
                     if (seamOrigin == nullptr) {
@@ -321,12 +321,12 @@ namespace TrenchBroom {
                            (os == vm::plane_status::above && ds == vm::plane_status::below)) {
                     // We have to split the edge and insert a new vertex, which will become the origin or destination of the new seam edge.
                     Edge* currentEdge = currentBoundaryEdge->edge();
-                    Edge* newEdge = currentEdge->split(plane);
+                    Edge* newEdge = currentEdge->split(plane, vm::constants<T>::point_status_epsilon());
                     m_edges.push_back(newEdge);
 
                     currentBoundaryEdge = currentBoundaryEdge->next();
                     Vertex* newVertex = currentBoundaryEdge->origin();
-                    assert(plane.point_status(newVertex->position()) == vm::plane_status::inside);
+                    assert(plane.point_status(newVertex->position(), vm::constants<T>::point_status_epsilon()) == vm::plane_status::inside);
 
                     m_vertices.push_back(newVertex);
 
@@ -351,7 +351,7 @@ namespace TrenchBroom {
                 // between them.
                 // The newly created faces are supposed to be above the given plane, so we have to consider whether the destination of the
                 // seam origin edge is above or below the plane.
-                const vm::plane_status os = plane.point_status(seamOrigin->destination()->position());
+                const vm::plane_status os = plane.point_status(seamOrigin->destination()->position(), vm::constants<T>::point_status_epsilon());
                 assert(os != vm::plane_status::inside);
                 if (os == vm::plane_status::below) {
                     intersectWithPlane(seamOrigin, seamDestination);
@@ -398,8 +398,8 @@ namespace TrenchBroom {
 
                 Vertex* cd = currentEdge->destination();
                 Vertex* po = currentEdge->previous()->origin();
-                const vm::plane_status cds = plane.point_status(cd->position());
-                const vm::plane_status pos = plane.point_status(po->position());
+                const vm::plane_status cds = plane.point_status(cd->position(), vm::constants<T>::point_status_epsilon());
+                const vm::plane_status pos = plane.point_status(po->position(), vm::constants<T>::point_status_epsilon());
 
                 if ((cds == vm::plane_status::inside) ||
                     (cds == vm::plane_status::below && pos == vm::plane_status::above) ||
