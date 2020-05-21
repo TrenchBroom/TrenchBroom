@@ -89,9 +89,9 @@ namespace TrenchBroom {
         typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPoint(const vm::vec<T,3>& position, const T planeEpsilon) {
             assert(checkInvariant());
 
-            // quick test to discard vertices
+            // quick test to discard vertices which would yield short edges
             for (const Vertex* v : m_vertices) {
-                if (position == v->position()) {
+                if (vm::distance(position, v->position()) < MinEdgeLength) {
                     return nullptr;
                 }
             }
