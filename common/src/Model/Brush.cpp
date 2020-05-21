@@ -401,7 +401,12 @@ namespace TrenchBroom {
 
         bool Brush::canAddVertex(const vm::bbox3& worldBounds, const vm::vec3& position) const {
             ensure(m_geometry != nullptr, "geometry is null");
-            return worldBounds.contains(position) && !m_geometry->contains(position);
+            if (!worldBounds.contains(position)) {
+                return false;
+            }
+            
+            BrushGeometry newGeometry(kdl::vec_concat(m_geometry->vertexPositions(), std::vector<vm::vec3>({position})));
+            return newGeometry.hasVertex(position);
         }
 
         BrushVertex* Brush::addVertex(const vm::bbox3& worldBounds, const vm::vec3& position) {
