@@ -59,13 +59,26 @@ namespace TrenchBroom {
                 return plane;
             }
         }
-        
+
+        namespace {
+            template <typename T>
+            T computePlaneEpsilon(const std::vector<vm::vec<T,3>>& points) {
+                typename vm::bbox<T,3>::builder builder;
+                builder.add(std::begin(points), std::end(points));
+                const auto size = builder.bounds().size();
+                
+                const auto defaultEpsilon = vm::constants<T>::point_status_epsilon();
+                const auto computedEpsilon = vm::get_max_component(size) / static_cast<T>(10) * vm::constants<T>::point_status_epsilon();
+                return std::max(computedEpsilon, defaultEpsilon);
+            }
+        }
+
         template <typename T, typename FP, typename VP>
         void Polyhedron<T,FP,VP>::addPoints(std::vector<vm::vec<T,3>> points) {
             if (!points.empty()) {
                 kdl::vec_sort_and_remove_duplicates(points);
                 
-                const auto planeEpsilon = vm::constants<T>::point_status_epsilon();
+                const auto planeEpsilon = computePlaneEpsilon(points);
                 for (const auto& point : points) {
                     addPoint(point, planeEpsilon);
                 }
