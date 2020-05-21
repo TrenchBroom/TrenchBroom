@@ -2851,6 +2851,62 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, 0.0, +16.0)));
             ASSERT_TRUE(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, 0.0, -16.0)));
         }
+        
+        TEST_CASE("BrushTest.convexMergeCrash_2789", "[BrushTest]") {
+            // see https://github.com/kduske/TrenchBroom/issues/2789
+            const vm::bbox3 worldBounds(4096.0);
+            WorldNode world(MapFormat::Valve);
+
+            const auto path = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Brush/curvetut-crash.map");
+            const std::string data = IO::Disk::readFile(path);
+            REQUIRE(!data.empty());
+
+            IO::TestParserStatus status;
+            IO::NodeReader reader(data, world);
+
+            auto nodes = reader.read(worldBounds, status);
+            REQUIRE(!nodes.empty());
+
+            std::vector<vm::vec3> points;
+            for (const auto* node : nodes) {
+                if (const auto* brushNode = dynamic_cast<const BrushNode*>(node)) {
+                    for (const auto* vertex : brushNode->brush().vertices()) {
+                        points.push_back(vertex->position());
+                    }
+                }
+            }
+
+            Polyhedron3 polyhedron(std::move(points));
+            kdl::col_delete_all(nodes);
+        }
+
+        TEST_CASE("BrushTest.convexMergeIncorrectResult_2789", "[BrushTest]") {
+            // weirdcurvemerge.map from https://github.com/kduske/TrenchBroom/issues/2789
+            const vm::bbox3 worldBounds(8192.0);
+            WorldNode world(MapFormat::Valve);
+
+            const auto path = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Brush/weirdcurvemerge.map");
+            const std::string data = IO::Disk::readFile(path);
+            REQUIRE(!data.empty());
+
+            IO::TestParserStatus status;
+            IO::NodeReader reader(data, world);
+
+            const std::vector<Node*> nodes = reader.read(worldBounds, status);
+            REQUIRE(nodes.size() == 28);
+
+            std::vector<vm::vec3> points;
+            for (const auto* node : nodes) {
+                const auto* brushNode = dynamic_cast<const BrushNode*>(node);
+                REQUIRE(brushNode != nullptr);
+                for (const auto* vertex : brushNode->brush().vertices()) {
+                    points.push_back(vertex->position());
+                }
+            }
+
+            Polyhedron3 polyhedron(std::move(points));
+            kdl::col_delete_all(nodes);
+        }
 
         TEST_CASE("BrushTest.subtractCuboidFromCuboid", "[BrushTest]") {
             const vm::bbox3 worldBounds(4096.0);
