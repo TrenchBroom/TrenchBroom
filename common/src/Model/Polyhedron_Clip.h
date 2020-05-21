@@ -62,6 +62,8 @@ namespace TrenchBroom {
 
         template <typename T, typename FP, typename VP>
         typename Polyhedron<T,FP,VP>::ClipResult Polyhedron<T,FP,VP>::clip(const vm::plane<T,3>& plane) {
+            assert(checkInvariant());
+            
             if (const auto vertexResult = checkIntersects(plane)) {
                 return ClipResult(*vertexResult);
             }
@@ -77,12 +79,20 @@ namespace TrenchBroom {
                 // polyhedron that is above the plane. The remaining half is an open polyhedron (one face is missing) which
                 // is below the plane.
                 split(seam);
-
+                
                 // We seal the polyhedron by creating a new face.
                 Face* newFace = sealWithSinglePolygon(seam, plane);
-                updateBounds();
-
                 assert(newFace != nullptr);
+
+                // Remove any redundant vertices from the seam
+                // TODO: check if we really need this
+                for (Vertex* vertex : seam.vertices()) {
+                    if (vertex->hasTwoIncidentEdges()) {
+                        mergeIncidentEdges(vertex);
+                    }
+                }
+
+                updateBounds();
                 assert(checkInvariant());
 
                 return ClipResult(newFace);
@@ -90,20 +100,11 @@ namespace TrenchBroom {
                 /*
                  No seam could be constructed, but the polyhedron may have been modified by splitting
                  some faces. The exception contains the edges connecting the split faces, and now we must
-                 merge them again if they are coplanar.
+                 merge them again.
                  */
+                assert(checkInvariant());
                 for (const Edge* edge : e.splitFaces()) {
-                    Vertex* vertex1 = edge->firstVertex();
-                    Vertex* vertex2 = edge->secondVertex();
                     mergeNeighbours(edge->firstEdge(), nullptr);
-                    
-                    // Remove the newly inserted vertices and edges, too.
-                    if (vertex1->hasTwoIncidentEdges()) {
-                        mergeIncidentEdges(vertex1);
-                    }
-                    if (vertex2->hasTwoIncidentEdges()) {
-                        mergeIncidentEdges(vertex2);
-                    }
                 }
                 assert(checkInvariant());
 

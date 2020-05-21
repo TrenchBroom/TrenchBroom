@@ -863,9 +863,12 @@ namespace TrenchBroom {
 
             HalfEdge* twinFirst = borderLast->twin();
 
+            Vertex* borderFirstOrigin = borderFirst->origin();
+            Vertex* twinFirstOrigin = twinFirst->origin();
+            
             // make sure we don't remove any leaving edges
-            borderFirst->origin()->setLeaving(twinLast->next());
-            twinFirst->origin()->setLeaving(borderLast->next());
+            borderFirstOrigin->setLeaving(twinLast->next());
+            twinFirstOrigin->setLeaving(borderLast->next());
 
             HalfEdge* remainingFirst = twinLast->next();
             HalfEdge* remainingLast = twinFirst->previous();
@@ -901,6 +904,37 @@ namespace TrenchBroom {
             } while (curEdge != firstEdge);
 
             m_faces.remove(neighbour);
+            
+            // Fix topological errors
+            const auto fixTopologicalErrors = [&](Vertex* vertex) {
+                if (vertex->hasTwoIncidentEdges()) {
+                    // vertex has become redundant, so we need to remove it.
+                    
+                    Face* face1 = vertex->leaving()->face();
+                    Face* face2 = vertex->leaving()->twin()->face();
+                    
+                    if (face1->vertexCount() == 3u || face2->vertexCount() == 3u) {
+                        // If either face is a triangle, then the other face has become convex. We merge the two faces.
+                        HalfEdge* borderEdge = vertex->leaving();
+                        if (borderEdge->face() != face) {
+                            // We want to retain the original face, so we make sure that we pass the correct half edge
+                            // to mergeNeighbours.
+                            borderEdge = borderEdge->twin();
+                        }
+                        validEdge = mergeNeighbours(borderEdge, validEdge);
+                    } else {
+                        assert(face1->vertexCount() > 3u && face2->vertexCount() > 3u);
+                        if (validEdge == vertex->leaving()->edge()) {
+                            validEdge = validEdge->next();
+                        }
+                        mergeIncidentEdges(vertex);
+                    }
+                }
+            };
+
+            fixTopologicalErrors(borderFirstOrigin);
+            fixTopologicalErrors(twinFirstOrigin);
+            
             return validEdge;
         }
 

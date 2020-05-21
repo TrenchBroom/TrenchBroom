@@ -38,6 +38,7 @@
 #include <string>
 #include <variant>
 #include <vector>
+#include <unordered_set>
 
 namespace TrenchBroom {
     namespace Model {
@@ -1461,6 +1462,15 @@ namespace TrenchBroom {
              * - all vertices which have only f1 and f2 as their incident faces are deleted
              * - f2 is deleted
              *
+             * After the faces are merged, topological errors are checked and fixed. Let v1, ..., vn be the vertices
+             * that f1 and f2 shared before the merge. Then v2, ..., vn-1 have been deleted by the merge, but we need
+             * to inspect v1 and vn further.
+             * Let v' be v1 or vn without loss of generality. If v' has only two incident edges, then v' is redundant.
+             * We inspect the two incident faces of v'. One of them is f1, which has more than three vertices now. Let
+             * f' be the other incident face. If f' is a triangle, then f' gets merged into f1, whereby f' is deleted
+             * and f1 is retained. If f' is not a triangle, then v' is removed and f1 and f' are now separated by a
+             * single edge.
+             *
              * Finally, if the given validEdge is deleted by this algorithm, than its first successor that is not deleted
              * by this algorithm is returned. This return value can be used by the caller during iteration over all edges
              * of this polyhedron.
@@ -1502,15 +1512,20 @@ namespace TrenchBroom {
              * Adds the given points to this polyhedron. The effect of adding the given points to a polyhedron is that
              * the resulting polyhedron is the convex hull of the union of the polyhedron's vertices and the given points.
              *
+             * Duplicates in the given vector are discarded. Furthermore, the remaining points are sorted in descending
+             * order of their distance from the center of their bounding box. Therefore, the result of calling this
+             * method is different from the result of repeatedly calling addPoint() for every point in the given vector.
+             *
              * @param points the points to add to this polyhedron
              */
             void addPoints(std::vector<vm::vec<T,3>> points);
-
             /**
              * Adds the given point to this polyhedron. The effect of adding the given point to a polyhedron is that the
              * resulting polyhedron is the convex hull of the union of the polyhedron's vertices and the given point.
              *
              * If the given point is within this polyhedron, the it will not be added.
+             *
+             * To add multiple points at once, prefer to call addPoints.
              *
              * @param position the point to add
              * @return the newly created vertex, or null if the given point was not added to this polyhedron
@@ -1656,12 +1671,11 @@ namespace TrenchBroom {
              */
             class Seam;
 
-            class SplittingCriterion;
-            class SplitByVisibilityCriterion;
-            class SplitByConnectivityCriterion;
-
             /**
-             * Creates a seam using the given splitting criterion.
+             * Creates a seam along the horizon of the given position.
+             *
+             * The horizon of a position is a closed loop of edges of this polyhedron such that it separates those faces
+             * which are visible from the given position from those faces which are not visible from the given position.
              *
              * Suppose that the faces of a polyhedron are the vertices of a graph G, and two graph vertices are connected
              * in if and only if the corresponding faces are adjacent.
@@ -1676,10 +1690,13 @@ namespace TrenchBroom {
              * the edges of the seam are oriented such that the first faces matches the splitting criterion and the other
              * faces does not.
              *
-             * @param criterion the splitting criterion
-             * @return a seam that separates the faces that match the given criterion from those that do not
+             * @param position the vertex position
+             * @return a seam that separates the faces that are visible from the given position from those that do not,
+             * or an empty optional if no seam could be created
              */
-            Seam createSeam(const SplittingCriterion& criterion);
+            std::optional<Seam> createSeamForHorizon(const vm::vec<T,3>& position);
+
+            void visitFace(const vm::vec<T,3>& position, HalfEdge* initialBoundaryEdge, std::unordered_set<Face*>& visitedFaces, Seam& seam);
 
             /**
              * Splits this polyhedron along the given seam. The edges of the seam must be oriented in such a way that
@@ -1732,8 +1749,15 @@ namespace TrenchBroom {
              */
             Face* sealWithSinglePolygon(const Seam& seam, const vm::plane<T,3>& plane);
 
-            class ShiftSeamForWeaving;
-
+            /**
+             * Checks that all faces that would be created during weaving have noncolinear vertices.
+             *
+             * @param seam the seam to weave a cone onto
+             * @param position the position of the cone's tip
+             * @return true if the cone can be weaved and false otherwise
+             */
+            bool checkSeamForWeaving(const Seam& seam, const vm::vec<T,3>& position) const;
+            
             /**
              * Weaves a new cap onto this polyhedron. The new cap will be a cone, the tip of which will be a newly created
              * vertex at the given position. If two adjacent faces of the cone are coplanar, these will be merged.
@@ -1748,9 +1772,22 @@ namespace TrenchBroom {
              * @param position the position of the cone's tip
              * @return the newly created vertex at the tip of the newly created cone
              */
-            Vertex* weave(Seam seam, const vm::vec<T,3>& position);
+            Vertex* weave(const Seam& seam, const vm::vec<T,3>& position);
 
-            /* ====================== Implementation in Polyhedron_Clip.h ====================== */
+            /**
+             * Inspects all incident faces of the given vertex and merges those which are coplanar. If all the faces
+             * are coplanar, then the given vertex is deleted and a single face remains that includes all other vertices
+             * of the incident faces.
+             *
+             * Furthermore, the faces are merged with their coplanar neighbours which are not incident to the
+             * given vertex, which might remove even more vertices and edges. In this case, the neighbouring faces are
+             * retained and the faces incident to the given vertex are removed.
+             *
+             * @param vertex the vertex whose incident faces should be merged
+             * @return true if the given vertex remains or false if all incident faces were merged and the vertex was
+             * deleted
+             */
+            bool mergeCoplanarIncidentFaces(Vertex* vertex);
         public: // Clipping
             /**
              * The result of clipping this polyhedron with a plane.

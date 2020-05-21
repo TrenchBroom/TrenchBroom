@@ -27,10 +27,10 @@
 
 #include <kdl/vector_utils.h>
 
-#include <vecmath/segment.h>
-#include <vecmath/plane.h>
 #include <vecmath/bbox.h>
 #include <vecmath/constants.h>
+#include <vecmath/plane.h>
+#include <vecmath/segment.h>
 #include <vecmath/util.h>
 
 #include <list>
@@ -71,6 +71,14 @@ namespace TrenchBroom {
         template <typename T, typename FP, typename VP>
         typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addPoint(const vm::vec<T,3>& position) {
             assert(checkInvariant());
+
+            // quick test to discard vertices
+            for (const Vertex* v : m_vertices) {
+                if (position == v->position()) {
+                    return nullptr;
+                }
+            }
+            
             Vertex* result = nullptr;
             switch (vertexCount()) {
                 case 0:
@@ -344,23 +352,28 @@ namespace TrenchBroom {
         template <typename T, typename FP, typename VP>
         typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFurtherPointToPolyhedron(const vm::vec<T,3>& position) {
             assert(polyhedron());
-            if (contains(position)) {
-                return nullptr;
-            }
-
-            const Seam seam = createSeam(SplitByVisibilityCriterion(position));
+            
+            auto seam = createSeamForHorizon(position);
 
             // If no correct seam could be created, we assume that the vertex was inside the polyhedron.
             // If the seam has multiple loops, this indicates that the point to be added is very close to
             // another vertex and no correct seam can be computed due to imprecision. In that case, we just
             // assume that the vertex is inside the polyhedron and skip it.
-            if (seam.empty() || seam.hasMultipleLoops()) {
+            if (!seam || seam->empty()) {
                 return nullptr;
             }
 
-            assert(seam.size() >= 3);
-            split(seam);
-            return weave(seam, position);
+            assert(seam->size() >= 3);
+            
+            // Under certain circumstances, it is not possible to weave a cap onto the seam because it would create a
+            // face with colinear points. In this case, we assume the vertex was inside the polyhedron and skip it.
+            if (!checkSeamForWeaving(*seam, position)) {
+                return nullptr;
+            }
+            
+            split(*seam);
+            
+            return weave(*seam, position);
         }
 
         template <typename T, typename FP, typename VP>
@@ -398,44 +411,6 @@ namespace TrenchBroom {
             void replace(typename List::iterator first, typename List::iterator end, Edge* replacement) {
                 m_edges.erase(first, end);
                 m_edges.insert(end, replacement);
-                assert(check());
-            }
-
-            /**
-             * Shifts this seam until the given criterion evaluates to true. If continued shifting doesn't satisfy the
-             * given criterion, this function stops and returns false.
-             *
-             * @tparam C the type of the given criterion
-             * @param criterion the criterion to check after each time this seam is shifted
-             * @return true if shifting satisfied the given criterion, and false otherwise
-             */
-            template <typename C>
-            bool shift(const C& criterion) {
-                size_t i = 0;
-                while (i < m_edges.size()) {
-                    if (criterion(static_cast<const Seam&>(*this))) {
-                        return true;
-                    }
-                    shift();
-                    ++i;
-                }
-                return false;
-            }
-
-            /**
-             * Shifts this seam by taking its first edge and moving it to the back of this seam.
-             *
-             * Given a seam of three edges e1, e2, e3, the effect of shifting it will be that the seam becomes e2, e3, e1.
-             *
-             * Assumes that this seam is not empty.
-             */
-            void shift() {
-                assert(!m_edges.empty());
-                const auto pos = std::end(m_edges);
-                const auto first = std::begin(m_edges);
-                const auto last = std::next(std::begin(m_edges), 1u);
-
-                m_edges.splice(pos, m_edges, first, last);
                 assert(check());
             }
 
@@ -523,6 +498,18 @@ namespace TrenchBroom {
             }
 
             /**
+             * Returns the vertices of the seam in counter clockwise order.
+             */
+            std::vector<Vertex*> vertices() const {
+                std::vector<Vertex*> result;
+                result.reserve(size());
+                for (Edge* edge : m_edges) {
+                    result.push_back(edge->firstVertex());
+                }
+                return result;
+            }
+            
+            /**
              * Checks whether this seam is a consecutive list of edges connected with their vertices.
              */
             bool hasMultipleLoops() const {
@@ -574,124 +561,46 @@ namespace TrenchBroom {
                 return true;
             }
         };
-
+        
         template <typename T, typename FP, typename VP>
-        class Polyhedron<T,FP,VP>::SplittingCriterion {
-        private:
-            typedef enum {
-                MatchResult_First,
-                MatchResult_Second,
-                MatchResult_Both,
-                MatchResult_Neither
-            } MatchResult;
-        public:
-            virtual ~SplittingCriterion() {}
-        public:
-            Edge* findFirstSplittingEdge(EdgeList& edges) const {
-                for (Edge* edge : edges) {
-                    const MatchResult result = matches(edge);
-                    switch (result) {
-                        case MatchResult_Second:
-                            edge->flip();
-                            switchFallthrough();
-                        case MatchResult_First:
-                            return edge;
-                        case MatchResult_Both:
-                        case MatchResult_Neither:
-                            break;
-                            switchDefault()
-                    }
-                }
-                return nullptr;
-            }
-
-            // finds the next seam edge in counter clockwise orientation
-            Edge* findNextSplittingEdge(Edge* last) const {
-                assert(last != nullptr);
-
-                HalfEdge* halfEdge = last->firstEdge()->previous();
-                Edge* next = halfEdge->edge();
-
-                MatchResult result = matches(next);
-                while (result != MatchResult_First && result != MatchResult_Second && next != last) {
-                    halfEdge = halfEdge->twin()->previous();
-                    next = halfEdge->edge();
-                    result = matches(next);
-                }
-
-                if (result != MatchResult_First && result != MatchResult_Second) {
-                    return nullptr;
-                }
-
-                if (result == MatchResult_Second) {
-                    next->flip();
-                }
-
-                return next;
-            }
-        private:
-            MatchResult matches(const Edge* edge) const {
-                const bool firstResult = matches(edge->firstFace());
-                const bool secondResult = matches(edge->secondFace());
-                if (firstResult && secondResult) {
-                    return MatchResult_Both;
-                } else if (firstResult) {
-                    return MatchResult_First;
-                } else if (secondResult) {
-                    return MatchResult_Second;
-                } else {
-                    return MatchResult_Neither;
+        std::optional<typename Polyhedron<T,FP,VP>::Seam> Polyhedron<T,FP,VP>::createSeamForHorizon(const vm::vec<T,3>& position) {
+            Face* initialVisibleFace = nullptr;
+            for (Face* face : m_faces) {
+                if (face->plane().point_status(position, planeEpsilon) != vm::plane_status::below) {
+                    initialVisibleFace = face;
+                    break;
                 }
             }
-        public:
-            bool matches(const Face* face) const {
-                return doMatches(face);
+            
+            if (initialVisibleFace == nullptr) {
+                return std::nullopt;
             }
-        private:
-            virtual bool doMatches(const Face* face) const = 0;
-        };
-
-        template <typename T, typename FP, typename VP>
-        class Polyhedron<T,FP,VP>::SplitByConnectivityCriterion : public Polyhedron<T,FP,VP>::SplittingCriterion {
-        private:
-            const Vertex* m_vertex;
-        public:
-            explicit SplitByConnectivityCriterion(const Vertex* vertex) :
-                m_vertex(vertex) {}
-        private:
-            bool doMatches(const Face* face) const override {
-                return !m_vertex->incident(face);
-            }
-        };
-
-        template <typename T, typename FP, typename VP>
-        class Polyhedron<T,FP,VP>::SplitByVisibilityCriterion : public Polyhedron<T,FP,VP>::SplittingCriterion {
-        private:
-            vm::vec<T,3> m_point;
-        public:
-            explicit SplitByVisibilityCriterion(const vm::vec<T,3>& point) :
-                m_point(point) {}
-        private:
-            bool doMatches(const Face* face) const override {
-                return face->pointStatus(m_point) == vm::plane_status::below;
-            }
-        };
-
-        template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Seam Polyhedron<T,FP,VP>::createSeam(const SplittingCriterion& criterion) {
+            
             Seam seam;
-
-            Edge* first = criterion.findFirstSplittingEdge(m_edges);
-            if (first != nullptr) {
-                Edge* current = first;
-                do {
-                    assert(current != nullptr);
-                    seam.push_back(current);
-                    current = criterion.findNextSplittingEdge(current);
-                } while (current != first);
-            }
-
+            
+            std::unordered_set<Face*> visitedFaces{initialVisibleFace};
+            visitFace(position, initialVisibleFace->boundary().front(), visitedFaces, seam);
+            
             return seam;
+        }
+        
+        template <typename T, typename FP, typename VP>
+        void Polyhedron<T,FP,VP>::visitFace(const vm::vec<T,3>& position, HalfEdge* initialBoundaryEdge, std::unordered_set<Face*>& visitedFaces, Seam& seam) {
+            HalfEdge* currentBoundaryEdge = initialBoundaryEdge;
+            do {
+                Face* neighbour = currentBoundaryEdge->twin()->face();
+                if (neighbour->plane().point_status(position, planeEpsilon) != vm::plane_status::below) {
+                    if (visitedFaces.insert(neighbour).second) {
+                        visitFace(position, currentBoundaryEdge->twin(), visitedFaces, seam);
+                    }
+                } else {
+                    Edge* edge = currentBoundaryEdge->edge();
+                    edge->makeSecondEdge(currentBoundaryEdge);
+                    seam.push_back(edge);
+                }
+                
+                currentBoundaryEdge = currentBoundaryEdge->next();
+            } while (currentBoundaryEdge != initialBoundaryEdge);
         }
 
         template <typename T, typename FP, typename VP>
@@ -797,83 +706,38 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        class Polyhedron<T,FP,VP>::ShiftSeamForWeaving {
-        private:
-            const vm::vec<T,3> m_position;
-        public:
-            explicit ShiftSeamForWeaving(const vm::vec<T,3>& position) : m_position(position) {}
-        public:
-            bool operator()(const Seam& seam) const {
-                const auto* last = seam.last();
-                const auto* first = seam.first();
-
-                const auto* v1 = last->firstVertex();
-                const auto* v2 = last->secondVertex();
-                const auto* v3 = first->firstVertex();
-                assert(v3 != v1);
-                assert(v3 != v2);
-
-                const auto [valid, lastPlane] = vm::from_points(m_position, v1->position(), v2->position());
-                assert(valid); unused(valid);
-
-                const auto status = lastPlane.point_status(v3->position());
-                return status == vm::plane_status::below;
-            }
-        };
-
-        template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(Seam seam, const vm::vec<T,3>& position) {
+        bool Polyhedron<T,FP,VP>::checkSeamForWeaving(const Seam& seam, const vm::vec<T,3>& position) const {
             assert(seam.size() >= 3);
             assert(!seam.hasMultipleLoops());
             assert(!empty() && !point() && !edge());
 
-            if (!seam.shift(ShiftSeamForWeaving(position))) {
-                return nullptr;
-            }
+            for (auto* edge : seam) {
+                auto* v1 = edge->secondVertex();
+                auto* v2 = edge->firstVertex();
 
-            if (polygon()) {
-                // When adding a vertex to a large polygon, it can happen that the vertex is so close to the
-                // polygon's plane that most woven faces are considered coplanar and fewer than three faces
-                // would be created. In this case, we reject and return null.
-                size_t faceCount = 0;
-                auto it = std::begin(seam);
-                while (it != std::end(seam)) {
-                    auto* edge = *it++;
-
-                    auto* v1 = edge->secondVertex();
-                    auto* v2 = edge->firstVertex();
-
-                    if (it != std::end(seam)) {
-                        const auto [valid, plane] = vm::from_points(position, v2->position(), v1->position());
-                        assert(valid); unused(valid);
-
-                        auto* next = *it;
-
-                        // TODO use same coplanarity check as in Face::coplanar(const Face*) const ?
-                        while (it != std::end(seam) && plane.point_status(next->firstVertex()->position()) == vm::plane_status::inside) {
-                            if (++it != std::end(seam)) {
-                                next = *it;
-                            }
-                        }
-                    }
-
-                    ++faceCount;
-                }
-
-                if (faceCount < 3) {
-                    return nullptr;
+                const auto [valid, normal] = vm::plane_normal(position, v1->position(), v2->position());
+                unused(normal);
+                
+                if (!valid) {
+                    return false;
                 }
             }
+            
+            return true;
+        }
+
+        template <typename T, typename FP, typename VP>
+        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(const Seam& seam, const vm::vec<T,3>& position) {
+            assert(seam.size() >= 3);
+            assert(!seam.hasMultipleLoops());
+            assert(!empty() && !point() && !edge());
 
             auto* top = new Vertex(position);
 
             HalfEdge* first = nullptr;
             HalfEdge* last = nullptr;
 
-            auto it = std::begin(seam);
-            while (it != std::end(seam)) {
-                auto* edge = *it++;
-
+            for (auto* edge : seam) {
                 assert(!edge->fullySpecified());
                 auto* v1 = edge->secondVertex();
                 auto* v2 = edge->firstVertex();
@@ -890,44 +754,16 @@ namespace TrenchBroom {
                 edge->setSecondEdge(h2);
 
                 const vm::plane<T,3> plane = makePlaneFromBoundary(boundary);
-                if (it != std::end(seam)) {
-                    auto* next = *it;
-
-                    const auto checkEdge = [&](const auto* e) {
-                        const auto& point = e->firstVertex()->position();
-                        
-                        // Is the point to be added inside the plane of the face being created?
-                        if (plane.point_status(point) != vm::plane_status::inside) {
-                            return false;
-                        }
-                        
-                        // Is the point to be added colinear with the first two vertices of the face being created?
-                        const auto [valid, p] = vm::from_points(top->position(), point, v1->position());
-                        unused(p);
-                        return valid;
-                    };
-                    
-                    // TODO use same coplanarity check as in Face::coplanar(const Face*) const ?
-                    while (it != std::end(seam) && checkEdge(next)) {
-                        next->setSecondEdge(h);
-
-                        auto* v = next->firstVertex();
-                        h = new HalfEdge(v);
-                        boundary.push_back(h);
-
-                        if (++it != std::end(seam)) {
-                            next = *it;
-                        }
-                    }
-                }
-
                 m_faces.push_back(new Face(std::move(boundary), plane));
+                
                 if (last != nullptr) {
                     m_edges.push_back(new Edge(h1, last));
                 }
+                
                 if (first == nullptr) {
                     first = h1;
                 }
+                
                 last = h;
             }
 
@@ -935,7 +771,61 @@ namespace TrenchBroom {
             m_edges.push_back(new Edge(first, last));
             m_vertices.push_back(top);
 
-            return top;
+            if (mergeCoplanarIncidentFaces(top)) {
+                return top;
+            } else {
+                return nullptr;
+            }
+        }
+
+        template <typename T, typename FP, typename VP>
+        bool Polyhedron<T,FP,VP>::mergeCoplanarIncidentFaces(Vertex* vertex) {
+            assert(vertex != nullptr);
+            assert(checkInvariant());
+            
+            const auto checkAndMergeIncidentNeighbours = [&](auto* leaving) -> HalfEdge* {
+                HalfEdge* next = leaving->nextIncident();
+                Edge* edge = leaving->edge();
+                Face* firstFace = edge->firstFace();
+                Face* secondFace = edge->secondFace();
+
+                if (firstFace->coplanar(secondFace)) {
+                    // If the vertex has only three incident edges, then it will be removed when the faces are merged.
+                    const bool hasThreeIncidentEdges = leaving == leaving->nextIncident()->nextIncident()->nextIncident();
+                    mergeNeighbours(leaving, nullptr);
+                    if (hasThreeIncidentEdges) {
+                        return nullptr;
+                    }
+                }
+                
+                return next;
+            };
+            
+            HalfEdge* firstLeaving = vertex->leaving();
+            assert(firstLeaving != firstLeaving->nextIncident() && firstLeaving != firstLeaving->nextIncident()->nextIncident());
+
+            // First we merge all incident coplanar faces.
+            // First we treat all incident edges except for firstLeaving, which must stay intact because we test it in
+            // the loop condition
+            HalfEdge* currentLeaving = firstLeaving->nextIncident();
+            while (currentLeaving != firstLeaving) {
+                currentLeaving = checkAndMergeIncidentNeighbours(currentLeaving);
+                if (currentLeaving == nullptr) {
+                    // all faces were coplanar
+                    return false;
+                }
+            };
+
+            // we have at least three incident edges left
+            assert(firstLeaving != firstLeaving->nextIncident() && firstLeaving != firstLeaving->nextIncident()->nextIncident());
+
+            // treat firstLeaving now
+            if (checkAndMergeIncidentNeighbours(firstLeaving) == nullptr) {
+                // all faces were coplanar
+                return false;
+            }
+            
+            return true;
         }
     }
 }

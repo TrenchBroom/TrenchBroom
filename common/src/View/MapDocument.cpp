@@ -1158,7 +1158,7 @@ namespace TrenchBroom {
             }
 
             std::vector<vm::vec3> points;
-            
+
             if (hasSelectedBrushFaces()) {
                 for (const auto& handle : selectedBrushFaces()) {
                     for (const Model::BrushVertex* vertex : handle.face().vertices()) {
