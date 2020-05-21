@@ -1507,14 +1507,6 @@ namespace TrenchBroom {
              * @return the newly created vertex, or null if the given point was not added to this polyhedron
              */
             Vertex* addPoint(const vm::vec<T,3>& position);
-
-            /**
-             * Merges this polyhedron with the given polyhedron. The effect of merging two polyhedra is that the resulting
-             * polyhedron is the convex hull of the union of the vertices of both polyhedra.
-             *
-             * @param other the polyhedron to merge this polyhedron with
-             */
-            void merge(const Polyhedron& other);
         private:
             /**
              * Helper function that adds the given point to an empty polyhedron. Afterwards, this polyhedron will be a

@@ -99,13 +99,6 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::merge(const Polyhedron& other) {
-            for (const Vertex* vertex : other.vertices()) {
-                addPoint(vertex->position());
-            }
-        }
-
-        template <typename T, typename FP, typename VP>
         typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::addFirstPoint(const vm::vec<T,3>& position) {
             assert(empty());
             Vertex* newVertex = new Vertex(position);
