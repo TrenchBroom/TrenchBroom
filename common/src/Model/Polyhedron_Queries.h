@@ -33,7 +33,7 @@
 namespace TrenchBroom {
     namespace Model {
         template <typename T, typename FP, typename VP>
-        bool Polyhedron<T,FP,VP>::contains(const vm::vec<T,3>& point) const {
+        bool Polyhedron<T,FP,VP>::contains(const vm::vec<T,3>& point, const T epsilon) const {
             if (!polyhedron()) {
                 return false;
             }
@@ -44,7 +44,7 @@ namespace TrenchBroom {
 
             for (const Face* face : m_faces) {
                 const vm::plane<T,3>& plane = face->plane();
-                if (plane.point_status(point) == vm::plane_status::above) {
+                if (plane.point_status(point, epsilon) == vm::plane_status::above) {
                     return false;
                 }
             }
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             }
 
             for (const Vertex* vertex : other.vertices()) {
-                if (!contains(vertex->position())) {
+                if (!contains(vertex->position(), vm::constants<T>::point_status_epsilon())) {
                     return false;
                 }
             }
@@ -164,7 +164,7 @@ namespace TrenchBroom {
             assert(rhs.polyhedron());
 
             const vm::vec<T,3>& lhsPos = lhs.m_vertices.front()->position();
-            return rhs.contains(lhsPos);
+            return rhs.contains(lhsPos, vm::constants<T>::point_status_epsilon());
         }
 
         template <typename T, typename FP, typename VP>
@@ -319,7 +319,7 @@ namespace TrenchBroom {
             }
 
             auto* vertex = lhs.vertices().front();
-            return rhs.contains(vertex->position());
+            return rhs.contains(vertex->position(), vm::constants<T>::point_status_epsilon());
         }
 
         template <typename T, typename FP, typename VP>

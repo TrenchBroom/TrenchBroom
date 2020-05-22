@@ -124,10 +124,10 @@ m_link(this)
         }
 
         template <typename T, typename FP, typename VP>
-        vm::plane_status Polyhedron_HalfEdge<T,FP,VP>::pointStatus(const vm::vec<T,3>& normal, const vm::vec<T,3>& point) const {
+        vm::plane_status Polyhedron_HalfEdge<T,FP,VP>::pointStatus(const vm::vec<T,3>& normal, const vm::vec<T,3>& point, const T epsilon) const {
             const auto planeNormal = vm::normalize(vm::cross(vm::normalize(vector()), normal));
             const auto plane = vm::plane<T,3>(origin()->position(), planeNormal);
-            return plane.point_status(point);
+            return plane.point_status(point, epsilon);
         }
 
         template <typename T, typename FP, typename VP>

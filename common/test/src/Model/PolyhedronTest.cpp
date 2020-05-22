@@ -101,27 +101,11 @@ namespace TrenchBroom {
             const vm::vec3d p3(-8.0, 0.0, 0.0);
             const vm::vec3d p4( 0.0, 8.0, 0.0);
 
-            Polyhedron3d original;
-            Polyhedron3d copy;
-
-            copy = original;
-            ASSERT_EQ(original, copy);
-
-            original.addPoint(p1);
-            copy = original;
-            ASSERT_EQ(original, copy);
-
-            original.addPoint(p2);
-            copy = original;
-            ASSERT_EQ(original, copy);
-
-            original.addPoint(p3);
-            copy = original;
-            ASSERT_EQ(original, copy);
-
-            original.addPoint(p4);
-            copy = original;
-            ASSERT_EQ(original, copy);
+            CHECK(Polyhedron3d()                 == (Polyhedron3d() = Polyhedron3d()));
+            CHECK(Polyhedron3d({p1})             == (Polyhedron3d() = Polyhedron3d({p1})));
+            CHECK(Polyhedron3d({p1, p2})         == (Polyhedron3d() = Polyhedron3d({p1, p2})));
+            CHECK(Polyhedron3d({p1, p2, p3})     == (Polyhedron3d() = Polyhedron3d({p1, p2, p3})));
+            CHECK(Polyhedron3d({p1, p2, p3, p4}) == (Polyhedron3d() = Polyhedron3d({p1, p2, p3, p4})));
         }
 
         TEST_CASE("PolyhedronTest.swap", "[PolyhedronTest]") {
@@ -130,16 +114,8 @@ namespace TrenchBroom {
             const vm::vec3d p3(-8.0, 0.0, 0.0);
             const vm::vec3d p4( 0.0, 8.0, 0.0);
 
-            Polyhedron3d original;
-            original.addPoint(p1);
-            original.addPoint(p2);
-            original.addPoint(p3);
-            original.addPoint(p4);
-
-            Polyhedron3d other;
-            other.addPoint(p2);
-            other.addPoint(p3);
-            other.addPoint(p4);
+            Polyhedron3d original({p1, p2, p3, p4});
+            Polyhedron3d other({p2, p3, p4});
 
             Polyhedron3d lhs = original;
             Polyhedron3d rhs = other;
@@ -159,190 +135,146 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("PolyhedronTest.convexHullWithFailingPoints", "[PolyhedronTest]") {
-            const vm::vec3d p1(-64.0,    -45.5049, -34.4752);
-            const vm::vec3d p2(-64.0,    -43.6929, -48.0);
-            const vm::vec3d p3(-64.0,     20.753,  -34.4752);
-            const vm::vec3d p4(-64.0,     64.0,    -48.0);
-            const vm::vec3d p5(-63.7297,  22.6264, -48.0);
-            const vm::vec3d p6(-57.9411,  22.6274, -37.9733);
-            const vm::vec3d p7(-44.6031, -39.1918, -48.0);
-            const vm::vec3d p8(-43.5959, -39.1918, -46.2555);
+            const auto vertices = std::vector<vm::vec3>({
+                vm::vec3d(-64.0,    -45.5049, -34.4752),
+                vm::vec3d(-64.0,    -43.6929, -48.0),
+                vm::vec3d(-64.0,     20.753,  -34.4752),
+                vm::vec3d(-64.0,     64.0,    -48.0),
+                vm::vec3d(-63.7297,  22.6264, -48.0),
+                vm::vec3d(-57.9411,  22.6274, -37.9733),
+                vm::vec3d(-44.6031, -39.1918, -48.0),
+                vm::vec3d(-43.5959, -39.1918, -46.2555),
+            });
 
-            Polyhedron3d p;
-            p.addPoint(p1);
-            p.addPoint(p2);
-            p.addPoint(p3);
-            p.addPoint(p4); // so far, all were on the same plane at x=-64
-            p.addPoint(p5); // something is going wrong here, the result is not a proper polyhedron
-            p.addPoint(p6); // assertion failure here
-            p.addPoint(p7);
-            p.addPoint(p8);
+            const Polyhedron3d p(vertices);
+            CHECK(p.vertexCount() == 7u);
         }
 
         TEST_CASE("PolyhedronTest.convexHullWithFailingPoints2", "[PolyhedronTest]") {
-            const vm::vec3d p1(-64.0,    48.7375, -34.4752);
-            const vm::vec3d p2(-64.0,    64.0,    -48.0);
-            const vm::vec3d p3(-64.0,    64.0,    -34.4752);
-            const vm::vec3d p4(-63.7297, 22.6264, -48.0);
-            const vm::vec3d p5(-57.9411, 22.6274, -37.9733);
-            const vm::vec3d p6(-40.5744, 28.0,    -48.0);
-            const vm::vec3d p7(-40.5744, 64.0,    -48.0);
+            const auto vertices = std::vector<vm::vec3>({
+                vm::vec3d(-64.0,    48.7375, -34.4752),
+                vm::vec3d(-64.0,    64.0,    -48.0),
+                vm::vec3d(-64.0,    64.0,    -34.4752),
+                vm::vec3d(-63.7297, 22.6264, -48.0),
+                vm::vec3d(-57.9411, 22.6274, -37.9733),
+                vm::vec3d(-40.5744, 28.0,    -48.0),
+                vm::vec3d(-40.5744, 64.0,    -48.0),
+            });
 
-            Polyhedron3d p;
-            p.addPoint(p1);
-            p.addPoint(p2);
-            p.addPoint(p3); // so far, all were on the same plane at x=-64
-            p.addPoint(p4); // wasn't added due to being too close
-            p.addPoint(p5); // assertion failure here
-            p.addPoint(p6);
-            p.addPoint(p7);
+            const Polyhedron3d p(vertices);
+            CHECK(p.vertexCount() == vertices.size());
+            
+            for (const auto& v : vertices) {
+                CHECK(p.hasVertex(v));
+            }
         }
 
         TEST_CASE("PolyhedronTest.convexHullWithFailingPoints3", "[PolyhedronTest]") {
-            const vm::vec3d p1(-64,      -64,      -48);
-            const vm::vec3d p2(-64,       22.5637, -48);
-            const vm::vec3d p3(-64,       64,      -48);
-            const vm::vec3d p4(-63.7297,  22.6264, -48);
-            const vm::vec3d p5(-57.9411,  22.6274, -37.9733);
-            const vm::vec3d p6(-44.6031, -39.1918, -48);
-            const vm::vec3d p7(-43.5959, -39.1918, -46.2555);
+            const auto vertices = std::vector<vm::vec3>({
+                vm::vec3d(-64,      -64,      -48),
+                vm::vec3d(-64,       22.5637, -48),
+                vm::vec3d(-64,       64,      -48),
+                vm::vec3d(-63.7297,  22.6264, -48),
+                vm::vec3d(-57.9411,  22.6274, -37.9733),
+                vm::vec3d(-44.6031, -39.1918, -48),
+                vm::vec3d(-43.5959, -39.1918, -46.2555),
+            });
 
-            Polyhedron3d p;
-            p.addPoint(p1);
-            p.addPoint(p2);
-            p.addPoint(p3);
-            p.addPoint(p4);
-            p.addPoint(p5);
-            p.addPoint(p6); // assertion failure here
-            p.addPoint(p7);
+            const Polyhedron3d p(vertices);
+            CHECK(p.vertexCount() == 5u);
         }
 
         TEST_CASE("PolyhedronTest.convexHullWithFailingPoints4", "[PolyhedronTest]") {
-            const vm::vec3d p01(-64, 64, -48);
-            const vm::vec3d p02(-43.5959, -39.1918, -46.2555);
-            const vm::vec3d p03(-40.5744, -38.257, -48);
-            const vm::vec3d p04(-36.9274, -64, -48);
-            const vm::vec3d p05(1.58492, -39.1918, 32);
-            const vm::vec3d p06(9.2606, -64, 32);
-            const vm::vec3d p07(12.8616, -64, 32);
-            const vm::vec3d p08(12.8616, -36.5751, 32);
-            const vm::vec3d p09(26.7796, -22.6274, -48);
-            const vm::vec3d p10(39.5803, -64, -48);
-            const vm::vec3d p11(57.9411, -22.6274, 5.9733);
-            const vm::vec3d p12(64, -64, -5.70392);
-            const vm::vec3d p13(64, -64, 2.47521);
-            const vm::vec3d p14(64, -48.7375, 2.47521);
+            const auto vertices = std::vector<vm::vec3>({
+                vm::vec3d(-64, 64, -48),
+                vm::vec3d(-43.5959, -39.1918, -46.2555),
+                vm::vec3d(-40.5744, -38.257, -48),
+                vm::vec3d(-36.9274, -64, -48),
+                vm::vec3d(1.58492, -39.1918, 32),
+                vm::vec3d(9.2606, -64, 32),
+                vm::vec3d(12.8616, -64, 32),
+                vm::vec3d(12.8616, -36.5751, 32),
+                vm::vec3d(26.7796, -22.6274, -48),
+                vm::vec3d(39.5803, -64, -48),
+                vm::vec3d(57.9411, -22.6274, 5.9733),
+                vm::vec3d(64, -64, -5.70392),
+                vm::vec3d(64, -64, 2.47521),
+                vm::vec3d(64, -48.7375, 2.47521),
+            });
 
-            Polyhedron3d p;
-            p.addPoint(p01);
-            p.addPoint(p02);
-            p.addPoint(p03);
-            p.addPoint(p04);
-            p.addPoint(p05); // assertion failure here
-            p.addPoint(p06);
-            p.addPoint(p07);
-            p.addPoint(p08);
-            p.addPoint(p09);
-            p.addPoint(p10);
-            p.addPoint(p11);
-            p.addPoint(p12);
-            p.addPoint(p13);
-            p.addPoint(p14);
+            const Polyhedron3d p(vertices);
+            CHECK(p.vertexCount() == 13);
         }
 
         TEST_CASE("PolyhedronTest.convexHullWithFailingPoints5", "[PolyhedronTest]") {
-            const vm::vec3d p01(-64, -64, -64);
-            const vm::vec3d p02(-64, -64, 64);
-            const vm::vec3d p03(-64, -32, 64);
-            const vm::vec3d p04(-32, -64, -64);
-            const vm::vec3d p05(-32, -64, 64);
-            const vm::vec3d p06(-32, -0, -64);
-            const vm::vec3d p07(-32, -0, 64);
-            const vm::vec3d p08(-0, -32, -64);
-            const vm::vec3d p09(-0, -32, 64);
-            const vm::vec3d p10(64, -64, -64);
+            const auto vertices = std::vector<vm::vec3>({
+                vm::vec3d(-64, -64, -64),
+                vm::vec3d(-64, -64, 64),
+                vm::vec3d(-64, -32, 64),
+                vm::vec3d(-32, -64, -64),
+                vm::vec3d(-32, -64, 64),
+                vm::vec3d(-32, -0, -64),
+                vm::vec3d(-32, -0, 64),
+                vm::vec3d(-0, -32, -64),
+                vm::vec3d(-0, -32, 64),
+                vm::vec3d(64, -64, -64),
+            });
 
-            Polyhedron3d p;
-            p.addPoint(p01);
-            p.addPoint(p02);
-            p.addPoint(p03);
-            p.addPoint(p04);
-            p.addPoint(p05);
-            p.addPoint(p06);
-            p.addPoint(p07);
-            p.addPoint(p08);
-            p.addPoint(p09);
-            p.addPoint(p10); // assertion failure here
+            const Polyhedron3d p(vertices);
+            CHECK(p.vertexCount() == 8u);
         }
 
         TEST_CASE("PolyhedronTest.convexHullWithFailingPoints6", "[PolyhedronTest]") {
-            const vm::vec3d p1(-32, -16, -32);
-            const vm::vec3d p2(-32, 16, -32);
-            const vm::vec3d p3(-32, 16, -0);
-            const vm::vec3d p4(-16, -16, -32);
-            const vm::vec3d p5(-16, -16, -0);
-            const vm::vec3d p6(-16, 16, -32);
-            const vm::vec3d p7(-16, 16, -0);
-            const vm::vec3d p8(32, -16, -32);
+            const auto vertices = std::vector<vm::vec3>({
+                vm::vec3d(-32, -16, -32),
+                vm::vec3d(-32, 16, -32),
+                vm::vec3d(-32, 16, -0),
+                vm::vec3d(-16, -16, -32),
+                vm::vec3d(-16, -16, -0),
+                vm::vec3d(-16, 16, -32),
+                vm::vec3d(-16, 16, -0),
+                vm::vec3d(32, -16, -32),
+            });
 
-            Polyhedron3d p;
-            p.addPoint(p1);
-            p.addPoint(p2);
-            p.addPoint(p3);
-            p.addPoint(p4);
-            p.addPoint(p5);
-            p.addPoint(p6);
-            p.addPoint(p7);
-            p.addPoint(p8);
+            const Polyhedron3d p(vertices);
+            CHECK(p.vertexCount() == 7u);
         }
 
         TEST_CASE("PolyhedronTest.convexHullWithFailingPoints7", "[PolyhedronTest]") {
-            const vm::vec3d p1(12.8616, -36.5751, 32);
-            const vm::vec3d p2(57.9411, -22.6274, 5.9733);
-            const vm::vec3d p3(64, -64, 2.47521);
-            const vm::vec3d p4(64, -64, 32);
-            const vm::vec3d p5(64, -48.7375, 2.47521);
-            const vm::vec3d p6(64, -24.7084, 32);
-            const vm::vec3d p7(64, -22.6274, 16.4676);
-            const vm::vec3d p8(64, 64, 32);
+            const auto vertices = std::vector<vm::vec3>({
+                vm::vec3d(12.8616, -36.5751, 32),
+                vm::vec3d(57.9411, -22.6274, 5.9733),
+                vm::vec3d(64, -64, 2.47521),
+                vm::vec3d(64, -64, 32),
+                vm::vec3d(64, -48.7375, 2.47521),
+                vm::vec3d(64, -24.7084, 32),
+                vm::vec3d(64, -22.6274, 16.4676),
+                vm::vec3d(64, 64, 32),
+            });
 
-            Polyhedron3d p;
-            p.addPoint(p1);
-            p.addPoint(p2);
-            p.addPoint(p3);
-            p.addPoint(p4);
-            p.addPoint(p5);
-            p.addPoint(p6);
-            p.addPoint(p7);
-            p.addPoint(p8);
+            const Polyhedron3d p(vertices);
+            CHECK(p.vertexCount() == 6u);
         }
 
         TEST_CASE("PolyhedronTest.convexHullWithFailingPoints8", "[PolyhedronTest]") {
             // Cause of https://github.com/kduske/TrenchBroom/issues/1469
             // See also BrushTest.subtractTruncatedCones
 
-            const vm::vec3d  p1(-22.364439661516872, 9.2636542228362799, 32);
-            const vm::vec3d  p2(-21.333333333333332, 11.049582771255995, 32);
-            const vm::vec3d  p3(-20.235886048009661, 12.95041722806517, 32);
-            const vm::vec3d  p4(-19.126943405596094, 11.042945924655637, 32);
-            const vm::vec3d  p5(-18.31934864142023, 14.056930615671543, 32);
-            const vm::vec3d  p6(-17.237604305873624, 9.9521354859295226, 7.4256258352417603);
-            const vm::vec3d  p7(-16, 6.6274169975893429, -0);
-            const vm::vec3d  p8(-15.999999999999998, 9.2376043067828455, -0);
-            const vm::vec3d  p9(-14.345207554102323, 8.2822094434885454, -0);
-            const vm::vec3d p10(-13.739511480972288, 10.542697961743528, -0);
+            const auto vertices = std::vector<vm::vec3>({
+                vm::vec3d(-22.364439661516872, 9.2636542228362799, 32),
+                vm::vec3d(-21.333333333333332, 11.049582771255995, 32),
+                vm::vec3d(-20.235886048009661, 12.95041722806517, 32),
+                vm::vec3d(-19.126943405596094, 11.042945924655637, 32),
+                vm::vec3d(-18.31934864142023, 14.056930615671543, 32),
+                vm::vec3d(-17.237604305873624, 9.9521354859295226, 7.4256258352417603),
+                vm::vec3d(-16, 6.6274169975893429, -0),
+                vm::vec3d(-15.999999999999998, 9.2376043067828455, -0),
+                vm::vec3d(-14.345207554102323, 8.2822094434885454, -0),
+                vm::vec3d(-13.739511480972288, 10.542697961743528, -0),
+            });
 
-            Polyhedron3d p;
-            p.addPoint( p1);
-            p.addPoint( p2);
-            p.addPoint( p3);
-            p.addPoint( p4); // assertion failure here, fixed by using an epsilon value in method colinear
-            p.addPoint( p5);
-            p.addPoint( p6);
-            p.addPoint( p7);
-            p.addPoint( p8);
-            p.addPoint( p9);
-            p.addPoint(p10);
+            const Polyhedron3d p(vertices);
+            CHECK(p.vertexCount() == 9u);
         }
 
 /*
@@ -401,9 +333,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             const vm::vec3d p4( 0.0, 8.0, 0.0);
             const vm::vec3d p5( 0.0, 4.0, 12.0);
 
-            Polyhedron3d p({ p1, p2, p3, p4 });
-            p.addPoint(p5);
-
+            Polyhedron3d p({ p1, p2, p3, p4, p5 });
             ASSERT_TRUE(p.closed());
 
             std::vector<vm::vec3d> points;
@@ -436,9 +366,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             const vm::vec3d p4( 0.0, 8.0, 0.0);
             const vm::vec3d p5( 0.0, 0.0, 12.0);
 
-            Polyhedron3d p({ p1, p2, p3, p4 });
-            p.addPoint(p5);
-
+            Polyhedron3d p({ p1, p2, p3, p4, p5 });
             ASSERT_TRUE(p.closed());
 
             std::vector<vm::vec3d> points;
@@ -520,8 +448,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
         TEST_CASE("PolyhedronTest.initEmptyAndAddOnePoint", "[PolyhedronTest]") {
             const vm::vec3d p1( -8.0, -8.0, -8.0);
 
-            Polyhedron3d p;
-            p.addPoint(p1);
+            Polyhedron3d p({p1});
 
             ASSERT_FALSE(p.empty());
             ASSERT_TRUE(p.point());
@@ -539,9 +466,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
         TEST_CASE("PolyhedronTest.initEmptyAndAddTwoIdenticalPoints", "[PolyhedronTest]") {
             const vm::vec3d p1( -8.0, -8.0, -8.0);
 
-            Polyhedron3d p;
-            p.addPoint(p1);
-            p.addPoint(p1);
+            Polyhedron3d p({p1, p1});
 
             ASSERT_FALSE(p.empty());
             ASSERT_TRUE(p.point());
@@ -559,9 +484,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             const vm::vec3d p1(0.0, 0.0, 0.0);
             const vm::vec3d p2(3.0, 0.0, 0.0);
 
-            Polyhedron3d p;
-            p.addPoint(p1);
-            p.addPoint(p2);
+            Polyhedron3d p({p1, p2});
 
             ASSERT_FALSE(p.empty());
             ASSERT_FALSE(p.point());
@@ -581,10 +504,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             const vm::vec3d p2(3.0, 0.0, 0.0);
             const vm::vec3d p3(6.0, 0.0, 0.0);
 
-            Polyhedron3d p;
-            p.addPoint(p1);
-            p.addPoint(p2);
-            p.addPoint(p3);
+            Polyhedron3d p({p1, p2, p3});
 
             ASSERT_FALSE(p.empty());
             ASSERT_FALSE(p.point());
@@ -604,10 +524,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             const vm::vec3d p2(3.0, 0.0, 0.0);
             const vm::vec3d p3(6.0, 5.0, 0.0);
 
-            Polyhedron3d p;
-            p.addPoint(p1);
-            p.addPoint(p2);
-            p.addPoint(p3);
+            Polyhedron3d p({p1, p2, p3});
 
             ASSERT_FALSE(p.empty());
             ASSERT_FALSE(p.point());
@@ -629,11 +546,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             const vm::vec3d p3(3.0, 6.0, 0.0);
             const vm::vec3d p4(3.0, 3.0, 0.0);
 
-            Polyhedron3d p;
-            p.addPoint(p1);
-            p.addPoint(p2);
-            p.addPoint(p3);
-            p.addPoint(p4);
+            Polyhedron3d p({p1, p2, p3, p4});
 
             ASSERT_FALSE(p.empty());
             ASSERT_FALSE(p.point());
@@ -655,11 +568,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             const vm::vec3d p3(3.0, 3.0, 0.0);
             const vm::vec3d p4(3.0, 6.0, 0.0);
 
-            Polyhedron3d p;
-            p.addPoint(p1);
-            p.addPoint(p2);
-            p.addPoint(p3);
-            p.addPoint(p4);
+            Polyhedron3d p({p1, p2, p3, p4});
 
             ASSERT_FALSE(p.empty());
             ASSERT_FALSE(p.point());
@@ -681,11 +590,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             const vm::vec3d p3(3.0, 6.0, 0.0);
             const vm::vec3d p4(3.0, 3.0, 6.0);
 
-            Polyhedron3d p;
-            p.addPoint(p1);
-            p.addPoint(p2);
-            p.addPoint(p3);
-            p.addPoint(p4);
+            Polyhedron3d p({p1, p2, p3, p4});
 
             ASSERT_FALSE(p.empty());
             ASSERT_FALSE(p.point());
@@ -719,18 +624,12 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             const vm::vec3d p4(  0.0, +32.0, 0.0);
             const vm::vec3d p5(+16.0, +32.0, 0.0);
 
-            Polyhedron3d p;
-            p.addPoint(p1);
-            p.addPoint(p2);
-            p.addPoint(p3);
-            p.addPoint(p4);
+            Polyhedron3d p({p1, p2, p3, p4, p5});
 
             ASSERT_TRUE(p.hasVertex(p1));
             ASSERT_TRUE(p.hasVertex(p2));
             ASSERT_TRUE(p.hasVertex(p3));
             ASSERT_TRUE(p.hasVertex(p4));
-
-            ASSERT_TRUE(p.addPoint(p5) == nullptr);
             ASSERT_FALSE(p.hasVertex(p5));
         }
 
@@ -750,52 +649,13 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             const vm::vec3d p4(  0.0, +32.0, 0.0);
             const vm::vec3d p5(+40.0, +32.0, 0.0);
 
-            Polyhedron3d p;
-            p.addPoint(p1);
-            p.addPoint(p2);
-            p.addPoint(p3);
-            p.addPoint(p4);
+            Polyhedron3d p({p1, p2, p3, p4, p5});
 
             ASSERT_TRUE(p.hasVertex(p1));
             ASSERT_TRUE(p.hasVertex(p2));
-            ASSERT_TRUE(p.hasVertex(p3));
             ASSERT_TRUE(p.hasVertex(p4));
-
-            ASSERT_TRUE(p.addPoint(p5) != nullptr);
             ASSERT_TRUE(p.hasVertex(p5));
             ASSERT_FALSE(p.hasVertex(p3));
-        }
-
-        TEST_CASE("PolyhedronTest.testAddExistingPoints", "[PolyhedronTest]") {
-            /*
-             p4    p3
-             *-----*
-             |     |
-             |     |
-             *-----*
-             p1    p2
-             */
-
-            const vm::vec3d p1(  0.0,   0.0, 0.0);
-            const vm::vec3d p2(+32.0,   0.0, 0.0);
-            const vm::vec3d p3(+32.0, +32.0, 0.0);
-            const vm::vec3d p4(  0.0, +32.0, 0.0);
-
-            Polyhedron3d p;
-            p.addPoint(p1);
-            p.addPoint(p2);
-            p.addPoint(p3);
-            p.addPoint(p4);
-
-            ASSERT_TRUE(p.hasVertex(p1));
-            ASSERT_TRUE(p.hasVertex(p2));
-            ASSERT_TRUE(p.hasVertex(p3));
-            ASSERT_TRUE(p.hasVertex(p4));
-
-            ASSERT_TRUE(p.addPoint(p1) == nullptr);
-            ASSERT_TRUE(p.addPoint(p2) == nullptr);
-            ASSERT_TRUE(p.addPoint(p3) == nullptr);
-            ASSERT_TRUE(p.addPoint(p4) == nullptr);
         }
 
         TEST_CASE("PolyhedronTest.testAddManyPointsCrash", "[PolyhedronTest]") {
@@ -809,14 +669,12 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
 
             Polyhedron3d p;
 
-            p.addPoint(p1);
-
+            p = Polyhedron3d({p1});
             ASSERT_TRUE(p.point());
             ASSERT_EQ(1u, p.vertexCount());
             ASSERT_TRUE(p.hasVertex(p1));
 
-            p.addPoint(p2);
-
+            p = Polyhedron3d({p1, p2});
             ASSERT_TRUE(p.edge());
             ASSERT_EQ(2u, p.vertexCount());
             ASSERT_TRUE(p.hasVertex(p1));
@@ -824,8 +682,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             ASSERT_EQ(1u, p.edgeCount());
             ASSERT_TRUE(p.hasEdge(p1, p2));
 
-            p.addPoint(p3);
-
+            p = Polyhedron3d({p1, p2, p3});
             ASSERT_TRUE(p.polygon());
             ASSERT_EQ(3u, p.vertexCount());
             ASSERT_TRUE(p.hasVertex(p1));
@@ -836,10 +693,9 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             ASSERT_TRUE(p.hasEdge(p1, p3));
             ASSERT_TRUE(p.hasEdge(p2, p3));
             ASSERT_EQ(1u, p.faceCount());
-            ASSERT_TRUE(hasTriangleOf(p, p1, p2, p3));
+            ASSERT_TRUE(hasTriangleOf(p, p1, p3, p2));
 
-            p.addPoint(p4);
-
+            p = Polyhedron3d({p1, p2, p3, p4});
             ASSERT_TRUE(p.polyhedron());
             ASSERT_EQ(4u, p.vertexCount());
             ASSERT_TRUE(p.hasVertex(p1));
@@ -859,8 +715,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             ASSERT_TRUE(hasTriangleOf(p, p1, p4, p3));
             ASSERT_TRUE(hasTriangleOf(p, p3, p4, p2));
 
-            p.addPoint(p5);
-
+            p = Polyhedron3d({p1, p2, p3, p4, p5});
             ASSERT_TRUE(p.polyhedron());
             ASSERT_EQ(5u, p.vertexCount());
             ASSERT_TRUE(p.hasVertex(p1));
@@ -889,7 +744,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             ASSERT_TRUE(hasTriangleOf(p, p5, p2, p3));
             ASSERT_TRUE(hasTriangleOf(p, p5, p1, p2));
 
-            p.addPoint(p6);
+            p = Polyhedron3d({p1, p2, p3, p4, p5, p6});
             ASSERT_EQ(5u, p.vertexCount());
             ASSERT_TRUE(p.hasVertex(p1));
             ASSERT_TRUE(p.hasVertex(p2));
@@ -926,7 +781,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             ASSERT_TRUE(hasTriangleOf(p, p6, p4, p5));
             ASSERT_TRUE(hasTriangleOf(p, p6, p1, p4));
 
-            p.addPoint(p7);
+            p = Polyhedron3d({p1, p2, p3, p4, p5, p6, p7});
             ASSERT_EQ(5u, p.vertexCount());
             ASSERT_TRUE(p.hasVertex(p1));
             ASSERT_TRUE(p.hasVertex(p2));
@@ -969,178 +824,37 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
         }
 
         TEST_CASE("PolyhedronTest.testAdd8PointsCrash", "[PolyhedronTest]") {
-            // a horizontal rectangle
-            const vm::vec3d p1( 0,  0,  0);
-            const vm::vec3d p2( 0, 32,  0);
-            const vm::vec3d p3(32, 32,  0);
-            const vm::vec3d p4(32,  0,  0);
+            const auto vertices = std::vector<vm::vec3>({
+                // a horizontal rectangle
+                vm::vec3d( 0,  0,  0),
+                vm::vec3d( 0, 32,  0),
+                vm::vec3d(32, 32,  0),
+                vm::vec3d(32,  0,  0),
 
-            // a vertical rectangle
-            const vm::vec3d p5(32, 16, 16);
-            const vm::vec3d p6(32, 16, 32);
-            const vm::vec3d p7(32, 32, 32);
-            const vm::vec3d p8(32, 32, 16);
+                // a vertical rectangle
+                vm::vec3d(32, 16, 16),
+                vm::vec3d(32, 16, 32),
+                vm::vec3d(32, 32, 32),
+                vm::vec3d(32, 32, 16),
+            });
 
-            Polyhedron3d p;
-            p.addPoint(p1);
-            p.addPoint(p2);
-            p.addPoint(p3);
-            p.addPoint(p4);
-            p.addPoint(p5);
-            p.addPoint(p6);
-            p.addPoint(p7);
-            p.addPoint(p8); // assertion failure here
-        }
-
-        TEST_CASE("PolyhedronTest.testMergeManyFacesAfterAddingPoint", "[PolyhedronTest]") {
-            const vm::vec3d  p1(0.0,  0.0, 0.0);
-            const vm::vec3d  p2(0.0,  0.0, 4.0);
-            const vm::vec3d  p3(0.0, 10.0, 0.0);
-            const vm::vec3d  p4(0.0, 10.0, 4.0);
-            const vm::vec3d  p5(4.0,  0.0, 0.0);
-            const vm::vec3d  p6(4.0,  0.0, 4.0);
-            const vm::vec3d  p7(4.0, 10.0, 0.0);
-            const vm::vec3d  p8(4.0, 10.0, 4.0);
-            const vm::vec3d  p9(6.0,  4.0, 4.0);
-            const vm::vec3d p10(6.0,  6.0, 4.0);
-            const vm::vec3d p11(8.0,  5.0, 2.0);
-            const vm::vec3d p12(8.0,  5.0, 4.0);
-
-            std::vector<vm::vec3d> topOld;
-            topOld.push_back(p2);
-            topOld.push_back(p6);
-            topOld.push_back(p9);
-            topOld.push_back(p10);
-            topOld.push_back(p8);
-            topOld.push_back(p4);
-
-            std::vector<vm::vec3d> topNew;
-            topNew.push_back(p2);
-            topNew.push_back(p6);
-            topNew.push_back(p12);
-            topNew.push_back(p8);
-            topNew.push_back(p4);
-
-            Polyhedron3d p;
-            p.addPoint(p1);
-            p.addPoint(p2);
-            p.addPoint(p3);
-            p.addPoint(p4);
-            p.addPoint(p5);
-            p.addPoint(p6);
-            p.addPoint(p7);
-            p.addPoint(p8);
-            p.addPoint(p9);
-            p.addPoint(p10);
-            p.addPoint(p11);
-
-            ASSERT_EQ(11u, p.vertexCount());
-            ASSERT_TRUE(p.hasVertex(p1));
-            ASSERT_TRUE(p.hasVertex(p2));
-            ASSERT_TRUE(p.hasVertex(p3));
-            ASSERT_TRUE(p.hasVertex(p4));
-            ASSERT_TRUE(p.hasVertex(p5));
-            ASSERT_TRUE(p.hasVertex(p6));
-            ASSERT_TRUE(p.hasVertex(p7));
-            ASSERT_TRUE(p.hasVertex(p8));
-            ASSERT_TRUE(p.hasVertex(p9));
-            ASSERT_TRUE(p.hasVertex(p10));
-            ASSERT_TRUE(p.hasVertex(p11));
-
-            ASSERT_EQ(20u, p.edgeCount());
-            ASSERT_TRUE(p.hasEdge(p1, p2));
-            ASSERT_TRUE(p.hasEdge(p1, p3));
-            ASSERT_TRUE(p.hasEdge(p1, p5));
-            ASSERT_TRUE(p.hasEdge(p2, p4));
-            ASSERT_TRUE(p.hasEdge(p2, p6));
-            ASSERT_TRUE(p.hasEdge(p3, p4));
-            ASSERT_TRUE(p.hasEdge(p3, p7));
-            ASSERT_TRUE(p.hasEdge(p4, p8));
-            ASSERT_TRUE(p.hasEdge(p5, p6));
-            ASSERT_TRUE(p.hasEdge(p5, p7));
-            ASSERT_TRUE(p.hasEdge(p5, p11));
-            ASSERT_TRUE(p.hasEdge(p6, p9));
-            ASSERT_TRUE(p.hasEdge(p6, p11));
-            ASSERT_TRUE(p.hasEdge(p7, p8));
-            ASSERT_TRUE(p.hasEdge(p7, p11));
-            ASSERT_TRUE(p.hasEdge(p8, p10));
-            ASSERT_TRUE(p.hasEdge(p8, p11));
-            ASSERT_TRUE(p.hasEdge(p9, p10));
-            ASSERT_TRUE(p.hasEdge(p9, p11));
-            ASSERT_TRUE(p.hasEdge(p10, p11));
-
-            ASSERT_EQ(11u, p.faceCount());
-            ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
-            ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
-            ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
-            ASSERT_TRUE(hasQuadOf(p, p3, p4, p8, p7));
-            ASSERT_TRUE(hasTriangleOf(p, p11,  p6,  p5));
-            ASSERT_TRUE(hasTriangleOf(p, p11,  p9,  p6));
-            ASSERT_TRUE(hasTriangleOf(p, p11, p10,  p9));
-            ASSERT_TRUE(hasTriangleOf(p, p11,  p8, p10));
-            ASSERT_TRUE(hasTriangleOf(p, p11,  p7,  p8));
-            ASSERT_TRUE(hasTriangleOf(p, p11,  p5,  p7));
-            ASSERT_TRUE(p.hasFace(topOld));
-
-            p.addPoint(p12);
-
-            ASSERT_EQ(10u, p.vertexCount());
-            ASSERT_TRUE(p.hasVertex(p1));
-            ASSERT_TRUE(p.hasVertex(p2));
-            ASSERT_TRUE(p.hasVertex(p3));
-            ASSERT_TRUE(p.hasVertex(p4));
-            ASSERT_TRUE(p.hasVertex(p5));
-            ASSERT_TRUE(p.hasVertex(p6));
-            ASSERT_TRUE(p.hasVertex(p7));
-            ASSERT_TRUE(p.hasVertex(p8));
-            ASSERT_TRUE(p.hasVertex(p11));
-
-            ASSERT_EQ(16u, p.edgeCount());
-            ASSERT_TRUE(p.hasEdge( p1, p2));
-            ASSERT_TRUE(p.hasEdge( p1, p3));
-            ASSERT_TRUE(p.hasEdge( p1, p5));
-            ASSERT_TRUE(p.hasEdge( p2, p4));
-            ASSERT_TRUE(p.hasEdge( p2, p6));
-            ASSERT_TRUE(p.hasEdge( p3, p4));
-            ASSERT_TRUE(p.hasEdge( p3, p7));
-            ASSERT_TRUE(p.hasEdge( p4, p8));
-            ASSERT_TRUE(p.hasEdge( p5, p6));
-            ASSERT_TRUE(p.hasEdge( p5, p7));
-            ASSERT_TRUE(p.hasEdge( p5, p11));
-            ASSERT_TRUE(p.hasEdge( p7, p8));
-            ASSERT_TRUE(p.hasEdge( p7, p11));
-            ASSERT_TRUE(p.hasEdge( p6, p12));
-            ASSERT_TRUE(p.hasEdge( p8, p12));
-            ASSERT_TRUE(p.hasEdge(p11, p12));
-
-            ASSERT_EQ(8u, p.faceCount());
-            ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
-            ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
-            ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
-            ASSERT_TRUE(hasQuadOf(p, p3, p4, p8, p7));
-            ASSERT_TRUE(hasQuadOf(p, p5, p11, p12, p6));
-            ASSERT_TRUE(hasQuadOf(p, p7, p8, p12, p11));
-            ASSERT_TRUE(hasTriangleOf(p, p11,  p5,  p7));
-            ASSERT_TRUE(p.hasFace(topNew));
+            const Polyhedron3d p(vertices);
+            CHECK(p.vertexCount() == 6u);
         }
 
         TEST_CASE("PolyhedronTest.crashWhileAddingPoints1", "[PolyhedronTest]") {
-            const vm::vec3d p1(224, 336, 0);
-            const vm::vec3d p2(272, 320, 0);
-            const vm::vec3d p3(-96, 352, 128);
-            const vm::vec3d p4(192, 192, 128);
-            const vm::vec3d p5(256, 256, 128);
-            const vm::vec3d p6(320, 480, 128);
-            const vm::vec3d p7(320, 256, 128);
+            const auto vertices = std::vector<vm::vec3>({
+                vm::vec3d(224, 336, 0),
+                vm::vec3d(272, 320, 0),
+                vm::vec3d(-96, 352, 128),
+                vm::vec3d(192, 192, 128),
+                vm::vec3d(256, 256, 128),
+                vm::vec3d(320, 480, 128),
+                vm::vec3d(320, 256, 128),
+            });
 
-            Polyhedron3d p;
-            p.addPoint(p1);
-            p.addPoint(p2);
-            p.addPoint(p3);
-            p.addPoint(p4);
-            p.addPoint(p5);
-            p.addPoint(p6);
-            p.addPoint(p7); // Assertion failure here.
+            const Polyhedron3d p(vertices);
+            CHECK(p.vertexCount() == 6u);
         }
 
         TEST_CASE("PolyhedronTest.crashWhileAddingPoints2", "[PolyhedronTest]") {
@@ -1153,138 +867,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             const vm::vec3d p14(  0, 39, 160);
             const vm::vec3d p15(  0, 39, 0);
 
-            Polyhedron3d p;
-
-            p.addPoint(p1);
-            ASSERT_TRUE(p.point());
-            ASSERT_TRUE(p.hasVertex(p1));
-
-            p.addPoint(p4);
-            ASSERT_TRUE(p.edge());
-            ASSERT_EQ(2u, p.vertexCount());
-            ASSERT_TRUE(p.hasVertex(p1));
-            ASSERT_TRUE(p.hasVertex(p4));
-            ASSERT_EQ(1u, p.edgeCount());
-            ASSERT_TRUE(p.hasEdge(p1, p4));
-
-            p.addPoint(p6);
-            ASSERT_TRUE(p.polygon());
-            ASSERT_EQ(3u, p.vertexCount());
-            ASSERT_TRUE(p.hasVertex(p1));
-            ASSERT_TRUE(p.hasVertex(p4));
-            ASSERT_TRUE(p.hasVertex(p6));
-            ASSERT_EQ(3u, p.edgeCount());
-            ASSERT_TRUE(p.hasEdge(p1, p4));
-            ASSERT_TRUE(p.hasEdge(p1, p6));
-            ASSERT_TRUE(p.hasEdge(p4, p6));
-
-            p.addPoint(p9);
-            ASSERT_TRUE(p.polyhedron());
-            ASSERT_EQ(4u, p.vertexCount());
-            ASSERT_TRUE(p.hasVertex(p1));
-            ASSERT_TRUE(p.hasVertex(p4));
-            ASSERT_TRUE(p.hasVertex(p6));
-            ASSERT_TRUE(p.hasVertex(p9));
-            ASSERT_EQ(6u, p.edgeCount());
-            ASSERT_TRUE(p.hasEdge(p1, p4));
-            ASSERT_TRUE(p.hasEdge(p1, p6));
-            ASSERT_TRUE(p.hasEdge(p1, p9));
-            ASSERT_TRUE(p.hasEdge(p4, p6));
-            ASSERT_TRUE(p.hasEdge(p4, p9));
-            ASSERT_TRUE(p.hasEdge(p6, p9));
-            ASSERT_EQ(4u, p.faceCount());
-            ASSERT_TRUE(hasTriangleOf(p, p1, p9, p4));
-            ASSERT_TRUE(hasTriangleOf(p, p1, p4, p6));
-            ASSERT_TRUE(hasTriangleOf(p, p1, p6, p9));
-            ASSERT_TRUE(hasTriangleOf(p, p4, p9, p6));
-
-            p.addPoint(p10);
-            ASSERT_TRUE(p.polyhedron());
-            ASSERT_EQ(5u, p.vertexCount());
-            ASSERT_TRUE(p.hasVertex(p1));
-            ASSERT_TRUE(p.hasVertex(p4));
-            ASSERT_TRUE(p.hasVertex(p6));
-            ASSERT_TRUE(p.hasVertex(p9));
-            ASSERT_TRUE(p.hasVertex(p10));
-            ASSERT_EQ(8u, p.edgeCount());
-            ASSERT_TRUE(p.hasEdge(p1, p4));
-            ASSERT_TRUE(p.hasEdge(p1, p6));
-            ASSERT_TRUE(p.hasEdge(p1, p9));
-            ASSERT_TRUE(p.hasEdge(p4, p9));
-            ASSERT_TRUE(p.hasEdge(p6, p9));
-            ASSERT_TRUE(p.hasEdge(p4, p10));
-            ASSERT_TRUE(p.hasEdge(p6, p10));
-            ASSERT_TRUE(p.hasEdge(p9, p10));
-            ASSERT_EQ(5u, p.faceCount());
-            ASSERT_TRUE(hasTriangleOf(p, p1, p9, p4));
-            ASSERT_TRUE(hasTriangleOf(p, p1, p6, p9));
-            ASSERT_TRUE(hasTriangleOf(p, p4, p9, p10));
-            ASSERT_TRUE(hasTriangleOf(p, p6, p10, p9));
-            ASSERT_TRUE(hasQuadOf(p, p1, p4, p10, p6));
-
-            p.addPoint(p13);
-            ASSERT_TRUE(p.polyhedron());
-            ASSERT_EQ(6u, p.vertexCount());
-            ASSERT_TRUE(p.hasVertex(p1));
-            ASSERT_TRUE(p.hasVertex(p4));
-            ASSERT_TRUE(p.hasVertex(p6));
-            ASSERT_TRUE(p.hasVertex(p9));
-            ASSERT_TRUE(p.hasVertex(p10));
-            ASSERT_TRUE(p.hasVertex(p13));
-            ASSERT_EQ(11u, p.edgeCount());
-            ASSERT_TRUE(p.hasEdge(p1, p4));
-            ASSERT_TRUE(p.hasEdge(p1, p6));
-            ASSERT_TRUE(p.hasEdge(p1, p9));
-            ASSERT_TRUE(p.hasEdge(p1, p13));
-            ASSERT_TRUE(p.hasEdge(p4, p9));
-            ASSERT_TRUE(p.hasEdge(p4, p10));
-            ASSERT_TRUE(p.hasEdge(p4, p13));
-            ASSERT_TRUE(p.hasEdge(p6, p9));
-            ASSERT_TRUE(p.hasEdge(p6, p13));
-            ASSERT_TRUE(p.hasEdge(p9, p10));
-            ASSERT_TRUE(p.hasEdge(p10, p13));
-            ASSERT_EQ(7u, p.faceCount());
-            ASSERT_TRUE(hasTriangleOf(p, p1, p9, p4));
-            ASSERT_TRUE(hasTriangleOf(p, p1, p6, p9));
-            ASSERT_TRUE(hasTriangleOf(p, p1, p13, p6));
-            ASSERT_TRUE(hasTriangleOf(p, p1, p4, p13));
-            ASSERT_TRUE(hasTriangleOf(p, p4, p10, p13));
-            ASSERT_TRUE(hasTriangleOf(p, p4, p9, p10));
-            ASSERT_TRUE(hasQuadOf(p, p6, p13, p10, p9));
-
-            p.addPoint(p14);
-            ASSERT_TRUE(p.polyhedron());
-            ASSERT_EQ(7u, p.vertexCount());
-            ASSERT_TRUE(p.hasVertex(p1));
-            ASSERT_TRUE(p.hasVertex(p4));
-            ASSERT_TRUE(p.hasVertex(p6));
-            ASSERT_TRUE(p.hasVertex(p9));
-            ASSERT_TRUE(p.hasVertex(p10));
-            ASSERT_TRUE(p.hasVertex(p13));
-            ASSERT_TRUE(p.hasVertex(p14));
-            ASSERT_EQ(12u, p.edgeCount());
-            ASSERT_TRUE(p.hasEdge(p1, p4));
-            ASSERT_TRUE(p.hasEdge(p1, p6));
-            ASSERT_TRUE(p.hasEdge(p1, p9));
-            ASSERT_TRUE(p.hasEdge(p1, p14));
-            ASSERT_TRUE(p.hasEdge(p4, p9));
-            ASSERT_TRUE(p.hasEdge(p4, p10));
-            ASSERT_TRUE(p.hasEdge(p4, p13));
-            ASSERT_TRUE(p.hasEdge(p6, p9));
-            ASSERT_TRUE(p.hasEdge(p6, p14));
-            ASSERT_TRUE(p.hasEdge(p9, p10));
-            ASSERT_TRUE(p.hasEdge(p10, p13));
-            ASSERT_TRUE(p.hasEdge(p13, p14));
-            ASSERT_EQ(7u, p.faceCount());
-            ASSERT_TRUE(hasTriangleOf(p, p1, p14, p6));
-            ASSERT_TRUE(hasQuadOf(p, p1, p4, p13, p14));
-            ASSERT_TRUE(hasTriangleOf(p, p1, p6, p9));
-            ASSERT_TRUE(hasTriangleOf(p, p1, p9, p4));
-            ASSERT_TRUE(hasTriangleOf(p, p4, p10, p13));
-            ASSERT_TRUE(hasTriangleOf(p, p4, p9, p10));
-            ASSERT_TRUE(hasPolygonOf(p, p6, p14, p13, p10, p9));
-
-            p.addPoint(p15); // Assertion failure here.
+            Polyhedron3d p({p1, p4, p6, p9, p10, p13, p14, p15});
             ASSERT_TRUE(p.polyhedron());
             ASSERT_EQ(6u, p.vertexCount());
             ASSERT_TRUE(p.hasVertex(p1));
@@ -1314,39 +897,26 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
         }
 
         TEST_CASE("PolyhedronTest.crashWhileAddingPoints3", "[PolyhedronTest]") {
-            const vm::vec3d  p1(256, 39, 160);
-            const vm::vec3d  p2(256, 0, 160);
-            const vm::vec3d  p3(256,  0, 64);
-            const vm::vec3d  p4(256, 39, 64);
-            const vm::vec3d  p5(  0,  0, 160);
-            const vm::vec3d  p6(  0, 32, 160);
-            const vm::vec3d  p7(  0,  0, 64);
-            const vm::vec3d  p8(  0, 32, 64);
-            const vm::vec3d  p9(  0,  0, 0);
-            const vm::vec3d p10(  0, 32, 0);
-            const vm::vec3d p11(256, 32, 0);
-            const vm::vec3d p12(256,  0, 0);
-            const vm::vec3d p13(  0, 39, 64);
-            const vm::vec3d p14(  0, 39, 160);
-            const vm::vec3d p15(  0, 39, 0);
+            const auto vertices = std::vector<vm::vec3>({
+                vm::vec3d(256, 39, 160),
+                vm::vec3d(256, 0, 160),
+                vm::vec3d(256,  0, 64),
+                vm::vec3d(256, 39, 64),
+                vm::vec3d(  0,  0, 160),
+                vm::vec3d(  0, 32, 160),
+                vm::vec3d(  0,  0, 64),
+                vm::vec3d(  0, 32, 64),
+                vm::vec3d(  0,  0, 0),
+                vm::vec3d(  0, 32, 0),
+                vm::vec3d(256, 32, 0),
+                vm::vec3d(256,  0, 0),
+                vm::vec3d(  0, 39, 64),
+                vm::vec3d(  0, 39, 160),
+                vm::vec3d(  0, 39, 0),
+            });
 
-            Polyhedron3d p;
-
-            p.addPoint(p1);
-            p.addPoint(p2);
-            p.addPoint(p3);
-            p.addPoint(p4);
-            p.addPoint(p5);
-            p.addPoint(p6);
-            p.addPoint(p7);
-            p.addPoint(p8);
-            p.addPoint(p9);
-            p.addPoint(p10);
-            p.addPoint(p11);
-            p.addPoint(p12);
-            p.addPoint(p13);
-            p.addPoint(p14);
-            p.addPoint(p15); // Assertion failure here.
+            const Polyhedron3d p(vertices);
+            CHECK(p.vertexCount() == 9u);
         }
 
         TEST_CASE("PolyhedronTest.crashWhileAddingPoints4", "[PolyhedronTest]") {
@@ -1363,36 +933,8 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
             const vm::vec3d p4(+1, -1, 0);
             const vm::vec3d p5( 0,  0, 0);
 
-            Polyhedron3d p;
-
-            p.addPoint(p1);
-            p.addPoint(p4);
-            p.addPoint(p2);
-            ASSERT_TRUE(hasTriangleOf(p, p1, p4, p2));
-
-            p.addPoint(p3);
-            ASSERT_TRUE(hasQuadOf(p, p1, p4, p3, p2));
-
-            p.addPoint(p5); // Assertion failure here.
-            ASSERT_TRUE(hasQuadOf(p, p1, p4, p3, p2));
-        }
-
-        TEST_CASE("PolyhedronTest.crashWhileAddingPoints5", "[PolyhedronTest]") {
-            // https://github.com/kduske/TrenchBroom/issues/1573
-
-            const vm::vec3d p1(2, 0, 0);
-            const vm::vec3d p2(0, 1, 0);
-            const vm::vec3d p3(2, 1, 0); // Triangle (p1, p2, p3)
-            const vm::vec3d p4(1, 1, 0); // Colinear along (p2, p3) edge
-
-            Polyhedron3d p;
-
-            p.addPoint(p1);
-            p.addPoint(p2);
-            p.addPoint(p3);
-            p.addPoint(p4);
-
-            p.addPoint(p2); // Assertion failure here - re-adding p2
+            Polyhedron3d p({p1, p2, p3, p4, p5});
+            ASSERT_TRUE(hasQuadOf(p, p1, p2, p3, p4));
         }
 
         TEST_CASE("PolyhedronTest.clipCubeWithHorizontalPlane", "[PolyhedronTest]") {
