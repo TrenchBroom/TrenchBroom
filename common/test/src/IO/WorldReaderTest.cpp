@@ -193,7 +193,7 @@ namespace TrenchBroom {
             Model::LayerNode* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().front());
             ASSERT_NE(nullptr, defaultLayer);
             ASSERT_EQ(1u, defaultLayer->childCount());
-            ASSERT_EQ(Model::Layer::defaultLayerSortIndex(), defaultLayer->sortIndex());
+            ASSERT_EQ(Model::LayerNode::defaultLayerSortIndex(), defaultLayer->sortIndex());
 
             Model::EntityNode* entity = static_cast<Model::EntityNode*>(defaultLayer->children().front());
             ASSERT_TRUE(entity->hasAttribute("classname"));
@@ -709,7 +709,7 @@ namespace TrenchBroom {
             ASSERT_NE(nullptr, defaultLayer);
             ASSERT_NE(nullptr, myLayer);
 
-            CHECK(defaultLayer->sortIndex() == Model::Layer::defaultLayerSortIndex());
+            CHECK(defaultLayer->sortIndex() == Model::LayerNode::defaultLayerSortIndex());
             CHECK(myLayer->sortIndex()      == 0); // The layer didn't have a sort index (saved in an older version of TB), so it's assigned 0           
 
             ASSERT_EQ(2u, defaultLayer->childCount());
@@ -756,7 +756,7 @@ namespace TrenchBroom {
             CHECK(sort0->name() == "Sort Index 0");
             CHECK(sort1->name() == "Sort Index 1");
 
-            CHECK(defaultLayer->sortIndex() == Model::Layer::defaultLayerSortIndex());
+            CHECK(defaultLayer->sortIndex() == Model::LayerNode::defaultLayerSortIndex());
             CHECK(sort0->sortIndex()     == 0);
             CHECK(sort1->sortIndex()     == 1);            
         }
@@ -811,7 +811,7 @@ namespace TrenchBroom {
             CHECK(sort3->name() == "Sort Index 3");
             CHECK(sort5->name() == "Sort Index 5");
 
-            CHECK(defaultLayer->sortIndex() == Model::Layer::defaultLayerSortIndex());
+            CHECK(defaultLayer->sortIndex() == Model::LayerNode::defaultLayerSortIndex());
             // The sort indices are sanitized to start at 0 and be contiguous, but the indices read from the file (1, 3, 5)
             // are still used to produce the final ordering
             CHECK(sort1->sortIndex()        == 0);

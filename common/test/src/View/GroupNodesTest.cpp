@@ -202,11 +202,11 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.renameGroup", "[GroupNodesTest]") {
-            Model::BrushNode* brush1 = createBrush();
+            Model::BrushNode* brush1 = createBrushNode();
             document->addNode(brush1, document->currentParent());
             document->select(brush1);
 
-            Model::GroupNode group = document->groupSelection("test");
+            Model::GroupNode* group = document->groupSelection("test");
             
             document->renameGroups("abc");
             CHECK(group->name() == "abc");

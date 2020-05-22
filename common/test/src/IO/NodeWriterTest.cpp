@@ -71,7 +71,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("NodeWriterTest.writeDefaultLayerColor", "[NodeWriterTest]") {
-            Model::World map(Model::MapFormat::Standard);
+            Model::WorldNode map(Model::MapFormat::Standard);
             map.addOrUpdateAttribute("classname", "worldspawn");
             map.defaultLayer()->setGroupColor(Color(0.25f, 0.75f, 1.0f));
 
@@ -253,7 +253,7 @@ R"(// entity 0
             map.addOrUpdateAttribute("classname", "worldspawn");
 
             Model::LayerNode* layer = map.createLayer("Custom Layer");
-            CHECK(layer->sortIndex() == Model::Layer::invalidSortIndex());
+            CHECK(layer->sortIndex() == Model::LayerNode::invalidSortIndex());
             layer->setSortIndex(0);
             map.addChild(layer);
 
@@ -297,7 +297,7 @@ R"(// entity 0
         }
 
         TEST_CASE("NodeWriterTest.writeWorldspawnWithCustomLayerWithSortIndex", "[NodeWriterTest]") {
-            Model::World map(Model::MapFormat::Standard);
+            Model::WorldNode map(Model::MapFormat::Standard);
             map.addOrUpdateAttribute("classname", "worldspawn");
 
             Model::LayerNode* layer = map.createLayer("Custom Layer");
