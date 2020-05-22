@@ -1157,23 +1157,24 @@ namespace TrenchBroom {
                 return false;
             }
 
-            Model::Polyhedron3 polyhedron;
+            std::vector<vm::vec3> points;
 
             if (hasSelectedBrushFaces()) {
                 for (const auto& handle : selectedBrushFaces()) {
                     for (const Model::BrushVertex* vertex : handle.face().vertices()) {
-                        polyhedron.addPoint(vertex->position());
+                        points.push_back(vertex->position());
                     }
                 }
             } else if (selectedNodes().hasOnlyBrushes()) {
                 for (const Model::BrushNode* brushNode : selectedNodes().brushes()) {
                     const Model::Brush& brush = brushNode->brush();
                     for (const Model::BrushVertex* vertex : brush.vertices()) {
-                        polyhedron.addPoint(vertex->position());
+                        points.push_back(vertex->position());
                     }
                 }
             }
 
+            Model::Polyhedron3 polyhedron(std::move(points));
             if (!polyhedron.polyhedron() || !polyhedron.closed()) {
                 return false;
             }
