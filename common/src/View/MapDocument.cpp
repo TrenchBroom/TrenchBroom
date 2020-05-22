@@ -106,7 +106,6 @@
 #include "View/RemoveBrushEdgesCommand.h"
 #include "View/RemoveBrushFacesCommand.h"
 #include "View/RemoveBrushVerticesCommand.h"
-#include "View/RenameGroupsCommand.h"
 #include "View/ReparentNodesCommand.h"
 #include "View/ResizeBrushesCommand.h"
 #include "View/CopyTexCoordSystemFromFaceCommand.h"
@@ -1031,7 +1030,13 @@ namespace TrenchBroom {
         }
 
         void MapDocument::renameGroups(const std::string& name) {
-            executeAndStore(RenameGroupsCommand::rename(name));
+            if (!hasSelectedNodes() || !m_selectedNodes.hasOnlyGroups())
+                return;
+            
+            const std::vector<Model::AttributableNode*> groups = kdl::vec_element_cast<Model::AttributableNode*>(m_selectedNodes.groups());
+
+            const Transaction transaction(this, "Rename Groups");
+            executeAndStore(ChangeEntityAttributesCommand::setForNodes(groups, Model::AttributeNames::GroupName, name));
         }
 
         void MapDocument::openGroup(Model::GroupNode* group) {

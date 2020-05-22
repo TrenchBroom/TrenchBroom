@@ -409,7 +409,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/RemoveBrushElementsCommand.cpp
         ${COMMON_SOURCE_DIR}/View/RemoveBrushFacesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/RemoveBrushVerticesCommand.cpp
-        ${COMMON_SOURCE_DIR}/View/RenameGroupsCommand.cpp
         ${COMMON_SOURCE_DIR}/View/RenderView.cpp
         ${COMMON_SOURCE_DIR}/View/ReparentNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/ReplaceTextureDialog.cpp
@@ -960,7 +959,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/RemoveBrushElementsCommand.h
         ${COMMON_SOURCE_DIR}/View/RemoveBrushFacesCommand.h
         ${COMMON_SOURCE_DIR}/View/RemoveBrushVerticesCommand.h
-        ${COMMON_SOURCE_DIR}/View/RenameGroupsCommand.h
         ${COMMON_SOURCE_DIR}/View/RenderView.h
         ${COMMON_SOURCE_DIR}/View/ReparentNodesCommand.h
         ${COMMON_SOURCE_DIR}/View/ReplaceTextureDialog.h

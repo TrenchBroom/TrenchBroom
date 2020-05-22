@@ -22,7 +22,7 @@
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Model/Node.h"
+#include "Model/AttributableNode.h"
 #include "Model/Object.h"
 
 #include <vecmath/bbox.h>
@@ -32,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class GroupNode : public Node, public Object {
+        class GroupNode : public AttributableNode, public Object {
         private:
             typedef enum {
                 Edit_Open,
@@ -40,7 +40,6 @@ namespace TrenchBroom {
                 Edit_DescendantOpen
             } EditState;
 
-            std::string m_name;
             EditState m_editState;
             mutable vm::bbox3 m_logicalBounds;
             mutable vm::bbox3 m_physicalBounds;
@@ -88,6 +87,12 @@ namespace TrenchBroom {
             void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
+        private: // implement AttributableNode interface
+            void doAttributesDidChange(const vm::bbox3& oldBounds) override;
+            bool doIsAttributeNameMutable(const std::string& name) const override;
+            bool doIsAttributeValueMutable(const std::string& name) const override;
+            vm::vec3 doGetLinkSourceAnchor() const override;
+            vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement methods inherited from Object
             Node* doGetContainer() const override;
             LayerNode* doGetLayer() const override;
