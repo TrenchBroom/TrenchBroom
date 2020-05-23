@@ -420,6 +420,7 @@ namespace TrenchBroom {
                 }
 
                 const auto& newDragFace = newBrush.face(*newDragFaceIndex);
+                const vm::vec3 newDragFaceNormal = newDragFace.boundary().normal;
                 auto clipFace = newDragFace;
                 clipFace.invert();
                 newBrush.moveBoundary(worldBounds, *newDragFaceIndex, delta, lockTextures);
@@ -431,7 +432,7 @@ namespace TrenchBroom {
                 
                 auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
                 newNodes[brushNode->parent()].push_back(newBrushNode);
-                newDragHandles.emplace_back(newBrushNode, newDragFace.boundary().normal);
+                newDragHandles.emplace_back(newBrushNode, newDragFaceNormal);
             }
 
             document->deselectAll();
