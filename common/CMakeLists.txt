@@ -427,6 +427,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/SelectionCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SelectionTool.cpp
         ${COMMON_SOURCE_DIR}/View/SetBrushFaceAttributesTool.cpp
+        ${COMMON_SOURCE_DIR}/View/SetCurrentLayerCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SetLockStateCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SetModsCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SetTextureCollectionsCommand.cpp
@@ -977,6 +978,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/SelectionCommand.h
         ${COMMON_SOURCE_DIR}/View/SelectionTool.h
         ${COMMON_SOURCE_DIR}/View/SetBrushFaceAttributesTool.h
+        ${COMMON_SOURCE_DIR}/View/SetCurrentLayerCommand.h
         ${COMMON_SOURCE_DIR}/View/SetLockStateCommand.h
         ${COMMON_SOURCE_DIR}/View/SetModsCommand.h
         ${COMMON_SOURCE_DIR}/View/SetTextureCollectionsCommand.h

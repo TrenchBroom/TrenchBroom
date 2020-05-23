@@ -354,6 +354,18 @@ namespace TrenchBroom {
             nodeLockingDidChangeNotifier(changedNodes);
         }
 
+        Model::LayerNode* MapDocumentCommandFacade::performSetCurrentLayer(Model::LayerNode* currentLayer) {
+            ensure(currentLayer != nullptr, "currentLayer is null");
+            assert(!currentLayer->locked());
+            assert(!currentLayer->hidden());
+
+            Model::LayerNode* oldCurrentLayer = m_currentLayer;
+            m_currentLayer = currentLayer;
+            currentLayerDidChangeNotifier(m_currentLayer);
+
+            return oldCurrentLayer;
+        }
+
         class MapDocumentCommandFacade::RenameGroupsVisitor : public Model::NodeVisitor {
         private:
             const std::string& m_newName;

@@ -112,6 +112,7 @@
 #include "View/RotateTexturesCommand.h"
 #include "View/SelectionCommand.h"
 #include "View/SetLockStateCommand.h"
+#include "View/SetCurrentLayerCommand.h"
 #include "View/SetModsCommand.h"
 #include "View/SetVisibilityCommand.h"
 #include "View/ShearTexturesCommand.h"
@@ -208,11 +209,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::setCurrentLayer(Model::LayerNode* currentLayer) {
-            ensure(currentLayer != nullptr, "currentLayer is null");
-            assert(!currentLayer->locked());
-            assert(!currentLayer->hidden());
-            m_currentLayer = currentLayer;
-            currentLayerDidChangeNotifier(m_currentLayer);
+            executeAndStore(SetCurrentLayerCommand::set(currentLayer));
         }
 
         bool MapDocument::canSetCurrentLayer(Model::LayerNode* currentLayer) const {
