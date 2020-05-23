@@ -42,6 +42,7 @@
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
 #include "Model/TestGame.h"
+#include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
@@ -1179,6 +1180,74 @@ namespace TrenchBroom {
             CHECK(Model::findLayer(entity) == layer1);
             CHECK(Model::findLayer(newGroup) == layer1);
             CHECK(document->currentLayer() == layer2);
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.newObjectsInHiddenLayerAreVisible", "[LayerTest]") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            Model::LayerNode* layer1 = document->world()->createLayer("test1");
+            Model::LayerNode* layer2 = document->world()->createLayer("test2");
+            document->addNode(layer1, document->world());
+            document->addNode(layer2, document->world());
+
+            document->setCurrentLayer(layer1);
+
+            // Create an entity in layer1
+            Model::EntityNode* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+            CHECK(entity1->parent() == layer1);
+            CHECK(layer1->childCount() == 1u);
+
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity1->visible());
+
+            // Hide layer1. This resets the visibility of nodes in the layer to Visibility_Inherited
+            document->hideLayers({layer1}); 
+
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(!entity1->visible());
+
+            // Create another entity in layer1. It will be visible, while entity1 will still be hidden.
+            Model::EntityNode* entity2 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+            CHECK(entity2->parent() == layer1);
+            CHECK(layer1->childCount() == 2u);
+
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(!entity1->visible());
+            CHECK(entity2->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity2->visible());
+
+            // Change to layer2. This hides all objects in layer1
+            document->setCurrentLayer(layer2);
+
+            CHECK(document->currentLayer() == layer2);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(!entity1->visible());
+            CHECK(entity2->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(!entity2->visible());
+
+            // Undo (Switch current layer back to layer1)
+            document->undoCommand();
+
+            CHECK(document->currentLayer() == layer1);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(!entity1->visible());
+            CHECK(entity2->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity2->visible());
+
+            // Undo (entity2 creation)
+            document->undoCommand();
+
+            CHECK(layer1->childCount() == 1u);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(!entity1->visible());
+
+            // Undo (hiding layer1)
+            document->undoCommand();
+
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity1->visible());
         }
     }
 }
