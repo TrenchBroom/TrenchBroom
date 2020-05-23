@@ -419,9 +419,9 @@ namespace TrenchBroom {
                     return false;
                 }
 
-                const auto& newDragFace = newBrush.face(*newDragFaceIndex);
-                const vm::vec3 newDragFaceNormal = newDragFace.boundary().normal;
-                auto clipFace = newDragFace;
+                const vm::vec3 newDragFaceNormal = newBrush.face(*newDragFaceIndex).boundary().normal;
+                
+                auto clipFace = newBrush.face(*newDragFaceIndex);
                 clipFace.invert();
                 newBrush.moveBoundary(worldBounds, *newDragFaceIndex, delta, lockTextures);
                 
