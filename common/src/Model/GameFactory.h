@@ -93,6 +93,14 @@ namespace TrenchBroom {
             GameConfig& gameConfig(const std::string& gameName);
             const GameConfig& gameConfig(const std::string& gameName) const;
 
+            /**
+             * Scans the map file at the given path to find game type and map format comments and returns the name of
+             * the game and the map format.
+             *
+             * If no game comment is found or the game is unknown, an empty string is returned as the game name.
+             * If no map format comment is found or the format is unknown, MapFormat::Unknown is returned as the map
+             * format.
+             */
             std::pair<std::string, MapFormat> detectGame(const IO::Path& path) const;
         private:
             GameFactory();

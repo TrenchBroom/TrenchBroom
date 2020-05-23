@@ -143,15 +143,15 @@ namespace TrenchBroom {
                 throw FileSystemException("Cannot open file: " + path.asString());
             }
 
-            const std::string gameName = IO::readGameComment(stream);
-            const std::string formatName = IO::readFormatComment(stream);
-
-            const MapFormat format = mapFormat(formatName);
-            if (gameName.empty() || format == MapFormat::Unknown) {
-                return std::make_pair("", MapFormat::Unknown);
-            } else {
-                return std::make_pair(gameName, format);
+            std::string gameName = IO::readGameComment(stream);
+            if (m_configs.find(gameName) == std::end(m_configs)) {
+                gameName = "";
             }
+            
+            const std::string formatName = IO::readFormatComment(stream);
+            const MapFormat format = mapFormat(formatName);
+            
+            return std::make_pair(gameName, format);
         }
 
         GameFactory::GameFactory() = default;
