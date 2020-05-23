@@ -119,9 +119,9 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
             const auto faces = document->selectedBrushFaces();
             if (faces.size() != 1) {
-                m_helper.setFace(nullptr);
+                m_helper.setFaceHandle(std::nullopt);
             } else {
-                m_helper.setFace(&faces.back().face());
+                m_helper.setFaceHandle(faces.back());
             }
 
             if (m_helper.valid()) {
@@ -134,7 +134,7 @@ namespace TrenchBroom {
         }
 
         void UVView::documentWasCleared(MapDocument*) {
-            m_helper.setFace(nullptr);
+            m_helper.setFaceHandle(std::nullopt);
             m_toolBox.disable();
             update();
         }
