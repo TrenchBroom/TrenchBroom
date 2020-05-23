@@ -361,7 +361,7 @@ namespace TrenchBroom {
             void doVisit(Model::BrushNode* brush) override   {
                 if (brush->locked()) {
                     if (collectLocked()) m_lockedNodes.addNode(brush);
-                } else if (selected(brush)) {
+                } else if (selected(brush) || brush->hasSelectedFaces()) {
                     if (collectSelection()) m_selectedNodes.addNode(brush);
                 }
                 if (!brush->selected() && !brush->parentSelected() && !brush->locked()) {
