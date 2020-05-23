@@ -184,6 +184,7 @@ namespace TrenchBroom {
             bool isGamePathPreference(const IO::Path& path) const;
 
             Model::LayerNode* currentLayer() const override;
+            Model::LayerNode* performSetCurrentLayer(Model::LayerNode* currentLayer);
             void setCurrentLayer(Model::LayerNode* currentLayer);
             bool canSetCurrentLayer(Model::LayerNode* currentLayer) const;
 

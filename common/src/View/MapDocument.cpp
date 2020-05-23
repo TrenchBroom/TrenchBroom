@@ -208,6 +208,16 @@ namespace TrenchBroom {
             return m_currentLayer;
         }
 
+        Model::LayerNode* MapDocument::performSetCurrentLayer(Model::LayerNode* currentLayer) {
+            ensure(currentLayer != nullptr, "currentLayer is null");
+            
+            Model::LayerNode* oldCurrentLayer = m_currentLayer;
+            m_currentLayer = currentLayer;
+            currentLayerDidChangeNotifier(m_currentLayer);
+
+            return oldCurrentLayer;
+        }
+
         void MapDocument::setCurrentLayer(Model::LayerNode* currentLayer) {
             executeAndStore(SetCurrentLayerCommand::set(currentLayer));
         }
@@ -1778,7 +1788,7 @@ namespace TrenchBroom {
             m_worldBounds = worldBounds;
             m_game = game;
             m_world = m_game->newMap(mapFormat, m_worldBounds, logger());
-            setCurrentLayer(m_world->defaultLayer());
+            performSetCurrentLayer(m_world->defaultLayer());
 
             updateGameSearchPaths();
             setPath(IO::Path(DefaultDocumentName));
@@ -1788,7 +1798,7 @@ namespace TrenchBroom {
             m_worldBounds = worldBounds;
             m_game = game;
             m_world = m_game->loadMap(mapFormat, m_worldBounds, path, logger());
-            setCurrentLayer(m_world->defaultLayer());
+            performSetCurrentLayer(m_world->defaultLayer());
 
             updateGameSearchPaths();
             setPath(path);
