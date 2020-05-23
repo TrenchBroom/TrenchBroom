@@ -1241,7 +1241,7 @@ namespace TrenchBroom {
             hide(std::vector<Model::Node*>(std::begin(layers), std::end(layers)));
         }
 
-        bool MapDocument::canHideLayers(const std::vector<Model::LayerNode*>& layers) const {
+        bool MapDocument::canHideLayers(const std::vector<Model::LayerNode*>&) const {
             return false;
         }
 
@@ -1253,7 +1253,7 @@ namespace TrenchBroom {
             show(std::vector<Model::Node*>(std::begin(layers), std::end(layers)));
         }
 
-        bool MapDocument::canIsolateLayers(const std::vector<Model::LayerNode*>& layers) const {
+        bool MapDocument::canIsolateLayers(const std::vector<Model::LayerNode*>&) const {
             return true;
         }
 

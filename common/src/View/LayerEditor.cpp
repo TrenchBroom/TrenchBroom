@@ -119,6 +119,7 @@ namespace TrenchBroom {
             makeActiveAction->setEnabled(canSetCurrentLayer(layer));
             moveSelectionToLayerAction->setEnabled(canMoveSelectionToLayer());
             toggleLayerVisibleAction->setEnabled(canToggleLayerVisible());
+            isolateLayerAction->setEnabled(document->canIsolateLayers({layer}));
 
             toggleLayerLockedAction->setEnabled(canToggleLayerLocked());
             moveLayerUpAction->setEnabled(canMoveLayer(-1));
