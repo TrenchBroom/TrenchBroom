@@ -45,8 +45,8 @@ namespace TrenchBroom {
             m_profileList = new GameEngineProfileListBox(m_config, listPanel->getPanel());
             m_profileEditor = new GameEngineProfileEditor(editorPanel->getPanel());
 
-            auto* addProfileButton = createBitmapButton("Add.png", "Add profile");
-            m_removeProfileButton = createBitmapButton("Remove.png", "Remove the selected profile");
+            auto* addProfileButton = createBitmapButton("Add.svg", "Add profile");
+            m_removeProfileButton = createBitmapButton("Remove.svg", "Remove the selected profile");
             m_removeProfileButton->setEnabled(false);
 
             auto* buttonLayout = createMiniToolBarLayout(addProfileButton, m_removeProfileButton);

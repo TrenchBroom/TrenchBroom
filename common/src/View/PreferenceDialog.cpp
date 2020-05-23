@@ -68,10 +68,10 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::createGui() {
-            const auto gamesImage    = IO::loadIconResourceQt(IO::Path("GeneralPreferences.png"));
-            const auto viewImage     = IO::loadIconResourceQt(IO::Path("ViewPreferences.png"));
-            const auto mouseImage    = IO::loadIconResourceQt(IO::Path("MousePreferences.png"));
-            const auto keyboardImage = IO::loadIconResourceQt(IO::Path("KeyboardPreferences.png"));
+            const auto gamesImage    = IO::loadSVGIcon(IO::Path("GeneralPreferences.svg"));
+            const auto viewImage     = IO::loadSVGIcon(IO::Path("ViewPreferences.svg"));
+            const auto mouseImage    = IO::loadSVGIcon(IO::Path("MousePreferences.svg"));
+            const auto keyboardImage = IO::loadSVGIcon(IO::Path("KeyboardPreferences.svg"));
 
             m_toolBar = new QToolBar();
             m_toolBar->setFloatable(false);

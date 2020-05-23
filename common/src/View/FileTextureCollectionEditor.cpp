@@ -215,11 +215,11 @@ namespace TrenchBroom {
             m_collections = new QListWidget();
             m_collections->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-            m_addTextureCollectionsButton = createBitmapButton("Add.png", "Add texture collections from the file system");
-            m_removeTextureCollectionsButton = createBitmapButton("Remove.png", "Remove the selected texture collections");
-            m_moveTextureCollectionUpButton = createBitmapButton("Up.png", "Move the selected texture collection up");
-            m_moveTextureCollectionDownButton = createBitmapButton("Down.png", "Move the selected texture collection down");
-            m_reloadTextureCollectionsButton = createBitmapButton("Refresh.png", "Reload all texture collections");
+            m_addTextureCollectionsButton = createBitmapButton("Add.svg", "Add texture collections from the file system");
+            m_removeTextureCollectionsButton = createBitmapButton("Remove.svg", "Remove the selected texture collections");
+            m_moveTextureCollectionUpButton = createBitmapButton("Up.svg", "Move the selected texture collection up");
+            m_moveTextureCollectionDownButton = createBitmapButton("Down.svg", "Move the selected texture collection down");
+            m_reloadTextureCollectionsButton = createBitmapButton("Refresh.svg", "Reload all texture collections");
 
             auto* toolBar = createMiniToolBarLayout(
                 m_addTextureCollectionsButton,

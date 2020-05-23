@@ -73,12 +73,12 @@ namespace TrenchBroom {
         void UVEditor::createGui(GLContextManager& contextManager) {
             m_uvView = new UVView(m_document, contextManager);
 
-            m_resetTextureButton = createBitmapButton("ResetTexture.png", tr("Reset texture alignment"), this);
-            m_flipTextureHButton = createBitmapButton("FlipTextureH.png", tr("Flip texture X axis"), this);
-            m_flipTextureVButton = createBitmapButton("FlipTextureV.png", tr("Flip texture Y axis"), this);
-            m_rotateTextureCCWButton = createBitmapButton("RotateTextureCCW.png",
+            m_resetTextureButton = createBitmapButton("ResetTexture.svg", tr("Reset texture alignment"), this);
+            m_flipTextureHButton = createBitmapButton("FlipTextureH.svg", tr("Flip texture X axis"), this);
+            m_flipTextureVButton = createBitmapButton("FlipTextureV.svg", tr("Flip texture Y axis"), this);
+            m_rotateTextureCCWButton = createBitmapButton("RotateTextureCCW.svg",
                                                           tr("Rotate texture 90° counter-clockwise"), this);
-            m_rotateTextureCWButton = createBitmapButton("RotateTextureCW.png", tr("Rotate texture 90° clockwise"),
+            m_rotateTextureCWButton = createBitmapButton("RotateTextureCW.svg", tr("Rotate texture 90° clockwise"),
                                                          this);
 
             connect(m_resetTextureButton, &QAbstractButton::clicked, this, &UVEditor::resetTextureClicked);
