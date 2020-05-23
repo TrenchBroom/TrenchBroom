@@ -64,7 +64,9 @@ namespace TrenchBroom {
 
         BrushNode::BrushNode(Brush brush) :
         m_brushRendererBrushCache(std::make_unique<Renderer::BrushRendererBrushCache>()),
-        m_brush(std::move(brush)) {}
+        m_brush(std::move(brush)) {
+            updateSelectedFaceCount();
+        }
 
         BrushNode::~BrushNode() = default;
 
@@ -108,16 +110,23 @@ namespace TrenchBroom {
             const NotifyPhysicalBoundsChange boundsChange(this);
             m_brush = std::move(brush);
             
+            updateSelectedFaceCount();
             invalidateIssues();
             invalidateVertexCache();
         }
 
+        bool BrushNode::hasSelectedFaces() const {
+            return m_selectedFaceCount > 0u;
+        }
+
         void BrushNode::selectFace(const size_t faceIndex) {
             m_brush.face(faceIndex).select();
+            ++m_selectedFaceCount;
         }
         
         void BrushNode::deselectFace(const size_t faceIndex) {
             m_brush.face(faceIndex).deselect();
+            --m_selectedFaceCount;
         }
 
         void BrushNode::updateFaceTags(const size_t faceIndex, TagManager& tagManager) {
@@ -129,6 +138,15 @@ namespace TrenchBroom {
             
             invalidateIssues();
             invalidateVertexCache();
+        }
+
+        void BrushNode::updateSelectedFaceCount() {
+            m_selectedFaceCount = 0u;
+            for (const BrushFace& face : m_brush.faces()) {
+                if (face.selected()) {
+                    ++m_selectedFaceCount;
+                }
+            }
         }
 
         const std::string& BrushNode::doGetName() const {
