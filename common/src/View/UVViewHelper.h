@@ -22,8 +22,11 @@
 
 #include "FloatType.h"
 #include "Model/HitType.h"
+#include "Model/BrushFaceHandle.h"
 
 #include <vecmath/vec.h>
+
+#include <optional>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -48,7 +51,7 @@ namespace TrenchBroom {
             Renderer::OrthographicCamera& m_camera;
             bool m_zoomValid;
 
-            const Model::BrushFace* m_face;
+            std::optional<Model::BrushFaceHandle> m_faceHandle;
 
             vm::vec2i m_subDivisions;
 
@@ -62,7 +65,7 @@ namespace TrenchBroom {
             bool valid() const;
             const Model::BrushFace* face() const;
             const Assets::Texture* texture() const;
-            void setFace(const Model::BrushFace* face);
+            void setFaceHandle(std::optional<Model::BrushFaceHandle> faceHandle);
             void cameraViewportChanged();
 
             const vm::vec2i& subDivisions() const;
