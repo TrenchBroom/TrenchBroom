@@ -83,6 +83,7 @@
 #include "Model/Polyhedron3.h"
 #include "Model/PortalFile.h"
 #include "Model/TagManager.h"
+#include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
 #include "View/AddBrushVerticesCommand.h"
 #include "View/AddRemoveNodesCommand.h"
@@ -219,6 +220,16 @@ namespace TrenchBroom {
         }
 
         void MapDocument::setCurrentLayer(Model::LayerNode* currentLayer) {
+            ensure(m_currentLayer != nullptr, "old currentLayer is null");
+            ensure(currentLayer != nullptr, "new currentLayer is null");
+
+            Transaction transaction(this, "Set Current Layer");
+
+            // The layer we're leaving needs to have the visibility of all child nodes reset
+            Model::CollectNodesVisitor collect;
+            m_currentLayer->recurse(collect);
+            resetVisibility(collect.nodes());
+
             executeAndStore(SetCurrentLayerCommand::set(currentLayer));
         }
 
@@ -1261,11 +1272,28 @@ namespace TrenchBroom {
         }
 
         void MapDocument::hide(const std::vector<Model::Node*> nodes) {
-            Model::CollectSelectedNodesVisitor collect;
-            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), collect);
-
             const Transaction transaction(this, "Hide Objects");
-            deselect(collect.nodes());
+
+            // Deselect any selected nodes inside `nodes`
+            {
+                Model::CollectSelectedNodesVisitor collect;
+                Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), collect);
+                deselect(collect.nodes());
+            }
+
+            // Reset visibility of all children of `nodes` that have non-inherited visibility
+            {
+                std::vector<Model::Node*> nodesToReset;
+                Model::CollectNodesVisitor collect;
+                Model::Node::recurse(std::begin(nodes), std::end(nodes), collect);
+                for (Model::Node* node : collect.nodes()) {
+                    if (node->visibilityState() != Model::VisibilityState::Visibility_Inherited) {
+                        nodesToReset.push_back(node);
+                    }
+                }
+                executeAndStore(SetVisibilityCommand::reset(nodesToReset));
+            }
+
             executeAndStore(SetVisibilityCommand::hide(nodes));
         }
 
@@ -1274,6 +1302,22 @@ namespace TrenchBroom {
         }
 
         void MapDocument::show(const std::vector<Model::Node*>& nodes) {
+            const Transaction transaction(this, "Show Objects");
+
+            // Reset visibility of all children of `nodes` that have non-inherited visibility
+            // FIXME: Copied from above
+            {
+                std::vector<Model::Node*> nodesToReset;
+                Model::CollectNodesVisitor collect;
+                Model::Node::recurse(std::begin(nodes), std::end(nodes), collect);
+                for (Model::Node* node : collect.nodes()) {
+                    if (node->visibilityState() != Model::VisibilityState::Visibility_Inherited) {
+                        nodesToReset.push_back(node);
+                    }
+                }
+                executeAndStore(SetVisibilityCommand::reset(nodesToReset));
+            }
+
             executeAndStore(SetVisibilityCommand::show(nodes));
         }
 
