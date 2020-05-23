@@ -235,6 +235,110 @@ namespace TrenchBroom {
             ASSERT_TRUE(nodes.empty());
         }
 
+        TEST_CASE("BrushTest.selectedFaceCount", "[BrushNodeTest]") {
+            const vm::bbox3 worldBounds(4096.0);
+            
+            // build a cube with length 16 at the origin
+            BrushNode brush(Brush(worldBounds, {
+                // left
+                BrushFace::createParaxial(
+                    vm::vec3(0.0, 0.0, 0.0),
+                    vm::vec3(0.0, 1.0, 0.0),
+                    vm::vec3(0.0, 0.0, 1.0)),
+                // right
+                BrushFace::createParaxial(
+                    vm::vec3(16.0, 0.0, 0.0),
+                    vm::vec3(16.0, 0.0, 1.0),
+                    vm::vec3(16.0, 1.0, 0.0)),
+                // front
+                BrushFace::createParaxial(
+                    vm::vec3(0.0, 0.0, 0.0),
+                    vm::vec3(0.0, 0.0, 1.0),
+                    vm::vec3(1.0, 0.0, 0.0)),
+                // back
+                BrushFace::createParaxial(
+                    vm::vec3(0.0, 16.0, 0.0),
+                    vm::vec3(1.0, 16.0, 0.0),
+                    vm::vec3(0.0, 16.0, 1.0)),
+                // top
+                BrushFace::createParaxial(
+                    vm::vec3(0.0, 0.0, 16.0),
+                    vm::vec3(0.0, 1.0, 16.0),
+                    vm::vec3(1.0, 0.0, 16.0)),
+                // bottom
+                BrushFace::createParaxial(
+                    vm::vec3(0.0, 0.0, 0.0),
+                    vm::vec3(1.0, 0.0, 0.0),
+                    vm::vec3(0.0, 1.0, 0.0)),
+            }));
+            
+            CHECK(!brush.hasSelectedFaces());
+            
+            SECTION("Selecting faces correctly updates the node's face selection count") {
+                brush.selectFace(0u);
+                CHECK(brush.hasSelectedFaces());
+                
+                brush.selectFace(1u);
+                CHECK(brush.hasSelectedFaces());
+                
+                brush.deselectFace(0u);
+                CHECK(brush.hasSelectedFaces());
+                
+                brush.deselectFace(1u);
+                CHECK(!brush.hasSelectedFaces());
+            }
+            
+            SECTION("Passing a brush with selected faces to constructor correctly updates the node's face selection count") {
+                REQUIRE(!brush.hasSelectedFaces());
+                
+                Brush copy = brush.brush();
+                copy.face(0u).select();
+                copy.face(1u).select();
+                
+                BrushNode another(std::move(copy));
+                CHECK(another.hasSelectedFaces());
+
+                another.deselectFace(0u);
+                CHECK(another.hasSelectedFaces());
+                
+                another.deselectFace(1u);
+                CHECK(!another.hasSelectedFaces());
+            }
+
+            SECTION("Setting a brush with selected faces correctly updates the node's face selection count") {
+                REQUIRE(!brush.hasSelectedFaces());
+                
+                Brush copy = brush.brush();
+                copy.face(0u).select();
+                copy.face(1u).select();
+                
+                brush.setBrush(std::move(copy));
+                CHECK(brush.hasSelectedFaces());
+
+                brush.deselectFace(0u);
+                CHECK(brush.hasSelectedFaces());
+                
+                brush.deselectFace(1u);
+                CHECK(!brush.hasSelectedFaces());
+            }
+            
+            SECTION("Cloning a brush node returns a clone with correct face selection count") {
+                REQUIRE(!brush.hasSelectedFaces());
+                
+                brush.selectFace(0u);
+                brush.selectFace(1u);
+                REQUIRE(brush.hasSelectedFaces());
+
+                auto clone = std::unique_ptr<BrushNode>(brush.clone(worldBounds));
+                CHECK(clone->hasSelectedFaces());
+                
+                clone->deselectFace(0u);
+                clone->deselectFace(1u);
+                CHECK(!clone->hasSelectedFaces());
+            }
+        }
+
+
         TEST_CASE("BrushNodeTest.pick", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(4096.0);
 
