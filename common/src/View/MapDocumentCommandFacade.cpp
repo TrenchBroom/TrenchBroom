@@ -491,6 +491,7 @@ namespace TrenchBroom {
 
             setEntityDefinitions(nodes);
             setEntityModels(nodes);
+            invalidateSelectionBounds();
 
             return snapshot;
         }
@@ -514,6 +515,7 @@ namespace TrenchBroom {
 
             setEntityDefinitions(nodes);
             setEntityModels(nodes);
+            invalidateSelectionBounds();
 
             return snapshot;
         }
@@ -595,6 +597,7 @@ namespace TrenchBroom {
 
             setEntityDefinitions(nodes);
             setEntityModels(nodes);
+            invalidateSelectionBounds();
 
             return snapshot;
         }
@@ -621,6 +624,7 @@ namespace TrenchBroom {
 
             setEntityDefinitions(nodes);
             setEntityModels(nodes);
+            invalidateSelectionBounds();
         }
 
         std::vector<vm::polygon3> MapDocumentCommandFacade::performResizeBrushes(const std::vector<vm::polygon3>& polygons, const vm::vec3& delta) {
