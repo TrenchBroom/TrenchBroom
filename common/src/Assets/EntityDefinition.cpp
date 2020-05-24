@@ -112,19 +112,14 @@ namespace TrenchBroom {
             return entityDefinition->attributeDefinition(attributeName);
         }
 
-        const FlagsAttributeDefinition* EntityDefinition::safeGetSpawnflagsAttributeDefinition(const EntityDefinition* entityDefinition) {
+        const FlagsAttributeDefinition* EntityDefinition::safeGetFlagsAttributeDefinition(const EntityDefinition* entityDefinition, const std::string& attributeName) {
             if (entityDefinition == nullptr)
                 return nullptr;
-            return entityDefinition->spawnflags();
-        }
-
-        const FlagsAttributeOption* EntityDefinition::safeGetSpawnflagsAttributeOption(const EntityDefinition* entityDefinition, const size_t flagIndex) {
-            const Assets::FlagsAttributeDefinition* flagDefinition = safeGetSpawnflagsAttributeDefinition(entityDefinition);
-            if (flagDefinition == nullptr)
+            const AttributeDefinition* attributeDefinition = entityDefinition->attributeDefinition(attributeName);
+            if (attributeDefinition == nullptr || attributeDefinition->type() != AttributeDefinitionType::FlagsAttribute) {
                 return nullptr;
-
-            const int flag = static_cast<int>(1 << flagIndex);
-            return flagDefinition->option(flag);
+            }
+            return static_cast<const FlagsAttributeDefinition*>(attributeDefinition);
         }
 
         std::vector<EntityDefinition*> EntityDefinition::filterAndSort(const std::vector<EntityDefinition*>& definitions, const EntityDefinitionType type, const EntityDefinitionSortOrder order) {

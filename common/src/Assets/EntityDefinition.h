@@ -81,8 +81,7 @@ namespace TrenchBroom {
             const AttributeDefinition* attributeDefinition(const std::string& attributeKey) const;
 
             static const AttributeDefinition* safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const std::string& attributeName);
-            static const FlagsAttributeDefinition* safeGetSpawnflagsAttributeDefinition(const EntityDefinition* entityDefinition);
-            static const FlagsAttributeOption* safeGetSpawnflagsAttributeOption(const EntityDefinition* entityDefinition, size_t flagIndex);
+            static const FlagsAttributeDefinition* safeGetFlagsAttributeDefinition(const EntityDefinition* entityDefinition, const std::string& attributeName);
 
             static std::vector<EntityDefinition*> filterAndSort(const std::vector<EntityDefinition*>& definitions, EntityDefinitionType type, EntityDefinitionSortOrder prder = EntityDefinitionSortOrder::Name);
         protected:

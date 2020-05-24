@@ -121,10 +121,14 @@ namespace TrenchBroom {
                     QString label = defaultLabels[indexI];
                     QString tooltip = "";
 
-                    const Assets::FlagsAttributeOption* flagDef = Assets::EntityDefinition::safeGetSpawnflagsAttributeOption(attributable->definition(), i);
-                    if (flagDef != nullptr) {
-                        label = QString::fromStdString(flagDef->shortDescription());
-                        tooltip = QString::fromStdString(flagDef->longDescription());
+                    const Assets::FlagsAttributeDefinition* attrDef = Assets::EntityDefinition::safeGetFlagsAttributeDefinition(attributable->definition(), name());
+                    if (attrDef != nullptr) {
+                        const int flag = static_cast<int>(1 << i);
+                        const Assets::FlagsAttributeOption* flagDef = attrDef->option(flag);
+                        if (flagDef != nullptr) {
+                            label = QString::fromStdString(flagDef->shortDescription());
+                            tooltip = QString::fromStdString(flagDef->longDescription());
+                        }
                     }
 
                     if (firstPass) {
