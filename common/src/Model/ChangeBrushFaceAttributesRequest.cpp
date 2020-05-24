@@ -32,7 +32,7 @@
 namespace TrenchBroom {
     namespace Model {
         template <typename T>
-        T evaluateValueOp(const T oldValue, const T newValue, const ChangeBrushFaceAttributesRequest::ValueOp op) {
+        static T evaluateValueOp(const T oldValue, const T newValue, const ChangeBrushFaceAttributesRequest::ValueOp op) {
             switch (op) {
                 case ChangeBrushFaceAttributesRequest::ValueOp_Set:
                     return newValue;
@@ -47,7 +47,7 @@ namespace TrenchBroom {
         }
 
         template <typename T>
-        T evaluateFlagOp(const T oldValue, const T newValue, const ChangeBrushFaceAttributesRequest::FlagOp op) {
+        static T evaluateFlagOp(const T oldValue, const T newValue, const ChangeBrushFaceAttributesRequest::FlagOp op) {
             switch (op) {
                 case ChangeBrushFaceAttributesRequest::FlagOp_Replace:
                     return newValue;
@@ -61,16 +61,14 @@ namespace TrenchBroom {
             }
         }
 
-        bool collateTextureOp(ChangeBrushFaceAttributesRequest::TextureOp& myOp, const ChangeBrushFaceAttributesRequest::TextureOp theirOp);
-        bool collateTextureOp(ChangeBrushFaceAttributesRequest::TextureOp& myOp, const ChangeBrushFaceAttributesRequest::TextureOp theirOp) {
+        static bool collateTextureOp(ChangeBrushFaceAttributesRequest::TextureOp& myOp, const ChangeBrushFaceAttributesRequest::TextureOp theirOp) {
             if (theirOp != ChangeBrushFaceAttributesRequest::TextureOp_None) {
                 myOp = theirOp;
             }
             return true;
         }
 
-        bool collateAxisOp(ChangeBrushFaceAttributesRequest::AxisOp& myOp, const ChangeBrushFaceAttributesRequest::AxisOp theirOp);
-        bool collateAxisOp(ChangeBrushFaceAttributesRequest::AxisOp& myOp, const ChangeBrushFaceAttributesRequest::AxisOp theirOp) {
+        static bool collateAxisOp(ChangeBrushFaceAttributesRequest::AxisOp& myOp, const ChangeBrushFaceAttributesRequest::AxisOp theirOp) {
             switch (myOp) {
                 case ChangeBrushFaceAttributesRequest::AxisOp_None:
                     myOp = theirOp;
@@ -93,7 +91,7 @@ namespace TrenchBroom {
         }
 
         template <typename T>
-        bool collateValueOp(ChangeBrushFaceAttributesRequest::ValueOp& myOp, T& myValue, const ChangeBrushFaceAttributesRequest::ValueOp theirOp, const T theirValue) {
+        static bool collateValueOp(ChangeBrushFaceAttributesRequest::ValueOp& myOp, T& myValue, const ChangeBrushFaceAttributesRequest::ValueOp theirOp, const T theirValue) {
             switch (myOp) {
                 case ChangeBrushFaceAttributesRequest::ValueOp_None:
                     myOp = theirOp;
@@ -146,7 +144,7 @@ namespace TrenchBroom {
         }
 
         template <typename T>
-        bool collateFlagOp(ChangeBrushFaceAttributesRequest::FlagOp& myOp, T& myValue, const ChangeBrushFaceAttributesRequest::FlagOp theirOp, const T theirValue) {
+        static bool collateFlagOp(ChangeBrushFaceAttributesRequest::FlagOp& myOp, T& myValue, const ChangeBrushFaceAttributesRequest::FlagOp theirOp, const T theirValue) {
             switch (myOp) {
                 case ChangeBrushFaceAttributesRequest::FlagOp_None:
                     myOp = theirOp;
