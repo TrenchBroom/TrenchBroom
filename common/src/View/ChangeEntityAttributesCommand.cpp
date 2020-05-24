@@ -154,19 +154,22 @@ namespace TrenchBroom {
         }
 
         bool ChangeEntityAttributesCommand::doCollateWith(UndoableCommand* command) {
-            auto* other = dynamic_cast<ChangeEntityAttributesCommand*>(command);
-            // cppcheck-suppress nullPointerRedundantCheck
+            auto* other = dynamic_cast<ChangeEntityAttributesCommand*>(command);            
             ensure(other != nullptr, "attempted to collate with wrong node type");
 
+            // cppcheck-suppress nullPointerRedundantCheck
             if (other->m_action != m_action) {
                 return false;
             }
+            // cppcheck-suppress nullPointerRedundantCheck
             if (other->m_target != m_target) {
                 return false;
             }
+            // cppcheck-suppress nullPointerRedundantCheck
             if (other->m_targetNodes != m_targetNodes) {
                 return false;
             }
+            // cppcheck-suppress nullPointerRedundantCheck
             if (other->m_oldName != m_oldName) {
                 return false;
             }
