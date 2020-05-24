@@ -144,11 +144,12 @@ namespace TrenchBroom {
 
             activate();
 
-            // at this point, it must be a left button event, otherwise we would have been active already
-            assert(event->button() == Qt::LeftButton);
-
-            // so we discard the event
-            return true;
+            // The event should be triggered by a left button, otherwise we would have been activated already
+            // and exited early. But sometimes we may receive a button up event without having received a
+            // corresponding mouse down event. In that case, we want to activate in any case, but only discard the
+            // event if it was a left click.
+            // see https://github.com/kduske/TrenchBroom/issues/3045
+            return event->button() == Qt::LeftButton;
         }
 
         void MapViewActivationTracker::enterEvent(QEvent*, QWidget* widget) {

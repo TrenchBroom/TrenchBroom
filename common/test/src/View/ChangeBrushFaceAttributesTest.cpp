@@ -73,5 +73,42 @@ namespace TrenchBroom {
             CHECK(brushNode->brush().face(faceIndex).textureXAxis() == initialX);
             CHECK(brushNode->brush().face(faceIndex).textureYAxis() == initialY);
         }
+        
+        TEST_CASE_METHOD(ChangeBrushFaceAttributesTest, "ChangeBrushFaceAttributesTest.undoRedo") {
+            Model::BrushNode* brushNode = createBrushNode("original");
+            document->addNode(brushNode, document->currentParent());
+            
+            const auto requireTexture = [&](const std::string& textureName) {
+                for (const auto& face : brushNode->brush().faces()) {
+                    REQUIRE(face.attributes().textureName() == textureName);
+                }
+            };
+            
+            const auto checkTexture = [&](const std::string& textureName) {
+                for (const auto& face : brushNode->brush().faces()) {
+                    CHECK(face.attributes().textureName() == textureName);
+                }
+            };
+            
+            requireTexture("original");
+            
+            document->select(brushNode);
+            
+            Model::ChangeBrushFaceAttributesRequest setTexture1;
+            setTexture1.setTextureName("texture1");
+            document->setFaceAttributes(setTexture1);
+            requireTexture("texture1");
+            
+            Model::ChangeBrushFaceAttributesRequest setTexture2;
+            setTexture2.setTextureName("texture2");
+            document->setFaceAttributes(setTexture2);
+            requireTexture("texture2");
+            
+            document->undoCommand();
+            checkTexture("original");
+            
+            document->redoCommand();
+            checkTexture("texture2");
+        }
     }
 }
