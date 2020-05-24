@@ -70,12 +70,14 @@ namespace TrenchBroom {
 
         void LayerEditor::onSetCurrentLayer(Model::LayerNode* layer) {
             auto document = kdl::mem_lock(m_document);
+#if 0
             if (layer->locked()) {
                 document->resetLock(std::vector<Model::Node*>(1, layer));
             }
             if (layer->hidden()) {
                 document->resetVisibility(std::vector<Model::Node*>(1, layer));
             }
+#endif
             document->setCurrentLayer(layer);
 
             updateButtons();

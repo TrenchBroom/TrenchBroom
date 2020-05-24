@@ -60,6 +60,7 @@
 #include "Model/FindLayerVisitor.h"
 #include "Model/LinkSourceIssueGenerator.h"
 #include "Model/LinkTargetIssueGenerator.h"
+#include "Model/LockState.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/GroupNode.h"
@@ -225,10 +226,15 @@ namespace TrenchBroom {
 
             Transaction transaction(this, "Set Current Layer");
 
-            // The layer we're leaving needs to have the visibility of all child nodes reset
-            Model::CollectNodesVisitor collect;
-            m_currentLayer->recurse(collect);
-            resetVisibility(collect.nodes());
+            // The layer we're leaving needs to have the visibility and lock state of all child nodes reset
+            {
+                // FIXME: Only collect nodes which have a non-inherited visibility/lock state, to avoid
+                // bloating the size of the commands
+                Model::CollectNodesVisitor collect;
+                m_currentLayer->recurse(collect);
+                resetVisibility(collect.nodes());                
+                resetLock(collect.nodes());
+            }
 
             executeAndStore(SetCurrentLayerCommand::set(currentLayer));
         }
@@ -1337,15 +1343,47 @@ namespace TrenchBroom {
         }
 
         void MapDocument::lock(const std::vector<Model::Node*>& nodes) {
-            Model::CollectSelectedNodesVisitor collect;
-            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), collect);
-
             const Transaction transaction(this, "Lock Objects");
+
+            // Deselect any selected nodes inside `nodes`
+            {
+                Model::CollectSelectedNodesVisitor collect;
+                Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), collect);
+                deselect(collect.nodes());
+            }
+
+            // Reset lock state of all children of `nodes` that have non-inherited lock state
+            {
+                std::vector<Model::Node*> nodesToReset;
+                Model::CollectNodesVisitor collect;
+                Model::Node::recurse(std::begin(nodes), std::end(nodes), collect);
+                for (Model::Node* node : collect.nodes()) {
+                    if (node->lockState() != Model::LockState::Lock_Inherited) {
+                        nodesToReset.push_back(node);
+                    }
+                }
+                executeAndStore(SetLockStateCommand::reset(nodesToReset));
+            }
+
             executeAndStore(SetLockStateCommand::lock(nodes));
-            deselect(collect.nodes());
         }
 
         void MapDocument::unlock(const std::vector<Model::Node*>& nodes) {
+            const Transaction transaction(this, "Unlock Objects");
+
+            // Reset lock state of all children of `nodes` that have non-inherited lock state
+            {
+                std::vector<Model::Node*> nodesToReset;
+                Model::CollectNodesVisitor collect;
+                Model::Node::recurse(std::begin(nodes), std::end(nodes), collect);
+                for (Model::Node* node : collect.nodes()) {
+                    if (node->lockState() != Model::LockState::Lock_Inherited) {
+                        nodesToReset.push_back(node);
+                    }
+                }
+                executeAndStore(SetLockStateCommand::reset(nodesToReset));
+            }
+
             executeAndStore(SetLockStateCommand::unlock(nodes));
         }
 
