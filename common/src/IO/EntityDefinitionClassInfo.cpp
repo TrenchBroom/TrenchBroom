@@ -167,8 +167,8 @@ namespace TrenchBroom {
 
         void EntityDefinitionClassInfo::mergeProperties(Assets::AttributeDefinition* classAttribute, const Assets::AttributeDefinition* baseclassAttribute) {
             // for now, only merge spawnflags
-            if (baseclassAttribute->type() == Assets::AttributeDefinition::Type_FlagsAttribute &&
-                classAttribute->type() == Assets::AttributeDefinition::Type_FlagsAttribute &&
+            if (baseclassAttribute->type() == Assets::AttributeDefinitionType::FlagsAttribute &&
+                classAttribute->type() == Assets::AttributeDefinitionType::FlagsAttribute &&
                 baseclassAttribute->name() == Model::AttributeNames::Spawnflags &&
                 classAttribute->name() == Model::AttributeNames::Spawnflags) {
 

@@ -85,7 +85,7 @@ namespace TrenchBroom {
 
         const FlagsAttributeDefinition* EntityDefinition::spawnflags() const {
             for (const auto& attributeDefinition : m_attributeDefinitions) {
-                if (attributeDefinition->type() == AttributeDefinition::Type_FlagsAttribute &&
+                if (attributeDefinition->type() == AttributeDefinitionType::FlagsAttribute &&
                     attributeDefinition->name() == Model::AttributeNames::Spawnflags) {
                     return static_cast<FlagsAttributeDefinition*>(attributeDefinition.get());
                 }

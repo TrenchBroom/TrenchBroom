@@ -166,7 +166,7 @@ Updated: 2011-03-02
             ASSERT_NE(nullptr, angleDefinition);
 
             UNSCOPED_INFO("Expected angle attribute definition to be of String type");
-            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, angleDefinition->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::StringAttribute, angleDefinition->type());
 
             UNSCOPED_INFO("Expected matching attribute definition name");
             ASSERT_EQ("angle", angleDefinition->name());
@@ -182,7 +182,7 @@ Updated: 2011-03-02
             ASSERT_NE(nullptr, anglesDefinition);
             
             UNSCOPED_INFO("Expected angles attribute definition to be of String type");
-            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, anglesDefinition->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::StringAttribute, anglesDefinition->type());
 
             UNSCOPED_INFO("Expected matching attribute definition name");
             ASSERT_EQ("angles", anglesDefinition->name());
@@ -198,7 +198,7 @@ Updated: 2011-03-02
             ASSERT_NE(nullptr, scaleDefinition);
 
             UNSCOPED_INFO("Expected angles attribute definition to be of Float type");
-            ASSERT_EQ(Assets::AttributeDefinition::Type_FloatAttribute, scaleDefinition->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::FloatAttribute, scaleDefinition->type());
 
             UNSCOPED_INFO("Expected matching attribute definition name");
             ASSERT_EQ("_scale", scaleDefinition->name());
@@ -268,13 +268,13 @@ Target this entity with a misc_model to have the model attached to the entity (s
 
             UNSCOPED_INFO("Expected seven attribute definitions");
             ASSERT_EQ(7u, brushDefinition->attributeDefinitions().size());
-            assertAttributeDefinition("noise", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);
-            assertAttributeDefinition("model2", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);
-            assertAttributeDefinition("color", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);
-            assertAttributeDefinition("targetname", Assets::AttributeDefinition::Type_TargetSourceAttribute, brushDefinition);
-            assertAttributeDefinition("_castshadows", Assets::AttributeDefinition::Type_IntegerAttribute, brushDefinition);
-            assertAttributeDefinition("_celshader", Assets::AttributeDefinition::Type_StringAttribute, brushDefinition);
-            assertAttributeDefinition("spawnflags", Assets::AttributeDefinition::Type_FlagsAttribute, brushDefinition);
+            assertAttributeDefinition("noise", Assets::AttributeDefinitionType::StringAttribute, brushDefinition);
+            assertAttributeDefinition("model2", Assets::AttributeDefinitionType::StringAttribute, brushDefinition);
+            assertAttributeDefinition("color", Assets::AttributeDefinitionType::StringAttribute, brushDefinition);
+            assertAttributeDefinition("targetname", Assets::AttributeDefinitionType::TargetSourceAttribute, brushDefinition);
+            assertAttributeDefinition("_castshadows", Assets::AttributeDefinitionType::IntegerAttribute, brushDefinition);
+            assertAttributeDefinition("_celshader", Assets::AttributeDefinitionType::StringAttribute, brushDefinition);
+            assertAttributeDefinition("spawnflags", Assets::AttributeDefinitionType::FlagsAttribute, brushDefinition);
 
             UNSCOPED_INFO("Expected matching spawnflag definitions");
             const Assets::FlagsAttributeDefinition* spawnflags = brushDefinition->spawnflags();
@@ -337,7 +337,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             ASSERT_NE(nullptr, colorIndexDefinition);
 
             UNSCOPED_INFO("Expected count attribute definition to be of choice type");
-            ASSERT_EQ(Assets::AttributeDefinition::Type_ChoiceAttribute, colorIndexDefinition->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::ChoiceAttribute, colorIndexDefinition->type());
 
             UNSCOPED_INFO("Expected name value as entity attribute definition short description");
             ASSERT_EQ("Text Color", colorIndexDefinition->shortDescription());
@@ -398,7 +398,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             UNSCOPED_INFO("Missing attribute definition for '_scale' key");
             ASSERT_NE(nullptr, scaleDefinition);
             UNSCOPED_INFO("Expected angles attribute definition to be of Float type");
-            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, scaleDefinition->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::StringAttribute, scaleDefinition->type());
 
             UNSCOPED_INFO("Expected correct default value for '_scale' attribute definition");
             ASSERT_EQ("asdf", scaleDefinition->defaultValue());

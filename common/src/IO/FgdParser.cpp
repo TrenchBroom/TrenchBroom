@@ -455,7 +455,7 @@ namespace TrenchBroom {
             const auto shortDescription = parseAttributeDescription(status);
             parseDefaultStringValue(status);
             const auto longDescription = parseAttributeDescription(status);
-            return std::make_shared<Assets::AttributeDefinition>(name, Assets::AttributeDefinition::Type_TargetSourceAttribute, shortDescription, longDescription, readOnly);
+            return std::make_shared<Assets::AttributeDefinition>(name, Assets::AttributeDefinitionType::TargetSourceAttribute, shortDescription, longDescription, readOnly);
         }
 
         FgdParser::AttributeDefinitionPtr FgdParser::parseTargetDestinationAttribute(ParserStatus& status, const std::string& name) {
@@ -463,7 +463,7 @@ namespace TrenchBroom {
             const auto shortDescription = parseAttributeDescription(status);
             parseDefaultStringValue(status);
             const auto longDescription = parseAttributeDescription(status);
-            return std::make_shared<Assets::AttributeDefinition>(name, Assets::AttributeDefinition::Type_TargetDestinationAttribute, shortDescription, longDescription, readOnly);
+            return std::make_shared<Assets::AttributeDefinition>(name, Assets::AttributeDefinitionType::TargetDestinationAttribute, shortDescription, longDescription, readOnly);
         }
 
         FgdParser::AttributeDefinitionPtr FgdParser::parseStringAttribute(ParserStatus& status, const std::string& name) {

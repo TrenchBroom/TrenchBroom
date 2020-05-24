@@ -28,30 +28,31 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        enum class AttributeDefinitionType {
+            TargetSourceAttribute,
+            TargetDestinationAttribute,
+            StringAttribute,
+            BooleanAttribute,
+            IntegerAttribute,
+            FloatAttribute,
+            ChoiceAttribute,
+            FlagsAttribute
+        };
+
         class AttributeDefinition {
         public:
-            typedef enum {
-                Type_TargetSourceAttribute,
-                Type_TargetDestinationAttribute,
-                Type_StringAttribute,
-                Type_BooleanAttribute,
-                Type_IntegerAttribute,
-                Type_FloatAttribute,
-                Type_ChoiceAttribute,
-                Type_FlagsAttribute
-            } Type;
         private:
             std::string m_name;
-            Type m_type;
+            AttributeDefinitionType m_type;
             std::string m_shortDescription;
             std::string m_longDescription;
             bool m_readOnly;
         public:
-            AttributeDefinition(const std::string& name, Type type, const std::string& shortDescription, const std::string& longDescription, bool readOnly);
+            AttributeDefinition(const std::string& name, AttributeDefinitionType type, const std::string& shortDescription, const std::string& longDescription, bool readOnly);
             virtual ~AttributeDefinition();
 
             const std::string& name() const;
-            Type type() const;
+            AttributeDefinitionType type() const;
             const std::string& shortDescription() const;
             const std::string& longDescription() const;
 
@@ -81,7 +82,7 @@ namespace TrenchBroom {
                 return *m_defaultValue;
             }
         protected:
-            AttributeDefinitionWithDefaultValue(const std::string& name, Type type, const std::string& shortDescription, const std::string& longDescription, bool readOnly, std::optional<T> defaultValue = std::nullopt) :
+            AttributeDefinitionWithDefaultValue(const std::string& name, AttributeDefinitionType type, const std::string& shortDescription, const std::string& longDescription, bool readOnly, std::optional<T> defaultValue = std::nullopt) :
             AttributeDefinition(name, type, shortDescription, longDescription, readOnly),
             m_defaultValue(std::move(defaultValue)) {}
         };
