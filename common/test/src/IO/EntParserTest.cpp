@@ -38,7 +38,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        void assertAttributeDefinition(const std::string& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition);
+        void assertAttributeDefinition(const std::string& name, const Assets::AttributeDefinitionType expectedType, const Assets::EntityDefinition* entityDefinition);
 
         TEST_CASE("EntParserTest.parseIncludedEntFiles", "[EntParserTest]") {
             const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
@@ -458,7 +458,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             kdl::vec_clear_and_delete(definitions);
         }
 
-        void assertAttributeDefinition(const std::string& name, const Assets::AttributeDefinition::Type expectedType, const Assets::EntityDefinition* entityDefinition) {
+        void assertAttributeDefinition(const std::string& name, const Assets::AttributeDefinitionType expectedType, const Assets::EntityDefinition* entityDefinition) {
             const auto* attrDefinition = entityDefinition->attributeDefinition(name);
             UNSCOPED_INFO("Missing attribute definition for '" + name + "' key");
             ASSERT_NE(nullptr, attrDefinition);
