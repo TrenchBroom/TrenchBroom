@@ -31,7 +31,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class SmartChoiceEditorMatcher : public SmartAttributeEditorMatcher {
+        class SmartTypeEditorMatcher : public SmartAttributeEditorMatcher {
         private:
             bool doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const override;
         };

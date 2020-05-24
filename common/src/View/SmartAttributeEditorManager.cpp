@@ -27,7 +27,7 @@
 #include "View/SmartDefaultAttributeEditor.h"
 #include "View/SmartAttributeEditor.h"
 #include "View/SmartAttributeEditorMatcher.h"
-#include "View/SmartSpawnflagsEditor.h"
+#include "View/SmartFlagsEditor.h"
 
 #include <kdl/memory_utils.h>
 
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             assert(m_editors.empty());
 
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorKeyMatcher("spawnflags")),
-                                                  new SmartSpawnflagsEditor(m_document)));
+                                                  new SmartFlagsEditor(m_document)));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorKeyMatcher({ "*_color", "*_color2", "*_colour" })),
                                                   new SmartColorEditor(m_document)));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartChoiceEditorMatcher()),

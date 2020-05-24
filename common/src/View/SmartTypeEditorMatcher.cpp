@@ -17,14 +17,14 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SmartChoiceEditorMatcher.h"
+#include "SmartTypeEditorMatcher.h"
 
 #include "Assets/AttributeDefinition.h"
 #include "Model/AttributableNode.h"
 
 namespace TrenchBroom {
     namespace View {
-        bool SmartChoiceEditorMatcher::doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const {
+        bool SmartTypeEditorMatcher::doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const {
             const Assets::AttributeDefinition* attrDef = Model::AttributableNode::selectAttributeDefinition(name, attributables);
             return attrDef != nullptr && attrDef->type() == Assets::AttributeDefinition::Type_ChoiceAttribute;
         }

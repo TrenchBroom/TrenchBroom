@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SmartSpawnflagsEditor.h"
+#include "SmartFlagsEditor.h"
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
@@ -42,7 +42,7 @@ namespace TrenchBroom {
     namespace View {
         class MapDocument;
 
-        class SmartSpawnflagsEditor::UpdateSpawnflag : public Model::NodeVisitor {
+        class SmartFlagsEditor::UpdateSpawnflag : public Model::NodeVisitor {
         private:
             std::shared_ptr<MapDocument> m_document;
             const std::string& m_name;
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             void doVisit(Model::BrushNode*) override  {}
         };
 
-        SmartSpawnflagsEditor::SmartSpawnflagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
+        SmartFlagsEditor::SmartFlagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         SmartAttributeEditor(document, parent),
         m_scrolledWindow(nullptr),
         m_flagsEditor(nullptr),
@@ -70,13 +70,13 @@ namespace TrenchBroom {
             createGui();
         }
 
-        void SmartSpawnflagsEditor::createGui() {
+        void SmartFlagsEditor::createGui() {
             assert(m_scrolledWindow == nullptr);
 
             m_scrolledWindow = new QScrollArea();
 
             m_flagsEditor = new FlagsEditor(NumCols);
-            connect(m_flagsEditor, &FlagsEditor::flagChanged, this, &SmartSpawnflagsEditor::flagChanged);
+            connect(m_flagsEditor, &FlagsEditor::flagChanged, this, &SmartFlagsEditor::flagChanged);
 
             m_scrolledWindow->setWidget(m_flagsEditor);
 
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             setLayout(layout);
         }
 
-        void SmartSpawnflagsEditor::doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) {
+        void SmartFlagsEditor::doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) {
             assert(!attributables.empty());
             if (m_ignoreUpdates)
                 return;
@@ -101,7 +101,7 @@ namespace TrenchBroom {
             m_flagsEditor->setFlagValue(set, mixed);
         }
 
-        void SmartSpawnflagsEditor::getFlags(const std::vector<Model::AttributableNode*>& attributables, QStringList& labels, QStringList& tooltips) const {
+        void SmartFlagsEditor::getFlags(const std::vector<Model::AttributableNode*>& attributables, QStringList& labels, QStringList& tooltips) const {
             QStringList defaultLabels;
 
             // Initialize the labels and tooltips.
@@ -141,7 +141,7 @@ namespace TrenchBroom {
             }
         }
 
-        void SmartSpawnflagsEditor::getFlagValues(const std::vector<Model::AttributableNode*>& attributables, int& setFlags, int& mixedFlags) const {
+        void SmartFlagsEditor::getFlagValues(const std::vector<Model::AttributableNode*>& attributables, int& setFlags, int& mixedFlags) const {
             if (attributables.empty()) {
                 setFlags = 0;
                 mixedFlags = 0;
@@ -157,7 +157,7 @@ namespace TrenchBroom {
                 combineFlags(NumFlags, getFlagValue(*it), setFlags, mixedFlags);
         }
 
-        int SmartSpawnflagsEditor::getFlagValue(const Model::AttributableNode* attributable) const {
+        int SmartFlagsEditor::getFlagValue(const Model::AttributableNode* attributable) const {
             if (!attributable->hasAttribute(name()))
                 return 0;
 
@@ -165,7 +165,7 @@ namespace TrenchBroom {
             return std::atoi(value.c_str());
         }
 
-        void SmartSpawnflagsEditor::flagChanged(const size_t index, const int /* setFlag */, const int /* mixedFlag */) {
+        void SmartFlagsEditor::flagChanged(const size_t index, const int /* setFlag */, const int /* mixedFlag */) {
             const std::vector<Model::AttributableNode*>& toUpdate = attributables();
             if (toUpdate.empty())
                 return;
