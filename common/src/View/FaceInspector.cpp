@@ -20,7 +20,9 @@
 #include "FaceInspector.h"
 
 #include "Assets/Texture.h"
+#include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/EntityNode.h"
 #include "View/BorderLine.h"
@@ -36,6 +38,8 @@
 #include <kdl/memory_utils.h>
 
 #include <QVBoxLayout>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -110,21 +114,44 @@ namespace TrenchBroom {
             return panel;
         }
 
+        static bool allFacesHaveTexture(const std::vector<Model::BrushFaceHandle>& faceHandles, Assets::Texture* texture) {            
+            for (const Model::BrushFaceHandle& faceHandle : faceHandles) {
+                if (faceHandle.face().texture() != texture) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         void FaceInspector::textureSelected(Assets::Texture* texture) {
             auto document = kdl::mem_lock(m_document);
-            if (document->hasAnySelectedBrushFaces()) {
-                Model::ChangeBrushFaceAttributesRequest request;
-                if (texture != nullptr) {
-                    request.setTextureName(texture->name());
-                } else {
-                    request.setTextureName(Model::BrushFaceAttributes::NoTextureName);
-                }
+            const std::vector<Model::BrushFaceHandle> faces = document->allSelectedBrushFaces();
 
-                document->setFaceAttributes(request);
-            }
-            
             if (texture != nullptr) {
-                document->setCurrentTextureName(texture->name());
+                if (faces.empty()) {
+                    if (document->currentTextureName() == texture->name()) {
+                        document->setCurrentTextureName(Model::BrushFaceAttributes::NoTextureName);
+                    } else {
+                        document->setCurrentTextureName(texture->name());
+                    }
+                } else {
+                    if (allFacesHaveTexture(faces, texture)) {
+                        texture = nullptr;
+                        document->setCurrentTextureName(Model::BrushFaceAttributes::NoTextureName);
+                    } else {
+                        document->setCurrentTextureName(texture->name());
+                    }
+                }
+            }
+
+            if (!faces.empty()) {
+                Model::ChangeBrushFaceAttributesRequest request;
+                if (texture == nullptr) {
+                    request.setTextureName(Model::BrushFaceAttributes::NoTextureName);
+                } else {
+                    request.setTextureName(texture->name());
+                }
+                document->setFaceAttributes(request);
             }
         }
     }
