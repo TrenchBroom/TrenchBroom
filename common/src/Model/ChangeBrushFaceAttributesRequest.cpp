@@ -61,9 +61,10 @@ namespace TrenchBroom {
             }
         }
 
-        static bool collateTextureOp(ChangeBrushFaceAttributesRequest::TextureOp& myOp, const ChangeBrushFaceAttributesRequest::TextureOp theirOp) {
+        static bool collateTextureOp(ChangeBrushFaceAttributesRequest::TextureOp& myOp, std::string& myTextureName, const ChangeBrushFaceAttributesRequest::TextureOp theirOp, const std::string& theirTextureName) {
             if (theirOp != ChangeBrushFaceAttributesRequest::TextureOp_None) {
                 myOp = theirOp;
+                myTextureName = theirTextureName;
             }
             return true;
         }
@@ -519,7 +520,7 @@ namespace TrenchBroom {
 
             if (!collateAxisOp(newAxisOp, other.m_axisOp))
                 return false;
-            if (!collateTextureOp(newTextureOp, other.m_textureOp))
+            if (!collateTextureOp(newTextureOp, newTextureName, other.m_textureOp, other.m_textureName))
                 return false;
             if (!collateValueOp(newXOffsetOp, newXOffset, other.m_xOffsetOp, other.m_xOffset))
                 return false;
