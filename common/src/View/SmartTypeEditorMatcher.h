@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_SmartChoiceEditorMatcher
-#define TrenchBroom_SmartChoiceEditorMatcher
+#ifndef TrenchBroom_SmartTypeEditorMatcher
+#define TrenchBroom_SmartTypeEditorMatcher
 
 #include "View/SmartAttributeEditorMatcher.h"
 
@@ -38,4 +38,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_SmartChoiceEditorMatcher) */
+#endif /* defined(TrenchBroom_SmartTypeEditorMatcher) */
