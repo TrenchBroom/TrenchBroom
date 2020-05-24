@@ -20,6 +20,7 @@
 #include "FaceInspector.h"
 
 #include "Assets/Texture.h"
+#include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
