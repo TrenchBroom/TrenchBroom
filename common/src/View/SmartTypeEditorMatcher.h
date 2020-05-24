@@ -26,12 +26,20 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        enum class AttributeDefinitionType;
+    }
+    
     namespace Model {
         class AttributableNode;
     }
 
     namespace View {
         class SmartTypeEditorMatcher : public SmartAttributeEditorMatcher {
+        private:
+            Assets::AttributeDefinitionType m_type;
+        public:
+            SmartTypeEditorMatcher(Assets::AttributeDefinitionType type);
         private:
             bool doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const override;
         };

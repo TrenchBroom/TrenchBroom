@@ -24,9 +24,12 @@
 
 namespace TrenchBroom {
     namespace View {
+        SmartTypeEditorMatcher::SmartTypeEditorMatcher(const Assets::AttributeDefinitionType type) :
+        m_type(type) {}
+
         bool SmartTypeEditorMatcher::doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const {
             const Assets::AttributeDefinition* attrDef = Model::AttributableNode::selectAttributeDefinition(name, attributables);
-            return attrDef != nullptr && attrDef->type() == Assets::AttributeDefinitionType::ChoiceAttribute;
+            return attrDef != nullptr && attrDef->type() == m_type;
         }
     }
 }
