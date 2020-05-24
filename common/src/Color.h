@@ -22,6 +22,8 @@
 
 #include <vecmath/vec.h>
 
+#include <string>
+
 namespace TrenchBroom {
     class Color : public vm::vec<float, 4> {
     public:
