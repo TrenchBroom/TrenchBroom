@@ -26,6 +26,10 @@
 #include <memory>
 
 namespace TrenchBroom {
+    namespace Model {
+        class LayerNode;
+    }
+
     namespace View {
         class SetCurrentLayerCommand : public UndoableCommand {
         public:
