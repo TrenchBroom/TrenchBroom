@@ -511,22 +511,6 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });
 
-            /* ========== Flip ========== */
-            createAction(IO::Path("Controls/Map view/Flip objects horizontally"), QObject::tr("Flip Horizontally"),
-                ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_F),
-                [](ActionExecutionContext& context) {
-                    context.view()->flipObjects(vm::direction::left);
-                },
-                [](ActionExecutionContext& context) { return context.hasDocument() && context.view()->canFlipObjects(); },
-                IO::Path("FlipHorizontally.svg"));
-            createAction(IO::Path("Controls/Map view/Flip objects vertically"), QObject::tr("Flip Vertically"),
-                ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_F),
-                [](ActionExecutionContext& context) {
-                    context.view()->flipObjects(vm::direction::up);
-                },
-                [](ActionExecutionContext& context) { return context.hasDocument() && context.view()->canFlipObjects(); },
-                IO::Path("FlipVertically.svg"));
-
             /* ========== Texturing ========== */
             createAction(IO::Path("Controls/Map view/Move textures up"), QObject::tr("Move Textures Up"),
                 ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_Up),
@@ -971,6 +955,24 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canUngroupSelectedObjects();
                 }));
+            editMenu.addSeparator();
+
+            editMenu.addItem(
+                createAction(IO::Path("Controls/Map view/Flip objects horizontally"), QObject::tr("Flip Horizontally"), ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_F),
+                    [](ActionExecutionContext& context) {
+                        context.view()->flipObjects(vm::direction::left);
+                    },
+                    [](ActionExecutionContext& context) {
+                        return context.hasDocument() && context.view() && context.view()->canFlipObjects();
+                    }, IO::Path("FlipHorizontally.svg")));
+            editMenu.addItem(
+                createAction(IO::Path("Controls/Map view/Flip objects vertically"), QObject::tr("Flip Vertically"), ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_F),
+                    [](ActionExecutionContext& context) {
+                        context.view()->flipObjects(vm::direction::up);
+                    },
+                    [](ActionExecutionContext& context) {
+                        return context.hasDocument() && context.view() && context.view()->canFlipObjects();
+                    }, IO::Path("FlipVertically.svg")));
             editMenu.addSeparator();
 
             auto& toolMenu = editMenu.addMenu("Tools");
