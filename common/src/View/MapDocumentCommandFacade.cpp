@@ -896,6 +896,7 @@ namespace TrenchBroom {
 
                 snapshot->restoreNodes(m_worldBounds);
 
+                setTextures(m_selectedNodes.nodes());
                 invalidateSelectionBounds();
             }
 
