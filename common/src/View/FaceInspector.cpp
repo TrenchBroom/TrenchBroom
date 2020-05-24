@@ -111,18 +111,20 @@ namespace TrenchBroom {
         }
 
         void FaceInspector::textureSelected(Assets::Texture* texture) {
-            Model::ChangeBrushFaceAttributesRequest request;
-            if (texture != nullptr) {
-                request.setTextureName(texture->name());
-            } else {
-                request.setTextureName(Model::BrushFaceAttributes::NoTextureName);
-            }
-
             auto document = kdl::mem_lock(m_document);
-            if (document->setFaceAttributes(request)) {
+            if (document->hasAnySelectedBrushFaces()) {
+                Model::ChangeBrushFaceAttributesRequest request;
                 if (texture != nullptr) {
-                    document->setCurrentTextureName(texture->name());
+                    request.setTextureName(texture->name());
+                } else {
+                    request.setTextureName(Model::BrushFaceAttributes::NoTextureName);
                 }
+
+                document->setFaceAttributes(request);
+            }
+            
+            if (texture != nullptr) {
+                document->setCurrentTextureName(texture->name());
             }
         }
     }

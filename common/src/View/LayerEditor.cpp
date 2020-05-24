@@ -375,14 +375,14 @@ namespace TrenchBroom {
             });
             connect(m_layerList, &LayerListBox::itemSelectionChanged, this, &LayerEditor::updateButtons);
 
-            m_addLayerButton = createBitmapButton("Add.png", tr("Add a new layer from the current selection"));
-            m_removeLayerButton = createBitmapButton("Remove.png", tr("Remove the selected layer and move its objects to the default layer"));
-            m_unlockAllLayersButton = createBitmapButton("Lock_off.png", tr("Unlock all layers"));
-            m_lockAllLayersButton = createBitmapButton("Lock_on.png", tr("Lock all layers"));
-            m_showAllLayersButton = createBitmapButton("Hidden_off.png", tr("Show all layers"));
-            m_hideAllLayersButton = createBitmapButton("Hidden_on.png", tr("Hide all layers"));
-            m_moveLayerUpButton = createBitmapButton("Up.png", "Move the selected layer up");
-            m_moveLayerDownButton = createBitmapButton("Down.png", "Move the selected layer down");
+            m_addLayerButton = createBitmapButton("Add.svg", tr("Add a new layer from the current selection"));
+            m_removeLayerButton = createBitmapButton("Remove.svg", tr("Remove the selected layer and move its objects to the default layer"));
+            m_unlockAllLayersButton = createBitmapButton("Lock_off.svg", tr("Unlock all layers"));
+            m_lockAllLayersButton = createBitmapButton("Lock_on.svg", tr("Lock all layers"));
+            m_showAllLayersButton = createBitmapButton("Hidden_off.svg", tr("Show all layers"));
+            m_hideAllLayersButton = createBitmapButton("Hidden_on.svg", tr("Hide all layers"));
+            m_moveLayerUpButton = createBitmapButton("Up.svg", "Move the selected layer up");
+            m_moveLayerDownButton = createBitmapButton("Down.svg", "Move the selected layer down");
 
             connect(m_addLayerButton, &QAbstractButton::pressed, this, &LayerEditor::onAddLayer);
             connect(m_removeLayerButton, &QAbstractButton::pressed, this, &LayerEditor::onRemoveLayer);

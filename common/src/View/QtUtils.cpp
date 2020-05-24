@@ -289,10 +289,13 @@ namespace TrenchBroom {
         }
 
         QAbstractButton* createBitmapButton(const std::string& image, const QString& tooltip, QWidget* parent) {
-            return createBitmapButton(loadIconResourceQt(IO::Path(image)), tooltip, parent);
+            return createBitmapButton(loadSVGIcon(IO::Path(image)), tooltip, parent);
         }
 
         QAbstractButton* createBitmapButton(const QIcon& icon, const QString& tooltip, QWidget* parent) {
+            // NOTE: QIcon::availableSizes() is not high-dpi friendly, it returns pixels when we want logical sizes.
+            // We rely on the fact that loadIconResourceQt inserts pixmaps in the order 1x then 2x, so the first
+            // pixmap has the logical size.
             ensure(!icon.availableSizes().empty(), "expected a non-empty icon. Fails when the image file couldn't be found.");
 
             // NOTE: according to http://doc.qt.io/qt-5/qpushbutton.html this would be more correctly
@@ -387,7 +390,7 @@ namespace TrenchBroom {
 
         void setWindowIconTB(QWidget* window) {
             ensure(window != nullptr, "window is null");
-            window->setWindowIcon(IO::loadIconResourceQt(IO::Path("AppIcon.png")));
+            window->setWindowIcon(QIcon(IO::loadPixmapResource(IO::Path("AppIcon.png"))));
         }
 
         void setDebugBackgroundColor(QWidget* widget, const QColor& color) {
@@ -418,7 +421,7 @@ namespace TrenchBroom {
             widget->setClearButtonEnabled(true);
             widget->setPlaceholderText(QLineEdit::tr("Search..."));
 
-            QIcon icon = loadIconResourceQt(IO::Path("Search.png"));
+            QIcon icon = loadSVGIcon(IO::Path("Search.svg"));
             widget->addAction(icon, QLineEdit::LeadingPosition);
             return widget;
         }

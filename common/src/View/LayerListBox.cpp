@@ -71,10 +71,10 @@ namespace TrenchBroom {
             makeInfo(m_infoText);
 
             m_activeButton = new QRadioButton();
-            m_hiddenButton = createBitmapToggleButton("Hidden.png", tr("Toggle hidden state"));
-            m_lockButton = createBitmapToggleButton("Lock.png", tr("Toggle locked state"));
-            m_moveLayerUpButton = createBitmapButton("Up.png", tr("Move the selected layer up"));
-            m_moveLayerDownButton = createBitmapButton("Down.png", tr("Move the selected layer down"));
+            m_hiddenButton = createBitmapToggleButton("Hidden.svg", tr("Toggle hidden state"));
+            m_lockButton = createBitmapToggleButton("Lock.svg", tr("Toggle locked state"));
+            m_moveLayerUpButton = createBitmapButton("Up.svg", tr("Move the selected layer up"));
+            m_moveLayerDownButton = createBitmapButton("Down.svg", tr("Move the selected layer down"));
 
             auto documentS = kdl::mem_lock(m_document);
             connect(m_activeButton, &QAbstractButton::clicked, this, [this]() {
