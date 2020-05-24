@@ -23,6 +23,7 @@
 
 #include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
+#include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/NodeCollection.h"
@@ -92,6 +93,33 @@ namespace TrenchBroom {
             document->selectInside(true);
 
             ASSERT_EQ(1u, document->selectedNodes().nodeCount());
+        }
+        
+        TEST_CASE_METHOD(SelectionTest, "SelectionTest.updateLastSelectionBounds") {
+            auto* entityNode = new Model::EntityNode();
+            entityNode->addOrUpdateAttribute("classname", "point_entity");
+            document->addNode(entityNode, document->currentParent());
+            REQUIRE(!entityNode->logicalBounds().is_empty());
+            
+            document->selectAllNodes();
+            
+            auto bounds = document->selectionBounds();
+            document->deselectAll();
+            CHECK(document->lastSelectionBounds() == bounds);
+            
+            document->deselectAll();
+            CHECK(document->lastSelectionBounds() == bounds);
+            
+            auto* brushNode = createBrushNode();
+            document->addNode(brushNode, document->currentParent());
+            
+            document->select(brushNode);
+            CHECK(document->lastSelectionBounds() == bounds);
+            
+            bounds = brushNode->logicalBounds();
+            
+            document->deselectAll();
+            CHECK(document->lastSelectionBounds() == bounds);
         }
     }
 }
