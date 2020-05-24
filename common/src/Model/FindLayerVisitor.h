@@ -22,6 +22,8 @@
 
 #include "Model/NodeVisitor.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class FindLayerVisitor : public NodeVisitor, public NodeQuery<LayerNode*> {

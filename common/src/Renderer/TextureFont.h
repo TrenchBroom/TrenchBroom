@@ -26,6 +26,7 @@
 #include <vecmath/vec.h>
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {

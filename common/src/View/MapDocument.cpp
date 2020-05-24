@@ -140,6 +140,8 @@
 #include <type_traits>
 #include <vector>
 
+#include <QDebug>
+
 namespace TrenchBroom {
     namespace View {
         const vm::bbox3 MapDocument::DefaultWorldBounds(-16384.0, 16384.0);

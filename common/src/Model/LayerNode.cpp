@@ -31,6 +31,7 @@
 #include <limits>
 #include <string>
 #include <algorithm>
+#include <stdexcept>
 
 namespace TrenchBroom {
     namespace Model {

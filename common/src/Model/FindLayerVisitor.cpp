@@ -20,6 +20,7 @@
 #include "FindLayerVisitor.h"
 
 #include "Model/Node.h"
+#include "Model/LayerNode.h"
 
 #include <kdl/vector_set.h>
 
