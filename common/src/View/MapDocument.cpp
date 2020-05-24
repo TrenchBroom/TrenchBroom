@@ -742,7 +742,10 @@ namespace TrenchBroom {
         }
 
         void MapDocument::updateLastSelectionBounds() {
-            m_lastSelectionBounds = selectionBounds();
+            const auto currentSelectionBounds = selectionBounds();
+            if (currentSelectionBounds.is_valid() && !currentSelectionBounds.is_empty()) {
+                m_lastSelectionBounds = selectionBounds();
+            }
         }
 
         void MapDocument::invalidateSelectionBounds() {
