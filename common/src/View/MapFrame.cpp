@@ -31,6 +31,7 @@
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
 #include "Model/ExportFormat.h"
+#include "Model/FindLayerVisitor.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/GroupNode.h"
@@ -88,6 +89,7 @@
 #include <QMimeData>
 #include <QFileDialog>
 #include <QStatusBar>
+#include <QStringList>
 #include <QToolBar>
 #include <QComboBox>
 #include <QVBoxLayout>
@@ -453,21 +455,26 @@ namespace TrenchBroom {
         }
 
         static QString describeSelection(const MapDocument* document) {
-            const QString DblArrow = QString(" ") + QString(QChar(0x00BB)) + QString(" ");
+            //const QString DblArrow = QString(" ") + QString(QChar(0x00BB)) + QString(" ");
             const QString Arrow = QString(" ") + QString(QChar(0x203A)) + QString(" ");
 
-            QString result;
-
+            QStringList pipeSeparatedSections;
+            
             // current layer
-            result += QString::fromStdString(document->currentLayer()->name()) + DblArrow;
+            pipeSeparatedSections << QObject::tr("Current layer: %1").arg(QString::fromStdString(document->currentLayer()->name()));
 
             // open groups
             std::list<Model::GroupNode*> groups;
             for (Model::GroupNode* group = document->currentGroup(); group != nullptr; group = group->group()) {
                 groups.push_front(group);
             }
-            for (Model::GroupNode* group : groups) {
-                result += QString::fromStdString(group->name()) + Arrow;
+            if (!groups.empty()) {
+                QStringList openGroups; 
+                for (Model::GroupNode* group : groups) {
+                    openGroups << QString::fromStdString(group->name());
+                }
+                const QString openGroupsString = QObject::tr("Open groups: %1").arg(openGroups.join(Arrow));
+                pipeSeparatedSections << openGroupsString;
             }
 
             // build a vector of strings describing the things that are selected
@@ -513,19 +520,28 @@ namespace TrenchBroom {
                 tokens.push_back(numberWithSuffix(selectedNodes.groups().size(), "group", "groups"));
             }
 
-            // layers
-            if (!selectedNodes.layers().empty()) {
-                tokens.push_back(numberWithSuffix(selectedNodes.layers().size(), "layer", "layers"));
-            }
-
             if (tokens.empty()) {
                 tokens.push_back("nothing");
             }
 
-            // now, turn `tokens` into a comma-separated string
-            result += QString::fromStdString(kdl::str_join(tokens, ", ", ", and ", " and ")) + " selected";
+            // get the layers of the selected nodes
+            const std::vector<Model::LayerNode*> selectedObjectLayers = Model::findLayers(selectedNodes.nodes());
+            QString layersDescription;
+            if (selectedObjectLayers.size() == 1) {
+                Model::LayerNode* layer = selectedObjectLayers[0];
+                layersDescription = QObject::tr(" in layer \"%1\"").arg(QString::fromStdString(layer->name()));
+            } else if (selectedObjectLayers.size() > 1) {
+                layersDescription = QObject::tr(" in %1 layers").arg(selectedObjectLayers.size());
+            }
 
-            return result;
+            // now, turn `tokens` into a comma-separated string
+            const QString selectionDescription = QObject::tr("Selected: %1%2")
+                .arg(QString::fromStdString(kdl::str_join(tokens, ", ", ", and ", " and ")))
+                .arg(layersDescription);
+
+            pipeSeparatedSections << selectionDescription;
+
+            return pipeSeparatedSections.join(QLatin1String(" | "));
         }
 
         void MapFrame::updateStatusBar() {
