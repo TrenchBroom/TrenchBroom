@@ -402,7 +402,7 @@ namespace TrenchBroom {
 
         bool MapDocument::pasteBrushFaces(const std::vector<Model::BrushFace>& faces) {
             assert(!faces.empty());
-            return setFaceAttributes(faces.back().attributes());
+            return setFaceAttributesExceptContentFlags(faces.back().attributes());
         }
 
         void MapDocument::loadPointFile(const IO::Path path) {
