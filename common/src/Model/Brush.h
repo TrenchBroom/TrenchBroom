@@ -39,6 +39,11 @@ namespace TrenchBroom {
         class Brush {
         private:
             class CopyCallback;
+            
+            /**
+             * Epsilon value to use when finding a vertex after applying a vertex operation
+             */
+            constexpr static FloatType CloseVertexEpsilon = static_cast<FloatType>(0.01);
         public:
             using VertexList = BrushVertexList;
             using EdgeList = BrushEdgeList;
