@@ -270,7 +270,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, attributes.size());
 
             auto attribute = attributes[0];
-            ASSERT_EQ(Assets::AttributeDefinition::Type_TargetSourceAttribute, attribute->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::TargetSourceAttribute, attribute->type());
             ASSERT_EQ(std::string("targetname"), attribute->name());
             ASSERT_EQ(std::string("Source"), attribute->shortDescription());
             ASSERT_EQ(std::string("A long description"), attribute->longDescription());
@@ -302,7 +302,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, attributes.size());
 
             auto attribute = attributes[0];
-            ASSERT_EQ(Assets::AttributeDefinition::Type_TargetDestinationAttribute, attribute->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::TargetDestinationAttribute, attribute->type());
             ASSERT_EQ(std::string("target"), attribute->name());
             ASSERT_EQ(std::string("Target"), attribute->shortDescription());
             ASSERT_EQ(std::string(""), attribute->longDescription());
@@ -335,7 +335,7 @@ namespace TrenchBroom {
 
             const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("message");
             ASSERT_TRUE(attribute1 != nullptr);
-            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, attribute1->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::StringAttribute, attribute1->type());
 
             const Assets::StringAttributeDefinition* stringAttribute1 = static_cast<const Assets::StringAttributeDefinition*>(attribute1);
             ASSERT_EQ(std::string("message"), stringAttribute1->name());
@@ -345,7 +345,7 @@ namespace TrenchBroom {
 
             const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("message2");
             ASSERT_TRUE(attribute2 != nullptr);
-            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, attribute2->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::StringAttribute, attribute2->type());
 
             const Assets::StringAttributeDefinition* stringAttribute2 = static_cast<const Assets::StringAttributeDefinition*>(attribute2);
             ASSERT_EQ(std::string("message2"), stringAttribute2->name());
@@ -385,7 +385,7 @@ namespace TrenchBroom {
 
             const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("name");
             ASSERT_TRUE(attribute1 != nullptr);
-            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, attribute1->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::StringAttribute, attribute1->type());
 
             const Assets::StringAttributeDefinition* stringAttribute1 = static_cast<const Assets::StringAttributeDefinition*>(attribute1);
             ASSERT_EQ(std::string("name"), stringAttribute1->name());
@@ -396,7 +396,7 @@ namespace TrenchBroom {
 
             const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("other");
             ASSERT_TRUE(attribute2 != nullptr);
-            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, attribute2->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::StringAttribute, attribute2->type());
 
             const Assets::StringAttributeDefinition* stringAttribute2 = static_cast<const Assets::StringAttributeDefinition*>(attribute2);
             ASSERT_EQ(std::string("other"), stringAttribute2->name());
@@ -433,7 +433,7 @@ namespace TrenchBroom {
 
             const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("sounds");
             ASSERT_TRUE(attribute1 != nullptr);
-            ASSERT_EQ(Assets::AttributeDefinition::Type_IntegerAttribute, attribute1->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::IntegerAttribute, attribute1->type());
 
             const Assets::IntegerAttributeDefinition* intAttribute1 = static_cast<const Assets::IntegerAttributeDefinition*>(attribute1);
             ASSERT_EQ(std::string("sounds"), intAttribute1->name());
@@ -443,7 +443,7 @@ namespace TrenchBroom {
 
             const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("sounds2");
             ASSERT_TRUE(attribute2 != nullptr);
-            ASSERT_EQ(Assets::AttributeDefinition::Type_IntegerAttribute, attribute2->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::IntegerAttribute, attribute2->type());
 
             const Assets::IntegerAttributeDefinition* intAttribute2 = static_cast<const Assets::IntegerAttributeDefinition*>(attribute2);
             ASSERT_EQ(std::string("sounds2"), intAttribute2->name());
@@ -507,7 +507,7 @@ namespace TrenchBroom {
 
             const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("test");
             ASSERT_TRUE(attribute1 != nullptr);
-            ASSERT_EQ(Assets::AttributeDefinition::Type_FloatAttribute, attribute1->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::FloatAttribute, attribute1->type());
 
             const Assets::FloatAttributeDefinition* floatAttribute1 = static_cast<const Assets::FloatAttributeDefinition*>(attribute1);
             ASSERT_EQ(std::string("test"), floatAttribute1->name());
@@ -517,7 +517,7 @@ namespace TrenchBroom {
 
             const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("test2");
             ASSERT_TRUE(attribute2 != nullptr);
-            ASSERT_EQ(Assets::AttributeDefinition::Type_FloatAttribute, attribute2->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::FloatAttribute, attribute2->type());
 
             const Assets::FloatAttributeDefinition* floatAttribute2 = static_cast<const Assets::FloatAttributeDefinition*>(attribute2);
             ASSERT_EQ(std::string("test2"), floatAttribute2->name());
@@ -582,7 +582,7 @@ namespace TrenchBroom {
 
             const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("worldtype");
             ASSERT_TRUE(attribute1 != nullptr);
-            ASSERT_EQ(Assets::AttributeDefinition::Type_ChoiceAttribute, attribute1->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::ChoiceAttribute, attribute1->type());
 
             const Assets::ChoiceAttributeDefinition* choiceAttribute1 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute1);
             ASSERT_EQ(std::string("worldtype"), choiceAttribute1->name());
@@ -601,7 +601,7 @@ namespace TrenchBroom {
 
             const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("worldtype2");
             ASSERT_TRUE(attribute2 != nullptr);
-            ASSERT_EQ(Assets::AttributeDefinition::Type_ChoiceAttribute, attribute2->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::ChoiceAttribute, attribute2->type());
 
             const Assets::ChoiceAttributeDefinition* choiceAttribute2 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute2);
             ASSERT_EQ(std::string("worldtype2"), choiceAttribute2->name());
@@ -701,7 +701,7 @@ namespace TrenchBroom {
 
             const Assets::AttributeDefinition* attribute = definition->attributeDefinition("spawnflags");
             ASSERT_TRUE(attribute != nullptr);
-            ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, attribute->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::FlagsAttribute, attribute->type());
 
             const Assets::FlagsAttributeDefinition* flagsAttribute = static_cast<const Assets::FlagsAttributeDefinition*>(attribute);
             ASSERT_EQ(std::string("spawnflags"), flagsAttribute->name());
