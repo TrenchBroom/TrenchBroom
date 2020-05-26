@@ -39,7 +39,7 @@ namespace TrenchBroom {
 
         std::unique_ptr<Model::WorldNode> WorldReader::read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             readEntities(format, worldBounds, status);
-            sanitizeLayerIndicies(status);
+            sanitizeLayerSortIndicies(status);
             m_world->rebuildNodeTree();
             m_world->enableNodeTreeUpdates();
             return std::move(m_world);
@@ -51,7 +51,7 @@ namespace TrenchBroom {
          * This will be a no-op on a well-formed map file.
          * If the map was saved without layer indices, the file order is used.
          */
-        void WorldReader::sanitizeLayerIndicies(ParserStatus& /* status */) {
+        void WorldReader::sanitizeLayerSortIndicies(ParserStatus& /* status */) {
             std::vector<Model::LayerNode*> customLayers = m_world->customLayers();
             Model::LayerNode::sortLayers(customLayers);
 

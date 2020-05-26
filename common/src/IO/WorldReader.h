@@ -45,7 +45,7 @@ namespace TrenchBroom {
 
             std::unique_ptr<Model::WorldNode> read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
         private:            
-            void sanitizeLayerIndicies(ParserStatus& status);            
+            void sanitizeLayerSortIndicies(ParserStatus& status);            
         private: // implement MapReader interface
             Model::ModelFactory& initialize(Model::MapFormat format) override;
             Model::Node* onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
