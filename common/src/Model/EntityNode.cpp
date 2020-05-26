@@ -131,7 +131,7 @@ namespace TrenchBroom {
         }
 
         void EntityNode::setOrigin(const vm::vec3& origin) {
-            addOrUpdateAttribute(AttributeNames::Origin, kdl::str_to_string(vm::round(origin)));
+            addOrUpdateAttribute(AttributeNames::Origin, kdl::str_to_string(vm::correct(origin)));
         }
 
         void EntityNode::applyRotation(const vm::mat4x4& transformation) {
