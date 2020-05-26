@@ -84,7 +84,7 @@ namespace TrenchBroom {
             }
         }
 
-        std::optional<Color> LayerNode::groupColor() const {
+        std::optional<Color> LayerNode::layerColor() const {
             const std::string& string = attribute(AttributeNames::LayerColor);
             if (string.empty() || !Color::canParse(string)) {
                 return std::nullopt;

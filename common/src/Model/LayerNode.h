@@ -60,7 +60,7 @@ namespace TrenchBroom {
              */
             static void sortLayers(std::vector<LayerNode*>& layers);
 
-            std::optional<Color> groupColor() const;
+            std::optional<Color> layerColor() const;
             void setGroupColor(const Color& color);
         private: // implement Node interface
             const std::string& doGetName() const override;

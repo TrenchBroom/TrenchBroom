@@ -161,8 +161,8 @@ namespace TrenchBroom {
             REQUIRE(world->childCount() == 1u);
             auto* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().at(0));
 
-            REQUIRE(defaultLayer->groupColor().has_value());
-            CHECK(defaultLayer->groupColor().value() == Color(0.0f, 1.0f, 0.0f));
+            REQUIRE(defaultLayer->layerColor().has_value());
+            CHECK(defaultLayer->layerColor().value() == Color(0.0f, 1.0f, 0.0f));
         }
 
         TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneMoreEntity", "[WorldReaderTest]") {
