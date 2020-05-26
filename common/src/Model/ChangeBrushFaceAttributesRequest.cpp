@@ -489,7 +489,16 @@ namespace TrenchBroom {
             setAll(face.attributes());
         }
 
+        void ChangeBrushFaceAttributesRequest::setAllExceptContentFlags(const Model::BrushFace& face) {
+            setAllExceptContentFlags(face.attributes());
+        }
+
         void ChangeBrushFaceAttributesRequest::setAll(const Model::BrushFaceAttributes& attributes) {
+            setAllExceptContentFlags(attributes);
+            replaceContentFlags(attributes.surfaceContents());
+        }
+
+        void ChangeBrushFaceAttributesRequest::setAllExceptContentFlags(const Model::BrushFaceAttributes& attributes) {
             setTextureName(attributes.textureName());
             setXOffset(attributes.xOffset());
             setYOffset(attributes.yOffset());
@@ -497,7 +506,6 @@ namespace TrenchBroom {
             setXScale(attributes.xScale());
             setYScale(attributes.yScale());
             replaceSurfaceFlags(attributes.surfaceFlags());
-            replaceContentFlags(attributes.surfaceContents());
             setSurfaceValue(attributes.surfaceValue());
             setColor(attributes.color());
         }

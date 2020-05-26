@@ -150,7 +150,9 @@ namespace TrenchBroom {
             void setColor(const Color& colorValue);
 
             void setAll(const Model::BrushFace& face);
+            void setAllExceptContentFlags(const Model::BrushFace& face);
             void setAll(const Model::BrushFaceAttributes& attributes);
+            void setAllExceptContentFlags(const Model::BrushFaceAttributes& attributes);
 
             bool collateWith(ChangeBrushFaceAttributesRequest& other);
         };

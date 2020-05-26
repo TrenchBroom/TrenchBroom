@@ -110,5 +110,121 @@ namespace TrenchBroom {
             document->redoCommand();
             checkTexture("texture2");
         }
+
+        TEST_CASE_METHOD(ChangeBrushFaceAttributesTest, "ChangeBrushFaceAttributesTest.setAll") {
+            Model::BrushNode* brushNode = createBrushNode();
+            document->addNode(brushNode, document->currentParent());
+
+            const size_t firstFaceIndex = 0u;
+            const size_t secondFaceIndex = 1u;
+            const size_t thirdFaceIndex = 2u;
+
+            document->deselectAll();
+            document->select(Model::BrushFaceHandle(brushNode, firstFaceIndex));
+            Model::ChangeBrushFaceAttributesRequest setFirstFace;
+            setFirstFace.setTextureName("first");
+            setFirstFace.setXOffset(32.0f);
+            setFirstFace.setYOffset(64.0f);
+            setFirstFace.setRotation(90.0f);
+            setFirstFace.setXScale(2.0f);
+            setFirstFace.setYScale(4.0f);
+            setFirstFace.replaceSurfaceFlags(63u);
+            setFirstFace.replaceContentFlags(12u);
+            setFirstFace.setSurfaceValue(3.14f);
+            const Color firstColor(1.0f, 1.0f, 1.0f, 1.0f);
+            setFirstFace.setColor(firstColor);
+            document->setFaceAttributes(setFirstFace);
+
+            {
+                const auto& firstAttrs = brushNode->brush().face(firstFaceIndex).attributes();
+                CHECK(firstAttrs.textureName() == "first");
+                CHECK(firstAttrs.xOffset() == 32.0f);
+                CHECK(firstAttrs.yOffset() == 64.0f);
+                CHECK(firstAttrs.rotation() == 90.0f);
+                CHECK(firstAttrs.xScale() == 2.0f);
+                CHECK(firstAttrs.yScale() == 4.0f);
+                CHECK(firstAttrs.surfaceFlags() == 63u);
+                CHECK(firstAttrs.surfaceContents() == 12u);
+                CHECK(firstAttrs.surfaceValue() == 3.14f);
+                CHECK(firstAttrs.color() == firstColor);
+            }
+
+            document->deselectAll();
+            document->select(Model::BrushFaceHandle(brushNode, secondFaceIndex));
+            Model::ChangeBrushFaceAttributesRequest setSecondFace;
+            setSecondFace.setTextureName("second");
+            setSecondFace.setXOffset(16.0f);
+            setSecondFace.setYOffset(48.0f);
+            setSecondFace.setRotation(45.0f);
+            setSecondFace.setXScale(1.0f);
+            setSecondFace.setYScale(1.0f);
+            setSecondFace.replaceSurfaceFlags(18u);
+            setSecondFace.replaceContentFlags(2048u);
+            setSecondFace.setSurfaceValue(1.0f);
+            const Color secondColor(0.5f, 0.5f, 0.5f, 0.5f);
+            setSecondFace.setColor(secondColor);
+            document->setFaceAttributes(setSecondFace);
+
+            {
+                const auto& secondAttrs = brushNode->brush().face(secondFaceIndex).attributes();
+                CHECK(secondAttrs.textureName() == "second");
+                CHECK(secondAttrs.xOffset() == 16.0f);
+                CHECK(secondAttrs.yOffset() == 48.0f);
+                CHECK(secondAttrs.rotation() == 45.0f);
+                CHECK(secondAttrs.xScale() == 1.0f);
+                CHECK(secondAttrs.yScale() == 1.0f);
+                CHECK(secondAttrs.surfaceFlags() == 18u);
+                CHECK(secondAttrs.surfaceContents() == 2048u);
+                CHECK(secondAttrs.surfaceValue() == 1.0f);
+                CHECK(secondAttrs.color() == secondColor);
+            }
+
+            document->deselectAll();
+            document->select(Model::BrushFaceHandle(brushNode, thirdFaceIndex));
+            Model::ChangeBrushFaceAttributesRequest copySecondToThirdFace;
+            copySecondToThirdFace.setAll(brushNode->brush().face(secondFaceIndex));
+            document->setFaceAttributes(copySecondToThirdFace);
+
+            {
+                const auto& secondAttrs = brushNode->brush().face(secondFaceIndex).attributes();
+                const auto& thirdAttrs = brushNode->brush().face(thirdFaceIndex).attributes();
+                CHECK(thirdAttrs == secondAttrs);
+            }
+
+            auto thirdFaceContentsFlags = brushNode->brush().face(thirdFaceIndex).attributes().surfaceContents();
+
+            document->deselectAll();
+            document->select(Model::BrushFaceHandle(brushNode, secondFaceIndex));
+            Model::ChangeBrushFaceAttributesRequest copyFirstToSecondFace;
+            copyFirstToSecondFace.setAll(brushNode->brush().face(firstFaceIndex));
+            document->setFaceAttributes(copyFirstToSecondFace);
+
+            {
+                const auto& firstAttrs = brushNode->brush().face(firstFaceIndex).attributes();
+                const auto& newSecondAttrs = brushNode->brush().face(secondFaceIndex).attributes();
+                CHECK(newSecondAttrs == firstAttrs);
+            }
+
+            document->deselectAll();
+            document->select(Model::BrushFaceHandle(brushNode, thirdFaceIndex));
+            Model::ChangeBrushFaceAttributesRequest copyFirstToThirdFaceNoContents;
+            copyFirstToThirdFaceNoContents.setAllExceptContentFlags(brushNode->brush().face(firstFaceIndex));
+            document->setFaceAttributes(copyFirstToThirdFaceNoContents);
+
+            {
+                const auto& firstAttrs = brushNode->brush().face(firstFaceIndex).attributes();
+                const auto& newThirdAttrs = brushNode->brush().face(thirdFaceIndex).attributes();
+                CHECK(newThirdAttrs.textureName() == firstAttrs.textureName());
+                CHECK(newThirdAttrs.xOffset() == firstAttrs.xOffset());
+                CHECK(newThirdAttrs.yOffset() == firstAttrs.yOffset());
+                CHECK(newThirdAttrs.rotation() == firstAttrs.rotation());
+                CHECK(newThirdAttrs.xScale() == firstAttrs.xScale());
+                CHECK(newThirdAttrs.yScale() == firstAttrs.yScale());
+                CHECK(newThirdAttrs.surfaceFlags() == firstAttrs.surfaceFlags());
+                CHECK(newThirdAttrs.surfaceContents() == thirdFaceContentsFlags);
+                CHECK(newThirdAttrs.surfaceValue() == firstAttrs.surfaceValue());
+                CHECK(newThirdAttrs.color() == firstAttrs.color());
+            }
+        }
     }
 }
