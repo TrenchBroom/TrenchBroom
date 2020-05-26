@@ -56,7 +56,7 @@ namespace TrenchBroom {
         public: // layer management
             LayerNode* defaultLayer() const;
             /**
-             * Returns all layers in file order
+             * Returns defaultLayer() plus customLayers()
              */
             std::vector<LayerNode*> allLayers() const;
             /**
@@ -64,11 +64,11 @@ namespace TrenchBroom {
              */
             std::vector<LayerNode*> customLayers() const;
             /**
-             * Returns all layers (default and custom) layers ordered by Layer::sortIndex(). The default layer is always first.
+             * Returns defaultLayer() plus customLayers() ordered by LayerNode::sortIndex(). The default layer is always first.
              */
             std::vector<LayerNode*> allLayersUserSorted() const;
             /**
-             * Returns the custom layers ordered by Layer::sortIndex()
+             * Returns customLayers() ordered by LayerNode::sortIndex()
              */
             std::vector<LayerNode*> customLayersUserSorted() const;
         private:

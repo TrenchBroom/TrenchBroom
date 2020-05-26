@@ -525,7 +525,7 @@ namespace TrenchBroom {
             }
 
             // get the layers of the selected nodes
-            const std::vector<Model::LayerNode*> selectedObjectLayers = Model::findLayers(selectedNodes.nodes());
+            const std::vector<Model::LayerNode*> selectedObjectLayers = Model::findLayersUserSorted(selectedNodes.nodes());
             QString layersDescription;
             if (selectedObjectLayers.size() == 1) {
                 Model::LayerNode* layer = selectedObjectLayers[0];

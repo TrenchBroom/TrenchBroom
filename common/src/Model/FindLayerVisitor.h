@@ -36,7 +36,11 @@ namespace TrenchBroom {
         };
 
         Model::LayerNode* findLayer(Model::Node* node);
-        std::vector<Model::LayerNode*> findLayers(const std::vector<Model::Node*>& nodes);
+        /**
+         * For each node, returns its parent layer. The returned vector has duplicates removed
+         * and is sorted according to LayerNode::sortIndex().
+         */
+        std::vector<Model::LayerNode*> findLayersUserSorted(const std::vector<Model::Node*>& nodes);
     }
 }
 

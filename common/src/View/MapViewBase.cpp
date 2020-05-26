@@ -1052,7 +1052,7 @@ namespace TrenchBroom {
 
             // Layer operations
 
-            const std::vector<Model::LayerNode*> selectedObjectLayers = Model::findLayers(nodes);
+            const std::vector<Model::LayerNode*> selectedObjectLayers = Model::findLayersUserSorted(nodes);
 
             QMenu* moveSelectionTo = menu.addMenu(tr("Move to Layer"));
             for (Model::LayerNode* layer : document->world()->allLayersUserSorted()) {

@@ -43,7 +43,7 @@ namespace TrenchBroom {
             return visitor.result();
         }
 
-        std::vector<Model::LayerNode*> findLayers(const std::vector<Model::Node*>& nodes) {
+        std::vector<Model::LayerNode*> findLayersUserSorted(const std::vector<Model::Node*>& nodes) {
             kdl::vector_set<Model::LayerNode*> layersSet;
             for (Model::Node* node : nodes) {
                 Model::LayerNode* layer = findLayer(node);
