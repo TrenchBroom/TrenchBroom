@@ -38,7 +38,6 @@
 
 #include <vecmath/bbox_io.h>
 
-#include <algorithm>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -90,7 +89,7 @@ namespace TrenchBroom {
 
         void WorldNode::createDefaultLayer() {
             m_defaultLayer = createLayer("Default Layer");
-            m_defaultLayer->setSortIndex(LayerNode::defaultLayerSortIndex());
+            assert(m_defaultLayer->sortIndex() == LayerNode::defaultLayerSortIndex());
             addChild(m_defaultLayer);
         }
 
