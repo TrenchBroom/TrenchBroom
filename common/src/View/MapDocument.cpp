@@ -1117,9 +1117,6 @@ namespace TrenchBroom {
 
             Model::LayerNode* neighbour = sorted.at(static_cast<size_t>(indexInt + direction));
 
-            qDebug() << "our sort index " << layer->sortIndex() << " move: " << direction
-                     << " neighbour sort: " << neighbour->sortIndex();
-
             const int ourSortIndex = layer->sortIndex();
             const int neighbourSortIndex = neighbour->sortIndex();
     
