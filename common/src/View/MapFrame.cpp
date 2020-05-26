@@ -126,7 +126,7 @@ namespace TrenchBroom {
             setObjectName("MapFrame");
 
             installEventFilter(this);
-            
+
             createGui();
             createMenus();
             createToolBar();
@@ -987,7 +987,11 @@ namespace TrenchBroom {
             if (!widgetOrChildHasFocus(m_mapView)) {
                 return false;
             }
-            
+
+            if (!m_mapView->isCurrent()) {
+                return false;
+            }
+
             const auto* clipboard = QApplication::clipboard();
             const auto* mimeData = clipboard->mimeData();
             return mimeData != nullptr && mimeData->hasText();
@@ -1669,7 +1673,7 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         bool MapFrame::eventFilter(QObject* target, QEvent* event) {
             if (event->type() == QEvent::MouseButtonPress ||
                 event->type() == QEvent::MouseButtonRelease ||
@@ -1740,7 +1744,7 @@ namespace TrenchBroom {
                 horizontalHeaderLabels.append(group.second);
             }
 
-            auto* table = new QTableWidget(static_cast<int>(roles.size()), 
+            auto* table = new QTableWidget(static_cast<int>(roles.size()),
                                            static_cast<int>(groups.size()));
             table->setHorizontalHeaderLabels(horizontalHeaderLabels);
             table->setVerticalHeaderLabels(verticalHeaderLabels);

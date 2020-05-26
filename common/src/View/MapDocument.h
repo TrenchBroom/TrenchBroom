@@ -392,6 +392,7 @@ namespace TrenchBroom {
             bool resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) override;
         public:
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes) override;
+            bool setFaceAttributesExceptContentFlags(const Model::BrushFaceAttributes& attributes) override;
             bool setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) override;
             bool copyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot& coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
             bool moveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) override;
