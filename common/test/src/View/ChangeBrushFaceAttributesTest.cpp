@@ -27,8 +27,10 @@
 #include "Model/BrushNode.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/EntityNode.h"
+#include "Model/Game.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
+#include "Model/TestGame.h"
 #include "Model/WorldNode.h"
 #include "View/MapDocumentTest.h"
 #include "View/MapDocument.h"
@@ -59,16 +61,21 @@ namespace TrenchBroom {
 
             CHECK(brushNode->brush().face(faceIndex).attributes().rotation() == 10.0f);
 
+            Model::BrushFaceAttributes defaultFaceAttrs(Model::BrushFaceAttributes::NoTextureName);
+            defaultFaceAttrs.setXScale(0.5f);
+            defaultFaceAttrs.setYScale(2.0f);
+            game->setDefaultFaceAttributes(defaultFaceAttrs);
+
             Model::ChangeBrushFaceAttributesRequest reset;
-            reset.resetAll();
+            reset.resetAll(defaultFaceAttrs);
 
             document->setFaceAttributes(reset);
 
             CHECK(brushNode->brush().face(faceIndex).attributes().xOffset() == 0.0f);
             CHECK(brushNode->brush().face(faceIndex).attributes().yOffset() == 0.0f);
             CHECK(brushNode->brush().face(faceIndex).attributes().rotation() == 0.0f);
-            CHECK(brushNode->brush().face(faceIndex).attributes().xScale() == 1.0f);
-            CHECK(brushNode->brush().face(faceIndex).attributes().yScale() == 1.0f);
+            CHECK(brushNode->brush().face(faceIndex).attributes().xScale() == defaultFaceAttrs.xScale());
+            CHECK(brushNode->brush().face(faceIndex).attributes().yScale() == defaultFaceAttrs.yScale());
 
             CHECK(brushNode->brush().face(faceIndex).textureXAxis() == initialX);
             CHECK(brushNode->brush().face(faceIndex).textureYAxis() == initialY);

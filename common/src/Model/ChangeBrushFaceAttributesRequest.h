@@ -95,7 +95,7 @@ namespace TrenchBroom {
             const std::string name() const;
             bool evaluate(const std::vector<BrushFaceHandle>& faceHandles) const;
 
-            void resetAll();
+            void resetAll(const BrushFaceAttributes& defaultFaceAttributes);
 
             void setTextureName(const std::string& textureName);
 

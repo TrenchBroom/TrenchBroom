@@ -285,11 +285,11 @@ namespace TrenchBroom {
             return result;
         }
 
-        void ChangeBrushFaceAttributesRequest::resetAll() {
+        void ChangeBrushFaceAttributesRequest::resetAll(const BrushFaceAttributes& defaultFaceAttributes) {
             resetTextureAxes();
             setOffset(vm::vec2f::zero());
             setRotation(0.0f);
-            setScale(vm::vec2f::one());
+            setScale(defaultFaceAttributes.scale());
         }
 
         void ChangeBrushFaceAttributesRequest::setTextureName(const std::string& textureName) {

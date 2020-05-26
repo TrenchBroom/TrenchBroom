@@ -20,6 +20,7 @@
 #ifndef TestGame_h
 #define TestGame_h
 
+#include "Model/BrushFaceAttributes.h"
 #include "Model/Game.h"
 
 #include <memory>
@@ -37,10 +38,12 @@ namespace TrenchBroom {
         class TestGame : public Game {
         private:
             std::vector<SmartTag> m_smartTags;
+            Model::BrushFaceAttributes m_defaultFaceAttribs;
         public:
             TestGame();
         public:
             void setSmartTags(std::vector<SmartTag> smartTags);
+            void setDefaultFaceAttributes(const Model::BrushFaceAttributes& newDefaults);
         private:
             const std::string& doGameName() const override;
             IO::Path doGamePath() const override;
