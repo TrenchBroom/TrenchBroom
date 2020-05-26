@@ -27,10 +27,7 @@
 
 #include <kdl/string_utils.h>
 
-#include <algorithm>
 #include <string>
-
-#include <QDebug>
 
 namespace TrenchBroom {
     namespace IO {
@@ -48,28 +45,20 @@ namespace TrenchBroom {
             return std::move(m_world);
         }
 
-        
+        /**
+         * Rewrites the sort indices of custom layers to the integers 0, 1,..., N-1, given N custom layers.
+         *
+         * This will be a no-op on a well-formed map file.
+         * If the map was saved without layer indices, the file order is used.
+         */
         void WorldReader::sanitizeLayerIndicies(ParserStatus& /* status */) {
-            if (m_layerList.empty()) {
-                return;
-            }
+            std::vector<Model::LayerNode*> customLayers = m_world->customLayers();
+            Model::LayerNode::sortLayers(customLayers);
 
-            std::vector<Model::LayerNode*> customLayers;
-            customLayers.reserve(m_layerList.size());
-            for (Model::LayerNode* layer : m_layerList) {
-                if (layer != m_world->defaultLayer()) {
-                    customLayers.push_back(layer);
-                }
-            }
-
-            std::stable_sort(customLayers.begin(), customLayers.end(), [](Model::LayerNode* a, Model::LayerNode* b) {
-                return a->sortIndex() < b->sortIndex();
-            });
-
+            // Use the order of customLayers to re-assign the sort indices
             int i = 0;
-            for (Model::LayerNode* layer : customLayers) {
+            for (auto* layer : customLayers) {
                 if (layer->sortIndex() != i) {
-                    qDebug() << "sanitizing " << layer->sortIndex() << " to " << i << " for " << QString::fromStdString(layer->name());
                     layer->setSortIndex(i);
                 }
                 ++i;
@@ -102,7 +91,6 @@ namespace TrenchBroom {
 
         void WorldReader::onLayer(Model::LayerNode* layer, ParserStatus& /* status */) {
             m_world->addChild(layer);
-            m_layerList.push_back(layer); // record for sanitizeLayerIndicies()
         }
 
         void WorldReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& /* status */) {
