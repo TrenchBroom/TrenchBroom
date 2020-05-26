@@ -217,7 +217,21 @@ namespace TrenchBroom {
             m_reference(reference) {}
 
             bool operator()(const Model::BrushNode*, const Model::BrushFace& face) const {
-                return &face != &m_reference && vm::is_equal(face.boundary(), m_reference.boundary(), vm::C::almost_zero());
+                if (&face == &m_reference) {
+                    return false;
+                }
+
+                // Test if the boundary planes have the same distance
+                if (!vm::is_equal(face.boundary().distance, m_reference.boundary().distance, vm::constants<FloatType>::almost_zero() * 10.0)) {
+                    return false;
+                }
+                
+                // Test if the normals are colinear by checking their enclosed angle.
+                if (1.0 - vm::dot(face.boundary().normal, m_reference.boundary().normal) >= vm::constants<FloatType>::colinear_epsilon()) {
+                    return false;
+                }
+
+                return true;
             }
         };
 
