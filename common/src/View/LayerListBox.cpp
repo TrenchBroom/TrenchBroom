@@ -266,29 +266,13 @@ namespace TrenchBroom {
                 layer = world->customLayersUserSorted().at(index - 1);
             }
             auto* renderer = new LayerListBoxWidget(document, layer, parent);
-
-            connect(renderer, &LayerListBoxWidget::layerActiveClicked, this, [this](auto* layer){
-                emit layerSetCurrent(layer);
-            });
-            connect(renderer, &LayerListBoxWidget::layerDoubleClicked, this, [this](auto* layer){
-                emit layerSetCurrent(layer);
-            });
-            connect(renderer, &LayerListBoxWidget::layerRightClicked, this, [this](auto* layer) {
-                emit layerRightClicked(layer);
-            });
-            connect(renderer, &LayerListBoxWidget::layerVisibilityToggled, this, [this](auto* layer) {
-                emit layerVisibilityToggled(layer);
-            });
-            connect(renderer, &LayerListBoxWidget::layerLockToggled, this, [this](auto* layer) {
-                emit layerLockToggled(layer);
-            });
-            connect(renderer, &LayerListBoxWidget::layerMovedUp, this, [this](auto* layer) {
-                emit layerMovedUp(layer);
-            });
-            connect(renderer, &LayerListBoxWidget::layerMovedDown, this, [this](auto* layer) {
-                emit layerMovedDown(layer);
-            });
-
+            connect(renderer, &LayerListBoxWidget::layerActiveClicked,     this, &LayerListBox::layerSetCurrent);
+            connect(renderer, &LayerListBoxWidget::layerDoubleClicked,     this, &LayerListBox::layerSetCurrent);
+            connect(renderer, &LayerListBoxWidget::layerRightClicked,      this, &LayerListBox::layerRightClicked);
+            connect(renderer, &LayerListBoxWidget::layerVisibilityToggled, this, &LayerListBox::layerVisibilityToggled);
+            connect(renderer, &LayerListBoxWidget::layerLockToggled,       this, &LayerListBox::layerLockToggled);
+            connect(renderer, &LayerListBoxWidget::layerMovedUp,           this, &LayerListBox::layerMovedUp);
+            connect(renderer, &LayerListBoxWidget::layerMovedDown,         this, &LayerListBox::layerMovedDown);
             return renderer;
         }
 
