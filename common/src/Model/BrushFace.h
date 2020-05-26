@@ -125,7 +125,6 @@ namespace TrenchBroom {
             FloatType area(vm::axis::type axis) const;
 
             const BrushFaceAttributes& attributes() const;
-            BrushFaceAttributes& attributes();
             void setAttributes(const BrushFaceAttributes& attributes);
             bool setAttributes(const BrushFace* other);
 

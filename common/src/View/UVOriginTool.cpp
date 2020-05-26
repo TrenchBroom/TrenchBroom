@@ -71,8 +71,7 @@ namespace TrenchBroom {
                 vm::line3 xHandle, yHandle;
                 computeOriginHandles(xHandle, yHandle);
 
-                const auto* face = m_helper.face();
-                const auto fromTex = face->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+                const auto fromTex = m_helper.face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
                 const auto origin = fromTex * vm::vec3(m_helper.originInFaceCoords());
 
                 const auto& pickRay = inputState.pickRay();
@@ -103,8 +102,7 @@ namespace TrenchBroom {
         }
 
         void UVOriginTool::computeOriginHandles(vm::line3& xHandle, vm::line3& yHandle) const {
-            const auto* face = m_helper.face();
-            const auto toWorld = face->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+            const auto toWorld = m_helper.face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
             const auto origin = vm::vec3(m_helper.originInFaceCoords());
             xHandle.point = yHandle.point = toWorld * origin;
@@ -162,22 +160,20 @@ namespace TrenchBroom {
         }
 
         vm::vec2f UVOriginTool::computeHitPoint(const vm::ray3& ray) const {
-            const auto* face = m_helper.face();
-            const auto& boundary = face->boundary();
+            const auto& boundary = m_helper.face()->boundary();
             const auto distance = vm::intersect_ray_plane(ray, boundary);
             const auto hitPoint = vm::point_at_distance(ray, distance);
 
-            const auto transform = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+            const auto transform = m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             return vm::vec2f(transform * hitPoint);
         }
 
         vm::vec2f UVOriginTool::snapDelta(const vm::vec2f& delta) const {
+            assert(m_helper.valid());
+            
             if (vm::is_zero(delta, vm::Cf::almost_zero())) {
                 return delta;
             }
-
-            const auto* face = m_helper.face();
-            ensure(face != nullptr, "face is null");
 
             // The delta is given in non-translated and non-scaled texture coordinates because that's how the origin
             // is stored. We have to convert to translated and scaled texture coordinates to do our snapping because
@@ -185,10 +181,10 @@ namespace TrenchBroom {
             // Finally, we will convert the distance back to non-translated and non-scaled texture coordinates and
             // snap the delta to the distance.
 
-            const auto w2fTransform = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-            const auto w2tTransform = face->toTexCoordSystemMatrix(face->attributes().offset(), face->attributes().scale(), true);
-            const auto f2wTransform = face->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-            const auto t2wTransform = face->fromTexCoordSystemMatrix(face->attributes().offset(), face->attributes().scale(), true);
+            const auto w2fTransform = m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+            const auto w2tTransform = m_helper.face()->toTexCoordSystemMatrix(m_helper.face()->attributes().offset(), m_helper.face()->attributes().scale(), true);
+            const auto f2wTransform = m_helper.face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+            const auto t2wTransform = m_helper.face()->fromTexCoordSystemMatrix(m_helper.face()->attributes().offset(), m_helper.face()->attributes().scale(), true);
             const auto f2tTransform = w2tTransform * f2wTransform;
             const auto t2fTransform = w2fTransform * t2wTransform;
 
@@ -199,18 +195,18 @@ namespace TrenchBroom {
             // TODO: this actually doesn't work because we're snapping to the X or Y coordinate of the vertices
             // instead, we must snap to the edges!
             auto distanceInTexCoords = vm::vec2f::max();
-            for (const Model::BrushVertex* vertex : face->vertices()) {
+            for (const Model::BrushVertex* vertex : m_helper.face()->vertices()) {
                 distanceInTexCoords = vm::abs_min(distanceInTexCoords, vm::vec2f(w2tTransform * vertex->position()) - newOriginInTexCoords);
             }
 
             // and to the texture grid
-            const auto* texture = face->texture();
+            const auto* texture = m_helper.face()->texture();
             if (texture != nullptr) {
                 distanceInTexCoords = vm::abs_min(distanceInTexCoords, m_helper.computeDistanceFromTextureGrid(vm::vec3(newOriginInTexCoords)));
             }
 
             // finally snap to the face center
-            const auto faceCenter = vm::vec2f(w2tTransform * face->boundsCenter());
+            const auto faceCenter = vm::vec2f(w2tTransform * m_helper.face()->boundsCenter());
             distanceInTexCoords = vm::abs_min(distanceInTexCoords, faceCenter - newOriginInTexCoords);
 
             // now we have a distance in the scaled and translated texture coordinate system
@@ -279,10 +275,9 @@ namespace TrenchBroom {
             }
 
             void doRender(Renderer::RenderContext& renderContext) override {
-                const auto* face = m_helper.face();
-                const auto fromFace = face->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+                const auto fromFace = m_helper.face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
-                const auto& boundary = face->boundary();
+                const auto& boundary = m_helper.face()->boundary();
                 const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
                 const auto [invertible, fromPlane] = invert(toPlane);
                 const auto originPosition(toPlane * fromFace * vm::vec3(m_helper.originInFaceCoords()));

@@ -129,12 +129,15 @@ namespace TrenchBroom {
         }
 
         static void resetFaceTextureAlignment(BrushFace& face) {
+            BrushFaceAttributes attributes = face.attributes();
+            attributes.setXOffset(0.0);
+            attributes.setYOffset(0.0);
+            attributes.setRotation(0.0);
+            attributes.setXScale(1.0);
+            attributes.setYScale(1.0);
+            
+            face.setAttributes(attributes);
             face.resetTextureAxes();
-            face.attributes().setXOffset(0.0);
-            face.attributes().setYOffset(0.0);
-            face.attributes().setRotation(0.0);
-            face.attributes().setXScale(1.0);
-            face.attributes().setYScale(1.0);
         }
 
         /**
@@ -417,6 +420,30 @@ namespace TrenchBroom {
 
             EXPECT_FLOAT_EQ(orig_U_width.x() * 2.0f, transformed_U_width.x());
             EXPECT_FLOAT_EQ(orig_U_width.y(), transformed_U_width.y());
+        }
+        
+        TEST_CASE("BrushFaceTest.testSetRotation_Paraxial", "[BrushFaceTest]") {
+            const vm::bbox3 worldBounds(8192.0);
+            Assets::Texture texture("testTexture", 64, 64);
+            WorldNode world(MapFormat::Standard);
+
+            BrushBuilder builder(&world, worldBounds);
+            Brush cube = builder.createCube(128.0, "");
+            BrushFace& face = cube.faces().front();
+
+            // This face's texture normal is in the same direction as the face normal
+            const vm::vec3 textureNormal = normalize(cross(face.textureXAxis(), face.textureYAxis()));
+
+            const vm::quat3 rot45(textureNormal, vm::to_radians(45.0));
+            const vm::vec3 newXAxis(rot45 * face.textureXAxis());
+            const vm::vec3 newYAxis(rot45 * face.textureYAxis());
+            
+            BrushFaceAttributes attributes = face.attributes();
+            attributes.setRotation(-45.0f);
+            face.setAttributes(attributes);
+            
+            ASSERT_VEC_EQ(newXAxis, face.textureXAxis());
+            ASSERT_VEC_EQ(newYAxis, face.textureYAxis());
         }
 
         TEST_CASE("BrushFaceTest.testTextureLock_Paraxial", "[BrushFaceTest]") {

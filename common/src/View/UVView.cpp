@@ -216,8 +216,7 @@ namespace TrenchBroom {
             m_vertexArray(Renderer::VertexArray::move(getVertices())) {}
         private:
             std::vector<Vertex> getVertices() const {
-                const auto* face = m_helper.face();
-                const auto normal = vm::vec3f(face->boundary().normal);
+                const auto normal = vm::vec3f(m_helper.face()->boundary().normal);
 
                 const auto& camera = m_helper.camera();
                 const auto& v = camera.zoomedViewport();
@@ -234,10 +233,10 @@ namespace TrenchBroom {
                 const auto pos4 = -w2 * r -h2 * u + p;
 
                 return {
-                    Vertex(pos1, normal, face->textureCoords(vm::vec3(pos1))),
-                    Vertex(pos2, normal, face->textureCoords(vm::vec3(pos2))),
-                    Vertex(pos3, normal, face->textureCoords(vm::vec3(pos3))),
-                    Vertex(pos4, normal, face->textureCoords(vm::vec3(pos4)))
+                    Vertex(pos1, normal, m_helper.face()->textureCoords(vm::vec3(pos1))),
+                    Vertex(pos2, normal, m_helper.face()->textureCoords(vm::vec3(pos2))),
+                    Vertex(pos3, normal, m_helper.face()->textureCoords(vm::vec3(pos3))),
+                    Vertex(pos4, normal, m_helper.face()->textureCoords(vm::vec3(pos4)))
                 };
             }
         private:
@@ -246,12 +245,11 @@ namespace TrenchBroom {
             }
 
             void doRender(Renderer::RenderContext& renderContext) override {
-                const auto* face = m_helper.face();
-                const auto& offset = face->attributes().offset();
-                const auto& scale = face->attributes().scale();
-                const auto toTex = face->toTexCoordSystemMatrix(offset, scale, true);
+                const auto& offset = m_helper.face()->attributes().offset();
+                const auto& scale = m_helper.face()->attributes().scale();
+                const auto toTex = m_helper.face()->toTexCoordSystemMatrix(offset, scale, true);
 
-                const auto* texture = face->texture();
+                const auto* texture = m_helper.face()->texture();
                 ensure(texture != nullptr, "texture is null");
 
                 texture->activate();
@@ -276,8 +274,7 @@ namespace TrenchBroom {
         };
 
         void UVView::renderTexture(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
-            const Model::BrushFace* face = m_helper.face();
-            const Assets::Texture* texture = face->texture();
+            const Assets::Texture* texture = m_helper.face()->texture();
             if (texture == nullptr)
                 return;
 
@@ -287,8 +284,7 @@ namespace TrenchBroom {
         void UVView::renderFace(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
             assert(m_helper.valid());
 
-            const auto* face = m_helper.face();
-            const auto faceVertices = face->vertices();
+            const auto faceVertices = m_helper.face()->vertices();
 
             using Vertex = Renderer::GLVertexTypes::P3::Vertex;
             std::vector<Vertex> edgeVertices;
@@ -307,12 +303,11 @@ namespace TrenchBroom {
         void UVView::renderTextureAxes(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
             assert(m_helper.valid());
 
-            const auto* face = m_helper.face();
-            const auto& normal = face->boundary().normal;
+            const auto& normal = m_helper.face()->boundary().normal;
 
-            const auto xAxis  = vm::vec3f(face->textureXAxis() - dot(face->textureXAxis(), normal) * normal);
-            const auto yAxis  = vm::vec3f(face->textureYAxis() - dot(face->textureYAxis(), normal) * normal);
-            const auto center = vm::vec3f(face->boundsCenter());
+            const auto xAxis  = vm::vec3f(m_helper.face()->textureXAxis() - dot(m_helper.face()->textureXAxis(), normal) * normal);
+            const auto yAxis  = vm::vec3f(m_helper.face()->textureYAxis() - dot(m_helper.face()->textureYAxis(), normal) * normal);
+            const auto center = vm::vec3f(m_helper.face()->boundsCenter());
 
             const auto length = 32.0f / m_helper.cameraZoom();
 
@@ -351,11 +346,10 @@ namespace TrenchBroom {
             if (!m_helper.valid())
                 return pickResult;
 
-            const Model::BrushFace* face = m_helper.face();
-            const FloatType distance = face->intersectWithRay(pickRay);
+            const FloatType distance = m_helper.face()->intersectWithRay(pickRay);
             if (!vm::is_nan(distance)) {
                 const vm::vec3 hitPoint = vm::point_at_distance(pickRay, distance);
-                pickResult.addHit(Model::Hit(UVView::FaceHitType, distance, hitPoint, face));
+                pickResult.addHit(Model::Hit(UVView::FaceHitType, distance, hitPoint, m_helper.face()));
             }
             return pickResult;
         }
