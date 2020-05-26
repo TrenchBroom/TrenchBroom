@@ -47,12 +47,17 @@ namespace TrenchBroom {
 
             void setName(const std::string& name);
 
+            bool isDefaultLayer() const;
+
             static int invalidSortIndex();
             static int defaultLayerSortIndex();
 
             int sortIndex() const;
             void setSortIndex(int index);
 
+            /**
+             * Stable sort the given vector using `sortIndex()` as the sort key.
+             */
             static void sortLayers(std::vector<LayerNode*>& layers);
 
             std::optional<Color> groupColor() const;

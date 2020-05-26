@@ -27,11 +27,14 @@
 #include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/TagVisitor.h"
+#include "Model/WorldNode.h"
 
 #include <limits>
 #include <string>
 #include <algorithm>
 #include <stdexcept>
+
+#include "Ensure.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -44,6 +47,16 @@ namespace TrenchBroom {
             addOrUpdateAttribute(AttributeNames::LayerName, name);
         }
 
+        bool LayerNode::isDefaultLayer() const {
+            Model::Node* parentNode = parent();
+            if (parentNode == nullptr) {
+                return false;
+            }
+            Model::WorldNode* world = dynamic_cast<Model::WorldNode*>(parentNode);
+            ensure(world != nullptr, "layer parent must be WorldNode");
+            return world->defaultLayer() == this;
+        }
+
         int LayerNode::invalidSortIndex() {
             return std::numeric_limits<int>::max();
         }
@@ -53,6 +66,10 @@ namespace TrenchBroom {
         }
 
         int LayerNode::sortIndex() const {
+            if (isDefaultLayer()) {
+                return defaultLayerSortIndex();
+            }
+
             const std::string& indexString = attribute(AttributeNames::LayerSortIndex);
             if (indexString.empty()) {
                 return invalidSortIndex();
@@ -80,6 +97,9 @@ namespace TrenchBroom {
         }
 
         void LayerNode::setSortIndex(int index) {
+            if (isDefaultLayer()) {
+                return;
+            }
             addOrUpdateAttribute(AttributeNames::LayerSortIndex, std::to_string(index));
         }
 

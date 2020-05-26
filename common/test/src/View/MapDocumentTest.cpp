@@ -1115,6 +1115,13 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(issueGenerators);
         }
 
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.defaultLayerSortIndexImmutable", "[LayerTest]") {
+            Model::LayerNode* defaultLayer = document->world()->defaultLayer();
+
+            defaultLayer->setSortIndex(555);
+            CHECK(defaultLayer->sortIndex() == Model::LayerNode::defaultLayerSortIndex());
+        }
+
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.renameLayer", "[LayerTest]") {
             // delete default brush
             document->selectAllNodes();
