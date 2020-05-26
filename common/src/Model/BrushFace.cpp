@@ -262,10 +262,6 @@ namespace TrenchBroom {
             return m_attributes;
         }
 
-        BrushFaceAttributes& BrushFace::attributes() {
-            return m_attributes;
-        }
-
         void BrushFace::setAttributes(const BrushFaceAttributes& attributes) {
             const float oldRotation = m_attributes.rotation();
             m_attributes = attributes;

@@ -245,26 +245,29 @@ namespace TrenchBroom {
                 BrushNode* node  = faceHandle.node();
                 Brush brush = node->brush();
                 BrushFace& face = brush.face(faceHandle.faceIndex());
+                BrushFaceAttributes attributes = face.attributes();
                 
                 switch (m_textureOp) {
                     case TextureOp_Set:
-                        result |= face.attributes().setTextureName(m_textureName);
+                        result |= attributes.setTextureName(m_textureName);
                         break;
                     case TextureOp_None:
                         break;
                     switchDefault();
                 }
 
-                result |= face.attributes().setXOffset(evaluateValueOp(face.attributes().xOffset(), m_xOffset, m_xOffsetOp));
-                result |= face.attributes().setYOffset(evaluateValueOp(face.attributes().yOffset(), m_yOffset, m_yOffsetOp));
-                result |= face.attributes().setRotation(evaluateValueOp(face.attributes().rotation(), m_rotation, m_rotationOp));
-                result |= face.attributes().setXScale(evaluateValueOp(face.attributes().xScale(), m_xScale, m_xScaleOp));
-                result |= face.attributes().setYScale(evaluateValueOp(face.attributes().yScale(), m_yScale, m_yScaleOp));
-                result |= face.attributes().setSurfaceFlags(evaluateFlagOp(face.attributes().surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
-                result |= face.attributes().setSurfaceContents(evaluateFlagOp(face.attributes().surfaceContents(), m_contentFlags, m_contentFlagsOp));
-                result |= face.attributes().setSurfaceValue(evaluateValueOp(face.attributes().surfaceValue(), m_surfaceValue, m_surfaceValueOp));
-                result |= face.attributes().setColor(evaluateValueOp(face.attributes().color(), m_colorValue, m_colorValueOp));
+                result |= attributes.setXOffset(evaluateValueOp(attributes.xOffset(), m_xOffset, m_xOffsetOp));
+                result |= attributes.setYOffset(evaluateValueOp(attributes.yOffset(), m_yOffset, m_yOffsetOp));
+                result |= attributes.setRotation(evaluateValueOp(attributes.rotation(), m_rotation, m_rotationOp));
+                result |= attributes.setXScale(evaluateValueOp(attributes.xScale(), m_xScale, m_xScaleOp));
+                result |= attributes.setYScale(evaluateValueOp(attributes.yScale(), m_yScale, m_yScaleOp));
+                result |= attributes.setSurfaceFlags(evaluateFlagOp(attributes.surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
+                result |= attributes.setSurfaceContents(evaluateFlagOp(attributes.surfaceContents(), m_contentFlags, m_contentFlagsOp));
+                result |= attributes.setSurfaceValue(evaluateValueOp(attributes.surfaceValue(), m_surfaceValue, m_surfaceValueOp));
+                result |= attributes.setColor(evaluateValueOp(attributes.color(), m_colorValue, m_colorValueOp));
 
+                face.setAttributes(attributes);
+                
                 switch (m_axisOp) {
                     case AxisOp_Reset:
                         face.resetTextureAxes();
