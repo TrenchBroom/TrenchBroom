@@ -199,12 +199,16 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchContentFlagsTag") {
             auto matchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf", [](auto& b) {
                 for (auto& face : b.faces()) {
-                    face.attributes().setSurfaceContents(1);
+                    auto attributes = face.attributes();
+                    attributes.setSurfaceContents(1);
+                    face.setAttributes(attributes);
                 }
             }));
             auto nonMatchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf", [](auto& b) {
                 for (auto& face : b.faces()) {
-                    face.attributes().setSurfaceContents(2);
+                    auto attributes = face.attributes();
+                    attributes.setSurfaceContents(2);
+                    face.setAttributes(attributes);
                 }
             }));
 
@@ -238,7 +242,9 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableContentFlagsTag") {
             auto* matchingBrushNode = createBrushNode("asdf", [](auto& b) {
                 for (auto& face : b.faces()) {
-                    face.attributes().setSurfaceContents(1);
+                    auto attributes = face.attributes();
+                    attributes.setSurfaceContents(1);
+                    face.setAttributes(attributes);
                 }
             });
 
@@ -261,12 +267,16 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchSurfaceFlagsTag") {
             auto matchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf", [](auto& b) {
                 for (auto& face : b.faces()) {
-                    face.attributes().setSurfaceFlags(1);
+                    auto attributes = face.attributes();
+                    attributes.setSurfaceFlags(1);
+                    face.setAttributes(attributes);
                 }
             }));
             auto nonMatchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf", [](auto& b) {
                 for (auto& face : b.faces()) {
-                    face.attributes().setSurfaceFlags(2);
+                    auto attributes = face.attributes();
+                    attributes.setSurfaceFlags(2);
+                    face.setAttributes(attributes);
                 }
             }));
 
@@ -300,7 +310,9 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableSurfaceFlagsTag") {
             auto* matchingBrushNode = createBrushNode("asdf", [](auto& b) {
                 for (auto& face : b.faces()) {
-                    face.attributes().setSurfaceFlags(1);
+                    auto attributes = face.attributes();
+                    attributes.setSurfaceFlags(1);
+                    face.setAttributes(attributes);
                 }
             });
 

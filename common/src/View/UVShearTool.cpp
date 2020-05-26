@@ -64,8 +64,7 @@ namespace TrenchBroom {
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
 
-            const auto* face = m_helper.face();
-            if (!face->attributes().valid()) {
+            if (!m_helper.face()->attributes().valid()) {
                 return false;
             }
 
@@ -78,8 +77,8 @@ namespace TrenchBroom {
 
             m_selector = vm::vec2b(xHit.isMatch(), yHit.isMatch());
 
-            m_xAxis = face->textureXAxis();
-            m_yAxis = face->textureYAxis();
+            m_xAxis = m_helper.face()->textureXAxis();
+            m_yAxis = m_helper.face()->textureYAxis();
             m_initialHit = m_lastHit = getHit(inputState.pickRay());
 
             // #1350: Don't allow shearing if the shear would result in very large changes. This happens if
@@ -97,9 +96,8 @@ namespace TrenchBroom {
             const auto currentHit = getHit(inputState.pickRay());
             const auto delta = currentHit - m_lastHit;
 
-            auto* face = m_helper.face();
             const auto origin = m_helper.origin();
-            const auto oldCoords = vm::vec2f(face->toTexCoordSystemMatrix(vm::vec2f::zero(), face->attributes().scale(), true) * origin);
+            const auto oldCoords = vm::vec2f(m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), m_helper.face()->attributes().scale(), true) * origin);
 
             auto document = kdl::mem_lock(m_document);
             if (m_selector[0]) {
@@ -114,8 +112,8 @@ namespace TrenchBroom {
                 }
             }
 
-            const auto newCoords = vm::vec2f(face->toTexCoordSystemMatrix(vm::vec2f::zero(), face->attributes().scale(), true) * origin);
-            const auto newOffset = face->attributes().offset() + oldCoords - newCoords;
+            const auto newCoords = vm::vec2f(m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), m_helper.face()->attributes().scale(), true) * origin);
+            const auto newOffset = m_helper.face()->attributes().offset() + oldCoords - newCoords;
 
             Model::ChangeBrushFaceAttributesRequest request;
             request.setOffset(newOffset);
@@ -136,8 +134,7 @@ namespace TrenchBroom {
         }
 
         vm::vec2f UVShearTool::getHit(const vm::ray3& pickRay) const {
-            const auto* face = m_helper.face();
-            const auto& boundary = face->boundary();
+            const auto& boundary = m_helper.face()->boundary();
             const auto hitPointDist = vm::intersect_ray_plane(pickRay, boundary);
             const auto hitPoint = vm::point_at_distance(pickRay, hitPointDist);
             const auto hitVec = hitPoint - m_helper.origin();
