@@ -89,8 +89,8 @@ namespace TrenchBroom {
 
         void WorldNode::createDefaultLayer() {
             m_defaultLayer = createLayer("Default Layer");
-            assert(m_defaultLayer->sortIndex() == LayerNode::defaultLayerSortIndex());
             addChild(m_defaultLayer);
+            assert(m_defaultLayer->sortIndex() == LayerNode::defaultLayerSortIndex());
         }
 
         const AttributableNodeIndex& WorldNode::attributableNodeIndex() const {
