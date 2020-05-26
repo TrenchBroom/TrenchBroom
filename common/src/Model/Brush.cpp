@@ -390,7 +390,7 @@ namespace TrenchBroom {
             result.reserve(vertexPositions.size());
 
             for (const auto& position : vertexPositions) {
-                const auto* newVertex = m_geometry->findClosestVertex(position + delta, vm::C::almost_zero());
+                const auto* newVertex = m_geometry->findClosestVertex(position + delta, CloseVertexEpsilon);
                 if (newVertex != nullptr) {
                     result.push_back(newVertex->position());
                 }
@@ -417,7 +417,7 @@ namespace TrenchBroom {
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry);
             doSetNewGeometry(worldBounds, matcher, newGeometry);
 
-            auto* newVertex = m_geometry->findClosestVertex(position, vm::C::almost_zero());
+            auto* newVertex = m_geometry->findClosestVertex(position, CloseVertexEpsilon);
             ensure(newVertex != nullptr, "vertex could not be added");
             return newVertex;
         }
@@ -734,7 +734,7 @@ namespace TrenchBroom {
                 const auto& oldPosition = oldVertex->position();
                 const auto moved = kdl::vec_contains(vertexPositions, oldPosition);
                 const auto newPosition = moved ? oldPosition + delta : oldPosition;
-                const auto* newVertex = newGeometry.findClosestVertex(newPosition, vm::C::almost_zero());
+                const auto* newVertex = newGeometry.findClosestVertex(newPosition, CloseVertexEpsilon);
                 if (newVertex != nullptr) {
                     vertexMapping.insert(std::make_pair(oldPosition, newVertex->position()));
                 }
