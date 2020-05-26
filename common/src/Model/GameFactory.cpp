@@ -272,7 +272,7 @@ namespace TrenchBroom {
             writer.writeConfig();
 
             const auto profilesPath = IO::Path(gameConfig.name()) + IO::Path("CompilationProfiles.cfg");
-            m_configFS->createFile(profilesPath, stream.str());
+            m_configFS->createFileAtomic(profilesPath, stream.str());
         }
 
         void GameFactory::writeGameEngineConfigs() {
@@ -288,7 +288,7 @@ namespace TrenchBroom {
             writer.writeConfig();
 
             const auto profilesPath = IO::Path(gameConfig.name()) + IO::Path("GameEngineProfiles.cfg");
-            m_configFS->createFile(profilesPath, stream.str());
+            m_configFS->createFileAtomic(profilesPath, stream.str());
         }
     }
 }

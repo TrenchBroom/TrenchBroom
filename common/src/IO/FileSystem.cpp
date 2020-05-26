@@ -196,6 +196,19 @@ namespace TrenchBroom {
         WritableFileSystem::WritableFileSystem() = default;
         WritableFileSystem::~WritableFileSystem() = default;
 
+        void WritableFileSystem::createFileAtomic(const Path& path, const std::string& contents) {
+            const auto tmpPath = path.addExtension("tmp");
+            try {
+                if (path.isAbsolute()) {
+                    throw FileSystemException("Path is absolute: '" + path.asString() + "'");
+                }
+                doCreateFile(tmpPath, contents);
+                doMoveFile(tmpPath, path, true);
+            } catch (const PathException& e) {
+                throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
+            }
+        }
+
         void WritableFileSystem::createFile(const Path& path, const std::string& contents) {
             try {
                 if (path.isAbsolute()) {
