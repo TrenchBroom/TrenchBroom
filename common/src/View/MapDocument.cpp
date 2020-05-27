@@ -892,6 +892,8 @@ namespace TrenchBroom {
                 removableNodes = collectRemovableParents(removableNodes);
             }
 
+            // Reset visibility/lock state, so moving newly added nodes to a hidden/locked layer
+            // causes them to be hidden/locked (otherwise they would stay as forced visible/unlocked).
             std::vector<Model::Node*> nodesToResetLock;
             std::vector<Model::Node*> nodesToResetVisibility;
             for (auto& [newParent, nodes] : nodesToAdd) {
