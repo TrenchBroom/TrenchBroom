@@ -73,7 +73,7 @@ namespace TrenchBroom {
         TEST_CASE("NodeWriterTest.writeDefaultLayerColor", "[NodeWriterTest]") {
             Model::WorldNode map(Model::MapFormat::Standard);
             map.addOrUpdateAttribute("classname", "worldspawn");
-            map.defaultLayer()->setGroupColor(Color(0.25f, 0.75f, 1.0f));
+            map.defaultLayer()->setLayerColor(Color(0.25f, 0.75f, 1.0f));
 
             std::stringstream str;
             NodeWriter writer(map, str);

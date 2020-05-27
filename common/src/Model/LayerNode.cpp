@@ -92,7 +92,7 @@ namespace TrenchBroom {
             return { Color::parse(string) };
         }
 
-        void LayerNode::setGroupColor(const Color& color) {
+        void LayerNode::setLayerColor(const Color& color) {
             addOrUpdateAttribute(AttributeNames::LayerColor, color.toString());
         }
 
