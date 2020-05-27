@@ -877,6 +877,27 @@ namespace TrenchBroom {
             }
 
             Transaction transaction(this, "Reparent Objects");
+
+            // This handles two main cases:
+            // - creating brushes in a hidden layer, and then grouping / ungrouping them keeps them visible
+            // - creating brushes in a hidden layer, then moving them to a hidden layer, should downgrade them
+            //   to inherited and hide them
+            for (auto& [newParent, nodes] : nodesToAdd) {
+                Model::LayerNode* newParentLayer = Model::findLayer(newParent);
+
+                Model::CollectNodesVisitor collect;
+                Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), collect);
+
+                std::vector<Model::Node*> nodesToDowngrade;
+                for (auto* node : collect.nodes()) {
+                    if (Model::findLayer(node) != newParentLayer) {
+                        nodesToDowngrade.push_back(node);
+                    }
+                }
+                downgradeUnlockedToInherit(nodesToDowngrade);
+                downgradeShownToInherit(nodesToDowngrade);
+            }
+
             executeAndStore(ReparentNodesCommand::reparent(nodesToAdd, nodesToRemove));
 
             std::map<Model::Node*, std::vector<Model::Node*>> removableNodes = collectRemovableParents(nodesToRemove);
@@ -885,11 +906,6 @@ namespace TrenchBroom {
                 executeAndStore(AddRemoveNodesCommand::remove(removableNodes));
 
                 removableNodes = collectRemovableParents(removableNodes);
-            }
-
-            for (auto& [newParent, nodes] : nodesToAdd) {
-                downgradeUnlockedToInherit(nodes);
-                downgradeShownToInherit(nodes);
             }
 
             return true;
