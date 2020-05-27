@@ -45,6 +45,8 @@ namespace TrenchBroom {
             const std::string& doGameName() const override;
             IO::Path doGamePath() const override;
             void doSetGamePath(const IO::Path& gamePath, Logger& logger) override;
+            std::optional<vm::bbox3> doSoftMapBounds() const override;
+            std::optional<vm::bbox3> doExtractSoftMapBounds(const AttributableNode& node) const override;
             void doSetAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths, Logger& logger) override;
             PathErrors doCheckAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths) const override;
 

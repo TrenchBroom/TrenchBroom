@@ -56,6 +56,15 @@ namespace TrenchBroom {
         }
 
         void TestGame::doSetGamePath(const IO::Path& /* gamePath */, Logger& /* logger */) {}
+
+        std::optional<vm::bbox3> TestGame::doSoftMapBounds() const {
+            return std::nullopt;
+        }
+
+        std::optional<vm::bbox3> TestGame::doExtractSoftMapBounds(const AttributableNode& node) const {
+            return std::nullopt;
+        }
+
         void TestGame::doSetAdditionalSearchPaths(const std::vector<IO::Path>& /* searchPaths */, Logger& /* logger */) {}
         Game::PathErrors TestGame::doCheckAdditionalSearchPaths(const std::vector<IO::Path>& /* searchPaths */) const { return PathErrors(); }
 
