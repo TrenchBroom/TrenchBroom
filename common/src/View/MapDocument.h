@@ -372,6 +372,9 @@ namespace TrenchBroom {
             void lock(const std::vector<Model::Node*>& nodes) override;
             void unlock(const std::vector<Model::Node*>& nodes) override;
             void resetLock(const std::vector<Model::Node*>& nodes) override;
+        private:
+            void downgradeShownToInherit(const std::vector<Model::Node*>& nodes);
+            void downgradeUnlockedToInherit(const std::vector<Model::Node*>& nodes);
         public: // modifying objects, declared in MapFacade interface
             bool translateObjects(const vm::vec3& delta) override;
             bool rotateObjects(const vm::vec3& center, const vm::vec3& axis, FloatType angle) override;

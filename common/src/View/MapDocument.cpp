@@ -229,15 +229,10 @@ namespace TrenchBroom {
 
             Transaction transaction(this, "Set Current Layer");
 
-            // The layer we're leaving needs to have the visibility and lock state of all child nodes reset
-            {
-                // FIXME: Only collect nodes which have a non-inherited visibility/lock state, to avoid
-                // bloating the size of the commands
-                Model::CollectNodesVisitor collect;
-                m_currentLayer->recurse(collect);
-                resetVisibility(collect.nodes());                
-                resetLock(collect.nodes());
-            }
+            Model::CollectNodesVisitor collect;
+            m_currentLayer->recurse(collect);
+            downgradeShownToInherit(collect.nodes());                
+            downgradeUnlockedToInherit(collect.nodes());
 
             executeAndStore(SetCurrentLayerCommand::set(currentLayer));
         }
@@ -892,22 +887,10 @@ namespace TrenchBroom {
                 removableNodes = collectRemovableParents(removableNodes);
             }
 
-            // Reset visibility/lock state, so moving newly added nodes to a hidden/locked layer
-            // causes them to be hidden/locked (otherwise they would stay as forced visible/unlocked).
-            std::vector<Model::Node*> nodesToResetLock;
-            std::vector<Model::Node*> nodesToResetVisibility;
             for (auto& [newParent, nodes] : nodesToAdd) {
-                for (auto* node : nodes) {
-                    if (node->visibilityState() != Model::VisibilityState::Visibility_Inherited) {
-                        nodesToResetVisibility.push_back(node);
-                    }
-                    if (node->lockState() != Model::LockState::Lock_Inherited) {
-                        nodesToResetLock.push_back(node);
-                    }
-                }
+                downgradeUnlockedToInherit(nodes);
+                downgradeShownToInherit(nodes);
             }
-            resetLock(nodesToResetLock);
-            resetVisibility(nodesToResetVisibility);
 
             return true;
         }
@@ -1123,6 +1106,9 @@ namespace TrenchBroom {
         }
 
         void MapDocument::moveLayer(Model::LayerNode* layer, int direction) {
+            if (!canMoveLayer(layer, direction)) {
+                return;
+            }
             const Transaction transaction(this, "Move Layer");
 
             ensure(layer != m_world->defaultLayer(), "attempted to move default layer");
@@ -1323,17 +1309,11 @@ namespace TrenchBroom {
                 deselect(collect.nodes());
             }
 
-            // Reset visibility of all children of `nodes` that have non-inherited visibility
+            // Reset visibility of any forced shown children of `nodes`
             {
-                std::vector<Model::Node*> nodesToReset;
                 Model::CollectNodesVisitor collect;
                 Model::Node::recurse(std::begin(nodes), std::end(nodes), collect);
-                for (Model::Node* node : collect.nodes()) {
-                    if (node->visibilityState() != Model::VisibilityState::Visibility_Inherited) {
-                        nodesToReset.push_back(node);
-                    }
-                }
-                executeAndStore(SetVisibilityCommand::reset(nodesToReset));
+                downgradeShownToInherit(collect.nodes()); 
             }
 
             executeAndStore(SetVisibilityCommand::hide(nodes));
@@ -1344,22 +1324,6 @@ namespace TrenchBroom {
         }
 
         void MapDocument::show(const std::vector<Model::Node*>& nodes) {
-            const Transaction transaction(this, "Show Objects");
-
-            // Reset visibility of all children of `nodes` that have non-inherited visibility
-            // FIXME: Copied from above
-            {
-                std::vector<Model::Node*> nodesToReset;
-                Model::CollectNodesVisitor collect;
-                Model::Node::recurse(std::begin(nodes), std::end(nodes), collect);
-                for (Model::Node* node : collect.nodes()) {
-                    if (node->visibilityState() != Model::VisibilityState::Visibility_Inherited) {
-                        nodesToReset.push_back(node);
-                    }
-                }
-                executeAndStore(SetVisibilityCommand::reset(nodesToReset));
-            }
-
             executeAndStore(SetVisibilityCommand::show(nodes));
         }
 
@@ -1388,43 +1352,49 @@ namespace TrenchBroom {
                 deselect(collect.nodes());
             }
 
-            // Reset lock state of all children of `nodes` that have non-inherited lock state
+            // Reset lock state of any forced unlocked children of `nodes`
             {
-                std::vector<Model::Node*> nodesToReset;
                 Model::CollectNodesVisitor collect;
                 Model::Node::recurse(std::begin(nodes), std::end(nodes), collect);
-                for (Model::Node* node : collect.nodes()) {
-                    if (node->lockState() != Model::LockState::Lock_Inherited) {
-                        nodesToReset.push_back(node);
-                    }
-                }
-                executeAndStore(SetLockStateCommand::reset(nodesToReset));
+                downgradeUnlockedToInherit(collect.nodes()); 
             }
 
             executeAndStore(SetLockStateCommand::lock(nodes));
         }
 
         void MapDocument::unlock(const std::vector<Model::Node*>& nodes) {
-            const Transaction transaction(this, "Unlock Objects");
-
-            // Reset lock state of all children of `nodes` that have non-inherited lock state
-            {
-                std::vector<Model::Node*> nodesToReset;
-                Model::CollectNodesVisitor collect;
-                Model::Node::recurse(std::begin(nodes), std::end(nodes), collect);
-                for (Model::Node* node : collect.nodes()) {
-                    if (node->lockState() != Model::LockState::Lock_Inherited) {
-                        nodesToReset.push_back(node);
-                    }
-                }
-                executeAndStore(SetLockStateCommand::reset(nodesToReset));
-            }
-
             executeAndStore(SetLockStateCommand::unlock(nodes));
         }
 
         void MapDocument::resetLock(const std::vector<Model::Node*>& nodes) {
             executeAndStore(SetLockStateCommand::reset(nodes));
+        }
+
+        /**
+         * This is called to clear the forced Visibility_Shown that was set on newly created nodes
+         * so they could be visible if created in a hidden layer
+         */
+        void MapDocument::downgradeShownToInherit(const std::vector<Model::Node*>& nodes) {
+            std::vector<Model::Node*> nodesToReset;
+            for (auto* node : nodes) {
+                if (node->visibilityState() == Model::VisibilityState::Visibility_Shown) {
+                    nodesToReset.push_back(node);
+                }
+            }
+            resetVisibility(nodesToReset);
+        }
+
+        /**
+         * See downgradeShownToInherit
+         */
+        void MapDocument::downgradeUnlockedToInherit(const std::vector<Model::Node*>& nodes) {
+            std::vector<Model::Node*> nodesToReset;
+            for (auto* node : nodes) {
+                if (node->lockState() == Model::LockState::Lock_Unlocked) {
+                    nodesToReset.push_back(node);
+                }
+            }
+            resetLock(nodesToReset);
         }
 
         bool MapDocument::translateObjects(const vm::vec3& delta) {
