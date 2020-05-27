@@ -107,6 +107,7 @@ namespace TrenchBroom {
         private:
             std::vector<EntityAttribute> m_attributes;
         public:
+            EntityAttributes();
             explicit EntityAttributes(std::vector<EntityAttribute> attributes);
 
             std::vector<EntityAttribute> releaseAttributes();

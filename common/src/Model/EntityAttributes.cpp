@@ -173,6 +173,8 @@ namespace TrenchBroom {
         }
 
         // EntityAttributes
+        EntityAttributes::EntityAttributes() = default;
+
         EntityAttributes::EntityAttributes(std::vector<EntityAttribute> attributes) :
         m_attributes(std::move(attributes)) {}
 
