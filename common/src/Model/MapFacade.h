@@ -141,6 +141,7 @@ namespace TrenchBroom {
             virtual bool resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) = 0;
         public: // modifying face attributes
             virtual bool setFaceAttributes(const BrushFaceAttributes& attributes) = 0;
+            virtual bool setFaceAttributesExceptContentFlags(const BrushFaceAttributes& attributes) = 0;
             virtual bool setFaceAttributes(const ChangeBrushFaceAttributesRequest& request) = 0;
             virtual bool moveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) = 0;
             virtual bool rotateTextures(float angle) = 0;

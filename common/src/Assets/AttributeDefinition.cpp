@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        AttributeDefinition::AttributeDefinition(const std::string& name, const Type type, const std::string& shortDescription, const std::string& longDescription, const bool readOnly) :
+        AttributeDefinition::AttributeDefinition(const std::string& name, const AttributeDefinitionType type, const std::string& shortDescription, const std::string& longDescription, const bool readOnly) :
         m_name(name),
         m_type(type),
         m_shortDescription(shortDescription),
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             return m_name;
         }
 
-        AttributeDefinition::Type AttributeDefinition::type() const {
+        AttributeDefinitionType AttributeDefinition::type() const {
             return m_type;
         }
 
@@ -71,13 +71,13 @@ namespace TrenchBroom {
 
         std::string AttributeDefinition::defaultValue(const AttributeDefinition& definition) {
             switch (definition.type()) {
-                case Type_StringAttribute: {
+                case AttributeDefinitionType::StringAttribute: {
                     const auto& stringDef = static_cast<const StringAttributeDefinition&>(definition);
                     if (!stringDef.hasDefaultValue())
                         return "";
                     return stringDef.defaultValue();
                 }
-                case Type_BooleanAttribute: {
+                case AttributeDefinitionType::BooleanAttribute: {
                     const auto& boolDef = static_cast<const BooleanAttributeDefinition&>(definition);
                     if (!boolDef.hasDefaultValue())
                         return "";
@@ -85,7 +85,7 @@ namespace TrenchBroom {
                     str << boolDef.defaultValue();
                     return str.str();
                 }
-                case Type_IntegerAttribute: {
+                case AttributeDefinitionType::IntegerAttribute: {
                     const auto& intDef = static_cast<const IntegerAttributeDefinition&>(definition);
                     if (!intDef.hasDefaultValue())
                         return "";
@@ -93,7 +93,7 @@ namespace TrenchBroom {
                     str << intDef.defaultValue();
                     return str.str();
                 }
-                case Type_FloatAttribute: {
+                case AttributeDefinitionType::FloatAttribute: {
                     const auto& floatDef = static_cast<const FloatAttributeDefinition&>(definition);
                     if (!floatDef.hasDefaultValue())
                         return "";
@@ -101,7 +101,7 @@ namespace TrenchBroom {
                     str << floatDef.defaultValue();
                     return str.str();
                 }
-                case Type_ChoiceAttribute: {
+                case AttributeDefinitionType::ChoiceAttribute: {
                     const auto& choiceDef = static_cast<const ChoiceAttributeDefinition&>(definition);
                     if (!choiceDef.hasDefaultValue())
                         return "";
@@ -109,14 +109,14 @@ namespace TrenchBroom {
                     str << choiceDef.defaultValue();
                     return str.str();
                 }
-                case Type_FlagsAttribute: {
+                case AttributeDefinitionType::FlagsAttribute: {
                     const auto& flagsDef = static_cast<const FlagsAttributeDefinition&>(definition);
                     std::stringstream str;
                     str << flagsDef.defaultValue();
                     return str.str();
                 }
-                case Type_TargetSourceAttribute:
-                case Type_TargetDestinationAttribute:
+                case AttributeDefinitionType::TargetSourceAttribute:
+                case AttributeDefinitionType::TargetDestinationAttribute:
                     return "";
                 switchDefault()
             }
@@ -131,28 +131,28 @@ namespace TrenchBroom {
         }
 
         StringAttributeDefinition::StringAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, std::optional<std::string> defaultValue) :
-        AttributeDefinitionWithDefaultValue(name, Type_StringAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
+        AttributeDefinitionWithDefaultValue(name, AttributeDefinitionType::StringAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
         AttributeDefinition* StringAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
             return new StringAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
 
         BooleanAttributeDefinition::BooleanAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, std::optional<bool> defaultValue) :
-        AttributeDefinitionWithDefaultValue(name, Type_BooleanAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
+        AttributeDefinitionWithDefaultValue(name, AttributeDefinitionType::BooleanAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
         AttributeDefinition* BooleanAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
             return new BooleanAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
 
         IntegerAttributeDefinition::IntegerAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, std::optional<int> defaultValue) :
-        AttributeDefinitionWithDefaultValue(name, Type_IntegerAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
+        AttributeDefinitionWithDefaultValue(name, AttributeDefinitionType::IntegerAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
         AttributeDefinition* IntegerAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
             return new IntegerAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
 
         FloatAttributeDefinition::FloatAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, std::optional<float> defaultValue) :
-        AttributeDefinitionWithDefaultValue(name, Type_FloatAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
+        AttributeDefinitionWithDefaultValue(name, AttributeDefinitionType::FloatAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
         AttributeDefinition* FloatAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
             return new FloatAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
@@ -175,7 +175,7 @@ namespace TrenchBroom {
         }
 
         ChoiceAttributeDefinition::ChoiceAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const ChoiceAttributeOption::List& options, const bool readOnly, std::optional<std::string> defaultValue) :
-        AttributeDefinitionWithDefaultValue(name, Type_ChoiceAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)),
+        AttributeDefinitionWithDefaultValue(name, AttributeDefinitionType::ChoiceAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)),
         m_options(options) {}
 
         const ChoiceAttributeOption::List& ChoiceAttributeDefinition::options() const {
@@ -220,7 +220,7 @@ namespace TrenchBroom {
         }
 
         FlagsAttributeDefinition::FlagsAttributeDefinition(const std::string& name) :
-        AttributeDefinition(name, Type_FlagsAttribute, "", "", false) {}
+        AttributeDefinition(name, AttributeDefinitionType::FlagsAttribute, "", "", false) {}
 
         int FlagsAttributeDefinition::defaultValue() const {
             int value = 0;

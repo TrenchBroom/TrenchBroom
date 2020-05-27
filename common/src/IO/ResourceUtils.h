@@ -50,7 +50,10 @@ namespace TrenchBroom {
         QPixmap loadPixmapResource(const std::string& name);
         QPixmap loadPixmapResource(const Path& imagePath);
 
-        QIcon loadIconResourceQt(const Path& imagePath);
+        /**
+         * Loads an SVG image into a QIcon
+         */
+        QIcon loadSVGIcon(const Path& imagePath);
     }
 }
 

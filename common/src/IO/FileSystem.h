@@ -217,6 +217,13 @@ namespace TrenchBroom {
             WritableFileSystem();
             virtual ~WritableFileSystem();
 
+            /**
+             * Creates a temporary fiel with the given contens, then moves that file to its final
+             * location at the given path.
+             *
+             * If file creation fails, the temporary file may not be cleaned up.
+             */
+            void createFileAtomic(const Path& path, const std::string& contents);
             void createFile(const Path& path, const std::string& contents);
             void createDirectory(const Path& path);
             void deleteFile(const Path& path);

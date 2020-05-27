@@ -178,7 +178,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, attributes.size()); // spawnflags
 
             const auto attribute = attributes[0];
-            ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, attribute->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::FlagsAttribute, attribute->type());
 
             const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
             ASSERT_TRUE(spawnflags != nullptr);
@@ -225,7 +225,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, attributes.size()); // spawnflags
 
             const auto attribute = attributes[0];
-            ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, attribute->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::FlagsAttribute, attribute->type());
 
             const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
             ASSERT_TRUE(spawnflags != nullptr);
@@ -277,7 +277,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, attributes.size()); // spawnflags
 
             const auto attribute = attributes[0];
-            ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, attribute->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::FlagsAttribute, attribute->type());
 
             const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
             ASSERT_TRUE(spawnflags != nullptr);
@@ -351,11 +351,11 @@ namespace TrenchBroom {
 
             auto spawnflags = attributes[0];
             ASSERT_EQ(Model::AttributeNames::Spawnflags, spawnflags->name());
-            ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, spawnflags->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::FlagsAttribute, spawnflags->type());
 
             auto style = attributes[1];
             ASSERT_EQ(std::string("style"), style->name());
-            ASSERT_EQ(Assets::AttributeDefinition::Type_ChoiceAttribute, style->type());
+            ASSERT_EQ(Assets::AttributeDefinitionType::ChoiceAttribute, style->type());
 
             const Assets::ChoiceAttributeDefinition* choice = static_cast<const Assets::ChoiceAttributeDefinition*>(definition->attributeDefinition("style"));
             ASSERT_EQ(12u, choice->options().size());

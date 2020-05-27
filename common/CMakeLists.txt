@@ -441,10 +441,10 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.cpp
         ${COMMON_SOURCE_DIR}/View/SmartAttributeEditorMatcher.cpp
         ${COMMON_SOURCE_DIR}/View/SmartChoiceEditor.cpp
-        ${COMMON_SOURCE_DIR}/View/SmartChoiceEditorMatcher.cpp
+        ${COMMON_SOURCE_DIR}/View/SmartTypeEditorMatcher.cpp
         ${COMMON_SOURCE_DIR}/View/SmartColorEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.cpp
-        ${COMMON_SOURCE_DIR}/View/SmartSpawnflagsEditor.cpp
+        ${COMMON_SOURCE_DIR}/View/SmartFlagsEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SnapBrushVerticesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SnapshotCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SpinControl.cpp
@@ -993,10 +993,10 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.h
         ${COMMON_SOURCE_DIR}/View/SmartAttributeEditorMatcher.h
         ${COMMON_SOURCE_DIR}/View/SmartChoiceEditor.h
-        ${COMMON_SOURCE_DIR}/View/SmartChoiceEditorMatcher.h
+        ${COMMON_SOURCE_DIR}/View/SmartTypeEditorMatcher.h
         ${COMMON_SOURCE_DIR}/View/SmartColorEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.h
-        ${COMMON_SOURCE_DIR}/View/SmartSpawnflagsEditor.h
+        ${COMMON_SOURCE_DIR}/View/SmartFlagsEditor.h
         ${COMMON_SOURCE_DIR}/View/SnapBrushVerticesCommand.h
         ${COMMON_SOURCE_DIR}/View/SnapshotCommand.h
         ${COMMON_SOURCE_DIR}/View/SpinControl.h
@@ -1064,7 +1064,7 @@ add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_compile_features(common PRIVATE cxx_std_17)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
-target_link_libraries(common PUBLIC tinyxml2 kdl vecmath glew miniz freeimage freetype OpenGL::GL Qt5::Widgets)
+target_link_libraries(common PUBLIC tinyxml2 kdl vecmath glew miniz freeimage freetype OpenGL::GL Qt5::Widgets Qt5::Svg)
 
 # use precompiled headers on CMake 3.16 or later
 if (NOT TB_SUPPRESS_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")

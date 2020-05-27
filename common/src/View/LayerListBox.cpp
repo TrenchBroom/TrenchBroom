@@ -46,8 +46,8 @@ namespace TrenchBroom {
             m_infoText = new QLabel("");
             makeInfo(m_infoText);
 
-            m_hiddenButton = createBitmapToggleButton("Hidden.png", "");
-            m_lockButton = createBitmapToggleButton("Lock.png", "");
+            m_hiddenButton = createBitmapToggleButton("Hidden.svg", "");
+            m_lockButton = createBitmapToggleButton("Lock.svg", "");
 
             auto documentS = kdl::mem_lock(m_document);
             connect(m_hiddenButton, &QAbstractButton::clicked, this, [this](){

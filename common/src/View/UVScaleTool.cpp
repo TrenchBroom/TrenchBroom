@@ -77,12 +77,11 @@ namespace TrenchBroom {
         }
 
         vm::vec2f UVScaleTool::getHitPoint(const vm::ray3& pickRay) const {
-            const auto* face = m_helper.face();
-            const auto& boundary = face->boundary();
+            const auto& boundary = m_helper.face()->boundary();
             const auto facePointDist = vm::intersect_ray_plane(pickRay, boundary);
             const auto facePoint = vm::point_at_distance(pickRay, facePointDist);
 
-            const auto toTex = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+            const auto toTex = m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             return vm::vec2f(toTex * facePoint);
         }
 
@@ -94,8 +93,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            auto* face = m_helper.face();
-            if (!face->attributes().valid()) {
+            if (!m_helper.face()->attributes().valid()) {
                 return false;
             }
 
@@ -130,8 +128,7 @@ namespace TrenchBroom {
             const auto newHandleDistFaceCoords = newHandlePosSnapped    - originHandlePosFaceCoords;
             const auto curHandleDistTexCoords  = curHandlePosTexCoords  - originHandlePosTexCoords;
 
-            auto* face = m_helper.face();
-            auto newScale = face->attributes().scale();
+            auto newScale = m_helper.face()->attributes().scale();
             for (size_t i = 0; i < 2; ++i) {
                 if (m_selector[i]) {
                     const auto value = newHandleDistFaceCoords[i] / curHandleDistTexCoords[i];
@@ -174,18 +171,16 @@ namespace TrenchBroom {
         }
 
         vm::vec2f UVScaleTool::getHandlePos() const {
-            const auto* face = m_helper.face();
-            const auto toWorld = face->fromTexCoordSystemMatrix(face->attributes().offset(), face->attributes().scale(), true);
-            const auto toTex   = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+            const auto toWorld = m_helper.face()->fromTexCoordSystemMatrix(m_helper.face()->attributes().offset(), m_helper.face()->attributes().scale(), true);
+            const auto toTex   = m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
             return vm::vec2f(toTex * toWorld * vm::vec3(getScaledTranslatedHandlePos()));
         }
 
         vm::vec2f UVScaleTool::snap(const vm::vec2f& position) const {
-            const auto* face = m_helper.face();
-            const auto toTex = face->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+            const auto toTex = m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
-            const auto vertices = face->vertices();
+            const auto vertices = m_helper.face()->vertices();
             auto distance = std::accumulate(std::begin(vertices), std::end(vertices), vm::vec2f::max(),
                                              [&toTex, &position](const vm::vec2f& current, const Model::BrushVertex* vertex) {
                                                  const vm::vec2f vertex2(toTex * vertex->position());
@@ -206,8 +201,7 @@ namespace TrenchBroom {
                 return;
             }
 
-            const auto* face = m_helper.face();
-            if (!face->attributes().valid()) {
+            if (!m_helper.face()->attributes().valid()) {
                 return;
             }
 

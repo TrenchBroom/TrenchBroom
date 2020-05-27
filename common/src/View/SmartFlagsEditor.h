@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_SmartSpawnflagsEditor
-#define TrenchBroom_SmartSpawnflagsEditor
+#ifndef TrenchBroom_SmartFlagsEditor
+#define TrenchBroom_SmartFlagsEditor
 
 #include "View/SmartAttributeEditor.h"
 
@@ -34,7 +34,7 @@ namespace TrenchBroom {
         class FlagsEditor;
         class MapDocument;
 
-        class SmartSpawnflagsEditor : public SmartAttributeEditor {
+        class SmartFlagsEditor : public SmartAttributeEditor {
             Q_OBJECT
         private:
             static const size_t NumFlags = 24;
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             FlagsEditor* m_flagsEditor;
             bool m_ignoreUpdates;
         public:
-            explicit SmartSpawnflagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+            explicit SmartFlagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
             void createGui();
             void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) override;
@@ -61,4 +61,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_SmartSpawnflagsEditor) */
+#endif /* defined(TrenchBroom_SmartFlagsEditor) */

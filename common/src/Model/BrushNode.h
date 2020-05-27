@@ -61,6 +61,7 @@ namespace TrenchBroom {
         private:
             mutable std::unique_ptr<Renderer::BrushRendererBrushCache> m_brushRendererBrushCache; // unique_ptr for breaking header dependencies
             Brush m_brush; // must be destroyed before the brush renderer cache
+            size_t m_selectedFaceCount = 0u;
         public:
             explicit BrushNode(Brush brush);
             ~BrushNode() override;
@@ -72,6 +73,7 @@ namespace TrenchBroom {
             const Brush& brush() const;
             void setBrush(Brush brush);
 
+            bool hasSelectedFaces() const;
             void selectFace(size_t faceIndex);
             void deselectFace(size_t faceIndex);
             
@@ -80,6 +82,8 @@ namespace TrenchBroom {
             void setFaceTexture(size_t faceIndex, Assets::Texture* texture);
             
             using Node::takeSnapshot;
+        private:
+            void updateSelectedFaceCount();
         private: // implement Node interface
             const std::string& doGetName() const override;
             const vm::bbox3& doGetLogicalBounds() const override;

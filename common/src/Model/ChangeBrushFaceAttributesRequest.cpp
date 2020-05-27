@@ -32,7 +32,7 @@
 namespace TrenchBroom {
     namespace Model {
         template <typename T>
-        T evaluateValueOp(const T oldValue, const T newValue, const ChangeBrushFaceAttributesRequest::ValueOp op) {
+        static T evaluateValueOp(const T oldValue, const T newValue, const ChangeBrushFaceAttributesRequest::ValueOp op) {
             switch (op) {
                 case ChangeBrushFaceAttributesRequest::ValueOp_Set:
                     return newValue;
@@ -47,7 +47,7 @@ namespace TrenchBroom {
         }
 
         template <typename T>
-        T evaluateFlagOp(const T oldValue, const T newValue, const ChangeBrushFaceAttributesRequest::FlagOp op) {
+        static T evaluateFlagOp(const T oldValue, const T newValue, const ChangeBrushFaceAttributesRequest::FlagOp op) {
             switch (op) {
                 case ChangeBrushFaceAttributesRequest::FlagOp_Replace:
                     return newValue;
@@ -61,16 +61,15 @@ namespace TrenchBroom {
             }
         }
 
-        bool collateTextureOp(ChangeBrushFaceAttributesRequest::TextureOp& myOp, const ChangeBrushFaceAttributesRequest::TextureOp theirOp);
-        bool collateTextureOp(ChangeBrushFaceAttributesRequest::TextureOp& myOp, const ChangeBrushFaceAttributesRequest::TextureOp theirOp) {
+        static bool collateTextureOp(ChangeBrushFaceAttributesRequest::TextureOp& myOp, std::string& myTextureName, const ChangeBrushFaceAttributesRequest::TextureOp theirOp, const std::string& theirTextureName) {
             if (theirOp != ChangeBrushFaceAttributesRequest::TextureOp_None) {
                 myOp = theirOp;
+                myTextureName = theirTextureName;
             }
             return true;
         }
 
-        bool collateAxisOp(ChangeBrushFaceAttributesRequest::AxisOp& myOp, const ChangeBrushFaceAttributesRequest::AxisOp theirOp);
-        bool collateAxisOp(ChangeBrushFaceAttributesRequest::AxisOp& myOp, const ChangeBrushFaceAttributesRequest::AxisOp theirOp) {
+        static bool collateAxisOp(ChangeBrushFaceAttributesRequest::AxisOp& myOp, const ChangeBrushFaceAttributesRequest::AxisOp theirOp) {
             switch (myOp) {
                 case ChangeBrushFaceAttributesRequest::AxisOp_None:
                     myOp = theirOp;
@@ -93,7 +92,7 @@ namespace TrenchBroom {
         }
 
         template <typename T>
-        bool collateValueOp(ChangeBrushFaceAttributesRequest::ValueOp& myOp, T& myValue, const ChangeBrushFaceAttributesRequest::ValueOp theirOp, const T theirValue) {
+        static bool collateValueOp(ChangeBrushFaceAttributesRequest::ValueOp& myOp, T& myValue, const ChangeBrushFaceAttributesRequest::ValueOp theirOp, const T theirValue) {
             switch (myOp) {
                 case ChangeBrushFaceAttributesRequest::ValueOp_None:
                     myOp = theirOp;
@@ -146,7 +145,7 @@ namespace TrenchBroom {
         }
 
         template <typename T>
-        bool collateFlagOp(ChangeBrushFaceAttributesRequest::FlagOp& myOp, T& myValue, const ChangeBrushFaceAttributesRequest::FlagOp theirOp, const T theirValue) {
+        static bool collateFlagOp(ChangeBrushFaceAttributesRequest::FlagOp& myOp, T& myValue, const ChangeBrushFaceAttributesRequest::FlagOp theirOp, const T theirValue) {
             switch (myOp) {
                 case ChangeBrushFaceAttributesRequest::FlagOp_None:
                     myOp = theirOp;
@@ -246,26 +245,29 @@ namespace TrenchBroom {
                 BrushNode* node  = faceHandle.node();
                 Brush brush = node->brush();
                 BrushFace& face = brush.face(faceHandle.faceIndex());
+                BrushFaceAttributes attributes = face.attributes();
                 
                 switch (m_textureOp) {
                     case TextureOp_Set:
-                        result |= face.attributes().setTextureName(m_textureName);
+                        result |= attributes.setTextureName(m_textureName);
                         break;
                     case TextureOp_None:
                         break;
                     switchDefault();
                 }
 
-                result |= face.attributes().setXOffset(evaluateValueOp(face.attributes().xOffset(), m_xOffset, m_xOffsetOp));
-                result |= face.attributes().setYOffset(evaluateValueOp(face.attributes().yOffset(), m_yOffset, m_yOffsetOp));
-                result |= face.attributes().setRotation(evaluateValueOp(face.attributes().rotation(), m_rotation, m_rotationOp));
-                result |= face.attributes().setXScale(evaluateValueOp(face.attributes().xScale(), m_xScale, m_xScaleOp));
-                result |= face.attributes().setYScale(evaluateValueOp(face.attributes().yScale(), m_yScale, m_yScaleOp));
-                result |= face.attributes().setSurfaceFlags(evaluateFlagOp(face.attributes().surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
-                result |= face.attributes().setSurfaceContents(evaluateFlagOp(face.attributes().surfaceContents(), m_contentFlags, m_contentFlagsOp));
-                result |= face.attributes().setSurfaceValue(evaluateValueOp(face.attributes().surfaceValue(), m_surfaceValue, m_surfaceValueOp));
-                result |= face.attributes().setColor(evaluateValueOp(face.attributes().color(), m_colorValue, m_colorValueOp));
+                result |= attributes.setXOffset(evaluateValueOp(attributes.xOffset(), m_xOffset, m_xOffsetOp));
+                result |= attributes.setYOffset(evaluateValueOp(attributes.yOffset(), m_yOffset, m_yOffsetOp));
+                result |= attributes.setRotation(evaluateValueOp(attributes.rotation(), m_rotation, m_rotationOp));
+                result |= attributes.setXScale(evaluateValueOp(attributes.xScale(), m_xScale, m_xScaleOp));
+                result |= attributes.setYScale(evaluateValueOp(attributes.yScale(), m_yScale, m_yScaleOp));
+                result |= attributes.setSurfaceFlags(evaluateFlagOp(attributes.surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
+                result |= attributes.setSurfaceContents(evaluateFlagOp(attributes.surfaceContents(), m_contentFlags, m_contentFlagsOp));
+                result |= attributes.setSurfaceValue(evaluateValueOp(attributes.surfaceValue(), m_surfaceValue, m_surfaceValueOp));
+                result |= attributes.setColor(evaluateValueOp(attributes.color(), m_colorValue, m_colorValueOp));
 
+                face.setAttributes(attributes);
+                
                 switch (m_axisOp) {
                     case AxisOp_Reset:
                         face.resetTextureAxes();
@@ -490,7 +492,16 @@ namespace TrenchBroom {
             setAll(face.attributes());
         }
 
+        void ChangeBrushFaceAttributesRequest::setAllExceptContentFlags(const Model::BrushFace& face) {
+            setAllExceptContentFlags(face.attributes());
+        }
+
         void ChangeBrushFaceAttributesRequest::setAll(const Model::BrushFaceAttributes& attributes) {
+            setAllExceptContentFlags(attributes);
+            replaceContentFlags(attributes.surfaceContents());
+        }
+
+        void ChangeBrushFaceAttributesRequest::setAllExceptContentFlags(const Model::BrushFaceAttributes& attributes) {
             setTextureName(attributes.textureName());
             setXOffset(attributes.xOffset());
             setYOffset(attributes.yOffset());
@@ -498,7 +509,6 @@ namespace TrenchBroom {
             setXScale(attributes.xScale());
             setYScale(attributes.yScale());
             replaceSurfaceFlags(attributes.surfaceFlags());
-            replaceContentFlags(attributes.surfaceContents());
             setSurfaceValue(attributes.surfaceValue());
             setColor(attributes.color());
         }
@@ -521,7 +531,7 @@ namespace TrenchBroom {
 
             if (!collateAxisOp(newAxisOp, other.m_axisOp))
                 return false;
-            if (!collateTextureOp(newTextureOp, other.m_textureOp))
+            if (!collateTextureOp(newTextureOp, newTextureName, other.m_textureOp, other.m_textureName))
                 return false;
             if (!collateValueOp(newXOffsetOp, newXOffset, other.m_xOffsetOp, other.m_xOffset))
                 return false;

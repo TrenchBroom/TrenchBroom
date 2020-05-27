@@ -511,22 +511,6 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });
 
-            /* ========== Flip ========== */
-            createAction(IO::Path("Controls/Map view/Flip objects horizontally"), QObject::tr("Flip Horizontally"),
-                ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_F),
-                [](ActionExecutionContext& context) {
-                    context.view()->flipObjects(vm::direction::left);
-                },
-                [](ActionExecutionContext& context) { return context.hasDocument() && context.view()->canFlipObjects(); },
-                IO::Path("FlipHorizontally.png"));
-            createAction(IO::Path("Controls/Map view/Flip objects vertically"), QObject::tr("Flip Vertically"),
-                ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_F),
-                [](ActionExecutionContext& context) {
-                    context.view()->flipObjects(vm::direction::up);
-                },
-                [](ActionExecutionContext& context) { return context.hasDocument() && context.view()->canFlipObjects(); },
-                IO::Path("FlipVertically.png"));
-
             /* ========== Texturing ========== */
             createAction(IO::Path("Controls/Map view/Move textures up"), QObject::tr("Move Textures Up"),
                 ActionContext::View3D | ActionContext::FaceSelection, QKeySequence(Qt::Key_Up),
@@ -881,7 +865,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->canDuplicateSelectino();
                 },
-                IO::Path("DuplicateObjects.png")));
+                IO::Path("DuplicateObjects.svg")));
             editMenu.addItem(createAction(IO::Path("Menu/Edit/Delete"), QObject::tr("Delete"), ActionContext::Any, QKeySequence(
 #ifdef __APPLE__
                 Qt::Key_Backspace
@@ -973,6 +957,24 @@ namespace TrenchBroom {
                 }));
             editMenu.addSeparator();
 
+            editMenu.addItem(
+                createAction(IO::Path("Controls/Map view/Flip objects horizontally"), QObject::tr("Flip Horizontally"), ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::Key_F),
+                    [](ActionExecutionContext& context) {
+                        context.view()->flipObjects(vm::direction::left);
+                    },
+                    [](ActionExecutionContext& context) {
+                        return context.hasDocument() && context.view() && context.view()->canFlipObjects();
+                    }, IO::Path("FlipHorizontally.svg")));
+            editMenu.addItem(
+                createAction(IO::Path("Controls/Map view/Flip objects vertically"), QObject::tr("Flip Vertically"), ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_F),
+                    [](ActionExecutionContext& context) {
+                        context.view()->flipObjects(vm::direction::up);
+                    },
+                    [](ActionExecutionContext& context) {
+                        return context.hasDocument() && context.view() && context.view()->canFlipObjects();
+                    }, IO::Path("FlipVertically.svg")));
+            editMenu.addSeparator();
+
             auto& toolMenu = editMenu.addMenu("Tools");
             toolMenu.addItem(createMenuAction(IO::Path("Menu/Edit/Tools/Brush Tool"), QObject::tr("Brush Tool"), Qt::Key_B,
                 [](ActionExecutionContext& context) {
@@ -984,7 +986,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->createComplexBrushToolActive();
                 },
-                IO::Path("BrushTool.png")));
+                IO::Path("BrushTool.svg")));
             toolMenu.addItem(createMenuAction(IO::Path("Menu/Edit/Tools/Clip Tool"), QObject::tr("Clip Tool"), Qt::Key_C,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleClipTool();
@@ -995,7 +997,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->clipToolActive();
                 },
-                IO::Path("ClipTool.png")));
+                IO::Path("ClipTool.svg")));
             toolMenu.addItem(createMenuAction(IO::Path("Menu/Edit/Tools/Rotate Tool"), QObject::tr("Rotate Tool"), Qt::Key_R,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleRotateObjectsTool();
@@ -1006,7 +1008,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->rotateObjectsToolActive();
                 },
-                IO::Path("RotateTool.png")));
+                IO::Path("RotateTool.svg")));
             toolMenu.addItem(createMenuAction(IO::Path("Menu/Edit/Tools/Scale Tool"), QObject::tr("Scale Tool"), Qt::Key_T,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleScaleObjectsTool();
@@ -1017,7 +1019,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->scaleObjectsToolActive();
                 },
-                IO::Path("ScaleTool.png")));
+                IO::Path("ScaleTool.svg")));
             toolMenu.addItem(createMenuAction(IO::Path("Menu/Edit/Tools/Shear Tool"), QObject::tr("Shear Tool"), Qt::Key_G,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleShearObjectsTool();
@@ -1028,7 +1030,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->shearObjectsToolActive();
                 },
-                IO::Path("ShearTool.png")));
+                IO::Path("ShearTool.svg")));
             toolMenu.addItem(createMenuAction(IO::Path("Menu/Edit/Tools/Vertex Tool"), QObject::tr("Vertex Tool"), Qt::Key_V,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleVertexTool();
@@ -1039,7 +1041,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->vertexToolActive();
                 },
-                IO::Path("VertexTool.png")));
+                IO::Path("VertexTool.svg")));
             toolMenu.addItem(createMenuAction(IO::Path("Menu/Edit/Tools/Edge Tool"), QObject::tr("Edge Tool"), Qt::Key_E,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleEdgeTool();
@@ -1050,7 +1052,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->edgeToolActive();
                 },
-                IO::Path("EdgeTool.png")));
+                IO::Path("EdgeTool.svg")));
             toolMenu.addItem(createMenuAction(IO::Path("Menu/Edit/Tools/Face Tool"), QObject::tr("Face Tool"), Qt::Key_F,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleFaceTool();
@@ -1061,7 +1063,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.frame()->faceToolActive();
                 },
-                IO::Path("FaceTool.png")));
+                IO::Path("FaceTool.svg")));
             toolMenu.addItem(createMenuAction(IO::Path("Controls/Map view/Deactivate current tool"), QObject::tr("Deactivate Current Tool"), Qt::CTRL + Qt::Key_Escape,
                 [](ActionExecutionContext& context) {
                     context.view()->deactivateTool();
@@ -1072,7 +1074,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && !context.frame()->anyToolActive();
                 },
-                IO::Path("NoTool.png")));
+                IO::Path("NoTool.svg")));
 
             auto& csgMenu = editMenu.addMenu("CSG");
             csgMenu.addItem(createMenuAction(IO::Path("Menu/Edit/CSG/Convex Merge"), QObject::tr("Convex Merge"), Qt::CTRL + Qt::Key_J,
@@ -1130,7 +1132,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext&) {
                     return pref(Preferences::TextureLock);
                 },
-                IO::Path("TextureLock.png")));
+                IO::Path("TextureLock.svg")));
             editMenu.addItem(createMenuAction(IO::Path("Menu/Edit/UV Lock"), QObject::tr("UV Lock"), Qt::Key_U,
                 [](ActionExecutionContext& context) {
                     context.frame()->toggleUVLock();
@@ -1141,7 +1143,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext&) {
                     return pref(Preferences::UVLock);
                 },
-                IO::Path("UVLock.png")));
+                IO::Path("UVLock.svg")));
             editMenu.addSeparator();
             editMenu.addItem(createMenuAction(IO::Path("Menu/Edit/Replace Texture..."), QObject::tr("Replace Texture..."), 0,
                 [](ActionExecutionContext& context) {

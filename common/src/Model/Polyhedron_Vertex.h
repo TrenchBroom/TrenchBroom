@@ -93,6 +93,13 @@ m_link(this),
         }
 
         template <typename T, typename FP, typename VP>
+        bool Polyhedron_Vertex<T,FP,VP>::hasTwoIncidentEdges() const {
+            assert(m_leaving != nullptr);
+            HalfEdge* nextLeaving = m_leaving->nextIncident();
+            return nextLeaving != m_leaving && nextLeaving->nextIncident() == m_leaving;
+        }
+
+        template <typename T, typename FP, typename VP>
         bool Polyhedron_Vertex<T,FP,VP>::incident(const Face* face) const {
             assert(face != nullptr);
             assert(m_leaving != nullptr);

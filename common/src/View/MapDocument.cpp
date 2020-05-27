@@ -413,7 +413,7 @@ namespace TrenchBroom {
 
         bool MapDocument::pasteBrushFaces(const std::vector<Model::BrushFace>& faces) {
             assert(!faces.empty());
-            return setFaceAttributes(faces.back().attributes());
+            return setFaceAttributesExceptContentFlags(faces.back().attributes());
         }
 
         void MapDocument::loadPointFile(const IO::Path path) {
@@ -711,7 +711,10 @@ namespace TrenchBroom {
         }
 
         void MapDocument::updateLastSelectionBounds() {
-            m_lastSelectionBounds = selectionBounds();
+            const auto currentSelectionBounds = selectionBounds();
+            if (currentSelectionBounds.is_valid() && !currentSelectionBounds.is_empty()) {
+                m_lastSelectionBounds = selectionBounds();
+            }
         }
 
         void MapDocument::invalidateSelectionBounds() {
@@ -1168,23 +1171,24 @@ namespace TrenchBroom {
                 return false;
             }
 
-            Model::Polyhedron3 polyhedron;
+            std::vector<vm::vec3> points;
 
             if (hasSelectedBrushFaces()) {
                 for (const auto& handle : selectedBrushFaces()) {
                     for (const Model::BrushVertex* vertex : handle.face().vertices()) {
-                        polyhedron.addPoint(vertex->position());
+                        points.push_back(vertex->position());
                     }
                 }
             } else if (selectedNodes().hasOnlyBrushes()) {
                 for (const Model::BrushNode* brushNode : selectedNodes().brushes()) {
                     const Model::Brush& brush = brushNode->brush();
                     for (const Model::BrushVertex* vertex : brush.vertices()) {
-                        polyhedron.addPoint(vertex->position());
+                        points.push_back(vertex->position());
                     }
                 }
             }
 
+            Model::Polyhedron3 polyhedron(std::move(points));
             if (!polyhedron.polyhedron() || !polyhedron.closed()) {
                 return false;
             }
@@ -1377,6 +1381,12 @@ namespace TrenchBroom {
         bool MapDocument::setFaceAttributes(const Model::BrushFaceAttributes& attributes) {
             Model::ChangeBrushFaceAttributesRequest request;
             request.setAll(attributes);
+            return setFaceAttributes(request);
+        }
+
+        bool MapDocument::setFaceAttributesExceptContentFlags(const Model::BrushFaceAttributes& attributes) {
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.setAllExceptContentFlags(attributes);
             return setFaceAttributes(request);
         }
 

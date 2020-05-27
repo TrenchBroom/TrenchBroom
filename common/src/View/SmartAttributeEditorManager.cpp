@@ -20,14 +20,15 @@
 #include "SmartAttributeEditorManager.h"
 
 #include "Macros.h"
+#include "Assets/AttributeDefinition.h"
 #include "View/MapDocument.h"
 #include "View/SmartChoiceEditor.h"
-#include "View/SmartChoiceEditorMatcher.h"
+#include "View/SmartTypeEditorMatcher.h"
 #include "View/SmartColorEditor.h"
 #include "View/SmartDefaultAttributeEditor.h"
 #include "View/SmartAttributeEditor.h"
 #include "View/SmartAttributeEditorMatcher.h"
-#include "View/SmartSpawnflagsEditor.h"
+#include "View/SmartFlagsEditor.h"
 
 #include <kdl/memory_utils.h>
 
@@ -67,11 +68,11 @@ namespace TrenchBroom {
         void SmartAttributeEditorManager::createEditors() {
             assert(m_editors.empty());
 
-            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorKeyMatcher("spawnflags")),
-                                                  new SmartSpawnflagsEditor(m_document)));
+            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartTypeEditorMatcher(Assets::AttributeDefinitionType::FlagsAttribute)),
+                                                  new SmartFlagsEditor(m_document)));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorKeyMatcher({ "*_color", "*_color2", "*_colour" })),
                                                   new SmartColorEditor(m_document)));
-            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartChoiceEditorMatcher()),
+            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartTypeEditorMatcher(Assets::AttributeDefinitionType::ChoiceAttribute)),
                                                   new SmartChoiceEditor(m_document)));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorDefaultMatcher()),
                                                   new SmartDefaultAttributeEditor(m_document)));

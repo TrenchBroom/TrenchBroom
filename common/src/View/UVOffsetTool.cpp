@@ -75,10 +75,9 @@ namespace TrenchBroom {
             const auto delta    = curPoint - m_lastPoint;
             const auto snapped  = snapDelta(delta);
 
-            const auto* face = m_helper.face();
-            const auto corrected = correct(face->attributes().offset() - snapped, 4, 0.0f);
+            const auto corrected = correct(m_helper.face()->attributes().offset() - snapped, 4, 0.0f);
 
-            if (corrected == face->attributes().offset()) {
+            if (corrected == m_helper.face()->attributes().offset()) {
                 return true;
             }
 
@@ -103,28 +102,26 @@ namespace TrenchBroom {
         }
 
         vm::vec2f UVOffsetTool::computeHitPoint(const vm::ray3& ray) const {
-            const auto* face = m_helper.face();
-            const auto& boundary = face->boundary();
+            const auto& boundary = m_helper.face()->boundary();
             const auto distance = vm::intersect_ray_plane(ray, boundary);
             const auto hitPoint = vm::point_at_distance(ray, distance);
 
-            const auto transform = face->toTexCoordSystemMatrix(vm::vec2f::zero(), face->attributes().scale(), true);
+            const auto transform = m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), m_helper.face()->attributes().scale(), true);
             return vm::vec2f(transform * hitPoint);
         }
 
         vm::vec2f UVOffsetTool::snapDelta(const vm::vec2f& delta) const {
-            const auto* face = m_helper.face();
-            ensure(face != nullptr, "face is null");
+            assert(m_helper.valid());
 
-            const auto* texture = face->texture();
+            const auto* texture = m_helper.texture();
             if (texture == nullptr) {
                 return round(delta);
             }
 
-            const auto transform = face->toTexCoordSystemMatrix(face->attributes().offset() - delta, face->attributes().scale(), true);
+            const auto transform = m_helper.face()->toTexCoordSystemMatrix(m_helper.face()->attributes().offset() - delta, m_helper.face()->attributes().scale(), true);
 
             auto distance = vm::vec2f::max();
-            for (const Model::BrushVertex* vertex : face->vertices()) {
+            for (const Model::BrushVertex* vertex : m_helper.face()->vertices()) {
                 const auto temp = m_helper.computeDistanceFromTextureGrid(transform * vertex->position());
                 distance = vm::abs_min(distance, temp);
             }

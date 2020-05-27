@@ -217,7 +217,21 @@ namespace TrenchBroom {
             m_reference(reference) {}
 
             bool operator()(const Model::BrushNode*, const Model::BrushFace& face) const {
-                return &face != &m_reference && vm::is_equal(face.boundary(), m_reference.boundary(), vm::C::almost_zero());
+                if (&face == &m_reference) {
+                    return false;
+                }
+
+                // Test if the boundary planes have the same distance
+                if (!vm::is_equal(face.boundary().distance, m_reference.boundary().distance, vm::constants<FloatType>::almost_zero() * 10.0)) {
+                    return false;
+                }
+                
+                // Test if the normals are colinear by checking their enclosed angle.
+                if (1.0 - vm::dot(face.boundary().normal, m_reference.boundary().normal) >= vm::constants<FloatType>::colinear_epsilon()) {
+                    return false;
+                }
+
+                return true;
             }
         };
 
@@ -274,7 +288,7 @@ namespace TrenchBroom {
             assert(!dragFaceHandles.empty());
             
             const auto dragFaceHandle = dragFaceHandles.front();
-            auto& dragFace = dragFaceHandle.face();
+            const auto& dragFace = dragFaceHandle.face();
             const auto& faceNormal = dragFace.boundary().normal;
 
             const auto dist = vm::distance(pickRay, vm::line3(m_dragOrigin, faceNormal));
@@ -419,8 +433,9 @@ namespace TrenchBroom {
                     return false;
                 }
 
-                const auto& newDragFace = newBrush.face(*newDragFaceIndex);
-                auto clipFace = newDragFace;
+                const vm::vec3 newDragFaceNormal = newBrush.face(*newDragFaceIndex).boundary().normal;
+                
+                auto clipFace = newBrush.face(*newDragFaceIndex);
                 clipFace.invert();
                 newBrush.moveBoundary(worldBounds, *newDragFaceIndex, delta, lockTextures);
                 
@@ -431,7 +446,7 @@ namespace TrenchBroom {
                 
                 auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
                 newNodes[brushNode->parent()].push_back(newBrushNode);
-                newDragHandles.emplace_back(newBrushNode, newDragFace.boundary().normal);
+                newDragHandles.emplace_back(newBrushNode, newDragFaceNormal);
             }
 
             document->deselectAll();
@@ -464,7 +479,7 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> newNodes;
 
             for (const auto& dragFaceHandle : dragFaces()) {
-                auto& dragFace = dragFaceHandle.face();
+                const auto& dragFace = dragFaceHandle.face();
                 auto* brushNode = dragFaceHandle.node();
 
                 auto newBrush = brushNode->brush();
@@ -474,8 +489,7 @@ namespace TrenchBroom {
                     return false;
                 }
 
-                auto& newDragFace = newBrush.face(*newDragFaceIndex);
-                auto clipFace = newDragFace;
+                auto clipFace = newBrush.face(*newDragFaceIndex);
                 clipFace.invert();
                 clipFace.transform(vm::translation_matrix(delta), lockTextures);
 
@@ -486,7 +500,7 @@ namespace TrenchBroom {
 
                 auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
                 newNodes[brushNode->parent()].push_back(newBrushNode);
-                newDragHandles.emplace_back(newBrushNode, newDragFace.boundary().normal);
+                newDragHandles.emplace_back(newBrushNode, clipFace.boundary().normal);
             }
 
             // Now that the newly split off brushes are ready to insert (but not selected),

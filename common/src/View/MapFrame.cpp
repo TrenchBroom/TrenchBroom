@@ -124,7 +124,7 @@ namespace TrenchBroom {
             setObjectName("MapFrame");
 
             installEventFilter(this);
-            
+
             createGui();
             createMenus();
             createToolBar();
@@ -374,6 +374,10 @@ namespace TrenchBroom {
             m_toolBar->setObjectName("MapFrameToolBar");
             m_toolBar->setFloatable(false);
             m_toolBar->setMovable(false);
+            // macOS Qt bug: with the 32x32 default icon size, 24x24 highdpi icons get scaled up to 32x32.
+            // We expect them to be drawn at 24x24 logical pixels centered in a 32x32 box, as is the case with non-highdpi icons.
+            // As a workaround, just lower the toolbar size to 24x24 (we could alternatively render the icons at 32x32).
+            m_toolBar->setIconSize(QSize(24, 24));
 
             ToolBarBuilder builder(*m_toolBar, m_actionMap, [this](const Action& action) {
                 ActionExecutionContext context(this, currentMapViewBase());
@@ -967,7 +971,11 @@ namespace TrenchBroom {
             if (!widgetOrChildHasFocus(m_mapView)) {
                 return false;
             }
-            
+
+            if (!m_mapView->isCurrent()) {
+                return false;
+            }
+
             const auto* clipboard = QApplication::clipboard();
             const auto* mimeData = clipboard->mimeData();
             return mimeData != nullptr && mimeData->hasText();
@@ -1649,7 +1657,7 @@ namespace TrenchBroom {
                 }
             }
         }
-        
+
         bool MapFrame::eventFilter(QObject* target, QEvent* event) {
             if (event->type() == QEvent::MouseButtonPress ||
                 event->type() == QEvent::MouseButtonRelease ||
@@ -1720,7 +1728,7 @@ namespace TrenchBroom {
                 horizontalHeaderLabels.append(group.second);
             }
 
-            auto* table = new QTableWidget(static_cast<int>(roles.size()), 
+            auto* table = new QTableWidget(static_cast<int>(roles.size()),
                                            static_cast<int>(groups.size()));
             table->setHorizontalHeaderLabels(horizontalHeaderLabels);
             table->setVerticalHeaderLabels(verticalHeaderLabels);
