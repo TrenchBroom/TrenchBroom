@@ -1271,6 +1271,9 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::canIsolateLayers(const std::vector<Model::LayerNode*>& layers) const {
+            if (layers.empty()) {
+                return false;
+            }
             for (auto* layer : m_world->allLayers()) {
                 const bool shouldShowLayer = kdl::vec_contains(layers, layer);
 
