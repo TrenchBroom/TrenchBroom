@@ -38,18 +38,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        // LayerColorIndicator
-
-        LayerColorIndicator::LayerColorIndicator(QWidget* parent) : QWidget(parent) {
-            setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred));
-            setMinimumSize(20, 15);
-            setColor(Qt::transparent);            
-        }
-
-        void LayerColorIndicator::setColor(const QColor& color) {
-            setStyleSheet(QString::fromLatin1("QWidget { background-color: %1; border-radius: 3px; border: 1px solid #000000;}").arg(color.name()));
-        }
-
         // LayerListBoxWidget
 
         LayerListBoxWidget::LayerListBoxWidget(std::weak_ptr<MapDocument> document, Model::LayerNode* layer, QWidget* parent) :

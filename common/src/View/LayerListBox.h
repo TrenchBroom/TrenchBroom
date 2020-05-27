@@ -25,7 +25,6 @@
 #include <memory>
 #include <vector>
 
-class QColor;
 class QLabel;
 class QAbstractButton;
 class QListWidget;
@@ -38,13 +37,6 @@ namespace TrenchBroom {
 
     namespace View {
         class MapDocument;
-
-        class LayerColorIndicator : public QWidget {
-            Q_OBJECT
-        public:
-            explicit LayerColorIndicator(QWidget* parent = nullptr);
-            void setColor(const QColor& color);
-        };
 
         class LayerListBoxWidget : public ControlListBoxItemRenderer {
             Q_OBJECT
