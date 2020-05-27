@@ -173,6 +173,13 @@ namespace TrenchBroom {
         }
 
         // EntityAttributes
+        EntityAttributes::EntityAttributes(std::vector<EntityAttribute> attributes) :
+        m_attributes(std::move(attributes)) {}
+
+        std::vector<EntityAttribute> EntityAttributes::releaseAttributes() {
+            return std::move(m_attributes);
+        }
+
         const std::vector<EntityAttribute>& EntityAttributes::attributes() const {
             return m_attributes;
         }

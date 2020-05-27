@@ -89,29 +89,22 @@ namespace TrenchBroom {
             doEndFile();
         }
 
+        /**
+         * Writes the worldspawn entity.
+         */
         void NodeSerializer::defaultLayer(const Model::WorldNode& world) {
-            std::vector<Model::EntityAttribute> worldAttribs = world.attributes();
-
-            // Strip out any AttributeNames::LayerColor that may have been in worldspawn
-            auto predicate = [](const Model::EntityAttribute& attribute) {
-                return attribute.name() == Model::AttributeNames::LayerColor;
-            };
+            auto worldAttribs = Model::EntityAttributes(world.attributes());
 
             // Transfer the color from the default layer Layer object to worldspawn
-            // FIXME: should use something like addOrUpdateAttribute()
-            if (world.defaultLayer()->hasAttribute(Model::AttributeNames::LayerColor)) {
-                auto it = std::find_if(worldAttribs.begin(), worldAttribs.end(), predicate);
-                if (it != worldAttribs.end()) {
-                    it->setValue(world.defaultLayer()->attribute(Model::AttributeNames::LayerColor));
-                } else {
-                    worldAttribs.push_back(Model::EntityAttribute(Model::AttributeNames::LayerColor,
-                                                                  world.defaultLayer()->attribute(Model::AttributeNames::LayerColor)));
-                }
+            Model::LayerNode* defaultLayer = world.defaultLayer();
+            if (defaultLayer->hasAttribute(Model::AttributeNames::LayerColor)) {
+                const auto layerColorAttribs = defaultLayer->attributeWithName(Model::AttributeNames::LayerColor);
+                worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerColor, layerColorAttribs.at(0).value(), layerColorAttribs.at(0).definition());
             } else {
-                kdl::vec_erase_if(worldAttribs, predicate);
+                worldAttribs.removeAttribute(Model::AttributeNames::LayerColor);
             }            
 
-            entity(&world, worldAttribs, {}, world.defaultLayer());
+            entity(&world, worldAttribs.releaseAttributes(), {}, world.defaultLayer());
         }
 
         void NodeSerializer::customLayer(const Model::LayerNode* layer) {
