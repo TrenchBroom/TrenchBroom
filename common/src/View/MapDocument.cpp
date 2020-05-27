@@ -892,6 +892,21 @@ namespace TrenchBroom {
                 removableNodes = collectRemovableParents(removableNodes);
             }
 
+            std::vector<Model::Node*> nodesToResetLock;
+            std::vector<Model::Node*> nodesToResetVisibility;
+            for (auto& [newParent, nodes] : nodesToAdd) {
+                for (auto* node : nodes) {
+                    if (node->visibilityState() != Model::VisibilityState::Visibility_Inherited) {
+                        nodesToResetVisibility.push_back(node);
+                    }
+                    if (node->lockState() != Model::LockState::Lock_Inherited) {
+                        nodesToResetLock.push_back(node);
+                    }
+                }
+            }
+            resetLock(nodesToResetLock);
+            resetVisibility(nodesToResetVisibility);
+
             return true;
         }
 
