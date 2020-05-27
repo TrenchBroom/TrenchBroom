@@ -33,10 +33,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        /**
-         * Sort indices: the default layer doesn't have a sort index, because it's pinned at the top of the layer
-         * list. Custom layers have sort indices, if there are N custom layers they will use the sort indices 0, 1, ..., N - 1.
-         */
         class LayerNode : public AttributableNode {
         private:
             mutable vm::bbox3 m_logicalBounds;
