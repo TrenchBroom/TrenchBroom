@@ -29,7 +29,6 @@
 
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
-#include <kdl/vector_utils.h>
 
 #include <string>
 
@@ -98,8 +97,7 @@ namespace TrenchBroom {
             // Transfer the color from the default layer Layer object to worldspawn
             Model::LayerNode* defaultLayer = world.defaultLayer();
             if (defaultLayer->hasAttribute(Model::AttributeNames::LayerColor)) {
-                const auto layerColorAttribs = defaultLayer->attributeWithName(Model::AttributeNames::LayerColor);
-                worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerColor, layerColorAttribs.at(0).value(), layerColorAttribs.at(0).definition());
+                worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerColor, defaultLayer->attribute(Model::AttributeNames::LayerColor), nullptr);
             } else {
                 worldAttribs.removeAttribute(Model::AttributeNames::LayerColor);
             }            
@@ -225,10 +223,9 @@ namespace TrenchBroom {
                 Model::EntityAttribute(Model::AttributeNames::LayerName, layer->name()),
                 Model::EntityAttribute(Model::AttributeNames::LayerId, m_layerIds.getId(layer)),
             };
-            if (layer->sortIndex() != Model::LayerNode::invalidSortIndex()) {
+            if (layer->hasAttribute(Model::AttributeNames::LayerSortIndex)) {
                 result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerSortIndex, layer->attribute(Model::AttributeNames::LayerSortIndex)));
             } 
-
             return result;
         }
 
