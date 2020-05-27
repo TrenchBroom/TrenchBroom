@@ -140,8 +140,6 @@
 #include <type_traits>
 #include <vector>
 
-#include <QDebug>
-
 namespace TrenchBroom {
     namespace View {
         const vm::bbox3 MapDocument::DefaultWorldBounds(-16384.0, 16384.0);
@@ -1252,7 +1250,12 @@ namespace TrenchBroom {
             hide(std::vector<Model::Node*>(std::begin(layers), std::end(layers)));
         }
 
-        bool MapDocument::canHideLayers(const std::vector<Model::LayerNode*>&) const {
+        bool MapDocument::canHideLayers(const std::vector<Model::LayerNode*>& layers) const {
+            for (auto* layer : layers) {
+                if (layer->visible()) {
+                    return true;
+                }
+            }
             return false;
         }
 
@@ -1264,8 +1267,19 @@ namespace TrenchBroom {
             show(std::vector<Model::Node*>(std::begin(layers), std::end(layers)));
         }
 
-        bool MapDocument::canIsolateLayers(const std::vector<Model::LayerNode*>&) const {
-            return true;
+        bool MapDocument::canIsolateLayers(const std::vector<Model::LayerNode*>& layers) const {
+            for (auto* layer : m_world->allLayers()) {
+                const bool shouldShowLayer = kdl::vec_contains(layers, layer);
+
+                if (shouldShowLayer && layer->hidden()) {
+                    return true;
+                }
+                if (!shouldShowLayer && layer->shown()) {
+                    return true;
+                }
+            }
+            // The layers are already isolated
+            return false;
         }
 
         void MapDocument::isolate() {
