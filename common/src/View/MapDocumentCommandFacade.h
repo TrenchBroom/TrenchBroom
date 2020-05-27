@@ -79,6 +79,8 @@ namespace TrenchBroom {
             void restoreVisibilityState(const std::map<Model::Node*, Model::VisibilityState>& nodes);
             std::map<Model::Node*, Model::LockState> setLockState(const std::vector<Model::Node*>& nodes, Model::LockState lockState);
             void restoreLockState(const std::map<Model::Node*, Model::LockState>& nodes);
+        public: // layers
+            using MapDocument::performSetCurrentLayer;
         private:  // groups
             class RenameGroupsVisitor;
             class UndoRenameGroupsVisitor;

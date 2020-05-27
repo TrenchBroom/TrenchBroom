@@ -212,6 +212,9 @@ namespace TrenchBroom {
             return m_currentLayer;
         }
 
+        /**
+         * Sets the current layer immediately, without adding a Command to the undo stack.
+         */
         Model::LayerNode* MapDocument::performSetCurrentLayer(Model::LayerNode* currentLayer) {
             ensure(currentLayer != nullptr, "currentLayer is null");
             
