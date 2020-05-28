@@ -62,6 +62,7 @@ namespace TrenchBroom {
 
         void FaceInspector::revealTexture(Assets::Texture* texture) {
             m_textureBrowser->revealTexture(texture);
+            m_textureBrowser->setSelectedTexture(texture);
         }
 
         void FaceInspector::createGui(std::weak_ptr<MapDocument> document, GLContextManager& contextManager) {
