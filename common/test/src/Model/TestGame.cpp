@@ -206,8 +206,7 @@ namespace TrenchBroom {
         }
 
         const Model::BrushFaceAttributes& TestGame::doDefaultFaceAttribs() const {
-            static const Model::BrushFaceAttributes defaults(m_defaultFaceAttribs);
-            return defaults;
+            return m_defaultFaceAttribs;
         }
 
         std::vector<Assets::EntityDefinition*> TestGame::doLoadEntityDefinitions(IO::ParserStatus& /* status */, const IO::Path& /* path */) const {
