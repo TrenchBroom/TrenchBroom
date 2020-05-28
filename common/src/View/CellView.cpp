@@ -23,10 +23,10 @@
 #include "View/CellLayout.h"
 #include "View/RenderView.h"
 
-#include <QScrollBar>
-#include <QToolTip>
 #include <QDrag>
 #include <QMimeData>
+#include <QScrollBar>
+#include <QToolTip>
 
 #include <algorithm>
 
