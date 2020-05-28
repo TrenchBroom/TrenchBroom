@@ -61,7 +61,7 @@ namespace TrenchBroom {
             return std::nullopt;
         }
 
-        std::optional<vm::bbox3> TestGame::doExtractSoftMapBounds(const AttributableNode& node) const {
+        std::optional<vm::bbox3> TestGame::doExtractSoftMapBounds(const AttributableNode&) const {
             return std::nullopt;
         }
 
