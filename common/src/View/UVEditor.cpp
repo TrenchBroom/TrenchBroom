@@ -21,6 +21,7 @@
 
 #include "Model/BrushFaceHandle.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "Model/Game.h"
 #include "View/MapDocument.h"
 #include "View/UVView.h"
 #include "View/ViewConstants.h"
@@ -148,9 +149,9 @@ namespace TrenchBroom {
 
         void UVEditor::resetTextureClicked() {
             Model::ChangeBrushFaceAttributesRequest request;
-            request.resetAll();
 
             auto document = kdl::mem_lock(m_document);
+            request.resetAll(document->game()->defaultFaceAttribs());
             document->setFaceAttributes(request);
         }
 
