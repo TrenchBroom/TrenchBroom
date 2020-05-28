@@ -93,8 +93,17 @@ namespace TrenchBroom {
         }
 
         void CellView::scrollToCellInternal(const Cell& cell) {
-            const float top = cell.cellBounds().top();
-            m_scrollBar->setSliderPosition(static_cast<int>(top));
+            const auto visibleRect = this->visibleRect();
+            const int top = static_cast<int>(cell.cellBounds().top());
+            const int bottom = static_cast<int>(cell.cellBounds().bottom());
+
+            if (top >= visibleRect.top() && bottom <= visibleRect.bottom()) {
+                return;
+            }
+
+            const int rowMargin = static_cast<int>(m_layout.rowMargin());
+            const auto newPosition = top < visibleRect.top() ? top - rowMargin : visibleRect.top() + bottom - visibleRect.bottom();
+            m_scrollBar->setSliderPosition(newPosition);
         }
 
         void CellView::onScrollBarValueChanged() {
@@ -254,6 +263,11 @@ namespace TrenchBroom {
             return true;
         }
 
+        QRect CellView::visibleRect() const {
+            const int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
+            return QRect(QPoint(0, top), size());
+        }
+
         void CellView::doRender() {
             validate();
             if (!m_layoutInitialized) {
@@ -269,8 +283,7 @@ namespace TrenchBroom {
 
             // NOTE: These are in points, while the glViewport call above is
             // in pixels
-            const int top = m_scrollBar != nullptr ? m_scrollBar->value() : 0;
-            const QRect visibleRect = QRect(QPoint(0, top), size());
+            const QRect visibleRect = this->visibleRect();
 
             const float y = static_cast<float>(visibleRect.y());
             const float h = static_cast<float>(visibleRect.height());

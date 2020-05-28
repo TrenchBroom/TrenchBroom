@@ -100,6 +100,7 @@ namespace TrenchBroom {
             void scrollBy(int deltaY);
             bool updateTooltip(QHelpEvent* event);
         private:
+            QRect visibleRect() const;
             void doRender() override;
             void setupGL();
 
