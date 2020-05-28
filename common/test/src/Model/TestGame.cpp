@@ -41,14 +41,14 @@
 namespace TrenchBroom {
     namespace Model {
         TestGame::TestGame() :
-        m_defaultFaceAttribs(Model::BrushFaceAttributes::NoTextureName) {}
+        m_defaultFaceAttributes(Model::BrushFaceAttributes::NoTextureName) {}
 
         void TestGame::setSmartTags(std::vector<SmartTag> smartTags) {
             m_smartTags = std::move(smartTags);
         }
 
-        void TestGame::setDefaultFaceAttributes(const Model::BrushFaceAttributes& newDefaults) {
-            m_defaultFaceAttribs = newDefaults;
+        void TestGame::setDefaultFaceAttributes(const Model::BrushFaceAttributes& defaultFaceAttributes) {
+            m_defaultFaceAttributes = defaultFaceAttributes;
         }
 
         const std::string& TestGame::doGameName() const {
@@ -206,7 +206,7 @@ namespace TrenchBroom {
         }
 
         const Model::BrushFaceAttributes& TestGame::doDefaultFaceAttribs() const {
-            return m_defaultFaceAttribs;
+            return m_defaultFaceAttributes;
         }
 
         std::vector<Assets::EntityDefinition*> TestGame::doLoadEntityDefinitions(IO::ParserStatus& /* status */, const IO::Path& /* path */) const {
