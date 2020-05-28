@@ -124,6 +124,13 @@ namespace TrenchBroom {
             update();
         }
 
+        void TextureBrowserView::revealTexture(Assets::Texture* texture) {
+            scrollToCell([=](const Cell& cell) {
+                const Assets::Texture* cellTexture = cellData(cell).texture;
+                return cellTexture == texture;
+            });
+        }
+
         void TextureBrowserView::usageCountDidChange() {
             invalidate();
             update();

@@ -55,6 +55,8 @@ namespace TrenchBroom {
             void connectTopWidgets(MapViewBar* mapViewBar);
             void switchToPage(InspectorPage page);
             bool cancelMouseDrag();
+
+            FaceInspector* faceInspector();
         };
     }
 }

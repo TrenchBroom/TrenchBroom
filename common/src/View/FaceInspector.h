@@ -50,6 +50,7 @@ namespace TrenchBroom {
             ~FaceInspector() override;
 
             bool cancelMouseDrag();
+            void revealTexture(Assets::Texture* texture);
         private:
             void createGui(std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
             QWidget* createFaceAttribsEditor(QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager);

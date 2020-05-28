@@ -341,6 +341,9 @@ namespace TrenchBroom {
 
             void showLaunchEngineDialog();
 
+            bool canRevealTexture() const;
+            void revealTexture();
+
             void debugPrintVertices();
             void debugCreateBrush();
             void debugCreateCube();
