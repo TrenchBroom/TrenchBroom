@@ -89,13 +89,10 @@ namespace TrenchBroom {
             bool performTransform(const vm::mat4x4& transform, bool lockTextures);
         public: // entity attributes
             using EntityAttributeSnapshotMap = std::map<Model::AttributableNode*, std::vector<Model::EntityAttributeSnapshot>>;
-            EntityAttributeSnapshotMap performSetAttribute(const std::vector<Model::AttributableNode*>& attributableNodes, const std::string& name, const std::string& value);
             EntityAttributeSnapshotMap performSetAttribute(const std::string& name, const std::string& value);
-            EntityAttributeSnapshotMap performRemoveAttribute(const std::vector<Model::AttributableNode*>& attributableNodes, const std::string& name);
             EntityAttributeSnapshotMap performRemoveAttribute(const std::string& name);
             EntityAttributeSnapshotMap performUpdateSpawnflag(const std::string& name, const size_t flagIndex, const bool setFlag);
             EntityAttributeSnapshotMap performConvertColorRange(const std::string& name, Assets::ColorRange::Type colorRange);
-            EntityAttributeSnapshotMap performRenameAttribute(const std::vector<Model::AttributableNode*>& attributableNodes, const std::string& oldName, const std::string& newName);
             EntityAttributeSnapshotMap performRenameAttribute(const std::string& oldName, const std::string& newName);
             void restoreAttributes(const EntityAttributeSnapshotMap& attributes);
         public: // brush resizing
