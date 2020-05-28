@@ -86,7 +86,6 @@
 #include "View/AddRemoveNodesCommand.h"
 #include "View/Actions.h"
 #include "View/ChangeBrushFaceAttributesCommand.h"
-#include "View/ChangeAttributesOfNodesCommand.h"
 #include "View/ChangeEntityAttributesCommand.h"
 #include "View/UpdateEntitySpawnflagCommand.h"
 #include "View/ConvertEntityColorCommand.h"
@@ -1954,16 +1953,16 @@ namespace TrenchBroom {
             if (!size.has_value()) {
                 // std::nullopt passed. Set the worldspawn key AttributeNames::SoftMaxMapSize 's value to the empty string
                 // to indicate that we are overriding the Game's bounds with unlimited.
-                executeAndStore(ChangeAttributesOfNodesCommand::set({world()}, Model::AttributeNames::SoftMaxMapSize, ""));                
+                executeAndStore(ChangeEntityAttributesCommand::setForNodes({world()}, Model::AttributeNames::SoftMaxMapSize, ""));
             } else {
                 std::stringstream sizeString;
                 sizeString << size->size();
-                executeAndStore(ChangeAttributesOfNodesCommand::set({world()}, Model::AttributeNames::SoftMaxMapSize, sizeString.str()));
+                executeAndStore(ChangeEntityAttributesCommand::setForNodes({world()}, Model::AttributeNames::SoftMaxMapSize, sizeString.str()));
             }
         }
 
         void MapDocument::unsetMapSoftBounds() {
-            executeAndStore(ChangeAttributesOfNodesCommand::remove({world()}, Model::AttributeNames::SoftMaxMapSize));
+            executeAndStore(ChangeEntityAttributesCommand::removeForNodes({world()}, Model::AttributeNames::SoftMaxMapSize));
         }
 
         bool MapDocument::hasMapSoftBounds() const {
