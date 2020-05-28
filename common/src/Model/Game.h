@@ -95,6 +95,8 @@ namespace TrenchBroom {
             TexturePackageType texturePackageType() const;
             void loadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const;
             bool isTextureCollection(const IO::Path& path) const;
+            std::vector<std::string> fileTextureCollectionExtensions() const;
+
             std::vector<IO::Path> findTextureCollections() const;
             std::vector<IO::Path> extractTextureCollections(const AttributableNode& node) const;
             void updateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const;
@@ -139,6 +141,7 @@ namespace TrenchBroom {
             virtual TexturePackageType doTexturePackageType() const = 0;
             virtual void doLoadTextureCollections(AttributableNode& node, const IO::Path& documentPath, Assets::TextureManager& textureManager, Logger& logger) const = 0;
             virtual bool doIsTextureCollection(const IO::Path& path) const = 0;
+            virtual std::vector<std::string> doFileTextureCollectionExtensions() const = 0;
             virtual std::vector<IO::Path> doFindTextureCollections() const = 0;
             virtual std::vector<IO::Path> doExtractTextureCollections(const AttributableNode& node) const = 0;
             virtual void doUpdateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const = 0;

@@ -275,6 +275,10 @@ namespace TrenchBroom {
             }
         }
 
+        std::vector<std::string> GameImpl::doFileTextureCollectionExtensions() const {
+            return m_config.textureConfig().package.fileFormat.extensions;
+        }
+
         std::vector<IO::Path> GameImpl::doExtractTextureCollections(const AttributableNode& node) const {
             const auto& property = m_config.textureConfig().attribute;
             if (property.empty()) {

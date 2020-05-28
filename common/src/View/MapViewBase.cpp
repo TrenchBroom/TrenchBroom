@@ -1068,6 +1068,12 @@ namespace TrenchBroom {
 
             menu.addSeparator();
 
+            if (mapFrame->canRevealTexture()) {
+                menu.addAction(tr("Reveal in Texture Browser"), mapFrame, &MapFrame::revealTexture);
+
+                menu.addSeparator();
+            }
+
             menu.addMenu(makeEntityGroupsMenu(Assets::EntityDefinitionType::PointEntity));
             menu.addMenu(makeEntityGroupsMenu(Assets::EntityDefinitionType::BrushEntity));
 

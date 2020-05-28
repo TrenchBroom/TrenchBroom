@@ -19,6 +19,7 @@
 
 #include "Circle.h"
 
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
@@ -72,7 +73,7 @@ namespace TrenchBroom {
         }
 
         void Circle::render() {
-            m_array.render(static_cast<PrimType>(m_filled ? GL_TRIANGLE_FAN : GL_LINE_LOOP));
+            m_array.render(m_filled ? PrimType::TriangleFan : PrimType::LineLoop);
         }
 
         void Circle::init2D(const float radius, const size_t segments, const float startAngle, const float angleLength) {

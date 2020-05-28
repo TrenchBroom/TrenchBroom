@@ -67,6 +67,7 @@ namespace TrenchBroom {
 
             Assets::Texture* selectedTexture() const;
             void setSelectedTexture(Assets::Texture* selectedTexture);
+            void revealTexture(Assets::Texture* texture);
 
             void setSortOrder(TextureSortOrder sortOrder);
             void setGroup(bool group);

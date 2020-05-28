@@ -83,6 +83,8 @@ namespace TrenchBroom {
 
             Assets::Texture* selectedTexture() const;
             void setSelectedTexture(Assets::Texture* selectedTexture);
+
+            void revealTexture(Assets::Texture* texture);
         private:
             void usageCountDidChange();
 
