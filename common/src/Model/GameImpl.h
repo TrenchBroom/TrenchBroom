@@ -77,6 +77,7 @@ namespace TrenchBroom {
 
             bool doIsTextureCollection(const IO::Path& path) const override;
             std::vector<IO::Path> doFindTextureCollections() const override;
+            std::vector<std::string> doFileTextureCollectionExtensions() const override;
             std::vector<IO::Path> doExtractTextureCollections(const AttributableNode& node) const override;
             void doUpdateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const override;
             void doReloadShaders() override;

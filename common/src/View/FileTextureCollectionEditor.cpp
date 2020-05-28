@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Assets/TextureManager.h"
 #include "IO/PathQt.h"
+#include "Model/Game.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
@@ -38,6 +39,7 @@
 #include <QListWidget>
 #include <QMimeData>
 #include <QSignalBlocker>
+#include <QStringList>
 #include <QVBoxLayout>
 
 namespace TrenchBroom {
@@ -136,8 +138,18 @@ namespace TrenchBroom {
             return m_collections->count() != 0;
         }
 
+        static QString buildFilter(const std::vector<std::string>& extensions) {
+            QStringList strings;
+            for (const auto& extension : extensions) {
+                strings << QString::fromLatin1("*.%1").arg(QString::fromStdString(extension));
+            }
+            return QObject::tr("Texture collections (%1);;All files (*.*)").arg(strings.join(" "));
+        }
+
         void FileTextureCollectionEditor::addTextureCollections() {
-            const QString pathQStr = QFileDialog::getOpenFileName(nullptr, tr("Load Texture Collection"), fileDialogDefaultDirectory(FileDialogDir::TextureCollection), "");
+            auto document = kdl::mem_lock(m_document);
+            const QString filter = buildFilter(document->game()->fileTextureCollectionExtensions());
+            const QString pathQStr = QFileDialog::getOpenFileName(nullptr, tr("Load Texture Collection"), fileDialogDefaultDirectory(FileDialogDir::TextureCollection), filter);
             if (pathQStr.isEmpty()) {
                 return;
             }

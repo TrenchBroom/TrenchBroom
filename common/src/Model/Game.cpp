@@ -110,6 +110,10 @@ namespace TrenchBroom {
             return doIsTextureCollection(path);
         }
 
+        std::vector<std::string> Game::fileTextureCollectionExtensions() const {
+            return doFileTextureCollectionExtensions();
+        }
+
         std::vector<IO::Path> Game::findTextureCollections() const {
             return doFindTextureCollections();
         }
