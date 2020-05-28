@@ -1063,7 +1063,7 @@ namespace TrenchBroom {
             menu.addSeparator();
 
             if (mapFrame->canRevealTexture()) {
-                menu.addAction(tr("Reveal Texture"), mapFrame, &MapFrame::revealTexture);
+                menu.addAction(tr("Reveal in Texture Browser"), mapFrame, &MapFrame::revealTexture);
 
                 menu.addSeparator();
             }
