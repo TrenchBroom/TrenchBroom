@@ -25,6 +25,7 @@
 
 #include <QDrag>
 #include <QMimeData>
+#include <QPropertyAnimation>
 #include <QScrollBar>
 #include <QToolTip>
 
@@ -103,7 +104,13 @@ namespace TrenchBroom {
 
             const int rowMargin = static_cast<int>(m_layout.rowMargin());
             const auto newPosition = top < visibleRect.top() ? top - rowMargin : visibleRect.top() + bottom - visibleRect.bottom();
-            m_scrollBar->setSliderPosition(newPosition);
+            
+            QPropertyAnimation* animation = new QPropertyAnimation(m_scrollBar, "sliderPosition");
+            animation->setDuration(300);
+            animation->setEasingCurve(QEasingCurve::InOutQuad);
+            animation->setStartValue(m_scrollBar->sliderPosition());
+            animation->setEndValue(newPosition);
+            animation->start();
         }
 
         void CellView::onScrollBarValueChanged() {
