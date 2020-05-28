@@ -278,7 +278,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/CameraTool2D.cpp
         ${COMMON_SOURCE_DIR}/View/CameraTool3D.cpp
         ${COMMON_SOURCE_DIR}/View/CellView.cpp
-        ${COMMON_SOURCE_DIR}/View/ChangeAttributesOfNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/ChangeBrushFaceAttributesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/ChangeEntityAttributesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/ChoosePathTypeDialog.cpp
@@ -828,7 +827,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/CameraTool3D.h
         ${COMMON_SOURCE_DIR}/View/CellLayout.h
         ${COMMON_SOURCE_DIR}/View/CellView.h
-        ${COMMON_SOURCE_DIR}/View/ChangeAttributesOfNodesCommand.h
         ${COMMON_SOURCE_DIR}/View/ChangeBrushFaceAttributesCommand.h
         ${COMMON_SOURCE_DIR}/View/ChangeEntityAttributesCommand.h
         ${COMMON_SOURCE_DIR}/View/ChoosePathTypeDialog.h
