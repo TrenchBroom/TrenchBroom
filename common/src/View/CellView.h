@@ -60,6 +60,29 @@ namespace TrenchBroom {
             void invalidate();
             void clear();
             void resizeEvent(QResizeEvent* event) override;
+
+            /**
+             * Scroll to a cell. Pass a visitor of type `const Cell& cell -> bool` that returns true
+             * for the cell that should be scrolled to.
+             */
+            template <class L>
+            void scrollToCell(L&& visitor) {
+                for (size_t i = 0; i < m_layout.size(); ++i) {
+                    const Group& group = m_layout[i];
+                    for (size_t j = 0; j < group.size(); ++j) {
+                        const Row& row = group[j];
+                        for (const Cell& cell : row.cells()) {
+                            const bool foundCell = visitor(cell);
+                            if (foundCell) {
+                                scrollToCellInternal(cell);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        private:
+            void scrollToCellInternal(const Cell& cell);
         private:
             void onScrollBarValueChanged();
             void onScrollBarActionTriggered(int action);

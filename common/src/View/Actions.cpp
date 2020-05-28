@@ -620,6 +620,12 @@ namespace TrenchBroom {
                     context.view()->rotateTextures(false, MapViewBase::TextureActionMode::Fine);
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/Reveal in texture browser"), QObject::tr("Reveal in texture browser"),
+                ActionContext::View3D | ActionContext::AnySelection, QKeySequence(),
+                [](ActionExecutionContext& context) {
+                    context.frame()->revealTexture();
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
 
             /* ========== Tag Actions ========== */
             createAction(IO::Path("Controls/Map view/Make structural"), QObject::tr("Make Structural"),

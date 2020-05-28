@@ -60,6 +60,10 @@ namespace TrenchBroom {
             return m_faceAttribsEditor->cancelMouseDrag();
         }
 
+        void FaceInspector::revealTexture(Assets::Texture* texture) {
+            m_textureBrowser->revealTexture(texture);
+        }
+
         void FaceInspector::createGui(std::weak_ptr<MapDocument> document, GLContextManager& contextManager) {
             m_splitter = new Splitter(Qt::Vertical);
             m_splitter->setObjectName("FaceInspector_Splitter");

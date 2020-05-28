@@ -69,5 +69,9 @@ namespace TrenchBroom {
         bool Inspector::cancelMouseDrag() {
             return m_faceInspector->cancelMouseDrag();
         }
+
+        FaceInspector* Inspector::faceInspector() {
+            return m_faceInspector;
+        }
     }
 }

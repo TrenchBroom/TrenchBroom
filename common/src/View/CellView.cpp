@@ -92,6 +92,11 @@ namespace TrenchBroom {
             RenderView::resizeEvent(event);
         }
 
+        void CellView::scrollToCellInternal(const Cell& cell) {
+            const float top = cell.cellBounds().top();
+            m_scrollBar->setSliderPosition(static_cast<int>(top));
+        }
+
         void CellView::onScrollBarValueChanged() {
             update();
         }

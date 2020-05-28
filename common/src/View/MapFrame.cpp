@@ -46,6 +46,7 @@
 #include "View/ColorButton.h"
 #include "View/CompilationDialog.h"
 #include "View/EdgeTool.h"
+#include "View/FaceInspector.h"
 #include "View/FaceTool.h"
 #include "View/FrameManager.h"
 #include "View/GLContextManager.h"
@@ -1504,6 +1505,30 @@ namespace TrenchBroom {
             const auto& gameName = m_document->game()->gameName();
             auto& gameFactory = Model::GameFactory::instance();
             gameFactory.saveConfigs(gameName);
+        }
+
+        static std::optional<Assets::Texture*> textureToReveal(std::shared_ptr<MapDocument> document) {
+            kdl::vector_set<Assets::Texture*> selectedTextures;
+            for (const Model::BrushFaceHandle& face : document->allSelectedBrushFaces()) {
+                selectedTextures.insert(face.face().texture());
+            }
+            if (selectedTextures.size() == 1) {
+                return { *selectedTextures.begin() };
+            }
+            return std::nullopt;
+        }
+
+        bool MapFrame::canRevealTexture() const {
+            return textureToReveal(m_document).has_value();
+        }
+
+        void MapFrame::revealTexture() {
+            auto texture = textureToReveal(m_document);
+
+            if (texture) {
+                m_inspector->switchToPage(InspectorPage::Face);
+                m_inspector->faceInspector()->revealTexture(texture.value());
+            }
         }
 
         void MapFrame::debugPrintVertices() {
