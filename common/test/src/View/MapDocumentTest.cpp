@@ -130,8 +130,8 @@ namespace TrenchBroom {
             checkBrushIntegral(brush1);
             checkBrushIntegral(brush2);
 
-            document->addNode(brush1, document->currentParent());
-            document->addNode(brush2, document->currentParent());
+            document->addNode(brush1, document->parentForNodes());
+            document->addNode(brush2, document->parentForNodes());
 
             std::vector<Model::Node*> brushes;
             brushes.push_back(brush1);
@@ -158,8 +158,8 @@ namespace TrenchBroom {
             checkBrushIntegral(brush1);
             checkBrushIntegral(brush2);
 
-            document->addNode(brush1, document->currentParent());
-            document->addNode(brush2, document->currentParent());
+            document->addNode(brush1, document->parentForNodes());
+            document->addNode(brush2, document->parentForNodes());
 
             std::vector<Model::Node*> brushes;
             brushes.push_back(brush1);
@@ -189,7 +189,7 @@ namespace TrenchBroom {
             Model::BrushBuilder builder(document->world(), document->worldBounds());
             Model::BrushNode* brushNode = document->world()->createBrush(builder.createCuboid(initialBBox, "texture"));
 
-            document->addNode(brushNode, document->currentParent());
+            document->addNode(brushNode, document->parentForNodes());
             document->select(std::vector<Model::Node*>{brushNode});
 
             const std::vector<vm::vec3> initialPositions{
@@ -230,7 +230,7 @@ namespace TrenchBroom {
             Model::BrushBuilder builder(document->world(), document->worldBounds());
             Model::BrushNode* brushNode = document->world()->createBrush(builder.createCuboid(initialBBox, "texture"));
 
-            document->addNode(brushNode, document->currentParent());
+            document->addNode(brushNode, document->parentForNodes());
             document->select(std::vector<Model::Node*>{brushNode});
 
             const std::vector<vm::vec3> initialPositions{
@@ -274,7 +274,7 @@ namespace TrenchBroom {
             Model::BrushNode* brushNode = document->world()->createBrush(builder.createCuboid(initialBBox, "texture"));
             const Model::Brush& brush = brushNode->brush();
 
-            document->addNode(brushNode, document->currentParent());
+            document->addNode(brushNode, document->parentForNodes());
             document->select(std::vector<Model::Node*>{brushNode});
 
             ASSERT_EQ(vm::vec3(200,200,200), brushNode->logicalBounds().size());
@@ -298,7 +298,7 @@ namespace TrenchBroom {
             Model::BrushBuilder builder(document->world(), document->worldBounds());
             Model::BrushNode* brushNode = document->world()->createBrush(builder.createCuboid(initialBBox, "texture"));
 
-            document->addNode(brushNode, document->currentParent());
+            document->addNode(brushNode, document->parentForNodes());
             document->select(std::vector<Model::Node*>{ brushNode });
             [[maybe_unused]] Model::GroupNode* group = document->groupSelection("my group");
 
@@ -317,7 +317,7 @@ namespace TrenchBroom {
             Model::BrushBuilder builder(document->world(), document->worldBounds());
             Model::BrushNode* brushNode = document->world()->createBrush(builder.createCuboid(initialBBox, "texture"));
 
-            document->addNode(brushNode, document->currentParent());
+            document->addNode(brushNode, document->parentForNodes());
             document->select(std::vector<Model::Node*>{brushNode});
 
             const vm::vec3 boundsCenter = initialBBox.center();
@@ -329,12 +329,12 @@ namespace TrenchBroom {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
 
             auto* entity = new Model::EntityNode();
-            document->addNode(entity, document->currentParent());
+            document->addNode(entity, document->parentForNodes());
 
             auto* brush1 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 64, 64)), "texture"));
             auto* brush2 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 64, 64)), "texture"));
             document->addNode(brush1, entity);
-            document->addNode(brush2, document->currentParent());
+            document->addNode(brush2, document->parentForNodes());
             ASSERT_EQ(1u, entity->children().size());
 
             document->select(std::vector<Model::Node*> { brush1, brush2 });
@@ -349,12 +349,12 @@ namespace TrenchBroom {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
 
             auto* entity = new Model::EntityNode();
-            document->addNode(entity, document->currentParent());
+            document->addNode(entity, document->parentForNodes());
 
             auto* brushNode1 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 64, 64)), "texture"));
             auto* brushNode2 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(32, 0, 0), vm::vec3(64, 64, 64)), "texture"));
             document->addNode(brushNode1, entity);
-            document->addNode(brushNode2, document->currentParent());
+            document->addNode(brushNode2, document->parentForNodes());
             ASSERT_EQ(1u, entity->children().size());
 
             const auto faceIndex = 0u;
@@ -392,7 +392,7 @@ namespace TrenchBroom {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
 
             Model::EntityNode* entity = new Model::EntityNode();
-            document->addNode(entity, document->currentParent());
+            document->addNode(entity, document->parentForNodes());
 
             Model::ParallelTexCoordSystem texAlignment(vm::vec3(1, 0, 0), vm::vec3(0, 1, 0));
             auto texAlignmentSnapshot = texAlignment.takeSnapshot();
@@ -426,7 +426,7 @@ namespace TrenchBroom {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
 
             Model::EntityNode* entity = new Model::EntityNode();
-            document->addNode(entity, document->currentParent());
+            document->addNode(entity, document->parentForNodes());
 
             Model::ParallelTexCoordSystem texAlignment(vm::vec3(1, 0, 0), vm::vec3(0, 1, 0));
             auto texAlignmentSnapshot = texAlignment.takeSnapshot();
@@ -463,7 +463,7 @@ namespace TrenchBroom {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
 
             auto* entity = new Model::EntityNode();
-            document->addNode(entity, document->currentParent());
+            document->addNode(entity, document->parentForNodes());
 
             Model::BrushNode* minuend = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture"));
             Model::BrushNode* subtrahend1 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(32, 32, 64)), "texture"));
@@ -497,7 +497,7 @@ namespace TrenchBroom {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
 
             auto* entity = new Model::EntityNode();
-            document->addNode(entity, document->currentParent());
+            document->addNode(entity, document->parentForNodes());
 
             Model::BrushNode* subtrahend1 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture"));
             document->addNodes(std::vector<Model::Node*>{subtrahend1}, entity);
@@ -516,7 +516,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.newWithGroupOpen") {
             Model::EntityNode* entity = new Model::EntityNode();
-            document->addNode(entity, document->currentParent());
+            document->addNode(entity, document->parentForNodes());
             document->select(entity);
             Model::GroupNode* group = document->groupSelection("my group");
             document->openGroup(group);
@@ -535,15 +535,15 @@ namespace TrenchBroom {
             Model::EntityNode* innerEnt1 = new Model::EntityNode();
             Model::EntityNode* innerEnt2 = new Model::EntityNode();
 
-            document->addNode(innerEnt1, document->currentParent());
-            document->addNode(innerEnt2, document->currentParent());
+            document->addNode(innerEnt1, document->parentForNodes());
+            document->addNode(innerEnt2, document->parentForNodes());
             document->select(std::vector<Model::Node*> {innerEnt1, innerEnt2});
 
             Model::GroupNode* inner = document->groupSelection("Inner");
 
             document->deselectAll();
-            document->addNode(outerEnt1, document->currentParent());
-            document->addNode(outerEnt2, document->currentParent());
+            document->addNode(outerEnt1, document->parentForNodes());
+            document->addNode(outerEnt2, document->parentForNodes());
             document->select(std::vector<Model::Node*> {inner, outerEnt1, outerEnt2});
 
             Model::GroupNode* outer = document->groupSelection("Outer");
@@ -575,7 +575,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.ungroupLeavesPointEntitySelected") {
             Model::EntityNode* ent1 = new Model::EntityNode();
 
-            document->addNode(ent1, document->currentParent());
+            document->addNode(ent1, document->parentForNodes());
             document->select(std::vector<Model::Node*> {ent1});
 
             Model::GroupNode* group = document->groupSelection("Group");
@@ -589,7 +589,7 @@ namespace TrenchBroom {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
 
             Model::EntityNode* ent1 = new Model::EntityNode();
-            document->addNode(ent1, document->currentParent());
+            document->addNode(ent1, document->parentForNodes());
 
             Model::BrushNode* brush1 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture"));
             document->addNode(brush1, ent1);
@@ -613,13 +613,13 @@ namespace TrenchBroom {
             document->deleteObjects();
 
             Model::EntityNode* ent1 = new Model::EntityNode();
-            document->addNode(ent1, document->currentParent());
+            document->addNode(ent1, document->parentForNodes());
             document->deselectAll();
             document->select(std::vector<Model::Node*> {ent1});
             Model::GroupNode* group1 = document->groupSelection("group1");
 
             Model::EntityNode* ent2 = new Model::EntityNode();
-            document->addNode(ent2, document->currentParent());
+            document->addNode(ent2, document->parentForNodes());
             document->deselectAll();
             document->select(std::vector<Model::Node*> {ent2});
             Model::GroupNode* group2 = document->groupSelection("group2");
@@ -644,7 +644,7 @@ namespace TrenchBroom {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
 
             auto* brushNode1 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture"));
-            document->addNode(brushNode1, document->currentParent());
+            document->addNode(brushNode1, document->parentForNodes());
 
             Model::PickResult pickResult;
             document->pick(vm::ray3(vm::vec3(-32, 0, 0), vm::vec3::pos_x()), pickResult);
@@ -667,7 +667,7 @@ namespace TrenchBroom {
             document->deleteObjects();
 
             Model::EntityNode* ent1 = new Model::EntityNode();
-            document->addNode(ent1, document->currentParent());
+            document->addNode(ent1, document->parentForNodes());
 
             const auto origin = ent1->origin();
             const auto bounds = ent1->logicalBounds();
@@ -696,10 +696,10 @@ namespace TrenchBroom {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
 
             auto* brushNode1 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture"));
-            document->addNode(brushNode1, document->currentParent());
+            document->addNode(brushNode1, document->parentForNodes());
 
             auto* brushNode2 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)).translate(vm::vec3(0, 0, 128)), "texture"));
-            document->addNode(brushNode2, document->currentParent());
+            document->addNode(brushNode2, document->parentForNodes());
 
             document->selectAllNodes();
             auto* group = document->groupSelection("test");
@@ -757,17 +757,17 @@ namespace TrenchBroom {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
 
             auto* brushNode1 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture"));
-            document->addNode(brushNode1, document->currentParent());
+            document->addNode(brushNode1, document->parentForNodes());
 
             auto* brushNode2 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)).translate(vm::vec3(0, 0, 128)), "texture"));
-            document->addNode(brushNode2, document->currentParent());
+            document->addNode(brushNode2, document->parentForNodes());
 
             document->selectAllNodes();
             auto* innerGroup = document->groupSelection("inner");
 
             document->deselectAll();
             auto* brushNode3 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)).translate(vm::vec3(0, 0, 256)), "texture"));
-            document->addNode(brushNode3, document->currentParent());
+            document->addNode(brushNode3, document->parentForNodes());
 
             document->selectAllNodes();
             auto* outerGroup = document->groupSelection("outer");
@@ -895,11 +895,11 @@ namespace TrenchBroom {
             const Model::BrushBuilder builder(document->world(), document->worldBounds());
 
             auto* brushNode1 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture"));
-            document->addNode(brushNode1, document->currentParent());
+            document->addNode(brushNode1, document->parentForNodes());
 
             auto* brushNode2 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)).translate(vm::vec3(0, 0, 128)),
                                                 "texture"));
-            document->addNode(brushNode2, document->currentParent());
+            document->addNode(brushNode2, document->parentForNodes());
 
             document->selectAllNodes();
 
@@ -933,10 +933,10 @@ namespace TrenchBroom {
             const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
 
             auto *brush1 = document->world()->createBrush(builder.createCuboid(box, "texture"));
-            document->addNode(brush1, document->currentParent());
+            document->addNode(brush1, document->parentForNodes());
 
             auto *brush2 = document->world()->createBrush(builder.createCuboid(box.translate(vm::vec3(1, 1, 1)), "texture"));
-            document->addNode(brush2, document->currentParent());
+            document->addNode(brush2, document->parentForNodes());
 
             document->selectAllNodes();
 
@@ -963,13 +963,13 @@ namespace TrenchBroom {
             const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
 
             auto *brush1 = document->world()->createBrush(builder.createCuboid(box, "texture"));
-            document->addNode(brush1, document->currentParent());
+            document->addNode(brush1, document->parentForNodes());
 
             auto *brush2 = document->world()->createBrush(builder.createCuboid(box.translate(vm::vec3(1, 1, 1)), "texture"));
-            document->addNode(brush2, document->currentParent());
+            document->addNode(brush2, document->parentForNodes());
 
             auto *brush3 = document->world()->createBrush(builder.createCuboid(box.translate(vm::vec3(2, 2, 2)), "texture"));
-            document->addNode(brush3, document->currentParent());
+            document->addNode(brush3, document->parentForNodes());
 
             document->select(std::vector<Model::Node *>{brush1, brush2});
             Model::EntityNode* brushEnt = document->createBrushEntity(m_brushEntityDef);
@@ -1006,7 +1006,7 @@ namespace TrenchBroom {
             const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
 
             auto *brush1 = document->world()->createBrush(builder.createCuboid(box, "texture"));
-            document->addNode(brush1, document->currentParent());
+            document->addNode(brush1, document->parentForNodes());
             document->select(brush1);
 
             const auto groupName = std::string("testGroup");
@@ -1035,10 +1035,10 @@ namespace TrenchBroom {
             const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
 
             auto *brush1 = document->world()->createBrush(builder.createCuboid(box, "texture"));
-            document->addNode(brush1, document->currentParent());
+            document->addNode(brush1, document->parentForNodes());
 
             auto *brush2 = document->world()->createBrush(builder.createCuboid(box.translate(vm::vec3(1, 1, 1)), "texture"));
-            document->addNode(brush2, document->currentParent());
+            document->addNode(brush2, document->parentForNodes());
 
             document->selectAllNodes();
 
@@ -1272,7 +1272,7 @@ namespace TrenchBroom {
             // Create entity1 and brush1 in the hidden layer1
             Model::EntityNode* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
             Model::BrushNode* brush1 = createBrushNode();
-            document->addNode(brush1, document->currentParent());
+            document->addNode(brush1, document->parentForNodes());
 
             CHECK(entity1->parent() == layer1);
             CHECK(brush1->parent() == layer1);

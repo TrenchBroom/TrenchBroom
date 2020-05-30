@@ -196,14 +196,14 @@ namespace TrenchBroom {
              */
             Model::Node* currentGroupOrWorld() const override;
             /**
-             * Returns the current group if one is open, otherwise the current layer.
+             * Suggests a parent to use for new nodes.
+             * 
+             * If reference nodes are given, return the parent (either a group, if there is one, otherwise the layer) of
+             * the first node in the given vector.
+             * 
+             * Otherwise, returns the current group if one is open, otherwise the current layer.
              */
-            Model::Node* currentParent() const override;
-            /**
-             * Returns the parent (either a group, if there is one, otherwise the layer) of
-             * the first node in the given vector. The vector must be non-empty.
-             */
-            Model::Node* parentForNodes(const std::vector<Model::Node*>& nodes) const override;
+            Model::Node* parentForNodes(const std::vector<Model::Node*>& referenceNodes = std::vector<Model::Node*>()) const override;
 
             Model::EditorContext& editorContext() const;
 

@@ -51,7 +51,7 @@ namespace TrenchBroom {
             Model::EntityNode* entityNode = new Model::EntityNode();
             entityNode->addOrUpdateAttribute("classname", "large_entity");
             
-            document->addNode(entityNode, document->currentParent());
+            document->addNode(entityNode, document->parentForNodes());
             REQUIRE(entityNode->definition() == largeEntityDef);
             
             document->select(entityNode);
