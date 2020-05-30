@@ -19,6 +19,7 @@
 
 #include "LayerNode.h"
 
+#include "Ensure.h"
 #include "Model/BrushNode.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/GroupNode.h"
@@ -29,12 +30,12 @@
 #include "Model/TagVisitor.h"
 #include "Model/WorldNode.h"
 
+#include <kdl/string_utils.h>
+
 #include <limits>
 #include <string>
 #include <algorithm>
 #include <stdexcept>
-
-#include "Ensure.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -75,13 +76,7 @@ namespace TrenchBroom {
                 return invalidSortIndex();
             }
 
-            try {
-                return std::stoi(indexString);
-            } catch (const std::invalid_argument&) {
-                return invalidSortIndex();
-            } catch (const std::out_of_range&) {
-                return invalidSortIndex();
-            }
+            return kdl::str_to_int(indexString).value_or(invalidSortIndex());
         }
 
         std::optional<Color> LayerNode::layerColor() const {
