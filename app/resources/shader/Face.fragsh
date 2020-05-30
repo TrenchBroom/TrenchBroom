@@ -40,7 +40,7 @@ varying vec4 faceColor;
 varying vec3 viewVector;
 
 float grid(vec3 coords, vec3 normal, float gridSize, float minGridSize, float lineWidthFactor);
-vec3 applyMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
+vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
 
 void main() {
 	if (ApplyTexture)
@@ -107,6 +107,5 @@ void main() {
         gl_FragColor.rgb = mix(gl_FragColor.rgb, GridColor, gridValue * GridAlpha);
 	}
 
-    // Tint objects outside map bounds
-    gl_FragColor.rgb = applyMapBoundsTint(gl_FragColor.rgb, modelCoordinates.xyz);
+    gl_FragColor.rgb = applySoftMapBoundsTint(gl_FragColor.rgb, modelCoordinates.xyz);
 }

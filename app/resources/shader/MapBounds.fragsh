@@ -21,7 +21,7 @@ uniform bool ShowWorldExtents;
 uniform vec3 WorldExtents;
 uniform vec4 WorldExtentsTintColor;
 
-vec3 applyMapBoundsTint(vec3 inputFragColor, vec3 worldCoords) {
+vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords) {
     if (ShowWorldExtents) {
         bool outside = any(greaterThan(abs(worldCoords), WorldExtents));
 

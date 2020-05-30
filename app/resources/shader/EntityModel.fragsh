@@ -27,7 +27,7 @@ uniform bool GrayScale;
 
 varying vec4 worldCoordinates;
 
-vec3 applyMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
+vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
 
 void main() {
     vec4 texel = texture2D(Texture, gl_TexCoord[0].st);
@@ -51,6 +51,5 @@ void main() {
         gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
     }
 
-    // Tint objects outside map bounds
-    gl_FragColor.rgb = applyMapBoundsTint(gl_FragColor.rgb, worldCoordinates.xyz);
+    gl_FragColor.rgb = applySoftMapBoundsTint(gl_FragColor.rgb, worldCoordinates.xyz);
 }
