@@ -18,15 +18,16 @@
  */
 
 uniform bool ShowSoftMapBounds;
-uniform vec3 WorldExtents;
-uniform vec4 WorldExtentsTintColor;
+uniform vec3 SoftMapBoundsMin;
+uniform vec3 SoftMapBoundsMax;
+uniform vec4 SoftMapBoundsColor;
 
 vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords) {
-    if (ShowWorldExtents) {
-        bool outside = any(greaterThan(abs(worldCoords), WorldExtents));
+    if (ShowSoftMapBounds) {
+        bool outside = any(greaterThan(worldCoords, SoftMapBoundsMax)) || any(lessThan(worldCoords, SoftMapBoundsMin));
 
         if (outside) {
-            return mix(gl_FragColor.rgb, WorldExtentsTintColor.rgb, WorldExtentsTintColor.a);
+            return mix(gl_FragColor.rgb, SoftMapBoundsColor.rgb, SoftMapBoundsColor.a);
         }
     }
     return inputFragColor;

@@ -158,8 +158,8 @@ namespace TrenchBroom {
                 const bool applyTexture = context.showTextures();
                 const bool shadeFaces = context.shadeFaces();
                 const bool showFog = context.showFog();
-                const std::optional<vm::bbox3> softMapBounds = context.softMapBounds();
-                const vm::vec3f mapExtents = vm::vec3f(softMapBounds.value_or(vm::bbox3()).max);
+                // TODO: factor out
+                const vm::bbox3f softMapBounds = vm::bbox3f(context.softMapBounds().value_or(vm::bbox3()));
 
                 glAssert(glEnable(GL_TEXTURE_2D));
                 glAssert(glActiveTexture(GL_TEXTURE0));
@@ -178,12 +178,13 @@ namespace TrenchBroom {
                 shader.set("ShowFog", showFog);
                 shader.set("Alpha", m_alpha);
                 shader.set("EnableMasked", false);
-                shader.set("ShowSoftMapBounds", softMapBounds.has_value() && prefs.get(Preferences::ShowBounds));
-                shader.set("WorldExtents", mapExtents);
-                shader.set("WorldExtentsTintColor", vm::vec4f(prefs.get(Preferences::SoftMapBoundsColor).r(),
-                                                              prefs.get(Preferences::SoftMapBoundsColor).g(),
-                                                              prefs.get(Preferences::SoftMapBoundsColor).b(),
-                                                              0.1f));
+                shader.set("ShowSoftMapBounds", !softMapBounds.is_empty() && prefs.get(Preferences::ShowBounds));
+                shader.set("SoftMapBoundsMin", softMapBounds.min);
+                shader.set("SoftMapBoundsMax", softMapBounds.max);
+                shader.set("SoftMapBoundsColor", vm::vec4f(prefs.get(Preferences::SoftMapBoundsColor).r(),
+                                                           prefs.get(Preferences::SoftMapBoundsColor).g(),
+                                                           prefs.get(Preferences::SoftMapBoundsColor).b(),
+                                                           0.1f));
 
                 RenderFunc func(shader, applyTexture, m_faceColor);
                 if (m_alpha < 1.0f) {

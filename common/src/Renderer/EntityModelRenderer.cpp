@@ -125,8 +125,8 @@ namespace TrenchBroom {
         void EntityModelRenderer::doRender(RenderContext& renderContext) {
             auto& prefs = PreferenceManager::instance();
 
-            const std::optional<vm::bbox3> softMapBounds = renderContext.softMapBounds();
-            const vm::vec3f mapExtents = vm::vec3f(softMapBounds.value_or(vm::bbox3()).max);
+            // TODO: factor out
+            const vm::bbox3f softMapBounds = vm::bbox3f(renderContext.softMapBounds().value_or(vm::bbox3()));
 
             ActiveShader shader(renderContext.shaderManager(), Shaders::EntityModelShader);
             shader.set("Brightness", prefs.get(Preferences::Brightness));
@@ -134,12 +134,13 @@ namespace TrenchBroom {
             shader.set("TintColor", m_tintColor);
             shader.set("GrayScale", false);
             shader.set("Texture", 0);
-            shader.set("ShowSoftMapBounds", softMapBounds.has_value() && prefs.get(Preferences::ShowBounds));
-            shader.set("WorldExtents", mapExtents);
-            shader.set("WorldExtentsTintColor", vm::vec4f(prefs.get(Preferences::SoftMapBoundsColor).r(),
-                                                          prefs.get(Preferences::SoftMapBoundsColor).g(),
-                                                          prefs.get(Preferences::SoftMapBoundsColor).b(),
-                                                          0.1f));
+            shader.set("ShowSoftMapBounds", !softMapBounds.is_empty() && prefs.get(Preferences::ShowBounds));
+            shader.set("SoftMapBoundsMin", softMapBounds.min);
+            shader.set("SoftMapBoundsMax", softMapBounds.max);
+            shader.set("SoftMapBoundsColor", vm::vec4f(prefs.get(Preferences::SoftMapBoundsColor).r(),
+                                                       prefs.get(Preferences::SoftMapBoundsColor).g(),
+                                                       prefs.get(Preferences::SoftMapBoundsColor).b(),
+                                                       0.1f));
 
             glAssert(glEnable(GL_TEXTURE_2D));
             glAssert(glActiveTexture(GL_TEXTURE0));

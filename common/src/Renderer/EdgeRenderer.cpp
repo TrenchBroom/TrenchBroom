@@ -69,17 +69,17 @@ namespace TrenchBroom {
 
             {
                 // TODO: factor out
-                const std::optional<vm::bbox3> softMapBounds = renderContext.softMapBounds();
-                const vm::vec3f mapExtents = vm::vec3f(softMapBounds.value_or(vm::bbox3()).max);
+                const vm::bbox3f softMapBounds = vm::bbox3f(renderContext.softMapBounds().value_or(vm::bbox3()));
 
                 PreferenceManager& prefs = PreferenceManager::instance();
                 ActiveShader shader(renderContext.shaderManager(), Shaders::BrushEdgeShader);
-                shader.set("ShowSoftMapBounds", softMapBounds.has_value() && prefs.get(Preferences::ShowBounds));
-                shader.set("WorldExtents", mapExtents);
-                shader.set("WorldExtentsTintColor", vm::vec4f(prefs.get(Preferences::SoftMapBoundsColor).r(),
-                                                              prefs.get(Preferences::SoftMapBoundsColor).g(),
-                                                              prefs.get(Preferences::SoftMapBoundsColor).b(),
-                                                              0.33f)); // NOTE: heavier tint than FaceRenderer, since these are lines
+                shader.set("ShowSoftMapBounds", !softMapBounds.is_empty() && prefs.get(Preferences::ShowBounds));
+                shader.set("SoftMapBoundsMin", softMapBounds.min);
+                shader.set("SoftMapBoundsMax", softMapBounds.max);
+                shader.set("SoftMapBoundsColor", vm::vec4f(prefs.get(Preferences::SoftMapBoundsColor).r(),
+                                                           prefs.get(Preferences::SoftMapBoundsColor).g(),
+                                                           prefs.get(Preferences::SoftMapBoundsColor).b(),
+                                                           0.33f)); // NOTE: heavier tint than FaceRenderer, since these are lines
                 if (m_params.useColor) {
                     shader.set("UseUniformColor", true);
                     shader.set("Color", m_params.color);
