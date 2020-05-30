@@ -67,7 +67,6 @@ namespace TrenchBroom {
             virtual LayerNode* currentLayer() const = 0;
             virtual GroupNode* currentGroup() const = 0;
             virtual Node* currentGroupOrWorld() const = 0;
-            virtual Node* currentParent() const = 0;
             virtual Node* parentForNodes(const std::vector<Node*>& nodes) const = 0;
 
             virtual Assets::EntityDefinitionManager& entityDefinitionManager() = 0;
