@@ -64,7 +64,7 @@ namespace TrenchBroom {
 
             document->startTransaction("Create '" + definition->name() + "'");
             document->deselectAll();
-            document->addNode(m_entity, document->currentParent());
+            document->addNode(m_entity, document->parentForNodes());
             document->select(m_entity);
 
             return true;

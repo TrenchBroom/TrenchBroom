@@ -98,7 +98,7 @@ namespace TrenchBroom {
         TEST_CASE_METHOD(SelectionTest, "SelectionTest.updateLastSelectionBounds") {
             auto* entityNode = new Model::EntityNode();
             entityNode->addOrUpdateAttribute("classname", "point_entity");
-            document->addNode(entityNode, document->currentParent());
+            document->addNode(entityNode, document->parentForNodes());
             REQUIRE(!entityNode->logicalBounds().is_empty());
             
             document->selectAllNodes();
@@ -111,7 +111,7 @@ namespace TrenchBroom {
             CHECK(document->lastSelectionBounds() == bounds);
             
             auto* brushNode = createBrushNode();
-            document->addNode(brushNode, document->currentParent());
+            document->addNode(brushNode, document->parentForNodes());
             
             document->select(brushNode);
             CHECK(document->lastSelectionBounds() == bounds);

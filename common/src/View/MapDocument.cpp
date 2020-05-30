@@ -254,14 +254,16 @@ namespace TrenchBroom {
             return result;
         }
 
-        Model::Node* MapDocument::currentParent() const {
-            Model::Node* result = currentGroup();
-            if (result == nullptr)
-                result = currentLayer();
-            return result;
-        }
-
         Model::Node* MapDocument::parentForNodes(const std::vector<Model::Node*>& nodes) const {
+            if (nodes.empty()) {
+                // No reference nodes, so return either the current group (if open) or current layer 
+                Model::Node* result = currentGroup();
+                if (result == nullptr) {
+                    result = currentLayer();
+                }
+                return result;
+            }
+
             Model::GroupNode* parentGroup = Model::findGroup(nodes.at(0));
             if (parentGroup != nullptr) {
                 return parentGroup;
@@ -423,7 +425,7 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes) {
-            Model::MergeNodesIntoWorldVisitor mergeNodes(m_world.get(), currentParent());
+            Model::MergeNodesIntoWorldVisitor mergeNodes(m_world.get(), parentForNodes());
             Model::Node::accept(std::begin(nodes), std::end(nodes), mergeNodes);
 
             const std::vector<Model::Node*> addedNodes = addNodes(mergeNodes.result());
@@ -953,7 +955,7 @@ namespace TrenchBroom {
 
             const Transaction transaction(this, name.str());
             deselectAll();
-            addNode(entity, currentParent());
+            addNode(entity, parentForNodes());
             select(entity);
             translateObjects(delta);
 
@@ -1479,7 +1481,7 @@ namespace TrenchBroom {
 
             Transaction transaction(this, "Create Brush");
             deselectAll();
-            addNode(brushNode, currentParent());
+            addNode(brushNode, parentForNodes());
             select(brushNode);
             return true;
         }
@@ -1527,7 +1529,7 @@ namespace TrenchBroom {
             } else if (!selectedBrushFaces().empty()) {
                 parentNode = selectedBrushFaces().front().node()->parent();
             } else {
-                parentNode = currentParent();
+                parentNode = parentForNodes();
             }
 
             Model::BrushNode* brushNode = new Model::BrushNode(std::move(brush));

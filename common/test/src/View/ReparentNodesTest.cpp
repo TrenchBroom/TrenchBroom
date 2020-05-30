@@ -63,14 +63,14 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentGroupToItself") {
             Model::GroupNode* group = new Model::GroupNode("Group");
-            document->addNode(group, document->currentParent());
+            document->addNode(group, document->parentForNodes());
 
             ASSERT_FALSE(document->reparentNodes(group, { group }));
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.reparentGroupToChild") {
             Model::GroupNode* outer = new Model::GroupNode("Outer");
-            document->addNode(outer, document->currentParent());
+            document->addNode(outer, document->parentForNodes());
 
             Model::GroupNode* inner = new Model::GroupNode("Inner");
             document->addNode(inner, outer);
@@ -80,23 +80,23 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.removeEmptyGroup") {
             Model::GroupNode* group = new Model::GroupNode("Group");
-            document->addNode(group, document->currentParent());
+            document->addNode(group, document->parentForNodes());
 
             Model::EntityNode* entity = new Model::EntityNode();
             document->addNode(entity, group);
 
-            ASSERT_TRUE(document->reparentNodes(document->currentParent(), { entity }));
-            ASSERT_EQ(document->currentParent(), entity->parent());
+            ASSERT_TRUE(document->reparentNodes(document->parentForNodes(), { entity }));
+            ASSERT_EQ(document->parentForNodes(), entity->parent());
             ASSERT_TRUE(group->parent() == nullptr);
 
             document->undoCommand();
-            ASSERT_EQ(document->currentParent(), group->parent());
+            ASSERT_EQ(document->parentForNodes(), group->parent());
             ASSERT_EQ(group, entity->parent());
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.recursivelyRemoveEmptyGroups") {
             Model::GroupNode* outer = new Model::GroupNode("Outer");
-            document->addNode(outer, document->currentParent());
+            document->addNode(outer, document->parentForNodes());
 
             Model::GroupNode* inner = new Model::GroupNode("Inner");
             document->addNode(inner, outer);
@@ -104,36 +104,36 @@ namespace TrenchBroom {
             Model::EntityNode* entity = new Model::EntityNode();
             document->addNode(entity, inner);
 
-            ASSERT_TRUE(document->reparentNodes(document->currentParent(), { entity }));
-            ASSERT_EQ(document->currentParent(), entity->parent());
+            ASSERT_TRUE(document->reparentNodes(document->parentForNodes(), { entity }));
+            ASSERT_EQ(document->parentForNodes(), entity->parent());
             ASSERT_TRUE(inner->parent() == nullptr);
             ASSERT_TRUE(outer->parent() == nullptr);
 
             document->undoCommand();
-            ASSERT_EQ(document->currentParent(), outer->parent());
+            ASSERT_EQ(document->parentForNodes(), outer->parent());
             ASSERT_EQ(outer, inner->parent());
             ASSERT_EQ(inner, entity->parent());
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.removeEmptyEntity") {
             Model::EntityNode* entity = new Model::EntityNode();
-            document->addNode(entity, document->currentParent());
+            document->addNode(entity, document->parentForNodes());
 
             Model::BrushNode* brush = createBrushNode();
             document->addNode(brush, entity);
 
-            ASSERT_TRUE(document->reparentNodes(document->currentParent(), { brush }));
-            ASSERT_EQ(document->currentParent(), brush->parent());
+            ASSERT_TRUE(document->reparentNodes(document->parentForNodes(), { brush }));
+            ASSERT_EQ(document->parentForNodes(), brush->parent());
             ASSERT_TRUE(entity->parent() == nullptr);
 
             document->undoCommand();
-            ASSERT_EQ(document->currentParent(), entity->parent());
+            ASSERT_EQ(document->parentForNodes(), entity->parent());
             ASSERT_EQ(entity, brush->parent());
         }
 
         TEST_CASE_METHOD(ReparentNodesTest, "ReparentNodesTest.removeEmptyGroupAndEntity") {
             Model::GroupNode* group = new Model::GroupNode("Group");
-            document->addNode(group, document->currentParent());
+            document->addNode(group, document->parentForNodes());
 
             Model::EntityNode* entity = new Model::EntityNode();
             document->addNode(entity, group);
@@ -141,13 +141,13 @@ namespace TrenchBroom {
             Model::BrushNode* brush = createBrushNode();
             document->addNode(brush, entity);
 
-            ASSERT_TRUE(document->reparentNodes(document->currentParent(), { brush }));
-            ASSERT_EQ(document->currentParent(), brush->parent());
+            ASSERT_TRUE(document->reparentNodes(document->parentForNodes(), { brush }));
+            ASSERT_EQ(document->parentForNodes(), brush->parent());
             ASSERT_TRUE(group->parent() == nullptr);
             ASSERT_TRUE(entity->parent() == nullptr);
 
             document->undoCommand();
-            ASSERT_EQ(document->currentParent(), group->parent());
+            ASSERT_EQ(document->parentForNodes(), group->parent());
             ASSERT_EQ(group, entity->parent());
             ASSERT_EQ(entity, brush->parent());
         }
