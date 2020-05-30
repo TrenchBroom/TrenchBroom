@@ -27,7 +27,6 @@
 
 #include <kdl/map_utils.h>
 
-
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType DuplicateNodesCommand::Type = Command::freeType();
