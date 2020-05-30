@@ -455,7 +455,6 @@ namespace TrenchBroom {
         }
 
         static QString describeSelection(const MapDocument* document) {
-            //const QString DblArrow = QString(" ") + QString(QChar(0x00BB)) + QString(" ");
             const QString Arrow = QString(" ") + QString(QChar(0x203A)) + QString(" ");
 
             QStringList pipeSeparatedSections;
@@ -464,15 +463,19 @@ namespace TrenchBroom {
             pipeSeparatedSections << QObject::tr("Current layer: %1").arg(QString::fromStdString(document->currentLayer()->name()));
 
             // open groups
-            std::list<Model::GroupNode*> groups;
+            std::vector<Model::GroupNode*> groups;
             for (Model::GroupNode* group = document->currentGroup(); group != nullptr; group = group->group()) {
-                groups.push_front(group);
+                groups.push_back(group);
             }
             if (!groups.empty()) {
-                QStringList openGroups; 
-                for (Model::GroupNode* group : groups) {
+                QStringList openGroups;
+
+                // groups vector is sorted from innermost to outermost, so visit it in reverse order
+                for (auto it = groups.rbegin(); it != groups.rend(); ++it) {
+                    const Model::GroupNode* group = *it;
                     openGroups << QString::fromStdString(group->name());
                 }
+
                 const QString openGroupsString = QObject::tr("Open groups: %1").arg(openGroups.join(Arrow));
                 pipeSeparatedSections << openGroupsString;
             }
