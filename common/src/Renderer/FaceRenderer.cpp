@@ -178,7 +178,7 @@ namespace TrenchBroom {
                 shader.set("ShowFog", showFog);
                 shader.set("Alpha", m_alpha);
                 shader.set("EnableMasked", false);
-                shader.set("ShowWorldExtents", softMapBounds.has_value() && prefs.get(Preferences::ShowBounds));
+                shader.set("ShowSoftMapBounds", softMapBounds.has_value() && prefs.get(Preferences::ShowBounds));
                 shader.set("WorldExtents", mapExtents);
                 shader.set("WorldExtentsTintColor", vm::vec4f(prefs.get(Preferences::SoftMapBoundsColor).r(),
                                                               prefs.get(Preferences::SoftMapBoundsColor).g(),

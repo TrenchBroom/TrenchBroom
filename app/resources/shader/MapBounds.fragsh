@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-uniform bool ShowWorldExtents;
+uniform bool ShowSoftMapBounds;
 uniform vec3 WorldExtents;
 uniform vec4 WorldExtentsTintColor;
 

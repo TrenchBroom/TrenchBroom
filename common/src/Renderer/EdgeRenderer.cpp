@@ -74,7 +74,7 @@ namespace TrenchBroom {
 
                 PreferenceManager& prefs = PreferenceManager::instance();
                 ActiveShader shader(renderContext.shaderManager(), Shaders::BrushEdgeShader);
-                shader.set("ShowWorldExtents", softMapBounds.has_value() && prefs.get(Preferences::ShowBounds));
+                shader.set("ShowSoftMapBounds", softMapBounds.has_value() && prefs.get(Preferences::ShowBounds));
                 shader.set("WorldExtents", mapExtents);
                 shader.set("WorldExtentsTintColor", vm::vec4f(prefs.get(Preferences::SoftMapBoundsColor).r(),
                                                               prefs.get(Preferences::SoftMapBoundsColor).g(),
