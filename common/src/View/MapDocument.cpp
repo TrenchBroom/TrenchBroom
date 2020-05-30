@@ -783,7 +783,8 @@ namespace TrenchBroom {
             }
 
             const std::vector<Model::Node*> addedNodes = collectChildren(nodes);
-            ensureVisible(collectChildren(nodes));
+            ensureVisible(addedNodes);
+            ensureUnlocked(addedNodes);
             return addedNodes;
         }
 
@@ -1383,6 +1384,19 @@ namespace TrenchBroom {
 
         void MapDocument::unlock(const std::vector<Model::Node*>& nodes) {
             executeAndStore(SetLockStateCommand::unlock(nodes));
+        }
+
+        /**
+         * Unlocks only those nodes from the given list whose lock state resolves to "locked"
+         */
+        void MapDocument::ensureUnlocked(const std::vector<Model::Node*>& nodes) {
+            std::vector<Model::Node*> nodesToUnlock;
+            for (auto* node : nodes) {
+                if (node->locked()) {
+                    nodesToUnlock.push_back(node);
+                }
+            }
+            unlock(nodesToUnlock);
         }
 
         void MapDocument::resetLock(const std::vector<Model::Node*>& nodes) {

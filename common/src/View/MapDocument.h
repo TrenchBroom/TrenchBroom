@@ -371,6 +371,7 @@ namespace TrenchBroom {
 
             void lock(const std::vector<Model::Node*>& nodes) override;
             void unlock(const std::vector<Model::Node*>& nodes) override;
+            void ensureUnlocked(const std::vector<Model::Node*>& nodes);
             void resetLock(const std::vector<Model::Node*>& nodes) override;
         private:
             void downgradeShownToInherit(const std::vector<Model::Node*>& nodes);

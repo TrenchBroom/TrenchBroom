@@ -37,6 +37,7 @@
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/LayerNode.h"
+#include "Model/LockState.h"
 #include "Model/MapFormat.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/PickResult.h"
@@ -1206,10 +1207,10 @@ namespace TrenchBroom {
             CHECK(entity1->parent() == layer1);
             CHECK(layer1->childCount() == 1u);
 
-            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
             CHECK(entity1->visible());
 
-            // Hide layer1. This resets the visibility of nodes in the layer to Visibility_Inherited
+            // Hide layer1. If any nodes in the layer were Visibility_Shown they would be reset to Visibility_Inherited
             document->hideLayers({layer1}); 
 
             CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
@@ -1253,8 +1254,121 @@ namespace TrenchBroom {
             // Undo (hiding layer1)
             document->undoCommand();
 
-            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
             CHECK(entity1->visible());
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.duplicatedObjectInHiddenLayerIsVisible", "[LayerTest]") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            Model::LayerNode* layer1 = document->world()->createLayer("test1");
+            document->addNode(layer1, document->world());
+
+            document->setCurrentLayer(layer1);
+            document->hideLayers({layer1});
+
+            // Create entity1 and brush1 in the hidden layer1
+            Model::EntityNode* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+            Model::BrushNode* brush1 = createBrushNode();
+            document->addNode(brush1, document->currentParent());
+
+            CHECK(entity1->parent() == layer1);
+            CHECK(brush1->parent() == layer1);
+            CHECK(layer1->childCount() == 2u);
+
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(brush1->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity1->visible());
+            CHECK(brush1->visible());
+
+            document->select({entity1, brush1});
+
+            // Duplicate entity1 and brush1
+            CHECK(document->duplicateObjects());
+            REQUIRE(document->selectedNodes().entityCount() == 1u);
+            REQUIRE(document->selectedNodes().brushCount() == 1u);
+            Model::EntityNode* entity2 = document->selectedNodes().entities().front();
+            Model::BrushNode* brush2 =  document->selectedNodes().brushes().front();
+
+            CHECK(entity2 != entity1);
+            CHECK(brush2 != brush1);
+
+            CHECK(entity2->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity2->visible());
+
+            CHECK(brush2->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(brush2->visible());
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.newObjectsInLockedLayerAreUnlocked", "[LayerTest]") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            auto* layer1 = document->world()->createLayer("test1");
+            auto* layer2 = document->world()->createLayer("test2");
+            document->addNode(layer1, document->world());
+            document->addNode(layer2, document->world());
+
+            document->setCurrentLayer(layer1);
+
+            // Create an entity in layer1
+            auto* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+            CHECK(entity1->parent() == layer1);
+            CHECK(layer1->childCount() == 1u);
+
+            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(!entity1->locked());
+
+            // Lock layer1
+            document->lock({layer1}); 
+
+            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->locked());
+
+            // Create another entity in layer1. It will be unlocked, while entity1 will still be locked (inherited).
+            auto* entity2 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+            CHECK(entity2->parent() == layer1);
+            CHECK(layer1->childCount() == 2u);
+
+            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->locked());
+            CHECK(entity2->lockState() == Model::LockState::Lock_Unlocked);
+            CHECK(!entity2->locked());
+
+            // Change to layer2. This causes the Lock_Unlocked objects in layer1 to be degraded to Lock_Inherited
+            // (i.e. everything in layer1 becomes locked)
+            document->setCurrentLayer(layer2);
+
+            CHECK(document->currentLayer() == layer2);
+            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->locked());
+            CHECK(entity2->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity2->locked());
+
+            // Undo (Switch current layer back to layer1)
+            document->undoCommand();
+
+            CHECK(document->currentLayer() == layer1);
+            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->locked());
+            CHECK(entity2->lockState() == Model::LockState::Lock_Unlocked);
+            CHECK(!entity2->locked());
+
+            // Undo entity2 creation
+            document->undoCommand();
+
+            CHECK(layer1->childCount() == 1u);
+            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->locked());
+
+            // Undo locking layer1
+            document->undoCommand();
+
+            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(!entity1->locked());
         }
     }
 }
