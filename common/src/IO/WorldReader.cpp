@@ -25,8 +25,10 @@
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
 
+#include <kdl/vector_set.h>
 #include <kdl/string_utils.h>
 
+#include <cassert>
 #include <string>
 
 namespace TrenchBroom {
@@ -46,7 +48,8 @@ namespace TrenchBroom {
         }
 
         /**
-         * Rewrites the sort indices of custom layers to the integers 0, 1,..., N-1, given N custom layers.
+         * Sanitizes the sort indices of custom layers:
+         * Ensures there are no duplicates or sort indices less than 0.
          *
          * This will be a no-op on a well-formed map file.
          * If the map was saved without layer indices, the file order is used.
@@ -55,13 +58,33 @@ namespace TrenchBroom {
             std::vector<Model::LayerNode*> customLayers = m_world->customLayers();
             Model::LayerNode::sortLayers(customLayers);
 
-            // Use the order of customLayers to re-assign the sort indices
-            int i = 0;
+            // Gather the layers whose sort indices are invalid. Visit them in the current sorted order.
+            std::vector<Model::LayerNode*> invalidLayers;
+            std::vector<Model::LayerNode*> validLayers;
+            kdl::vector_set<int> usedIndices;
             for (auto* layer : customLayers) {
-                if (layer->sortIndex() != i) {
-                    layer->setSortIndex(i);
+                // Check for a totally invalid index
+                if (layer->sortIndex() < 0  || layer->sortIndex() == Model::LayerNode::invalidSortIndex()) {
+                    invalidLayers.push_back(layer);
+                    continue;
                 }
-                ++i;
+
+                // Check for an index that has already been used
+                const bool wasInserted = usedIndices.insert(layer->sortIndex()).second;
+                if (!wasInserted) {
+                    invalidLayers.push_back(layer);
+                    continue;
+                }
+
+                validLayers.push_back(layer);
+            }
+
+            assert(invalidLayers.size() + validLayers.size() == customLayers.size());
+
+            // Renumber the invalid layers
+            int nextValidLayerIndex = (validLayers.empty() ? 0 : (validLayers.back()->sortIndex() + 1));            
+            for (auto* layer : invalidLayers) {
+                layer->setSortIndex(nextValidLayerIndex++);
             }
         }
 

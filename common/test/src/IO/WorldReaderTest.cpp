@@ -761,7 +761,7 @@ namespace TrenchBroom {
             CHECK(sort1->sortIndex()     == 1);            
         }
 
-        TEST_CASE("WorldReaderTest.parseLayersWithGapsInSortIndices", "[WorldReaderTest]") {
+        TEST_CASE("WorldReaderTest.parseLayersWithReversedSortIndicesWithGaps", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
@@ -812,11 +812,99 @@ namespace TrenchBroom {
             CHECK(sort5->name() == "Sort Index 5");
 
             CHECK(defaultLayer->sortIndex() == Model::LayerNode::defaultLayerSortIndex());
-            // The sort indices are sanitized to start at 0 and be contiguous, but the indices read from the file (1, 3, 5)
-            // are still used to produce the final ordering
-            CHECK(sort1->sortIndex()        == 0);
-            CHECK(sort3->sortIndex()        == 1);
-            CHECK(sort5->sortIndex()        == 2);
+            // We allow gaps in sort indices so they remain 1, 3, 5
+            CHECK(sort1->sortIndex()        == 1);
+            CHECK(sort3->sortIndex()        == 3);
+            CHECK(sort5->sortIndex()        == 5);
+        }
+
+        TEST_CASE("WorldReaderTest.parseLayersWithSortIndicesWithGapsAndDuplicates", "[WorldReaderTest]") {
+            const std::string data = R"end(
+{
+"classname" "worldspawn"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index -1"
+"_tb_id" "1"
+"_tb_layer_sort_index" "-1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index 8"
+"_tb_id" "2"
+"_tb_layer_sort_index" "8"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index 8 (second)"
+"_tb_id" "3"
+"_tb_layer_sort_index" "8"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index 10"
+"_tb_id" "4"
+"_tb_layer_sort_index" "10"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index 10 (second)"
+"_tb_id" "5"
+"_tb_layer_sort_index" "10"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index 12"
+"_tb_id" "6"
+"_tb_layer_sort_index" "12"
+})end";
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data);
+
+            auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
+
+            ASSERT_EQ(7u, world->childCount());
+
+            // NOTE: They are listed in world->children() in file order, not sort index order
+            auto* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().at(0));
+            auto* sortMinusOne = dynamic_cast<Model::LayerNode*>(world->children().at(1));
+            auto* sort8        = dynamic_cast<Model::LayerNode*>(world->children().at(2));
+            auto* sort8second  = dynamic_cast<Model::LayerNode*>(world->children().at(3));
+            auto* sort10       = dynamic_cast<Model::LayerNode*>(world->children().at(4));
+            auto* sort10second = dynamic_cast<Model::LayerNode*>(world->children().at(5));
+            auto* sort12       = dynamic_cast<Model::LayerNode*>(world->children().at(6));            
+          
+            REQUIRE(nullptr != defaultLayer);
+            REQUIRE(nullptr != sortMinusOne);
+            REQUIRE(nullptr != sort8);
+            REQUIRE(nullptr != sort8second);
+            REQUIRE(nullptr != sort10);
+            REQUIRE(nullptr != sort10second);
+            REQUIRE(nullptr != sort12);
+
+            CHECK(sortMinusOne->name() == "Sort Index -1");
+            CHECK(sort8->name()        == "Sort Index 8");
+            CHECK(sort8second->name()  == "Sort Index 8 (second)");
+            CHECK(sort10->name()       == "Sort Index 10");
+            CHECK(sort10second->name() == "Sort Index 10 (second)");
+            CHECK(sort12->name()       == "Sort Index 12");
+
+            CHECK(defaultLayer->sortIndex() == Model::LayerNode::defaultLayerSortIndex());
+            CHECK(sortMinusOne->sortIndex() == 13); // This one was invalid so it got moved to the end
+            CHECK(sort8->sortIndex()        == 8);
+            CHECK(sort8second->sortIndex()  == 14); // This one was invalid so it got moved to the end
+            CHECK(sort10->sortIndex()       == 10);
+            CHECK(sort10second->sortIndex() == 15); // This one was invalid so it got moved to the end
+            CHECK(sort12->sortIndex()       == 12);
         }
 
         TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithLayer", "[WorldReaderTest]") {
