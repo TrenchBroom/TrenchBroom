@@ -495,11 +495,11 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::nodesWereAdded(const std::vector<Model::Node*>&) {
-            updateRenderers(Renderer_Default);
+            updateRenderers(Renderer_All);
         }
 
         void MapRenderer::nodesWereRemoved(const std::vector<Model::Node*>&) {
-            updateRenderers(Renderer_Default);
+            updateRenderers(Renderer_All);
         }
 
         void MapRenderer::nodesDidChange(const std::vector<Model::Node*>&) {
