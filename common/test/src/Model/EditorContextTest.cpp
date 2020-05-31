@@ -331,9 +331,8 @@ namespace TrenchBroom {
 
             assertVisible(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
             assertVisible(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            // These were broken by the change to create Nodes with Visibility_Shown
-            // assertVisible(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            // assertVisible(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertVisible(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
+            assertVisible(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
 
             assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
             assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
@@ -664,9 +663,8 @@ namespace TrenchBroom {
 
             assertVisible(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
             assertVisible(true, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
-            // These were broken by the change to create Nodes with Visibility_Shown
-            // assertVisible(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
-            // assertVisible(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
+            assertVisible(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
+            assertVisible(false, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Locked);
 
             assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
             assertVisible(true, brush, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
