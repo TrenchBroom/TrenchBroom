@@ -134,6 +134,7 @@
 #include <vecmath/vec_io.h>
 
 #include <cassert>
+#include <cstdlib> // for std::abs
 #include <map>
 #include <sstream>
 #include <string>
@@ -1124,50 +1125,58 @@ namespace TrenchBroom {
             unused(result);
         }
 
-        void MapDocument::moveLayer(Model::LayerNode* layer, int direction) {
-            if (!canMoveLayer(layer, direction)) {
-                return;
+        bool MapDocument::moveLayerByOne(Model::LayerNode* layer, MoveDirection direction) {
+            const std::vector<Model::LayerNode*> sorted = m_world->customLayersUserSorted();
+
+            const auto maybeIndex = kdl::vec_index_of(sorted, layer);
+            if (!maybeIndex.has_value()) {
+                return false;
             }
-            const Transaction transaction(this, "Move Layer");
 
-            ensure(layer != m_world->defaultLayer(), "attempted to move default layer");
-
-            std::vector<Model::LayerNode*> sorted = m_world->customLayersUserSorted();
-
-            auto maybeIndex = kdl::vec_index_of(sorted, layer);
-            ensure(maybeIndex.has_value(), "layer not found");
-            const int indexInt = static_cast<int>(maybeIndex.value());
-
-            Model::LayerNode* neighbour = sorted.at(static_cast<size_t>(indexInt + direction));
-
+            const int newIndex = static_cast<int>(*maybeIndex) + (direction == MoveDirection::Down ? 1 : -1);
+            if (newIndex < 0 || newIndex >= static_cast<int>(sorted.size())) {
+                return false;
+            }
+            
+            Model::LayerNode* neighbour = sorted.at(static_cast<size_t>(newIndex));           
             const int ourSortIndex = layer->sortIndex();
             const int neighbourSortIndex = neighbour->sortIndex();
-    
+
+            // Swap the sort indices of `layer` and `neighbour`
             executeAndStore(ChangeEntityAttributesCommand::setForNodes({ layer },     Model::AttributeNames::LayerSortIndex, std::to_string(neighbourSortIndex)));
             executeAndStore(ChangeEntityAttributesCommand::setForNodes({ neighbour }, Model::AttributeNames::LayerSortIndex, std::to_string(ourSortIndex)));
+            return true;
+        }
+
+        void MapDocument::moveLayer(Model::LayerNode* layer, const int offset) {
+            ensure(layer != m_world->defaultLayer(), "attempted to move default layer");
+
+            const Transaction transaction(this, "Move Layer");
+            
+            const MoveDirection direction = (offset > 0) ? MoveDirection::Down : MoveDirection::Up;
+            for (int i = 0; i < std::abs(offset); ++i) {
+                if (!moveLayerByOne(layer, direction)) {
+                    break;
+                }
+            }
         }
         
-        bool MapDocument::canMoveLayer(Model::LayerNode* layer, const int direction) const {
+        bool MapDocument::canMoveLayer(Model::LayerNode* layer, const int offset) const {
             ensure(layer != nullptr, "null layer");
-            ensure(direction == -1 || direction == 1, "invalid direction");
 
             Model::WorldNode* world = this->world();
             if (layer == world->defaultLayer()) {
                 return false;
             }
 
-            const std::vector<Model::LayerNode*> sorted = world->customLayersUserSorted();
-            if (sorted.empty()) {
+            const std::vector<Model::LayerNode*> sorted = world->customLayersUserSorted();            
+            const auto maybeIndex = kdl::vec_index_of(sorted, layer);
+            if (!maybeIndex.has_value()) {
                 return false;
             }
 
-            if (direction > 0) {
-                // Can move down in the list if we're not already at the end
-                return layer != sorted.back();
-            } else {
-                // Can move up in the list if we're not already at the front
-                return layer != sorted.front();
-            }
+            const int newIndex = static_cast<int>(*maybeIndex) + offset;
+            return (newIndex >= 0 && newIndex < static_cast<int>(sorted.size()));
         }
 
         class CollectMoveableNodes : public Model::NodeVisitor {

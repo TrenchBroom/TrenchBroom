@@ -352,8 +352,12 @@ namespace TrenchBroom {
             void closeGroup();
         public: // layer management
             void renameLayer(Model::LayerNode* layer, const std::string& name);
-            void moveLayer(Model::LayerNode* layer, int direction);
-            bool canMoveLayer(Model::LayerNode* layer, int direction) const;
+        private:
+            enum class MoveDirection { Up, Down };
+            bool moveLayerByOne(Model::LayerNode* layer, MoveDirection direction);
+        public:
+            void moveLayer(Model::LayerNode* layer, int offset);
+            bool canMoveLayer(Model::LayerNode* layer, int offset) const;
             void moveSelectionToLayer(Model::LayerNode* layer);
             bool canMoveSelectionToLayer(Model::LayerNode* layer) const;
             void hideLayers(const std::vector<Model::LayerNode*>& layers);

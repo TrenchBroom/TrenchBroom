@@ -1370,5 +1370,60 @@ namespace TrenchBroom {
             CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
             CHECK(!entity1->locked());
         }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.moveLayer", "[LayerTest]") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            auto* layer0 = document->world()->createLayer("layer0");
+            auto* layer1 = document->world()->createLayer("layer1");
+            auto* layer2 = document->world()->createLayer("laeyr2");
+
+            document->addNode(layer0, document->world());
+            document->addNode(layer1, document->world());
+            document->addNode(layer2, document->world());
+
+            layer0->setSortIndex(0);
+            layer1->setSortIndex(1);
+            layer2->setSortIndex(2);
+
+            SECTION("check canMoveLayer") {
+                // defaultLayer() can never be moved
+                CHECK(!document->canMoveLayer(document->world()->defaultLayer(), 1));
+                CHECK( document->canMoveLayer(layer0,  0));
+                CHECK(!document->canMoveLayer(layer0, -1));
+                CHECK( document->canMoveLayer(layer0,  1));
+                CHECK( document->canMoveLayer(layer0,  2));
+                CHECK(!document->canMoveLayer(layer0,  3));
+            }
+
+            SECTION("moveLayer by 0 has no effect") {
+                document->moveLayer(layer0, 0);
+                CHECK(layer0->sortIndex() == 0);
+            }
+            SECTION("moveLayer by invalid negative amount is clamped") {
+                document->moveLayer(layer0, -1000);
+                CHECK(layer0->sortIndex() == 0);
+            }
+            SECTION("moveLayer by 1") {
+                document->moveLayer(layer0, 1);
+                CHECK(layer1->sortIndex() == 0);
+                CHECK(layer0->sortIndex() == 1);
+                CHECK(layer2->sortIndex() == 2);
+            }
+            SECTION("moveLayer by 2") {
+                document->moveLayer(layer0, 2);
+                CHECK(layer1->sortIndex() == 0);
+                CHECK(layer2->sortIndex() == 1);
+                CHECK(layer0->sortIndex() == 2);
+            }
+            SECTION("moveLayer by invalid positive amount is clamped") {
+                document->moveLayer(layer0, 1000);
+                CHECK(layer1->sortIndex() == 0);
+                CHECK(layer2->sortIndex() == 1);
+                CHECK(layer0->sortIndex() == 2);
+            }
+        }
     }
 }
