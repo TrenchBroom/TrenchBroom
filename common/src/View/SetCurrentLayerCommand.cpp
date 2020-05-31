@@ -43,8 +43,10 @@ namespace TrenchBroom {
             return std::make_unique<CommandResult>(true);
         }
 
-        bool SetCurrentLayerCommand::doCollateWith(UndoableCommand*) {
-            return false;
+        bool SetCurrentLayerCommand::doCollateWith(UndoableCommand* command) {
+            SetCurrentLayerCommand* other = static_cast<SetCurrentLayerCommand*>(command);
+            m_currentLayer = other->m_currentLayer;
+            return true;
         }
 
         bool SetCurrentLayerCommand::doIsRepeatable(MapDocumentCommandFacade*) const {

@@ -1425,5 +1425,33 @@ namespace TrenchBroom {
                 CHECK(layer0->sortIndex() == 2);
             }
         }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.setCurrentLayerCollation", "[LayerTest]") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            auto* defaultLayer = document->world()->defaultLayer();
+            auto* layer1 = document->world()->createLayer("test1");
+            auto* layer2 = document->world()->createLayer("test2");
+            document->addNode(layer1, document->world());
+            document->addNode(layer2, document->world());
+            CHECK(document->currentLayer() == defaultLayer);
+
+            document->setCurrentLayer(layer1);
+            document->setCurrentLayer(layer2);
+            CHECK(document->currentLayer() == layer2);
+
+            // No collation currently because of the transactions in setCurrentLayer()
+            document->undoCommand();
+            CHECK(document->currentLayer() == layer1);
+            document->undoCommand();
+            CHECK(document->currentLayer() == defaultLayer);
+
+            document->redoCommand();
+            CHECK(document->currentLayer() == layer1);
+            document->redoCommand();
+            CHECK(document->currentLayer() == layer2);
+        }
     }
 }
