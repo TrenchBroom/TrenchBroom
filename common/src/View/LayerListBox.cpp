@@ -48,9 +48,7 @@ namespace TrenchBroom {
         m_nameText(nullptr),
         m_infoText(nullptr),
         m_hiddenButton(nullptr),
-        m_lockButton(nullptr),
-        m_moveLayerUpButton(nullptr),
-        m_moveLayerDownButton(nullptr) {
+        m_lockButton(nullptr) {
             m_nameText = new QLabel(QString::fromStdString(m_layer->name()));
             // Ignore the label's minimum width, this prevents a horizontal scroll bar from appearing on the list widget,
             // and instead just cuts off the label for long layer names.
@@ -61,8 +59,6 @@ namespace TrenchBroom {
             m_activeButton = new QRadioButton();
             m_hiddenButton = createBitmapToggleButton("Hidden.svg", tr("Toggle hidden state"));
             m_lockButton = createBitmapToggleButton("Lock.svg", tr("Toggle locked state"));
-            m_moveLayerUpButton = createBitmapButton("Up.svg", tr("Move the selected layer up"));
-            m_moveLayerDownButton = createBitmapButton("Down.svg", tr("Move the selected layer down"));
 
             auto documentS = kdl::mem_lock(m_document);
             connect(m_activeButton, &QAbstractButton::clicked, this, [this]() {
@@ -73,12 +69,6 @@ namespace TrenchBroom {
             });
             connect(m_lockButton, &QAbstractButton::clicked, this, [this]() {
                 emit layerLockToggled(m_layer);
-            });
-            connect(m_moveLayerUpButton, &QAbstractButton::clicked, this, [this]() {
-                emit layerMovedUp(m_layer);
-            });
-            connect(m_moveLayerDownButton, &QAbstractButton::clicked, this, [this]() {
-                emit layerMovedDown(m_layer);
             });
 
             installEventFilter(this);
@@ -96,9 +86,8 @@ namespace TrenchBroom {
             itemPanelLayout->setSpacing(LayoutConstants::MediumHMargin);
 
             itemPanelLayout->addWidget(m_activeButton);
+            itemPanelLayout->addSpacing(LayoutConstants::NarrowHMargin);
             itemPanelLayout->addLayout(textLayout, 1);
-            itemPanelLayout->addWidget(m_moveLayerUpButton, 0, Qt::AlignVCenter);
-            itemPanelLayout->addWidget(m_moveLayerDownButton, 0, Qt::AlignVCenter);
             itemPanelLayout->addWidget(m_hiddenButton);
             itemPanelLayout->addWidget(m_lockButton);
             setLayout(itemPanelLayout);
@@ -133,11 +122,6 @@ namespace TrenchBroom {
             m_hiddenButton->setChecked(m_layer->hidden());
 
             const auto* world = document->world();
-            // defaultLayer can never move so just hide the buttons
-            m_moveLayerUpButton->setVisible(m_layer != world->defaultLayer());
-            m_moveLayerDownButton->setVisible(m_layer != world->defaultLayer());
-            m_moveLayerUpButton->setEnabled(document->canMoveLayer(m_layer, -1));
-            m_moveLayerDownButton->setEnabled(document->canMoveLayer(m_layer, 1));
         }
 
         Model::LayerNode* LayerListBoxWidget::layer() const {
@@ -259,8 +243,6 @@ namespace TrenchBroom {
             connect(renderer, &LayerListBoxWidget::layerRightClicked,      this, &LayerListBox::layerRightClicked);
             connect(renderer, &LayerListBoxWidget::layerVisibilityToggled, this, &LayerListBox::layerVisibilityToggled);
             connect(renderer, &LayerListBoxWidget::layerLockToggled,       this, &LayerListBox::layerLockToggled);
-            connect(renderer, &LayerListBoxWidget::layerMovedUp,           this, &LayerListBox::layerMovedUp);
-            connect(renderer, &LayerListBoxWidget::layerMovedDown,         this, &LayerListBox::layerMovedDown);
             return renderer;
         }
 

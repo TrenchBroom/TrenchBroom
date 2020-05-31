@@ -361,12 +361,6 @@ namespace TrenchBroom {
             connect(m_layerList, &LayerListBox::layerLockToggled, this, [this](Model::LayerNode* layer){
                 toggleLayerLocked(layer);
             });
-            connect(m_layerList, &LayerListBox::layerMovedUp, this, [this](Model::LayerNode* layer){
-                moveLayer(layer, -1);
-            });
-            connect(m_layerList, &LayerListBox::layerMovedDown, this, [this](Model::LayerNode* layer){
-                moveLayer(layer, 1);
-            });
             connect(m_layerList, &LayerListBox::itemSelectionChanged, this, &LayerEditor::updateButtons);
 
             m_addLayerButton = createBitmapButton("Add.svg", tr("Add a new layer from the current selection"));
@@ -409,6 +403,7 @@ namespace TrenchBroom {
             buttonSizer->addStretch(1);
             buttonSizer->addWidget(m_showAllLayersButton);
             buttonSizer->addWidget(m_hideAllLayersButton);
+            buttonSizer->addSpacing(LayoutConstants::NarrowHMargin);
             buttonSizer->addWidget(m_unlockAllLayersButton);
             buttonSizer->addWidget(m_lockAllLayersButton);
 
