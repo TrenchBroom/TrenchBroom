@@ -120,8 +120,6 @@ namespace TrenchBroom {
             m_activeButton->setChecked(document->currentLayer() == m_layer);
             m_lockButton->setChecked(m_layer->locked());
             m_hiddenButton->setChecked(m_layer->hidden());
-
-            const auto* world = document->world();
         }
 
         Model::LayerNode* LayerListBoxWidget::layer() const {
