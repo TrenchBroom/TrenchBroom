@@ -53,7 +53,7 @@ namespace TrenchBroom {
             extern const std::string Group;
             extern const std::string Message;
             extern const std::string ValveVersion;
-            extern const std::string SoftMaxMapSize;
+            extern const std::string SoftMapBounds;
         }
 
         namespace AttributeValues {

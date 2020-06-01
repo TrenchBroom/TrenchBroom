@@ -53,7 +53,7 @@ namespace TrenchBroom {
             const std::string Group             = "_tb_group";
             const std::string Message           = "_tb_message";
             const std::string ValveVersion      = "mapversion";
-            const std::string SoftMaxMapSize    = "_tb_max_size";
+            const std::string SoftMapBounds     = "_tb_soft_map_bounds";
         }
 
         namespace AttributeValues {
