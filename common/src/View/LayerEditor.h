@@ -44,39 +44,49 @@ namespace TrenchBroom {
 
             QAbstractButton* m_addLayerButton;
             QAbstractButton* m_removeLayerButton;
+            QAbstractButton* m_unlockAllLayersButton;
+            QAbstractButton* m_lockAllLayersButton;
             QAbstractButton* m_showAllLayersButton;
+            QAbstractButton* m_hideAllLayersButton;
+            QAbstractButton* m_moveLayerUpButton;
+            QAbstractButton* m_moveLayerDownButton;
         public:
             explicit LayerEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-        private:
+        private:            
             void onSetCurrentLayer(Model::LayerNode* layer);
+            bool canSetCurrentLayer(Model::LayerNode* layer) const;
+
             void onLayerRightClick(Model::LayerNode* layer);
 
-            class CollectMoveableNodes;
             void onMoveSelectionToLayer();
             bool canMoveSelectionToLayer() const;
 
-            void onToggleLayerVisibleFromMenu();
-            void onToggleLayerVisibleFromList(Model::LayerNode* layer);
             bool canToggleLayerVisible() const;
             void toggleLayerVisible(Model::LayerNode* layer);
 
-            void onToggleLayerLockedFromMenu();
-            void onToggleLayerLockedFromList(Model::LayerNode* layer);
             bool canToggleLayerLocked() const;
             void toggleLayerLocked(Model::LayerNode* layer);
+
+            void isolateLayer(Model::LayerNode* layer);
 
             void onSelectAllInLayer();
 
             void onAddLayer();
-            std::string queryLayerName();
+            std::string queryLayerName(const std::string& suggestion);
 
             void onRemoveLayer();
             bool canRemoveLayer() const;
 
+            void onRenameLayer();
+            bool canRenameLayer() const;
+
             void onShowAllLayers();
+            void onHideAllLayers();
+
+            bool canMoveLayer(int direction) const;
+            void moveLayer(Model::LayerNode* layer, int direction);
         private:
             Model::LayerNode* findVisibleAndUnlockedLayer(const Model::LayerNode* except) const;
-            void moveSelectedNodesToLayer(std::shared_ptr<MapDocument> document, Model::LayerNode* layer);
             void createGui();
         private slots:
             void updateButtons();

@@ -54,6 +54,10 @@ namespace TrenchBroom {
         class Node;
         class NodeCollection;
 
+        /**
+         * Interface of MapDocument that is exposed to the Model package.
+         * Exists mostly so Issues (from the Model package) can perform quick fixes.
+         */
         class MapFacade {
         public:
             virtual ~MapFacade();
@@ -64,6 +68,7 @@ namespace TrenchBroom {
             virtual GroupNode* currentGroup() const = 0;
             virtual Node* currentGroupOrWorld() const = 0;
             virtual Node* currentParent() const = 0;
+            virtual Node* parentForNodes(const std::vector<Node*>& nodes) const = 0;
 
             virtual Assets::EntityDefinitionManager& entityDefinitionManager() = 0;
             virtual Assets::EntityModelManager& entityModelManager() = 0;

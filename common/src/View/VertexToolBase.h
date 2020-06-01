@@ -282,9 +282,10 @@ namespace TrenchBroom {
                     brush.cloneFaceAttributesFrom(selectedBrushNode->brush());
                 }
 
+                Model::Node* newParent = document->parentForNodes(document->selectedNodes().nodes());
                 const Transaction transaction(document, "CSG Convex Merge");
                 deselectAll();
-                document->addNode(new Model::BrushNode(std::move(brush)), document->currentParent());
+                document->addNode(new Model::BrushNode(std::move(brush)), newParent);
             }
 
             virtual H getHandlePosition(const Model::Hit& hit) const {

@@ -162,6 +162,13 @@ namespace TrenchBroom {
             }
 
             Model::LayerNode* layer = m_factory->createLayer(name);
+
+            const std::string& layerSortIndex = findAttribute(attributes, Model::AttributeNames::LayerSortIndex);
+            if (!kdl::str_is_blank(layerSortIndex)) {
+                // This is optional (not present on maps saved in TB 2020.1 and earlier)
+                layer->addOrUpdateAttribute(Model::AttributeNames::LayerSortIndex, layerSortIndex);
+            }
+
             setExtraAttributes(layer, extraAttributes);
             m_layers.insert(std::make_pair(layerId, layer));
 
@@ -286,6 +293,9 @@ namespace TrenchBroom {
             }
         }
 
+        /**
+         * Resolves cases when a child is parsed before its parent; called after the whole map is parsed.
+         */
         void MapReader::resolveNodes(ParserStatus& status) {
             for (const auto& entry : m_unresolvedNodes) {
                 Model::Node* node = entry.first;

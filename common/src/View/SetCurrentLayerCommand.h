@@ -17,45 +17,40 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_RenameGroupsCommand
-#define TrenchBroom_RenameGroupsCommand
+#ifndef TrenchBroom_SetCurrentLayerCommand
+#define TrenchBroom_SetCurrentLayerCommand
 
 #include "Macros.h"
-#include "View/DocumentCommand.h"
+#include "View/UndoableCommand.h"
 
-#include <map>
 #include <memory>
-#include <string>
 
 namespace TrenchBroom {
     namespace Model {
-        class GroupNode;
+        class LayerNode;
     }
 
     namespace View {
-        class MapDocumentCommandFacade;
-
-        class RenameGroupsCommand : public DocumentCommand {
+        class SetCurrentLayerCommand : public UndoableCommand {
         public:
             static const CommandType Type;
         private:
-            const std::string m_newName;
-            std::map<Model::GroupNode*, std::string> m_oldNames;
+            Model::LayerNode* m_currentLayer;
+            Model::LayerNode* m_oldCurrentLayer;
         public:
-            static std::unique_ptr<RenameGroupsCommand> rename(const std::string& newName);
+            static std::unique_ptr<SetCurrentLayerCommand> set(Model::LayerNode* layer);
 
-            explicit RenameGroupsCommand(const std::string& newName);
+            SetCurrentLayerCommand(Model::LayerNode* layer);
         private:
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
             std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
+            bool doCollateWith(UndoableCommand* command) override;
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand* command) override;
-
-            deleteCopyAndMove(RenameGroupsCommand)
+            deleteCopyAndMove(SetCurrentLayerCommand)
         };
     }
 }
 
-#endif /* defined(TrenchBroom_RenameGroupsCommand) */
+#endif /* defined(TrenchBroom_SetCurrentLayerCommand) */

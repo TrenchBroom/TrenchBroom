@@ -70,6 +70,26 @@ namespace TrenchBroom {
                          "}\n", result.c_str());
         }
 
+        TEST_CASE("NodeWriterTest.writeDefaultLayerColor", "[NodeWriterTest]") {
+            Model::WorldNode map(Model::MapFormat::Standard);
+            map.addOrUpdateAttribute("classname", "worldspawn");
+            map.defaultLayer()->setLayerColor(Color(0.25f, 0.75f, 1.0f));
+
+            std::stringstream str;
+            NodeWriter writer(map, str);
+            writer.writeMap();
+
+            const std::string actual = str.str();
+            const std::string expected = \
+R"(// entity 0
+{
+"classname" "worldspawn"
+"_tb_layer_color" "0.25 0.75 1"
+}
+)";
+            CHECK(actual == expected);
+        }
+
         TEST_CASE("NodeWriterTest.writeDaikatanaMap", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
@@ -237,6 +257,8 @@ R"(// entity 0
             map.addOrUpdateAttribute("classname", "worldspawn");
 
             Model::LayerNode* layer = map.createLayer("Custom Layer");
+            CHECK(layer->sortIndex() == Model::LayerNode::invalidSortIndex());
+            layer->setSortIndex(0);
             map.addChild(layer);
 
             Model::BrushBuilder builder(&map, worldBounds);
@@ -258,6 +280,7 @@ R"(// entity 0
 "_tb_type" "_tb_layer"
 "_tb_name" "Custom Layer"
 "_tb_id" "*"
+"_tb_layer_sort_index" "0"
 // brush 0
 {
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
@@ -267,6 +290,38 @@ R"(// entity 0
 ( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1
 ( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1
 }
+}
+)";
+
+            const auto actual = str.str();
+
+            ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
+        }
+
+        TEST_CASE("NodeWriterTest.writeWorldspawnWithCustomLayerWithSortIndex", "[NodeWriterTest]") {
+            Model::WorldNode map(Model::MapFormat::Standard);
+            map.addOrUpdateAttribute("classname", "worldspawn");
+
+            Model::LayerNode* layer = map.createLayer("Custom Layer");
+            layer->setSortIndex(1);
+            map.addChild(layer);
+
+            std::stringstream str;
+            NodeWriter writer(map, str);
+            writer.writeMap();
+
+            const std::string expected =
+R"(// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Custom Layer"
+"_tb_id" "*"
+"_tb_layer_sort_index" "1"
 }
 )";
 

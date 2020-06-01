@@ -22,6 +22,7 @@
 #include <cassert>
 #include <algorithm>
 #include <cstring>
+#include <stdexcept>
 
 namespace TrenchBroom {
     // BrushIndexArray

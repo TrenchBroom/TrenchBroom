@@ -24,6 +24,8 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
+#include <sstream>
+
 namespace TrenchBroom {
     bool Color::canParse(const std::string& str) {
         return vm::can_parse<float, 4>(str) || vm::can_parse<float, 3>(str);
@@ -37,6 +39,16 @@ namespace TrenchBroom {
             const auto v = vm::parse<float, 3>(str);
             return Color(v.x(), v.y(), v.z());
         }
+    }
+
+    std::string Color::toString() const {
+        std::stringstream ss;
+        if (a() == 1.0f) {
+            ss << this->xyz();
+        } else {
+            ss << this;
+        }
+        return ss.str();
     }
 
     Color::Color() :

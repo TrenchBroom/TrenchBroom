@@ -55,8 +55,22 @@ namespace TrenchBroom {
             ~WorldNode() override;
         public: // layer management
             LayerNode* defaultLayer() const;
+            /**
+             * Returns defaultLayer() plus customLayers()
+             */
             std::vector<LayerNode*> allLayers() const;
+            /**
+             * Returns the custom layers in file order
+             */
             std::vector<LayerNode*> customLayers() const;
+            /**
+             * Returns defaultLayer() plus customLayers() ordered by LayerNode::sortIndex(). The default layer is always first.
+             */
+            std::vector<LayerNode*> allLayersUserSorted() const;
+            /**
+             * Returns customLayers() ordered by LayerNode::sortIndex()
+             */
+            std::vector<LayerNode*> customLayersUserSorted() const;
         private:
             void createDefaultLayer();
         public: // index

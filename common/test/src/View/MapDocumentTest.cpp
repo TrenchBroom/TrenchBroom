@@ -30,17 +30,20 @@
 #include "Model/EmptyAttributeNameIssueGenerator.h"
 #include "Model/EmptyAttributeValueIssueGenerator.h"
 #include "Model/EntityNode.h"
+#include "Model/FindLayerVisitor.h"
 #include "Model/GroupNode.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/LayerNode.h"
+#include "Model/LockState.h"
 #include "Model/MapFormat.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
 #include "Model/TestGame.h"
+#include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
@@ -1111,6 +1114,344 @@ namespace TrenchBroom {
             CHECK(!entity->hasAttribute(""));
 
             kdl::vec_clear_and_delete(issueGenerators);
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.defaultLayerSortIndexImmutable", "[LayerTest]") {
+            Model::LayerNode* defaultLayer = document->world()->defaultLayer();
+
+            defaultLayer->setSortIndex(555);
+            CHECK(defaultLayer->sortIndex() == Model::LayerNode::defaultLayerSortIndex());
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.renameLayer", "[LayerTest]") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            Model::LayerNode* layer = document->world()->createLayer("test1");
+            document->addNode(layer, document->world());
+            CHECK(layer->name() == "test1");
+
+            document->renameLayer(layer, "test2");
+            CHECK(layer->name() == "test2");
+
+            document->undoCommand();
+            CHECK(layer->name() == "test1");
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.duplicateObjectGoesIntoSourceLayer", "[LayerTest]") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            Model::LayerNode* layer1 = document->world()->createLayer("test1");
+            Model::LayerNode* layer2 = document->world()->createLayer("test2");
+            document->addNode(layer1, document->world());
+            document->addNode(layer2, document->world());
+
+            document->setCurrentLayer(layer1);
+            Model::EntityNode* entity = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+            CHECK(entity->parent() == layer1);
+            CHECK(layer1->childCount() == 1);
+
+            document->setCurrentLayer(layer2);
+            document->select(entity);
+            document->duplicateObjects(); // the duplicate should stay in layer1
+
+            REQUIRE(document->selectedNodes().entityCount() == 1);
+            Model::EntityNode* entityClone = document->selectedNodes().entities().at(0);
+            CHECK(entityClone->parent() == layer1);
+            CHECK(layer1->childCount() == 2);
+            CHECK(document->currentLayer() == layer2);
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.newGroupGoesIntoSourceLayer", "[LayerTest]") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            Model::LayerNode* layer1 = document->world()->createLayer("test1");
+            Model::LayerNode* layer2 = document->world()->createLayer("test2");
+            document->addNode(layer1, document->world());
+            document->addNode(layer2, document->world());
+
+            document->setCurrentLayer(layer1);
+            Model::EntityNode* entity = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+            CHECK(entity->parent() == layer1);
+            CHECK(layer1->childCount() == 1);
+
+            document->setCurrentLayer(layer2);
+            document->select(entity);
+            Model::GroupNode* newGroup = document->groupSelection("Group in Layer 1"); // the new group should stay in layer1
+
+            CHECK(entity->parent() == newGroup);
+            CHECK(Model::findLayer(entity) == layer1);
+            CHECK(Model::findLayer(newGroup) == layer1);
+            CHECK(document->currentLayer() == layer2);
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.newObjectsInHiddenLayerAreVisible", "[LayerTest]") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            Model::LayerNode* layer1 = document->world()->createLayer("test1");
+            Model::LayerNode* layer2 = document->world()->createLayer("test2");
+            document->addNode(layer1, document->world());
+            document->addNode(layer2, document->world());
+
+            document->setCurrentLayer(layer1);
+
+            // Create an entity in layer1
+            Model::EntityNode* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+            CHECK(entity1->parent() == layer1);
+            CHECK(layer1->childCount() == 1u);
+
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(entity1->visible());
+
+            // Hide layer1. If any nodes in the layer were Visibility_Shown they would be reset to Visibility_Inherited
+            document->hideLayers({layer1}); 
+
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(!entity1->visible());
+
+            // Create another entity in layer1. It will be visible, while entity1 will still be hidden.
+            Model::EntityNode* entity2 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+            CHECK(entity2->parent() == layer1);
+            CHECK(layer1->childCount() == 2u);
+
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(!entity1->visible());
+            CHECK(entity2->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity2->visible());
+
+            // Change to layer2. This hides all objects in layer1
+            document->setCurrentLayer(layer2);
+
+            CHECK(document->currentLayer() == layer2);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(!entity1->visible());
+            CHECK(entity2->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(!entity2->visible());
+
+            // Undo (Switch current layer back to layer1)
+            document->undoCommand();
+
+            CHECK(document->currentLayer() == layer1);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(!entity1->visible());
+            CHECK(entity2->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity2->visible());
+
+            // Undo (entity2 creation)
+            document->undoCommand();
+
+            CHECK(layer1->childCount() == 1u);
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(!entity1->visible());
+
+            // Undo (hiding layer1)
+            document->undoCommand();
+
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Inherited);
+            CHECK(entity1->visible());
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.duplicatedObjectInHiddenLayerIsVisible", "[LayerTest]") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            Model::LayerNode* layer1 = document->world()->createLayer("test1");
+            document->addNode(layer1, document->world());
+
+            document->setCurrentLayer(layer1);
+            document->hideLayers({layer1});
+
+            // Create entity1 and brush1 in the hidden layer1
+            Model::EntityNode* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+            Model::BrushNode* brush1 = createBrushNode();
+            document->addNode(brush1, document->currentParent());
+
+            CHECK(entity1->parent() == layer1);
+            CHECK(brush1->parent() == layer1);
+            CHECK(layer1->childCount() == 2u);
+
+            CHECK(entity1->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(brush1->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity1->visible());
+            CHECK(brush1->visible());
+
+            document->select({entity1, brush1});
+
+            // Duplicate entity1 and brush1
+            CHECK(document->duplicateObjects());
+            REQUIRE(document->selectedNodes().entityCount() == 1u);
+            REQUIRE(document->selectedNodes().brushCount() == 1u);
+            Model::EntityNode* entity2 = document->selectedNodes().entities().front();
+            Model::BrushNode* brush2 =  document->selectedNodes().brushes().front();
+
+            CHECK(entity2 != entity1);
+            CHECK(brush2 != brush1);
+
+            CHECK(entity2->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(entity2->visible());
+
+            CHECK(brush2->visibilityState() == Model::VisibilityState::Visibility_Shown);
+            CHECK(brush2->visible());
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.newObjectsInLockedLayerAreUnlocked", "[LayerTest]") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            auto* layer1 = document->world()->createLayer("test1");
+            auto* layer2 = document->world()->createLayer("test2");
+            document->addNode(layer1, document->world());
+            document->addNode(layer2, document->world());
+
+            document->setCurrentLayer(layer1);
+
+            // Create an entity in layer1
+            auto* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+            CHECK(entity1->parent() == layer1);
+            CHECK(layer1->childCount() == 1u);
+
+            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(!entity1->locked());
+
+            // Lock layer1
+            document->lock({layer1}); 
+
+            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->locked());
+
+            // Create another entity in layer1. It will be unlocked, while entity1 will still be locked (inherited).
+            auto* entity2 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+            CHECK(entity2->parent() == layer1);
+            CHECK(layer1->childCount() == 2u);
+
+            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->locked());
+            CHECK(entity2->lockState() == Model::LockState::Lock_Unlocked);
+            CHECK(!entity2->locked());
+
+            // Change to layer2. This causes the Lock_Unlocked objects in layer1 to be degraded to Lock_Inherited
+            // (i.e. everything in layer1 becomes locked)
+            document->setCurrentLayer(layer2);
+
+            CHECK(document->currentLayer() == layer2);
+            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->locked());
+            CHECK(entity2->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity2->locked());
+
+            // Undo (Switch current layer back to layer1)
+            document->undoCommand();
+
+            CHECK(document->currentLayer() == layer1);
+            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->locked());
+            CHECK(entity2->lockState() == Model::LockState::Lock_Unlocked);
+            CHECK(!entity2->locked());
+
+            // Undo entity2 creation
+            document->undoCommand();
+
+            CHECK(layer1->childCount() == 1u);
+            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(entity1->locked());
+
+            // Undo locking layer1
+            document->undoCommand();
+
+            CHECK(entity1->lockState() == Model::LockState::Lock_Inherited);
+            CHECK(!entity1->locked());
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.moveLayer", "[LayerTest]") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            auto* layer0 = document->world()->createLayer("layer0");
+            auto* layer1 = document->world()->createLayer("layer1");
+            auto* layer2 = document->world()->createLayer("laeyr2");
+
+            document->addNode(layer0, document->world());
+            document->addNode(layer1, document->world());
+            document->addNode(layer2, document->world());
+
+            layer0->setSortIndex(0);
+            layer1->setSortIndex(1);
+            layer2->setSortIndex(2);
+
+            SECTION("check canMoveLayer") {
+                // defaultLayer() can never be moved
+                CHECK(!document->canMoveLayer(document->world()->defaultLayer(), 1));
+                CHECK( document->canMoveLayer(layer0,  0));
+                CHECK(!document->canMoveLayer(layer0, -1));
+                CHECK( document->canMoveLayer(layer0,  1));
+                CHECK( document->canMoveLayer(layer0,  2));
+                CHECK(!document->canMoveLayer(layer0,  3));
+            }
+
+            SECTION("moveLayer by 0 has no effect") {
+                document->moveLayer(layer0, 0);
+                CHECK(layer0->sortIndex() == 0);
+            }
+            SECTION("moveLayer by invalid negative amount is clamped") {
+                document->moveLayer(layer0, -1000);
+                CHECK(layer0->sortIndex() == 0);
+            }
+            SECTION("moveLayer by 1") {
+                document->moveLayer(layer0, 1);
+                CHECK(layer1->sortIndex() == 0);
+                CHECK(layer0->sortIndex() == 1);
+                CHECK(layer2->sortIndex() == 2);
+            }
+            SECTION("moveLayer by 2") {
+                document->moveLayer(layer0, 2);
+                CHECK(layer1->sortIndex() == 0);
+                CHECK(layer2->sortIndex() == 1);
+                CHECK(layer0->sortIndex() == 2);
+            }
+            SECTION("moveLayer by invalid positive amount is clamped") {
+                document->moveLayer(layer0, 1000);
+                CHECK(layer1->sortIndex() == 0);
+                CHECK(layer2->sortIndex() == 1);
+                CHECK(layer0->sortIndex() == 2);
+            }
+        }
+
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.setCurrentLayerCollation", "[LayerTest]") {
+            // delete default brush
+            document->selectAllNodes();
+            document->deleteObjects();
+
+            auto* defaultLayer = document->world()->defaultLayer();
+            auto* layer1 = document->world()->createLayer("test1");
+            auto* layer2 = document->world()->createLayer("test2");
+            document->addNode(layer1, document->world());
+            document->addNode(layer2, document->world());
+            CHECK(document->currentLayer() == defaultLayer);
+
+            document->setCurrentLayer(layer1);
+            document->setCurrentLayer(layer2);
+            CHECK(document->currentLayer() == layer2);
+
+            // No collation currently because of the transactions in setCurrentLayer()
+            document->undoCommand();
+            CHECK(document->currentLayer() == layer1);
+            document->undoCommand();
+            CHECK(document->currentLayer() == defaultLayer);
+
+            document->redoCommand();
+            CHECK(document->currentLayer() == layer1);
+            document->redoCommand();
+            CHECK(document->currentLayer() == layer2);
         }
     }
 }

@@ -22,6 +22,8 @@
 
 #include "Model/NodeVisitor.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class FindLayerVisitor : public NodeVisitor, public NodeQuery<LayerNode*> {
@@ -34,6 +36,11 @@ namespace TrenchBroom {
         };
 
         Model::LayerNode* findLayer(Model::Node* node);
+        /**
+         * For each node, returns its parent layer. The returned vector has duplicates removed
+         * and is sorted according to LayerNode::sortIndex().
+         */
+        std::vector<Model::LayerNode*> findLayersUserSorted(const std::vector<Model::Node*>& nodes);
     }
 }
 
