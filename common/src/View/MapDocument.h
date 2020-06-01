@@ -196,7 +196,11 @@ namespace TrenchBroom {
             bool isGamePathPreference(const IO::Path& path) const;
 
             Model::LayerNode* currentLayer() const override;
+        protected:
+            Model::LayerNode* performSetCurrentLayer(Model::LayerNode* currentLayer);
+        public:
             void setCurrentLayer(Model::LayerNode* currentLayer);
+            bool canSetCurrentLayer(Model::LayerNode* currentLayer) const;
 
             Model::GroupNode* currentGroup() const override;
             /**
@@ -204,9 +208,14 @@ namespace TrenchBroom {
              */
             Model::Node* currentGroupOrWorld() const override;
             /**
-             * Returns the current group if one is open, otherwise the current layer.
+             * Suggests a parent to use for new nodes.
+             * 
+             * If reference nodes are given, return the parent (either a group, if there is one, otherwise the layer) of
+             * the first node in the given vector.
+             * 
+             * Otherwise, returns the current group if one is open, otherwise the current layer.
              */
-            Model::Node* currentParent() const override;
+            Model::Node* parentForNodes(const std::vector<Model::Node*>& referenceNodes = std::vector<Model::Node*>()) const override;
 
             Model::EditorContext& editorContext() const;
 
@@ -353,6 +362,20 @@ namespace TrenchBroom {
 
             void openGroup(Model::GroupNode* group);
             void closeGroup();
+        public: // layer management
+            void renameLayer(Model::LayerNode* layer, const std::string& name);
+        private:
+            enum class MoveDirection { Up, Down };
+            bool moveLayerByOne(Model::LayerNode* layer, MoveDirection direction);
+        public:
+            void moveLayer(Model::LayerNode* layer, int offset);
+            bool canMoveLayer(Model::LayerNode* layer, int offset) const;
+            void moveSelectionToLayer(Model::LayerNode* layer);
+            bool canMoveSelectionToLayer(Model::LayerNode* layer) const;
+            void hideLayers(const std::vector<Model::LayerNode*>& layers);
+            bool canHideLayers(const std::vector<Model::LayerNode*>& layers) const;
+            void isolateLayers(const std::vector<Model::LayerNode*>& layers);
+            bool canIsolateLayers(const std::vector<Model::LayerNode*>& layers) const;
         public: // modifying transient node attributes, declared in MapFacade interface
             void isolate();
             void hide(std::vector<Model::Node*> nodes) override; // Don't take the nodes by reference!
@@ -364,7 +387,11 @@ namespace TrenchBroom {
 
             void lock(const std::vector<Model::Node*>& nodes) override;
             void unlock(const std::vector<Model::Node*>& nodes) override;
+            void ensureUnlocked(const std::vector<Model::Node*>& nodes);
             void resetLock(const std::vector<Model::Node*>& nodes) override;
+        private:
+            void downgradeShownToInherit(const std::vector<Model::Node*>& nodes);
+            void downgradeUnlockedToInherit(const std::vector<Model::Node*>& nodes);
         public: // modifying objects, declared in MapFacade interface
             bool translateObjects(const vm::vec3& delta) override;
             bool rotateObjects(const vm::vec3& center, const vm::vec3& axis, FloatType angle) override;

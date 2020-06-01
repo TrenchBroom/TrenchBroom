@@ -41,6 +41,13 @@ namespace TrenchBroom {
     namespace View {
         class CommandProcessor;
 
+        /**
+         * MapDocument API that is private to Command classes.
+         *
+         * These `performSomething()` methods will actually do an action, where
+         * the corresponding `something()` in MapDocument would create and execute a
+         * Command object which then calls `performSomething()`.
+         */
         class MapDocumentCommandFacade : public MapDocument {
         private:
             std::unique_ptr<CommandProcessor> m_commandProcessor;
@@ -72,6 +79,8 @@ namespace TrenchBroom {
             void restoreVisibilityState(const std::map<Model::Node*, Model::VisibilityState>& nodes);
             std::map<Model::Node*, Model::LockState> setLockState(const std::vector<Model::Node*>& nodes, Model::LockState lockState);
             void restoreLockState(const std::map<Model::Node*, Model::LockState>& nodes);
+        public: // layers
+            using MapDocument::performSetCurrentLayer;
         private:  // groups
             class RenameGroupsVisitor;
             class UndoRenameGroupsVisitor;

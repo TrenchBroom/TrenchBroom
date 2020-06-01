@@ -45,7 +45,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(ChangeBrushFaceAttributesTest, "ChangeBrushFaceAttributesTest.resetAttributesOfValve220Face") {
             Model::BrushNode* brushNode = createBrushNode();
-            document->addNode(brushNode, document->currentParent());
+            document->addNode(brushNode, document->parentForNodes());
 
             const size_t faceIndex = 0u;
             const vm::vec3 initialX = brushNode->brush().face(faceIndex).textureXAxis();
@@ -83,7 +83,7 @@ namespace TrenchBroom {
         
         TEST_CASE_METHOD(ChangeBrushFaceAttributesTest, "ChangeBrushFaceAttributesTest.undoRedo") {
             Model::BrushNode* brushNode = createBrushNode("original");
-            document->addNode(brushNode, document->currentParent());
+            document->addNode(brushNode, document->parentForNodes());
             
             const auto requireTexture = [&](const std::string& textureName) {
                 for (const auto& face : brushNode->brush().faces()) {
@@ -120,7 +120,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(ChangeBrushFaceAttributesTest, "ChangeBrushFaceAttributesTest.setAll") {
             Model::BrushNode* brushNode = createBrushNode();
-            document->addNode(brushNode, document->currentParent());
+            document->addNode(brushNode, document->parentForNodes());
 
             const size_t firstFaceIndex = 0u;
             const size_t secondFaceIndex = 1u;

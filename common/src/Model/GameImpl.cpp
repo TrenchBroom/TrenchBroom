@@ -267,7 +267,7 @@ namespace TrenchBroom {
             try {
                 const auto& searchPath = m_config.textureConfig().package.rootDirectory;
                 if (!searchPath.isEmpty() && m_fs.directoryExists(searchPath)) {
-                    return m_fs.findItems(searchPath, IO::FileTypeMatcher(false, true));
+                    return kdl::vec_concat(std::vector<IO::Path>({searchPath}), m_fs.findItemsRecursively(searchPath, IO::FileTypeMatcher(false, true)));
                 }
                 return std::vector<IO::Path>();
             } catch (FileSystemException& e) {

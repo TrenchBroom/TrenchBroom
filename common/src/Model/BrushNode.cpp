@@ -163,7 +163,9 @@ namespace TrenchBroom {
         }
 
         Node* BrushNode::doClone(const vm::bbox3& /* worldBounds */) const {
-            return new BrushNode(m_brush);
+            auto* result = new BrushNode(m_brush);
+            cloneAttributes(result);
+            return result;
         }
 
         bool BrushNode::doCanAddChild(const Node* /* child */) const {

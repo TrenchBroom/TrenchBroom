@@ -633,7 +633,7 @@ namespace TrenchBroom {
             }
 
             if (!toReparent.empty()) {
-                reparentNodes(toReparent, document->currentParent(), false);
+                reparentNodes(toReparent, document->parentForNodes(toReparent), false);
             }
 
             bool anyTagDisabled = false;
@@ -1056,6 +1056,45 @@ namespace TrenchBroom {
                 menu.addAction(tr("Remove Objects from Group %1").arg(QString::fromStdString(currentGroup->name())), this,
                     &MapViewBase::removeSelectedObjectsFromGroup);
             }
+            menu.addSeparator();
+
+            // Layer operations
+
+            const std::vector<Model::LayerNode*> selectedObjectLayers = Model::findLayersUserSorted(nodes);
+
+            QMenu* moveSelectionTo = menu.addMenu(tr("Move to Layer"));
+            for (Model::LayerNode* layer : document->world()->allLayersUserSorted()) {
+                QAction* action = moveSelectionTo->addAction(QString::fromStdString(layer->name()), this, [=](){
+                    document->moveSelectionToLayer(layer);
+                });
+                action->setEnabled(document->canMoveSelectionToLayer(layer));
+            }
+
+            if (selectedObjectLayers.size() == 1u) {
+                Model::LayerNode* layer = selectedObjectLayers[0];
+                QAction* action = menu.addAction(tr("Make Layer %1 Active").arg(QString::fromStdString(layer->name())), this, [=](){
+                    document->setCurrentLayer(layer);
+                });
+                action->setEnabled(document->canSetCurrentLayer(layer));
+            } else {
+                QMenu* makeLayerActive = menu.addMenu(tr("Make Layer Active"));
+                for (Model::LayerNode* layer : selectedObjectLayers) {
+                    QAction* action = makeLayerActive->addAction(QString::fromStdString(layer->name()), this, [=](){
+                        document->setCurrentLayer(layer);
+                    });
+                    action->setEnabled(document->canSetCurrentLayer(layer));
+                }
+            }
+
+            QAction* hideLayersAction = menu.addAction(tr("Hide Layers"), this, [=](){
+                document->hideLayers(selectedObjectLayers);
+            });
+            hideLayersAction->setEnabled(document->canHideLayers(selectedObjectLayers));
+            QAction* isolateLayersAction = menu.addAction(tr("Isolate Layers"), this, [=](){
+                document->isolateLayers(selectedObjectLayers);
+            });
+            isolateLayersAction->setEnabled(document->canIsolateLayers(selectedObjectLayers));
+
             menu.addSeparator();
 
             if (document->selectedNodes().hasOnlyBrushes()) {

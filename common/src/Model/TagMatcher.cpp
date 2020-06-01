@@ -315,7 +315,7 @@ namespace TrenchBroom {
         void EntityClassNameTagMatcher::disable(TagMatcherCallback& /* callback */, MapFacade& facade) const {
             // entities will be removed automatically when they become empty
 
-            const auto& selectedBrushes = facade.selectedNodes().nodes();
+            const auto selectedBrushes = facade.selectedNodes().nodes();
             auto detailBrushes = std::vector<Node*> {};
             for (auto* brush : selectedBrushes) {
                 if (matches(*brush)) {
@@ -323,8 +323,11 @@ namespace TrenchBroom {
                 }
             }
 
+            if (detailBrushes.empty()) {
+                return;
+            }
             facade.deselectAll();
-            facade.reparentNodes(facade.currentParent(), detailBrushes);
+            facade.reparentNodes(facade.parentForNodes(selectedBrushes), detailBrushes);
             facade.select(std::vector<Node*> (std::begin(detailBrushes), std::end(detailBrushes)));
         }
 

@@ -34,6 +34,9 @@ namespace TrenchBroom {
     namespace IO {
         class ParserStatus;
 
+        /**
+         * MapReader subclass for loading a whole .map file.
+         */
         class WorldReader : public MapReader {
             std::unique_ptr<Model::WorldNode> m_world;
         public:
@@ -41,6 +44,8 @@ namespace TrenchBroom {
             explicit WorldReader(const std::string& str);
 
             std::unique_ptr<Model::WorldNode> read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
+        private:            
+            void sanitizeLayerSortIndicies(ParserStatus& status);            
         private: // implement MapReader interface
             Model::ModelFactory& initialize(Model::MapFormat format) override;
             Model::Node* onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;

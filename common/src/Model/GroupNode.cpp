@@ -43,12 +43,13 @@
 namespace TrenchBroom {
     namespace Model {
         GroupNode::GroupNode(const std::string& name) :
-        m_name(name),
         m_editState(Edit_Closed),
-        m_boundsValid(false) {}
+        m_boundsValid(false) {
+            setName(name);
+        }
 
         void GroupNode::setName(const std::string& name) {
-            m_name = name;
+            addOrUpdateAttribute(AttributeNames::GroupName, name);
         }
 
         bool GroupNode::opened() const {
@@ -99,7 +100,7 @@ namespace TrenchBroom {
         }
 
         const std::string& GroupNode::doGetName() const {
-            return m_name;
+            return attribute(AttributeNames::GroupName);
         }
 
         const vm::bbox3& GroupNode::doGetLogicalBounds() const {
@@ -117,7 +118,7 @@ namespace TrenchBroom {
         }
 
         Node* GroupNode::doClone(const vm::bbox3& /* worldBounds */) const {
-            GroupNode* group = new GroupNode(m_name);
+            GroupNode* group = new GroupNode(doGetName());
             cloneAttributes(group);
             return group;
         }
@@ -206,6 +207,25 @@ namespace TrenchBroom {
 
         void GroupNode::doAccept(ConstNodeVisitor& visitor) const {
             visitor.visit(this);
+        }
+
+        void GroupNode::doAttributesDidChange(const vm::bbox3& /* oldBounds */) {
+        }
+
+        bool GroupNode::doIsAttributeNameMutable(const std::string& /* name */) const {
+            return false;
+        }
+
+        bool GroupNode::doIsAttributeValueMutable(const std::string& /* name */) const {
+            return false;
+        }
+
+        vm::vec3 GroupNode::doGetLinkSourceAnchor() const {
+            return vm::vec3::zero();
+        }
+
+        vm::vec3 GroupNode::doGetLinkTargetAnchor() const {
+            return vm::vec3::zero();
         }
 
         Node* GroupNode::doGetContainer() const {

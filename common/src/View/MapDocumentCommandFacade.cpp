@@ -626,7 +626,6 @@ namespace TrenchBroom {
 
             for (const auto& entry : attributes) {
                 auto* node = entry.first;
-                assert(node->parent() == nullptr || node->selected() || node->descendantSelected());
 
                 const auto& snapshots = entry.second;
                 for (const auto& snapshot : snapshots) {
