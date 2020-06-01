@@ -141,6 +141,7 @@ namespace TrenchBroom {
             void showFogChanged(bool checked);
             void showEdgesChanged(bool checked);
             void entityLinkModeChanged(int id);
+            void showSoftMapBoundsChanged(bool checked);
         };
 
         class ViewPopupEditor : public QWidget {

@@ -42,7 +42,6 @@ namespace TrenchBroom {
         extern Preference<QString> Theme;
 
         extern Preference<bool>  ShowAxes;
-        extern Preference<bool>  ShowBounds;
         extern Preference<Color> SoftMapBoundsColor;
         extern Preference<Color> BackgroundColor;
         extern Preference<float> AxisLength;

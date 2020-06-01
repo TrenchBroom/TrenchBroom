@@ -871,7 +871,9 @@ namespace TrenchBroom {
             renderContext.setShowFog(mapViewConfig.showFog());
             renderContext.setShowGrid(grid.visible());
             renderContext.setGridSize(grid.actualSize());
-            renderContext.setSoftMapBounds(document->softWorldBounds());
+            renderContext.setSoftMapBounds(mapViewConfig.showSoftMapBounds() 
+                ? vm::bbox3f(document->softWorldBounds().value_or(vm::bbox3()))
+                : vm::bbox3f());
 
             setupGL(renderContext);
             setRenderOptions(renderContext);

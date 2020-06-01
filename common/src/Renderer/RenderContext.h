@@ -78,7 +78,7 @@ namespace TrenchBroom {
             bool m_tintSelection;
 
             ShowSelectionGuide m_showSelectionGuide;
-            std::optional<vm::bbox3> m_sofMapBounds;
+            vm::bbox3f m_sofMapBounds;
         public:
             RenderContext(RenderMode renderMode, const Camera& camera, FontManager& fontManager, ShaderManager& shaderManager);
 
@@ -126,8 +126,8 @@ namespace TrenchBroom {
             bool showGrid() const;
             void setShowGrid(bool showGrid);
 
-            const std::optional<vm::bbox3>& softMapBounds() const;
-            void setSoftMapBounds(const std::optional<vm::bbox3>& softMapBounds);
+            const vm::bbox3f& softMapBounds() const;
+            void setSoftMapBounds(const vm::bbox3f& softMapBounds);
 
             FloatType gridSize() const;
             void setGridSize(FloatType gridSize);

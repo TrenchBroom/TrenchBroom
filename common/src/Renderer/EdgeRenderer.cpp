@@ -68,14 +68,11 @@ namespace TrenchBroom {
                 glAssert(glDisable(GL_DEPTH_TEST))
 
             {
-                // TODO: factor out
-                const vm::bbox3f softMapBounds = vm::bbox3f(renderContext.softMapBounds().value_or(vm::bbox3()));
-
                 PreferenceManager& prefs = PreferenceManager::instance();
                 ActiveShader shader(renderContext.shaderManager(), Shaders::BrushEdgeShader);
-                shader.set("ShowSoftMapBounds", !softMapBounds.is_empty() && prefs.get(Preferences::ShowBounds));
-                shader.set("SoftMapBoundsMin", softMapBounds.min);
-                shader.set("SoftMapBoundsMax", softMapBounds.max);
+                shader.set("ShowSoftMapBounds", !renderContext.softMapBounds().is_empty());
+                shader.set("SoftMapBoundsMin", renderContext.softMapBounds().min);
+                shader.set("SoftMapBoundsMax", renderContext.softMapBounds().max);
                 shader.set("SoftMapBoundsColor", vm::vec4f(prefs.get(Preferences::SoftMapBoundsColor).r(),
                                                            prefs.get(Preferences::SoftMapBoundsColor).g(),
                                                            prefs.get(Preferences::SoftMapBoundsColor).b(),

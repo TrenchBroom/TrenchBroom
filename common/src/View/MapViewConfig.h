@@ -49,6 +49,7 @@ namespace TrenchBroom {
             bool m_shadeFaces;
             bool m_showFog;
             bool m_showEdges;
+            bool m_showSoftMapBounds;
         public:
             Notifier<> mapViewConfigDidChangeNotifier;
         public:
@@ -86,6 +87,9 @@ namespace TrenchBroom {
 
             bool showEdges() const;
             void setShowEdges(bool showEdges);
+
+            bool showSoftMapBounds() const;
+            void setShowSoftMapBounds(bool showSoftMapBounds);
         private:
             MapViewConfig(const MapViewConfig& other);
             MapViewConfig& operator=(const MapViewConfig& other);

@@ -76,7 +76,7 @@ namespace TrenchBroom {
             const std::vector<SmartTag>& smartTags() const;
 
             /**
-             * An optional soft map bounds, returns nothing to indicate that the map is unlimited.
+             * Returns the soft map bounds configured in the game config.
              */
             std::optional<vm::bbox3> softMapBounds() const;
             std::optional<vm::bbox3> extractSoftMapBounds(const AttributableNode& node) const;
