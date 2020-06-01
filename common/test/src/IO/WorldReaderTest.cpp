@@ -142,6 +142,29 @@ namespace TrenchBroom {
             ASSERT_STREQ("yay", world->attribute("message").c_str());
         }
 
+        TEST_CASE("WorldReaderTest.parseDefaultLayerColor", "[WorldReaderTest]") {
+            const std::string data(R"(
+{
+"classname" "worldspawn"
+"_tb_layer_color" "0.0 1.0 0.0"
+}
+)");
+
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data);
+
+            auto world = reader.read(Model::MapFormat::Standard, worldBounds, status);
+
+            REQUIRE(world != nullptr);
+            REQUIRE(world->childCount() == 1u);
+            auto* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().at(0));
+
+            REQUIRE(defaultLayer->layerColor().has_value());
+            CHECK(defaultLayer->layerColor().value() == Color(0.0f, 1.0f, 0.0f));
+        }
+
         TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneMoreEntity", "[WorldReaderTest]") {
             const std::string data(R"(
 {
@@ -167,8 +190,10 @@ namespace TrenchBroom {
             ASSERT_STREQ("yay", world->attribute("message").c_str());
 
             ASSERT_EQ(1u, world->childCount());
-            Model::Node* defaultLayer = world->children().front();
+            Model::LayerNode* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().front());
+            ASSERT_NE(nullptr, defaultLayer);
             ASSERT_EQ(1u, defaultLayer->childCount());
+            ASSERT_EQ(Model::LayerNode::defaultLayerSortIndex(), defaultLayer->sortIndex());
 
             Model::EntityNode* entity = static_cast<Model::EntityNode*>(defaultLayer->children().front());
             ASSERT_TRUE(entity->hasAttribute("classname"));
@@ -678,8 +703,208 @@ namespace TrenchBroom {
             auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
 
             ASSERT_EQ(2u, world->childCount());
-            ASSERT_EQ(2u, world->children().front()->childCount());
-            ASSERT_EQ(1u, world->children().back()->childCount());
+
+            Model::LayerNode* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().at(0));
+            Model::LayerNode* myLayer      = dynamic_cast<Model::LayerNode*>(world->children().at(1));
+            ASSERT_NE(nullptr, defaultLayer);
+            ASSERT_NE(nullptr, myLayer);
+
+            CHECK(defaultLayer->sortIndex() == Model::LayerNode::defaultLayerSortIndex());
+            CHECK(myLayer->sortIndex()      == 0); // The layer didn't have a sort index (saved in an older version of TB), so it's assigned 0           
+
+            ASSERT_EQ(2u, defaultLayer->childCount());
+            ASSERT_EQ(1u, myLayer->childCount());
+        }
+
+        TEST_CASE("WorldReaderTest.parseLayersWithReverseSort", "[WorldReaderTest]") {
+            const std::string data(R"(
+{
+"classname" "worldspawn"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index 1"
+"_tb_id" "1"
+"_tb_layer_sort_index" "1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index 0"
+"_tb_id" "2"
+"_tb_layer_sort_index" "0"
+})");
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data);
+
+            auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
+
+            REQUIRE(world->childCount() == 3u);
+
+            // NOTE: They are listed in world->children() in file order, not sort index order
+            auto* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().at(0));
+            auto* sort1     = dynamic_cast<Model::LayerNode*>(world->children().at(1));
+            auto* sort0     = dynamic_cast<Model::LayerNode*>(world->children().at(2));
+
+            REQUIRE(defaultLayer != nullptr);
+            REQUIRE(sort0 != nullptr);
+            REQUIRE(sort1 != nullptr);            
+
+            CHECK(sort0->name() == "Sort Index 0");
+            CHECK(sort1->name() == "Sort Index 1");
+
+            CHECK(defaultLayer->sortIndex() == Model::LayerNode::defaultLayerSortIndex());
+            CHECK(sort0->sortIndex()     == 0);
+            CHECK(sort1->sortIndex()     == 1);            
+        }
+
+        TEST_CASE("WorldReaderTest.parseLayersWithReversedSortIndicesWithGaps", "[WorldReaderTest]") {
+            const std::string data(R"(
+{
+"classname" "worldspawn"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index 5"
+"_tb_id" "1"
+"_tb_layer_sort_index" "5"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index 3"
+"_tb_id" "2"
+"_tb_layer_sort_index" "3"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index 1"
+"_tb_id" "3"
+"_tb_layer_sort_index" "1"
+})");
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data);
+
+            auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
+
+            ASSERT_EQ(4u, world->childCount());
+
+            // NOTE: They are listed in world->children() in file order, not sort index order
+            auto* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().at(0));
+            auto* sort5        = dynamic_cast<Model::LayerNode*>(world->children().at(1));
+            auto* sort3        = dynamic_cast<Model::LayerNode*>(world->children().at(2));
+            auto* sort1        = dynamic_cast<Model::LayerNode*>(world->children().at(3));            
+          
+            REQUIRE(nullptr != defaultLayer);
+            REQUIRE(nullptr != sort1);
+            REQUIRE(nullptr != sort3);
+            REQUIRE(nullptr != sort5);
+
+            CHECK(sort1->name() == "Sort Index 1");
+            CHECK(sort3->name() == "Sort Index 3");
+            CHECK(sort5->name() == "Sort Index 5");
+
+            CHECK(defaultLayer->sortIndex() == Model::LayerNode::defaultLayerSortIndex());
+            // We allow gaps in sort indices so they remain 1, 3, 5
+            CHECK(sort1->sortIndex()        == 1);
+            CHECK(sort3->sortIndex()        == 3);
+            CHECK(sort5->sortIndex()        == 5);
+        }
+
+        TEST_CASE("WorldReaderTest.parseLayersWithSortIndicesWithGapsAndDuplicates", "[WorldReaderTest]") {
+            const std::string data = R"end(
+{
+"classname" "worldspawn"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index -1"
+"_tb_id" "1"
+"_tb_layer_sort_index" "-1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index 8"
+"_tb_id" "2"
+"_tb_layer_sort_index" "8"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index 8 (second)"
+"_tb_id" "3"
+"_tb_layer_sort_index" "8"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index 10"
+"_tb_id" "4"
+"_tb_layer_sort_index" "10"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index 10 (second)"
+"_tb_id" "5"
+"_tb_layer_sort_index" "10"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Sort Index 12"
+"_tb_id" "6"
+"_tb_layer_sort_index" "12"
+})end";
+            const vm::bbox3 worldBounds(8192.0);
+
+            IO::TestParserStatus status;
+            WorldReader reader(data);
+
+            auto world = reader.read(Model::MapFormat::Quake2, worldBounds, status);
+
+            ASSERT_EQ(7u, world->childCount());
+
+            // NOTE: They are listed in world->children() in file order, not sort index order
+            auto* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().at(0));
+            auto* sortMinusOne = dynamic_cast<Model::LayerNode*>(world->children().at(1));
+            auto* sort8        = dynamic_cast<Model::LayerNode*>(world->children().at(2));
+            auto* sort8second  = dynamic_cast<Model::LayerNode*>(world->children().at(3));
+            auto* sort10       = dynamic_cast<Model::LayerNode*>(world->children().at(4));
+            auto* sort10second = dynamic_cast<Model::LayerNode*>(world->children().at(5));
+            auto* sort12       = dynamic_cast<Model::LayerNode*>(world->children().at(6));            
+          
+            REQUIRE(nullptr != defaultLayer);
+            REQUIRE(nullptr != sortMinusOne);
+            REQUIRE(nullptr != sort8);
+            REQUIRE(nullptr != sort8second);
+            REQUIRE(nullptr != sort10);
+            REQUIRE(nullptr != sort10second);
+            REQUIRE(nullptr != sort12);
+
+            CHECK(sortMinusOne->name() == "Sort Index -1");
+            CHECK(sort8->name()        == "Sort Index 8");
+            CHECK(sort8second->name()  == "Sort Index 8 (second)");
+            CHECK(sort10->name()       == "Sort Index 10");
+            CHECK(sort10second->name() == "Sort Index 10 (second)");
+            CHECK(sort12->name()       == "Sort Index 12");
+
+            CHECK(defaultLayer->sortIndex() == Model::LayerNode::defaultLayerSortIndex());
+            CHECK(sortMinusOne->sortIndex() == 13); // This one was invalid so it got moved to the end
+            CHECK(sort8->sortIndex()        == 8);
+            CHECK(sort8second->sortIndex()  == 14); // This one was invalid so it got moved to the end
+            CHECK(sort10->sortIndex()       == 10);
+            CHECK(sort10second->sortIndex() == 15); // This one was invalid so it got moved to the end
+            CHECK(sort12->sortIndex()       == 12);
         }
 
         TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithLayer", "[WorldReaderTest]") {
@@ -1071,16 +1296,16 @@ common/caulk
             const Model::EntityList& entities = map->entities();
             ASSERT_EQ(2u, entities.size());
 
-            const Model::Entity* firstEntity = entities[0];
+            const Model::EntityNode* firstEntity = entities[0];
             ASSERT_EQ(0u, firstEntity->hiddenIssues());
 
             const Model::BrushList& brushes = firstEntity->brushes();
             ASSERT_EQ(1u, brushes.size());
 
-            const Model::Brush* brush = brushes[0];
+            const Model::BrushNode* brush = brushes[0];
             ASSERT_EQ(2u, brush->hiddenIssues());
 
-            const Model::Entity* secondEntity = entities[1];
+            const Model::EntityNode* secondEntity = entities[1];
             ASSERT_EQ(3u, secondEntity->hiddenIssues());
         }
          */

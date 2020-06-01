@@ -88,8 +88,21 @@ namespace TrenchBroom {
             doEndFile();
         }
 
+        /**
+         * Writes the worldspawn entity.
+         */
         void NodeSerializer::defaultLayer(const Model::WorldNode& world) {
-            entity(&world, world.attributes(), {}, world.defaultLayer());
+            auto worldAttribs = Model::EntityAttributes(world.attributes());
+
+            // Transfer the color from the default layer Layer object to worldspawn
+            Model::LayerNode* defaultLayer = world.defaultLayer();
+            if (defaultLayer->hasAttribute(Model::AttributeNames::LayerColor)) {
+                worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerColor, defaultLayer->attribute(Model::AttributeNames::LayerColor), nullptr);
+            } else {
+                worldAttribs.removeAttribute(Model::AttributeNames::LayerColor);
+            }            
+
+            entity(&world, worldAttribs.releaseAttributes(), {}, world.defaultLayer());
         }
 
         void NodeSerializer::customLayer(const Model::LayerNode* layer) {
@@ -204,12 +217,16 @@ namespace TrenchBroom {
         }
 
         std::vector<Model::EntityAttribute> NodeSerializer::layerAttributes(const Model::LayerNode* layer) {
-            return {
+            std::vector<Model::EntityAttribute> result = {
                 Model::EntityAttribute(Model::AttributeNames::Classname, Model::AttributeValues::LayerClassname),
                 Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeLayer),
                 Model::EntityAttribute(Model::AttributeNames::LayerName, layer->name()),
                 Model::EntityAttribute(Model::AttributeNames::LayerId, m_layerIds.getId(layer)),
             };
+            if (layer->hasAttribute(Model::AttributeNames::LayerSortIndex)) {
+                result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerSortIndex, layer->attribute(Model::AttributeNames::LayerSortIndex)));
+            } 
+            return result;
         }
 
         std::vector<Model::EntityAttribute> NodeSerializer::groupAttributes(const Model::GroupNode* group) {

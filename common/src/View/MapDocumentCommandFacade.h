@@ -41,6 +41,13 @@ namespace TrenchBroom {
     namespace View {
         class CommandProcessor;
 
+        /**
+         * MapDocument API that is private to Command classes.
+         *
+         * These `performSomething()` methods will actually do an action, where
+         * the corresponding `something()` in MapDocument would create and execute a
+         * Command object which then calls `performSomething()`.
+         */
         class MapDocumentCommandFacade : public MapDocument {
         private:
             std::unique_ptr<CommandProcessor> m_commandProcessor;
@@ -72,6 +79,8 @@ namespace TrenchBroom {
             void restoreVisibilityState(const std::map<Model::Node*, Model::VisibilityState>& nodes);
             std::map<Model::Node*, Model::LockState> setLockState(const std::vector<Model::Node*>& nodes, Model::LockState lockState);
             void restoreLockState(const std::map<Model::Node*, Model::LockState>& nodes);
+        public: // layers
+            using MapDocument::performSetCurrentLayer;
         private:  // groups
             class RenameGroupsVisitor;
             class UndoRenameGroupsVisitor;
@@ -90,10 +99,13 @@ namespace TrenchBroom {
         public: // entity attributes
             using EntityAttributeSnapshotMap = std::map<Model::AttributableNode*, std::vector<Model::EntityAttributeSnapshot>>;
             EntityAttributeSnapshotMap performSetAttribute(const std::string& name, const std::string& value);
+            EntityAttributeSnapshotMap performSetAttributeForNodes(const std::vector<Model::AttributableNode*>& nodes, const std::string& name, const std::string& value);
             EntityAttributeSnapshotMap performRemoveAttribute(const std::string& name);
+            EntityAttributeSnapshotMap performRemoveAttributeForNodes(const std::vector<Model::AttributableNode*>& nodes, const std::string& name);
             EntityAttributeSnapshotMap performUpdateSpawnflag(const std::string& name, const size_t flagIndex, const bool setFlag);
             EntityAttributeSnapshotMap performConvertColorRange(const std::string& name, Assets::ColorRange::Type colorRange);
             EntityAttributeSnapshotMap performRenameAttribute(const std::string& oldName, const std::string& newName);
+            EntityAttributeSnapshotMap performRenameAttributeForNodes(const std::vector<Model::AttributableNode*>& nodes, const std::string& oldName, const std::string& newName);
             void restoreAttributes(const EntityAttributeSnapshotMap& attributes);
         public: // brush resizing
             std::vector<vm::polygon3> performResizeBrushes(const std::vector<vm::polygon3>& polygons, const vm::vec3& delta);

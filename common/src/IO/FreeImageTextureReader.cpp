@@ -28,6 +28,8 @@
 #include "IO/File.h"
 #include "IO/ImageLoaderImpl.h"
 
+#include <stdexcept>
+
 namespace TrenchBroom {
     namespace IO {
         FreeImageTextureReader::FreeImageTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger) :

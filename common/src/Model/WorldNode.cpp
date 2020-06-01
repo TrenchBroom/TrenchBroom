@@ -75,9 +75,22 @@ namespace TrenchBroom {
             return visitor.layers();
         }
 
+        std::vector<LayerNode*> WorldNode::allLayersUserSorted() const {
+            std::vector<LayerNode*> result = allLayers();
+            LayerNode::sortLayers(result);
+            return result;
+        }
+
+        std::vector<LayerNode*> WorldNode::customLayersUserSorted() const {
+            std::vector<LayerNode*> result = customLayers();
+            LayerNode::sortLayers(result);
+            return result;
+        }
+
         void WorldNode::createDefaultLayer() {
             m_defaultLayer = createLayer("Default Layer");
             addChild(m_defaultLayer);
+            assert(m_defaultLayer->sortIndex() == LayerNode::defaultLayerSortIndex());
         }
 
         const AttributableNodeIndex& WorldNode::attributableNodeIndex() const {

@@ -19,28 +19,93 @@
 
 #include "LayerNode.h"
 
+#include "Ensure.h"
 #include "Model/BrushNode.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/GroupNode.h"
 #include "Model/EntityNode.h"
+#include "Model/EntityAttributes.h"
 #include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/TagVisitor.h"
+#include "Model/WorldNode.h"
 
+#include <kdl/string_utils.h>
+
+#include <limits>
 #include <string>
+#include <algorithm>
+#include <stdexcept>
 
 namespace TrenchBroom {
     namespace Model {
         LayerNode::LayerNode(const std::string& name) :
-        m_name(name),
-        m_boundsValid(false) {}
+        m_boundsValid(false) {
+            setName(name);
+        }
 
         void LayerNode::setName(const std::string& name) {
-            m_name = name;
+            addOrUpdateAttribute(AttributeNames::LayerName, name);
+        }
+
+        bool LayerNode::isDefaultLayer() const {
+            Model::Node* parentNode = parent();
+            if (parentNode == nullptr) {
+                return false;
+            }
+            Model::WorldNode* world = dynamic_cast<Model::WorldNode*>(parentNode);
+            ensure(world != nullptr, "layer parent must be WorldNode");
+            return world->defaultLayer() == this;
+        }
+
+        int LayerNode::invalidSortIndex() {
+            return std::numeric_limits<int>::max();
+        }
+
+        int LayerNode::defaultLayerSortIndex() {
+            return -1;
+        }
+
+        int LayerNode::sortIndex() const {
+            if (isDefaultLayer()) {
+                return defaultLayerSortIndex();
+            }
+
+            const std::string& indexString = attribute(AttributeNames::LayerSortIndex);
+            if (indexString.empty()) {
+                return invalidSortIndex();
+            }
+
+            return kdl::str_to_int(indexString).value_or(invalidSortIndex());
+        }
+
+        std::optional<Color> LayerNode::layerColor() const {
+            const std::string& string = attribute(AttributeNames::LayerColor);
+            if (string.empty() || !Color::canParse(string)) {
+                return std::nullopt;
+            }
+            return { Color::parse(string) };
+        }
+
+        void LayerNode::setLayerColor(const Color& color) {
+            addOrUpdateAttribute(AttributeNames::LayerColor, color.toString());
+        }
+
+        void LayerNode::setSortIndex(int index) {
+            if (isDefaultLayer()) {
+                return;
+            }
+            addOrUpdateAttribute(AttributeNames::LayerSortIndex, std::to_string(index));
+        }
+
+        void LayerNode::sortLayers(std::vector<LayerNode*>& layers)  {
+            std::stable_sort(layers.begin(), layers.end(), [](LayerNode* a, LayerNode* b) {
+                return a->sortIndex() < b->sortIndex();
+            });
         }
 
         const std::string& LayerNode::doGetName() const {
-            return m_name;
+            return attribute(AttributeNames::LayerName);
         }
 
         const vm::bbox3& LayerNode::doGetLogicalBounds() const {
@@ -58,7 +123,7 @@ namespace TrenchBroom {
         }
 
         Node* LayerNode::doClone(const vm::bbox3& worldBounds) const {
-            LayerNode* layer = new LayerNode(m_name);
+            LayerNode* layer = new LayerNode(doGetName());
             cloneAttributes(layer);
             layer->addChildren(clone(worldBounds, children()));
             return layer;
@@ -116,6 +181,25 @@ namespace TrenchBroom {
 
         void LayerNode::doAccept(ConstNodeVisitor& visitor) const {
             visitor.visit(this);
+        }
+
+        void LayerNode::doAttributesDidChange(const vm::bbox3& /* oldBounds */) {
+        }
+
+        bool LayerNode::doIsAttributeNameMutable(const std::string& /* name */) const {
+            return false;
+        }
+
+        bool LayerNode::doIsAttributeValueMutable(const std::string& /* name */) const {
+            return false;
+        }
+
+        vm::vec3 LayerNode::doGetLinkSourceAnchor() const {
+            return vm::vec3::zero();
+        }
+
+        vm::vec3 LayerNode::doGetLinkTargetAnchor() const {
+            return vm::vec3::zero();
         }
 
         void LayerNode::invalidateBounds() {

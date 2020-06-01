@@ -26,6 +26,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <optional>
 #include <vector>
 
 namespace TrenchBroom {
@@ -53,12 +54,20 @@ namespace TrenchBroom {
             std::string m_newValue;
 
             std::map<Model::AttributableNode*, std::vector<Model::EntityAttributeSnapshot>> m_snapshots;
+            /**
+             * If unset, target the selected nodes.
+             */
+            std::optional<std::vector<Model::AttributableNode*>> m_targetNodes;
         public:
             static std::unique_ptr<ChangeEntityAttributesCommand> set(const std::string& name, const std::string& value);
             static std::unique_ptr<ChangeEntityAttributesCommand> remove(const std::string& name);
             static std::unique_ptr<ChangeEntityAttributesCommand> rename(const std::string& oldName, const std::string& newName);
+
+            static std::unique_ptr<ChangeEntityAttributesCommand>    setForNodes(const std::vector<Model::AttributableNode*>& nodes, const std::string& name, const std::string& value);
+            static std::unique_ptr<ChangeEntityAttributesCommand> removeForNodes(const std::vector<Model::AttributableNode*>& nodes, const std::string& name);
+            static std::unique_ptr<ChangeEntityAttributesCommand> renameForNodes(const std::vector<Model::AttributableNode*>& nodes, const std::string& oldName, const std::string& newName);
         public:
-            ChangeEntityAttributesCommand(Action action);
+            ChangeEntityAttributesCommand(Action action, std::optional<std::vector<Model::AttributableNode*>> targetNodes);
             ~ChangeEntityAttributesCommand() override;
         private:
             static std::string makeName(Action action);

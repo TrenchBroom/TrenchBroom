@@ -43,6 +43,7 @@ namespace TrenchBroom {
         private:
             std::weak_ptr<MapDocument> m_document;
             Model::LayerNode* m_layer;
+            QAbstractButton* m_activeButton;
             QLabel* m_nameText;
             QLabel* m_infoText;
             QAbstractButton* m_hiddenButton;
@@ -58,6 +59,7 @@ namespace TrenchBroom {
         private:
             bool eventFilter(QObject* target, QEvent* event) override;
         signals:
+            void layerActiveClicked(Model::LayerNode* layer);
             void layerVisibilityToggled(Model::LayerNode* layer);
             void layerLockToggled(Model::LayerNode* layer);
             void layerDoubleClicked(Model::LayerNode* layer);
@@ -85,7 +87,6 @@ namespace TrenchBroom {
             void unbindObservers();
 
             void documentDidChange(MapDocument* document);
-            void nodesWereAddedOrRemoved(const std::vector<Model::Node*>& nodes);
             void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void currentLayerDidChange(const Model::LayerNode* layer);
 

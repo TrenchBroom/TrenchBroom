@@ -29,6 +29,9 @@ namespace TrenchBroom {
     namespace IO {
         class ParserStatus;
 
+        /**
+         * MapReader subclass for loading the clipboard contents, rather than an entire .map
+         */
         class NodeReader : public MapReader {
         private:
             Model::ModelFactory& m_factory;

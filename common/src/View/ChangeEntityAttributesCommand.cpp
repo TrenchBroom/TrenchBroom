@@ -29,20 +29,40 @@ namespace TrenchBroom {
         const Command::CommandType ChangeEntityAttributesCommand::Type = Command::freeType();
 
         std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::set(const std::string& name, const std::string& value) {
-            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Set);
+            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Set, std::nullopt);
             command->setName(name);
             command->setNewValue(value);
             return command;
         }
 
         std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::remove(const std::string& name) {
-            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Remove);
+            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Remove, std::nullopt);
             command->setName(name);
             return command;
         }
 
         std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::rename(const std::string& oldName, const std::string& newName) {
-            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Rename);
+            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Rename, std::nullopt);
+            command->setName(oldName);
+            command->setNewName(newName);
+            return command;
+        }
+
+        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::setForNodes(const std::vector<Model::AttributableNode*>& nodes, const std::string& name, const std::string& value) {
+            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Set, std::make_optional(nodes));
+            command->setName(name);
+            command->setNewValue(value);
+            return command;
+        }
+
+        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::removeForNodes(const std::vector<Model::AttributableNode*>& nodes, const std::string& name) {
+            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Remove, std::make_optional(nodes));
+            command->setName(name);
+            return command;
+        }
+
+        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::renameForNodes(const std::vector<Model::AttributableNode*>& nodes, const std::string& oldName, const std::string& newName) {
+            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Rename, std::make_optional(nodes));
             command->setName(oldName);
             command->setNewName(newName);
             return command;
@@ -62,9 +82,10 @@ namespace TrenchBroom {
             m_newValue = newValue;
         }
 
-        ChangeEntityAttributesCommand::ChangeEntityAttributesCommand(const Action action) :
+        ChangeEntityAttributesCommand::ChangeEntityAttributesCommand(const Action action, std::optional<std::vector<Model::AttributableNode*>> targetNodes) :
         DocumentCommand(Type, makeName(action)),
-        m_action(action) {}
+        m_action(action),
+        m_targetNodes(std::move(targetNodes)) {}
 
         ChangeEntityAttributesCommand::~ChangeEntityAttributesCommand() = default;
 
@@ -81,21 +102,36 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<CommandResult> ChangeEntityAttributesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            switch (m_action) {
-                case Action::Set:
-                    m_snapshots = document->performSetAttribute(m_oldName, m_newValue);
-                    break;
-                case Action::Remove:
-                    m_snapshots = document->performRemoveAttribute(m_oldName);
-                    break;
-                case Action::Rename:
-                    m_snapshots = document->performRenameAttribute(m_oldName, m_newName);
-                    break;
-            };
+            if (!m_targetNodes.has_value()) {
+                switch (m_action) {
+                    case Action::Set:
+                        m_snapshots =    document->performSetAttribute(m_oldName, m_newValue);
+                        break;
+                    case Action::Remove:
+                        m_snapshots = document->performRemoveAttribute(m_oldName);
+                        break;
+                    case Action::Rename:
+                        m_snapshots = document->performRenameAttribute(m_oldName, m_newName);
+                        break;
+                }
+            } else {
+                switch (m_action) {
+                    case Action::Set:
+                        m_snapshots =    document->performSetAttributeForNodes(*m_targetNodes, m_oldName, m_newValue);
+                        break;
+                    case Action::Remove:
+                        m_snapshots = document->performRemoveAttributeForNodes(*m_targetNodes, m_oldName);
+                        break;
+                    case Action::Rename:
+                        m_snapshots = document->performRenameAttributeForNodes(*m_targetNodes, m_oldName, m_newName);
+                        break;
+                }
+            }
             return std::make_unique<CommandResult>(true);
         }
 
         std::unique_ptr<CommandResult> ChangeEntityAttributesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+            // NOTE: This is the same whether m_target is Target::SelectedNodes or Target::NodeList
             document->restoreAttributes(m_snapshots);
             m_snapshots.clear();
             return std::make_unique<CommandResult>(true);
@@ -108,6 +144,9 @@ namespace TrenchBroom {
         bool ChangeEntityAttributesCommand::doCollateWith(UndoableCommand* command) {
             ChangeEntityAttributesCommand* other = static_cast<ChangeEntityAttributesCommand*>(command);
             if (other->m_action != m_action) {
+                return false;
+            }
+            if (other->m_targetNodes != m_targetNodes) {
                 return false;
             }
             if (other->m_oldName != m_oldName) {

@@ -29,6 +29,7 @@ namespace TrenchBroom {
     public:
         static bool canParse(const std::string& str);
         static Color parse(const std::string& str);
+        std::string toString() const;
 
         Color();
         Color(const vec<float,4>& v);
