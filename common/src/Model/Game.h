@@ -76,9 +76,12 @@ namespace TrenchBroom {
             const std::vector<SmartTag>& smartTags() const;
 
             /**
-             * Returns the soft map bounds configured in the game config.
+             * Returns the soft map bounds configured in the game config, or nullopt if there is no soft map bounds specified in the game config
              */
             std::optional<vm::bbox3> softMapBounds() const;
+            /**
+             * Returns the soft map bounds specified in the given World entity, or if unset, the value from softMapBounds()
+             */
             std::optional<vm::bbox3> extractSoftMapBounds(const AttributableNode& node) const;
         public: // loading and writing map files
             std::unique_ptr<WorldNode> newMap(MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const;
