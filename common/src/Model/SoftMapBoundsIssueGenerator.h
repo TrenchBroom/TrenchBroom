@@ -17,31 +17,38 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_WorldBoundsIssueGenerator
-#define TrenchBroom_WorldBoundsIssueGenerator
+#ifndef TrenchBroom_SoftMapBoundsIssueGenerator
+#define TrenchBroom_SoftMapBoundsIssueGenerator
 
 #include "FloatType.h"
 #include "Model/IssueGenerator.h"
 
 #include <vecmath/bbox.h>
 
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class WorldBoundsIssueGenerator : public IssueGenerator {
+        class WorldNode;
+        class Game;
+        class Node;
+
+        class SoftMapBoundsIssueGenerator : public IssueGenerator {
         private:
-            class WorldBoundsIssue;
-            class WorldBoundsIssueQuickFix;
+            class SoftMapBoundsIssue;
+            class SoftMapBoundsIssueQuickFix;
         private:
-            const vm::bbox3 m_bounds;
+            std::weak_ptr<Game> m_game;
+            const WorldNode* m_world;
         public:
-            explicit WorldBoundsIssueGenerator(const vm::bbox3& bounds);
+            explicit SoftMapBoundsIssueGenerator(std::weak_ptr<Game> game, const WorldNode* world);
         private:
+            void generateInternal(Node* node, IssueList& issues) const;
             void doGenerate(EntityNode* brush, IssueList& issues) const override;
             void doGenerate(BrushNode* brush, IssueList& issues) const override;
         };
     }
 }
 
-#endif /* defined(TrenchBroom_WorldBoundsIssueGenerator) */
+#endif /* defined(TrenchBroom_SoftMapBoundsIssueGenerator) */

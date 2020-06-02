@@ -19,18 +19,13 @@
 
 #include "WorldBoundsIssueGenerator.h"
 
-#include "Model/Game.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
-#include "Model/WorldNode.h"
-
-#include <kdl/memory_utils.h>
 
 #include <string>
-#include <optional>
 
 namespace TrenchBroom {
     namespace Model {
@@ -64,31 +59,20 @@ namespace TrenchBroom {
 
         const IssueType WorldBoundsIssueGenerator::WorldBoundsIssue::Type = Issue::freeType();
 
-        WorldBoundsIssueGenerator::WorldBoundsIssueGenerator(std::weak_ptr<Game> game, const WorldNode* world) :
+        WorldBoundsIssueGenerator::WorldBoundsIssueGenerator(const vm::bbox3& bounds) :
         IssueGenerator(WorldBoundsIssue::Type, "Objects out of world bounds"),
-        m_game(game),
-        m_world(world) {
+        m_bounds(bounds) {
             addQuickFix(new WorldBoundsIssueQuickFix());
         }
 
-        void WorldBoundsIssueGenerator::generateInternal(Node* node, IssueList& issues) const {
-            auto game = kdl::mem_lock(m_game);
-            const std::optional<vm::bbox3> bounds = game->extractSoftMapBounds(*m_world);
-
-            if (!bounds.has_value()) {
-                return;
-            }
-            if (!bounds->contains(node->logicalBounds())) {
-                issues.push_back(new WorldBoundsIssue(node));
-            }
-        }
-
         void WorldBoundsIssueGenerator::doGenerate(EntityNode* entity, IssueList& issues) const {
-            generateInternal(entity, issues);
+            if (!m_bounds.contains(entity->logicalBounds()))
+                issues.push_back(new WorldBoundsIssue(entity));
         }
 
         void WorldBoundsIssueGenerator::doGenerate(BrushNode* brush, IssueList& issues) const {
-            generateInternal(brush, issues);
+            if (!m_bounds.contains(brush->logicalBounds()))
+                issues.push_back(new WorldBoundsIssue(brush));
         }
     }
 }

@@ -83,6 +83,7 @@
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron3.h"
 #include "Model/PortalFile.h"
+#include "Model/SoftMapBoundsIssueGenerator.h"
 #include "Model/TagManager.h"
 #include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
@@ -2329,7 +2330,8 @@ namespace TrenchBroom {
             m_world->registerIssueGenerator(new Model::NonIntegerPlanePointsIssueGenerator());
             m_world->registerIssueGenerator(new Model::NonIntegerVerticesIssueGenerator());
             m_world->registerIssueGenerator(new Model::MixedBrushContentsIssueGenerator());
-            m_world->registerIssueGenerator(new Model::WorldBoundsIssueGenerator(m_game, m_world.get()));
+            m_world->registerIssueGenerator(new Model::WorldBoundsIssueGenerator(worldBounds()));
+            m_world->registerIssueGenerator(new Model::SoftMapBoundsIssueGenerator(m_game, m_world.get()));
             m_world->registerIssueGenerator(new Model::EmptyAttributeNameIssueGenerator());
             m_world->registerIssueGenerator(new Model::EmptyAttributeValueIssueGenerator());
             m_world->registerIssueGenerator(new Model::LongAttributeNameIssueGenerator(m_game->maxPropertyLength()));
