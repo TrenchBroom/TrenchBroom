@@ -22,6 +22,7 @@
 
 #include "Macros.h"
 #include "EL/EL_Forward.h"
+#include "EL/Value.h"
 #include "IO/ConfigParserBase.h"
 
 #include <string>
@@ -47,6 +48,8 @@ namespace TrenchBroom {
         class Path;
 
         class GameConfigParser : public ConfigParserBase {
+        private:
+            EL::IntegerType m_version;
         public:
             GameConfigParser(const char* begin, const char* end, const Path& path);
             explicit GameConfigParser(const std::string& str, const Path& path = Path(""));
@@ -61,6 +64,7 @@ namespace TrenchBroom {
             Model::EntityConfig parseEntityConfig(const EL::Value& values) const;
             Model::FaceAttribsConfig parseFaceAttribsConfig(const EL::Value& values) const;
             Model::FlagsConfig parseFlagsConfig(const EL::Value& values) const;
+            void parseFlag(const EL::Value& entry, const size_t index, std::vector<Model::FlagConfig>& flags) const;
             Model::BrushFaceAttributes parseFaceAttribsDefaults(const EL::Value& value, const Model::FlagsConfig& surfaceFlags, const Model::FlagsConfig& contentFlags) const;
             std::vector<Model::SmartTag> parseTags(const EL::Value& value, const Model::FaceAttribsConfig& faceAttribsConfigs) const;
 

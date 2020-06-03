@@ -537,7 +537,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(faceHandle.face().hasTag(tag));
 
             Model::ChangeBrushFaceAttributesRequest request;
-            request.setContentFlag(0);
+            request.setContentFlag(1);
 
             document->select(faceHandle);
             document->setFaceAttributes(request);

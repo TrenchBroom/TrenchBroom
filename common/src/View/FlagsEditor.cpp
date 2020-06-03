@@ -71,14 +71,15 @@ namespace TrenchBroom {
                         const int indexInt = static_cast<int>(index);
                         const int rowInt = static_cast<int>(row);
                         const int colInt = static_cast<int>(col);
+                        const int value = values[indexInt];
 
                         m_checkBoxes[index] = new QCheckBox();
-                        m_values[index] = values[indexInt];
+                        m_values[index] = value;
 
-                        m_checkBoxes[index]->setText(indexInt < labels.size() ? labels[indexInt] : QString::number(1 << index));
+                        m_checkBoxes[index]->setText(indexInt < labels.size() ? labels[indexInt] : QString::number(value));
                         m_checkBoxes[index]->setToolTip(indexInt < tooltips.size() ? tooltips[indexInt] : "");
-                        connect(m_checkBoxes[index], &QCheckBox::clicked, this, [index, this](){
-                            emit flagChanged(index, this->getSetFlagValue(), this->getMixedFlagValue());
+                        connect(m_checkBoxes[index], &QCheckBox::clicked, this, [index, value, this](){
+                            emit flagChanged(index, value, this->getSetFlagValue(), this->getMixedFlagValue());
                         });
 
                         layout->addWidget(m_checkBoxes[index], rowInt, colInt);

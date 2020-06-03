@@ -54,7 +54,7 @@ namespace TrenchBroom {
 
             int lineHeight() const;
         signals:
-            void flagChanged(size_t index, int setFlag, int mixedFlag);
+            void flagChanged(size_t index, int value, int setFlag, int mixedFlag);
         };
     }
 }
