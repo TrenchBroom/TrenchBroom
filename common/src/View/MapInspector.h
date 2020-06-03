@@ -59,6 +59,7 @@ namespace TrenchBroom {
             Q_OBJECT
         private:
             std::weak_ptr<MapDocument> m_document;
+            bool m_updatingGui;
 
             QRadioButton* m_softBoundsDisabled;
             QRadioButton* m_softBoundsFromGame;

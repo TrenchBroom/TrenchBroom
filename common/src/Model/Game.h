@@ -76,12 +76,17 @@ namespace TrenchBroom {
 
             const std::vector<SmartTag>& smartTags() const;
 
-            enum class SoftMapBoundsType { Game, Map };            
-            using SoftMapBounds = std::pair<SoftMapBoundsType, vm::bbox3>;
+            enum class SoftMapBoundsType { Game, Map };
+            /**
+             * first indicates the source of the setting.
+             * If second is std::nullopt, this indicates unlimited soft map bounds, otherwise second
+             * gives the soft map bounds.
+             */
+            using SoftMapBounds = std::pair<SoftMapBoundsType, std::optional<vm::bbox3>>;
             /**
              * Returns the soft map bounds configured in the game config
              */
-            vm::bbox3 softMapBounds() const;
+            std::optional<vm::bbox3> softMapBounds() const;
             /**
              * Returns the soft map bounds specified in the given World entity, or if unset, the value from softMapBounds()
              */
@@ -129,7 +134,7 @@ namespace TrenchBroom {
 
             virtual CompilationConfig& doCompilationConfig() = 0;
             virtual size_t doMaxPropertyLength() const = 0;
-            virtual vm::bbox3 doSoftMapBounds() const = 0;
+            virtual std::optional<vm::bbox3> doSoftMapBounds() const = 0;
             virtual SoftMapBounds doExtractSoftMapBounds(const AttributableNode& node) const = 0;
 
             virtual const std::vector<SmartTag>& doSmartTags() const = 0;

@@ -75,10 +75,10 @@ namespace TrenchBroom {
             auto game = kdl::mem_lock(m_game);
             const Game::SoftMapBounds bounds = game->extractSoftMapBounds(*m_world);
 
-            if (bounds.second.is_empty()) {
+            if (!bounds.second.has_value()) {
                 return;
             }
-            if (!bounds.second.contains(node->logicalBounds())) {
+            if (!(*bounds.second).contains(node->logicalBounds())) {
                 issues.push_back(new SoftMapBoundsIssue(node));
             }
         }

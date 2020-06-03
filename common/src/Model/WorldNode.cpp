@@ -376,6 +376,9 @@ namespace TrenchBroom {
                 return false;
             if (name == AttributeNames::Textures)
                 return false;
+            if (name == AttributeNames::SoftMapBounds) {
+                return false;
+            }
             return true;
         }
 

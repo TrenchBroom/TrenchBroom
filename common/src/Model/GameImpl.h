@@ -59,7 +59,7 @@ namespace TrenchBroom {
 
             size_t doMaxPropertyLength() const override;
 
-            vm::bbox3 doSoftMapBounds() const override;
+            std::optional<vm::bbox3> doSoftMapBounds() const override;
             SoftMapBounds doExtractSoftMapBounds(const AttributableNode& node) const override;
 
             const std::vector<SmartTag>& doSmartTags() const override;

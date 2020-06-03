@@ -66,6 +66,7 @@ namespace TrenchBroom {
             const std::string GroupTypeLayer      = "_tb_layer";
             const std::string GroupTypeGroup      = "_tb_group";
             const std::string DefaultValue        = "";
+            const std::string NoSoftMapBounds     = "none";
         }
 
         bool isNumberedAttribute(const std::string_view prefix, const std::string_view name) {

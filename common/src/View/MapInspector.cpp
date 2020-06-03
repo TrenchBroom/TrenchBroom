@@ -38,11 +38,8 @@
 
 #include <QFormLayout>
 #include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QCheckBox>
 #include <QLabel>
 #include <QLineEdit>
-#include <QButtonGroup>
 #include <QRadioButton>
 
 namespace TrenchBroom {
@@ -108,6 +105,7 @@ namespace TrenchBroom {
         MapPropertiesEditor::MapPropertiesEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         QWidget(parent),
         m_document(document),
+        m_updatingGui(false),
         m_softBoundsDisabled(nullptr),
         m_softBoundsFromGame(nullptr),
         m_softBoundsFromGameMinLabel(nullptr),
@@ -145,6 +143,13 @@ namespace TrenchBroom {
             if (!min.has_value() || !max.has_value()) {
                 return std::nullopt;
             }
+
+            for (size_t i = 0; i < 3; ++i) {
+                if ((*min)[i] >= (*max)[i]) {
+                    return std::nullopt;
+                }
+            }
+
             return vm::bbox3(*min, *max);
         }
 
@@ -156,22 +161,26 @@ namespace TrenchBroom {
             m_softBoundsFromGameMaxLabel = new QLabel();
 
             auto* softBoundsFromGameValueLayout = new QHBoxLayout();
+            softBoundsFromGameValueLayout->setSpacing(LayoutConstants::MediumHMargin);
             softBoundsFromGameValueLayout->addWidget(new QLabel(tr("Min:")));
             softBoundsFromGameValueLayout->addWidget(m_softBoundsFromGameMinLabel);
             softBoundsFromGameValueLayout->addWidget(new QLabel(tr("Min:")));
             softBoundsFromGameValueLayout->addWidget(m_softBoundsFromGameMaxLabel);
+            softBoundsFromGameValueLayout->addStretch(1);
 
             m_softBoundsFromMap = new QRadioButton(tr("Custom bounds:"));
             m_softBoundsFromMapMinEdit = new QLineEdit();
             m_softBoundsFromMapMaxEdit = new QLineEdit();
 
             auto* softBoundsFromMapValueLayout = new QHBoxLayout();
+            softBoundsFromMapValueLayout->setSpacing(LayoutConstants::MediumHMargin);
             softBoundsFromMapValueLayout->addWidget(new QLabel(tr("Min:")));
             softBoundsFromMapValueLayout->addWidget(m_softBoundsFromMapMinEdit);
             softBoundsFromMapValueLayout->addWidget(new QLabel(tr("Min:")));
             softBoundsFromMapValueLayout->addWidget(m_softBoundsFromMapMaxEdit);
+            softBoundsFromMapValueLayout->addStretch(1);
 
-            QFormLayout* formLayout = new QFormLayout();
+            auto* formLayout = new QFormLayout();
             formLayout->setContentsMargins(0, 0, 0, 0);
             formLayout->setSpacing(0);
             formLayout->addRow(m_softBoundsDisabled);
@@ -182,13 +191,13 @@ namespace TrenchBroom {
             connect(m_softBoundsDisabled, &QAbstractButton::clicked, this, [this](const bool checked) {
                 auto document = kdl::mem_lock(m_document);
                 if (checked) {
-                    document->setSoftMapBounds({Model::Game::SoftMapBoundsType::Map, vm::bbox3()});
+                    document->setSoftMapBounds({Model::Game::SoftMapBoundsType::Map, std::nullopt});
                 }
             });
             connect(m_softBoundsFromGame, &QAbstractButton::clicked, this, [this](const bool checked) {
                 auto document = kdl::mem_lock(m_document);
                 if (checked) {
-                    document->setSoftMapBounds({Model::Game::SoftMapBoundsType::Game, vm::bbox3()});
+                    document->setSoftMapBounds({Model::Game::SoftMapBoundsType::Game, std::nullopt});
                 }
             });
             connect(m_softBoundsFromMap, &QAbstractButton::clicked, this, [this](const bool checked) {
@@ -209,6 +218,13 @@ namespace TrenchBroom {
             });
 
             const auto textEditingFinished = [this]() {
+                // QLineEdit::editingFinished is emitted not just in response to user actions,
+                // but also e.g. if another radio button is clicked and the min/max line edits get disabled.
+                // So unfortunately we need to check if we are inside updateGui() and avoid committing
+                // a change in that case.
+                if (m_updatingGui) {
+                    return;
+                }
                 auto document = kdl::mem_lock(m_document);
 
                 const std::optional<vm::bbox3> parsed = parseLineEdits();
@@ -216,8 +232,8 @@ namespace TrenchBroom {
                     document->setSoftMapBounds({Model::Game::SoftMapBoundsType::Map, parsed.value()});
                 }
             };
-            connect(m_softBoundsFromMapMinEdit, &QLineEdit::textEdited, this, textEditingFinished);
-            connect(m_softBoundsFromMapMaxEdit, &QLineEdit::textEdited, this, textEditingFinished);
+            connect(m_softBoundsFromMapMinEdit, &QLineEdit::editingFinished, this, textEditingFinished);
+            connect(m_softBoundsFromMapMaxEdit, &QLineEdit::editingFinished, this, textEditingFinished);
 
             updateGui();
         }
@@ -260,7 +276,11 @@ namespace TrenchBroom {
             }
         }
 
-        static QString formatVec(const vm::vec3& vec) {            
+        static QString formatVec(const std::optional<vm::bbox3>& bbox, const bool max) {
+            if (!bbox.has_value()) {
+                return QObject::tr("None");
+            }
+            const vm::vec3& vec = max ? bbox->max : bbox->min;
             std::stringstream str;
             if (vec.x() == vec.y() && vec.y() == vec.z()) {
                 // Just print the first component to save space
@@ -275,6 +295,8 @@ namespace TrenchBroom {
          * Refresh the UI from the model
          */
         void MapPropertiesEditor::updateGui() {
+            const kdl::set_temp flagChange(m_updatingGui, true);
+
             auto document = kdl::mem_lock(m_document);
             if (!document) {
                 return;
@@ -285,27 +307,25 @@ namespace TrenchBroom {
                 return;
             }
 
-            const vm::bbox3 gameBounds = game->softMapBounds();
-            m_softBoundsFromGameMinLabel->setText(formatVec(gameBounds.min));
-            m_softBoundsFromGameMaxLabel->setText(formatVec(gameBounds.max));
+            const std::optional<vm::bbox3> gameBounds = game->softMapBounds();
+            m_softBoundsFromGameMinLabel->setText(formatVec(gameBounds, false));
+            m_softBoundsFromGameMaxLabel->setText(formatVec(gameBounds, true));
 
-            // FIXME: disambiguate 0 from "no bounds" by switching back to an optional
-            // FIXME: serialize "no bounds" as "none" rather than ""
             const auto bounds = document->softMapBounds();            
 
-            if (bounds.first == Model::Game::SoftMapBoundsType::Map && bounds.second.is_empty()) {
+            if (bounds.first == Model::Game::SoftMapBoundsType::Map && !bounds.second.has_value()) {
                 m_softBoundsDisabled->setChecked(true);
 
                 m_softBoundsFromMapMinEdit->setEnabled(false);
                 m_softBoundsFromMapMaxEdit->setEnabled(false);
-            } else if (bounds.first == Model::Game::SoftMapBoundsType::Map && !bounds.second.is_empty()) {
+            } else if (bounds.first == Model::Game::SoftMapBoundsType::Map) {
                 m_softBoundsFromMap->setChecked(true);
 
                 m_softBoundsFromMapMinEdit->setEnabled(true);
                 m_softBoundsFromMapMaxEdit->setEnabled(true);
 
-                m_softBoundsFromMapMinEdit->setText(formatVec(bounds.second.min));
-                m_softBoundsFromMapMaxEdit->setText(formatVec(bounds.second.max));
+                m_softBoundsFromMapMinEdit->setText(formatVec(bounds.second, false));
+                m_softBoundsFromMapMaxEdit->setText(formatVec(bounds.second, true));
             } else {
                 m_softBoundsFromGame->setChecked(true);
 
