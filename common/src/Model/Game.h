@@ -31,6 +31,7 @@
 #include <memory>
 #include <map>
 #include <string>
+#include <optional>
 #include <utility>
 #include <vector>
 
