@@ -31,6 +31,7 @@
 #include "EL/ELExceptions.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
+#include "IO/GameConfigParser.h"
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
 #include "Model/AttributeNameWithDoubleQuotationMarksIssueGenerator.h"
@@ -197,16 +198,6 @@ namespace TrenchBroom {
 
         const vm::bbox3& MapDocument::worldBounds() const {
             return m_worldBounds;
-        }
-
-        std::optional<vm::bbox3> MapDocument::softWorldBounds() const {
-            if (!m_game) {
-                return std::nullopt;
-            }
-            if (!m_world) {
-                return std::nullopt;
-            }
-            return m_game->extractSoftMapBounds(*m_world);
         }
 
         Model::WorldNode* MapDocument::world() const {
@@ -2281,32 +2272,28 @@ namespace TrenchBroom {
             return m_game->defaultMod();
         }
 
-        void MapDocument::setMapSoftBounds(const std::optional<vm::bbox3>& size) {
-            if (!size.has_value()) {
-                // std::nullopt passed. Set the worldspawn key AttributeNames::SoftMaxMapSize 's value to the empty string
-                // to indicate that we are overriding the Game's bounds with unlimited.
-                executeAndStore(ChangeEntityAttributesCommand::setForNodes({world()}, Model::AttributeNames::SoftMapBounds, ""));
-            } else {
-                std::stringstream sizeString;
-                sizeString << size->size();
-                executeAndStore(ChangeEntityAttributesCommand::setForNodes({world()}, Model::AttributeNames::SoftMapBounds, sizeString.str()));
+        void MapDocument::setSoftMapBounds(const Model::Game::SoftMapBounds& bounds) {
+            switch (bounds.first) {
+                case Model::Game::SoftMapBoundsType::Map:                    
+                    if (bounds.second.is_empty()) {
+                        // Set the worldspawn key AttributeNames::SoftMaxMapSize's value to the empty string
+                        // to indicate that we are overriding the Game's bounds with unlimited.
+                        executeAndStore(ChangeEntityAttributesCommand::setForNodes({world()}, Model::AttributeNames::SoftMapBounds, ""));
+                    } else {
+                        executeAndStore(ChangeEntityAttributesCommand::setForNodes({world()}, Model::AttributeNames::SoftMapBounds, IO::serializeSoftMapBoundsString(bounds.second)));
+                    }
+                    break;
+                case Model::Game::SoftMapBoundsType::Game:
+                    // Unset the map's setting
+                    executeAndStore(ChangeEntityAttributesCommand::removeForNodes({world()}, Model::AttributeNames::SoftMapBounds));
+                    break;
+                switchDefault()
             }
         }
 
-        void MapDocument::unsetMapSoftBounds() {
-            executeAndStore(ChangeEntityAttributesCommand::removeForNodes({world()}, Model::AttributeNames::SoftMapBounds));
-        }
-
-        bool MapDocument::hasMapSoftBounds() const {
+        Model::Game::SoftMapBounds MapDocument::softMapBounds() const {
             if (!m_world) {
-                return false;
-            }
-            return m_world->hasAttribute(Model::AttributeNames::SoftMapBounds);
-        }
-
-        std::optional<vm::bbox3> MapDocument::mapOrGameSoftBounds() const {
-            if (!m_world) {
-                return std::nullopt;
+                return {Model::Game::SoftMapBoundsType::Game, vm::bbox3()};
             }
             return m_game->extractSoftMapBounds(*m_world);
         }

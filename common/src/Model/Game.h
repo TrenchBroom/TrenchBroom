@@ -26,11 +26,12 @@
 #include "Model/MapFormat.h"
 
 #include <vecmath/forward.h>
+#include <vecmath/bbox.h>
 
 #include <memory>
 #include <map>
-#include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace TrenchBroom {
@@ -75,14 +76,16 @@ namespace TrenchBroom {
 
             const std::vector<SmartTag>& smartTags() const;
 
+            enum class SoftMapBoundsType { Game, Map };            
+            using SoftMapBounds = std::pair<SoftMapBoundsType, vm::bbox3>;
             /**
-             * Returns the soft map bounds configured in the game config, or nullopt if there is no soft map bounds specified in the game config
+             * Returns the soft map bounds configured in the game config
              */
-            std::optional<vm::bbox3> softMapBounds() const;
+            SoftMapBounds softMapBounds() const;
             /**
              * Returns the soft map bounds specified in the given World entity, or if unset, the value from softMapBounds()
              */
-            std::optional<vm::bbox3> extractSoftMapBounds(const AttributableNode& node) const;
+            SoftMapBounds extractSoftMapBounds(const AttributableNode& node) const;
         public: // loading and writing map files
             std::unique_ptr<WorldNode> newMap(MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const;
             std::unique_ptr<WorldNode> loadMap(MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const;
@@ -126,8 +129,8 @@ namespace TrenchBroom {
 
             virtual CompilationConfig& doCompilationConfig() = 0;
             virtual size_t doMaxPropertyLength() const = 0;
-            virtual std::optional<vm::bbox3> doSoftMapBounds() const = 0;
-            virtual std::optional<vm::bbox3> doExtractSoftMapBounds(const AttributableNode& node) const = 0;
+            virtual SoftMapBounds doSoftMapBounds() const = 0;
+            virtual SoftMapBounds doExtractSoftMapBounds(const AttributableNode& node) const = 0;
 
             virtual const std::vector<SmartTag>& doSmartTags() const = 0;
 

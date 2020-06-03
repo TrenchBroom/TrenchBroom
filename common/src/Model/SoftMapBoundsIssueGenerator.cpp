@@ -73,12 +73,12 @@ namespace TrenchBroom {
 
         void SoftMapBoundsIssueGenerator::generateInternal(Node* node, IssueList& issues) const {
             auto game = kdl::mem_lock(m_game);
-            const std::optional<vm::bbox3> bounds = game->extractSoftMapBounds(*m_world);
+            const Game::SoftMapBounds bounds = game->extractSoftMapBounds(*m_world);
 
-            if (!bounds.has_value()) {
+            if (bounds.second.is_empty()) {
                 return;
             }
-            if (!bounds->contains(node->logicalBounds())) {
+            if (!bounds.second.contains(node->logicalBounds())) {
                 issues.push_back(new SoftMapBoundsIssue(node));
             }
         }

@@ -36,6 +36,7 @@
 #include "IO/FgdParser.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
+#include "IO/GameConfigParser.h"
 #include "IO/IOUtils.h"
 #include "IO/MdlParser.h"
 #include "IO/Md2Parser.h"
@@ -120,28 +121,28 @@ namespace TrenchBroom {
             return m_config.maxPropertyLength();
         }
 
-        std::optional<vm::bbox3> GameImpl::doSoftMapBounds() const {
-            return m_config.softMapBounds();
+        Game::SoftMapBounds GameImpl::doSoftMapBounds() const {
+            if (m_config.softMapBounds().has_value()) {
+                return {SoftMapBoundsType::Game, m_config.softMapBounds().value()};
+            } else {
+                return {SoftMapBoundsType::Game, vm::bbox3()};
+            }
         }
 
-        std::optional<vm::bbox3> GameImpl::doExtractSoftMapBounds(const AttributableNode& node) const {
+        Game::SoftMapBounds GameImpl::doExtractSoftMapBounds(const AttributableNode& node) const {
             if (!node.hasAttribute(AttributeNames::SoftMapBounds)) {
                 // Not set in map -> use Game value
                 return doSoftMapBounds();
             }
+
             const std::string& mapValue = node.attribute(AttributeNames::SoftMapBounds);
-            if (mapValue.empty()) {
-                // Set in map to empty string -> use unlimited bounds
-                return std::nullopt;
-            }
+            const std::optional<vm::bbox3> mapBounds = IO::parseSoftMapBoundsString(mapValue);
 
-            if (!vm::can_parse<double, 3u>(mapValue)) {
-                // Can't parse -> use unlimited bounds
-                return std::nullopt;
+            if (!mapBounds.has_value()) {
+                return {SoftMapBoundsType::Map, vm::bbox3()};
+            } else {
+                return {SoftMapBoundsType::Map, *mapBounds};
             }
-
-            const auto vec = vm::parse<double, 3u>(mapValue);
-            return { vm::bbox3(-0.5 * vec, 0.5 * vec) };
         }
 
         const std::vector<SmartTag>& GameImpl::doSmartTags() const {

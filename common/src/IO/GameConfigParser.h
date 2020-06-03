@@ -73,6 +73,9 @@ namespace TrenchBroom {
 
             deleteCopyAndMove(GameConfigParser)
         };
+
+        std::optional<vm::bbox3> parseSoftMapBoundsString(const std::string& string);
+        std::string serializeSoftMapBoundsString(const vm::bbox3& bounds);
     }
 }
 

@@ -23,6 +23,7 @@
 #include "FloatType.h"
 #include "Notifier.h"
 #include "IO/Path.h"
+#include "Model/Game.h"
 #include "Model/MapFacade.h"
 #include "Model/NodeCollection.h"
 #include "View/CachingLogger.h"
@@ -35,6 +36,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace TrenchBroom {
@@ -186,11 +188,6 @@ namespace TrenchBroom {
              * of either no limit or a hardcoded large maximum (e.g. 10^6 units).
              */
             const vm::bbox3& worldBounds() const;
-            /**
-             * "Soft" world bounds used to render guidelines for the mapper and generate Issues, but
-             * no other functional use inside TrenchBroom unlike `worldBounds()`.
-             */
-            std::optional<vm::bbox3> softWorldBounds() const;
             Model::WorldNode* world() const;
 
             bool isGamePathPreference(const IO::Path& path) const;
@@ -543,14 +540,8 @@ namespace TrenchBroom {
             void setMods(const std::vector<std::string>& mods) override;
             std::string defaultMod() const;
         public: // map soft bounds
-            /**
-             * Passing std::nullopt means to explicitly set the bounds to "unlimited".
-             * Call unsetMapSoftBounds() to clear the map's value and fall back to the Game's value.
-             */
-            void setMapSoftBounds(const std::optional<vm::bbox3>& size);
-            void unsetMapSoftBounds();
-            bool hasMapSoftBounds() const;
-            std::optional<vm::bbox3> mapOrGameSoftBounds() const;
+            void setSoftMapBounds(const Model::Game::SoftMapBounds& bounds);
+            Model::Game::SoftMapBounds softMapBounds() const;
         private: // issue management
             void registerIssueGenerators();
         public:

@@ -124,13 +124,9 @@ namespace TrenchBroom {
             return { vm::bbox3(-0.5 * vec, 0.5 * vec) };
         }
 
-        static QString formatBounds(const std::optional<vm::bbox3>& bounds) {
-            if (!bounds.has_value()) {
-                return QString();
-            }
-
+        static QString formatBounds(const vm::bbox3& bounds) {
             std::stringstream str;
-            str << bounds->size();
+            str << bounds.size();
             return QString::fromStdString(str.str());
         }
 
@@ -155,14 +151,14 @@ namespace TrenchBroom {
                 // This signal happens in response to user input only
                 auto document = kdl::mem_lock(m_document);
                 if (checked) {
-                    document->setMapSoftBounds(std::nullopt);                    
+                    document->setSoftMapBounds({Model::Game::SoftMapBoundsType::Map, vm::bbox3()});
                 }
             });
             connect(m_softBoundsFromGame, &QAbstractButton::clicked, this, [this](const bool checked) {
                 // This signal happens in response to user input only
                 auto document = kdl::mem_lock(m_document);
                 if (checked) {
-                    document->unsetMapSoftBounds();
+                    document->setSoftMapBounds({Model::Game::SoftMapBoundsType::Game, vm::bbox3()});
                 }
             });
             connect(m_softBoundsFromMap, &QAbstractButton::clicked, this, [this](const bool /*checked*/) {
@@ -176,9 +172,9 @@ namespace TrenchBroom {
             connect(m_sizeBox, &QLineEdit::editingFinished, this, [this]() {
                 // This signal happens in response to user input only
                 auto document = kdl::mem_lock(m_document);
-                if (document) {
-                    document->setMapSoftBounds(parseBounds(m_sizeBox->text().toStdString()));
-                }
+                // if (document) {
+                //     document->setMapSoftBounds(parseBounds(m_sizeBox->text().toStdString()));
+                // }
             });
 
             updateGui();
@@ -233,14 +229,14 @@ namespace TrenchBroom {
                 return;
             }
 
-            const bool hasBoundsSet = document->hasMapSoftBounds();
-            const std::optional<vm::bbox3> bounds = document->mapOrGameSoftBounds();
-            const QString boundsQString = formatBounds(bounds);
+            
+            const auto bounds = document->softMapBounds();
+            const QString boundsQString = formatBounds(bounds.second);
 
-            if (hasBoundsSet && !bounds.has_value()) {
+            if (bounds.first == Model::Game::SoftMapBoundsType::Map && bounds.second.is_empty()) {
                 m_softBoundsDisabled->setChecked(true);
                 m_sizeBox->setEnabled(false);
-            } else if (hasBoundsSet && bounds.has_value()) {
+            } else if (bounds.first == Model::Game::SoftMapBoundsType::Map && !bounds.second.is_empty()) {
                 m_softBoundsFromMap->setChecked(true);
                 m_sizeBox->setEnabled(true);
                 m_sizeBox->setText(boundsQString); 
@@ -249,7 +245,7 @@ namespace TrenchBroom {
                 m_sizeBox->setEnabled(false);
             }
  
-            qDebug() << "MapPropertiesEditor::updateGui:" << boundsQString << "set:" << hasBoundsSet;
+            //qDebug() << "MapPropertiesEditor::updateGui:" << boundsQString << "set:" << hasBoundsSet;
                        
         }
     }

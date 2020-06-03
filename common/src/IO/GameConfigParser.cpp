@@ -32,6 +32,7 @@
 #include <vecmath/vec_io.h>
 
 #include <string>
+#include <sstream>
 #include <vector>
 
 namespace TrenchBroom {
@@ -421,17 +422,30 @@ namespace TrenchBroom {
                 return std::nullopt;
             }
 
-            const std::string boundsString = value.stringValue();
-
-            if (!vm::can_parse<double, 6u>(boundsString)) {
+            const auto bounds = parseSoftMapBoundsString(value.stringValue());
+            if (!bounds.has_value()) {
+                // If a bounds is provided in the config, it must be valid
                 throw ParserException(value.line(), value.column(), "Can't parse soft map bounds '" + value.asString() + "'");
             }
+            return bounds;
+        }
 
-            const auto v = vm::parse<double, 6u>(boundsString);
+        std::optional<vm::bbox3> parseSoftMapBoundsString(const std::string& string) {
+            if (!vm::can_parse<double, 6u>(string)) {
+                return std::nullopt;
+            }
+
+            const auto v = vm::parse<double, 6u>(string);
             const auto bounds = vm::bbox3(vm::vec3(v[0], v[1], v[2]),
                                           vm::vec3(v[3], v[4], v[5]));
 
             return { bounds };
+        }
+
+        std::string serializeSoftMapBoundsString(const vm::bbox3& bounds) {
+            std::stringstream result;
+            result << bounds.min << " " << bounds.max;
+            return result.str();
         }
     }
 }
