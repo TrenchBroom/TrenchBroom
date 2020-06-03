@@ -181,12 +181,6 @@ namespace TrenchBroom {
             Logger& logger();
 
             std::shared_ptr<Model::Game> game() const override;
-            /**
-             * Hard limit on the map bounds; affects brush clipping algorithm, and objects going out of
-             * this bounding box will cause the map to fail to load.
-             * TODO: this should be removed in the long run, in favour
-             * of either no limit or a hardcoded large maximum (e.g. 10^6 units).
-             */
             const vm::bbox3& worldBounds() const;
             Model::WorldNode* world() const;
 

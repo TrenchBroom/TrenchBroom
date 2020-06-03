@@ -121,18 +121,18 @@ namespace TrenchBroom {
             return m_config.maxPropertyLength();
         }
 
-        Game::SoftMapBounds GameImpl::doSoftMapBounds() const {
+        vm::bbox3 GameImpl::doSoftMapBounds() const {
             if (m_config.softMapBounds().has_value()) {
-                return {SoftMapBoundsType::Game, m_config.softMapBounds().value()};
+                return m_config.softMapBounds().value();
             } else {
-                return {SoftMapBoundsType::Game, vm::bbox3()};
+                return vm::bbox3();
             }
         }
 
         Game::SoftMapBounds GameImpl::doExtractSoftMapBounds(const AttributableNode& node) const {
             if (!node.hasAttribute(AttributeNames::SoftMapBounds)) {
                 // Not set in map -> use Game value
-                return doSoftMapBounds();
+                return {SoftMapBoundsType::Game, doSoftMapBounds()};
             }
 
             const std::string& mapValue = node.attribute(AttributeNames::SoftMapBounds);

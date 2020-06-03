@@ -66,7 +66,7 @@ namespace TrenchBroom {
             return doSmartTags();
         }
 
-        Game::SoftMapBounds Game::softMapBounds() const {
+        vm::bbox3 Game::softMapBounds() const {
             return doSoftMapBounds();
         }
 

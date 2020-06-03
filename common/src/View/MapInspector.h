@@ -20,13 +20,16 @@
 #ifndef TrenchBroom_MapInspector
 #define TrenchBroom_MapInspector
 
+#include "FloatType.h"
 #include "View/TabBook.h"
 
 #include <memory>
+#include <optional>
 #include <vector>
 
 class QWidget;
 class QCheckBox;
+class QLabel;
 class QLineEdit;
 class QRadioButton;
 
@@ -59,12 +62,16 @@ namespace TrenchBroom {
 
             QRadioButton* m_softBoundsDisabled;
             QRadioButton* m_softBoundsFromGame;
+            QLabel* m_softBoundsFromGameMinLabel;
+            QLabel* m_softBoundsFromGameMaxLabel;
             QRadioButton* m_softBoundsFromMap;
-            QLineEdit* m_sizeBox;
+            QLineEdit* m_softBoundsFromMapMinEdit;
+            QLineEdit* m_softBoundsFromMapMaxEdit;         
         public:
             explicit MapPropertiesEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~MapPropertiesEditor() override;
         private:
+            std::optional<vm::bbox3> parseLineEdits();
             void createGui();
         private:
             void bindObservers();
