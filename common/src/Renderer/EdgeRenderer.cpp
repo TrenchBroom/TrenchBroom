@@ -77,10 +77,8 @@ namespace TrenchBroom {
                                                            prefs.get(Preferences::SoftMapBoundsColor).g(),
                                                            prefs.get(Preferences::SoftMapBoundsColor).b(),
                                                            0.33f)); // NOTE: heavier tint than FaceRenderer, since these are lines
-                if (m_params.useColor) {
-                    shader.set("UseUniformColor", true);
-                    shader.set("Color", m_params.color);
-                }
+                shader.set("UseUniformColor", m_params.useColor);
+                shader.set("Color", m_params.color);
                 doRenderVertices(renderContext);
             }
 
