@@ -25,6 +25,7 @@
 #include "Renderer/GL.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/PrimType.h"
+#include "Renderer/ShaderManager.h"
 #include "Renderer/VboManager.h"
 #include "Renderer/Vbo.h"
 
@@ -287,7 +288,7 @@ namespace TrenchBroom {
             bool setupVertices() override {
                 ensure(VboHolder<V>::m_vbo != nullptr, "block is null");
                 VboHolder<V>::m_vbo->bind();
-                V::Type::setup(VboHolder<V>::m_vbo->offset());
+                V::Type::setup(m_vboManager->shaderManager().currentProgram(), VboHolder<V>::m_vbo->offset());
                 return true;
             }
 
@@ -296,7 +297,7 @@ namespace TrenchBroom {
             }
 
             void cleanupVertices() override {
-                V::Type::cleanup();
+                V::Type::cleanup(m_vboManager->shaderManager().currentProgram());
                 VboHolder<V>::m_vbo->unbind();
             }
 

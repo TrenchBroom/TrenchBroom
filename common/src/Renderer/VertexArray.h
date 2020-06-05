@@ -24,6 +24,7 @@
 #include "Renderer/GL.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
+#include "Renderer/ShaderManager.h"
 #include "Renderer/VboManager.h"
 #include "Renderer/Vbo.h"
 
@@ -83,11 +84,11 @@ namespace TrenchBroom {
                 void setup() override {
                     ensure(m_vbo != nullptr, "block is null");
                     m_vbo->bind();
-                    VertexSpec::setup(m_vbo->offset());
+                    VertexSpec::setup(m_vboManager->shaderManager().currentProgram(), m_vbo->offset());
                 }
 
                 void cleanup() override {
-                    VertexSpec::cleanup();
+                    VertexSpec::cleanup(m_vboManager->shaderManager().currentProgram());
                     m_vbo->unbind();
                 }
             protected:

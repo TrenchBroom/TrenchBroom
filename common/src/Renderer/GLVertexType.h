@@ -27,6 +27,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class ShaderProgram;
+
         /**
          * Defines the type of a vertex by the types of the vertex attributes. Enables to set up and clean up the
          * corresponding vertex buffer pointers.
@@ -51,30 +53,34 @@ namespace TrenchBroom {
             /**
              * Sets up the vertex buffer pointers for the attribute types of this vertex type.
              *
+             * @param program current shader program
              * @param baseOffset the base offset into the corresponding vertex buffer
              */
-            static void setup(const size_t baseOffset) {
-                doSetup(0, Size, baseOffset);
+            static void setup(ShaderProgram* program, const size_t baseOffset) {
+                doSetup(program, 0, Size, baseOffset);
             }
 
             /**
              * Cleans up the vertex buffer pointers for the attributes of this vertex type.
+             *
+             * @param program current shader program
              */
-            static void cleanup() {
-                doCleanup(0);
+            static void cleanup(ShaderProgram* program) {
+                doCleanup(program, 0);
             }
 
             /**
              * Sets up the vertex buffer pointer for the first vertex attribute type and delegates the call for the
              * remaining attribute types. Do not call this directly, use the setup method instead.
              *
+             * @param program current shader program
              * @param index the index of the attribute to be set up here
              * @param stride the stride of the vertex buffer pointer to be set up here
              * @param offset the offset of the vertex buffer pointer to be set up here
              */
-            static void doSetup(const size_t index, const size_t stride, const size_t offset) {
-                AttrType::setup(index, stride, offset);
-                GLVertexType<AttrTypeRest...>::doSetup(index + 1, stride, offset + AttrType::Size);
+            static void doSetup(ShaderProgram* program, const size_t index, const size_t stride, const size_t offset) {
+                AttrType::setup(program, index, stride, offset);
+                GLVertexType<AttrTypeRest...>::doSetup(program, index + 1, stride, offset + AttrType::Size);
             }
 
             /**
@@ -83,11 +89,12 @@ namespace TrenchBroom {
              *
              * Note that the pointers are cleaned up in reverse order (last attribute first).
              *
+             * @param program current shader program
              * @param index the index of the attribute to be cleaned up here
              */
-            static void doCleanup(const size_t index) {
-                GLVertexType<AttrTypeRest...>::doCleanup(index + 1);
-                AttrType::cleanup(index);
+            static void doCleanup(ShaderProgram* program, const size_t index) {
+                GLVertexType<AttrTypeRest...>::doCleanup(program, index + 1);
+                AttrType::cleanup(program, index);
             }
 
             // Non-instantiable
@@ -109,39 +116,44 @@ namespace TrenchBroom {
             /**
              * Sets up the vertex buffer pointer for the attribute type of this vertex type.
              *
+             * @param program current shader program
              * @param baseOffset the base offset into the corresponding vertex buffer
              */
-            static void setup(const size_t baseOffset) {
-                doSetup(0, Size, baseOffset);
+            static void setup(ShaderProgram* program, const size_t baseOffset) {
+                doSetup(program, 0, Size, baseOffset);
             }
 
             /**
              * Cleans up the vertex buffer pointer for the attribute of this vertex type.
+             *
+             * @param program current shader program
              */
-            static void cleanup() {
-                doCleanup(0);
+            static void cleanup(ShaderProgram* program) {
+                doCleanup(program, 0);
             }
 
             /**
              * Sets up the vertex buffer pointer for the vertex attribute type. Do not call this directly, use the setup
              * method instead.
              *
+             * @param program current shader program
              * @param index the index of the attribute to be set up here
              * @param stride the stride of the vertex buffer pointer to be set up here
              * @param offset the offset of the vertex buffer pointer to be set up here
              */
-            static void doSetup(const size_t index, const size_t stride, const size_t offset) {
-                AttrType::setup(index, stride, offset);
+            static void doSetup(ShaderProgram* program, const size_t index, const size_t stride, const size_t offset) {
+                AttrType::setup(program, index, stride, offset);
             }
 
             /**
              * Cleans up the vertex buffer pointer for the vertex attribute type. Do not call this directly, use the
              * cleanup method instead.
              *
+             * @param program current shader program
              * @param index the index of the attribute to be cleaned up here
              */
-            static void doCleanup(const size_t index) {
-                AttrType::cleanup(index);
+            static void doCleanup(ShaderProgram* program, const size_t index) {
+                AttrType::cleanup(program, index);
             }
 
             // Non-instantiable

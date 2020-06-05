@@ -34,16 +34,21 @@ namespace TrenchBroom {
 
         class ShaderManager {
         private:
+            friend class ShaderProgram;
             using ShaderCache = std::map<std::string, std::unique_ptr<Shader>>;
             using ShaderProgramCache = std::map<const ShaderConfig*, std::unique_ptr<ShaderProgram>>;
 
             ShaderCache m_shaders;
             ShaderProgramCache m_programs;
+            ShaderProgram* m_currentProgram;
         public:
+            ShaderManager();
             ~ShaderManager();
         public:
             ShaderProgram& program(const ShaderConfig& config);
+            ShaderProgram* currentProgram();
         private:
+            void setCurrentProgram(ShaderProgram* program);
             std::unique_ptr<ShaderProgram> createProgram(const ShaderConfig& config);
             Shader& loadShader(const std::string& name, const GLenum type);
         };

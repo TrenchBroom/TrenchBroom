@@ -21,6 +21,7 @@
 
 #include "Exceptions.h"
 #include "Renderer/Shader.h"
+#include "Renderer/ShaderManager.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -32,10 +33,11 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        ShaderProgram::ShaderProgram(const std::string& name) :
+        ShaderProgram::ShaderProgram(ShaderManager* shaderManager, const std::string& name) :
         m_name(name),
         m_programId(glCreateProgram()),
-        m_needsLinking(true) {
+        m_needsLinking(true),
+        m_shaderManager(shaderManager) {
             if (m_programId == 0) {
                 throw RenderException("Cannot create shader program " + m_name);
             }
@@ -68,10 +70,14 @@ namespace TrenchBroom {
 
             glAssert(glUseProgram(m_programId));
             assert(checkActive());
+
+            m_shaderManager->setCurrentProgram(this);
         }
 
         void ShaderProgram::deactivate() {
             glAssert(glUseProgram(0));
+
+            m_shaderManager->setCurrentProgram(nullptr);
         }
 
         void ShaderProgram::set(const std::string& name, const bool value) {
@@ -155,6 +161,21 @@ namespace TrenchBroom {
 
             m_variableCache.clear();
             m_needsLinking = false;
+        }
+
+        GLint ShaderProgram::findAttributeLocation(const std::string& name) const {
+            auto it = m_attributeCache.find(name);
+            if (it == std::end(m_attributeCache)) {
+                GLint index;
+                glAssert(index = glGetAttribLocation(m_programId, name.c_str()));
+                if (index == -1) {
+                    throw RenderException("Location of attribute '" + name + "' could not be found in shader program " + m_name);
+                }
+
+                m_attributeCache[name] = index;
+                return index;
+            }
+            return it->second;
         }
 
         GLint ShaderProgram::findUniformLocation(const std::string& name) const {

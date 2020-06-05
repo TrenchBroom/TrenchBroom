@@ -42,15 +42,12 @@ namespace TrenchBroom {
         class EntityLinkRenderer : public DirectRenderable {
         private:
             using Vertex = GLVertexTypes::P3C4::Vertex;
-
-            using T03 = GLVertexAttributeType<GLVertexAttributeTypeTag::TexCoord0, GL_FLOAT, 3>;
-            using T13 = GLVertexAttributeType<GLVertexAttributeTypeTag::TexCoord1, GL_FLOAT, 3>;
-
+            
             using ArrowVertex = GLVertexType<
                     GLVertexAttributeTypes::P3,  // vertex of the arrow (exposed in shader as gl_Vertex)
                     GLVertexAttributeTypes::C4,  // arrow color (exposed in shader as gl_Color)
-                    T03,                 // arrow position (exposed in shader as gl_MultiTexCoord0)
-                    T13>::Vertex;        // direction the arrow is pointing (exposed in shader as gl_MultiTexCoord1)
+                    GLVertexAttributeUser<AttributeNames::arrowPosition, GL_FLOAT, 3, Normalize::False>,          // arrow position
+                    GLVertexAttributeUser<AttributeNames::lineDir,       GL_FLOAT, 3, Normalize::False>>::Vertex; // direction the arrow is pointing
 
             std::weak_ptr<View::MapDocument> m_document;
 
