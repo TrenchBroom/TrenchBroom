@@ -288,7 +288,7 @@ namespace TrenchBroom {
             bool setupVertices() override {
                 ensure(VboHolder<V>::m_vbo != nullptr, "block is null");
                 VboHolder<V>::m_vbo->bind();
-                V::Type::setup(m_vboManager->shaderManager().currentProgram(), VboHolder<V>::m_vbo->offset());
+                V::Type::setup(this->m_vboManager->shaderManager().currentProgram(), VboHolder<V>::m_vbo->offset());
                 return true;
             }
 
@@ -297,7 +297,7 @@ namespace TrenchBroom {
             }
 
             void cleanupVertices() override {
-                V::Type::cleanup(m_vboManager->shaderManager().currentProgram());
+                V::Type::cleanup(this->m_vboManager->shaderManager().currentProgram());
                 VboHolder<V>::m_vbo->unbind();
             }
 
