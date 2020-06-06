@@ -906,7 +906,7 @@ The text field for content flags will display "multi" if the currently selected 
 
 The surface flags text field will also display "multi" if the selected faces have different sets of surface flags, but this is not necessarily a situation that needs to be corrected. It is often valid to have different surface flags on different faces of a brush.
 
-#### Keyboard Shortcuts
+#### Keyboard Shortcuts {#keyboard_shortcuts}
 
 In the 3D viewport, you can change the offset and angle of the currently selected brush faces using the following keyboard shortcuts:
 
@@ -2277,7 +2277,11 @@ dkm          Daikatana model format
 
 #### Tags {#game_configuration_files_tags}
 
-TrenchBroom can recognize certain special brush or face types. An example would be clip faces or trigger brushes. But since the details can be game dependent, these special types are defined in the game configuration. For greater flexibility and future enhancements, a general tagging system is used to realize this functionality. Thereby, the game configuration defines smart tags which are applied automatically to brushes or brush faces depending on certain conditions.
+TrenchBroom can recognize certain special brush or face types. An example would be clip faces or trigger brushes. But since the details can be game dependent, these special types are defined in the game configuration. For greater flexibility and future enhancements, a general "smart tags" system is used to realize this functionality.
+
+TrenchBroom uses these tag definitions to automatically apply attributes to matching brushes/faces &mdash; for example to render trigger brushes partially transparent &mdash; and to populate the filtering options available in the [View menu](#filtering_rendering_options). 
+
+A smart tag definition also makes a related [keyboard shortcut](#keyboard_shortcuts) available. Using this shortcut will apply the tag to the selection, which (depending on the tag definition) can create a brush entity from the selection and/or change its surface flags, content flags, and texture.
 
 The tags are specified separately for brushes and faces under the corresponding keys:
 
@@ -2295,23 +2299,32 @@ Each of these keys has a list of tags. Each tag looks as follows.
         "pattern": "clip"
     },
 
-The most important key is `match`, which specifies how TrenchBroom will determine whether or not to apply this tag. This key can have the following values.
+The only attribute type currently supported in the `attribs` list is "transparent", which as mentioned above will cause faces matching this tag to be rendered with partial transparency in the 3D viewport.
+
+The `match` key specifies how TrenchBroom will determine whether or not this tag applies to a brush or face.
+
+For a `brush` smart tag, the `match` key can have the following value:
+
+Match        Description
+-----        -----------
+classname    Match against a brush entity class name
+
+For a `brushface` smart tag, the `match` key can have the following values:
 
 Match        Description
 -----        -----------
 texture      Match against a texture name, must match all brush faces
-contentflag  Match against face content flags (used by Quake 2, Quake 3)
-surfaceflag  Match against face surface flags (used by Quake 2, Quake 3)
-surfaceparm  Match against shader surface parameters (used by Quake 3)
-classname    Match against a brush entity class name
+contentflag  Match against face content flags (e.g. used by Quake 2, Quake 3)
+surfaceflag  Match against face surface flags (e.g. used by Quake 2)
+surfaceparm  Match against shader surface parameters (e.g. used by Quake 3)
 
-Depending on the value of the `match` key, additional keys may be required to configure the matcher.
+Additional keys will be required to configure the matcher, depending on the value of the `match` key.
 
 * For the `texture` matcher, the key `pattern` contains a pattern that is matched against the texture name. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 * For the `contentflag` and `surfaceflag` matchers, the key `flags` contains a list of content or surface flag names to match against (see below for more info on content and surface flags).
 * For the `surfaceparm` matcher, the key `pattern` contains a pattern that is matched against the surface parameters. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 * For the `classname` matcher, key `pattern` contains a pattern that is matched against the classname of the brush entity that contains the brush. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
-	- Additionally, the `classname` matcher can contain an optional `texture` key - when this type is set by the user, then the selected brushes will receive the texture with the name given as the value of this key (e.g. `"texture": "trigger"` will assign the `trigger` texture).
+	- Additionally, the `classname` matcher can contain an optional `texture` key. When this tag is applied by the use of its keyboard shortcut, then the selected brushes will receive the texture with the name given as the value of this key (e.g. `"texture": "trigger"` will assign the `trigger` texture).
 
 #### Face Attributes
 
