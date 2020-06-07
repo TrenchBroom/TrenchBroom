@@ -429,16 +429,6 @@ namespace TrenchBroom {
             m_surfaceFlagsOp = FlagOp_Replace;
         }
 
-        void ChangeBrushFaceAttributesRequest::setSurfaceFlag(const int value) {
-            m_surfaceFlags = value;
-            m_surfaceFlagsOp = FlagOp_Set;
-        }
-
-        void ChangeBrushFaceAttributesRequest::unsetSurfaceFlag(const int value) {
-            m_surfaceFlags = value;
-            m_surfaceFlagsOp = FlagOp_Unset;
-        }
-
         void ChangeBrushFaceAttributesRequest::setContentFlags(const int contentFlags) {
             m_contentFlags = contentFlags;
             m_contentFlagsOp = FlagOp_Set;
@@ -452,16 +442,6 @@ namespace TrenchBroom {
         void ChangeBrushFaceAttributesRequest::replaceContentFlags(const int contentFlags) {
             m_contentFlags = contentFlags;
             m_contentFlagsOp = FlagOp_Replace;
-        }
-
-        void ChangeBrushFaceAttributesRequest::setContentFlag(const int value) {
-            m_contentFlags = value;
-            m_contentFlagsOp = FlagOp_Set;
-        }
-
-        void ChangeBrushFaceAttributesRequest::unsetContentFlag(const int value) {
-            m_contentFlags = value;
-            m_contentFlagsOp = FlagOp_Unset;
         }
 
         void ChangeBrushFaceAttributesRequest::setSurfaceValue(const float surfaceValue) {

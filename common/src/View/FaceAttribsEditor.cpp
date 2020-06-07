@@ -160,9 +160,9 @@ namespace TrenchBroom {
 
             Model::ChangeBrushFaceAttributesRequest request;
             if (setFlag & value) {
-                request.setSurfaceFlag(value);
+                request.setSurfaceFlags(value);
             } else {
-                request.unsetSurfaceFlag(value);
+                request.unsetSurfaceFlags(value);
             }
             if (!document->setFaceAttributes(request)) {
                 updateControls();
@@ -177,9 +177,9 @@ namespace TrenchBroom {
 
             Model::ChangeBrushFaceAttributesRequest request;
             if (setFlag & value) {
-                request.setContentFlag(value);
+                request.setContentFlags(value);
             } else {
-                request.unsetContentFlag(value);
+                request.unsetContentFlags(value);
             }
             if (!document->setFaceAttributes(request)) {
                 updateControls();
