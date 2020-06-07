@@ -169,7 +169,7 @@ namespace TrenchBroom {
             return std::atoi(value.c_str());
         }
 
-        void SmartFlagsEditor::flagChanged(const size_t index, const int /* setFlag */, const int /* mixedFlag */) {
+        void SmartFlagsEditor::flagChanged(const size_t index, const int /* value */, const int /* setFlag */, const int /* mixedFlag */) {
             const std::vector<Model::AttributableNode*>& toUpdate = attributables();
             if (toUpdate.empty())
                 return;

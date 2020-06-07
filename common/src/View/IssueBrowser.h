@@ -72,7 +72,7 @@ namespace TrenchBroom {
             void updateFilterFlags();
 
             void showHiddenIssuesChanged();
-            void filterChanged(size_t index, int setFlag, int mixedFlag);
+            void filterChanged(size_t index, int value, int setFlag, int mixedFlag);
         };
     }
 }

@@ -150,7 +150,7 @@ namespace TrenchBroom {
             m_view->setShowHiddenIssues(m_showHiddenIssuesCheckBox->isChecked());
         }
 
-        void IssueBrowser::filterChanged(const size_t /* index */, const int setFlag, const int /* mixedFlag */) {
+        void IssueBrowser::filterChanged(const size_t /* index */, const int /* value */, const int setFlag, const int /* mixedFlag */) {
             m_view->setHiddenGenerators(~setFlag);
         }
     }

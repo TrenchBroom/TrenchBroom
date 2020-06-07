@@ -174,7 +174,7 @@ namespace TrenchBroom {
                 return {};
             }
 
-            Model::IssueType issueTypes = ~0;
+            Model::IssueType issueTypes = ~static_cast<Model::IssueType>(0);
             for (QModelIndex index : indices) {
                 if (!index.isValid()) {
                     continue;

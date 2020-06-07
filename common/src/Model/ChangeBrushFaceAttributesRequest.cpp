@@ -429,18 +429,6 @@ namespace TrenchBroom {
             m_surfaceFlagsOp = FlagOp_Replace;
         }
 
-        void ChangeBrushFaceAttributesRequest::setSurfaceFlag(const size_t surfaceFlag) {
-            assert(surfaceFlag < sizeof(int) * 8);
-            m_surfaceFlags = (1 << surfaceFlag);
-            m_surfaceFlagsOp = FlagOp_Set;
-        }
-
-        void ChangeBrushFaceAttributesRequest::unsetSurfaceFlag(const size_t surfaceFlag) {
-            assert(surfaceFlag < sizeof(int) * 8);
-            m_surfaceFlags = (1 << surfaceFlag);
-            m_surfaceFlagsOp = FlagOp_Unset;
-        }
-
         void ChangeBrushFaceAttributesRequest::setContentFlags(const int contentFlags) {
             m_contentFlags = contentFlags;
             m_contentFlagsOp = FlagOp_Set;
@@ -454,18 +442,6 @@ namespace TrenchBroom {
         void ChangeBrushFaceAttributesRequest::replaceContentFlags(const int contentFlags) {
             m_contentFlags = contentFlags;
             m_contentFlagsOp = FlagOp_Replace;
-        }
-
-        void ChangeBrushFaceAttributesRequest::setContentFlag(const size_t contentFlag) {
-            assert(contentFlag < sizeof(int) * 8);
-            m_contentFlags = (1 << contentFlag);
-            m_contentFlagsOp = FlagOp_Set;
-        }
-
-        void ChangeBrushFaceAttributesRequest::unsetContentFlag(const size_t contentFlag) {
-            assert(contentFlag < sizeof(int) * 8);
-            m_contentFlags = (1 << contentFlag);
-            m_contentFlagsOp = FlagOp_Unset;
         }
 
         void ChangeBrushFaceAttributesRequest::setSurfaceValue(const float surfaceValue) {
