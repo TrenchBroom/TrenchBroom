@@ -2281,7 +2281,7 @@ TrenchBroom can recognize certain special brush or face types. An example would 
 
 TrenchBroom uses these tag definitions to automatically apply attributes to matching brushes/faces &mdash; for example to render trigger brushes partially transparent &mdash; and to populate the filtering options available in the [View menu](#filtering_rendering_options). 
 
-A smart tag definition also makes a related [keyboard shortcut](#keyboard_shortcuts) available. Using this shortcut will apply the tag to the selection, which (depending on the tag definition) can create a brush entity from the selection and/or change its surface flags, content flags, and texture.
+Each smart tag definition also makes one or more related [keyboard shortcuts](#keyboard_shortcuts) available (searching the shortcuts by "Tags" will show all of these). Each tag will always have a related shortcut that can be used to toggle the visibility of brushes whose faces match the tag. Additional shortcuts may also be available to apply the characteristics of the tag to the current selection, or remove those characteristics. These shortcuts depend on the tag's `match` criteria as described below.
 
 The tags are specified separately for brushes and faces under the corresponding keys:
 
@@ -2303,28 +2303,28 @@ The only attribute type currently supported in the `attribs` list is "transparen
 
 The `match` key specifies how TrenchBroom will determine whether or not this tag applies to a brush or face.
 
-For a `brush` smart tag, the `match` key can have the following value:
+For a `brush` smart tag, the `match` key can only have the "classname" value. In addition to the usual keyboard shortcut for view filtering, this kind of smart tag will also generate keyboard shortcuts to either apply the tag (create a brush entity from selected brushes) or remove it (return selected brushes to worldspawn). This can be summarized as follows:
 
-Match        Description
------        -----------
-classname    Match against a brush entity class name
+Match        Description                            Shortcut to apply  Shortcut to remove
+-----        -----------                            -----------------  ------------------
+classname    Match against brush entity class name  Yes                Yes
 
-For a `brushface` smart tag, the `match` key can have the following values:
+For a `brushface` smart tag, the `match` key can have the following values and will generate keyboard shortcuts to apply or remove the match criteria on selected faces accordingly:
 
-Match        Description
------        -----------
-texture      Match against a texture name, must match all brush faces
-contentflag  Match against face content flags (e.g. used by Quake 2, Quake 3)
-surfaceflag  Match against face surface flags (e.g. used by Quake 2)
-surfaceparm  Match against shader surface parameters (e.g. used by Quake 3)
+Match        Description                            Shortcut to apply  Shortcut to remove
+-----        -----------                            -----------------  ------------------
+texture      Match against a texture name           Yes                No
+contentflag  Match against face content flags       Yes                Yes
+surfaceflag  Match against face surface flags       Yes                Yes
+surfaceparm  Match against shader surface parameter No                 No
 
 Additional keys will be required to configure the matcher, depending on the value of the `match` key.
 
-* For the `texture` matcher, the key `pattern` contains a pattern that is matched against the texture name. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
+* For the `classname` matcher, the key `pattern` contains a pattern that is matched against the classname of the brush entity that contains the brush. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
+    - Additionally, the `classname` matcher can contain an optional `texture` key. When this tag is applied by the use of its keyboard shortcut, then the selected brushes will receive the texture with the name given as the value of this key (e.g. `"texture": "trigger"` will assign the `trigger` texture).
+* For the `texture` matcher, the key `pattern` contains a pattern that is matched against a face's texture name. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 * For the `contentflag` and `surfaceflag` matchers, the key `flags` contains a list of content or surface flag names to match against (see below for more info on content and surface flags).
-* For the `surfaceparm` matcher, the key `pattern` contains a pattern that is matched against the surface parameters. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
-* For the `classname` matcher, key `pattern` contains a pattern that is matched against the classname of the brush entity that contains the brush. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
-	- Additionally, the `classname` matcher can contain an optional `texture` key. When this tag is applied by the use of its keyboard shortcut, then the selected brushes will receive the texture with the name given as the value of this key (e.g. `"texture": "trigger"` will assign the `trigger` texture).
+* For the `surfaceparm` matcher, the key `pattern` contains a pattern that is matched against the surface parameters of a face's shader. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 
 #### Face Attributes
 
