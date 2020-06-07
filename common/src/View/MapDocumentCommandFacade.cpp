@@ -47,6 +47,7 @@
 #include <kdl/map_utils.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
+#include <kdl/vector_set.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/segment.h>
@@ -903,8 +904,16 @@ namespace TrenchBroom {
             const auto& faceHandles = selectedBrushFaces();
             if (!faceHandles.empty()) {
                 snapshot->restoreNodes(m_worldBounds);
-                
-                setTextures(faceHandles);
+
+                // Restoring the snapshots will invalidate all texture pointers on the BrushNode,
+                // since the snapshot has a whole brush granularity, so we need to call
+                // setTextures on the whole node.
+                kdl::vector_set<Model::Node*> nodes;
+                for (const auto& faceHandle : faceHandles) {
+                    nodes.insert(faceHandle.node());
+                }
+
+                setTextures(nodes.release_data());
                 brushFacesDidChangeNotifier(faceHandles);
             }
         }
