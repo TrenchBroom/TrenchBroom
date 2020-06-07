@@ -108,7 +108,7 @@ macro(set_compiler_config TARGET)
         # Disable a warning in clang when using PCH:
         target_compile_options(${TARGET} PRIVATE -Wno-pragma-system-header-outside-header)
     elseif(COMPILER_IS_GNU)
-        target_compile_options(${TARGET} PRIVATE -Wall -Wextra -Wconversion -Wshadow=local -pedantic)
+        target_compile_options(${TARGET} PRIVATE -Wall -Wextra -Wconversion -Wsign-conversion -Wshadow=local -pedantic)
         target_compile_options(${TARGET} PRIVATE "$<$<CONFIG:RELEASE>:-O3>")
 
         # FIXME: enable -Wcpp once we found a workaround for glew / QOpenGLWindow problem, see RenderView.h
