@@ -77,6 +77,7 @@ namespace TrenchBroom {
             createGui(contextManager);
             bindEvents();
             bindObservers();
+            gridDidChange();
         }
 
         FaceAttribsEditor::~FaceAttribsEditor() {
