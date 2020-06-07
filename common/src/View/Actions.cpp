@@ -1169,6 +1169,9 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.document()->grid().visible();
                 }));
             gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Snap to Grid"), QObject::tr("Snap to Grid"), Qt::ALT + Qt::Key_0,
                 [](ActionExecutionContext& context) {
@@ -1176,6 +1179,9 @@ namespace TrenchBroom {
                 },
                 [](ActionExecutionContext& context) {
                     return context.hasDocument();
+                },
+                [](ActionExecutionContext& context) {
+                    return context.hasDocument() && context.document()->grid().snap();
                 }));
             gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Increase Grid Size"), QObject::tr("Increase Grid Size"), Qt::Key_Plus,
                 [](ActionExecutionContext& context) {
