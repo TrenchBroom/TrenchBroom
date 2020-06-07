@@ -394,11 +394,7 @@ namespace TrenchBroom {
                     auto matcher = std::make_unique<Model::TextureNameTagMatcher>(std::move(pattern));
                     result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
                 } else if (match == "surfaceparm") {
-                    expectMapEntry(entry, "pattern", EL::ValueType::String);
-                    auto pattern = entry["pattern"].stringValue();
-                    auto attribs = parseTagAttributes(entry["attribs"]);
-                    auto matcher = std::make_unique<Model::SurfaceParmTagMatcher>(std::move(pattern));
-                    result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
+                    parseSurfaceParmTag(name, entry, result);
                 } else if (match == "contentflag") {
                     expectMapEntry(entry, "flags", EL::ValueType::Array);
                     const auto flagValue = parseFlagValue(entry["flags"], faceAttribsConfig.contentFlags);
@@ -415,6 +411,31 @@ namespace TrenchBroom {
                     throw ParserException(entry.line(), entry.column(), "Unexpected smart tag match type '" + match + "'");
                 }
             }
+        }
+
+        void GameConfigParser::parseSurfaceParmTag(const std::string& name, const EL::Value& value, std::vector<Model::SmartTag>& result) const {
+            auto attribs = parseTagAttributes(value["attribs"]);
+            std::unique_ptr<Model::SurfaceParmTagMatcher> matcher;
+            if (m_version == 3) {
+                expectMapEntry(value, "pattern", EL::ValueType::String);
+                auto pattern = value["pattern"].stringValue();
+                matcher = std::make_unique<Model::SurfaceParmTagMatcher>(std::move(pattern));
+            } else {
+                if (value["pattern"].type() == EL::ValueType::String) {
+                    auto pattern = value["pattern"].stringValue();
+                    matcher = std::make_unique<Model::SurfaceParmTagMatcher>(std::move(pattern));
+                } else if (value["pattern"].type() == EL::ValueType::Array) {
+                    auto patternVector = value["pattern"].asStringSet();
+                    const std::set<std::string> patternSet(patternVector.begin(), patternVector.end());
+                    matcher = std::make_unique<Model::SurfaceParmTagMatcher>(patternSet);
+                } else {
+                    // Generate the type exception specifying Array as the
+                    // expected type, since String is really a legacy type for
+                    // backward compatibility.
+                    expectMapEntry(value, "pattern", EL::ValueType::Array);
+                }
+            }
+            result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
         }
 
         int GameConfigParser::parseFlagValue(const EL::Value& value, const Model::FlagsConfig& flags) const {

@@ -20,6 +20,7 @@
 #ifndef TRENCHBROOM_TAGMATCHER_H
 #define TRENCHBROOM_TAGMATCHER_H
 
+#include "Assets/Texture.h"
 #include "Model/Tag.h"
 #include "Model/TagVisitor.h"
 
@@ -68,28 +69,34 @@ namespace TrenchBroom {
             void visit(const BrushNode& brush) override;
         };
 
-        class TextureNameTagMatcher : public TagMatcher {
-        private:
-            std::string m_pattern;
-        public:
-            explicit TextureNameTagMatcher(const std::string& pattern);
-            std::unique_ptr<TagMatcher> clone() const override;
+        class TextureTagMatcher : public TagMatcher {
         public:
             bool matches(const Taggable& taggable) const override;
             void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
             bool canEnable() const override;
         private:
-            bool matchesTextureName(std::string_view textureName) const;
+            virtual bool matchesTexture(Assets::Texture* texture) const = 0;
         };
 
-        class SurfaceParmTagMatcher : public TagMatcher {
+        class TextureNameTagMatcher : public TextureTagMatcher {
         private:
-            std::string m_parameter;
+            std::string m_pattern;
         public:
-            explicit SurfaceParmTagMatcher(const std::string& parameter);
+            explicit TextureNameTagMatcher(const std::string& pattern);
             std::unique_ptr<TagMatcher> clone() const override;
         private:
-            bool matches(const Taggable& taggable) const override;
+            bool matchesTexture(Assets::Texture* texture) const override;
+        };
+
+        class SurfaceParmTagMatcher : public TextureTagMatcher {
+        private:
+            std::set<std::string> m_parameters;
+        public:
+            explicit SurfaceParmTagMatcher(const std::string& parameter);
+            explicit SurfaceParmTagMatcher(const std::set<std::string>& parameters);
+            std::unique_ptr<TagMatcher> clone() const override;
+        private:
+            bool matchesTexture(Assets::Texture* texture) const override;
         };
 
         class FlagsTagMatcher : public TagMatcher {
@@ -105,7 +112,7 @@ namespace TrenchBroom {
             GetFlagNames m_getFlagNames;
         protected:
             FlagsTagMatcher(int flags, GetFlags getFlags, SetFlags setFlags, SetFlags unsetFlags, GetFlagNames getFlagNames);
-        private:
+        public:
             bool matches(const Taggable& taggable) const override;
             void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
             void disable(TagMatcherCallback& callback, MapFacade& facade) const override;
@@ -135,9 +142,8 @@ namespace TrenchBroom {
         public:
             EntityClassNameTagMatcher(const std::string& pattern, const std::string& texture);
             std::unique_ptr<TagMatcher> clone() const override;
-        private:
-            bool matches(const Taggable& taggable) const override;
         public:
+            bool matches(const Taggable& taggable) const override;
             void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
             void disable(TagMatcherCallback& callback, MapFacade& facade) const override;
             bool canEnable() const override;

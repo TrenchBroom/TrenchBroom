@@ -70,6 +70,7 @@ namespace TrenchBroom {
 
             void parseBrushTags(const EL::Value& value, std::vector<Model::SmartTag>& results) const;
             void parseFaceTags(const EL::Value& value, const Model::FaceAttribsConfig& faceAttribsConfig, std::vector<Model::SmartTag>& results) const;
+            void parseSurfaceParmTag(const std::string& name, const EL::Value& value, std::vector<Model::SmartTag>& result) const;
             int parseFlagValue(const EL::Value& value, const Model::FlagsConfig& flags) const;
             std::vector<Model::TagAttribute> parseTagAttributes(const EL::Value& values) const;
 

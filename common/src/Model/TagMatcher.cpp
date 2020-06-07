@@ -63,29 +63,22 @@ namespace TrenchBroom {
             }
         }
 
-        TextureNameTagMatcher::TextureNameTagMatcher(const std::string& pattern) :
-        m_pattern(pattern) {}
-
-        std::unique_ptr<TagMatcher> TextureNameTagMatcher::clone() const {
-            return std::make_unique<TextureNameTagMatcher>(m_pattern);
-        }
-
-        bool TextureNameTagMatcher::matches(const Taggable& taggable) const {
+        bool TextureTagMatcher::matches(const Taggable& taggable) const {
             BrushFaceMatchVisitor visitor([this](const BrushFace& face) {
-                return matchesTextureName(face.attributes().textureName());
+                return matchesTexture(face.texture());
             });
 
             taggable.accept(visitor);
             return visitor.matches();
         }
 
-        void TextureNameTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const {
+        void TextureTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const {
             const auto& textureManager = facade.textureManager();
             const auto& allTextures = textureManager.textures();
             auto matchingTextures = std::vector<Assets::Texture*>{};
 
             std::copy_if(std::begin(allTextures), std::end(allTextures), std::back_inserter(matchingTextures), [this](auto* texture) {
-                return matchesTextureName(texture->name());
+                return matchesTexture(texture);
             });
 
             std::sort(std::begin(matchingTextures), std::end(matchingTextures), [](const auto* lhs, const auto* rhs) {
@@ -114,11 +107,22 @@ namespace TrenchBroom {
             facade.setFaceAttributes(request);
         }
 
-        bool TextureNameTagMatcher::canEnable() const {
+        bool TextureTagMatcher::canEnable() const {
             return true;
         }
 
-        bool TextureNameTagMatcher::matchesTextureName(std::string_view textureName) const {
+        TextureNameTagMatcher::TextureNameTagMatcher(const std::string& pattern) :
+        m_pattern(pattern) {}
+
+        std::unique_ptr<TagMatcher> TextureNameTagMatcher::clone() const {
+            return std::make_unique<TextureNameTagMatcher>(m_pattern);
+        }
+
+        bool TextureNameTagMatcher::matchesTexture(Assets::Texture *texture) const {
+            if (texture == nullptr) {
+                return false;
+            }
+            std::string_view textureName(texture->name());
             const auto pos = textureName.find_last_of('/');
             if (pos != std::string::npos) {
                 textureName = textureName.substr(pos + 1);
@@ -128,26 +132,34 @@ namespace TrenchBroom {
         }
 
         SurfaceParmTagMatcher::SurfaceParmTagMatcher(const std::string& parameter) :
-        m_parameter(parameter) {}
+        m_parameters({parameter}) {}
+
+        SurfaceParmTagMatcher::SurfaceParmTagMatcher(const std::set<std::string>& parameters) :
+        m_parameters(parameters) {}
 
         std::unique_ptr<TagMatcher> SurfaceParmTagMatcher::clone() const {
-            return std::make_unique<SurfaceParmTagMatcher>(m_parameter);
+            return std::make_unique<SurfaceParmTagMatcher>(m_parameters);
         }
 
-        bool SurfaceParmTagMatcher::matches(const Taggable& taggable) const {
-            BrushFaceMatchVisitor visitor([this](const BrushFace& face) {
-                const auto* texture = face.texture();
-                if (texture != nullptr) {
-                    const auto& surfaceParms = texture->surfaceParms();
-                    if (surfaceParms.count(m_parameter) > 0) {
-                        return true;
-                    }
-                }
+        bool SurfaceParmTagMatcher::matchesTexture(Assets::Texture *texture) const {
+            if (texture == nullptr) {
                 return false;
-            });
-
-            taggable.accept(visitor);
-            return visitor.matches();
+            }
+            const std::set<std::string>& parameters = texture->surfaceParms();
+            std::set<std::string>::iterator texParams = parameters.begin();
+            std::set<std::string>::iterator tagParams = m_parameters.begin();
+            std::set<std::string>::iterator texParamsEnd = parameters.end();
+            std::set<std::string>::iterator tagParamsEnd = m_parameters.end();
+            while (texParams != texParamsEnd && tagParams != tagParamsEnd) {
+                if (*texParams < *tagParams) {
+                    texParams++;
+                } else if (*tagParams < *texParams) {
+                    tagParams++;
+                } else {
+                    return true;
+                }
+            }
+            return false;
         }
 
         FlagsTagMatcher::FlagsTagMatcher(const int flags, GetFlags getFlags, SetFlags setFlags, SetFlags unsetFlags, GetFlagNames getFlagNames) :

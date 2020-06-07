@@ -2128,7 +2128,10 @@ The game configuration files are versioned. Whenever a breaking change to the ga
 
 **Current Versions**
 
-TrenchBroom currently supports game config versions 3 and 4. Version 4 adds support for the `unused` key in surface flags and content flags; these two versions are otherwise identical.
+TrenchBroom currently supports game config versions 3 and 4. Version 4 is identical to version 3 with two exceptions:
+
+* Version 4 adds support for the `unused` key in surface flags and content flags; this key does not exist in version 3.
+* Version 4 adds support for specifying a list of values for the `pattern` key in surfaceparm-type smart tags; in version 3 only a single value is allowed.
 
 **Migrating from Version 2**
 
@@ -2316,7 +2319,7 @@ Match        Description                            Shortcut to apply  Shortcut 
 texture      Match against a texture name           Yes                No
 contentflag  Match against face content flags       Yes                Yes
 surfaceflag  Match against face surface flags       Yes                Yes
-surfaceparm  Match against shader surface parameter No                 No
+surfaceparm  Match against shader surface parameter Yes                No
 
 Additional keys will be required to configure the matcher, depending on the value of the `match` key.
 
@@ -2324,7 +2327,7 @@ Additional keys will be required to configure the matcher, depending on the valu
     - Additionally, the `classname` matcher can contain an optional `texture` key. When this tag is applied by the use of its keyboard shortcut, then the selected brushes will receive the texture with the name given as the value of this key (e.g. `"texture": "trigger"` will assign the `trigger` texture).
 * For the `texture` matcher, the key `pattern` contains a pattern that is matched against a face's texture name. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 * For the `contentflag` and `surfaceflag` matchers, the key `flags` contains a list of content or surface flag names to match against (see below for more info on content and surface flags).
-* For the `surfaceparm` matcher, the key `pattern` contains a name that is matched against the surface parameters of a face's shader. No wildcards allowed; the parameter name must match exactly.
+* For the `surfaceparm` matcher, the key `pattern` contains a name that is matched against the surface parameters of a face's shader. No wildcards allowed; the parameter name must match exactly. In version 4 of the game config format, you may alternately specify a *list* of surfaceparm names for this value, which will match against a shader if it has any of those surfaceparms.
 
 #### Face Attributes
 
