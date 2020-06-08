@@ -43,32 +43,46 @@ namespace TrenchBroom {
     namespace View {
         class TagManagementTest : public MapDocumentTest {
         protected:
-            Assets::Texture* m_matchingTexture;
-            Assets::Texture* m_nonMatchingTexture;
+            Assets::Texture* m_textureA;
+            Assets::Texture* m_textureB;
+            Assets::Texture* m_textureC;
             Assets::TextureCollection* m_textureCollection;
         private:
             void SetUp() {
-                auto matchingTexture = std::make_unique<Assets::Texture>("some_texture", 16, 16);
-                auto nonMatchingTexture = std::make_unique<Assets::Texture>("other_texture", 32, 32);
+                auto textureA = std::make_unique<Assets::Texture>("some_texture", 16, 16);
+                auto textureB = std::make_unique<Assets::Texture>("other_texture", 32, 32);
+                auto textureC = std::make_unique<Assets::Texture>("yet_another_texture", 64, 64);
 
-                matchingTexture->setSurfaceParms({"some_parm"});
+                const std::string singleParam("some_parm");
+                const std::set<std::string> multiParams({"parm1", "parm2"});
+
+                textureA->setSurfaceParms({singleParam});
+                textureB->setSurfaceParms(multiParams);
 
                 auto textureCollection = std::make_unique<Assets::TextureCollection>(std::vector<Assets::Texture*>({
-                    matchingTexture.get(),
-                    nonMatchingTexture.get()
+                    textureA.get(),
+                    textureB.get(),
+                    textureC.get()
                 }));
 
                 document->textureManager().setTextureCollections(std::vector<Assets::TextureCollection*>({
                     textureCollection.get()
                 }));
 
-                m_matchingTexture = matchingTexture.release();
-                m_nonMatchingTexture = nonMatchingTexture.release();
+                m_textureA = textureA.release();
+                m_textureB = textureB.release();
+                m_textureC = textureC.release();
                 m_textureCollection = textureCollection.release();
 
+                const std::string textureMatch("some_texture");
+                const std::string texturePatternMatch("*er_texture");
+                const std::string singleParamMatch("parm2");
+                const std::set<std::string> multiParamsMatch({"some_parm", "parm1", "parm3"});
                 game->setSmartTags({
-                    Model::SmartTag("texture", {}, std::make_unique<Model::TextureNameTagMatcher>("some_texture")),
-                    Model::SmartTag("surfaceparm", {}, std::make_unique<Model::SurfaceParmTagMatcher>("some_parm")),
+                    Model::SmartTag("texture", {}, std::make_unique<Model::TextureNameTagMatcher>(textureMatch)),
+                    Model::SmartTag("texturePattern", {}, std::make_unique<Model::TextureNameTagMatcher>(texturePatternMatch)),
+                    Model::SmartTag("surfaceparm_single", {}, std::make_unique<Model::SurfaceParmTagMatcher>(singleParamMatch)),
+                    Model::SmartTag("surfaceparm_multi", {}, std::make_unique<Model::SurfaceParmTagMatcher>(multiParamsMatch)),
                     Model::SmartTag("contentflags", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1)),
                     Model::SmartTag("surfaceflags", {}, std::make_unique<Model::SurfaceFlagsTagMatcher>(1)),
                     Model::SmartTag("entity", {}, std::make_unique<Model::EntityClassNameTagMatcher>("brush_entity", ""))
@@ -96,7 +110,9 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRegistration") {
             ASSERT_TRUE(document->isRegisteredSmartTag("texture"));
-            ASSERT_TRUE(document->isRegisteredSmartTag("surfaceparm"));
+            ASSERT_TRUE(document->isRegisteredSmartTag("texturePattern"));
+            ASSERT_TRUE(document->isRegisteredSmartTag("surfaceparm_single"));
+            ASSERT_TRUE(document->isRegisteredSmartTag("surfaceparm_multi"));
             ASSERT_TRUE(document->isRegisteredSmartTag("contentflags"));
             ASSERT_TRUE(document->isRegisteredSmartTag("surfaceflags"));
             ASSERT_TRUE(document->isRegisteredSmartTag("entity"));
@@ -106,18 +122,22 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRegistrationAssignsIndexes") {
             CHECK(0u == document->smartTag("texture").index());
-            CHECK(1u == document->smartTag("surfaceparm").index());
-            CHECK(2u == document->smartTag("contentflags").index());
-            CHECK(3u == document->smartTag("surfaceflags").index());
-            CHECK(4u == document->smartTag("entity").index());
+            CHECK(1u == document->smartTag("texturePattern").index());
+            CHECK(2u == document->smartTag("surfaceparm_single").index());
+            CHECK(3u == document->smartTag("surfaceparm_multi").index());
+            CHECK(4u == document->smartTag("contentflags").index());
+            CHECK(5u == document->smartTag("surfaceflags").index());
+            CHECK(6u == document->smartTag("entity").index());
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRegistrationAssignsTypes") {
             CHECK(1u == document->smartTag("texture").type());
-            CHECK(2u == document->smartTag("surfaceparm").type());
-            CHECK(4u == document->smartTag("contentflags").type());
-            CHECK(8u == document->smartTag("surfaceflags").type());
-            CHECK(16u == document->smartTag("entity").type());
+            CHECK(2u == document->smartTag("texturePattern").type());
+            CHECK(4u == document->smartTag("surfaceparm_single").type());
+            CHECK(8u == document->smartTag("surfaceparm_multi").type());
+            CHECK(16u == document->smartTag("contentflags").type());
+            CHECK(32u == document->smartTag("surfaceflags").type());
+            CHECK(64u == document->smartTag("entity").type());
         }
     
 
@@ -131,15 +151,34 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchTextureNameTag") {
-            auto matchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("some_texture"));
-            auto nonMatchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf"));
-
+            auto nodeA = std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureA->name(), [&](auto& b) {
+                for (auto& face : b.faces()) {
+                    face.setTexture(m_textureA);
+                }
+            }));
+            auto nodeB = std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureB->name(), [&](auto& b) {
+                for (auto& face : b.faces()) {
+                    face.setTexture(m_textureB);
+                }
+            }));
+            auto nodeC = std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureC->name(), [&](auto& b) {
+                for (auto& face : b.faces()) {
+                    face.setTexture(m_textureC);
+                }
+            }));
             const auto& tag = document->smartTag("texture");
-            for (const auto& face : matchingBrushNode->brush().faces()) {
+            const auto& patternTag = document->smartTag("texturePattern");
+            for (const auto& face : nodeA->brush().faces()) {
                 ASSERT_TRUE(tag.matches(face));
+                ASSERT_FALSE(patternTag.matches(face));
             }
-            for (const auto& face : nonMatchingBrushNode->brush().faces()) {
+            for (const auto& face : nodeB->brush().faces()) {
                 ASSERT_FALSE(tag.matches(face));
+                ASSERT_TRUE(patternTag.matches(face));
+            }
+            for (const auto& face : nodeC->brush().faces()) {
+                ASSERT_FALSE(tag.matches(face));
+                ASSERT_TRUE(patternTag.matches(face));
             }
         }
 
@@ -167,32 +206,57 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchSurfaceParmTag") {
-            auto texture = std::make_unique<Assets::Texture>("texturename", 16, 16);
-            texture->setSurfaceParms({"some_parm"});
-
-            auto matchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("some_texture", [&](auto& b) {
+            auto nodeA = std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureA->name(), [&](auto& b) {
                 for (auto& face : b.faces()) {
-                    face.setTexture(texture.get());
+                    face.setTexture(m_textureA);
                 }
             }));
-            auto nonMatchingBrushNode = std::unique_ptr<Model::BrushNode>(createBrushNode("asdf"));
-
-            const auto& tag = document->smartTag("surfaceparm");
-            for (const auto& face : matchingBrushNode->brush().faces()) {
-                ASSERT_TRUE(tag.matches(face));
+            auto nodeB = std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureB->name(), [&](auto& b) {
+                for (auto& face : b.faces()) {
+                    face.setTexture(m_textureB);
+                }
+            }));
+            auto nodeC = std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureC->name(), [&](auto& b) {
+                for (auto& face : b.faces()) {
+                    face.setTexture(m_textureC);
+                }
+            }));
+            const auto& singleTag = document->smartTag("surfaceparm_single");
+            const auto& multiTag = document->smartTag("surfaceparm_multi");
+            for (const auto& face : nodeA->brush().faces()) {
+                ASSERT_FALSE(singleTag.matches(face));
+                ASSERT_TRUE(multiTag.matches(face));
             }
-            for (const auto& face : nonMatchingBrushNode->brush().faces()) {
-                ASSERT_FALSE(tag.matches(face));
+            for (const auto& face : nodeB->brush().faces()) {
+                ASSERT_TRUE(singleTag.matches(face));
+                ASSERT_TRUE(multiTag.matches(face));
+            }
+            for (const auto& face : nodeC->brush().faces()) {
+                ASSERT_FALSE(singleTag.matches(face));
+                ASSERT_FALSE(multiTag.matches(face));
             }
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableSurfaceParmTag") {
-            const auto& tag = document->smartTag("surfaceparm");
-            ASSERT_FALSE(tag.canEnable());
+            auto* nonMatchingBrushNode = createBrushNode("asdf");
+            document->addNode(nonMatchingBrushNode, document->parentForNodes());
+
+            const auto& tag = document->smartTag("surfaceparm_single");
+            ASSERT_TRUE(tag.canEnable());
+
+            const auto faceHandle = Model::BrushFaceHandle(nonMatchingBrushNode, 0u);
+            ASSERT_FALSE(tag.matches(faceHandle.face()));
+
+            document->select(faceHandle);
+
+            TestCallback callback(0);
+            tag.enable(callback, *document);
+
+            ASSERT_TRUE(tag.matches(faceHandle.face()));
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableSurfaceParmTag") {
-            const auto& tag = document->smartTag("surfaceparm");
+            const auto& tag = document->smartTag("surfaceparm_single");
             ASSERT_FALSE(tag.canDisable());
         }
 
