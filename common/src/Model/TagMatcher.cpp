@@ -152,9 +152,9 @@ namespace TrenchBroom {
             std::set<std::string>::iterator tagParamsEnd = m_parameters.end();
             while (texParams != texParamsEnd && tagParams != tagParamsEnd) {
                 if (*texParams < *tagParams) {
-                    texParams++;
+                    ++texParams;
                 } else if (*tagParams < *texParams) {
-                    tagParams++;
+                    ++tagParams;
                 } else {
                     return true;
                 }
