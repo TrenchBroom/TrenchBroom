@@ -28,6 +28,7 @@
 #include <vecmath/forward.h>
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -42,12 +43,19 @@ namespace TrenchBroom {
         class EntityLinkRenderer : public DirectRenderable {
         private:
             using Vertex = GLVertexTypes::P3C4::Vertex;
-            
+
+            struct ArrowPositionName {
+                static inline const std::string name{"arrowPosition"};
+            };
+            struct LineDirName {
+                static inline const std::string name{"lineDir"};
+            };
+
             using ArrowVertex = GLVertexType<
                     GLVertexAttributeTypes::P3,  // vertex of the arrow (exposed in shader as gl_Vertex)
                     GLVertexAttributeTypes::C4,  // arrow color (exposed in shader as gl_Color)
-                    GLVertexAttributeUser<AttributeNames::arrowPosition, GL_FLOAT, 3, Normalize::False>,          // arrow position
-                    GLVertexAttributeUser<AttributeNames::lineDir,       GL_FLOAT, 3, Normalize::False>>::Vertex; // direction the arrow is pointing
+                    GLVertexAttributeUser<ArrowPositionName, GL_FLOAT, 3, Normalize::False>,          // arrow position
+                    GLVertexAttributeUser<LineDirName,       GL_FLOAT, 3, Normalize::False>>::Vertex; // direction the arrow is pointing
 
             std::weak_ptr<View::MapDocument> m_document;
 

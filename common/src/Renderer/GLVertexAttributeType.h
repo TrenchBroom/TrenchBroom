@@ -33,29 +33,16 @@ namespace TrenchBroom {
             True, False
         };
 
-        enum class AttributeNames {
-            // EntityLinkArrow
-            arrowPosition,
-            lineDir
-        };
-
-        inline const char* toString(const AttributeNames name) {
-            switch (name) {
-                case AttributeNames::arrowPosition: return "arrowPosition";
-                case AttributeNames::lineDir: return "lineDir";
-                switchDefault()
-            }
-        }
-
         /**
          * User defined vertex attribute types.
          *
-         * @tparam A the attribute name
+         * @tparam A class containing the attribute name in a `static inline const std::string` member called `name`
+         *           e.g. `struct Whatever { static inline const std::string name{"arrowPosition"}; };`
          * @tparam D the vertex component type
          * @tparam S the number of components
          * @tparam N whether to convert signed integer types to [-1..1] and unsigned to [0..1]
          */
-        template <AttributeNames A, GLenum D, size_t S, Normalize N>
+        template <class A, GLenum D, size_t S, Normalize N>
         class GLVertexAttributeUser {
         public:
             using ComponentType = typename GLType<D>::Type;
@@ -65,7 +52,7 @@ namespace TrenchBroom {
             static void setup(ShaderProgram* program, const size_t /* index */, const size_t stride, const size_t offset) {
                 ensure(program != nullptr, "must have a program bound to use generic attributes");
 
-                const GLint attributeIndex = program->findAttributeLocation(toString(A));
+                const GLint attributeIndex = program->findAttributeLocation(A::name);
                 glAssert(glEnableVertexAttribArray(static_cast<GLuint>(attributeIndex)))
                 glAssert(glVertexAttribPointer(static_cast<GLuint>(attributeIndex), static_cast<GLint>(S), D, (N == Normalize::True) ? GL_TRUE : GL_FALSE, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)))
             }
@@ -73,7 +60,7 @@ namespace TrenchBroom {
             static void cleanup(ShaderProgram* program, const size_t /* index */) {
                 ensure(program != nullptr, "must have a program bound to use generic attributes");
 
-                const GLint attributeIndex = program->findAttributeLocation(toString(A));
+                const GLint attributeIndex = program->findAttributeLocation(A::name);
                 glAssert(glDisableVertexAttribArray(static_cast<GLuint>(attributeIndex)))
             }
 
