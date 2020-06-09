@@ -909,6 +909,7 @@ namespace TrenchBroom {
                 // since the snapshot has a whole brush granularity, so we need to call
                 // setTextures on the whole node.
                 kdl::vector_set<Model::Node*> nodes;
+                nodes.reserve(faceHandles.size());
                 for (const auto& faceHandle : faceHandles) {
                     nodes.insert(faceHandle.node());
                 }

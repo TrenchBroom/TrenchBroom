@@ -61,6 +61,7 @@ namespace TrenchBroom {
                 document->undoCommand();
                 ASSERT_EQ(6u, texture->usageCount());
             }
+
             SECTION("select top face, move texture") {
                 auto topFaceIndex = brushNode->brush().findFace(vm::vec3::pos_z());
                 REQUIRE(topFaceIndex.has_value());
