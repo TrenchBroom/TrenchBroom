@@ -29,10 +29,6 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        enum class Normalize {
-            True, False
-        };
-
         /**
          * User defined vertex attribute types.
          *
@@ -40,21 +36,22 @@ namespace TrenchBroom {
          *           e.g. `struct Whatever { static inline const std::string name{"arrowPosition"}; };`
          * @tparam D the vertex component type
          * @tparam S the number of components
-         * @tparam N whether to convert signed integer types to [-1..1] and unsigned to [0..1]
+         * @tparam N whether to normalize signed integer types to [-1..1] and unsigned to [0..1]
          */
-        template <class A, GLenum D, size_t S, Normalize N>
+        template <class A, GLenum D, size_t S, bool N>
         class GLVertexAttributeUser {
         public:
             using ComponentType = typename GLType<D>::Type;
             using ElementType = vm::vec<ComponentType,S>;
             static const size_t Size = sizeof(ElementType);
+            static const bool Normalize = N;
 
             static void setup(ShaderProgram* program, const size_t /* index */, const size_t stride, const size_t offset) {
                 ensure(program != nullptr, "must have a program bound to use generic attributes");
 
                 const GLint attributeIndex = program->findAttributeLocation(A::name);
                 glAssert(glEnableVertexAttribArray(static_cast<GLuint>(attributeIndex)))
-                glAssert(glVertexAttribPointer(static_cast<GLuint>(attributeIndex), static_cast<GLint>(S), D, (N == Normalize::True) ? GL_TRUE : GL_FALSE, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)))
+                glAssert(glVertexAttribPointer(static_cast<GLuint>(attributeIndex), static_cast<GLint>(S), D, Normalize ? GL_TRUE : GL_FALSE, static_cast<GLsizei>(stride), reinterpret_cast<GLvoid*>(offset)))
             }
 
             static void cleanup(ShaderProgram* program, const size_t /* index */) {
