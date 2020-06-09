@@ -24,6 +24,8 @@
 #include "Model/Tag.h"
 #include "Model/TagVisitor.h"
 
+#include <kdl/vector_set.h>
+
 #include <functional>
 #include <memory>
 #include <string>
@@ -90,10 +92,10 @@ namespace TrenchBroom {
 
         class SurfaceParmTagMatcher : public TextureTagMatcher {
         private:
-            std::set<std::string> m_parameters;
+            kdl::vector_set<std::string> m_parameters;
         public:
             explicit SurfaceParmTagMatcher(const std::string& parameter);
-            explicit SurfaceParmTagMatcher(const std::set<std::string>& parameters);
+            explicit SurfaceParmTagMatcher(const kdl::vector_set<std::string>& parameters);
             std::unique_ptr<TagMatcher> clone() const override;
         private:
             bool matchesTexture(Assets::Texture* texture) const override;

@@ -426,7 +426,7 @@ namespace TrenchBroom {
                     matcher = std::make_unique<Model::SurfaceParmTagMatcher>(std::move(pattern));
                 } else if (value["pattern"].type() == EL::ValueType::Array) {
                     auto patternVector = value["pattern"].asStringSet();
-                    const std::set<std::string> patternSet(patternVector.begin(), patternVector.end());
+                    const kdl::vector_set<std::string> patternSet(patternVector.begin(), patternVector.end());
                     matcher = std::make_unique<Model::SurfaceParmTagMatcher>(patternSet);
                 } else {
                     // Generate the type exception specifying Array as the

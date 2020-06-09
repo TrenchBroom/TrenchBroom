@@ -134,7 +134,7 @@ namespace TrenchBroom {
         SurfaceParmTagMatcher::SurfaceParmTagMatcher(const std::string& parameter) :
         m_parameters({parameter}) {}
 
-        SurfaceParmTagMatcher::SurfaceParmTagMatcher(const std::set<std::string>& parameters) :
+        SurfaceParmTagMatcher::SurfaceParmTagMatcher(const kdl::vector_set<std::string>& parameters) :
         m_parameters(parameters) {}
 
         std::unique_ptr<TagMatcher> SurfaceParmTagMatcher::clone() const {
@@ -146,10 +146,10 @@ namespace TrenchBroom {
                 return false;
             }
             const std::set<std::string>& parameters = texture->surfaceParms();
-            std::set<std::string>::iterator texParams = parameters.begin();
-            std::set<std::string>::iterator tagParams = m_parameters.begin();
-            std::set<std::string>::iterator texParamsEnd = parameters.end();
-            std::set<std::string>::iterator tagParamsEnd = m_parameters.end();
+            auto texParams = std::begin(parameters);
+            auto tagParams = std::begin(m_parameters);
+            auto texParamsEnd = std::end(parameters);
+            auto tagParamsEnd = std::end(m_parameters);
             while (texParams != texParamsEnd && tagParams != tagParamsEnd) {
                 if (*texParams < *tagParams) {
                     ++texParams;

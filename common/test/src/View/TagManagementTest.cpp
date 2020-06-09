@@ -77,7 +77,7 @@ namespace TrenchBroom {
                 const std::string textureMatch("some_texture");
                 const std::string texturePatternMatch("*er_texture");
                 const std::string singleParamMatch("parm2");
-                const std::set<std::string> multiParamsMatch({"some_parm", "parm1", "parm3"});
+                const kdl::vector_set<std::string> multiParamsMatch{"some_parm", "parm1", "parm3"};
                 game->setSmartTags({
                     Model::SmartTag("texture", {}, std::make_unique<Model::TextureNameTagMatcher>(textureMatch)),
                     Model::SmartTag("texturePattern", {}, std::make_unique<Model::TextureNameTagMatcher>(texturePatternMatch)),
