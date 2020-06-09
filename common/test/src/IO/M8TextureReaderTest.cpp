@@ -36,7 +36,7 @@ namespace TrenchBroom {
         TEST_CASE("M8TextureReaderTest.testBasicLoading", "[M8TextureReaderTest]") {
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
             
-            TextureReader::PathSuffixNameStrategy nameStrategy(1, true);
+            TextureReader::PathSuffixNameStrategy nameStrategy(1);
             NullLogger logger;
             M8TextureReader textureReader(nameStrategy, fs, logger);
 

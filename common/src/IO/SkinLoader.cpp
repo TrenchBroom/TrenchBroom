@@ -43,7 +43,7 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<Assets::Texture> loadSkin(const Path& path, const FileSystem& fs, Logger& logger, const Assets::Palette& palette) {
-            const TextureReader::PathSuffixNameStrategy nameStrategy(1, true);
+            const TextureReader::PathSuffixNameStrategy nameStrategy(1);
 
             try {
                 const auto file = fs.openFile(path);
@@ -63,7 +63,7 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<Assets::Texture> loadShader(const Path& path, const FileSystem& fs, Logger& logger) {
-            const TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
+            const TextureReader::PathSuffixNameStrategy nameStrategy(2);
             
             if (!path.isEmpty()) {
                 logger.debug() << "Loading shader '" << path << "'";

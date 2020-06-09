@@ -47,7 +47,7 @@ namespace TrenchBroom {
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
             const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("fixture/test/colormap.pcx"));
 
-            TextureReader::PathSuffixNameStrategy nameStrategy(2, true);
+            TextureReader::PathSuffixNameStrategy nameStrategy(2);
             NullLogger logger;
             WalTextureReader textureReader(nameStrategy, fs, logger, palette);
 

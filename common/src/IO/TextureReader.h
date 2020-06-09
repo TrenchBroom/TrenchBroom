@@ -68,9 +68,8 @@ namespace TrenchBroom {
             class PathSuffixNameStrategy : public NameStrategy {
             private:
                 size_t m_suffixLength;
-                bool m_deleteExtension;
             public:
-                PathSuffixNameStrategy(size_t suffixLength, bool deleteExtension);
+                PathSuffixNameStrategy(size_t suffixLength);
             private:
                 NameStrategy* doClone() const override;
                 std::string doGetTextureName(const std::string& textureName, const Path& path) const override;
