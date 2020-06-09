@@ -28,6 +28,7 @@
 #include <vecmath/forward.h>
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -43,14 +44,18 @@ namespace TrenchBroom {
         private:
             using Vertex = GLVertexTypes::P3C4::Vertex;
 
-            using T03 = GLVertexAttributeType<GLVertexAttributeTypeTag::TexCoord0, GL_FLOAT, 3>;
-            using T13 = GLVertexAttributeType<GLVertexAttributeTypeTag::TexCoord1, GL_FLOAT, 3>;
+            struct ArrowPositionName {
+                static inline const std::string name{"arrowPosition"};
+            };
+            struct LineDirName {
+                static inline const std::string name{"lineDir"};
+            };
 
             using ArrowVertex = GLVertexType<
                     GLVertexAttributeTypes::P3,  // vertex of the arrow (exposed in shader as gl_Vertex)
                     GLVertexAttributeTypes::C4,  // arrow color (exposed in shader as gl_Color)
-                    T03,                 // arrow position (exposed in shader as gl_MultiTexCoord0)
-                    T13>::Vertex;        // direction the arrow is pointing (exposed in shader as gl_MultiTexCoord1)
+                    GLVertexAttributeUser<ArrowPositionName, GL_FLOAT, 3, false>,          // arrow position
+                    GLVertexAttributeUser<LineDirName,       GL_FLOAT, 3, false>>::Vertex; // direction the arrow is pointing
 
             std::weak_ptr<View::MapDocument> m_document;
 

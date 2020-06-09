@@ -45,9 +45,9 @@ namespace TrenchBroom {
             std::string m_glRenderer;
             std::string m_glVersion;
 
+            std::unique_ptr<Renderer::ShaderManager> m_shaderManager;
             std::unique_ptr<Renderer::VboManager> m_vboManager;
             std::unique_ptr<Renderer::FontManager> m_fontManager;
-            std::unique_ptr<Renderer::ShaderManager> m_shaderManager;
         public:
             GLContextManager();
             ~GLContextManager();
