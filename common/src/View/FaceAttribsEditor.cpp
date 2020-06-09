@@ -77,7 +77,7 @@ namespace TrenchBroom {
             createGui(contextManager);
             bindEvents();
             bindObservers();
-            gridDidChange();
+            updateIncrements();
         }
 
         FaceAttribsEditor::~FaceAttribsEditor() {
@@ -224,7 +224,7 @@ namespace TrenchBroom {
             }
         }
 
-        void FaceAttribsEditor::gridDidChange() {
+        void FaceAttribsEditor::updateIncrements() {
             auto document = kdl::mem_lock(m_document);
             Grid& grid = document->grid();
 
@@ -387,7 +387,7 @@ namespace TrenchBroom {
             document->brushFacesDidChangeNotifier.addObserver(this, &FaceAttribsEditor::brushFacesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &FaceAttribsEditor::selectionDidChange);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
-            document->grid().gridDidChangeNotifier.addObserver(this, &FaceAttribsEditor::gridDidChange);
+            document->grid().gridDidChangeNotifier.addObserver(this, &FaceAttribsEditor::updateIncrements);
         }
 
         void FaceAttribsEditor::unbindObservers() {
@@ -398,7 +398,7 @@ namespace TrenchBroom {
                 document->brushFacesDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::brushFacesDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::selectionDidChange);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
-                document->grid().gridDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::gridDidChange);
+                document->grid().gridDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::updateIncrements);
             }
         }
 
