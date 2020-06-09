@@ -80,7 +80,7 @@ namespace TrenchBroom {
             void contentFlagChanged(size_t index, int value, int setFlag, int mixedFlag);
             void surfaceValueChanged(double value);
             void colorValueChanged(const QString& text);
-            void gridDidChange();
+            void updateIncrements();
         private:
             void createGui(GLContextManager& contextManager);
             void bindEvents();
