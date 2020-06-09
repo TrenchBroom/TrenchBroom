@@ -26,6 +26,7 @@
 #include "Assets/TextureManager.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
+#include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
@@ -49,17 +50,40 @@ namespace TrenchBroom {
             ASSERT_NE(nullptr, texture);
             ASSERT_EQ(6u, texture->usageCount());
 
-            for (const Model::BrushFace& face : brushNode->brush().faces())
+            for (const Model::BrushFace& face : brushNode->brush().faces()) {
                 ASSERT_EQ(texture, face.texture());
+            }
+            
+            SECTION("translate brush") {
+                document->translateObjects(vm::vec3(1, 1, 1));
+                ASSERT_EQ(6u, texture->usageCount());
 
-            document->translateObjects(vm::vec3(1, 1, 1));
-            ASSERT_EQ(6u, texture->usageCount());
+                document->undoCommand();
+                ASSERT_EQ(6u, texture->usageCount());
+            }
 
-            document->undoCommand();
-            ASSERT_EQ(6u, texture->usageCount());
+            SECTION("select top face, move texture") {
+                auto topFaceIndex = brushNode->brush().findFace(vm::vec3::pos_z());
+                REQUIRE(topFaceIndex.has_value());
+                
+                document->select(Model::BrushFaceHandle(brushNode, *topFaceIndex));
 
-            for (const Model::BrushFace& face : brushNode->brush().faces())
+                Model::ChangeBrushFaceAttributesRequest request;
+                request.setXOffset(static_cast<float>(12.34f));
+                REQUIRE(document->setFaceAttributes(request));
+
+                document->undoCommand(); // undo move
+                ASSERT_EQ(6u, texture->usageCount());
+                REQUIRE(document->hasSelectedBrushFaces());
+
+                document->undoCommand(); // undo select
+                ASSERT_EQ(6u, texture->usageCount());
+                REQUIRE(!document->hasSelectedBrushFaces());
+            }            
+
+            for (const Model::BrushFace& face : brushNode->brush().faces()) {
                 ASSERT_EQ(texture, face.texture());
+            }
         }
 
         TEST_CASE_METHOD(SnapshotTest, "SnapshotTest.undoRotation", "[SnapshotTest]") {
