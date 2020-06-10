@@ -40,7 +40,7 @@ namespace TrenchBroom {
         m_showPointEntityBounds(true),
         m_showFog(false),
         m_showGrid(true),
-        m_gridSize(4),
+        m_gridSize(1),
         m_hideSelection(false),
         m_tintSelection(true),
         m_showSelectionGuide(ShowSelectionGuide::Hide) {}

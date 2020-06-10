@@ -1198,7 +1198,7 @@ namespace TrenchBroom {
                     return context.hasDocument() && context.frame()->canDecGridSize();
                 }));
             gridMenu.addSeparator();
-            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 0.125"), QObject::tr("Set Grid Size 0.125"), 0,
+            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 0.1"), QObject::tr("Set Grid Size 0.1"), 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(-3);
                 },
@@ -1208,7 +1208,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == -3;
                 }));
-            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 0.25"), QObject::tr("Set Grid Size 0.25"), 0,
+            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 0.01"), QObject::tr("Set Grid Size 0.01"), 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(-2);
                 },
@@ -1218,7 +1218,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == -2;
                 }));
-            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 0.5"), QObject::tr("Set Grid Size 0.5"), 0,
+            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 0.001"), QObject::tr("Set Grid Size 0.001"), 0,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(-1);
                 },
@@ -1238,7 +1238,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == 0;
                 }));
-            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 2"), QObject::tr("Set Grid Size 2"), Qt::Key_2,
+            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 10"), QObject::tr("Set Grid Size 10"), Qt::Key_2,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(1);
                 },
@@ -1248,7 +1248,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == 1;
                 }));
-            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 4"), QObject::tr("Set Grid Size 4"), Qt::Key_3,
+            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 100"), QObject::tr("Set Grid Size 100"), Qt::Key_3,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(2);
                 },
@@ -1258,7 +1258,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == 2;
                 }));
-            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 8"), QObject::tr("Set Grid Size 8"), Qt::Key_4,
+            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 1000"), QObject::tr("Set Grid Size 1000"), Qt::Key_4,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(3);
                 },
@@ -1268,7 +1268,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == 3;
                 }));
-            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 16"), QObject::tr("Set Grid Size 16"), Qt::Key_5,
+            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 10000"), QObject::tr("Set Grid Size 10000"), Qt::Key_5,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(4);
                 },
@@ -1278,7 +1278,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == 4;
                 }));
-            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 32"), QObject::tr("Set Grid Size 32"), Qt::Key_6,
+            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 100000"), QObject::tr("Set Grid Size 100000"), Qt::Key_6,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(5);
                 },
@@ -1288,7 +1288,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == 5;
                 }));
-            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 64"), QObject::tr("Set Grid Size 64"), Qt::Key_7,
+            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 1000000"), QObject::tr("Set Grid Size 1000000"), Qt::Key_7,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(6);
                 },
@@ -1298,7 +1298,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == 6;
                 }));
-            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 128"), QObject::tr("Set Grid Size 128"), Qt::Key_8,
+            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 10000000"), QObject::tr("Set Grid Size 10000000"), Qt::Key_8,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(7);
                 },
@@ -1308,7 +1308,7 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     return context.hasDocument() && context.document()->grid().size() == 7;
                 }));
-            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 256"), QObject::tr("Set Grid Size 256"), Qt::Key_9,
+            gridMenu.addItem(createMenuAction(IO::Path("Menu/View/Grid/Set Grid Size 100000000"), QObject::tr("Set Grid Size 100000000"), Qt::Key_9,
                 [](ActionExecutionContext& context) {
                     context.frame()->setGridSize(8);
                 },
