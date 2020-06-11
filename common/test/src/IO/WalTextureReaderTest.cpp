@@ -32,8 +32,10 @@
 
 namespace TrenchBroom {
     namespace IO {
+        static const auto fixturePath = Path("fixture/test/IO/Wal");
+    
         static void assertTexture(const Path& path, const size_t width, const size_t height, const FileSystem& fs, const TextureReader& reader) {
-            const Path filePath = Path("fixture/test/IO/Wal") + path;
+            const Path filePath = fixturePath + path;
             auto texture = std::unique_ptr<Assets::Texture>{ reader.readTexture(fs.openFile(filePath)) };
             ASSERT_TRUE(texture != nullptr);
 
@@ -47,7 +49,8 @@ namespace TrenchBroom {
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
             const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("fixture/test/colormap.pcx"));
 
-            TextureReader::PathSuffixNameStrategy nameStrategy(2);
+            const Path texturePath = fs.root() + fixturePath;
+            TextureReader::PathSuffixNameStrategy nameStrategy(texturePath.length());
             NullLogger logger;
             WalTextureReader textureReader(nameStrategy, fs, logger, palette);
 

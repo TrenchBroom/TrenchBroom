@@ -71,7 +71,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, surface1->frameCount());
             ASSERT_EQ(1u, surface1->skinCount());
 
-            const auto* skin1 = surface1->skin("bfg/LDAbfg");
+            const auto* skin1 = surface1->skin("models/weapons2/bfg/LDAbfg");
             ASSERT_NE(nullptr, skin1);
 
             const auto* surface2 = model->surface("x_fx");
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, surface2->frameCount());
             ASSERT_EQ(1u, surface2->skinCount());
 
-            const auto* skin2 = surface2->skin("bfg/LDAbfg_z");
+            const auto* skin2 = surface2->skin("models/weapons2/bfg/LDAbfg_z");
             ASSERT_NE(nullptr, skin2);
         }
 
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             ASSERT_NE(nullptr, md3File);
 
             auto reader = md3File->reader().buffer();
-            auto parser = Md3Parser("bfg", std::begin(reader), std::end(reader), *fs);
+            auto parser = Md3Parser("armor_red", std::begin(reader), std::end(reader), *fs);
             auto model = std::unique_ptr<Assets::EntityModel>(parser.initializeModel(logger));
 
             ASSERT_NE(nullptr, model);

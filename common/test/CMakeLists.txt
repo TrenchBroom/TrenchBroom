@@ -25,6 +25,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/NodeWriterTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/ObjParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/PathTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/IO/PathSuffixNameStrategyTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/Quake3ShaderFileSystemTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/Quake3ShaderParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/ReaderTest.cpp"

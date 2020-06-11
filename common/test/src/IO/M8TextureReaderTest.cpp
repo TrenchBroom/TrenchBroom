@@ -35,12 +35,11 @@ namespace TrenchBroom {
     namespace IO {
         TEST_CASE("M8TextureReaderTest.testBasicLoading", "[M8TextureReaderTest]") {
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
+            const Path filePath = Path("fixture/test/IO/M8/test.m8");
             
-            TextureReader::PathSuffixNameStrategy nameStrategy(1);
+            TextureReader::PathSuffixNameStrategy nameStrategy((fs.root() + filePath).length() - 1u);
             NullLogger logger;
             M8TextureReader textureReader(nameStrategy, fs, logger);
-
-            const Path filePath = Path("fixture/test/IO/M8/test.m8");
 
             auto texture = std::unique_ptr<Assets::Texture>{ textureReader.readTexture(fs.openFile(filePath)) };
             REQUIRE(texture != nullptr);
