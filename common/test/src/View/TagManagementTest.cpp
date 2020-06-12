@@ -151,21 +151,9 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchTextureNameTag") {
-            auto nodeA = std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureA->name(), [&](auto& b) {
-                for (auto& face : b.faces()) {
-                    face.setTexture(m_textureA);
-                }
-            }));
-            auto nodeB = std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureB->name(), [&](auto& b) {
-                for (auto& face : b.faces()) {
-                    face.setTexture(m_textureB);
-                }
-            }));
-            auto nodeC = std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureC->name(), [&](auto& b) {
-                for (auto& face : b.faces()) {
-                    face.setTexture(m_textureC);
-                }
-            }));
+            auto nodeA = std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureA->name()));
+            auto nodeB = std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureB->name()));
+            auto nodeC = std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureC->name()));
             const auto& tag = document->smartTag("texture");
             const auto& patternTag = document->smartTag("texturePattern");
             for (const auto& face : nodeA->brush().faces()) {

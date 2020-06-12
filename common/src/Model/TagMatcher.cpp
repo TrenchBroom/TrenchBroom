@@ -63,15 +63,6 @@ namespace TrenchBroom {
             }
         }
 
-        bool TextureTagMatcher::matches(const Taggable& taggable) const {
-            BrushFaceMatchVisitor visitor([this](const BrushFace& face) {
-                return matchesTexture(face.texture());
-            });
-
-            taggable.accept(visitor);
-            return visitor.matches();
-        }
-
         void TextureTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const {
             const auto& textureManager = facade.textureManager();
             const auto& allTextures = textureManager.textures();
@@ -118,11 +109,23 @@ namespace TrenchBroom {
             return std::make_unique<TextureNameTagMatcher>(m_pattern);
         }
 
+        bool TextureNameTagMatcher::matches(const Taggable& taggable) const {
+            BrushFaceMatchVisitor visitor([this](const BrushFace& face) {
+                return matchesTextureName(face.attributes().textureName());
+            });
+
+            taggable.accept(visitor);
+            return visitor.matches();
+        }
+
         bool TextureNameTagMatcher::matchesTexture(Assets::Texture *texture) const {
             if (texture == nullptr) {
                 return false;
             }
-            std::string_view textureName(texture->name());
+            return matchesTextureName(texture->name());
+        }
+
+        bool TextureNameTagMatcher::matchesTextureName(std::string_view textureName) const {
             const auto pos = textureName.find_last_of('/');
             if (pos != std::string::npos) {
                 textureName = textureName.substr(pos + 1);
@@ -139,6 +142,15 @@ namespace TrenchBroom {
 
         std::unique_ptr<TagMatcher> SurfaceParmTagMatcher::clone() const {
             return std::make_unique<SurfaceParmTagMatcher>(m_parameters);
+        }
+
+        bool SurfaceParmTagMatcher::matches(const Taggable& taggable) const {
+            BrushFaceMatchVisitor visitor([this](const BrushFace& face) {
+                return matchesTexture(face.texture());
+            });
+
+            taggable.accept(visitor);
+            return visitor.matches();
         }
 
         bool SurfaceParmTagMatcher::matchesTexture(Assets::Texture *texture) const {

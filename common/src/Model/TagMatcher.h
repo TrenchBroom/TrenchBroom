@@ -73,7 +73,6 @@ namespace TrenchBroom {
 
         class TextureTagMatcher : public TagMatcher {
         public:
-            bool matches(const Taggable& taggable) const override;
             void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
             bool canEnable() const override;
         private:
@@ -86,8 +85,10 @@ namespace TrenchBroom {
         public:
             explicit TextureNameTagMatcher(const std::string& pattern);
             std::unique_ptr<TagMatcher> clone() const override;
+            bool matches(const Taggable& taggable) const override;
         private:
             bool matchesTexture(Assets::Texture* texture) const override;
+            bool matchesTextureName(std::string_view textureName) const;
         };
 
         class SurfaceParmTagMatcher : public TextureTagMatcher {
@@ -97,6 +98,7 @@ namespace TrenchBroom {
             explicit SurfaceParmTagMatcher(const std::string& parameter);
             explicit SurfaceParmTagMatcher(const kdl::vector_set<std::string>& parameters);
             std::unique_ptr<TagMatcher> clone() const override;
+            bool matches(const Taggable& taggable) const override;
         private:
             bool matchesTexture(Assets::Texture* texture) const override;
         };
