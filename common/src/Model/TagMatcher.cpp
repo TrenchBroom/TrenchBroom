@@ -126,9 +126,13 @@ namespace TrenchBroom {
         }
 
         bool TextureNameTagMatcher::matchesTextureName(std::string_view textureName) const {
-            const auto pos = textureName.find_last_of('/');
-            if (pos != std::string::npos) {
-                textureName = textureName.substr(pos + 1);
+            // If the match pattern doesn't contain a slash, match against
+            // only the last component of the texture name.
+            if (m_pattern.find('/') == std::string::npos) {
+                const auto pos = textureName.find_last_of('/');
+                if (pos != std::string::npos) {
+                    textureName = textureName.substr(pos + 1);
+                }
             }
 
             return kdl::ci::str_matches_glob(textureName, m_pattern);

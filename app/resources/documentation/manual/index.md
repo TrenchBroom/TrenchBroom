@@ -2325,7 +2325,7 @@ Additional keys will be required to configure the matcher, depending on the valu
 
 * For the `classname` matcher, the key `pattern` contains a pattern that is matched against the classname of the brush entity that contains the brush. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
     - Additionally, the `classname` matcher can contain an optional `texture` key. When this tag is applied by the use of its keyboard shortcut, then the selected brushes will receive the texture with the name given as the value of this key (e.g. `"texture": "trigger"` will assign the `trigger` texture).
-* For the `texture` matcher, the key `pattern` contains a pattern that is matched against a face's texture name. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
+* For the `texture` matcher, the key `pattern` contains a pattern that is matched against a face's texture name. If the pattern does *not* contain a slash, it will only be matched against the segment after the final slash (if any) in the texture name. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 * For the `contentflag` and `surfaceflag` matchers, the key `flags` contains a list of content or surface flag names to match against (see below for more info on content and surface flags).
 * For the `surfaceparm` matcher, the key `pattern` contains a name that is matched against the surface parameters of a face's shader. No wildcards allowed; the parameter name must match exactly. In version 4 of the game config format, you may alternately specify a *list* of surfaceparm names for this value, which will match against a shader if it has any of those surfaceparms.
 
