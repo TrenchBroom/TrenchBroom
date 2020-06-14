@@ -49,6 +49,8 @@ namespace TrenchBroom {
         m_mapFrame(mapFrame),
         m_launchButton(nullptr),
         m_compileButton(nullptr),
+        m_testCompileButton(nullptr),
+        m_stopCompileButton(nullptr),
         m_closeButton(nullptr),
         m_currentRunLabel(nullptr),
         m_output(nullptr) {
@@ -56,7 +58,7 @@ namespace TrenchBroom {
             createGui();
             setMinimumSize(600, 300);
             resize(800, 600);
-            updateCompileButton(false);
+            updateCompileButtons();
         }
 
         void CompilationDialog::createGui() {
@@ -86,9 +88,11 @@ namespace TrenchBroom {
             splitter->setSizes({2, 1});
 
             auto* buttonBox = new QDialogButtonBox();
-            m_compileButton = buttonBox->addButton("Compile", QDialogButtonBox::AcceptRole);
+            m_launchButton = buttonBox->addButton("Launch...", QDialogButtonBox::NoRole);
+            m_stopCompileButton = buttonBox->addButton("Stop", QDialogButtonBox::NoRole);
+            m_testCompileButton = buttonBox->addButton("Test", QDialogButtonBox::NoRole);
+            m_compileButton = buttonBox->addButton("Compile", QDialogButtonBox::NoRole);
             m_closeButton = buttonBox->addButton("Close", QDialogButtonBox::RejectRole);
-            m_launchButton = new QPushButton("Launch...");
 
             m_currentRunLabel = new QLabel("");
             m_currentRunLabel->setAlignment(Qt::AlignRight);
@@ -113,8 +117,13 @@ namespace TrenchBroom {
             connect(&m_run, &CompilationRun::compilationEnded, this, &CompilationDialog::compilationEnded);
             connect(m_profileManager, &CompilationProfileManager::selectedProfileChanged, this, &CompilationDialog::selectedProfileChanged);
 
-            connect(m_compileButton, &QPushButton::clicked, this, &CompilationDialog::toggleCompile);
-            connect(m_launchButton, &QPushButton::clicked, this, &CompilationDialog::launchEngine);
+            connect(m_compileButton, &QPushButton::clicked, this, [&]() { startCompilation(false); });
+            connect(m_testCompileButton, &QPushButton::clicked, this, [&]() { startCompilation(true); });
+            connect(m_stopCompileButton, &QPushButton::clicked, this, [&]() { stopCompilation(); });
+            connect(m_launchButton, &QPushButton::clicked, this, [&]() {
+                LaunchGameEngineDialog dialog(m_mapFrame->document(), this);
+                dialog.exec();
+            });
             connect(m_closeButton, &QPushButton::clicked, this, &CompilationDialog::close);
         }
 
@@ -122,86 +131,29 @@ namespace TrenchBroom {
             // Dismissing the dialog with Escape, doesn't invoke CompilationDialog::closeEvent
             // so handle it here, so we can potentially block it.
             if (event->key() == Qt::Key_Escape) {
-               if (!stopCompilation()) {
-                   // User cancelled closing, so ignore the Escape key press
-                   return;
-               } else {
-                   m_mapFrame->compilationDialogWillClose();
-               }
+                close();
+                return;
             }
 
             QDialog::keyPressEvent(event);
-            const auto test = (event->modifiers() &Qt::AltModifier);
-            updateCompileButton(test);
         }
 
-        void CompilationDialog::keyReleaseEvent(QKeyEvent* event) {
-            QWidget::keyReleaseEvent(event);
-            const auto test = (event->modifiers() &Qt::AltModifier);
-            updateCompileButton(test);
-        }
-
-        void CompilationDialog::focusInEvent(QFocusEvent* event) {
-            QWidget::focusInEvent(event);
-            const auto test = (QApplication::keyboardModifiers() == Qt::AltModifier);
-            updateCompileButton(test);
-        }
-
-        void CompilationDialog::focusOutEvent(QFocusEvent* event) {
-            QWidget::focusOutEvent(event);
-            const auto test = (QApplication::keyboardModifiers() == Qt::AltModifier);
-            updateCompileButton(test);
-        }
-
-        void CompilationDialog::updateCompileButton(const bool test) {
+        void CompilationDialog::updateCompileButtons() {
             if (m_run.running()) {
-                m_compileButton->setText("Stop");
-                m_compileButton->setEnabled(true);
+                m_compileButton->setEnabled(false);
+                m_testCompileButton->setEnabled(false);
+                m_stopCompileButton->setEnabled(true);
             } else {
-                if (test) {
-                    m_compileButton->setText("Test");
-                } else {
-                    m_compileButton->setText("Compile");
-                }
                 const auto* profile = m_profileManager->selectedProfile();
-                m_compileButton->setEnabled(profile != nullptr && profile->taskCount() > 0);
+                const auto enable = profile != nullptr && profile->taskCount() > 0;
+
+                m_compileButton->setEnabled(enable);
+                m_testCompileButton->setEnabled(enable);
+                m_stopCompileButton->setEnabled(false);
             }
         }
 
-        /**
-         * Call this before the dialog closes. Returns true to indicate that closing can
-         * continue, returns false if the user cancelled closing the dialog.
-         */
-        bool CompilationDialog::stopCompilation() {
-            if (!m_run.running()) {
-                return true;
-            }
-        
-            const auto result = QMessageBox::warning(this, "Warning",
-                "Closing this dialog will stop the running compilation. Are you sure?",
-                QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-            if (result == QMessageBox::Yes) {
-                m_run.terminate();
-                return true;
-            }
-            return false;
-        }
-
-        void CompilationDialog::closeEvent(QCloseEvent* event) {
-            if (stopCompilation()) {
-                m_mapFrame->compilationDialogWillClose();
-                event->accept();
-            } else {
-                event->ignore();
-            }
-        }
-
-        void CompilationDialog::launchEngine() {
-            LaunchGameEngineDialog dialog(m_mapFrame->document(), this);
-            dialog.exec();
-        }
-
-        void CompilationDialog::toggleCompile() {
+        void CompilationDialog::startCompilation(const bool test) {
             if (m_run.running()) {
                 m_run.terminate();
             } else {
@@ -209,34 +161,54 @@ namespace TrenchBroom {
                 ensure(profile != nullptr, "profile is null");
                 ensure(profile->taskCount() > 0, "profile has no tasks");
 
-                m_output->setText("");
-
-                const auto test = (QApplication::keyboardModifiers() == Qt::AltModifier);
                 if (test) {
                     m_run.test(profile, m_mapFrame->document(), m_output);
                 } else {
                     m_run.run(profile, m_mapFrame->document(), m_output);
                 }
-
-                m_currentRunLabel->setText(QString::fromStdString("Running " + profile->name()));
             }
         }
 
+        void CompilationDialog::stopCompilation() {
+            if (m_run.running()) {
+                m_run.terminate();
+            }
+        }
+
+        void CompilationDialog::closeEvent(QCloseEvent* event) {
+            if (m_run.running()) {
+                const auto result = QMessageBox::warning(this, "Warning",
+                    "Closing this dialog will stop the running compilation. Are you sure?",
+                    QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+                
+                if (result != QMessageBox::Yes) {
+                    event->ignore();
+                    return;
+                }
+                
+                stopCompilation();
+                m_mapFrame->compilationDialogWillClose();
+            }
+            event->accept();
+        }
+
         void CompilationDialog::compilationStarted() {
-            m_launchButton->setEnabled(false);
-            updateCompileButton(false);
+            const auto* profile = m_profileManager->selectedProfile();
+            ensure(profile != nullptr, "profile is null");
+            m_currentRunLabel->setText(QString::fromStdString("Running " + profile->name()));
+            m_output->setText("");
+            
+            updateCompileButtons();
         }
 
         void CompilationDialog::compilationEnded() {
-            m_launchButton->setEnabled(true);
             m_currentRunLabel->setText("");
-            const auto test = (QApplication::keyboardModifiers() == Qt::AltModifier);
-            updateCompileButton(test);
+            
+            updateCompileButtons();
         }
 
         void CompilationDialog::selectedProfileChanged() {
-            const auto test = (QApplication::keyboardModifiers() == Qt::AltModifier);
-            updateCompileButton(test);
+            updateCompileButtons();
         }
     }
 }
