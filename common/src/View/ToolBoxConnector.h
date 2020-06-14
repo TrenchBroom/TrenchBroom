@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_ToolBoxConnector
 #define TrenchBroom_ToolBoxConnector
 
+#include "Macros.h"
 #include "View/InputEvent.h"
 #include "View/InputState.h"
 
@@ -105,6 +106,8 @@ namespace TrenchBroom {
             virtual PickRequest doGetPickRequest(int x, int y) const = 0;
             virtual Model::PickResult doPick(const vm::ray3& pickRay) const = 0;
             virtual void doShowPopupMenu();
+
+            deleteCopyAndMove(ToolBoxConnector)
         };
     }
 }

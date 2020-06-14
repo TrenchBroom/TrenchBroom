@@ -341,7 +341,7 @@ namespace TrenchBroom {
                 return m_rows[index];
             }
 
-            LayoutGroup(GroupType item,
+            LayoutGroup(const GroupType& item,
                         const float x, const float y,
                         const float cellMargin, const float titleMargin, const float rowMargin,
                         const float titleHeight,
@@ -596,7 +596,7 @@ namespace TrenchBroom {
                 invalidate();
             }
 
-            void addGroup(const GroupType groupItem, const float titleHeight) {
+            void addGroup(const GroupType& groupItem, const float titleHeight) {
                 if (!m_valid)
                     validate();
 
@@ -703,7 +703,7 @@ namespace TrenchBroom {
                     while (newIndex < 0 && groupIndex > 0)
                         newIndex += static_cast<int>(m_groups[--groupIndex].size());
                 } else if (newIndex >= static_cast<int>(m_groups[groupIndex].size())) {
-                    while (newIndex >= static_cast<int>(m_groups[groupIndex].size()) && groupIndex < m_groups.size() - 1)
+                    while (groupIndex < m_groups.size() - 1 && newIndex >= static_cast<int>(m_groups[groupIndex].size()))
                         newIndex -= static_cast<int>(m_groups[groupIndex++].size());
                 }
 

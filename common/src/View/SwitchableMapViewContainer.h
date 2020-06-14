@@ -23,6 +23,7 @@
 #include <QWidget>
 
 #include "FloatType.h"
+#include "Macros.h"
 #include "View/MapView.h"
 
 #include <memory>
@@ -135,6 +136,8 @@ namespace TrenchBroom {
             void doRefreshViews() override;
         private: // implement ViewEffectsService interface
             void doFlashSelection() override;
+
+            deleteCopyAndMove(SwitchableMapViewContainer)
         };
     }
 }

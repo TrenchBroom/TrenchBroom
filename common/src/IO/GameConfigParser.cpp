@@ -35,10 +35,12 @@
 namespace TrenchBroom {
     namespace IO {
         GameConfigParser::GameConfigParser(const char* begin, const char* end, const Path& path) :
-        ConfigParserBase(begin, end, path) {}
+        ConfigParserBase(begin, end, path),
+        m_version(0) {}
 
         GameConfigParser::GameConfigParser(const std::string& str, const Path& path) :
-        ConfigParserBase(str, path) {}
+        ConfigParserBase(str, path),
+        m_version(0) {}
 
         namespace {
             void checkVersion(const EL::Value& version) {

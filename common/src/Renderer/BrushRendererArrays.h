@@ -102,7 +102,7 @@ namespace TrenchBroom {
             }
 
         public:
-            explicit VboHolder(VboType type) :
+            explicit VboHolder(const VboType type) :
             m_type(type),
             m_snapshot(),
             m_dirtyRange(0),
@@ -112,9 +112,11 @@ namespace TrenchBroom {
             /**
              * NOTE: This destructively moves the contents of `elements` into the Holder.
              */
-            explicit VboHolder(std::vector<T> &elements) :
+            VboHolder(const VboType type, std::vector<T>& elements) :
+            m_type(type),
             m_snapshot(),
             m_dirtyRange(elements.size()),
+            m_vboManager(nullptr),
             m_vbo(nullptr) {
 
                 const size_t elementsCount = elements.size();
