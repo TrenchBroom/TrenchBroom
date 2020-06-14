@@ -80,7 +80,7 @@ namespace TrenchBroom {
             auto compilationContext = std::make_unique<CompilationContext>(document, variables, TextOutputAdapter(currentOutput), test);
             m_currentRun = std::make_unique<CompilationRunner>(std::move(compilationContext), profile);
             connect(m_currentRun.get(), &CompilationRunner::compilationStarted, this, &CompilationRun::compilationStarted);
-            connect(m_currentRun.get(), &CompilationRunner::compilationEnded, this, &CompilationRun::compilationEnded);
+            connect(m_currentRun.get(), &CompilationRunner::compilationEnded, this, &CompilationRun::_compilationEnded);
             m_currentRun->execute();
         }
 

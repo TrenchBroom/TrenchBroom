@@ -259,11 +259,12 @@ namespace TrenchBroom {
 
         void CompilationRunner::execute() {
             assert(!running());
+
             m_currentTask = std::begin(m_taskRunners);
             bindEvents(m_currentTask->get());
-            m_currentTask->get()->execute();
 
             emit compilationStarted();
+            m_currentTask->get()->execute();
         }
 
         void CompilationRunner::terminate() {
