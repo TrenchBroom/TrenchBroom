@@ -52,19 +52,19 @@ namespace TrenchBroom {
             return textureName;
         }
 
-        TextureReader::PathSuffixNameStrategy::PathSuffixNameStrategy(const size_t suffixLength, const bool deleteExtension) :
-        m_suffixLength(suffixLength),
-        m_deleteExtension(deleteExtension) {}
+        TextureReader::PathSuffixNameStrategy::PathSuffixNameStrategy(const size_t prefixLength) :
+        m_prefixLength(prefixLength) {}
 
         TextureReader::NameStrategy* TextureReader::PathSuffixNameStrategy::doClone() const {
-            return new PathSuffixNameStrategy(m_suffixLength, m_deleteExtension);
+            return new PathSuffixNameStrategy(m_prefixLength);
         }
 
         std::string TextureReader::PathSuffixNameStrategy::doGetTextureName(const std::string& /* textureName */, const Path& path) const {
-            Path result = path.suffix(std::min(m_suffixLength, path.length()));
-            if (m_deleteExtension)
-                result = result.deleteExtension();
-            return result.asString("/");
+            if (m_prefixLength < path.length()) {
+                return path.suffix(path.length() - m_prefixLength).deleteExtension().asString("/");
+            } else {
+                return "";
+            }
         }
 
         TextureReader::StaticNameStrategy::StaticNameStrategy(const std::string& name) :
