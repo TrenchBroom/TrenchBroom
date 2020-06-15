@@ -24,6 +24,7 @@
 
 #include <cassert>
 #include <string>
+#include <utility>
 
 namespace TrenchBroom {
     namespace Model {
@@ -109,6 +110,13 @@ namespace TrenchBroom {
         Taggable::Taggable() :
         m_tagMask(0),
         m_attributeMask(0) {}
+
+        void swap(Taggable& lhs, Taggable& rhs) noexcept {
+            using std::swap;
+            swap(lhs.m_tagMask, rhs.m_tagMask);
+            swap(lhs.m_tags, rhs.m_tags);
+            swap(lhs.m_attributeMask, rhs.m_attributeMask);
+        }
 
         Taggable::~Taggable() = default;
 
