@@ -25,6 +25,7 @@
 #include "Macros.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
+#include "IO/File.h"
 #include "IO/FileMatcher.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"
@@ -216,6 +217,18 @@ namespace TrenchBroom {
             ASSERT_FALSE(fs.fileExists(Path("fdfdf.blah")));
         }
 
+        TEST_CASE("DiskFileSystemTest.getDirectoryContents", "[DiskFileSystemTest]") {
+            FSTestEnvironment env;
+            const DiskFileSystem fs(env.dir());
+
+            ASSERT_THROW(fs.getDirectoryContents(Path("asdf/bleh")), FileSystemException);
+
+            const std::vector<Path> contents = fs.getDirectoryContents(Path("anotherDir"));
+            ASSERT_EQ(2u, contents.size());
+            ASSERT_TRUE(std::find(std::begin(contents), std::end(contents), Path("subDirTest")) != std::end(contents));
+            ASSERT_TRUE(std::find(std::begin(contents), std::end(contents), Path("test3.map")) != std::end(contents));
+        }
+
         TEST_CASE("DiskFileSystemTest.findItems", "[DiskFileSystemTest]") {
             FSTestEnvironment env;
             const DiskFileSystem fs(env.dir());
@@ -295,9 +308,15 @@ namespace TrenchBroom {
             ASSERT_THROW(fs.openFile(Path(".")), FileSystemException);
             ASSERT_THROW(fs.openFile(Path("anotherDir")), FileSystemException);
 
-            ASSERT_TRUE(fs.openFile(Path("test.txt")) != nullptr);
-            ASSERT_TRUE(fs.openFile(Path("anotherDir/test3.map")) != nullptr);
-            ASSERT_TRUE(fs.openFile(Path("anotherDir/../anotherDir/./test3.map")) != nullptr);
+            const auto checkOpenFile = [&](const auto& path) {
+                const auto file = fs.openFile(path);
+                CHECK(file != nullptr);
+                CHECK(file->path() == path);
+            };
+
+            checkOpenFile(Path("test.txt"));
+            checkOpenFile(Path("anotherDir/test3.map"));
+            checkOpenFile(Path("anotherDir/../anotherDir/./test3.map"));
         }
 
         TEST_CASE("WritableDiskFileSystemTest.createWritableDiskFileSystem", "[WritableDiskFileSystemTest]") {

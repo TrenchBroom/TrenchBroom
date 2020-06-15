@@ -37,7 +37,7 @@ namespace TrenchBroom {
             DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
             const Path filePath = Path("fixture/test/IO/M8/test.m8");
             
-            TextureReader::PathSuffixNameStrategy nameStrategy((fs.root() + filePath).length() - 1u);
+            TextureReader::PathSuffixNameStrategy nameStrategy(filePath.length() - 1u);
             NullLogger logger;
             M8TextureReader textureReader(nameStrategy, fs, logger);
 
