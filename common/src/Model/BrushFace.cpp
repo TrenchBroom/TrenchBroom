@@ -67,6 +67,7 @@ namespace TrenchBroom {
         }
 
         BrushFace::BrushFace(const BrushFace& other) :
+        Taggable(other),
         m_points(other.m_points),
         m_boundary(other.m_boundary),
         m_attributes(other.m_attributes),
@@ -79,6 +80,7 @@ namespace TrenchBroom {
         m_markedToRenderFace(false) {}
         
         BrushFace::BrushFace(BrushFace&& other) noexcept :
+        Taggable(other),
         m_points(std::move(other.m_points)),
         m_boundary(std::move(other.m_boundary)),
         m_attributes(std::move(other.m_attributes)),
@@ -98,6 +100,7 @@ namespace TrenchBroom {
 
         void swap(BrushFace& lhs, BrushFace& rhs) noexcept {
             using std::swap;
+            swap(static_cast<Taggable&>(lhs), static_cast<Taggable&>(rhs));
             swap(lhs.m_points, rhs.m_points);
             swap(lhs.m_boundary, rhs.m_boundary);
             swap(lhs.m_attributes, rhs.m_attributes);

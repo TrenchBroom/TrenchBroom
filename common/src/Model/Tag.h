@@ -150,7 +150,7 @@ namespace TrenchBroom {
              */
             explicit TagReference(const Tag& tag);
 
-            defineMove(TagReference)
+            defineCopyAndMove(TagReference)
 
             /**
              * Returns the referenced tag.
@@ -174,6 +174,9 @@ namespace TrenchBroom {
              * Creates a new instance.
              */
             Taggable();
+            defineCopyAndMove(Taggable)
+
+            friend void swap(Taggable& lhs, Taggable& rhs) noexcept;
 
             virtual ~Taggable();
 
