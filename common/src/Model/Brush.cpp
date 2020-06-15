@@ -48,12 +48,10 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Brush::Brush() :
-        m_transparent(false) {}
+        Brush::Brush() {}
 
         Brush::Brush(const vm::bbox3& worldBounds, std::vector<BrushFace> faces) :
-        m_faces(std::move(faces)),
-        m_transparent(false) {
+        m_faces(std::move(faces)) {
             updateGeometryFromFaces(worldBounds);
         }
 
@@ -66,8 +64,7 @@ namespace TrenchBroom {
 
         Brush::Brush(const Brush& other) :
         m_faces(other.m_faces),
-        m_geometry(other.m_geometry ? std::make_unique<BrushGeometry>(*other.m_geometry, CopyCallback()) : nullptr),
-        m_transparent(other.m_transparent) {
+        m_geometry(other.m_geometry ? std::make_unique<BrushGeometry>(*other.m_geometry, CopyCallback()) : nullptr) {
             if (m_geometry) {
                 for (BrushFaceGeometry* faceGeometry : m_geometry->faces()) {
                     if (const auto faceIndex = faceGeometry->payload()) {
@@ -80,8 +77,7 @@ namespace TrenchBroom {
 
         Brush::Brush(Brush&& other) noexcept :
         m_faces(std::move(other.m_faces)),
-        m_geometry(std::move(other.m_geometry)),
-        m_transparent(other.m_transparent) {}
+        m_geometry(std::move(other.m_geometry)) {}
 
         Brush& Brush::operator=(Brush other) noexcept {
             using std::swap;
@@ -93,7 +89,6 @@ namespace TrenchBroom {
             using std::swap;
             swap(lhs.m_faces, rhs.m_faces);
             swap(lhs.m_geometry, rhs.m_geometry);
-            swap(lhs.m_transparent, rhs.m_transparent);
         }
         
         Brush::~Brush() = default;

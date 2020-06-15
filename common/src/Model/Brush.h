@@ -50,8 +50,6 @@ namespace TrenchBroom {
         private:
             std::vector<BrushFace> m_faces;
             std::unique_ptr<BrushGeometry> m_geometry;
-
-            mutable bool m_transparent;
         public:
             Brush();
             Brush(const vm::bbox3& worldBounds, std::vector<BrushFace> faces);
