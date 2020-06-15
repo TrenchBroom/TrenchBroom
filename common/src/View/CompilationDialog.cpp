@@ -112,6 +112,8 @@ namespace TrenchBroom {
             insertTitleBarSeparator(dialogLayout);
 
             setLayout(dialogLayout);
+            
+            m_compileButton->setDefault(true);
 
             connect(&m_run, &CompilationRun::compilationStarted, this, &CompilationDialog::compilationStarted);
             connect(&m_run, &CompilationRun::compilationEnded, this, &CompilationDialog::compilationEnded);
