@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_CreateBrushToolBase
 #define TrenchBroom_CreateBrushToolBase
 
+#include "Macros.h"
 #include "View/Tool.h"
 
 #include <memory>
@@ -61,6 +62,8 @@ namespace TrenchBroom {
             void updateBrush(Model::BrushNode* brush);
         private:
             virtual void doBrushWasCreated();
+
+            deleteCopyAndMove(CreateBrushToolBase)
         };
     }
 }
