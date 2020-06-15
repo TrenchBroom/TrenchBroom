@@ -191,10 +191,10 @@ namespace TrenchBroom {
 
         void MapView2D::doSelectTall() {
             const auto document = kdl::mem_lock(m_document);
-            const vm::bbox3& worldBounds = document->worldBounds();
+            const vm::bbox3 tallBounds = document->worldBounds().expand(-1.0); // we can't make a brush that is exactly as large as worldBounds
 
-            const FloatType min = dot(worldBounds.min, vm::vec3(m_camera->direction()));
-            const FloatType max = dot(worldBounds.max, vm::vec3(m_camera->direction()));
+            const FloatType min = dot(tallBounds.min, vm::vec3(m_camera->direction()));
+            const FloatType max = dot(tallBounds.max, vm::vec3(m_camera->direction()));
 
             const vm::plane3 minPlane(min, vm::vec3(m_camera->direction()));
             const vm::plane3 maxPlane(max, vm::vec3(m_camera->direction()));
@@ -202,7 +202,7 @@ namespace TrenchBroom {
             const std::vector<Model::BrushNode*>& selectionBrushNodes = document->selectedNodes().brushes();
             assert(!selectionBrushNodes.empty());
 
-            const Model::BrushBuilder brushBuilder(document->world(), worldBounds);
+            const Model::BrushBuilder brushBuilder(document->world(), document->worldBounds());
             std::vector<Model::BrushNode*> tallBrushes;
             tallBrushes.reserve(selectionBrushNodes.size());
 
