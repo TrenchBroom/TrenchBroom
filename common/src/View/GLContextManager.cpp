@@ -38,9 +38,9 @@ namespace TrenchBroom {
 
         GLContextManager::GLContextManager() :
         m_initialized(false),
-        m_vboManager(std::make_unique<Renderer::VboManager>()),
-        m_fontManager(std::make_unique<Renderer::FontManager>()),
-        m_shaderManager(std::make_unique<Renderer::ShaderManager>()) {}
+        m_shaderManager(std::make_unique<Renderer::ShaderManager>()),
+        m_vboManager(std::make_unique<Renderer::VboManager>(m_shaderManager.get())),
+        m_fontManager(std::make_unique<Renderer::FontManager>()) {}
 
         GLContextManager::~GLContextManager() = default;
 

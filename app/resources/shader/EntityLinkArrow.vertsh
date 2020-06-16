@@ -21,6 +21,9 @@
 
 uniform vec3 CameraPosition;
 
+attribute vec3 arrowPosition;
+attribute vec3 lineDir;
+
 varying float distanceFromCamera;
 varying vec4 color;
 
@@ -120,10 +123,6 @@ float measureAngle(vec3 vec, vec3 axis, vec3 up) {
 }
 
 void main(void) {
-    // TODO: use user-defined attributes for these
-    vec3 arrowPosition = gl_MultiTexCoord0.xyz;
-    vec3 lineDir = gl_MultiTexCoord1.xyz;
-
     Quat rotateFromPosXToLineDir = makeQuat(vec3(1.0, 0.0, 0.0), lineDir);
 
     // the above will point the arrow along the line, but we also want to roll it so it faces the camera.

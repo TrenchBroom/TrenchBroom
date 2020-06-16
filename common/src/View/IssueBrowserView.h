@@ -46,7 +46,7 @@ namespace TrenchBroom {
         private:
             std::weak_ptr<MapDocument> m_document;
 
-            Model::IssueType m_hiddenGenerators;
+            int m_hiddenGenerators;
             bool m_showHiddenIssues;
 
             bool m_valid;

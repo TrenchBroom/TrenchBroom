@@ -56,7 +56,7 @@ namespace TrenchBroom {
             void getFlagValues(const std::vector<Model::AttributableNode*>& attributables, int& setFlags, int& mixedFlags) const;
             int getFlagValue(const Model::AttributableNode* attributable) const;
 
-            void flagChanged(size_t index, int setFlag, int mixedFlag);
+            void flagChanged(size_t index, int value, int setFlag, int mixedFlag);
         };
     }
 }

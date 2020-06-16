@@ -29,18 +29,21 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class ShaderManager;
         class Shader;
 
         class ShaderProgram {
         private:
             using UniformVariableCache = std::map<std::string, GLint>;
-
+            using AttributeLocationCache = std::map<std::string, GLint>;
             std::string m_name;
             GLuint m_programId;
             bool m_needsLinking;
             mutable UniformVariableCache m_variableCache;
+            mutable AttributeLocationCache m_attributeCache;
+            ShaderManager* m_shaderManager;
         public:
-            explicit ShaderProgram(const std::string& name);
+            explicit ShaderProgram(ShaderManager* shaderManager, const std::string& name);
             ~ShaderProgram();
 
             void attach(Shader& shader);
@@ -60,6 +63,8 @@ namespace TrenchBroom {
             void set(const std::string& name, const vm::mat2x2f& value);
             void set(const std::string& name, const vm::mat3x3f& value);
             void set(const std::string& name, const vm::mat4x4f& value);
+
+            GLint findAttributeLocation(const std::string& name) const;
         private:
             void link();
             GLint findUniformLocation(const std::string& name) const;

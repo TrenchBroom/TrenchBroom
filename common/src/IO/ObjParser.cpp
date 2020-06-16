@@ -26,6 +26,7 @@
 #include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
+#include "Model/BrushFaceAttributes.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
@@ -90,7 +91,10 @@ namespace TrenchBroom {
             // Load the default material (skin 0) ; must be present as a default for materialless faces
             // This default skin is used for all unloadable textures and all unspecified textures.
             // As such this implicitly covers situations where the default skin is intended to be used, but is manually specified incorrectly.
-            surface.addSkin(loadFallbackMaterial(logger).release());
+            if (auto fallbackMaterial = loadFallbackMaterial(logger)) {
+                surface.addSkin(fallbackMaterial.release());
+            }
+            
             // Define the various OBJ parsing state.
             std::vector<vm::vec3f> positions;
             std::vector<vm::vec2f> texcoords;
@@ -248,7 +252,11 @@ namespace TrenchBroom {
             // This isn't really how it works, but the Neverball-side truth involves MAP files acting as a replacement for something like JSON.
             // This is a less Neverball-specific set of logic which should be useful for any game.
             const auto basic_skin_name = m_path.lastComponent().deleteExtension().asString();
-            return loadMaterial(basic_skin_name, logger);
+            if (auto material = loadMaterial(basic_skin_name, logger)) {
+                return material;
+            } else {
+                return loadMaterial(Model::BrushFaceAttributes::NoTextureName, logger);
+            }
         }
     }
 }

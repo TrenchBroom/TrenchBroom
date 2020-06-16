@@ -906,7 +906,7 @@ The text field for content flags will display "multi" if the currently selected 
 
 The surface flags text field will also display "multi" if the selected faces have different sets of surface flags, but this is not necessarily a situation that needs to be corrected. It is often valid to have different surface flags on different faces of a brush.
 
-#### Keyboard Shortcuts
+#### Keyboard Shortcuts {#keyboard_shortcuts}
 
 In the 3D viewport, you can change the offset and angle of the currently selected brush faces using the following keyboard shortcuts:
 
@@ -2035,83 +2035,117 @@ Game configuration files need to specify the following information.
 The game configuration is an [expression language](#expression_language) map with a specific structure, which is explained using an example.
 
     {
-	    "version": 2, // mandatory, indicates the version of the file's syntax
-		"name": "Quake 2", // mandatory, the name to use in the UI
-		"icon": "Quake2/Icon.png", // optional, the icon to show in the UI
-	 	"fileformats": [ // a list of supported file formats with custom initial maps to be loaded when a new file is created
-	 	    { "format": "Standard", "initialmap": "initial_standard.map" },
-	 	    { "format": "Valve", "initialmap": "initial_valve.map" },
-	 	    { "format": "Quake2", "initialmap": "initial_quake2.map" }
-	 	],
-		"filesystem": { // defines the file system used to search for game assets
-			"searchpath": "baseq2", // the path in the game folder at which to search for assets
-	        "packageformat": { "extension": "pak", "format": "idpak" } // the package file format
-		},
-		"textures": { // where to search for textures and how to read them, see below
-	        "package": { "type": "directory", "root": "textures" },
-	        "format": { "extensions": [ "wal" ], "format": "wal" },
-	        "palette": "pics/colormap.pcx",
-	        "attribute": "_tb_textures"
-		},
-	  	"entities": { // the builtin entity definition files for this game
-			"definitions": [ "Quake2/Quake2.fgd" ],
-	    	"defaultcolor": "0.6 0.6 0.6 1.0",
-			"modelformats": [ "md2" ]
-	    },
-	    "tags": {
-	        "brush": [
-	            {
-	                "name": "Trigger",
-	                "attribs": [ "transparent" ],
-	                "match": "classname",
-	                "pattern": "trigger*"
-	            }
-	        ],
-	        "brushface": [
-	            {
-	                "name": "Clip",
-	                "attribs": [ "transparent" ],
-	                "match": "texture",
-	                "pattern": "clip"
-	            },
-	            {
-	                "name": "Skip",
-	                "attribs": [ "transparent" ],
-	                "match": "texture",
-	                "pattern": "skip"
-	            },
-	            {
-	                "name": "Hint",
-	                "attribs": [ "transparent" ],
-	                "match": "texture",
-	                "pattern": "hint*"
-	            },
-	            {
-	                "name": "Liquid",
-	                "match": "texture",
-	                "pattern": "\**"
-	            }
-	        ]
-	    }
+        "version": 4, // mandatory, indicates the version of the file's syntax
+        "name": "Example Resembling Quake 2", // mandatory, the name to use in the UI
+        "icon": "Icon.png", // optional, the icon to show in the UI
+        "fileformats": [ // supported file formats, each with optional initial map to use as "new map"
+            { "format": "Quake2" },
+            { "format": "Quake2 (Valve)", "initialmap": "initial_valve.map" }
+        ],
+        "filesystem": { // defines the file system used to search for game assets
+            "searchpath": "baseq2", // the path in the game folder at which to search for assets
+            "packageformat": { "extension": "pak", "format": "idpak" } // the package file format
+        },
+        "textures": { // where to search for textures and how to read them, see below
+            "package": { "type": "directory", "root": "textures" },
+            "format": { "extensions": [ "wal" ], "format": "wal" },
+            "palette": "pics/colormap.pcx",
+            "attribute": "_tb_textures"
+        },
+        "entities": { // the builtin entity definition files for this game
+            "definitions": [ "Quake2.fgd" ],
+            "defaultcolor": "0.6 0.6 0.6 1.0",
+            "modelformats": [ "md2" ]
+        },
+        "tags": { // "smart tags" select or modify a brush/face based on its characteristics
+            "brush": [
+                {
+                    "name": "Trigger",
+                    "attribs": [ "transparent" ],
+                    "match": "classname",
+                    "pattern": "trigger*",
+                    "texture": "trigger"
+                }
+            ],
+            "brushface": [
+                {
+                    "name": "Clip",
+                    "attribs": [ "transparent" ],
+                    "match": "texture",
+                    "pattern": "clip"
+                },
+                {
+                    "name": "Liquid",
+                    "match": "contentflag",
+                    "flags": [ "lava", "water" ]
+                },
+                {
+                    "name": "Transparent",
+                    "attribs": [ "transparent" ],
+                    "match": "surfaceflag",
+                    "flags": [ "trans33" ]
+                }
+            ]
+        },
+        "faceattribs": { // bitflags assigned to a face to affect its behavior
+            "surfaceflags": [
+                {
+                    "name": "light",
+                    "description": "Emit light from the surface, brightness is specified in the 'value' field"
+                },
+                {
+                    "name": "trans33",
+                    "description": "The surface is 33% transparent"
+                },
+                {
+                    "name": "hint",
+                    "description": "Make a primary bsp splitter"
+                }
+            ],
+            "contentflags": [
+                {
+                    "name": "solid",
+                    "description": "Default for all brushes"
+                },
+                {
+                    "name": "lava",
+                    "description": "The brush is lava"
+                },
+                {
+                    "unused": true
+                },
+                {
+                    "name": "water",
+                    "description": "The brush is water"
+                }
+            ]
+        }
     }
 
 #### Versions
 
-The game configuration files are versioned. Whenever a breaking change to the game configuration format is introduced, the version number will increase and TrenchBroom will reject the old format with an error message. The following sections will explain how to migrate a game configuration file for each version change.
+The game configuration files are versioned. Whenever a breaking change to the game configuration format is introduced, the version number will increase and TrenchBroom will reject the old format with an error message.
 
-**Migrating to Version 3**
+**Current Versions**
 
-Version 3 deprecates the `brushtypes` key in favor of the `tags` key, but the contents are very similar. The value of the `brushtypes` key is an array of type matchers. The following brush type matchers are supported in version 2:
+TrenchBroom currently supports game config versions 3 and 4. Version 4 is identical to version 3 with two exceptions:
+
+* Version 4 adds support for the `unused` key in surface flags and content flags; this key does not exist in version 3.
+* Version 4 adds support for specifying a list of values for the `pattern` key in surfaceparm-type smart tags; in version 3 only a single value is allowed.
+
+**Migrating from Version 2**
+
+Version 3 deprecated the `brushtypes` key in favor of the `tags` key, but the contents are very similar. The value of the `brushtypes` key is an array of type matchers. The following brush type matchers are supported in version 2:
 
 Match        Description
 -----        -----------
 texture      Match against a texture name, must match all brush faces
 contentflag  Match against face content flags (used by Quake 2, Quake 3)
-surfaceflag  Match against face surface flags (used by Quake 2, Quake 3)
+surfaceflag  Match against face surface flags (used by Quake 2)
 surfaceparm  Match against shader surface parameters (used by Quake 3)
 classname    Match against a brush entity class name
 
-In version 3, the `tags` key is a map with two possible keys: `brush` and `brushface`. For both keys, the value is again an array of type matchers. The `brush` key supports the `classname` matcher and the `brushface` key supports the `texture`, `contentflag`, `surfaceflag` and `surfaceparm` matchers. To migrate the `brushtypes` key to the `tags` key, you create the basic structure as follows:
+In versions 3 and 4, the `tags` key is a map with two possible keys: `brush` and `brushface`. For both keys, the value is again an array of type matchers. The `brush` key supports the `classname` matcher and the `brushface` key supports the `texture`, `contentflag`, `surfaceflag` and `surfaceparm` matchers. To migrate the `brushtypes` key to the `tags` key, you create the basic structure as follows:
 
     "tags": {
         "brush": [ ... ],
@@ -2130,8 +2164,8 @@ Standard         Standard Quake map file
 Valve            Valve map file (like Standard, but with more control over texture mapping)
 Quake2           Quake 2 map file with Standard style texture info
 Quake2 (Valve)   Quake 2 map file with Valve style texture info
-Quake3 (Valve)   Quake 3 map file with Valve style texture info
 Quake3 (legacy)  Quake 3 map file with Standard style texture info
+Quake3 (Valve)   Quake 3 map file with Valve style texture info
 Hexen2           Hexen 2 map file (like Quake, but with an additional, but unused value per face)
 
 Note that the "Quake3" format, which will include Quake 3 brush primitives support, is not yet fully implemented and so is omitted from the list above. The "Quake3 (Valve)" format is as expressive for texture placement as the brush primitives format, but "Quake3 (Valve)" cannot be used to read existing map files that contain brush primitives. Also note that none of the Quake 3 formats yet support patch meshes.
@@ -2246,7 +2280,11 @@ dkm          Daikatana model format
 
 #### Tags {#game_configuration_files_tags}
 
-TrenchBroom can recognize certain special brush or face types. An example would be clip faces or trigger brushes. But since the details can be game dependent, these special types are defined in the game configuration. For greater flexibility and future enhancements, a general tagging system is used to realize this functionality. Thereby, the game configuration defines smart tags which are applied automatically to brushes or brush faces depending on certain conditions.
+TrenchBroom can recognize certain special brush or face types. An example would be clip faces or trigger brushes. But since the details can be game dependent, these special types are defined in the game configuration. For greater flexibility and future enhancements, a general "smart tags" system is used to realize this functionality.
+
+TrenchBroom uses these tag definitions to automatically apply attributes to matching brushes/faces &mdash; for example to render trigger brushes partially transparent &mdash; and to populate the filtering options available in the [View menu](#filtering_rendering_options). 
+
+Each smart tag definition also makes one or more related [keyboard shortcuts](#keyboard_shortcuts) available (searching the shortcuts by "Tags" will show all of these). Each tag will always have a related shortcut that can be used to toggle the visibility of brushes whose faces match the tag. Additional shortcuts may also be available to apply the characteristics of the tag to the current selection, or remove those characteristics. These shortcuts depend on the tag's `match` criteria as described below.
 
 The tags are specified separately for brushes and faces under the corresponding keys:
 
@@ -2264,29 +2302,38 @@ Each of these keys has a list of tags. Each tag looks as follows.
         "pattern": "clip"
     },
 
-The most important key is `match`, which specifies how TrenchBroom will determine whether or not to apply this tag. This key can have the following values.
+The only attribute type currently supported in the `attribs` list is "transparent", which as mentioned above will cause faces matching this tag to be rendered with partial transparency in the 3D viewport.
 
-Match        Description
------        -----------
-texture      Match against a texture name, must match all brush faces
-contentflag  Match against face content flags (used by Quake 2, Quake 3)
-surfaceflag  Match against face surface flags (used by Quake 2, Quake 3)
-surfaceparm  Match against shader surface parameters (used by Quake 3)
-classname    Match against a brush entity class name
+The `match` key specifies how TrenchBroom will determine whether or not this tag applies to a brush or face.
 
-Depending on the value of the `match` key, additional keys may be required to configure the matcher.
+For a `brush` smart tag, the `match` key can only have the "classname" value. In addition to the usual keyboard shortcut for view filtering, this kind of smart tag will also generate keyboard shortcuts to either apply the tag (create a brush entity from selected brushes) or remove it (return selected brushes to worldspawn). This can be summarized as follows:
 
-* For the `texture` matcher, the key `pattern` contains a pattern that is matched against the texture name. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
+Match        Description                            Shortcut to apply  Shortcut to remove
+-----        -----------                            -----------------  ------------------
+classname    Match against brush entity class name  Yes                Yes
+
+For a `brushface` smart tag, the `match` key can have the following values and will generate keyboard shortcuts to apply or remove the match criteria on selected faces accordingly:
+
+Match        Description                            Shortcut to apply  Shortcut to remove
+-----        -----------                            -----------------  ------------------
+texture      Match against a texture name           Yes                No
+contentflag  Match against face content flags       Yes                Yes
+surfaceflag  Match against face surface flags       Yes                Yes
+surfaceparm  Match against shader surface parameter Yes                No
+
+Additional keys will be required to configure the matcher, depending on the value of the `match` key.
+
+* For the `classname` matcher, the key `pattern` contains a pattern that is matched against the classname of the brush entity that contains the brush. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
+    - Additionally, the `classname` matcher can contain an optional `texture` key. When this tag is applied by the use of its keyboard shortcut, then the selected brushes will receive the texture with the name given as the value of this key (e.g. `"texture": "trigger"` will assign the `trigger` texture).
+* For the `texture` matcher, the key `pattern` contains a pattern that is matched against a face's texture name. If the pattern does *not* contain a slash, it will only be matched against the segment after the final slash (if any) in the texture name. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 * For the `contentflag` and `surfaceflag` matchers, the key `flags` contains a list of content or surface flag names to match against (see below for more info on content and surface flags).
-* For the `surfaceparm` matcher, the key `pattern` contains a pattern that is matched against the surface parameters. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
-* For the `classname` matcher, key `pattern` contains a pattern that is matched against the classname of the brush entity that contains the brush. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
-	- Additionally, the `classname` matcher can contain an optional `texture` key - when this type is set by the user, then the selected brushes will receive the texture with the name given as the value of this key (e.g. `"texture": "trigger"` will assign the `trigger` texture).
+* For the `surfaceparm` matcher, the key `pattern` contains a name that is matched against the surface parameters of a face's shader. No wildcards allowed; the parameter name must match exactly. In version 4 of the game config format, you may alternately specify a *list* of surfaceparm names for this value, which will match against a shader if it has any of those surfaceparms.
 
 #### Face Attributes
 
 Face attributes currently come in two flavors: surface flags and content flags. Therefore, the `faceattribs` key contains two entries with keys `surfaceflags` and `contentflags` for the surface and content flags, respectively.
 
-Each of these entries contains a list where each entry consists of two entries with keys `name` and `description`. Note that the position of each flag entry determines the value of that flag. Suppose that `i` is the 0-based index of the entry, then the flags value corresponds to 2 to the power of `i`: The first entry has value 2^0 = 1, the second has value 2^1 = 2, the third has value 2^2 = 4, and so on.
+Each of these entries is a list of flag definitions. Note that the position of each flag definition within its list determines the value of that flag. Suppose that `i` is the 0-based list index of a flag; that flag's value then corresponds to 2 to the power of `i`. The first flag in the list has value 2^0 = 1, the second has value 2^1 = 2, the third has value 2^2 = 4, and so on.
 
 Consider the following example:
 
@@ -2311,7 +2358,7 @@ Consider the following example:
                 "description": "Brush is a window (not really used)"
             }, // value 2
             {
-            	"name": "unused"
+                "unused": true
             }, // value 4
             {
                 "name": "playerclip",
@@ -2320,7 +2367,17 @@ Consider the following example:
         ]
     }
 
-There are two surface flags with values 1 and 2, and four content flags with values 1, 2, 4, and 8. Note that the third flag, named "unused", is just a placeholder. This is necessary so that the next flag, "playerclip", receives the correct value of 8. Note that the `name` key is mandatory while the `description` key is optional.
+There are two surface flags with values 1 and 2, and three valid content flags with values 1, 2, and 8. Note that the third element in the contentflags list, marked as unused, is just a placeholder. This is necessary so that the next flag, "playerclip", receives the correct value of 8.
+
+For any flag definition *not* marked as unused, the `name` key is mandatory and the `description` key is optional. The name value will appear in the flag editor UI, and the description (if provided) will be visible in a tooltip when hovering over a flag checkbox.
+
+Note that before version 4 of the game config format, the `unused` key is not available for flag definitions. You can still effectively skip unused flag values in version 3 with placeholder flag definitions that by convention simply have the name "unused", for example the third element in the contentflags list above could instead be
+
+            {
+                "name": "unused"
+            }, // value 4
+
+This approach will however cause flags named "unused" to appear in the flag editor UI.
 
 # Getting Involved
 

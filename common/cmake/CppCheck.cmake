@@ -1,3 +1,5 @@
+include(ProcessorCount)
+
 if(NOT CPPCHECK_EXE)
     find_program(CPPCHECK_EXE cppcheck)
     if(CPPCHECK_EXE STREQUAL "CPPCHECK_EXE-NOTFOUND")
@@ -21,13 +23,16 @@ if(CPPCHECK_EXE-NOTFOUND)
             COMMENT "skipping cppcheck"
     )
 else()
+    ProcessorCount(CPU_COUNT)
+
     list(APPEND CPPCHECK_COMMON_ARGS
+        -j${CPU_COUNT}
         --enable=warning,performance,portability
         --inline-suppr
         --std=c++17
         --language=c++
         -DMAIN=main
-        "-I$<JOIN:$<TARGET_PROPERTY:common,INTERFACE_INCLUDE_DIRECTORIES>, -I>"
+        -I${COMMON_SOURCE_DIR}
     )
 
     list(APPEND CPPCHECK_ARGS
@@ -35,8 +40,6 @@ else()
         --quiet
         --error-exitcode=1
         ${COMMON_SOURCE_DIR}
-        -i${COMMON_SOURCE_DIR}/Model/AttributableNode.cpp # FIXME: remove once https://github.com/kduske/TrenchBroom/issues/2887 is resolved upstream
-        -i${COMMON_SOURCE_DIR}/Model/EntityAttributes.cpp
         2> ./cppcheck-errors.txt
     )
 

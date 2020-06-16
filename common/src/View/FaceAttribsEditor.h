@@ -76,11 +76,11 @@ namespace TrenchBroom {
             void rotationChanged(double value);
             void xScaleChanged(double value);
             void yScaleChanged(double value);
-            void surfaceFlagChanged(size_t index, int setFlag, int mixedFlag);
-            void contentFlagChanged(size_t index, int setFlag, int mixedFlag);
+            void surfaceFlagChanged(size_t index, int value, int setFlag, int mixedFlag);
+            void contentFlagChanged(size_t index, int value, int setFlag, int mixedFlag);
             void surfaceValueChanged(double value);
             void colorValueChanged(const QString& text);
-            void gridDidChange();
+            void updateIncrements();
         private:
             void createGui(GLContextManager& contextManager);
             void bindEvents();
@@ -96,16 +96,19 @@ namespace TrenchBroom {
 
             void updateControls();
 
-            bool hasSurfaceAttribs() const;
-            void showSurfaceAttribEditors();
-            void hideSurfaceAttribEditors();
+            bool hasSurfaceFlags() const;
+            bool hasContentFlags() const;
+            void showSurfaceFlagsEditor();
+            void showContentFlagsEditor();
+            void hideSurfaceFlagsEditor();
+            void hideContentFlagsEditor();
 
             bool hasColorAttribs() const;
             void showColorAttribEditor();
             void hideColorAttribEditor();
 
-            void getSurfaceFlags(QStringList& names, QStringList& descriptions) const;
-            void getContentFlags(QStringList& names, QStringList& descriptions) const;
+            void getSurfaceFlags(QList<int>& values, QStringList& names, QStringList& descriptions) const;
+            void getContentFlags(QList<int>& values, QStringList& names, QStringList& descriptions) const;
         };
     }
 }

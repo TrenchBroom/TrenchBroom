@@ -19,6 +19,7 @@
 
 #include "ShaderManager.h"
 
+#include "Ensure.h"
 #include "IO/Path.h"
 #include "IO/SystemPaths.h"
 #include "Renderer/Shader.h"
@@ -30,6 +31,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        ShaderManager::ShaderManager() : m_currentProgram(nullptr) {}
+
         ShaderManager::~ShaderManager() = default;
 
         ShaderProgram& ShaderManager::program(const ShaderConfig& config) {
@@ -44,8 +47,16 @@ namespace TrenchBroom {
             return *(result.first->second);
         }
 
+        ShaderProgram* ShaderManager::currentProgram() {
+            return m_currentProgram;
+        }
+
+        void ShaderManager::setCurrentProgram(ShaderProgram* program) {
+            m_currentProgram = program;
+        }
+
         std::unique_ptr<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& config) {
-            auto program = std::make_unique<ShaderProgram>(config.name());
+            auto program = std::make_unique<ShaderProgram>(this, config.name());
 
             for (const auto& path : config.vertexShaders()) {
                 Shader& shader = loadShader(path, GL_VERTEX_SHADER);

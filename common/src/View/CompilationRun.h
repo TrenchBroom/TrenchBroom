@@ -56,8 +56,6 @@ namespace TrenchBroom {
         private:
             std::string buildWorkDir(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document);
             void cleanup();
-        private slots:
-            void _compilationEnded();
         signals:
             void compilationStarted();
             void compilationEnded();

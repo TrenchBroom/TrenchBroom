@@ -178,7 +178,7 @@ namespace TrenchBroom {
         TEST_CASE("GameConfigParserTest.parseQuake2Config", "[GameConfigParserTest]") {
             const std::string config(R"%(
 {
-    "version": 3,
+    "version": 4,
     "name": "Quake 2",
     "icon": "Icon.png",
     "fileformats": [ { "format": "Quake2" } ],
@@ -316,15 +316,15 @@ namespace TrenchBroom {
                 "name": "mist",
                 "description": "The brush is non-solid"
             }, // 1 << 6
-            { "name": "unused" }, // 1 << 7
-            { "name": "unused" }, // 1 << 8
-            { "name": "unused" }, // 1 << 9
-            { "name": "unused" }, // 1 << 10
-            { "name": "unused" }, // 1 << 11
-            { "name": "unused" }, // 1 << 12
-            { "name": "unused" }, // 1 << 13
-            { "name": "unused" }, // 1 << 14
-            { "name": "unused" }, // 1 << 15
+            { "unused": true }, // 1 << 7
+            { "unused": true }, // 1 << 8
+            { "unused": true }, // 1 << 9
+            { "unused": true }, // 1 << 10
+            { "unused": true }, // 1 << 11
+            { "unused": true }, // 1 << 12
+            { "unused": true }, // 1 << 13
+            { "unused": true }, // 1 << 14
+            { "unused": true }, // 1 << 15
             {
                 "name": "playerclip",
                 "description": "Player cannot pass through the brush (other things can)"
@@ -413,48 +413,39 @@ namespace TrenchBroom {
                     Color(0.6f, 0.6f, 0.6f, 1.0f)),
                 Model::FaceAttribsConfig(
                     {
-                        { "light", "Emit light from the surface, brightness is specified in the 'value' field" },
-                        { "slick", "The surface is slippery" },
-                        { "sky", "The surface is sky, the texture will not be drawn, but the background sky box is used instead" },
-                        { "warp", "The surface warps (like water textures do)" },
-                        { "trans33", "The surface is 33% transparent" },
-                        { "trans66", "The surface is 66% transparent" },
-                        { "flowing", "The texture wraps in a downward 'flowing' pattern (warp must also be set)" },
-                        { "nodraw", "Used for non-fixed-size brush triggers and clip brushes" },
-                        { "hint", "Make a primary bsp splitter" },
-                        { "skip", "Completely ignore, allowing non-closed brushes" }
+                        { "light", "Emit light from the surface, brightness is specified in the 'value' field", 1<<0 },
+                        { "slick", "The surface is slippery", 1<<1 },
+                        { "sky", "The surface is sky, the texture will not be drawn, but the background sky box is used instead", 1<<2 },
+                        { "warp", "The surface warps (like water textures do)", 1<<3 },
+                        { "trans33", "The surface is 33% transparent", 1<<4 },
+                        { "trans66", "The surface is 66% transparent", 1<<5 },
+                        { "flowing", "The texture wraps in a downward 'flowing' pattern (warp must also be set)", 1<<6 },
+                        { "nodraw", "Used for non-fixed-size brush triggers and clip brushes", 1<<7 },
+                        { "hint", "Make a primary bsp splitter", 1<<8 },
+                        { "skip", "Completely ignore, allowing non-closed brushes", 1<<9 }
                     },
                     {
-                        { "solid", "Default for all brushes" },
-                        { "window", "Brush is a window (not really used)" },
-                        { "aux", "Unused by the engine" },
-                        { "lava", "The brush is lava" },
-                        { "slime", "The brush is slime" },
-                        { "water", "The brush is water" },
-                        { "mist", "The brush is non-solid" },
-                        { "unused", "" },
-                        { "unused", "" },
-                        { "unused", "" },
-                        { "unused", "" },
-                        { "unused", "" },
-                        { "unused", "" },
-                        { "unused", "" },
-                        { "unused", "" },
-                        { "unused", "" },
-                        { "playerclip", "Player cannot pass through the brush (other things can)" },
-                        { "monsterclip", "Monster cannot pass through the brush (player and other things can)" },
-                        { "current_0", "Brush has a current in direction of 0 degrees" },
-                        { "current_90", "Brush has a current in direction of 90 degrees" },
-                        { "current_180", "Brush has a current in direction of 180 degrees" },
-                        { "current_270", "Brush has a current in direction of 270 degrees" },
-                        { "current_up", "Brush has a current in the up direction" },
-                        { "current_dn", "Brush has a current in the down direction" },
-                        { "origin", "Special brush used for specifying origin of rotation for rotating brushes" },
-                        { "monster", "Purpose unknown" },
-                        { "corpse", "Purpose unknown" },
-                        { "detail", "Detail brush" },
-                        { "translucent", "Use for opaque water that does not block vis" },
-                        { "ladder", "Brushes with this flag allow a player to move up and down a vertical surface" }
+                        { "solid", "Default for all brushes", 1<<0 },
+                        { "window", "Brush is a window (not really used)", 1<<1 },
+                        { "aux", "Unused by the engine", 1<<2 },
+                        { "lava", "The brush is lava", 1<<3 },
+                        { "slime", "The brush is slime", 1<<4 },
+                        { "water", "The brush is water", 1<<5 },
+                        { "mist", "The brush is non-solid", 1<<6 },
+                        { "playerclip", "Player cannot pass through the brush (other things can)", 1<<16 },
+                        { "monsterclip", "Monster cannot pass through the brush (player and other things can)", 1<<17 },
+                        { "current_0", "Brush has a current in direction of 0 degrees", 1<<18 },
+                        { "current_90", "Brush has a current in direction of 90 degrees", 1<<19 },
+                        { "current_180", "Brush has a current in direction of 180 degrees", 1<<20 },
+                        { "current_270", "Brush has a current in direction of 270 degrees", 1<<21 },
+                        { "current_up", "Brush has a current in the up direction", 1<<22 },
+                        { "current_dn", "Brush has a current in the down direction", 1<<23 },
+                        { "origin", "Special brush used for specifying origin of rotation for rotating brushes", 1<<24 },
+                        { "monster", "Purpose unknown", 1<<25 },
+                        { "corpse", "Purpose unknown", 1<<26 },
+                        { "detail", "Detail brush", 1<<27 },
+                        { "translucent", "Use for opaque water that does not block vis", 1<<28 },
+                        { "ladder", "Brushes with this flag allow a player to move up and down a vertical surface", 1<<29 }
                     },
                     Model::BrushFaceAttributes(Model::BrushFaceAttributes::NoTextureName)),
                 {
@@ -484,7 +475,7 @@ namespace TrenchBroom {
         TEST_CASE("GameConfigParserTest.parseExtrasConfig", "[GameConfigParserTest]") {
             const std::string config(R"%(
 {
-    "version": 3,
+    "version": 4,
     "name": "Extras",
     "fileformats": [ { "format": "Quake3" } ],
     "filesystem": {
@@ -629,15 +620,15 @@ namespace TrenchBroom {
                 "name": "mist",
                 "description": "The brush is non-solid"
             }, // 64
-            { "name": "unused" }, // 128
-            { "name": "unused" }, // 256
-            { "name": "unused" }, // 512
-            { "name": "unused" }, // 1024
-            { "name": "unused" }, // 2048
-            { "name": "unused" }, // 4096
-            { "name": "unused" }, // 8192
-            { "name": "unused" }, // 16384
-            { "name": "unused" }, // 32768
+            { "unused": true }, // 128
+            { "unused": true }, // 256
+            { "unused": true }, // 512
+            { "unused": true }, // 1024
+            { "unused": true }, // 2048
+            { "unused": true }, // 4096
+            { "unused": true }, // 8192
+            { "unused": true }, // 16384
+            { "unused": true }, // 32768
             {
                 "name": "playerclip",
                 "description": "Player cannot pass through the brush (other things can)"
@@ -738,48 +729,39 @@ namespace TrenchBroom {
                     Color(0.6f, 0.6f, 0.6f, 1.0f)),
                 Model::FaceAttribsConfig(
                     {
-                        { "light", "Emit light from the surface, brightness is specified in the 'value' field" },
-                        { "slick", "The surface is slippery" },
-                        { "sky", "The surface is sky, the texture will not be drawn, but the background sky box is used instead" },
-                        { "warp", "The surface warps (like water textures do)" },
-                        { "trans33", "The surface is 33% transparent" },
-                        { "trans66", "The surface is 66% transparent" },
-                        { "flowing", "The texture wraps in a downward 'flowing' pattern (warp must also be set)" },
-                        { "nodraw", "Used for non-fixed-size brush triggers and clip brushes" },
-                        { "hint", "Make a primary bsp splitter" },
-                        { "skip", "Completely ignore, allowing non-closed brushes" }
+                        { "light", "Emit light from the surface, brightness is specified in the 'value' field", 1<<0 },
+                        { "slick", "The surface is slippery", 1<<1 },
+                        { "sky", "The surface is sky, the texture will not be drawn, but the background sky box is used instead", 1<<2 },
+                        { "warp", "The surface warps (like water textures do)", 1<<3 },
+                        { "trans33", "The surface is 33% transparent", 1<<4 },
+                        { "trans66", "The surface is 66% transparent", 1<<5 },
+                        { "flowing", "The texture wraps in a downward 'flowing' pattern (warp must also be set)", 1<<6 },
+                        { "nodraw", "Used for non-fixed-size brush triggers and clip brushes", 1<<7 },
+                        { "hint", "Make a primary bsp splitter", 1<<8 },
+                        { "skip", "Completely ignore, allowing non-closed brushes", 1<<9 }
                     },
                     {
-                        { "solid", "Default for all brushes" },
-                        { "window", "Brush is a window (not really used)" },
-                        { "aux", "Unused by the engine" },
-                        { "lava", "The brush is lava" },
-                        { "slime", "The brush is slime" },
-                        { "water", "The brush is water" },
-                        { "mist", "The brush is non-solid" },
-                        { "unused", "" },
-                        { "unused", "" },
-                        { "unused", "" },
-                        { "unused", "" },
-                        { "unused", "" },
-                        { "unused", "" },
-                        { "unused", "" },
-                        { "unused", "" },
-                        { "unused", "" },
-                        { "playerclip", "Player cannot pass through the brush (other things can)" },
-                        { "monsterclip", "Monster cannot pass through the brush (player and other things can)" },
-                        { "current_0", "Brush has a current in direction of 0 degrees" },
-                        { "current_90", "Brush has a current in direction of 90 degrees" },
-                        { "current_180", "Brush has a current in direction of 180 degrees" },
-                        { "current_270", "Brush has a current in direction of 270 degrees" },
-                        { "current_up", "Brush has a current in the up direction" },
-                        { "current_dn", "Brush has a current in the down direction" },
-                        { "origin", "Special brush used for specifying origin of rotation for rotating brushes" },
-                        { "monster", "Purpose unknown" },
-                        { "corpse", "Purpose unknown" },
-                        { "detail", "Detail brush" },
-                        { "translucent", "Use for opaque water that does not block vis" },
-                        { "ladder", "Brushes with this flag allow a player to move up and down a vertical surface" }
+                        { "solid", "Default for all brushes", 1<<0 },
+                        { "window", "Brush is a window (not really used)", 1<<1 },
+                        { "aux", "Unused by the engine", 1<<2 },
+                        { "lava", "The brush is lava", 1<<3 },
+                        { "slime", "The brush is slime", 1<<4 },
+                        { "water", "The brush is water", 1<<5 },
+                        { "mist", "The brush is non-solid", 1<<6 },
+                        { "playerclip", "Player cannot pass through the brush (other things can)", 1<<16 },
+                        { "monsterclip", "Monster cannot pass through the brush (player and other things can)", 1<<17 },
+                        { "current_0", "Brush has a current in direction of 0 degrees", 1<<18 },
+                        { "current_90", "Brush has a current in direction of 90 degrees", 1<<19 },
+                        { "current_180", "Brush has a current in direction of 180 degrees", 1<<20 },
+                        { "current_270", "Brush has a current in direction of 270 degrees", 1<<21 },
+                        { "current_up", "Brush has a current in the up direction", 1<<22 },
+                        { "current_dn", "Brush has a current in the down direction", 1<<23 },
+                        { "origin", "Special brush used for specifying origin of rotation for rotating brushes", 1<<24 },
+                        { "monster", "Purpose unknown", 1<<25 },
+                        { "corpse", "Purpose unknown", 1<<26 },
+                        { "detail", "Detail brush", 1<<27 },
+                        { "translucent", "Use for opaque water that does not block vis", 1<<28 },
+                        { "ladder", "Brushes with this flag allow a player to move up and down a vertical surface", 1<<29 }
                     },
                     expectedBrushFaceAttributes),
                 {

@@ -120,15 +120,17 @@ namespace TrenchBroom {
                     defaultColor == other.defaultColor);
         }
 
-        FlagConfig::FlagConfig(const std::string& i_name, const std::string& i_description) :
+        FlagConfig::FlagConfig(const std::string& i_name, const std::string& i_description, const int i_value) :
         name(i_name),
-        description(i_description) {}
+        description(i_description),
+        value(i_value) {}
 
         FlagConfig::FlagConfig() = default;
 
         bool FlagConfig::operator==(const FlagConfig& other) const {
             return (name == other.name &&
-                    description == other.description);
+                    description == other.description &&
+                    value == other.value);
         }
 
         FlagsConfig::FlagsConfig() = default;
@@ -139,7 +141,7 @@ namespace TrenchBroom {
         int FlagsConfig::flagValue(const std::string& flagName) const {
             for (size_t i = 0; i < flags.size(); ++i) {
                 if (flags[i].name == flagName) {
-                    return static_cast<int>(1 << i);
+                    return flags[i].value;
                 }
             }
             return 0;

@@ -31,6 +31,7 @@
 
 #include <vecmath/vec_io.h>
 
+#include <algorithm>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -38,10 +39,25 @@
 namespace TrenchBroom {
     namespace IO {
         GameConfigParser::GameConfigParser(const char* begin, const char* end, const Path& path) :
-        ConfigParserBase(begin, end, path) {}
+        ConfigParserBase(begin, end, path),
+        m_version(0) {}
 
         GameConfigParser::GameConfigParser(const std::string& str, const Path& path) :
-        ConfigParserBase(str, path) {}
+        ConfigParserBase(str, path),
+        m_version(0) {}
+
+        namespace {
+            void checkVersion(const EL::Value& version) {
+                const std::vector<EL::IntegerType> validVsns({3, 4});
+                const bool isNumVersion = version.convertibleTo(EL::ValueType::Number);
+                const bool isValidVersion = isNumVersion && (std::find(validVsns.begin(), validVsns.end(), version.integerValue()) != validVsns.end());
+                if (!isValidVersion) {
+                    const std::string versionStr(version.convertTo(EL::ValueType::String).stringValue());
+                    const std::string validVsnsStr(kdl::str_join(validVsns, ", "));
+                    throw ParserException(version.line(), version.column(), " Unsupported game configuration version " + versionStr + "; valid versions are: " + validVsnsStr);
+                }
+            }
+        }
 
         Model::GameConfig GameConfigParser::parse() {
             using Model::GameConfig;
@@ -49,11 +65,9 @@ namespace TrenchBroom {
             const auto root = parseConfigFile().evaluate(EL::EvaluationContext());
             expectType(root, EL::ValueType::Map);
 
-            const auto expectedVersion = 3.0;
-            const auto actualVersion = root["version"].numberValue();
-            if (actualVersion != expectedVersion) {
-                throw ParserException(root["version"].line(), root["version"].column(), " Unsupported game configuration version " + std::to_string(actualVersion) + ", expected " + std::to_string(expectedVersion));
-            }
+            const EL::Value version = root["version"];
+            checkVersion(version);
+            m_version = version.integerValue();
 
             expectStructure(root,
                             "["
@@ -223,17 +237,42 @@ namespace TrenchBroom {
 
             std::vector<Model::FlagConfig> flags;
             for (size_t i = 0; i < value.length(); ++i) {
-                const EL::Value& entry = value[i];
-
-                expectStructure(entry, "[ {'name': 'String'}, {'description': 'String'} ]");
-
-                const std::string& name = entry["name"].stringValue();
-                const std::string& description = entry["description"].stringValue();
-
-                flags.push_back(Model::FlagConfig(name, description));
+                parseFlag(value[i], i, flags);
             }
 
             return Model::FlagsConfig(flags);
+        }
+
+        void GameConfigParser::parseFlag(const EL::Value& value, const size_t index, std::vector<Model::FlagConfig>& flags) const {
+            bool unused;
+            if (m_version == 3) {
+                unused = false;
+                expectStructure(value,
+                                "["
+                                "{'name': 'String'},"
+                                "{'description': 'String'}"
+                                "]");
+            } else {
+                unused = value["unused"].booleanValue();
+                if (unused) {
+                    expectStructure(value,
+                                    "["
+                                    "{},"
+                                    "{'name': 'String', 'description': 'String', 'unused': 'Boolean'}"
+                                    "]");
+                } else {
+                    expectStructure(value,
+                                    "["
+                                    "{'name': 'String'},"
+                                    "{'description': 'String', 'unused': 'Boolean'}"
+                                    "]");
+                }
+            }
+            if (!unused) {
+                const std::string& name = value["name"].stringValue();
+                const std::string& description = value["description"].stringValue();
+                flags.push_back(Model::FlagConfig(name, description, 1 << index));
+            }
         }
 
         Model::BrushFaceAttributes GameConfigParser::parseFaceAttribsDefaults(const EL::Value& value, const Model::FlagsConfig& surfaceFlags, const Model::FlagsConfig& contentFlags) const {
@@ -363,11 +402,7 @@ namespace TrenchBroom {
                     auto matcher = std::make_unique<Model::TextureNameTagMatcher>(std::move(pattern));
                     result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
                 } else if (match == "surfaceparm") {
-                    expectMapEntry(entry, "pattern", EL::ValueType::String);
-                    auto pattern = entry["pattern"].stringValue();
-                    auto attribs = parseTagAttributes(entry["attribs"]);
-                    auto matcher = std::make_unique<Model::SurfaceParmTagMatcher>(std::move(pattern));
-                    result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
+                    parseSurfaceParmTag(name, entry, result);
                 } else if (match == "contentflag") {
                     expectMapEntry(entry, "flags", EL::ValueType::Array);
                     const auto flagValue = parseFlagValue(entry["flags"], faceAttribsConfig.contentFlags);
@@ -384,6 +419,31 @@ namespace TrenchBroom {
                     throw ParserException(entry.line(), entry.column(), "Unexpected smart tag match type '" + match + "'");
                 }
             }
+        }
+
+        void GameConfigParser::parseSurfaceParmTag(const std::string& name, const EL::Value& value, std::vector<Model::SmartTag>& result) const {
+            auto attribs = parseTagAttributes(value["attribs"]);
+            std::unique_ptr<Model::SurfaceParmTagMatcher> matcher;
+            if (m_version == 3) {
+                expectMapEntry(value, "pattern", EL::ValueType::String);
+                auto pattern = value["pattern"].stringValue();
+                matcher = std::make_unique<Model::SurfaceParmTagMatcher>(std::move(pattern));
+            } else {
+                if (value["pattern"].type() == EL::ValueType::String) {
+                    auto pattern = value["pattern"].stringValue();
+                    matcher = std::make_unique<Model::SurfaceParmTagMatcher>(std::move(pattern));
+                } else if (value["pattern"].type() == EL::ValueType::Array) {
+                    auto patternVector = value["pattern"].asStringSet();
+                    const kdl::vector_set<std::string> patternSet(patternVector.begin(), patternVector.end());
+                    matcher = std::make_unique<Model::SurfaceParmTagMatcher>(patternSet);
+                } else {
+                    // Generate the type exception specifying Array as the
+                    // expected type, since String is really a legacy type for
+                    // backward compatibility.
+                    expectMapEntry(value, "pattern", EL::ValueType::Array);
+                }
+            }
+            result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
         }
 
         int GameConfigParser::parseFlagValue(const EL::Value& value, const Model::FlagsConfig& flags) const {

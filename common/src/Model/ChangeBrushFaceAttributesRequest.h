@@ -134,14 +134,10 @@ namespace TrenchBroom {
             void setSurfaceFlags(int surfaceFlags);
             void unsetSurfaceFlags(int surfaceFlags);
             void replaceSurfaceFlags(int surfaceFlags);
-            void setSurfaceFlag(size_t surfaceFlag);
-            void unsetSurfaceFlag(size_t surfaceFlag);
 
             void setContentFlags(int contentFlags);
             void unsetContentFlags(int contentFlags);
             void replaceContentFlags(int contentFlags);
-            void setContentFlag(size_t contentFlag);
-            void unsetContentFlag(size_t contentFlag);
 
             void setSurfaceValue(float surfaceValue);
             void addSurfaceValue(float surfaceValue);

@@ -40,6 +40,8 @@ namespace TrenchBroom {
             CompilationProfileManager* m_profileManager;
             QPushButton* m_launchButton;
             QPushButton* m_compileButton;
+            QPushButton* m_testCompileButton;
+            QPushButton* m_stopCompileButton;
             QPushButton* m_closeButton;
             QLabel* m_currentRunLabel;
             QTextEdit* m_output;
@@ -50,17 +52,12 @@ namespace TrenchBroom {
             void createGui();
 
             void keyPressEvent(QKeyEvent* event) override;
-            void keyReleaseEvent(QKeyEvent* event) override;
-            void focusInEvent(QFocusEvent* event) override;
-            void focusOutEvent(QFocusEvent* event) override;
-            void updateCompileButton(bool test);
 
-            bool stopCompilation();
+            void updateCompileButtons();
+            void startCompilation(bool test);
+            void stopCompilation();
             void closeEvent(QCloseEvent* event) override;
         private slots:
-            void launchEngine();
-            void toggleCompile();
-
             void compilationStarted();
             void compilationEnded();
 

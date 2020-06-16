@@ -115,8 +115,9 @@ namespace TrenchBroom {
         struct FlagConfig {
             std::string name;
             std::string description;
+            int value;
 
-            FlagConfig(const std::string& i_name, const std::string& i_description);
+            FlagConfig(const std::string& i_name, const std::string& i_description, const int i_value);
             FlagConfig();
 
             bool operator==(const FlagConfig& other) const;

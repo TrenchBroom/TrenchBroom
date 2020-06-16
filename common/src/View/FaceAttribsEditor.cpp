@@ -77,6 +77,7 @@ namespace TrenchBroom {
             createGui(contextManager);
             bindEvents();
             bindObservers();
+            updateIncrements();
         }
 
         FaceAttribsEditor::~FaceAttribsEditor() {
@@ -152,34 +153,34 @@ namespace TrenchBroom {
             }
         }
 
-        void FaceAttribsEditor::surfaceFlagChanged(const size_t index, const int setFlag, const int /* mixedFlag */) {
+        void FaceAttribsEditor::surfaceFlagChanged(const size_t /* index */, const int value, const int setFlag, const int /* mixedFlag */) {
             auto document = kdl::mem_lock(m_document);
             if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
             Model::ChangeBrushFaceAttributesRequest request;
-            if (setFlag & (1 << index)) {
-                request.setSurfaceFlag(index);
+            if (setFlag & value) {
+                request.setSurfaceFlags(value);
             } else {
-                request.unsetSurfaceFlag(index);
+                request.unsetSurfaceFlags(value);
             }
             if (!document->setFaceAttributes(request)) {
                 updateControls();
             }
         }
 
-        void FaceAttribsEditor::contentFlagChanged(const size_t index, const int setFlag, const int /* mixedFlag */) {
+        void FaceAttribsEditor::contentFlagChanged(const size_t /* index */, const int value, const int setFlag, const int /* mixedFlag */) {
             auto document = kdl::mem_lock(m_document);
             if (!document->hasAnySelectedBrushFaces()) {
                 return;
             }
 
             Model::ChangeBrushFaceAttributesRequest request;
-            if (setFlag & (1 << index)) {
-                request.setContentFlag(index);
+            if (setFlag & value) {
+                request.setContentFlags(value);
             } else {
-                request.unsetContentFlag(index);
+                request.unsetContentFlags(value);
             }
             if (!document->setFaceAttributes(request)) {
                 updateControls();
@@ -223,7 +224,7 @@ namespace TrenchBroom {
             }
         }
 
-        void FaceAttribsEditor::gridDidChange() {
+        void FaceAttribsEditor::updateIncrements() {
             auto document = kdl::mem_lock(m_document);
             Grid& grid = document->grid();
 
@@ -386,7 +387,7 @@ namespace TrenchBroom {
             document->brushFacesDidChangeNotifier.addObserver(this, &FaceAttribsEditor::brushFacesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &FaceAttribsEditor::selectionDidChange);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
-            document->grid().gridDidChangeNotifier.addObserver(this, &FaceAttribsEditor::gridDidChange);
+            document->grid().gridDidChangeNotifier.addObserver(this, &FaceAttribsEditor::updateIncrements);
         }
 
         void FaceAttribsEditor::unbindObservers() {
@@ -397,7 +398,7 @@ namespace TrenchBroom {
                 document->brushFacesDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::brushFacesDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::selectionDidChange);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
-                document->grid().gridDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::gridDidChange);
+                document->grid().gridDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::updateIncrements);
             }
         }
 
@@ -449,15 +450,24 @@ namespace TrenchBroom {
             const QSignalBlocker blockContentFlagsEditor(m_contentFlagsEditor);
             const QSignalBlocker blockColorEditor(m_colorEditor);
 
-            if (hasSurfaceAttribs()) {
-                showSurfaceAttribEditors();
-                QStringList surfaceFlagLabels, surfaceFlagTooltips, contentFlagLabels, contentFlagTooltips;
-                getSurfaceFlags(surfaceFlagLabels, surfaceFlagTooltips);
-                getContentFlags(contentFlagLabels, contentFlagTooltips);
-                m_surfaceFlagsEditor->setFlags(surfaceFlagLabels, surfaceFlagTooltips);
-                m_contentFlagsEditor->setFlags(contentFlagLabels, contentFlagTooltips);
+            if (hasSurfaceFlags()) {
+                showSurfaceFlagsEditor();
+                QList<int> values;
+                QStringList surfaceFlagLabels, surfaceFlagTooltips;
+                getSurfaceFlags(values, surfaceFlagLabels, surfaceFlagTooltips);
+                m_surfaceFlagsEditor->setFlags(values, surfaceFlagLabels, surfaceFlagTooltips);
             } else {
-                hideSurfaceAttribEditors();
+                hideSurfaceFlagsEditor();
+            }
+
+            if (hasContentFlags()) {
+                showContentFlagsEditor();
+                QList<int> values;
+                QStringList contentFlagLabels, contentFlagTooltips;
+                getContentFlags(values, contentFlagLabels, contentFlagTooltips);
+                m_contentFlagsEditor->setFlags(values, contentFlagLabels, contentFlagTooltips);
+            } else {
+                hideContentFlagsEditor();
             }
 
             if (hasColorAttribs()) {
@@ -581,30 +591,38 @@ namespace TrenchBroom {
             }
         }
 
-
-        bool FaceAttribsEditor::hasSurfaceAttribs() const {
+        bool FaceAttribsEditor::hasSurfaceFlags() const {
             auto document = kdl::mem_lock(m_document);
             const auto game = document->game();
-            const Model::FlagsConfig& surfaceFlags = game->surfaceFlags();
-            const Model::FlagsConfig& contentFlags = game->contentFlags();
-
-            return !surfaceFlags.flags.empty() && !contentFlags.flags.empty();
+            return !game->surfaceFlags().flags.empty();
         }
 
-        void FaceAttribsEditor::showSurfaceAttribEditors() {
+        bool FaceAttribsEditor::hasContentFlags() const {
+            auto document = kdl::mem_lock(m_document);
+            const auto game = document->game();
+            return !game->contentFlags().flags.empty();
+        }
+
+        void FaceAttribsEditor::showSurfaceFlagsEditor() {
             m_surfaceValueLabel->show();
             m_surfaceValueEditor->show();
             m_surfaceFlagsLabel->show();
             m_surfaceFlagsEditor->show();
+        }
+
+        void FaceAttribsEditor::showContentFlagsEditor() {
             m_contentFlagsLabel->show();
             m_contentFlagsEditor->show();
         }
 
-        void FaceAttribsEditor::hideSurfaceAttribEditors() {
+        void FaceAttribsEditor::hideSurfaceFlagsEditor() {
             m_surfaceValueLabel->hide();
             m_surfaceValueEditor->hide();
             m_surfaceFlagsLabel->hide();
             m_surfaceFlagsEditor->hide();
+        }
+
+        void FaceAttribsEditor::hideContentFlagsEditor() {
             m_contentFlagsLabel->hide();
             m_contentFlagsEditor->hide();
         }
@@ -624,26 +642,27 @@ namespace TrenchBroom {
             m_colorEditor->hide();
         }
 
-        void getFlags(const std::vector<Model::FlagConfig>& flags, QStringList& names, QStringList& descriptions);
-        void getFlags(const std::vector<Model::FlagConfig>& flags, QStringList& names, QStringList& descriptions) {
+        void getFlags(const std::vector<Model::FlagConfig>& flags, QList<int>& values, QStringList& names, QStringList& descriptions);
+        void getFlags(const std::vector<Model::FlagConfig>& flags, QList<int>& values, QStringList& names, QStringList& descriptions) {
             for (const auto& flag : flags) {
+                values.push_back(flag.value);
                 names.push_back(QString::fromStdString(flag.name));
                 descriptions.push_back(QString::fromStdString(flag.description));
             }
         }
 
-        void FaceAttribsEditor::getSurfaceFlags(QStringList& names, QStringList& descriptions) const {
+        void FaceAttribsEditor::getSurfaceFlags(QList<int>& values, QStringList& names, QStringList& descriptions) const {
             auto document = kdl::mem_lock(m_document);
             const auto game = document->game();
             const Model::FlagsConfig& surfaceFlags = game->surfaceFlags();
-            getFlags(surfaceFlags.flags, names, descriptions);
+            getFlags(surfaceFlags.flags, values, names, descriptions);
         }
 
-        void FaceAttribsEditor::getContentFlags(QStringList& names, QStringList& descriptions) const {
+        void FaceAttribsEditor::getContentFlags(QList<int>& values, QStringList& names, QStringList& descriptions) const {
             auto document = kdl::mem_lock(m_document);
             const auto game = document->game();
             const Model::FlagsConfig& contentFlags = game->contentFlags();
-            getFlags(contentFlags.flags, names, descriptions);
+            getFlags(contentFlags.flags, values, names, descriptions);
         }
     }
 }

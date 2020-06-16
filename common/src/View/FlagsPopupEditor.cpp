@@ -77,7 +77,7 @@ namespace TrenchBroom {
             layout->addWidget(m_button, 0, Qt::AlignVCenter);
             setLayout(layout);
 
-            connect(m_editor, &FlagsEditor::flagChanged, this, [this](const size_t /* index */, const int /* setFlag */, const int /* mixedFlag */){
+            connect(m_editor, &FlagsEditor::flagChanged, this, [this](const size_t /* index */, const int /* value */, const int /* setFlag */, const int /* mixedFlag */){
                 updateFlagsText();
             });
             // forward this signal

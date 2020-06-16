@@ -25,6 +25,7 @@
 #include "Renderer/GL.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/PrimType.h"
+#include "Renderer/ShaderManager.h"
 #include "Renderer/VboManager.h"
 #include "Renderer/Vbo.h"
 
@@ -101,7 +102,7 @@ namespace TrenchBroom {
             }
 
         public:
-            explicit VboHolder(VboType type) :
+            explicit VboHolder(const VboType type) :
             m_type(type),
             m_snapshot(),
             m_dirtyRange(0),
@@ -111,9 +112,11 @@ namespace TrenchBroom {
             /**
              * NOTE: This destructively moves the contents of `elements` into the Holder.
              */
-            explicit VboHolder(std::vector<T> &elements) :
+            VboHolder(const VboType type, std::vector<T>& elements) :
+            m_type(type),
             m_snapshot(),
             m_dirtyRange(elements.size()),
+            m_vboManager(nullptr),
             m_vbo(nullptr) {
 
                 const size_t elementsCount = elements.size();
@@ -287,7 +290,7 @@ namespace TrenchBroom {
             bool setupVertices() override {
                 ensure(VboHolder<V>::m_vbo != nullptr, "block is null");
                 VboHolder<V>::m_vbo->bind();
-                V::Type::setup(VboHolder<V>::m_vbo->offset());
+                V::Type::setup(this->m_vboManager->shaderManager().currentProgram(), VboHolder<V>::m_vbo->offset());
                 return true;
             }
 
@@ -296,7 +299,7 @@ namespace TrenchBroom {
             }
 
             void cleanupVertices() override {
-                V::Type::cleanup();
+                V::Type::cleanup(this->m_vboManager->shaderManager().currentProgram());
                 VboHolder<V>::m_vbo->unbind();
             }
 
