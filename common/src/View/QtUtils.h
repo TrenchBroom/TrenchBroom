@@ -70,10 +70,10 @@ namespace TrenchBroom {
 
         class SyncHeightEventFilter : public QObject {
         private:
-            QPointer<QWidget> m_master;
-            QPointer<QWidget> m_slave;
+            QPointer<QWidget> m_primary;
+            QPointer<QWidget> m_secondary;
         public:
-            SyncHeightEventFilter(QWidget* master, QWidget* slave, QObject* parent = nullptr);
+            SyncHeightEventFilter(QWidget* primary, QWidget* secondary, QObject* parent = nullptr);
             ~SyncHeightEventFilter();
             
             bool eventFilter(QObject* target, QEvent* event) override;
