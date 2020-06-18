@@ -77,28 +77,28 @@ namespace TrenchBroom {
             m_widget->setUpdatesEnabled(true);
         }
 
-        SyncHeightEventFilter::SyncHeightEventFilter(QWidget* master, QWidget* slave, QObject* parent) :
+        SyncHeightEventFilter::SyncHeightEventFilter(QWidget* primary, QWidget* secondary, QObject* parent) :
         QObject(parent),
-        m_master(master),
-        m_slave(slave) {
-            ensure(m_master != nullptr, "master is not null");
-            ensure(m_slave != nullptr, "slave is not null");
+        m_primary(primary),
+        m_secondary(secondary) {
+            ensure(m_primary != nullptr, "primary is not null");
+            ensure(m_secondary != nullptr, "secondary is not null");
             
-            m_master->installEventFilter(this);
+            m_primary->installEventFilter(this);
         }
         
         SyncHeightEventFilter::~SyncHeightEventFilter() {
-            if (m_master) {
-                m_master->removeEventFilter(this);
+            if (m_primary) {
+                m_primary->removeEventFilter(this);
             }
         }
 
         bool SyncHeightEventFilter::eventFilter(QObject* target, QEvent* event) {
-            if (target == m_master && event->type() == QEvent::Resize) {
+            if (target == m_primary && event->type() == QEvent::Resize) {
                 const auto* sizeEvent = static_cast<QResizeEvent*>(event);
                 const auto height = sizeEvent->size().height();
-                if (m_slave->height() != height) {
-                    m_slave->setFixedHeight(height);
+                if (m_secondary->height() != height) {
+                    m_secondary->setFixedHeight(height);
                 }
                 return false;
             } else {
