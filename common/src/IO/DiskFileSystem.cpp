@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 
 #include "IO/DiskIO.h"
+#include "IO/File.h"
 
 #include <memory>
 #include <string>
@@ -65,7 +66,8 @@ namespace TrenchBroom {
         }
 
         std::shared_ptr<File> DiskFileSystem::doOpenFile(const Path& path) const {
-            return Disk::openFile(doMakeAbsolute(path));
+            auto file = Disk::openFile(doMakeAbsolute(path));
+            return std::make_shared<FileView>(path, file, 0u, file->size());
         }
 
         WritableDiskFileSystem::WritableDiskFileSystem(const Path& root, const bool create) :

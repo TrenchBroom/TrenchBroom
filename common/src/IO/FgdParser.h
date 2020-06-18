@@ -88,6 +88,7 @@ namespace TrenchBroom {
             void pushIncludePath(const Path& path);
             void popIncludePath();
 
+            Path currentRoot() const;
             bool isRecursiveInclude(const Path& path) const;
         private:
             TokenNameMap tokenNames() const override;
