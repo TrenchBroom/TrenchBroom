@@ -188,8 +188,8 @@ namespace TrenchBroom {
         }
 
         void ToolBox::suppressWhileActive(Tool* suppressedTool, Tool* primaryTool) {
-            ensure(primaryTool != nullptr, "supressed is null");
-            ensure(suppressedTool != nullptr, "primary is null");
+            ensure(primaryTool != nullptr, "primary is null");
+            ensure(suppressedTool != nullptr, "supressed is null");
             assert(primaryTool != suppressedTool);
             m_suppressedTools[primaryTool].push_back(suppressedTool);
         }
