@@ -1722,7 +1722,7 @@ namespace TrenchBroom {
 
         void MapFrame::triggerAutosave() {
             using namespace std::chrono_literals;
-            if (std::chrono::system_clock::now() - m_lastInputTime > 1s) {
+            if (QGuiApplication::mouseButtons() == Qt::NoButton && std::chrono::system_clock::now() - m_lastInputTime > 2s) {
                 m_autosaver->triggerAutosave(logger());
             }
         }
