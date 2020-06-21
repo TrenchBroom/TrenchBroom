@@ -228,7 +228,7 @@ namespace TrenchBroom {
                 ++i;
             }
 
-            str << "] ";
+            str << " ]";
         }
 
         MapExpression::MapExpression(ExpressionBase::Map&& elements, const size_t line, const size_t column) :
