@@ -22,6 +22,7 @@
 
 #include "Macros.h"
 #include "EL/EL_Forward.h"
+#include "EL/Value.h"
 
 #include <iosfwd>
 #include <map>
@@ -89,7 +90,7 @@ namespace TrenchBroom {
 
         class LiteralExpression : public ExpressionBase {
         private:
-            std::unique_ptr<Value> m_value;
+            Value m_value;
         private:
             LiteralExpression(const Value& value, size_t line, size_t column);
         public:

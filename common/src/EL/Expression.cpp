@@ -21,7 +21,6 @@
 
 #include "Ensure.h"
 #include "EL/EvaluationContext.h"
-#include "EL/Value.h"
 
 #include <sstream>
 #include <string>
@@ -122,14 +121,14 @@ namespace TrenchBroom {
 
         LiteralExpression::LiteralExpression(const Value& value, const size_t line, const size_t column) :
         ExpressionBase(line, column),
-        m_value(std::make_unique<Value>(value, line, column)) {}
+        m_value(value, line, column) {}
 
         ExpressionBase* LiteralExpression::create(const Value& value, const size_t line, const size_t column) {
             return new LiteralExpression(value, line, column);
         }
 
         ExpressionBase* LiteralExpression::doClone() const {
-            return new LiteralExpression(*m_value, m_line, m_column);
+            return new LiteralExpression(m_value, m_line, m_column);
         }
 
         ExpressionBase* LiteralExpression::doOptimize() {
@@ -137,11 +136,11 @@ namespace TrenchBroom {
         }
 
         Value LiteralExpression::doEvaluate(const EvaluationContext& /* context */) const {
-            return *m_value;
+            return m_value;
         }
 
         void LiteralExpression::doAppendToStream(std::ostream& str) const {
-            m_value->appendToStream(str, false);
+            m_value.appendToStream(str, false);
         }
 
         VariableExpression::VariableExpression(const std::string& variableName, const size_t line, const size_t column) :
