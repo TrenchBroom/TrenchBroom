@@ -67,9 +67,9 @@ namespace TrenchBroom {
         std::unique_ptr<Model::GameEngineProfile> GameEngineConfigParser::parseProfile(const EL::Value& value) const {
             expectStructure(value, "[ {'name': 'String', 'path': 'String'}, { 'parameters': 'String' } ]");
 
-            const std::string& name = value["name"].stringValue();
+            const std::string name = value["name"].stringValue();
             const Path path = Path(value["path"].stringValue());
-            const std::string& parameterSpec = value["parameters"].stringValue();
+            const std::string parameterSpec = value["parameters"].stringValue();
 
             return std::make_unique<Model::GameEngineProfile>(name, path, parameterSpec);
         }

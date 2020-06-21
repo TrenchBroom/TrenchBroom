@@ -53,15 +53,15 @@ namespace TrenchBroom {
             const auto expected = parser.parse().evaluate(EL::EvaluationContext());
             assert(expected.type() == EL::ValueType::Array);
 
-            const auto& mandatory = expected[0];
+            const auto mandatory = expected[0];
             assert(mandatory.type() == EL::ValueType::Map);
 
-            const auto& optional = expected[1];
+            const auto optional = expected[1];
             assert(optional.type() == EL::ValueType::Map);
 
             // Are all mandatory keys present?
             for (const auto& key : mandatory.keys()) {
-                const auto& typeName = mandatory[key].stringValue();
+                const auto typeName = mandatory[key].stringValue();
                 const auto type = EL::typeForName(typeName);
                 expectMapEntry(value, key, type);
             }
