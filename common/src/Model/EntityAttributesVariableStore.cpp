@@ -44,7 +44,7 @@ namespace TrenchBroom {
             if (value == nullptr) {
                 return DefaultValue;
             } else {
-                return EL::Value::ref(*value);
+                return EL::Value(*value);
             }
         }
 
