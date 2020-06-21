@@ -65,8 +65,8 @@ namespace TrenchBroom {
         std::unique_ptr<Model::CompilationProfile> CompilationConfigParser::parseProfile(const EL::Value& value) const {
             expectStructure(value, "[ {'name': 'String', 'workdir': 'String', 'tasks': 'Array'}, {} ]");
 
-            const std::string& name = value["name"].stringValue();
-            const std::string& workdir = value["workdir"].stringValue();
+            const std::string name = value["name"].stringValue();
+            const std::string workdir = value["workdir"].stringValue();
             auto tasks = parseTasks(value["tasks"]);
 
             return std::make_unique<Model::CompilationProfile>(name, workdir, std::move(tasks));
@@ -84,7 +84,7 @@ namespace TrenchBroom {
 
         std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseTask(const EL::Value& value) const {
             expectMapEntry(value, "type", EL::ValueType::String);
-            const std::string& type = value["type"].stringValue();
+            const std::string type = value["type"].stringValue();
 
             if (type == "export") {
                 return parseExportTask(value);
@@ -99,15 +99,15 @@ namespace TrenchBroom {
 
         std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseExportTask(const EL::Value& value) const {
             expectStructure(value, "[ {'type': 'String', 'target': 'String'}, {} ]");
-            const std::string& target = value["target"].stringValue();
+            const std::string target = value["target"].stringValue();
             return std::make_unique<Model::CompilationExportMap>(target);
         }
 
         std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseCopyTask(const EL::Value& value) const {
             expectStructure(value, "[ {'type': 'String', 'source': 'String', 'target': 'String'}, {} ]");
 
-            const std::string& source = value["source"].stringValue();
-            const std::string& target = value["target"].stringValue();
+            const std::string source = value["source"].stringValue();
+            const std::string target = value["target"].stringValue();
 
             return std::make_unique<Model::CompilationCopyFiles>(source, target);
         }
@@ -115,8 +115,8 @@ namespace TrenchBroom {
         std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseToolTask(const EL::Value& value) const {
             expectStructure(value, "[ {'type': 'String', 'tool': 'String', 'parameters': 'String'}, {} ]");
 
-            const std::string& tool = value["tool"].stringValue();
-            const std::string& parameters = value["parameters"].stringValue();
+            const std::string tool = value["tool"].stringValue();
+            const std::string parameters = value["parameters"].stringValue();
 
             return std::make_unique<Model::CompilationRunTool>(tool, parameters);
         }
