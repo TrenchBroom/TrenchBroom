@@ -148,7 +148,6 @@ macro(configure_app_target APP_TARGET_NAME SHOULD_BUILD_MANUAL)
         add_custom_command(TARGET ${APP_TARGET_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freeimage>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freetype>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:z>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Widgets>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Gui>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Core>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
@@ -272,7 +271,6 @@ if(WIN32)
     install(FILES
             $<TARGET_FILE:freeimage>
             $<TARGET_FILE:freetype>
-            $<TARGET_FILE:z>
             $<TARGET_FILE:Qt5::Widgets>
             $<TARGET_FILE:Qt5::Gui>
             $<TARGET_FILE:Qt5::Core>
