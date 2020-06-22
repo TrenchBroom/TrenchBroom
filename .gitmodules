@@ -4,3 +4,6 @@
 [submodule "lib/Catch2"]
 	path = lib/Catch2
 	url = https://github.com/catchorg/Catch2
+[submodule "lib/freetype/freetype-windows-binaries"]
+	path = lib/freetype/freetype-windows-binaries
+	url = https://github.com/ubawurinna/freetype-windows-binaries
