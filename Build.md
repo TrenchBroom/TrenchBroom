@@ -94,7 +94,7 @@ sudo apt-get install g++-7 qt5-default freeglut3-dev libglew-dev mesa-common-dev
 Or, on Fedora:
 
 ```bash
-sudo dnf install g++ cmake qt5-qtbase-devel qt5-qtsvg-devel ninja-build freetype-devel freeimage-devel pandoc
+sudo dnf install g++ cmake qt5-qtbase-devel qt5-qtsvg-devel ninja-build freetype-devel freeimage-devel pandoc mesa-libGLU-devel
 ```
 
 ### Build TrenchBroom
