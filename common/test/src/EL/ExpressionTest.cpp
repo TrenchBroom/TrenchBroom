@@ -305,6 +305,11 @@ namespace TrenchBroom {
 
             evaluateAndAssert("2 * 6 / 4", 2.0 * 6.0 / 4.0);
             evaluateAndAssert("2 / 6 * 4", 2.0 / 6.0 * 4.0);
+
+            evaluateAndAssert("2 + 3 * 4 + 5", 2 + 3 * 4 + 5);
+            evaluateAndAssert("2 * 3 + 4 + 5", 2 * 3 + 4 + 5);
+
+            evaluateAndAssert("2 * 3 + 4 & 5", 2 * 3 + 4 & 5);
         }
 
         TEST_CASE("ExpressionTest.testLogicalPrecedence", "[ExpressionTest]") {
