@@ -22,10 +22,12 @@
 #include "Model/EntityAttributes.h"
 #include "Model/WorldNode.h"
 #include "View/BorderLine.h"
+#include "View/ClickableLabel.h"
 #include "View/CollapsibleTitledPanel.h"
 #include "View/LayerEditor.h"
 #include "View/MapDocument.h"
 #include "View/ModEditor.h"
+#include "View/QtUtils.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 
@@ -36,7 +38,7 @@
 #include <optional>
 #include <utility>
 
-#include <QFormLayout>
+#include <QGridLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -154,39 +156,65 @@ namespace TrenchBroom {
         }
 
         void MapPropertiesEditor::createGui() {
-            m_softBoundsDisabled = new QRadioButton(tr("Soft bounds disabled"));
+            m_softBoundsDisabled = new QRadioButton();
+            auto* softBoundsDisabledLabel = new ClickableLabel(tr("Soft bounds disabled"));
 
-            m_softBoundsFromGame = new QRadioButton(tr("Game default bounds:"));
+            m_softBoundsFromGame = new QRadioButton();
             m_softBoundsFromGameMinLabel = new QLabel();
             m_softBoundsFromGameMaxLabel = new QLabel();
+            auto* softBoundsFromGameLabel = new ClickableLabel(tr("Use game default"));
 
             auto* softBoundsFromGameValueLayout = new QHBoxLayout();
+            softBoundsFromGameValueLayout->setContentsMargins(0, 0, 0, 0);
             softBoundsFromGameValueLayout->setSpacing(LayoutConstants::MediumHMargin);
             softBoundsFromGameValueLayout->addWidget(new QLabel(tr("Min:")));
             softBoundsFromGameValueLayout->addWidget(m_softBoundsFromGameMinLabel);
-            softBoundsFromGameValueLayout->addWidget(new QLabel(tr("Min:")));
+            softBoundsFromGameValueLayout->addWidget(new QLabel(tr("Max:")));
             softBoundsFromGameValueLayout->addWidget(m_softBoundsFromGameMaxLabel);
             softBoundsFromGameValueLayout->addStretch(1);
-
-            m_softBoundsFromMap = new QRadioButton(tr("Custom bounds:"));
+            
+            auto* softBoundsFromGameLayout = new QVBoxLayout();
+            softBoundsFromGameLayout->setContentsMargins(0, 0, 0, 0);
+            softBoundsFromGameLayout->setSpacing(LayoutConstants::NarrowVMargin);
+            softBoundsFromGameLayout->addWidget(softBoundsFromGameLabel);
+            softBoundsFromGameLayout->addLayout(softBoundsFromGameValueLayout);
+            
+            m_softBoundsFromMap = new QRadioButton();
+            auto* softBoundsFromMapLabel = new ClickableLabel(tr("Use custom bounds"));
             m_softBoundsFromMapMinEdit = new QLineEdit();
+            m_softBoundsFromMapMinEdit->setPlaceholderText("min");
             m_softBoundsFromMapMaxEdit = new QLineEdit();
+            m_softBoundsFromMapMaxEdit->setPlaceholderText("max");
 
             auto* softBoundsFromMapValueLayout = new QHBoxLayout();
             softBoundsFromMapValueLayout->setSpacing(LayoutConstants::MediumHMargin);
-            softBoundsFromMapValueLayout->addWidget(new QLabel(tr("Min:")));
             softBoundsFromMapValueLayout->addWidget(m_softBoundsFromMapMinEdit);
-            softBoundsFromMapValueLayout->addWidget(new QLabel(tr("Min:")));
             softBoundsFromMapValueLayout->addWidget(m_softBoundsFromMapMaxEdit);
             softBoundsFromMapValueLayout->addStretch(1);
 
-            auto* formLayout = new QFormLayout();
-            formLayout->setContentsMargins(0, 0, 0, 0);
-            formLayout->setSpacing(0);
-            formLayout->addRow(m_softBoundsDisabled);
-            formLayout->addRow(m_softBoundsFromGame, softBoundsFromGameValueLayout);
-            formLayout->addRow(m_softBoundsFromMap, softBoundsFromMapValueLayout);
-            setLayout(formLayout);
+            auto* softBoundsFromMapLayout = new QVBoxLayout();
+            softBoundsFromMapLayout->setContentsMargins(0, 0, 0, 0);
+            softBoundsFromMapLayout->setSpacing(LayoutConstants::NarrowVMargin);
+            softBoundsFromMapLayout->addWidget(softBoundsFromMapLabel);
+            softBoundsFromMapLayout->addLayout(softBoundsFromMapValueLayout);
+
+            auto* gridLayout = new QGridLayout();
+            gridLayout->setContentsMargins(LayoutConstants::MediumHMargin, LayoutConstants::MediumVMargin, LayoutConstants::MediumHMargin, LayoutConstants::MediumVMargin);
+            gridLayout->setHorizontalSpacing(LayoutConstants::NarrowHMargin);
+            gridLayout->setVerticalSpacing(LayoutConstants::MediumVMargin);
+            
+            gridLayout->addWidget(m_softBoundsDisabled, 0, 0, Qt::AlignTop);
+            gridLayout->addWidget(softBoundsDisabledLabel, 0, 1, Qt::AlignTop);
+            gridLayout->addWidget(m_softBoundsFromGame, 1, 0, Qt::AlignTop);
+            gridLayout->addLayout(softBoundsFromGameLayout, 1, 1, Qt::AlignTop);
+            gridLayout->addWidget(m_softBoundsFromMap, 2, 0, Qt::AlignTop);
+            gridLayout->addLayout(softBoundsFromMapLayout, 2, 1, Qt::AlignTop);
+            
+            setLayout(gridLayout);
+
+            connect(softBoundsDisabledLabel, &ClickableLabel::clicked, m_softBoundsDisabled, &QAbstractButton::click);
+            connect(softBoundsFromGameLabel, &ClickableLabel::clicked, m_softBoundsFromGame, &QAbstractButton::click);
+            connect(softBoundsFromMapLabel, &ClickableLabel::clicked, m_softBoundsFromMap, &QAbstractButton::click);
 
             connect(m_softBoundsDisabled, &QAbstractButton::clicked, this, [this](const bool checked) {
                 auto document = kdl::mem_lock(m_document);
