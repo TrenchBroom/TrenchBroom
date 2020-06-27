@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2020 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,23 +17,25 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_AppInfoPanel
-#define TrenchBroom_AppInfoPanel
+#ifndef TrenchBroom_ClickableLabel
+#define TrenchBroom_ClickableLabel
 
-#include <QWidget>
+#include <QLabel>
 
 namespace TrenchBroom {
     namespace View {
-        class AppInfoPanel : public QWidget {
+        class ClickableLabel : public QLabel {
             Q_OBJECT
         public:
-            explicit AppInfoPanel(QWidget* parent = nullptr);
-        private:
-            void createGui();
+            explicit ClickableLabel(const QString& text, QWidget* parent = nullptr);
 
-            void versionInfoClicked();
+        protected:
+            void mousePressEvent(QMouseEvent *event) override;
+
+        signals:
+            void clicked();
         };
     }
 }
 
-#endif /* defined(TrenchBroom_AppInfoPanel) */
+#endif /* defined(TrenchBroom_ClickableLabel) */

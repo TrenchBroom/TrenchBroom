@@ -17,23 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_AppInfoPanel
-#define TrenchBroom_AppInfoPanel
-
-#include <QWidget>
+#include "ClickableLabel.h"
 
 namespace TrenchBroom {
     namespace View {
-        class AppInfoPanel : public QWidget {
-            Q_OBJECT
-        public:
-            explicit AppInfoPanel(QWidget* parent = nullptr);
-        private:
-            void createGui();
+        ClickableLabel::ClickableLabel(const QString& text, QWidget* parent)
+        : QLabel(text, parent) {}
 
-            void versionInfoClicked();
-        };
+        void ClickableLabel::mousePressEvent(QMouseEvent*) {
+            emit clicked();
+        }
     }
 }
-
-#endif /* defined(TrenchBroom_AppInfoPanel) */
