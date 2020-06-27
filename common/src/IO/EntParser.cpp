@@ -141,7 +141,7 @@ namespace TrenchBroom {
                 return Assets::ModelDefinition(expression);
             } catch (const ParserException&) {
                 const auto lineNum = static_cast<size_t>(element.GetLineNum());
-                const auto expression = EL::LiteralExpression::create(EL::Value{EL::MapType{{ "path", EL::Value{model}} }}, lineNum, 0);
+                auto expression = EL::Expression(EL::LiteralExpression(EL::Value(EL::MapType({{ "path", EL::Value{model}} }))), lineNum, 0);
                 return Assets::ModelDefinition(expression);
             }
         }

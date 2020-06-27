@@ -1749,26 +1749,27 @@ Since an expression can be another instance of a binary operator, you can simply
 
 Operator Name 					Precedence
 ----     ----                   ----
-`*`      Multiplication			11
-`/`      Division				11
-`%`      Modulus				11
-`+`      Addition 				10
-`-`      Subtraction 			10
-`<<` 	 Bitwise shift left     9
-`>>` 	 Bitwise shift right    9
-`<`      Less 					8
-`<=`     Less or equal 			8
-`>`      Greater 				8
-`>=`     Greater or equal 		8
-`==`     Equal 					7
-`!=`     Inequal 				7
-`&` 	 Bitwise and   			6
-`^` 	 Bitwise xor   			5
-`|` 	 Bitwise or             4
-`&&`     Logical and 			3
-`||`     Logical or 			2
-`[]`     Range 					1
-`->`     Case 					0
+`*`      Multiplication			12
+`/`      Division				12
+`%`      Modulus				12
+`+`      Addition 				11
+`-`      Subtraction 			11
+`<<` 	 Bitwise shift left     10
+`>>` 	 Bitwise shift right    10
+`<`      Less 					9
+`<=`     Less or equal 			9
+`>`      Greater 				9
+`>=`     Greater or equal 		9
+`==`     Equal 					8
+`!=`     Inequal 				8
+`&` 	 Bitwise and   			7
+`^` 	 Bitwise xor   			6
+`|` 	 Bitwise or             5
+`&&`     Logical and 			4
+`||`     Logical or 			3
+`..`     Range 					2
+`->`     Case 					1
+` `      Other operators        13
 
 Some examples:
 

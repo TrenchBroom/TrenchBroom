@@ -83,22 +83,22 @@ namespace TrenchBroom {
         }
 
         ModelDefinition::ModelDefinition() :
-        m_expression(EL::LiteralExpression::create(EL::Value::Undefined, 0, 0)) {}
+        m_expression(EL::LiteralExpression(EL::Value::Undefined), 0, 0) {}
 
         ModelDefinition::ModelDefinition(const size_t line, const size_t column) :
-        m_expression(EL::LiteralExpression::create(EL::Value::Undefined, line, column)) {}
+        m_expression(EL::LiteralExpression(EL::Value::Undefined), line, column) {}
 
         ModelDefinition::ModelDefinition(const EL::Expression& expression) :
         m_expression(expression) {}
 
         void ModelDefinition::append(const ModelDefinition& other) {
-            EL::ExpressionBase::List cases;
-            cases.emplace_back(m_expression.clone());
-            cases.emplace_back(other.m_expression.clone());
-
+            std::vector<EL::Expression> cases;
+            cases.push_back(m_expression);
+            cases.push_back(other.m_expression);
+        
             const size_t line = m_expression.line();
             const size_t column = m_expression.column();
-            m_expression = EL::SwitchOperator::create(std::move(cases), line, column);
+            m_expression = EL::Expression(EL::SwitchExpression(std::move(cases)), line, column);
         }
 
         ModelSpecification ModelDefinition::modelSpecification(const Model::EntityAttributes& attributes) const {

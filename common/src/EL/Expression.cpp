@@ -20,1040 +20,620 @@
 #include "Expression.h"
 
 #include "Ensure.h"
+#include "Macros.h"
 #include "EL/EvaluationContext.h"
 
+#include <kdl/overload.h>
+
+#include <algorithm>
 #include <sstream>
 #include <string>
 
 namespace TrenchBroom {
     namespace EL {
-        Expression::Expression(ExpressionBase* expression) :
-        m_expression(expression) {
-            ensure(m_expression.get() != nullptr, "expression is null");
+        Expression::Expression(LiteralExpression expression, const size_t line, const size_t column) :
+        m_expression(std::make_unique<ExpressionVariant>(std::move(expression))),
+        m_line(line),
+        m_column(column) {}
+        
+        Expression::Expression(VariableExpression expression, const size_t line, const size_t column) :
+        m_expression(std::make_unique<ExpressionVariant>(std::move(expression))),
+        m_line(line),
+        m_column(column) {}
+        
+        Expression::Expression(ArrayExpression expression, const size_t line, const size_t column) :
+        m_expression(std::make_unique<ExpressionVariant>(std::move(expression))),
+        m_line(line),
+        m_column(column) {}
+        
+        Expression::Expression(MapExpression expression, const size_t line, const size_t column) :
+        m_expression(std::make_unique<ExpressionVariant>(std::move(expression))),
+        m_line(line),
+        m_column(column) {}
+        
+        Expression::Expression(UnaryExpression expression, const size_t line, const size_t column) :
+        m_expression(std::make_unique<ExpressionVariant>(std::move(expression))),
+        m_line(line),
+        m_column(column) {}
+        
+        Expression::Expression(BinaryExpression expression, const size_t line, const size_t column) :
+        m_expression(std::make_unique<ExpressionVariant>(std::move(expression))),
+        m_line(line),
+        m_column(column) {
+            rebalanceByPrecedence();
+        }
+        
+        Expression::Expression(SubscriptExpression expression, const size_t line, const size_t column) :
+        m_expression(std::make_unique<ExpressionVariant>(std::move(expression))),
+        m_line(line),
+        m_column(column) {}
+        
+        Expression::Expression(SwitchExpression expression, const size_t line, const size_t column) :
+        m_expression(std::make_unique<ExpressionVariant>(std::move(expression))),
+        m_line(line),
+        m_column(column) {}
+        
+        Expression::Expression(const Expression& other) :
+        m_expression(std::make_unique<ExpressionVariant>(*other.m_expression)),
+        m_line(other.m_line),
+        m_column(other.m_column) {}
+        
+        Expression::Expression(Expression&& other) noexcept = default;
+        
+        Expression& Expression::operator=(const Expression& other) {
+            if (&other != this) {
+                m_expression = std::make_unique<ExpressionVariant>(*other.m_expression);
+                m_line = other.m_line;
+                m_column = other.m_column;
+            }
+            
+            return *this;
+        }
+
+        Expression& Expression::operator=(Expression&& other) noexcept {
+            if (&other != this) {
+                m_expression = std::move(other.m_expression);
+                m_line = other.m_line;
+                m_column = other.m_column;
+            }
+
+            return *this;
+        }
+
+        Expression::~Expression() = default;
+
+        Value Expression::evaluate(const EvaluationContext& context) const {
+            return std::visit([&](const auto& e) { return e.evaluate(context); }, *m_expression);
         }
 
         bool Expression::optimize() {
-            ExpressionBase* optimized = m_expression->optimize();
-            if (optimized != nullptr && optimized != m_expression.get()) {
-                m_expression.reset(optimized);
+            auto replacement = std::visit(kdl::overload {
+                [](LiteralExpression& e) -> std::optional<LiteralExpression> { return e; },
+                [](VariableExpression&)  -> std::optional<LiteralExpression> { return std::nullopt; },
+                [](auto& e)              -> std::optional<LiteralExpression> { return e.optimize(); }
+            }, *m_expression);
+            
+            if (replacement) {
+                *m_expression = std::move(*replacement);
                 return true;
             } else {
                 return false;
             }
         }
 
-        Value Expression::evaluate(const EvaluationContext& context) const {
-            return m_expression->evaluate(context);
-        }
-
-        ExpressionBase* Expression::clone() const {
-            return m_expression->clone();
-        }
-
         size_t Expression::line() const {
-            return m_expression->m_line;
+            return m_line;
         }
-
+        
         size_t Expression::column() const {
-            return m_expression->m_column;
+            return m_column;
         }
 
         std::string Expression::asString() const {
-            return m_expression->asString();
+            std::stringstream str;
+            str << *this;
+            return str.str();
         }
 
-        std::ostream& operator<<(std::ostream& stream, const Expression& expression) {
-            return stream << *(expression.m_expression.get());
+        std::ostream& operator<<(std::ostream& str, const Expression& exp) {
+            std::visit([&](const auto& e) { str << e; }, *exp.m_expression);
+            return str;
         }
-
-        bool ExpressionBase::replaceExpression(std::unique_ptr<ExpressionBase>& oldExpression, ExpressionBase* newExpression) {
-            if (newExpression != nullptr && newExpression != oldExpression.get()) {
-                oldExpression.reset(newExpression);
-            }
-            return newExpression != nullptr;
-        }
-
-        ExpressionBase::ExpressionBase(const size_t line, const size_t column) : m_line(line), m_column(column) {}
-        ExpressionBase::~ExpressionBase() {}
-
-        ExpressionBase* ExpressionBase::reorderByPrecedence() {
-            return doReorderByPrecedence();
-        }
-
-        ExpressionBase* ExpressionBase::reorderByPrecedence(BinaryOperator* parent) {
-            return doReorderByPrecedence(parent);
-        }
-
-        ExpressionBase* ExpressionBase::clone() const {
-            return doClone();
-        }
-
-        ExpressionBase* ExpressionBase::optimize() {
-            return doOptimize();
-        }
-
-        Value ExpressionBase::evaluate(const EvaluationContext& context) const {
-            return doEvaluate(context);
-        }
-
-        std::string ExpressionBase::asString() const {
-            std::stringstream result;
-            appendToStream(result);
-            return result.str();
-        }
-
-        void ExpressionBase::appendToStream(std::ostream& str) const {
-            doAppendToStream(str);
-        }
-
-        std::ostream& operator<<(std::ostream& stream, const ExpressionBase& expression) {
-            expression.appendToStream(stream);
-            return stream;
-        }
-
-        ExpressionBase* ExpressionBase::doReorderByPrecedence() {
-            return this;
-        }
-
-        ExpressionBase* ExpressionBase::doReorderByPrecedence(BinaryOperator* parent) {
-            return parent;
-        }
-
-        LiteralExpression::LiteralExpression(const Value& value, const size_t line, const size_t column) :
-        ExpressionBase(line, column),
-        m_value(value, line, column) {}
-
-        ExpressionBase* LiteralExpression::create(const Value& value, const size_t line, const size_t column) {
-            return new LiteralExpression(value, line, column);
-        }
-
-        ExpressionBase* LiteralExpression::doClone() const {
-            return new LiteralExpression(m_value, m_line, m_column);
-        }
-
-        ExpressionBase* LiteralExpression::doOptimize() {
-            return this;
-        }
-
-        Value LiteralExpression::doEvaluate(const EvaluationContext& /* context */) const {
-            return m_value;
-        }
-
-        void LiteralExpression::doAppendToStream(std::ostream& str) const {
-            m_value.appendToStream(str, false);
-        }
-
-        VariableExpression::VariableExpression(const std::string& variableName, const size_t line, const size_t column) :
-        ExpressionBase(line, column),
-        m_variableName(variableName) {}
-
-        ExpressionBase* VariableExpression::create(const std::string& variableName, const size_t line, const size_t column) {
-            return new VariableExpression(variableName, line, column);
-        }
-
-        ExpressionBase* VariableExpression::doClone() const {
-            return new VariableExpression(m_variableName, m_line, m_column);
-        }
-
-        ExpressionBase* VariableExpression::doOptimize() {
-            return nullptr;
-        }
-
-        Value VariableExpression::doEvaluate(const EvaluationContext& context) const {
-            return context.variableValue(m_variableName);
-        }
-
-        void VariableExpression::doAppendToStream(std::ostream& str) const {
-            str << m_variableName;
-        }
-
-        ArrayExpression::ArrayExpression(ExpressionBase::List&& elements, const size_t line, const size_t column) :
-        ExpressionBase(line, column),
-        m_elements(std::move(elements)) {}
-
-        ExpressionBase* ArrayExpression::create(ExpressionBase::List&& elements, const size_t line, const size_t column) {
-            return new ArrayExpression(std::move(elements), line, column);
-        }
-
-        ArrayExpression::~ArrayExpression() = default;
-
-        ExpressionBase* ArrayExpression::doClone() const {
-            ExpressionBase::List clones;
-            for (const auto& element : m_elements) {
-                clones.emplace_back(element->clone());
-            }
-
-            return new ArrayExpression(std::move(clones), m_line, m_column);
-        }
-
-        ExpressionBase* ArrayExpression::doOptimize() {
-            bool allOptimized = true;
-
-            for (auto& expression : m_elements) {
-                allOptimized &= replaceExpression(expression, expression->optimize());
-            }
-
-            if (allOptimized) {
-                return LiteralExpression::create(evaluate(EvaluationContext()), m_line, m_column);
-            }
-
-            return nullptr;
-        }
-
-        Value ArrayExpression::doEvaluate(const EvaluationContext& context) const {
-            ArrayType array;
-            for (const auto& element : m_elements) {
-                const Value value = element->evaluate(context);
-                if (value.type() == ValueType::Range) {
-                    const RangeType& range = value.rangeValue();
-                    array.reserve(array.size() + range.size());
-                    for (size_t i = 0; i < range.size(); ++i)
-                        array.push_back(Value(range[i], value.line(), value.column()));
+        
+        void Expression::rebalanceByPrecedence() {
+            /*
+             * The expression tree has a similar invariant to a heap: For any given node, its precedence must be less
+             * than or equal to the precedences of its children. This guarantees that the tree evaluating the tree in a
+             * depth first traversal yields correct results because the nodes with the highest precedence are evaluated
+             * before the nodes with lower precedence.
+             */
+        
+            assert(std::holds_alternative<BinaryExpression>(*m_expression));
+        
+            const auto parentPrecedence = std::get<BinaryExpression>(*m_expression).precedence();
+            const auto leftPrecedence = std::get<BinaryExpression>(*m_expression).m_leftOperand.precedence();
+            const auto rightPrecedence = std::get<BinaryExpression>(*m_expression).m_rightOperand.precedence();
+            
+            if (parentPrecedence > std::min(leftPrecedence, rightPrecedence)) {
+                if (leftPrecedence < rightPrecedence) {
+                    // push this operator into the right subtree, rotating the right node up, and rebalancing the right subtree again
+                    Expression leftExpression = std::move(std::get<BinaryExpression>(*m_expression).m_leftOperand);
+                    
+                    assert(std::holds_alternative<BinaryExpression>(*leftExpression.m_expression));
+                    std::get<BinaryExpression>(*m_expression).m_leftOperand = std::move(std::get<BinaryExpression>(*leftExpression.m_expression).m_rightOperand);
+                    std::get<BinaryExpression>(*leftExpression.m_expression).m_rightOperand = std::move(*this);
+                    *this = std::move(leftExpression);
+                    
+                    std::get<BinaryExpression>(*m_expression).m_rightOperand.rebalanceByPrecedence();
                 } else {
-                    array.push_back(value);
+                    // push this operator into the left subtree, rotating the left node up, and rebalancing the left subtree again
+                    Expression rightExpression = std::move(std::get<BinaryExpression>(*m_expression).m_rightOperand);
+                    
+                    assert(std::holds_alternative<BinaryExpression>(*rightExpression.m_expression));
+                    std::get<BinaryExpression>(*m_expression).m_rightOperand = std::move(std::get<BinaryExpression>(*rightExpression.m_expression).m_leftOperand);
+                    std::get<BinaryExpression>(*rightExpression.m_expression).m_leftOperand = std::move(*this);
+                    *this = std::move(rightExpression);
+                    
+                    std::get<BinaryExpression>(*m_expression).m_leftOperand.rebalanceByPrecedence();
                 }
             }
-
-            return Value(array, m_line, m_column);
+        }
+        
+        size_t Expression::precedence() const {
+            return std::visit(kdl::overload {
+                [](const BinaryExpression& exp) -> size_t {
+                    return exp.precedence();
+                },
+                [](const auto&) -> size_t {
+                    return 13u;
+                }
+            }, *m_expression);
         }
 
-        void ArrayExpression::doAppendToStream(std::ostream& str) const {
-            str << "[ ";
+        LiteralExpression::LiteralExpression(Value value) :
+        m_value(std::move(value)) {}
+        
+        const Value& LiteralExpression::evaluate(const EvaluationContext&) const {
+            return m_value;
+        }
+        
+        std::ostream& operator<<(std::ostream& str, const LiteralExpression& exp) {
+            str << exp.m_value;
+            return str;
+        }
 
-            size_t i = 0;
-            for (const auto& expression : m_elements) {
-                str << *expression;
-                if (i < m_elements.size() - 1)
+        VariableExpression::VariableExpression(std::string variableName) :
+        m_variableName(std::move(variableName)) {}
+        
+        Value VariableExpression::evaluate(const EvaluationContext& context) const {
+            return context.variableValue(m_variableName);
+        }
+        
+        std::ostream& operator<<(std::ostream& str, const VariableExpression& exp) {
+            str << exp.m_variableName;
+            return str;
+        }
+
+        ArrayExpression::ArrayExpression(std::vector<Expression> elements) :
+        m_elements(std::move(elements)) {}
+        
+        Value ArrayExpression::evaluate(const EvaluationContext& context) const {
+            ArrayType array;
+            array.reserve(m_elements.size());
+            for (const auto& element : m_elements) {
+                auto value = element.evaluate(context);
+                if (value.type() == ValueType::Range) {
+                    const auto& range = value.rangeValue();
+                    if (!range.empty()) {
+                        array.reserve(array.size() + range.size() - 1u);
+                        for (size_t i = 0u; i < range.size(); ++i) {
+                            array.emplace_back(range[i], value.line(), value.column());
+                        }
+                    }
+                } else {
+                    array.push_back(std::move(value));
+                }
+            }
+            
+            return Value(std::move(array));
+        }
+        
+        std::optional<LiteralExpression> ArrayExpression::optimize() {
+            bool allOptimized = true;
+            for (auto& expression : m_elements) {
+                allOptimized &= expression.optimize();
+            }
+            
+            if (allOptimized) {
+                return LiteralExpression(evaluate(EvaluationContext()));
+            } else {
+                return std::nullopt;
+            }
+        }
+
+        std::ostream& operator<<(std::ostream& str, const ArrayExpression& exp) {
+            str << "[ ";
+            size_t i = 0u;
+            for (const auto& expression : exp.m_elements) {
+                str << expression;
+                if (i < exp.m_elements.size() - 1u) {
                     str << ", ";
+                }
                 ++i;
             }
-
             str << " ]";
+            return str;
         }
-
-        MapExpression::MapExpression(ExpressionBase::Map&& elements, const size_t line, const size_t column) :
-        ExpressionBase(line, column),
+        
+        MapExpression::MapExpression(std::map<std::string, Expression> elements) :
         m_elements(std::move(elements)) {}
 
-        ExpressionBase* MapExpression::create(ExpressionBase::Map&& elements, const size_t line, const size_t column) {
-            return new MapExpression(std::move(elements), line, column);
-        }
-
-        MapExpression::~MapExpression() = default;
-
-        ExpressionBase* MapExpression::doClone() const {
-            ExpressionBase::Map clones;
-            for (const auto& entry : m_elements) {
-                const std::string& key = entry.first;
-                const auto& value = entry.second;
-                clones.insert(std::make_pair(key, value->clone()));
+        Value MapExpression::evaluate(const EvaluationContext& context) const {
+            MapType map;
+            for (const auto& [key, expression] : m_elements) {
+                map.insert(std::make_pair(key, expression.evaluate(context)));
             }
 
-            return new MapExpression(std::move(clones), m_line, m_column);
+            return Value(std::move(map));
         }
-
-
-        ExpressionBase* MapExpression::doOptimize() {
+        
+        std::optional<LiteralExpression> MapExpression::optimize() {
             bool allOptimized = true;
-
+            
             for (auto& entry : m_elements) {
                 auto& expression = entry.second;
-                allOptimized &= replaceExpression(expression, expression->optimize());
+                allOptimized &= expression.optimize();
             }
-
+            
             if (allOptimized) {
-                return LiteralExpression::create(evaluate(EvaluationContext()), m_line, m_column);
+                return LiteralExpression(evaluate(EvaluationContext()));
             } else {
-                return nullptr;
+                return std::nullopt;
             }
         }
 
-        Value MapExpression::doEvaluate(const EvaluationContext& context) const {
-            MapType map;
-            for (const auto& entry : m_elements) {
-                const std::string& key = entry.first;
-                const auto& expression = entry.second;
-                map.insert(std::make_pair(key, expression->evaluate(context)));
-            }
-
-            return Value(map, m_line, m_column);
-        }
-
-        void MapExpression::doAppendToStream(std::ostream& str) const {
+        std::ostream& operator<<(std::ostream& str, const MapExpression& exp) {
             str << "{ ";
-            size_t i = 0;
-            for (const auto& entry : m_elements) {
-                const std::string& key = entry.first;
-                const auto& value = entry.second;
-
-                str << "\"" << key << "\": " << *value;
-                if (i < m_elements.size() - 1)
+            size_t i = 0u;
+            for (const auto& [key, expression] : exp.m_elements) {
+                str << "\"" << key << "\": " << expression;
+                if (i < exp.m_elements.size() - 1u) {
                     str << ", ";
+                }
                 ++i;
             }
             str << " }";
+            return str;
         }
 
-        UnaryOperator::UnaryOperator(ExpressionBase* operand, const size_t line, const size_t column) :
-        ExpressionBase(line, column),
-        m_operand(operand) {
-            ensure(m_operand != nullptr, "operand is null");
-        }
+        UnaryExpression::UnaryExpression(UnaryOperator i_operator, Expression operand) :
+        m_operator(i_operator),
+        m_operand(std::move(operand)) {}
 
-        UnaryOperator::~UnaryOperator() = default;
-
-        ExpressionBase* UnaryOperator::doOptimize() {
-            if (replaceExpression(m_operand, m_operand->optimize())) {
-                return LiteralExpression::create(evaluate(EvaluationContext()), m_line, m_column);
+        Value UnaryExpression::evaluate(const EvaluationContext& context) const {
+            switch (m_operator) {
+                case UnaryOperator::Plus:
+                    return Value(+m_operand.evaluate(context));
+                case UnaryOperator::Minus:
+                    return Value(-m_operand.evaluate(context));
+                case UnaryOperator::LogicalNegation:
+                    return Value(!m_operand.evaluate(context));
+                case UnaryOperator::BitwiseNegation:
+                    return Value(~m_operand.evaluate(context));
+                case UnaryOperator::Group:
+                    return Value(m_operand.evaluate(context));
+                switchDefault();
             }
-
-            return nullptr;
         }
-
-        UnaryPlusOperator::UnaryPlusOperator(ExpressionBase* operand, const size_t line, const size_t column) :
-        UnaryOperator(operand, line, column) {}
-
-        ExpressionBase* UnaryPlusOperator::create(ExpressionBase* operand, const size_t line, const size_t column) {
-            return new UnaryPlusOperator(operand, line, column);
-        }
-
-        ExpressionBase* UnaryPlusOperator::doClone() const {
-            return new UnaryPlusOperator(m_operand->clone(), m_line, m_column);
-        }
-
-        Value UnaryPlusOperator::doEvaluate(const EvaluationContext& context) const {
-            return Value(+m_operand->evaluate(context), m_line, m_column);
-        }
-
-        void UnaryPlusOperator::doAppendToStream(std::ostream& str) const {
-            str << "+" << *m_operand;
-        }
-
-        UnaryMinusOperator::UnaryMinusOperator(ExpressionBase* operand, const size_t line, const size_t column) :
-        UnaryOperator(operand, line, column) {}
-
-        ExpressionBase* UnaryMinusOperator::create(ExpressionBase* operand, const size_t line, const size_t column) {
-            return new UnaryMinusOperator(operand, line, column);
-        }
-
-        ExpressionBase* UnaryMinusOperator::doClone() const {
-            return new UnaryMinusOperator(m_operand->clone(), m_line, m_column);
-        }
-
-        Value UnaryMinusOperator::doEvaluate(const EvaluationContext& context) const {
-            return Value(-m_operand->evaluate(context), m_line, m_column);
-        }
-
-        void UnaryMinusOperator::doAppendToStream(std::ostream& str) const {
-            str << "-" << *m_operand;
-        }
-
-        LogicalNegationOperator::LogicalNegationOperator(ExpressionBase* operand, const size_t line, const size_t column) :
-        UnaryOperator(operand, line, column) {}
-
-        ExpressionBase* LogicalNegationOperator::create(ExpressionBase* operand, const size_t line, const size_t column) {
-            return new LogicalNegationOperator(operand, line, column);
-        }
-
-        ExpressionBase* LogicalNegationOperator::doClone() const  {
-            return new LogicalNegationOperator(m_operand->clone(), m_line, m_column);
-        }
-
-        Value LogicalNegationOperator::doEvaluate(const EvaluationContext& context) const {
-            return Value(!m_operand->evaluate(context), m_line, m_column);
-        }
-
-        void LogicalNegationOperator::doAppendToStream(std::ostream& str) const {
-            str << "!" << *m_operand;
-        }
-
-        BitwiseNegationOperator::BitwiseNegationOperator(ExpressionBase* operand, const size_t line, const size_t column) :
-        UnaryOperator(operand, line, column) {}
-
-        ExpressionBase* BitwiseNegationOperator::create(ExpressionBase* operand, const size_t line, const size_t column) {
-            return new BitwiseNegationOperator(operand, line, column);
-        }
-
-        ExpressionBase* BitwiseNegationOperator::doClone() const {
-            return new BitwiseNegationOperator(m_operand->clone(), m_line, m_column);
-        }
-
-        Value BitwiseNegationOperator::doEvaluate(const EvaluationContext& context) const {
-            return Value(~m_operand->evaluate(context), m_line, m_column);
-        }
-
-        void BitwiseNegationOperator::doAppendToStream(std::ostream& str) const {
-            str << "~" << *m_operand;
-        }
-
-        GroupingOperator::GroupingOperator(ExpressionBase* operand, const size_t line, const size_t column) :
-        UnaryOperator(operand, line, column) {}
-
-        ExpressionBase* GroupingOperator::create(ExpressionBase* operand, const size_t line, const size_t column) {
-            return new GroupingOperator(operand, line, column);
-        }
-
-        ExpressionBase* GroupingOperator::doClone() const {
-            return new GroupingOperator(m_operand->clone(), m_line, m_column);
-        }
-
-        Value GroupingOperator::doEvaluate(const EvaluationContext& context) const {
-            return Value(m_operand->evaluate(context), m_line, m_column);
-        }
-
-        void GroupingOperator::doAppendToStream(std::ostream& str) const {
-            str << "( " << *m_operand << " )";
-        }
-
-        SubscriptOperator::SubscriptOperator(ExpressionBase* indexableOperand, ExpressionBase* indexOperand, const size_t line, const size_t column) :
-        ExpressionBase(line, column),
-        m_indexableOperand(indexableOperand),
-        m_indexOperand(indexOperand) {
-            ensure(m_indexableOperand != nullptr, "indexableOperand is null");
-            ensure(m_indexOperand != nullptr, "indexOperand is null");
-        }
-
-        SubscriptOperator::~SubscriptOperator() = default;
-
-        ExpressionBase* SubscriptOperator::create(ExpressionBase* indexableOperand, ExpressionBase* indexOperand, const size_t line, const size_t column) {
-            return (new SubscriptOperator(indexableOperand, indexOperand, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* SubscriptOperator::doClone() const {
-            return new SubscriptOperator(m_indexableOperand->clone(), m_indexOperand->clone(), m_line, m_column);
-        }
-
-        ExpressionBase* SubscriptOperator::doOptimize() {
-            ExpressionBase* indexableOptimized = m_indexableOperand->optimize();
-            ExpressionBase* indexOptimized = m_indexOperand->optimize();
-
-            replaceExpression(m_indexableOperand, indexableOptimized);
-            replaceExpression(m_indexOperand, indexOptimized);
-
-            if (indexableOptimized != nullptr && indexOptimized != nullptr)
-                return LiteralExpression::create(evaluate(EvaluationContext()), m_line, m_column);
-
-            return nullptr;
-        }
-
-        Value SubscriptOperator::doEvaluate(const EvaluationContext& context) const {
-            const Value indexableValue = m_indexableOperand->evaluate(context);
-
-            EvaluationStack stack(context);
-            stack.declareVariable(RangeOperator::AutoRangeParameterName(), Value(indexableValue.length()-1, m_line, m_column));
-            const Value indexValue = m_indexOperand->evaluate(stack);
-
-            return indexableValue[indexValue];
-        }
-
-        void SubscriptOperator::doAppendToStream(std::ostream& str) const {
-            str << *m_indexableOperand << "[" << *m_indexOperand << "]";
-        }
-
-        BinaryOperator::BinaryOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
-        ExpressionBase(line, column),
-        m_leftOperand(leftOperand),
-        m_rightOperand(rightOperand) {
-            ensure(m_leftOperand != nullptr, "leftOperand is null");
-            ensure(m_rightOperand != nullptr, "rightOperand is null");
-        }
-
-        BinaryOperator::~BinaryOperator() = default;
-
-        ExpressionBase* BinaryOperator::doReorderByPrecedence() {
-            ExpressionBase* result = m_leftOperand->reorderByPrecedence(this);
-            if (result == this) {
-                result = m_rightOperand->reorderByPrecedence(this);
+        
+        std::optional<LiteralExpression> UnaryExpression::optimize() {
+            if (m_operand.optimize()) {
+                return LiteralExpression(evaluate(EvaluationContext()));
+            } else {
+                return std::nullopt;
             }
-            return result;
         }
 
-        ExpressionBase* BinaryOperator::doReorderByPrecedence(BinaryOperator* parent) {
-            assert(parent->m_leftOperand.get() == this || parent->m_rightOperand.get() == this);
-            if (parent->m_leftOperand.get() == this && precedence() < parent->precedence()) {
-                return parent->rotateLeftUp(this);
+        std::ostream& operator<<(std::ostream& str, const UnaryExpression& exp) {
+            switch (exp.m_operator) {
+                case UnaryOperator::Plus:
+                    str << "+" << exp.m_operand;
+                    break;
+                case UnaryOperator::Minus:
+                    str << "-" << exp.m_operand;
+                    break;
+                case UnaryOperator::LogicalNegation:
+                    str << "!" << exp.m_operand;
+                    break;
+                case UnaryOperator::BitwiseNegation:
+                    str << "~" << exp.m_operand;
+                    break;
+                case UnaryOperator::Group:
+                    str << "( " << exp.m_operand << " )";
+                    break;
+                switchDefault();
             }
-            if (parent->m_rightOperand.get() == this && precedence() < parent->precedence()) {
-                return parent->rotateRightUp(this);
+            return str;
+        }
+
+        BinaryExpression::BinaryExpression(BinaryOperator i_operator, Expression leftOperand, Expression rightOperand) :
+        m_operator(i_operator),
+        m_leftOperand(std::move(leftOperand)),
+        m_rightOperand(std::move(rightOperand)) {}
+
+        Expression BinaryExpression::createAutoRangeWithRightOperand(Expression rightOperand, const size_t line, const size_t column) {
+            auto leftOperand = Expression(VariableExpression(SubscriptExpression::AutoRangeParameterName()), line, column);
+            return EL::Expression(BinaryExpression(BinaryOperator::Range, std::move(leftOperand), std::move(rightOperand)), line, column);
+        }
+        
+        Expression BinaryExpression::createAutoRangeWithLeftOperand(Expression leftOperand, const size_t line, const size_t column) {
+            auto rightOperand = Expression(VariableExpression(SubscriptExpression::AutoRangeParameterName()), line, column);
+            return EL::Expression(BinaryExpression(BinaryOperator::Range, std::move(leftOperand), std::move(rightOperand)), line, column);
+        }
+
+        Value BinaryExpression::evaluate(const EvaluationContext& context) const {
+            switch (m_operator) {
+                case BinaryOperator::Addition:
+                    return Value(m_leftOperand.evaluate(context) + m_rightOperand.evaluate(context));
+                case BinaryOperator::Subtraction:
+                    return Value(m_leftOperand.evaluate(context) - m_rightOperand.evaluate(context));
+                case BinaryOperator::Multiplication:
+                    return Value(m_leftOperand.evaluate(context) * m_rightOperand.evaluate(context));
+                case BinaryOperator::Division:
+                    return Value(m_leftOperand.evaluate(context) / m_rightOperand.evaluate(context));
+                case BinaryOperator::Modulus:
+                    return Value(m_leftOperand.evaluate(context) % m_rightOperand.evaluate(context));
+                case BinaryOperator::LogicalAnd:
+                    return Value(m_leftOperand.evaluate(context) && m_rightOperand.evaluate(context));
+                case BinaryOperator::LogicalOr:
+                    return Value(m_leftOperand.evaluate(context) || m_rightOperand.evaluate(context));
+                case BinaryOperator::BitwiseAnd:
+                    return Value(m_leftOperand.evaluate(context) & m_rightOperand.evaluate(context));
+                case BinaryOperator::BitwiseXOr:
+                    return Value(m_leftOperand.evaluate(context) ^ m_rightOperand.evaluate(context));
+                case BinaryOperator::BitwiseOr:
+                    return Value(m_leftOperand.evaluate(context) | m_rightOperand.evaluate(context));
+                case BinaryOperator::BitwiseShiftLeft:
+                    return Value(m_leftOperand.evaluate(context) << m_rightOperand.evaluate(context));
+                case BinaryOperator::BitwiseShiftRight:
+                    return Value(m_leftOperand.evaluate(context) >> m_rightOperand.evaluate(context));
+                case BinaryOperator::Less:
+                    return Value(m_leftOperand.evaluate(context) < m_rightOperand.evaluate(context));
+                case BinaryOperator::LessOrEqual:
+                    return Value(m_leftOperand.evaluate(context) <= m_rightOperand.evaluate(context));
+                case BinaryOperator::Greater:
+                    return Value(m_leftOperand.evaluate(context) > m_rightOperand.evaluate(context));
+                case BinaryOperator::GreaterOrEqual:
+                    return Value(m_leftOperand.evaluate(context) >= m_rightOperand.evaluate(context));
+                case BinaryOperator::Equal:
+                    return Value(m_leftOperand.evaluate(context) == m_rightOperand.evaluate(context));
+                case BinaryOperator::NotEqual:
+                    return Value(m_leftOperand.evaluate(context) != m_rightOperand.evaluate(context));
+                case BinaryOperator::Range: {
+                    const auto leftValue = m_leftOperand.evaluate(context);
+                    const auto rightValue = m_rightOperand.evaluate(context);
+                    
+                    const auto from = static_cast<long>(leftValue.convertTo(ValueType::Number).numberValue());
+                    const auto to = static_cast<long>(rightValue.convertTo(ValueType::Number).numberValue());
+                    
+                    RangeType range;
+                    if (from <= to) {
+                        range.reserve(static_cast<size_t>(to - from + 1));
+                        for (long i = from; i <= to; ++i) {
+                            assert(range.capacity() > range.size());
+                            range.push_back(i);
+                        }
+                    } else if (to < from) {
+                        range.reserve(static_cast<size_t>(from - to + 1));
+                        for (long i = from; i >= to; --i) {
+                            assert(range.capacity() > range.size());
+                            range.push_back(i);
+                        }
+                    }
+                    assert(range.capacity() == range.size());
+
+                    return Value(std::move(range));
+                }
+                case BinaryOperator::Case: {
+                    const auto leftValue = m_leftOperand.evaluate(context);
+                    if (leftValue.convertTo(ValueType::Boolean)) {
+                        return m_rightOperand.evaluate(context);
+                    } else {
+                        return Value::Undefined;
+                    }
+                }
+                switchDefault();
+            };
+        }
+        
+        std::optional<LiteralExpression> BinaryExpression::optimize() {
+            const auto leftOptimized = m_leftOperand.optimize();
+            const auto rightOptimized = m_rightOperand.optimize();
+            if (leftOptimized && rightOptimized) {
+                return LiteralExpression(evaluate(EvaluationContext()));
+            } else {
+                return std::nullopt;
             }
-            return parent;
         }
 
-
-        BinaryOperator* BinaryOperator::rotateLeftUp(BinaryOperator* leftOperand) {
-            assert(m_leftOperand.get() == leftOperand);
-
-            m_leftOperand.release();
-            m_leftOperand = std::move(leftOperand->m_rightOperand);
-            leftOperand->m_rightOperand.reset(this);
-
-            return leftOperand;
+        size_t BinaryExpression::precedence() const {
+            switch (m_operator) {
+                case BinaryOperator::Multiplication:
+                case BinaryOperator::Division:
+                case BinaryOperator::Modulus:
+                    return 12;
+                case BinaryOperator::Addition:
+                case BinaryOperator::Subtraction:
+                    return 11;
+                case BinaryOperator::BitwiseShiftLeft:
+                case BinaryOperator::BitwiseShiftRight:
+                    return 10;
+                case BinaryOperator::Less:
+                case BinaryOperator::LessOrEqual:
+                case BinaryOperator::Greater:
+                case BinaryOperator::GreaterOrEqual:
+                    return 9;
+                case BinaryOperator::Equal:
+                case BinaryOperator::NotEqual:
+                    return 8;
+                case BinaryOperator::BitwiseAnd:
+                    return 7;
+                case BinaryOperator::BitwiseXOr:
+                    return 6;
+                case BinaryOperator::BitwiseOr:
+                    return 5;
+                case BinaryOperator::LogicalAnd:
+                    return 4;
+                case BinaryOperator::LogicalOr:
+                    return 3;
+                case BinaryOperator::Range:
+                    return 2;
+                case BinaryOperator::Case:
+                    return 1;
+                switchDefault();
+            };
         }
 
-        BinaryOperator* BinaryOperator::rotateRightUp(BinaryOperator* rightOperand) {
-            assert(m_rightOperand.get() == rightOperand);
-
-            m_rightOperand.release();
-            m_rightOperand = std::move(rightOperand->m_leftOperand);
-            rightOperand->m_leftOperand.reset(this);
-
-            return rightOperand;
+        std::ostream& operator<<(std::ostream& str, const BinaryExpression& exp) {
+            switch (exp.m_operator) {
+                case BinaryOperator::Addition:
+                    str << exp.m_leftOperand << " + " << exp.m_rightOperand;
+                    break;
+                case BinaryOperator::Subtraction:
+                    str << exp.m_leftOperand << " - " << exp.m_rightOperand;
+                    break;
+                case BinaryOperator::Multiplication:
+                    str << exp.m_leftOperand << " * " << exp.m_rightOperand;
+                    break;
+                case BinaryOperator::Division:
+                    str << exp.m_leftOperand << " / " << exp.m_rightOperand;
+                    break;
+                case BinaryOperator::Modulus:
+                    str << exp.m_leftOperand << " % " << exp.m_rightOperand;
+                    break;
+                case BinaryOperator::LogicalAnd:
+                    str << exp.m_leftOperand << " && " << exp.m_rightOperand;
+                    break;
+                case BinaryOperator::LogicalOr:
+                    str << exp.m_leftOperand << " || " << exp.m_rightOperand;
+                    break;
+                case BinaryOperator::BitwiseAnd:
+                    str << exp.m_leftOperand << " & " << exp.m_rightOperand;
+                    break;
+                case BinaryOperator::BitwiseXOr:
+                    str << exp.m_leftOperand << " ^ " << exp.m_rightOperand;
+                    break;
+                case BinaryOperator::BitwiseOr:
+                    str << exp.m_leftOperand << " | " << exp.m_rightOperand;
+                    break;
+                case BinaryOperator::BitwiseShiftLeft:
+                    str << exp.m_leftOperand << " << " << exp.m_rightOperand;
+                    break;
+                case BinaryOperator::BitwiseShiftRight:
+                    str << exp.m_leftOperand << " >> " << exp.m_rightOperand;
+                    break;
+                case BinaryOperator::Less:
+                    str << exp.m_leftOperand << " < " << exp.m_rightOperand;
+                    break;
+                case BinaryOperator::LessOrEqual:
+                    str << exp.m_leftOperand << " <= " << exp.m_rightOperand;
+                    break;
+                case BinaryOperator::Greater:
+                    str << exp.m_leftOperand << " > " << exp.m_rightOperand;
+                    break;
+                case BinaryOperator::GreaterOrEqual:
+                    str << exp.m_leftOperand << " >= " << exp.m_rightOperand;
+                    break;
+                case BinaryOperator::Equal:
+                    str << exp.m_leftOperand << " == " << exp.m_rightOperand;
+                    break;
+                case BinaryOperator::NotEqual:
+                    str << exp.m_leftOperand << " != " << exp.m_rightOperand;
+                    break;
+                case BinaryOperator::Range:
+                    str << exp.m_leftOperand << ".." << exp.m_rightOperand;
+                    break;
+                case BinaryOperator::Case:
+                    str << exp.m_leftOperand << " -> " << exp.m_rightOperand;
+                    break;
+                switchDefault();
+            };
+            return str;
         }
 
-        ExpressionBase* BinaryOperator::doOptimize() {
-            ExpressionBase* leftOptimized = m_leftOperand->optimize();
-            ExpressionBase* rightOptimized = m_rightOperand->optimize();
-
-            replaceExpression(m_leftOperand, leftOptimized);
-            replaceExpression(m_rightOperand, rightOptimized);
-
-            if (leftOptimized != nullptr && rightOptimized != nullptr)
-                return LiteralExpression::create(evaluate(EvaluationContext()), m_line, m_column);
-
-            return nullptr;
-        }
-
-        struct BinaryOperator::Traits {
-            size_t precedence;
-            bool associative;
-            bool commutative;
-
-            Traits(const size_t i_precedence, const bool i_associative, const bool i_commutative) :
-            precedence(i_precedence),
-            associative(i_associative),
-            commutative(i_commutative) {}
-        };
-
-        BinaryOperator::Traits BinaryOperator::traits() const {
-            return doGetTraits();
-        }
-
-        size_t BinaryOperator::precedence() const {
-            return traits().precedence;
-        }
-
-        bool BinaryOperator::associative() const {
-            return traits().associative;
-        }
-
-        bool BinaryOperator::commutative() const {
-            return traits().commutative;
-        }
-
-        AdditionOperator::AdditionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
-        BinaryOperator(leftOperand, rightOperand, line, column) {}
-
-        ExpressionBase* AdditionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new AdditionOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* AdditionOperator::doClone() const {
-            return new AdditionOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
-        }
-
-        Value AdditionOperator::doEvaluate(const EvaluationContext& context) const {
-            const Value leftValue = m_leftOperand->evaluate(context);
-            const Value rightValue = m_rightOperand->evaluate(context);
-            return Value(leftValue + rightValue, m_line, m_column);
-        }
-
-        void AdditionOperator::doAppendToStream(std::ostream& str) const {
-            str << *m_leftOperand << " + " << *m_rightOperand;
-        }
-
-        BinaryOperator::Traits AdditionOperator::doGetTraits() const {
-            return Traits(10, true, true);
-        }
-
-        SubtractionOperator::SubtractionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
-        BinaryOperator(leftOperand, rightOperand, line, column) {}
-
-        ExpressionBase* SubtractionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new SubtractionOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* SubtractionOperator::doClone() const {
-            return new SubtractionOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
-        }
-
-        Value SubtractionOperator::doEvaluate(const EvaluationContext& context) const {
-            const Value leftValue = m_leftOperand->evaluate(context);
-            const Value rightValue = m_rightOperand->evaluate(context);
-            return Value(leftValue - rightValue, m_line, m_column);
-        }
-
-        void SubtractionOperator::doAppendToStream(std::ostream& str) const {
-            str << *m_leftOperand << " - " << *m_rightOperand;
-        }
-
-        BinaryOperator::Traits SubtractionOperator::doGetTraits() const {
-            return Traits(10, false, false);
-        }
-
-        MultiplicationOperator::MultiplicationOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
-        BinaryOperator(leftOperand, rightOperand, line, column) {}
-
-        ExpressionBase* MultiplicationOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new MultiplicationOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* MultiplicationOperator::doClone() const {
-            return new MultiplicationOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
-        }
-
-        Value MultiplicationOperator::doEvaluate(const EvaluationContext& context) const {
-            const Value leftValue = m_leftOperand->evaluate(context);
-            const Value rightValue = m_rightOperand->evaluate(context);
-            return Value(leftValue * rightValue, m_line, m_column);
-        }
-
-        void MultiplicationOperator::doAppendToStream(std::ostream& str) const {
-            str << *m_leftOperand << " * " << *m_rightOperand;
-        }
-
-        BinaryOperator::Traits MultiplicationOperator::doGetTraits() const {
-            return Traits(11, true, true);
-        }
-
-        DivisionOperator::DivisionOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
-        BinaryOperator(leftOperand, rightOperand, line, column) {}
-
-        ExpressionBase* DivisionOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new DivisionOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* DivisionOperator::doClone() const {
-            return new DivisionOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
-        }
-
-        Value DivisionOperator::doEvaluate(const EvaluationContext& context) const {
-            const Value leftValue = m_leftOperand->evaluate(context);
-            const Value rightValue = m_rightOperand->evaluate(context);
-            return Value(leftValue / rightValue, m_line, m_column);
-        }
-
-        void DivisionOperator::doAppendToStream(std::ostream& str) const {
-            str << *m_leftOperand << " / " << *m_rightOperand;
-        }
-
-        BinaryOperator::Traits DivisionOperator::doGetTraits() const {
-            return Traits(11, false, false);
-        }
-
-        ModulusOperator::ModulusOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
-        BinaryOperator(leftOperand, rightOperand, line, column) {}
-
-        ExpressionBase* ModulusOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new ModulusOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* ModulusOperator::doClone() const {
-            return new ModulusOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
-        }
-
-        Value ModulusOperator::doEvaluate(const EvaluationContext& context) const {
-            const Value leftValue = m_leftOperand->evaluate(context);
-            const Value rightValue = m_rightOperand->evaluate(context);
-            return Value(leftValue % rightValue, m_line, m_column);
-        }
-
-        void ModulusOperator::doAppendToStream(std::ostream& str) const {
-            str << *m_leftOperand << " % " << *m_rightOperand;
-        }
-
-        BinaryOperator::Traits ModulusOperator::doGetTraits() const {
-            return Traits(11, false, false);
-        }
-
-        const std::string& RangeOperator::AutoRangeParameterName() {
+        const std::string& SubscriptExpression::AutoRangeParameterName() {
             static const std::string Name = "__AutoRangeParameter";
             return Name;
         }
 
-        LogicalAndOperator::LogicalAndOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
-        BinaryOperator(leftOperand, rightOperand, line, column) {}
-
-        ExpressionBase* LogicalAndOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new LogicalAndOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
+        SubscriptExpression::SubscriptExpression(Expression leftOperand, Expression rightOperand) :
+        m_leftOperand(std::move(leftOperand)),
+        m_rightOperand(std::move(rightOperand)) {}
+        
+        Value SubscriptExpression::evaluate(const EvaluationContext& context) const {
+            const auto leftValue = m_leftOperand.evaluate(context);
+            
+            EvaluationStack stack(context);
+            stack.declareVariable(AutoRangeParameterName(), Value(leftValue.length() - 1u));
+            
+            const auto rightValue = m_rightOperand.evaluate(stack);
+            return leftValue[rightValue];
         }
-
-        ExpressionBase* LogicalAndOperator::doClone() const {
-            return new LogicalAndOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
-        }
-
-        Value LogicalAndOperator::doEvaluate(const EvaluationContext& context) const {
-            return Value(m_leftOperand->evaluate(context) && m_rightOperand->evaluate(context), m_line, m_column);
-        }
-
-        void LogicalAndOperator::doAppendToStream(std::ostream& str) const {
-            str << *m_leftOperand << " && " << *m_rightOperand;
-        }
-
-        BinaryOperator::Traits LogicalAndOperator::doGetTraits() const {
-            return Traits(3, true, true);
-        }
-
-        LogicalOrOperator::LogicalOrOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
-        BinaryOperator(leftOperand, rightOperand, line, column) {}
-
-        ExpressionBase* LogicalOrOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new LogicalOrOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* LogicalOrOperator::doClone() const {
-            return new LogicalOrOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
-        }
-
-        Value LogicalOrOperator::doEvaluate(const EvaluationContext& context) const {
-            return Value(m_leftOperand->evaluate(context) || m_rightOperand->evaluate(context), m_line, m_column);
-        }
-
-        void LogicalOrOperator::doAppendToStream(std::ostream& str) const {
-            str << *m_leftOperand << " || " << *m_rightOperand;
-        }
-
-        BinaryOperator::Traits LogicalOrOperator::doGetTraits() const {
-            return Traits(2, true, true);
-        }
-
-        BitwiseAndOperator::BitwiseAndOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
-        BinaryOperator(leftOperand, rightOperand, line, column) {}
-
-        ExpressionBase* BitwiseAndOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new BitwiseAndOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* BitwiseAndOperator::doClone() const {
-            return new BitwiseAndOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
-        }
-
-        Value BitwiseAndOperator::doEvaluate(const EvaluationContext& context) const {
-            return Value(m_leftOperand->evaluate(context) & m_rightOperand->evaluate(context), m_line, m_column);
-        }
-
-        void BitwiseAndOperator::doAppendToStream(std::ostream& str) const {
-            str << *m_leftOperand << " & " << *m_rightOperand;
-        }
-
-        BinaryOperator::Traits BitwiseAndOperator::doGetTraits() const {
-            return Traits(6, true, true);
-        }
-
-        BitwiseXorOperator::BitwiseXorOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
-        BinaryOperator(leftOperand, rightOperand, line, column) {}
-
-        ExpressionBase* BitwiseXorOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new BitwiseXorOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* BitwiseXorOperator::doClone() const {
-            return new BitwiseXorOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
-        }
-
-        Value BitwiseXorOperator::doEvaluate(const EvaluationContext& context) const {
-            return Value(m_leftOperand->evaluate(context) ^ m_rightOperand->evaluate(context), m_line, m_column);
-        }
-
-        void BitwiseXorOperator::doAppendToStream(std::ostream& str) const {
-            str << *m_leftOperand << " ^ " << *m_rightOperand;
-        }
-
-        BinaryOperator::Traits BitwiseXorOperator::doGetTraits() const {
-            return Traits(5, true, true);
-        }
-
-        BitwiseOrOperator::BitwiseOrOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
-        BinaryOperator(leftOperand, rightOperand, line, column) {}
-
-        ExpressionBase* BitwiseOrOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new BitwiseOrOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* BitwiseOrOperator::doClone() const {
-            return new BitwiseOrOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
-        }
-
-        Value BitwiseOrOperator::doEvaluate(const EvaluationContext& context) const {
-            return Value(m_leftOperand->evaluate(context) | m_rightOperand->evaluate(context), m_line, m_column);
-        }
-
-        void BitwiseOrOperator::doAppendToStream(std::ostream& str) const {
-            str << *m_leftOperand << " | " << *m_rightOperand;
-        }
-
-        BinaryOperator::Traits BitwiseOrOperator::doGetTraits() const {
-            return Traits(4, true, true);
-        }
-
-        BitwiseShiftLeftOperator::BitwiseShiftLeftOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
-        BinaryOperator(leftOperand, rightOperand, line, column) {}
-
-        ExpressionBase* BitwiseShiftLeftOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new BitwiseShiftLeftOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* BitwiseShiftLeftOperator::doClone() const {
-            return new BitwiseShiftLeftOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
-        }
-
-        Value BitwiseShiftLeftOperator::doEvaluate(const EvaluationContext& context) const {
-            return Value(m_leftOperand->evaluate(context) << m_rightOperand->evaluate(context), m_line, m_column);
-        }
-
-        void BitwiseShiftLeftOperator::doAppendToStream(std::ostream& str) const {
-            str << *m_leftOperand << " << " << *m_rightOperand;
-        }
-
-        BinaryOperator::Traits BitwiseShiftLeftOperator::doGetTraits() const {
-            return Traits(9, true, true);
-        }
-
-        BitwiseShiftRightOperator::BitwiseShiftRightOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
-        BinaryOperator(leftOperand, rightOperand, line, column) {}
-
-        ExpressionBase* BitwiseShiftRightOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new BitwiseShiftRightOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* BitwiseShiftRightOperator::doClone() const {
-            return new BitwiseShiftRightOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
-        }
-
-        Value BitwiseShiftRightOperator::doEvaluate(const EvaluationContext& context) const {
-            return Value(m_leftOperand->evaluate(context) >> m_rightOperand->evaluate(context), m_line, m_column);
-        }
-
-        void BitwiseShiftRightOperator::doAppendToStream(std::ostream& str) const {
-            str << *m_leftOperand << " >> " << *m_rightOperand;
-        }
-
-        BinaryOperator::Traits BitwiseShiftRightOperator::doGetTraits() const {
-            return Traits(9, true, true);
-        }
-
-        ComparisonOperator::ComparisonOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const Op op, const size_t line, const size_t column) :
-        BinaryOperator(leftOperand, rightOperand, line, column),
-        m_op(op) {}
-
-        ExpressionBase* ComparisonOperator::createLess(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new ComparisonOperator(leftOperand, rightOperand, Op_Less, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* ComparisonOperator::createLessOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new ComparisonOperator(leftOperand, rightOperand, Op_LessOrEqual, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* ComparisonOperator::createEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new ComparisonOperator(leftOperand, rightOperand, Op_Equal, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* ComparisonOperator::createInequal(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new ComparisonOperator(leftOperand, rightOperand, Op_Inequal, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* ComparisonOperator::createGreaterOrEqual(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new ComparisonOperator(leftOperand, rightOperand, Op_GreaterOrEqual, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* ComparisonOperator::createGreater(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new ComparisonOperator(leftOperand, rightOperand, Op_Greater, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* ComparisonOperator::doClone() const {
-            return new ComparisonOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_op, m_line, m_column);
-        }
-
-        Value ComparisonOperator::doEvaluate(const EvaluationContext& context) const {
-            switch (m_op) {
-                case Op_Less:
-                    return Value(m_leftOperand->evaluate(context) < m_rightOperand->evaluate(context), m_line, m_column);
-                case Op_LessOrEqual:
-                    return Value(m_leftOperand->evaluate(context) <= m_rightOperand->evaluate(context), m_line, m_column);
-                case Op_Equal:
-                    return Value(m_leftOperand->evaluate(context) == m_rightOperand->evaluate(context), m_line, m_column);
-                case Op_Inequal:
-                    return Value(m_leftOperand->evaluate(context) != m_rightOperand->evaluate(context), m_line, m_column);
-                case Op_GreaterOrEqual:
-                    return Value(m_leftOperand->evaluate(context) >= m_rightOperand->evaluate(context), m_line, m_column);
-                case Op_Greater:
-                    return Value(m_leftOperand->evaluate(context) > m_rightOperand->evaluate(context), m_line, m_column);
-                    switchDefault()
+        
+        std::optional<LiteralExpression> SubscriptExpression::optimize() {
+            if (m_leftOperand.optimize() && m_rightOperand.optimize()) {
+                return LiteralExpression(evaluate(EvaluationContext()));
+            } else {
+                return std::nullopt;
             }
         }
 
-        void ComparisonOperator::doAppendToStream(std::ostream& str) const {
-            str << *m_leftOperand;
-            switch (m_op) {
-                case Op_Less:
-                    str << " < ";
-                    break;
-                case Op_LessOrEqual:
-                    str << " <= ";
-                    break;
-                case Op_Equal:
-                    str << " == ";
-                    break;
-                case Op_Inequal:
-                    str << " != ";
-                    break;
-                case Op_GreaterOrEqual:
-                    str << " >= ";
-                    break;
-                case Op_Greater:
-                    str << " > ";
-                    break;
-                switchDefault()
-            }
-            str << *m_rightOperand;
+        std::ostream& operator<<(std::ostream& str, const SubscriptExpression& exp) {
+            str << exp.m_leftOperand << "[" << exp.m_rightOperand << "]";
+            return str;
         }
 
-        BinaryOperator::Traits ComparisonOperator::doGetTraits() const {
-            switch (m_op) {
-                case Op_Less:
-                case Op_LessOrEqual:
-                case Op_Greater:
-                case Op_GreaterOrEqual:
-                    return Traits(8, false, false);
-                case Op_Equal:
-                case Op_Inequal:
-                    return Traits(7, true, false);
-                    switchDefault()
-            }
-        }
-
-        RangeOperator::RangeOperator(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) :
-        BinaryOperator(leftOperand, rightOperand, line, column) {}
-
-        ExpressionBase* RangeOperator::create(ExpressionBase* leftOperand, ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return (new RangeOperator(leftOperand, rightOperand, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* RangeOperator::createAutoRangeWithLeftOperand(ExpressionBase* leftOperand, const size_t line, const size_t column) {
-            return create(leftOperand, VariableExpression::create(AutoRangeParameterName(), line, column), line, column);
-        }
-
-        ExpressionBase* RangeOperator::createAutoRangeWithRightOperand(ExpressionBase* rightOperand, const size_t line, const size_t column) {
-            return create(VariableExpression::create(AutoRangeParameterName(), line, column), rightOperand, line, column);
-        }
-
-        ExpressionBase* RangeOperator::doClone() const {
-            return new RangeOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
-        }
-
-        Value RangeOperator::doEvaluate(const EvaluationContext& context) const {
-            const Value leftValue = m_leftOperand->evaluate(context);
-            const Value rightValue = m_rightOperand->evaluate(context);
-
-            const long from = static_cast<long>(leftValue.convertTo(ValueType::Number).numberValue());
-            const long to = static_cast<long>(rightValue.convertTo(ValueType::Number).numberValue());
-
-            RangeType range;
-            if (from <= to) {
-                range.reserve(static_cast<size_t>(to - from + 1));
-                for (long i = from; i <= to; ++i) {
-                    assert(range.capacity() > range.size());
-                    range.push_back(i);
-                }
-            } else if (to < from) {
-                range.reserve(static_cast<size_t>(from - to + 1));
-                for (long i = from; i >= to; --i) {
-                    assert(range.capacity() > range.size());
-                    range.push_back(i);
-                }
-            }
-            assert(range.capacity() == range.size());
-
-            return Value(range, m_line, m_column);
-        }
-
-        void RangeOperator::doAppendToStream(std::ostream& str) const {
-            str << *m_leftOperand << ".." << *m_rightOperand;
-        }
-
-        BinaryOperator::Traits RangeOperator::doGetTraits() const {
-            return Traits(1, false, false);
-        }
-
-        CaseOperator::CaseOperator(ExpressionBase* premise, ExpressionBase* conclusion, size_t line, size_t column) :
-        BinaryOperator(premise, conclusion, line, column) {}
-
-        ExpressionBase* CaseOperator::create(ExpressionBase* premise, ExpressionBase* conclusion, size_t line, size_t column) {
-            return (new CaseOperator(premise, conclusion, line, column))->reorderByPrecedence();
-        }
-
-        ExpressionBase* CaseOperator::doClone() const {
-            return new CaseOperator(m_leftOperand->clone(), m_rightOperand->clone(), m_line, m_column);
-        }
-
-        Value CaseOperator::doEvaluate(const EvaluationContext& context) const {
-            const Value premise = m_leftOperand->evaluate(context);
-            if (premise.convertTo(ValueType::Boolean))
-                return m_rightOperand->evaluate(context);
-            return Value::Undefined;
-        }
-
-        void CaseOperator::doAppendToStream(std::ostream& str) const {
-            str << *m_leftOperand << " -> " << *m_rightOperand;
-        }
-
-        BinaryOperator::Traits CaseOperator::doGetTraits() const {
-            return Traits(0, false, false);
-        }
-
-        SwitchOperator::SwitchOperator(ExpressionBase::List&& cases, size_t line, size_t column) :
-        ExpressionBase(line, column),
+        SwitchExpression::SwitchExpression(std::vector<Expression> cases) :
         m_cases(std::move(cases)) {}
 
-        SwitchOperator::~SwitchOperator() = default;
-
-        ExpressionBase* SwitchOperator::create(ExpressionBase::List&& cases, size_t line, size_t column) {
-            return new SwitchOperator(std::move(cases), line, column);
-        }
-
-        ExpressionBase* SwitchOperator::doOptimize() {
-            for (auto& case_ : m_cases) {
-                ExpressionBase* optimized = case_->optimize();
-
-                if (optimized != nullptr && optimized != case_.get()) {
-                    const Value result = optimized->evaluate(EvaluationContext());
-                    if (!result.undefined()) {
-                        return LiteralExpression::create(result, m_line, m_column);
-                    }
-
-                    case_.reset(optimized);
-                }
-            }
-
-            return nullptr;
-        }
-
-        ExpressionBase* SwitchOperator::doClone() const {
-            ExpressionBase::List caseClones;
+        Value SwitchExpression::evaluate(const EvaluationContext& context) const {
             for (const auto& case_ : m_cases) {
-                caseClones.emplace_back(case_->clone());
-            }
-            return new SwitchOperator(std::move(caseClones), m_line, m_column);
-        }
-
-        Value SwitchOperator::doEvaluate(const EvaluationContext& context) const {
-            for (const auto& case_ : m_cases) {
-                const Value result = case_->evaluate(context);
-                if (!result.undefined())
+                Value result = case_.evaluate(context);
+                if (!result.undefined()) {
                     return result;
+                }
             }
             return Value::Undefined;
         }
+        
+        std::optional<LiteralExpression> SwitchExpression::optimize() {
+            bool allOptimized = true;
+            
+            for (auto& case_ : m_cases) {
+                allOptimized &= case_.optimize();
+                if (allOptimized) {
+                    auto result = case_.evaluate(EvaluationContext());
+                    if (!result.undefined()) {
+                        return LiteralExpression(std::move(result));
+                    }
+                }
+            }
+            
+            return std::nullopt;
+        }
 
-        void SwitchOperator::doAppendToStream(std::ostream& str) const {
+        std::ostream& operator<<(std::ostream& str, const SwitchExpression& exp) {
             str << "{{ ";
-            size_t i = 0;
-            for (const auto& expression : m_cases) {
-                str << *expression;
-                if (i < m_cases.size() - 1)
+            size_t i = 0u;
+            for (const auto& case_ : exp.m_cases) {
+                str << case_;
+                if (i < exp.m_cases.size() - 1u) {
                     str << ", ";
+                }
                 ++i;
             }
             str << " }}";
+            return str;
         }
     }
 }

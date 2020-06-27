@@ -69,9 +69,9 @@ namespace TrenchBroom {
             EL::Expression parse(ParserStatus& status);
         private:
             EL::Expression parseModelDefinition(ParserStatus& status);
-            EL::ExpressionBase* parseStaticModelDefinition(ParserStatus& status);
-            EL::ExpressionBase* parseDynamicModelDefinition(ParserStatus& status);
-            EL::ExpressionBase* parseNamedValue(ParserStatus& status, const std::string& name);
+            EL::Expression parseStaticModelDefinition(ParserStatus& status);
+            EL::Expression parseDynamicModelDefinition(ParserStatus& status);
+            EL::Expression parseNamedValue(ParserStatus& status, const std::string& name);
         private:
             TokenNameMap tokenNames() const override;
         };

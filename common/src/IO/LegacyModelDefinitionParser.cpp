@@ -94,15 +94,15 @@ namespace TrenchBroom {
 
             expect(status, MdlToken::String | MdlToken::Word | MdlToken::CParenthesis, token);
             if (token.hasType(MdlToken::CParenthesis))
-                return EL::Expression(EL::LiteralExpression::create(EL::Value::Undefined, token.line(), token.column()));
+                return EL::Expression(EL::LiteralExpression(EL::Value::Undefined), token.line(), token.column());
 
-            EL::ExpressionBase::List modelExpressions;
+            std::vector<EL::Expression> modelExpressions;
             do {
                 expect(status, MdlToken::String | MdlToken::Word, token = m_tokenizer.peekToken());
                 if (token.hasType(MdlToken::String))
-                    modelExpressions.emplace_back(parseStaticModelDefinition(status));
+                    modelExpressions.push_back(parseStaticModelDefinition(status));
                 else
-                    modelExpressions.emplace_back(parseDynamicModelDefinition(status));
+                    modelExpressions.push_back(parseDynamicModelDefinition(status));
                 expect(status, MdlToken::Comma | MdlToken::CParenthesis, token = m_tokenizer.peekToken());
                 if (token.hasType(MdlToken::Comma))
                     m_tokenizer.nextToken();
@@ -110,10 +110,10 @@ namespace TrenchBroom {
 
             // The legacy model expressions are evaluated back to front.
             std::reverse(std::begin(modelExpressions), std::end(modelExpressions));
-            return EL::Expression(EL::SwitchOperator::create(std::move(modelExpressions), startLine, startColumn));
+            return EL::Expression(EL::SwitchExpression(std::move(modelExpressions)), startLine, startColumn);
         }
 
-        EL::ExpressionBase* LegacyModelDefinitionParser::parseStaticModelDefinition(ParserStatus& status) {
+        EL::Expression LegacyModelDefinitionParser::parseStaticModelDefinition(ParserStatus& status) {
             Token token = m_tokenizer.nextToken();
             expect(status, MdlToken::String, token);
             const size_t startLine = token.line();
@@ -142,53 +142,54 @@ namespace TrenchBroom {
                     map["frame"] = EL::Value(indices[1]);
             }
 
-            EL::ExpressionBase* modelExpression = EL::LiteralExpression::create(EL::Value(map), startLine, startColumn);
+            EL::Expression modelExpression = EL::Expression(EL::LiteralExpression(EL::Value(std::move(map))), startLine, startColumn);
 
             if (token.hasType(MdlToken::Word)) {
                 token = m_tokenizer.nextToken();
 
-                const std::string attributeKey = token.data();
+                std::string attributeKey = token.data();
                 const size_t line = token.line();
                 const size_t column = token.column();
-                EL::ExpressionBase* keyExpression = EL::VariableExpression::create(attributeKey, line, column);
+                EL::Expression keyExpression = EL::Expression(EL::VariableExpression(std::move(attributeKey)), line, column);
 
                 expect(status, MdlToken::Equality, token = m_tokenizer.nextToken());
 
                 expect(status, MdlToken::String | MdlToken::Integer, token = m_tokenizer.nextToken());
                 if (token.hasType(MdlToken::String)) {
-                    const std::string attributeValue = token.data();
-                    EL::ExpressionBase* valueExpression = EL::LiteralExpression::create(EL::Value(attributeValue), token.line(), token.column());
-                    EL::ExpressionBase* premiseExpression = EL::ComparisonOperator::createEqual(keyExpression, valueExpression, line, column);
+                    std::string attributeValue = token.data();
+                    EL::Expression valueExpression = EL::Expression(EL::LiteralExpression(EL::Value(std::move(attributeValue))), token.line(), token.column());
+                    EL::Expression premiseExpression = EL::Expression(EL::BinaryExpression(EL::BinaryOperator::Equal, std::move(keyExpression), std::move(valueExpression)), line, column);
 
-                    return EL::CaseOperator::create(premiseExpression, modelExpression, startLine, startColumn);
+                    return EL::Expression(EL::BinaryExpression(EL::BinaryOperator::Case, std::move(premiseExpression), std::move(modelExpression)), startLine, startColumn);
                 } else {
                     const int flagValue = token.toInteger<int>();
-                    EL::ExpressionBase* valueExpression = EL::LiteralExpression::create(EL::Value(flagValue), token.line(), token.column());
-                    EL::ExpressionBase* premiseExpression = EL::ComparisonOperator::createEqual(keyExpression, valueExpression, line, column);
+                    EL::Expression valueExpression = EL::Expression(EL::LiteralExpression(EL::Value(flagValue)), token.line(), token.column());
+                    EL::Expression premiseExpression = EL::Expression(EL::BinaryExpression(EL::BinaryOperator::Equal, std::move(keyExpression), std::move(valueExpression)), line, column);
 
-                    return EL::CaseOperator::create(premiseExpression, modelExpression, startLine, startColumn);
+                    return EL::Expression(EL::BinaryExpression(EL::BinaryOperator::Case, std::move(premiseExpression), std::move(modelExpression)), startLine, startColumn);
                 }
             } else {
                 return modelExpression;
             }
         }
 
-        EL::ExpressionBase* LegacyModelDefinitionParser::parseDynamicModelDefinition(ParserStatus& status) {
+        EL::Expression LegacyModelDefinitionParser::parseDynamicModelDefinition(ParserStatus& status) {
             Token token = m_tokenizer.peekToken();
             const size_t line = token.line();
             const size_t column = token.column();
 
-            EL::ExpressionBase::Map map;
-            map["path"] = std::unique_ptr<EL::ExpressionBase>(parseNamedValue(status, "pathKey"));
+            std::map<std::string, EL::Expression> map({
+                { "path", parseNamedValue(status, "pathKey")}
+            });
 
             expect(status, MdlToken::Word | MdlToken::CParenthesis, token = m_tokenizer.peekToken());
 
             if (!token.hasType(MdlToken::CParenthesis)) {
                 do {
                     if (kdl::ci::str_is_equal("skinKey", token.data())) {
-                        map["skin"] = std::unique_ptr<EL::ExpressionBase>(parseNamedValue(status, "skinKey"));
+                        map.insert({ "skin", parseNamedValue(status, "skinKey") });
                     } else if (kdl::ci::str_is_equal("frameKey", token.data())) {
-                        map["frame"] = std::unique_ptr<EL::ExpressionBase>(parseNamedValue(status, "frameKey"));
+                        map.insert({ "frame", parseNamedValue(status, "frameKey") });
                     } else {
                         const std::string msg = "Expected 'skinKey' or 'frameKey', but found '" + token.data() + "'";
                         status.error(token.line(), token.column(), msg);
@@ -197,10 +198,10 @@ namespace TrenchBroom {
                 } while (expect(status, MdlToken::Word | MdlToken::CParenthesis, token = m_tokenizer.peekToken()).hasType(MdlToken::Word));
             }
 
-            return EL::MapExpression::create(std::move(map), line, column);
+            return EL::Expression(EL::MapExpression(std::move(map)), line, column);
         }
 
-        EL::ExpressionBase* LegacyModelDefinitionParser::parseNamedValue(ParserStatus& status, const std::string& name) {
+        EL::Expression LegacyModelDefinitionParser::parseNamedValue(ParserStatus& status, const std::string& name) {
             Token token;
             expect(status, MdlToken::Word, token = m_tokenizer.nextToken());
 
@@ -212,7 +213,7 @@ namespace TrenchBroom {
             expect(status, MdlToken::Equality, token = m_tokenizer.nextToken());
             expect(status, MdlToken::String, token = m_tokenizer.nextToken());
 
-            return EL::VariableExpression::create(token.data(), line, column);
+            return EL::Expression(EL::VariableExpression(token.data()), line, column);
         }
 
         LegacyModelDefinitionParser::TokenNameMap LegacyModelDefinitionParser::tokenNames() const {
