@@ -526,7 +526,7 @@ namespace TrenchBroom {
 
 #if defined(_WIN32) && defined(_MSC_VER)
         LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs) {
-            reportCrashAndExit(TrenchBroomStackWalker::getStackTraceFromContext(pExceptionPtrs->ContextRecord), "TrenchBroomUnhandledExceptionFilter");
+            reportCrashAndExit(TrenchBroomStackWalker::getStackTraceFromContext(pExceptionPtrs->ContextRecord), std::to_string(pExceptionPtrs->ExceptionRecord->ExceptionCode));
             // return EXCEPTION_EXECUTE_HANDLER; unreachable
         }
 #else
@@ -607,12 +607,24 @@ namespace TrenchBroom {
          * and catch exceptions there instead.
          */
         bool TrenchBroomApp::notify(QObject* receiver, QEvent* event) {
+#ifdef _MSC_VER
+            __try {
+                return QApplication::notify(receiver, event);
+
+                // We have to choose between capturing the stack trace (using __try/__except) and
+                // getting the C++ exception object (using C++ try/catch) - take the stack trace.
+            } __except (TrenchBroomUnhandledExceptionFilter(GetExceptionInformation())) {
+                // Unreachable, see TrenchBroomUnhandledExceptionFilter
+                return false;
+            }
+#else
             try {
                 return QApplication::notify(receiver, event);
             } catch (const std::exception& e) {
                 // Unfortunately we can't portably get the stack trace of the exception itself
                 TrenchBroom::View::reportCrashAndExit("<uncaught exception>", e.what());
             }
+#endif
         }
 
 #ifdef __APPLE__
