@@ -235,7 +235,7 @@ namespace TrenchBroom {
 
         void MapReader::createBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             try {
-                Model::BrushNode* brush = m_factory->createBrush(Model::Brush(m_worldBounds, std::move(m_faces)));
+                Model::BrushNode* brush = m_factory->createBrush(Model::Brush::create(m_worldBounds, std::move(m_faces)));
                 setFilePosition(brush, startLine, lineCount);
                 setExtraAttributes(brush, extraAttributes);
 

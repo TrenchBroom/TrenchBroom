@@ -105,7 +105,7 @@ namespace TrenchBroom {
                 bounds.min + vm::vec3::pos_y(),
                 BrushFaceAttributes(bottomTexture, m_defaultAttribs)));
 
-            return Brush(m_worldBounds, std::move(faces));
+            return Brush::create(m_worldBounds, std::move(faces));
         }
         
         Brush BrushBuilder::createBrush(const std::vector<vm::vec3>& points, const std::string& textureName) const {
@@ -135,7 +135,7 @@ namespace TrenchBroom {
                 brushFaces.push_back(m_factory->createFace(p1, p3, p2, textureName));
             }
 
-            return Brush(m_worldBounds, std::move(brushFaces));
+            return Brush::create(m_worldBounds, std::move(brushFaces));
         }
     }
 }

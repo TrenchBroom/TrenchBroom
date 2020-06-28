@@ -51,19 +51,14 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Brush::Brush() {}
-
-        Brush::Brush(const vm::bbox3& worldBounds, std::vector<BrushFace> faces) :
-        m_faces(std::move(faces)) {
-            updateGeometryFromFaces(worldBounds);
-        }
-
         class Brush::CopyCallback : public BrushGeometry::CopyCallback {
         public:
             void faceWasCopied(const BrushFaceGeometry* original, BrushFaceGeometry* copy) const override {
                 copy->setPayload(original->payload());
             }
         };
+
+        Brush::Brush() {}
 
         Brush::Brush(const Brush& other) :
         m_faces(other.m_faces),
@@ -95,6 +90,15 @@ namespace TrenchBroom {
         }
         
         Brush::~Brush() = default;
+
+        Brush::Brush(std::vector<BrushFace> faces) :
+        m_faces(std::move(faces)) {}
+
+        Brush Brush::create(const vm::bbox3& worldBounds, std::vector<BrushFace> faces) {
+            Brush brush(std::move(faces));
+            brush.updateGeometryFromFaces(worldBounds);
+            return brush;
+        }
 
         void Brush::updateGeometryFromFaces(const vm::bbox3& worldBounds) {
             // First, add all faces to the brush geometry
@@ -264,7 +268,7 @@ namespace TrenchBroom {
             }
 
             try {
-                const auto testBrush = Brush(worldBounds, std::move(testFaces));
+                const auto testBrush = Brush::create(worldBounds, std::move(testFaces));
                 const auto inWorldBounds = worldBounds.contains(testBrush.bounds());
                 const auto closed = testBrush.closed();
                 const auto allFaces = testBrush.faceCount() == faceCount();
@@ -970,7 +974,7 @@ namespace TrenchBroom {
                 faces.push_back(factory.createFace(p0, p1, p2, attribs));
             }
 
-            auto brush = Brush(worldBounds, std::move(faces));
+            auto brush = Brush::create(worldBounds, std::move(faces));
             brush.cloneFaceAttributesFrom(*this);
             for (const auto* subtrahend : subtrahends) {
                 brush.cloneInvertedFaceAttributesFrom(*subtrahend);

@@ -36,7 +36,7 @@ namespace TrenchBroom {
         }
 
         void BrushSnapshot::doRestore(const vm::bbox3& worldBounds) {
-            m_brushNode->setBrush(Brush(worldBounds, std::move(m_faces)));
+            m_brushNode->setBrush(Brush::create(worldBounds, std::move(m_faces)));
         }
     }
 }
