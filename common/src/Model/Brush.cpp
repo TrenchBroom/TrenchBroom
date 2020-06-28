@@ -96,11 +96,14 @@ namespace TrenchBroom {
 
         Brush Brush::create(const vm::bbox3& worldBounds, std::vector<BrushFace> faces) {
             Brush brush(std::move(faces));
-            brush.updateGeometryFromFaces(worldBounds);
-            return brush;
+            return brush.updateGeometryFromFaces(worldBounds)
+                .visit(kdl::overload {
+                    [&]() -> Brush { return brush; },
+                    [](const BrushError& e) -> Brush { throw GeometryException(kdl::str_to_string(e)); } // TODO 2983
+                });
         }
 
-        void Brush::updateGeometryFromFaces(const vm::bbox3& worldBounds) {
+        kdl::result<void, BrushError> Brush::updateGeometryFromFaces(const vm::bbox3& worldBounds) {
             // First, add all faces to the brush geometry
             BrushFace::sortFaces(m_faces);
             
@@ -114,14 +117,14 @@ namespace TrenchBroom {
                     face.setGeometry(faceGeometry);
                     faceGeometry->setPayload(i);
                 } else  if (result.empty()) {
-                    throw GeometryException("Brush is empty");
+                    return kdl::result<void, BrushError>::error(BrushError::EmptyBrush);
                 }
             }
 
             // Correct vertex positions and heal short edges
             geometry->correctVertexPositions();
             if (!geometry->healEdges()) {
-                throw GeometryException("Brush is invalid");
+                return kdl::result<void, BrushError>::error(BrushError::InvalidBrush);
             }
             
             // Now collect all faces which still remain
@@ -133,7 +136,7 @@ namespace TrenchBroom {
                     remainingFaces.push_back(std::move(m_faces[*faceIndex]));
                     faceGeometry->setPayload(remainingFaces.size() - 1u);
                 } else {
-                    throw GeometryException("Brush is not fully specified");
+                    return kdl::result<void, BrushError>::error(BrushError::IncompleteBrush);
                 }
             }
 
@@ -141,6 +144,8 @@ namespace TrenchBroom {
             m_geometry = std::move(geometry);
             
             assert(checkFaceLinks());
+
+            return kdl::result<void, BrushError>::success();
         }
         
         const vm::bbox3& Brush::bounds() const {
@@ -241,13 +246,9 @@ namespace TrenchBroom {
         }
 
         bool Brush::clip(const vm::bbox3& worldBounds, BrushFace face) {
-            try {
-                m_faces.push_back(std::move(face));
-                updateGeometryFromFaces(worldBounds);
-                return !m_faces.empty();
-            } catch (GeometryException&) {
-                return false;
-            }
+            m_faces.push_back(std::move(face));
+            const auto result = updateGeometryFromFaces(worldBounds);
+            return result.is_success() && !m_faces.empty();
         }
 
         bool Brush::canMoveBoundary(const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta) const {
@@ -286,7 +287,11 @@ namespace TrenchBroom {
             face.transform(vm::translation_matrix(delta), lockTexture)
                 .visit(kdl::overload {
                     [&]() {
-                        updateGeometryFromFaces(worldBounds);
+                        updateGeometryFromFaces(worldBounds)
+                            .visit(kdl::overload {
+                                []() {},
+                                [](const BrushError& e) { throw GeometryException(kdl::str_to_string(e)); } // TODO 2983
+                            });
                     },
                     [](const BrushError e) {
                         throw GeometryException(kdl::str_to_string(e)); // TODO 2983
@@ -313,12 +318,8 @@ namespace TrenchBroom {
             }
 
             // rebuild geometry
-            try {
-                updateGeometryFromFaces(worldBounds);
-                return !m_faces.empty();
-            } catch (GeometryException&) {
-                return false;
-            }
+            const auto result = updateGeometryFromFaces(worldBounds);
+            return result.is_success() && !m_faces.empty();
         }
 
         size_t Brush::vertexCount() const {
@@ -861,7 +862,12 @@ namespace TrenchBroom {
             });
 
             m_faces = std::move(newFaces);
-            updateGeometryFromFaces(worldBounds);
+
+            updateGeometryFromFaces(worldBounds)
+                .visit(kdl::overload {
+                    []() {},
+                    [](const BrushError& e) { throw GeometryException(kdl::str_to_string(e)); } // TODO 2983
+                });
         }
 
         std::vector<Brush> Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<const Brush*>& subtrahends) const {
@@ -904,7 +910,11 @@ namespace TrenchBroom {
                 m_faces.emplace_back(face);
             }
 
-            updateGeometryFromFaces(worldBounds);
+            updateGeometryFromFaces(worldBounds)
+                .visit(kdl::overload {
+                    []() {},
+                    [](const BrushError& e) { throw GeometryException(kdl::str_to_string(e)); } // TODO 2983
+                });
         }
 
         bool Brush::canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const {
@@ -928,7 +938,11 @@ namespace TrenchBroom {
                     });
             }
 
-            updateGeometryFromFaces(worldBounds);
+            updateGeometryFromFaces(worldBounds)
+                .visit(kdl::overload {
+                    []() {},
+                    [](const BrushError& e) { throw GeometryException(kdl::str_to_string(e)); } // TODO 2983
+                });
         }
 
         bool Brush::contains(const vm::bbox3& bounds) const {
@@ -992,7 +1006,12 @@ namespace TrenchBroom {
                         },
                     });
             }
-            updateGeometryFromFaces(worldBounds);
+            
+            updateGeometryFromFaces(worldBounds)
+                .visit(kdl::overload {
+                    []() {},
+                    [](const BrushError& e) { throw GeometryException(kdl::str_to_string(e)); } // TODO 2983
+                });
         }
 
         bool Brush::checkFaceLinks() const {
