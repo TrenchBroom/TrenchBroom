@@ -29,8 +29,8 @@
 
 #include <kdl/memory_utils.h>
 
-#include <string>
 #include <optional>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -46,7 +46,6 @@ namespace TrenchBroom {
             IssueType doGetType() const override {
                 return Type;
             }
-
             std::string doGetDescription() const override {
                 return "Object is out of soft map bounds";
             }
@@ -75,10 +74,10 @@ namespace TrenchBroom {
             auto game = kdl::mem_lock(m_game);
             const Game::SoftMapBounds bounds = game->extractSoftMapBounds(*m_world);
 
-            if (!bounds.second.has_value()) {
+            if (!bounds.bounds.has_value()) {
                 return;
             }
-            if (!(*bounds.second).contains(node->logicalBounds())) {
+            if (!bounds.bounds->contains(node->logicalBounds())) {
                 issues.push_back(new SoftMapBoundsIssue(node));
             }
         }

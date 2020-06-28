@@ -27,6 +27,7 @@
 #include "IO/ConfigParserBase.h"
 
 #include <string>
+#include <optional>
 #include <vector>
 
 namespace TrenchBroom {

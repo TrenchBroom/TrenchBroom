@@ -78,12 +78,13 @@ namespace TrenchBroom {
             const std::vector<SmartTag>& smartTags() const;
 
             enum class SoftMapBoundsType { Game, Map };
-            /**
-             * first indicates the source of the setting.
-             * If second is std::nullopt, this indicates unlimited soft map bounds, otherwise second
-             * gives the soft map bounds.
-             */
-            using SoftMapBounds = std::pair<SoftMapBoundsType, std::optional<vm::bbox3>>;
+            struct SoftMapBounds {
+                SoftMapBoundsType source;
+                /**
+                 * std::nullopt indicates unlimited soft map bounds
+                 */
+                std::optional<vm::bbox3> bounds;
+            };
             /**
              * Returns the soft map bounds configured in the game config
              */

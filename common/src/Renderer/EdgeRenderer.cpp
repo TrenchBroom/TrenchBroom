@@ -68,14 +68,13 @@ namespace TrenchBroom {
                 glAssert(glDisable(GL_DEPTH_TEST))
 
             {
-                PreferenceManager& prefs = PreferenceManager::instance();
                 ActiveShader shader(renderContext.shaderManager(), Shaders::EdgeShader);
                 shader.set("ShowSoftMapBounds", !renderContext.softMapBounds().is_empty());
                 shader.set("SoftMapBoundsMin", renderContext.softMapBounds().min);
                 shader.set("SoftMapBoundsMax", renderContext.softMapBounds().max);
-                shader.set("SoftMapBoundsColor", vm::vec4f(prefs.get(Preferences::SoftMapBoundsColor).r(),
-                                                           prefs.get(Preferences::SoftMapBoundsColor).g(),
-                                                           prefs.get(Preferences::SoftMapBoundsColor).b(),
+                shader.set("SoftMapBoundsColor", vm::vec4f(pref(Preferences::SoftMapBoundsColor).r(),
+                                                           pref(Preferences::SoftMapBoundsColor).g(),
+                                                           pref(Preferences::SoftMapBoundsColor).b(),
                                                            0.33f)); // NOTE: heavier tint than FaceRenderer, since these are lines
                 shader.set("UseUniformColor", m_params.useColor);
                 shader.set("Color", m_params.color);

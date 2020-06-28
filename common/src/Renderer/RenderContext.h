@@ -25,8 +25,6 @@
 
 #include <vecmath/bbox.h>
 
-#include <optional>
-
 namespace TrenchBroom {
     namespace Renderer {
         class Camera;

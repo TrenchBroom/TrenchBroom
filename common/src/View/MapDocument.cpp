@@ -2275,17 +2275,17 @@ namespace TrenchBroom {
         }
 
         /**
-         * Note if bounds.first is SoftMapBoundsType::Game, bounds.second is ignored.
+         * Note if bounds.source is SoftMapBoundsType::Game, bounds.bounds is ignored.
          */
         void MapDocument::setSoftMapBounds(const Model::Game::SoftMapBounds& bounds) {
-            switch (bounds.first) {
-                case Model::Game::SoftMapBoundsType::Map:                    
-                    if (!bounds.second.has_value()) {
+            switch (bounds.source) {
+                case Model::Game::SoftMapBoundsType::Map:
+                    if (!bounds.bounds.has_value()) {
                         // Set the worldspawn key AttributeNames::SoftMaxMapSize's value to the empty string
                         // to indicate that we are overriding the Game's bounds with unlimited.
                         executeAndStore(ChangeEntityAttributesCommand::setForNodes({world()}, Model::AttributeNames::SoftMapBounds, Model::AttributeValues::NoSoftMapBounds));
                     } else {
-                        executeAndStore(ChangeEntityAttributesCommand::setForNodes({world()}, Model::AttributeNames::SoftMapBounds, IO::serializeSoftMapBoundsString(*bounds.second)));
+                        executeAndStore(ChangeEntityAttributesCommand::setForNodes({world()}, Model::AttributeNames::SoftMapBounds, IO::serializeSoftMapBoundsString(*bounds.bounds)));
                     }
                     break;
                 case Model::Game::SoftMapBoundsType::Game:

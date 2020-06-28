@@ -339,27 +339,27 @@ namespace TrenchBroom {
             m_softBoundsFromGameMinLabel->setText(formatVec(gameBounds, false));
             m_softBoundsFromGameMaxLabel->setText(formatVec(gameBounds, true));
 
-            const auto bounds = document->softMapBounds();            
+            const auto bounds = document->softMapBounds();
 
-            if (bounds.first == Model::Game::SoftMapBoundsType::Map && !bounds.second.has_value()) {
+            if (bounds.source == Model::Game::SoftMapBoundsType::Map && !bounds.bounds.has_value()) {
                 m_softBoundsDisabled->setChecked(true);
 
                 m_softBoundsFromMapMinEdit->setEnabled(false);
                 m_softBoundsFromMapMaxEdit->setEnabled(false);
-            } else if (bounds.first == Model::Game::SoftMapBoundsType::Map) {
+            } else if (bounds.source == Model::Game::SoftMapBoundsType::Map) {
                 m_softBoundsFromMap->setChecked(true);
 
                 m_softBoundsFromMapMinEdit->setEnabled(true);
                 m_softBoundsFromMapMaxEdit->setEnabled(true);
 
-                m_softBoundsFromMapMinEdit->setText(formatVec(bounds.second, false));
-                m_softBoundsFromMapMaxEdit->setText(formatVec(bounds.second, true));
+                m_softBoundsFromMapMinEdit->setText(formatVec(bounds.bounds, false));
+                m_softBoundsFromMapMaxEdit->setText(formatVec(bounds.bounds, true));
             } else {
                 m_softBoundsFromGame->setChecked(true);
 
                 m_softBoundsFromMapMinEdit->setEnabled(false);
                 m_softBoundsFromMapMaxEdit->setEnabled(false);
-            }                    
+            }
         }
     }
 }
