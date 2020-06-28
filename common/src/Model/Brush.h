@@ -52,7 +52,6 @@ namespace TrenchBroom {
             std::unique_ptr<BrushGeometry> m_geometry;
         public:
             Brush();
-            Brush(const vm::bbox3& worldBounds, std::vector<BrushFace> faces);
 
             Brush(const Brush& other);
             Brush(Brush&& other) noexcept;
@@ -61,7 +60,11 @@ namespace TrenchBroom {
             friend void swap(Brush& lhs, Brush& rhs) noexcept;
 
             ~Brush();
+            
+            static Brush create(const vm::bbox3& worldBounds, std::vector<BrushFace> faces);
         private:
+            Brush(std::vector<BrushFace> faces);
+
             void updateGeometryFromFaces(const vm::bbox3& worldBounds);
         public:
             const vm::bbox3& bounds() const;
