@@ -159,7 +159,8 @@ namespace TrenchBroom {
                   Model::SmartTag("Skip", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("skip")),
                   Model::SmartTag("Hint", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("hint*")),
                   Model::SmartTag("Liquid", {}, std::make_unique<Model::TextureNameTagMatcher>("\\**")),
-                } // smart tags
+                }, // smart tags
+                std::nullopt // soft map bounds
             );
 
             ASSERT_EQ(expected.name(), actual.name());
@@ -455,7 +456,8 @@ namespace TrenchBroom {
                     Model::SmartTag("Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)),
                     Model::SmartTag("Liquid", {}, std::make_unique<Model::ContentFlagsTagMatcher>((1 << 3) | (1 << 4) | (1 << 5))),
                     Model::SmartTag("trans", {}, std::make_unique<Model::SurfaceFlagsTagMatcher>((1 << 4) | (1 << 5))),
-                } // smart tags
+                }, // smart tags
+                std::nullopt // soft map bounds
             );
 
             ASSERT_EQ(expected.name(), actual.name());
@@ -769,7 +771,8 @@ namespace TrenchBroom {
                     Model::SmartTag("Hint", { Model::TagAttribute(1u, "transparent") }, std::make_unique<Model::TextureNameTagMatcher>("hint*")),
                     Model::SmartTag("Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)),
                     Model::SmartTag("Liquid", {}, std::make_unique<Model::ContentFlagsTagMatcher>((1 << 3) | (1 << 4) | (1 << 5))),
-                } // smart tags
+                }, // smart tags
+                std::nullopt // soft map bounds
             );
 
             ASSERT_EQ(expected.name(), actual.name());

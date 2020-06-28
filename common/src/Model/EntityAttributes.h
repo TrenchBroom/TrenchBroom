@@ -55,6 +55,7 @@ namespace TrenchBroom {
             extern const std::string Group;
             extern const std::string Message;
             extern const std::string ValveVersion;
+            extern const std::string SoftMapBounds;
         }
 
         namespace AttributeValues {
@@ -65,6 +66,7 @@ namespace TrenchBroom {
             extern const std::string GroupTypeLayer;
             extern const std::string GroupTypeGroup;
             extern const std::string DefaultValue;
+            extern const std::string NoSoftMapBounds;
         }
 
         bool isNumberedAttribute(std::string_view prefix, std::string_view name);

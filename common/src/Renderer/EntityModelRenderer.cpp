@@ -131,6 +131,13 @@ namespace TrenchBroom {
             shader.set("TintColor", m_tintColor);
             shader.set("GrayScale", false);
             shader.set("Texture", 0);
+            shader.set("ShowSoftMapBounds", !renderContext.softMapBounds().is_empty());
+            shader.set("SoftMapBoundsMin", renderContext.softMapBounds().min);
+            shader.set("SoftMapBoundsMax", renderContext.softMapBounds().max);
+            shader.set("SoftMapBoundsColor", vm::vec4f(prefs.get(Preferences::SoftMapBoundsColor).r(),
+                                                       prefs.get(Preferences::SoftMapBoundsColor).g(),
+                                                       prefs.get(Preferences::SoftMapBoundsColor).b(),
+                                                       0.1f));
 
             glAssert(glEnable(GL_TEXTURE_2D));
             glAssert(glActiveTexture(GL_TEXTURE0));
@@ -145,6 +152,8 @@ namespace TrenchBroom {
 
                 const auto transformation = entity->modelTransformation();
                 MultiplyModelMatrix multMatrix(renderContext.transformation(), vm::mat4x4f(transformation));
+
+                shader.set("ModelMatrix", vm::mat4x4f(transformation));
 
                 renderer->render();
             }

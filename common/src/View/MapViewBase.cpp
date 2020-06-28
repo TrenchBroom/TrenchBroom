@@ -871,6 +871,9 @@ namespace TrenchBroom {
             renderContext.setShowFog(mapViewConfig.showFog());
             renderContext.setShowGrid(grid.visible());
             renderContext.setGridSize(grid.actualSize());
+            renderContext.setSoftMapBounds(mapViewConfig.showSoftMapBounds()
+                ? vm::bbox3f(document->softMapBounds().bounds.value_or(vm::bbox3()))
+                : vm::bbox3f());
 
             setupGL(renderContext);
             setRenderOptions(renderContext);
@@ -883,6 +886,7 @@ namespace TrenchBroom {
             doRenderExtras(renderContext, renderBatch);
 
             renderCoordinateSystem(renderContext, renderBatch);
+            renderSoftMapBounds(renderContext, renderBatch);
             renderPointFile(renderContext, renderBatch);
             renderPortalFile(renderContext, renderBatch);
             renderCompass(renderBatch);
@@ -914,6 +918,10 @@ namespace TrenchBroom {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.renderCoordinateSystem(vm::bbox3f(worldBounds));
             }
+        }
+
+        void MapViewBase::renderSoftMapBounds(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            doRenderSoftWorldBounds(renderContext, renderBatch);
         }
 
         void MapViewBase::renderPointFile(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

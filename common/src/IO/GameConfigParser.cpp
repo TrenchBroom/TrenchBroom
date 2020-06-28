@@ -23,13 +23,17 @@
 #include "EL/EvaluationContext.h"
 #include "EL/Expression.h"
 #include "EL/Value.h"
+#include "FloatType.h"
 #include "Model/GameConfig.h"
 #include "Model/Tag.h"
 #include "Model/TagAttribute.h"
 #include "Model/TagMatcher.h"
 
+#include <vecmath/vec_io.h>
+
 #include <algorithm>
 #include <string>
+#include <sstream>
 #include <vector>
 
 namespace TrenchBroom {
@@ -68,7 +72,7 @@ namespace TrenchBroom {
             expectStructure(root,
                             "["
                             "{'version': 'Number', 'name': 'String', 'fileformats': 'Array', 'filesystem': 'Map', 'textures': 'Map', 'entities': 'Map'},"
-                            "{'icon': 'String', 'experimental': 'Boolean', 'faceattribs': 'Map', 'tags': 'Map'}"
+                            "{'icon': 'String', 'experimental': 'Boolean', 'faceattribs': 'Map', 'tags': 'Map', 'softMapBounds': 'String'}"
                             "]");
 
             auto name = root["name"].stringValue();
@@ -81,6 +85,7 @@ namespace TrenchBroom {
             auto entityConfig = parseEntityConfig(root["entities"]);
             auto faceAttribsConfig = parseFaceAttribsConfig(root["faceattribs"]);
             auto tags = parseTags(root["tags"], faceAttribsConfig);
+            auto softMapBounds = parseSoftMapBounds(root["softMapBounds"]);
 
             return GameConfig(
                 std::move(name),
@@ -92,7 +97,8 @@ namespace TrenchBroom {
                 std::move(textureConfig),
                 std::move(entityConfig),
                 std::move(faceAttribsConfig),
-                std::move(tags));
+                std::move(tags),
+                std::move(softMapBounds));
         }
 
         std::vector<Model::MapFormatConfig> GameConfigParser::parseMapFormatConfigs(const EL::Value& value) const {
@@ -469,6 +475,37 @@ namespace TrenchBroom {
             }
 
             return result;
+        }
+
+        std::optional<vm::bbox3> GameConfigParser::parseSoftMapBounds(const EL::Value& value) const {
+            if (value.null()) {
+                return std::nullopt;
+            }
+
+            const auto bounds = parseSoftMapBoundsString(value.stringValue());
+            if (!bounds.has_value()) {
+                // If a bounds is provided in the config, it must be valid
+                throw ParserException(value.line(), value.column(), "Can't parse soft map bounds '" + value.asString() + "'");
+            }
+            return bounds;
+        }
+
+        std::optional<vm::bbox3> parseSoftMapBoundsString(const std::string& string) {
+            if (!vm::can_parse<double, 6u>(string)) {
+                return std::nullopt;
+            }
+
+            const auto v = vm::parse<double, 6u>(string);
+            const auto bounds = vm::bbox3(vm::vec3(v[0], v[1], v[2]),
+                                          vm::vec3(v[3], v[4], v[5]));
+
+            return { bounds };
+        }
+
+        std::string serializeSoftMapBoundsString(const vm::bbox3& bounds) {
+            std::stringstream result;
+            result << bounds.min << " " << bounds.max;
+            return result.str();
         }
     }
 }

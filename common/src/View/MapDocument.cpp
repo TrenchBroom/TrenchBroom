@@ -31,6 +31,7 @@
 #include "EL/ELExceptions.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
+#include "IO/GameConfigParser.h"
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
 #include "Model/AttributeNameWithDoubleQuotationMarksIssueGenerator.h"
@@ -83,6 +84,7 @@
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron3.h"
 #include "Model/PortalFile.h"
+#include "Model/SoftMapBoundsIssueGenerator.h"
 #include "Model/TagManager.h"
 #include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
@@ -2272,6 +2274,35 @@ namespace TrenchBroom {
             return m_game->defaultMod();
         }
 
+        /**
+         * Note if bounds.source is SoftMapBoundsType::Game, bounds.bounds is ignored.
+         */
+        void MapDocument::setSoftMapBounds(const Model::Game::SoftMapBounds& bounds) {
+            switch (bounds.source) {
+                case Model::Game::SoftMapBoundsType::Map:
+                    if (!bounds.bounds.has_value()) {
+                        // Set the worldspawn key AttributeNames::SoftMaxMapSize's value to the empty string
+                        // to indicate that we are overriding the Game's bounds with unlimited.
+                        executeAndStore(ChangeEntityAttributesCommand::setForNodes({world()}, Model::AttributeNames::SoftMapBounds, Model::AttributeValues::NoSoftMapBounds));
+                    } else {
+                        executeAndStore(ChangeEntityAttributesCommand::setForNodes({world()}, Model::AttributeNames::SoftMapBounds, IO::serializeSoftMapBoundsString(*bounds.bounds)));
+                    }
+                    break;
+                case Model::Game::SoftMapBoundsType::Game:
+                    // Unset the map's setting
+                    executeAndStore(ChangeEntityAttributesCommand::removeForNodes({world()}, Model::AttributeNames::SoftMapBounds));
+                    break;
+                switchDefault()
+            }
+        }
+
+        Model::Game::SoftMapBounds MapDocument::softMapBounds() const {
+            if (!m_world) {
+                return {Model::Game::SoftMapBoundsType::Game, std::nullopt};
+            }
+            return m_game->extractSoftMapBounds(*m_world);
+        }
+
         void MapDocument::setIssueHidden(Model::Issue* issue, const bool hidden) {
             doSetIssueHidden(issue, hidden);
         }
@@ -2291,7 +2322,8 @@ namespace TrenchBroom {
             m_world->registerIssueGenerator(new Model::NonIntegerPlanePointsIssueGenerator());
             m_world->registerIssueGenerator(new Model::NonIntegerVerticesIssueGenerator());
             m_world->registerIssueGenerator(new Model::MixedBrushContentsIssueGenerator());
-            m_world->registerIssueGenerator(new Model::WorldBoundsIssueGenerator(m_worldBounds));
+            m_world->registerIssueGenerator(new Model::WorldBoundsIssueGenerator(worldBounds()));
+            m_world->registerIssueGenerator(new Model::SoftMapBoundsIssueGenerator(m_game, m_world.get()));
             m_world->registerIssueGenerator(new Model::EmptyAttributeNameIssueGenerator());
             m_world->registerIssueGenerator(new Model::EmptyAttributeValueIssueGenerator());
             m_world->registerIssueGenerator(new Model::LongAttributeNameIssueGenerator(m_game->maxPropertyLength()));

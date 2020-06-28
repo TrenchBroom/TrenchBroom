@@ -20,12 +20,14 @@
 #ifndef TrenchBroom_GameConfigParser
 #define TrenchBroom_GameConfigParser
 
+#include "FloatType.h"
 #include "Macros.h"
 #include "EL/EL_Forward.h"
 #include "EL/Value.h"
 #include "IO/ConfigParserBase.h"
 
 #include <string>
+#include <optional>
 #include <vector>
 
 namespace TrenchBroom {
@@ -67,6 +69,7 @@ namespace TrenchBroom {
             void parseFlag(const EL::Value& entry, const size_t index, std::vector<Model::FlagConfig>& flags) const;
             Model::BrushFaceAttributes parseFaceAttribsDefaults(const EL::Value& value, const Model::FlagsConfig& surfaceFlags, const Model::FlagsConfig& contentFlags) const;
             std::vector<Model::SmartTag> parseTags(const EL::Value& value, const Model::FaceAttribsConfig& faceAttribsConfigs) const;
+            std::optional<vm::bbox3> parseSoftMapBounds(const EL::Value& value) const;
 
             void parseBrushTags(const EL::Value& value, std::vector<Model::SmartTag>& results) const;
             void parseFaceTags(const EL::Value& value, const Model::FaceAttribsConfig& faceAttribsConfig, std::vector<Model::SmartTag>& results) const;
@@ -76,6 +79,9 @@ namespace TrenchBroom {
 
             deleteCopyAndMove(GameConfigParser)
         };
+
+        std::optional<vm::bbox3> parseSoftMapBoundsString(const std::string& string);
+        std::string serializeSoftMapBoundsString(const vm::bbox3& bounds);
     }
 }
 

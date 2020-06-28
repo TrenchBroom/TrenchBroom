@@ -20,13 +20,24 @@
 #ifndef TrenchBroom_MapInspector
 #define TrenchBroom_MapInspector
 
+#include "FloatType.h"
 #include "View/TabBook.h"
 
 #include <memory>
+#include <optional>
+#include <vector>
 
 class QWidget;
+class QCheckBox;
+class QLabel;
+class QLineEdit;
+class QRadioButton;
 
 namespace TrenchBroom {
+    namespace Model {
+        class Node;
+    }
+
     namespace View {
         class MapDocument;
 
@@ -36,8 +47,41 @@ namespace TrenchBroom {
             explicit MapInspector(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
             void createGui(std::weak_ptr<MapDocument> document);
-            QWidget* createLayerEditor(QWidget* parent, std::weak_ptr<MapDocument> document);
-            QWidget* createModEditor(QWidget* parent, std::weak_ptr<MapDocument> document);
+            QWidget* createLayerEditor(std::weak_ptr<MapDocument> document);
+            QWidget* createMapProperties(std::weak_ptr<MapDocument> document);
+            QWidget* createModEditor(std::weak_ptr<MapDocument> document);
+        };
+
+        /**
+         * Currently just the soft bounds editor
+         */
+        class MapPropertiesEditor : public QWidget {
+            Q_OBJECT
+        private:
+            std::weak_ptr<MapDocument> m_document;
+            bool m_updatingGui;
+
+            QRadioButton* m_softBoundsDisabled;
+            QRadioButton* m_softBoundsFromGame;
+            QLabel* m_softBoundsFromGameMinLabel;
+            QLabel* m_softBoundsFromGameMaxLabel;
+            QRadioButton* m_softBoundsFromMap;
+            QLineEdit* m_softBoundsFromMapMinEdit;
+            QLineEdit* m_softBoundsFromMapMaxEdit;         
+        public:
+            explicit MapPropertiesEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+            ~MapPropertiesEditor() override;
+        private:
+            std::optional<vm::bbox3> parseLineEdits();
+            void createGui();
+        private:
+            void bindObservers();
+            void unbindObservers();
+
+            void documentWasNewed(MapDocument* document);
+            void documentWasLoaded(MapDocument* document);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
+            void updateGui();
         };
     }
 }

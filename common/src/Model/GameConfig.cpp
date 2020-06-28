@@ -202,7 +202,8 @@ namespace TrenchBroom {
                                TextureConfig textureConfig,
                                EntityConfig entityConfig,
                                FaceAttribsConfig faceAttribsConfig,
-                               std::vector<SmartTag> smartTags) :
+                               std::vector<SmartTag> smartTags,
+                               std::optional<vm::bbox3> softMapBounds) :
         m_name(std::move(name)),
         m_path(std::move(path)),
         m_icon(std::move(icon)),
@@ -213,7 +214,8 @@ namespace TrenchBroom {
         m_entityConfig(std::move(entityConfig)),
         m_faceAttribsConfig(std::move(faceAttribsConfig)),
         m_smartTags(std::move(smartTags)),
-        m_maxPropertyLength(1023) {
+        m_maxPropertyLength(1023),
+        m_softMapBounds(std::move(softMapBounds)) {
             assert(!kdl::str_trim(m_name).empty());
             assert(m_path.isEmpty() || m_path.isAbsolute());
         }
@@ -256,6 +258,10 @@ namespace TrenchBroom {
 
         const std::vector<SmartTag>& GameConfig::smartTags() const {
             return m_smartTags;
+        }
+
+        const std::optional<vm::bbox3>& GameConfig::softMapBounds() const {
+            return m_softMapBounds;
         }
 
         CompilationConfig& GameConfig::compilationConfig() {

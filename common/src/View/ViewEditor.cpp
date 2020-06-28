@@ -26,6 +26,8 @@
 #include "Model/Game.h"
 #include "Model/Tag.h"
 #include "Model/TagType.h"
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "View/BorderPanel.h"
 #include "View/MapDocument.h"
 #include "View/MapViewConfig.h"
@@ -214,7 +216,8 @@ namespace TrenchBroom {
         m_shadeFacesCheckBox(nullptr),
         m_showFogCheckBox(nullptr),
         m_showEdgesCheckBox(nullptr),
-        m_entityLinkRadioGroup(nullptr) {
+        m_entityLinkRadioGroup(nullptr),
+        m_showSoftBoundsCheckBox(nullptr) {
             bindObservers();
         }
 
@@ -422,6 +425,8 @@ namespace TrenchBroom {
                 m_entityLinkRadioGroup->addButton(radio, i);
             }
 
+            m_showSoftBoundsCheckBox = new QCheckBox(tr("Show soft bounds"));
+
             connect(m_shadeFacesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::shadeFacesChanged);
             connect(m_showFogCheckBox, &QAbstractButton::clicked, this, &ViewEditor::showFogChanged);
             connect(m_showEdgesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::showEdgesChanged);
@@ -430,6 +435,8 @@ namespace TrenchBroom {
                 &ViewEditor::faceRenderModeChanged);
             connect(m_entityLinkRadioGroup, static_cast<void(QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this,
                 &ViewEditor::entityLinkModeChanged);
+
+            connect(m_showSoftBoundsCheckBox, &QAbstractButton::clicked, this, &ViewEditor::showSoftMapBoundsChanged);
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
@@ -446,6 +453,8 @@ namespace TrenchBroom {
             for (auto* button : m_entityLinkRadioGroup->buttons()) {
                 layout->addWidget(button);
             }
+            
+            layout->addWidget(m_showSoftBoundsCheckBox);
 
             inner->setLayout(layout);
             return panel;
@@ -498,6 +507,7 @@ namespace TrenchBroom {
             m_showFogCheckBox->setChecked(config.showFog());
             m_showEdgesCheckBox->setChecked(config.showEdges());
             checkButtonInGroup(m_entityLinkRadioGroup, static_cast<int>(editorContext.entityLinkMode()), true);
+            m_showSoftBoundsCheckBox->setChecked(config.showSoftMapBounds());
         }
 
         void ViewEditor::showEntityClassnamesChanged(const bool checked) {
@@ -611,6 +621,12 @@ namespace TrenchBroom {
                     editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_None);
                     break;
             }
+        }
+        
+        void ViewEditor::showSoftMapBoundsChanged(const bool checked) {
+            auto document = kdl::mem_lock(m_document);
+            MapViewConfig& config = document->mapViewConfig();
+            config.setShowSoftMapBounds(checked);
         }
 
         ViewPopupEditor::ViewPopupEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :

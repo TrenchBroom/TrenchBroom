@@ -190,6 +190,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/PushSelection.cpp
         ${COMMON_SOURCE_DIR}/Model/RemoveEntityAttributesQuickFix.cpp
         ${COMMON_SOURCE_DIR}/Model/Snapshot.cpp
+        ${COMMON_SOURCE_DIR}/Model/SoftMapBoundsIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/Tag.cpp
         ${COMMON_SOURCE_DIR}/Model/TagAttribute.cpp
         ${COMMON_SOURCE_DIR}/Model/TagManager.cpp
@@ -281,6 +282,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/ChangeBrushFaceAttributesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/ChangeEntityAttributesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/ChoosePathTypeDialog.cpp
+        ${COMMON_SOURCE_DIR}/View/ClickableLabel.cpp
         ${COMMON_SOURCE_DIR}/View/ClipTool.cpp
         ${COMMON_SOURCE_DIR}/View/ClipToolController.cpp
         ${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.cpp
@@ -730,6 +732,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/PushSelection.h
         ${COMMON_SOURCE_DIR}/Model/RemoveEntityAttributesQuickFix.h
         ${COMMON_SOURCE_DIR}/Model/Snapshot.h
+        ${COMMON_SOURCE_DIR}/Model/SoftMapBoundsIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/Tag.h
         ${COMMON_SOURCE_DIR}/Model/TagAttribute.h
         ${COMMON_SOURCE_DIR}/Model/TagManager.h
@@ -830,6 +833,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/ChangeBrushFaceAttributesCommand.h
         ${COMMON_SOURCE_DIR}/View/ChangeEntityAttributesCommand.h
         ${COMMON_SOURCE_DIR}/View/ChoosePathTypeDialog.h
+        ${COMMON_SOURCE_DIR}/View/ClickableLabel.h
         ${COMMON_SOURCE_DIR}/View/ClipTool.h
         ${COMMON_SOURCE_DIR}/View/ClipToolController.h
         ${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.h

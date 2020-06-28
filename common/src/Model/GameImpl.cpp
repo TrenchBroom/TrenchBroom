@@ -36,6 +36,7 @@
 #include "IO/FgdParser.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
+#include "IO/GameConfigParser.h"
 #include "IO/IOUtils.h"
 #include "IO/MdlParser.h"
 #include "IO/Md2Parser.h"
@@ -61,6 +62,8 @@
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
+
+#include <vecmath/vec_io.h>
 
 #include <string>
 #include <vector>
@@ -116,6 +119,24 @@ namespace TrenchBroom {
 
         size_t GameImpl::doMaxPropertyLength() const {
             return m_config.maxPropertyLength();
+        }
+
+        std::optional<vm::bbox3> GameImpl::doSoftMapBounds() const {
+            return m_config.softMapBounds();
+        }
+
+        Game::SoftMapBounds GameImpl::doExtractSoftMapBounds(const AttributableNode& node) const {
+            if (!node.hasAttribute(AttributeNames::SoftMapBounds)) {
+                // Not set in map -> use Game value
+                return {SoftMapBoundsType::Game, doSoftMapBounds()};
+            }
+
+            const std::string& mapValue = node.attribute(AttributeNames::SoftMapBounds);
+            if (mapValue == AttributeValues::NoSoftMapBounds) {
+                return {SoftMapBoundsType::Map, std::nullopt};
+            }
+            const std::optional<vm::bbox3> mapBounds = IO::parseSoftMapBoundsString(mapValue);
+            return {SoftMapBoundsType::Map, mapBounds};
         }
 
         const std::vector<SmartTag>& GameImpl::doSmartTags() const {

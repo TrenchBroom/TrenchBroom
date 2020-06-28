@@ -55,6 +55,7 @@ namespace TrenchBroom {
             const std::string Group             = "_tb_group";
             const std::string Message           = "_tb_message";
             const std::string ValveVersion      = "mapversion";
+            const std::string SoftMapBounds     = "_tb_soft_map_bounds";
         }
 
         namespace AttributeValues {
@@ -65,6 +66,7 @@ namespace TrenchBroom {
             const std::string GroupTypeLayer      = "_tb_layer";
             const std::string GroupTypeGroup      = "_tb_group";
             const std::string DefaultValue        = "";
+            const std::string NoSoftMapBounds     = "none";
         }
 
         bool isNumberedAttribute(const std::string_view prefix, const std::string_view name) {

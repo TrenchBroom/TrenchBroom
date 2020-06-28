@@ -494,6 +494,10 @@ namespace TrenchBroom {
             renderTools(renderContext, renderBatch);
         }
 
+        void MapView3D::doRenderSoftWorldBounds(Renderer::RenderContext&, Renderer::RenderBatch&) {
+            // the bounds rect itself is only rendered in MapView2D, it just clutters the 3D view
+        }
+
         bool MapView3D::doBeforePopupMenu() {
             m_flyModeHelper->resetKeys();
             return true;

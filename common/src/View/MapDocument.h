@@ -23,6 +23,7 @@
 #include "FloatType.h"
 #include "Notifier.h"
 #include "IO/Path.h"
+#include "Model/Game.h"
 #include "Model/MapFacade.h"
 #include "Model/NodeCollection.h"
 #include "View/CachingLogger.h"
@@ -33,7 +34,9 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace TrenchBroom {
@@ -530,6 +533,9 @@ namespace TrenchBroom {
             std::vector<std::string> mods() const override;
             void setMods(const std::vector<std::string>& mods) override;
             std::string defaultMod() const;
+        public: // map soft bounds
+            void setSoftMapBounds(const Model::Game::SoftMapBounds& bounds);
+            Model::Game::SoftMapBounds softMapBounds() const;
         private: // issue management
             void registerIssueGenerators();
         public:

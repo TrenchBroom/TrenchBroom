@@ -19,6 +19,8 @@
 
 #include "EdgeRenderer.h"
 
+#include "Preferences.h"
+#include "PreferenceManager.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
@@ -65,12 +67,17 @@ namespace TrenchBroom {
             if (m_params.onTop)
                 glAssert(glDisable(GL_DEPTH_TEST))
 
-            if (m_params.useColor) {
-                ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPUniformCShader);
+            {
+                ActiveShader shader(renderContext.shaderManager(), Shaders::EdgeShader);
+                shader.set("ShowSoftMapBounds", !renderContext.softMapBounds().is_empty());
+                shader.set("SoftMapBoundsMin", renderContext.softMapBounds().min);
+                shader.set("SoftMapBoundsMax", renderContext.softMapBounds().max);
+                shader.set("SoftMapBoundsColor", vm::vec4f(pref(Preferences::SoftMapBoundsColor).r(),
+                                                           pref(Preferences::SoftMapBoundsColor).g(),
+                                                           pref(Preferences::SoftMapBoundsColor).b(),
+                                                           0.33f)); // NOTE: heavier tint than FaceRenderer, since these are lines
+                shader.set("UseUniformColor", m_params.useColor);
                 shader.set("Color", m_params.color);
-                doRenderVertices(renderContext);
-            } else {
-                ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPCShader);
                 doRenderVertices(renderContext);
             }
 
