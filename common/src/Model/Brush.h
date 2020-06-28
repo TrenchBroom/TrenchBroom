@@ -62,8 +62,6 @@ namespace TrenchBroom {
 
             ~Brush();
         private:
-            void cleanup();
-        private:
             void updateGeometryFromFaces(const vm::bbox3& worldBounds);
         public:
             const vm::bbox3& bounds() const;
