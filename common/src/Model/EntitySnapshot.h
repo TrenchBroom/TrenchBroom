@@ -24,7 +24,13 @@
 #include "Model/EntityAttributes.h"
 #include "Model/NodeSnapshot.h"
 
+#include <kdl/result.h>
+
+#include <vector>
+
 namespace TrenchBroom {
+    class SnapshotException;
+    
     namespace Model {
         class EntityNode;
 
@@ -35,7 +41,7 @@ namespace TrenchBroom {
         public:
             EntitySnapshot(EntityNode* entity);
         private:
-            void doRestore(const vm::bbox3& worldBounds) override;
+            kdl::result<void, SnapshotErrors> doRestore(const vm::bbox3& worldBounds) override;
         };
     }
 }

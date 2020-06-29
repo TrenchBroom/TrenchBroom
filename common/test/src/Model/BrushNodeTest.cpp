@@ -599,7 +599,7 @@ namespace TrenchBroom {
                 EXPECT_EQ(nullptr, face.texture());
             }
 
-            snapshot->restore(worldBounds);
+            CHECK(snapshot->restore(worldBounds).is_success());
 
             // Check just the texture names are restored
             for (const BrushFace& face : cube->brush().faces()) {

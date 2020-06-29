@@ -22,6 +22,8 @@
 
 #include "Model/NodeSnapshot.h"
 
+#include <kdl/result.h>
+
 #include <vector>
 
 namespace TrenchBroom {
@@ -37,7 +39,8 @@ namespace TrenchBroom {
             BrushSnapshot(BrushNode* brushNode);
         private:
             void takeSnapshot(BrushNode* brushNode);
-            void doRestore(const vm::bbox3& worldBounds) override;
+            
+            kdl::result<void, SnapshotErrors> doRestore(const vm::bbox3& worldBounds) override;
         };
     }
 }
