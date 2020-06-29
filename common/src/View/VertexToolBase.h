@@ -20,9 +20,11 @@
 #ifndef VertexToolBase_h
 #define VertexToolBase_h
 
+#include "Exceptions.h"
 #include "FloatType.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Model/BrushError.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Game.h"
@@ -48,6 +50,8 @@
 #include "View/VertexHandleManager.h"
 
 #include <kdl/memory_utils.h>
+#include <kdl/overload.h>
+#include <kdl/result.h>
 #include <kdl/set_temp.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_set.h>
@@ -276,16 +280,22 @@ namespace TrenchBroom {
                 auto game = document->game();
                 
                 const Model::BrushBuilder builder(document->world(), document->worldBounds(), game->defaultFaceAttribs());
-                Model::Brush brush = builder.createBrush(polyhedron, document->currentTextureName());
-                
-                for (const Model::BrushNode* selectedBrushNode : document->selectedNodes().brushes()) {
-                    brush.cloneFaceAttributesFrom(selectedBrushNode->brush());
-                }
+                builder.createBrush(polyhedron, document->currentTextureName())
+                    .visit(kdl::overload {
+                        [&](Model::Brush&& b) {
+                            for (const Model::BrushNode* selectedBrushNode : document->selectedNodes().brushes()) {
+                                b.cloneFaceAttributesFrom(selectedBrushNode->brush());
+                            }
 
-                Model::Node* newParent = document->parentForNodes(document->selectedNodes().nodes());
-                const Transaction transaction(document, "CSG Convex Merge");
-                deselectAll();
-                document->addNode(new Model::BrushNode(std::move(brush)), newParent);
+                            Model::Node* newParent = document->parentForNodes(document->selectedNodes().nodes());
+                            const Transaction transaction(document, "CSG Convex Merge");
+                            deselectAll();
+                            document->addNode(new Model::BrushNode(std::move(b)), newParent);
+                        },
+                        [&](const Model::BrushError e) {
+                            document->error() << "Could not create brush: " << e;
+                        },
+                    });
             }
 
             virtual H getHandlePosition(const Model::Hit& hit) const {

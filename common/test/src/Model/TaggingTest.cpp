@@ -21,6 +21,7 @@
 
 #include "GTestCompat.h"
 
+#include "Exceptions.h"
 #include "Model/Tag.h"
 #include "Model/TagManager.h"
 #include "Model/BrushNode.h"
@@ -29,6 +30,8 @@
 #include "Model/MapFormat.h"
 #include "Model/WorldNode.h"
 
+#include <kdl/result.h>
+
 namespace TrenchBroom {
     namespace Model {
         TEST_CASE("TaggingTest.testTagBrush", "[TaggingTest]") {
@@ -36,7 +39,7 @@ namespace TrenchBroom {
             WorldNode world{MapFormat::Standard};
 
             BrushBuilder builder{&world, worldBounds};
-            BrushNode* brush = world.createBrush(builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom"));
+            BrushNode* brush = world.createBrush(builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom").value());
 
             world.defaultLayer()->addChild(brush);
 

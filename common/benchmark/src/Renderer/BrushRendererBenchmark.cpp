@@ -23,6 +23,7 @@
 
 #include "BenchmarkUtils.h"
 
+#include "Exceptions.h"
 #include "Assets/Texture.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
@@ -30,6 +31,8 @@
 #include "Model/WorldNode.h"
 #include "Model/MapFormat.h"
 #include "Renderer/BrushRenderer.h"
+
+#include <kdl/result.h>
 
 #include <vector>
 #include <chrono>
@@ -62,7 +65,7 @@ namespace TrenchBroom {
             std::vector<Model::BrushNode*> result;
             size_t currentTextureIndex = 0;
             for (size_t i = 0; i < NumBrushes; ++i) {
-                Model::Brush brush =builder.createCube(64.0, "");
+                Model::Brush brush = builder.createCube(64.0, "").value();
                 for (Model::BrushFace& face : brush.faces()) {
                     face.setTexture(textures.at((currentTextureIndex++) % NumTextures));
                 }
