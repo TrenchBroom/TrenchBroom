@@ -188,6 +188,14 @@ namespace kdl {
         operator bool() const {
             return is_success();
         }
+        
+        friend bool operator==(const result& lhs, const result& rhs) {
+            return lhs.m_value == rhs.m_value;
+        }
+        
+        friend bool operator!=(const result& lhs, const result& rhs) {
+            return !(lhs == rhs);
+        }
     };
 
     /**
@@ -356,6 +364,14 @@ namespace kdl {
         operator bool() const {
             return is_success();
         }
+        
+        friend bool operator==(const result& lhs, const result& rhs) {
+            return lhs.m_value == rhs.m_value;
+        }
+        
+        friend bool operator!=(const result& lhs, const result& rhs) {
+            return !(lhs == rhs);
+        }
     };
     
     /**
@@ -478,6 +494,14 @@ namespace kdl {
          */
         operator bool() const {
             return is_success();
+        }
+        
+        friend bool operator==(const result& lhs, const result& rhs) {
+            return lhs.m_value == rhs.m_value;
+        }
+        
+        friend bool operator!=(const result& lhs, const result& rhs) {
+            return !(lhs == rhs);
         }
     };
     
@@ -628,6 +652,14 @@ namespace kdl {
          */
         operator bool() const {
             return is_success();
+        }
+        
+        friend bool operator==(const result& lhs, const result& rhs) {
+            return lhs.m_value == rhs.m_value;
+        }
+        
+        friend bool operator!=(const result& lhs, const result& rhs) {
+            return !(lhs == rhs);
         }
     };
 
