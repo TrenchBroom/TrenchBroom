@@ -37,6 +37,8 @@
 #include "Model/PickResult.h"
 #include "Model/WorldNode.h"
 
+#include <kdl/collection_utils.h>
+#include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/vec.h>
@@ -264,7 +266,7 @@ namespace TrenchBroom {
                     vm::vec3(0.0, 0.0, 0.0),
                     vm::vec3(1.0, 0.0, 0.0),
                     vm::vec3(0.0, 1.0, 0.0)),
-            }));
+            }).value());
             
             CHECK(!brush.hasSelectedFaces());
             
@@ -368,7 +370,7 @@ namespace TrenchBroom {
                     vm::vec3(0.0, 0.0, 0.0),
                     vm::vec3(1.0, 0.0, 0.0),
                     vm::vec3(0.0, 1.0, 0.0)),
-            }));
+            }).value());
 
             PickResult hits1;
             brush.pick(vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::pos_y()), hits1);
@@ -418,7 +420,7 @@ namespace TrenchBroom {
                     vm::vec3(0.0, 0.0, 0.0),
                     vm::vec3(1.0, 0.0, 0.0),
                     vm::vec3(0.0, 1.0, 0.0)),
-            }));
+            }).value());
 
             BrushNode* clone = original.clone(worldBounds);
             
