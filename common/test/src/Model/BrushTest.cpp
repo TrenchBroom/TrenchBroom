@@ -21,6 +21,7 @@
 
 #include "TestUtils.h"
 
+#include "Exceptions.h"
 #include "FloatType.h"
 #include "Assets/Texture.h"
 #include "IO/DiskIO.h"
@@ -40,6 +41,7 @@
 #include <vecmath/vec.h>
 
 #include <kdl/intrusive_circular_list.h>
+#include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 #include <fstream>
@@ -98,7 +100,7 @@ namespace TrenchBroom {
         TEST_CASE("BrushTest.constructBrushWithRedundantFaces", "[BrushTest]") {
             const vm::bbox3 worldBounds(4096.0);
 
-            ASSERT_THROW(Brush::create(worldBounds, {
+            CHECK(Brush::create(worldBounds, {
                 createParaxial(
                     vm::vec3(0.0, 0.0, 0.0),
                     vm::vec3(1.0, 0.0, 0.0),
@@ -111,7 +113,7 @@ namespace TrenchBroom {
                     vm::vec3(0.0, 0.0, 0.0),
                     vm::vec3(1.0, 0.0, 0.0),
                     vm::vec3(0.0, 1.0, 0.0)),
-            }), GeometryException);
+            }).is_error());
         }
 
 
@@ -439,7 +441,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
             const BrushBuilder builder(&world, worldBounds);
 
-            Brush brush1 = builder.createBrush(std::vector<vm::vec3>{vm::vec3(64, -64, 16), vm::vec3(64, 64, 16), vm::vec3(64, -64, -16), vm::vec3(64, 64, -16), vm::vec3(48, 64, 16), vm::vec3(48, 64, -16)}, "texture");
+            Brush brush1 = builder.createBrush(std::vector<vm::vec3>{vm::vec3(64, -64, 16), vm::vec3(64, 64, 16), vm::vec3(64, -64, -16), vm::vec3(64, 64, -16), vm::vec3(48, 64, 16), vm::vec3(48, 64, -16)}, "texture").value();
 
             const auto rightFaceIndex = brush1.findFace(vm::vec3::pos_x());
             REQUIRE(rightFaceIndex);
@@ -453,7 +455,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
             const BrushBuilder builder(&world, worldBounds);
 
-            Brush brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
+            Brush brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture").value();
             EXPECT_TRUE(brush1.canExpand(worldBounds, 6, true));
             EXPECT_TRUE(brush1.expand(worldBounds, 6, true));
 
@@ -468,7 +470,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
             const BrushBuilder builder(&world, worldBounds);
 
-            Brush brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
+            Brush brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture").value();
             EXPECT_TRUE(brush1.canExpand(worldBounds, -32, true));
             EXPECT_TRUE(brush1.expand(worldBounds, -32, true));
 
@@ -483,7 +485,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
             const BrushBuilder builder(&world, worldBounds);
 
-            Brush brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture");
+            Brush brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture").value();
             EXPECT_FALSE(brush1.canExpand(worldBounds, -64, true));
             EXPECT_FALSE(brush1.expand(worldBounds, -64, true));
         }
@@ -493,7 +495,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
+            Brush brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom").value();
 
             const vm::vec3 p1(-32.0, -32.0, -32.0);
             const vm::vec3 p2(-32.0, -32.0, +32.0);
@@ -543,7 +545,7 @@ namespace TrenchBroom {
             points.push_back(top);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(points, "some_texture");
+            Brush brush = builder.createBrush(points, "some_texture").value();
 
             std::vector<vm::vec3> newVertexPositions = brush.moveVertices(worldBounds, std::vector<vm::vec3>(1, top), vm::vec3(0.0, 0.0, -32.0));
             ASSERT_EQ(1u, newVertexPositions.size());
@@ -576,7 +578,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(oldPositions, "texture");
+            Brush brush = builder.createBrush(oldPositions, "texture").value();
 
             const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
@@ -648,7 +650,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(oldPositions, "texture");
+            Brush brush = builder.createBrush(oldPositions, "texture").value();
 
             const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
@@ -719,7 +721,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(oldPositions, "texture");
+            Brush brush = builder.createBrush(oldPositions, "texture").value();
 
             const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
@@ -788,7 +790,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(oldPositions, "texture");
+            Brush brush = builder.createBrush(oldPositions, "texture").value();
 
             const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
@@ -855,7 +857,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(oldPositions, "texture");
+            Brush brush = builder.createBrush(oldPositions, "texture").value();
 
             const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
@@ -920,7 +922,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(oldPositions, "texture");
+            Brush brush = builder.createBrush(oldPositions, "texture").value();
 
             const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
             ASSERT_EQ(0u, result.size());
@@ -984,7 +986,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(oldPositions, "texture");
+            Brush brush = builder.createBrush(oldPositions, "texture").value();
 
             const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
@@ -1051,7 +1053,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(oldPositions, "texture");
+            Brush brush = builder.createBrush(oldPositions, "texture").value();
 
             const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
             ASSERT_EQ(0u, result.size());
@@ -1114,7 +1116,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(oldPositions, "texture");
+            Brush brush = builder.createBrush(oldPositions, "texture").value();
 
             const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p7 - p8);
             ASSERT_EQ(1u, result.size());
@@ -1178,7 +1180,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(oldPositions, "texture");
+            Brush brush = builder.createBrush(oldPositions, "texture").value();
 
             const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p7), p8 - p7);
             ASSERT_EQ(1u, result.size());
@@ -1243,7 +1245,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(oldPositions, "texture");
+            Brush brush = builder.createBrush(oldPositions, "texture").value();
 
             const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p6), p9 - p6);
             ASSERT_EQ(1u, result.size());
@@ -1308,7 +1310,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(oldPositions, "texture");
+            Brush brush = builder.createBrush(oldPositions, "texture").value();
 
             const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
             ASSERT_EQ(1u, result.size());
@@ -1375,7 +1377,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(oldPositions, "texture");
+            Brush brush = builder.createBrush(oldPositions, "texture").value();
 
             const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p9), p10 - p9);
             ASSERT_EQ(0u, result.size());
@@ -1419,7 +1421,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
             const BrushBuilder builder(&world, worldBounds);
 
-            Model::Brush brush = builder.createCube(128.0, "texture");
+            Model::Brush brush = builder.createCube(128.0, "texture").value();
 
             std::vector<vm::vec3> allVertexPositions;
             for (const auto* vertex : brush.vertices()) {
@@ -1493,7 +1495,7 @@ namespace TrenchBroom {
                 baseQuadVertexPositions);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
+            Brush brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName).value();
 
             assertCanMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -127.0));
             assertCanNotMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -128.0)); // Onto the base quad plane
@@ -1547,7 +1549,7 @@ namespace TrenchBroom {
             };
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
+            Brush brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName).value();
 
             assertMovingVertexDeletes(brush, peakPosition, vm::vec3(0.0, 0.0, -65.0)); // Move inside the remaining cuboid
             assertCanMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -63.0)); // Slightly above the top of the cuboid is OK
@@ -1565,7 +1567,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createCube(64.0, "asdf");
+            Brush brush = builder.createCube(64.0, "asdf").value();
 
 
             brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, +32.0, +32.0)));
@@ -1650,7 +1652,7 @@ namespace TrenchBroom {
                         toRemove.push_back(vertices[j]);
                         toRemove.push_back(vertices[k]);
 
-                        Brush brush = builder.createBrush(vertices, "asdf");
+                        Brush brush = builder.createBrush(vertices, "asdf").value();
                         ASSERT_TRUE(brush.canRemoveVertices(worldBounds, toRemove));
                         brush.removeVertices(worldBounds, toRemove);
 
@@ -1726,7 +1728,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom");
+            Brush brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom").value();
 
             const vm::vec3 p1(-32.0, -32.0, -32.0);
             const vm::vec3 p2(-32.0, -32.0, +32.0);
@@ -1803,7 +1805,7 @@ namespace TrenchBroom {
             const vm::segment3 edge(vm::vec3(-128, 0, -128), vm::vec3(-128, 0, +128));
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createCube(128, Model::BrushFaceAttributes::NoTextureName);
+            Brush brush = builder.createCube(128, Model::BrushFaceAttributes::NoTextureName).value();
             ASSERT_NE(nullptr, brush.addVertex(worldBounds, edge.start()));
             ASSERT_NE(nullptr, brush.addVertex(worldBounds, edge.end()));
 
@@ -1829,7 +1831,7 @@ namespace TrenchBroom {
             const std::vector<vm::segment3> movingEdges{edge1, edge2};
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createCube(128, Model::BrushFaceAttributes::NoTextureName);
+            Brush brush = builder.createCube(128, Model::BrushFaceAttributes::NoTextureName).value();
             ASSERT_NE(nullptr, brush.addVertex(worldBounds, edge1.start()));
             ASSERT_NE(nullptr, brush.addVertex(worldBounds, edge1.end()));
             ASSERT_NE(nullptr, brush.addVertex(worldBounds, edge2.start()));
@@ -1853,7 +1855,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createCube(64.0, "asdf");
+            Brush brush = builder.createCube(64.0, "asdf").value();
 
             std::vector<vm::vec3> vertexPositions(4);
             vertexPositions[0] = vm::vec3(-32.0, -32.0, +32.0);
@@ -1884,7 +1886,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName);
+            Brush brush = builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName).value();
 
             std::vector<vm::vec3> vertexPositions(4);
             vertexPositions[0] = vm::vec3(-64.0, -64.0, -16.0);
@@ -1963,7 +1965,7 @@ namespace TrenchBroom {
             };
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
+            Brush brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName).value();
 
             assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
         }
@@ -1983,7 +1985,7 @@ namespace TrenchBroom {
             };
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
+            Brush brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName).value();
 
             assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
         }
@@ -1993,7 +1995,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createCube(128.0, Model::BrushFaceAttributes::NoTextureName);
+            Brush brush = builder.createCube(128.0, Model::BrushFaceAttributes::NoTextureName).value();
 
             assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
         }
@@ -2015,7 +2017,7 @@ namespace TrenchBroom {
                     vm::vec3(-64.0, +64.0, +64.0)};
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
+            Brush brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName).value();
             ASSERT_EQ(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), brush.bounds());
 
             assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
@@ -2048,7 +2050,7 @@ namespace TrenchBroom {
             const vm::vec3 topFaceNormal(sqrt(2.0) / 2.0, 0.0, sqrt(2.0) / 2.0);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
+            Brush brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName).value();
 
             const auto topFaceIndex = brush.findFace(topFaceNormal);
             assertCanMoveFace(brush, topFaceIndex, vm::vec3(0, 0, -127));
@@ -2091,7 +2093,7 @@ namespace TrenchBroom {
                 cubeBottomFace);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
+            Brush brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName).value();
 
             // Try to move the top face down along the Z axis
             assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
@@ -2147,7 +2149,7 @@ namespace TrenchBroom {
                 bottomRightPolygon);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName);
+            Brush brush = builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName).value();
 
             EXPECT_TRUE(brush.hasFace(vm::polygon3(leftPolygon)));
             EXPECT_TRUE(brush.hasFace(vm::polygon3(bottomPolygon)));
@@ -2167,7 +2169,7 @@ namespace TrenchBroom {
             const vm::segment3 edge(vm::vec3(-128, 0, -256), vm::vec3(-128, 0, 0));
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createCube(128, Model::BrushFaceAttributes::NoTextureName);
+            Brush brush = builder.createCube(128, Model::BrushFaceAttributes::NoTextureName).value();
             ASSERT_NE(nullptr, brush.addVertex(worldBounds, edge.start()));
             ASSERT_NE(nullptr, brush.addVertex(worldBounds, edge.end()));
 
@@ -2230,7 +2232,7 @@ namespace TrenchBroom {
             Assets::Texture testTexture("testTexture", 64, 64);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createCube(64.0, "");
+            Brush brush = builder.createCube(64.0, "").value();
             for (auto& face : brush.faces()) {
                 face.setTexture(&testTexture);
             }
@@ -2309,7 +2311,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(oldPositions, "texture");
+            Brush brush = builder.createBrush(oldPositions, "texture").value();
 
             for (size_t i = 0; i < oldPositions.size(); ++i) {
                 for (size_t j = 0; j < oldPositions.size(); ++j) {
@@ -2832,7 +2834,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            Brush brush = builder.createBrush(points, "asdf");
+            Brush brush = builder.createBrush(points, "asdf").value();
 
             std::vector<vm::vec3> topFacePos;
             topFacePos.push_back(p1);
@@ -3033,8 +3035,8 @@ namespace TrenchBroom {
             const std::string defaultTexture("default");
 
             BrushBuilder builder(&world, worldBounds);
-            const Brush minuend = builder.createCuboid(vm::bbox3(vm::vec3(-32.0, -16.0, -32.0), vm::vec3(32.0, 16.0, 32.0)), minuendTexture);
-            const Brush subtrahend = builder.createCuboid(vm::bbox3(vm::vec3(-16.0, -32.0, -64.0), vm::vec3(16.0, 32.0, 0.0)), subtrahendTexture);
+            const Brush minuend = builder.createCuboid(vm::bbox3(vm::vec3(-32.0, -16.0, -32.0), vm::vec3(32.0, 16.0, 32.0)), minuendTexture).value();
+            const Brush subtrahend = builder.createCuboid(vm::bbox3(vm::vec3(-16.0, -32.0, -64.0), vm::vec3(16.0, 32.0, 0.0)), subtrahendTexture).value();
 
             const std::vector<Brush> result = minuend.subtract(world, worldBounds, defaultTexture, subtrahend);
             ASSERT_EQ(3u, result.size());
@@ -3118,8 +3120,8 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush1Bounds.intersects(brush2Bounds));
 
             BrushBuilder builder(&world, worldBounds);
-            const Brush brush1 = builder.createCuboid(brush1Bounds, "texture");
-            const Brush brush2 = builder.createCuboid(brush2Bounds, "texture");
+            const Brush brush1 = builder.createCuboid(brush1Bounds, "texture").value();
+            const Brush brush2 = builder.createCuboid(brush2Bounds, "texture").value();
 
             const std::vector<Brush> result = brush1.subtract(world, worldBounds, "texture", brush2);
             ASSERT_EQ(1u, result.size());
@@ -3137,8 +3139,8 @@ namespace TrenchBroom {
             ASSERT_TRUE(brush1Bounds.intersects(brush2Bounds));
 
             BrushBuilder builder(&world, worldBounds);
-            const Brush brush1 = builder.createCuboid(brush1Bounds, "texture");
-            const Brush brush2 = builder.createCuboid(brush2Bounds, "texture");
+            const Brush brush1 = builder.createCuboid(brush1Bounds, "texture").value();
+            const Brush brush2 = builder.createCuboid(brush2Bounds, "texture").value();
 
             const std::vector<Brush> result = brush1.subtract(world, worldBounds, "texture", brush2);
             ASSERT_EQ(0u, result.size());

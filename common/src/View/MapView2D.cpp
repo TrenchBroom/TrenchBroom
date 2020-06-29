@@ -19,11 +19,13 @@
 
 #include "MapView2D.h"
 
+#include "Exceptions.h"
 #include "Logger.h"
 #include "Macros.h"
 #include "Assets/EntityDefinitionManager.h"
-#include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
+#include "Model/BrushError.h"
+#include "Model/BrushNode.h"
 #include "Model/CollectContainedNodesVisitor.h"
 #include "Model/HitAdapter.h"
 #include "Model/PickResult.h"
@@ -57,6 +59,8 @@
 #include "View/VertexTool.h"
 #include "View/VertexToolController.h"
 
+#include <kdl/overload.h>
+#include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/util.h>
@@ -217,8 +221,15 @@ namespace TrenchBroom {
                     tallVertices.push_back(maxPlane.project_point(vertex->position()));
                 }
 
-                Model::BrushNode* tallBrush = document->world()->createBrush(brushBuilder.createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName));
-                tallBrushes.push_back(tallBrush);
+                brushBuilder.createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName)
+                    .visit(kdl::overload {
+                        [&](Model::Brush&& b) {
+                            tallBrushes.push_back(document->world()->createBrush(std::move(b)));
+                        },
+                        [&](const Model::BrushError e) {
+                            m_logger->error() << "Could not create selection brush: " << e;
+                        }
+                    });
             }
 
             Transaction transaction(document, "Select Tall");

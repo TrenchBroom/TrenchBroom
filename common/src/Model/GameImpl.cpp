@@ -21,6 +21,7 @@
 
 #include "Ensure.h"
 #include "Exceptions.h"
+#include "Logger.h"
 #include "Macros.h"
 #include "Assets/Palette.h"
 #include "Assets/EntityModel.h"
@@ -50,14 +51,17 @@
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
 #include "IO/TextureLoader.h"
-#include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
+#include "Model/BrushError.h"
+#include "Model/BrushNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/ExportFormat.h"
 #include "Model/GameConfig.h"
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
 
+#include <kdl/overload.h>
+#include <kdl/result.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
@@ -151,8 +155,15 @@ namespace TrenchBroom {
                 auto world = std::make_unique<WorldNode>(format);
 
                 const Model::BrushBuilder builder(world.get(), worldBounds, defaultFaceAttribs());
-                auto* brush = world->createBrush(builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName));
-                world->defaultLayer()->addChild(brush);
+                builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName).
+                    visit(kdl::overload {
+                        [&](Brush&& b) {
+                            world->defaultLayer()->addChild(world->createBrush(std::move(b)));
+                        },
+                        [&](const Model::BrushError e) {
+                            logger.error() << "Could not create default brush: " << e;
+                        }
+                    });
 
                 if (format == MapFormat::Valve || format == MapFormat::Quake2_Valve || format == MapFormat::Quake3_Valve) {
                     world->addOrUpdateAttribute(AttributeNames::ValveVersion, "220");

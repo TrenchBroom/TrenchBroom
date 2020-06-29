@@ -21,11 +21,14 @@
 
 #include "GTestCompat.h"
 
+#include "Exceptions.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/MapFormat.h"
 #include "Model/WorldNode.h"
+
+#include <kdl/result.h>
 
 #include <string>
 
@@ -36,7 +39,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
-            const Brush cube = builder.createCube(128.0, "someName");
+            const Brush cube = builder.createCube(128.0, "someName").value();
             ASSERT_TRUE(cube.fullySpecified());
             ASSERT_EQ(vm::bbox3d(-64.0, +64.0), cube.bounds());
 
@@ -62,7 +65,7 @@ namespace TrenchBroom {
             defaultAttribs.setColor(Color(255, 255, 255, 255));
 
             BrushBuilder builder(&world, worldBounds, defaultAttribs);
-            const Brush cube = builder.createCube(128.0, "someName");
+            const Brush cube = builder.createCube(128.0, "someName").value();
             ASSERT_TRUE(cube.fullySpecified());
             ASSERT_EQ(vm::bbox3d(-64.0, +64.0), cube.bounds());
 

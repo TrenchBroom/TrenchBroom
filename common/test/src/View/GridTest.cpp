@@ -21,6 +21,7 @@
 
 #include "GTestCompat.h"
 
+#include "Exceptions.h"
 #include "TestUtils.h"
 #include "View/Grid.h"
 #include "Model/Brush.h"
@@ -29,6 +30,8 @@
 #include "Assets/Texture.h"
 #include "Model/MapFormat.h"
 #include "Model/WorldNode.h"
+
+#include <kdl/result.h>
 
 #include <vecmath/polygon.h>
 #include <vecmath/segment.h>
@@ -194,7 +197,7 @@ namespace TrenchBroom {
             Assets::Texture texture("testTexture", 64, 64);
             Model::WorldNode world(Model::MapFormat::Standard);
             Model::BrushBuilder builder(&world, worldBounds);
-            return builder.createCube(128.0, "");
+            return builder.createCube(128.0, "").value();
         }
 
         TEST_CASE("GridTest.moveDeltaForFace", "[GridTest]") {
