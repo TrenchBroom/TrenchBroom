@@ -414,6 +414,15 @@ namespace kdl {
         test_visit_error_rvalue_ref_with_opt_value<result<void, Counter, Error2>>(Counter{});
     }
     
+    TEST_CASE("void_result_test.map", "[void_result_test]") {
+        CHECK(result<bool, Error1, Error2>::success(true) == map_result(
+            []() { return true; },
+            result<void, Error1, Error2>::success()));
+        CHECK(result<bool, Error1, Error2>::error(Error2{}) == map_result(
+            []() { return true; },
+            result<void, Error1, Error2>::error(Error2{})));
+    }
+    
     TEST_CASE("opt_result_test.constructor", "[opt_result_test]") {
         ASSERT_TRUE((result<opt<int>, float, std::string>::success().is_success()));
         ASSERT_TRUE((result<opt<int>, float, std::string>::success(1).is_success()));

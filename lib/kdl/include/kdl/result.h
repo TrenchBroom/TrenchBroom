@@ -462,6 +462,62 @@ namespace kdl {
                 return visitor();
             }
         }
+        
+        /**
+         * Applies the given function to given result and returns a new result with the result type of
+         * the given function as its value type.
+         *
+         * If the given result is a success, the function is applied and the result of applying the
+         * function is returned wrapped in a result.
+         * If the given result contains an error, that error is returned as is.
+         *
+         * @tparam F the type of the function to apply
+         * @param f the function to apply
+         * @param result_ the result to map
+         */
+        template <typename F>
+        friend auto map_result(F&& f, const result& result_) {
+            using R = std::invoke_result_t<F>;
+            if constexpr (std::is_same_v<R, void>) {
+                return visit_result(kdl::overload {
+                    [&]()              { f(); return result<R, Errors...>::success(); },
+                    [] (const auto& e) { return result<R, Errors...>::error(e); }
+                }, result_);
+            } else {
+                return visit_result(kdl::overload {
+                    [&]()              { return result<R, Errors...>::success(f()); },
+                    [] (const auto& e) { return result<R, Errors...>::error(e); }
+                }, result_);
+            }
+        }
+        
+        /**
+         * Applies the given function to given result and returns a new result with the result type of
+         * the given function as its value type.
+         *
+         * If the given result is a success, the function is applied and the result of applying the
+         * function is returned wrapped in a result.
+         * If the given result contains an error, that error is returned as is.
+         *
+         * @tparam F the type of the function to apply
+         * @param f the function to apply
+         * @param result_ the result to map
+         */
+        template <typename F>
+        friend auto map_result(F&& f, result&& result_) {
+            using R = std::invoke_result_t<F>;
+            if constexpr (std::is_same_v<R, void>) {
+                return visit_result(kdl::overload {
+                    [&]()              { f(); return result<R, Errors...>::success(); },
+                    [] (const auto& e) { return result<R, Errors...>::error(e); }
+                }, std::move(result_));
+            } else {
+                return visit_result(kdl::overload {
+                    [&]()              { return result<R, Errors...>::success(f()); },
+                    [] (const auto& e) { return result<R, Errors...>::error(e); }
+                }, std::move(result_));
+            }
+        }
 
         /**
          * Indicates whether this result is empty.
