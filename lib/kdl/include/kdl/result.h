@@ -27,6 +27,18 @@
 
 namespace kdl {
     /**
+     * Thrown when attempting to access a result success value on a failed result.
+     */
+    class bad_result_access : public std::exception {
+    public:
+        bad_result_access() noexcept = default;
+        
+        const char* what() const noexcept override {
+            return "access success value on a failed result";
+        }
+    };
+    
+    /**
      * Wrapper class that can contain either a value or one of several errors.
      *
      * An instance of this class represents an expectation for the result of applying a function if that function
@@ -77,8 +89,8 @@ namespace kdl {
         }
         
         /**
-         * Applies the given visitor to the given result result and returns the result returned by the visitor.
-         * The value or error contained in the given result result is passed to the visitor by const lvalue reference.
+         * Applies the given visitor to the given result and returns the result returned by the visitor.
+         * The value or error contained in the given result is passed to the visitor by const lvalue reference.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
@@ -157,6 +169,36 @@ namespace kdl {
             return visit_result(kdl::overload {
                 [&](value_type&& v) { return result<R, Errors...>::success(f(std::move(v))); },
                 [] (const auto& e)  { return result<R, Errors...>::error(e); }
+            }, std::move(result_));
+        }
+
+        /**
+         * Returns the value contained in the given result if it is successful. Otherwise, throws `bad_result_access`.
+         *
+         * @param result_ the result to access
+         * @return a copy of the value in the given result
+         *
+         * @throw bad_result_access if the given result is an error
+         */
+        friend auto get_success(const result& result_) {
+            return visit_result(kdl::overload {
+                [](const value_type& v) -> value_type { return v; },
+                [](const auto&)         -> value_type { throw bad_result_access(); }
+            }, result_);
+        }
+
+        /**
+         * Returns the value contained in the given result if it is successful. Otherwise, throws `bad_result_access`.
+         *
+         * @param result_ the result to access
+         * @return the value in the given result
+         *
+         * @throw bad_result_access if the given result is an error
+         */
+        friend auto get_success(result&& result_) {
+            return visit_result(kdl::overload {
+                [](value_type&& v) -> value_type { return std::move(v); },
+                [](const auto&)    -> value_type { throw bad_result_access(); }
             }, std::move(result_));
         }
 
@@ -337,6 +379,36 @@ namespace kdl {
         }
 
         /**
+         * Returns the value contained in the given result if it is successful. Otherwise, throws `bad_result_access`.
+         *
+         * @param result_ the result to access
+         * @return a copy of the value in the given result
+         *
+         * @throw bad_result_access if the given result is an error
+         */
+        friend auto get_success(const result& result_) {
+            return visit_result(kdl::overload {
+                [](const value_type& v) -> value_type& { return v; },
+                [](const auto&)         -> value_type& { throw bad_result_access(); }
+            }, result_);
+        }
+
+        /**
+         * Returns the value contained in the given result if it is successful. Otherwise, throws `bad_result_access`.
+         *
+         * @param result_ the result to access
+         * @return the value in the given result
+         *
+         * @throw bad_result_access if the given result is an error
+         */
+        friend auto get_success(result&& result_) {
+            return visit_result(kdl::overload {
+                [](value_type&& v) -> value_type&& { return std::move(v); },
+                [](const auto&)    -> value_type&& { throw bad_result_access(); }
+            }, std::move(result_));
+        }
+
+        /**
          * Indicates whether this result contains a reference.
          */
         bool is_success() const {
@@ -419,7 +491,7 @@ namespace kdl {
         }
 
         /**
-         * Applies the given visitor to the given result result and returns the result returned by the visitor.
+         * Applies the given visitor to the given result and returns the result returned by the visitor.
          * If the given result is successful, then the visitor is called without any arguments.
          * Otherwise, the error contained in the given result is passed to the visitor by const lvalue reference.
          *
@@ -628,8 +700,8 @@ namespace kdl {
         }
         
         /**
-         * Applies the given visitor to the given result result and returns the result returned by the visitor.
-         * The value or error contained in the given result result is passed to the visitor by const lvalue reference.
+         * Applies the given visitor to the given result and returns the result returned by the visitor.
+         * The value or error contained in the given result is passed to the visitor by const lvalue reference.
          * If the given result is successful but does not contain a value, the given visitor is called without any
          * arguments.
          *
@@ -672,6 +744,38 @@ namespace kdl {
             } else {
                 return visitor();
             }
+        }
+
+        /**
+         * Returns the value contained in the given result if it is successful. Otherwise, throws `bad_result_access`.
+         *
+         * @param result_ the result to access
+         * @return a copy of the value in the given result
+         *
+         * @throw bad_result_access if the given result is an error or if the given result does not contain a value
+         */
+        friend auto get_success(const result& result_) {
+            return visit_result(kdl::overload {
+                [](const value_type& v) -> value_type { return v; },
+                []()                    -> value_type { throw bad_result_access(); },
+                [](const auto&)         -> value_type { throw bad_result_access(); }
+            }, result_);
+        }
+
+        /**
+         * Returns the value contained in the given result if it is successful. Otherwise, throws `bad_result_access`.
+         *
+         * @param result_ the result to access
+         * @return the value in the given result
+         *
+         * @throw bad_result_access if the given result is an error or if the given result does not contain a value
+         */
+        friend auto get_success(result&& result_) {
+            return visit_result(kdl::overload {
+                [](value_type&& v) -> value_type { return std::move(v); },
+                []()               -> value_type { throw bad_result_access(); },
+                [](const auto&)    -> value_type { throw bad_result_access(); }
+            }, std::move(result_));
         }
 
         /**
@@ -738,6 +842,16 @@ namespace kdl {
     template <typename F, typename Value, typename... Errors>
     auto map_result(F&& f, result<Value, Errors...>&& result_) {
         return map_result(std::forward<F>(f), std::move(result_));
+    }
+    
+    template <typename Value, typename... Errors>
+    auto get_success(const result<Value, Errors...>& result_) {
+        return get_success(result_);
+    }
+    
+    template <typename Value, typename... Errors>
+    auto get_success(result<Value, Errors...>&& result_) {
+        return get_success(std::move(result_));
     }
 }
 
