@@ -21,15 +21,22 @@
 #define TrenchBroom_NodeSnapshot
 
 #include "FloatType.h"
+#include "Model/Snapshot.h"
+
+#include <kdl/result.h>
+
+#include <vector>
 
 namespace TrenchBroom {
+    class SnapshotException;
+    
     namespace Model {
         class NodeSnapshot {
         public:
             virtual ~NodeSnapshot();
-            void restore(const vm::bbox3& worldBounds);
+            kdl::result<void, SnapshotErrors> restore(const vm::bbox3& worldBounds);
         private:
-            virtual void doRestore(const vm::bbox3& worldBounds) = 0;
+            virtual kdl::result<void, SnapshotErrors> doRestore(const vm::bbox3& worldBounds) = 0;
         };
     }
 }

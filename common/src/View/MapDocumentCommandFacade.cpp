@@ -19,13 +19,15 @@
 
 #include "MapDocumentCommandFacade.h"
 
+#include "Exceptions.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/TextureManager.h"
 #include "Model/Brush.h"
-#include "Model/BrushNode.h"
+#include "Model/BrushError.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushNode.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectSelectableBrushFacesVisitor.h"
 #include "Model/CollectSelectableNodesVisitor.h"
@@ -45,6 +47,8 @@
 #include "View/Selection.h"
 
 #include <kdl/map_utils.h>
+#include <kdl/overload.h>
+#include <kdl/result.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_set.h>
@@ -888,6 +892,18 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::restoreSnapshot(Model::Snapshot* snapshot) {
+            const auto restoreNodesAndLogErrors = [&]() {
+                snapshot->restoreNodes(m_worldBounds).
+                    visit(kdl::overload {
+                        []() {},
+                        [&](const Model::SnapshotErrors& errors) {
+                            for (const auto& e : errors) {
+                                error() << kdl::str_to_string(e);
+                            }
+                        }
+                    });
+            };
+        
             if (!m_selectedNodes.empty()) {
                 const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
                 const std::vector<Model::Node*> parents = collectParents(nodes);
@@ -895,7 +911,7 @@ namespace TrenchBroom {
                 Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
                 Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
 
-                snapshot->restoreNodes(m_worldBounds);
+                restoreNodesAndLogErrors();
 
                 setTextures(m_selectedNodes.nodes());
                 invalidateSelectionBounds();
@@ -903,7 +919,7 @@ namespace TrenchBroom {
 
             const auto& faceHandles = selectedBrushFaces();
             if (!faceHandles.empty()) {
-                snapshot->restoreNodes(m_worldBounds);
+                restoreNodesAndLogErrors();
 
                 // Restoring the snapshots will invalidate all texture pointers on the BrushNode,
                 // since the snapshot has a whole brush granularity, so we need to call

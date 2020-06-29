@@ -23,6 +23,8 @@
 #include "FloatType.h"
 #include "Macros.h"
 
+#include <kdl/result.h>
+
 #include <vector>
 
 namespace TrenchBroom {
@@ -31,6 +33,9 @@ namespace TrenchBroom {
         class BrushFaceHandle;
         class Node;
         class NodeSnapshot;
+
+        enum class BrushError;
+        using SnapshotErrors = std::vector<BrushError>;
 
         class Snapshot {
         private:
@@ -46,7 +51,16 @@ namespace TrenchBroom {
 
             ~Snapshot();
 
-            void restoreNodes(const vm::bbox3& worldBounds);
+            /**
+             * Restores the snapshotted nodes into their original states.
+             *
+             * Note that restoring should usually not fail unless there was a programming error. We do catch such
+             * potential errors and return an error in this case, anyway.
+             *
+             * @param worldBounds the world bounds
+             * @return nothing on success or an error if restore failed
+             */
+            kdl::result<void, SnapshotErrors> restoreNodes(const vm::bbox3& worldBounds);
         private:
             void takeSnapshot(Node* node);
             
