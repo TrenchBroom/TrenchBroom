@@ -49,6 +49,8 @@ namespace TrenchBroom {
             const std::string LayerName         = "_tb_name";
             const std::string LayerSortIndex    = "_tb_layer_sort_index";
             const std::string LayerColor        = "_tb_layer_color";
+            const std::string LayerLocked       = "_tb_layer_locked";
+            const std::string LayerHidden       = "_tb_layer_hidden";
             const std::string Layer             = "_tb_layer";
             const std::string GroupId           = "_tb_id";
             const std::string GroupName         = "_tb_name";
@@ -67,6 +69,8 @@ namespace TrenchBroom {
             const std::string GroupTypeGroup      = "_tb_group";
             const std::string DefaultValue        = "";
             const std::string NoSoftMapBounds     = "none";
+            const std::string LayerLockedValue    = "1";
+            const std::string LayerHiddenValue    = "1";
         }
 
         bool isNumberedAttribute(const std::string_view prefix, const std::string_view name) {

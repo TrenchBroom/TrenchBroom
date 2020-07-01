@@ -23,7 +23,9 @@
 #include "Model/BrushNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/LayerNode.h"
+#include "Model/LockState.h"
 #include "Model/WorldNode.h"
+#include "Model/VisibilityState.h"
 
 #include <kdl/vector_set.h>
 #include <kdl/string_utils.h>
@@ -102,7 +104,10 @@ namespace TrenchBroom {
             for (const Model::EntityAttribute& attribute : attributes) {
                 if (attribute.name() == Model::AttributeNames::LayerColor) {
                     m_world->defaultLayer()->addOrUpdateAttribute(attribute.name(), attribute.value());
-                    break;
+                } else if (attribute.hasNameAndValue(Model::AttributeNames::LayerLocked, Model::AttributeValues::LayerLockedValue)) {
+                    m_world->defaultLayer()->setLockState(Model::LockState::Lock_Locked);
+                } else if (attribute.hasNameAndValue(Model::AttributeNames::LayerHidden, Model::AttributeValues::LayerHiddenValue)) {
+                    m_world->defaultLayer()->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
                 }
             }
             return m_world->defaultLayer();
