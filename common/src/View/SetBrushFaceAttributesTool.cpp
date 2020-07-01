@@ -38,6 +38,8 @@
 
 namespace TrenchBroom {
     namespace View {
+        static const std::string TransferFaceAttributesTransactionName = "transferFaceAttributes";
+
         SetBrushFaceAttributesTool::SetBrushFaceAttributesTool(std::weak_ptr<MapDocument> document) :
         ToolControllerBase(),
         Tool(true),
@@ -62,10 +64,17 @@ namespace TrenchBroom {
 
         bool SetBrushFaceAttributesTool::doMouseDoubleClick(const InputState& inputState) {
             if (canCopyAttributesFromSelection(inputState)) {
-                // A double click is always preceeded by a single click, so we already done some work which is now
-                // superseded by what is done next. To avoid inconsistencies with undo, we undo the work done by the
-                // single click now:
+                // The typical use case is, doMouseClick() previously copied the selected attributes to the clicked face,
+                // and now the second click has arrived so we're about to copy the selected attributes to the whole brush.
+                // To make undo/redo more intuitivie, undo the application to the single face now, so that if the
+                // double click is later undone/redone, it appears as one atomic action.
                 auto document = kdl::mem_lock(m_document);
+
+                if (!document->canUndoCommand() || document->undoCommandName() != TransferFaceAttributesTransactionName) {
+                    // The last click may not have been handled by this tool, see:
+                    // https://github.com/kduske/TrenchBroom/issues/3332
+                    return false;
+                }
                 document->undoCommand();
 
                 copyAttributesFromSelection(inputState, true);
@@ -215,7 +224,7 @@ namespace TrenchBroom {
             const Model::WrapStyle style =
                     copyTextureAttribsRotationModifiersDown(inputState) ? Model::WrapStyle::Rotation : Model::WrapStyle::Projection;
 
-            const Transaction transaction(document);
+            const Transaction transaction(document, TransferFaceAttributesTransactionName);
             document->deselectAll();
             document->select(targetFaceHandles);
 
