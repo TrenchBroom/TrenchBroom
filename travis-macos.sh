@@ -57,7 +57,7 @@ cd "$BUILD_DIR/common/test"
 
 if [[ $TB_DEBUG_BUILD != "true" ]] ; then
     cd "$BUILD_DIR/common/benchmark"
-    ./common-benmchark || exit 1
+    ./common-benchmark || exit 1
 else
     echo "Skipping common-benmchark because this is a debug build"
 fi
