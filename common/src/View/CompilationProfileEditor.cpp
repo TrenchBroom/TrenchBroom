@@ -147,6 +147,7 @@ namespace TrenchBroom {
         void CompilationProfileEditor::addTask() {
             QMenu menu;
             auto* exportMapAction = menu.addAction("Export Map");
+            auto* exportObjAction = menu.addAction("Export Obj");
             auto* copyFilesAction = menu.addAction("Copy Files");
             auto* runToolAction   = menu.addAction("Run Tool");
 
@@ -154,6 +155,8 @@ namespace TrenchBroom {
             auto* chosenAction = menu.exec(QCursor::pos());
             if (chosenAction == exportMapAction) {
                 task = std::make_unique<Model::CompilationExportMap>("${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map");
+            } else if (chosenAction == exportObjAction) {
+                task = std::make_unique<Model::CompilationExportObj>("${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.obj");
             } else if (chosenAction == copyFilesAction) {
                 task = std::make_unique<Model::CompilationCopyFiles>("", "");
             } else if (chosenAction == runToolAction) {

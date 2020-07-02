@@ -169,6 +169,42 @@ namespace TrenchBroom {
             }
         }
 
+        CompilationExportObjTaskEditor::CompilationExportObjTaskEditor(std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationExportObj& task, QWidget* parent) :
+        CompilationTaskEditorBase("Export Obj", std::move(document), profile, task, parent),
+        m_targetEditor(nullptr) {
+            auto* formLayout = new QFormLayout();
+            formLayout->setContentsMargins(LayoutConstants::WideHMargin, LayoutConstants::WideVMargin, LayoutConstants::WideHMargin, LayoutConstants::WideVMargin);
+            formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+            formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+            m_panel->getPanel()->setLayout(formLayout);
+
+            m_targetEditor = new MultiCompletionLineEdit();
+            setupCompleter(m_targetEditor);
+            formLayout->addRow("Target", m_targetEditor);
+
+            connect(m_targetEditor, &QLineEdit::textChanged, this, &CompilationExportObjTaskEditor::targetSpecChanged);
+        }
+
+        void CompilationExportObjTaskEditor::updateItem() {
+            const auto targetSpec = QString::fromStdString(task().targetSpec());
+            if (m_targetEditor->text() != targetSpec) {
+                m_targetEditor->setText(targetSpec);
+            }
+        }
+
+        Model::CompilationExportObj& CompilationExportObjTaskEditor::task() {
+            // This is safe because we know what type of task the editor was initialized with.
+            // We have to do this to avoid using a template as the base class.
+            return static_cast<Model::CompilationExportObj&>(*m_task);
+        }
+
+        void CompilationExportObjTaskEditor::targetSpecChanged(const QString& text) {
+            const auto targetSpec = text.toStdString();
+            if (task().targetSpec() != targetSpec) {
+                task().setTargetSpec(targetSpec);
+            }
+        }
+
         CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationCopyFiles& task, QWidget* parent) :
         CompilationTaskEditorBase("Copy Files", std::move(document), profile, task, parent),
         m_sourceEditor(nullptr),
@@ -344,6 +380,10 @@ namespace TrenchBroom {
 
             void visit(Model::CompilationExportMap& task) override {
                 m_result = new CompilationExportMapTaskEditor(m_document, m_profile, task, m_parent);
+            }
+
+            void visit(Model::CompilationExportObj& task) override {
+                m_result = new CompilationExportObjTaskEditor(m_document, m_profile, task, m_parent);
             }
 
             void visit(Model::CompilationCopyFiles& task) override {

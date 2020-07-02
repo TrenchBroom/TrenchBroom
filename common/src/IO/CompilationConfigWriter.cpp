@@ -74,6 +74,13 @@ namespace TrenchBroom {
                 m_array.push_back(EL::Value(map));
             }
 
+            void visit(const Model::CompilationExportObj& task) override {
+                EL::MapType map;
+                map["type"] = EL::Value("export");
+                map["target"] = EL::Value(task.targetSpec());
+                m_array.push_back(EL::Value(map));
+            }
+
             void visit(const Model::CompilationCopyFiles& task) override {
                 EL::MapType map;
                 map["type"] = EL::Value("copy");

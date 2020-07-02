@@ -51,6 +51,7 @@ namespace TrenchBroom {
             std::vector<std::unique_ptr<Model::CompilationTask>> parseTasks(const EL::Value& value) const;
             std::unique_ptr<Model::CompilationTask> parseTask(const EL::Value& value) const;
             std::unique_ptr<Model::CompilationTask> parseExportTask(const EL::Value& value) const;
+            std::unique_ptr<Model::CompilationTask> parseExportObjTask(const EL::Value& value) const;
             std::unique_ptr<Model::CompilationTask> parseCopyTask(const EL::Value& value) const;
             std::unique_ptr<Model::CompilationTask> parseToolTask(const EL::Value& value) const;
 

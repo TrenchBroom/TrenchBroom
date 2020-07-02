@@ -103,6 +103,12 @@ namespace TrenchBroom {
             return std::make_unique<Model::CompilationExportMap>(target);
         }
 
+        std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseExportObjTask(const EL::Value& value) const {
+            expectStructure(value, "[ {'type': 'String', 'target': 'String'}, {} ]");
+            const std::string target = value["target"].stringValue();
+            return std::make_unique<Model::CompilationExportObj>(target);
+        }
+
         std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseCopyTask(const EL::Value& value) const {
             expectStructure(value, "[ {'type': 'String', 'source': 'String', 'target': 'String'}, {} ]");
 

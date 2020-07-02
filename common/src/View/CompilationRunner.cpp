@@ -25,6 +25,7 @@
 #include "IO/Path.h"
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
+#include "Model/ExportFormat.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h"
@@ -93,6 +94,42 @@ namespace TrenchBroom {
         }
 
         void CompilationExportMapTaskRunner::doTerminate() {}
+
+        CompilationExportObjTaskRunner::CompilationExportObjTaskRunner(CompilationContext& context, const Model::CompilationExportObj& task) :
+        CompilationTaskRunner(context),
+        m_task(task.clone()) {}
+
+        CompilationExportObjTaskRunner::~CompilationExportObjTaskRunner() = default;
+
+        void CompilationExportObjTaskRunner::doExecute() {
+            emit start();
+
+            try {
+                const IO::Path targetPath(interpolate(m_task->targetSpec()));
+                try {
+                    m_context << "#### Exporting obj file '" << targetPath.asString() << "'\n";
+
+                    if (!m_context.test()) {
+                        const IO::Path directoryPath = targetPath.deleteLastComponent();
+                        if (!IO::Disk::directoryExists(directoryPath)) {
+                            IO::Disk::createDirectory(directoryPath);
+                        }
+
+                        const auto document = m_context.document();
+                        document->exportDocumentAs(Model::ExportFormat::WavefrontObj, targetPath);
+                    }
+                    emit end();
+                } catch (const Exception& e) {
+                    m_context << "#### Could not export obj file '" << targetPath.asString() << "': " << e.what() << "\n";
+                    throw;
+                }
+            } catch (const Exception&) {
+                emit error();
+            }
+
+        }
+
+        void CompilationExportObjTaskRunner::doTerminate() {}
 
         CompilationCopyFilesTaskRunner::CompilationCopyFilesTaskRunner(CompilationContext& context, const Model::CompilationCopyFiles& task) :
         CompilationTaskRunner(context),
@@ -235,6 +272,10 @@ namespace TrenchBroom {
 
             void visit(const Model::CompilationExportMap& task) override {
                 appendRunner(std::make_unique<CompilationExportMapTaskRunner>(m_context, task));
+            }
+
+            void visit(const Model::CompilationExportObj& task) override {
+                appendRunner(std::make_unique<CompilationExportObjTaskRunner>(m_context, task));
             }
 
             void visit(const Model::CompilationCopyFiles& task) override {

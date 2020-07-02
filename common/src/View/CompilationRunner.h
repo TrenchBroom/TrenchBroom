@@ -33,6 +33,7 @@ namespace TrenchBroom {
     namespace Model {
         class CompilationCopyFiles;
         class CompilationExportMap;
+        class CompilationExportObj;
         class CompilationProfile;
         class CompilationRunTool;
     }
@@ -76,6 +77,20 @@ namespace TrenchBroom {
             void doTerminate() override;
 
             deleteCopyAndMove(CompilationExportMapTaskRunner)
+        };
+
+        class CompilationExportObjTaskRunner : public CompilationTaskRunner {
+            Q_OBJECT
+        private:
+            std::unique_ptr<const Model::CompilationExportObj> m_task;
+        public:
+            CompilationExportObjTaskRunner(CompilationContext& context, const Model::CompilationExportObj& task);
+            ~CompilationExportObjTaskRunner() override;
+        private:
+            void doExecute() override;
+            void doTerminate() override;
+
+            deleteCopyAndMove(CompilationExportObjTaskRunner)
         };
 
         class CompilationCopyFilesTaskRunner : public CompilationTaskRunner {

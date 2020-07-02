@@ -33,6 +33,7 @@ namespace TrenchBroom {
     namespace Model {
         class CompilationCopyFiles;
         class CompilationExportMap;
+        class CompilationExportObj;
         class CompilationProfile;
         class CompilationRunTool;
         class CompilationTask;
@@ -84,6 +85,19 @@ namespace TrenchBroom {
         private:
             void updateItem() override;
             Model::CompilationExportMap& task();
+        private slots:
+            void targetSpecChanged(const QString& text);
+        };
+
+        class CompilationExportObjTaskEditor : public CompilationTaskEditorBase {
+            Q_OBJECT
+        private:
+            MultiCompletionLineEdit* m_targetEditor;
+        public:
+            CompilationExportObjTaskEditor(std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationExportObj& task, QWidget* parent = nullptr);
+        private:
+            void updateItem() override;
+            Model::CompilationExportObj& task();
         private slots:
             void targetSpecChanged(const QString& text);
         };

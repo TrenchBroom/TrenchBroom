@@ -59,6 +59,38 @@ namespace TrenchBroom {
             return new CompilationExportMap(m_targetSpec);
         }
 
+        CompilationExportObj::CompilationExportObj(const std::string& targetSpec) :
+        m_targetSpec(targetSpec) {}
+
+        void CompilationExportObj::accept(CompilationTaskVisitor& visitor) {
+            visitor.visit(*this);
+        }
+
+        void CompilationExportObj::accept(ConstCompilationTaskVisitor& visitor) const {
+            visitor.visit(*this);
+        }
+
+        void CompilationExportObj::accept(const CompilationTaskConstVisitor& visitor) {
+            visitor.visit(*this);
+        }
+
+        void CompilationExportObj::accept(const ConstCompilationTaskConstVisitor& visitor) const {
+            visitor.visit(*this);
+        }
+
+        const std::string& CompilationExportObj::targetSpec() const {
+            return m_targetSpec;
+        }
+
+        void CompilationExportObj::setTargetSpec(const std::string& targetSpec) {
+            m_targetSpec = targetSpec;
+            taskDidChange();
+        }
+
+        CompilationExportObj* CompilationExportObj::clone() const {
+            return new CompilationExportObj(m_targetSpec);
+        }
+
         CompilationCopyFiles::CompilationCopyFiles(const std::string& sourceSpec, const std::string& targetSpec) :
         CompilationTask(),
         m_sourceSpec(sourceSpec),
