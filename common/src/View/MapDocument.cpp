@@ -1740,7 +1740,6 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::snapVertices(const FloatType snapTo) {
-            assert(m_selectedNodes.hasOnlyBrushes());
             const auto result = executeAndStore(SnapBrushVerticesCommand::snap(snapTo));
             return result->success();
         }

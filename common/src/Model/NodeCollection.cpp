@@ -83,6 +83,31 @@ namespace TrenchBroom {
             }
         };
 
+        class NodeCollection::FindBrushes : public NodeVisitor {
+        private:
+            std::vector<Model::BrushNode*>& m_brushNodes;
+        public:
+            explicit FindBrushes(std::vector<Model::BrushNode*>& brushNodes) :
+            m_brushNodes(brushNodes) {}
+        private:
+            void doVisit(WorldNode*) override         {}
+            void doVisit(LayerNode* layer) override   {}
+            void doVisit(GroupNode* group) override   {}
+            void doVisit(EntityNode* entity) override {}
+            void doVisit(BrushNode* brush) override   { m_brushNodes.push_back(brush); }
+        };
+
+        class NodeCollection::HasBrush : public NodeVisitor {
+        public:
+            bool hasBrush = false;
+        private:
+            void doVisit(WorldNode*) override         {}
+            void doVisit(LayerNode* layer) override   {}
+            void doVisit(GroupNode* group) override   {}
+            void doVisit(EntityNode* entity) override {}
+            void doVisit(BrushNode* brush) override   { hasBrush = true; cancel(); }
+        };
+
         bool NodeCollection::empty() const {
             return m_nodes.empty();
         }
@@ -139,6 +164,14 @@ namespace TrenchBroom {
             return !empty() && nodeCount() == brushCount();
         }
 
+        bool NodeCollection::hasBrushesRecursively() const {
+            // This is just an optimization of `!brushesRecursively().empty()`
+            // that stops after finding the first brush
+            HasBrush visitor;
+            Node::acceptAndRecurse(std::begin(*this), std::end(*this), visitor);
+            return visitor.hasBrush;
+        }
+
         std::vector<Node*>::iterator NodeCollection::begin() {
             return std::begin(m_nodes);
         }
@@ -173,6 +206,13 @@ namespace TrenchBroom {
 
         const std::vector<BrushNode*>& NodeCollection::brushes() const {
             return m_brushes;
+        }
+
+        std::vector<BrushNode*> NodeCollection::brushesRecursively() const {
+            std::vector<Model::BrushNode*> result;
+            FindBrushes visitor(result);
+            Node::acceptAndRecurse(std::begin(*this), std::end(*this), visitor);
+            return result;
         }
 
         void NodeCollection::addNodes(const std::vector<Node*>& nodes) {
