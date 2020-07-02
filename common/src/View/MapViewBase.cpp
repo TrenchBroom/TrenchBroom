@@ -1063,12 +1063,15 @@ namespace TrenchBroom {
             const std::vector<Model::LayerNode*> selectedObjectLayers = Model::findLayersUserSorted(nodes);
 
             QMenu* moveSelectionTo = menu.addMenu(tr("Move to Layer"));
+            bool anyMoveToLayerItemEnabled = false;
             for (Model::LayerNode* layer : document->world()->allLayersUserSorted()) {
                 QAction* action = moveSelectionTo->addAction(QString::fromStdString(layer->name()), this, [=](){
                     document->moveSelectionToLayer(layer);
                 });
                 action->setEnabled(document->canMoveSelectionToLayer(layer));
+                anyMoveToLayerItemEnabled |= action->isEnabled();
             }
+            moveSelectionTo->setEnabled(anyMoveToLayerItemEnabled);
 
             if (selectedObjectLayers.size() == 1u) {
                 Model::LayerNode* layer = selectedObjectLayers[0];
@@ -1083,6 +1086,9 @@ namespace TrenchBroom {
                         document->setCurrentLayer(layer);
                     });
                     action->setEnabled(document->canSetCurrentLayer(layer));
+                }
+                if (makeLayerActive->isEmpty()) {
+                    makeLayerActive->setDisabled(true);
                 }
             }
 

@@ -1277,7 +1277,7 @@ namespace TrenchBroom {
                 }
             }
 
-            return true;
+            return false;
         }
 
         void MapDocument::hideLayers(const std::vector<Model::LayerNode*>& layers) {
