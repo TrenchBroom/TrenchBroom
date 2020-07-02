@@ -57,10 +57,6 @@ namespace TrenchBroom {
         m_layerList(nullptr),
         m_addLayerButton(nullptr),
         m_removeLayerButton(nullptr),
-        m_unlockAllLayersButton(nullptr),
-        m_lockAllLayersButton(nullptr),
-        m_showAllLayersButton(nullptr),
-        m_hideAllLayersButton(nullptr),
         m_moveLayerUpButton(nullptr),
         m_moveLayerDownButton(nullptr) {
             createGui();
