@@ -90,22 +90,22 @@ namespace TrenchBroom {
             explicit FindBrushes(std::vector<Model::BrushNode*>& brushNodes) :
             m_brushNodes(brushNodes) {}
         private:
-            void doVisit(WorldNode*) override         {}
-            void doVisit(LayerNode* layer) override   {}
-            void doVisit(GroupNode* group) override   {}
-            void doVisit(EntityNode* entity) override {}
-            void doVisit(BrushNode* brush) override   { m_brushNodes.push_back(brush); }
+            void doVisit(WorldNode*) override       {}
+            void doVisit(LayerNode*) override       {}
+            void doVisit(GroupNode*) override       {}
+            void doVisit(EntityNode*) override      {}
+            void doVisit(BrushNode* brush) override { m_brushNodes.push_back(brush); }
         };
 
         class NodeCollection::HasBrush : public NodeVisitor {
         public:
             bool hasBrush = false;
         private:
-            void doVisit(WorldNode*) override         {}
-            void doVisit(LayerNode* layer) override   {}
-            void doVisit(GroupNode* group) override   {}
-            void doVisit(EntityNode* entity) override {}
-            void doVisit(BrushNode* brush) override   { hasBrush = true; cancel(); }
+            void doVisit(WorldNode*) override  {}
+            void doVisit(LayerNode*) override  {}
+            void doVisit(GroupNode*) override  {}
+            void doVisit(EntityNode*) override {}
+            void doVisit(BrushNode*) override  { hasBrush = true; cancel(); }
         };
 
         bool NodeCollection::empty() const {
