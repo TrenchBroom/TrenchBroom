@@ -103,7 +103,7 @@ namespace TrenchBroom {
             m_layoutCombo->addItem("Three Panes");
             m_layoutCombo->addItem("Four Panes");
 
-            m_brightnessSlider = new SliderWithLabel(0, 100);
+            m_brightnessSlider = new SliderWithLabel(0, 200);
             m_brightnessSlider->setMaximumWidth(400);
             m_brightnessSlider->setToolTip("Sets the brightness for textures and model skins in the 3D editing view.");
             m_gridAlphaSlider = new SliderWithLabel(0, 100);
@@ -217,7 +217,7 @@ namespace TrenchBroom {
 
         void ViewPreferencePane::doUpdateControls() {
             m_layoutCombo->setCurrentIndex(pref(Preferences::MapViewLayout));
-            m_brightnessSlider->setValue(int(pref(Preferences::Brightness) * 40.0f));
+            m_brightnessSlider->setValue(int(pref(Preferences::Brightness) * 100.0f));
             m_gridAlphaSlider->setRatio(pref(Preferences::GridAlpha));
             m_fovSlider->setValue(int(pref(Preferences::CameraFov)));
 
@@ -283,7 +283,7 @@ namespace TrenchBroom {
 
         void ViewPreferencePane::brightnessChanged(const int value) {
             auto& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::Brightness, static_cast<float>(value) / 40.0f);
+            prefs.set(Preferences::Brightness, static_cast<float>(value) / 100.0f);
         }
 
         void ViewPreferencePane::gridAlphaChanged(const int /* value */) {
