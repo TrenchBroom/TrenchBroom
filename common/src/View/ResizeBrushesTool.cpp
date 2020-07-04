@@ -19,6 +19,7 @@
 
 #include "ResizeBrushesTool.h"
 
+#include "Exceptions.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "FloatType.h"
@@ -421,35 +422,44 @@ namespace TrenchBroom {
             std::map<Model::Node*, std::vector<Model::Node*>> newNodes;
 
             for (const auto& dragFaceHandle : dragFaces()) {
-                auto& dragFace = dragFaceHandle.face();
                 auto* brushNode = dragFaceHandle.node();
 
-                auto newBrush = brushNode->brush();
-                const auto newDragFaceIndex = newBrush.findFace(dragFace.boundary());
-                if (!newDragFaceIndex) {
-                    kdl::map_clear_and_delete(newNodes);
-                    return false;
-                }
+                const auto& oldBrush = brushNode->brush();
+                const auto dragFaceIndex = dragFaceHandle.faceIndex();
+                const auto newDragFaceNormal = oldBrush.face(dragFaceIndex).boundary().normal;
 
-                if (!newBrush.canMoveBoundary(worldBounds, *newDragFaceIndex, delta)) {
-                    kdl::map_clear_and_delete(newNodes);
-                    return false;
-                }
+                const bool success = oldBrush.moveBoundary(worldBounds, dragFaceIndex, delta, lockTextures)
+                    .visit(kdl::overload {
+                        [&](Model::Brush&& newBrush) {
+                            if (worldBounds.contains(newBrush.bounds())) {
+                                auto clipFace = oldBrush.face(dragFaceIndex);
+                                clipFace.invert();
 
-                const vm::vec3 newDragFaceNormal = newBrush.face(*newDragFaceIndex).boundary().normal;
-                
-                auto clipFace = newBrush.face(*newDragFaceIndex);
-                clipFace.invert();
-                newBrush.moveBoundary(worldBounds, *newDragFaceIndex, delta, lockTextures);
-                
-                if (!newBrush.clip(worldBounds, std::move(clipFace))) {
-                    kdl::map_clear_and_delete(newNodes);
+                                if (!newBrush.clip(worldBounds, std::move(clipFace))) {
+                                    document->error() << "Could not extrude brush: Clipping failed";
+                                    kdl::map_clear_and_delete(newNodes);
+                                    return false;
+                                } else {
+                                    auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
+                                    newNodes[brushNode->parent()].push_back(newBrushNode);
+                                    newDragHandles.emplace_back(newBrushNode, newDragFaceNormal);
+                                    return true;
+                                }
+                            } else {
+                                // brush exceeds world bounds
+                                return false;
+                            }
+                        },
+                        [&](const Model::BrushError e) {
+                            document->error() << "Could not extrude brush: " << e;
+                            kdl::map_clear_and_delete(newNodes);
+                            return false;
+                        },
+                    });
+
+                if (!success) {
                     return false;
                 }
-                
-                auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
-                newNodes[brushNode->parent()].push_back(newBrushNode);
-                newDragHandles.emplace_back(newBrushNode, newDragFaceNormal);
             }
 
             document->deselectAll();

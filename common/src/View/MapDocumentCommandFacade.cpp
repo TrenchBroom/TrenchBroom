@@ -643,40 +643,54 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
         }
 
-        std::vector<vm::polygon3> MapDocumentCommandFacade::performResizeBrushes(const std::vector<vm::polygon3>& polygons, const vm::vec3& delta) {
-            std::vector<vm::polygon3> result;
-
+        std::optional<std::vector<vm::polygon3>> MapDocumentCommandFacade::performResizeBrushes(const std::vector<vm::polygon3>& polygons, const vm::vec3& delta) {
             const std::vector<Model::BrushNode*>& selectedBrushes = m_selectedNodes.brushes();
+
+            std::vector<vm::polygon3> result;
             std::vector<Model::Node*> changedNodes;
+            std::map<Model::BrushNode*, Model::Brush> changes;
 
             for (Model::BrushNode* brushNode : selectedBrushes) {
-                const Model::Brush& brush = brushNode->brush();
-                if (const auto faceIndex = brush.findFace(polygons)) {
-                    if (!brush.canMoveBoundary(m_worldBounds, *faceIndex, delta)) {
-                        return result;
-                    }
-
-                    changedNodes.push_back(brushNode);
+                const Model::Brush& original = brushNode->brush();
+                const auto faceIndex = original.findFace(polygons);
+                if (!faceIndex) {
+                    return std::nullopt;
                 }
+
+                const bool success = original.moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
+                    .visit(kdl::overload {
+                        [&](Model::Brush&& copy) -> bool {
+                            if (m_worldBounds.contains(copy.bounds())) {
+                                result.push_back(copy.face(*faceIndex).polygon());
+                                changedNodes.push_back(brushNode);
+                                changes.emplace(brushNode, std::move(copy));
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        },
+                        [&](const Model::BrushError e) -> bool {
+                            error() << "Could not resize brush: " << e;
+                            return false;
+                        }
+                    });
+
+                if (!success) {
+                    return std::nullopt;
+                }
+
             }
 
             const auto parents = collectParents(std::begin(changedNodes), std::end(changedNodes));
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, changedNodes);
 
-            for (Model::BrushNode* brushNode : selectedBrushes) {
-                Model::Brush brush = brushNode->brush();
-                if (const auto faceIndex = brush.findFace(polygons)) {
-                    brush.moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock));
-                    const Model::BrushFace& face = brush.face(*faceIndex);
-                    result.push_back(face.polygon());
-                    brushNode->setBrush(std::move(brush));
-                }
+            for (auto& [brushNode, brush] : changes) {
+                brushNode->setBrush(std::move(brush));
             }
-            
             invalidateSelectionBounds();
 
-            return result;
+            return { result };
         }
 
         void MapDocumentCommandFacade::performMoveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) {
