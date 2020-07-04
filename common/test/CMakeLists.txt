@@ -128,7 +128,6 @@ if(WIN32)
     add_custom_command(TARGET common-test POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freeimage>" "$<TARGET_FILE_DIR:common-test>"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freetype>" "$<TARGET_FILE_DIR:common-test>"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:z>" "$<TARGET_FILE_DIR:common-test>"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Widgets>" "$<TARGET_FILE_DIR:common-test>"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Gui>" "$<TARGET_FILE_DIR:common-test>"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Core>" "$<TARGET_FILE_DIR:common-test>"
