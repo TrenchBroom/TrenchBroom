@@ -38,7 +38,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        static const std::string TransferFaceAttributesTransactionName = "transferFaceAttributes";
+        static const std::string TransferFaceAttributesTransactionName = "Transfer Face Attributes";
 
         SetBrushFaceAttributesTool::SetBrushFaceAttributesTool(std::weak_ptr<MapDocument> document) :
         ToolControllerBase(),
