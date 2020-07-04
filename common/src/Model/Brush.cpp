@@ -248,54 +248,18 @@ namespace TrenchBroom {
             return result.is_success() && !m_faces.empty();
         }
 
-        bool Brush::canMoveBoundary(const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta) const {
-            const auto& face = this->face(faceIndex);
-            auto testFace = BrushFace(face);
-            if (testFace.transform(vm::translation_matrix(delta), false).is_error())  {
-                return false;
-            }
+        kdl::result<Brush, BrushError> Brush::moveBoundary(const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta, const bool lockTexture) const {
+            assert(faceIndex < faceCount());
 
-            std::vector<BrushFace> testFaces;
-            testFaces.reserve(faceCount());
-            testFaces.push_back(std::move(testFace));
-
-            for (const auto& brushFace : m_faces) {
-                if (&brushFace != &face) {
-                    testFaces.emplace_back(brushFace);
-                }
-            }
-
-            return Brush::create(worldBounds, std::move(testFaces))
-                .visit(kdl::overload {
-                    [&](const Brush& b) {
-                        const auto inWorldBounds = worldBounds.contains(b.bounds());
-                        const auto closed = b.closed();
-                        const auto allFaces = b.faceCount() == faceCount();
-
-                        return inWorldBounds && closed && allFaces;
-                    },
-                    [](const BrushError) {
-                        return false;
-                    }
-                });
-        }
-
-        void Brush::moveBoundary(const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta, const bool lockTexture) {
-            assert(canMoveBoundary(worldBounds, faceIndex, delta));
-
-            auto& face = this->face(faceIndex);
-            face.transform(vm::translation_matrix(delta), lockTexture)
-                .visit(kdl::overload {
-                    [&]() {
-                        updateGeometryFromFaces(worldBounds)
-                            .visit(kdl::overload {
-                                []() {},
-                                [](const BrushError e) { throw GeometryException(kdl::str_to_string(e)); } // TODO 2983
-                            });
-                    },
-                    [](const BrushError e) {
-                        throw GeometryException(kdl::str_to_string(e)); // TODO 2983
-                    },
+            auto newFaces = m_faces;
+            
+            return newFaces[faceIndex].transform(vm::translation_matrix(delta), lockTexture)
+                .and_then([&]() {
+                        return Brush::create(worldBounds, newFaces);
+                }).and_then([&](Brush&& b){
+                    return b.faceCount() != faceCount()
+                        ? kdl::result<Brush, BrushError>::error(BrushError::InvalidBrush)
+                        : kdl::result<Brush, BrushError>::success(std::move(b));
                 });
         }
 

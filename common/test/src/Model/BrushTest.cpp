@@ -50,6 +50,18 @@
 
 namespace TrenchBroom {
     namespace Model {
+        static bool canMoveBoundary(const Brush& brush, const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta) {
+            return brush.moveBoundary(worldBounds, faceIndex, delta, false)
+                .visit(kdl::overload {
+                    [&](const Brush& b) {
+                        return worldBounds.contains(b.bounds());
+                    },
+                    [](const BrushError) {
+                        return false;
+                    },
+                });
+        }
+
         TEST_CASE("BrushTest.constructBrushWithFaces", "[BrushTest]") {
             const vm::bbox3 worldBounds(4096.0);
 
@@ -424,14 +436,16 @@ namespace TrenchBroom {
             const auto topFaceIndex = brush.findFace(vm::vec3::pos_z());
             REQUIRE(topFaceIndex);
 
-            CHECK(!brush.canMoveBoundary(worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, +16.0)));
-            CHECK(!brush.canMoveBoundary(worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, -16.0)));
-            CHECK(!brush.canMoveBoundary(worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, +2.0)));
-            CHECK(!brush.canMoveBoundary(worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, -6.0)));
-            CHECK(brush.canMoveBoundary(worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, +1.0)));
-            CHECK(brush.canMoveBoundary(worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, -5.0)));
+            CHECK(!canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, +16.0)));
+            CHECK(!canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, -16.0)));
+            CHECK(!canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, +2.0)));
+            CHECK(!canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, -6.0)));
+            CHECK(canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, +1.0)));
+            CHECK(canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, -5.0)));
 
-            brush.moveBoundary(worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, 1.0), false);
+            brush = brush.moveBoundary(worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, 1.0), false).value();
+            CHECK(worldBounds.contains(brush.bounds()));
+            
             CHECK(brush.faces().size() == 6u);
             CHECK(brush.bounds().size().z() == 7.0);
         }
@@ -446,8 +460,8 @@ namespace TrenchBroom {
             const auto rightFaceIndex = brush1.findFace(vm::vec3::pos_x());
             REQUIRE(rightFaceIndex);
 
-            EXPECT_TRUE(brush1.canMoveBoundary(worldBounds, *rightFaceIndex, vm::vec3(16, 0, 0)));
-            EXPECT_FALSE(brush1.canMoveBoundary(worldBounds, *rightFaceIndex, vm::vec3(8000, 0, 0)));
+            CHECK(canMoveBoundary(brush1, worldBounds, *rightFaceIndex, vm::vec3(16, 0, 0)));
+            CHECK(!canMoveBoundary(brush1, worldBounds, *rightFaceIndex, vm::vec3(8000, 0, 0)));
         }
 
         TEST_CASE("BrushTest.expand", "[BrushTest]") {

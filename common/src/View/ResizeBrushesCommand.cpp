@@ -39,7 +39,7 @@ namespace TrenchBroom {
         m_delta(delta) {}
 
         std::unique_ptr<CommandResult> ResizeBrushesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            m_newFaces = document->performResizeBrushes(m_faces, m_delta);
+            m_newFaces = document->performResizeBrushes(m_faces, m_delta).value_or(std::vector<vm::polygon3>());
             return std::make_unique<CommandResult>(!m_newFaces.empty());
         }
 
