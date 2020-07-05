@@ -869,16 +869,8 @@ namespace TrenchBroom {
             return subtract(factory, worldBounds, defaultTextureName, std::vector<const Brush*>{&subtrahend});
         }
 
-        void Brush::intersect(const vm::bbox3& worldBounds, const Brush& brush) {
-            for (const auto& face : brush.faces()) {
-                m_faces.emplace_back(face);
-            }
-
-            updateGeometryFromFaces(worldBounds)
-                .visit(kdl::overload {
-                    []() {},
-                    [](const BrushError e) { throw GeometryException(kdl::str_to_string(e)); } // TODO 2983
-                });
+        kdl::result<Brush, BrushError> Brush::intersect(const vm::bbox3& worldBounds, const Brush& brush) const {
+            return Brush::create(worldBounds, kdl::vec_concat(m_faces, brush.faces()));
         }
 
         bool Brush::canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const {
