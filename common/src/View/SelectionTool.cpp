@@ -204,6 +204,9 @@ namespace TrenchBroom {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 return false;
             }
+            if (!inputState.checkModifierKeys(MK_DontCare, MK_No, MK_DontCare)) {
+                return false;
+            }
 
             auto document = kdl::mem_lock(m_document);
             return document->editorContext().canChangeSelection();
