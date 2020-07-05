@@ -206,7 +206,17 @@ namespace TrenchBroom {
              */
             std::vector<Brush> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<const Brush*>& subtrahends) const;
             std::vector<Brush> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const Brush& subtrahend) const;
-            void intersect(const vm::bbox3& worldBounds, const Brush& brush);
+
+            /**
+             * Intersects this brush with the given brush and returns the resulting brush.
+             *
+             * If the resulting brush is invalid, an error is returned.
+             *
+             * @param worldBounds the world bounds
+             * @param brush the brush to intersect this brush with
+             * @return the intersection brush or an error if the operation fails
+             */
+            kdl::result<Brush, BrushError> intersect(const vm::bbox3& worldBounds, const Brush& brush) const;
 
             // transformation
             bool canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const;
