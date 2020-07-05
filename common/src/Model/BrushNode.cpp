@@ -24,6 +24,7 @@
 #include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"
 #include "Model/Brush.h"
+#include "Model/BrushError.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushGeometry.h"
@@ -41,6 +42,9 @@
 #include "Model/WorldNode.h"
 #include "Renderer/BrushRendererBrushCache.h"
 
+#include <kdl/overload.h>
+#include <kdl/result.h>
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/intersection.h>
@@ -249,12 +253,20 @@ namespace TrenchBroom {
         kdl::result<void, TransformError> BrushNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
-            m_brush.transform(worldBounds, transformation, lockTextures);
-            
-            invalidateIssues();
-            invalidateVertexCache();
 
-            return kdl::result<void, TransformError>::success();
+            return m_brush.transform(worldBounds, transformation, lockTextures)
+                .visit(kdl::overload {
+                    [&](Brush&& brush) {
+                        m_brush = std::move(brush);
+                        invalidateIssues();
+                        invalidateVertexCache();
+
+                        return kdl::result<void, TransformError>::success();
+                    },
+                    [](const BrushError e) {
+                        return kdl::result<void, TransformError>::error(TransformError{kdl::str_to_string(e)});
+                    },
+                });
         }
 
         class BrushNode::Contains : public ConstNodeVisitor, public NodeQuery<bool> {
