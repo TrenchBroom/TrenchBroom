@@ -220,7 +220,7 @@ namespace TrenchBroom {
 
             // transformation
             bool canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const;
-            void transform(const vm::mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds);
+            void transform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures);
         public:
             bool contains(const vm::bbox3& bounds) const;
             bool contains(const Brush& brush) const;
