@@ -428,46 +428,12 @@ namespace TrenchBroom {
             groupWasClosedNotifier(previousGroup);
         }
 
-        class CanTransformVisitor : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
-        private:
-            vm::mat4x4 m_transform;
-            vm::bbox3 m_worldBounds;
-        public:
-            CanTransformVisitor(const vm::mat4x4& transform, const vm::bbox3& worldBounds) :
-                m_transform(transform),
-                m_worldBounds(worldBounds) {}
-        private:
-            void doVisit(const Model::WorldNode*) override  { setResult(true); }
-            void doVisit(const Model::LayerNode*) override  { setResult(true); }
-            void doVisit(const Model::GroupNode*) override  { setResult(true); }
-            void doVisit(const Model::EntityNode*) override { setResult(true); }
-            void doVisit(const Model::BrushNode* brushNode) override {
-                const Model::Brush& brush = brushNode->brush();
-                setResult(brush.canTransform(m_transform, m_worldBounds));
-            }
-            bool doCombineResults(const bool oldResult, const bool newResult) const override {
-                return newResult && oldResult;
-            }
-        };
-
         bool MapDocumentCommandFacade::performTransform(const vm::mat4x4 &transform, const bool lockTextures) {
-          // Test whether all brushes can be transformed; abort if any fail.
-          CanTransformVisitor canTransform(transform, m_worldBounds);
-          for (const auto* node : m_selectedNodes.nodes()) {
-              node->acceptAndRecurse(canTransform);
-          }
-          if (canTransform.hasResult() && !canTransform.result()) {
-              return false;
-          }
-
-          const std::vector<Model::Node*> &nodes = m_selectedNodes.nodes();
+          const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
           const std::vector<Model::Node*> parents = collectParents(nodes);
 
-          Notifier<const std::vector<Model::Node*> &>::NotifyBeforeAndAfter
-              notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier,
-                            parents);
-          Notifier<const std::vector<Model::Node*> &>::NotifyBeforeAndAfter notifyNodes(
-              nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+          Notifier<const std::vector<Model::Node*> &>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+          Notifier<const std::vector<Model::Node*> &>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
 
           Model::TransformObjectVisitor visitor(m_worldBounds, transform, lockTextures);
           Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);

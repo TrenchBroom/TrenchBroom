@@ -873,32 +873,15 @@ namespace TrenchBroom {
             return Brush::create(worldBounds, kdl::vec_concat(m_faces, brush.faces()));
         }
 
-        bool Brush::canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const {
-            try {
-                auto testBrush = Brush(*this);
-                testBrush.transform(worldBounds, transformation, false);
-                return true;
-            } catch (GeometryException&) {
-                return false;
+        kdl::result<Brush, BrushError> Brush::transform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, const bool lockTextures) const {
+            auto faces = m_faces;
+            for (auto& face : faces) {
+                if (const auto transformResult = face.transform(transformation, lockTextures); !transformResult) {
+                    return kdl::result<Brush, BrushError>::error(BrushError::InvalidFace);
+                }
             }
-        }
-
-        void Brush::transform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, const bool lockTextures) {
-            for (auto& face : m_faces) {
-                face.transform(transformation, lockTextures)
-                    .visit(kdl::overload {
-                        []() {},
-                        [](const BrushError e) {
-                            throw GeometryException(kdl::str_to_string(e)); // TODO 2983
-                        },
-                    });
-            }
-
-            updateGeometryFromFaces(worldBounds)
-                .visit(kdl::overload {
-                    []() {},
-                    [](const BrushError e) { throw GeometryException(kdl::str_to_string(e)); } // TODO 2983
-                });
+            
+            return Brush::create(worldBounds, std::move(faces));
         }
 
         bool Brush::contains(const vm::bbox3& bounds) const {
