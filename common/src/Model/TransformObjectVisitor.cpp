@@ -25,21 +25,18 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TransformObjectVisitor::TransformObjectVisitor(const vm::mat4x4& transformation, const bool lockTextures, const vm::bbox3& worldBounds) :
+        TransformObjectVisitor::TransformObjectVisitor(const vm::bbox3& worldBounds, const vm::mat4x4& transformation,  const bool lockTextures) :
+        m_worldBounds(worldBounds),
         m_transformation(transformation),
-        m_lockTextures(lockTextures),
-        m_worldBounds(worldBounds) {}
+        m_lockTextures(lockTextures) {}
 
         void TransformObjectVisitor::doVisit(WorldNode*)         {}
         void TransformObjectVisitor::doVisit(LayerNode*)         {}
         void TransformObjectVisitor::doVisit(GroupNode* group)   {
-            group->transform(m_worldBounds, m_transformation,
-                m_lockTextures); }
+            group->transform(m_worldBounds, m_transformation, m_lockTextures); }
         void TransformObjectVisitor::doVisit(EntityNode* entity) {
-            entity->transform(m_worldBounds, m_transformation,
-                m_lockTextures); }
+            entity->transform(m_worldBounds, m_transformation, m_lockTextures); }
         void TransformObjectVisitor::doVisit(BrushNode* brush)   {
-            brush->transform(m_worldBounds, m_transformation,
-                m_lockTextures); }
+            brush->transform(m_worldBounds, m_transformation, m_lockTextures); }
     }
 }

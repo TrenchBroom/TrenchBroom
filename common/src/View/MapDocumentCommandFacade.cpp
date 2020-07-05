@@ -469,8 +469,7 @@ namespace TrenchBroom {
           Notifier<const std::vector<Model::Node*> &>::NotifyBeforeAndAfter notifyNodes(
               nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
 
-          Model::TransformObjectVisitor visitor(transform, lockTextures,
-                                                m_worldBounds);
+          Model::TransformObjectVisitor visitor(m_worldBounds, transform, lockTextures);
           Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
 
           invalidateSelectionBounds();
