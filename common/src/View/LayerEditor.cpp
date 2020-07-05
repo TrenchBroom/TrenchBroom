@@ -138,16 +138,7 @@ namespace TrenchBroom {
 
         bool LayerEditor::canToggleLayerLocked() const {
             auto* layer = m_layerList->selectedLayer();
-            if (layer == nullptr) {
-                return false;
-            }
-
-            auto document = kdl::mem_lock(m_document);
-            if (!layer->locked() && layer == document->currentLayer()) {
-                return false;
-            }
-
-            return true;
+            return layer != nullptr;
         }
 
         void LayerEditor::toggleLayerLocked(Model::LayerNode* layer) {

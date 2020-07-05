@@ -1309,10 +1309,7 @@ namespace TrenchBroom {
             for (auto* layer : m_world->allLayers()) {
                 const bool shouldShowLayer = kdl::vec_contains(layers, layer);
 
-                if (shouldShowLayer && layer->hidden()) {
-                    return true;
-                }
-                if (!shouldShowLayer && layer->shown()) {
+                if (shouldShowLayer != layer->visible()) {
                     return true;
                 }
             }
