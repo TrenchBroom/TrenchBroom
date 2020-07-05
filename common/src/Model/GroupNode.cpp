@@ -246,7 +246,7 @@ namespace TrenchBroom {
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
-        void GroupNode::doTransform(const vm::mat4x4& transformation, const bool lockTextures, const vm::bbox3& worldBounds) {
+        void GroupNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
             TransformObjectVisitor visitor(transformation, lockTextures, worldBounds);
             iterate(visitor);
         }

@@ -47,8 +47,8 @@ namespace TrenchBroom {
             return containingGroup == nullptr || containingGroup->opened();
         }
 
-        void Object::transform(const vm::mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds) {
-            doTransform(transformation, lockTextures, worldBounds);
+        void Object::transform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
+            doTransform(worldBounds, transformation, lockTextures);
         }
 
         bool Object::contains(const Node* node) const {

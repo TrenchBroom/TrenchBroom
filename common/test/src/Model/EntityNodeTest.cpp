@@ -108,7 +108,7 @@ namespace TrenchBroom {
             EXPECT_EQ(vm::mat4x4::identity(), m_entity->rotation());
 
             const auto rotMat = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
-            m_entity->transform(rotMat, true, m_worldBounds);
+            m_entity->transform(m_worldBounds, rotMat, true);
 
             // rotation had no effect
             EXPECT_EQ(vm::mat4x4::identity(), m_entity->rotation());
@@ -120,10 +120,10 @@ namespace TrenchBroom {
             const auto rotMat = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
 
             EXPECT_EQ(vm::mat4x4::identity(), m_entity->rotation());
-            m_entity->transform(rotMat, true, m_worldBounds);
+            m_entity->transform(m_worldBounds, rotMat, true);
             EXPECT_EQ(rotMat, m_entity->rotation());
 
-            m_entity->transform(vm::translation_matrix(vm::vec3d(100.0, 0.0, 0.0)), true, m_worldBounds);
+            m_entity->transform(m_worldBounds, vm::translation_matrix(vm::vec3d(100.0, 0.0, 0.0)), true);
             EXPECT_EQ(rotMat, m_entity->rotation());
         }
 
