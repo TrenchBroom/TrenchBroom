@@ -876,14 +876,14 @@ namespace TrenchBroom {
         bool Brush::canTransform(const vm::mat4x4& transformation, const vm::bbox3& worldBounds) const {
             try {
                 auto testBrush = Brush(*this);
-                testBrush.transform(transformation, false, worldBounds);
+                testBrush.transform(worldBounds, transformation, false);
                 return true;
             } catch (GeometryException&) {
                 return false;
             }
         }
 
-        void Brush::transform(const vm::mat4x4& transformation, const bool lockTextures, const vm::bbox3& worldBounds) {
+        void Brush::transform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, const bool lockTextures) {
             for (auto& face : m_faces) {
                 face.transform(transformation, lockTextures)
                     .visit(kdl::overload {
