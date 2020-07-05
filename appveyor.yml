@@ -1,8 +1,13 @@
 image: Visual Studio 2019
 version: 2.0.0-appveyor-{build}
 environment:
-  QT5_INSTALL_DIR: 'C:\Qt\5.12\msvc2017'
-  PATH: '%Qt5_INSTALL_DIR%\bin;%PATH%'
+  matrix:
+    - TB_ARCH: Win32
+      QT5_INSTALL_DIR: 'C:\Qt\5.12\msvc2017'
+      PATH: '%Qt5_INSTALL_DIR%\bin;%PATH%'
+    - TB_ARCH: x64
+      QT5_INSTALL_DIR: 'C:\Qt\5.12\msvc2017_64'
+      PATH: '%Qt5_INSTALL_DIR%\bin;%PATH%'
 install:
 - cinst pandoc
 - cinst cppcheck

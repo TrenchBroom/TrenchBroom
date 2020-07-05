@@ -1,5 +1,5 @@
 add_subdirectory(Catch2)
-add_subdirectory(freeimage)
+add_subdirectory(BinaryLibs)
 add_subdirectory(freetype)
 add_subdirectory(glew)
 add_subdirectory(kdl)
