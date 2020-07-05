@@ -27,11 +27,11 @@ namespace TrenchBroom {
     namespace Model {
         class TransformObjectVisitor : public NodeVisitor {
         private:
+            const vm::bbox3& m_worldBounds;
             const vm::mat4x4& m_transformation;
             bool m_lockTextures;
-            const vm::bbox3& m_worldBounds;
         public:
-            TransformObjectVisitor(const vm::mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds);
+            TransformObjectVisitor(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures);
         private:
             void doVisit(WorldNode* world) override;
             void doVisit(LayerNode* layer) override;

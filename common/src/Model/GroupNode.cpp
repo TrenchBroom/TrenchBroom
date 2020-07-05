@@ -247,7 +247,7 @@ namespace TrenchBroom {
         }
 
         void GroupNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
-            TransformObjectVisitor visitor(transformation, lockTextures, worldBounds);
+            TransformObjectVisitor visitor(worldBounds, transformation, lockTextures);
             iterate(visitor);
         }
 
