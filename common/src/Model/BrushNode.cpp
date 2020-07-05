@@ -246,7 +246,7 @@ namespace TrenchBroom {
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
-        void BrushNode::doTransform(const vm::mat4x4& transformation, const bool lockTextures, const vm::bbox3& worldBounds) {
+        void BrushNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
             m_brush.transform(transformation, lockTextures, worldBounds);

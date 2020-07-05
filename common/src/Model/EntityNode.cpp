@@ -366,10 +366,10 @@ namespace TrenchBroom {
             void doVisit(LayerNode*) override  {}
             void doVisit(GroupNode*) override  {}
             void doVisit(EntityNode*) override {}
-            void doVisit(BrushNode* brush) override { brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
+            void doVisit(BrushNode* brush) override { brush->transform(m_worldBounds, m_transformation, m_lockTextures); }
         };
 
-        void EntityNode::doTransform(const vm::mat4x4& transformation, const bool lockTextures, const vm::bbox3& worldBounds) {
+        void EntityNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
             if (hasChildren()) {
                 const NotifyNodeChange nodeChange(this);
                 TransformEntity visitor(transformation, lockTextures, worldBounds);
