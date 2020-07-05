@@ -232,6 +232,10 @@ namespace TrenchBroom {
 
             Transaction transaction(this, "Set Current Layer");
 
+            while (currentGroup() != nullptr) {
+                closeGroup();
+            }
+
             Model::CollectNodesVisitor collect;
             m_currentLayer->recurse(collect);
             downgradeShownToInherit(collect.nodes());                
