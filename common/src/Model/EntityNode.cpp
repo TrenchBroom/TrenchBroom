@@ -353,14 +353,14 @@ namespace TrenchBroom {
 
         class TransformEntity : public NodeVisitor {
         private:
+            const vm::bbox3& m_worldBounds;
             const vm::mat4x4& m_transformation;
             bool m_lockTextures;
-            const vm::bbox3& m_worldBounds;
         public:
-            TransformEntity(const vm::mat4x4& transformation, const bool lockTextures, const vm::bbox3& worldBounds) :
+            TransformEntity(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, const bool lockTextures) :
+            m_worldBounds(worldBounds),
             m_transformation(transformation),
-            m_lockTextures(lockTextures),
-            m_worldBounds(worldBounds) {}
+            m_lockTextures(lockTextures) {}
         private:
             void doVisit(WorldNode*) override  {}
             void doVisit(LayerNode*) override  {}
@@ -372,7 +372,7 @@ namespace TrenchBroom {
         void EntityNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
             if (hasChildren()) {
                 const NotifyNodeChange nodeChange(this);
-                TransformEntity visitor(transformation, lockTextures, worldBounds);
+                TransformEntity visitor(worldBounds, transformation, lockTextures);
                 iterate(visitor);
             } else {
                 // node change is called by setOrigin already
