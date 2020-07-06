@@ -38,6 +38,7 @@
 #include "Model/Polyhedron.h"
 #include "Model/WorldNode.h"
 
+#include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/forward.h>
@@ -56,7 +57,7 @@ namespace TrenchBroom {
             const vm::vec3 p2(0.0, -1.0, 4.0);
 
             const BrushFaceAttributes attribs("");
-            BrushFace face = BrushFace::create(p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs));
+            BrushFace face = kdl::get_success(BrushFace::create(p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs)));
             ASSERT_VEC_EQ(p0, face.points()[0]);
             ASSERT_VEC_EQ(p1, face.points()[1]);
             ASSERT_VEC_EQ(p2, face.points()[2]);
@@ -70,7 +71,7 @@ namespace TrenchBroom {
             const vm::vec3 p2(2.0, 0.0, 4.0);
 
             const BrushFaceAttributes attribs("");
-            ASSERT_THROW(BrushFace::create(p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs)), GeometryException);
+            CHECK_FALSE(BrushFace::create(p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs)).is_success());
         }
 
         TEST_CASE("BrushFaceTest.textureUsageCount", "[BrushFaceTest]") {
@@ -86,7 +87,7 @@ namespace TrenchBroom {
             BrushFaceAttributes attribs("");
             {
                 // test constructor
-                BrushFace face = BrushFace::create(p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs));
+                BrushFace face = kdl::get_success(BrushFace::create(p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs)));
                 EXPECT_EQ(0u, texture.usageCount());
 
                 // test setTexture
