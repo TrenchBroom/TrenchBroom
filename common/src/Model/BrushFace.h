@@ -106,6 +106,9 @@ namespace TrenchBroom {
 
             static BrushFace createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
             static BrushFace createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
+            static BrushFace create(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem);
+
+            BrushFace(const BrushFace::Points& points, const vm::plane3& boundary, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem);
 
             friend bool operator==(const BrushFace& lhs, const BrushFace& rhs);
             friend bool operator!=(const BrushFace& lhs, const BrushFace& rhs);

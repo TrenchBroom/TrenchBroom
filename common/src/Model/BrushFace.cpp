@@ -125,6 +125,29 @@ namespace TrenchBroom {
             return BrushFace(point0, point1, point2, attributes, std::make_unique<ParallelTexCoordSystem>(point0, point1, point2, attributes));
         }
 
+        BrushFace BrushFace::create(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem) {
+            Points points = {{ vm::correct(point0), vm::correct(point1), vm::correct(point2) }};
+            const auto [result, plane] = vm::from_points(points[0], points[1], points[2]);
+            if (result) {
+                return BrushFace(points, plane, attributes, std::move(texCoordSystem));
+            } else {
+                throw GeometryException("Colinear face points");
+            }
+        }
+
+        BrushFace::BrushFace(const BrushFace::Points& points, const vm::plane3& boundary, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem) :
+        m_points(points),
+        m_boundary(boundary),
+        m_attributes(attributes),
+        m_texCoordSystem(std::move(texCoordSystem)),
+        m_geometry(nullptr),
+        m_lineNumber(0),
+        m_lineCount(0),
+        m_selected(false),
+        m_markedToRenderFace(false) {
+            ensure(m_texCoordSystem != nullptr, "texCoordSystem is null");
+        }
+
         bool operator==(const BrushFace& lhs, const BrushFace& rhs) {
             return lhs.m_points == rhs.m_points &&
             lhs.m_boundary == rhs.m_boundary &&
