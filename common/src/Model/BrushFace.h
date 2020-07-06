@@ -94,8 +94,6 @@ namespace TrenchBroom {
             // brush renderer
             mutable bool m_markedToRenderFace;
         public:
-            BrushFace(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem);
-
             BrushFace(const BrushFace& other);
             BrushFace(BrushFace&& other) noexcept;
             BrushFace& operator=(BrushFace other) noexcept;

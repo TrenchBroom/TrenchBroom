@@ -54,18 +54,6 @@ namespace TrenchBroom {
             return halfEdge->edge();
         }
 
-        BrushFace::BrushFace(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem) :
-        m_attributes(attributes),
-        m_texCoordSystem(std::move(texCoordSystem)),
-        m_geometry(nullptr),
-        m_lineNumber(0),
-        m_lineCount(0),
-        m_selected(false),
-        m_markedToRenderFace(false) {
-            ensure(m_texCoordSystem != nullptr, "texCoordSystem is null");
-            setPoints(point0, point1, point2);
-        }
-
         BrushFace::BrushFace(const BrushFace& other) :
         Taggable(other),
         m_points(other.m_points),
@@ -117,12 +105,12 @@ namespace TrenchBroom {
 
         BrushFace BrushFace::createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName) {
             const BrushFaceAttributes attributes(textureName);
-            return BrushFace(point0, point1, point2, attributes, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attributes));
+            return BrushFace::create(point0, point1, point2, attributes, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attributes));
         }
 
         BrushFace BrushFace::createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName) {
             const BrushFaceAttributes attributes(textureName);
-            return BrushFace(point0, point1, point2, attributes, std::make_unique<ParallelTexCoordSystem>(point0, point1, point2, attributes));
+            return BrushFace::create(point0, point1, point2, attributes, std::make_unique<ParallelTexCoordSystem>(point0, point1, point2, attributes));
         }
 
         BrushFace BrushFace::create(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem) {
