@@ -103,12 +103,12 @@ namespace TrenchBroom {
             friend void swap(BrushFace& lhs, BrushFace& rhs) noexcept;
 
             ~BrushFace();
-            
-            friend bool operator==(const BrushFace& lhs, const BrushFace& rhs);
-            friend bool operator!=(const BrushFace& lhs, const BrushFace& rhs);
 
             static BrushFace createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
             static BrushFace createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
+
+            friend bool operator==(const BrushFace& lhs, const BrushFace& rhs);
+            friend bool operator!=(const BrushFace& lhs, const BrushFace& rhs);
 
             static void sortFaces(std::vector<BrushFace>& faces);
 

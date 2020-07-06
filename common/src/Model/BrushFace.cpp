@@ -114,7 +114,17 @@ namespace TrenchBroom {
         }
 
         BrushFace::~BrushFace() = default;
-        
+
+        BrushFace BrushFace::createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName) {
+            const BrushFaceAttributes attributes(textureName);
+            return BrushFace(point0, point1, point2, attributes, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attributes));
+        }
+
+        BrushFace BrushFace::createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName) {
+            const BrushFaceAttributes attributes(textureName);
+            return BrushFace(point0, point1, point2, attributes, std::make_unique<ParallelTexCoordSystem>(point0, point1, point2, attributes));
+        }
+
         bool operator==(const BrushFace& lhs, const BrushFace& rhs) {
             return lhs.m_points == rhs.m_points &&
             lhs.m_boundary == rhs.m_boundary &&
@@ -128,16 +138,6 @@ namespace TrenchBroom {
         
         bool operator!=(const BrushFace& lhs, const BrushFace& rhs) {
             return !(lhs == rhs);
-        }
-
-        BrushFace BrushFace::createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName) {
-            const BrushFaceAttributes attributes(textureName);
-            return BrushFace(point0, point1, point2, attributes, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attributes));
-        }
-
-        BrushFace BrushFace::createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName) {
-            const BrushFaceAttributes attributes(textureName);
-            return BrushFace(point0, point1, point2, attributes, std::make_unique<ParallelTexCoordSystem>(point0, point1, point2, attributes));
         }
 
         void BrushFace::sortFaces(std::vector<BrushFace>& faces) {
