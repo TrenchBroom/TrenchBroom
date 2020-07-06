@@ -24,12 +24,16 @@
 #include "FloatType.h"
 #include "Polyhedron.h"
 #include "Assets/Texture.h"
-#include "Model/TagMatcher.h"
+#include "Model/BrushError.h"
 #include "Model/PlanePointFinder.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
+#include "Model/TagMatcher.h"
 #include "Model/TagVisitor.h"
 #include "Model/TexCoordSystem.h"
+
+#include <kdl/overload.h>
+#include <kdl/string_utils.h>
 
 #include <vecmath/bbox.h>
 #include <vecmath/intersection.h>
@@ -105,21 +109,37 @@ namespace TrenchBroom {
 
         BrushFace BrushFace::createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName) {
             const BrushFaceAttributes attributes(textureName);
-            return BrushFace::create(point0, point1, point2, attributes, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attributes));
+            auto createResult = BrushFace::create(point0, point1, point2, attributes, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attributes));
+            return kdl::visit_result(kdl::overload {
+                [](BrushFace&& f) {
+                    return std::move(f);
+                },
+                [](const BrushError e) -> BrushFace {
+                    throw GeometryException(kdl::str_to_string(e)); // TODO 2983
+                },
+            }, std::move(createResult));
         }
 
         BrushFace BrushFace::createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName) {
             const BrushFaceAttributes attributes(textureName);
-            return BrushFace::create(point0, point1, point2, attributes, std::make_unique<ParallelTexCoordSystem>(point0, point1, point2, attributes));
+            auto createResult = BrushFace::create(point0, point1, point2, attributes, std::make_unique<ParallelTexCoordSystem>(point0, point1, point2, attributes));
+            return kdl::visit_result(kdl::overload {
+                [](BrushFace&& f) {
+                    return std::move(f);
+                },
+                [](const BrushError e) -> BrushFace {
+                    throw GeometryException(kdl::str_to_string(e)); // TODO 2983
+                },
+            }, std::move(createResult));
         }
 
-        BrushFace BrushFace::create(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem) {
+        kdl::result<BrushFace, BrushError> BrushFace::create(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem) {
             Points points = {{ vm::correct(point0), vm::correct(point1), vm::correct(point2) }};
             const auto [result, plane] = vm::from_points(points[0], points[1], points[2]);
             if (result) {
-                return BrushFace(points, plane, attributes, std::move(texCoordSystem));
+                return kdl::result<BrushFace, BrushError>::success(BrushFace(points, plane, attributes, std::move(texCoordSystem)));
             } else {
-                throw GeometryException("Colinear face points");
+                return kdl::result<BrushFace, BrushError>::error(BrushError::InvalidFace);
             }
         }
 
