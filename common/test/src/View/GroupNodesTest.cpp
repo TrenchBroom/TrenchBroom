@@ -217,5 +217,22 @@ namespace TrenchBroom {
             document->redoCommand();
             CHECK(group->name() == "abc");
         }
+
+        TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.duplicateNodeInGroup", "[GroupNodesTest]") {
+            Model::BrushNode* brush = createBrushNode();
+            document->addNode(brush, document->parentForNodes());
+            document->select(brush);
+
+            Model::GroupNode* group = document->groupSelection("test");
+            REQUIRE(group != nullptr);
+
+            document->openGroup(group);
+
+            document->select(brush);
+            REQUIRE(document->duplicateObjects());
+
+            Model::BrushNode* brushCopy = document->selectedNodes().brushes().at(0u);
+            CHECK(brushCopy->parent() == group);
+        }
     }
 }

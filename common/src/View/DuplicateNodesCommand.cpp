@@ -53,7 +53,7 @@ namespace TrenchBroom {
                 m_previouslySelectedNodes = document->selectedNodes().nodes();
 
                 for (Model::Node* original : m_previouslySelectedNodes) {
-                    Model::LayerNode* originalLayer = Model::findLayer(original);
+                    Model::Node* suggestedParent = document->parentForNodes(std::vector<Model::Node*>{original});
                     Model::Node* clone = original->cloneRecursively(worldBounds);
 
                     Model::Node* parent = original->parent();
@@ -68,12 +68,12 @@ namespace TrenchBroom {
                             // parent was not cloned yet
                             newParent = parent->clone(worldBounds);
                             newParentMap.insert({ parent, newParent });
-                            m_addedNodes[originalLayer].push_back(newParent);
+                            m_addedNodes[suggestedParent].push_back(newParent);
                         }
 
                         newParent->addChild(clone);
                     } else {
-                        m_addedNodes[originalLayer].push_back(clone);
+                        m_addedNodes[suggestedParent].push_back(clone);
                     }
 
                     m_nodesToSelect.push_back(clone);
