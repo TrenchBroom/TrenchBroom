@@ -51,7 +51,7 @@ namespace TrenchBroom {
             std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
             class CloneParentQuery;
-            bool cloneParent(const Model::Node* node) const;
+            bool shouldCloneParentWhenCloningNode(const Model::Node* node) const;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
             std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
