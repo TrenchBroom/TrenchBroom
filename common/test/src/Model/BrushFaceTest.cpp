@@ -27,6 +27,7 @@
 #include "Assets/Texture.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
+#include "Model/BrushError.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
