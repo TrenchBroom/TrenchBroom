@@ -35,6 +35,7 @@
 #include <vecmath/util.h>
 
 #include <array>
+#include <iosfwd>
 #include <memory>
 #include <string>
 #include <vector>
@@ -112,6 +113,7 @@ namespace TrenchBroom {
 
             friend bool operator==(const BrushFace& lhs, const BrushFace& rhs);
             friend bool operator!=(const BrushFace& lhs, const BrushFace& rhs);
+            friend std::ostream& operator<<(std::ostream& str, const BrushFace& face);
 
             static void sortFaces(std::vector<BrushFace>& faces);
 
