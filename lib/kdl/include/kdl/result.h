@@ -22,6 +22,7 @@
 #include "kdl/result_forward.h"
 
 #include <functional> // for std::ref
+#include <iosfwd> // users must include <ostream> to use stream operators
 #include <optional>
 #include <variant>
 
@@ -238,6 +239,11 @@ namespace kdl {
         friend bool operator!=(const result& lhs, const result& rhs) {
             return !(lhs == rhs);
         }
+
+        friend std::ostream& operator<<(std::ostream& str, const result& result_) {
+            std::visit([&](const auto& v){ str << v; }, result_.m_value);
+            return str;
+        }
     };
 
     /**
@@ -444,6 +450,11 @@ namespace kdl {
         friend bool operator!=(const result& lhs, const result& rhs) {
             return !(lhs == rhs);
         }
+
+        friend std::ostream& operator<<(std::ostream& str, const result& result_) {
+            std::visit([&](const auto& v){ str << v; }, result_.m_value);
+            return str;
+        }
     };
     
     /**
@@ -630,6 +641,13 @@ namespace kdl {
         
         friend bool operator!=(const result& lhs, const result& rhs) {
             return !(lhs == rhs);
+        }
+
+        friend std::ostream& operator<<(std::ostream& str, const result& result_) {
+            if (result_.m_error.has_value()) {
+                std::visit([&](const auto& v){ str << v; }, result_.m_error.value());
+            }
+            return str;
         }
     };
     
@@ -820,6 +838,13 @@ namespace kdl {
         
         friend bool operator!=(const result& lhs, const result& rhs) {
             return !(lhs == rhs);
+        }
+
+        friend std::ostream& operator<<(std::ostream& str, const result& result_) {
+            if (result_.m_value.has_value()) {
+                std::visit([&](const auto& v){ str << v; }, result_.m_value.value());
+            }
+            return str;
         }
     };
 
