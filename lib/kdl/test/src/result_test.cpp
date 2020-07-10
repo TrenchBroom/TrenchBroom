@@ -22,6 +22,7 @@
 #include "kdl/overload.h"
 #include "kdl/result.h"
 
+#include <iostream>
 #include <string>
 
 namespace kdl {
@@ -34,6 +35,16 @@ namespace kdl {
 
     inline bool operator==(const Error2&, const Error2&) {
         return true;
+    }
+
+    inline std::ostream& operator<<(std::ostream& str, const Error1&) {
+        str << "Error1";
+        return str;
+    }
+
+    inline std::ostream& operator<<(std::ostream& str, const Error2&) {
+        str << "Error2";
+        return str;
     }
 
     struct Counter {
@@ -62,6 +73,11 @@ namespace kdl {
             return *this;
         }
     };
+
+    inline std::ostream& operator<<(std::ostream& str, const Counter&) {
+        str << "Counter";
+        return str;
+    }
         
     /**
      * Tests construction of a successful result.
