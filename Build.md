@@ -38,7 +38,7 @@ You'll also need to install these dependencies using Visual Studio Installer (in
   
 #### Project dependencies
 
-- Download and install [Qt](https://www.qt.io/download) for MSVC 2017 32-bit
+- Download and install [Qt](https://www.qt.io/download) for MSVC 2017 32-bit and/or 64-bit
   - **Important**: You have to create a personal account
   - Minimum required version is `5.9`
 - Download and install latest version of [CMake](http://www.cmake.org) for Windows
@@ -57,8 +57,14 @@ cd <path/to/TrenchBroom>/build
 
 Then, execute this command to configure the project:
 
+- For 32-bit:
 ```bash
 cmake .. -G "Visual Studio 16 2019" -T v142 -A Win32 -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017"
+```
+
+- For 64-bit:
+```bash
+cmake .. -G "Visual Studio 16 2019" -T v142 -A x64 -DCMAKE_PREFIX_PATH="C:\Qt\5.13.0\msvc2017_64"
 ```
 
 > **Note**: Make sure to specify the correct Qt as `CMAKE_PREFIX_PATH` value.
