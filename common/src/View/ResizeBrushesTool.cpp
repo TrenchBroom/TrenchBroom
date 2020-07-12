@@ -23,6 +23,7 @@
 #include "PreferenceManager.h"
 #include "FloatType.h"
 #include "Model/Brush.h"
+#include "Model/BrushError.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushGeometry.h"
@@ -41,6 +42,8 @@
 #include <kdl/collection_utils.h>
 #include <kdl/map_utils.h>
 #include <kdl/memory_utils.h>
+#include <kdl/overload.h>
+#include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/vec.h>
@@ -491,9 +494,9 @@ namespace TrenchBroom {
 
                 auto clipFace = newBrush.face(*newDragFaceIndex);
                 clipFace.invert();
-                clipFace.transform(vm::translation_matrix(delta), lockTextures);
+                const auto transformClipFaceResult = clipFace.transform(vm::translation_matrix(delta), lockTextures);
 
-                if (!newBrush.clip(worldBounds, std::move(clipFace))) {
+                if (!transformClipFaceResult.is_success() || !newBrush.clip(worldBounds, std::move(clipFace))) {
                     kdl::map_clear_and_delete(newNodes);
                     return false;
                 }
