@@ -168,13 +168,13 @@ namespace TrenchBroom {
             // reset alignment, transform the face (texture lock off)
             BrushFace face = origFace;
             resetFaceTextureAlignment(face);
-            face.transform(transform, false);
+            REQUIRE(face.transform(transform, false));
             face.resetTexCoordSystemCache();
 
             // reset alignment, transform the face (texture lock off), then reset the alignment again
             BrushFace resetFace = origFace;
             resetFaceTextureAlignment(resetFace);
-            resetFace.transform(transform, false);
+            REQUIRE(resetFace.transform(transform, false));
             resetFaceTextureAlignment(resetFace);
 
             // UVs of the verts of `face` and `resetFace` should be the same now
@@ -214,7 +214,7 @@ namespace TrenchBroom {
 
             // transform the face
             BrushFace face = origFace;
-            face.transform(transform, true);
+            REQUIRE(face.transform(transform, true));
             face.resetTexCoordSystemCache();
 
             // transform the verts
@@ -378,7 +378,7 @@ namespace TrenchBroom {
 
             // transform the face (texture lock off)
             BrushFace face = origFace;
-            face.transform(transform, false);
+            REQUIRE(face.transform(transform, false));
             face.resetTexCoordSystemCache();
 
             // UVs of the verts of `face` and `origFace` should be the same now
@@ -404,7 +404,7 @@ namespace TrenchBroom {
 
             // transform the face (texture lock off)
             BrushFace face = origFace;
-            face.transform(transform, false);
+            REQUIRE(face.transform(transform, false));
             face.resetTexCoordSystemCache();
 
             // get UV at mins; should be equal

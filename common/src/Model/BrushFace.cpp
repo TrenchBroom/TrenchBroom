@@ -345,7 +345,7 @@ namespace TrenchBroom {
             m_texCoordSystem->shearTexture(m_boundary.normal, factors);
         }
 
-        void BrushFace::transform(const vm::mat4x4& transform, const bool lockTexture) {
+        kdl::result<void, BrushError> BrushFace::transform(const vm::mat4x4& transform, const bool lockTexture) {
             using std::swap;
 
             const vm::vec3 invariant = m_geometry != nullptr ? center() : m_boundary.anchor();
@@ -361,14 +361,9 @@ namespace TrenchBroom {
             }
 
             const auto setPointsResult = setPoints(m_points[0], m_points[1], m_points[2]);
-            kdl::visit_result(kdl::overload {
-                []() {},
-                [](const BrushError& e) {
-                    throw GeometryException(kdl::str_to_string(e)); // TODO 2983
-                },
+            return kdl::map_result([&]() {
+                m_texCoordSystem->transform(oldBoundary, m_boundary, transform, m_attributes, textureSize(), lockTexture, invariant);
             }, setPointsResult);
-
-            m_texCoordSystem->transform(oldBoundary, m_boundary, transform, m_attributes, textureSize(), lockTexture, invariant);
         }
 
         void BrushFace::invert() {

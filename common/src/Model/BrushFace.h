@@ -146,7 +146,7 @@ namespace TrenchBroom {
             void rotateTexture(float angle);
             void shearTexture(const vm::vec2f& factors);
 
-            void transform(const vm::mat4x4& transform, bool lockTexture);
+            kdl::result<void, BrushError> transform(const vm::mat4x4& transform, bool lockTexture);
             void invert();
 
             void updatePointsFromVertices();
