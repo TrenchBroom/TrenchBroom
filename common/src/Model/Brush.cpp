@@ -985,7 +985,13 @@ namespace TrenchBroom {
 
         void Brush::findIntegerPlanePoints(const vm::bbox3& worldBounds) {
             for (auto& face : m_faces) {
-                face.findIntegerPlanePoints();
+                const auto findResult = face.findIntegerPlanePoints();
+                kdl::visit_result(kdl::overload {
+                    []() {},
+                    [](const BrushError e) {
+                        throw GeometryException(kdl::str_to_string(e)); // TODO 2983
+                    },
+                }, findResult);
             }
             updateGeometryFromFaces(worldBounds);
         }

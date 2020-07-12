@@ -403,15 +403,9 @@ namespace TrenchBroom {
             }, setPointsResult);
         }
 
-        void BrushFace::findIntegerPlanePoints() {
+        kdl::result<void, BrushError> BrushFace::findIntegerPlanePoints() {
             PlanePointFinder::findPoints(m_boundary, m_points, 3);
-            const auto setPointsResult = setPoints(m_points[0], m_points[1], m_points[2]);
-            kdl::visit_result(kdl::overload {
-                []() {},
-                [](const BrushError& e) {
-                    throw GeometryException(kdl::str_to_string(e)); // TODO 2983
-                },
-            }, setPointsResult);
+            return setPoints(m_points[0], m_points[1], m_points[2]);
         }
 
         vm::mat4x4 BrushFace::projectToBoundaryMatrix() const {
