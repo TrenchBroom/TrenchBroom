@@ -202,13 +202,6 @@ namespace TrenchBroom {
             return m_points;
         }
 
-        bool BrushFace::arePointsOnPlane(const vm::plane3& plane) const {
-            for (size_t i = 0; i < 3; i++)
-                if (plane.point_status(m_points[i]) != vm::plane_status::inside)
-                    return false;
-            return true;
-        }
-
         const vm::plane3& BrushFace::boundary() const {
             return m_boundary;
         }

@@ -120,7 +120,6 @@ namespace TrenchBroom {
             void copyTexCoordSystemFromFace(const TexCoordSystemSnapshot& coordSystemSnapshot, const BrushFaceAttributes& attributes, const vm::plane3& sourceFacePlane, WrapStyle wrapStyle);
 
             const BrushFace::Points& points() const;
-            bool arePointsOnPlane(const vm::plane3& plane) const;
             const vm::plane3& boundary() const;
             const vm::vec3& normal() const;
             vm::vec3 center() const;
