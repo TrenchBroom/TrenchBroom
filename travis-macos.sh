@@ -55,8 +55,12 @@ cd "$BUILD_DIR/lib/kdl/test"
 cd "$BUILD_DIR/common/test"
 ./common-test || exit 1
 
-cd "$BUILD_DIR/common/benchmark"
-./common-benchmark || exit 1
+if [[ $TB_DEBUG_BUILD != "true" ]] ; then
+    cd "$BUILD_DIR/common/benchmark"
+    ./common-benchmark || exit 1
+else
+    echo "Skipping common-benmchark because this is a debug build"
+fi
 
 cd "$BUILD_DIR"
 
