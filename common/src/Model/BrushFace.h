@@ -153,7 +153,6 @@ namespace TrenchBroom {
             void invert();
 
             void updatePointsFromVertices();
-            void snapPlanePointsToInteger();
             void findIntegerPlanePoints();
 
             vm::mat4x4 projectToBoundaryMatrix() const;
