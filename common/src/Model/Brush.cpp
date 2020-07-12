@@ -43,7 +43,6 @@
 #include <vecmath/polygon.h>
 #include <vecmath/util.h>
 
-#include <algorithm> // for std::remove
 #include <iterator>
 #include <set>
 #include <string>
