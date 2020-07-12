@@ -150,7 +150,7 @@ namespace TrenchBroom {
             void invert();
 
             kdl::result<void, BrushError> updatePointsFromVertices();
-            void findIntegerPlanePoints();
+            kdl::result<void, BrushError> findIntegerPlanePoints();
 
             vm::mat4x4 projectToBoundaryMatrix() const;
             vm::mat4x4 toTexCoordSystemMatrix(const vm::vec2f& offset, const vm::vec2f& scale, bool project) const;
