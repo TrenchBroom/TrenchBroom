@@ -26,8 +26,6 @@
 #include "Assets/Texture.h"
 #include "Model/BrushError.h"
 #include "Model/PlanePointFinder.h"
-#include "Model/ParallelTexCoordSystem.h"
-#include "Model/ParaxialTexCoordSystem.h"
 #include "Model/TagMatcher.h"
 #include "Model/TagVisitor.h"
 #include "Model/TexCoordSystem.h"
@@ -107,32 +105,6 @@ namespace TrenchBroom {
         }
 
         BrushFace::~BrushFace() = default;
-
-        BrushFace BrushFace::createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName) {
-            const BrushFaceAttributes attributes(textureName);
-            auto createResult = BrushFace::create(point0, point1, point2, attributes, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attributes));
-            return kdl::visit_result(kdl::overload {
-                [](BrushFace&& f) {
-                    return std::move(f);
-                },
-                [](const BrushError e) -> BrushFace {
-                    throw GeometryException(kdl::str_to_string(e)); // TODO 2983
-                },
-            }, std::move(createResult));
-        }
-
-        BrushFace BrushFace::createParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName) {
-            const BrushFaceAttributes attributes(textureName);
-            auto createResult = BrushFace::create(point0, point1, point2, attributes, std::make_unique<ParallelTexCoordSystem>(point0, point1, point2, attributes));
-            return kdl::visit_result(kdl::overload {
-                [](BrushFace&& f) {
-                    return std::move(f);
-                },
-                [](const BrushError e) -> BrushFace {
-                    throw GeometryException(kdl::str_to_string(e)); // TODO 2983
-                },
-            }, std::move(createResult));
-        }
 
         kdl::result<BrushFace, BrushError> BrushFace::create(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attributes, std::unique_ptr<TexCoordSystem> texCoordSystem) {
             Points points = {{ vm::correct(point0), vm::correct(point1), vm::correct(point2) }};
