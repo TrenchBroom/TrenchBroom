@@ -149,7 +149,7 @@ namespace TrenchBroom {
             kdl::result<void, BrushError> transform(const vm::mat4x4& transform, bool lockTexture);
             void invert();
 
-            void updatePointsFromVertices();
+            kdl::result<void, BrushError> updatePointsFromVertices();
             void findIntegerPlanePoints();
 
             vm::mat4x4 projectToBoundaryMatrix() const;
