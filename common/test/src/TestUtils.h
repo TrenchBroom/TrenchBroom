@@ -46,7 +46,10 @@ namespace TrenchBroom {
 
     namespace Model {
         class Brush;
+        class BrushFace;
         class BrushNode;
+
+        BrushFace createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName = "");
 
         std::vector<vm::vec3> asVertexList(const std::vector<vm::segment3>& edges);
         std::vector<vm::vec3> asVertexList(const std::vector<vm::polygon3>& faces);
