@@ -24,9 +24,7 @@
 #include "TestUtils.h"
 
 #include "Assets/Texture.h"
-#include "IO/DiskIO.h"
 #include "IO/NodeReader.h"
-#include "IO/Path.h"
 #include "IO/TestParserStatus.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -37,10 +35,8 @@
 #include "Model/HitAdapter.h"
 #include "Model/MapFormat.h"
 #include "Model/PickResult.h"
-#include "Model/Polyhedron.h"
 #include "Model/WorldNode.h"
 
-#include <kdl/collection_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/vec.h>
@@ -48,8 +44,6 @@
 #include <vecmath/polygon.h>
 #include <vecmath/ray.h>
 
-#include <algorithm>
-#include <fstream>
 #include <memory>
 #include <string>
 #include <vector>
