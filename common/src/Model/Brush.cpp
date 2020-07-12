@@ -839,17 +839,25 @@ namespace TrenchBroom {
         void Brush::doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, const bool uvLock) {
             std::vector<BrushFace> newFaces;
             newFaces.reserve(newGeometry.faces().size());
+
             matcher.processRightFaces([&](BrushFaceGeometry* left, BrushFaceGeometry* right){
                 if (const auto leftFaceIndex = left->payload()) {
                     const BrushFace& leftFace = m_faces[*leftFaceIndex];
                     BrushFace& rightFace = newFaces.emplace_back(leftFace);
 
                     rightFace.setGeometry(right);
-                    rightFace.updatePointsFromVertices();
+                    const auto updatePointsResult = rightFace.updatePointsFromVertices();
+                    kdl::visit_result(kdl::overload {
+                        [&]() {
+                            if (uvLock) {
+                                applyUVLock(matcher, leftFace, rightFace);
+                            }
+                        },
+                        [&](const BrushError e) {
+                            throw GeometryException(kdl::str_to_string(e)); // TODO 2983
+                        },
+                    }, updatePointsResult);
 
-                    if (uvLock) {
-                        applyUVLock(matcher, leftFace, rightFace);
-                    }
                 }
             });
 

@@ -373,7 +373,7 @@ namespace TrenchBroom {
             swap(m_points[1], m_points[2]);
         }
 
-        void BrushFace::updatePointsFromVertices() {
+        kdl::result<void, BrushError> BrushFace::updatePointsFromVertices() {
             ensure(m_geometry != nullptr, "geometry is null");
 
             const auto* first = m_geometry->boundary().front();
@@ -383,29 +383,24 @@ namespace TrenchBroom {
                 first->origin()->position(),
                 first->previous()->origin()->position());
 
-            kdl::visit_result(kdl::overload {
-                []() {},
-                [](const BrushError& e) {
-                    throw GeometryException(kdl::str_to_string(e)); // TODO 2983
-                },
+            return kdl::map_result([&]() {
+                // Get a line, and a reference point, that are on both the old plane
+                // (before moving the face) and after moving the face.
+                const auto seam = vm::intersect_plane_plane(oldPlane, m_boundary);
+                if (!vm::is_zero(seam.direction, vm::C::almost_zero())) {
+                    const auto refPoint = project_point(seam, center());
+
+                    // Get the texcoords at the refPoint using the old face's attribs and tex coord system
+                    const auto desriedCoords = m_texCoordSystem->getTexCoords(refPoint, m_attributes, vm::vec2f::one());
+
+                    m_texCoordSystem->updateNormal(oldPlane.normal, m_boundary.normal, m_attributes, WrapStyle::Projection);
+
+                    // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
+                    const auto currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attributes, vm::vec2f::one());
+                    const auto offsetChange = desriedCoords - currentCoords;
+                    m_attributes.setOffset(correct(modOffset(m_attributes.offset() + offsetChange), 4));
+                }
             }, setPointsResult);
-
-            // Get a line, and a reference point, that are on both the old plane
-            // (before moving the face) and after moving the face.
-            const auto seam = vm::intersect_plane_plane(oldPlane, m_boundary);
-            if (!vm::is_zero(seam.direction, vm::C::almost_zero())) {
-                const auto refPoint = project_point(seam, center());
-
-                // Get the texcoords at the refPoint using the old face's attribs and tex coord system
-                const auto desriedCoords = m_texCoordSystem->getTexCoords(refPoint, m_attributes, vm::vec2f::one());
-
-                m_texCoordSystem->updateNormal(oldPlane.normal, m_boundary.normal, m_attributes, WrapStyle::Projection);
-
-                // Adjust the offset on this face so that the texture coordinates at the refPoint stay the same
-                const auto currentCoords = m_texCoordSystem->getTexCoords(refPoint, m_attributes, vm::vec2f::one());
-                const auto offsetChange = desriedCoords - currentCoords;
-                m_attributes.setOffset(correct(modOffset(m_attributes.offset() + offsetChange), 4));
-            }
         }
 
         void BrushFace::findIntegerPlanePoints() {
