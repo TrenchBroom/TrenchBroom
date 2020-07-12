@@ -433,13 +433,6 @@ namespace TrenchBroom {
             }
         }
 
-        void BrushFace::snapPlanePointsToInteger() {
-            for (size_t i = 0; i < 3; ++i) {
-                m_points[i] = round(m_points[i]);
-            }
-            setPoints(m_points[0], m_points[1], m_points[2]);
-        }
-
         void BrushFace::findIntegerPlanePoints() {
             PlanePointFinder::findPoints(m_boundary, m_points, 3);
             setPoints(m_points[0], m_points[1], m_points[2]);
