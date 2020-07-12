@@ -182,7 +182,7 @@ namespace TrenchBroom {
 
             FloatType intersectWithRay(const vm::ray3& ray) const;
         private:
-            void setPoints(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2);
+            kdl::result<void, BrushError> setPoints(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2);
             void correctPoints();
         public: // brush renderer
             /**

@@ -33,6 +33,7 @@
 #include "Model/TexCoordSystem.h"
 
 #include <kdl/overload.h>
+#include <kdl/result.h>
 #include <kdl/string_utils.h>
 
 #include <vecmath/bbox.h>
@@ -394,7 +395,13 @@ namespace TrenchBroom {
                 swap(m_points[1], m_points[2]);
             }
 
-            setPoints(m_points[0], m_points[1], m_points[2]);
+            const auto setPointsResult = setPoints(m_points[0], m_points[1], m_points[2]);
+            kdl::visit_result(kdl::overload {
+                []() {},
+                [](const BrushError& e) {
+                    throw GeometryException(kdl::str_to_string(e)); // TODO 2983
+                },
+            }, setPointsResult);
 
             m_texCoordSystem->transform(oldBoundary, m_boundary, transform, m_attributes, textureSize(), lockTexture, invariant);
         }
@@ -411,9 +418,17 @@ namespace TrenchBroom {
 
             const auto* first = m_geometry->boundary().front();
             const auto oldPlane = m_boundary;
-            setPoints(first->next()->origin()->position(),
-                      first->origin()->position(),
-                      first->previous()->origin()->position());
+            const auto setPointsResult = setPoints(
+                first->next()->origin()->position(),
+                first->origin()->position(),
+                first->previous()->origin()->position());
+
+            kdl::visit_result(kdl::overload {
+                []() {},
+                [](const BrushError& e) {
+                    throw GeometryException(kdl::str_to_string(e)); // TODO 2983
+                },
+            }, setPointsResult);
 
             // Get a line, and a reference point, that are on both the old plane
             // (before moving the face) and after moving the face.
@@ -435,7 +450,13 @@ namespace TrenchBroom {
 
         void BrushFace::findIntegerPlanePoints() {
             PlanePointFinder::findPoints(m_boundary, m_points, 3);
-            setPoints(m_points[0], m_points[1], m_points[2]);
+            const auto setPointsResult = setPoints(m_points[0], m_points[1], m_points[2]);
+            kdl::visit_result(kdl::overload {
+                []() {},
+                [](const BrushError& e) {
+                    throw GeometryException(kdl::str_to_string(e)); // TODO 2983
+                },
+            }, setPointsResult);
         }
 
         vm::mat4x4 BrushFace::projectToBoundaryMatrix() const {
@@ -541,22 +562,18 @@ namespace TrenchBroom {
             }
         }
 
-        void BrushFace::setPoints(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2) {
+        kdl::result<void, BrushError> BrushFace::setPoints(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2) {
             m_points[0] = point0;
             m_points[1] = point1;
             m_points[2] = point2;
             correctPoints();
 
             const auto [result, plane] = vm::from_points(m_points[0], m_points[1], m_points[2]);
-            if (!result) {
-                auto str = std::stringstream();
-                str << "Colinear face points: (" <<
-                m_points[0] << ") (" <<
-                m_points[1] << ") (" <<
-                m_points[2] << ")";
-                throw GeometryException(str.str());
-            } else {
+            if (result) {
                 m_boundary = plane;
+                return kdl::result<void, BrushError>::success();
+            } else {
+                return kdl::result<void, BrushError>::error(BrushError::InvalidFace);
             }
         }
 
