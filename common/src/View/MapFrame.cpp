@@ -1358,7 +1358,7 @@ namespace TrenchBroom {
         }
 
         bool MapFrame::canSnapVertices() const {
-            return m_document->selectedNodes().hasOnlyBrushes();
+            return m_document->selectedNodes().hasBrushesRecursively();
         }
 
         void MapFrame::toggleTextureLock() {

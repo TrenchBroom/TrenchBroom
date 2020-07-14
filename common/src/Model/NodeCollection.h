@@ -34,6 +34,8 @@ namespace TrenchBroom {
         private:
             class AddNode;
             class RemoveNode;
+            class FindBrushes;
+            class HasBrush;
         private:
             std::vector<Node*> m_nodes;
             std::vector<LayerNode*> m_layers;
@@ -56,6 +58,7 @@ namespace TrenchBroom {
             bool hasOnlyEntities() const;
             bool hasBrushes() const;
             bool hasOnlyBrushes() const;
+            bool hasBrushesRecursively() const;
 
             std::vector<Node*>::iterator begin();
             std::vector<Node*>::iterator end();
@@ -67,6 +70,7 @@ namespace TrenchBroom {
             const std::vector<GroupNode*>& groups() const;
             const std::vector<EntityNode*>& entities() const;
             const std::vector<BrushNode*>& brushes() const;
+            std::vector<BrushNode*> brushesRecursively() const;
 
             void addNodes(const std::vector<Node*>& nodes);
             void addNode(Node* node);
