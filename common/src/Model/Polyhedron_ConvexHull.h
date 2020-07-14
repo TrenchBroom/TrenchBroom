@@ -39,38 +39,34 @@
 
 namespace TrenchBroom {
     namespace Model {
-        namespace {
-            template <typename T, typename FP, typename VP>
-            vm::plane<T,3> makePlaneFromBoundary(const Polyhedron_HalfEdgeList<T,FP,VP>& boundary) {
-                if (boundary.size() < 3) {
-                    throw GeometryException("boundary must have at least thee vertices");
-                }
-                
-                const auto* first = boundary.front();
-                const auto& p1 = first->next()->origin()->position();
-                const auto& p2 = first->origin()->position();
-                const auto& p3 = first->previous()->origin()->position();
-                
-                const auto [valid, plane] = vm::from_points(p1, p2, p3);
-                if (!valid) {
-                    throw GeometryException("boundary is colinear");
-                }
-                
-                return plane;
+        template <typename T, typename FP, typename VP>
+        static vm::plane<T,3> makePlaneFromBoundary(const Polyhedron_HalfEdgeList<T,FP,VP>& boundary) {
+            if (boundary.size() < 3) {
+                throw GeometryException("boundary must have at least thee vertices");
             }
+            
+            const auto* first = boundary.front();
+            const auto& p1 = first->next()->origin()->position();
+            const auto& p2 = first->origin()->position();
+            const auto& p3 = first->previous()->origin()->position();
+            
+            const auto [valid, plane] = vm::from_points(p1, p2, p3);
+            if (!valid) {
+                throw GeometryException("boundary is colinear");
+            }
+            
+            return plane;
         }
 
-        namespace {
-            template <typename T>
-            T computePlaneEpsilon(const std::vector<vm::vec<T,3>>& points) {
-                typename vm::bbox<T,3>::builder builder;
-                builder.add(std::begin(points), std::end(points));
-                const auto size = builder.bounds().size();
-                
-                const auto defaultEpsilon = vm::constants<T>::point_status_epsilon();
-                const auto computedEpsilon = vm::get_max_component(size) / static_cast<T>(10) * vm::constants<T>::point_status_epsilon();
-                return std::max(computedEpsilon, defaultEpsilon);
-            }
+        template <typename T>
+        static T computePlaneEpsilon(const std::vector<vm::vec<T,3>>& points) {
+            typename vm::bbox<T,3>::builder builder;
+            builder.add(std::begin(points), std::end(points));
+            const auto size = builder.bounds().size();
+            
+            const auto defaultEpsilon = vm::constants<T>::point_status_epsilon();
+            const auto computedEpsilon = vm::get_max_component(size) / static_cast<T>(10) * vm::constants<T>::point_status_epsilon();
+            return std::max(computedEpsilon, defaultEpsilon);
         }
 
         template <typename T, typename FP, typename VP>

@@ -94,6 +94,8 @@
   body contains conditionally compiled code.
   
   In general, it is preferable to not delete the parameter name and it should be done with care.
+- If a function or variable is a private implementation detail of a compilation unit, make it static.
+  Don't use anonymous namespaces.
 
 # Compilation Times
 

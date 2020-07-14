@@ -417,20 +417,18 @@ namespace TrenchBroom {
             return newVertex;
         }
 
-        namespace {
-            BrushGeometry removeVerticesFromGeometry(const BrushGeometry& geometry, const std::vector<vm::vec3>& vertexPositions) {
-                std::vector<vm::vec3> points;
-                points.reserve(geometry.vertexCount());
-                
-                for (const auto* vertex : geometry.vertices()) {
-                    const auto& position = vertex->position();
-                    if (!kdl::vec_contains(vertexPositions, position)) {
-                        points.push_back(position);
-                    }
+        static BrushGeometry removeVerticesFromGeometry(const BrushGeometry& geometry, const std::vector<vm::vec3>& vertexPositions) {
+            std::vector<vm::vec3> points;
+            points.reserve(geometry.vertexCount());
+            
+            for (const auto* vertex : geometry.vertices()) {
+                const auto& position = vertex->position();
+                if (!kdl::vec_contains(vertexPositions, position)) {
+                    points.push_back(position);
                 }
-                
-                return BrushGeometry(points);
             }
+            
+            return BrushGeometry(points);
         }
 
         bool Brush::canRemoveVertices(const vm::bbox3& /* worldBounds */, const std::vector<vm::vec3>& vertexPositions) const {
@@ -450,17 +448,15 @@ namespace TrenchBroom {
             doSetNewGeometry(worldBounds, matcher, newGeometry);
         }
 
-        namespace {
-            BrushGeometry snappedGeometry(const BrushGeometry& geometry, const FloatType snapToF) {
-                std::vector<vm::vec3> points;
-                points.reserve(geometry.vertexCount());
-                
-                for (const auto* vertex : geometry.vertices()) {
-                    points.push_back(snapToF * vm::round(vertex->position() / snapToF));
-                }
-
-                return BrushGeometry(std::move(points));
+        static BrushGeometry snappedGeometry(const BrushGeometry& geometry, const FloatType snapToF) {
+            std::vector<vm::vec3> points;
+            points.reserve(geometry.vertexCount());
+            
+            for (const auto* vertex : geometry.vertices()) {
+                points.push_back(snapToF * vm::round(vertex->position() / snapToF));
             }
+
+            return BrushGeometry(std::move(points));
         }
         
         bool Brush::canSnapVertices(const vm::bbox3& /* worldBounds */, const FloatType snapToF) const {

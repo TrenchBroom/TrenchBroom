@@ -1692,13 +1692,11 @@ namespace TrenchBroom {
             // Don't call superclass implementation
         }
 
-        namespace {
-            template <typename F>
-            void applyRecursively(QObject* object, const F& f) {
-                f(object);
-                for (auto* child : object->children()) {
-                    applyRecursively(child, f);
-                }
+        template <typename F>
+        static void applyRecursively(QObject* object, const F& f) {
+            f(object);
+            for (auto* child : object->children()) {
+                applyRecursively(child, f);
             }
         }
 

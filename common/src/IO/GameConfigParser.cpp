@@ -46,16 +46,14 @@ namespace TrenchBroom {
         ConfigParserBase(str, path),
         m_version(0) {}
 
-        namespace {
-            void checkVersion(const EL::Value& version) {
-                const std::vector<EL::IntegerType> validVsns({3, 4});
-                const bool isNumVersion = version.convertibleTo(EL::ValueType::Number);
-                const bool isValidVersion = isNumVersion && (std::find(validVsns.begin(), validVsns.end(), version.integerValue()) != validVsns.end());
-                if (!isValidVersion) {
-                    const std::string versionStr(version.convertTo(EL::ValueType::String).stringValue());
-                    const std::string validVsnsStr(kdl::str_join(validVsns, ", "));
-                    throw ParserException(version.line(), version.column(), " Unsupported game configuration version " + versionStr + "; valid versions are: " + validVsnsStr);
-                }
+        static void checkVersion(const EL::Value& version) {
+            const std::vector<EL::IntegerType> validVsns({3, 4});
+            const bool isNumVersion = version.convertibleTo(EL::ValueType::Number);
+            const bool isValidVersion = isNumVersion && (std::find(validVsns.begin(), validVsns.end(), version.integerValue()) != validVsns.end());
+            if (!isValidVersion) {
+                const std::string versionStr(version.convertTo(EL::ValueType::String).stringValue());
+                const std::string validVsnsStr(kdl::str_join(validVsns, ", "));
+                throw ParserException(version.line(), version.column(), " Unsupported game configuration version " + versionStr + "; valid versions are: " + validVsnsStr);
             }
         }
 
@@ -344,13 +342,11 @@ namespace TrenchBroom {
             return result;
         }
 
-        namespace {
-            void checkTagName(const EL::Value& nameValue, const std::vector<Model::SmartTag>& tags) {
-                const auto& name = nameValue.stringValue();
-                for (const auto& tag : tags) {
-                    if (tag.name() == name) {
-                        throw ParserException(nameValue.line(), nameValue.column(), "Duplicate tag '" + name + "'");
-                    }
+        static void checkTagName(const EL::Value& nameValue, const std::vector<Model::SmartTag>& tags) {
+            const auto& name = nameValue.stringValue();
+            for (const auto& tag : tags) {
+                if (tag.name() == name) {
+                    throw ParserException(nameValue.line(), nameValue.column(), "Duplicate tag '" + name + "'");
                 }
             }
         }
