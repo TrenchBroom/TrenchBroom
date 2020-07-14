@@ -28,8 +28,10 @@
 #include "Model/BrushFaceAttributes.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
+#include "Model/LockState.h"
 #include "Model/MapFormat.h"
 #include "Model/WorldNode.h"
+#include "Model/VisibilityState.h"
 
 #include <kdl/string_compare.h>
 
@@ -70,10 +72,12 @@ namespace TrenchBroom {
                          "}\n", result.c_str());
         }
 
-        TEST_CASE("NodeWriterTest.writeDefaultLayerColor", "[NodeWriterTest]") {
+        TEST_CASE("NodeWriterTest.writeDefaultLayerAttributes", "[NodeWriterTest]") {
             Model::WorldNode map(Model::MapFormat::Standard);
             map.addOrUpdateAttribute("classname", "worldspawn");
             map.defaultLayer()->setLayerColor(Color(0.25f, 0.75f, 1.0f));
+            map.defaultLayer()->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
+            map.defaultLayer()->setLockState(Model::LockState::Lock_Locked);
 
             std::stringstream str;
             NodeWriter writer(map, str);
@@ -85,6 +89,8 @@ R"(// entity 0
 {
 "classname" "worldspawn"
 "_tb_layer_color" "0.25 0.75 1"
+"_tb_layer_locked" "1"
+"_tb_layer_hidden" "1"
 }
 )";
             CHECK(actual == expected);
@@ -304,6 +310,8 @@ R"(// entity 0
 
             Model::LayerNode* layer = map.createLayer("Custom Layer");
             layer->setSortIndex(1);
+            layer->setLockState(Model::LockState::Lock_Locked);
+            layer->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
             map.addChild(layer);
 
             std::stringstream str;
@@ -322,6 +330,8 @@ R"(// entity 0
 "_tb_name" "Custom Layer"
 "_tb_id" "*"
 "_tb_layer_sort_index" "1"
+"_tb_layer_locked" "1"
+"_tb_layer_hidden" "1"
 }
 )";
 

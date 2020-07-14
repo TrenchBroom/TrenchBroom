@@ -26,7 +26,9 @@
 #include "Model/EntityAttributes.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
+#include "Model/LockState.h"
 #include "Model/ModelFactory.h"
+#include "Model/VisibilityState.h"
 
 #include <kdl/map_utils.h>
 #include <kdl/string_format.h>
@@ -167,6 +169,12 @@ namespace TrenchBroom {
             if (!kdl::str_is_blank(layerSortIndex)) {
                 // This is optional (not present on maps saved in TB 2020.1 and earlier)
                 layer->addOrUpdateAttribute(Model::AttributeNames::LayerSortIndex, layerSortIndex);
+            }
+            if (findAttribute(attributes, Model::AttributeNames::LayerLocked) == Model::AttributeValues::LayerLockedValue) {
+                layer->setLockState(Model::LockState::Lock_Locked);
+            }
+            if (findAttribute(attributes, Model::AttributeNames::LayerHidden) == Model::AttributeValues::LayerHiddenValue) {
+                layer->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
             }
 
             setExtraAttributes(layer, extraAttributes);
