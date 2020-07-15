@@ -869,16 +869,6 @@ namespace kdl {
             return str;
         }
     };
-
-    template <typename F, typename Value, typename... Errors>
-    auto map_result(F&& f, const result<Value, Errors...>& result_) {
-        return result_.map(std::forward<F>(f));
-    }
-    
-    template <typename F, typename Value, typename... Errors>
-    auto map_result(F&& f, result<Value, Errors...>&& result_) {
-        return std::move(result_).map(std::forward<F>(f));
-    }
     
     template <typename Value, typename... Errors>
     auto get_success(const result<Value, Errors...>& result_) {
