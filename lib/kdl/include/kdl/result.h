@@ -188,10 +188,10 @@ namespace kdl {
          * @throw bad_result_access if the given result is an error
          */
         friend auto get_success(const result& result_) {
-            return visit_result(kdl::overload {
+            return result_.visit(kdl::overload {
                 [](const value_type& v) -> value_type { return v; },
                 [](const auto&)         -> value_type { throw bad_result_access(); }
-            }, result_);
+            });
         }
 
         /**
@@ -203,10 +203,10 @@ namespace kdl {
          * @throw bad_result_access if the given result is an error
          */
         friend auto get_success(result&& result_) {
-            return visit_result(kdl::overload {
+            return std::move(result_).visit(kdl::overload {
                 [](value_type&& v) -> value_type { return std::move(v); },
                 [](const auto&)    -> value_type { throw bad_result_access(); }
-            }, std::move(result_));
+            });
         }
 
         /**
@@ -404,10 +404,10 @@ namespace kdl {
          * @throw bad_result_access if the given result is an error
          */
         friend auto get_success(const result& result_) {
-            return visit_result(kdl::overload {
+            return result_.visit(kdl::overload {
                 [](const value_type& v) -> value_type& { return v; },
                 [](const auto&)         -> value_type& { throw bad_result_access(); }
-            }, result_);
+            });
         }
 
         /**
@@ -419,10 +419,10 @@ namespace kdl {
          * @throw bad_result_access if the given result is an error
          */
         friend auto get_success(result&& result_) {
-            return visit_result(kdl::overload {
+            return std::move(result_).visit(kdl::overload {
                 [](value_type&& v) -> value_type&& { return std::move(v); },
                 [](const auto&)    -> value_type&& { throw bad_result_access(); }
-            }, std::move(result_));
+            });
         }
 
         /**
@@ -795,11 +795,11 @@ namespace kdl {
          * @throw bad_result_access if the given result is an error or if the given result does not contain a value
          */
         friend auto get_success(const result& result_) {
-            return visit_result(kdl::overload {
+            return result_.visit(kdl::overload {
                 [](const value_type& v) -> value_type { return v; },
                 []()                    -> value_type { throw bad_result_access(); },
                 [](const auto&)         -> value_type { throw bad_result_access(); }
-            }, result_);
+            });
         }
 
         /**
@@ -811,11 +811,11 @@ namespace kdl {
          * @throw bad_result_access if the given result is an error or if the given result does not contain a value
          */
         friend auto get_success(result&& result_) {
-            return visit_result(kdl::overload {
+            return std::move(result_).visit(kdl::overload {
                 [](value_type&& v) -> value_type { return std::move(v); },
                 []()               -> value_type { throw bad_result_access(); },
                 [](const auto&)    -> value_type { throw bad_result_access(); }
-            }, std::move(result_));
+            });
         }
 
         /**
@@ -869,17 +869,6 @@ namespace kdl {
             return str;
         }
     };
-
-    
-    template <typename Visitor, typename Value, typename... Errors>
-    auto visit_result(Visitor&& visitor, const result<Value, Errors...>& result) {
-        return result.visit(std::forward<Visitor>(visitor));
-    }
-
-    template <typename Visitor, typename Value, typename... Errors>
-    auto visit_result(Visitor&& visitor, result<Value, Errors...>&& result) {
-        return std::move(result).visit(std::forward<Visitor>(visitor));
-    }
 
     template <typename F, typename Value, typename... Errors>
     auto map_result(F&& f, const result<Value, Errors...>& result_) {
