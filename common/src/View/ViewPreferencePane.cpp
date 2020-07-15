@@ -29,6 +29,8 @@
 
 #include "Renderer/GL.h"
 
+#include <vecmath/scalar.h>
+
 #include <QtGlobal>
 #include <QBoxLayout>
 #include <QCheckBox>
@@ -79,6 +81,16 @@ namespace TrenchBroom {
             setLayout(layout);
         }
 
+        static constexpr int brightnessToUI(const float value) {
+            return static_cast<int>(vm::round(100.0f * (value - 1.0f)));
+        }
+
+        static constexpr float brightnessFromUI(const int value) {
+            return (static_cast<float>(value) / 100.0f) + 1.0f;
+        }
+
+        static_assert(0 == brightnessToUI(brightnessFromUI(0)));
+
         QWidget* ViewPreferencePane::createViewPreferences() {
             auto* viewBox = new QWidget(this);
 
@@ -103,7 +115,7 @@ namespace TrenchBroom {
             m_layoutCombo->addItem("Three Panes");
             m_layoutCombo->addItem("Four Panes");
 
-            m_brightnessSlider = new SliderWithLabel(0, 100);
+            m_brightnessSlider = new SliderWithLabel(brightnessToUI(0.0f), brightnessToUI(2.0f));
             m_brightnessSlider->setMaximumWidth(400);
             m_brightnessSlider->setToolTip("Sets the brightness for textures and model skins in the 3D editing view.");
             m_gridAlphaSlider = new SliderWithLabel(0, 100);
@@ -217,7 +229,7 @@ namespace TrenchBroom {
 
         void ViewPreferencePane::doUpdateControls() {
             m_layoutCombo->setCurrentIndex(pref(Preferences::MapViewLayout));
-            m_brightnessSlider->setValue(int(pref(Preferences::Brightness) * 40.0f));
+            m_brightnessSlider->setValue(brightnessToUI(pref(Preferences::Brightness)));
             m_gridAlphaSlider->setRatio(pref(Preferences::GridAlpha));
             m_fovSlider->setValue(int(pref(Preferences::CameraFov)));
 
@@ -283,7 +295,7 @@ namespace TrenchBroom {
 
         void ViewPreferencePane::brightnessChanged(const int value) {
             auto& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::Brightness, static_cast<float>(value) / 40.0f);
+            prefs.set(Preferences::Brightness, brightnessFromUI(value));
         }
 
         void ViewPreferencePane::gridAlphaChanged(const int /* value */) {
