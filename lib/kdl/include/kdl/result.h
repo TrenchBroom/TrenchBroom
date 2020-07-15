@@ -120,6 +120,66 @@ namespace kdl {
         }
         
         /**
+         * Applies the given function to the value contained in this result.
+         *
+         * If this result is a success, the given function is invoked and passed the contained value by const lvalue
+         * reference. Then f's return value is wrapped in a new result and returned.
+         * If this result is an error, then the given function is not invoked, the error is wrapped in a new result and
+         * returned.
+         * The returned result value has the return type of the given function as its value type, and the error types of
+         * this result as its error types.
+         *
+         * To illustrate, consider a function with the signature `std::string to_string(int)` and a result `r` of type
+         * `result<int, Error1, Error2>`. Then calling `r.map(to_string)` returns a result of type `result<std::string,
+         * Error1, Error2>`.
+         *
+         * Note that it's also permissible that the given function returns nothing. In that case, a void result is
+         * returned.
+         *
+         * @tparam F the type of the function to apply
+         * @param f the function to apply
+         * @return a new result value containing the transformed success value or the error contained in this result
+         */
+        template <typename F>
+        auto map(F&& f) const & {
+            using R = std::invoke_result_t<F, Value>;
+            return visit(kdl::overload {
+                [&](const value_type& v) { return result<R, Errors...>::success(f(v)); },
+                [] (const auto& e)       { return result<R, Errors...>::error(e); }
+            });
+        }
+        
+        /**
+         * Applies the given function to the value contained in this result.
+         *
+         * If this result is a success, the given function is invoked and passed the contained value by rvalue
+         * reference. Then f's return value is wrapped in a new result and returned.
+         * If this result is an error, then the given function is not invoked, the error is wrapped in a new result and
+         * returned.
+         * The returned result value has the return type of the given function as its value type, and the error types of
+         * this result as its error types.
+         *
+         * To illustrate, consider a function with the signature `std::string to_string(int)` and a result `r` of type
+         * `result<int, Error1, Error2>`. Then calling `r.map(to_string)` returns a result of type `result<std::string,
+         * Error1, Error2>`.
+         *
+         * Note that it's also permissible that the given function returns nothing. In that case, a void result is
+         * returned.
+         *
+         * @tparam F the type of the function to apply
+         * @param f the function to apply
+         * @return a new result value containing the transformed success value or the error contained in this result
+         */
+        template <typename F>
+        auto map(F&& f) && {
+            using R = std::invoke_result_t<F, Value>;
+            return std::move(*this).visit(kdl::overload {
+                [&](value_type&& v) { return result<R, Errors...>::success(f(std::move(v))); },
+                [] (auto&& e)       { return result<R, Errors...>::error(std::move(e)); }
+            });
+        }
+        
+        /**
          * Applies the given function to the given result and returns a new result with the result type of the
          * given function as its value type.
          *
@@ -135,11 +195,7 @@ namespace kdl {
          */
         template <typename F>
         friend auto map_result(F&& f, const result& result_) {
-            using R = std::invoke_result_t<F, Value>;
-            return visit_result(kdl::overload {
-                [&](const value_type& v) { return result<R, Errors...>::success(f(v)); },
-                [] (const auto& e)       { return result<R, Errors...>::error(e); }
-            }, result_);
+            return result_.map(std::forward<F>(f));
         }
         
         /**
@@ -161,11 +217,7 @@ namespace kdl {
          */
         template <typename F>
         friend auto map_result(F&& f, result&& result_) {
-            using R = std::invoke_result_t<F, Value>;
-            return visit_result(kdl::overload {
-                [&](value_type&& v) { return result<R, Errors...>::success(f(std::move(v))); },
-                [] (const auto& e)  { return result<R, Errors...>::error(e); }
-            }, std::move(result_));
+            return std::move(result_).map(std::forward<F>(f));
         }
 
         /**
@@ -323,7 +375,67 @@ namespace kdl {
                 [&](auto&& e)         { return visitor(std::move(e)); }
             }, std::move(m_value));
         }
+
+        /**
+         * Applies the given function to the value contained in this result.
+         *
+         * If this result is a success, the given function is invoked and passed the contained value by const lvalue
+         * reference. Then f's return value is wrapped in a new result and returned.
+         * If this result is an error, then the given function is not invoked, the error is wrapped in a new result and
+         * returned.
+         * The returned result value has the return type of the given function as its value type, and the error types of
+         * this result as its error types.
+         *
+         * To illustrate, consider a function with the signature `std::string to_string(int)` and a result `r` of type
+         * `result<int&, Error1, Error2>`. Then calling `r.map(to_string)` returns a result of type `result<std::string,
+         * Error1, Error2>`.
+         *
+         * Note that it's also permissible that the given function returns nothing. In that case, a void result is
+         * returned.
+         *
+         * @tparam F the type of the function to apply
+         * @param f the function to apply
+         * @return a new result value containing the transformed success value or the error contained in this result
+         */
+        template <typename F>
+        auto map(F&& f) const & {
+            using R = std::invoke_result_t<F, Value>;
+            return visit(kdl::overload {
+                [&](const value_type& v) { return result<R, Errors...>::success(f(v)); },
+                [] (const auto& e)       { return result<R, Errors...>::error(e); }
+            });
+        }
         
+        /**
+         * Applies the given function to the value contained in this result.
+         *
+         * If this result is a success, the given function is invoked and passed the contained value by rvalue
+         * reference. Then f's return value is wrapped in a new result and returned.
+         * If this result is an error, then the given function is not invoked, the error is wrapped in a new result and
+         * returned.
+         * The returned result value has the return type of the given function as its value type, and the error types of
+         * this result as its error types.
+         *
+         * To illustrate, consider a function with the signature `std::string to_string(int)` and a result `r` of type
+         * `result<int&, Error1, Error2>`. Then calling `r.map(to_string)` returns a result of type `result<std::string,
+         * Error1, Error2>`.
+         *
+         * Note that it's also permissible that the given function returns nothing. In that case, a void result is
+         * returned.
+         *
+         * @tparam F the type of the function to apply
+         * @param f the function to apply
+         * @return a new result value containing the transformed success value or the error contained in this result
+         */
+        template <typename F>
+        auto map(F&& f) && {
+            using R = std::invoke_result_t<F, Value>;
+            return std::move(*this).visit(kdl::overload {
+                [&](value_type&& v) { return result<R, Errors...>::success(f(std::move(v))); },
+                [] (auto&& e)       { return result<R, Errors...>::error(std::move(e)); }
+            });
+        }
+
         /**
          * Applies the given function to given result and returns a new result with the result type of
          * the given function as its value type.
@@ -340,11 +452,7 @@ namespace kdl {
          */
         template <typename F>
         friend auto map_result(F&& f, const result& result_) {
-            using R = std::invoke_result_t<F, Value>;
-            return visit_result(kdl::overload {
-                [&](const value_type& v) { return result<R, Errors...>::success(f(v)); },
-                [] (const auto& e)       { return result<R, Errors...>::error(e); }
-            }, result_);
+            return result_.map(std::forward<F>(f));
         }
         
         /**
@@ -368,11 +476,7 @@ namespace kdl {
          */
         template <typename F>
         friend auto map_result(F&& f, result&& result_) {
-            using R = std::invoke_result_t<F, Value>;
-            return visit_result(kdl::overload {
-                [&](value_type&& v) { return result<R, Errors...>::success(f(std::move(v))); },
-                [] (const auto& e)  { return result<R, Errors...>::error(e); }
-            }, std::move(result_));
+            return std::move(result_).map(std::forward<F>(f));
         }
 
         /**
@@ -535,6 +639,80 @@ namespace kdl {
         }
         
         /**
+         * Applies the given function if this result is a success.
+         *
+         * If this result is a success, the given function is invoked reference. Then f's return value is wrapped in a
+         * new result and returned.
+         * If this result is an error, then the given function is not invoked, the error is wrapped in a new result and
+         * returned.
+         * The returned result value has the return type of the given function as its value type, and the error types of
+         * this result as its error types.
+         *
+         * To illustrate, consider a function with the signature `std::string to_string()` and a result `r` of type
+         * `result<void, Error1, Error2>`. Then calling `r.map(to_string)` returns a result of type `result<std::string,
+         * Error1, Error2>`.
+         *
+         * Note that it's also permissible that the given function returns nothing. In that case, a void result is
+         * returned.
+         *
+         * @tparam F the type of the function to apply
+         * @param f the function to apply
+         * @return a new result value containing the transformed success value or the error contained in this result
+         */
+        template <typename F>
+        auto map(F&& f) const & {
+            using R = std::invoke_result_t<F>;
+            if constexpr (std::is_same_v<R, void>) {
+                return visit(kdl::overload {
+                    [&]()              { f(); return result<R, Errors...>::success(); },
+                    [] (const auto& e) { return result<R, Errors...>::error(e); }
+                });
+            } else {
+                return visit(kdl::overload {
+                    [&]()              { return result<R, Errors...>::success(f()); },
+                    [] (const auto& e) { return result<R, Errors...>::error(e); }
+                });
+            }
+        }
+        
+        /**
+         * Applies the given function to the value contained in this result.
+         *
+         * If this result is a success, the given function is invoked and passed the contained value by rvalue
+         * reference. Then f's return value is wrapped in a new result and returned.
+         * If this result is an error, then the given function is not invoked, the error is wrapped in a new result and
+         * returned.
+         * The returned result value has the return type of the given function as its value type, and the error types of
+         * this result as its error types.
+         *
+         * To illustrate, consider a function with the signature `std::string to_string(int)` and a result `r` of type
+         * `result<int, Error1, Error2>`. Then calling `r.map(to_string)` returns a result of type `result<std::string,
+         * Error1, Error2>`.
+         *
+         * Note that it's also permissible that the given function returns nothing. In that case, a void result is
+         * returned.
+         *
+         * @tparam F the type of the function to apply
+         * @param f the function to apply
+         * @return a new result value containing the transformed success value or the error contained in this result
+         */
+        template <typename F>
+        auto map(F&& f) && {
+            using R = std::invoke_result_t<F>;
+            if constexpr (std::is_same_v<R, void>) {
+                return std::move(*this).visit(kdl::overload {
+                    [&]()         { f(); return result<R, Errors...>::success(); },
+                    [] (auto&& e) { return result<R, Errors...>::error(std::move(e)); }
+                });
+            } else {
+                return std::move(*this).visit(kdl::overload {
+                    [&]()         { return result<R, Errors...>::success(f()); },
+                    [] (auto&& e) { return result<R, Errors...>::error(std::move(e)); }
+                });
+            }
+        }
+
+        /**
          * Applies the given function to given result and returns a new result with the result type of
          * the given function as its value type.
          *
@@ -548,18 +726,7 @@ namespace kdl {
          */
         template <typename F>
         friend auto map_result(F&& f, const result& result_) {
-            using R = std::invoke_result_t<F>;
-            if constexpr (std::is_same_v<R, void>) {
-                return visit_result(kdl::overload {
-                    [&]()              { f(); return result<R, Errors...>::success(); },
-                    [] (const auto& e) { return result<R, Errors...>::error(e); }
-                }, result_);
-            } else {
-                return visit_result(kdl::overload {
-                    [&]()              { return result<R, Errors...>::success(f()); },
-                    [] (const auto& e) { return result<R, Errors...>::error(e); }
-                }, result_);
-            }
+            return result_.map(std::forward<F>(f));
         }
         
         /**
@@ -576,18 +743,7 @@ namespace kdl {
          */
         template <typename F>
         friend auto map_result(F&& f, result&& result_) {
-            using R = std::invoke_result_t<F>;
-            if constexpr (std::is_same_v<R, void>) {
-                return visit_result(kdl::overload {
-                    [&]()              { f(); return result<R, Errors...>::success(); },
-                    [] (const auto& e) { return result<R, Errors...>::error(e); }
-                }, std::move(result_));
-            } else {
-                return visit_result(kdl::overload {
-                    [&]()              { return result<R, Errors...>::success(f()); },
-                    [] (const auto& e) { return result<R, Errors...>::error(e); }
-                }, std::move(result_));
-            }
+            return std::move(result_).map(std::forward<F>(f));
         }
 
         /**
