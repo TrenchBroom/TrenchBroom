@@ -182,7 +182,7 @@ namespace kdl {
     void test_map_const_lvalue_ref(V&& v) {
         auto from = FromResult::success(std::forward<V>(v));
         
-        const auto to = map_result([](const typename FromResult::value_type& x) { return static_cast<ToValueType>(x); }, from);
+        const auto to = from.map([](const typename FromResult::value_type& x) { return static_cast<ToValueType>(x); });
         ASSERT_TRUE(to.is_success());
         ASSERT_FALSE(to.is_error());
         ASSERT_EQ(to.is_success(), to);
@@ -199,7 +199,7 @@ namespace kdl {
     template <typename FromResult, typename ToValueType, typename V>
     void test_map_rvalue_ref(V&& v) {
         auto from = FromResult::success(std::forward<V>(v));
-        const auto to = map_result([](typename FromResult::value_type&& x) { return std::move(static_cast<ToValueType>(x)); }, std::move(from));
+        const auto to = std::move(from).map([](typename FromResult::value_type&& x) { return std::move(static_cast<ToValueType>(x)); });
         ASSERT_TRUE(to.is_success());
         ASSERT_FALSE(to.is_error());
         ASSERT_EQ(to.is_success(), to);
@@ -431,12 +431,10 @@ namespace kdl {
     }
     
     TEST_CASE("void_result_test.map", "[void_result_test]") {
-        CHECK(result<bool, Error1, Error2>::success(true) == map_result(
-            []() { return true; },
-            result<void, Error1, Error2>::success()));
-        CHECK(result<bool, Error1, Error2>::error(Error2{}) == map_result(
-            []() { return true; },
-            result<void, Error1, Error2>::error(Error2{})));
+        CHECK(result<bool, Error1, Error2>::success(true) == result<void, Error1, Error2>::success().map(
+            []() { return true; }));
+        CHECK(result<bool, Error1, Error2>::error(Error2{}) == result<void, Error1, Error2>::error(Error2{}).map(
+            []() { return true; }));
     }
     
     TEST_CASE("opt_result_test.constructor", "[opt_result_test]") {

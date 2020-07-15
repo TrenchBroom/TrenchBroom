@@ -360,10 +360,10 @@ namespace TrenchBroom {
                 swap(m_points[1], m_points[2]);
             }
 
-            const auto setPointsResult = setPoints(m_points[0], m_points[1], m_points[2]);
-            return kdl::map_result([&]() {
-                m_texCoordSystem->transform(oldBoundary, m_boundary, transform, m_attributes, textureSize(), lockTexture, invariant);
-            }, setPointsResult);
+            return setPoints(m_points[0], m_points[1], m_points[2])
+                .map([&]() {
+                    m_texCoordSystem->transform(oldBoundary, m_boundary, transform, m_attributes, textureSize(), lockTexture, invariant);
+                });
         }
 
         void BrushFace::invert() {
@@ -378,12 +378,11 @@ namespace TrenchBroom {
 
             const auto* first = m_geometry->boundary().front();
             const auto oldPlane = m_boundary;
-            const auto setPointsResult = setPoints(
+            return setPoints(
                 first->next()->origin()->position(),
                 first->origin()->position(),
-                first->previous()->origin()->position());
-
-            return kdl::map_result([&]() {
+                first->previous()->origin()->position()
+            ).map([&]() {
                 // Get a line, and a reference point, that are on both the old plane
                 // (before moving the face) and after moving the face.
                 const auto seam = vm::intersect_plane_plane(oldPlane, m_boundary);
@@ -400,7 +399,7 @@ namespace TrenchBroom {
                     const auto offsetChange = desriedCoords - currentCoords;
                     m_attributes.setOffset(correct(modOffset(m_attributes.offset() + offsetChange), 4));
                 }
-            }, setPointsResult);
+            });
         }
 
         kdl::result<void, BrushError> BrushFace::findIntegerPlanePoints() {
