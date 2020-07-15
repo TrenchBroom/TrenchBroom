@@ -53,12 +53,13 @@ namespace TrenchBroom {
                 m_previouslySelectedNodes = document->selectedNodes().nodes();
 
                 for (Model::Node* original : m_previouslySelectedNodes) {
-                    Model::LayerNode* originalLayer = Model::findLayer(original);
+                    Model::Node* suggestedParent = document->parentForNodes(std::vector<Model::Node*>{original});
                     Model::Node* clone = original->cloneRecursively(worldBounds);
 
-                    Model::Node* parent = original->parent();
-                    if (cloneParent(parent)) {
+                    if (shouldCloneParentWhenCloningNode(original)) {
+                        // e.g. original is a brush in a brush entity, so we need to clone the entity (parent)
                         // see if the parent was already cloned and if not, clone it and store it
+                        Model::Node* parent = original->parent();
                         Model::Node* newParent = nullptr;
                         const auto it = newParentMap.find(parent);
                         if (it != std::end(newParentMap)) {
@@ -68,12 +69,13 @@ namespace TrenchBroom {
                             // parent was not cloned yet
                             newParent = parent->clone(worldBounds);
                             newParentMap.insert({ parent, newParent });
-                            m_addedNodes[originalLayer].push_back(newParent);
+                            m_addedNodes[suggestedParent].push_back(newParent);
                         }
 
+                        // the hierarchy will look like (parent -> child): suggestedParent -> newParent -> clone
                         newParent->addChild(clone);
                     } else {
-                        m_addedNodes[originalLayer].push_back(clone);
+                        m_addedNodes[suggestedParent].push_back(clone);
                     }
 
                     m_nodesToSelect.push_back(clone);
@@ -104,9 +106,16 @@ namespace TrenchBroom {
             void doVisit(const Model::BrushNode*) override  { setResult(false); }
         };
 
-        bool DuplicateNodesCommand::cloneParent(const Model::Node* node) const {
+        /**
+         * Returns whether, for UI reasons, duplicating the given node should also cause its parent to be duplicated.
+         *
+         * Applies when duplicating a brush inside a brush entity.
+         */
+        bool DuplicateNodesCommand::shouldCloneParentWhenCloningNode(const Model::Node* node) const {
+            Model::Node* parent = node->parent();
+
             CloneParentQuery query;
-            node->accept(query);
+            parent->accept(query);
             return query.result();
         }
 
