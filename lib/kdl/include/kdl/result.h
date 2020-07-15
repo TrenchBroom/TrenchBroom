@@ -120,37 +120,6 @@ namespace kdl {
         }
         
         /**
-         * Applies the given visitor to the given result and returns the result returned by the visitor.
-         * The value or error contained in the given result is passed to the visitor by const lvalue reference.
-         *
-         * @tparam Visitor the type of the visitor
-         * @param visitor the visitor to apply
-         * @param result the result to visit
-         * @return the result of applying the given visitor
-         */
-        template <typename Visitor>
-        friend auto visit_result(Visitor&& visitor, const result& result) {
-            return result.visit(std::forward<Visitor>(visitor));
-        }
-        
-        /**
-         * Applies the given visitor to the given result and returns the result returned by the visitor.
-         * The value or error contained in the given result is passed to the visitor by rvalue reference.
-         *
-         * The given visitor can move the value or error out of the given result, so care must be taken not to
-         * use the result afterwards, as it will be in a moved-from state.
-         *
-         * @tparam Visitor the type of the visitor
-         * @param visitor the visitor to apply
-         * @param result the result to visit
-         * @return the result of applying the given visitor
-         */
-        template <typename Visitor>
-        friend auto visit_result(Visitor&& visitor, result&& result) {
-            return std::move(result).visit(std::forward<Visitor>(visitor));
-        }
-        
-        /**
          * Applies the given function to the given result and returns a new result with the result type of the
          * given function as its value type.
          *
@@ -353,40 +322,6 @@ namespace kdl {
                 [&](wrapper_type&& v) { return visitor(std::move(v.get())); },
                 [&](auto&& e)         { return visitor(std::move(e)); }
             }, std::move(m_value));
-        }
-
-        /**
-         * Applies the given visitor to the given result and returns the result returned by the visitor.
-         * The reference or error contained in the given result is passed to the visitor as a const lvalue
-         * reference.
-         *
-         * @tparam Visitor the type of the visitor
-         * @param visitor the visitor to apply
-         * @param result the result to visit
-         * @return the result of applying the given visitor
-         */
-        template <typename Visitor>
-        friend auto visit_result(Visitor&& visitor, const result& result) {
-            return result.visit(std::forward<Visitor>(visitor));
-        }
-        
-        /**
-         * Applies the given visitor to the given result and returns the result returned by the visitor.
-         * The reference or error contained in the given result is passed to the visitor as a rvalue reference.
-         *
-         * The given visitor can move the value or error out of the given result, so care must be taken not to
-         * use the result afterwards, as it will be in a moved-from state.
-         *
-         * Note that the visitor can only move the value of the contained reference if it is not const.
-         *
-         * @tparam Visitor the type of the visitor
-         * @param visitor the visitor to apply
-         * @param result the result to visit
-         * @return the result of applying the given visitor
-         */
-        template <typename Visitor>
-        friend auto visit_result(Visitor&& visitor, result&& result) {
-            return std::move(result).visit(std::forward<Visitor>(visitor));
         }
         
         /**
@@ -597,39 +532,6 @@ namespace kdl {
             } else {
                 return visitor();
             }
-        }
-
-        /**
-         * Applies the given visitor to the given result and returns the result returned by the visitor.
-         * If the given result is successful, then the visitor is called without any arguments.
-         * Otherwise, the error contained in the given result is passed to the visitor by const lvalue reference.
-         *
-         * @tparam Visitor the type of the visitor
-         * @param visitor the visitor to apply
-         * @param result the result to visit
-         * @return the result of applying the given visitor
-         */
-        template <typename Visitor>
-        friend auto visit_result(Visitor&& visitor, const result& result) {
-            return result.visit(std::forward<Visitor>(visitor));
-        }
-        
-        /**
-         * Applies the given visitor to the given result and returns the result returned by the visitor.
-         * If the given result is successful, then the visitor is called without any arguments.
-         * Otherwise, the error contained in the given result is passed to the visitor by rvalue reference.
-         *
-         * The given visitor can move the value or error out of the given result, so care must be taken not to
-         * use the result afterwards, as it will be in a moved-from state.
-         *
-         * @tparam Visitor the type of the visitor
-         * @param visitor the visitor to apply
-         * @param result the result to visit
-         * @return the result of applying the given visitor
-         */
-        template <typename Visitor>
-        friend auto visit_result(Visitor&& visitor, result&& result) {
-            return std::move(result).visit(std::forward<Visitor>(visitor));
         }
         
         /**
@@ -845,41 +747,6 @@ namespace kdl {
                 return visitor();
             }
         }
-        
-        /**
-         * Applies the given visitor to the given result and returns the result returned by the visitor.
-         * The value or error contained in the given result is passed to the visitor by const lvalue reference.
-         * If the given result is successful but does not contain a value, the given visitor is called without any
-         * arguments.
-         *
-         * @tparam Visitor the type of the visitor
-         * @param visitor the visitor to apply
-         * @param result the result to visit
-         * @return the result of applying the given visitor
-         */
-        template <typename Visitor>
-        friend auto visit_result(Visitor&& visitor, const result& result) {
-            return result.visit(std::forward<Visitor>(visitor));
-        }
-        
-        /**
-         * Applies the given visitor to the given result and returns the result returned by the visitor.
-         * The value or error contained in the given result is passed to the visitor by rvalue reference.
-         * If the given result is successful but does not contain a value, the given visitor is called without any
-         * arguments.
-         *
-         * The given visitor can move the value or error out of the given result, so care must be taken not to
-         * use the result afterwards, as it will be in a moved-from state.
-         *
-         * @tparam Visitor the type of the visitor
-         * @param visitor the visitor to apply
-         * @param result the result to visit
-         * @return the result of applying the given visitor
-         */
-        template <typename Visitor>
-        friend auto visit_result(Visitor&& visitor, result&& result) {
-            return std::move(result).visit(std::forward<Visitor>(visitor));
-        }
 
         /**
          * Returns the value contained in the given result if it is successful. Otherwise, throws `bad_result_access`.
@@ -968,12 +835,12 @@ namespace kdl {
     
     template <typename Visitor, typename Value, typename... Errors>
     auto visit_result(Visitor&& visitor, const result<Value, Errors...>& result) {
-        return visit_result(std::forward<Visitor>(visitor), result);
+        return result.visit(std::forward<Visitor>(visitor));
     }
 
     template <typename Visitor, typename Value, typename... Errors>
     auto visit_result(Visitor&& visitor, result<Value, Errors...>&& result) {
-        return visit_result(std::forward<Visitor>(visitor), std::move(result));
+        return std::move(result).visit(std::forward<Visitor>(visitor));
     }
 
     template <typename F, typename Value, typename... Errors>
