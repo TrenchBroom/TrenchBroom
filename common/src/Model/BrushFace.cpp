@@ -361,7 +361,7 @@ namespace TrenchBroom {
             }
 
             return setPoints(m_points[0], m_points[1], m_points[2])
-                .map([&]() {
+                .and_then([&]() {
                     m_texCoordSystem->transform(oldBoundary, m_boundary, transform, m_attributes, textureSize(), lockTexture, invariant);
                 });
         }
@@ -382,7 +382,7 @@ namespace TrenchBroom {
                 first->next()->origin()->position(),
                 first->origin()->position(),
                 first->previous()->origin()->position()
-            ).map([&]() {
+            ).and_then([&]() {
                 // Get a line, and a reference point, that are on both the old plane
                 // (before moving the face) and after moving the face.
                 const auto seam = vm::intersect_plane_plane(oldPlane, m_boundary);

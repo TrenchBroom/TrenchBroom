@@ -179,10 +179,10 @@ namespace kdl {
      * Tests mapping a successful result and passing by const lvalue reference to the mapping function.
      */
     template <typename FromResult, typename ToValueType, typename V>
-    void test_map_const_lvalue_ref(V&& v) {
+    void test_and_then_const_lvalue_ref(V&& v) {
         auto from = FromResult::success(std::forward<V>(v));
         
-        const auto to = from.map([](const typename FromResult::value_type& x) { return static_cast<ToValueType>(x); });
+        const auto to = from.and_then([](const typename FromResult::value_type& x) { return static_cast<ToValueType>(x); });
         ASSERT_TRUE(to.is_success());
         ASSERT_FALSE(to.is_error());
         ASSERT_EQ(to.is_success(), to);
@@ -197,9 +197,9 @@ namespace kdl {
      * Tests mapping a successful result and passing by rvalue reference to the mapping function.
      */
     template <typename FromResult, typename ToValueType, typename V>
-    void test_map_rvalue_ref(V&& v) {
+    void test_and_then_rvalue_ref(V&& v) {
         auto from = FromResult::success(std::forward<V>(v));
-        const auto to = std::move(from).map([](typename FromResult::value_type&& x) { return std::move(static_cast<ToValueType>(x)); });
+        const auto to = std::move(from).and_then([](typename FromResult::value_type&& x) { return std::move(static_cast<ToValueType>(x)); });
         ASSERT_TRUE(to.is_success());
         ASSERT_FALSE(to.is_error());
         ASSERT_EQ(to.is_success(), to);
@@ -347,12 +347,12 @@ namespace kdl {
         test_visit_error_rvalue_ref<result<int, Counter, Error2>>(Counter{});
     }
 
-    TEST_CASE("result_test.map", "[result_test]") {
-        test_map_const_lvalue_ref<const result<int, Error1, Error2>, float>(1);
-        test_map_const_lvalue_ref<result<int, Error1, Error2>, float>(1);
-        test_map_const_lvalue_ref<const result<const int, Error1, Error2>, float>(1);
-        test_map_const_lvalue_ref<result<const int, Error1, Error2>, float>(1);
-        test_map_rvalue_ref<result<Counter, Error1, Error2>, Counter>(Counter{});
+    TEST_CASE("result_test.and_then", "[result_test]") {
+        test_and_then_const_lvalue_ref<const result<int, Error1, Error2>, float>(1);
+        test_and_then_const_lvalue_ref<result<int, Error1, Error2>, float>(1);
+        test_and_then_const_lvalue_ref<const result<const int, Error1, Error2>, float>(1);
+        test_and_then_const_lvalue_ref<result<const int, Error1, Error2>, float>(1);
+        test_and_then_rvalue_ref<result<Counter, Error1, Error2>, Counter>(Counter{});
     }
     
     TEST_CASE("reference_result_test.constructor", "[reference_result_test]") {
@@ -395,15 +395,15 @@ namespace kdl {
         test_visit_error_rvalue_ref<result<int&, Counter, Error2>>(Counter{});
     }
     
-    TEST_CASE("reference_result_test.map", "[reference_result_test]") {
+    TEST_CASE("reference_result_test.and_then", "[reference_result_test]") {
         int x = 1;
-        test_map_const_lvalue_ref<const result<int&, Error1, Error2>, float>(x);
-        test_map_const_lvalue_ref<result<int&, Error1, Error2>, float>(x);
-        test_map_const_lvalue_ref<const result<const int&, Error1, Error2>, float>(x);
-        test_map_const_lvalue_ref<result<const int&, Error1, Error2>, float>(x);
+        test_and_then_const_lvalue_ref<const result<int&, Error1, Error2>, float>(x);
+        test_and_then_const_lvalue_ref<result<int&, Error1, Error2>, float>(x);
+        test_and_then_const_lvalue_ref<const result<const int&, Error1, Error2>, float>(x);
+        test_and_then_const_lvalue_ref<result<const int&, Error1, Error2>, float>(x);
 
         auto c = Counter{};
-        test_map_rvalue_ref<result<Counter&, Error1, Error2>, Counter>(c);
+        test_and_then_rvalue_ref<result<Counter&, Error1, Error2>, Counter>(c);
     }
     
     TEST_CASE("void_result_test.constructor", "[void_result_test]") {
@@ -430,10 +430,10 @@ namespace kdl {
         test_visit_error_rvalue_ref_with_opt_value<result<void, Counter, Error2>>(Counter{});
     }
     
-    TEST_CASE("void_result_test.map", "[void_result_test]") {
-        CHECK(result<bool, Error1, Error2>::success(true) == result<void, Error1, Error2>::success().map(
+    TEST_CASE("void_result_test.and_then", "[void_result_test]") {
+        CHECK(result<bool, Error1, Error2>::success(true) == result<void, Error1, Error2>::success().and_then(
             []() { return true; }));
-        CHECK(result<bool, Error1, Error2>::error(Error2{}) == result<void, Error1, Error2>::error(Error2{}).map(
+        CHECK(result<bool, Error1, Error2>::error(Error2{}) == result<void, Error1, Error2>::error(Error2{}).and_then(
             []() { return true; }));
     }
     
