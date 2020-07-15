@@ -81,17 +81,15 @@ namespace TrenchBroom {
             setLayout(layout);
         }
 
-        namespace {
-            static constexpr int brightnessToUI(const float value) {
-                return static_cast<int>(vm::round(100.0f * (value - 1.0f)));
-            }
-
-            static constexpr float brightnessFromUI(const int value) {
-                return (static_cast<float>(value) / 100.0f) + 1.0f;
-            }
-
-            static_assert(0 == brightnessToUI(brightnessFromUI(0)));
+        static constexpr int brightnessToUI(const float value) {
+            return static_cast<int>(vm::round(100.0f * (value - 1.0f)));
         }
+
+        static constexpr float brightnessFromUI(const int value) {
+            return (static_cast<float>(value) / 100.0f) + 1.0f;
+        }
+
+        static_assert(0 == brightnessToUI(brightnessFromUI(0)));
 
         QWidget* ViewPreferencePane::createViewPreferences() {
             auto* viewBox = new QWidget(this);
