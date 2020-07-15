@@ -863,16 +863,6 @@ namespace kdl {
             return str;
         }
     };
-    
-    template <typename Value, typename... Errors>
-    auto get_success(const result<Value, Errors...>& result_) {
-        return result_.value();
-    }
-    
-    template <typename Value, typename... Errors>
-    auto get_success(result<Value, Errors...>&& result_) {
-        return std::move(result_).value();
-    }
 }
 
 #endif /* result_h */

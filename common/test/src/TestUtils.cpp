@@ -119,7 +119,7 @@ namespace TrenchBroom {
     namespace Model {
         BrushFace createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName) {
             const BrushFaceAttributes attributes(textureName);
-            return kdl::get_success(BrushFace::create(point0, point1, point2, attributes, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attributes)));
+            return BrushFace::create(point0, point1, point2, attributes, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attributes)).value();
         }
 
         std::vector<vm::vec3> asVertexList(const std::vector<vm::segment3>& edges) {
