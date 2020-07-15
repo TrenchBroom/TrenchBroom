@@ -204,7 +204,7 @@ namespace TrenchBroom {
 
         const PreferencesResult v2 = readV2SettingsFromPath("fixture/test/preferences-v2.json");
         CHECK(v2.is_success());
-        kdl::visit_result(kdl::overload{
+        v2.visit(kdl::overload{
             [](const std::map<IO::Path, QJsonValue>& prefs) {
                testV2Prefs(prefs);
             },
@@ -217,7 +217,7 @@ namespace TrenchBroom {
             [](const PreferenceErrors::FileReadError&) {
                 FAIL_CHECK();
             }
-        }, v2);
+        });
     }
 
     TEST_CASE("PreferencesTest.testWriteReadV2", "[PreferencesTest]") {
@@ -228,7 +228,7 @@ namespace TrenchBroom {
         const auto v2Deserialized = parseV2SettingsFromJSON(v2Serialized);
 
         CHECK(v2Deserialized.is_success());
-        kdl::visit_result(kdl::overload{
+        v2Deserialized.visit(kdl::overload{
             [&](const std::map<IO::Path, QJsonValue>& prefs) {
                 CHECK(v2 == prefs);
             },
@@ -241,7 +241,7 @@ namespace TrenchBroom {
             [](const PreferenceErrors::FileReadError&) {
                 FAIL_CHECK();
             }
-        }, v2Deserialized);
+        });
     }
 
     /**

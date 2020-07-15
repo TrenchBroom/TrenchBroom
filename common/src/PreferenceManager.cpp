@@ -364,22 +364,22 @@ namespace TrenchBroom {
         const std::map<IO::Path, QJsonValue> oldPrefs = m_cache;
 
         // Reload m_cache
-        const PreferencesResult result = readV2SettingsFromPath(m_preferencesFilePath);
-        kdl::visit_result(kdl::overload {
-            [&](const std::map<IO::Path, QJsonValue>& prefs) {
-                m_cache = prefs;
-            },
-            [&] (const PreferenceErrors::FileReadError&) {
-                // This happens e.g. if you don't have read permissions for m_preferencesFilePath
-                showErrorAndDisableFileReadWrite(tr("A file IO error occurred while attempting to read the preference file:"), tr("ensure the file is readable"));
-            },
-            [&] (const PreferenceErrors::JsonParseError&) {
-                showErrorAndDisableFileReadWrite(tr("A JSON parsing error occurred while reading the preference file:"), tr("fix the JSON, or backup and delete the file"));
-            },
-            [&] (const PreferenceErrors::NoFilePresent&) {
-                m_cache = {};
-            }
-        }, result);
+        readV2SettingsFromPath(m_preferencesFilePath)
+            .visit(kdl::overload {
+                [&](std::map<IO::Path, QJsonValue>&& prefs) {
+                    m_cache = std::move(prefs);
+                },
+                [&] (const PreferenceErrors::FileReadError&) {
+                    // This happens e.g. if you don't have read permissions for m_preferencesFilePath
+                    showErrorAndDisableFileReadWrite(tr("A file IO error occurred while attempting to read the preference file:"), tr("ensure the file is readable"));
+                },
+                [&] (const PreferenceErrors::JsonParseError&) {
+                    showErrorAndDisableFileReadWrite(tr("A JSON parsing error occurred while reading the preference file:"), tr("fix the JSON, or backup and delete the file"));
+                },
+                [&] (const PreferenceErrors::NoFilePresent&) {
+                    m_cache = {};
+                }
+            });
 
         invalidatePreferences();
 
