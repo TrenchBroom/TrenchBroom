@@ -178,47 +178,6 @@ namespace kdl {
                 [] (auto&& e)       { return result<R, Errors...>::error(std::move(e)); }
             });
         }
-        
-        /**
-         * Applies the given function to the given result and returns a new result with the result type of the
-         * given function as its value type.
-         *
-         * If the given result contains a value, the function is applied to it and the result of applying the function
-         * is returned wrapped in a result.
-         * If the given result contains an error, that error is returned as is.
-         *
-         * The value is passed to the mapping function by const lvalue reference.
-
-         * @tparam F the type of the function to apply
-         * @param f the function to apply
-         * @param result_ the result to map
-         */
-        template <typename F>
-        friend auto map_result(F&& f, const result& result_) {
-            return result_.map(std::forward<F>(f));
-        }
-        
-        /**
-         * Applies the given function to the given result and returns a new result with the result type of the
-         * given function as its value type.
-         *
-         * If the given result contains a value, the function is applied to it and the result of applying the function
-         * is returned wrapped in a result.
-         * If the given result contains an error, that error is returned as is.
-         *
-         * The value is passed to the mapping function by rvalue reference.
-         *
-         * The given function can move the value out of the given result, so care must be taken not to
-         * use the given result afterwards, as it will be in a moved-from state.
-
-         * @tparam F the type of the function to apply
-         * @param f the function to apply
-         * @param result_ the result to map
-         */
-        template <typename F>
-        friend auto map_result(F&& f, result&& result_) {
-            return std::move(result_).map(std::forward<F>(f));
-        }
 
         /**
          * Returns the value contained in the given result if it is successful. Otherwise, throws `bad_result_access`.
@@ -434,49 +393,6 @@ namespace kdl {
                 [&](value_type&& v) { return result<R, Errors...>::success(f(std::move(v))); },
                 [] (auto&& e)       { return result<R, Errors...>::error(std::move(e)); }
             });
-        }
-
-        /**
-         * Applies the given function to given result and returns a new result with the result type of
-         * the given function as its value type.
-         *
-         * If the given result contains a reference, the function is applied to it and the result of applying the
-         * function is returned wrapped in a result.
-         * If the given result contains an error, that error is returned as is.
-         *
-         * The reference is passed to the mapping function by const lvalue reference.
-
-         * @tparam F the type of the function to apply
-         * @param f the function to apply
-         * @param result_ the result to map
-         */
-        template <typename F>
-        friend auto map_result(F&& f, const result& result_) {
-            return result_.map(std::forward<F>(f));
-        }
-        
-        /**
-         * Applies the given function to the given result and returns a new result with the result type of
-         * the given function as its value type.
-         *
-         * If the given result contains a reference, the function is applied to it and the result of applying the
-         * function is returned wrapped in a result.
-         * If the given result contains an error, that error is returned as is.
-         *
-         * The reference is passed to the mapping function by rvalue reference.
-         *
-         * The given function can move the value out of the given result, so care must be taken not to
-         * use the given result afterwards, as it will be in a moved-from state.
-         *
-         * Note that the visitor can only move the value of the contained reference if it is not const.
-         *
-         * @tparam F the type of the function to apply
-         * @param f the function to apply
-         * @param result_ the result to map
-         */
-        template <typename F>
-        friend auto map_result(F&& f, result&& result_) {
-            return std::move(result_).map(std::forward<F>(f));
         }
 
         /**
@@ -710,40 +626,6 @@ namespace kdl {
                     [] (auto&& e) { return result<R, Errors...>::error(std::move(e)); }
                 });
             }
-        }
-
-        /**
-         * Applies the given function to given result and returns a new result with the result type of
-         * the given function as its value type.
-         *
-         * If the given result is a success, the function is applied and the result of applying the
-         * function is returned wrapped in a result.
-         * If the given result contains an error, that error is returned as is.
-         *
-         * @tparam F the type of the function to apply
-         * @param f the function to apply
-         * @param result_ the result to map
-         */
-        template <typename F>
-        friend auto map_result(F&& f, const result& result_) {
-            return result_.map(std::forward<F>(f));
-        }
-        
-        /**
-         * Applies the given function to given result and returns a new result with the result type of
-         * the given function as its value type.
-         *
-         * If the given result is a success, the function is applied and the result of applying the
-         * function is returned wrapped in a result.
-         * If the given result contains an error, that error is returned as is.
-         *
-         * @tparam F the type of the function to apply
-         * @param f the function to apply
-         * @param result_ the result to map
-         */
-        template <typename F>
-        friend auto map_result(F&& f, result&& result_) {
-            return std::move(result_).map(std::forward<F>(f));
         }
 
         /**
@@ -1001,12 +883,12 @@ namespace kdl {
 
     template <typename F, typename Value, typename... Errors>
     auto map_result(F&& f, const result<Value, Errors...>& result_) {
-        return map_result(std::forward<F>(f), result_);
+        return result_.map(std::forward<F>(f));
     }
     
     template <typename F, typename Value, typename... Errors>
     auto map_result(F&& f, result<Value, Errors...>&& result_) {
-        return map_result(std::forward<F>(f), std::move(result_));
+        return std::move(result_).map(std::forward<F>(f));
     }
     
     template <typename Value, typename... Errors>
