@@ -109,7 +109,7 @@ namespace TrenchBroom {
         /**
          * Returns whether, for UI reasons, duplicating the given node should also cause its parent to be duplicated.
          *
-         * At present, this applies when duplicating a brush inside a brush entity.
+         * Applies when duplicating a brush inside a brush entity.
          */
         bool DuplicateNodesCommand::shouldCloneParentWhenCloningNode(const Model::Node* node) const {
             Model::Node* parent = node->parent();
