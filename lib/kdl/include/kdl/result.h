@@ -90,6 +90,36 @@ namespace kdl {
         }
         
         /**
+         * Visits the value or error contained in this result.
+         *
+         * The given visitor must accept the value type and all error types of this result.
+         * The value or error contained in this result is passed to the visitor by const lvalue reference.
+         *
+         * @tparam Visitor the type of the visitor
+         * @param visitor the visitor to apply
+         * @return the value returned by the given visitor or void if the given visitor does not return anything
+         */
+        template <typename Visitor>
+        auto visit(Visitor&& visitor) const & {
+            return std::visit(std::forward<Visitor>(visitor), m_value);
+        }
+        
+        /**
+         * Visits the value or error contained in this result.
+         *
+         * The given visitor must accept the value type and all error types of this result.
+         * The value or error contained in this result is passed to the visitor by rvalue reference.
+         *
+         * @tparam Visitor the type of the visitor
+         * @param visitor the visitor to apply
+         * @return the value returned by the given visitor or void if the given visitor does not return anything
+         */
+        template <typename Visitor>
+        auto visit(Visitor&& visitor) && {
+            return std::visit(std::forward<Visitor>(visitor), std::move(m_value));
+        }
+        
+        /**
          * Applies the given visitor to the given result and returns the result returned by the visitor.
          * The value or error contained in the given result is passed to the visitor by const lvalue reference.
          *
@@ -100,9 +130,7 @@ namespace kdl {
          */
         template <typename Visitor>
         friend auto visit_result(Visitor&& visitor, const result& result) {
-            return std::visit(
-                std::forward<Visitor>(visitor),
-                result.m_value);
+            return result.visit(std::forward<Visitor>(visitor));
         }
         
         /**
@@ -119,9 +147,7 @@ namespace kdl {
          */
         template <typename Visitor>
         friend auto visit_result(Visitor&& visitor, result&& result) {
-            return std::visit(
-                std::forward<Visitor>(visitor),
-                std::move(result.m_value));
+            return std::move(result).visit(std::forward<Visitor>(visitor));
         }
         
         /**
@@ -292,6 +318,42 @@ namespace kdl {
         static result error(E&& e) {
             return result(variant_type(std::forward<E>(e)));
         }
+        
+        /**
+         * Visits the value or error contained in this result.
+         *
+         * The given visitor must accept the value type and all error types of this result.
+         * The value or error contained in this result is passed to the visitor by const lvalue reference.
+         *
+         * @tparam Visitor the type of the visitor
+         * @param visitor the visitor to apply
+         * @return the value returned by the given visitor or void if the given visitor does not return anything
+         */
+        template <typename Visitor>
+        auto visit(Visitor&& visitor) const & {
+            return std::visit(kdl::overload {
+                [&](const wrapper_type& v) { return visitor(v.get()); },
+                [&](const auto& e)         { return visitor(e); }
+            }, m_value);
+        }
+        
+        /**
+         * Visits the value or error contained in this result.
+         *
+         * The given visitor must accept the value type and all error types of this result.
+         * The value or error contained in this result is passed to the visitor by rvalue reference.
+         *
+         * @tparam Visitor the type of the visitor
+         * @param visitor the visitor to apply
+         * @return the value returned by the given visitor or void if the given visitor does not return anything
+         */
+        template <typename Visitor>
+        auto visit(Visitor&& visitor) && {
+            return std::visit(kdl::overload {
+                [&](wrapper_type&& v) { return visitor(std::move(v.get())); },
+                [&](auto&& e)         { return visitor(std::move(e)); }
+            }, std::move(m_value));
+        }
 
         /**
          * Applies the given visitor to the given result and returns the result returned by the visitor.
@@ -305,10 +367,7 @@ namespace kdl {
          */
         template <typename Visitor>
         friend auto visit_result(Visitor&& visitor, const result& result) {
-            return std::visit(kdl::overload {
-                [&](const wrapper_type& v) { return visitor(v.get()); },
-                [&](const auto& e)         { return visitor(e); }
-            }, result.m_value);
+            return result.visit(std::forward<Visitor>(visitor));
         }
         
         /**
@@ -327,10 +386,7 @@ namespace kdl {
          */
         template <typename Visitor>
         friend auto visit_result(Visitor&& visitor, result&& result) {
-            return std::visit(kdl::overload {
-                [&](wrapper_type&& v) { return visitor(std::move(v.get())); },
-                [&](auto&& e)         { return visitor(std::move(e)); }
-            }, std::move(result.m_value));
+            return std::move(result).visit(std::forward<Visitor>(visitor));
         }
         
         /**
@@ -500,6 +556,48 @@ namespace kdl {
         static result error(E&& e) {
             return result(variant_type(std::forward<E>(e)));
         }
+        
+        /**
+         * Applies the given visitor this result.
+         *
+         * The given visitor must accept void and all error types of this result.
+         * The error contained in this result is passed to the visitor by const lvalue reference.
+         *
+         * @tparam Visitor the type of the visitor
+         * @param visitor the visitor to apply
+         * @return the value returned by the given visitor or void if the given visitor does not return anything
+         */
+        template <typename Visitor>
+        auto visit(Visitor&& visitor) const & {
+            if (m_error.has_value()) {
+                return std::visit(
+                    std::forward<Visitor>(visitor),
+                    m_error.value());
+            } else {
+                return visitor();
+            }
+        }
+        
+        /**
+         * Visits the value or error contained in this result.
+         *
+         * The given visitor must accept the value type and all error types of this result.
+         * The value or error contained in this result is passed to the visitor by rvalue reference.
+         *
+         * @tparam Visitor the type of the visitor
+         * @param visitor the visitor to apply
+         * @return the value returned by the given visitor or void if the given visitor does not return anything
+         */
+        template <typename Visitor>
+        auto visit(Visitor&& visitor) && {
+            if (m_error.has_value()) {
+                return std::visit(
+                    std::forward<Visitor>(visitor),
+                    std::move(m_error.value()));
+            } else {
+                return visitor();
+            }
+        }
 
         /**
          * Applies the given visitor to the given result and returns the result returned by the visitor.
@@ -513,13 +611,7 @@ namespace kdl {
          */
         template <typename Visitor>
         friend auto visit_result(Visitor&& visitor, const result& result) {
-            if (result.m_error.has_value()) {
-                return std::visit(
-                    std::forward<Visitor>(visitor),
-                    result.m_error.value());
-            } else {
-                return visitor();
-            }
+            return result.visit(std::forward<Visitor>(visitor));
         }
         
         /**
@@ -537,13 +629,7 @@ namespace kdl {
          */
         template <typename Visitor>
         friend auto visit_result(Visitor&& visitor, result&& result) {
-            if (result.m_error.has_value()) {
-                return std::visit(
-                    std::forward<Visitor>(visitor),
-                    std::move(result.m_error.value()));
-            } else {
-                return visitor();
-            }
+            return std::move(result).visit(std::forward<Visitor>(visitor));
         }
         
         /**
@@ -717,6 +803,49 @@ namespace kdl {
             return result(variant_type(std::forward<E>(e)));
         }
         
+        
+        /**
+         * Visits the value or error contained in this result.
+         *
+         * The given visitor must accept the value type and all error types of this result.
+         * The value or error contained in this result is passed to the visitor by const lvalue reference.
+         *
+         * @tparam Visitor the type of the visitor
+         * @param visitor the visitor to apply
+         * @return the value returned by the given visitor or void if the given visitor does not return anything
+         */
+        template <typename Visitor>
+        auto visit(Visitor&& visitor) const & {
+            if (m_value.has_value()) {
+                return std::visit(
+                    std::forward<Visitor>(visitor),
+                    m_value.value());
+            } else {
+                return visitor();
+            }
+        }
+        
+        /**
+         * Visits the value or error contained in this result.
+         *
+         * The given visitor must accept the value type and all error types of this result.
+         * The value or error contained in this result is passed to the visitor by rvalue reference.
+         *
+         * @tparam Visitor the type of the visitor
+         * @param visitor the visitor to apply
+         * @return the value returned by the given visitor or void if the given visitor does not return anything
+         */
+        template <typename Visitor>
+        auto visit(Visitor&& visitor) && {
+            if (m_value.has_value()) {
+                return std::visit(
+                    std::forward<Visitor>(visitor),
+                    std::move(m_value.value()));
+            } else {
+                return visitor();
+            }
+        }
+        
         /**
          * Applies the given visitor to the given result and returns the result returned by the visitor.
          * The value or error contained in the given result is passed to the visitor by const lvalue reference.
@@ -730,13 +859,7 @@ namespace kdl {
          */
         template <typename Visitor>
         friend auto visit_result(Visitor&& visitor, const result& result) {
-            if (result.m_value.has_value()) {
-                return std::visit(
-                    std::forward<Visitor>(visitor),
-                    result.m_value.value());
-            } else {
-                return visitor();
-            }
+            return result.visit(std::forward<Visitor>(visitor));
         }
         
         /**
@@ -755,13 +878,7 @@ namespace kdl {
          */
         template <typename Visitor>
         friend auto visit_result(Visitor&& visitor, result&& result) {
-            if (result.m_value.has_value()) {
-                return std::visit(
-                    std::forward<Visitor>(visitor),
-                    std::move(result.m_value.value()));
-            } else {
-                return visitor();
-            }
+            return std::move(result).visit(std::forward<Visitor>(visitor));
         }
 
         /**
