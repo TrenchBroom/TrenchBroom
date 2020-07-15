@@ -130,8 +130,8 @@ namespace kdl {
          * this result as its error types.
          *
          * To illustrate, consider a function with the signature `std::string to_string(int)` and a result `r` of type
-         * `result<int, Error1, Error2>`. Then calling `r.map(to_string)` returns a result of type `result<std::string,
-         * Error1, Error2>`.
+         * `result<int, Error1, Error2>`. Then calling `r.and_then(to_string)` returns a result of type
+         * `result<std::string, Error1, Error2>`.
          *
          * Note that it's also permissible that the given function returns nothing. In that case, a void result is
          * returned.
@@ -141,7 +141,7 @@ namespace kdl {
          * @return a new result value containing the transformed success value or the error contained in this result
          */
         template <typename F>
-        auto map(F&& f) const & {
+        auto and_then(F&& f) const & {
             using R = std::invoke_result_t<F, Value>;
             return visit(kdl::overload {
                 [&](const value_type& v) { return result<R, Errors...>::success(f(v)); },
@@ -160,8 +160,8 @@ namespace kdl {
          * this result as its error types.
          *
          * To illustrate, consider a function with the signature `std::string to_string(int)` and a result `r` of type
-         * `result<int, Error1, Error2>`. Then calling `r.map(to_string)` returns a result of type `result<std::string,
-         * Error1, Error2>`.
+         * `result<int, Error1, Error2>`. Then calling `r.and_then(to_string)` returns a result of type
+         * `result<std::string, Error1, Error2>`.
          *
          * Note that it's also permissible that the given function returns nothing. In that case, a void result is
          * returned.
@@ -171,7 +171,7 @@ namespace kdl {
          * @return a new result value containing the transformed success value or the error contained in this result
          */
         template <typename F>
-        auto map(F&& f) && {
+        auto and_then(F&& f) && {
             using R = std::invoke_result_t<F, Value>;
             return std::move(*this).visit(kdl::overload {
                 [&](value_type&& v) { return result<R, Errors...>::success(f(std::move(v))); },
@@ -344,8 +344,8 @@ namespace kdl {
          * this result as its error types.
          *
          * To illustrate, consider a function with the signature `std::string to_string(int)` and a result `r` of type
-         * `result<int&, Error1, Error2>`. Then calling `r.map(to_string)` returns a result of type `result<std::string,
-         * Error1, Error2>`.
+         * `result<int&, Error1, Error2>`. Then calling `r.and_then(to_string)` returns a result of type
+         * `result<std::string, Error1, Error2>`.
          *
          * Note that it's also permissible that the given function returns nothing. In that case, a void result is
          * returned.
@@ -355,7 +355,7 @@ namespace kdl {
          * @return a new result value containing the transformed success value or the error contained in this result
          */
         template <typename F>
-        auto map(F&& f) const & {
+        auto and_then(F&& f) const & {
             using R = std::invoke_result_t<F, Value>;
             return visit(kdl::overload {
                 [&](const value_type& v) { return result<R, Errors...>::success(f(v)); },
@@ -374,8 +374,8 @@ namespace kdl {
          * this result as its error types.
          *
          * To illustrate, consider a function with the signature `std::string to_string(int)` and a result `r` of type
-         * `result<int&, Error1, Error2>`. Then calling `r.map(to_string)` returns a result of type `result<std::string,
-         * Error1, Error2>`.
+         * `result<int&, Error1, Error2>`. Then calling `r.and_then(to_string)` returns a result of type
+         * `result<std::string, Error1, Error2>`.
          *
          * Note that it's also permissible that the given function returns nothing. In that case, a void result is
          * returned.
@@ -385,7 +385,7 @@ namespace kdl {
          * @return a new result value containing the transformed success value or the error contained in this result
          */
         template <typename F>
-        auto map(F&& f) && {
+        auto and_then(F&& f) && {
             using R = std::invoke_result_t<F, Value>;
             return std::move(*this).visit(kdl::overload {
                 [&](value_type&& v) { return result<R, Errors...>::success(f(std::move(v))); },
@@ -561,8 +561,8 @@ namespace kdl {
          * this result as its error types.
          *
          * To illustrate, consider a function with the signature `std::string to_string()` and a result `r` of type
-         * `result<void, Error1, Error2>`. Then calling `r.map(to_string)` returns a result of type `result<std::string,
-         * Error1, Error2>`.
+         * `result<void, Error1, Error2>`. Then calling `r.and_then(to_string)` returns a result of type
+         * `result<std::string, Error1, Error2>`.
          *
          * Note that it's also permissible that the given function returns nothing. In that case, a void result is
          * returned.
@@ -572,7 +572,7 @@ namespace kdl {
          * @return a new result value containing the transformed success value or the error contained in this result
          */
         template <typename F>
-        auto map(F&& f) const & {
+        auto and_then(F&& f) const & {
             using R = std::invoke_result_t<F>;
             if constexpr (std::is_same_v<R, void>) {
                 return visit(kdl::overload {
@@ -598,8 +598,8 @@ namespace kdl {
          * this result as its error types.
          *
          * To illustrate, consider a function with the signature `std::string to_string(int)` and a result `r` of type
-         * `result<int, Error1, Error2>`. Then calling `r.map(to_string)` returns a result of type `result<std::string,
-         * Error1, Error2>`.
+         * `result<int, Error1, Error2>`. Then calling `r.and_then(to_string)` returns a result of type
+         * `result<std::string, Error1, Error2>`.
          *
          * Note that it's also permissible that the given function returns nothing. In that case, a void result is
          * returned.
@@ -609,7 +609,7 @@ namespace kdl {
          * @return a new result value containing the transformed success value or the error contained in this result
          */
         template <typename F>
-        auto map(F&& f) && {
+        auto and_then(F&& f) && {
             using R = std::invoke_result_t<F>;
             if constexpr (std::is_same_v<R, void>) {
                 return std::move(*this).visit(kdl::overload {
