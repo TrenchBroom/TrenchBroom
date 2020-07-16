@@ -1,0 +1,13 @@
+name: Pull request
+# This workflow is triggered on pull requests for the repository.
+on: [pull_request]
+
+jobs:
+  clean_commit_job:
+    name: Check commits for bad words ('temp', 'tmp', 'fixup', 'squash', 'wip', 'review fix', 'bug fix')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clean commit step
+        uses: ad1992/clean-commit-action@v0.2.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
