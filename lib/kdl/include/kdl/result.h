@@ -180,30 +180,28 @@ namespace kdl {
         }
 
         /**
-         * Returns the value contained in the given result if it is successful. Otherwise, throws `bad_result_access`.
+         * Returns the value contained in this result if it is successful. Otherwise, throws `bad_result_access`.
          *
-         * @param result_ the result to access
-         * @return a copy of the value in the given result
+         * @return a copy of the value in this result
          *
-         * @throw bad_result_access if the given result is an error
+         * @throw bad_result_access if this result is an error
          */
-        friend auto get_success(const result& result_) {
-            return result_.visit(kdl::overload {
+        auto value() const & {
+            return visit(kdl::overload {
                 [](const value_type& v) -> value_type { return v; },
                 [](const auto&)         -> value_type { throw bad_result_access(); }
             });
         }
 
         /**
-         * Returns the value contained in the given result if it is successful. Otherwise, throws `bad_result_access`.
+         * Returns the value contained in this result if it is successful. Otherwise, throws `bad_result_access`.
          *
-         * @param result_ the result to access
-         * @return the value in the given result
+         * @return the value in this result
          *
-         * @throw bad_result_access if the given result is an error
+         * @throw bad_result_access if this result is an error
          */
-        friend auto get_success(result&& result_) {
-            return std::move(result_).visit(kdl::overload {
+        auto value() && {
+            return std::move(*this).visit(kdl::overload {
                 [](value_type&& v) -> value_type { return std::move(v); },
                 [](const auto&)    -> value_type { throw bad_result_access(); }
             });
@@ -396,30 +394,28 @@ namespace kdl {
         }
 
         /**
-         * Returns the value contained in the given result if it is successful. Otherwise, throws `bad_result_access`.
+         * Returns the value contained this result if it is successful. Otherwise, throws `bad_result_access`.
          *
-         * @param result_ the result to access
-         * @return a copy of the value in the given result
+         * @return a copy of the value in this result
          *
-         * @throw bad_result_access if the given result is an error
+         * @throw bad_result_access if this result is an error
          */
-        friend auto get_success(const result& result_) {
-            return result_.visit(kdl::overload {
+        auto value() const &{
+            return visit(kdl::overload {
                 [](const value_type& v) -> value_type& { return v; },
                 [](const auto&)         -> value_type& { throw bad_result_access(); }
             });
         }
 
         /**
-         * Returns the value contained in the given result if it is successful. Otherwise, throws `bad_result_access`.
+         * Returns the value contained this result if it is successful. Otherwise, throws `bad_result_access`.
          *
-         * @param result_ the result to access
          * @return the value in the given result
          *
-         * @throw bad_result_access if the given result is an error
+         * @throw bad_result_access if this result is an error
          */
-        friend auto get_success(result&& result_) {
-            return std::move(result_).visit(kdl::overload {
+        auto value() && {
+            return std::move(*this).visit(kdl::overload {
                 [](value_type&& v) -> value_type&& { return std::move(v); },
                 [](const auto&)    -> value_type&& { throw bad_result_access(); }
             });
@@ -787,15 +783,14 @@ namespace kdl {
         }
 
         /**
-         * Returns the value contained in the given result if it is successful. Otherwise, throws `bad_result_access`.
+         * Returns the value contained this result if it is successful. Otherwise, throws `bad_result_access`.
          *
-         * @param result_ the result to access
-         * @return a copy of the value in the given result
+         * @return a copy of the value in this result
          *
-         * @throw bad_result_access if the given result is an error or if the given result does not contain a value
+         * @throw bad_result_access if this result is an error or if this result does not contain a value
          */
-        friend auto get_success(const result& result_) {
-            return result_.visit(kdl::overload {
+        auto get() const & {
+            return visit(kdl::overload {
                 [](const value_type& v) -> value_type { return v; },
                 []()                    -> value_type { throw bad_result_access(); },
                 [](const auto&)         -> value_type { throw bad_result_access(); }
@@ -803,15 +798,14 @@ namespace kdl {
         }
 
         /**
-         * Returns the value contained in the given result if it is successful. Otherwise, throws `bad_result_access`.
+         * Returns the value contained this result if it is successful. Otherwise, throws `bad_result_access`.
          *
-         * @param result_ the result to access
          * @return the value in the given result
          *
-         * @throw bad_result_access if the given result is an error or if the given result does not contain a value
+         * @throw bad_result_access if this result is an error or if this result does not contain a value
          */
-        friend auto get_success(result&& result_) {
-            return std::move(result_).visit(kdl::overload {
+        auto get() && {
+            return std::move(*this).visit(kdl::overload {
                 [](value_type&& v) -> value_type { return std::move(v); },
                 []()               -> value_type { throw bad_result_access(); },
                 [](const auto&)    -> value_type { throw bad_result_access(); }
@@ -872,12 +866,12 @@ namespace kdl {
     
     template <typename Value, typename... Errors>
     auto get_success(const result<Value, Errors...>& result_) {
-        return get_success(result_);
+        return result_.value();
     }
     
     template <typename Value, typename... Errors>
     auto get_success(result<Value, Errors...>&& result_) {
-        return get_success(std::move(result_));
+        return std::move(result_).value();
     }
 }
 
