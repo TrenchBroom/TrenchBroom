@@ -466,31 +466,36 @@ namespace TrenchBroom {
             doSetNewGeometry(worldBounds, matcher, newGeometry);
         }
 
-        static BrushGeometry snappedGeometry(const BrushGeometry& geometry, const FloatType snapToF) {
+        static BrushGeometry snappedGeometry(const BrushGeometry& geometry, const FloatType snapToF, const std::optional<std::vector<vm::vec3>> vertexPositionsToSnap) {
             std::vector<vm::vec3> points;
             points.reserve(geometry.vertexCount());
             
             for (const auto* vertex : geometry.vertices()) {
-                points.push_back(snapToF * vm::round(vertex->position() / snapToF));
+                if (!vertexPositionsToSnap.has_value() || kdl::vec_contains(*vertexPositionsToSnap, vertex->position())) {
+                    points.push_back(snapToF * vm::round(vertex->position() / snapToF));
+                } else {
+                    points.push_back(vertex->position());
+                }
             }
 
             return BrushGeometry(std::move(points));
         }
         
-        bool Brush::canSnapVertices(const vm::bbox3& /* worldBounds */, const FloatType snapToF) const {
+        bool Brush::canSnapVertices(const vm::bbox3& /* worldBounds */, const FloatType snapToF, const std::optional<std::vector<vm::vec3>> vertexPositionsToSnap) const {
             ensure(m_geometry != nullptr, "geometry is null");
-            return snappedGeometry(*m_geometry, snapToF).polyhedron();
+            return snappedGeometry(*m_geometry, snapToF, vertexPositionsToSnap).polyhedron();
         }
 
-        void Brush::snapVertices(const vm::bbox3& worldBounds, const FloatType snapToF, const bool uvLock) {
+        void Brush::snapVertices(const vm::bbox3& worldBounds, const FloatType snapToF, const std::optional<std::vector<vm::vec3>> vertexPositionsToSnap, const bool uvLock) {
             ensure(m_geometry != nullptr, "geometry is null");
             
-            const BrushGeometry newGeometry = snappedGeometry(*m_geometry, snapToF);
+            const BrushGeometry newGeometry = snappedGeometry(*m_geometry, snapToF, vertexPositionsToSnap);
 
             std::map<vm::vec3,vm::vec3> vertexMapping;
             for (const auto* vertex : m_geometry->vertices()) {
                 const auto& origin = vertex->position();
-                const auto destination = snapToF * round(origin / snapToF);
+                const bool shouldSnap = (!vertexPositionsToSnap.has_value() || kdl::vec_contains(*vertexPositionsToSnap, origin));
+                const vm::vec3 destination = shouldSnap ? snapToF * round(origin / snapToF) : origin;
                 if (newGeometry.hasVertex(destination)) {
                     vertexMapping.insert(std::make_pair(origin, destination));
                 }

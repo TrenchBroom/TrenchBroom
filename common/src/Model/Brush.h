@@ -123,8 +123,8 @@ namespace TrenchBroom {
             bool canRemoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions) const;
             void removeVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions);
 
-            bool canSnapVertices(const vm::bbox3& worldBounds, FloatType snapTo) const;
-            void snapVertices(const vm::bbox3& worldBounds, FloatType snapTo, bool uvLock = false);
+            bool canSnapVertices(const vm::bbox3& worldBounds, FloatType snapTo, std::optional<std::vector<vm::vec3>> vertexPositionsToSnap = std::nullopt) const;
+            void snapVertices(const vm::bbox3& worldBounds, FloatType snapTo, std::optional<std::vector<vm::vec3>> vertexPositionsToSnap = std::nullopt, bool uvLock = false);
 
             // edge operations
             bool canMoveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) const;

@@ -759,7 +759,7 @@ namespace TrenchBroom {
             for (Model::BrushNode* brushNode : brushNodes) {
                 if (brushNode->brush().canSnapVertices(m_worldBounds, snapTo)) {
                     Model::Brush brush = brushNode->brush();
-                    brush.snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock));
+                    brush.snapVertices(m_worldBounds, snapTo, std::nullopt, pref(Preferences::UVLock));
                     brushNode->setBrush(std::move(brush));
                     succeededBrushCount += 1;
                 } else {
