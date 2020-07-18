@@ -27,6 +27,7 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -117,7 +118,7 @@ namespace TrenchBroom {
             void performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
         public: // vertices
             bool performFindPlanePoints();
-            bool performSnapVertices(FloatType snapTo);
+            bool performSnapVertices(const std::optional<std::map<Model::BrushNode*, std::vector<vm::vec3>>>& vertices, FloatType snapTo);
             std::vector<vm::vec3> performMoveVertices(const std::map<Model::BrushNode*, std::vector<vm::vec3>>& vertices, const vm::vec3& delta);
             std::vector<vm::segment3> performMoveEdges(const std::map<Model::BrushNode*, std::vector<vm::segment3>>& edges, const vm::vec3& delta);
             std::vector<vm::polygon3> performMoveFaces(const std::map<Model::BrushNode*, std::vector<vm::polygon3>>& faces, const vm::vec3& delta);

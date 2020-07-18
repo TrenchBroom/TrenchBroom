@@ -744,7 +744,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MapDocumentCommandFacade::performSnapVertices(const FloatType snapTo) {
+        bool MapDocumentCommandFacade::performSnapVertices(const std::optional<std::map<Model::BrushNode*, std::vector<vm::vec3>>>& vertices, const FloatType snapTo) {
             const std::vector<Model::BrushNode*> brushNodes = m_selectedNodes.brushesRecursively();
 
             const std::vector<Model::Node*> nodes(std::begin(brushNodes), std::end(brushNodes));
@@ -756,14 +756,27 @@ namespace TrenchBroom {
             size_t succeededBrushCount = 0;
             size_t failedBrushCount = 0;
 
-            for (Model::BrushNode* brushNode : brushNodes) {
-                if (brushNode->brush().canSnapVertices(m_worldBounds, snapTo)) {
-                    Model::Brush brush = brushNode->brush();
-                    brush.snapVertices(m_worldBounds, snapTo, std::nullopt, pref(Preferences::UVLock));
-                    brushNode->setBrush(std::move(brush));
-                    succeededBrushCount += 1;
-                } else {
-                    failedBrushCount += 1;
+            if (vertices.has_value()) {
+                for (const auto& [brushNode, oldPositions] : *vertices) {
+                    if (brushNode->brush().canSnapVertices(m_worldBounds, snapTo, std::make_optional(oldPositions))) {
+                        Model::Brush brush = brushNode->brush();
+                        brush.snapVertices(m_worldBounds, snapTo, std::make_optional(oldPositions), pref(Preferences::UVLock));
+                        brushNode->setBrush(std::move(brush));
+                        succeededBrushCount += 1;
+                    } else {
+                        failedBrushCount += 1;
+                    }
+                }
+            } else {
+                for (Model::BrushNode* brushNode : brushNodes) {
+                    if (brushNode->brush().canSnapVertices(m_worldBounds, snapTo)) {
+                        Model::Brush brush = brushNode->brush();
+                        brush.snapVertices(m_worldBounds, snapTo, std::nullopt, pref(Preferences::UVLock));
+                        brushNode->setBrush(std::move(brush));
+                        succeededBrushCount += 1;
+                    } else {
+                        failedBrushCount += 1;
+                    }
                 }
             }
 
