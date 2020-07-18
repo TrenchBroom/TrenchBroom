@@ -1347,18 +1347,43 @@ namespace TrenchBroom {
 
         void MapFrame::snapVerticesToInteger() {
             if (canSnapVertices()) {
-                m_document->snapVertices(1u);
+                if (m_mapView->vertexToolActive()) {
+                    m_mapView->vertexTool()->snapVertices(1.0);
+                } else if (m_mapView->edgeToolActive()) {
+                    m_mapView->edgeTool()->snapVertices(1.0);
+                } else if (m_mapView->faceToolActive()) {
+                    m_mapView->faceTool()->snapVertices(1.0);
+                } else {
+                    m_document->snapVertices(1.0);
+                }
             }
         }
 
         void MapFrame::snapVerticesToGrid() {
             if (canSnapVertices()) {
-                m_document->snapVertices(m_document->grid().actualSize());
+                const FloatType gridSize = m_document->grid().actualSize();
+                if (m_mapView->vertexToolActive()) {
+                    m_mapView->vertexTool()->snapVertices(gridSize);
+                } else if (m_mapView->edgeToolActive()) {
+                    m_mapView->edgeTool()->snapVertices(gridSize);
+                } else if (m_mapView->faceToolActive()) {
+                    m_mapView->faceTool()->snapVertices(gridSize);
+                } else {
+                    m_document->snapVertices(gridSize);
+                }
             }
         }
 
         bool MapFrame::canSnapVertices() const {
-            return m_document->selectedNodes().hasBrushesRecursively();
+            if (m_mapView->vertexToolActive()) {
+                return m_mapView->vertexTool()->canSnapVertices();
+            } else if (m_mapView->edgeToolActive()) {
+                return m_mapView->edgeTool()->canSnapVertices();
+            } else if (m_mapView->faceToolActive()) {
+                return m_mapView->faceTool()->canSnapVertices();
+            } else {
+                return m_document->selectedNodes().hasBrushesRecursively();
+            }
         }
 
         void MapFrame::toggleTextureLock() {
