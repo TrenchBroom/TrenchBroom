@@ -327,13 +327,13 @@ namespace TrenchBroom {
                     });
                 }
 
-                auto document = kdl::mem_lock(m_document);
-                for (const auto& [vertex, vertexBrushes] : brushMap) {
-                    document->debug() << vertex;
-                    for (const Model::BrushNode* brushNode : vertexBrushes) {
-                        document->debug() << "    " << reinterpret_cast<const void*>(brushNode);
-                    }
-                }
+//                auto document = kdl::mem_lock(m_document);
+//                for (const auto& [vertex, vertexBrushes] : brushMap) {
+//                    document->debug() << vertex;
+//                    for (const Model::BrushNode* brushNode : vertexBrushes) {
+//                        document->debug() << "    " << reinterpret_cast<const void*>(brushNode);
+//                    }
+//                }
 
                 Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Snap Vertex", "Snap Vertices"));
                 kdl::mem_lock(m_document)->snapVertices(brushMap, snapTo);

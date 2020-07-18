@@ -52,7 +52,7 @@ namespace TrenchBroom {
             FloatType m_snapTo;
             BrushVerticesMap m_vertices;
         public:
-            static std::unique_ptr<SnapSpecificBrushVerticesCommand> snap(const FloatType snapTo, const VertexToBrushesMap& vertices);
+            static std::unique_ptr<SnapSpecificBrushVerticesCommand> snap(FloatType snapTo, const VertexToBrushesMap& vertices);
         public:
             SnapSpecificBrushVerticesCommand(FloatType snapTo, const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices);
         private:
