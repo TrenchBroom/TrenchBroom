@@ -314,43 +314,29 @@ namespace TrenchBroom {
             void snapVertices(const FloatType snapTo) {
                 assert(canSnapVertices());
 
+                const std::vector<Model::BrushNode*>& brushes = selectedBrushes();
+
                 std::vector<vm::vec3> vertices;
                 const auto handles = handleManager().selectedHandles();
                 H::get_vertices(std::begin(handles), std::end(handles), std::back_inserter(vertices));
 
-                auto document = kdl::mem_lock(m_document);
+                std::map<vm::vec3, std::vector<Model::BrushNode*>> brushMap;
                 for (const vm::vec3& vertex : vertices) {
-                    document->debug() << vertex;
+                    brushMap[vertex] = kdl::vec_filter(brushes, [&](Model::BrushNode* brushNode) {
+                        return brushNode->brush().hasVertex(vertex);
+                    });
                 }
-#if 0
 
-                            
+                auto document = kdl::mem_lock(m_document);
+                for (const auto& [vertex, vertexBrushes] : brushMap) {
+                    document->debug() << vertex;
+                    for (const Model::BrushNode* brushNode : vertexBrushes) {
+                        document->debug() << "    " << reinterpret_cast<const void*>(brushNode);
+                    }
+                }
 
-            const auto handles = m_vertexHandles->selectedHandles();
-            const auto brushMap = buildBrushMap(*m_vertexHandles, std::begin(handles), std::end(handles));
-
-            Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Remove Vertex", "Remove Vertices"));
-            kdl::mem_lock(m_document)->removeVertices(brushMap);
-#endif
-                //const Model::Polyhedron3 polyhedron(vertices);
-                //if (!polyhedron.polyhedron() || !polyhedron.closed()) {
-                //    return;
-                //}
-
-                //auto document = kdl::mem_lock(m_document);
-                //auto game = document->game();
-                //
-                //const Model::BrushBuilder builder(document->world(), document->worldBounds(), game->defaultFaceAttribs());
-                //Model::Brush brush = builder.createBrush(polyhedron, document->currentTextureName());
-                //
-                //for (const Model::BrushNode* selectedBrushNode : document->selectedNodes().brushes()) {
-                //    brush.cloneFaceAttributesFrom(selectedBrushNode->brush());
-                //}
-
-                //Model::Node* newParent = document->parentForNodes(document->selectedNodes().nodes());
-                //const Transaction transaction(document, "CSG Convex Merge");
-                //deselectAll();
-                //document->addNode(new Model::BrushNode(std::move(brush)), newParent);
+                Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Snap Vertex", "Snap Vertices"));
+                kdl::mem_lock(m_document)->snapVertices(brushMap, snapTo);
             }
         public: // rendering
             void renderHandles(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
