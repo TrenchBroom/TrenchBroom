@@ -417,6 +417,7 @@ namespace TrenchBroom {
             bool shearTextures(const vm::vec2f& factors) override;
         public: // modifying vertices, declared in MapFacade interface
             bool snapVertices(FloatType snapTo) override;
+            bool snapVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices, FloatType snapTo);
             bool findPlanePoints() override;
 
             MoveVerticesResult moveVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices, const vm::vec3& delta) override;

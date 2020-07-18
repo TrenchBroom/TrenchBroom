@@ -47,5 +47,45 @@ namespace TrenchBroom {
             SnapBrushVerticesCommand* other = static_cast<SnapBrushVerticesCommand*>(command);
             return other->m_snapTo == m_snapTo;
         }
+
+        // SnapSpecificBrushVerticesCommand
+
+        const Command::CommandType SnapSpecificBrushVerticesCommand::Type = Command::freeType();
+
+        std::unique_ptr<SnapSpecificBrushVerticesCommand> SnapSpecificBrushVerticesCommand::snap(const FloatType snapTo, const VertexToBrushesMap& vertices) {
+            std::vector<Model::BrushNode*> brushes;
+            BrushVerticesMap brushVertices;
+            std::vector<vm::vec3> vertexPositions;
+            extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
+
+            return std::make_unique<SnapSpecificBrushVerticesCommand>(snapTo, brushes, brushVertices);
+        }
+
+        SnapSpecificBrushVerticesCommand::SnapSpecificBrushVerticesCommand(const FloatType snapTo, const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices) :
+        VertexCommand(Type, "Snap Brush Vertices", brushes),
+        m_snapTo(snapTo),
+        m_vertices(vertices) {}
+
+        bool SnapSpecificBrushVerticesCommand::doCanDoVertexOperation(const MapDocument* document) const {
+            const vm::bbox3& worldBounds = document->worldBounds();
+            for (const auto& entry : m_vertices) {
+                const Model::BrushNode* brushNode = entry.first;
+                const Model::Brush& brush = brushNode->brush();
+                const std::vector<vm::vec3>& vertices = entry.second;
+                if (!brush.canSnapVertices(worldBounds, m_snapTo, std::make_optional(vertices))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        bool SnapSpecificBrushVerticesCommand::doVertexOperation(MapDocumentCommandFacade* document) {
+            document->performSnapVertices(std::make_optional(m_vertices), m_snapTo);
+            return true;
+        }
+
+        bool SnapSpecificBrushVerticesCommand::doCollateWith(UndoableCommand*) {
+            return false;
+        }
     }
 }

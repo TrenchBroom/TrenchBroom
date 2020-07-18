@@ -1748,6 +1748,11 @@ namespace TrenchBroom {
             return result->success();
         }
 
+        bool MapDocument::snapVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices, FloatType snapTo) {
+            const auto result = executeAndStore(SnapSpecificBrushVerticesCommand::snap(snapTo, vertices));
+            return result->success();
+        }
+
         bool MapDocument::findPlanePoints() {
             const auto result = executeAndStore(FindPlanePointsCommand::findPlanePoints());
             return result->success();

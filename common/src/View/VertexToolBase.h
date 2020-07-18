@@ -312,6 +312,8 @@ namespace TrenchBroom {
             }
 
             void snapVertices(const FloatType snapTo) {
+                assert(canSnapVertices());
+
                 std::vector<vm::vec3> vertices;
                 const auto handles = handleManager().selectedHandles();
                 H::get_vertices(std::begin(handles), std::end(handles), std::back_inserter(vertices));
@@ -320,7 +322,16 @@ namespace TrenchBroom {
                 for (const vm::vec3& vertex : vertices) {
                     document->debug() << vertex;
                 }
+#if 0
 
+                            
+
+            const auto handles = m_vertexHandles->selectedHandles();
+            const auto brushMap = buildBrushMap(*m_vertexHandles, std::begin(handles), std::end(handles));
+
+            Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Remove Vertex", "Remove Vertices"));
+            kdl::mem_lock(m_document)->removeVertices(brushMap);
+#endif
                 //const Model::Polyhedron3 polyhedron(vertices);
                 //if (!polyhedron.polyhedron() || !polyhedron.closed()) {
                 //    return;
@@ -501,15 +512,7 @@ namespace TrenchBroom {
             }
 
             bool isVertexCommand(const Command* command) const {
-                return command->isType(
-                        AddBrushVerticesCommand::Type,
-                        RemoveBrushVerticesCommand::Type,
-                        RemoveBrushEdgesCommand::Type,
-                        RemoveBrushFacesCommand::Type,
-                        MoveBrushVerticesCommand::Type,
-                        MoveBrushEdgesCommand::Type,
-                        MoveBrushFacesCommand::Type
-                );
+                return dynamic_cast<const VertexCommand*>(command) != nullptr;
             }
 
             void selectionDidChange(const Selection& selection) {

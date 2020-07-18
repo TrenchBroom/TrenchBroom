@@ -23,6 +23,7 @@
 #include "FloatType.h"
 #include "Macros.h"
 #include "View/SnapshotCommand.h"
+#include "View/VertexCommand.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -42,6 +43,25 @@ namespace TrenchBroom {
             bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(SnapBrushVerticesCommand)
+        };
+
+        class SnapSpecificBrushVerticesCommand : public VertexCommand {
+        public:
+            static const CommandType Type;
+        private:
+            FloatType m_snapTo;
+            BrushVerticesMap m_vertices;
+        public:
+            static std::unique_ptr<SnapSpecificBrushVerticesCommand> snap(const FloatType snapTo, const VertexToBrushesMap& vertices);
+        public:
+            SnapSpecificBrushVerticesCommand(FloatType snapTo, const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices);
+        private:
+            bool doCanDoVertexOperation(const MapDocument* document) const override;
+            bool doVertexOperation(MapDocumentCommandFacade* document) override;
+
+            bool doCollateWith(UndoableCommand* command) override;
+
+            deleteCopyAndMove(SnapSpecificBrushVerticesCommand)
         };
     }
 }
