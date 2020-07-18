@@ -245,7 +245,7 @@ namespace TrenchBroom {
         bool Brush::clip(const vm::bbox3& worldBounds, BrushFace face) {
             m_faces.push_back(std::move(face));
             const auto result = updateGeometryFromFaces(worldBounds);
-            return result.is_success() && !m_faces.empty();
+            return result.is_success() && !m_faces.empty(); // TODO 2983 return a new brush instead?
         }
 
         kdl::result<Brush, BrushError> Brush::moveBoundary(const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta, const bool lockTexture) const {
@@ -263,27 +263,16 @@ namespace TrenchBroom {
                 });
         }
 
-        bool Brush::canExpand(const vm::bbox3& worldBounds, const FloatType delta, const bool lockTexture) const {
-            auto testBrush = Brush(*this);
-            return testBrush.expand(worldBounds, delta, lockTexture);
-        }
-
-        bool Brush::expand(const vm::bbox3& worldBounds, const FloatType delta, const bool lockTexture) {
-            // move the faces
-            for (BrushFace& face : m_faces) {
+        kdl::result<Brush, BrushError> Brush::expand(const vm::bbox3& worldBounds, const FloatType delta, const bool lockTexture) const {
+            auto faces = m_faces;
+            for (auto& face : faces) {
                 const vm::vec3 moveAmount = face.boundary().normal * delta;
-                face.transform(vm::translation_matrix(moveAmount), lockTexture)
-                    .visit(kdl::overload {
-                        []() {},
-                        [](const BrushError e) {
-                            throw GeometryException(kdl::str_to_string(e)); // TODO 2983
-                        },
-                    });
+                if (!face.transform(vm::translation_matrix(moveAmount), lockTexture)) {
+                    return kdl::result<Brush, BrushError>::error(BrushError::InvalidFace);
+                }
             }
 
-            // rebuild geometry
-            const auto result = updateGeometryFromFaces(worldBounds);
-            return result.is_success() && !m_faces.empty();
+            return Brush::create(worldBounds, std::move(faces));
         }
 
         size_t Brush::vertexCount() const {

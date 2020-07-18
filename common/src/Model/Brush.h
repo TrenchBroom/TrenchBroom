@@ -98,8 +98,8 @@ namespace TrenchBroom {
             /**
              * Translates a face by the given delta.
              *
-             * The face is only translated if the resulting brush does not exceed world bounds and if it has the same
-             * number of faces as this brush. If the resulting brush becomes invalid, an error is returned.
+             * The face is only translated if the resulting brush has the same number of faces as this brush. If the
+             * resulting brush becomes invalid, an error is returned.
              *
              * @param worldBounds the world bounds
              * @param faceIndex the index of the face to translate
@@ -110,12 +110,17 @@ namespace TrenchBroom {
              */
             kdl::result<Brush, BrushError> moveBoundary(const vm::bbox3& worldBounds, size_t faceIndex, const vm::vec3& delta, bool lockTexture) const;
 
-            bool canExpand(const vm::bbox3& worldBounds, FloatType delta, bool lockTexture) const;
             /**
-             * Moves all faces by `delta` units along their normals; negative values shrink the brush.
-             * Returns true if the brush is valid after the modification, false if the brush is invalid.
+             * Moves all faces by `delta` units along their normals; negative values shrink the brush. If the resulting
+             * brush becomes invalid, an error is returned.
+             *
+             * @param worldBounds the world bounds
+             * @param delta the distance by which to move the faces
+             * @param lockTexture whether textures should be locked
+             *
+             * @return a result containing either the resulting brush or an error
              */
-            bool expand(const vm::bbox3& worldBounds, FloatType delta, bool lockTexture);
+            kdl::result<Brush, BrushError> expand(const vm::bbox3& worldBounds, FloatType delta, bool lockTexture) const;
         public:
             // geometry access
             size_t vertexCount() const;

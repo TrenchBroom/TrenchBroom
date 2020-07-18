@@ -28,8 +28,9 @@
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
 #include "Model/Brush.h"
-#include "Model/BrushNode.h"
+#include "Model/BrushError.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Polyhedron.h"
@@ -470,11 +471,12 @@ namespace TrenchBroom {
             const BrushBuilder builder(&world, worldBounds);
 
             Brush brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture").value();
-            EXPECT_TRUE(brush1.canExpand(worldBounds, 6, true));
-            EXPECT_TRUE(brush1.expand(worldBounds, 6, true));
+            const auto expandResult = brush1.expand(worldBounds, 6, true);
+            CHECK(expandResult.is_success());
+            brush1 = expandResult.value();
 
             const vm::bbox3 expandedBBox(vm::vec3(-70, -70, -70), vm::vec3(70, 70, 70));
-
+            
             EXPECT_EQ(expandedBBox, brush1.bounds());
             EXPECT_COLLECTIONS_EQUIVALENT(expandedBBox.vertices(), brush1.vertexPositions());
         }
@@ -485,8 +487,9 @@ namespace TrenchBroom {
             const BrushBuilder builder(&world, worldBounds);
 
             Brush brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture").value();
-            EXPECT_TRUE(brush1.canExpand(worldBounds, -32, true));
-            EXPECT_TRUE(brush1.expand(worldBounds, -32, true));
+            const auto expandResult = brush1.expand(worldBounds, -32, true);
+            CHECK(expandResult.is_success());
+            brush1 = expandResult.value();
 
             const vm::bbox3 expandedBBox(vm::vec3(-32, -32, -32), vm::vec3(32, 32, 32));
 
@@ -500,8 +503,7 @@ namespace TrenchBroom {
             const BrushBuilder builder(&world, worldBounds);
 
             Brush brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture").value();
-            EXPECT_FALSE(brush1.canExpand(worldBounds, -64, true));
-            EXPECT_FALSE(brush1.expand(worldBounds, -64, true));
+            CHECK(brush1.expand(worldBounds, -64, true).is_error());
         }
 
         TEST_CASE("BrushTest.moveVertex", "[BrushTest]") {

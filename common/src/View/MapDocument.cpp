@@ -1656,16 +1656,22 @@ namespace TrenchBroom {
                 const Model::Brush& brush = brushNode->brush();
 
                 // make an shrunken copy of brush
-                Model::Brush shrunken = brush;
-                if (shrunken.expand(m_worldBounds, -1.0 * static_cast<FloatType>(m_grid->actualSize()), true)) {
-                    std::vector<Model::Brush> fragments = brush.subtract(*m_world, m_worldBounds, currentTextureName(), shrunken);
-                    std::vector<Model::BrushNode*> fragmentNodes = kdl::vec_transform(std::move(fragments), [](auto&& b) {
-                        return new Model::BrushNode(std::move(b));
-                    });
+                brush.expand(m_worldBounds, -1.0 * static_cast<FloatType>(m_grid->actualSize()), true)
+                    .visit(kdl::overload {
+                        [&](Model::Brush&& shrunken) {
+                            auto fragments = brush.subtract(*m_world, m_worldBounds, currentTextureName(), shrunken);
+                            auto fragmentNodes = kdl::vec_transform(std::move(fragments), [](auto&& b) {
+                                return new Model::BrushNode(std::move(b));
+                            });
 
-                    kdl::vec_append(toAdd[brushNode->parent()], fragmentNodes);
-                    toRemove.push_back(brushNode);
-                }
+                            kdl::vec_append(toAdd[brushNode->parent()], fragmentNodes);
+                            toRemove.push_back(brushNode);
+                        },
+                        [&](const Model::BrushError e) {
+                            error() << "Could not expand brush: " << e;
+                        },
+                    });
+                
             }
 
             Transaction transaction(this, "CSG Hollow");
