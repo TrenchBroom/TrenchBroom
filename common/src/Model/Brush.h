@@ -253,8 +253,6 @@ namespace TrenchBroom {
              * @return the newly created brush
              */
             Brush createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<const Brush*>& subtrahends) const;
-        public:
-            void findIntegerPlanePoints(const vm::bbox3& worldBounds);
         private:
             bool checkFaceLinks() const;
         };

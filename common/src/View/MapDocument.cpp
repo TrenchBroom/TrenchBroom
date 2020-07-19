@@ -78,7 +78,6 @@
 #include "Model/ModelUtils.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
-#include "Model/NonIntegerPlanePointsIssueGenerator.h"
 #include "Model/NonIntegerVerticesIssueGenerator.h"
 #include "Model/WorldBoundsIssueGenerator.h"
 #include "Model/PointEntityWithBrushesIssueGenerator.h"
@@ -100,7 +99,6 @@
 #include "View/CurrentGroupCommand.h"
 #include "View/DuplicateNodesCommand.h"
 #include "View/EntityDefinitionFileCommand.h"
-#include "View/FindPlanePointsCommand.h"
 #include "View/Grid.h"
 #include "View/MapTextEncoding.h"
 #include "View/MapViewConfig.h"
@@ -1776,11 +1774,6 @@ namespace TrenchBroom {
             return result->success();
         }
 
-        bool MapDocument::findPlanePoints() {
-            const auto result = executeAndStore(FindPlanePointsCommand::findPlanePoints());
-            return result->success();
-        }
-
         MapDocument::MoveVerticesResult MapDocument::moveVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices, const vm::vec3& delta) {
             const auto result = executeAndStore(MoveBrushVerticesCommand::move(vertices, delta));
             const auto* moveVerticesResult = dynamic_cast<MoveBrushVerticesCommandResult*>(result.get());
@@ -2350,7 +2343,6 @@ namespace TrenchBroom {
             m_world->registerIssueGenerator(new Model::PointEntityWithBrushesIssueGenerator());
             m_world->registerIssueGenerator(new Model::LinkSourceIssueGenerator());
             m_world->registerIssueGenerator(new Model::LinkTargetIssueGenerator());
-            m_world->registerIssueGenerator(new Model::NonIntegerPlanePointsIssueGenerator());
             m_world->registerIssueGenerator(new Model::NonIntegerVerticesIssueGenerator());
             m_world->registerIssueGenerator(new Model::MixedBrushContentsIssueGenerator());
             m_world->registerIssueGenerator(new Model::WorldBoundsIssueGenerator(worldBounds()));

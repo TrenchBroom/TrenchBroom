@@ -25,7 +25,6 @@
 #include "Polyhedron.h"
 #include "Assets/Texture.h"
 #include "Model/BrushError.h"
-#include "Model/PlanePointFinder.h"
 #include "Model/TagMatcher.h"
 #include "Model/TagVisitor.h"
 #include "Model/TexCoordSystem.h"
@@ -402,11 +401,6 @@ namespace TrenchBroom {
                 }
                 return kdl::result<void, BrushError>::success();
             });
-        }
-
-        kdl::result<void, BrushError> BrushFace::findIntegerPlanePoints() {
-            PlanePointFinder::findPoints(m_boundary, m_points, 3);
-            return setPoints(m_points[0], m_points[1], m_points[2]);
         }
 
         vm::mat4x4 BrushFace::projectToBoundaryMatrix() const {
