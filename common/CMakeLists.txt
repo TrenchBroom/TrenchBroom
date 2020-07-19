@@ -177,13 +177,11 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/NodePredicates.cpp
         ${COMMON_SOURCE_DIR}/Model/NodeSnapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/NodeVisitor.cpp
-        ${COMMON_SOURCE_DIR}/Model/NonIntegerPlanePointsIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/NonIntegerVerticesIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/Object.cpp
         ${COMMON_SOURCE_DIR}/Model/ParallelTexCoordSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/ParaxialTexCoordSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/PickResult.cpp
-        ${COMMON_SOURCE_DIR}/Model/PlanePointFinder.cpp
         ${COMMON_SOURCE_DIR}/Model/PointEntityWithBrushesIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/PointFile.cpp
         ${COMMON_SOURCE_DIR}/Model/Polyhedron_Instantiation.cpp
@@ -340,7 +338,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/FaceTool.cpp
         ${COMMON_SOURCE_DIR}/View/FaceToolController.cpp
         ${COMMON_SOURCE_DIR}/View/FileTextureCollectionEditor.cpp
-        ${COMMON_SOURCE_DIR}/View/FindPlanePointsCommand.cpp
         ${COMMON_SOURCE_DIR}/View/FlagsEditor.cpp
         ${COMMON_SOURCE_DIR}/View/FlagsPopupEditor.cpp
         ${COMMON_SOURCE_DIR}/View/FlashSelectionAnimation.cpp
@@ -703,13 +700,11 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/NodePredicates.h
         ${COMMON_SOURCE_DIR}/Model/NodeSnapshot.h
         ${COMMON_SOURCE_DIR}/Model/NodeVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/NonIntegerPlanePointsIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/NonIntegerVerticesIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/Object.h
         ${COMMON_SOURCE_DIR}/Model/ParallelTexCoordSystem.h
         ${COMMON_SOURCE_DIR}/Model/ParaxialTexCoordSystem.h
         ${COMMON_SOURCE_DIR}/Model/PickResult.h
-        ${COMMON_SOURCE_DIR}/Model/PlanePointFinder.h
         ${COMMON_SOURCE_DIR}/Model/PointEntityWithBrushesIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/PointFile.h
         ${COMMON_SOURCE_DIR}/Model/Polyhedron.h
@@ -891,7 +886,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/FaceTool.h
         ${COMMON_SOURCE_DIR}/View/FaceToolController.h
         ${COMMON_SOURCE_DIR}/View/FileTextureCollectionEditor.h
-        ${COMMON_SOURCE_DIR}/View/FindPlanePointsCommand.h
         ${COMMON_SOURCE_DIR}/View/FlagsEditor.h
         ${COMMON_SOURCE_DIR}/View/FlagsPopupEditor.h
         ${COMMON_SOURCE_DIR}/View/FlashSelectionAnimation.h

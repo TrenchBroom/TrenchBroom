@@ -152,7 +152,6 @@ namespace TrenchBroom {
             virtual bool shearTextures(const vm::vec2f& factors) = 0;
         public: // modifying vertices
             virtual bool snapVertices(FloatType snapTo) = 0;
-            virtual bool findPlanePoints() = 0;
 
             struct MoveVerticesResult {
                 bool success;

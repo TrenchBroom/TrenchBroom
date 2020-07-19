@@ -931,24 +931,6 @@ namespace TrenchBroom {
                 });
         }
 
-        void Brush::findIntegerPlanePoints(const vm::bbox3& worldBounds) {
-            for (auto& face : m_faces) {
-                face.findIntegerPlanePoints()
-                    .visit(kdl::overload {
-                        []() {},
-                        [](const BrushError e) {
-                            throw GeometryException(kdl::str_to_string(e)); // TODO 2983
-                        },
-                    });
-            }
-            
-            updateGeometryFromFaces(worldBounds)
-                .visit(kdl::overload {
-                    []() {},
-                    [](const BrushError e) { throw GeometryException(kdl::str_to_string(e)); } // TODO 2983
-                });
-        }
-
         bool Brush::checkFaceLinks() const {
             if (faceCount() != m_geometry->faceCount()) {
                 return false;

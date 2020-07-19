@@ -50,7 +50,6 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Model/EntityNodeTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/GameTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/NodeTest.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/Model/PlanePointFinderTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/PolyhedronTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/PortalFileTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/TaggingTest.cpp"

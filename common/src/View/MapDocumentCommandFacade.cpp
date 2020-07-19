@@ -715,24 +715,6 @@ namespace TrenchBroom {
             }
         }
 
-        bool MapDocumentCommandFacade::performFindPlanePoints() {
-            const std::vector<Model::BrushNode*>& brushNodes = m_selectedNodes.brushes();
-
-            const std::vector<Model::Node*> nodes(std::begin(brushNodes), std::end(brushNodes));
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            for (Model::BrushNode* brushNode : brushNodes) {
-                Model::Brush brush = brushNode->brush();
-                brush.findIntegerPlanePoints(m_worldBounds);
-                brushNode->setBrush(std::move(brush));
-            }
-
-            return true;
-        }
-
         bool MapDocumentCommandFacade::performSnapVertices(const FloatType snapTo) {
             const std::vector<Model::BrushNode*> brushNodes = m_selectedNodes.brushesRecursively();
 
