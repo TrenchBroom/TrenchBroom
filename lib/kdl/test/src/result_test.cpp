@@ -355,57 +355,6 @@ namespace kdl {
         test_and_then_rvalue_ref<result<Counter, Error1, Error2>, Counter>(Counter{});
     }
     
-    TEST_CASE("reference_result_test.constructor", "[reference_result_test]") {
-        int x = 1;
-
-        ASSERT_TRUE((result<int&, float, std::string>::success(x).is_success()));
-        ASSERT_TRUE((result<int&, float, std::string>::error(1.0f).is_error()));
-        ASSERT_TRUE((result<int&, float, std::string>::error("").is_error()));
-
-        test_construct_success<const result<int&, Error1, Error2>>(x);
-        test_construct_success<result<int&, Error1, Error2>>(x);
-        test_construct_success<const result<const int&, Error1, Error2>>(x);
-        test_construct_success<result<const int&, Error1, Error2>>(x);
-
-        test_construct_error<const result<int&, Error1, Error2>>(Error1{});
-        test_construct_error<result<int&, Error1, Error2>>(Error1{});
-        test_construct_error<const result<const int&, Error1, Error2>>(Error1{});
-        test_construct_error<result<const int&, Error1, Error2>>(Error1{});
-
-        test_construct_error<const result<int&, Error1, Error2>>(Error2{});
-        test_construct_error<result<int&, Error1, Error2>>(Error2{});
-        test_construct_error<const result<const int&, Error1, Error2>>(Error2{});
-        test_construct_error<result<const int&, Error1, Error2>>(Error2{});
-    }
-    
-    TEST_CASE("reference_result_test.visit", "[reference_result_test]") {
-        int x = 1;
-        test_visit_success_const_lvalue_ref<const result<int&, Error1, Error2>>(x);
-        test_visit_success_const_lvalue_ref<result<int&, Error1, Error2>>(x);
-        test_visit_success_const_lvalue_ref<const result<const int&, Error1, Error2>>(x);
-        test_visit_success_const_lvalue_ref<result<const int&, Error1, Error2>>(x);
-        
-        auto c = Counter{};
-        test_visit_success_rvalue_ref<result<Counter&, Error1, Error2>>(c);
-
-        test_visit_error_const_lvalue_ref<const result<int&, Error1, Error2>>(Error1{});
-        test_visit_error_const_lvalue_ref<result<int&, Error1, Error2>>(Error1{});
-        test_visit_error_const_lvalue_ref<const result<const int&, Error1, Error2>>(Error1{});
-        test_visit_error_const_lvalue_ref<result<const int&, Error1, Error2>>(Error1{});
-        test_visit_error_rvalue_ref<result<int&, Counter, Error2>>(Counter{});
-    }
-    
-    TEST_CASE("reference_result_test.and_then", "[reference_result_test]") {
-        int x = 1;
-        test_and_then_const_lvalue_ref<const result<int&, Error1, Error2>, float>(x);
-        test_and_then_const_lvalue_ref<result<int&, Error1, Error2>, float>(x);
-        test_and_then_const_lvalue_ref<const result<const int&, Error1, Error2>, float>(x);
-        test_and_then_const_lvalue_ref<result<const int&, Error1, Error2>, float>(x);
-
-        auto c = Counter{};
-        test_and_then_rvalue_ref<result<Counter&, Error1, Error2>, Counter>(c);
-    }
-    
     TEST_CASE("void_result_test.constructor", "[void_result_test]") {
         ASSERT_TRUE((result<void, float, std::string>::success().is_success()));
         ASSERT_TRUE((result<void, float, std::string>::error(1.0f).is_error()));
@@ -437,47 +386,4 @@ namespace kdl {
             []() { return true; }));
     }
     
-    TEST_CASE("opt_result_test.constructor", "[opt_result_test]") {
-        ASSERT_TRUE((result<opt<int>, float, std::string>::success().is_success()));
-        ASSERT_TRUE((result<opt<int>, float, std::string>::success(1).is_success()));
-        ASSERT_TRUE((result<opt<int>, float, std::string>::error(1.0f).is_error()));
-        ASSERT_TRUE((result<opt<int>, float, std::string>::error("").is_error()));
-
-        test_construct_success<const result<opt<int>, Error1, Error2>>();
-        test_construct_success<result<opt<int>, Error1, Error2>>();
-        test_construct_success<const result<opt<const int>, Error1, Error2>>();
-        test_construct_success<result<opt<const int>, Error1, Error2>>();
-
-        test_construct_success<const result<opt<int>, Error1, Error2>>(1);
-        test_construct_success<result<opt<int>, Error1, Error2>>(1);
-        test_construct_success<const result<opt<const int>, Error1, Error2>>(1);
-        test_construct_success<result<opt<const int>, Error1, Error2>>(1);
-
-        test_construct_error<const result<opt<int>, Error1, Error2>>(Error1{});
-        test_construct_error<result<opt<int>, Error1, Error2>>(Error1{});
-        test_construct_error<const result<opt<const int>, Error1, Error2>>(Error1{});
-        test_construct_error<result<opt<const int>, Error1, Error2>>(Error1{});
-
-        test_construct_error<const result<opt<int>, Error1, Error2>>(Error2{});
-        test_construct_error<result<opt<int>, Error1, Error2>>(Error2{});
-        test_construct_error<const result<opt<const int>, Error1, Error2>>(Error2{});
-        test_construct_error<result<opt<const int>, Error1, Error2>>(Error2{});
-    }
-
-    TEST_CASE("opt_result_test.visit", "[opt_result_test]") {
-        test_visit_success_with_opt_value<const result<opt<int>, Error1, Error2>>();
-        test_visit_success_with_opt_value<result<opt<int>, Error1, Error2>>();
-        
-        test_visit_success_const_lvalue_ref_with_opt_value<const result<opt<int>, Error1, Error2>>(1);
-        test_visit_success_const_lvalue_ref_with_opt_value<result<opt<int>, Error1, Error2>>(1);
-        test_visit_success_const_lvalue_ref_with_opt_value<const result<opt<const int>, Error1, Error2>>(1);
-        test_visit_success_const_lvalue_ref_with_opt_value<result<opt<const int>, Error1, Error2>>(1);
-        test_visit_success_rvalue_ref_with_opt_value<result<opt<Counter>, Error1, Error2>>(Counter{});
-
-        test_visit_error_const_lvalue_ref_with_opt_value<const result<opt<int>, Error1, Error2>>(Error1{});
-        test_visit_error_const_lvalue_ref_with_opt_value<result<opt<int>, Error1, Error2>>(Error1{});
-        test_visit_error_const_lvalue_ref_with_opt_value<const result<opt<const int>, Error1, Error2>>(Error1{});
-        test_visit_error_const_lvalue_ref_with_opt_value<result<opt<const int>, Error1, Error2>>(Error1{});
-        test_visit_error_rvalue_ref_with_opt_value<result<opt<int>, Counter, Error2>>(Counter{});
-    }
 }

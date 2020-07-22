@@ -24,12 +24,6 @@ namespace kdl {
      */
     template <typename Value, typename... Errors>
     class [[nodiscard]] result;
-    
-    /**
-     * Type tag to indicate that a result value is optional.
-     */
-    template <typename Value>
-    struct opt {};
 }
 
 #endif /* result_forward_h */
