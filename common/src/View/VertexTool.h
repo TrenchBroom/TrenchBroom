@@ -86,6 +86,8 @@ namespace TrenchBroom {
             std::string actionName() const override;
 
             void removeSelection();
+
+            void snapVertices(FloatType snapToF) override;
         public: // Rendering
             void renderGuide(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const vm::vec3& position) const override;
         private: // Tool interface

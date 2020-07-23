@@ -311,33 +311,7 @@ namespace TrenchBroom {
                 return handleManager().selectedHandleCount() > 0;
             }
 
-            void snapVertices(const FloatType snapTo) {
-                assert(canSnapVertices());
-
-                const std::vector<Model::BrushNode*>& brushes = selectedBrushes();
-
-                std::vector<vm::vec3> vertices;
-                const auto handles = handleManager().selectedHandles();
-                H::get_vertices(std::begin(handles), std::end(handles), std::back_inserter(vertices));
-
-                std::map<vm::vec3, std::vector<Model::BrushNode*>> brushMap;
-                for (const vm::vec3& vertex : vertices) {
-                    brushMap[vertex] = kdl::vec_filter(brushes, [&](Model::BrushNode* brushNode) {
-                        return brushNode->brush().hasVertex(vertex);
-                    });
-                }
-
-//                auto document = kdl::mem_lock(m_document);
-//                for (const auto& [vertex, vertexBrushes] : brushMap) {
-//                    document->debug() << vertex;
-//                    for (const Model::BrushNode* brushNode : vertexBrushes) {
-//                        document->debug() << "    " << reinterpret_cast<const void*>(brushNode);
-//                    }
-//                }
-
-                Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Snap Vertex", "Snap Vertices"));
-                kdl::mem_lock(m_document)->snapVertices(brushMap, snapTo);
-            }
+            virtual void snapVertices(FloatType snapToF) = 0;
         public: // rendering
             void renderHandles(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
                 Renderer::RenderService renderService(renderContext, renderBatch);

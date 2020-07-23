@@ -69,5 +69,8 @@ namespace TrenchBroom {
             Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Remove Face", "Remove Faces"));
             kdl::mem_lock(m_document)->removeFaces(brushMap);
         }
+
+        void FaceTool::snapVertices(const FloatType snapToF) {
+        }
     }
 }

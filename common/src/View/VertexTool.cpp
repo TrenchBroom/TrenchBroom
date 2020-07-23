@@ -207,6 +207,16 @@ namespace TrenchBroom {
             kdl::mem_lock(m_document)->removeVertices(brushMap);
         }
 
+        void VertexTool::snapVertices(const FloatType snapToF) {
+            assert(canSnapVertices());
+
+            const auto handles = handleManager().selectedHandles();
+            const auto brushMap = buildBrushMap(handleManager(), std::begin(handles), std::end(handles));
+
+            Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Snap Vertex", "Snap Vertices"));
+            kdl::mem_lock(m_document)->snapVertices(brushMap, snapToF);
+        }
+
         void VertexTool::renderGuide(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch, const vm::vec3& position) const {
             m_guideRenderer.setPosition(position);
             m_guideRenderer.setColor(Color(pref(Preferences::HandleColor), 0.5f));

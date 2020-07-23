@@ -123,16 +123,25 @@ namespace TrenchBroom {
             bool canRemoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions) const;
             void removeVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions);
 
-            bool canSnapVertices(const vm::bbox3& worldBounds, FloatType snapTo, std::optional<std::vector<vm::vec3>> vertexPositionsToSnap = std::nullopt) const;
-            void snapVertices(const vm::bbox3& worldBounds, FloatType snapTo, std::optional<std::vector<vm::vec3>> vertexPositionsToSnap = std::nullopt, bool uvLock = false);
+            bool canSnapVertices(const vm::bbox3& worldBounds, FloatType snapTo) const;
+            void snapVertices(const vm::bbox3& worldBounds, FloatType snapTo, bool uvLock = false);
+
+            bool canSnapSpecificVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, FloatType snapTo) const;
+            std::vector<vm::vec3> snapSpecificVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, FloatType snapTo, bool uvLock = false);
 
             // edge operations
             bool canMoveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) const;
             std::vector<vm::segment3> moveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta, bool uvLock = false);
 
+            bool canSnapSpecificEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, FloatType snapTo) const;
+            std::vector<vm::segment3> snapSpecificEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, FloatType snapTo, bool uvLock = false);
+
             // face operations
             bool canMoveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta) const;
             std::vector<vm::polygon3> moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta, bool uvLock = false);
+
+            bool canSnapSpecificFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, FloatType snapTo) const;
+            std::vector<vm::polygon3> snapSpecificFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, FloatType snapTo, bool uvLock = false);
         private:
             struct CanMoveVerticesResult {
             public:

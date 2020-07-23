@@ -27,6 +27,9 @@
 
 namespace TrenchBroom {
     namespace View {
+        /**
+         * Snaps all vertices of all selected brushes.
+         */
         class SnapBrushVerticesCommand : public SnapshotCommand {
         public:
             static const CommandType Type;
@@ -45,21 +48,29 @@ namespace TrenchBroom {
             deleteCopyAndMove(SnapBrushVerticesCommand)
         };
 
+        /**
+         * Snaps the given vertices of the given brushes.
+         */
         class SnapSpecificBrushVerticesCommand : public VertexCommand {
         public:
             static const CommandType Type;
         private:
             FloatType m_snapTo;
             BrushVerticesMap m_vertices;
+            std::vector<vm::vec3> m_oldVertexPositions;
+            std::vector<vm::vec3> m_newVertexPositions;
         public:
             static std::unique_ptr<SnapSpecificBrushVerticesCommand> snap(FloatType snapTo, const VertexToBrushesMap& vertices);
-        public:
-            SnapSpecificBrushVerticesCommand(FloatType snapTo, const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices);
+
+            SnapSpecificBrushVerticesCommand(FloatType snapTo, const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions);
         private:
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;
 
             bool doCollateWith(UndoableCommand* command) override;
+
+            void doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const override;
+            void doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const override;
 
             deleteCopyAndMove(SnapSpecificBrushVerticesCommand)
         };

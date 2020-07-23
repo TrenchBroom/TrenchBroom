@@ -60,6 +60,7 @@ namespace TrenchBroom {
             std::string actionName() const override;
 
             void removeSelection();
+            void snapVertices(const FloatType snapToF) override;
         };
     }
 }

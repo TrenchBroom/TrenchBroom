@@ -744,7 +744,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MapDocumentCommandFacade::performSnapVertices(const std::optional<std::map<Model::BrushNode*, std::vector<vm::vec3>>>& vertices, const FloatType snapTo) {
+        bool MapDocumentCommandFacade::performSnapVertices(const FloatType snapTo) {
             const std::vector<Model::BrushNode*> brushNodes = m_selectedNodes.brushesRecursively();
 
             const std::vector<Model::Node*> nodes(std::begin(brushNodes), std::end(brushNodes));
@@ -756,27 +756,14 @@ namespace TrenchBroom {
             size_t succeededBrushCount = 0;
             size_t failedBrushCount = 0;
 
-            if (vertices.has_value()) {
-                for (const auto& [brushNode, oldPositions] : *vertices) {
-                    if (brushNode->brush().canSnapVertices(m_worldBounds, snapTo, std::make_optional(oldPositions))) {
-                        Model::Brush brush = brushNode->brush();
-                        brush.snapVertices(m_worldBounds, snapTo, std::make_optional(oldPositions), pref(Preferences::UVLock));
-                        brushNode->setBrush(std::move(brush));
-                        succeededBrushCount += 1;
-                    } else {
-                        failedBrushCount += 1;
-                    }
-                }
-            } else {
-                for (Model::BrushNode* brushNode : brushNodes) {
-                    if (brushNode->brush().canSnapVertices(m_worldBounds, snapTo)) {
-                        Model::Brush brush = brushNode->brush();
-                        brush.snapVertices(m_worldBounds, snapTo, std::nullopt, pref(Preferences::UVLock));
-                        brushNode->setBrush(std::move(brush));
-                        succeededBrushCount += 1;
-                    } else {
-                        failedBrushCount += 1;
-                    }
+            for (Model::BrushNode* brushNode : brushNodes) {
+                if (brushNode->brush().canSnapVertices(m_worldBounds, snapTo)) {
+                    Model::Brush brush = brushNode->brush();
+                    brush.snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock));
+                    brushNode->setBrush(std::move(brush));
+                    succeededBrushCount += 1;
+                } else {
+                    failedBrushCount += 1;
                 }
             }
 
@@ -790,6 +777,47 @@ namespace TrenchBroom {
             }
 
             return true;
+        }
+
+        /**
+         * Returns the selected handles after snapping the given vertices.
+         */
+        std::vector<vm::vec3> MapDocumentCommandFacade::performSnapVertices(const std::map<Model::BrushNode*, std::vector<vm::vec3>>& vertices, FloatType snapTo) {
+            const std::vector<Model::BrushNode*> brushNodes = m_selectedNodes.brushesRecursively();
+
+            const std::vector<Model::Node*> nodes(std::begin(brushNodes), std::end(brushNodes));
+            const std::vector<Model::Node*> parents = collectParents(nodes);
+
+            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+
+            size_t succeededBrushCount = 0;
+            size_t failedBrushCount = 0;
+
+            std::vector<vm::vec3> newVertexPositions;
+            for (const auto& [brushNode, oldPositions] : vertices) {
+                if (brushNode->brush().canSnapSpecificVertices(m_worldBounds, oldPositions, snapTo)) {
+                    Model::Brush brush = brushNode->brush();
+                    const std::vector<vm::vec3> newPositions = brush.snapSpecificVertices(m_worldBounds, oldPositions, snapTo, pref(Preferences::UVLock));
+                    kdl::vec_append(newVertexPositions, newPositions);
+                    brushNode->setBrush(std::move(brush));
+                    succeededBrushCount += 1;
+                } else {
+                    failedBrushCount += 1;
+                }
+            }
+
+            invalidateSelectionBounds();
+
+            if (succeededBrushCount > 0) {
+                info(kdl::str_to_string("Snapped vertices of ", succeededBrushCount, " ", kdl::str_plural(succeededBrushCount, "brush", "brushes")));
+            }
+            if (failedBrushCount > 0) {
+                info(kdl::str_to_string("Failed to snap vertices of ", failedBrushCount, " ", kdl::str_plural(failedBrushCount, "brush", "brushes")));
+            }
+
+            kdl::vec_sort_and_remove_duplicates(newVertexPositions);
+            return newVertexPositions;
         }
 
         std::vector<vm::vec3> MapDocumentCommandFacade::performMoveVertices(const std::map<Model::BrushNode*, std::vector<vm::vec3>>& vertices, const vm::vec3& delta) {

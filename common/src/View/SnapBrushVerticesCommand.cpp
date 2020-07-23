@@ -21,9 +21,15 @@
 
 #include "Model/BrushNode.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "View/VertexHandleManager.h"
+
+#include <vecmath/segment.h> // do not remove
+#include <vecmath/polygon.h> // do not remove
 
 namespace TrenchBroom {
     namespace View {
+        // SnapBrushVerticesCommand
+
         const Command::CommandType SnapBrushVerticesCommand::Type = Command::freeType();
 
         std::unique_ptr<SnapBrushVerticesCommand> SnapBrushVerticesCommand::snap(const FloatType snapTo) {
@@ -35,7 +41,7 @@ namespace TrenchBroom {
         m_snapTo(snapTo) {}
 
         std::unique_ptr<CommandResult> SnapBrushVerticesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            const auto success = document->performSnapVertices(std::nullopt, m_snapTo);
+            const auto success = document->performSnapVertices(m_snapTo);
             return std::make_unique<CommandResult>(success);
         }
 
@@ -58,34 +64,117 @@ namespace TrenchBroom {
             std::vector<vm::vec3> vertexPositions;
             extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
 
-            return std::make_unique<SnapSpecificBrushVerticesCommand>(snapTo, brushes, brushVertices);
+            return std::make_unique<SnapSpecificBrushVerticesCommand>(snapTo, brushes, brushVertices, vertexPositions);
         }
 
-        SnapSpecificBrushVerticesCommand::SnapSpecificBrushVerticesCommand(const FloatType snapTo, const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices) :
+        SnapSpecificBrushVerticesCommand::SnapSpecificBrushVerticesCommand(const FloatType snapTo, const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions) :
         VertexCommand(Type, "Snap Brush Vertices", brushes),
         m_snapTo(snapTo),
-        m_vertices(vertices) {}
+        m_vertices(vertices),
+        m_oldVertexPositions(vertexPositions) {}
 
         bool SnapSpecificBrushVerticesCommand::doCanDoVertexOperation(const MapDocument* document) const {
-            const vm::bbox3& worldBounds = document->worldBounds();
-            for (const auto& entry : m_vertices) {
-                const Model::BrushNode* brushNode = entry.first;
-                const Model::Brush& brush = brushNode->brush();
-                const std::vector<vm::vec3>& vertices = entry.second;
-                if (!brush.canSnapVertices(worldBounds, m_snapTo, std::make_optional(vertices))) {
-                    return false;
-                }
-            }
             return true;
         }
 
         bool SnapSpecificBrushVerticesCommand::doVertexOperation(MapDocumentCommandFacade* document) {
-            document->performSnapVertices(std::make_optional(m_vertices), m_snapTo);
+            m_newVertexPositions = document->performSnapVertices(m_vertices, m_snapTo);
             return true;
         }
 
         bool SnapSpecificBrushVerticesCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
+
+        void SnapSpecificBrushVerticesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const {
+            manager.select(std::begin(m_newVertexPositions), std::end(m_newVertexPositions));
+        }
+
+        void SnapSpecificBrushVerticesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const {
+            manager.select(std::begin(m_oldVertexPositions), std::end(m_oldVertexPositions));
+        }
+
+#if 0
+        // SnapSpecificBrushEdgesCommand
+
+        const Command::CommandType SnapSpecificBrushEdgesCommand::Type = Command::freeType();
+
+        std::unique_ptr<SnapSpecificBrushEdgesCommand> SnapSpecificBrushEdgesCommand::snap(const FloatType snapTo, const EdgeToBrushesMap& edges) {
+            std::vector<Model::BrushNode*> brushes;
+            BrushEdgesMap brushEdges;
+            std::vector<vm::segment3> edgePositions;
+            extractEdgeMap(edges, brushes, brushEdges, edgePositions);
+
+            return std::make_unique<SnapSpecificBrushEdgesCommand>(snapTo, brushes, brushEdges, edgePositions);
+        }
+
+        SnapSpecificBrushEdgesCommand::SnapSpecificBrushEdgesCommand(const FloatType snapTo, const std::vector<Model::BrushNode*>& brushes, const BrushEdgesMap& edges, const std::vector<vm::segment3>& edgePositions) :
+        VertexCommand(Type, "Snap Brush Vertices", brushes),
+        m_snapTo(snapTo),
+        m_edges(edges),
+        m_oldEdgePositions(edgePositions) {}
+
+        bool SnapSpecificBrushEdgesCommand::doCanDoVertexOperation(const MapDocument* document) const {
+            return true;
+        }
+
+        bool SnapSpecificBrushEdgesCommand::doVertexOperation(MapDocumentCommandFacade* document) {
+            m_newEdgePositions = document->performSnapEdges(m_edges, m_snapTo);
+            return true;
+        }
+
+        bool SnapSpecificBrushEdgesCommand::doCollateWith(UndoableCommand*) {
+            return false;
+        }
+
+        void SnapSpecificBrushEdgesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const {
+            manager.select(std::begin(m_newEdgePositions), std::end(m_newEdgePositions));
+        }
+
+        void SnapSpecificBrushEdgesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const {
+            manager.select(std::begin(m_oldEdgePositions), std::end(m_oldEdgePositions));
+        }
+
+        // SnapSpecificBrushFacesCommand
+
+        const Command::CommandType SnapSpecificBrushFacesCommand::Type = Command::freeType();
+
+        std::unique_ptr<SnapSpecificBrushFacesCommand> SnapSpecificBrushFacesCommand::snap(const FloatType snapTo, const FaceToBrushesMap& faces) {
+            std::vector<Model::BrushNode*> brushes;
+            BrushFacesMap brushFaces;
+            std::vector<vm::polygon3> facePositions;
+            extractFaceMap(faces, brushes, brushFaces, facePositions);
+
+            return std::make_unique<SnapSpecificBrushFacesCommand>(snapTo, brushes, brushFaces, facePositions);
+        }
+
+        SnapSpecificBrushFacesCommand::SnapSpecificBrushFacesCommand(const FloatType snapTo, const std::vector<Model::BrushNode*>& brushes, const BrushFacesMap& faces, const std::vector<vm::polygon3>& facePositions) :
+        VertexCommand(Type, "Snap Brush Vertices", brushes),
+        m_snapTo(snapTo),
+        m_faces(faces),
+        m_oldFacePositions(facePositions) {}
+
+        bool SnapSpecificBrushFacesCommand::doCanDoVertexOperation(const MapDocument* document) const {
+            return true;
+        }
+
+        bool SnapSpecificBrushFacesCommand::doVertexOperation(MapDocumentCommandFacade* document) {
+            m_newFacePositions = document->performSnapFaces(m_faces, m_snapTo);
+            return true;
+        }
+
+        bool SnapSpecificBrushFacesCommand::doCollateWith(UndoableCommand*) {
+            return false;
+        }
+
+        void SnapSpecificBrushFacesCommand::doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const {
+            manager.select(std::begin(m_newFacePositions), std::end(m_newFacePositions));
+        }
+
+        void SnapSpecificBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const {
+            manager.select(std::begin(m_oldFacePositions), std::end(m_oldFacePositions));
+        }
+
+#endif
     }
 }

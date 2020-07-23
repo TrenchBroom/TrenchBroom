@@ -71,5 +71,8 @@ namespace TrenchBroom {
             Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Remove Edge", "Remove Edges"));
             kdl::mem_lock(m_document)->removeEdges(brushMap);
         }
+
+        void EdgeTool::snapVertices(const FloatType snapToF) {
+        }
     }
 }
