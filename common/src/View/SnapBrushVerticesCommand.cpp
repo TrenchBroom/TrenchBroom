@@ -73,12 +73,8 @@ namespace TrenchBroom {
         m_vertices(vertices),
         m_oldVertexPositions(vertexPositions) {}
 
-        bool SnapSpecificBrushVerticesCommand::doCanDoVertexOperation(const MapDocument* document) const {
-            for (const auto& [brushNode, vertices] : m_vertices) {
-                if (!brushNode->brush().canSnapSpecificVertices(document->worldBounds(), vertices, m_snapTo)) {
-                    return false;
-                }
-            }
+        bool SnapSpecificBrushVerticesCommand::doCanDoVertexOperation(const MapDocument*) const {
+            // Always try to execute the command, see MapDocumentCommandFacade::performSnapVertices
             return true;
         }
 
@@ -118,12 +114,7 @@ namespace TrenchBroom {
         m_edges(edges),
         m_oldEdgePositions(edgePositions) {}
 
-        bool SnapSpecificBrushEdgesCommand::doCanDoVertexOperation(const MapDocument* document) const {
-            for (const auto& [brushNode, edges] : m_edges) {
-                if (!brushNode->brush().canSnapSpecificEdges(document->worldBounds(), edges, m_snapTo)) {
-                    return false;
-                }
-            }
+        bool SnapSpecificBrushEdgesCommand::doCanDoVertexOperation(const MapDocument*) const {
             return true;
         }
 
@@ -163,12 +154,7 @@ namespace TrenchBroom {
         m_faces(faces),
         m_oldFacePositions(facePositions) {}
 
-        bool SnapSpecificBrushFacesCommand::doCanDoVertexOperation(const MapDocument* document) const {
-            for (const auto& [brushNode, faces] : m_faces) {
-                if (!brushNode->brush().canSnapSpecificFaces(document->worldBounds(), faces, m_snapTo)) {
-                    return false;
-                }
-            }
+        bool SnapSpecificBrushFacesCommand::doCanDoVertexOperation(const MapDocument*) const {
             return true;
         }
 

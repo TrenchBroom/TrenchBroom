@@ -803,6 +803,8 @@ namespace TrenchBroom {
                     brushNode->setBrush(std::move(brush));
                     succeededBrushCount += 1;
                 } else {
+                    // This means the brush would become empty if snapped. Leave it un-snapped, and keep the handles selected
+                    kdl::vec_append(newVertexPositions, oldPositions);
                     failedBrushCount += 1;
                 }
             }
@@ -844,6 +846,7 @@ namespace TrenchBroom {
                     brushNode->setBrush(std::move(brush));
                     succeededBrushCount += 1;
                 } else {
+                    kdl::vec_append(newEdgePositions, oldPositions);
                     failedBrushCount += 1;
                 }
             }
@@ -885,6 +888,7 @@ namespace TrenchBroom {
                     brushNode->setBrush(std::move(brush));
                     succeededBrushCount += 1;
                 } else {
+                    kdl::vec_append(newFacePositions, oldPositions);
                     failedBrushCount += 1;
                 }
             }
