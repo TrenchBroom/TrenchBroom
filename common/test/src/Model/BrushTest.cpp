@@ -3054,7 +3054,7 @@ namespace TrenchBroom {
             const Brush minuend = builder.createCuboid(vm::bbox3(vm::vec3(-32.0, -16.0, -32.0), vm::vec3(32.0, 16.0, 32.0)), minuendTexture).value();
             const Brush subtrahend = builder.createCuboid(vm::bbox3(vm::vec3(-16.0, -32.0, -64.0), vm::vec3(16.0, 32.0, 0.0)), subtrahendTexture).value();
 
-            const std::vector<Brush> result = minuend.subtract(world, worldBounds, defaultTexture, subtrahend);
+            const std::vector<Brush> result = minuend.subtract(world, worldBounds, defaultTexture, subtrahend).value();
             ASSERT_EQ(3u, result.size());
 
             const Brush* left = nullptr;
@@ -3139,7 +3139,7 @@ namespace TrenchBroom {
             const Brush brush1 = builder.createCuboid(brush1Bounds, "texture").value();
             const Brush brush2 = builder.createCuboid(brush2Bounds, "texture").value();
 
-            const std::vector<Brush> result = brush1.subtract(world, worldBounds, "texture", brush2);
+            const std::vector<Brush> result = brush1.subtract(world, worldBounds, "texture", brush2).value();
             ASSERT_EQ(1u, result.size());
 
             const Brush& subtraction = result.at(0);
@@ -3158,7 +3158,7 @@ namespace TrenchBroom {
             const Brush brush1 = builder.createCuboid(brush1Bounds, "texture").value();
             const Brush brush2 = builder.createCuboid(brush2Bounds, "texture").value();
 
-            const std::vector<Brush> result = brush1.subtract(world, worldBounds, "texture", brush2);
+            const std::vector<Brush> result = brush1.subtract(world, worldBounds, "texture", brush2).value();
             ASSERT_EQ(0u, result.size());
         }
 
@@ -3233,7 +3233,7 @@ namespace TrenchBroom {
             const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
             const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
 
-            const std::vector<Brush> result = minuend.subtract(world, worldBounds, "some_texture", subtrahend);
+            const std::vector<Brush> result = minuend.subtract(world, worldBounds, "some_texture", subtrahend).value();
             ASSERT_FALSE(result.empty());
 
             kdl::col_delete_all(minuendNodes);
@@ -3311,7 +3311,7 @@ namespace TrenchBroom {
             const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
             const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
 
-            const std::vector<Brush> result = minuend.subtract(world, worldBounds, "some_texture", subtrahend);
+            const std::vector<Brush> result = minuend.subtract(world, worldBounds, "some_texture", subtrahend).value();
             ASSERT_EQ(8u, result.size());
 
             kdl::col_delete_all(minuendNodes);

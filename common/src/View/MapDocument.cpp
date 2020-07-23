@@ -1583,11 +1583,18 @@ namespace TrenchBroom {
             
             for (Model::BrushNode* minuendNode : minuendNodes) {
                 const Model::Brush& minuend = minuendNode->brush();
-                std::vector<Model::Brush> resultBrushes = minuend.subtract(*m_world, m_worldBounds, currentTextureName(), subtrahends);
-                if (!resultBrushes.empty()) {
-                    const std::vector<Model::BrushNode*> resultNodes = kdl::vec_transform(std::move(resultBrushes), [&](auto brush) { return m_world->createBrush(std::move(brush)); });
-                    kdl::vec_append(toAdd[minuendNode->parent()], resultNodes);
-                }
+                minuend.subtract(*m_world, m_worldBounds, currentTextureName(), subtrahends)
+                    .visit(kdl::overload {
+                        [&](const std::vector<Model::Brush>& brushes) {
+                            if (!brushes.empty()) {
+                                const std::vector<Model::BrushNode*> resultNodes = kdl::vec_transform(std::move(brushes), [&](auto b) { return m_world->createBrush(std::move(b)); });
+                                kdl::vec_append(toAdd[minuendNode->parent()], resultNodes);
+                            }
+                        },
+                        [&](const Model::BrushError e) {
+                            error() << "Could not create brush: " << e;
+                        },
+                    });
                 toRemove.push_back(minuendNode);
             }
 
@@ -1655,9 +1662,12 @@ namespace TrenchBroom {
 
                 // make an shrunken copy of brush
                 brush.expand(m_worldBounds, -1.0 * static_cast<FloatType>(m_grid->actualSize()), true)
-                    .visit(kdl::overload {
-                        [&](Model::Brush&& shrunken) {
-                            auto fragments = brush.subtract(*m_world, m_worldBounds, currentTextureName(), shrunken);
+                    .and_then(
+                        [&](const Model::Brush& shrunken) {
+                            return brush.subtract(*m_world, m_worldBounds, currentTextureName(), shrunken);
+                        }
+                    ).visit(kdl::overload {
+                        [&](const std::vector<Model::Brush>& fragments) {
                             auto fragmentNodes = kdl::vec_transform(std::move(fragments), [](auto&& b) {
                                 return new Model::BrushNode(std::move(b));
                             });
@@ -1666,7 +1676,7 @@ namespace TrenchBroom {
                             toRemove.push_back(brushNode);
                         },
                         [&](const Model::BrushError e) {
-                            error() << "Could not expand brush: " << e;
+                            error() << "Could not hollow brush: " << e;
                         },
                     });
                 

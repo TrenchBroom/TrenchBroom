@@ -823,7 +823,7 @@ namespace TrenchBroom {
                 });
         }
 
-        std::vector<Brush> Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<const Brush*>& subtrahends) const {
+        kdl::result<std::vector<Brush>, BrushError> Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const std::vector<const Brush*>& subtrahends) const {
             auto result = std::vector<BrushGeometry>{*m_geometry};
 
             for (auto* subtrahend : subtrahends) {
@@ -845,16 +845,26 @@ namespace TrenchBroom {
             brushes.reserve(result.size());
 
             for (const auto& geometry : result) {
-                try {
-                    auto brush = createBrush(factory, worldBounds, defaultTextureName, geometry, subtrahends);
-                    brushes.push_back(std::move(brush));
-                } catch (const GeometryException&) {}
+                std::optional<BrushError> error;
+                createBrush(factory, worldBounds, defaultTextureName, geometry, subtrahends)
+                    .visit(kdl::overload {
+                        [&](Brush&& brush) {
+                            brushes.push_back(std::move(brush));
+                        },
+                        [&](const BrushError e) {
+                            error = e;
+                        },
+                    });
+
+                if (error) {
+                    return kdl::result<std::vector<Brush>, BrushError>::error(*error);
+                }
             }
 
-            return brushes;
+            return kdl::result<std::vector<Brush>, BrushError>::success(brushes);
         }
 
-        std::vector<Brush> Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const Brush& subtrahend) const {
+        kdl::result<std::vector<Brush>, BrushError> Brush::subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const Brush& subtrahend) const {
             return subtract(factory, worldBounds, defaultTextureName, std::vector<const Brush*>{&subtrahend});
         }
 
@@ -899,7 +909,7 @@ namespace TrenchBroom {
             return m_geometry->intersects(*brush.m_geometry);
         }
 
-        Brush Brush::createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<const Brush*>& subtrahends) const {
+        kdl::result<Brush, BrushError> Brush::createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<const Brush*>& subtrahends) const {
             std::vector<BrushFace> faces;
             faces.reserve(geometry.faceCount());
 
@@ -917,18 +927,15 @@ namespace TrenchBroom {
             }
 
             return Brush::create(worldBounds, std::move(faces))
-                .visit(kdl::overload {
-                    [&](Brush&& b) -> Brush {
+                .and_then(
+                    [&](Brush&& b) {
                         b.cloneFaceAttributesFrom(*this);
                         for (const auto* subtrahend : subtrahends) {
                             b.cloneInvertedFaceAttributesFrom(*subtrahend);
                         }
-                        return std::move(b);
-                    },
-                    [](const BrushError e) -> Brush {
-                        throw GeometryException(kdl::str_to_string(e)); // TODO 2983
+                        return kdl::result<Brush, BrushError>::success(std::move(b));
                     }
-                });
+                );
         }
 
         bool Brush::checkFaceLinks() const {
