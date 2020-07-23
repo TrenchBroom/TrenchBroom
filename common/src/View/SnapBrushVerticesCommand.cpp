@@ -74,6 +74,11 @@ namespace TrenchBroom {
         m_oldVertexPositions(vertexPositions) {}
 
         bool SnapSpecificBrushVerticesCommand::doCanDoVertexOperation(const MapDocument* document) const {
+            for (const auto& [brushNode, vertices] : m_vertices) {
+                if (!brushNode->brush().canSnapSpecificVertices(document->worldBounds(), vertices, m_snapTo)) {
+                    return false;
+                }
+            }
             return true;
         }
 
@@ -108,12 +113,17 @@ namespace TrenchBroom {
         }
 
         SnapSpecificBrushEdgesCommand::SnapSpecificBrushEdgesCommand(const FloatType snapTo, const std::vector<Model::BrushNode*>& brushes, const BrushEdgesMap& edges, const std::vector<vm::segment3>& edgePositions) :
-        VertexCommand(Type, "Snap Brush Vertices", brushes),
+        VertexCommand(Type, "Snap Brush Edges", brushes),
         m_snapTo(snapTo),
         m_edges(edges),
         m_oldEdgePositions(edgePositions) {}
 
         bool SnapSpecificBrushEdgesCommand::doCanDoVertexOperation(const MapDocument* document) const {
+            for (const auto& [brushNode, edges] : m_edges) {
+                if (!brushNode->brush().canSnapSpecificEdges(document->worldBounds(), edges, m_snapTo)) {
+                    return false;
+                }
+            }
             return true;
         }
 
@@ -148,12 +158,17 @@ namespace TrenchBroom {
         }
 
         SnapSpecificBrushFacesCommand::SnapSpecificBrushFacesCommand(const FloatType snapTo, const std::vector<Model::BrushNode*>& brushes, const BrushFacesMap& faces, const std::vector<vm::polygon3>& facePositions) :
-        VertexCommand(Type, "Snap Brush Vertices", brushes),
+        VertexCommand(Type, "Snap Brush Faces", brushes),
         m_snapTo(snapTo),
         m_faces(faces),
         m_oldFacePositions(facePositions) {}
 
         bool SnapSpecificBrushFacesCommand::doCanDoVertexOperation(const MapDocument* document) const {
+            for (const auto& [brushNode, faces] : m_faces) {
+                if (!brushNode->brush().canSnapSpecificFaces(document->worldBounds(), faces, m_snapTo)) {
+                    return false;
+                }
+            }
             return true;
         }
 
