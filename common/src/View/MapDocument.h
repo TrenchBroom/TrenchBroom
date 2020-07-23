@@ -418,6 +418,8 @@ namespace TrenchBroom {
         public: // modifying vertices, declared in MapFacade interface
             bool snapVertices(FloatType snapTo) override;
             bool snapVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices, FloatType snapTo);
+            bool snapEdges(const std::map<vm::segment3, std::vector<Model::BrushNode*>>& edges, FloatType snapTo);
+            bool snapFaces(const std::map<vm::polygon3, std::vector<Model::BrushNode*>>& faces, FloatType snapTo);
             bool findPlanePoints() override;
 
             MoveVerticesResult moveVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices, const vm::vec3& delta) override;

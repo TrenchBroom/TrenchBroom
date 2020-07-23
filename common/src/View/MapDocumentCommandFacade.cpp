@@ -820,6 +820,88 @@ namespace TrenchBroom {
             return newVertexPositions;
         }
 
+        /**
+         * Returns the selected handles after snapping the given edges.
+         */
+        std::vector<vm::segment3> MapDocumentCommandFacade::performSnapEdges(const std::map<Model::BrushNode*, std::vector<vm::segment3>>& edges, const FloatType snapTo) {
+            const std::vector<Model::BrushNode*> brushNodes = m_selectedNodes.brushesRecursively();
+
+            const std::vector<Model::Node*> nodes(std::begin(brushNodes), std::end(brushNodes));
+            const std::vector<Model::Node*> parents = collectParents(nodes);
+
+            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+
+            size_t succeededBrushCount = 0;
+            size_t failedBrushCount = 0;
+
+            std::vector<vm::segment3> newEdgePositions;
+            for (const auto& [brushNode, oldPositions] : edges) {
+                if (brushNode->brush().canSnapSpecificEdges(m_worldBounds, oldPositions, snapTo)) {
+                    Model::Brush brush = brushNode->brush();
+                    const std::vector<vm::segment3> newPositions = brush.snapSpecificEdges(m_worldBounds, oldPositions, snapTo, pref(Preferences::UVLock));
+                    kdl::vec_append(newEdgePositions, newPositions);
+                    brushNode->setBrush(std::move(brush));
+                    succeededBrushCount += 1;
+                } else {
+                    failedBrushCount += 1;
+                }
+            }
+
+            invalidateSelectionBounds();
+
+            if (succeededBrushCount > 0) {
+                info(kdl::str_to_string("Snapped vertices of ", succeededBrushCount, " ", kdl::str_plural(succeededBrushCount, "brush", "brushes")));
+            }
+            if (failedBrushCount > 0) {
+                info(kdl::str_to_string("Failed to snap vertices of ", failedBrushCount, " ", kdl::str_plural(failedBrushCount, "brush", "brushes")));
+            }
+
+            kdl::vec_sort_and_remove_duplicates(newEdgePositions);
+            return newEdgePositions;
+        }
+
+        /**
+         * Returns the selected handles after snapping the given faces.
+         */
+        std::vector<vm::polygon3> MapDocumentCommandFacade::performSnapFaces(const std::map<Model::BrushNode*, std::vector<vm::polygon3>>& faces, const FloatType snapTo) {
+            const std::vector<Model::BrushNode*> brushNodes = m_selectedNodes.brushesRecursively();
+
+            const std::vector<Model::Node*> nodes(std::begin(brushNodes), std::end(brushNodes));
+            const std::vector<Model::Node*> parents = collectParents(nodes);
+
+            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+
+            size_t succeededBrushCount = 0;
+            size_t failedBrushCount = 0;
+
+            std::vector<vm::polygon3> newFacePositions;
+            for (const auto& [brushNode, oldPositions] : faces) {
+                if (brushNode->brush().canSnapSpecificFaces(m_worldBounds, oldPositions, snapTo)) {
+                    Model::Brush brush = brushNode->brush();
+                    const std::vector<vm::polygon3> newPositions = brush.snapSpecificFaces(m_worldBounds, oldPositions, snapTo, pref(Preferences::UVLock));
+                    kdl::vec_append(newFacePositions, newPositions);
+                    brushNode->setBrush(std::move(brush));
+                    succeededBrushCount += 1;
+                } else {
+                    failedBrushCount += 1;
+                }
+            }
+
+            invalidateSelectionBounds();
+
+            if (succeededBrushCount > 0) {
+                info(kdl::str_to_string("Snapped vertices of ", succeededBrushCount, " ", kdl::str_plural(succeededBrushCount, "brush", "brushes")));
+            }
+            if (failedBrushCount > 0) {
+                info(kdl::str_to_string("Failed to snap vertices of ", failedBrushCount, " ", kdl::str_plural(failedBrushCount, "brush", "brushes")));
+            }
+
+            kdl::vec_sort_and_remove_duplicates(newFacePositions);
+            return newFacePositions;
+        }
+
         std::vector<vm::vec3> MapDocumentCommandFacade::performMoveVertices(const std::map<Model::BrushNode*, std::vector<vm::vec3>>& vertices, const vm::vec3& delta) {
             const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
             const std::vector<Model::Node*> parents = collectParents(nodes);

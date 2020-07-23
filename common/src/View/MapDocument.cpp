@@ -1753,6 +1753,16 @@ namespace TrenchBroom {
             return result->success();
         }
 
+        bool MapDocument::snapEdges(const std::map<vm::segment3, std::vector<Model::BrushNode*>>& edges, const FloatType snapTo) {
+            const auto result = executeAndStore(SnapSpecificBrushEdgesCommand::snap(snapTo, edges));
+            return result->success();
+        }
+
+        bool MapDocument::snapFaces(const std::map<vm::polygon3, std::vector<Model::BrushNode*>>& faces, const FloatType snapTo) {
+            const auto result = executeAndStore(SnapSpecificBrushFacesCommand::snap(snapTo, faces));
+            return result->success();
+        }
+
         bool MapDocument::findPlanePoints() {
             const auto result = executeAndStore(FindPlanePointsCommand::findPlanePoints());
             return result->success();

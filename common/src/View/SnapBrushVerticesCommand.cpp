@@ -94,7 +94,6 @@ namespace TrenchBroom {
             manager.select(std::begin(m_oldVertexPositions), std::end(m_oldVertexPositions));
         }
 
-#if 0
         // SnapSpecificBrushEdgesCommand
 
         const Command::CommandType SnapSpecificBrushEdgesCommand::Type = Command::freeType();
@@ -174,7 +173,5 @@ namespace TrenchBroom {
         void SnapSpecificBrushFacesCommand::doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const {
             manager.select(std::begin(m_oldFacePositions), std::end(m_oldFacePositions));
         }
-
-#endif
     }
 }

@@ -71,6 +71,13 @@ namespace TrenchBroom {
         }
 
         void FaceTool::snapVertices(const FloatType snapToF) {
+            assert(canSnapVertices());
+
+            const auto handles = handleManager().selectedHandles();
+            const auto brushMap = buildBrushMap(handleManager(), std::begin(handles), std::end(handles));
+
+            Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Snap Vertex", "Snap Vertices"));
+            kdl::mem_lock(m_document)->snapFaces(brushMap, snapToF);
         }
     }
 }

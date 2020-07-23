@@ -445,8 +445,7 @@ namespace TrenchBroom {
             }
 
             void commandDoOrUndo(Command* command) {
-                if (isVertexCommand(command)) {
-                    auto* vertexCommand = static_cast<VertexCommand*>(command);
+                if (auto* vertexCommand = dynamic_cast<VertexCommand*>(command)) {
                     deselectHandles();
                     removeHandles(vertexCommand);
                     ++m_ignoreChangeNotifications;
@@ -454,8 +453,7 @@ namespace TrenchBroom {
             }
 
             void commandDoneOrUndoFailed(Command* command) {
-                if (isVertexCommand(command)) {
-                    auto* vertexCommand = static_cast<VertexCommand*>(command);
+                if (auto* vertexCommand = dynamic_cast<VertexCommand*>(command)) {
                     addHandles(vertexCommand);
                     selectNewHandlePositions(vertexCommand);
                     --m_ignoreChangeNotifications;
@@ -463,16 +461,11 @@ namespace TrenchBroom {
             }
 
             void commandDoFailedOrUndone(Command* command) {
-                if (isVertexCommand(command)) {
-                    auto* vertexCommand = static_cast<VertexCommand*>(command);
+                if (auto* vertexCommand = dynamic_cast<VertexCommand*>(command)) {
                     addHandles(vertexCommand);
                     selectOldHandlePositions(vertexCommand);
                     --m_ignoreChangeNotifications;
                 }
-            }
-
-            bool isVertexCommand(const Command* command) const {
-                return dynamic_cast<const VertexCommand*>(command) != nullptr;
             }
 
             void selectionDidChange(const Selection& selection) {

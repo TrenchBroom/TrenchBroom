@@ -74,6 +74,60 @@ namespace TrenchBroom {
 
             deleteCopyAndMove(SnapSpecificBrushVerticesCommand)
         };
+
+        /**
+         * Snaps the given edges of the given brushes.
+         */
+        class SnapSpecificBrushEdgesCommand : public VertexCommand {
+        public:
+            static const CommandType Type;
+        private:
+            FloatType m_snapTo;
+            BrushEdgesMap m_edges;
+            std::vector<vm::segment3> m_oldEdgePositions;
+            std::vector<vm::segment3> m_newEdgePositions;
+        public:
+            static std::unique_ptr<SnapSpecificBrushEdgesCommand> snap(FloatType snapTo, const EdgeToBrushesMap& vertices);
+
+            SnapSpecificBrushEdgesCommand(FloatType snapTo, const std::vector<Model::BrushNode*>& brushes, const BrushEdgesMap& edges, const std::vector<vm::segment3>& edgePositions);
+        private:
+            bool doCanDoVertexOperation(const MapDocument* document) const override;
+            bool doVertexOperation(MapDocumentCommandFacade* document) override;
+
+            bool doCollateWith(UndoableCommand* command) override;
+
+            void doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const override;
+            void doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const override;
+
+            deleteCopyAndMove(SnapSpecificBrushEdgesCommand)
+        };
+
+        /**
+         * Snaps the given faces of the given brushes.
+         */
+        class SnapSpecificBrushFacesCommand : public VertexCommand {
+        public:
+            static const CommandType Type;
+        private:
+            FloatType m_snapTo;
+            BrushFacesMap m_faces;
+            std::vector<vm::polygon3> m_oldFacePositions;
+            std::vector<vm::polygon3> m_newFacePositions;
+        public:
+            static std::unique_ptr<SnapSpecificBrushFacesCommand> snap(FloatType snapTo, const FaceToBrushesMap& vertices);
+
+            SnapSpecificBrushFacesCommand(FloatType snapTo, const std::vector<Model::BrushNode*>& brushes, const BrushFacesMap& faces, const std::vector<vm::polygon3>& facePositions);
+        private:
+            bool doCanDoVertexOperation(const MapDocument* document) const override;
+            bool doVertexOperation(MapDocumentCommandFacade* document) override;
+
+            bool doCollateWith(UndoableCommand* command) override;
+
+            void doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const override;
+            void doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const override;
+
+            deleteCopyAndMove(SnapSpecificBrushFacesCommand)
+        };
     }
 }
 
