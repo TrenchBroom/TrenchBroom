@@ -45,6 +45,7 @@ namespace TrenchBroom {
 
             size_t profileCount() const;
             CompilationProfile* profile(size_t index) const;
+            size_t indexOfProfile(CompilationProfile* profile) const;
 
             void addProfile(std::unique_ptr<CompilationProfile> profile);
             void removeProfile(size_t index);

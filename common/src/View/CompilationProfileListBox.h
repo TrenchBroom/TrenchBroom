@@ -22,6 +22,8 @@
 
 #include "View/ControlListBox.h"
 
+class QPoint;
+
 namespace TrenchBroom {
     namespace Model {
         class CompilationConfig;
@@ -62,6 +64,8 @@ namespace TrenchBroom {
         private:
             size_t itemCount() const override;
             ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
+        signals:
+            void profileContextMenuRequested(const QPoint& globalPos, Model::CompilationProfile* profile);
         };
     }
 }
