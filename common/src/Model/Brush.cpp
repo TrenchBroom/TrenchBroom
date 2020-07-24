@@ -567,7 +567,7 @@ namespace TrenchBroom {
             std::map<vm::vec3,vm::vec3> vertexMapping;
             for (const auto* vertex : m_geometry->vertices()) {
                 const auto& origin = vertex->position();
-                const vm::vec3 destination = snapToF * round(origin / snapToF);
+                const vm::vec3 destination = snapPoint(origin, snapToF);
                 if (newGeometry.hasVertex(destination)) {
                     vertexMapping.insert(std::make_pair(origin, destination));
                 }
@@ -577,7 +577,7 @@ namespace TrenchBroom {
             doSetNewGeometry(worldBounds, matcher, newGeometry, uvLock);
         }
 
-        bool Brush::canSnapSpecificVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const FloatType snapToF) const {
+        bool Brush::canSnapSpecificVertices(const vm::bbox3& /* worldBounds */, const std::vector<vm::vec3>& vertexPositions, const FloatType snapToF) const {
             ensure(m_geometry != nullptr, "geometry is null");
             return snappedGeometry(*m_geometry, snapToF, vertexPositions).polyhedron();
         }
@@ -586,10 +586,10 @@ namespace TrenchBroom {
          * Snaps the given vertices.
          *
          * @param worldBounds world bounds
-         * @param vertexPositions the handles to snap
+         * @param vertexPositions the vertex handles to snap
          * @param snapToF the snap size
          * @param uvLock whether to UV lock
-         * @return vertexPositions after being snapped (order may not be preserved)
+         * @return the vertex handles given in `vertexPositions` after being snapped (order may not be preserved)
          */
         std::vector<vm::vec3> Brush::snapSpecificVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const FloatType snapToF, const bool uvLock) {
             ensure(m_geometry != nullptr, "geometry is null");
@@ -667,11 +667,20 @@ namespace TrenchBroom {
             return result;
         }
 
-        bool Brush::canSnapSpecificEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, FloatType snapToF) const {
+        bool Brush::canSnapSpecificEdges(const vm::bbox3& /* worldBounds */, const std::vector<vm::segment3>& edgePositions, FloatType snapToF) const {
             ensure(m_geometry != nullptr, "geometry is null");
             return snappedGeometry(*m_geometry, snapToF, edgePositions).polyhedron();
         }
 
+        /**
+         * Snaps the given edges.
+         *
+         * @param worldBounds world bounds
+         * @param edgePositions the edge handles to snap
+         * @param snapToF the snap size
+         * @param uvLock whether to UV lock
+         * @return the edge handles given in `edgePositions` after being snapped (order may not be preserved)
+         */
         std::vector<vm::segment3> Brush::snapSpecificEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, FloatType snapToF, const bool uvLock) {
             ensure(m_geometry != nullptr, "geometry is null");
 
@@ -744,11 +753,20 @@ namespace TrenchBroom {
             return result;
         }
 
-        bool Brush::canSnapSpecificFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, FloatType snapToF) const {
+        bool Brush::canSnapSpecificFaces(const vm::bbox3& /* worldBounds */, const std::vector<vm::polygon3>& facePositions, FloatType snapToF) const {
             ensure(m_geometry != nullptr, "geometry is null");
             return snappedGeometry(*m_geometry, snapToF, facePositions).polyhedron();
         }
 
+        /**
+         * Snaps the given faces.
+         *
+         * @param worldBounds world bounds
+         * @param facePositions the edge handles to snap
+         * @param snapToF the snap size
+         * @param uvLock whether to UV lock
+         * @return the face handles given in `facePositions` after being snapped (order may not be preserved)
+         */
         std::vector<vm::polygon3> Brush::snapSpecificFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, FloatType snapToF, const bool uvLock) {
             ensure(m_geometry != nullptr, "geometry is null");
 

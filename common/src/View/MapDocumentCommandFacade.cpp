@@ -854,10 +854,10 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
 
             if (succeededBrushCount > 0) {
-                info(kdl::str_to_string("Snapped vertices of ", succeededBrushCount, " ", kdl::str_plural(succeededBrushCount, "brush", "brushes")));
+                info(kdl::str_to_string("Snapped edges of ", succeededBrushCount, " ", kdl::str_plural(succeededBrushCount, "brush", "brushes")));
             }
             if (failedBrushCount > 0) {
-                info(kdl::str_to_string("Failed to snap vertices of ", failedBrushCount, " ", kdl::str_plural(failedBrushCount, "brush", "brushes")));
+                info(kdl::str_to_string("Failed to snap edges of ", failedBrushCount, " ", kdl::str_plural(failedBrushCount, "brush", "brushes")));
             }
 
             kdl::vec_sort_and_remove_duplicates(newEdgePositions);
@@ -896,10 +896,10 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
 
             if (succeededBrushCount > 0) {
-                info(kdl::str_to_string("Snapped vertices of ", succeededBrushCount, " ", kdl::str_plural(succeededBrushCount, "brush", "brushes")));
+                info(kdl::str_to_string("Snapped faces of ", succeededBrushCount, " ", kdl::str_plural(succeededBrushCount, "brush", "brushes")));
             }
             if (failedBrushCount > 0) {
-                info(kdl::str_to_string("Failed to snap vertices of ", failedBrushCount, " ", kdl::str_plural(failedBrushCount, "brush", "brushes")));
+                info(kdl::str_to_string("Failed to snap faces of ", failedBrushCount, " ", kdl::str_plural(failedBrushCount, "brush", "brushes")));
             }
 
             kdl::vec_sort_and_remove_duplicates(newFacePositions);
