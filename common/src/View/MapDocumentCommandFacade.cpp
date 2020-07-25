@@ -729,10 +729,17 @@ namespace TrenchBroom {
 
             for (Model::BrushNode* brushNode : brushNodes) {
                 if (brushNode->brush().canSnapVertices(m_worldBounds, snapTo)) {
-                    Model::Brush brush = brushNode->brush();
-                    brush.snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock));
-                    brushNode->setBrush(std::move(brush));
-                    succeededBrushCount += 1;
+                    brushNode->brush().snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock))
+                        .visit(kdl::overload {
+                            [&](Model::Brush&& brush) {
+                                brushNode->setBrush(std::move(brush));
+                                succeededBrushCount += 1;
+                            },
+                            [&](const Model::BrushError e) {
+                                error() << "Could not snap vertices: " << e;
+                                failedBrushCount += 1;
+                            },
+                        });
                 } else {
                     failedBrushCount += 1;
                 }
@@ -760,11 +767,19 @@ namespace TrenchBroom {
             std::vector<vm::vec3> newVertexPositions;
             for (const auto& entry : vertices) {
                 Model::BrushNode* brushNode = entry.first;
-                Model::Brush brush = brushNode->brush();
                 const std::vector<vm::vec3>& oldPositions = entry.second;
-                const std::vector<vm::vec3> newPositions = brush.moveVertices(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
-                kdl::vec_append(newVertexPositions, newPositions);
-                brushNode->setBrush(std::move(brush));
+                
+                brushNode->brush().moveVertices(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock))
+                    .visit(kdl::overload{
+                        [&](Model::Brush&& brush) {
+                            const auto newPositions = brush.findClosestVertexPositions(oldPositions + delta);
+                            kdl::vec_append(newVertexPositions, newPositions);
+                            brushNode->setBrush(std::move(brush));
+                        },
+                        [&](const Model::BrushError e) {
+                            error() << "Could not move vertices: " << e;
+                        },
+                    });
             }
 
             invalidateSelectionBounds();
@@ -783,11 +798,20 @@ namespace TrenchBroom {
             std::vector<vm::segment3> newEdgePositions;
             for (const auto& entry : edges) {
                 Model::BrushNode* brushNode = entry.first;
-                Model::Brush brush = brushNode->brush();
                 const std::vector<vm::segment3>& oldPositions = entry.second;
-                const std::vector<vm::segment3> newPositions = brush.moveEdges(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
-                brushNode->setBrush(brush);
-                kdl::vec_append(newEdgePositions, newPositions);
+                brushNode->brush().moveEdges(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock))
+                    .visit(kdl::overload {
+                        [&](Model::Brush&& brush) {
+                            const auto newPositions = brush.findClosestEdgePositions(kdl::vec_transform(oldPositions, [&](const auto& s) {
+                                return s.translate(delta);
+                            }));
+                            kdl::vec_append(newEdgePositions, newPositions);
+                            brushNode->setBrush(std::move(brush));
+                        },
+                        [&](const Model::BrushError e) {
+                            error() << "Couild not move edges: " << e;
+                        },
+                    });
             }
 
             invalidateSelectionBounds();
@@ -806,11 +830,21 @@ namespace TrenchBroom {
             std::vector<vm::polygon3> newFacePositions;
             for (const auto& entry : faces) {
                 Model::BrushNode* brushNode = entry.first;
-                Model::Brush brush = brushNode->brush();
                 const std::vector<vm::polygon3>& oldPositions = entry.second;
-                const std::vector<vm::polygon3> newPositions = brush.moveFaces(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock));
-                brushNode->setBrush(std::move(brush));
-                kdl::vec_append(newFacePositions, newPositions);
+                
+                brushNode->brush().moveFaces(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock))
+                    .visit(kdl::overload {
+                        [&](Model::Brush&& brush) {
+                            const auto newPositions = brush.findClosestFacePositions(kdl::vec_transform(oldPositions, [&](const auto& f) {
+                                return f.translate(delta);
+                            }));
+                            kdl::vec_append(newFacePositions, newPositions);
+                            brushNode->setBrush(std::move(brush));
+                        },
+                        [&](const Model::BrushError e) {
+                            error() << "Could not move faces: " << e;
+                        },
+                    });
             }
 
             invalidateSelectionBounds();
@@ -830,9 +864,15 @@ namespace TrenchBroom {
                 const vm::vec3& position = entry.first;
                 const std::vector<Model::BrushNode*>& brushNodes = entry.second;
                 for (Model::BrushNode* brushNode : brushNodes) {
-                    Model::Brush brush = brushNode->brush();
-                    brush.addVertex(m_worldBounds, position);
-                    brushNode->setBrush(std::move(brush));
+                    brushNode->brush().addVertex(m_worldBounds, position)
+                        .visit(kdl::overload{
+                            [&](Model::Brush&& brush) {
+                                brushNode->setBrush(std::move(brush));
+                            },
+                            [&](const Model::BrushError e) {
+                                error() << "Could not add vertex: " << e;
+                            },
+                        });
                 }
             }
 
@@ -850,9 +890,15 @@ namespace TrenchBroom {
                 Model::BrushNode* brushNode = entry.first;
                 const std::vector<vm::vec3>& positions = entry.second;
                 
-                Model::Brush brush = brushNode->brush();
-                brush.removeVertices(m_worldBounds, positions);
-                brushNode->setBrush(std::move(brush));
+                brushNode->brush().removeVertices(m_worldBounds, positions)
+                    .visit(kdl::overload {
+                        [&](Model::Brush&& brush) {
+                            brushNode->setBrush(std::move(brush));
+                        },
+                        [&](const Model::BrushError e) {
+                            error() << "Could not remove vertex: " << e;
+                        },
+                    });
             }
 
             invalidateSelectionBounds();

@@ -40,6 +40,7 @@
 #include <vecmath/ray.h>
 #include <vecmath/segment.h>
 #include <vecmath/vec.h>
+#include <vecmath/vec_ext.h>
 
 #include <kdl/intrusive_circular_list.h>
 #include <kdl/result.h>
@@ -523,7 +524,10 @@ namespace TrenchBroom {
             const vm::vec3 p8(+32.0, +32.0, +32.0);
             const vm::vec3 p9(+16.0, +16.0, +32.0);
 
-            std::vector<vm::vec3> newVertexPositions = brush.moveVertices(worldBounds, std::vector<vm::vec3>(1, p8), p9 - p8);
+            auto oldVertexPositions = std::vector<vm::vec3>({p8});
+            brush = brush.moveVertices(worldBounds, oldVertexPositions, p9 - p8).value();
+            auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + (p9 - p8));
+            
             ASSERT_EQ(1u, newVertexPositions.size());
             ASSERT_VEC_EQ(p9, newVertexPositions[0]);
 
@@ -536,7 +540,10 @@ namespace TrenchBroom {
             assertTexture("top", brush, p2, p6, p9, p4);
             assertTexture("bottom", brush, p1, p3, p7, p5);
 
-            newVertexPositions = brush.moveVertices(worldBounds, newVertexPositions, p8 - p9);
+            oldVertexPositions = std::move(newVertexPositions);
+            brush = brush.moveVertices(worldBounds, oldVertexPositions, p8 - p9).value();
+            newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + (p8 - p9));
+            
             ASSERT_EQ(1u, newVertexPositions.size());
             ASSERT_VEC_EQ(p8, newVertexPositions[0]);
 
@@ -563,7 +570,11 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush brush = builder.createBrush(points, "some_texture").value();
 
-            std::vector<vm::vec3> newVertexPositions = brush.moveVertices(worldBounds, std::vector<vm::vec3>(1, top), vm::vec3(0.0, 0.0, -32.0));
+            auto oldVertexPositions = std::vector<vm::vec3>({top});
+            auto delta = vm::vec3(0.0, 0.0, -32.0);
+            brush = brush.moveVertices(worldBounds, oldVertexPositions, delta).value();
+            auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
+
             ASSERT_EQ(1u, newVertexPositions.size());
             ASSERT_VEC_EQ(vm::vec3(0.0, 0.0, -16.0), newVertexPositions[0]);
             ASSERT_TRUE(brush.fullySpecified());
@@ -596,9 +607,13 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush brush = builder.createBrush(oldPositions, "texture").value();
 
-            const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
-            ASSERT_EQ(1u, result.size());
-            ASSERT_VEC_EQ(p9, result[0]);
+            auto oldVertexPositions = std::vector<vm::vec3>({p8});
+            auto delta = p9 - p8;
+            brush = brush.moveVertices(worldBounds, oldVertexPositions, delta).value();
+            auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
+
+            ASSERT_EQ(1u, newVertexPositions.size());
+            ASSERT_VEC_EQ(p9, newVertexPositions[0]);
 
             ASSERT_EQ(8u, brush.vertexCount());
             ASSERT_EQ(15u, brush.edgeCount());
@@ -668,9 +683,13 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush brush = builder.createBrush(oldPositions, "texture").value();
 
-            const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
-            ASSERT_EQ(1u, result.size());
-            ASSERT_VEC_EQ(p9, result[0]);
+            auto oldVertexPositions = std::vector<vm::vec3>({p8});
+            auto delta = p9 - p8;
+            brush = brush.moveVertices(worldBounds, oldVertexPositions, delta).value();
+            auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
+
+            ASSERT_EQ(1u, newVertexPositions.size());
+            ASSERT_VEC_EQ(p9, newVertexPositions[0]);
 
             ASSERT_EQ(8u, brush.vertexCount());
             ASSERT_EQ(15u, brush.edgeCount());
@@ -739,9 +758,13 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush brush = builder.createBrush(oldPositions, "texture").value();
 
-            const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
-            ASSERT_EQ(1u, result.size());
-            ASSERT_VEC_EQ(p9, result[0]);
+            auto oldVertexPositions = std::vector<vm::vec3>({p8});
+            auto delta = p9 - p8;
+            brush = brush.moveVertices(worldBounds, oldVertexPositions, delta).value();
+            auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
+
+            ASSERT_EQ(1u, newVertexPositions.size());
+            ASSERT_VEC_EQ(p9, newVertexPositions[0]);
 
             ASSERT_EQ(8u, brush.vertexCount());
             ASSERT_EQ(14u, brush.edgeCount());
@@ -808,9 +831,13 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush brush = builder.createBrush(oldPositions, "texture").value();
 
-            const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
-            ASSERT_EQ(1u, result.size());
-            ASSERT_VEC_EQ(p9, result[0]);
+            auto oldVertexPositions = std::vector<vm::vec3>({p8});
+            auto delta = p9 - p8;
+            brush = brush.moveVertices(worldBounds, oldVertexPositions, delta).value();
+            auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
+
+            ASSERT_EQ(1u, newVertexPositions.size());
+            ASSERT_VEC_EQ(p9, newVertexPositions[0]);
 
             ASSERT_EQ(8u, brush.vertexCount());
             ASSERT_EQ(13u, brush.edgeCount());
@@ -875,9 +902,13 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush brush = builder.createBrush(oldPositions, "texture").value();
 
-            const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
-            ASSERT_EQ(1u, result.size());
-            ASSERT_VEC_EQ(p9, result[0]);
+            auto oldVertexPositions = std::vector<vm::vec3>({p8});
+            auto delta = p9 - p8;
+            brush = brush.moveVertices(worldBounds, oldVertexPositions, delta).value();
+            auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
+
+            ASSERT_EQ(1u, newVertexPositions.size());
+            ASSERT_VEC_EQ(p9, newVertexPositions[0]);
 
             ASSERT_EQ(8u, brush.vertexCount());
             ASSERT_EQ(12u, brush.edgeCount());
@@ -940,8 +971,12 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush brush = builder.createBrush(oldPositions, "texture").value();
 
-            const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
-            ASSERT_EQ(0u, result.size());
+            auto oldVertexPositions = std::vector<vm::vec3>({p8});
+            auto delta = p9 - p8;
+            brush = brush.moveVertices(worldBounds, oldVertexPositions, delta).value();
+            auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
+
+            ASSERT_EQ(0u, newVertexPositions.size());
 
             ASSERT_EQ(7u, brush.vertexCount());
             ASSERT_EQ(12u, brush.edgeCount());
@@ -1004,9 +1039,13 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush brush = builder.createBrush(oldPositions, "texture").value();
 
-            const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
-            ASSERT_EQ(1u, result.size());
-            ASSERT_VEC_EQ(p9, result[0]);
+            auto oldVertexPositions = std::vector<vm::vec3>({p8});
+            auto delta = p9 - p8;
+            brush = brush.moveVertices(worldBounds, oldVertexPositions, delta).value();
+            auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
+
+            ASSERT_EQ(1u, newVertexPositions.size());
+            ASSERT_VEC_EQ(p9, newVertexPositions[0]);
 
             ASSERT_EQ(8u, brush.vertexCount());
             ASSERT_EQ(13u, brush.edgeCount());
@@ -1071,8 +1110,12 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush brush = builder.createBrush(oldPositions, "texture").value();
 
-            const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
-            ASSERT_EQ(0u, result.size());
+            auto oldVertexPositions = std::vector<vm::vec3>({p8});
+            auto delta = p9 - p8;
+            brush = brush.moveVertices(worldBounds, oldVertexPositions, delta).value();
+            auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
+
+            ASSERT_EQ(0u, newVertexPositions.size());
 
             ASSERT_EQ(7u, brush.vertexCount());
             ASSERT_EQ(12u, brush.edgeCount());
@@ -1134,9 +1177,13 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush brush = builder.createBrush(oldPositions, "texture").value();
 
-            const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p7 - p8);
-            ASSERT_EQ(1u, result.size());
-            ASSERT_VEC_EQ(p7, result[0]);
+            auto oldVertexPositions = std::vector<vm::vec3>({p8});
+            auto delta = p7 - p8;
+            brush = brush.moveVertices(worldBounds, oldVertexPositions, delta).value();
+            auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
+
+            ASSERT_EQ(1u, newVertexPositions.size());
+            ASSERT_VEC_EQ(p7, newVertexPositions[0]);
 
             ASSERT_EQ(7u, brush.vertexCount());
             ASSERT_EQ(12u, brush.edgeCount());
@@ -1198,9 +1245,13 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush brush = builder.createBrush(oldPositions, "texture").value();
 
-            const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p7), p8 - p7);
-            ASSERT_EQ(1u, result.size());
-            ASSERT_VEC_EQ(p8, result[0]);
+            auto oldVertexPositions = std::vector<vm::vec3>({p7});
+            auto delta = p8 - p7;
+            brush = brush.moveVertices(worldBounds, oldVertexPositions, delta).value();
+            auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
+
+            ASSERT_EQ(1u, newVertexPositions.size());
+            ASSERT_VEC_EQ(p8, newVertexPositions[0]);
 
             ASSERT_EQ(7u, brush.vertexCount());
             ASSERT_EQ(12u, brush.edgeCount());
@@ -1263,9 +1314,13 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush brush = builder.createBrush(oldPositions, "texture").value();
 
-            const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p6), p9 - p6);
-            ASSERT_EQ(1u, result.size());
-            ASSERT_VEC_EQ(p9, result[0]);
+            auto oldVertexPositions = std::vector<vm::vec3>({p6});
+            auto delta = p9 - p6;
+            brush = brush.moveVertices(worldBounds, oldVertexPositions, delta).value();
+            auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
+
+            ASSERT_EQ(1u, newVertexPositions.size());
+            ASSERT_VEC_EQ(p9, newVertexPositions[0]);
 
             ASSERT_EQ(7u, brush.vertexCount());
             ASSERT_EQ(12u, brush.edgeCount());
@@ -1328,9 +1383,13 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush brush = builder.createBrush(oldPositions, "texture").value();
 
-            const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p8), p9 - p8);
-            ASSERT_EQ(1u, result.size());
-            ASSERT_VEC_EQ(p9, result[0]);
+            auto oldVertexPositions = std::vector<vm::vec3>({p8});
+            auto delta = p9 - p8;
+            brush = brush.moveVertices(worldBounds, oldVertexPositions, delta).value();
+            auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
+
+            ASSERT_EQ(1u, newVertexPositions.size());
+            ASSERT_VEC_EQ(p9, newVertexPositions[0]);
 
             ASSERT_EQ(7u, brush.vertexCount());
             ASSERT_EQ(12u, brush.edgeCount());
@@ -1395,8 +1454,12 @@ namespace TrenchBroom {
             BrushBuilder builder(&world, worldBounds);
             Brush brush = builder.createBrush(oldPositions, "texture").value();
 
-            const std::vector<vm::vec3d> result = brush.moveVertices(worldBounds, std::vector<vm::vec3d>(1, p9), p10 - p9);
-            ASSERT_EQ(0u, result.size());
+            auto oldVertexPositions = std::vector<vm::vec3>({p9});
+            auto delta = p10 - p9;
+            brush = brush.moveVertices(worldBounds, oldVertexPositions, delta).value();
+            auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
+
+            ASSERT_EQ(0u, newVertexPositions.size());
 
             ASSERT_EQ(8u, brush.vertexCount());
             ASSERT_EQ(12u, brush.edgeCount());
@@ -1453,9 +1516,9 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(brush.canMoveVertices(worldBounds, vertexPositions, delta));
 
-            Brush copy = brush;
+            const Brush newBrush = brush.moveVertices(worldBounds, vertexPositions, delta).value();
 
-            auto movedVertexPositions = copy.moveVertices(worldBounds, vertexPositions, delta);
+            auto movedVertexPositions = newBrush.findClosestVertexPositions(vertexPositions + delta);
             kdl::vec_sort_and_remove_duplicates(movedVertexPositions);
 
             auto expectedVertexPositions = vertexPositions + delta;
@@ -1471,10 +1534,9 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(brush.canMoveVertices(worldBounds, vertexPositions, delta));
 
-            Brush copy = brush;
-            const std::vector<vm::vec3> movedVertexPositions = copy.moveVertices(worldBounds, vertexPositions, delta);
-
-            ASSERT_EQ(std::vector<vm::vec3>(), movedVertexPositions);
+            const Brush newBrush = brush.moveVertices(worldBounds, vertexPositions, delta).value();
+            const std::vector<vm::vec3> movedVertexPositions = newBrush.findClosestVertexPositions(vertexPositions + delta);
+            ASSERT_TRUE(movedVertexPositions.empty());
         }
 
         static void assertCanNotMoveVertices(const Brush& brush, const std::vector<vm::vec3> vertexPositions, const vm::vec3 delta) {
@@ -1524,22 +1586,24 @@ namespace TrenchBroom {
                 const std::vector<vm::vec3> flippedBaseQuadVertexPositions(temp);
 
                 const vm::vec3 delta(0.0, 0.0, -129.0);
-                Brush copy = brush;
 
-                ASSERT_EQ(5u, copy.faceCount());
-                ASSERT_TRUE(copy.findFace(vm::polygon3(baseQuadVertexPositions)));
-                ASSERT_FALSE(copy.findFace(vm::polygon3(flippedBaseQuadVertexPositions)));
-                ASSERT_TRUE(copy.findFace(vm::vec3::neg_z()));
-                ASSERT_FALSE(copy.findFace(vm::vec3::pos_z()));
+                ASSERT_EQ(5u, brush.faceCount());
+                ASSERT_TRUE(brush.findFace(vm::polygon3(baseQuadVertexPositions)));
+                ASSERT_FALSE(brush.findFace(vm::polygon3(flippedBaseQuadVertexPositions)));
+                ASSERT_TRUE(brush.findFace(vm::vec3::neg_z()));
+                ASSERT_FALSE(brush.findFace(vm::vec3::pos_z()));
 
-                ASSERT_TRUE(copy.canMoveVertices(worldBounds, std::vector<vm::vec3>{peakPosition}, delta));
-                ASSERT_EQ(std::vector<vm::vec3>{peakPosition + delta}, copy.moveVertices(worldBounds, std::vector<vm::vec3>{peakPosition}, delta));
+                const auto oldVertexPositions = std::vector<vm::vec3>({peakPosition});
+                ASSERT_TRUE(brush.canMoveVertices(worldBounds, oldVertexPositions, delta));
+                Brush newBrush = brush.moveVertices(worldBounds, oldVertexPositions, delta).value();
+                const auto newVertexPositions = newBrush.findClosestVertexPositions(oldVertexPositions + delta);
+                ASSERT_EQ(oldVertexPositions + delta, newVertexPositions);
 
-                ASSERT_EQ(5u, copy.faceCount());
-                ASSERT_FALSE(copy.findFace(vm::polygon3(baseQuadVertexPositions)));
-                ASSERT_TRUE(copy.findFace(vm::polygon3(flippedBaseQuadVertexPositions)));
-                ASSERT_FALSE(copy.findFace(vm::vec3::neg_z()));
-                ASSERT_TRUE(copy.findFace(vm::vec3::pos_z()));
+                ASSERT_EQ(5u, newBrush.faceCount());
+                ASSERT_FALSE(newBrush.findFace(vm::polygon3(baseQuadVertexPositions)));
+                ASSERT_TRUE(newBrush.findFace(vm::polygon3(flippedBaseQuadVertexPositions)));
+                ASSERT_FALSE(newBrush.findFace(vm::vec3::neg_z()));
+                ASSERT_TRUE(newBrush.findFace(vm::vec3::pos_z()));
             }
 
             assertCanMoveVertex(brush, peakPosition, vm::vec3(256.0, 0.0, -127.0));
@@ -1586,7 +1650,7 @@ namespace TrenchBroom {
             Brush brush = builder.createCube(64.0, "asdf").value();
 
 
-            brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, +32.0, +32.0)));
+            brush = brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, +32.0, +32.0))).value();
 
             ASSERT_EQ(7u, brush.vertexCount());
             ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
@@ -1599,7 +1663,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
 
 
-            brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, +32.0, -32.0)));
+            brush = brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, +32.0, -32.0))).value();
 
             ASSERT_EQ(6u, brush.vertexCount());
             ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
@@ -1612,7 +1676,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
 
 
-            brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, -32.0, +32.0)));
+            brush = brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, -32.0, +32.0))).value();
 
             ASSERT_EQ(5u, brush.vertexCount());
             ASSERT_TRUE (brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
@@ -1625,7 +1689,7 @@ namespace TrenchBroom {
             ASSERT_FALSE(brush.hasVertex(vm::vec3(+32.0, +32.0, +32.0)));
 
 
-            brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(-32.0, -32.0, -32.0)));
+            brush = brush.removeVertices(worldBounds, std::vector<vm::vec3>(1, vm::vec3(-32.0, -32.0, -32.0))).value();
 
             ASSERT_EQ(4u, brush.vertexCount());
             ASSERT_FALSE(brush.hasVertex(vm::vec3(-32.0, -32.0, -32.0)));
@@ -1670,7 +1734,7 @@ namespace TrenchBroom {
 
                         Brush brush = builder.createBrush(vertices, "asdf").value();
                         ASSERT_TRUE(brush.canRemoveVertices(worldBounds, toRemove));
-                        brush.removeVertices(worldBounds, toRemove);
+                        brush = brush.removeVertices(worldBounds, toRemove).value();
 
                         for (size_t l = 0; l < 8; ++l) {
                             if (l != i && l != j && l != k) {
@@ -1714,15 +1778,15 @@ namespace TrenchBroom {
             const std::vector<Node*> nodes = reader.read(worldBounds, status);
             EXPECT_EQ(1u, nodes.size());
 
-            Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
+            const Brush& brush = static_cast<BrushNode*>(nodes.front())->brush();
             ASSERT_TRUE(brush.canSnapVertices(worldBounds, gridSize));
 
-            brush.snapVertices(worldBounds, gridSize);
-            ASSERT_TRUE(brush.fullySpecified());
+            Brush newBrush = brush.snapVertices(worldBounds, gridSize).value();
+            ASSERT_TRUE(newBrush.fullySpecified());
 
             // Ensure they were actually snapped
             {
-                for (const Model::BrushVertex* vertex : brush.vertices()) {
+                for (const Model::BrushVertex* vertex : newBrush.vertices()) {
                     const vm::vec3& pos = vertex->position();
                     ASSERT_TRUE(vm::is_integral(pos, 0.001));
                 }
@@ -1764,8 +1828,14 @@ namespace TrenchBroom {
             assertTexture("top", brush, p2, p6, p8, p4);
             assertTexture("bottom", brush, p1, p3, p7, p5);
 
-            const vm::segment3 edge(p1, p2);
-            std::vector<vm::segment3> newEdgePositions = brush.moveEdges(worldBounds, std::vector<vm::segment3>(1, edge), p1_2 - p1);
+            const auto originalEdge = vm::segment(p1, p2);
+            auto oldEdgePositions = std::vector<vm::segment3>({originalEdge});
+            auto delta = p1_2 - p1;
+            brush = brush.moveEdges(worldBounds, oldEdgePositions, delta).value();
+            auto newEdgePositions = brush.findClosestEdgePositions(kdl::vec_transform(oldEdgePositions, [&](const auto& s) {
+                return s.translate(delta);
+            }));
+
             ASSERT_EQ(1u, newEdgePositions.size());
             ASSERT_EQ(vm::segment3(p1_2, p2_2), newEdgePositions[0]);
 
@@ -1780,9 +1850,15 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(brush.canMoveEdges(worldBounds, newEdgePositions, p1 - p1_2));
 
-            newEdgePositions = brush.moveEdges(worldBounds, newEdgePositions, p1 - p1_2);
+            oldEdgePositions = std::move(newEdgePositions);
+            delta = p1 - p1_2;
+            brush = brush.moveEdges(worldBounds, oldEdgePositions, delta).value();
+            newEdgePositions = brush.findClosestEdgePositions(kdl::vec_transform(oldEdgePositions, [&](const auto& s) {
+                return s.translate(delta);
+            }));
+
             ASSERT_EQ(1u, newEdgePositions.size());
-            ASSERT_EQ(edge, newEdgePositions[0]);
+            ASSERT_EQ(originalEdge, newEdgePositions[0]);
 
             assertTexture("left", brush, p1, p2, p4, p3);
             assertTexture("right", brush, p5, p7, p8, p6);
@@ -1801,10 +1877,8 @@ namespace TrenchBroom {
             }
 
             ASSERT_TRUE(brush.canMoveEdges(worldBounds, edges, delta));
-
-            Brush copy = brush;
-            const std::vector<vm::segment3> movedEdges = copy.moveEdges(worldBounds, edges, delta);
-
+            const auto newBrush = brush.moveEdges(worldBounds, edges, delta).value();
+            const auto movedEdges = newBrush.findClosestEdgePositions(kdl::vec_transform(edges, [&](const auto& s) { return s.translate(delta); }));
             ASSERT_EQ(expectedMovedEdges, movedEdges);
         }
 
@@ -1822,8 +1896,8 @@ namespace TrenchBroom {
 
             BrushBuilder builder(&world, worldBounds);
             Brush brush = builder.createCube(128, Model::BrushFaceAttributes::NoTextureName).value();
-            ASSERT_NE(nullptr, brush.addVertex(worldBounds, edge.start()));
-            ASSERT_NE(nullptr, brush.addVertex(worldBounds, edge.end()));
+            brush = brush.addVertex(worldBounds, edge.start()).value();
+            brush = brush.addVertex(worldBounds, edge.end()).value();
 
             ASSERT_EQ(10u, brush.vertexCount());
 
@@ -1848,10 +1922,10 @@ namespace TrenchBroom {
 
             BrushBuilder builder(&world, worldBounds);
             Brush brush = builder.createCube(128, Model::BrushFaceAttributes::NoTextureName).value();
-            ASSERT_NE(nullptr, brush.addVertex(worldBounds, edge1.start()));
-            ASSERT_NE(nullptr, brush.addVertex(worldBounds, edge1.end()));
-            ASSERT_NE(nullptr, brush.addVertex(worldBounds, edge2.start()));
-            ASSERT_NE(nullptr, brush.addVertex(worldBounds, edge2.end()));
+            brush = brush.addVertex(worldBounds, edge1.start()).value();
+            brush = brush.addVertex(worldBounds, edge1.end()).value();
+            brush = brush.addVertex(worldBounds, edge2.start()).value();
+            brush = brush.addVertex(worldBounds, edge2.end()).value();
 
             ASSERT_EQ(12u, brush.vertexCount());
 
@@ -1883,14 +1957,22 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(brush.canMoveFaces(worldBounds, std::vector<vm::polygon3>(1, face), vm::vec3(-16.0, -16.0, 0.0)));
 
-            std::vector<vm::polygon3> newFacePositions = brush.moveFaces(worldBounds, std::vector<vm::polygon3>(1, face), vm::vec3(-16.0, -16.0, 0.0));
+            auto oldFacePositions = std::vector<vm::polygon3>({face});
+            auto delta = vm::vec3(-16.0, -16.0, 0.0);
+            brush = brush.moveFaces(worldBounds, oldFacePositions, delta).value();
+            auto newFacePositions = brush.findClosestFacePositions(kdl::vec_transform(oldFacePositions, [&](const auto& f) { return f.translate(delta); }));
+
             ASSERT_EQ(1u, newFacePositions.size());
             ASSERT_TRUE(newFacePositions[0].hasVertex(vm::vec3(-48.0, -48.0, +32.0)));
             ASSERT_TRUE(newFacePositions[0].hasVertex(vm::vec3(-48.0, +16.0, +32.0)));
             ASSERT_TRUE(newFacePositions[0].hasVertex(vm::vec3(+16.0, +16.0, +32.0)));
             ASSERT_TRUE(newFacePositions[0].hasVertex(vm::vec3(+16.0, -48.0, +32.0)));
 
-            newFacePositions = brush.moveFaces(worldBounds, newFacePositions, vm::vec3(16.0, 16.0, 0.0));
+            oldFacePositions = std::move(newFacePositions);
+            delta = vm::vec3(16.0, 16.0, 0.0);
+            brush = brush.moveFaces(worldBounds, oldFacePositions, delta).value();
+            newFacePositions = brush.findClosestFacePositions(kdl::vec_transform(oldFacePositions, [&](const auto& f) { return f.translate(delta); }));
+
             ASSERT_EQ(1u, newFacePositions.size());
             ASSERT_EQ(4u, newFacePositions[0].vertices().size());
             for (size_t i = 0; i < 4; ++i)
@@ -1924,9 +2006,8 @@ namespace TrenchBroom {
             }
 
             ASSERT_TRUE(brush.canMoveFaces(worldBounds, movingFaces, delta));
-
-            Brush copy = brush;
-            const std::vector<vm::polygon3> movedFaces = copy.moveFaces(worldBounds, movingFaces, delta);
+            const auto newBrush = brush.moveFaces(worldBounds, movingFaces, delta).value();
+            const auto movedFaces = newBrush.findClosestFacePositions(kdl::vec_transform(movingFaces, [&](const auto& f) { return f.translate(delta); }));
             ASSERT_EQ(expectedMovedFaces, movedFaces);
         }
 
@@ -2186,8 +2267,8 @@ namespace TrenchBroom {
 
             BrushBuilder builder(&world, worldBounds);
             Brush brush = builder.createCube(128, Model::BrushFaceAttributes::NoTextureName).value();
-            ASSERT_NE(nullptr, brush.addVertex(worldBounds, edge.start()));
-            ASSERT_NE(nullptr, brush.addVertex(worldBounds, edge.end()));
+            brush = brush.addVertex(worldBounds, edge.start()).value();
+            brush = brush.addVertex(worldBounds, edge.end()).value();
 
             ASSERT_EQ(10u, brush.vertexCount());
 
@@ -2253,16 +2334,13 @@ namespace TrenchBroom {
                 face.setTexture(&testTexture);
             }
 
-            // move top face by x=+8
-            auto changed = brush;
-            auto changedWithUVLock = brush;
-
             const auto delta = vm::vec3(+8.0, 0.0, 0.0);
             const auto polygonToMove = vm::polygon3(brush.face(*brush.findFace(vm::vec3::pos_z())).vertexPositions());
-            ASSERT_TRUE(changedWithUVLock.canMoveFaces(worldBounds, {polygonToMove}, delta));
+            ASSERT_TRUE(brush.canMoveFaces(worldBounds, {polygonToMove}, delta));
 
-            [[maybe_unused]] auto result1 = changed.moveFaces(worldBounds, {polygonToMove}, delta, false);
-            [[maybe_unused]] auto result2 = changedWithUVLock.moveFaces(worldBounds, {polygonToMove}, delta, true);
+            // move top face by x=+8
+            const auto changed = brush.moveFaces(worldBounds, {polygonToMove}, delta, false).value();
+            const auto changedWithUVLock = brush.moveFaces(worldBounds, {polygonToMove}, delta, true).value();
 
             // The move should be equivalent to shearing by this matrix
             const auto M = vm::shear_bbox_matrix(brush.bounds(), vm::vec3::pos_z(), delta);
@@ -2364,10 +2442,14 @@ namespace TrenchBroom {
 
             Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
             const vm::vec3 p(192.0, 128.0, 352.0);
-            const vm::vec3 d = 4.0 * 16.0 * vm::vec3::neg_y();
-            const std::vector<vm::vec3> newPositions = brush.moveVertices(worldBounds, std::vector<vm::vec3>(1, p), d);
-            ASSERT_EQ(1u, newPositions.size());
-            ASSERT_VEC_EQ(p + d, newPositions.front());
+
+            auto oldVertexPositions = std::vector<vm::vec3>({p});
+            auto delta = 4.0 * 16.0 * vm::vec3::neg_y();
+            brush = brush.moveVertices(worldBounds, oldVertexPositions, delta).value();
+            auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
+
+            ASSERT_EQ(1u, newVertexPositions.size());
+            ASSERT_VEC_EQ(p + delta, newVertexPositions.front());
 
             kdl::col_delete_all(nodes);
         }
@@ -2504,7 +2586,7 @@ namespace TrenchBroom {
 
             // delete the vertex
             ASSERT_TRUE(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3d>{p7}));
-            brush.removeVertices(worldBounds, std::vector<vm::vec3d>{p7});
+            brush = brush.removeVertices(worldBounds, std::vector<vm::vec3d>{p7}).value();
 
             // assert the structure and textures
 
