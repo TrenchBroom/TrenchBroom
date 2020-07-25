@@ -35,6 +35,8 @@
 #include "Model/TransformObjectVisitor.h"
 #include "Model/TagVisitor.h"
 
+#include <kdl/result.h>
+
 #include <vecmath/ray.h>
 
 #include <string>

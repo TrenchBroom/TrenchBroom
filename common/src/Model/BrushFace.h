@@ -27,7 +27,7 @@
 #include "Model/BrushGeometry.h"
 #include "Model/Tag.h" // BrushFace inherits from Taggable
 
-#include <kdl/result.h>
+#include <kdl/result_forward.h>
 #include <kdl/transform_range.h>
 
 #include <vecmath/vec.h>

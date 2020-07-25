@@ -19,7 +19,7 @@
 
 #include "NodeSnapshot.h"
 
-#include "Exceptions.h"
+#include <kdl/result.h>
 
 namespace TrenchBroom {
     namespace Model {

@@ -22,6 +22,8 @@
 #include "Exceptions.h"
 #include "Model/EntityNode.h"
 
+#include <kdl/result.h>
+
 namespace TrenchBroom {
     namespace Model {
         EntitySnapshot::EntitySnapshot(EntityNode* entity) :

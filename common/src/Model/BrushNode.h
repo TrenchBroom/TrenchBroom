@@ -29,7 +29,7 @@
 #include "Model/Object.h"
 #include "Model/TagType.h"
 
-#include <kdl/result.h>
+#include <kdl/result_forward.h>
 
 #include <vecmath/forward.h>
 
