@@ -198,14 +198,14 @@ namespace TrenchBroom {
              * (using findTransformForUVLock), and updates the texturing of `right` using that transform applied to `left`.
              * If it can't perform UV lock, `right` remains unmodified.
              *
-             * This is only meant to be called in the matcher callback in Brush::doSetNewGeometry
+             * This is only meant to be called in the matcher callback in Brush::createBrushWithNewGeometry
              *
              * @param matcher a polyhedron matcher which is used to identify related vertices
              * @param leftFace the face of the left polyhedron
              * @param rightFace the face of the right polyhedron
              */
             static void applyUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, const BrushFace& leftFace, BrushFace& rightFace);
-            kdl::result<Brush, BrushError> doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, bool uvLock = false) const;
+            kdl::result<Brush, BrushError> createBrushWithNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, bool uvLock = false) const;
         public:
             // CSG operations
             /**

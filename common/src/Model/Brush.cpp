@@ -421,7 +421,7 @@ namespace TrenchBroom {
         
             BrushGeometry newGeometry(kdl::vec_concat(m_geometry->vertexPositions(), std::vector<vm::vec3>({position})));
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry);
-            return doSetNewGeometry(worldBounds, matcher, newGeometry);
+            return createBrushWithNewGeometry(worldBounds, matcher, newGeometry);
         }
 
         static BrushGeometry removeVerticesFromGeometry(const BrushGeometry& geometry, const std::vector<vm::vec3>& vertexPositions) {
@@ -452,7 +452,7 @@ namespace TrenchBroom {
 
             const BrushGeometry newGeometry = removeVerticesFromGeometry(*m_geometry, vertexPositions);
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry);
-            return doSetNewGeometry(worldBounds, matcher, newGeometry);
+            return createBrushWithNewGeometry(worldBounds, matcher, newGeometry);
         }
 
         static BrushGeometry snappedGeometry(const BrushGeometry& geometry, const FloatType snapToF) {
@@ -486,7 +486,7 @@ namespace TrenchBroom {
             }
 
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry, vertexMapping);
-            return doSetNewGeometry(worldBounds, matcher, newGeometry, uvLock);
+            return createBrushWithNewGeometry(worldBounds, matcher, newGeometry, uvLock);
         }
 
         bool Brush::canMoveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) const {
@@ -714,7 +714,7 @@ namespace TrenchBroom {
             }
 
             const PolyhedronMatcher<BrushGeometry> matcher(*m_geometry, newGeometry, vertexMapping);
-            return doSetNewGeometry(worldBounds, matcher, newGeometry, uvLock);
+            return createBrushWithNewGeometry(worldBounds, matcher, newGeometry, uvLock);
         }
 
         std::tuple<bool, vm::mat4x4> Brush::findTransformForUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right) {
@@ -796,7 +796,7 @@ namespace TrenchBroom {
                 });
         }
 
-        kdl::result<Brush, BrushError> Brush::doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, const bool uvLock) const {
+        kdl::result<Brush, BrushError> Brush::createBrushWithNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, const bool uvLock) const {
             std::vector<BrushFace> newFaces;
             newFaces.reserve(newGeometry.faces().size());
 
