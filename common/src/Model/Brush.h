@@ -91,7 +91,7 @@ namespace TrenchBroom {
             void cloneFaceAttributesFrom(const Brush& brush);
             void cloneInvertedFaceAttributesFrom(const Brush& brush);
         public: // clipping
-            bool clip(const vm::bbox3& worldBounds, BrushFace face); // TODO 2983
+            kdl::result<Brush, BrushError> clip(const vm::bbox3& worldBounds, BrushFace face) const;
         public: // move face along normal
             /**
              * Translates a face by the given delta.

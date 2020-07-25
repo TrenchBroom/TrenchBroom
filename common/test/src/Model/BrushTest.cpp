@@ -36,15 +36,15 @@
 #include "Model/Polyhedron.h"
 #include "Model/WorldNode.h"
 
+#include <kdl/intrusive_circular_list.h>
+#include <kdl/result.h>
+#include <kdl/vector_utils.h>
+
 #include <vecmath/polygon.h>
 #include <vecmath/ray.h>
 #include <vecmath/segment.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_ext.h>
-
-#include <kdl/intrusive_circular_list.h>
-#include <kdl/result.h>
-#include <kdl/vector_utils.h>
 
 #include <fstream>
 #include <string>
@@ -410,7 +410,7 @@ namespace TrenchBroom {
                 vm::vec3(8.0, 0.0, 0.0),
                 vm::vec3(8.0, 0.0, 1.0),
                 vm::vec3(8.0, 1.0, 0.0));
-            CHECK(brush.clip(worldBounds, clip));
+            brush = brush.clip(worldBounds, clip).value();
 
             CHECK(brush.faceCount() == 6u);
             CHECK(brush.findFace(left.boundary()));

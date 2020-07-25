@@ -128,7 +128,7 @@ namespace TrenchBroom {
 
             const BrushFaceAttributes& attributes() const;
             void setAttributes(const BrushFaceAttributes& attributes);
-            bool setAttributes(const BrushFace* other);
+            bool setAttributes(const BrushFace& other);
 
             void resetTexCoordSystemCache();
 

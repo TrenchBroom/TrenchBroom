@@ -1697,19 +1697,20 @@ namespace TrenchBroom {
 
             for (const Model::BrushNode* originalBrush : brushes) {
                 const bool success = m_world->createFace(p1, p2, p3, Model::BrushFaceAttributes(currentTextureName()))
-                    .visit(kdl::overload {
+                    .and_then(
                         [&](Model::BrushFace&& clipFace) {
-                            Model::Brush clippedBrush = originalBrush->brush();
-                            if (clippedBrush.clip(m_worldBounds, std::move(clipFace))) {
-                                clippedBrushes[originalBrush->parent()].push_back(new Model::BrushNode(std::move(clippedBrush)));
-                            }
-                            return true;
-                        },
+                            return originalBrush->brush().clip(m_worldBounds, std::move(clipFace));
+                        }
+                    ).and_then(
+                        [&](Model::Brush&& clippedBrush) {
+                            clippedBrushes[originalBrush->parent()].push_back(new Model::BrushNode(std::move(clippedBrush)));
+                            return kdl::void_result;
+                        }
+                    ).handle_errors(
                         [&](const Model::BrushError e) {
                             error() << "Could not clip brushes: " << e;
-                            return false;
-                        },
-                    });
+                        }
+                    );
                 
                 if (!success) {
                     kdl::map_clear_and_delete(clippedBrushes);

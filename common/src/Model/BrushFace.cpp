@@ -272,17 +272,17 @@ namespace TrenchBroom {
             m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attributes.rotation());
         }
 
-        bool BrushFace::setAttributes(const BrushFace* other) {
+        bool BrushFace::setAttributes(const BrushFace& other) {
             auto result = false;
-            result |= m_attributes.setTextureName(other->attributes().textureName());
-            result |= m_attributes.setXOffset(other->attributes().xOffset());
-            result |= m_attributes.setYOffset(other->attributes().yOffset());
-            result |= m_attributes.setRotation(other->attributes().rotation());
-            result |= m_attributes.setXScale(other->attributes().xScale());
-            result |= m_attributes.setYScale(other->attributes().yScale());
-            result |= m_attributes.setSurfaceContents(other->attributes().surfaceContents());
-            result |= m_attributes.setSurfaceFlags(other->attributes().surfaceFlags());
-            result |= m_attributes.setSurfaceValue(other->attributes().surfaceValue());
+            result |= m_attributes.setTextureName(other.attributes().textureName());
+            result |= m_attributes.setXOffset(other.attributes().xOffset());
+            result |= m_attributes.setYOffset(other.attributes().yOffset());
+            result |= m_attributes.setRotation(other.attributes().rotation());
+            result |= m_attributes.setXScale(other.attributes().xScale());
+            result |= m_attributes.setYScale(other.attributes().yScale());
+            result |= m_attributes.setSurfaceContents(other.attributes().surfaceContents());
+            result |= m_attributes.setSurfaceFlags(other.attributes().surfaceFlags());
+            result |= m_attributes.setSurfaceValue(other.attributes().surfaceValue());
             return result;
         }
 

@@ -242,10 +242,12 @@ namespace TrenchBroom {
             }
         }
 
-        bool Brush::clip(const vm::bbox3& worldBounds, BrushFace face) {
-            m_faces.push_back(std::move(face));
-            const auto result = updateGeometryFromFaces(worldBounds);
-            return result.is_success() && !m_faces.empty(); // TODO 2983 return a new brush instead?
+        kdl::result<Brush, BrushError> Brush::clip(const vm::bbox3& worldBounds, BrushFace face) const {
+            std::vector<BrushFace> faces;
+            faces.reserve(faceCount() + 1u);
+            kdl::vec_append(faces, m_faces);
+            faces.push_back(std::move(face));
+            return Brush::create(worldBounds, std::move(faces));
         }
 
         kdl::result<Brush, BrushError> Brush::moveBoundary(const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta, const bool lockTexture) const {
