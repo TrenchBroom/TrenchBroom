@@ -126,7 +126,11 @@ namespace TrenchBroom {
             size_t vertexCount() const;
             const VertexList& vertices() const;
             const std::vector<vm::vec3> vertexPositions() const;
+
             vm::vec3 findClosestVertexPosition(const vm::vec3& position) const;
+            std::vector<vm::vec3> findClosestVertexPositions(const std::vector<vm::vec3>& positions) const;
+            std::vector<vm::segment3> findClosestEdgePositions(const std::vector<vm::segment3>& positions) const;
+            std::vector<vm::polygon3> findClosestFacePositions(const std::vector<vm::polygon3>& positions) const;
 
             bool hasVertex(const vm::vec3& position, FloatType epsilon = static_cast<FloatType>(0.0)) const;
             bool hasEdge(const vm::segment3& edge, FloatType epsilon = static_cast<FloatType>(0.0)) const;
@@ -140,24 +144,24 @@ namespace TrenchBroom {
 
             // vertex operations
             bool canMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertices, const vm::vec3& delta) const;
-            std::vector<vm::vec3> moveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, bool uvLock = false);
+            kdl::result<Brush, BrushError> moveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, bool uvLock = false) const;
 
             bool canAddVertex(const vm::bbox3& worldBounds, const vm::vec3& position) const;
-            BrushVertex* addVertex(const vm::bbox3& worldBounds, const vm::vec3& position);
+            kdl::result<Brush, BrushError> addVertex(const vm::bbox3& worldBounds, const vm::vec3& position) const;
 
             bool canRemoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions) const;
-            void removeVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions);
+            kdl::result<Brush, BrushError> removeVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions) const;
 
             bool canSnapVertices(const vm::bbox3& worldBounds, FloatType snapTo) const;
-            void snapVertices(const vm::bbox3& worldBounds, FloatType snapTo, bool uvLock = false);
+            kdl::result<Brush, BrushError> snapVertices(const vm::bbox3& worldBounds, FloatType snapTo, bool uvLock = false) const;
 
             // edge operations
             bool canMoveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) const;
-            std::vector<vm::segment3> moveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta, bool uvLock = false);
+            kdl::result<Brush, BrushError> moveEdges(const vm::bbox3& worldBounds, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta, bool uvLock = false) const;
 
             // face operations
             bool canMoveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta) const;
-            std::vector<vm::polygon3> moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta, bool uvLock = false);
+            kdl::result<Brush, BrushError> moveFaces(const vm::bbox3& worldBounds, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta, bool uvLock = false) const;
         private:
             struct CanMoveVerticesResult {
             public:
@@ -171,7 +175,7 @@ namespace TrenchBroom {
             };
 
             CanMoveVerticesResult doCanMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, vm::vec3 delta, bool allowVertexRemoval) const;
-            void doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, bool lockTexture);
+            kdl::result<Brush, BrushError> doMoveVertices(const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta, bool lockTexture) const;
             /**
              * Tries to find 3 vertices in `left` and `right` that are related according to the PolyhedronMatcher, and
              * generates an affine transform for them which can then be used to implement UV lock.
@@ -182,6 +186,7 @@ namespace TrenchBroom {
              * @return {true, transform} if a transform could be found, otherwise {false, unspecified}
              */
             static std::tuple<bool, vm::mat4x4> findTransformForUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, BrushFaceGeometry* left, BrushFaceGeometry* right);
+            
             /**
              * Helper function to apply UV lock to the face `right`.
              *
@@ -199,8 +204,8 @@ namespace TrenchBroom {
              * @param leftFace the face of the left polyhedron
              * @param rightFace the face of the right polyhedron
              */
-            void applyUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, const BrushFace& leftFace, BrushFace& rightFace);
-            void doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, bool uvLock = false);
+            static void applyUVLock(const PolyhedronMatcher<BrushGeometry>& matcher, const BrushFace& leftFace, BrushFace& rightFace);
+            kdl::result<Brush, BrushError> doSetNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, bool uvLock = false) const;
         public:
             // CSG operations
             /**
