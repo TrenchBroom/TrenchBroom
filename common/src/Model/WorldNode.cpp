@@ -34,6 +34,7 @@
 #include "Model/ModelFactoryImpl.h"
 #include "Model/TagVisitor.h"
 
+#include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/bbox_io.h>
@@ -410,11 +411,11 @@ namespace TrenchBroom {
             return m_factory->createEntity();
         }
 
-        BrushFace WorldNode::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
+        kdl::result<BrushFace, BrushError> WorldNode::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
             return m_factory->createFace(point1, point2, point3, attribs);
         }
 
-        BrushFace WorldNode::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
+        kdl::result<BrushFace, BrushError> WorldNode::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
             return m_factory->createFace(point1, point2, point3, attribs, texAxisX, texAxisY);
         }
 

@@ -929,8 +929,20 @@ namespace TrenchBroom {
                 const auto& p1 = h1->origin()->position();
                 const auto& p2 = h2->origin()->position();
 
-                BrushFaceAttributes attribs(defaultTextureName);
-                faces.push_back(factory.createFace(p0, p1, p2, attribs));
+                std::optional<BrushError> error;
+                factory.createFace(p0, p1, p2, BrushFaceAttributes(defaultTextureName))
+                    .visit(kdl::overload {
+                        [&](BrushFace&& f) {
+                            faces.push_back(std::move(f));
+                        },
+                        [&](const BrushError e) {
+                            error = e;
+                        }
+                    });
+                
+                if (error) {
+                    return kdl::result<Brush, BrushError>::error(*error);
+                }
             }
 
             return Brush::create(worldBounds, std::move(faces))

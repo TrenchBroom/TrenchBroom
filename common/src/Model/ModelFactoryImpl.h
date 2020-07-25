@@ -24,12 +24,15 @@
 #include "Model/MapFormat.h"
 #include "Model/ModelFactory.h"
 
+#include <kdl/result_forward.h>
+
 #include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class BrushFaceAttributes;
+        enum class BrushError;
 
         class ModelFactoryImpl : public ModelFactory {
         private:
@@ -44,8 +47,8 @@ namespace TrenchBroom {
             GroupNode* doCreateGroup(const std::string& name) const override;
             EntityNode* doCreateEntity() const override;
 
-            BrushFace doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;
-            BrushFace doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const override;
+            kdl::result<BrushFace, BrushError> doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;
+            kdl::result<BrushFace, BrushError> doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const override;
         };
     }
 }

@@ -136,9 +136,16 @@ namespace TrenchBroom {
         }
 
         void MapReader::onBrushFace(const size_t line, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) {
-            Model::BrushFace face = m_factory->createFace(point1, point2, point3, attribs, texAxisX, texAxisY);
-            face.setFilePosition(line, 1u);
-            onBrushFace(std::move(face), status);
+            m_factory->createFace(point1, point2, point3, attribs, texAxisX, texAxisY)
+                .visit(kdl::overload {
+                    [&](Model::BrushFace&& face) {
+                        face.setFilePosition(line, 1u);
+                        onBrushFace(std::move(face), status);
+                    },
+                    [&](const Model::BrushError e) {
+                        status.error(line, kdl::str_to_string("Skipping face: ", e));
+                    },
+                });
         }
 
         void MapReader::createLayer(const size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {

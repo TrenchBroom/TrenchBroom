@@ -109,7 +109,6 @@ namespace TrenchBroom {
             void parseDaikatanaFace(ParserStatus& status);
             void parseValveFace(ParserStatus& status);
             void parsePrimitiveFace(ParserStatus& status);
-            bool checkFacePoints(ParserStatus& status, const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, size_t line) const;
 
             void parsePatch(ParserStatus& status, size_t startLine);
 
