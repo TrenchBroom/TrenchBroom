@@ -744,41 +744,39 @@ namespace TrenchBroom {
 
         void ClipTool::updateBrushes() {
             auto document = kdl::mem_lock(m_document);
+            auto* world = document->world();
+
             const auto& brushNodes = document->selectedNodes().brushes();
             const auto& worldBounds = document->worldBounds();
+
+            const auto clip = [&](auto* node, const auto& p1, const auto& p2, const auto& p3, auto& brushMap) {
+                world->createFace(p1, p2, p3, document->currentTextureName())
+                    .and_then(
+                        [&](Model::BrushFace&& clipFace) {
+                            setFaceAttributes(node->brush().faces(), clipFace);
+                            return node->brush().clip(worldBounds, std::move(clipFace));
+                        }
+                    ).and_then(
+                        [&](Model::Brush&& brush) {
+                            brushMap[node->parent()].push_back(new Model::BrushNode(std::move(brush)));
+                            return kdl::void_result;
+                        }
+                    ).handle_errors(
+                        [&](const Model::BrushError e) {
+                            document->error() << "Could not clip brush: " << e;
+                        }
+                    );
+            };
 
             if (canClip()) {
                 vm::vec3 point1, point2, point3;
                 const auto numPoints = m_strategy->getPoints(point1, point2, point3);
                 ensure(numPoints == 3, "invalid number of points");
 
-                auto* world = document->world();
                 for (auto* brushNode : brushNodes) {
-                    auto* parent = brushNode->parent();
-
-                    kdl::combine_results(
-                        world->createFace(point1, point2, point3, document->currentTextureName()),
-                        world->createFace(point1, point3, point2, document->currentTextureName())
-                    ).visit(kdl::overload {
-                        [&](std::tuple<Model::BrushFace, Model::BrushFace>&& faces) {
-                            auto&& [frontFace, backFace] = faces;
-                            setFaceAttributes(brushNode->brush().faces(), frontFace, backFace);
-
-                            auto frontBrush = brushNode->brush();
-                            if (frontBrush.clip(worldBounds, std::move(frontFace))) {
-                                m_frontBrushes[parent].push_back(new Model::BrushNode(std::move(frontBrush)));
-                            }
-
-                            auto backBrush = brushNode->brush();
-                            if (backBrush.clip(worldBounds, std::move(backFace))) {
-                                m_backBrushes[parent].push_back(new Model::BrushNode(std::move(backBrush)));
-                            }
-                        },
-                        [&](const Model::BrushError e) {
-                            document->error() << "Could not clip brushes: " << e;
-                        },
-                    });
-                }
+                    clip(brushNode, point1, point2, point3, m_frontBrushes);
+                    clip(brushNode, point1, point3, point2, m_backBrushes);
+               }
             } else {
                 for (auto* brushNode : brushNodes) {
                     auto* parent = brushNode->parent();
@@ -787,36 +785,26 @@ namespace TrenchBroom {
             }
         }
 
-        void ClipTool::setFaceAttributes(const std::vector<Model::BrushFace>& faces, Model::BrushFace& frontFace, Model::BrushFace& backFace) const {
+        void ClipTool::setFaceAttributes(const std::vector<Model::BrushFace>& faces, Model::BrushFace& toSet) const {
             ensure(!faces.empty(), "no faces");
-
+            
             auto faceIt = std::begin(faces);
-            const auto faceEnd = std::end(faces);
-            const auto* bestFrontFace = &*faceIt++;
-            const auto* bestBackFace = bestFrontFace;
+            auto faceEnd = std::end(faces);
+            auto bestMatch = faceIt++;
 
             while (faceIt != faceEnd) {
                 const auto& face = *faceIt;
 
-                const auto bestFrontDiff = bestFrontFace->boundary().normal - frontFace.boundary().normal;
-                const auto frontDiff = face.boundary().normal - frontFace.boundary().normal;
-                if (vm::squared_length(frontDiff) < vm::squared_length(bestFrontDiff)) {
-                    bestFrontFace = &face;
-                }
-
-                const auto bestBackDiff = bestBackFace->boundary().normal - backFace.boundary().normal;
-                const auto backDiff = face.boundary().normal - backFace.boundary().normal;
-                if (vm::squared_length(backDiff) < vm::squared_length(bestBackDiff)) {
-                    bestBackFace = &face;
+                const auto bestDiff = bestMatch->boundary().normal - toSet.boundary().normal;
+                const auto curDiff = face.boundary().normal - toSet.boundary().normal;
+                if (vm::squared_length(curDiff) < vm::squared_length(bestDiff)) {
+                    bestMatch = faceIt;
                 }
 
                 ++faceIt;
             }
 
-            ensure(bestFrontFace != nullptr, "bestFrontFace is null");
-            ensure(bestBackFace != nullptr, "bestBackFace is null");
-            frontFace.setAttributes(bestFrontFace);
-            backFace.setAttributes(bestBackFace);
+            toSet.setAttributes(*bestMatch);
         }
 
         void ClipTool::clearRenderers() {

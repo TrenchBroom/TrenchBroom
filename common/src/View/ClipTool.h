@@ -174,7 +174,7 @@ namespace TrenchBroom {
             void clearBrushes();
             void updateBrushes();
 
-            void setFaceAttributes(const std::vector<Model::BrushFace>& faces, Model::BrushFace& frontFace, Model::BrushFace& backFace) const;
+            void setFaceAttributes(const std::vector<Model::BrushFace>& faces, Model::BrushFace& toSet) const;
 
             void clearRenderers();
             void updateRenderers();
