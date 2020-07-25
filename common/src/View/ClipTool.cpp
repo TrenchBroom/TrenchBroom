@@ -25,6 +25,7 @@
 #include "FloatType.h"
 #include "Model/AssortNodesVisitor.h"
 #include "Model/BrushNode.h"
+#include "Model/BrushError.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/HitQuery.h"
@@ -749,26 +750,34 @@ namespace TrenchBroom {
             if (canClip()) {
                 vm::vec3 point1, point2, point3;
                 const auto numPoints = m_strategy->getPoints(point1, point2, point3);
-                unused(numPoints);
                 ensure(numPoints == 3, "invalid number of points");
 
                 auto* world = document->world();
                 for (auto* brushNode : brushNodes) {
                     auto* parent = brushNode->parent();
 
-                    auto frontFace = world->createFace(point1, point2, point3, document->currentTextureName());
-                    auto backFace = world->createFace(point1, point3, point2, document->currentTextureName());
-                    setFaceAttributes(brushNode->brush().faces(), frontFace, backFace);
+                    kdl::combine_results(
+                        world->createFace(point1, point2, point3, document->currentTextureName()),
+                        world->createFace(point1, point3, point2, document->currentTextureName())
+                    ).visit(kdl::overload {
+                        [&](std::tuple<Model::BrushFace, Model::BrushFace>&& faces) {
+                            auto&& [frontFace, backFace] = faces;
+                            setFaceAttributes(brushNode->brush().faces(), frontFace, backFace);
 
-                    auto frontBrush = brushNode->brush();
-                    if (frontBrush.clip(worldBounds, std::move(frontFace))) {
-                        m_frontBrushes[parent].push_back(new Model::BrushNode(std::move(frontBrush)));
-                    }
-                    
-                    auto backBrush = brushNode->brush();
-                    if (backBrush.clip(worldBounds, std::move(backFace))) {
-                        m_backBrushes[parent].push_back(new Model::BrushNode(std::move(backBrush)));
-                    }
+                            auto frontBrush = brushNode->brush();
+                            if (frontBrush.clip(worldBounds, std::move(frontFace))) {
+                                m_frontBrushes[parent].push_back(new Model::BrushNode(std::move(frontBrush)));
+                            }
+
+                            auto backBrush = brushNode->brush();
+                            if (backBrush.clip(worldBounds, std::move(backFace))) {
+                                m_backBrushes[parent].push_back(new Model::BrushNode(std::move(backBrush)));
+                            }
+                        },
+                        [&](const Model::BrushError e) {
+                            document->error() << "Could not clip brushes: " << e;
+                        },
+                    });
                 }
             } else {
                 for (auto* brushNode : brushNodes) {

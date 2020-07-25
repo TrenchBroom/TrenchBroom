@@ -23,6 +23,8 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 
+#include <kdl/result.h>
+
 namespace TrenchBroom {
     namespace Model {
         ModelFactory::~ModelFactory() {}
@@ -51,11 +53,11 @@ namespace TrenchBroom {
             return doCreateBrush(std::move(brush));
         }
 
-        BrushFace ModelFactory::createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
+        kdl::result<BrushFace, BrushError> ModelFactory::createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
             return doCreateFace(point1, point2, point3, attribs);
         }
 
-        BrushFace ModelFactory::createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
+        kdl::result<BrushFace, BrushError> ModelFactory::createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
             return doCreateFace(point1, point2, point3, attribs, texAxisX, texAxisY);
         }
         

@@ -455,9 +455,7 @@ namespace TrenchBroom {
             attribs.setXScale(parseFloat());
             attribs.setYScale(parseFloat());
 
-            if (checkFacePoints(status, p1, p2, p3, line)) {
-                brushFace(line, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
-            }
+            brushFace(line, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
         }
 
         void StandardMapParser::parseQuake2Face(ParserStatus& status) {
@@ -480,9 +478,7 @@ namespace TrenchBroom {
                 attribs.setSurfaceValue(parseFloat());
             }
 
-            if (checkFacePoints(status, p1, p2, p3, line)) {
-                brushFace(line, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
-            }
+            brushFace(line, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
         }
 
         void StandardMapParser::parseQuake2ValveFace(ParserStatus& status) {
@@ -507,9 +503,7 @@ namespace TrenchBroom {
                 attribs.setSurfaceValue(parseFloat());
             }
 
-            if (checkFacePoints(status, p1, p2, p3, line)) {
-                brushFace(line, p1, p2, p3, attribs, texX, texY, status);
-            }
+            brushFace(line, p1, p2, p3, attribs, texX, texY, status);
         }
 
         void StandardMapParser::parseHexen2Face(ParserStatus& status) {
@@ -530,9 +524,7 @@ namespace TrenchBroom {
                 m_tokenizer.nextToken(); // noone seems to know what the extra value does in Hexen 2
             }
 
-            if (checkFacePoints(status, p1, p2, p3, line)) {
-                brushFace(line, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
-            }
+            brushFace(line, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
         }
 
         void StandardMapParser::parseDaikatanaFace(ParserStatus& status) {
@@ -561,9 +553,7 @@ namespace TrenchBroom {
                 }
             }
 
-            if (checkFacePoints(status, p1, p2, p3, line)) {
-                brushFace(line, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
-            }
+            brushFace(line, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
         }
 
         void StandardMapParser::parseValveFace(ParserStatus& status) {
@@ -581,15 +571,14 @@ namespace TrenchBroom {
             attribs.setXScale(parseFloat());
             attribs.setYScale(parseFloat());
 
-            if (checkFacePoints(status, p1, p2, p3, line)) {
-                brushFace(line, p1, p2, p3, attribs, texX, texY, status);
-            }
+            brushFace(line, p1, p2, p3, attribs, texX, texY, status);
         }
 
         void StandardMapParser::parsePrimitiveFace(ParserStatus& status) {
-            const auto line = m_tokenizer.line();
+            /* const auto line = */ m_tokenizer.line();
 
-            const auto [p1, p2, p3] = parseFacePoints(status);
+            /* const auto [p1, p2, p3] = */ parseFacePoints(status);
+            
 
             expect(QuakeMapToken::OParenthesis, m_tokenizer.nextToken());
 
@@ -608,21 +597,8 @@ namespace TrenchBroom {
                 attribs.setSurfaceValue(parseFloat());
             }
 
-            if (checkFacePoints(status, p1, p2, p3, line)) {
-                // TODO 2427: create a brush face
-                // brushFace(line, p1, p2, p3, attribs, texX, texY, status);
-            }
-        }
-
-        bool StandardMapParser::checkFacePoints(ParserStatus& status, const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const size_t line) const {
-            const auto [result, plane] = vm::from_points(p1, p2, p3); // use the same test as in the brush face initializer
-            unused(plane); // [[maybe_unused]] doesn't seem to work well with structured bindings
-            if (!result) {
-                status.error(line, "Skipping face: face points are colinear");
-                return false;
-            } else {
-                return true;
-            }
+            // TODO 2427: create a brush face
+            // brushFace(line, p1, p2, p3, attribs, texX, texY, status);
         }
 
         void StandardMapParser::parsePatch(ParserStatus& status, const size_t startLine) {
