@@ -24,7 +24,7 @@
 #include "Model/Polyhedron3.h"
 #include "BrushFaceAttributes.h"
 
-#include <kdl/result.h>
+#include <kdl/result_forward.h>
 
 #include <vecmath/bbox.h>
 

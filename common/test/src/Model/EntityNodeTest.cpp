@@ -29,6 +29,8 @@
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
 
+#include <kdl/result.h>
+
 #include <vecmath/vec.h>
 #include <vecmath/mat_ext.h>
 

@@ -27,6 +27,7 @@
 #include "Model/NodeSnapshot.h"
 
 #include <kdl/overload.h>
+#include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 namespace TrenchBroom {

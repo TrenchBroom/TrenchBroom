@@ -24,7 +24,7 @@
 #include "Macros.h"
 #include "Model/BrushGeometry.h"
 
-#include <kdl/result.h>
+#include <kdl/result_forward.h>
 
 #include <vecmath/forward.h>
 

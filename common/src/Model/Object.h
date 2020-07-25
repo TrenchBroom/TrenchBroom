@@ -22,7 +22,7 @@
 
 #include "FloatType.h"
 
-#include <kdl/result.h>
+#include <kdl/result_forward.h>
 
 #include <iosfwd>
 #include <string>

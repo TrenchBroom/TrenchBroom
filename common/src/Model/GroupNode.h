@@ -25,7 +25,7 @@
 #include "Model/AttributableNode.h"
 #include "Model/Object.h"
 
-#include <kdl/result.h>
+#include <kdl/result_forward.h>
 
 #include <vecmath/bbox.h>
 

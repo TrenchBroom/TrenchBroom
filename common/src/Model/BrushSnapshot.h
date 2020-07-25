@@ -22,7 +22,7 @@
 
 #include "Model/NodeSnapshot.h"
 
-#include <kdl/result.h>
+#include <kdl/result_forward.h>
 
 #include <vector>
 

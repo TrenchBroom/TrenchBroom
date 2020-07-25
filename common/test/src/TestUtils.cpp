@@ -25,6 +25,8 @@
 #include "Model/BrushNode.h"
 #include "Model/ParaxialTexCoordSystem.h"
 
+#include <kdl/result.h>
+
 #include <vecmath/polygon.h>
 #include <vecmath/scalar.h>
 #include <vecmath/segment.h>
