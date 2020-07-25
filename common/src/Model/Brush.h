@@ -34,8 +34,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    class GeometryException;
-    
     namespace Model {
         class ModelFactory;
         template <typename P> class PolyhedronMatcher;
