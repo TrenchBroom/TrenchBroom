@@ -21,6 +21,7 @@
 
 #include "kdl/overload.h"
 #include "kdl/result.h"
+#include "kdl/result_combine.h"
 
 #include <iostream>
 #include <string>
@@ -407,4 +408,60 @@ namespace kdl {
         CHECK(r_success.and_then(f_void)    == result<void, Error1, Error2, Error3>::success());
     }
     
+    TEST_CASE("combine_results", "result_test") {
+        using R1 = result<int, Error1, Error2>;
+        using R2 = result<double, Error2, Error3>;
+        
+        auto r1 = R1::success(1);
+        auto r2 = R2::success(2.0);
+        auto r3 = R2::error(Error2{});
+        
+        CHECK(combine_results(r1, r2).is_success());
+        CHECK(combine_results(r1, r2).visit(kdl::overload {
+            [](const std::tuple<int, double>& t) {
+                CHECK(t == std::make_tuple(1, 2.0));
+                return true;
+            },
+            [](const auto&) {
+                return false;
+            }
+        }));
+        
+        CHECK(combine_results(r1, r3).is_error());
+        CHECK(combine_results(r1, r3).visit(kdl::overload {
+            [](const std::tuple<int, double>&) {
+                return false;
+            },
+            [](const Error2&) {
+                return true;
+            },
+            [](const auto&) {
+                return false;
+            }
+        }));
+
+        CHECK(combine_results(r1, R2::success(2.0)).is_success());
+        CHECK(combine_results(r1, R2::success(2.0)).visit(kdl::overload {
+            [](const std::tuple<int, double>& t) {
+                CHECK(t == std::make_tuple(1, 2.0));
+                return true;
+            },
+            [](const auto&) {
+                return false;
+            }
+        }));
+        
+        CHECK(combine_results(r1, R2::error(Error2{})).is_error());
+        CHECK(combine_results(r1, R2::error(Error2{})).visit(kdl::overload {
+            [](const std::tuple<int, double>&) {
+                return false;
+            },
+            [](const Error2&) {
+                return true;
+            },
+            [](const auto&) {
+                return false;
+            }
+        }));
+    }
 }
