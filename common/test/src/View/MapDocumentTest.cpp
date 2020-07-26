@@ -921,7 +921,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.throwExceptionDuringCommand") {
-            ASSERT_THROW(document->throwExceptionDuringCommand(), GeometryException);
+            ASSERT_THROW(document->throwExceptionDuringCommand(), CommandProcessorException);
         }
 
         // https://github.com/kduske/TrenchBroom/issues/2476

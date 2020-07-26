@@ -71,7 +71,7 @@ namespace TrenchBroom {
             // The basic idea is now to split all faces which are intersected by the given plane so that the polyhedron
             // can be separated into two halves such that no face has vertices on opposite sides of the plane.
             // Sometimes building a seam fails due to floating point imprecisions. In that case, intersectWithPlane
-            // throws a GeometryException which we catch here.
+            // throws a NoSeamException which we catch here.
             try {
                 const Seam seam = intersectWithPlane(plane);
 
