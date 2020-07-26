@@ -18,6 +18,7 @@
 #ifndef result_h
 #define result_h
 
+#include "kdl/meta_utils.h"
 #include "kdl/overload.h"
 #include "kdl/result_forward.h"
 
@@ -37,6 +38,30 @@ namespace kdl {
             return "access success value on a failed result";
         }
     };
+    
+    namespace detail {
+        template <typename Value, typename Errors>
+        struct make_result_type {};
+        
+        template <typename Value, typename... Errors>
+        struct make_result_type<Value, kdl::meta_type_list<Errors...>> {
+            using type = kdl::result<Value, Errors...>;
+        };
+        
+        template <typename Result>
+        struct is_result : public std::false_type {};
+        
+        template <typename Value, typename... Errors>
+        struct is_result<kdl::result<Value, Errors...>> : public std::true_type {};
+    
+        template <typename Result1, typename Result2>
+        struct chain_results {};
+
+        template <typename Value1, typename... Errors1, typename Value2, typename... Errors2>
+        struct chain_results<kdl::result<Value1, Errors1...>, kdl::result<Value2, Errors2...>> {
+            using result = typename make_result_type<Value2, typename meta_remove_duplicates<Errors1..., Errors2...>::result>::type;
+        };
+    }
     
     /**
      * Wrapper class that can contain either a value or one of several errors.
@@ -119,65 +144,163 @@ namespace kdl {
         }
         
         /**
-         * Applies the given function to the value contained in this result.
+         * Applies the given function to the value contained in this result, and returns a combination of this result
+         * and the result of the given function.
          *
-         * If this result is a success, the given function is invoked and passed the contained value by const lvalue
-         * reference. Then f's return value is wrapped in a new result and returned.
-         * If this result is an error, then the given function is not invoked, the error is wrapped in a new result and
-         * returned.
-         * The returned result value has the return type of the given function as its value type, and the error types of
-         * this result as its error types.
+         * The given function is expected to return a result of its own. Let the function's result type be
+         * `result<Fn_Value, Fn_Errors...>` and let this result's type be `result<My_Value, My_Errors...>`. Then
+         * `Fn_Value` and `My_Value` can be the same types, or they can be totally unrelated types. Likewise, there is
+         * no restriction on the types in `Fn_Errors` and `My_Errors`. They can be disjoint sets, but they may also
+         * intersect.
          *
-         * To illustrate, consider a function with the signature `std::string to_string(int)` and a result `r` of type
-         * `result<int, Error1, Error2>`. Then calling `r.and_then(to_string)` returns a result of type
-         * `result<std::string, Error1, Error2>`.
+         * The type of the result returned by this function is a combination of `result<Fn_Value, Fn_Errors...>` and
+         * `result<My_Value, My_Errors...>`. Let `result<Rs_Value, Rs_Errors>` be the type of the returned result, then
+         * `Rs_Value` is `Fn_Value`, and `Rs_Errors` is the concatenation of `My_Errors` and `Fn_Errors`, but with
+         * duplicates removed.
          *
-         * Note that it's also permissible that the given function returns nothing. In that case, a void result is
-         * returned.
+         * For example, let the type of this result be `result<int, Error1, Error2>`, and let the type of the result
+         * returned by `f` be `result<float, Error3, Error2>`. Then the type of the combined returned result will be
+         * `result<float, Error1, Error2, Error3>`.
+         *
+         * To determine the value or error contained in the returned result, consider the following rules:
+         *
+         * - If this result is an error, then the returned result will contain that error, and the given function will
+         *   not be invoked.
+         * - If this result is a success, then `f` will be called, and return a result `r_f`.
+         *   - If `r_f` is a success, then the value contained in `r_f` will be returned in the combined result.
+         *   - If `r_f` is an error, then the error contained in `r_f` will be returned in the combined result.
+         *
+         * Note that the value contained in this result is passed to `f` by const lvalue reference.
+         *
+         * Calling this function allows to chain operations on results and handling any errors that occur in any of the
+         * chain in one final call to `visit`. Consider the following example:
+         *
+         * ```
+         * result<int, Error1> f1();
+         *
+         * f1().and_then(
+         *     [](const int i) {
+         *         if (i < 0) {
+         *             return result<float, Error2>::error(Error2{"invalid"});
+         *         } else {
+         *             return result<float, Error2>::success(std::sqrt(float(i)));
+         *         }
+         *     }
+         * ).and_then(
+         *     [](const float f) {
+         *         if (f > 1000.0f) {
+         *             return result<std::string, Error3>::error(Error3{"out of bounds"});
+         *         } else {
+         *             return result<std::string, Error3>::success("good value");
+         *         }
+         *     }
+         * ).visit(
+         *     overload {
+         *         [](const std::string& str) {
+         *             std::cout << str;
+         *         },
+         *         [](const Error1& e) {
+         *             std::cerr << "f1 failed: " << e;
+         *         },
+         *         [](const Error2& e) {
+         *             std::cerr << "first lambda failed: " << e;
+         *         },
+         *         [](const Error3& e) {
+         *             std::cerr << "second lambda failed: " << e;
+         *         }
+         *     }
+         * );
+         *
+         * ```
          *
          * @tparam F the type of the function to apply
          * @param f the function to apply
-         * @return a new result value containing the transformed success value or the error contained in this result
+         * @return a new combined result with the type and value as described above
          */
         template <typename F>
         auto and_then(F&& f) const & {
-            using R = std::invoke_result_t<F, Value>;
-            return visit(kdl::overload {
-                [&](const value_type& v) { return result<R, Errors...>::success(f(v)); },
-                [] (const auto& e)       { return result<R, Errors...>::error(e); }
-            });
+            using My_Result = result<Value, Errors...>;
+            using Fn_Result = std::invoke_result_t<F, Value>;
+            static_assert(detail::is_result<Fn_Result>::value, "Function must return result type");
+            
+            using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
+            using Fn_Value  = typename Fn_Result::value_type;
+            
+            if constexpr (std::is_same_v<Fn_Value, void>) {
+                return visit(kdl::overload {
+                    [&](const value_type& v) {
+                        return f(v).visit(kdl::overload {
+                            []() {
+                                return Cm_Result::success();
+                            },
+                            [](auto&& fn_e) {
+                                return Cm_Result::error(std::move(fn_e));
+                            }
+                        });
+                    },
+                    [] (const auto& e) { return Cm_Result::error(e); }
+                });
+            } else {
+                return visit(kdl::overload {
+                    [&](const value_type& v) {
+                        return f(v).visit(kdl::overload {
+                            [](Fn_Value&& fn_v) {
+                                return Cm_Result::success(std::move(fn_v));
+                            },
+                            [](auto&& fn_e) {
+                                return Cm_Result::error(std::move(fn_e));
+                            }
+                        });
+                    },
+                    [] (const auto& e) { return Cm_Result::error(e); }
+                });
+            }
         }
         
         /**
-         * Applies the given function to the value contained in this result.
-         *
-         * If this result is a success, the given function is invoked and passed the contained value by rvalue
-         * reference. Then f's return value is wrapped in a new result and returned.
-         * If this result is an error, then the given function is not invoked, the error is wrapped in a new result and
-         * returned.
-         * The returned result value has the return type of the given function as its value type, and the error types of
-         * this result as its error types.
-         *
-         * To illustrate, consider a function with the signature `std::string to_string(int)` and a result `r` of type
-         * `result<int, Error1, Error2>`. Then calling `r.and_then(to_string)` returns a result of type
-         * `result<std::string, Error1, Error2>`.
-         *
-         * Note that it's also permissible that the given function returns nothing. In that case, a void result is
-         * returned.
-         *
-         * @tparam F the type of the function to apply
-         * @param f the function to apply
-         * @return a new result value containing the transformed success value or the error contained in this result
+         * See the previous function. The only difference is that the value contained in this result is passed to `f`
+         * by rvalue reference to allow moving.
          */
         template <typename F>
         auto and_then(F&& f) && {
-            using R = std::invoke_result_t<F, Value>;
-            return std::move(*this).visit(kdl::overload {
-                [&](value_type&& v) { return result<R, Errors...>::success(f(std::move(v))); },
-                [] (auto&& e)       { return result<R, Errors...>::error(std::move(e)); }
-            });
-        }
+            using My_Result = result<Value, Errors...>;
+            using Fn_Result = std::invoke_result_t<F, Value>;
+            static_assert(detail::is_result<Fn_Result>::value, "Function must return result type");
 
+            using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
+            using Fn_Value  = typename Fn_Result::value_type;
+            
+            if constexpr (std::is_same_v<Fn_Value, void>) {
+                return std::move(*this).visit(kdl::overload {
+                    [&](value_type&& v) {
+                        return f(std::move(v)).visit(kdl::overload {
+                            []() {
+                                return Cm_Result::success();
+                            },
+                            [](auto&& fn_e) {
+                                return Cm_Result::error(std::move(fn_e));
+                            }
+                        });
+                    },
+                    [] (auto&& e) { return Cm_Result::error(e); }
+                });
+            } else {
+                return std::move(*this).visit(kdl::overload {
+                    [&](value_type&& v) {
+                        return f(std::move(v)).visit(kdl::overload {
+                            [](Fn_Value&& fn_v) {
+                                return Cm_Result::success(std::move(fn_v));
+                            },
+                            [](auto&& fn_e) {
+                                return Cm_Result::error(std::move(fn_e));
+                            }
+                        });
+                    },
+                    [] (auto&& e) { return Cm_Result::error(e); }
+                });
+            }
+        }
+        
         /**
          * Returns the value contained in this result if it is successful. Otherwise, throws `bad_result_access`.
          *
@@ -261,6 +384,8 @@ namespace kdl {
      */
     template <typename... Errors>
     class [[nodiscard]] result<void, Errors...> {
+    public:
+        using value_type = void;
     private:
         using variant_type = std::variant<Errors...>;
         std::optional<variant_type> m_error;
@@ -336,75 +461,87 @@ namespace kdl {
         }
         
         /**
-         * Applies the given function if this result is a success.
-         *
-         * If this result is a success, the given function is invoked reference. Then f's return value is wrapped in a
-         * new result and returned.
-         * If this result is an error, then the given function is not invoked, the error is wrapped in a new result and
-         * returned.
-         * The returned result value has the return type of the given function as its value type, and the error types of
-         * this result as its error types.
-         *
-         * To illustrate, consider a function with the signature `std::string to_string()` and a result `r` of type
-         * `result<void, Error1, Error2>`. Then calling `r.and_then(to_string)` returns a result of type
-         * `result<std::string, Error1, Error2>`.
-         *
-         * Note that it's also permissible that the given function returns nothing. In that case, a void result is
-         * returned.
-         *
-         * @tparam F the type of the function to apply
-         * @param f the function to apply
-         * @return a new result value containing the transformed success value or the error contained in this result
+         * See result<Value, Errors...>::and_then.
          */
         template <typename F>
         auto and_then(F&& f) const & {
-            using R = std::invoke_result_t<F>;
-            if constexpr (std::is_same_v<R, void>) {
+            using My_Result = result<void, Errors...>;
+            using Fn_Result = std::invoke_result_t<F>;
+            static_assert(detail::is_result<Fn_Result>::value, "Function must return result type");
+
+            using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
+            using Fn_Value  = typename Fn_Result::value_type;
+            
+            if constexpr (std::is_same_v<Fn_Value, void>) {
                 return visit(kdl::overload {
-                    [&]()              { f(); return result<R, Errors...>::success(); },
-                    [] (const auto& e) { return result<R, Errors...>::error(e); }
-                });
-            } else {
+                [&]() {
+                    return f().visit(kdl::overload {
+                        []() {
+                            return Cm_Result::success();
+                        },
+                        [](auto&& fn_e) {
+                            return Cm_Result::error(std::move(fn_e));
+                        }
+                    });
+                },
+                [] (const auto& e) { return Cm_Result::error(e); }
+            });
+        } else {
                 return visit(kdl::overload {
-                    [&]()              { return result<R, Errors...>::success(f()); },
-                    [] (const auto& e) { return result<R, Errors...>::error(e); }
+                    [&]() {
+                        return f().visit(kdl::overload {
+                            [](Fn_Value&& fn_v) {
+                                return Cm_Result::success(std::move(fn_v));
+                            },
+                            [](auto&& fn_e) {
+                                return Cm_Result::error(std::move(fn_e));
+                            }
+                        });
+                    },
+                    [] (const auto& e) { return Cm_Result::error(e); }
                 });
             }
         }
         
         /**
-         * Applies the given function to the value contained in this result.
-         *
-         * If this result is a success, the given function is invoked and passed the contained value by rvalue
-         * reference. Then f's return value is wrapped in a new result and returned.
-         * If this result is an error, then the given function is not invoked, the error is wrapped in a new result and
-         * returned.
-         * The returned result value has the return type of the given function as its value type, and the error types of
-         * this result as its error types.
-         *
-         * To illustrate, consider a function with the signature `std::string to_string(int)` and a result `r` of type
-         * `result<int, Error1, Error2>`. Then calling `r.and_then(to_string)` returns a result of type
-         * `result<std::string, Error1, Error2>`.
-         *
-         * Note that it's also permissible that the given function returns nothing. In that case, a void result is
-         * returned.
-         *
-         * @tparam F the type of the function to apply
-         * @param f the function to apply
-         * @return a new result value containing the transformed success value or the error contained in this result
+         * See result<Value, Errors...>::and_then.
          */
         template <typename F>
         auto and_then(F&& f) && {
-            using R = std::invoke_result_t<F>;
-            if constexpr (std::is_same_v<R, void>) {
+            using My_Result = result<void, Errors...>;
+            using Fn_Result = std::invoke_result_t<F>;
+            static_assert(detail::is_result<Fn_Result>::value, "Function must return result type");
+
+            using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
+            using Fn_Value  = typename Fn_Result::value_type;
+            
+            if constexpr (std::is_same_v<Fn_Value, void>) {
                 return std::move(*this).visit(kdl::overload {
-                    [&]()         { f(); return result<R, Errors...>::success(); },
-                    [] (auto&& e) { return result<R, Errors...>::error(std::move(e)); }
+                    [&]() {
+                        return f().visit(kdl::overload {
+                            []() {
+                                return Cm_Result::success();
+                            },
+                            [](auto&& fn_e) {
+                                return Cm_Result::error(std::move(fn_e));
+                            }
+                        });
+                    },
+                    [] (auto&& e) { return Cm_Result::error(e); }
                 });
             } else {
                 return std::move(*this).visit(kdl::overload {
-                    [&]()         { return result<R, Errors...>::success(f()); },
-                    [] (auto&& e) { return result<R, Errors...>::error(std::move(e)); }
+                    [&]() {
+                        return f().visit(kdl::overload {
+                            [](Fn_Value&& fn_v) {
+                                return Cm_Result::success(std::move(fn_v));
+                            },
+                            [](auto&& fn_e) {
+                                return Cm_Result::error(std::move(fn_e));
+                            }
+                        });
+                    },
+                    [] (auto&& e) { return Cm_Result::error(e); }
                 });
             }
         }
@@ -443,7 +580,7 @@ namespace kdl {
         }
         
         friend bool operator==(const result& lhs, const result& rhs) {
-            return lhs.m_value == rhs.m_value;
+            return lhs.m_error == rhs.m_error;
         }
         
         friend bool operator!=(const result& lhs, const result& rhs) {

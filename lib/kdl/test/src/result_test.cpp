@@ -28,12 +28,17 @@
 namespace kdl {
     struct Error1 {};
     struct Error2 {};
+    struct Error3 {};
     
     inline bool operator==(const Error1&, const Error1&) {
         return true;
     }
 
     inline bool operator==(const Error2&, const Error2&) {
+        return true;
+    }
+
+    inline bool operator==(const Error3&, const Error3&) {
         return true;
     }
 
@@ -44,6 +49,11 @@ namespace kdl {
 
     inline std::ostream& operator<<(std::ostream& str, const Error2&) {
         str << "Error2";
+        return str;
+    }
+
+    inline std::ostream& operator<<(std::ostream& str, const Error3&) {
+        str << "Error3";
         return str;
     }
 
@@ -182,7 +192,9 @@ namespace kdl {
     void test_and_then_const_lvalue_ref(V&& v) {
         auto from = FromResult::success(std::forward<V>(v));
         
-        const auto to = from.and_then([](const typename FromResult::value_type& x) { return static_cast<ToValueType>(x); });
+        const auto to = from.and_then([](const typename FromResult::value_type& x) {
+            return kdl::result<ToValueType, Error3>::success(static_cast<ToValueType>(x));
+        });
         ASSERT_TRUE(to.is_success());
         ASSERT_FALSE(to.is_error());
         ASSERT_EQ(to.is_success(), to);
@@ -199,7 +211,9 @@ namespace kdl {
     template <typename FromResult, typename ToValueType, typename V>
     void test_and_then_rvalue_ref(V&& v) {
         auto from = FromResult::success(std::forward<V>(v));
-        const auto to = std::move(from).and_then([](typename FromResult::value_type&& x) { return std::move(static_cast<ToValueType>(x)); });
+        const auto to = std::move(from).and_then([](typename FromResult::value_type&& x) {
+            return kdl::result<ToValueType, Error3>::success(std::move(static_cast<ToValueType>(x)));
+        });
         ASSERT_TRUE(to.is_success());
         ASSERT_FALSE(to.is_error());
         ASSERT_EQ(to.is_success(), to);
@@ -380,10 +394,17 @@ namespace kdl {
     }
     
     TEST_CASE("void_result_test.and_then", "[void_result_test]") {
-        CHECK(result<bool, Error1, Error2>::success(true) == result<void, Error1, Error2>::success().and_then(
-            []() { return true; }));
-        CHECK(result<bool, Error1, Error2>::error(Error2{}) == result<void, Error1, Error2>::error(Error2{}).and_then(
-            []() { return true; }));
+        const auto r_success = result<void, Error1, Error2>::success();
+        const auto r_error   = result<void, Error1, Error2>::error(Error2{});
+        
+        const auto f_success = []() { return kdl::result<bool, Error3>::success(true); };
+        const auto f_error   = []() { return kdl::result<bool, Error3>::error(Error3{}); };
+        const auto f_void    = []() { return kdl::result<void, Error3>::success(); };
+
+        CHECK(r_success.and_then(f_success) == result<bool, Error1, Error2, Error3>::success(true));
+        CHECK(r_success.and_then(f_error)   == result<bool, Error1, Error2, Error3>::error(Error3{}));
+        CHECK(r_error.and_then(f_success)   == result<bool, Error1, Error2, Error3>::error(Error2{}));
+        CHECK(r_success.and_then(f_void)    == result<void, Error1, Error2, Error3>::success());
     }
     
 }
