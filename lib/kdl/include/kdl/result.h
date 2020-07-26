@@ -22,7 +22,8 @@
 #include "kdl/overload.h"
 #include "kdl/result_forward.h"
 
-#include <iosfwd> // users must include <ostream> to use stream operators
+#include <exception>
+#include <type_traits>
 #include <variant>
 
 namespace kdl {
@@ -416,11 +417,6 @@ namespace kdl {
         friend bool operator!=(const result& lhs, const result& rhs) {
             return !(lhs == rhs);
         }
-
-        friend std::ostream& operator<<(std::ostream& str, const result& result_) {
-            std::visit([&](const auto& v){ str << v; }, result_.m_value);
-            return str;
-        }
     };
     
     /**
@@ -441,7 +437,6 @@ namespace kdl {
         struct success_value_type {
             friend bool operator==(const success_value_type&, const success_value_type&) { return true; }
             friend bool operator!=(const success_value_type&, const success_value_type&) { return false; }
-            friend std::ostream& operator<<(std::ostream& str, const success_value_type&) { return str << "void"; }
         };
         using variant_type = std::variant<success_value_type, Errors...>;
         variant_type m_value;
@@ -676,11 +671,6 @@ namespace kdl {
         
         friend bool operator!=(const result& lhs, const result& rhs) {
             return !(lhs == rhs);
-        }
-
-        friend std::ostream& operator<<(std::ostream& str, const result& result_) {
-            std::visit([&](const auto& x) { str << x; }, result_.m_value);
-            return str;
         }
     };
 

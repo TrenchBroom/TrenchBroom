@@ -22,6 +22,7 @@
 #include "kdl/overload.h"
 #include "kdl/result.h"
 #include "kdl/result_combine.h"
+#include "kdl/result_io.h"
 
 #include <iostream>
 #include <string>
