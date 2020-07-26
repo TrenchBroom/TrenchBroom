@@ -23,7 +23,6 @@
 #include "kdl/result_forward.h"
 
 #include <iosfwd> // users must include <ostream> to use stream operators
-#include <optional>
 #include <variant>
 
 namespace kdl {
@@ -94,8 +93,9 @@ namespace kdl {
          * @param v the value
          * @return a successful result that wraps the given value
          */
-        template <typename V, typename std::enable_if_t<std::is_convertible_v<V, Value>>* = nullptr>
+        template <typename V>
         static result success(V&& v) {
+            static_assert(std::is_convertible_v<V, Value>, "argument must be convertible to the value type");
             return result(variant_type(std::in_place_index_t<0>(), std::forward<V>(v)));
         }
         
@@ -108,8 +108,9 @@ namespace kdl {
          * @param e the error
          * @return a failure result that wraps the given error
          */
-        template <typename E, typename std::enable_if_t<std::disjunction_v<std::is_convertible<E, Errors>...>>* = nullptr>
+        template <typename E>
         static result error(E&& e) {
+            static_assert((... || std::is_convertible_v<E, Errors>), "argument must be convertible to an error type");
             return result(variant_type(std::forward<E>(e)));
         }
         
@@ -394,8 +395,10 @@ namespace kdl {
         /**
          * Indicates whether the given result contains the given type of error.
          */
-        template <class E, typename std::enable_if_t<std::disjunction_v<std::is_convertible<E, Errors>...>>* = nullptr>
+        template <typename E>
         bool is_error_type() const {
+            static_assert((... || std::is_convertible_v<E, Errors>), "E must be an error type");
+            
             return std::holds_alternative<E>(m_value);
         }
         
@@ -435,13 +438,19 @@ namespace kdl {
     public:
         using value_type = void;
     private:
-        using variant_type = std::variant<Errors...>;
-        std::optional<variant_type> m_error;
+        struct success_value_type {
+            friend bool operator==(const success_value_type&, const success_value_type&) { return true; }
+            friend bool operator!=(const success_value_type&, const success_value_type&) { return false; }
+            friend std::ostream& operator<<(std::ostream& str, const success_value_type&) { return str << "void"; }
+        };
+        using variant_type = std::variant<success_value_type, Errors...>;
+        variant_type m_value;
     private:
-        result() {}
+        result() :
+        m_value(success_value_type{}) {}
         
         result(variant_type&& v)
-        : m_error(std::move(v)) {}
+        : m_value(std::move(v)) {}
     public:
         /**
          * Creates a new successful result.
@@ -461,8 +470,10 @@ namespace kdl {
          * @param e the error
          * @return a failure result that wraps the given error
          */
-        template <typename E, typename std::enable_if_t<std::disjunction_v<std::is_convertible<E, Errors>...>>* = nullptr>
+        template <typename E>
         static result error(E&& e) {
+            static_assert((... || std::is_convertible_v<E, Errors>), "argument must be an error type");
+
             return result(variant_type(std::forward<E>(e)));
         }
         
@@ -478,13 +489,14 @@ namespace kdl {
          */
         template <typename Visitor>
         auto visit(Visitor&& visitor) const & {
-            if (m_error.has_value()) {
-                return std::visit(
-                    std::forward<Visitor>(visitor),
-                    m_error.value());
-            } else {
-                return visitor();
-            }
+            return std::visit(kdl::overload {
+                [&](const success_value_type&) {
+                    return visitor();
+                },
+                [&](const auto& e) {
+                    return visitor(e);
+                }
+            }, m_value);
         }
         
         /**
@@ -499,13 +511,14 @@ namespace kdl {
          */
         template <typename Visitor>
         auto visit(Visitor&& visitor) && {
-            if (m_error.has_value()) {
-                return std::visit(
-                    std::forward<Visitor>(visitor),
-                    std::move(m_error.value()));
-            } else {
-                return visitor();
-            }
+            return std::visit(kdl::overload {
+                [&](success_value_type&&) {
+                    return visitor();
+                },
+                [&](auto&& e) {
+                    return visitor(std::move(e));
+                }
+            }, std::move(m_value));
         }
         
         /**
@@ -630,7 +643,7 @@ namespace kdl {
          * Indicates whether this result is empty.
          */
         bool is_success() const {
-            return !m_error.has_value();
+            return std::holds_alternative<success_value_type>(m_value);
         }
         
         /**
@@ -643,13 +656,11 @@ namespace kdl {
         /**
          * Indicates whether the given result contains the given type of error.
          */
-        template <class E, typename std::enable_if_t<std::disjunction_v<std::is_convertible<E, Errors>...>>* = nullptr>
+        template <typename E>
         bool is_error_type() const {
-            if (m_error.has_value()) { 
-                return std::holds_alternative<E>(m_error.value());
-            } else {
-                return false;
-            }
+            static_assert((... || std::is_convertible_v<E, Errors>), "E must be an error type");
+
+            return std::holds_alternative<E>(m_value);
         }
 
         /**
@@ -660,7 +671,7 @@ namespace kdl {
         }
         
         friend bool operator==(const result& lhs, const result& rhs) {
-            return lhs.m_error == rhs.m_error;
+            return lhs.m_value == rhs.m_value;
         }
         
         friend bool operator!=(const result& lhs, const result& rhs) {
@@ -668,9 +679,7 @@ namespace kdl {
         }
 
         friend std::ostream& operator<<(std::ostream& str, const result& result_) {
-            if (result_.m_error.has_value()) {
-                std::visit([&](const auto& v){ str << v; }, result_.m_error.value());
-            }
+            std::visit([&](const auto& x) { str << x; }, result_.m_value);
             return str;
         }
     };
