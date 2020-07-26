@@ -1096,6 +1096,7 @@ if (NOT TB_SUPPRESS_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
             <set>
             <string>
             <tuple>
+            <type_traits>
             <unordered_map>
             <unordered_set>
             <utility>
