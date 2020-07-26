@@ -22,22 +22,36 @@
 
 #include "FloatType.h"
 #include "Model/NodeVisitor.h"
+#include "Model/Object.h"
+
+#include <optional>
 
 namespace TrenchBroom {
     namespace Model {
+        /**
+         * Transforms objects by a given transformation.
+         *
+         * The visitor stops if an error occurs during transformation. In such a case, it's the caller's responsibility
+         * to restore the nodes modified so far to their previous state.
+         */
         class TransformObjectVisitor : public NodeVisitor {
         private:
             const vm::bbox3& m_worldBounds;
             const vm::mat4x4& m_transformation;
             bool m_lockTextures;
+            std::optional<TransformError> m_error;
         public:
             TransformObjectVisitor(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures);
+
+            const std::optional<TransformError>& error() const;
         private:
             void doVisit(WorldNode* world) override;
             void doVisit(LayerNode* layer) override;
             void doVisit(GroupNode* group) override;
             void doVisit(EntityNode* entity) override;
             void doVisit(BrushNode* brush) override;
+
+            void transform(Object* object);
         };
     }
 }

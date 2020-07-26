@@ -93,7 +93,8 @@ namespace TrenchBroom {
         public: // transformation
             /**
              * @return true if the transform was applied, false if can't be applied
-             *         to everything in the selection (in which case nothing is modified).
+             * to everything in the selection, in which case it's the caller's responsibility to restore the modified
+             * nodes.
              */
             bool performTransform(const vm::mat4x4& transform, bool lockTextures);
         public: // entity attributes

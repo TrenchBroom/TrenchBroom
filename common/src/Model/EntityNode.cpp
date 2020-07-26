@@ -35,6 +35,8 @@
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
 
+#include <kdl/overload.h>
+#include <kdl/result.h>
 #include <kdl/string_utils.h>
 
 #include <vecmath/forward.h>
@@ -46,6 +48,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
+#include <optional>
 #include <vector>
 
 namespace TrenchBroom {
@@ -356,24 +359,41 @@ namespace TrenchBroom {
             const vm::bbox3& m_worldBounds;
             const vm::mat4x4& m_transformation;
             bool m_lockTextures;
+            std::optional<TransformError> m_error;
         public:
             TransformEntity(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, const bool lockTextures) :
             m_worldBounds(worldBounds),
             m_transformation(transformation),
             m_lockTextures(lockTextures) {}
+
+            const std::optional<TransformError>& error() const {
+                return m_error;
+            }
         private:
             void doVisit(WorldNode*) override  {}
             void doVisit(LayerNode*) override  {}
             void doVisit(GroupNode*) override  {}
             void doVisit(EntityNode*) override {}
-            void doVisit(BrushNode* brush) override { brush->transform(m_worldBounds, m_transformation, m_lockTextures); }
+            void doVisit(BrushNode* brush) override {
+                brush->transform(m_worldBounds, m_transformation, m_lockTextures)
+                    .visit(kdl::overload {
+                        []() {},
+                        [&](TransformError&& e) {
+                            m_error = std::move(e);
+                            cancel();
+                        },
+                    });
+            }
         };
 
-        void EntityNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
+        kdl::result<void, TransformError> EntityNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
             if (hasChildren()) {
                 const NotifyNodeChange nodeChange(this);
                 TransformEntity visitor(worldBounds, transformation, lockTextures);
                 iterate(visitor);
+                if (visitor.error()) {
+                    return kdl::result<void, TransformError>::error(*visitor.error());
+                }
             } else {
                 // node change is called by setOrigin already
                 const auto center = logicalBounds().center();
@@ -388,6 +408,8 @@ namespace TrenchBroom {
                     applyRotation(rotation);
                 }
             }
+
+            return kdl::result<void, TransformError>::success();
         }
 
         bool EntityNode::doContains(const Node* node) const {

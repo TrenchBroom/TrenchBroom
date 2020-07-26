@@ -26,6 +26,8 @@
 #include "Model/HitType.h"
 #include "Model/Object.h"
 
+#include <kdl/result.h>
+
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
 #include <vecmath/util.h>
@@ -121,7 +123,7 @@ namespace TrenchBroom {
             LayerNode* doGetLayer() const override;
             GroupNode* doGetGroup() const override;
 
-            void doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) override;
+            kdl::result<void, TransformError> doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) override;
             bool doContains(const Node* node) const override;
             bool doIntersects(const Node* node) const override;
         private:

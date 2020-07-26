@@ -246,13 +246,15 @@ namespace TrenchBroom {
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
-        void BrushNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
+        kdl::result<void, TransformError> BrushNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
             m_brush.transform(transformation, lockTextures, worldBounds);
             
             invalidateIssues();
             invalidateVertexCache();
+
+            return kdl::result<void, TransformError>::success();
         }
 
         class BrushNode::Contains : public ConstNodeVisitor, public NodeQuery<bool> {

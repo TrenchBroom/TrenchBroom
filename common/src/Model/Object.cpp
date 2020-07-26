@@ -21,8 +21,17 @@
 
 #include "Model/GroupNode.h"
 
+#include <kdl/result.h>
+
+#include <iostream>
+
 namespace TrenchBroom {
     namespace Model {
+        std::ostream& operator<<(std::ostream& str, const TransformError& e) {
+            str << e.msg;
+            return str;
+        }
+
         Object::Object() {}
         Object::~Object() {}
 
@@ -47,8 +56,8 @@ namespace TrenchBroom {
             return containingGroup == nullptr || containingGroup->opened();
         }
 
-        void Object::transform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
-            doTransform(worldBounds, transformation, lockTextures);
+        kdl::result<void, TransformError> Object::transform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
+            return doTransform(worldBounds, transformation, lockTextures);
         }
 
         bool Object::contains(const Node* node) const {

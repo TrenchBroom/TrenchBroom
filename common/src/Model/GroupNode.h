@@ -25,6 +25,8 @@
 #include "Model/AttributableNode.h"
 #include "Model/Object.h"
 
+#include <kdl/result.h>
+
 #include <vecmath/bbox.h>
 
 #include <string>
@@ -98,7 +100,7 @@ namespace TrenchBroom {
             LayerNode* doGetLayer() const override;
             GroupNode* doGetGroup() const override;
 
-            void doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) override;
+            kdl::result<void, TransformError> doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) override;
             bool doContains(const Node* node) const override;
             bool doIntersects(const Node* node) const override;
         private:
