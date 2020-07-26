@@ -327,6 +327,16 @@ namespace kdl {
         ASSERT_EQ(0u, y.copies);
     }
 
+    TEST_CASE("result_test.void_result", "[result_test]") {
+        kdl::result<void, Error1> r1 = result<int, Error1>::success(1).and_then(
+            [](int) {
+                return void_result;
+            }
+        );
+        
+        CHECK(r1.success());
+    }
+
     TEST_CASE("result_test.constructor", "[result_test]") {
         ASSERT_TRUE((result<int, float, std::string>::success(1).is_success()));
         ASSERT_TRUE((result<int, float, std::string>::error(1.0f).is_error()));

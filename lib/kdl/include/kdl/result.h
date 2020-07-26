@@ -683,6 +683,8 @@ namespace kdl {
             return str;
         }
     };
+
+    static const auto void_result = kdl::result<void>::success();
 }
 
 #endif /* result_h */
