@@ -23,6 +23,9 @@
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 
+#include <kdl/overload.h>
+#include <kdl/result.h>
+
 namespace TrenchBroom {
     namespace Model {
         TransformObjectVisitor::TransformObjectVisitor(const vm::bbox3& worldBounds, const vm::mat4x4& transformation,  const bool lockTextures) :
@@ -30,13 +33,25 @@ namespace TrenchBroom {
         m_transformation(transformation),
         m_lockTextures(lockTextures) {}
 
+        const std::optional<TransformError>& TransformObjectVisitor::error() const {
+            return m_error;
+        }
+
         void TransformObjectVisitor::doVisit(WorldNode*)         {}
         void TransformObjectVisitor::doVisit(LayerNode*)         {}
-        void TransformObjectVisitor::doVisit(GroupNode* group)   {
-            group->transform(m_worldBounds, m_transformation, m_lockTextures); }
-        void TransformObjectVisitor::doVisit(EntityNode* entity) {
-            entity->transform(m_worldBounds, m_transformation, m_lockTextures); }
-        void TransformObjectVisitor::doVisit(BrushNode* brush)   {
-            brush->transform(m_worldBounds, m_transformation, m_lockTextures); }
+        void TransformObjectVisitor::doVisit(GroupNode* group)   { transform(group); }
+        void TransformObjectVisitor::doVisit(EntityNode* entity) { transform(entity); }
+        void TransformObjectVisitor::doVisit(BrushNode* brush)   { transform(brush); }
+
+        void TransformObjectVisitor::transform(Object* object) {
+            object->transform(m_worldBounds, m_transformation, m_lockTextures)
+                .visit(kdl::overload {
+                    []() {},
+                    [&](TransformError&& e) {
+                        m_error = std::move(e);
+                        cancel();
+                    },
+                });
+        }
     }
 }

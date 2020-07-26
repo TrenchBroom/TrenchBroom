@@ -68,6 +68,9 @@ namespace TrenchBroom {
 
         std::unique_ptr<CommandResult> TransformObjectsCommand::doPerformDo(MapDocumentCommandFacade* document) {
             const bool success = document->performTransform(m_transform, m_lockTextures);
+            if (!success) {
+                restoreSnapshot(document);
+            }
             return std::make_unique<CommandResult>(success);
         }
 

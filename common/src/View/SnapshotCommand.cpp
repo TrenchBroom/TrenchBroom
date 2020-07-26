@@ -42,7 +42,9 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<CommandResult> SnapshotCommand::doPerformUndo(MapDocumentCommandFacade *document) {
-            return restoreSnapshot(document);
+            restoreSnapshot(document);
+            deleteSnapshot();
+            return std::make_unique<CommandResult>(true);
         }
 
         void SnapshotCommand::takeSnapshot(MapDocumentCommandFacade *document) {
@@ -50,16 +52,14 @@ namespace TrenchBroom {
             m_snapshot = doTakeSnapshot(document);
         }
 
-        std::unique_ptr<CommandResult> SnapshotCommand::restoreSnapshot(MapDocumentCommandFacade *document) {
-            ensure(m_snapshot != nullptr, "snapshot is null");
-            document->restoreSnapshot(m_snapshot.get());
-            deleteSnapshot();
-            return std::make_unique<CommandResult>(true);
-        }
-
         void SnapshotCommand::deleteSnapshot() {
             assert(m_snapshot != nullptr);
             m_snapshot.reset();
+        }
+
+        void SnapshotCommand::restoreSnapshot(MapDocumentCommandFacade *document) {
+            ensure(m_snapshot != nullptr, "snapshot is null");
+            document->restoreSnapshot(m_snapshot.get());
         }
 
         std::unique_ptr<Model::Snapshot> SnapshotCommand::doTakeSnapshot(MapDocumentCommandFacade *document) const {

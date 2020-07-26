@@ -473,7 +473,13 @@ namespace TrenchBroom {
           Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
 
           invalidateSelectionBounds();
-          return true;
+
+          if (visitor.error()) {
+              error() << "Could not transform objects: " << *visitor.error();
+              return false;
+          } else {
+              return true;
+          }
         }
 
         MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performSetAttribute(const std::string& name, const std::string& value) {

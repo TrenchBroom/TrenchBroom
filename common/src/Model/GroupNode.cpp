@@ -246,9 +246,14 @@ namespace TrenchBroom {
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
-        void GroupNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
+        kdl::result<void, TransformError> GroupNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, const bool lockTextures) {
             TransformObjectVisitor visitor(worldBounds, transformation, lockTextures);
             iterate(visitor);
+            if (visitor.error()) {
+                return kdl::result<void, TransformError>::error(*visitor.error());
+            } else {
+                return kdl::result<void, TransformError>::success();
+            }
         }
 
         bool GroupNode::doContains(const Node* node) const {
