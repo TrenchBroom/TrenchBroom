@@ -34,11 +34,6 @@ namespace TrenchBroom {
         const char* what() const noexcept override;
     };
 
-    class GeometryException : public Exception {
-    public:
-        using Exception::Exception;
-    };
-
     class BrushFaceReferenceException : public Exception {
     public:
         using Exception::Exception;

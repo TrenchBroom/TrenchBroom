@@ -1868,7 +1868,6 @@ namespace TrenchBroom {
              *
              * @param plane the plane to clip with
              * @return the result of the clipping operation
-             * @throw GeometryException if the polyhedron cannot be intersected with the given plane
              */
             ClipResult clip(const vm::plane<T,3>& plane);
         private:
@@ -2020,7 +2019,6 @@ namespace TrenchBroom {
              *
              * @param other the polyhedron to clip with
              * @return the result of the clipping operation
-             * @throw GeometryException if the polyhedron cannot be intersected with any face of the given polyhedron
              */
             Polyhedron intersect(Polyhedron other) const;
 

@@ -1870,7 +1870,7 @@ namespace TrenchBroom {
 
         private:
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade*) override {
-                throw GeometryException();
+                throw CommandProcessorException();
             }
 
             std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade*) override {
