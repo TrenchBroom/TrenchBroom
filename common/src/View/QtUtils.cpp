@@ -40,6 +40,7 @@
 #include <QDialog>
 #include <QDir>
 #include <QFont>
+#include <QKeySequence>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
@@ -504,6 +505,27 @@ namespace TrenchBroom {
             ensure(codec != nullptr, "null codec");
 
             return codec->fromUnicode(string).toStdString();
+        }
+
+        QString nativeModifierLabel(const int modifier) {
+            assert(modifier == Qt::META || modifier == Qt::SHIFT
+                || modifier == Qt::CTRL || modifier == Qt::ALT);
+
+            const auto keySequence = QKeySequence(modifier);
+
+            // QKeySequence doesn't totally support being given just a modifier
+            // but it does seem to handle the key codes like Qt::SHIFT, which
+            // it turns into native text as "Shift+" or the Shift symbol on macOS,
+            // and portable text as "Shift+".
+
+            QString nativeLabel = keySequence.toString(QKeySequence::NativeText);
+            if (nativeLabel.endsWith("+")) {
+                // On Linux we get nativeLabel as something like "Ctrl+"
+                // On macOS it's just the special Command character, with no +
+                nativeLabel.chop(1); // Remove last character
+            }
+
+            return nativeLabel;
         }
     }
 }
