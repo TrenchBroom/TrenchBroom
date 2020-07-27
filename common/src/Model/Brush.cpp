@@ -504,7 +504,7 @@ namespace TrenchBroom {
         }
 
         static bool shouldSnap(const std::vector<vm::segment3>& edgePositionsToSnap, const vm::vec3& vertexPosition) {
-            return std::any_of(edgePositionsToSnap.cbegin(), edgePositionsToSnap.cend(), [&](const vm::segment3& edge){
+            return std::any_of(std::begin(edgePositionsToSnap), std::end(edgePositionsToSnap), [&](const vm::segment3& edge){
                 return edge.start() == vertexPosition || edge.end() == vertexPosition;
             });
         }
