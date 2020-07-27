@@ -33,6 +33,8 @@ namespace TrenchBroom {
         m_profile(&profile),
         m_nameText(nullptr),
         m_taskCountText(nullptr) {
+            setContextMenuPolicy(Qt::CustomContextMenu); // request customContextMenuRequested() to be emitted
+
             m_nameText = new ElidedLabel("", Qt::ElideRight);
             m_taskCountText = new ElidedLabel("", Qt::ElideMiddle);
 
@@ -108,7 +110,11 @@ namespace TrenchBroom {
 
         ControlListBoxItemRenderer* CompilationProfileListBox::createItemRenderer(QWidget* parent, const size_t index) {
             auto* profile = m_config.profile(index);
-            return new CompilationProfileItemRenderer(*profile, parent);
+            auto* renderer = new CompilationProfileItemRenderer(*profile, parent);
+            connect(renderer, &QWidget::customContextMenuRequested, this, [=](const QPoint& pos){
+                emit this->profileContextMenuRequested(renderer->mapToGlobal(pos), profile);
+            });
+            return renderer;
         }
     }
 }

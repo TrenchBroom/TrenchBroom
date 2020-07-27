@@ -227,6 +227,16 @@ namespace TrenchBroom {
 
         QString mapStringToUnicode(MapTextEncoding encoding, const std::string& string);
         std::string mapStringFromUnicode(MapTextEncoding encoding, const QString& string);
+
+        /**
+         * Maps one of Qt::META, Qt::SHIFT, Qt::CTRL, Qt::ALT to the
+         * label for it on the current OS.
+         *
+         * @param modifier one of Qt::META, Qt::SHIFT, Qt::CTRL, Qt::ALT
+         * @return the native label for this modifier on the current OS
+         *         (e.g. "Ctrl" on Windows or the Command symbol on macOS)
+         */
+        QString nativeModifierLabel(int modifier);
     }
 }
 

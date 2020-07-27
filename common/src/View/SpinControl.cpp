@@ -18,6 +18,9 @@
  */
 
 #include "SpinControl.h"
+#include "View/QtUtils.h"
+
+#include <kdl/string_utils.h>
 
 #include <QGuiApplication>
 
@@ -33,6 +36,7 @@ namespace TrenchBroom {
         m_minDigits(0),
         m_maxDigits(6) {
             setKeyboardTracking(false);
+            updateTooltip();
         }
 
         void SpinControl::stepBy(int steps) {
@@ -40,7 +44,8 @@ namespace TrenchBroom {
                 setSingleStep(m_shiftIncrement);
             } else if (QGuiApplication::keyboardModifiers() & Qt::ControlModifier) {
                 setSingleStep(m_ctrlIncrement);
-                steps /= 10; // QAbstractSpinBox spins by 10 steps if control is held
+                // QAbstractSpinBox steps by +/-10 if control is held (on most platforms; see #3373)
+                steps = (steps > 0) ? 1 : -1;
             } else {
                 setSingleStep(m_regularIncrement);
             }
@@ -70,10 +75,20 @@ namespace TrenchBroom {
             m_regularIncrement = regularIncrement;
             m_shiftIncrement = shiftIncrement;
             m_ctrlIncrement = ctrlIncrement;
+            updateTooltip();
         }
 
         void SpinControl::setDigits(const int /* minDigits */, const int maxDigits) {
             setDecimals(maxDigits);
+        }
+
+        void SpinControl::updateTooltip() {
+            setToolTip(tr("Increment: %1 (%2: %3, %4: %5)")
+                .arg(QString::fromStdString(kdl::str_to_string(m_regularIncrement)))
+                .arg(nativeModifierLabel(Qt::SHIFT))
+                .arg(QString::fromStdString(kdl::str_to_string(m_shiftIncrement)))
+                .arg(nativeModifierLabel(Qt::CTRL))
+                .arg(QString::fromStdString(kdl::str_to_string(m_ctrlIncrement))));
         }
     }
 }
