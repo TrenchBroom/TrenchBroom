@@ -44,7 +44,8 @@ namespace TrenchBroom {
                 setSingleStep(m_shiftIncrement);
             } else if (QGuiApplication::keyboardModifiers() & Qt::ControlModifier) {
                 setSingleStep(m_ctrlIncrement);
-                steps /= 10; // QAbstractSpinBox spins by 10 steps if control is held
+                // QAbstractSpinBox steps by +/-10 if control is held (on most platforms; see #3373)
+                steps = (steps > 0) ? 1 : -1;
             } else {
                 setSingleStep(m_regularIncrement);
             }
