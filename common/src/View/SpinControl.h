@@ -43,6 +43,8 @@ namespace TrenchBroom {
         public:
             void setIncrements(double regularIncrement, double shiftIncrement, double ctrlIncrement);
             void setDigits(int minDigits, int maxDigits);
+        private:
+            void updateTooltip();
         };
     }
 }
