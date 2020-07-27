@@ -25,6 +25,7 @@
 #include <QWidget>
 
 class QAbstractButton;
+class QPoint;
 
 namespace TrenchBroom {
     namespace Model {
@@ -51,6 +52,10 @@ namespace TrenchBroom {
         private slots:
             void addProfile();
             void removeProfile();
+            void removeProfile(size_t index);
+            void removeProfile(Model::CompilationProfile* profile);
+            void duplicateProfile(Model::CompilationProfile* profile);
+            void profileContextMenuRequested(const QPoint& globalPos, Model::CompilationProfile* profile);
             void profileSelectionChanged();
         signals:
             void selectedProfileChanged();

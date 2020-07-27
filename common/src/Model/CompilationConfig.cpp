@@ -62,6 +62,14 @@ namespace TrenchBroom {
             return m_profiles[index].get();
         }
 
+        size_t CompilationConfig::indexOfProfile(CompilationProfile* profile) const {
+            auto result = kdl::vec_index_of(m_profiles, [=](const auto& ptr){
+                return ptr.get() == profile;
+            });
+            assert(result.has_value());
+            return result.value();
+        }
+
         void CompilationConfig::addProfile(std::unique_ptr<CompilationProfile> profile) {
             ensure(profile != nullptr, "profile is null");
             m_profiles.push_back(std::move(profile));
