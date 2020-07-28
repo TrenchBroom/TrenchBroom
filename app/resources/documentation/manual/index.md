@@ -2417,7 +2417,7 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 
 [TrenchBroom on GitHub]: http://github.com/kduske/TrenchBroom/
 [TrenchBroom issue tracker]: http://github.com/kduske/TrenchBroom/issues/
-[TrenchBroom Discord]: https://discord.gg/n7K8Cps
+[TrenchBroom Discord]: https://discord.gg/WGf9uve
 [func_msgboard]: http://celephais.net/board/
 [Quake Tools]: https://joshua.itch.io/quake-tools
 [Tome of Preach]: https://tomeofpreach.wordpress.com/
