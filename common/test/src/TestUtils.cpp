@@ -23,6 +23,7 @@
 #include "Ensure.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
+#include "Model/ParaxialTexCoordSystem.h"
 
 #include <vecmath/polygon.h>
 #include <vecmath/scalar.h>
@@ -116,6 +117,11 @@ namespace TrenchBroom {
     }
 
     namespace Model {
+        BrushFace createParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const std::string& textureName) {
+            const BrushFaceAttributes attributes(textureName);
+            return BrushFace::create(point0, point1, point2, attributes, std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attributes)).value();
+        }
+
         std::vector<vm::vec3> asVertexList(const std::vector<vm::segment3>& edges) {
             std::vector<vm::vec3> result;
             vm::segment3::get_vertices(std::begin(edges), std::end(edges), std::back_inserter(result));

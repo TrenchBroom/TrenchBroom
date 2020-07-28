@@ -22,10 +22,23 @@
 #include "kdl/result_forward.h"
 
 #include <functional> // for std::ref
+#include <iosfwd> // users must include <ostream> to use stream operators
 #include <optional>
 #include <variant>
 
 namespace kdl {
+    /**
+     * Thrown when attempting to access a result success value on a failed result.
+     */
+    class bad_result_access : public std::exception {
+    public:
+        bad_result_access() noexcept = default;
+        
+        const char* what() const noexcept override {
+            return "access success value on a failed result";
+        }
+    };
+    
     /**
      * Wrapper class that can contain either a value or one of several errors.
      *
@@ -77,87 +90,121 @@ namespace kdl {
         }
         
         /**
-         * Applies the given visitor to the given result result and returns the result returned by the visitor.
-         * The value or error contained in the given result result is passed to the visitor by const lvalue reference.
+         * Visits the value or error contained in this result.
+         *
+         * The given visitor must accept the value type and all error types of this result.
+         * The value or error contained in this result is passed to the visitor by const lvalue reference.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
-         * @param result the result to visit
-         * @return the result of applying the given visitor
+         * @return the value returned by the given visitor or void if the given visitor does not return anything
          */
         template <typename Visitor>
-        friend auto visit_result(Visitor&& visitor, const result& result) {
-            return std::visit(
-                std::forward<Visitor>(visitor),
-                result.m_value);
+        auto visit(Visitor&& visitor) const & {
+            return std::visit(std::forward<Visitor>(visitor), m_value);
         }
         
         /**
-         * Applies the given visitor to the given result and returns the result returned by the visitor.
-         * The value or error contained in the given result is passed to the visitor by rvalue reference.
+         * Visits the value or error contained in this result.
          *
-         * The given visitor can move the value or error out of the given result, so care must be taken not to
-         * use the result afterwards, as it will be in a moved-from state.
+         * The given visitor must accept the value type and all error types of this result.
+         * The value or error contained in this result is passed to the visitor by rvalue reference.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
-         * @param result the result to visit
-         * @return the result of applying the given visitor
+         * @return the value returned by the given visitor or void if the given visitor does not return anything
          */
         template <typename Visitor>
-        friend auto visit_result(Visitor&& visitor, result&& result) {
-            return std::visit(
-                std::forward<Visitor>(visitor),
-                std::move(result.m_value));
+        auto visit(Visitor&& visitor) && {
+            return std::visit(std::forward<Visitor>(visitor), std::move(m_value));
         }
         
         /**
-         * Applies the given function to the given result and returns a new result with the result type of the
-         * given function as its value type.
+         * Applies the given function to the value contained in this result.
          *
-         * If the given result contains a value, the function is applied to it and the result of applying the function
-         * is returned wrapped in a result.
-         * If the given result contains an error, that error is returned as is.
+         * If this result is a success, the given function is invoked and passed the contained value by const lvalue
+         * reference. Then f's return value is wrapped in a new result and returned.
+         * If this result is an error, then the given function is not invoked, the error is wrapped in a new result and
+         * returned.
+         * The returned result value has the return type of the given function as its value type, and the error types of
+         * this result as its error types.
          *
-         * The value is passed to the mapping function by const lvalue reference.
-
+         * To illustrate, consider a function with the signature `std::string to_string(int)` and a result `r` of type
+         * `result<int, Error1, Error2>`. Then calling `r.and_then(to_string)` returns a result of type
+         * `result<std::string, Error1, Error2>`.
+         *
+         * Note that it's also permissible that the given function returns nothing. In that case, a void result is
+         * returned.
+         *
          * @tparam F the type of the function to apply
          * @param f the function to apply
-         * @param result_ the result to map
+         * @return a new result value containing the transformed success value or the error contained in this result
          */
         template <typename F>
-        friend auto map_result(F&& f, const result& result_) {
+        auto and_then(F&& f) const & {
             using R = std::invoke_result_t<F, Value>;
-            return visit_result(kdl::overload {
+            return visit(kdl::overload {
                 [&](const value_type& v) { return result<R, Errors...>::success(f(v)); },
                 [] (const auto& e)       { return result<R, Errors...>::error(e); }
-            }, result_);
+            });
         }
         
         /**
-         * Applies the given function to the given result and returns a new result with the result type of the
-         * given function as its value type.
+         * Applies the given function to the value contained in this result.
          *
-         * If the given result contains a value, the function is applied to it and the result of applying the function
-         * is returned wrapped in a result.
-         * If the given result contains an error, that error is returned as is.
+         * If this result is a success, the given function is invoked and passed the contained value by rvalue
+         * reference. Then f's return value is wrapped in a new result and returned.
+         * If this result is an error, then the given function is not invoked, the error is wrapped in a new result and
+         * returned.
+         * The returned result value has the return type of the given function as its value type, and the error types of
+         * this result as its error types.
          *
-         * The value is passed to the mapping function by rvalue reference.
+         * To illustrate, consider a function with the signature `std::string to_string(int)` and a result `r` of type
+         * `result<int, Error1, Error2>`. Then calling `r.and_then(to_string)` returns a result of type
+         * `result<std::string, Error1, Error2>`.
          *
-         * The given function can move the value out of the given result, so care must be taken not to
-         * use the given result afterwards, as it will be in a moved-from state.
-
+         * Note that it's also permissible that the given function returns nothing. In that case, a void result is
+         * returned.
+         *
          * @tparam F the type of the function to apply
          * @param f the function to apply
-         * @param result_ the result to map
+         * @return a new result value containing the transformed success value or the error contained in this result
          */
         template <typename F>
-        friend auto map_result(F&& f, result&& result_) {
+        auto and_then(F&& f) && {
             using R = std::invoke_result_t<F, Value>;
-            return visit_result(kdl::overload {
+            return std::move(*this).visit(kdl::overload {
                 [&](value_type&& v) { return result<R, Errors...>::success(f(std::move(v))); },
-                [] (const auto& e)  { return result<R, Errors...>::error(e); }
-            }, std::move(result_));
+                [] (auto&& e)       { return result<R, Errors...>::error(std::move(e)); }
+            });
+        }
+
+        /**
+         * Returns the value contained in this result if it is successful. Otherwise, throws `bad_result_access`.
+         *
+         * @return a copy of the value in this result
+         *
+         * @throw bad_result_access if this result is an error
+         */
+        auto value() const & {
+            return visit(kdl::overload {
+                [](const value_type& v) -> value_type { return v; },
+                [](const auto&)         -> value_type { throw bad_result_access(); }
+            });
+        }
+
+        /**
+         * Returns the value contained in this result if it is successful. Otherwise, throws `bad_result_access`.
+         *
+         * @return the value in this result
+         *
+         * @throw bad_result_access if this result is an error
+         */
+        auto value() && {
+            return std::move(*this).visit(kdl::overload {
+                [](value_type&& v) -> value_type { return std::move(v); },
+                [](const auto&)    -> value_type { throw bad_result_access(); }
+            });
         }
 
         /**
@@ -187,6 +234,19 @@ namespace kdl {
          */
         operator bool() const {
             return is_success();
+        }
+        
+        friend bool operator==(const result& lhs, const result& rhs) {
+            return lhs.m_value == rhs.m_value;
+        }
+        
+        friend bool operator!=(const result& lhs, const result& rhs) {
+            return !(lhs == rhs);
+        }
+
+        friend std::ostream& operator<<(std::ostream& str, const result& result_) {
+            std::visit([&](const auto& v){ str << v; }, result_.m_value);
+            return str;
         }
     };
 
@@ -236,96 +296,129 @@ namespace kdl {
         static result error(E&& e) {
             return result(variant_type(std::forward<E>(e)));
         }
-
+        
         /**
-         * Applies the given visitor to the given result and returns the result returned by the visitor.
-         * The reference or error contained in the given result is passed to the visitor as a const lvalue
-         * reference.
+         * Visits the value or error contained in this result.
+         *
+         * The given visitor must accept the value type and all error types of this result.
+         * The value or error contained in this result is passed to the visitor by const lvalue reference.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
-         * @param result the result to visit
-         * @return the result of applying the given visitor
+         * @return the value returned by the given visitor or void if the given visitor does not return anything
          */
         template <typename Visitor>
-        friend auto visit_result(Visitor&& visitor, const result& result) {
+        auto visit(Visitor&& visitor) const & {
             return std::visit(kdl::overload {
                 [&](const wrapper_type& v) { return visitor(v.get()); },
                 [&](const auto& e)         { return visitor(e); }
-            }, result.m_value);
+            }, m_value);
         }
         
         /**
-         * Applies the given visitor to the given result and returns the result returned by the visitor.
-         * The reference or error contained in the given result is passed to the visitor as a rvalue reference.
+         * Visits the value or error contained in this result.
          *
-         * The given visitor can move the value or error out of the given result, so care must be taken not to
-         * use the result afterwards, as it will be in a moved-from state.
-         *
-         * Note that the visitor can only move the value of the contained reference if it is not const.
+         * The given visitor must accept the value type and all error types of this result.
+         * The value or error contained in this result is passed to the visitor by rvalue reference.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
-         * @param result the result to visit
-         * @return the result of applying the given visitor
+         * @return the value returned by the given visitor or void if the given visitor does not return anything
          */
         template <typename Visitor>
-        friend auto visit_result(Visitor&& visitor, result&& result) {
+        auto visit(Visitor&& visitor) && {
             return std::visit(kdl::overload {
                 [&](wrapper_type&& v) { return visitor(std::move(v.get())); },
                 [&](auto&& e)         { return visitor(std::move(e)); }
-            }, std::move(result.m_value));
+            }, std::move(m_value));
         }
-        
-        /**
-         * Applies the given function to given result and returns a new result with the result type of
-         * the given function as its value type.
-         *
-         * If the given result contains a reference, the function is applied to it and the result of applying the
-         * function is returned wrapped in a result.
-         * If the given result contains an error, that error is returned as is.
-         *
-         * The reference is passed to the mapping function by const lvalue reference.
 
+        /**
+         * Applies the given function to the value contained in this result.
+         *
+         * If this result is a success, the given function is invoked and passed the contained value by const lvalue
+         * reference. Then f's return value is wrapped in a new result and returned.
+         * If this result is an error, then the given function is not invoked, the error is wrapped in a new result and
+         * returned.
+         * The returned result value has the return type of the given function as its value type, and the error types of
+         * this result as its error types.
+         *
+         * To illustrate, consider a function with the signature `std::string to_string(int)` and a result `r` of type
+         * `result<int&, Error1, Error2>`. Then calling `r.and_then(to_string)` returns a result of type
+         * `result<std::string, Error1, Error2>`.
+         *
+         * Note that it's also permissible that the given function returns nothing. In that case, a void result is
+         * returned.
+         *
          * @tparam F the type of the function to apply
          * @param f the function to apply
-         * @param result_ the result to map
+         * @return a new result value containing the transformed success value or the error contained in this result
          */
         template <typename F>
-        friend auto map_result(F&& f, const result& result_) {
+        auto and_then(F&& f) const & {
             using R = std::invoke_result_t<F, Value>;
-            return visit_result(kdl::overload {
+            return visit(kdl::overload {
                 [&](const value_type& v) { return result<R, Errors...>::success(f(v)); },
                 [] (const auto& e)       { return result<R, Errors...>::error(e); }
-            }, result_);
+            });
         }
         
         /**
-         * Applies the given function to the given result and returns a new result with the result type of
-         * the given function as its value type.
+         * Applies the given function to the value contained in this result.
          *
-         * If the given result contains a reference, the function is applied to it and the result of applying the
-         * function is returned wrapped in a result.
-         * If the given result contains an error, that error is returned as is.
+         * If this result is a success, the given function is invoked and passed the contained value by rvalue
+         * reference. Then f's return value is wrapped in a new result and returned.
+         * If this result is an error, then the given function is not invoked, the error is wrapped in a new result and
+         * returned.
+         * The returned result value has the return type of the given function as its value type, and the error types of
+         * this result as its error types.
          *
-         * The reference is passed to the mapping function by rvalue reference.
+         * To illustrate, consider a function with the signature `std::string to_string(int)` and a result `r` of type
+         * `result<int&, Error1, Error2>`. Then calling `r.and_then(to_string)` returns a result of type
+         * `result<std::string, Error1, Error2>`.
          *
-         * The given function can move the value out of the given result, so care must be taken not to
-         * use the given result afterwards, as it will be in a moved-from state.
-         *
-         * Note that the visitor can only move the value of the contained reference if it is not const.
+         * Note that it's also permissible that the given function returns nothing. In that case, a void result is
+         * returned.
          *
          * @tparam F the type of the function to apply
          * @param f the function to apply
-         * @param result_ the result to map
+         * @return a new result value containing the transformed success value or the error contained in this result
          */
         template <typename F>
-        friend auto map_result(F&& f, result&& result_) {
+        auto and_then(F&& f) && {
             using R = std::invoke_result_t<F, Value>;
-            return visit_result(kdl::overload {
+            return std::move(*this).visit(kdl::overload {
                 [&](value_type&& v) { return result<R, Errors...>::success(f(std::move(v))); },
-                [] (const auto& e)  { return result<R, Errors...>::error(e); }
-            }, std::move(result_));
+                [] (auto&& e)       { return result<R, Errors...>::error(std::move(e)); }
+            });
+        }
+
+        /**
+         * Returns the value contained this result if it is successful. Otherwise, throws `bad_result_access`.
+         *
+         * @return a copy of the value in this result
+         *
+         * @throw bad_result_access if this result is an error
+         */
+        auto value() const &{
+            return visit(kdl::overload {
+                [](const value_type& v) -> value_type& { return v; },
+                [](const auto&)         -> value_type& { throw bad_result_access(); }
+            });
+        }
+
+        /**
+         * Returns the value contained this result if it is successful. Otherwise, throws `bad_result_access`.
+         *
+         * @return the value in the given result
+         *
+         * @throw bad_result_access if this result is an error
+         */
+        auto value() && {
+            return std::move(*this).visit(kdl::overload {
+                [](value_type&& v) -> value_type&& { return std::move(v); },
+                [](const auto&)    -> value_type&& { throw bad_result_access(); }
+            });
         }
 
         /**
@@ -355,6 +448,19 @@ namespace kdl {
          */
         operator bool() const {
             return is_success();
+        }
+        
+        friend bool operator==(const result& lhs, const result& rhs) {
+            return lhs.m_value == rhs.m_value;
+        }
+        
+        friend bool operator!=(const result& lhs, const result& rhs) {
+            return !(lhs == rhs);
+        }
+
+        friend std::ostream& operator<<(std::ostream& str, const result& result_) {
+            std::visit([&](const auto& v){ str << v; }, result_.m_value);
+            return str;
         }
     };
     
@@ -401,49 +507,120 @@ namespace kdl {
         static result error(E&& e) {
             return result(variant_type(std::forward<E>(e)));
         }
-
+        
         /**
-         * Applies the given visitor to the given result result and returns the result returned by the visitor.
-         * If the given result is successful, then the visitor is called without any arguments.
-         * Otherwise, the error contained in the given result is passed to the visitor by const lvalue reference.
+         * Applies the given visitor this result.
+         *
+         * The given visitor must accept void and all error types of this result.
+         * The error contained in this result is passed to the visitor by const lvalue reference.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
-         * @param result the result to visit
-         * @return the result of applying the given visitor
+         * @return the value returned by the given visitor or void if the given visitor does not return anything
          */
         template <typename Visitor>
-        friend auto visit_result(Visitor&& visitor, const result& result) {
-            if (result.m_error.has_value()) {
+        auto visit(Visitor&& visitor) const & {
+            if (m_error.has_value()) {
                 return std::visit(
                     std::forward<Visitor>(visitor),
-                    result.m_error.value());
+                    m_error.value());
             } else {
                 return visitor();
             }
         }
         
         /**
-         * Applies the given visitor to the given result and returns the result returned by the visitor.
-         * If the given result is successful, then the visitor is called without any arguments.
-         * Otherwise, the error contained in the given result is passed to the visitor by rvalue reference.
+         * Visits the value or error contained in this result.
          *
-         * The given visitor can move the value or error out of the given result, so care must be taken not to
-         * use the result afterwards, as it will be in a moved-from state.
+         * The given visitor must accept the value type and all error types of this result.
+         * The value or error contained in this result is passed to the visitor by rvalue reference.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
-         * @param result the result to visit
-         * @return the result of applying the given visitor
+         * @return the value returned by the given visitor or void if the given visitor does not return anything
          */
         template <typename Visitor>
-        friend auto visit_result(Visitor&& visitor, result&& result) {
-            if (result.m_error.has_value()) {
+        auto visit(Visitor&& visitor) && {
+            if (m_error.has_value()) {
                 return std::visit(
                     std::forward<Visitor>(visitor),
-                    std::move(result.m_error.value()));
+                    std::move(m_error.value()));
             } else {
                 return visitor();
+            }
+        }
+        
+        /**
+         * Applies the given function if this result is a success.
+         *
+         * If this result is a success, the given function is invoked reference. Then f's return value is wrapped in a
+         * new result and returned.
+         * If this result is an error, then the given function is not invoked, the error is wrapped in a new result and
+         * returned.
+         * The returned result value has the return type of the given function as its value type, and the error types of
+         * this result as its error types.
+         *
+         * To illustrate, consider a function with the signature `std::string to_string()` and a result `r` of type
+         * `result<void, Error1, Error2>`. Then calling `r.and_then(to_string)` returns a result of type
+         * `result<std::string, Error1, Error2>`.
+         *
+         * Note that it's also permissible that the given function returns nothing. In that case, a void result is
+         * returned.
+         *
+         * @tparam F the type of the function to apply
+         * @param f the function to apply
+         * @return a new result value containing the transformed success value or the error contained in this result
+         */
+        template <typename F>
+        auto and_then(F&& f) const & {
+            using R = std::invoke_result_t<F>;
+            if constexpr (std::is_same_v<R, void>) {
+                return visit(kdl::overload {
+                    [&]()              { f(); return result<R, Errors...>::success(); },
+                    [] (const auto& e) { return result<R, Errors...>::error(e); }
+                });
+            } else {
+                return visit(kdl::overload {
+                    [&]()              { return result<R, Errors...>::success(f()); },
+                    [] (const auto& e) { return result<R, Errors...>::error(e); }
+                });
+            }
+        }
+        
+        /**
+         * Applies the given function to the value contained in this result.
+         *
+         * If this result is a success, the given function is invoked and passed the contained value by rvalue
+         * reference. Then f's return value is wrapped in a new result and returned.
+         * If this result is an error, then the given function is not invoked, the error is wrapped in a new result and
+         * returned.
+         * The returned result value has the return type of the given function as its value type, and the error types of
+         * this result as its error types.
+         *
+         * To illustrate, consider a function with the signature `std::string to_string(int)` and a result `r` of type
+         * `result<int, Error1, Error2>`. Then calling `r.and_then(to_string)` returns a result of type
+         * `result<std::string, Error1, Error2>`.
+         *
+         * Note that it's also permissible that the given function returns nothing. In that case, a void result is
+         * returned.
+         *
+         * @tparam F the type of the function to apply
+         * @param f the function to apply
+         * @return a new result value containing the transformed success value or the error contained in this result
+         */
+        template <typename F>
+        auto and_then(F&& f) && {
+            using R = std::invoke_result_t<F>;
+            if constexpr (std::is_same_v<R, void>) {
+                return std::move(*this).visit(kdl::overload {
+                    [&]()         { f(); return result<R, Errors...>::success(); },
+                    [] (auto&& e) { return result<R, Errors...>::error(std::move(e)); }
+                });
+            } else {
+                return std::move(*this).visit(kdl::overload {
+                    [&]()         { return result<R, Errors...>::success(f()); },
+                    [] (auto&& e) { return result<R, Errors...>::error(std::move(e)); }
+                });
             }
         }
 
@@ -478,6 +655,21 @@ namespace kdl {
          */
         operator bool() const {
             return is_success();
+        }
+        
+        friend bool operator==(const result& lhs, const result& rhs) {
+            return lhs.m_value == rhs.m_value;
+        }
+        
+        friend bool operator!=(const result& lhs, const result& rhs) {
+            return !(lhs == rhs);
+        }
+
+        friend std::ostream& operator<<(std::ostream& str, const result& result_) {
+            if (result_.m_error.has_value()) {
+                std::visit([&](const auto& v){ str << v; }, result_.m_error.value());
+            }
+            return str;
         }
     };
     
@@ -547,51 +739,77 @@ namespace kdl {
             return result(variant_type(std::forward<E>(e)));
         }
         
+        
         /**
-         * Applies the given visitor to the given result result and returns the result returned by the visitor.
-         * The value or error contained in the given result result is passed to the visitor by const lvalue reference.
-         * If the given result is successful but does not contain a value, the given visitor is called without any
-         * arguments.
+         * Visits the value or error contained in this result.
+         *
+         * The given visitor must accept the value type and all error types of this result.
+         * The value or error contained in this result is passed to the visitor by const lvalue reference.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
-         * @param result the result to visit
-         * @return the result of applying the given visitor
+         * @return the value returned by the given visitor or void if the given visitor does not return anything
          */
         template <typename Visitor>
-        friend auto visit_result(Visitor&& visitor, const result& result) {
-            if (result.m_value.has_value()) {
+        auto visit(Visitor&& visitor) const & {
+            if (m_value.has_value()) {
                 return std::visit(
                     std::forward<Visitor>(visitor),
-                    result.m_value.value());
+                    m_value.value());
             } else {
                 return visitor();
             }
         }
         
         /**
-         * Applies the given visitor to the given result and returns the result returned by the visitor.
-         * The value or error contained in the given result is passed to the visitor by rvalue reference.
-         * If the given result is successful but does not contain a value, the given visitor is called without any
-         * arguments.
+         * Visits the value or error contained in this result.
          *
-         * The given visitor can move the value or error out of the given result, so care must be taken not to
-         * use the result afterwards, as it will be in a moved-from state.
+         * The given visitor must accept the value type and all error types of this result.
+         * The value or error contained in this result is passed to the visitor by rvalue reference.
          *
          * @tparam Visitor the type of the visitor
          * @param visitor the visitor to apply
-         * @param result the result to visit
-         * @return the result of applying the given visitor
+         * @return the value returned by the given visitor or void if the given visitor does not return anything
          */
         template <typename Visitor>
-        friend auto visit_result(Visitor&& visitor, result&& result) {
-            if (result.m_value.has_value()) {
+        auto visit(Visitor&& visitor) && {
+            if (m_value.has_value()) {
                 return std::visit(
                     std::forward<Visitor>(visitor),
-                    std::move(result.m_value.value()));
+                    std::move(m_value.value()));
             } else {
                 return visitor();
             }
+        }
+
+        /**
+         * Returns the value contained this result if it is successful. Otherwise, throws `bad_result_access`.
+         *
+         * @return a copy of the value in this result
+         *
+         * @throw bad_result_access if this result is an error or if this result does not contain a value
+         */
+        auto get() const & {
+            return visit(kdl::overload {
+                [](const value_type& v) -> value_type { return v; },
+                []()                    -> value_type { throw bad_result_access(); },
+                [](const auto&)         -> value_type { throw bad_result_access(); }
+            });
+        }
+
+        /**
+         * Returns the value contained this result if it is successful. Otherwise, throws `bad_result_access`.
+         *
+         * @return the value in the given result
+         *
+         * @throw bad_result_access if this result is an error or if this result does not contain a value
+         */
+        auto get() && {
+            return std::move(*this).visit(kdl::overload {
+                [](value_type&& v) -> value_type { return std::move(v); },
+                []()               -> value_type { throw bad_result_access(); },
+                [](const auto&)    -> value_type { throw bad_result_access(); }
+            });
         }
 
         /**
@@ -629,28 +847,22 @@ namespace kdl {
         operator bool() const {
             return is_success();
         }
+        
+        friend bool operator==(const result& lhs, const result& rhs) {
+            return lhs.m_value == rhs.m_value;
+        }
+        
+        friend bool operator!=(const result& lhs, const result& rhs) {
+            return !(lhs == rhs);
+        }
+
+        friend std::ostream& operator<<(std::ostream& str, const result& result_) {
+            if (result_.m_value.has_value()) {
+                std::visit([&](const auto& v){ str << v; }, result_.m_value.value());
+            }
+            return str;
+        }
     };
-
-    
-    template <typename Visitor, typename Value, typename... Errors>
-    auto visit_result(Visitor&& visitor, const result<Value, Errors...>& result) {
-        return visit_result(std::forward<Visitor>(visitor), result);
-    }
-
-    template <typename Visitor, typename Value, typename... Errors>
-    auto visit_result(Visitor&& visitor, result<Value, Errors...>&& result) {
-        return visit_result(std::forward<Visitor>(visitor), std::move(result));
-    }
-
-    template <typename F, typename Value, typename... Errors>
-    auto map_result(F&& f, const result<Value, Errors...>& result_) {
-        return map_result(std::forward<F>(f), result_);
-    }
-    
-    template <typename F, typename Value, typename... Errors>
-    auto map_result(F&& f, result<Value, Errors...>&& result_) {
-        return map_result(std::forward<F>(f), std::move(result_));
-    }
 }
 
 #endif /* result_h */

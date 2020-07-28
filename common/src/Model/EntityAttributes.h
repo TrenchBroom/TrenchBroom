@@ -49,6 +49,8 @@ namespace TrenchBroom {
             extern const std::string LayerName;
             extern const std::string LayerSortIndex;
             extern const std::string LayerColor;
+            extern const std::string LayerLocked;
+            extern const std::string LayerHidden;
             extern const std::string Layer;
             extern const std::string GroupId;
             extern const std::string GroupName;
@@ -67,6 +69,8 @@ namespace TrenchBroom {
             extern const std::string GroupTypeGroup;
             extern const std::string DefaultValue;
             extern const std::string NoSoftMapBounds;
+            extern const std::string LayerLockedValue;
+            extern const std::string LayerHiddenValue;
         }
 
         bool isNumberedAttribute(std::string_view prefix, std::string_view name);

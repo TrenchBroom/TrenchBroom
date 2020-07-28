@@ -232,6 +232,10 @@ namespace TrenchBroom {
 
             Transaction transaction(this, "Set Current Layer");
 
+            while (currentGroup() != nullptr) {
+                closeGroup();
+            }
+
             Model::CollectNodesVisitor collect;
             m_currentLayer->recurse(collect);
             downgradeShownToInherit(collect.nodes());                
@@ -1737,7 +1741,6 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::snapVertices(const FloatType snapTo) {
-            assert(m_selectedNodes.hasOnlyBrushes());
             const auto result = executeAndStore(SnapBrushVerticesCommand::snap(snapTo));
             return result->success();
         }

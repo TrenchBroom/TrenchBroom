@@ -205,10 +205,7 @@ namespace TrenchBroom {
         }
 
         void CompilationProfileEditor::taskSelectionChanged() {
-            m_addTaskButton->setEnabled(m_profile != nullptr);
-            m_removeTaskButton->setEnabled(m_profile != nullptr && m_taskList->currentRow() >= 0);
-            m_moveTaskUpButton->setEnabled(m_profile != nullptr && m_taskList->currentRow() > 0);
-            m_moveTaskDownButton->setEnabled(m_profile != nullptr && m_taskList->currentRow() >= 0 && m_taskList->currentRow() < static_cast<int>(m_profile->taskCount()) - 1);
+            refresh();
         }
 
         void CompilationProfileEditor::setProfile(Model::CompilationProfile* profile) {
@@ -245,6 +242,10 @@ namespace TrenchBroom {
                     m_workDirTxt->setText(QString::fromStdString(m_profile->workDirSpec()));
                 }
             }
+            m_addTaskButton->setEnabled(m_profile != nullptr);
+            m_removeTaskButton->setEnabled(m_profile != nullptr && m_taskList->currentRow() >= 0);
+            m_moveTaskUpButton->setEnabled(m_profile != nullptr && m_taskList->currentRow() > 0);
+            m_moveTaskDownButton->setEnabled(m_profile != nullptr && m_taskList->currentRow() >= 0 && m_taskList->currentRow() < static_cast<int>(m_profile->taskCount()) - 1);
         }
     }
 }

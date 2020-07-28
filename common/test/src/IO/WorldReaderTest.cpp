@@ -136,17 +136,25 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(world != nullptr);
             ASSERT_EQ(1u, world->childCount());
-            ASSERT_FALSE(world->children().front()->hasChildren());
+            auto* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().at(0));
+            REQUIRE(defaultLayer != nullptr);
+            REQUIRE(!defaultLayer->hasChildren());
 
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
             ASSERT_STREQ("yay", world->attribute("message").c_str());
+
+            CHECK(!defaultLayer->layerColor().has_value());
+            CHECK(!defaultLayer->locked());
+            CHECK(!defaultLayer->hidden());
         }
 
-        TEST_CASE("WorldReaderTest.parseDefaultLayerColor", "[WorldReaderTest]") {
+        TEST_CASE("WorldReaderTest.parseDefaultLayerAttributes", "[WorldReaderTest]") {
             const std::string data(R"(
 {
 "classname" "worldspawn"
 "_tb_layer_color" "0.0 1.0 0.0"
+"_tb_layer_locked" "1"
+"_tb_layer_hidden" "1"
 }
 )");
 
@@ -160,9 +168,12 @@ namespace TrenchBroom {
             REQUIRE(world != nullptr);
             REQUIRE(world->childCount() == 1u);
             auto* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().at(0));
+            REQUIRE(defaultLayer != nullptr);
 
             REQUIRE(defaultLayer->layerColor().has_value());
             CHECK(defaultLayer->layerColor().value() == Color(0.0f, 1.0f, 0.0f));
+            CHECK(defaultLayer->locked());
+            CHECK(defaultLayer->hidden());
         }
 
         TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneMoreEntity", "[WorldReaderTest]") {
@@ -714,6 +725,8 @@ namespace TrenchBroom {
 
             ASSERT_EQ(2u, defaultLayer->childCount());
             ASSERT_EQ(1u, myLayer->childCount());
+            CHECK(!myLayer->hidden());
+            CHECK(!myLayer->locked());
         }
 
         TEST_CASE("WorldReaderTest.parseLayersWithReverseSort", "[WorldReaderTest]") {
@@ -727,6 +740,7 @@ namespace TrenchBroom {
 "_tb_name" "Sort Index 1"
 "_tb_id" "1"
 "_tb_layer_sort_index" "1"
+"_tb_layer_locked" "1"
 }
 {
 "classname" "func_group"
@@ -734,6 +748,7 @@ namespace TrenchBroom {
 "_tb_name" "Sort Index 0"
 "_tb_id" "2"
 "_tb_layer_sort_index" "0"
+"_tb_layer_hidden" "1"
 })");
             const vm::bbox3 worldBounds(8192.0);
 
@@ -759,6 +774,12 @@ namespace TrenchBroom {
             CHECK(defaultLayer->sortIndex() == Model::LayerNode::defaultLayerSortIndex());
             CHECK(sort0->sortIndex()     == 0);
             CHECK(sort1->sortIndex()     == 1);            
+
+            CHECK(sort0->hidden());
+            CHECK(!sort1->hidden());
+
+            CHECK(!sort0->locked());
+            CHECK(sort1->locked());
         }
 
         TEST_CASE("WorldReaderTest.parseLayersWithReversedSortIndicesWithGaps", "[WorldReaderTest]") {

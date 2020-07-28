@@ -24,9 +24,7 @@
 #include "TestUtils.h"
 
 #include "Assets/Texture.h"
-#include "IO/DiskIO.h"
 #include "IO/NodeReader.h"
-#include "IO/Path.h"
 #include "IO/TestParserStatus.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -37,10 +35,8 @@
 #include "Model/HitAdapter.h"
 #include "Model/MapFormat.h"
 #include "Model/PickResult.h"
-#include "Model/Polyhedron.h"
 #include "Model/WorldNode.h"
 
-#include <kdl/collection_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/vec.h>
@@ -48,8 +44,6 @@
 #include <vecmath/polygon.h>
 #include <vecmath/ray.h>
 
-#include <algorithm>
-#include <fstream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -241,32 +235,32 @@ namespace TrenchBroom {
             // build a cube with length 16 at the origin
             BrushNode brush(Brush(worldBounds, {
                 // left
-                BrushFace::createParaxial(
+                createParaxial(
                     vm::vec3(0.0, 0.0, 0.0),
                     vm::vec3(0.0, 1.0, 0.0),
                     vm::vec3(0.0, 0.0, 1.0)),
                 // right
-                BrushFace::createParaxial(
+                createParaxial(
                     vm::vec3(16.0, 0.0, 0.0),
                     vm::vec3(16.0, 0.0, 1.0),
                     vm::vec3(16.0, 1.0, 0.0)),
                 // front
-                BrushFace::createParaxial(
+                createParaxial(
                     vm::vec3(0.0, 0.0, 0.0),
                     vm::vec3(0.0, 0.0, 1.0),
                     vm::vec3(1.0, 0.0, 0.0)),
                 // back
-                BrushFace::createParaxial(
+                createParaxial(
                     vm::vec3(0.0, 16.0, 0.0),
                     vm::vec3(1.0, 16.0, 0.0),
                     vm::vec3(0.0, 16.0, 1.0)),
                 // top
-                BrushFace::createParaxial(
+                createParaxial(
                     vm::vec3(0.0, 0.0, 16.0),
                     vm::vec3(0.0, 1.0, 16.0),
                     vm::vec3(1.0, 0.0, 16.0)),
                 // bottom
-                BrushFace::createParaxial(
+                createParaxial(
                     vm::vec3(0.0, 0.0, 0.0),
                     vm::vec3(1.0, 0.0, 0.0),
                     vm::vec3(0.0, 1.0, 0.0)),
@@ -345,32 +339,32 @@ namespace TrenchBroom {
             // build a cube with length 16 at the origin
             BrushNode brush(Brush(worldBounds, {
                 // left
-                BrushFace::createParaxial(
+                createParaxial(
                     vm::vec3(0.0, 0.0, 0.0),
                     vm::vec3(0.0, 1.0, 0.0),
                     vm::vec3(0.0, 0.0, 1.0)),
                 // right
-                BrushFace::createParaxial(
+                createParaxial(
                     vm::vec3(16.0, 0.0, 0.0),
                     vm::vec3(16.0, 0.0, 1.0),
                     vm::vec3(16.0, 1.0, 0.0)),
                 // front
-                BrushFace::createParaxial(
+                createParaxial(
                     vm::vec3(0.0, 0.0, 0.0),
                     vm::vec3(0.0, 0.0, 1.0),
                     vm::vec3(1.0, 0.0, 0.0)),
                 // back
-                BrushFace::createParaxial(
+                createParaxial(
                     vm::vec3(0.0, 16.0, 0.0),
                     vm::vec3(1.0, 16.0, 0.0),
                     vm::vec3(0.0, 16.0, 1.0)),
                 // top
-                BrushFace::createParaxial(
+                createParaxial(
                     vm::vec3(0.0, 0.0, 16.0),
                     vm::vec3(0.0, 1.0, 16.0),
                     vm::vec3(1.0, 0.0, 16.0)),
                 // bottom
-                BrushFace::createParaxial(
+                createParaxial(
                     vm::vec3(0.0, 0.0, 0.0),
                     vm::vec3(1.0, 0.0, 0.0),
                     vm::vec3(0.0, 1.0, 0.0)),
@@ -395,32 +389,32 @@ namespace TrenchBroom {
             // build a cube with length 16 at the origin
             BrushNode original(Brush(worldBounds, {
                 // left
-                BrushFace::createParaxial(
+                createParaxial(
                     vm::vec3(0.0, 0.0, 0.0),
                     vm::vec3(0.0, 1.0, 0.0),
                     vm::vec3(0.0, 0.0, 1.0)),
                 // right
-                BrushFace::createParaxial(
+                createParaxial(
                     vm::vec3(16.0, 0.0, 0.0),
                     vm::vec3(16.0, 0.0, 1.0),
                     vm::vec3(16.0, 1.0, 0.0)),
                 // front
-                BrushFace::createParaxial(
+                createParaxial(
                     vm::vec3(0.0, 0.0, 0.0),
                     vm::vec3(0.0, 0.0, 1.0),
                     vm::vec3(1.0, 0.0, 0.0)),
                 // back
-                BrushFace::createParaxial(
+                createParaxial(
                     vm::vec3(0.0, 16.0, 0.0),
                     vm::vec3(1.0, 16.0, 0.0),
                     vm::vec3(0.0, 16.0, 1.0)),
                 // top
-                BrushFace::createParaxial(
+                createParaxial(
                     vm::vec3(0.0, 0.0, 16.0),
                     vm::vec3(0.0, 1.0, 16.0),
                     vm::vec3(1.0, 0.0, 16.0)),
                 // bottom
-                BrushFace::createParaxial(
+                createParaxial(
                     vm::vec3(0.0, 0.0, 0.0),
                     vm::vec3(1.0, 0.0, 0.0),
                     vm::vec3(0.0, 1.0, 0.0)),

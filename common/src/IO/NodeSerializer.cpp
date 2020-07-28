@@ -94,13 +94,25 @@ namespace TrenchBroom {
         void NodeSerializer::defaultLayer(const Model::WorldNode& world) {
             auto worldAttribs = Model::EntityAttributes(world.attributes());
 
-            // Transfer the color from the default layer Layer object to worldspawn
+            // Transfer the color, locked state, and hidden state from the default layer Layer object to worldspawn
             Model::LayerNode* defaultLayer = world.defaultLayer();
             if (defaultLayer->hasAttribute(Model::AttributeNames::LayerColor)) {
                 worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerColor, defaultLayer->attribute(Model::AttributeNames::LayerColor), nullptr);
             } else {
                 worldAttribs.removeAttribute(Model::AttributeNames::LayerColor);
-            }            
+            }
+
+            if (defaultLayer->locked()) {
+                worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerLocked, Model::AttributeValues::LayerLockedValue, nullptr);
+            } else {
+                worldAttribs.removeAttribute(Model::AttributeNames::LayerLocked);
+            }
+
+            if (defaultLayer->hidden()) {
+                worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerHidden, Model::AttributeValues::LayerHiddenValue, nullptr);
+            } else {
+                worldAttribs.removeAttribute(Model::AttributeNames::LayerHidden);
+            }
 
             entity(&world, worldAttribs.releaseAttributes(), {}, world.defaultLayer());
         }
@@ -225,7 +237,13 @@ namespace TrenchBroom {
             };
             if (layer->hasAttribute(Model::AttributeNames::LayerSortIndex)) {
                 result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerSortIndex, layer->attribute(Model::AttributeNames::LayerSortIndex)));
-            } 
+            }
+            if (layer->locked()) {
+                result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerLocked, Model::AttributeValues::LayerLockedValue));
+            }
+            if (layer->hidden()) {
+                result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerHidden, Model::AttributeValues::LayerHiddenValue));
+            }
             return result;
         }
 

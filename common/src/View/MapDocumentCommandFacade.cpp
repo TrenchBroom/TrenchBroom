@@ -745,7 +745,7 @@ namespace TrenchBroom {
         }
 
         bool MapDocumentCommandFacade::performSnapVertices(const FloatType snapTo) {
-            const std::vector<Model::BrushNode*>& brushNodes = m_selectedNodes.brushes();
+            const std::vector<Model::BrushNode*> brushNodes = m_selectedNodes.brushesRecursively();
 
             const std::vector<Model::Node*> nodes(std::begin(brushNodes), std::end(brushNodes));
             const std::vector<Model::Node*> parents = collectParents(nodes);

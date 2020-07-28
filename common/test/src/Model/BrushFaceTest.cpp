@@ -27,6 +27,7 @@
 #include "Assets/Texture.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
+#include "Model/BrushError.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -38,6 +39,7 @@
 #include "Model/Polyhedron.h"
 #include "Model/WorldNode.h"
 
+#include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/forward.h>
@@ -56,7 +58,7 @@ namespace TrenchBroom {
             const vm::vec3 p2(0.0, -1.0, 4.0);
 
             const BrushFaceAttributes attribs("");
-            BrushFace face(p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs));
+            BrushFace face = BrushFace::create(p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs)).value();
             ASSERT_VEC_EQ(p0, face.points()[0]);
             ASSERT_VEC_EQ(p1, face.points()[1]);
             ASSERT_VEC_EQ(p2, face.points()[2]);
@@ -70,7 +72,7 @@ namespace TrenchBroom {
             const vm::vec3 p2(2.0, 0.0, 4.0);
 
             const BrushFaceAttributes attribs("");
-            ASSERT_THROW(new BrushFace(p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs)), GeometryException);
+            CHECK_FALSE(BrushFace::create(p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs)).is_success());
         }
 
         TEST_CASE("BrushFaceTest.textureUsageCount", "[BrushFaceTest]") {
@@ -86,7 +88,7 @@ namespace TrenchBroom {
             BrushFaceAttributes attribs("");
             {
                 // test constructor
-                BrushFace face(p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs));
+                BrushFace face = BrushFace::create(p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs)).value();
                 EXPECT_EQ(0u, texture.usageCount());
 
                 // test setTexture
@@ -166,13 +168,13 @@ namespace TrenchBroom {
             // reset alignment, transform the face (texture lock off)
             BrushFace face = origFace;
             resetFaceTextureAlignment(face);
-            face.transform(transform, false);
+            REQUIRE(face.transform(transform, false));
             face.resetTexCoordSystemCache();
 
             // reset alignment, transform the face (texture lock off), then reset the alignment again
             BrushFace resetFace = origFace;
             resetFaceTextureAlignment(resetFace);
-            resetFace.transform(transform, false);
+            REQUIRE(resetFace.transform(transform, false));
             resetFaceTextureAlignment(resetFace);
 
             // UVs of the verts of `face` and `resetFace` should be the same now
@@ -212,7 +214,7 @@ namespace TrenchBroom {
 
             // transform the face
             BrushFace face = origFace;
-            face.transform(transform, true);
+            REQUIRE(face.transform(transform, true));
             face.resetTexCoordSystemCache();
 
             // transform the verts
@@ -376,7 +378,7 @@ namespace TrenchBroom {
 
             // transform the face (texture lock off)
             BrushFace face = origFace;
-            face.transform(transform, false);
+            REQUIRE(face.transform(transform, false));
             face.resetTexCoordSystemCache();
 
             // UVs of the verts of `face` and `origFace` should be the same now
@@ -402,7 +404,7 @@ namespace TrenchBroom {
 
             // transform the face (texture lock off)
             BrushFace face = origFace;
-            face.transform(transform, false);
+            REQUIRE(face.transform(transform, false));
             face.resetTexCoordSystemCache();
 
             // get UV at mins; should be equal
