@@ -1070,6 +1070,9 @@ namespace TrenchBroom {
                 action->setEnabled(document->canMoveSelectionToLayer(layer));
             }
 
+            const auto moveSelectionToItems = moveSelectionTo->actions();
+            moveSelectionTo->setEnabled(std::any_of(std::begin(moveSelectionToItems), std::end(moveSelectionToItems), [](QAction *action) { return action->isEnabled(); }));
+
             if (selectedObjectLayers.size() == 1u) {
                 Model::LayerNode* layer = selectedObjectLayers[0];
                 QAction* action = menu.addAction(tr("Make Layer %1 Active").arg(QString::fromStdString(layer->name())), this, [=](){
@@ -1083,6 +1086,9 @@ namespace TrenchBroom {
                         document->setCurrentLayer(layer);
                     });
                     action->setEnabled(document->canSetCurrentLayer(layer));
+                }
+                if (makeLayerActive->isEmpty()) {
+                    makeLayerActive->setDisabled(true);
                 }
             }
 

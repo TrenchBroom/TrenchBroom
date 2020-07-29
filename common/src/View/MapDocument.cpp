@@ -137,6 +137,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
+#include <algorithm>
 #include <cassert>
 #include <cstdlib> // for std::abs
 #include <map>
@@ -1263,27 +1264,12 @@ namespace TrenchBroom {
 
         bool MapDocument::canMoveSelectionToLayer(Model::LayerNode* layer) const {
             ensure(layer != nullptr, "null layer");
-
             const auto& nodes = selectedNodes().nodes();
-            if (nodes.empty()) {
-                return false;
-            }
 
-            for (auto* node : nodes) {
-                auto* nodeGroup = Model::findGroup(node);
-                if (nodeGroup != nullptr) {
-                    return false;
-                }
-            }
+            const bool isAnyNodeInGroup = std::any_of(std::begin(nodes), std::end(nodes), [&](auto* node) { return Model::findGroup(node) != nullptr; });
+            const bool isAnyNodeInOtherLayer = std::any_of(std::begin(nodes), std::end(nodes), [&](auto* node) { return Model::findLayer(node) != layer; });
 
-            for (auto* node : nodes) {
-                auto* nodeLayer = Model::findLayer(node);
-                if (nodeLayer != layer) {
-                    return true;
-                }
-            }
-
-            return true;
+            return !nodes.empty() && !isAnyNodeInGroup && isAnyNodeInOtherLayer;
         }
 
         void MapDocument::hideLayers(const std::vector<Model::LayerNode*>& layers) {
@@ -1315,10 +1301,7 @@ namespace TrenchBroom {
             for (auto* layer : m_world->allLayers()) {
                 const bool shouldShowLayer = kdl::vec_contains(layers, layer);
 
-                if (shouldShowLayer && layer->hidden()) {
-                    return true;
-                }
-                if (!shouldShowLayer && layer->shown()) {
+                if (shouldShowLayer != layer->visible()) {
                     return true;
                 }
             }

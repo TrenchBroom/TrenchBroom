@@ -37,6 +37,7 @@
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 
+#include <algorithm>
 #include <set>
 #include <string>
 #include <vector>
@@ -57,10 +58,6 @@ namespace TrenchBroom {
         m_layerList(nullptr),
         m_addLayerButton(nullptr),
         m_removeLayerButton(nullptr),
-        m_unlockAllLayersButton(nullptr),
-        m_lockAllLayersButton(nullptr),
-        m_showAllLayersButton(nullptr),
-        m_hideAllLayersButton(nullptr),
         m_moveLayerUpButton(nullptr),
         m_moveLayerDownButton(nullptr) {
             createGui();
@@ -100,12 +97,11 @@ namespace TrenchBroom {
                 toggleLayerLocked(layer);
             });
             popupMenu.addSeparator();
-            QAction* moveLayerUpAction = popupMenu.addAction(tr("Move layer up"), this, [this, layer](){
-                moveLayer(layer, -1);
-            });
-            QAction* moveLayerDownAction = popupMenu.addAction(tr("Move layer down"), this, [this, layer](){
-                moveLayer(layer, 1);
-            });
+            QAction* showAllLayersAction = popupMenu.addAction(tr("Show All Layers"), this, &LayerEditor::onShowAllLayers);
+            QAction* hideAllLayersAction = popupMenu.addAction(tr("Hide All Layers"), this, &LayerEditor::onHideAllLayers);
+            popupMenu.addSeparator();
+            QAction* unlockAllLayersAction = popupMenu.addAction(tr("Unlock All Layers"), this, &LayerEditor::onUnlockAllLayers);
+            QAction* lockAllLayersAction = popupMenu.addAction(tr("Lock All Layers"), this, &LayerEditor::onLockAllLayers);
             popupMenu.addSeparator();
             QAction* renameLayerAction = popupMenu.addAction(tr("Rename layer"), this, &LayerEditor::onRenameLayer);
             QAction* removeLayerAction = popupMenu.addAction(tr("Remove layer"), this, &LayerEditor::onRemoveLayer);
@@ -116,8 +112,10 @@ namespace TrenchBroom {
             isolateLayerAction->setEnabled(document->canIsolateLayers({layer}));
 
             toggleLayerLockedAction->setEnabled(canToggleLayerLocked());
-            moveLayerUpAction->setEnabled(canMoveLayer(-1));
-            moveLayerDownAction->setEnabled(canMoveLayer(1));
+            showAllLayersAction->setEnabled(canShowAllLayers());
+            hideAllLayersAction->setEnabled(canHideAllLayers());
+            unlockAllLayersAction->setEnabled(canUnlockAllLayers());
+            lockAllLayersAction->setEnabled(canLockAllLayers());
             renameLayerAction->setEnabled(canRenameLayer());
             removeLayerAction->setEnabled(canRemoveLayer());
 
@@ -141,16 +139,7 @@ namespace TrenchBroom {
 
         bool LayerEditor::canToggleLayerLocked() const {
             auto* layer = m_layerList->selectedLayer();
-            if (layer == nullptr) {
-                return false;
-            }
-
-            auto document = kdl::mem_lock(m_document);
-            if (!layer->locked() && layer == document->currentLayer()) {
-                return false;
-            }
-
-            return true;
+            return layer != nullptr;
         }
 
         void LayerEditor::toggleLayerLocked(Model::LayerNode* layer) {
@@ -329,10 +318,42 @@ namespace TrenchBroom {
             document->resetVisibility(std::vector<Model::Node*>(std::begin(layers), std::end(layers)));
         }
 
+        bool LayerEditor::canShowAllLayers() const {
+            const auto layers = kdl::mem_lock(m_document)->world()->allLayers();
+            return std::any_of(std::begin(layers), std::end(layers), [](const auto* layer){ return !layer->visible(); });
+        }
+
         void LayerEditor::onHideAllLayers() {
             auto document = kdl::mem_lock(m_document);
             const auto layers = document->world()->allLayers();
             document->hide(std::vector<Model::Node*>(std::begin(layers), std::end(layers)));
+        }
+
+        bool LayerEditor::canHideAllLayers() const {
+            const auto layers = kdl::mem_lock(m_document)->world()->allLayers();
+            return std::any_of(std::begin(layers), std::end(layers), [](const auto* layer){ return layer->visible(); });
+        }
+
+        void LayerEditor::onLockAllLayers() {
+            auto document = kdl::mem_lock(m_document);
+            const auto nodes = kdl::vec_element_cast<Model::Node*>(document->world()->allLayers());
+            document->lock(nodes);
+        }
+
+        bool LayerEditor::canLockAllLayers() const {
+            const auto layers = kdl::mem_lock(m_document)->world()->allLayers();
+            return std::any_of(std::begin(layers), std::end(layers), [](const auto* layer){ return !layer->locked(); });
+        }
+
+        void LayerEditor::onUnlockAllLayers() {
+            auto document = kdl::mem_lock(m_document);
+            const auto nodes = kdl::vec_element_cast<Model::Node*>(document->world()->allLayers());
+            document->resetLock(nodes);
+        }
+
+        bool LayerEditor::canUnlockAllLayers() const {
+            const auto layers = kdl::mem_lock(m_document)->world()->allLayers();
+            return std::any_of(std::begin(layers), std::end(layers), [](const auto* layer){ return layer->locked(); });
         }
 
         Model::LayerNode* LayerEditor::findVisibleAndUnlockedLayer(const Model::LayerNode* except) const {
@@ -365,27 +386,11 @@ namespace TrenchBroom {
 
             m_addLayerButton = createBitmapButton("Add.svg", tr("Add a new layer from the current selection"));
             m_removeLayerButton = createBitmapButton("Remove.svg", tr("Remove the selected layer and move its objects to the default layer"));
-            m_unlockAllLayersButton = createBitmapButton("Lock_off.svg", tr("Unlock all layers"));
-            m_lockAllLayersButton = createBitmapButton("Lock_on.svg", tr("Lock all layers"));
-            m_showAllLayersButton = createBitmapButton("Hidden_off.svg", tr("Show all layers"));
-            m_hideAllLayersButton = createBitmapButton("Hidden_on.svg", tr("Hide all layers"));
             m_moveLayerUpButton = createBitmapButton("Up.svg", "Move the selected layer up");
             m_moveLayerDownButton = createBitmapButton("Down.svg", "Move the selected layer down");
 
             connect(m_addLayerButton, &QAbstractButton::pressed, this, &LayerEditor::onAddLayer);
             connect(m_removeLayerButton, &QAbstractButton::pressed, this, &LayerEditor::onRemoveLayer);
-            connect(m_unlockAllLayersButton, &QAbstractButton::pressed, this, [=]() {
-                auto document = kdl::mem_lock(m_document);
-                const auto nodes = kdl::vec_element_cast<Model::Node*>(document->world()->allLayers());
-                document->resetLock(nodes);
-            });
-            connect(m_lockAllLayersButton, &QAbstractButton::pressed, this, [=]() {
-                auto document = kdl::mem_lock(m_document);
-                const auto nodes = kdl::vec_element_cast<Model::Node*>(document->world()->allLayers());
-                document->lock(nodes);
-            });
-            connect(m_showAllLayersButton, &QAbstractButton::pressed, this, &LayerEditor::onShowAllLayers);
-            connect(m_hideAllLayersButton, &QAbstractButton::pressed, this, &LayerEditor::onHideAllLayers);
             connect(m_moveLayerUpButton, &QAbstractButton::pressed, this, [=](){
                 Model::LayerNode* layer = m_layerList->selectedLayer();
                 moveLayer(layer, -1);
@@ -401,11 +406,6 @@ namespace TrenchBroom {
             buttonSizer->addWidget(m_moveLayerUpButton);
             buttonSizer->addWidget(m_moveLayerDownButton);
             buttonSizer->addStretch(1);
-            buttonSizer->addWidget(m_showAllLayersButton);
-            buttonSizer->addWidget(m_hideAllLayersButton);
-            buttonSizer->addSpacing(LayoutConstants::NarrowHMargin);
-            buttonSizer->addWidget(m_unlockAllLayersButton);
-            buttonSizer->addWidget(m_lockAllLayersButton);
 
             auto* sizer = new QVBoxLayout();
             sizer->setContentsMargins(0, 0, 0, 0);
