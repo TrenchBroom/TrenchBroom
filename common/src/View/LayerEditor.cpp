@@ -37,6 +37,7 @@
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 
+#include <algorithm>
 #include <set>
 #include <string>
 #include <vector>
@@ -318,12 +319,8 @@ namespace TrenchBroom {
         }
 
         bool LayerEditor::canShowAllLayers() const {
-            for (const auto* layer : kdl::mem_lock(m_document)->world()->allLayers()) {
-                if (!layer->visible()) {
-                    return true;
-                }
-            }
-            return false;
+            const auto layers = kdl::mem_lock(m_document)->world()->allLayers();
+            return std::any_of(std::begin(layers), std::end(layers), [](const auto* layer){ return !layer->visible(); });
         }
 
         void LayerEditor::onHideAllLayers() {
@@ -333,12 +330,8 @@ namespace TrenchBroom {
         }
 
         bool LayerEditor::canHideAllLayers() const {
-            for (const auto* layer : kdl::mem_lock(m_document)->world()->allLayers()) {
-                if (layer->visible()) {
-                    return true;
-                }
-            }
-            return false;
+            const auto layers = kdl::mem_lock(m_document)->world()->allLayers();
+            return std::any_of(std::begin(layers), std::end(layers), [](const auto* layer){ return layer->visible(); });
         }
 
         void LayerEditor::onLockAllLayers() {
@@ -348,12 +341,8 @@ namespace TrenchBroom {
         }
 
         bool LayerEditor::canLockAllLayers() const {
-            for (const auto* layer : kdl::mem_lock(m_document)->world()->allLayers()) {
-                if (!layer->locked()) {
-                    return true;
-                }
-            }
-            return false;
+            const auto layers = kdl::mem_lock(m_document)->world()->allLayers();
+            return std::any_of(std::begin(layers), std::end(layers), [](const auto* layer){ return !layer->locked(); });
         }
 
         void LayerEditor::onUnlockAllLayers() {
@@ -363,12 +352,8 @@ namespace TrenchBroom {
         }
 
         bool LayerEditor::canUnlockAllLayers() const {
-            for (const auto* layer : kdl::mem_lock(m_document)->world()->allLayers()) {
-                if (layer->locked()) {
-                    return true;
-                }
-            }
-            return false;
+            const auto layers = kdl::mem_lock(m_document)->world()->allLayers();
+            return std::any_of(std::begin(layers), std::end(layers), [](const auto* layer){ return layer->locked(); });
         }
 
         Model::LayerNode* LayerEditor::findVisibleAndUnlockedLayer(const Model::LayerNode* except) const {
