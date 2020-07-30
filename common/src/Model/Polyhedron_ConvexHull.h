@@ -330,28 +330,6 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::makePolygon(const std::vector<vm::vec<T,3>>& positions) {
-            assert(empty());
-            assert(positions.size() > 2);
-
-            HalfEdgeList boundary;
-            for (size_t i = 0u; i < positions.size(); ++i) {
-                const vm::vec<T,3>& p = positions[i];
-                Vertex* v = new Vertex(p);
-                HalfEdge* h = new HalfEdge(v);
-                Edge* e = new Edge(h);
-
-                m_vertices.push_back(v);
-                boundary.push_back(h);
-                m_edges.push_back(e);
-            }
-
-            const vm::plane<T,3> plane = makePlaneFromBoundary(boundary);
-            Face* f = new Face(std::move(boundary), plane);
-            m_faces.push_back(f);
-        }
-
-        template <typename T, typename FP, typename VP>
         typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::makePolyhedron(const vm::vec<T,3>& position, const T planeEpsilon) {
             assert(polygon());
 

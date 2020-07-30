@@ -1651,16 +1651,6 @@ namespace TrenchBroom {
             Vertex* addPointToPolygon(const vm::vec<T,3>& position, T planeEpsilon);
 
             /**
-             * Helper function that creates a new polygon from the given vector of coplanar points.
-             *
-             * Assumes that this polyhedron is empty and that the given vector contains at least three linearly
-             * independent points.
-             *
-             * @param positions the points to create a polygon from
-             */
-            void makePolygon(const std::vector<vm::vec<T,3>>& positions);
-
-            /**
              * Helper function that adds the given non coplanar point to a polygon, turning it into a convex volume.
              *
              * Assumes that this polyhedron is a polygon and that the given point does not lie on the same plane as the
