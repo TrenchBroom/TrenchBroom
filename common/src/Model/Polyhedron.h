@@ -1768,21 +1768,40 @@ namespace TrenchBroom {
             bool checkSeamForWeaving(const Seam& seam, const vm::vec<T,3>& position) const;
             
             /**
-             * Weaves a new cap onto this polyhedron. The new cap will be a cone, the tip of which will be a newly created
-             * vertex at the given position. If two adjacent faces of the cone are coplanar, these will be merged.
-             *
-             * The edges of the given seam are expected to be oriented such that their second edges are unset. Each edge
-             * will then have a newly created polygon as its first face.
-             *
-             * Assumes that this polyhedron is neither empty, nor a point, nor an edge. Note that this polyhedron can be
-             * a polygon, however.
-             *
+             * Represents an open cone intended to seal a polyhedron that was split along a seam.
+             * 
+             * The cone contains only the top vertex, the shared edges of the newly created faces,
+             * and the newly created faces, all of which are incident to the top vertex.
+             */
+            struct WeaveConeResult {
+                VertexList vertices;
+                EdgeList edges;
+                FaceList faces;
+                HalfEdge* firstSeamEdge;
+            };
+
+            /**
+             * Weaves a cone, the tip of which will be a newly created vertex at the given position.
+             * 
+             * The returned cone may have coplanar adjacent faces. The caller is responsible for merging those.
+             * 
              * @param seam the seam to weave a cone onto
              * @param position the position of the cone's tip
-             * @param planeEpsilon the plane epsilon to use for point status checks
-             * @return the newly created vertex at the tip of the newly created cone
+             * @return the components of the newly created cone or an empty optional if the operation fails
              */
-            Vertex* weave(const Seam& seam, const vm::vec<T,3>& position, T planeEpsilon);
+            static std::optional<WeaveConeResult> weaveCone(const Seam& seam, const vm::vec<T,3>& position);
+
+            /**
+             * Seal this polyhedron with the given cone along the given seam.
+             * 
+             * This polyhedron is expected to be open such that the second edges of the given seam are unset. The given cone
+             * must fit onto the given seam, i.e., the cone is expected to be open also and its "open" edges have the vertices
+             * of the seam edges as their origins.
+             * 
+             * @param cone the cone to seal this polyhedron with
+             * @param seam the seam onto which the cone should fit
+             */
+            void sealWithCone(WeaveConeResult cone, const Seam& seam);
 
             /**
              * Inspects all incident faces of the given vertex and merges those which are coplanar. If all the faces
