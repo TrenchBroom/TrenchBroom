@@ -222,8 +222,8 @@ namespace kdl {
         }
 
         // since items can belong to at most one list, copy is not allowed
-        intrusive_circular_list(intrusive_circular_list&) = delete;
-        intrusive_circular_list& operator=(intrusive_circular_list&) = delete;
+        intrusive_circular_list(const intrusive_circular_list&) = delete;
+        intrusive_circular_list& operator=(const intrusive_circular_list&) = delete;
 
         // move constructor
         intrusive_circular_list(intrusive_circular_list&& other) noexcept {
