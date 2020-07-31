@@ -39,7 +39,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class MakeSeamException : public Exception {
+        class MakePlaneException : public Exception {
         public:
             using Exception::Exception;
         };
@@ -47,7 +47,7 @@ namespace TrenchBroom {
         template <typename T, typename FP, typename VP>
         static vm::plane<T,3> makePlaneFromBoundary(const Polyhedron_HalfEdgeList<T,FP,VP>& boundary) {
             if (boundary.size() < 3) {
-                throw MakeSeamException("boundary must have at least thee vertices");
+                throw MakePlaneException("boundary must have at least thee vertices");
             }
             
             const auto* first = boundary.front();
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             
             const auto [valid, plane] = vm::from_points(p1, p2, p3);
             if (!valid) {
-                throw MakeSeamException("boundary is colinear");
+                throw MakePlaneException("boundary is colinear");
             }
             
             return plane;
