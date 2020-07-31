@@ -1597,10 +1597,10 @@ namespace TrenchBroom {
              * Helper function that adds the given point to an edge polyhedron. Afterwards, this polyhedron is a triangle.
              *
              * Assumes that this is an edge polyhedron and that the given point and this polyhedron's vertices are
-             * linearly independent.
+             * linearly independent. If an error occurs while adding the point, the polyhedron remains unchanged.
              *
              * @param position the point to add
-             * @return the newly created vertex
+             * @return the newly created vertex or null if the point cannot be added
              */
             Vertex* addNonColinearThirdPoint(const vm::vec<T,3>& position);
 

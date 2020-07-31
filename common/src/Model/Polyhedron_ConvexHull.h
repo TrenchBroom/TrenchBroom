@@ -23,7 +23,6 @@
 #include "Macros.h"
 
 #include "Polyhedron.h"
-#include "Exceptions.h"
 
 #include <kdl/vector_utils.h>
 
@@ -39,30 +38,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class MakePlaneException : public Exception {
-        public:
-            using Exception::Exception;
-        };
-    
-        template <typename T, typename FP, typename VP>
-        static vm::plane<T,3> makePlaneFromBoundary(const Polyhedron_HalfEdgeList<T,FP,VP>& boundary) {
-            if (boundary.size() < 3) {
-                throw MakePlaneException("boundary must have at least thee vertices");
-            }
-            
-            const auto* first = boundary.front();
-            const auto& p1 = first->next()->origin()->position();
-            const auto& p2 = first->origin()->position();
-            const auto& p3 = first->previous()->origin()->position();
-            
-            const auto [valid, plane] = vm::from_points(p1, p2, p3);
-            if (!valid) {
-                throw MakePlaneException("boundary is colinear");
-            }
-            
-            return plane;
-        }
-
         template <typename T>
         static T computePlaneEpsilon(const std::vector<vm::vec<T,3>>& points) {
             typename vm::bbox<T,3>::builder builder;
@@ -200,6 +175,11 @@ namespace TrenchBroom {
             assert(h2->next() == h2);
             assert(h2->previous() == h2);
 
+            const auto [success, plane] = vm::from_points(v2->position(), v1->position(), position);
+            if (!success) {
+                return nullptr;
+            }
+            
             Vertex* v3 = new Vertex(position);
             HalfEdge* h3 = new HalfEdge(v3);
 
@@ -212,7 +192,7 @@ namespace TrenchBroom {
             boundary.push_back(h2);
             boundary.push_back(h3);
 
-            const vm::plane<T,3> plane = makePlaneFromBoundary(boundary);
+
             Face* face = new Face(std::move(boundary), plane);
 
             Edge* e2 = new Edge(h2);
@@ -773,12 +753,12 @@ namespace TrenchBroom {
                     firstSeamEdge = h2;
                 }
 
-                try {
-                    const vm::plane<T,3> plane = makePlaneFromBoundary(boundary);
-                    faces.push_back(new Face(std::move(boundary), plane));
-                } catch (const MakePlaneException&) {
+                const auto [success, plane] = vm::from_points(v1->position(), position, v2->position());
+                if (!success) {
                     return std::nullopt;
                 }
+
+                faces.push_back(new Face(std::move(boundary), plane));
                 
                 if (last != nullptr) {
                     edges.push_back(new Edge(h1, last));
