@@ -36,7 +36,9 @@
 #include "Model/GameFactory.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
+#include "Model/MapFormat.h"
 #include "Model/Node.h"
+#include "Model/WorldNode.h"
 #include "View/Actions.h"
 #include "View/Autosaver.h"
 #if !defined __APPLE__
@@ -459,9 +461,10 @@ namespace TrenchBroom {
             const QString Arrow = QString(" ") + QString(QChar(0x203A)) + QString(" ");
 
             QStringList pipeSeparatedSections;
-            
-            // current layer
-            pipeSeparatedSections << QObject::tr("Current layer: %1").arg(QString::fromStdString(document->currentLayer()->name()));
+
+            pipeSeparatedSections << QString::fromStdString(document->game()->gameName())
+                                  << QString::fromStdString(Model::formatName(document->world()->format()))
+                                  << QString::fromStdString(document->currentLayer()->name());
 
             // open groups
             std::vector<Model::GroupNode*> groups;
@@ -539,13 +542,13 @@ namespace TrenchBroom {
             }
 
             // now, turn `tokens` into a comma-separated string
-            const QString selectionDescription = QObject::tr("Selected: %1%2")
+            const QString selectionDescription = QObject::tr("%1%2 selected")
                 .arg(QString::fromStdString(kdl::str_join(tokens, ", ", ", and ", " and ")))
                 .arg(layersDescription);
 
             pipeSeparatedSections << selectionDescription;
 
-            return pipeSeparatedSections.join(QLatin1String(" | "));
+            return QString::fromLatin1("   ") + pipeSeparatedSections.join(QLatin1String("   |   "));
         }
 
         void MapFrame::updateStatusBar() {
