@@ -1597,10 +1597,10 @@ namespace TrenchBroom {
              * Helper function that adds the given point to an edge polyhedron. Afterwards, this polyhedron is a triangle.
              *
              * Assumes that this is an edge polyhedron and that the given point and this polyhedron's vertices are
-             * linearly independent.
+             * linearly independent. If an error occurs while adding the point, the polyhedron remains unchanged.
              *
              * @param position the point to add
-             * @return the newly created vertex
+             * @return the newly created vertex or null if the point cannot be added
              */
             Vertex* addNonColinearThirdPoint(const vm::vec<T,3>& position);
 
@@ -1649,16 +1649,6 @@ namespace TrenchBroom {
              * @return the newly created vertex or null if no vertex was created
              */
             Vertex* addPointToPolygon(const vm::vec<T,3>& position, T planeEpsilon);
-
-            /**
-             * Helper function that creates a new polygon from the given vector of coplanar points.
-             *
-             * Assumes that this polyhedron is empty and that the given vector contains at least three linearly
-             * independent points.
-             *
-             * @param positions the points to create a polygon from
-             */
-            void makePolygon(const std::vector<vm::vec<T,3>>& positions);
 
             /**
              * Helper function that adds the given non coplanar point to a polygon, turning it into a convex volume.
@@ -1778,21 +1768,40 @@ namespace TrenchBroom {
             bool checkSeamForWeaving(const Seam& seam, const vm::vec<T,3>& position) const;
             
             /**
-             * Weaves a new cap onto this polyhedron. The new cap will be a cone, the tip of which will be a newly created
-             * vertex at the given position. If two adjacent faces of the cone are coplanar, these will be merged.
-             *
-             * The edges of the given seam are expected to be oriented such that their second edges are unset. Each edge
-             * will then have a newly created polygon as its first face.
-             *
-             * Assumes that this polyhedron is neither empty, nor a point, nor an edge. Note that this polyhedron can be
-             * a polygon, however.
-             *
+             * Represents an open cone intended to seal a polyhedron that was split along a seam.
+             * 
+             * The cone contains only the top vertex, the shared edges of the newly created faces,
+             * and the newly created faces, all of which are incident to the top vertex.
+             */
+            struct WeaveConeResult {
+                VertexList vertices;
+                EdgeList edges;
+                FaceList faces;
+                HalfEdge* firstSeamEdge;
+            };
+
+            /**
+             * Weaves a cone, the tip of which will be a newly created vertex at the given position.
+             * 
+             * The returned cone may have coplanar adjacent faces. The caller is responsible for merging those.
+             * 
              * @param seam the seam to weave a cone onto
              * @param position the position of the cone's tip
-             * @param planeEpsilon the plane epsilon to use for point status checks
-             * @return the newly created vertex at the tip of the newly created cone
+             * @return the components of the newly created cone or an empty optional if the operation fails
              */
-            Vertex* weave(const Seam& seam, const vm::vec<T,3>& position, T planeEpsilon);
+            static std::optional<WeaveConeResult> weaveCone(const Seam& seam, const vm::vec<T,3>& position);
+
+            /**
+             * Seal this polyhedron with the given cone along the given seam.
+             * 
+             * This polyhedron is expected to be open such that the second edges of the given seam are unset. The given cone
+             * must fit onto the given seam, i.e., the cone is expected to be open also and its "open" edges have the vertices
+             * of the seam edges as their origins.
+             * 
+             * @param cone the cone to seal this polyhedron with
+             * @param seam the seam onto which the cone should fit
+             */
+            void sealWithCone(WeaveConeResult cone, const Seam& seam);
 
             /**
              * Inspects all incident faces of the given vertex and merges those which are coplanar. If all the faces

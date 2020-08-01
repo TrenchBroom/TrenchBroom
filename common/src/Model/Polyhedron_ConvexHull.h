@@ -23,7 +23,6 @@
 #include "Macros.h"
 
 #include "Polyhedron.h"
-#include "Exceptions.h"
 
 #include <kdl/vector_utils.h>
 
@@ -39,30 +38,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class MakeSeamException : public Exception {
-        public:
-            using Exception::Exception;
-        };
-    
-        template <typename T, typename FP, typename VP>
-        static vm::plane<T,3> makePlaneFromBoundary(const Polyhedron_HalfEdgeList<T,FP,VP>& boundary) {
-            if (boundary.size() < 3) {
-                throw MakeSeamException("boundary must have at least thee vertices");
-            }
-            
-            const auto* first = boundary.front();
-            const auto& p1 = first->next()->origin()->position();
-            const auto& p2 = first->origin()->position();
-            const auto& p3 = first->previous()->origin()->position();
-            
-            const auto [valid, plane] = vm::from_points(p1, p2, p3);
-            if (!valid) {
-                throw MakeSeamException("boundary is colinear");
-            }
-            
-            return plane;
-        }
-
         template <typename T>
         static T computePlaneEpsilon(const std::vector<vm::vec<T,3>>& points) {
             typename vm::bbox<T,3>::builder builder;
@@ -200,6 +175,11 @@ namespace TrenchBroom {
             assert(h2->next() == h2);
             assert(h2->previous() == h2);
 
+            const auto [success, plane] = vm::from_points(v2->position(), v1->position(), position);
+            if (!success) {
+                return nullptr;
+            }
+            
             Vertex* v3 = new Vertex(position);
             HalfEdge* h3 = new HalfEdge(v3);
 
@@ -212,7 +192,7 @@ namespace TrenchBroom {
             boundary.push_back(h2);
             boundary.push_back(h3);
 
-            const vm::plane<T,3> plane = makePlaneFromBoundary(boundary);
+
             Face* face = new Face(std::move(boundary), plane);
 
             Edge* e2 = new Edge(h2);
@@ -330,28 +310,6 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        void Polyhedron<T,FP,VP>::makePolygon(const std::vector<vm::vec<T,3>>& positions) {
-            assert(empty());
-            assert(positions.size() > 2);
-
-            HalfEdgeList boundary;
-            for (size_t i = 0u; i < positions.size(); ++i) {
-                const vm::vec<T,3>& p = positions[i];
-                Vertex* v = new Vertex(p);
-                HalfEdge* h = new HalfEdge(v);
-                Edge* e = new Edge(h);
-
-                m_vertices.push_back(v);
-                boundary.push_back(h);
-                m_edges.push_back(e);
-            }
-
-            const vm::plane<T,3> plane = makePlaneFromBoundary(boundary);
-            Face* f = new Face(std::move(boundary), plane);
-            m_faces.push_back(f);
-        }
-
-        template <typename T, typename FP, typename VP>
         typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::makePolyhedron(const vm::vec<T,3>& position, const T planeEpsilon) {
             assert(polygon());
 
@@ -364,7 +322,16 @@ namespace TrenchBroom {
                 seam.push_back((*it)->edge());
             }
 
-            return weave(seam, position, planeEpsilon);
+            if (auto cone = weaveCone(seam, position)) {
+                auto* top = cone->vertices.front();
+
+                sealWithCone(std::move(*cone), seam);
+                if (mergeCoplanarIncidentFaces(top, planeEpsilon)) {
+                    return top;
+                }
+            }
+
+            return nullptr;
         }
 
         template <typename T, typename FP, typename VP>
@@ -388,10 +355,18 @@ namespace TrenchBroom {
             if (!checkSeamForWeaving(*seam, position)) {
                 return nullptr;
             }
-            
-            split(*seam);
 
-            return weave(*seam, position, planeEpsilon);
+            if (auto cone = weaveCone(*seam, position)) {
+                auto* top = cone->vertices.front();
+
+                split(*seam);
+                sealWithCone(std::move(*cone), *seam);
+                if (mergeCoplanarIncidentFaces(top, planeEpsilon)) {
+                    return top;
+                }
+            }
+
+            return nullptr;
         }
 
         template <typename T, typename FP, typename VP>
@@ -745,18 +720,22 @@ namespace TrenchBroom {
         }
 
         template <typename T, typename FP, typename VP>
-        typename Polyhedron<T,FP,VP>::Vertex* Polyhedron<T,FP,VP>::weave(const Seam& seam, const vm::vec<T,3>& position, const T planeEpsilon) {
+        std::optional<typename Polyhedron<T,FP,VP>::WeaveConeResult> Polyhedron<T,FP,VP>::weaveCone(const Seam& seam, const vm::vec<T,3>& position) {
             assert(seam.size() >= 3);
             assert(!seam.hasMultipleLoops());
-            assert(!empty() && !point() && !edge());
+
+            VertexList vertices;
+            EdgeList edges;
+            FaceList faces;
+            HalfEdge* firstSeamEdge = nullptr;
 
             auto* top = new Vertex(position);
+            vertices.push_back(top);
 
             HalfEdge* first = nullptr;
             HalfEdge* last = nullptr;
 
             for (auto* edge : seam) {
-                assert(!edge->fullySpecified());
                 auto* v1 = edge->secondVertex();
                 auto* v2 = edge->firstVertex();
 
@@ -769,13 +748,20 @@ namespace TrenchBroom {
                 boundary.push_back(h1);
                 boundary.push_back(h2);
                 boundary.push_back(h3);
-                edge->setSecondEdge(h2);
 
-                const vm::plane<T,3> plane = makePlaneFromBoundary(boundary);
-                m_faces.push_back(new Face(std::move(boundary), plane));
+                if (!firstSeamEdge) {
+                    firstSeamEdge = h2;
+                }
+
+                const auto [success, plane] = vm::from_points(v1->position(), position, v2->position());
+                if (!success) {
+                    return std::nullopt;
+                }
+
+                faces.push_back(new Face(std::move(boundary), plane));
                 
                 if (last != nullptr) {
-                    m_edges.push_back(new Edge(h1, last));
+                    edges.push_back(new Edge(h1, last));
                 }
                 
                 if (first == nullptr) {
@@ -786,15 +772,24 @@ namespace TrenchBroom {
             }
 
             assert(first->face() != last->face());
-            m_edges.push_back(new Edge(first, last));
-            m_vertices.push_back(top);
+            edges.push_back(new Edge(first, last));
 
-            if (mergeCoplanarIncidentFaces(top, planeEpsilon)) {
-                return top;
-            } else {
-                return nullptr;
-            }
+            return WeaveConeResult{ std::move(vertices), std::move(edges), std::move(faces), firstSeamEdge };
         }
+
+        template <typename T, typename FP, typename VP>
+        void Polyhedron<T,FP,VP>::sealWithCone(WeaveConeResult cone, const Seam& seam) {
+            HalfEdge* currentConeEdge = cone.firstSeamEdge;
+            for (Edge* edge : seam) {
+                edge->setSecondEdge(currentConeEdge);
+                currentConeEdge = currentConeEdge->next()->twin()->next();
+            }
+
+            m_vertices.append(cone.vertices);
+            m_edges.append(cone.edges);
+            m_faces.append(cone.faces);
+        }
+
 
         template <typename T, typename FP, typename VP>
         bool Polyhedron<T,FP,VP>::mergeCoplanarIncidentFaces(Vertex* vertex, const T planeEpsilon) {
