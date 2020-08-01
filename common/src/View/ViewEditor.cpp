@@ -633,7 +633,7 @@ namespace TrenchBroom {
         QWidget(parent),
         m_button(nullptr),
         m_editor(nullptr) {
-            m_button = new PopupButton(tr("View"));
+            m_button = new PopupButton(tr("View Options"));
             m_button->setToolTip(tr("Click to edit view settings"));
 
             auto* editorContainer = new BorderPanel();
