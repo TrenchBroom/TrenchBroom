@@ -527,10 +527,6 @@ namespace TrenchBroom {
                 tokens.push_back(numberWithSuffix(selectedNodes.groups().size(), "group", "groups"));
             }
 
-            if (tokens.empty()) {
-                tokens.push_back("nothing");
-            }
-
             // get the layers of the selected nodes
             const std::vector<Model::LayerNode*> selectedObjectLayers = Model::findLayersUserSorted(selectedNodes.nodes());
             QString layersDescription;
@@ -542,11 +538,61 @@ namespace TrenchBroom {
             }
 
             // now, turn `tokens` into a comma-separated string
-            const QString selectionDescription = QObject::tr("%1%2 selected")
-                .arg(QString::fromStdString(kdl::str_join(tokens, ", ", ", and ", " and ")))
-                .arg(layersDescription);
+            if (!tokens.empty()) {
+                pipeSeparatedSections << QObject::tr("%1%2 selected")
+                        .arg(QString::fromStdString(kdl::str_join(tokens, ", ", ", and ", " and ")))
+                        .arg(layersDescription);
+            }
 
-            pipeSeparatedSections << selectionDescription;
+            // count hidden objects
+            class CountHiddenNodesVisitor : public Model::ConstNodeVisitor {
+            private:
+                const Model::EditorContext& m_editorContext;
+            public:
+                size_t hiddenGroups = 0u;
+                size_t hiddenBrushes = 0u;
+                size_t hiddenEntities = 0u;
+            public:
+                explicit CountHiddenNodesVisitor(const Model::EditorContext& editorContext) : m_editorContext(editorContext) {}
+            private:
+                void doVisit(const Model::WorldNode*) override {}
+                void doVisit(const Model::LayerNode*) override {}
+                void doVisit(const Model::GroupNode* group) override {
+                    if (!m_editorContext.visible(group)) {
+                        ++hiddenGroups;
+                    }
+                }
+                void doVisit(const Model::EntityNode* entity) override {
+                    if (!m_editorContext.visible(entity)) {
+                        ++hiddenEntities;
+                    }
+                }
+                void doVisit(const Model::BrushNode* brush) override {
+                    if (!m_editorContext.visible(brush)) {
+                        ++hiddenBrushes;
+                    }
+                }
+            };
+            auto visitor = CountHiddenNodesVisitor(document->editorContext());
+            document->world()->acceptAndRecurse(visitor);
+
+            // print hidden objects
+            if (visitor.hiddenGroups > 0 || visitor.hiddenEntities > 0 || visitor.hiddenBrushes > 0) {
+                std::vector<std::string> hiddenDescriptors;
+
+                if (visitor.hiddenGroups > 0) {
+                    hiddenDescriptors.push_back(numberWithSuffix(visitor.hiddenGroups, "group", "groups"));
+                }
+                if (visitor.hiddenEntities > 0) {
+                    hiddenDescriptors.push_back(numberWithSuffix(visitor.hiddenEntities, "entity", "entities"));
+                }
+                if (visitor.hiddenBrushes > 0) {
+                    hiddenDescriptors.push_back(numberWithSuffix(visitor.hiddenBrushes, "brush", "brushes"));
+                }
+
+                pipeSeparatedSections << QObject::tr("%1 hidden")
+                        .arg(QString::fromStdString(kdl::str_join(hiddenDescriptors, ", ", ", and ", " and ")));
+            }
 
             return QString::fromLatin1("   ") + pipeSeparatedSections.join(QLatin1String("   |   "));
         }
@@ -570,6 +616,8 @@ namespace TrenchBroom {
             m_document->currentLayerDidChangeNotifier.addObserver(this, &MapFrame::currentLayerDidChange);
             m_document->groupWasOpenedNotifier.addObserver(this, &MapFrame::groupWasOpened);
             m_document->groupWasClosedNotifier.addObserver(this, &MapFrame::groupWasClosed);
+            m_document->nodeVisibilityDidChangeNotifier.addObserver(this, &MapFrame::nodeVisibilityDidChange);
+            m_document->editorContextDidChangeNotifier.addObserver(this, &MapFrame::editorContextDidChange);
 
             Grid& grid = m_document->grid();
             grid.gridDidChangeNotifier.addObserver(this, &MapFrame::gridDidChange);
@@ -594,6 +642,8 @@ namespace TrenchBroom {
             m_document->currentLayerDidChangeNotifier.removeObserver(this, &MapFrame::currentLayerDidChange);
             m_document->groupWasOpenedNotifier.removeObserver(this, &MapFrame::groupWasOpened);
             m_document->groupWasClosedNotifier.removeObserver(this, &MapFrame::groupWasClosed);
+            m_document->nodeVisibilityDidChangeNotifier.removeObserver(this, &MapFrame::nodeVisibilityDidChange);
+            m_document->editorContextDidChangeNotifier.removeObserver(this, &MapFrame::editorContextDidChange);
 
             Grid& grid = m_document->grid();
             grid.gridDidChangeNotifier.removeObserver(this, &MapFrame::gridDidChange);
@@ -676,6 +726,15 @@ namespace TrenchBroom {
         }
 
         void MapFrame::groupWasClosed(Model::GroupNode*) {
+            updateStatusBar();
+        }
+
+        void MapFrame::nodeVisibilityDidChange(const std::vector<Model::Node*>&) {
+            updateStatusBar();
+        }
+
+        void MapFrame::editorContextDidChange() {
+            // e.g. changing the view filters may cause the number of hidden brushes/entities to change
             updateStatusBar();
         }
 
