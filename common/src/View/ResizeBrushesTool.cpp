@@ -137,7 +137,7 @@ namespace TrenchBroom {
                 
                 if ((leftDot > 0.0) != (rightDot > 0.0)) {
                     const auto result = vm::distance(m_pickRay, vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
-                    if (!vm::is_nan(result.distance) && result.distance < m_closest) {
+                    if (!vm::is_nan(result.distance) && !vm::is_nan(result.position1) && result.distance < m_closest) {
                         m_closest = result.distance;
                         const auto hitPoint = vm::point_at_distance(m_pickRay, result.position1);
                         if (m_hitType == ResizeBrushesTool::Resize2DHitType) {

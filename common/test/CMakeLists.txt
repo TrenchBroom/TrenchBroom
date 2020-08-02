@@ -73,6 +73,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/View/MapDocumentTest.h"
         "${COMMON_TEST_SOURCE_DIR}/View/MoveToolControllerTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/RemoveNodesTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/View/ResizeBrushesToolTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/ReparentNodesTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/ScaleObjectsToolTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/SelectionCommandTest.cpp"
