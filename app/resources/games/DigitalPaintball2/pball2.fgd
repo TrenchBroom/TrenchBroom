@@ -149,7 +149,6 @@
 
 @baseclass base(Appearflags, Targetname) size(-16 -16 -24, 16 16 32) color(0 255 0) = PlayerClass []
 
-@PointClass base(PlayerClass) = info_player_start : "Player 1 start" []
 @PointClass base(PlayerClass) = info_player_deathmatch : "Player deathmatch start"
 [
     teamnumber(integer) : "sets which team's players will spawn at this point.  Setting to 0 means any team can spawn here."
