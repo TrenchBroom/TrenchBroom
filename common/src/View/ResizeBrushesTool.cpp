@@ -122,6 +122,15 @@ namespace TrenchBroom {
                     visitEdge(brushNode, edge);
             }
 
+            static vm::line_distance<FloatType> safeDistance(const vm::ray3& ray, const vm::segment3& segment) {
+                const auto result = vm::distance(ray, segment);
+                if (result.parallel) {
+                    const auto startDistance = vm::distance(ray, segment.start());
+                    return vm::line_distance<FloatType>::NonParallel(startDistance.position, startDistance.distance, 0.0);
+                }
+                return result;
+            }
+
             void visitEdge(Model::BrushNode* node, const Model::BrushEdge* edge) {
                 const auto leftFaceIndex = edge->firstFace()->payload();
                 const auto rightFaceIndex = edge->secondFace()->payload();
@@ -136,8 +145,8 @@ namespace TrenchBroom {
                 const auto rightFaceHandle = Model::BrushFaceHandle(node, *rightFaceIndex);
                 
                 if ((leftDot > 0.0) != (rightDot > 0.0)) {
-                    const auto result = vm::distance(m_pickRay, vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
-                    if (!vm::is_nan(result.distance) && !vm::is_nan(result.position1) && result.distance < m_closest) {
+                    const auto result = safeDistance(m_pickRay, vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
+                    if (!vm::is_nan(result.distance) && result.distance < m_closest) {
                         m_closest = result.distance;
                         const auto hitPoint = vm::point_at_distance(m_pickRay, result.position1);
                         if (m_hitType == ResizeBrushesTool::Resize2DHitType) {

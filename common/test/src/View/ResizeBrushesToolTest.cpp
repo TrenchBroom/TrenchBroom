@@ -48,24 +48,14 @@ namespace TrenchBroom {
 
         static const auto PickRay = vm::ray3(vm::vec3(0.0, -100.0, 0.0), vm::normalize(vm::vec3(-1.0, 1.0, 0)));
 
-        TEST_CASE_METHOD(ResizeBrushesToolTest, "ResizeBrushesToolTest.pickSmallBrush") {
-            ResizeBrushesTool tool(document);
-
-            Model::BrushBuilder builder(document->world(), document->worldBounds());
-            Model::BrushNode* brush1 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3::fill(0.0), vm::vec3::fill(0.01)), "texture").value());
-
-            document->addNode(brush1, document->currentLayer());
-            document->select(brush1);
-
-            const Model::Hit hit = tool.pick3D(PickRay, Model::PickResult());
-            CHECK(!hit.isMatch());
-        }
-
         TEST_CASE_METHOD(ResizeBrushesToolTest, "ResizeBrushesToolTest.pickBrush") {
             ResizeBrushesTool tool(document);
 
+            const auto bboxMax = GENERATE(vm::vec3::fill(0.01),
+                                          vm::vec3::fill(8.0));
+
             Model::BrushBuilder builder(document->world(), document->worldBounds());
-            Model::BrushNode* brush1 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3::fill(0.0), vm::vec3::fill(8.0)), "texture").value());
+            Model::BrushNode* brush1 = document->world()->createBrush(builder.createCuboid(vm::bbox3(vm::vec3::fill(0.0), bboxMax), "texture").value());
 
             document->addNode(brush1, document->currentLayer());
             document->select(brush1);
