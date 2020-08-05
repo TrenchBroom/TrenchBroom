@@ -625,7 +625,8 @@ namespace TrenchBroom {
                 const Model::Brush& original = brushNode->brush();
                 const auto faceIndex = original.findFace(polygons);
                 if (!faceIndex) {
-                    return std::nullopt;
+                    // We allow resizing only some of the brushes
+                    continue;
                 }
 
                 const bool success = original.moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
@@ -649,7 +650,6 @@ namespace TrenchBroom {
                 if (!success) {
                     return std::nullopt;
                 }
-
             }
 
             const auto parents = collectParents(std::begin(changedNodes), std::end(changedNodes));
