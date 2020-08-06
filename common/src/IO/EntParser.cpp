@@ -25,6 +25,7 @@
 #include "EL/Types.h"
 #include "EL/Value.h"
 #include "IO/ELParser.h"
+#include "IO/EntityDefinitionClassInfo.h"
 #include "IO/ParserStatus.h"
 #include "Model/EntityAttributes.h"
 
@@ -102,29 +103,35 @@ namespace TrenchBroom {
         }
 
         Assets::EntityDefinition* EntParser::parsePointEntityDefinition(const tinyxml2::XMLElement& element, const AttributeDefinitionList& attributeDeclarations, ParserStatus& status) {
-            const auto bounds = parseBounds(element, "box", status);
-            const auto color = parseColor(element, "color", status);
-            const auto name = parseString(element, "name", status);
-            const auto modelDefinition = parseModel(element, status);
+            EntityDefinitionClassInfo classInfo;;
+            classInfo.type = EntityDefinitionClassType::PointClass;
+            classInfo.line = static_cast<size_t>(element.GetLineNum());
+            classInfo.column = 0;
+            classInfo.name = parseString(element, "name", status);
+            classInfo.description = getText(element);
+            classInfo.color = parseColor(element, "color", status);
+            classInfo.size = parseBounds(element, "box", status);
+            classInfo.modelDefinition = parseModel(element, status);
 
-            AttributeDefinitionList attributeDefinitions;
+            parseSpawnflags(element, classInfo.attributes, status);
+            parseAttributes(element, attributeDeclarations, classInfo.attributes, status);
 
-            parseSpawnflags(element, attributeDefinitions, status);
-            parseAttributes(element, attributeDeclarations, attributeDefinitions, status);
-
-            return new Assets::PointEntityDefinition(name, color, bounds, getText(element), attributeDefinitions, modelDefinition);
+            return new Assets::PointEntityDefinition(classInfo.name, *classInfo.color, *classInfo.size, *classInfo.description, classInfo.attributes, *classInfo.modelDefinition);
         }
 
         Assets::EntityDefinition* EntParser::parseBrushEntityDefinition(const tinyxml2::XMLElement& element, const AttributeDefinitionList& attributeDeclarations, ParserStatus& status) {
-            const auto color = parseColor(element, "color", status);
-            const auto name = parseString(element, "name", status);
+            EntityDefinitionClassInfo classInfo;;
+            classInfo.type = EntityDefinitionClassType::BrushClass;
+            classInfo.line = static_cast<size_t>(element.GetLineNum());
+            classInfo.column = 0;
+            classInfo.name = parseString(element, "name", status);
+            classInfo.description = getText(element);
+            classInfo.color = parseColor(element, "color", status);
 
-            AttributeDefinitionList attributeDefinitions;
+            parseSpawnflags(element, classInfo.attributes, status);
+            parseAttributes(element, attributeDeclarations, classInfo.attributes, status);
 
-            parseSpawnflags(element, attributeDefinitions, status);
-            parseAttributes(element, attributeDeclarations, attributeDefinitions, status);
-
-            return new Assets::BrushEntityDefinition(name, color, getText(element), attributeDefinitions);
+            return new Assets::BrushEntityDefinition(classInfo.name, *classInfo.color, *classInfo.description, classInfo.attributes);
         }
 
         Assets::ModelDefinition EntParser::parseModel(const tinyxml2::XMLElement& element, ParserStatus& status) {
@@ -164,7 +171,11 @@ namespace TrenchBroom {
 
                     flagElement = flagElement->NextSiblingElement("flag");
                 } while (flagElement != nullptr);
-                attributeDefinitions.push_back(result);
+
+                if (!addAttribute(attributeDefinitions, std::move(result))) {
+                    const auto line = static_cast<size_t>(element.GetLineNum());
+                    status.warn(line, 0, "Skipping duplicate spawnflags attribute definition");
+                }
             }
         }
 
@@ -308,7 +319,10 @@ namespace TrenchBroom {
                 const auto shortDesc = parseString(element, "name", status);
                 const auto longDesc = getText(element);
 
-                attributeDefinitions.push_back(factory(name, shortDesc, longDesc));
+                if (!addAttribute(attributeDefinitions, factory(name, shortDesc, longDesc))) {
+                    const auto line = static_cast<size_t>(element.GetLineNum());
+                    status.warn(line, 0, "Skipping duplicate attribute definition: '" + name + "'");
+                }
             }
         }
 

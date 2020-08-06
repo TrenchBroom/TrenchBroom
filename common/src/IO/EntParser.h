@@ -43,6 +43,7 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        struct EntityDefinitionClassInfo;
         class ParserStatus;
 
         class EntParser : public EntityDefinitionParser {

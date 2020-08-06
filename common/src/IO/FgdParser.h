@@ -38,6 +38,8 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        struct EntityDefinitionClassInfo;
+        enum class EntityDefinitionClassType;
         class FileSystem;
         class ParserStatus;
         class Path;
@@ -99,8 +101,8 @@ namespace TrenchBroom {
             Assets::EntityDefinition* parseDefinition(ParserStatus& status);
             Assets::EntityDefinition* parseSolidClass(ParserStatus& status);
             Assets::EntityDefinition* parsePointClass(ParserStatus& status);
-            EntityDefinitionClassInfo parseBaseClass(ParserStatus& status);
-            EntityDefinitionClassInfo parseClass(ParserStatus& status);
+            EntityDefinitionClassInfo parseBaseClassInfo(ParserStatus& status);
+            EntityDefinitionClassInfo parseClassInfo(ParserStatus& status, EntityDefinitionClassType classType);
             void skipMainClass(ParserStatus& status);
 
             std::vector<std::string> parseSuperClasses(ParserStatus& status);
@@ -108,7 +110,7 @@ namespace TrenchBroom {
             std::string parseNamedValue(ParserStatus& status, const std::string& name);
             void skipClassAttribute(ParserStatus& status);
 
-            AttributeDefinitionMap parseProperties(ParserStatus& status);
+            AttributeDefinitionList parseProperties(ParserStatus& status);
             AttributeDefinitionPtr parseTargetSourceAttribute(ParserStatus& status, const std::string& name);
             AttributeDefinitionPtr parseTargetDestinationAttribute(ParserStatus& status, const std::string& name);
             AttributeDefinitionPtr parseStringAttribute(ParserStatus& status, const std::string& name);
