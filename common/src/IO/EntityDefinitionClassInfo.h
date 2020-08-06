@@ -59,10 +59,6 @@ namespace TrenchBroom {
 
             std::vector<std::shared_ptr<Assets::AttributeDefinition>> attributes;
             std::vector<std::string> superClasses;
-
-            void resolveBaseClasses(const std::map<std::string, EntityDefinitionClassInfo>& baseClasses);
-        private:
-            static void mergeProperties(Assets::AttributeDefinition* classAttribute, const Assets::AttributeDefinition* baseclassAttribute);
         };
 
         bool addAttribute(std::vector<std::shared_ptr<Assets::AttributeDefinition>>& attributes, std::shared_ptr<Assets::AttributeDefinition> attribute);
