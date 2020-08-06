@@ -19,8 +19,8 @@
 
 #include "FgdParser.h"
 
-#include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
+#include "IO/EntityDefinitionClassInfo.h"
 #include "IO/File.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/ELParser.h"
@@ -131,7 +131,7 @@ namespace TrenchBroom {
         }
 
         FgdParser::FgdParser(const char* begin, const char* end, const Color& defaultEntityColor, const Path& path) :
-        m_defaultEntityColor(defaultEntityColor),
+        EntityDefinitionParser(defaultEntityColor),
         m_tokenizer(FgdTokenizer(begin, end)) {
             if (!path.isEmpty() && path.isAbsolute()) {
                 m_fs = std::make_shared<DiskFileSystem>(path.deleteLastComponent());
@@ -207,54 +207,46 @@ namespace TrenchBroom {
             return false;
         }
 
-        FgdParser::EntityDefinitionList FgdParser::doParseDefinitions(ParserStatus& status) {
-            EntityDefinitionList definitions;
-            try {
-                auto token = m_tokenizer.peekToken();
-                while (!token.hasType(FgdToken::Eof)) {
-                    parseDefinitionOrInclude(status, definitions);
-                    token = m_tokenizer.peekToken();
-                }
-                return definitions;
-            } catch (...) {
-                kdl::vec_clear_and_delete(definitions);
-                throw;
+        std::vector<EntityDefinitionClassInfo> FgdParser::parseClassInfos(ParserStatus& status) {
+            std::vector<EntityDefinitionClassInfo> classInfos;
+            auto token = m_tokenizer.peekToken();
+            while (!token.hasType(FgdToken::Eof)) {
+                parseClassInfoOrInclude(status, classInfos);
+                token = m_tokenizer.peekToken();
             }
+            return classInfos;
         }
 
-        void FgdParser::parseDefinitionOrInclude(ParserStatus& status, EntityDefinitionList& definitions) {
+        void FgdParser::parseClassInfoOrInclude(ParserStatus& status, std::vector<EntityDefinitionClassInfo>& classInfos) {
             auto token = expect(status, FgdToken::Eof | FgdToken::Word, m_tokenizer.peekToken());
             if (token.hasType(FgdToken::Eof)) {
                 return;
             }
 
             if (kdl::ci::str_is_equal(token.data(), "@include")) {
-                const auto includedDefinitions = parseInclude(status);
-                kdl::vec_append(definitions, includedDefinitions);
+                const auto includedClassInfos = parseInclude(status);
+                kdl::vec_append(classInfos, includedClassInfos);
             } else {
-                auto* definition = parseDefinition(status);
-                status.progress(m_tokenizer.progress());
-                if (definition != nullptr) {
-                    definitions.push_back(definition);
+                if (auto classInfo = parseClassInfo(status)) {
+                    classInfos.push_back(std::move(*classInfo));
                 }
+                status.progress(m_tokenizer.progress());
             }
         }
 
-        Assets::EntityDefinition* FgdParser::parseDefinition(ParserStatus& status) {
+        std::optional<EntityDefinitionClassInfo> FgdParser::parseClassInfo(ParserStatus& status) {
             auto token = expect(status, FgdToken::Word, m_tokenizer.nextToken());
 
             const auto classname = token.data();
             if (kdl::ci::str_is_equal(classname, "@SolidClass")) {
-                return parseSolidClass(status);
+                return parseSolidClassInfo(status);
             } else if (kdl::ci::str_is_equal(classname, "@PointClass")) {
-                return parsePointClass(status);
+                return parsePointClassInfo(status);
             } else if (kdl::ci::str_is_equal(classname, "@BaseClass")) {
-                const auto baseClass = parseBaseClassInfo(status);
-                m_baseClasses[baseClass.name] = baseClass;
-                return nullptr;
+                return parseBaseClassInfo(status);
             } else if (kdl::ci::str_is_equal(classname, "@Main")) {
                 skipMainClass(status);
-                return nullptr;
+                return std::nullopt;
             } else {
                 const auto msg = "Unknown entity definition class '" + classname + "'";
                 status.error(token.line(), token.column(), msg);
@@ -262,28 +254,23 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::EntityDefinition* FgdParser::parseSolidClass(ParserStatus& status) {
-            EntityDefinitionClassInfo classInfo = parseClassInfo(status, EntityDefinitionClassType::BrushClass);
+        EntityDefinitionClassInfo FgdParser::parseSolidClassInfo(ParserStatus& status) {
+            const auto classInfo = parseClassInfo(status, EntityDefinitionClassType::BrushClass);
             if (classInfo.size) {
                 status.warn(classInfo.line, classInfo.column, "Solid entity definition must not have a size");
             }
             if (classInfo.modelDefinition) {
                 status.warn(classInfo.line, classInfo.column, "Solid entity definition must not have model definitions");
             }
-            return new Assets::BrushEntityDefinition(classInfo.name, classInfo.color.value_or(m_defaultEntityColor), classInfo.description.value_or(""), classInfo.attributes);
+            return classInfo;
         }
 
-        Assets::EntityDefinition* FgdParser::parsePointClass(ParserStatus& status) {
-            const auto classInfo = parseClassInfo(status, EntityDefinitionClassType::PointClass);
-            return new Assets::PointEntityDefinition(classInfo.name, classInfo.color.value_or(m_defaultEntityColor), classInfo.size.value_or(vm::bbox3(-8, 8)), classInfo.description.value_or(""), classInfo.attributes, classInfo.modelDefinition.value_or(Assets::ModelDefinition()));
+        EntityDefinitionClassInfo FgdParser::parsePointClassInfo(ParserStatus& status) {
+            return parseClassInfo(status, EntityDefinitionClassType::PointClass);
         }
 
         EntityDefinitionClassInfo FgdParser::parseBaseClassInfo(ParserStatus& status) {
-            const auto classInfo = parseClassInfo(status, EntityDefinitionClassType::BaseClass);
-            if (m_baseClasses.count(classInfo.name) > 0) {
-                status.warn(classInfo.line, classInfo.column, "Redefinition of base class '" + classInfo.name + "'");
-            }
-            return classInfo;
+            return parseClassInfo(status, EntityDefinitionClassType::BaseClass);
         }
 
         EntityDefinitionClassInfo FgdParser::parseClassInfo(ParserStatus& status, const EntityDefinitionClassType classType) {
@@ -336,7 +323,6 @@ namespace TrenchBroom {
             }
 
             classInfo.attributes = parseProperties(status);
-            classInfo.resolveBaseClasses(m_baseClasses);
 
             return classInfo;
         }
@@ -714,7 +700,7 @@ namespace TrenchBroom {
             }
         }
 
-        FgdParser::EntityDefinitionList FgdParser::parseInclude(ParserStatus& status) {
+        std::vector<EntityDefinitionClassInfo> FgdParser::parseInclude(ParserStatus& status) {
             auto token = expect(status, FgdToken::Word, m_tokenizer.nextToken());
             assert(kdl::ci::str_is_equal(token.data(), "@include"));
 
@@ -723,14 +709,14 @@ namespace TrenchBroom {
             return handleInclude(status, path);
         }
 
-        FgdParser::EntityDefinitionList FgdParser::handleInclude(ParserStatus& status, const Path& path) {
+        std::vector<EntityDefinitionClassInfo> FgdParser::handleInclude(ParserStatus& status, const Path& path) {
             if (m_fs == nullptr) {
                 status.error(m_tokenizer.line(), kdl::str_to_string("Cannot include file without host file path"));
                 return {};
             }
         
             const auto snapshot = m_tokenizer.snapshot();
-            auto result = EntityDefinitionList{};
+            auto result = std::vector<EntityDefinitionClassInfo>();
             try {
                 status.debug(m_tokenizer.line(), "Parsing included file '" + path.asString() + "'");
                 const auto file = m_fs->openFile(currentRoot() + path);
@@ -741,7 +727,7 @@ namespace TrenchBroom {
                     const PushIncludePath pushIncludePath(this, filePath);
                     auto reader = file->reader().buffer();
                     m_tokenizer.replaceState(std::begin(reader), std::end(reader));
-                    result = doParseDefinitions(status);
+                    result = parseClassInfos(status);
                 } else {
                     status.error(m_tokenizer.line(), kdl::str_to_string("Skipping recursively included file: ", path.asString(), " (", filePath, ")"));
                 }

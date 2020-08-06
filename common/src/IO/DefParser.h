@@ -31,6 +31,7 @@
 #include <vecmath/bbox.h>
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -69,7 +70,6 @@ namespace TrenchBroom {
         private:
             using Token = DefTokenizer::Token;
 
-            Color m_defaultEntityColor;
             DefTokenizer m_tokenizer;
             std::map<std::string, EntityDefinitionClassInfo> m_baseClasses;
         public:
@@ -77,9 +77,9 @@ namespace TrenchBroom {
             DefParser(const std::string& str, const Color& defaultEntityColor);
         private:
             TokenNameMap tokenNames() const override;
-            EntityDefinitionList doParseDefinitions(ParserStatus& status) override;
+            std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;
 
-            Assets::EntityDefinition* parseDefinition(ParserStatus& status);
+            std::optional<EntityDefinitionClassInfo> parseClassInfo(ParserStatus& status);
             AttributeDefinitionPtr parseSpawnflags(ParserStatus& status);
             void parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
             bool parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
