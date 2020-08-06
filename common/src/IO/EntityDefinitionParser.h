@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_EntityDefinitionParser_h
 #define TrenchBroom_EntityDefinitionParser_h
 
+#include "Color.h"
+
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -32,19 +34,27 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        struct EntityDefinitionClassInfo;
         class ParserStatus;
 
         class EntityDefinitionParser {
+        private:
+            Color m_defaultEntityColor;
         protected:
             using EntityDefinitionList = std::vector<Assets::EntityDefinition*>;
             using AttributeDefinitionPtr = std::shared_ptr<Assets::AttributeDefinition>;
             using AttributeDefinitionList = std::vector<AttributeDefinitionPtr>;
             using AttributeDefinitionMap = std::unordered_map<std::string, AttributeDefinitionPtr>;
         public:
+            EntityDefinitionParser(const Color& defaultEntityColor);
             virtual ~EntityDefinitionParser();
+
             EntityDefinitionList parseDefinitions(ParserStatus& status);
         private:
-            virtual EntityDefinitionList doParseDefinitions(ParserStatus& status) = 0;
+            std::unique_ptr<Assets::EntityDefinition> createDefinition(const EntityDefinitionClassInfo& classInfo) const;
+            std::vector<Assets::EntityDefinition*> createDefinitions(ParserStatus& status, std::vector<EntityDefinitionClassInfo> classInfos) const;
+            
+            virtual std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) = 0;
         };
     }
 }

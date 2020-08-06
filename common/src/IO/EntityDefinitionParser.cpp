@@ -19,14 +19,70 @@
 
 #include "EntityDefinitionParser.h"
 
+#include "Macros.h"
+#include "Assets/AttributeDefinition.h"
+#include "Assets/EntityDefinition.h"
+#include "IO/EntityDefinitionClassInfo.h"
+
+#include <map>
+#include <optional>
 #include <vector>
 
 namespace TrenchBroom {
     namespace IO {
+        EntityDefinitionParser::EntityDefinitionParser(const Color& defaultEntityColor) :
+        m_defaultEntityColor(defaultEntityColor) {}
+        
         EntityDefinitionParser::~EntityDefinitionParser() {}
 
+        static void resolveSuperClasses(ParserStatus&, std::vector<EntityDefinitionClassInfo>& classInfos) {
+            std::map<std::string, EntityDefinitionClassInfo> baseClasses;
+            for (auto& classInfo : classInfos) {
+                classInfo.resolveBaseClasses(baseClasses);
+                if (classInfo.type == EntityDefinitionClassType::BaseClass) {
+                    baseClasses.insert({ classInfo.name, classInfo });
+                }
+            }
+        }
+
+        std::unique_ptr<Assets::EntityDefinition> EntityDefinitionParser::createDefinition(const EntityDefinitionClassInfo& classInfo) const {
+            switch (classInfo.type) {
+                case EntityDefinitionClassType::PointClass:
+                    return std::make_unique<Assets::PointEntityDefinition>(
+                        classInfo.name,
+                        classInfo.color.value_or(m_defaultEntityColor),
+                        classInfo.size.value_or(vm::bbox3(-8, 8)),
+                        classInfo.description.value_or(""),
+                        classInfo.attributes,
+                        classInfo.modelDefinition.value_or(Assets::ModelDefinition()));
+                case EntityDefinitionClassType::BrushClass:
+                    return std::make_unique<Assets::BrushEntityDefinition>(
+                        classInfo.name,
+                        classInfo.color.value_or(m_defaultEntityColor),
+                        classInfo.description.value_or(""),
+                        classInfo.attributes);
+                case EntityDefinitionClassType::BaseClass:
+                    return nullptr;
+                switchDefault()
+            };
+        }
+
+        std::vector<Assets::EntityDefinition*> EntityDefinitionParser::createDefinitions(ParserStatus& status, std::vector<EntityDefinitionClassInfo> classInfos) const {
+            resolveSuperClasses(status, classInfos);
+
+            std::vector<Assets::EntityDefinition*> result;
+            for (const auto& classInfo : classInfos) {
+                if (auto definition = createDefinition(classInfo)) {
+                    result.push_back(definition.release());
+                }
+            }
+            
+            return result;
+        }
+
         EntityDefinitionParser::EntityDefinitionList EntityDefinitionParser::parseDefinitions(ParserStatus& status) {
-            return doParseDefinitions(status);
+            auto classInfos = parseClassInfos(status);
+            return createDefinitions(status, std::move(classInfos));
         }
     }
 }
