@@ -81,8 +81,8 @@ namespace TrenchBroom {
 
             Assets::EntityDefinition* parseDefinition(ParserStatus& status);
             AttributeDefinitionPtr parseSpawnflags(ParserStatus& status);
-            void parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo, std::vector<std::string>& superClasses);
-            bool parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo, std::vector<std::string>& superClasses);
+            void parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
+            bool parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
 
             void parseDefaultAttribute(ParserStatus& status);
             std::string parseBaseAttribute(ParserStatus& status);

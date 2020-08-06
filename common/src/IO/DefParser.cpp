@@ -194,46 +194,53 @@ namespace TrenchBroom {
             }
 
             expect(status, DefToken::ODefinition, token);
-
+            
             EntityDefinitionClassInfo classInfo;
+            classInfo.type = EntityDefinitionClassType::BaseClass;
+            classInfo.line = token.line();
+            classInfo.column = token.column();
 
             token = expect(status, DefToken::Word, m_tokenizer.nextToken());
-            classInfo.setName(token.data());
+            classInfo.name = token.data();
 
             token = expect(status, DefToken::OParenthesis | DefToken::Newline, m_tokenizer.peekToken());
             if (token.type() == DefToken::OParenthesis) {
-                classInfo.setColor(parseColor(status));
+                classInfo.type = EntityDefinitionClassType::BrushClass;
+                classInfo.color = parseColor(status);
 
                 token = expect(status, DefToken::OParenthesis | DefToken::Word, m_tokenizer.peekToken());
                 if (token.hasType(DefToken::OParenthesis)) {
-                    classInfo.setSize(parseBounds(status));
+                    classInfo.size = parseBounds(status);
+                    classInfo.type = EntityDefinitionClassType::PointClass;
                 } else if (token.data() == "?") {
                     m_tokenizer.nextToken();
                 }
 
                 token = m_tokenizer.peekToken();
                 if (token.hasType(DefToken::Word | DefToken::Minus)) {
-                    classInfo.addAttributeDefinition(parseSpawnflags(status));
+                    if (!addAttribute(classInfo.attributes, parseSpawnflags(status))) {
+                        status.warn(token.line(), token.column(), "Skipping duplicate spawnflags attribute definition");
+                    }
                 }
             }
 
             expect(status, DefToken::Newline, m_tokenizer.nextToken());
 
-            std::vector<std::string> superClasses;
-            parseAttributes(status, classInfo, superClasses);
+            parseAttributes(status, classInfo);
+            classInfo.description = kdl::str_trim(parseDescription());
 
-            classInfo.setDescription(kdl::str_trim(parseDescription()));
             expect(status, DefToken::CDefinition, m_tokenizer.nextToken());
 
-            if (classInfo.hasColor()) {
-                classInfo.resolveBaseClasses(m_baseClasses, superClasses);
-                if (classInfo.hasSize()) // point definition
-                    return new Assets::PointEntityDefinition(classInfo.name(), classInfo.color(), classInfo.size(), classInfo.description(), classInfo.attributeList(), classInfo.modelDefinition());
-                return new Assets::BrushEntityDefinition(classInfo.name(), classInfo.hasColor() ? classInfo.color() : m_defaultEntityColor, classInfo.description(), classInfo.attributeList());
+            if (classInfo.type != EntityDefinitionClassType::BaseClass) {
+                classInfo.resolveBaseClasses(m_baseClasses);
+                if (classInfo.type == EntityDefinitionClassType::PointClass) {
+                    return new Assets::PointEntityDefinition(classInfo.name, classInfo.color.value_or(m_defaultEntityColor), classInfo.size.value_or(vm::bbox3(-8, 8)), classInfo.description.value_or(""), classInfo.attributes, classInfo.modelDefinition.value_or(Assets::ModelDefinition()));
+                }
+                return new Assets::BrushEntityDefinition(classInfo.name, classInfo.color.value_or(m_defaultEntityColor), classInfo.description.value_or(""), classInfo.attributes);
             }
 
             // base definition
-            m_baseClasses[classInfo.name()] = classInfo;
+            m_baseClasses[classInfo.name] = classInfo;
             return parseDefinition(status);
         }
 
@@ -258,28 +265,34 @@ namespace TrenchBroom {
             return DefParser::AttributeDefinitionPtr(definition);
         }
 
-        void DefParser::parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo, std::vector<std::string>& superClasses) {
+        void DefParser::parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo) {
             if (m_tokenizer.peekToken().type() == DefToken::OBrace) {
                 m_tokenizer.nextToken();
-                while (parseAttribute(status, classInfo, superClasses));
+                while (parseAttribute(status, classInfo));
             }
         }
 
-        bool DefParser::parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo, std::vector<std::string>& superClasses) {
+        bool DefParser::parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo) {
             Token token = expect(status, DefToken::Word | DefToken::CBrace, nextTokenIgnoringNewlines());
             if (token.type() != DefToken::Word)
                 return false;
+
+            const auto line = token.line();
+            const auto column = token.column();
 
             std::string typeName = token.data();
             if (typeName == "default") {
                 // ignore these attributes
                 parseDefaultAttribute(status);
             } else if (typeName == "base") {
-                superClasses.push_back(parseBaseAttribute(status));
+                classInfo.superClasses.push_back(parseBaseAttribute(status));
             } else if (typeName == "choice") {
-                classInfo.addAttributeDefinition(parseChoiceAttribute(status));
+                auto attribute = parseChoiceAttribute(status);
+                if (!addAttribute(classInfo.attributes, attribute)) {
+                    status.warn(line, column, "Skipping duplicate attribute definition: " + attribute->name());
+                }
             } else if (typeName == "model") {
-                classInfo.setModelDefinition(parseModel(status));
+                classInfo.modelDefinition = parseModel(status);
             }
 
             expect(status, DefToken::Semicolon, nextTokenIgnoringNewlines());

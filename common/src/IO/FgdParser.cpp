@@ -249,8 +249,8 @@ namespace TrenchBroom {
             } else if (kdl::ci::str_is_equal(classname, "@PointClass")) {
                 return parsePointClass(status);
             } else if (kdl::ci::str_is_equal(classname, "@BaseClass")) {
-                const auto baseClass = parseBaseClass(status);
-                m_baseClasses[baseClass.name()] = baseClass;
+                const auto baseClass = parseBaseClassInfo(status);
+                m_baseClasses[baseClass.name] = baseClass;
                 return nullptr;
             } else if (kdl::ci::str_is_equal(classname, "@Main")) {
                 skipMainClass(status);
@@ -263,59 +263,61 @@ namespace TrenchBroom {
         }
 
         Assets::EntityDefinition* FgdParser::parseSolidClass(ParserStatus& status) {
-            EntityDefinitionClassInfo classInfo = parseClass(status);
-            if (classInfo.hasSize()) {
-                status.warn(classInfo.line(), classInfo.column(), "Solid entity definition must not have a size");
+            EntityDefinitionClassInfo classInfo = parseClassInfo(status, EntityDefinitionClassType::BrushClass);
+            if (classInfo.size) {
+                status.warn(classInfo.line, classInfo.column, "Solid entity definition must not have a size");
             }
-            if (classInfo.hasModelDefinition()) {
-                status.warn(classInfo.line(), classInfo.column(), "Solid entity definition must not have model definitions");
+            if (classInfo.modelDefinition) {
+                status.warn(classInfo.line, classInfo.column, "Solid entity definition must not have model definitions");
             }
-            return new Assets::BrushEntityDefinition(classInfo.name(), classInfo.color(), classInfo.description(), classInfo.attributeList());
+            return new Assets::BrushEntityDefinition(classInfo.name, classInfo.color.value_or(m_defaultEntityColor), classInfo.description.value_or(""), classInfo.attributes);
         }
 
         Assets::EntityDefinition* FgdParser::parsePointClass(ParserStatus& status) {
-            const auto classInfo = parseClass(status);
-            return new Assets::PointEntityDefinition(classInfo.name(), classInfo.color(), classInfo.size(), classInfo.description(), classInfo.attributeList(), classInfo.modelDefinition());
+            const auto classInfo = parseClassInfo(status, EntityDefinitionClassType::PointClass);
+            return new Assets::PointEntityDefinition(classInfo.name, classInfo.color.value_or(m_defaultEntityColor), classInfo.size.value_or(vm::bbox3(-8, 8)), classInfo.description.value_or(""), classInfo.attributes, classInfo.modelDefinition.value_or(Assets::ModelDefinition()));
         }
 
-        EntityDefinitionClassInfo FgdParser::parseBaseClass(ParserStatus& status) {
-            const auto classInfo = parseClass(status);
-            if (m_baseClasses.count(classInfo.name()) > 0) {
-                status.warn(classInfo.line(), classInfo.column(), "Redefinition of base class '" + classInfo.name() + "'");
+        EntityDefinitionClassInfo FgdParser::parseBaseClassInfo(ParserStatus& status) {
+            const auto classInfo = parseClassInfo(status, EntityDefinitionClassType::BaseClass);
+            if (m_baseClasses.count(classInfo.name) > 0) {
+                status.warn(classInfo.line, classInfo.column, "Redefinition of base class '" + classInfo.name + "'");
             }
             return classInfo;
         }
 
-        EntityDefinitionClassInfo FgdParser::parseClass(ParserStatus& status) {
+        EntityDefinitionClassInfo FgdParser::parseClassInfo(ParserStatus& status, const EntityDefinitionClassType classType) {
             auto token = expect(status, FgdToken::Word | FgdToken::Equality, m_tokenizer.nextToken());
 
-            std::vector<std::string> superClasses;
-            EntityDefinitionClassInfo classInfo(token.line(), token.column(), m_defaultEntityColor);
+            EntityDefinitionClassInfo classInfo;
+            classInfo.type = classType;
+            classInfo.line = token.line();
+            classInfo.column = token.column();
 
             while (token.type() == FgdToken::Word) {
                 const auto typeName = token.data();
                 if (kdl::ci::str_is_equal(typeName, "base")) {
-                    if (!superClasses.empty()) {
+                    if (!classInfo.superClasses.empty()) {
                         status.warn(token.line(), token.column(), "Found multiple base attributes");
                     }
-                    superClasses = parseSuperClasses(status);
+                    classInfo.superClasses = parseSuperClasses(status);
                 } else if (kdl::ci::str_is_equal(typeName, "color")) {
-                    if (classInfo.hasColor()) {
+                    if (classInfo.color) {
                         status.warn(token.line(), token.column(), "Found multiple color attributes");
                     }
-                    classInfo.setColor(parseColor(status));
+                    classInfo.color = parseColor(status);
                 } else if (kdl::ci::str_is_equal(typeName, "size")) {
-                    if (classInfo.hasSize()) {
+                    if (classInfo.size) {
                         status.warn(token.line(), token.column(), "Found multiple size attributes");
                     }
-                    classInfo.setSize(parseSize(status));
+                    classInfo.size = parseSize(status);
                 } else if (kdl::ci::str_is_equal(typeName, "model") ||
                            kdl::ci::str_is_equal(typeName, "studio") ||
                            kdl::ci::str_is_equal(typeName, "studioprop")) {
-                    if (classInfo.hasModelDefinition()) {
+                    if (classInfo.modelDefinition) {
                         status.warn(token.line(), token.column(), "Found multiple model attributes");
                     }
-                    classInfo.setModelDefinition(parseModel(status));
+                    classInfo.modelDefinition = parseModel(status);
                 } else {
                     status.warn(token.line(), token.column(), "Unknown entity definition header attribute '" + typeName + "'");
                     skipClassAttribute(status);
@@ -324,17 +326,18 @@ namespace TrenchBroom {
             }
 
             token = expect(status, FgdToken::Word, m_tokenizer.nextToken());
-            classInfo.setName(token.data());
+            classInfo.name = token.data();
 
             token = expect(status, FgdToken::Colon | FgdToken::OBracket, m_tokenizer.peekToken());
             if (token.type() == FgdToken::Colon) {
                 m_tokenizer.nextToken();
                 const auto description = parseString(status);
-                classInfo.setDescription(kdl::str_trim(description));
+                classInfo.description = kdl::str_trim(description);
             }
 
-            classInfo.addAttributeDefinitions(parseProperties(status));
-            classInfo.resolveBaseClasses(m_baseClasses, superClasses);
+            classInfo.attributes = parseProperties(status);
+            classInfo.resolveBaseClasses(m_baseClasses);
+
             return classInfo;
         }
 
@@ -411,18 +414,16 @@ namespace TrenchBroom {
             } while (depth > 0 && token.type() != FgdToken::Eof);
         }
 
-        FgdParser::AttributeDefinitionMap FgdParser::parseProperties(ParserStatus& status) {
-            AttributeDefinitionMap attributes;
+        FgdParser::AttributeDefinitionList FgdParser::parseProperties(ParserStatus& status) {
+            AttributeDefinitionList attributes;
 
             expect(status, FgdToken::OBracket, m_tokenizer.nextToken());
             auto token = expect(status, FgdToken::Word | FgdToken::CBracket, m_tokenizer.nextToken());
 
             while (token.type() != FgdToken::CBracket) {
-                const auto attributeKey = token.data();
-
-                if (attributes.count(attributeKey) > 0) {
-                    status.warn(token.line(), token.column(), "Redefinition of property declaration '" + attributeKey + "'");
-                }
+                const auto attributeName = token.data();
+                const auto line = token.line();
+                const auto column = token.column();
 
                 expect(status, FgdToken::OParenthesis, m_tokenizer.nextToken());
                 token = expect(status, FgdToken::Word, m_tokenizer.nextToken());
@@ -430,24 +431,31 @@ namespace TrenchBroom {
                 const auto typeName = token.data();
                 token = expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
 
+                std::shared_ptr<Assets::AttributeDefinition> attribute;
                 if (kdl::ci::str_is_equal(typeName, "target_source")) {
-                    attributes[attributeKey] = parseTargetSourceAttribute(status, attributeKey);
+                    attribute = parseTargetSourceAttribute(status, attributeName);
                 } else if (kdl::ci::str_is_equal(typeName, "target_destination")) {
-                    attributes[attributeKey] = parseTargetDestinationAttribute(status, attributeKey);
+                    attribute = parseTargetDestinationAttribute(status, attributeName);
                 } else if (kdl::ci::str_is_equal(typeName, "string")) {
-                    attributes[attributeKey] = parseStringAttribute(status, attributeKey);
+                    attribute = parseStringAttribute(status, attributeName);
                 } else if (kdl::ci::str_is_equal(typeName, "integer")) {
-                    attributes[attributeKey] = parseIntegerAttribute(status, attributeKey);
+                    attribute = parseIntegerAttribute(status, attributeName);
                 } else if (kdl::ci::str_is_equal(typeName, "float")) {
-                    attributes[attributeKey] = parseFloatAttribute(status, attributeKey);
+                    attribute = parseFloatAttribute(status, attributeName);
                 } else if (kdl::ci::str_is_equal(typeName, "choices")) {
-                    attributes[attributeKey] = parseChoicesAttribute(status, attributeKey);
+                    attribute = parseChoicesAttribute(status, attributeName);
                 } else if (kdl::ci::str_is_equal(typeName, "flags")) {
-                    attributes[attributeKey] = parseFlagsAttribute(status, attributeKey);
+                    attribute = parseFlagsAttribute(status, attributeName);
                 } else {
-                    status.debug(token.line(), token.column(), kdl::str_to_string("Unknown property definition type '", typeName, "' for attribute '", attributeKey, "'"));
-                    attributes[attributeKey] = parseUnknownAttribute(status, attributeKey);
+                    status.debug(token.line(), token.column(), kdl::str_to_string("Unknown property definition type '", typeName, "' for attribute '", attributeName, "'"));
+                    attribute = parseUnknownAttribute(status, attributeName);
                 }
+
+                assert(attribute != nullptr);
+                if (!addAttribute(attributes, std::move(attribute))) {
+                    status.warn(line, column, "Skipping duplicate attribute definition: '" + attributeName + "'");
+                }
+                
 
                 token = expect(status, FgdToken::Word | FgdToken::CBracket, m_tokenizer.nextToken());
             }

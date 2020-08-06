@@ -58,6 +58,10 @@ namespace TrenchBroom {
             ModelDefinition(size_t line, size_t column);
             explicit ModelDefinition(const EL::Expression& expression);
 
+            friend bool operator==(const ModelDefinition& lhs, const ModelDefinition& rhs);
+            friend bool operator!=(const ModelDefinition& lhs, const ModelDefinition& rhs);
+            friend std::ostream& operator<<(std::ostream& str, const ModelDefinition& def);
+
             void append(const ModelDefinition& other);
 
             /**

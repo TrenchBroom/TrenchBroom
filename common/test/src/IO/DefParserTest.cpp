@@ -352,25 +352,26 @@ namespace TrenchBroom {
 
             TestParserStatus status;
             auto definitions = parser.parseDefinitions(status);
-            ASSERT_EQ(1u, definitions.size());
+            CHECK(definitions.size() == 1u);
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinitionType::PointEntity, definition->type());
-            ASSERT_EQ(std::string("light"), definition->name());
+            CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
+            CHECK(definition->name() == "light");
 
-            const auto& attributes = definition->attributeDefinitions();
-            ASSERT_EQ(2u, attributes.size()); // spawn flags and style
+            CHECK(definition->attributeDefinitions().size() == 2u);
 
-            auto spawnflags = attributes[0];
-            ASSERT_EQ(Model::AttributeNames::Spawnflags, spawnflags->name());
-            ASSERT_EQ(Assets::AttributeDefinitionType::FlagsAttribute, spawnflags->type());
+            const auto* styleAttribute = definition->attributeDefinition("style");
+            CHECK(styleAttribute != nullptr);
+            CHECK(styleAttribute->name() == "style");
+            CHECK(styleAttribute->type() == Assets::AttributeDefinitionType::ChoiceAttribute);
 
-            auto style = attributes[1];
-            ASSERT_EQ(std::string("style"), style->name());
-            ASSERT_EQ(Assets::AttributeDefinitionType::ChoiceAttribute, style->type());
+            const auto* spawnflagsAttribute = definition->attributeDefinition(Model::AttributeNames::Spawnflags);
+            CHECK(spawnflagsAttribute != nullptr);
+            CHECK(spawnflagsAttribute->name() == Model::AttributeNames::Spawnflags);
+            CHECK(spawnflagsAttribute->type() == Assets::AttributeDefinitionType::FlagsAttribute);
 
-            const Assets::ChoiceAttributeDefinition* choice = static_cast<const Assets::ChoiceAttributeDefinition*>(definition->attributeDefinition("style"));
-            ASSERT_EQ(12u, choice->options().size());
+            const Assets::ChoiceAttributeDefinition* choice = static_cast<const Assets::ChoiceAttributeDefinition*>(styleAttribute);
+            CHECK(choice->options().size() == 12u);
 
             kdl::vec_clear_and_delete(definitions);
         }
