@@ -37,6 +37,9 @@ namespace TrenchBroom {
         struct EntityDefinitionClassInfo;
         class ParserStatus;
 
+        // exposed for testing
+        std::vector<EntityDefinitionClassInfo> resolveInheritance(ParserStatus& status, const std::vector<EntityDefinitionClassInfo>& classInfos);
+
         class EntityDefinitionParser {
         private:
             Color m_defaultEntityColor;
@@ -48,12 +51,12 @@ namespace TrenchBroom {
         public:
             EntityDefinitionParser(const Color& defaultEntityColor);
             virtual ~EntityDefinitionParser();
-
+            
             EntityDefinitionList parseDefinitions(ParserStatus& status);
         private:
             std::unique_ptr<Assets::EntityDefinition> createDefinition(const EntityDefinitionClassInfo& classInfo) const;
-            std::vector<Assets::EntityDefinition*> createDefinitions(ParserStatus& status, std::vector<EntityDefinitionClassInfo> classInfos) const;
-            
+            std::vector<Assets::EntityDefinition*> createDefinitions(ParserStatus& status, const std::vector<EntityDefinitionClassInfo>& classInfos) const;
+ 
             virtual std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) = 0;
         };
     }

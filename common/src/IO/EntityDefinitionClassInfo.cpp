@@ -51,62 +51,6 @@ namespace TrenchBroom {
             return str;
         }
 
-        void EntityDefinitionClassInfo::resolveBaseClasses(const std::map<std::string, EntityDefinitionClassInfo>& baseClasses) {
-            for (auto classnameIt = superClasses.rbegin(), classnameEnd = superClasses.rend(); classnameIt != classnameEnd; ++classnameIt) {
-                const std::string& classname = *classnameIt;
-                const auto baseClassIt = baseClasses.find(classname);
-                if (baseClassIt != std::end(baseClasses)) {
-                    const EntityDefinitionClassInfo& baseClass = baseClassIt->second;
-                    if (!description && baseClass.description) {
-                        description = baseClass.description;
-                    }
-                    if (!color && baseClass.color) {
-                        color = baseClass.color;
-                    }
-                    if (!size && baseClass.size) {
-                        size = baseClass.size;
-                    }
-
-                    for (const auto& baseAttribute : baseClass.attributes) {
-                        auto classAttributeIt = std::find_if(std::begin(attributes), std::end(attributes), [&](const auto& a) { return a->name() == baseAttribute->name(); });
-                        if (classAttributeIt != std::end(attributes)) {
-                            // the class already has a definition for this attribute, attempt merging them
-                            mergeProperties(classAttributeIt->get(), baseAttribute.get());
-                        } else {
-                            // the class doesn't have a definition for this attribute, add the base class attribute
-                            attributes.push_back(baseAttribute);
-                        }
-                    }
-
-                    if (modelDefinition && baseClass.modelDefinition) {
-                        modelDefinition->append(*baseClass.modelDefinition);
-                    } else if (!modelDefinition) {
-                        modelDefinition = baseClass.modelDefinition;
-                    }
-                }
-            }
-        }
-
-        void EntityDefinitionClassInfo::mergeProperties(Assets::AttributeDefinition* classAttribute, const Assets::AttributeDefinition* baseclassAttribute) {
-            // for now, only merge spawnflags
-            if (baseclassAttribute->type() == Assets::AttributeDefinitionType::FlagsAttribute &&
-                classAttribute->type() == Assets::AttributeDefinitionType::FlagsAttribute &&
-                baseclassAttribute->name() == Model::AttributeNames::Spawnflags &&
-                classAttribute->name() == Model::AttributeNames::Spawnflags) {
-
-                const Assets::FlagsAttributeDefinition* baseclassFlags = static_cast<const Assets::FlagsAttributeDefinition*>(baseclassAttribute);
-                Assets::FlagsAttributeDefinition* classFlags = static_cast<Assets::FlagsAttributeDefinition*>(classAttribute);
-
-                for (int i = 0; i < 24; ++i) {
-                    const Assets::FlagsAttributeOption* baseclassFlag = baseclassFlags->option(static_cast<int>(1 << i));
-                    const Assets::FlagsAttributeOption* classFlag = classFlags->option(static_cast<int>(1 << i));
-
-                    if (baseclassFlag != nullptr && classFlag == nullptr)
-                        classFlags->addOption(baseclassFlag->value(), baseclassFlag->shortDescription(), baseclassFlag->longDescription(), baseclassFlag->isDefault());
-                }
-            }
-        }
-
         bool addAttribute(std::vector<std::shared_ptr<Assets::AttributeDefinition>>& attributes, std::shared_ptr<Assets::AttributeDefinition> attribute) {
             assert(attribute != nullptr);
             if (kdl::vec_contains(attributes, [&](const auto& a) { return a->name() == attribute->name(); })) {
