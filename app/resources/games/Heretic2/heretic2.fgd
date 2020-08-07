@@ -118,7 +118,8 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	jumptarget(target_destination)	: "JumpTarget" : 0 : "used with JUMP - this buoy will only make monsters jump at the buoy whose 'targetname' is the same as 'jumpbuoy'- without this, the buoy WILL NOT MAKE MONSTERS JUMP!"
 	pathtarget(target_destination)	: "Target to use when monster reaches buoy. Requires 'Activate' spawnflag"
 	speed(integer)	: "Speed of jump" : 400
-	target2(target_destination)	: "Target 2"
+	target(target_destination) : "Next buoy"
+	target2(target_destination)	: "Next buoy (alternate)"
 	wait(integer)	: "Time before monster can use pathtarget again"
 ]
 
@@ -165,6 +166,12 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 // H2
 @SolidClass base(Appearflags, Targetname) color(0 128 204) = func_monsterspawner : "Monster Spawner"
 [
+	spawnflags(flags) =
+	[
+		1 : "On death"
+		2 : "Spawn at random buoy"
+		4 : "Not angry"
+	]
 	style(choices) : "Type of monster" : 3 =
 	[
 		0 : "Nothing"
@@ -198,10 +205,12 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		28 : "Palace Plague Guard (invisible)"
 	]
 	count(integer) : "Count"
-	distance(integer) : "Distance"
-	jump_chance(integer) : "Jump Chance"
-	melee_range(integer) : "Melee Range"
-	wait(integer) : "Wait"
+	distance(integer) : "Radius from spawner"
+	jump_chance(integer) : "Jump chance of monster"
+	melee_range(integer) : "Melee range of monster"
+	missile_range(integer) : "Missile range of monster"
+	mintel(integer) : "Mintel of monster"
+	wait(integer) : "Time between spawns"
 ]
 
 @BaseClass base(Appearflags, Targetname, Target) = Door
@@ -305,8 +314,8 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 [
 	spawnflags(Flags) =
 	[
-		1 : "" : 0
-		2 : "" : 0
+		1 : "Kill all touching breakables" : 0
+		2 : "Don't link to other breakables" : 0
 		4 : "" : 0
 		8 : "Translucent" : 0
 		16 : "Invulnerable" : 0
@@ -343,6 +352,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		2 : "Animated" : 0
 		4 : "Animated Fast" : 0
 	]
+	dmg(integer) : "Damage" : 100
 	_minlight(integer) : "Minimum light (optional)"
 ]
 
@@ -478,6 +488,11 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 
 @SolidClass base(Appearflags, Targetname) color(0 128 204) = func_water : "Moveable water"
 [
+	angle(choices) : "Direction" =
+	[
+		-1 : "Up"
+		-2 : "Down"
+	]
 	spawnflags(Flags) =
 	[
 		1 : "Start Open" : 0
@@ -543,7 +558,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 @PointClass base(Items) = item_defense_polymorph : "Polymorph Spell" []
 @PointClass base(Items) = item_defense_teleport : "Teleport Spell" []
 @PointClass base(Items) = item_defense_ringofrepulsion : "Ring of Repulsion" []
-@PointClass base(Items) = item_defense_powerup : "Tome Powerup" []
+@PointClass base(Items) = item_defense_powerup : "Tome Powerup - non-functional in single-player" []
 
 @PointClass base(Items) = item_puzzle_canyonkey : "Canyon key" []
 @PointClass base(Items) = item_puzzle_cog : "Cog" []
@@ -566,8 +581,12 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 @PointClass base(Items) = item_puzzle_tome : "Tome" []
 @PointClass base(Items) = item_puzzle_townkey : "Town key" []
 
-@PointClass base(Items) = item_spitter : "spitter"
+@PointClass base(Items) = item_spitter : "Triggered item spawner"
 [
+	spawnflags(flags) =
+	[
+		1 : "No flash"
+	]
     angles(integer) : "Angles"
 	count(integer) : "Count"
 	radius(integer) : "Radius"
@@ -616,11 +635,16 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 @PointClass base(light) size(-18 -18 -40, 18 18 40) = light_chandelier2 : "Chandelier (blue)" []
 @PointClass base(light) size(-34 -34 -80, 34 34 0) = light_chandelier2 : "Chandelier (gold, thin)" []
 @PointClass base(light) size(-14 -14 -17, 14 14 17) = light_floortorch : "Floor torch stand" []
-@PointClass base(light) size(-1 -6 -8, 4 6 8) = light_gem2 : "Yellow gem"
+@PointClass base(light) size(-1 -6 -8, 4 6 8) = light_gem2 : "Gem light"
 [
 	spawnflags(flags) =
 	[
 		16 : "No halo"
+	]
+	style(choices) =
+	[
+		0 : "Yellow"
+		1 : "Green"
 	]
 ]
 @PointClass base(light) size(-28 -8 -22, 4 8 22) = light_lantern1 : "Lantern with wood arm"
@@ -725,6 +749,8 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	delay(integer) : "Delay"
 ]
 
+@SolidClass base(Appearflags) = misc_update_spawner : "Updates level spawn point to trigger's position. Relevant for teleport spell." []
+
 
 //
 // Monsters!
@@ -774,12 +800,26 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		524288 : "Side jump ambush" : 0 : "Jump out to left or right (depending on which side of the assassin the player is)"
 		1048576 : "Teleport dodge" : 0 : "Can use teleporting to dodge attacks"
 	]
+	health(integer) : "Health" : 250
 ]
 @PointClass base(Monsters) = monster_bee : "Bee (unfinished)" []
 @PointClass base(Monsters) = monster_chicken : "Chicken" []
-@PointClass base(Monsters) size(-24 -24 -64, 24 24 16) = monster_elflord : "Celestial Watcher" []
-@PointClass base(Monsters) size(-25 -25 -14, 25 25 14) = monster_fish : "Fish" []
-@PointClass base(Monsters) size(-20 -20 -0, 20 20 32) = monster_gkrokon : "Gkrokon" []
+@PointClass base(Monsters) size(-24 -24 -64, 24 24 16) = monster_elflord : "Celestial Watcher"
+[
+	health(integer) : "Health" : 2250
+]
+@PointClass base(Monsters) size(-25 -25 -14, 25 25 14) = monster_fish : "Fish"
+[
+	health(integer) : "Health" : 50
+]
+@PointClass base(Monsters) size(-20 -20 -0, 20 20 32) = monster_gkrokon : "Gkrokon" 
+[
+	spawnflags(flags) =
+	[
+		131072 : "Resting"
+	]
+	health(integer) : "Health" : 70
+]
 @PointClass base(Monsters) size(-16 -16 0, 16 16 32) = monster_gorgon : "Gorgon"
 [
 	spawnflags(flags) =
@@ -787,6 +827,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		4 : "Eating"
 		8 : "Fast"
 	]
+	health(integer) : "Health" : 100
 ]
 //@PointClass base(monster_gorgon) size(-16 -16 -0, 16 16 32) = monster_gorgon_leader : "Gorgon Leader" []
 @PointClass base(Monsters) size(-16 -16 -12, 16 16 12) = monster_harpy : "Harpy"
@@ -796,12 +837,19 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		4 : "Perched" : 0 : "Will watch player until get too close or get behind the harpy"
 		8 : "Circling"
 	]
+	health(integer) : "Health" : 60
 ]
-@PointClass base(Monsters) size(-24 -24 0, 24 24 72) = monster_high_priestess : "High Priestess" []
+@PointClass base(Monsters) size(-24 -24 0, 24 24 72) = monster_high_priestess : "High Priestess"
+[
+	health(integer) : "Health" : 2500
+]
 @PointClass base(Monsters) = monster_imp : "Imp (unfinished)" []
 @PointClass base(Monsters) size(-24 -24 -50, 24 24 40) = monster_morcalavin : "Morcalavin" []
 @SolidClass base(Appearflags) = obj_morcalavin_barrier : "Morcalavin's barrier. Invisible & non-blocking until used." []
-@PointClass base(Monsters) size(-36 -36 0, 36 36 96) = monster_mssithra : "Mssithra" []
+@PointClass base(Monsters) size(-36 -36 0, 36 36 96) = monster_mssithra : "Mssithra"
+[
+	health(integer) : "Health" : 2250
+]
 @PointClass base(Monsters) = monster_nothing : "Nothing" []
 @PointClass base(Monsters) size(-16 -16 -24, 16 16 16) = monster_ogle : "Ogle"
 [
@@ -828,6 +876,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		8 : "Cinematic"
 		16 : "Missile"
 	]
+	health(integer) : "Health" : 50
 ]
 @PointClass base(Monsters) size(-16 -16 -0, 16 16 32) = monster_rat : "Rat"
 [
@@ -835,18 +884,39 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	[
 		4 : "Eating"
 	]
+	health(integer) : "Health" : 10
 ]
-@PointClass base(monster_rat) = monster_rat_giant : "Giant Rat" []
-@PointClass base(Monsters) size(-16 -16 -0, 16 16 32) = monster_spreader : "Spreader" []
+@PointClass base(monster_rat) = monster_rat_giant : "Giant Rat"
+[
+	health(integer) : "Health" : 40
+]
+@PointClass base(Monsters) size(-16 -16 -0, 16 16 32) = monster_spreader : "Spreader"
+[
+	health(integer) : "Health" : 250
+]
 @PointClass base(Monsters) size(-24 -24 -34, 24 24 34) = monster_seraph_guard : "Seraph Guard"
 [
 	spawnflags(flags) =
 	[
 		4 : "Golem"
 	]
+	health(integer) : "Health" : 300
 ]
-@PointClass base(Monsters) size(-24 -24 -34, 24 24 34) = monster_seraph_overlord : "Seraph Overlord" []
-@PointClass base(Monsters) size(-16 -16 -32, 16 16 26) = monster_ssithra : "Plague Ssithra" []
+@PointClass base(Monsters) size(-24 -24 -34, 24 24 34) = monster_seraph_overlord : "Seraph Overlord"
+[
+	health(integer) : "Health" : 250
+]
+@PointClass base(Monsters) size(-16 -16 -32, 16 16 26) = monster_ssithra : "Plague Ssithra"
+[
+	spawnflags(flags) =
+	[
+		8 : "Jump out of water when woken up or used"
+		16 : "Spin around when woken up or used"
+		32 : "Tougher"
+		64 : "Clothed, shoot explosive tip proj's"
+	]
+	health(integer) : "Health" : 125
+]
 @PointClass base(Monsters) size(-16 -16 -32, 16 16 32) = monster_tcheckrik_female : "Female Tcheckrik"
 [
 	spawnflags(flags) =
@@ -855,6 +925,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		16 : ""
 		32 : "Alternate projectile attack"
 	]
+	health(integer) : "Health" : 200
 ]
 @PointClass base(Monsters) size(-16 -16 -32, 16 16 32) = monster_tcheckrik_male : "Male Tcheckrik"
 [
@@ -864,9 +935,13 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		16 : "Beast fodder"
 		32 : "Yellowjacket type"
 	]
+	health(integer) : "Health" : 200
 ]
 @PointClass base(Monsters) size(-40 -40 -75, 40 40 75) = monster_tcheckrik_mothers : "Tcheckrik Mother" []
-@PointClass base(Monsters) size(-100 -100 -36, 100 100 150) = monster_trial_beast : "Trial Beast" []
+@PointClass base(Monsters) size(-100 -100 -36, 100 100 150) = monster_trial_beast : "Trial Beast"
+[
+	health(integer) : "Health" : 7000
+]
 
 
 // using a "wait" value of -1 on a path corner causes a func_train to go silent between
@@ -965,16 +1040,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		1 : "Toggle" : 0
 	]
 	speed(integer) : "Speed"
-	message(string) : "start/end light level"
-]
-
-// set speed and angle, otherwise spawned object drops
-//
-// 0221 - changed "target" key description for clarity
-@PointClass base(Appearflags, Targetname) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_spawner : "Monster/Item spawner"
-[
-	target(string) : "Monster/Item to spawn"
-	speed(integer) : "Speed"
+	message(string) : "Start/end light level (a-z)"
 ]
 
 @PointClass base(Appearflags, Targetname) color(0 0 255) size(-8 -8 -8, 8 8 8) = target_splash : "Splash effect (triggered)"
@@ -1011,7 +1077,8 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 [
 	killtarget(string) : "Kill Target"
 	delay(integer) : "Time before triggering"
-	message(string) : "Trigger message"
+	message(string) : "Message (levelmsg.txt index)"
+	text_msg(string) : "Message (raw string)"
 ]
 
 @SolidClass base(Appearflags, Targetname, Target) = choose_CDTrack : "Sets CD track"
@@ -1037,6 +1104,14 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 	killtarget(string) : "Kill Target"
 	count(integer) : "Count before trigger" : 2
+]
+
+@SolidClass base(Appearflags, Targetname) = trigger_farclip : "Changes the console variable r_farclipdist.
+If the current value is default, it sets it to the trigger’s key value.
+If set to the trigger’s key value, it sets it back to default.
+Do not have teleport points, or start spots of any kind inside or inbetween this trigger."
+[
+	scale(integer) : "Distance" : 4096
 ]
 
 @PointClass base(Appearflags, Targetname, Target) color(76 25 153) = trigger_elevator : "Elevator trigger" []
@@ -1129,6 +1204,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		16 : "Don't show inventory bar, don't take puzzle piece"
 		32 : "Multiple use"
 	]
+	target(target_destination) : "trigger_puzzle to use"
 ]
 @PointClass base(Appearflags, Targetname, Target) = trigger_puzzle : "Relay that requires puzzle piece"
 [
@@ -1378,7 +1454,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	killtarget(string) : "Killtarget"
 ]
 @PointClass base(object) size(-11 -12 -18, 11 12 18) = obj_barrel_metal : "Metal barrel" []
-@PointClass base(object) size(-11 -12 -18, 11 12 18) = obj_barrel_explosive : "Explosive barrel" []
+@PointClass base(object) size(-11 -12 -18, 11 12 18) = obj_barrel_explosive : "Explosive barrel. Use barrel with spawnflags 4 instead" []
 @PointClass base(object) size(-13 -13 -21, 13 13 21) = obj_basket : "Basket" []
 @PointClass base(object) size(-10 -21 -10, 10 21 10) = obj_bench : "Bench" []
 @PointClass base(object) size(-35 -35 -50,35 35 50) = obj_bigcrystal : "Rotating crystal"
