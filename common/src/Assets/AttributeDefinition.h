@@ -22,6 +22,7 @@
 
 #include "Ensure.h"
 
+#include <iosfwd>
 #include <optional>
 #include <string>
 #include <vector>
@@ -123,10 +124,13 @@ namespace TrenchBroom {
             std::string m_description;
         public:
             ChoiceAttributeOption(const std::string& value, const std::string& description);
-            bool operator==(const ChoiceAttributeOption& other) const;
             const std::string& value() const;
             const std::string& description() const;
         };
+
+        bool operator==(const ChoiceAttributeOption& lhs, const ChoiceAttributeOption& rhs);
+        bool operator!=(const ChoiceAttributeOption& lhs, const ChoiceAttributeOption& rhs);
+        std::ostream& operator<<(std::ostream& str, const ChoiceAttributeOption& opt);
 
         class ChoiceAttributeDefinition : public AttributeDefinitionWithDefaultValue<std::string> {
         private:
@@ -149,12 +153,16 @@ namespace TrenchBroom {
             bool m_isDefault;
         public:
             FlagsAttributeOption(int value, const std::string& shortDescription, const std::string& longDescription, bool isDefault);
-            bool operator==(const FlagsAttributeOption& other) const;
             int value() const;
             const std::string& shortDescription() const;
             const std::string& longDescription() const;
             bool isDefault() const;
+
         };
+
+        bool operator==(const FlagsAttributeOption& lhs, const FlagsAttributeOption& rhs);
+        bool operator!=(const FlagsAttributeOption& lhs, const FlagsAttributeOption& rhs);
+        std::ostream& operator<<(std::ostream& str, const FlagsAttributeOption& opt);
 
         class FlagsAttributeDefinition : public AttributeDefinition {
         private:
