@@ -155,6 +155,8 @@ namespace TrenchBroom {
             void currentLayerDidChange(const TrenchBroom::Model::LayerNode* layer);
             void groupWasOpened(Model::GroupNode* group);
             void groupWasClosed(Model::GroupNode* group);
+            void nodeVisibilityDidChange(const std::vector<Model::Node*>& nodes);
+            void editorContextDidChange();
         private: // menu event handlers
             void bindEvents();
         public:
