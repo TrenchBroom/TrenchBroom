@@ -43,15 +43,15 @@ namespace TrenchBroom {
         }
 
         void ParserStatus::info(const size_t line, const size_t column, const std::string& str) {
-            log(LogLevel::Debug, line, column, str);
+            log(LogLevel::Info, line, column, str);
         }
 
         void ParserStatus::warn(const size_t line, const size_t column, const std::string& str) {
-            log(LogLevel::Debug, line, column, str);
+            log(LogLevel::Warn, line, column, str);
         }
 
         void ParserStatus::error(const size_t line, const size_t column, const std::string& str) {
-            log(LogLevel::Debug, line, column, str);
+            log(LogLevel::Error, line, column, str);
         }
 
         void ParserStatus::errorAndThrow(const size_t line, const size_t column, const std::string& str) {
