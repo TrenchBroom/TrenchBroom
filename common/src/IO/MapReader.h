@@ -46,6 +46,13 @@ namespace TrenchBroom {
     namespace IO {
         class ParserStatus;
 
+        /**
+         * Abstract superclass containing common code for:
+         *
+         *  - WorldReader (loading a whole .map)
+         *  - NodeReader (reading part of a map, for pasting into an existing map)
+         *  - BrushFaceReader (reading faces when copy/pasting texture alignment)
+         */
         class MapReader : public StandardMapParser {
         protected:
             class ParentInfo {
