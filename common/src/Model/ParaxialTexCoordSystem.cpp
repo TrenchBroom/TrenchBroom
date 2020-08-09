@@ -506,7 +506,7 @@ namespace TrenchBroom {
 
                 // Project the 3 reference points onto the axis plane. They are now 2d points.
                 vm::vec2f facepointsProjected[3];
-                for (int i=0; i<3; i++) {
+                for (size_t i = 0; i < 3; ++i) {
                     facepointsProjected[i] = projectToAxisPlane(snappedNormal, facePoints[i]);
                 }
 
