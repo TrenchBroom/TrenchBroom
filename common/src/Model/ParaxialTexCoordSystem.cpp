@@ -410,7 +410,7 @@ namespace TrenchBroom {
 
                         // recheck, they should be perpendicular now
                         const float newCosAngle = vm::dot(vm::normalize(Xvec), vm::normalize(Yvec));
-                        assert(fabs(newCosAngle) <= 0.001);
+                        assert(fabs(newCosAngle) <= 0.001); unused(newCosAngle);
 
                         // update M
                         M[0][0] = Xvec[0];
