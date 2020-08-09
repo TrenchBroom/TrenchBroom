@@ -959,16 +959,20 @@ namespace TrenchBroom {
                 );
         }
 
-        void Brush::convertToParaxial() {
-            for (auto& face : m_faces) {
+        Brush Brush::convertToParaxial() const {
+            Brush result(*this);
+            for (auto& face : result.m_faces) {
                 face.convertToParaxial();
             }
+            return result;
         }
 
-        void Brush::convertToParallel() {
-            for (auto& face : m_faces) {
+        Brush Brush::convertToParallel() const {
+            Brush result(*this);
+            for (auto& face : result.m_faces) {
                 face.convertToParallel();
             }
+            return result;
         }
 
         bool Brush::checkFaceLinks() const {
