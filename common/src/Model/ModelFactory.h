@@ -54,8 +54,33 @@ namespace TrenchBroom {
             EntityNode* createEntity() const;
             BrushNode* createBrush(Brush brush) const;
 
+            /**
+             * Creates a face using TB's default texture projection for the current map format
+             * returned by format() and the given plane.
+             *
+             * Used when creating new faces when we don't have a particular texture alignment to request.
+             * On Valve format maps, this differs from createFaceFromStandard() by creating a face-aligned texture projection,
+             * whereas createFaceFromStandard() creates an axis-aligned texture projection.
+             *
+             * The returned face has a TexCoordSystem matching format().
+             */
             kdl::result<BrushFace, BrushError> createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const;
-            kdl::result<BrushFace, BrushError> createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const;
+            /**
+             * Creates a face from a Standard texture projection, converting it to Valve if necessary.
+             *
+             * Used when loading/pasting a Standard format map.
+             *
+             * The returned face has a TexCoordSystem matching format().
+             */
+            kdl::result<BrushFace, BrushError> createFaceFromStandard(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const;
+            /**
+             * Creates a face from a Valve texture projection, converting it to Standard if necessary.
+             *
+             * Used when loading/pasting a Valve format map.
+             *
+             * The returned face has a TexCoordSystem matching format().
+             */
+            kdl::result<BrushFace, BrushError> createFaceFromValve(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const;
         private:
             virtual MapFormat doGetFormat() const = 0;
             virtual WorldNode* doCreateWorld() const = 0;
@@ -64,7 +89,8 @@ namespace TrenchBroom {
             virtual EntityNode* doCreateEntity() const = 0;
             virtual BrushNode* doCreateBrush(Brush brush) const;
             virtual kdl::result<BrushFace, BrushError> doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const = 0;
-            virtual kdl::result<BrushFace, BrushError> doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const = 0;
+            virtual kdl::result<BrushFace, BrushError> doCreateFaceFromStandard(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const = 0;
+            virtual kdl::result<BrushFace, BrushError> doCreateFaceFromValve(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const = 0;
         };
     }
 }

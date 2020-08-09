@@ -21,6 +21,7 @@
 #define TrenchBroom_MapFormat
 
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -83,6 +84,10 @@ namespace TrenchBroom {
          * @return the name
          */
         std::string formatName(MapFormat format);
+
+        std::vector<MapFormat> compatibleFormats(MapFormat format);
+
+        bool isParallelTexCoordSystem(MapFormat format);
     }
 }
 

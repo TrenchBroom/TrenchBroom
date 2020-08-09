@@ -34,6 +34,8 @@
 #include <kdl/result.h>
 #include <kdl/string_utils.h>
 
+#include <QDebug>
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -73,15 +75,47 @@ namespace TrenchBroom {
         kdl::result<BrushFace, BrushError> ModelFactoryImpl::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
             assert(m_format != MapFormat::Unknown);
             return m_format == MapFormat::Valve || m_format == MapFormat::Quake2_Valve || m_format == MapFormat::Quake3_Valve
-                ? BrushFace::create(point1, point2, point3, attribs, std::make_unique<ParallelTexCoordSystem>(point1, point2, point3, attribs))
-                : BrushFace::create(point1, point2, point3, attribs, std::make_unique<ParaxialTexCoordSystem>(point1, point2, point3, attribs));
+                   ? BrushFace::create(point1, point2, point3, attribs, std::make_unique<ParallelTexCoordSystem>(point1, point2, point3, attribs))
+                   : BrushFace::create(point1, point2, point3, attribs, std::make_unique<ParaxialTexCoordSystem>(point1, point2, point3, attribs));
         }
 
-        kdl::result<BrushFace, BrushError> ModelFactoryImpl::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
+        kdl::result<BrushFace, BrushError> ModelFactoryImpl::doCreateFaceFromStandard(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& inputAttribs) const {
             assert(m_format != MapFormat::Unknown);
-            return m_format == MapFormat::Valve || m_format == MapFormat::Quake2_Valve || m_format == MapFormat::Quake3_Valve
-                ? BrushFace::create(point1, point2, point3, attribs, std::make_unique<ParallelTexCoordSystem>(texAxisX, texAxisY))
-                : BrushFace::create(point1, point2, point3, attribs, std::make_unique<ParaxialTexCoordSystem>(point1, point2, point3, attribs));
+
+            std::unique_ptr<TexCoordSystem> texCoordSystem;
+            std::unique_ptr<BrushFaceAttributes> attribs;
+
+            if (Model::isParallelTexCoordSystem(m_format)) {
+                // NOTE: tests are failing because this code path is hit, expecting the old behavioru which
+                // was creting a face-aligned tex coord system, not a conversion from paraxial -> parallel
+
+                // Convert paraxial to parallel
+                std::tie(texCoordSystem, attribs) = ParallelTexCoordSystem::fromParaxial(point1, point2, point3, inputAttribs);
+            } else {
+                // Pass through paraxial
+                texCoordSystem = std::make_unique<ParaxialTexCoordSystem>(point1, point2, point3, inputAttribs);
+                attribs = std::make_unique<BrushFaceAttributes>(inputAttribs);
+            }
+
+            return BrushFace::create(point1, point2, point3, *attribs, std::move(texCoordSystem));
+        }
+
+        kdl::result<BrushFace, BrushError> ModelFactoryImpl::doCreateFaceFromValve(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& inputAttribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
+            assert(m_format != MapFormat::Unknown);
+
+            std::unique_ptr<TexCoordSystem> texCoordSystem;
+            std::unique_ptr<BrushFaceAttributes> attribs;
+
+            if (Model::isParallelTexCoordSystem(m_format)) {
+                // Pass through parallel
+                texCoordSystem = std::make_unique<ParallelTexCoordSystem>(texAxisX, texAxisY);
+                attribs = std::make_unique<BrushFaceAttributes>(inputAttribs);
+            } else {
+                // Convert parallel to paraxial
+                std::tie(texCoordSystem, attribs) = ParaxialTexCoordSystem::fromParallel(point1, point2, point3, inputAttribs, texAxisX, texAxisY);
+            }
+
+            return BrushFace::create(point1, point2, point3, *attribs, std::move(texCoordSystem));
         }
     }
 }

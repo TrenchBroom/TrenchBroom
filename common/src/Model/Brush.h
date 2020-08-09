@@ -256,6 +256,9 @@ namespace TrenchBroom {
              * @return the newly created brush
              */
             kdl::result<Brush, BrushError> createBrush(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const BrushGeometry& geometry, const std::vector<const Brush*>& subtrahends) const;
+        public: // texture format conversion
+            void convertToParaxial();
+            void convertToParallel();
         private:
             bool checkFaceLinks() const;
         };

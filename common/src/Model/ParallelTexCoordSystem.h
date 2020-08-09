@@ -28,6 +28,7 @@
 #include <vecmath/vec.h>
 
 #include <memory>
+#include <tuple>
 
 namespace TrenchBroom {
     namespace Model {
@@ -53,6 +54,8 @@ namespace TrenchBroom {
         public:
             ParallelTexCoordSystem(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs);
             ParallelTexCoordSystem(const vm::vec3& xAxis, const vm::vec3& yAxis);
+
+            static std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> fromParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs);
         private:
             std::unique_ptr<TexCoordSystem> doClone() const override;
             std::unique_ptr<TexCoordSystemSnapshot> doTakeSnapshot() const override;
@@ -83,6 +86,9 @@ namespace TrenchBroom {
 
             float doMeasureAngle(float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const override;
             void computeInitialAxes(const vm::vec3& normal, vm::vec3& xAxis, vm::vec3& yAxis) const;
+
+            std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> doToParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const override;
+            std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> doToParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const override;
 
             deleteCopyAndMove(ParallelTexCoordSystem)
         };

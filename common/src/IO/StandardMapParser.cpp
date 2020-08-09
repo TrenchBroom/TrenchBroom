@@ -455,7 +455,7 @@ namespace TrenchBroom {
             attribs.setXScale(parseFloat());
             attribs.setYScale(parseFloat());
 
-            brushFace(line, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
+            brushFace(line, m_format, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
         }
 
         void StandardMapParser::parseQuake2Face(ParserStatus& status) {
@@ -478,7 +478,7 @@ namespace TrenchBroom {
                 attribs.setSurfaceValue(parseFloat());
             }
 
-            brushFace(line, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
+            brushFace(line, m_format, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
         }
 
         void StandardMapParser::parseQuake2ValveFace(ParserStatus& status) {
@@ -503,7 +503,7 @@ namespace TrenchBroom {
                 attribs.setSurfaceValue(parseFloat());
             }
 
-            brushFace(line, p1, p2, p3, attribs, texX, texY, status);
+            brushFace(line, m_format, p1, p2, p3, attribs, texX, texY, status);
         }
 
         void StandardMapParser::parseHexen2Face(ParserStatus& status) {
@@ -524,7 +524,7 @@ namespace TrenchBroom {
                 m_tokenizer.nextToken(); // noone seems to know what the extra value does in Hexen 2
             }
 
-            brushFace(line, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
+            brushFace(line, m_format, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
         }
 
         void StandardMapParser::parseDaikatanaFace(ParserStatus& status) {
@@ -553,7 +553,7 @@ namespace TrenchBroom {
                 }
             }
 
-            brushFace(line, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
+            brushFace(line, m_format, p1, p2, p3, attribs, vm::vec3::zero(), vm::vec3::zero(), status);
         }
 
         void StandardMapParser::parseValveFace(ParserStatus& status) {
@@ -571,7 +571,7 @@ namespace TrenchBroom {
             attribs.setXScale(parseFloat());
             attribs.setYScale(parseFloat());
 
-            brushFace(line, p1, p2, p3, attribs, texX, texY, status);
+            brushFace(line, m_format, p1, p2, p3, attribs, texX, texY, status);
         }
 
         void StandardMapParser::parsePrimitiveFace(ParserStatus& status) {

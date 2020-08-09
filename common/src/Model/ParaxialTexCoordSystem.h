@@ -45,6 +45,7 @@ namespace TrenchBroom {
             static size_t planeNormalIndex(const vm::vec3& normal);
             static void axes(size_t index, vm::vec3& xAxis, vm::vec3& yAxis);
             static void axes(size_t index, vm::vec3& xAxis, vm::vec3& yAxis, vm::vec3& projectionAxis);
+            static vm::plane3 planeFromPoints(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2);
         private:
             std::unique_ptr<TexCoordSystem> doClone() const override;
             std::unique_ptr<TexCoordSystemSnapshot> doTakeSnapshot() const override;
@@ -71,9 +72,14 @@ namespace TrenchBroom {
             void doShearTexture(const vm::vec3& normal, const vm::vec2f& factors) override;
 
             float doMeasureAngle(float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const override;
+
+            std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> doToParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const override;
+            std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> doToParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const override;
         private:
             void rotateAxes(vm::vec3& xAxis, vm::vec3& yAxis, FloatType angleInRadians, size_t planeNormIndex) const;
-
+        public:
+            static std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> fromParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs, const vm::vec3& xAxis, const vm::vec3& yAxis);
+        private:
             deleteCopyAndMove(ParaxialTexCoordSystem)
         };
     }

@@ -55,6 +55,14 @@ namespace TrenchBroom {
             ensure(false, "wrong coord system type");
         }
 
+        /**
+         * Constructs a parallel tex coord system where the texture is projected form the face plane
+         *
+         * @param point0 a point defining the face plane
+         * @param point1 a point defining the face plane
+         * @param point2 a point defining the face plane
+         * @param attribs face attributes
+         */
         ParallelTexCoordSystem::ParallelTexCoordSystem(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) {
             const vm::vec3 normal = vm::normalize(vm::cross(point2 - point0, point1 - point0));
             computeInitialAxes(normal, m_xAxis, m_yAxis);
@@ -64,6 +72,11 @@ namespace TrenchBroom {
         ParallelTexCoordSystem::ParallelTexCoordSystem(const vm::vec3& xAxis, const vm::vec3& yAxis) :
         m_xAxis(xAxis),
         m_yAxis(yAxis) {}
+
+        std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> ParallelTexCoordSystem::fromParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) {
+            const auto tempParaxial = ParaxialTexCoordSystem(point0, point1, point2, attribs);
+            return { ParallelTexCoordSystem(tempParaxial.xAxis(), tempParaxial.yAxis()).clone(), std::make_unique<BrushFaceAttributes>(attribs) };
+        }
 
         std::unique_ptr<TexCoordSystem> ParallelTexCoordSystem::doClone() const {
             return std::make_unique<ParallelTexCoordSystem>(m_xAxis, m_yAxis);
@@ -308,6 +321,9 @@ namespace TrenchBroom {
             return currentAngle + vm::to_degrees(angleInRadians);
         }
 
+        /**
+         * Generates two vectors which are perpendicular to `normal` and perpendicular to each other.
+         */
         void ParallelTexCoordSystem::computeInitialAxes(const vm::vec3& normal, vm::vec3& xAxis, vm::vec3& yAxis) const {
             switch (vm::find_abs_max_component(normal)) {
                 case vm::axis::x:
@@ -320,6 +336,14 @@ namespace TrenchBroom {
             }
 
             yAxis = vm::normalize(vm::cross(m_xAxis, normal));
+        }
+
+        std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> ParallelTexCoordSystem::doToParallel(const vm::vec3&, const vm::vec3&, const vm::vec3&, const BrushFaceAttributes& attribs) const {
+            return { clone(), std::make_unique<BrushFaceAttributes>(attribs) };
+        }
+
+        std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> ParallelTexCoordSystem::doToParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const {
+            return ParaxialTexCoordSystem::fromParallel(point0, point1, point2, attribs, m_xAxis, m_yAxis);
         }
     }
 }

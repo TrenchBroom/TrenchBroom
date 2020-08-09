@@ -74,5 +74,44 @@ namespace TrenchBroom {
                 switchDefault()
             }
         }
+
+        std::vector<MapFormat> compatibleFormats(const MapFormat format) {
+            switch (format) {
+                case MapFormat::Standard:
+                case MapFormat::Valve:
+                    return { MapFormat::Standard, MapFormat::Valve};
+                case MapFormat::Quake2:
+                case MapFormat::Quake2_Valve:
+                    return { MapFormat::Quake2, MapFormat::Quake2_Valve};
+                case MapFormat::Hexen2:
+                    return { MapFormat::Hexen2 };
+                case MapFormat::Daikatana:
+                    return { MapFormat::Daikatana };
+                case MapFormat::Quake3_Legacy:
+                case MapFormat::Quake3_Valve:
+                case MapFormat::Quake3:
+                    return { MapFormat::Quake3_Legacy, MapFormat::Quake3_Valve, MapFormat::Quake3 };
+                case MapFormat::Unknown:
+                    return { MapFormat::Unknown };
+                switchDefault()
+            }
+        }
+
+        bool isParallelTexCoordSystem(MapFormat format) {
+            switch (format) {
+                case MapFormat::Valve:
+                case MapFormat::Quake2_Valve:
+                case MapFormat::Quake3_Valve:
+                    return true;
+                case MapFormat::Standard:
+                case MapFormat::Quake2:
+                case MapFormat::Hexen2:
+                case MapFormat::Daikatana:
+                case MapFormat::Quake3_Legacy:
+                case MapFormat::Quake3:
+                case MapFormat::Unknown:
+                    return false;
+            }
+        }
     }
 }
