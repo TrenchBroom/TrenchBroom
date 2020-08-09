@@ -26,7 +26,7 @@
 #include <vecmath/vec.h>
 
 #include <memory>
-#include <utility> // for std::pair
+#include <tuple>
 
 namespace TrenchBroom {
     namespace Model {
