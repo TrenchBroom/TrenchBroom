@@ -567,10 +567,12 @@ namespace TrenchBroom {
                     return std::nullopt;
                 }
 
-                // figure out texture offset by testing point (0, 0, 0)
-                const vm::vec3f testPoint = vm::vec3f::zero();
-                const vm::vec2f testActualUV = getTexCoordsAtPoint(appendOffset(*result, vm::vec2f(0, 0)), faceplane,
-                                                                   vm::vec3(testPoint));
+                // figure out texture offset by testing one point.
+                // NOTE: the choice of point shouldn't matter in the case when the conversion is lossless (no shearing).
+                // However, if there is shearing (which we can't capture in the paraxial format), this test point should
+                // be somewhere on the face, because the texture may only be aligned properly around this point.
+                const vm::vec3f testPoint = facePoints[0];
+                const vm::vec2f testActualUV = getTexCoordsAtPoint(appendOffset(*result, vm::vec2f(0, 0)), faceplane, vm::vec3(testPoint));
                 const vm::vec2f testDesiredUV = vm::vec2f(worldToTexSpace * vm::vec4f(testPoint, 1.0f));
                 return appendOffset(*result, testDesiredUV - testActualUV);
             }
