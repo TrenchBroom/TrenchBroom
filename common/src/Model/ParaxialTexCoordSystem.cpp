@@ -29,6 +29,8 @@
 #include <vecmath/plane.h>
 #include <vecmath/quat.h>
 
+#include <cmath>
+
 namespace TrenchBroom {
     namespace Model {
         const vm::vec3 ParaxialTexCoordSystem::BaseAxes[] = {
@@ -325,8 +327,8 @@ namespace TrenchBroom {
 
             static vm::mat2x2f mat2x2_rotation_degrees(const float degrees) {
                 const float r = vm::to_radians(degrees);
-                const float cosr = cos(r);
-                const float sinr = sin(r);
+                const float cosr = std::cos(r);
+                const float sinr = std::sin(r);
 
                 return { cosr, -sinr,
                          sinr,  cosr };
@@ -334,7 +336,7 @@ namespace TrenchBroom {
 
             static float mat2x2_extract_rotation(const vm::mat2x2f& m) {
                 const vm::vec2f point = m * vm::vec2f(1, 0); // choice of this matters if there's shearing
-                const float rotation = atan2(point[1], point[0]);
+                const float rotation = std::atan2(point[1], point[0]);
                 return vm::to_degrees(rotation);
             }
 
@@ -361,10 +363,11 @@ namespace TrenchBroom {
                 end = vm::normalize(end);
 
                 const float cosAngle = vm::max(-1.0f, vm::min(1.0f, vm::dot(start, end)));
-                const float unsignedDegrees = vm::to_degrees(acos(cosAngle));
+                const float unsignedDegrees = vm::to_degrees(std::acos(cosAngle));
 
-                if (unsignedDegrees < 0.000001)
+                if (unsignedDegrees < 0.000001) {
                     return 0;
+                }
 
                 // get a normal for the rotation plane using the right-hand rule
                 // if this is pointing up (vm::vec3f(0,0,1)), it's counterclockwise rotation.
@@ -463,6 +466,12 @@ namespace TrenchBroom {
                 // strip off the magnitude component of the scale, and `axisFlipsM`.
                 auto [applyAbsScaleMInvOk, applyAbsScaleMInv] = vm::invert(applyAbsScaleM);
                 auto [axisFlipsMInvOk, axisFlipsMInv] = vm::invert(axisFlipsM);
+
+                if (!applyAbsScaleMInvOk || !axisFlipsMInvOk) {
+                    // TODO: return result?
+                    return ParaxialAttribsNoOffset();
+                }
+
                 const vm::mat2x2f flipRotate = applyAbsScaleMInv * M * axisFlipsMInv;
 
                 // We don't know the signs on the scales, which will mess up figuring out the rotation, so try all 4 combinations
@@ -477,6 +486,9 @@ namespace TrenchBroom {
                                 0, yScaleSgn}; // already fixed
 
                         auto [invOk, inv] = vm::invert(applyGuessedFlipM);
+                        if (!invOk) {
+                            continue;
+                        }
                         const vm::mat2x2f rotateMGuess = inv * flipRotate;
                         const float angleGuess = mat2x2_extract_rotation(rotateMGuess);
 
@@ -502,6 +514,7 @@ namespace TrenchBroom {
 
                 //printf("Warning, Reverse_QuakeEd failed\n");
 
+                // TODO: return result?
                 ParaxialAttribsNoOffset fail;
                 return fail;
             }
@@ -564,6 +577,10 @@ namespace TrenchBroom {
                 };
 
                 const auto [mInvOk, Minv] = vm::invert(M);
+                if (!mInvOk) {
+                    // TODO: return result?
+                    return ParaxialAttribs();
+                }
                 const vm::vec4f abcd = Minv * vm::vec4f(p0p1_uv[0],
                                                         p0p1_uv[1],
                                                         p0p2_uv[0],
