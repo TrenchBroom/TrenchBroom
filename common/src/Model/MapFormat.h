@@ -84,9 +84,7 @@ namespace TrenchBroom {
          * @return the name
          */
         std::string formatName(MapFormat format);
-
         std::vector<MapFormat> compatibleFormats(MapFormat format);
-
         bool isParallelTexCoordSystem(MapFormat format);
     }
 }

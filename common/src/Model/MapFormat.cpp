@@ -97,7 +97,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool isParallelTexCoordSystem(MapFormat format) {
+        bool isParallelTexCoordSystem(const MapFormat format) {
             switch (format) {
                 case MapFormat::Valve:
                 case MapFormat::Quake2_Valve:
