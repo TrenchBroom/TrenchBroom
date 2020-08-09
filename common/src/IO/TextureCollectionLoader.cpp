@@ -39,21 +39,6 @@ namespace TrenchBroom {
 
         TextureCollectionLoader::~TextureCollectionLoader() = default;
 
-        std::unique_ptr<Assets::TextureCollection> TextureCollectionLoader::loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader) {
-            auto collection = std::make_unique<Assets::TextureCollection>(path);
-
-            for (const auto& file : doFindTextures(path, textureExtensions)) {
-                const auto name = file->path().lastComponent().deleteExtension().asString();
-                if (shouldExclude(name)) {
-                    continue;
-                }
-                auto* texture = textureReader.readTexture(file);
-                collection->addTexture(texture);
-            }
-
-            return collection;
-        }
-
         bool TextureCollectionLoader::shouldExclude(const std::string& textureName) {
             for (const auto& pattern : m_textureExclusions) {
                 if (kdl::ci::str_matches_glob(textureName, pattern)) {
@@ -67,44 +52,53 @@ namespace TrenchBroom {
         TextureCollectionLoader(logger, exclusions),
         m_searchPaths(searchPaths) {}
 
-        TextureCollectionLoader::FileList FileTextureCollectionLoader::doFindTextures(const Path& path, const std::vector<std::string>& extensions) {
+        std::unique_ptr<Assets::TextureCollection> FileTextureCollectionLoader::loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader) {
+            auto collection = std::make_unique<Assets::TextureCollection>(path);
+
             const auto wadPath = Disk::resolvePath(m_searchPaths, path);
             WadFileSystem wadFS(wadPath, m_logger);
-            const auto texturePaths = wadFS.findItems(Path(""), FileExtensionMatcher(extensions));
 
-            FileList result;
-            result.reserve(texturePaths.size());
-
+            const auto texturePaths = wadFS.findItems(Path(""), FileExtensionMatcher(textureExtensions));
             for (const auto& texturePath : texturePaths)  {
                 try {
-                    result.push_back(wadFS.openFile(texturePath));
+                    auto file = wadFS.openFile(texturePath);
+                    const auto name = file->path().lastComponent().deleteExtension().asString();
+                    if (shouldExclude(name)) {
+                        continue;
+                    }
+                    auto* texture = textureReader.readTexture(file);
+                    collection->addTexture(texture);
                 } catch (const std::exception& e) {
                     m_logger.warn() << e.what();
                 }
             }
 
-            return result;
+            return collection;
         }
 
         DirectoryTextureCollectionLoader::DirectoryTextureCollectionLoader(Logger& logger, const FileSystem& gameFS, const std::vector<std::string>& exclusions) :
         TextureCollectionLoader(logger, exclusions),
         m_gameFS(gameFS) {}
 
-        TextureCollectionLoader::FileList DirectoryTextureCollectionLoader::doFindTextures(const Path& path, const std::vector<std::string>& extensions) {
-            const auto texturePaths = m_gameFS.findItems(path, FileExtensionMatcher(extensions));
+        std::unique_ptr<Assets::TextureCollection> DirectoryTextureCollectionLoader::loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader) {
+            auto collection = std::make_unique<Assets::TextureCollection>(path);
 
-            FileList result;
-            result.reserve(texturePaths.size());
-
+            const auto texturePaths = m_gameFS.findItems(path, FileExtensionMatcher(textureExtensions));
             for (const auto& texturePath : texturePaths) {
                 try {
-                    result.push_back(m_gameFS.openFile(texturePath));
+                    auto file = m_gameFS.openFile(texturePath);
+                    const auto name = file->path().lastComponent().deleteExtension().asString();
+                    if (shouldExclude(name)) {
+                        continue;
+                    }
+                    auto* texture = textureReader.readTexture(file);
+                    collection->addTexture(texture);
                 } catch (const std::exception& e) {
                     m_logger.warn() << e.what();
                 }
             }
-
-            return result;
+            
+            return collection;
         }
     }
 }
