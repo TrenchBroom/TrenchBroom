@@ -374,14 +374,6 @@ namespace TrenchBroom {
                 return unsignedDegrees;
             }
 
-            /**
-             *
-             *
-             * @param M
-             * @param facePlane the face plane in world space
-             * @param preserveX whether to preserve the X or Y coordinate of the texture if there is shearing in M
-             * @return std::nullopt if the conversion failed for some reason
-             */
             static std::optional<ParaxialAttribsNoOffset> extractParaxialAttribs(vm::mat2x2f M, const vm::plane3& facePlane, const bool preserveX) {
                 // Check for shear, because we might tweak M to remove it
                 {
@@ -500,7 +492,7 @@ namespace TrenchBroom {
                 return std::nullopt;
             }
 
-            static std::optional<ParaxialAttribs> TexDef_BSPToQuakeEd(const vm::plane3& faceplane, const vm::mat4x4f& worldToTexSpace, const std::array<vm::vec3f, 3>& facePoints) {
+            static std::optional<ParaxialAttribs> texCoordMatrixToParaxial(const vm::plane3& faceplane, const vm::mat4x4f& worldToTexSpace, const std::array<vm::vec3f, 3>& facePoints) {
                 // First get the un-rotated, un-scaled unit texture vecs (based on the face plane).
                 vm::vec3f snappedNormal;
                 vm::vec3f unrotatedVecs[2];
@@ -621,7 +613,7 @@ namespace TrenchBroom {
             const vm::mat4x4f worldToTexSpace = FromParallel::valveTo4x4Matrix(facePlane, attribs, xAxis, yAxis);
             const auto facePoints = std::array<vm::vec3f, 3>{vm::vec3f(point0), vm::vec3f(point1), vm::vec3f(point2)};
 
-            const auto conversionResult = FromParallel::TexDef_BSPToQuakeEd(facePlane, worldToTexSpace, facePoints);
+            const auto conversionResult = FromParallel::texCoordMatrixToParaxial(facePlane, worldToTexSpace, facePoints);
 
             BrushFaceAttributes newAttribs = attribs;
             if (conversionResult.has_value()) {
