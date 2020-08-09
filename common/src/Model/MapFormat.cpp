@@ -111,6 +111,7 @@ namespace TrenchBroom {
                 case MapFormat::Quake3:
                 case MapFormat::Unknown:
                     return false;
+                switchDefault()
             }
         }
     }
