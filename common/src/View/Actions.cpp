@@ -629,7 +629,7 @@ namespace TrenchBroom {
 
             /* ========== Tag Actions ========== */
             createAction(IO::Path("Controls/Map view/Make structural"), QObject::tr("Make Structural"),
-                ActionContext::NodeSelection, QKeySequence(Qt::ALT + Qt::Key_S),
+                ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::ALT + Qt::Key_S),
                 [](ActionExecutionContext& context) { context.view()->makeStructural(); },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });
 
