@@ -821,7 +821,22 @@ namespace TrenchBroom {
             return exportDocument(Model::ExportFormat::WavefrontObj, IO::pathFromQString(newFileName));
         }
 
+        bool MapFrame::exportDocumentAsMap() {
+            const IO::Path& originalPath = m_document->path();
+
+            const QString newFileName = QFileDialog::getSaveFileName(this, tr("Export Map file"), IO::pathAsQString(originalPath), "Map files (*.map)");
+            if (newFileName.isEmpty()) {
+                return false;
+            }
+
+            return exportDocument(Model::ExportFormat::Map, IO::pathFromQString(newFileName));
+        }
+
         bool MapFrame::exportDocument(const Model::ExportFormat format, const IO::Path& path) {
+            if (path == m_document->path()) {
+                QMessageBox::critical(this, "", tr("You can't overwrite the current document.\nPlease choose a different file name to export to."));
+                return false;
+            }
             try {
                 m_document->exportDocumentAs(format, path);
                 logger().info() << "Exported " << path;

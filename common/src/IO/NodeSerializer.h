@@ -61,12 +61,17 @@ namespace TrenchBroom {
 
             ObjectNo m_entityNo;
             ObjectNo m_brushNo;
+
+            bool m_exporting;
         public:
             NodeSerializer();
             virtual ~NodeSerializer();
         protected:
             ObjectNo entityNo() const;
             ObjectNo brushNo() const;
+        public:
+            bool exporting() const;
+            void setExporting(bool exporting);
         public:
             void beginFile();
             void endFile();

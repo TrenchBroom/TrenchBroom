@@ -25,6 +25,7 @@
 #include "IO/Path.h"
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
+#include "Model/ExportFormat.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h"
@@ -79,7 +80,7 @@ namespace TrenchBroom {
                         }
 
                         const auto document = m_context.document();
-                        document->saveDocumentTo(targetPath);
+                        document->exportDocumentAs(Model::ExportFormat::Map, targetPath);
                     }
                     emit end();
                 } catch (const Exception& e) {

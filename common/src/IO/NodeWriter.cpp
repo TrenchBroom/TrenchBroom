@@ -112,6 +112,10 @@ namespace TrenchBroom {
         m_world(world),
         m_serializer(serializer) {}
 
+        void NodeWriter::setExporting(const bool exporting) {
+            m_serializer->setExporting(exporting);
+        }
+
         void NodeWriter::writeMap() {
             m_serializer->beginFile();
             writeDefaultLayer();
@@ -122,9 +126,11 @@ namespace TrenchBroom {
         void NodeWriter::writeDefaultLayer() {
             m_serializer->defaultLayer(m_world);
 
-            const std::vector<Model::Node*>& children = m_world.defaultLayer()->children();
-            WriteNode visitor(*m_serializer);
-            Model::Node::accept(std::begin(children), std::end(children), visitor);
+            if (!(m_serializer->exporting() && m_world.defaultLayer()->omitFromExport())) {
+                const std::vector<Model::Node *> &children = m_world.defaultLayer()->children();
+                WriteNode visitor(*m_serializer);
+                Model::Node::accept(std::begin(children), std::end(children), visitor);
+            }
         }
 
         void NodeWriter::writeCustomLayers() {
@@ -135,11 +141,13 @@ namespace TrenchBroom {
         }
 
         void NodeWriter::writeCustomLayer(const Model::LayerNode* layer) {
-            m_serializer->customLayer(layer);
+            if (!(m_serializer->exporting() && layer->omitFromExport())) {
+                m_serializer->customLayer(layer);
 
-            const std::vector<Model::Node*>& children = layer->children();
-            WriteNode visitor(*m_serializer, layer);
-            Model::Node::accept(std::begin(children), std::end(children), visitor);
+                const std::vector<Model::Node *> &children = layer->children();
+                WriteNode visitor(*m_serializer, layer);
+                Model::Node::accept(std::begin(children), std::end(children), visitor);
+            }
         }
 
         void NodeWriter::writeNodes(const std::vector<Model::Node*>& nodes) {

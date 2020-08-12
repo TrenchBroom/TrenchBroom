@@ -1323,6 +1323,16 @@ namespace TrenchBroom {
             executeAndStore(SetVisibilityCommand::show(collectSelected.nodes()));
         }
 
+        void MapDocument::setOmitLayerFromExport(Model::LayerNode* layer, const bool omitFromExport) {
+            if (omitFromExport) {
+                Transaction transaction(this, "Omit Layer From Export");
+                executeAndStore(ChangeEntityAttributesCommand::setForNodes({ layer }, Model::AttributeNames::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue));
+            } else {
+                Transaction transaction(this, "Include Layer In Export");
+                executeAndStore(ChangeEntityAttributesCommand::removeForNodes({ layer }, Model::AttributeNames::LayerOmitFromExport));
+            }
+        }
+
         void MapDocument::hide(const std::vector<Model::Node*> nodes) {
             const Transaction transaction(this, "Hide Objects");
 

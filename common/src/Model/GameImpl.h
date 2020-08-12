@@ -66,6 +66,7 @@ namespace TrenchBroom {
 
             std::unique_ptr<WorldNode> doNewMap(MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const override;
             std::unique_ptr<WorldNode> doLoadMap(MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const override;
+            void doWriteMap(WorldNode& world, const IO::Path& path, bool exporting) const;
             void doWriteMap(WorldNode& world, const IO::Path& path) const override;
             void doExportMap(WorldNode& world, Model::ExportFormat format, const IO::Path& path) const override;
 

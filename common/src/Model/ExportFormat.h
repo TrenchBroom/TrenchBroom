@@ -23,7 +23,8 @@
 namespace TrenchBroom {
     namespace Model {
         enum class ExportFormat {
-            WavefrontObj
+            WavefrontObj,
+            Map
         };
     }
 }

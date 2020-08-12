@@ -1,4 +1,5 @@
 /*
+/*
  Copyright (C) 2010-2017 Kristian Duske
 
  This file is part of TrenchBroom.
@@ -165,6 +166,7 @@ namespace TrenchBroom {
             bool saveDocument();
             bool saveDocumentAs();
             bool exportDocumentAsObj();
+            bool exportDocumentAsMap();
             bool exportDocument(Model::ExportFormat format, const IO::Path& path);
         private:
             bool confirmOrDiscardChanges();

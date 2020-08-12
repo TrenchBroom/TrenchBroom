@@ -66,7 +66,8 @@ namespace TrenchBroom {
 
         NodeSerializer::NodeSerializer() :
         m_entityNo(0),
-        m_brushNo(0) {}
+        m_brushNo(0),
+        m_exporting(false) {}
 
         NodeSerializer::~NodeSerializer() = default;
 
@@ -76,6 +77,14 @@ namespace TrenchBroom {
 
         NodeSerializer::ObjectNo NodeSerializer::brushNo() const {
             return m_brushNo;
+        }
+
+        bool NodeSerializer::exporting() const {
+            return m_exporting;
+        }
+
+        void NodeSerializer::setExporting(const bool exporting) {
+            m_exporting = exporting;
         }
 
         void NodeSerializer::beginFile() {
@@ -114,11 +123,24 @@ namespace TrenchBroom {
                 worldAttribs.removeAttribute(Model::AttributeNames::LayerHidden);
             }
 
-            entity(&world, worldAttribs.releaseAttributes(), {}, world.defaultLayer());
+            if (defaultLayer->omitFromExport()) {
+                worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue, nullptr);
+            } else {
+                worldAttribs.removeAttribute(Model::AttributeNames::LayerOmitFromExport);
+            }
+
+            if (m_exporting && defaultLayer->omitFromExport()) {
+                beginEntity(&world, worldAttribs.releaseAttributes(), {});
+                endEntity(&world);
+            } else {
+                entity(&world, worldAttribs.releaseAttributes(), {}, world.defaultLayer());
+            }
         }
 
         void NodeSerializer::customLayer(const Model::LayerNode* layer) {
-            entity(layer, layerAttributes(layer), {}, layer);
+            if (!(m_exporting && layer->omitFromExport())) {
+                entity(layer, layerAttributes(layer), {}, layer);
+            }
         }
 
         void NodeSerializer::group(const Model::GroupNode* group, const std::vector<Model::EntityAttribute>& parentAttributes) {
@@ -243,6 +265,9 @@ namespace TrenchBroom {
             }
             if (layer->hidden()) {
                 result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerHidden, Model::AttributeValues::LayerHiddenValue));
+            }
+            if (layer->omitFromExport()) {
+                result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue));
             }
             return result;
         }
