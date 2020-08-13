@@ -352,20 +352,14 @@ namespace TrenchBroom {
         }
 
         Assets::Texture* EntityModelSurface::skin(const size_t index) const {
-            if (index >= skinCount()) {
-                return nullptr;
-            } else {
-                const auto& textures = m_skins->textures();
-                return textures[index];
-            }
+            return m_skins->textureByIndex(index);
         }
 
         std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModelSurface::buildRenderer(size_t skinIndex, size_t frameIndex) {
             if (skinIndex >= skinCount() || frameIndex >= frameCount() || m_meshes[frameIndex] == nullptr) {
                 return nullptr;
             } else {
-                const auto& textures = m_skins->textures();
-                auto* skin = textures[skinIndex];
+                auto* skin = this->skin(skinIndex);
                 return m_meshes[frameIndex]->buildRenderer(skin);
             }
         }
