@@ -50,14 +50,14 @@ namespace TrenchBroom {
             ~FaceInspector() override;
 
             bool cancelMouseDrag();
-            void revealTexture(Assets::Texture* texture);
+            void revealTexture(const Assets::Texture* texture);
         private:
             void createGui(std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
             QWidget* createFaceAttribsEditor(QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
             QWidget* createTextureBrowser(QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
             QWidget* createTextureCollectionEditor(QWidget* parent, std::weak_ptr<MapDocument> document);
 
-            void textureSelected(Assets::Texture* texture);
+            void textureSelected(const Assets::Texture* texture);
         };
     }
 }

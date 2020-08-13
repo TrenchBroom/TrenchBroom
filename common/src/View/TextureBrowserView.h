@@ -43,7 +43,7 @@ namespace TrenchBroom {
         using TextureGroupData = std::string;
 
         struct TextureCellData {
-            Assets::Texture* texture;
+            const Assets::Texture* texture;
             std::string mainTitle;
             std::string subTitle;
             vm::vec2f mainTitleOffset;
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             TextureSortOrder m_sortOrder;
             std::string m_filterText;
 
-            Assets::Texture* m_selectedTexture;
+            const Assets::Texture* m_selectedTexture;
         public:
             TextureBrowserView(QScrollBar* scrollBar,
                                GLContextManager& contextManager,
@@ -81,16 +81,16 @@ namespace TrenchBroom {
             void setHideUnused(bool hideUnused);
             void setFilterText(const std::string& filterText);
 
-            Assets::Texture* selectedTexture() const;
-            void setSelectedTexture(Assets::Texture* selectedTexture);
+            const Assets::Texture* selectedTexture() const;
+            void setSelectedTexture(const Assets::Texture* selectedTexture);
 
-            void revealTexture(Assets::Texture* texture);
+            void revealTexture(const Assets::Texture* texture);
         private:
             void usageCountDidChange();
 
             void doInitLayout(Layout& layout) override;
             void doReloadLayout(Layout& layout) override;
-            void addTextureToLayout(Layout& layout, Assets::Texture* texture, const Renderer::FontDescriptor& font);
+            void addTextureToLayout(Layout& layout, const Assets::Texture* texture, const Renderer::FontDescriptor& font);
 
             struct CompareByUsageCount;
             struct CompareByName;
@@ -122,7 +122,7 @@ namespace TrenchBroom {
 
             const TextureCellData& cellData(const Cell& cell) const;
         signals:
-            void textureSelected(Assets::Texture* texture);
+            void textureSelected(const Assets::Texture* texture);
         };
     }
 }

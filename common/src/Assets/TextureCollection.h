@@ -61,8 +61,9 @@ namespace TrenchBroom {
             std::string name() const;
             size_t textureCount() const;
             const std::vector<Texture*>& textures() const;
-            Texture* textureByIndex(size_t index) const;
-            Texture* textureByName(const std::string& name) const;
+            
+            const Texture* textureByIndex(size_t index) const;
+            const Texture* textureByName(const std::string& name) const;
 
             size_t usageCount() const;
 

@@ -56,8 +56,8 @@ namespace TrenchBroom {
             std::vector<Model::BrushFaceHandle> getApplicableFaces() const;
             void createGui(GLContextManager& contextManager);
         private slots:
-            void subjectSelected(Assets::Texture* subject);
-            void replacementSelected(Assets::Texture* replacement);
+            void subjectSelected(const Assets::Texture* subject);
+            void replacementSelected(const Assets::Texture* replacement);
             void updateReplaceButton();
         };
     }

@@ -298,7 +298,7 @@ namespace TrenchBroom {
             return *m_texCoordSystem;
         }
 
-        Assets::Texture* BrushFace::texture() const {
+        const Assets::Texture* BrushFace::texture() const {
             return m_textureReference.texture();
         }
 

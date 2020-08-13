@@ -491,7 +491,7 @@ namespace TrenchBroom {
                 bounds.add(std::begin(mesh.vertices), std::end(mesh.vertices));
 
                 const auto textureIndex = geomObject.materialIndex;
-                auto* texture = textureIndex < textures.size() ? textures[textureIndex] : nullptr;
+                const auto* texture = textureIndex < textures.size() ? textures[textureIndex] : nullptr;
                 if (texture == nullptr) {
                     logger.warn() << "Invalid material index " << textureIndex;
                     texture = loadDefaultTexture(m_fs, logger, "").release();
@@ -510,7 +510,7 @@ namespace TrenchBroom {
                 const auto& mesh = geomObject.mesh;
 
                 const auto textureIndex = geomObject.materialIndex;
-                auto* texture = textureIndex < textures.size() ? textures[textureIndex] : nullptr;
+                const auto* texture = textureIndex < textures.size() ? textures[textureIndex] : nullptr;
 
                 for (const auto& face : mesh.faces) {
                     if (!checkIndices(logger, face, mesh)) {

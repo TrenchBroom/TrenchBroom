@@ -56,7 +56,7 @@ namespace TrenchBroom {
             const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
             ensure(subject != nullptr, "subject is null");
 
-            Assets::Texture* replacement = m_replacementBrowser->selectedTexture();
+            const Assets::Texture* replacement = m_replacementBrowser->selectedTexture();
             ensure(replacement != nullptr, "replacement is null");
 
             auto document = kdl::mem_lock(m_document);
@@ -150,11 +150,11 @@ namespace TrenchBroom {
             setMinimumSize(650, 450);
         }
 
-        void ReplaceTextureDialog::subjectSelected(Assets::Texture* /* subject */) {
+        void ReplaceTextureDialog::subjectSelected(const Assets::Texture* /* subject */) {
             updateReplaceButton();
         }
 
-        void ReplaceTextureDialog::replacementSelected(Assets::Texture* /* replacement */) {
+        void ReplaceTextureDialog::replacementSelected(const Assets::Texture* /* replacement */) {
             updateReplaceButton();
         }
 

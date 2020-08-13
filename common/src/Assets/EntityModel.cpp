@@ -230,7 +230,7 @@ namespace TrenchBroom {
              * @param skin the texture to use when rendering the mesh
              * @return the renderer
              */
-            std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(Assets::Texture* skin) {
+            std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(const Assets::Texture* skin) {
                 const auto vertexArray = Renderer::VertexArray::ref(m_vertices);
                 return doBuildRenderer(skin, vertexArray);
             }
@@ -242,7 +242,7 @@ namespace TrenchBroom {
              * @param vertices the vertices associated with this mesh
              * @return the renderer
              */
-            virtual std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) = 0;
+            virtual std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(const Assets::Texture* skin, const Renderer::VertexArray& vertices) = 0;
         };
 
         // EntityModel::IndexedMesh
@@ -269,7 +269,7 @@ namespace TrenchBroom {
                 });
         }
         private:
-            std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* skin, const Renderer::VertexArray& vertices) override {
+            std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(const Assets::Texture* skin, const Renderer::VertexArray& vertices) override {
                 const Renderer::TexturedIndexRangeMap texturedIndices(skin, m_indices);
                 return std::make_unique<Renderer::TexturedIndexRangeRenderer>(vertices, texturedIndices);
             }
@@ -299,7 +299,7 @@ namespace TrenchBroom {
                 });
             }
         private:
-            std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(Assets::Texture* /* skin */, const Renderer::VertexArray& vertices) override {
+            std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(const Assets::Texture* /* skin */, const Renderer::VertexArray& vertices) override {
                 return std::make_unique<Renderer::TexturedIndexRangeRenderer>(vertices, m_indices);
             }
         };
@@ -347,11 +347,11 @@ namespace TrenchBroom {
             return m_skins->textureCount();
         }
 
-        Assets::Texture* EntityModelSurface::skin(const std::string& name) const {
+        const Assets::Texture* EntityModelSurface::skin(const std::string& name) const {
             return m_skins->textureByName(name);
         }
 
-        Assets::Texture* EntityModelSurface::skin(const size_t index) const {
+        const Assets::Texture* EntityModelSurface::skin(const size_t index) const {
             return m_skins->textureByIndex(index);
         }
 
@@ -359,7 +359,7 @@ namespace TrenchBroom {
             if (skinIndex >= skinCount() || frameIndex >= frameCount() || m_meshes[frameIndex] == nullptr) {
                 return nullptr;
             } else {
-                auto* skin = this->skin(skinIndex);
+                const auto* skin = this->skin(skinIndex);
                 return m_meshes[frameIndex]->buildRenderer(skin);
             }
         }

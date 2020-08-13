@@ -39,7 +39,7 @@ namespace TrenchBroom {
 
             friend void swap(TextureReference& lhs, TextureReference& rhs);
             
-            Assets::Texture* texture() const;
+            const Assets::Texture* texture() const;
         };
     }
 }

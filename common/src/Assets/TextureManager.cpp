@@ -145,13 +145,17 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(m_toRemove);
         }
 
-        Texture* TextureManager::texture(const std::string& name) const {
+        const Texture* TextureManager::texture(const std::string& name) const {
             auto it = m_texturesByName.find(kdl::str_to_lower(name));
             if (it == std::end(m_texturesByName)) {
                 return nullptr;
             } else {
                 return it->second;
             }
+        }
+
+        Texture* TextureManager::texture(const std::string& name) {
+            return const_cast<Texture*>(const_cast<const TextureManager*>(this)->texture(name));
         }
 
         const std::vector<Texture*>& TextureManager::textures() const {
