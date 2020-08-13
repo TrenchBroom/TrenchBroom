@@ -133,7 +133,7 @@ namespace TrenchBroom {
             void resetTexCoordSystemCache();
             const TexCoordSystem& texCoordSystem() const;
 
-            Assets::Texture* texture() const;
+            const Assets::Texture* texture() const;
             vm::vec2f textureSize() const;
             vm::vec2f modOffset(const vm::vec2f& offset) const;
 

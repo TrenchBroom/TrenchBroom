@@ -60,7 +60,7 @@ namespace TrenchBroom {
             return m_faceAttribsEditor->cancelMouseDrag();
         }
 
-        void FaceInspector::revealTexture(Assets::Texture* texture) {
+        void FaceInspector::revealTexture(const Assets::Texture* texture) {
             m_textureBrowser->revealTexture(texture);
             m_textureBrowser->setSelectedTexture(texture);
         }
@@ -119,7 +119,7 @@ namespace TrenchBroom {
             return panel;
         }
 
-        static bool allFacesHaveTexture(const std::vector<Model::BrushFaceHandle>& faceHandles, Assets::Texture* texture) {            
+        static bool allFacesHaveTexture(const std::vector<Model::BrushFaceHandle>& faceHandles, const Assets::Texture* texture) {            
             for (const Model::BrushFaceHandle& faceHandle : faceHandles) {
                 if (faceHandle.face().texture() != texture) {
                     return false;
@@ -128,7 +128,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void FaceInspector::textureSelected(Assets::Texture* texture) {
+        void FaceInspector::textureSelected(const Assets::Texture* texture) {
             auto document = kdl::mem_lock(m_document);
             const std::vector<Model::BrushFaceHandle> faces = document->allSelectedBrushFaces();
 

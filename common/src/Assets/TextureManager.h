@@ -74,7 +74,9 @@ namespace TrenchBroom {
             void setTextureMode(int minFilter, int magFilter);
             void commitChanges();
 
-            Texture* texture(const std::string& name) const;
+            const Texture* texture(const std::string& name) const;
+            Texture* texture(const std::string& name);
+            
             const std::vector<Texture*>& textures() const;
             const std::vector<TextureCollection*>& collections() const;
             const std::vector<std::string> collectionNames() const;

@@ -94,7 +94,7 @@ namespace TrenchBroom {
             return m_textures;
         }
 
-        Texture* TextureCollection::textureByIndex(const size_t index) const {
+        const Texture* TextureCollection::textureByIndex(const size_t index) const {
             if (index >= m_textures.size()) {
                 return nullptr;
             } else {
@@ -102,7 +102,7 @@ namespace TrenchBroom {
             }
         }
 
-        Texture* TextureCollection::textureByName(const std::string& name) const {
+        const Texture* TextureCollection::textureByName(const std::string& name) const {
             for (auto* texture : m_textures) {
                 if (texture->name() == name) {
                     return texture;
