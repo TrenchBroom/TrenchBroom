@@ -44,13 +44,13 @@ namespace TrenchBroom {
         M8TextureReader::M8TextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger) :
         TextureReader(nameStrategy, fs, logger) {}
 
-        Assets::Texture* M8TextureReader::doReadTexture(std::shared_ptr<File> file) const {
+        Assets::Texture M8TextureReader::doReadTexture(std::shared_ptr<File> file) const {
             const auto& path = file->path();
             BufferedReader reader = file->reader().buffer();
             try {
                 const int version = reader.readInt<int32_t>();
                 if (version != M8Layout::Version) {
-                    return new Assets::Texture(textureName(path), 16, 16);
+                    return Assets::Texture(textureName(path), 16, 16);
                 }
 
                 const std::string name = reader.readString(M8Layout::TextureNameLength);
@@ -107,9 +107,9 @@ namespace TrenchBroom {
                     }
                 }
 
-                return new Assets::Texture(textureName(name, path), widths[0], heights[0], mip0AverageColor, std::move(buffers), GL_RGBA, Assets::TextureType::Opaque);
+                return Assets::Texture(textureName(name, path), widths[0], heights[0], mip0AverageColor, std::move(buffers), GL_RGBA, Assets::TextureType::Opaque);
             } catch (const ReaderException&) {
-                return new Assets::Texture(textureName(path), 16, 16);
+                return Assets::Texture(textureName(path), 16, 16);
             }
         }
     }

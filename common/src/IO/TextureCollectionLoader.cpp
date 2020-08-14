@@ -66,8 +66,7 @@ namespace TrenchBroom {
                     if (shouldExclude(name)) {
                         continue;
                     }
-                    auto* texture = textureReader.readTexture(file);
-                    collection->addTexture(texture);
+                    collection->addTexture(textureReader.readTexture(file));
                 } catch (const std::exception& e) {
                     m_logger.warn() << e.what();
                 }
@@ -91,8 +90,7 @@ namespace TrenchBroom {
                     if (shouldExclude(name)) {
                         continue;
                     }
-                    auto* texture = textureReader.readTexture(file);
-                    collection->addTexture(texture);
+                    collection->addTexture(textureReader.readTexture(file));
                 } catch (const std::exception& e) {
                     m_logger.warn() << e.what();
                 }

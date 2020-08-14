@@ -92,7 +92,7 @@ namespace TrenchBroom {
             // This default skin is used for all unloadable textures and all unspecified textures.
             // As such this implicitly covers situations where the default skin is intended to be used, but is manually specified incorrectly.
             if (auto fallbackMaterial = loadFallbackMaterial(logger)) {
-                surface.addSkin(fallbackMaterial.release());
+                surface.addSkin(std::move(*fallbackMaterial));
             }
             
             // Define the various OBJ parsing state.
@@ -123,9 +123,9 @@ namespace TrenchBroom {
                             // Assume they meant "use default material" (just in case; this doesn't really make sense, but...)
                             current_material = 0;
                         } else {
-                            std::unique_ptr<Assets::Texture> tex = loadMaterial(tokens[1], logger);
+                            auto tex = loadMaterial(tokens[1], logger);
                             if (tex) {
-                                surface.addSkin(tex.release());
+                                surface.addSkin(std::move(*tex));
                                 ++last_material;
                                 current_material = last_material;
                             } else {
@@ -222,7 +222,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        std::unique_ptr<Assets::Texture> NvObjParser::loadMaterial(const std::string& text, Logger& logger) {
+        std::optional<Assets::Texture> NvObjParser::loadMaterial(const std::string& text, Logger& logger) {
             // NOTE: A reasonable solution here would be to use the same material handling as the brushes unless otherwise required.
             // Then Neverball just gets an additional texture search directory.
             // But there's raw pointers all over the Texture system, so without further details on how memory is managed there, that's a bad idea.
@@ -238,16 +238,16 @@ namespace TrenchBroom {
             for (const auto& texturePath : texturePaths) {
                 try {
                     auto file = m_fs.openFile(texturePath);
-                    return std::unique_ptr<Assets::Texture>(imageReader.readTexture(file));
+                    return imageReader.readTexture(file);
                 } catch (const Exception& /*ex1*/) {
                     // ignore and try the next texture path
                 }
             }
 
-            return nullptr;
+            return std::nullopt;
         }
 
-        std::unique_ptr<Assets::Texture> NvObjParser::loadFallbackMaterial(Logger& logger) {
+        std::optional<Assets::Texture> NvObjParser::loadFallbackMaterial(Logger& logger) {
             // Try to remove the '.obj' extension and grab that as a texture.
             // This isn't really how it works, but the Neverball-side truth involves MAP files acting as a replacement for something like JSON.
             // This is a less Neverball-specific set of logic which should be useful for any game.

@@ -52,7 +52,7 @@ namespace TrenchBroom {
             std::vector<TextureCollection*> m_toRemove;
 
             TextureMap m_texturesByName;
-            std::vector<Texture*> m_textures;
+            std::vector<const Texture*> m_textures;
 
             int m_minFilter;
             int m_magFilter;
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             const Texture* texture(const std::string& name) const;
             Texture* texture(const std::string& name);
             
-            const std::vector<Texture*>& textures() const;
+            const std::vector<const Texture*>& textures() const;
             const std::vector<TextureCollection*>& collections() const;
             const std::vector<std::string> collectionNames() const;
         private:

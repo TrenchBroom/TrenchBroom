@@ -49,29 +49,31 @@ namespace TrenchBroom {
             Assets::TextureCollection* m_textureCollection;
         private:
             void SetUp() {
-                auto textureA = std::make_unique<Assets::Texture>("some_texture", 16, 16);
-                auto textureB = std::make_unique<Assets::Texture>("other_texture", 32, 32);
-                auto textureC = std::make_unique<Assets::Texture>("yet_another_texture", 64, 64);
+                auto textureA = Assets::Texture("some_texture", 16, 16);
+                auto textureB = Assets::Texture("other_texture", 32, 32);
+                auto textureC = Assets::Texture("yet_another_texture", 64, 64);
 
                 const std::string singleParam("some_parm");
                 const std::set<std::string> multiParams({"parm1", "parm2"});
 
-                textureA->setSurfaceParms({singleParam});
-                textureB->setSurfaceParms(multiParams);
+                textureA.setSurfaceParms({singleParam});
+                textureB.setSurfaceParms(multiParams);
 
-                auto textureCollection = std::make_unique<Assets::TextureCollection>(std::vector<Assets::Texture*>({
-                    textureA.get(),
-                    textureB.get(),
-                    textureC.get()
-                }));
+                std::vector<Assets::Texture> textures;
+                textures.push_back(std::move(textureA));
+                textures.push_back(std::move(textureB));
+                textures.push_back(std::move(textureC));
+
+                auto textureCollection = std::make_unique<Assets::TextureCollection>(std::move(textures));
 
                 document->textureManager().setTextureCollections(std::vector<Assets::TextureCollection*>({
                     textureCollection.get()
                 }));
 
-                m_textureA = textureA.release();
-                m_textureB = textureB.release();
-                m_textureC = textureC.release();
+                m_textureA = textureCollection->textureByName("some_texture");
+                m_textureB= textureCollection->textureByName("other_texture");
+                m_textureC = textureCollection->textureByName("yet_another_texture");
+
                 m_textureCollection = textureCollection.release();
 
                 const std::string textureMatch("some_texture");

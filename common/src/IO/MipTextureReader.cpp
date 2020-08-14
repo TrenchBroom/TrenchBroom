@@ -58,7 +58,7 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::Texture* MipTextureReader::doReadTexture(std::shared_ptr<File> file) const {
+        Assets::Texture MipTextureReader::doReadTexture(std::shared_ptr<File> file) const {
             static const size_t MipLevels = 4;
 
             Color averageColor;
@@ -113,7 +113,7 @@ namespace TrenchBroom {
                 const auto type = (transparent == Assets::PaletteTransparency::Index255Transparent)
                                   ? Assets::TextureType::Masked
                                   : Assets::TextureType::Opaque;
-                return new Assets::Texture(name, width, height, averageColor, std::move(buffers), GL_RGBA, type);
+                return Assets::Texture(name, width, height, averageColor, std::move(buffers), GL_RGBA, type);
             } catch (const ReaderException& e) {
                 throw AssetException(e.what());
             }

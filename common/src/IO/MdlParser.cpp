@@ -313,7 +313,7 @@ namespace TrenchBroom {
                     m_palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
 
                     const std::string textureName = m_name + "_" + kdl::str_to_string(i);
-                    surface.addSkin(new Assets::Texture(textureName, width, height, avgColor, std::move(rgbaImage), GL_RGBA, type));
+                    surface.addSkin(Assets::Texture(textureName, width, height, avgColor, std::move(rgbaImage), GL_RGBA, type));
                 } else {
                     const auto pictureCount = reader.readSize<int32_t>();
 
@@ -324,7 +324,7 @@ namespace TrenchBroom {
                     reader.seekForward((pictureCount - 1) * size);  // skip all remaining pictures
 
                     const std::string textureName = m_name + "_" + kdl::str_to_string(i);
-                    surface.addSkin(new Assets::Texture(textureName, width, height, avgColor, std::move(rgbaImage), GL_RGBA, type));
+                    surface.addSkin(Assets::Texture(textureName, width, height, avgColor, std::move(rgbaImage), GL_RGBA, type));
                 }
             }
         }

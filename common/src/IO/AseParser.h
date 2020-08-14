@@ -161,7 +161,7 @@ namespace TrenchBroom {
             std::unique_ptr<Assets::EntityModel> buildModel(Logger& logger, const Scene& scene) const;
             bool checkIndices(Logger& logger, const MeshFace& face, const Mesh& mesh) const;
 
-            std::unique_ptr<Assets::Texture> loadTexture(Logger& logger, const Path& path) const;
+            Assets::Texture loadTexture(Logger& logger, const Path& path) const;
             Path fixTexturePath(Logger& logger, Path path) const;
         };
     }

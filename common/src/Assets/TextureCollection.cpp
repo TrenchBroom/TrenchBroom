@@ -20,7 +20,6 @@
 #include "TextureCollection.h"
 
 #include "Ensure.h"
-#include "Assets/Texture.h"
 
 #include <kdl/vector_utils.h>
 
@@ -33,10 +32,10 @@ namespace TrenchBroom {
         m_loaded(false),
         m_usageCount(0) {}
 
-        TextureCollection::TextureCollection(const std::vector<Texture*>& textures) :
+        TextureCollection::TextureCollection(std::vector<Texture> textures) :
         m_loaded(false),
         m_usageCount(0) {
-            addTextures(textures);
+            addTextures(std::move(textures));
         }
 
         TextureCollection::TextureCollection(const IO::Path& path) :
@@ -44,15 +43,14 @@ namespace TrenchBroom {
         m_path(path),
         m_usageCount(0) {}
 
-        TextureCollection::TextureCollection(const IO::Path& path, const std::vector<Texture*>& textures) :
+        TextureCollection::TextureCollection(const IO::Path& path, std::vector<Texture> textures) :
         m_loaded(true),
         m_path(path),
         m_usageCount(0) {
-            addTextures(textures);
+            addTextures(std::move(textures));
         }
 
         TextureCollection::~TextureCollection() {
-            kdl::vec_clear_and_delete(m_textures);
             if (!m_textureIds.empty()) {
                 glAssert(glDeleteTextures(static_cast<GLsizei>(m_textureIds.size()),
                                           static_cast<GLuint*>(&m_textureIds.front())));
@@ -60,15 +58,14 @@ namespace TrenchBroom {
             }
         }
 
-        void TextureCollection::addTextures(const std::vector<Texture*>& textures) {
-            for (Texture* texture : textures)
-                addTexture(texture);
+        void TextureCollection::addTextures(std::vector<Texture> textures) {
+            for (auto& texture : textures)
+                addTexture(std::move(texture));
         }
 
-        void TextureCollection::addTexture(Texture* texture) {
-            ensure(texture != nullptr, "texture is null");
-            m_textures.push_back(texture);
-            texture->setCollection(this);
+        void TextureCollection::addTexture(Texture texture) {
+            texture.setCollection(this);
+            m_textures.push_back(std::move(texture));
             m_loaded = true;
         }
 
@@ -90,7 +87,11 @@ namespace TrenchBroom {
             return m_textures.size();
         }
 
-        const std::vector<Texture*>& TextureCollection::textures() const {
+        const std::vector<Texture>& TextureCollection::textures() const {
+            return m_textures;
+        }
+
+        std::vector<Texture>& TextureCollection::textures() {
             return m_textures;
         }
 
@@ -98,17 +99,25 @@ namespace TrenchBroom {
             if (index >= m_textures.size()) {
                 return nullptr;
             } else {
-                return m_textures[index];
+                return &(m_textures[index]);
             }
         }
 
+        Texture* TextureCollection::textureByIndex(const size_t index) {
+            return const_cast<Texture*>(const_cast<const TextureCollection*>(this)->textureByIndex(index));
+        }
+
         const Texture* TextureCollection::textureByName(const std::string& name) const {
-            for (auto* texture : m_textures) {
-                if (texture->name() == name) {
-                    return texture;
+            for (const auto& texture : m_textures) {
+                if (texture.name() == name) {
+                    return &texture;
                 }
             }
             return nullptr;
+        }
+
+        Texture* TextureCollection::textureByName(const std::string& name) {
+            return const_cast<Texture*>(const_cast<const TextureCollection*>(this)->textureByName(name));
         }
 
         size_t TextureCollection::usageCount() const {
@@ -127,14 +136,14 @@ namespace TrenchBroom {
                                    static_cast<GLuint*>(&m_textureIds.front())));
 
             for (size_t i = 0; i < textureCount(); ++i) {
-                Texture* texture = m_textures[i];
-                texture->prepare(m_textureIds[i], minFilter, magFilter);
+                Texture& texture = m_textures[i];
+                texture.prepare(m_textureIds[i], minFilter, magFilter);
             }
         }
 
         void TextureCollection::setTextureMode(const int minFilter, const int magFilter) {
-            for (auto* texture : m_textures) {
-                texture->setMode(minFilter, magFilter);
+            for (auto& texture : m_textures) {
+                texture.setMode(minFilter, magFilter);
             }
         }
 
