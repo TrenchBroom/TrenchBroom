@@ -50,7 +50,14 @@ namespace TrenchBroom {
             explicit TextureCollection(std::vector<Texture> textures);
             explicit TextureCollection(const IO::Path& path);
             TextureCollection(const IO::Path& path, std::vector<Texture> textures);
-            virtual ~TextureCollection();
+
+            TextureCollection(const TextureCollection&) = delete;
+            TextureCollection& operator=(const TextureCollection&) = delete;
+            
+            TextureCollection(TextureCollection&& other) = default;
+            TextureCollection& operator=(TextureCollection&& other) = default;
+
+            ~TextureCollection();
 
             void addTextures(std::vector<Texture> textures);
             void addTexture(Texture texture);
