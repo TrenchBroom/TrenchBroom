@@ -146,6 +146,7 @@ namespace TrenchBroom {
             CHECK(!defaultLayer->layerColor().has_value());
             CHECK(!defaultLayer->locked());
             CHECK(!defaultLayer->hidden());
+            CHECK(!defaultLayer->omitFromExport());
         }
 
         TEST_CASE("WorldReaderTest.parseDefaultLayerAttributes", "[WorldReaderTest]") {
@@ -155,6 +156,7 @@ namespace TrenchBroom {
 "_tb_layer_color" "0.0 1.0 0.0"
 "_tb_layer_locked" "1"
 "_tb_layer_hidden" "1"
+"_tb_layer_omit_from_export" "1"
 }
 )");
 
@@ -174,6 +176,7 @@ namespace TrenchBroom {
             CHECK(defaultLayer->layerColor().value() == Color(0.0f, 1.0f, 0.0f));
             CHECK(defaultLayer->locked());
             CHECK(defaultLayer->hidden());
+            CHECK(defaultLayer->omitFromExport());
         }
 
         TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneMoreEntity", "[WorldReaderTest]") {
@@ -749,6 +752,7 @@ namespace TrenchBroom {
 "_tb_id" "2"
 "_tb_layer_sort_index" "0"
 "_tb_layer_hidden" "1"
+"_tb_layer_omit_from_export" "1"
 })");
             const vm::bbox3 worldBounds(8192.0);
 
@@ -780,6 +784,9 @@ namespace TrenchBroom {
 
             CHECK(!sort0->locked());
             CHECK(sort1->locked());
+
+            CHECK(sort0->omitFromExport());
+            CHECK(!sort1->omitFromExport());
         }
 
         TEST_CASE("WorldReaderTest.parseLayersWithReversedSortIndicesWithGaps", "[WorldReaderTest]") {

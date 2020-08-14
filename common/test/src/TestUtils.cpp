@@ -26,11 +26,13 @@
 #include "Model/ParaxialTexCoordSystem.h"
 
 #include <kdl/result.h>
+#include <kdl/string_compare.h>
 
 #include <vecmath/polygon.h>
 #include <vecmath/scalar.h>
 #include <vecmath/segment.h>
 
+#include <sstream>
 #include <string>
 
 namespace TrenchBroom {
@@ -236,5 +238,23 @@ namespace TrenchBroom {
             CHECK(b == actualB);
             CHECK(a == actualA);
         }
+    }
+
+    // GlobMatcher
+
+    GlobMatcher::GlobMatcher(const std::string& glob) : m_glob(glob) {}
+
+    bool GlobMatcher::match(const std::string& value) const {
+        return kdl::cs::str_matches_glob(value, m_glob);
+    }
+
+    std::string GlobMatcher::describe() const {
+        std::stringstream ss;
+        ss << "matches glob \"" << m_glob << "\"";
+        return ss.str();
+    }
+
+    GlobMatcher MatchesGlob(const std::string& glob) {
+        return GlobMatcher(glob);
     }
 }
