@@ -347,7 +347,7 @@ namespace TrenchBroom {
 
         void Md2Parser::loadSkins(Assets::EntityModelSurface& surface, const Md2SkinList& skins, Logger& logger) {
             for (const auto& skin : skins) {
-                surface.addSkin(loadSkin(Path(skin), m_fs, logger, m_palette).release());
+                surface.addSkin(loadSkin(Path(skin), m_fs, logger, m_palette));
             }
         }
 

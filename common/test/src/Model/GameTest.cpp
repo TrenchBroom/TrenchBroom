@@ -158,17 +158,17 @@ namespace TrenchBroom {
             ASSERT_EQ(5u, testCollection->textureCount());
 
             const auto& testTextures = testCollection->textures();
-            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto* t) { return t->name() == "test/test"; }));
-            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto* t) { return t->name() == "test/not_existing"; }));
-            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto* t) { return t->name() == "test/editor_image"; }));
-            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto* t) { return t->name() == "test/not_existing2"; }));
-            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto* t) { return t->name() == "test/test2"; }));
+            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto& t) { return t.name() == "test/test"; }));
+            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto& t) { return t.name() == "test/not_existing"; }));
+            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto& t) { return t.name() == "test/editor_image"; }));
+            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto& t) { return t.name() == "test/not_existing2"; }));
+            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto& t) { return t.name() == "test/test2"; }));
             
             const auto* skiesCollection = textureManager.collections().back();
             ASSERT_EQ(1u, skiesCollection->textureCount());
             
             const auto& skiesTextures = testCollection->textures();
-            ASSERT_TRUE(skiesTextures.front()->name() == "test/editor_image");
+            ASSERT_TRUE(skiesTextures.front().name() == "test/editor_image");
         }
     }
 }

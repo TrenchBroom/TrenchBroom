@@ -223,7 +223,7 @@ namespace TrenchBroom {
              *
              *@param skin the skin to add
              */
-            void addSkin(Texture* skin);
+            void addSkin(Texture skin);
 
             /**
              * Returns the number of frame meshes in this surface, should match the model's frame count.

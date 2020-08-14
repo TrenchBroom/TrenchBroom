@@ -383,7 +383,7 @@ namespace TrenchBroom {
         void DkmParser::loadSkins(Assets::EntityModelSurface& surface, const DkmParser::DkmSkinList& skins, Logger& logger) {
             for (const auto& skin : skins) {
                 const auto skinPath = findSkin(skin);
-                surface.addSkin(loadSkin(skinPath, m_fs, logger).release());
+                surface.addSkin(loadSkin(skinPath, m_fs, logger));
             }
         }
 

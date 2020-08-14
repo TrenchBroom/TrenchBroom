@@ -46,7 +46,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        std::unique_ptr<Assets::Texture> loadDefaultTexture(const FileSystem& fs, Logger& logger, const std::string& name) {
+        Assets::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger, const std::string& name) {
             // recursion guard
             static bool executing = false;
             if (!executing) {
@@ -55,7 +55,7 @@ namespace TrenchBroom {
                 try {
                     const auto file = fs.openFile(Path("textures/__TB_empty.png"));
                     FreeImageTextureReader imageReader(IO::TextureReader::StaticNameStrategy(name), fs, logger);
-                    return std::unique_ptr<Assets::Texture>(imageReader.readTexture(file));
+                    return imageReader.readTexture(file);
                 } catch (const Exception& e) {
                     logger.error() << "Could not load default texture: " << e.what();
                     // fall through to return an empty texture
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             } else {
                 logger.error() << "Could not load default texture";
             }
-            return std::make_unique<Assets::Texture>(name, 32, 32);
+            return Assets::Texture(name, 32, 32);
         }
 
         static QString imagePathToString(const Path& imagePath) {

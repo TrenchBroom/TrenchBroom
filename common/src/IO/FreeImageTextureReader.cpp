@@ -76,7 +76,7 @@ namespace TrenchBroom {
             return average;
         }
 
-        Assets::Texture* FreeImageTextureReader::doReadTexture(std::shared_ptr<File> file) const {
+        Assets::Texture FreeImageTextureReader::doReadTexture(std::shared_ptr<File> file) const {
             auto reader = file->reader().buffer();
 
             InitFreeImage::initialize();
@@ -134,7 +134,7 @@ namespace TrenchBroom {
             const auto textureType = Assets::Texture::selectTextureType(masked);
             const Color averageColor = getAverageColor(buffers.at(0), format);
 
-            return new Assets::Texture(textureName(path), imageWidth, imageHeight, averageColor, std::move(buffers), format, textureType);
+            return Assets::Texture(textureName(path), imageWidth, imageHeight, averageColor, std::move(buffers), format, textureType);
         }
     }
 }

@@ -98,11 +98,11 @@ namespace TrenchBroom {
             struct MatchName;
 
             std::vector<Assets::TextureCollection*> getCollections() const;
-            std::vector<Assets::Texture*> getTextures(const Assets::TextureCollection* collection) const;
-            std::vector<Assets::Texture*> getTextures() const;
+            std::vector<const Assets::Texture*> getTextures(const Assets::TextureCollection* collection) const;
+            std::vector<const Assets::Texture*> getTextures() const;
 
-            void filterTextures(std::vector<Assets::Texture*>& textures) const;
-            void sortTextures(std::vector<Assets::Texture*>& textures) const;
+            void filterTextures(std::vector<const Assets::Texture*>& textures) const;
+            void sortTextures(std::vector<const Assets::Texture*>& textures) const;
 
             void doClear() override;
             void doRender(Layout& layout, float y, float height) override;

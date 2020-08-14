@@ -255,29 +255,29 @@ namespace TrenchBroom {
             return collections;
         }
 
-        std::vector<Assets::Texture*> TextureBrowserView::getTextures(const Assets::TextureCollection* collection) const {
-            std::vector<Assets::Texture*> textures = collection->textures();
+        std::vector<const Assets::Texture*> TextureBrowserView::getTextures(const Assets::TextureCollection* collection) const {
+            auto textures = kdl::vec_transform(collection->textures(), [](const auto& t) { return &t; });
             filterTextures(textures);
             sortTextures(textures);
             return textures;
         }
 
-        std::vector<Assets::Texture*> TextureBrowserView::getTextures() const {
+        std::vector<const Assets::Texture*> TextureBrowserView::getTextures() const {
             auto doc = kdl::mem_lock(m_document);
-            std::vector<Assets::Texture*> textures = doc->textureManager().textures();
+            auto textures = doc->textureManager().textures();
             filterTextures(textures);
             sortTextures(textures);
             return textures;
         }
 
-        void TextureBrowserView::filterTextures(std::vector<Assets::Texture*>& textures) const {
+        void TextureBrowserView::filterTextures(std::vector<const Assets::Texture*>& textures) const {
             if (m_hideUnused)
                 kdl::vec_erase_if(textures, MatchUsageCount());
             if (!m_filterText.empty())
                 kdl::vec_erase_if(textures, MatchName(m_filterText));
         }
 
-        void TextureBrowserView::sortTextures(std::vector<Assets::Texture*>& textures) const {
+        void TextureBrowserView::sortTextures(std::vector<const Assets::Texture*>& textures) const {
             switch (m_sortOrder) {
                 case TextureSortOrder::Name:
                     kdl::vec_sort(textures, CompareByName());

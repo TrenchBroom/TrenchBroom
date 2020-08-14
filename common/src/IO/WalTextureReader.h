@@ -40,9 +40,9 @@ namespace TrenchBroom {
         public:
             WalTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger, const Assets::Palette& palette = Assets::Palette());
         private:
-            Assets::Texture* doReadTexture(std::shared_ptr<File> file) const override;
-            Assets::Texture* readQ2Wal(Reader& reader, const Path& path) const;
-            Assets::Texture* readDkWal(Reader& reader, const Path& path) const;
+            Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;
+            Assets::Texture readQ2Wal(Reader& reader, const Path& path) const;
+            Assets::Texture readDkWal(Reader& reader, const Path& path) const;
             size_t readMipOffsets(size_t maxMipLevels, size_t offsets[], size_t width, size_t height, Reader& reader) const;
             static bool readMips(const Assets::Palette& palette, size_t mipLevels, const size_t offsets[], size_t width, size_t height, Reader& reader, Assets::TextureBufferList& buffers, Color& averageColor, Assets::PaletteTransparency transparency);
         };

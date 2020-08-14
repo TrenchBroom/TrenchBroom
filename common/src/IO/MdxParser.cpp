@@ -358,7 +358,7 @@ namespace TrenchBroom {
                 if (path.isAbsolute()) {
                     path = path.makeRelative();
                 }
-                surface.addSkin(loadSkin(path, m_fs, logger).release());
+                surface.addSkin(loadSkin(path, m_fs, logger));
             }
         }
 
