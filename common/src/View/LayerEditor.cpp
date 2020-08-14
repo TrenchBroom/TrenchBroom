@@ -159,12 +159,7 @@ namespace TrenchBroom {
 
         void LayerEditor::toggleOmitLayerFromExport(Model::LayerNode* layer) {
             ensure(layer != nullptr, "layer is null");
-            auto document = kdl::mem_lock(m_document);
-            if (!layer->omitFromExport()) {
-                document->setOmitLayerFromExport(layer, true);
-            } else {
-                document->setOmitLayerFromExport(layer, false);
-            }
+            kdl::mem_lock(m_document)->setOmitLayerFromExport(layer, !layer->omitFromExport());
         }
 
         void LayerEditor::isolateLayer(Model::LayerNode* layer) {
