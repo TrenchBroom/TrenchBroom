@@ -23,6 +23,8 @@
 #include "FloatType.h"
 #include "Macros.h"
 
+#include "Model/BrushFaceAttributes.h"
+
 #include <vecmath/vec.h>
 
 #include <memory>
@@ -30,7 +32,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushFaceAttributes;
         class ParallelTexCoordSystem;
         class ParaxialTexCoordSystem;
         class TexCoordSystem;
@@ -87,8 +88,8 @@ namespace TrenchBroom {
             vm::mat4x4 fromMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;
             float measureAngle(float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const;
 
-            std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> toParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const;
-            std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> toParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const;
+            std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> toParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const;
+            std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> toParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const;
         private:
             virtual std::unique_ptr<TexCoordSystem> doClone() const = 0;
             virtual std::unique_ptr<TexCoordSystemSnapshot> doTakeSnapshot() const = 0;
@@ -116,8 +117,8 @@ namespace TrenchBroom {
 
             virtual float doMeasureAngle(float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const = 0;
 
-            virtual std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> doToParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const = 0;
-            virtual std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> doToParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const = 0;
+            virtual std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> doToParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const = 0;
+            virtual std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> doToParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const = 0;
         protected:
             vm::vec2f computeTexCoords(const vm::vec3& point, const vm::vec2f& scale) const;
 

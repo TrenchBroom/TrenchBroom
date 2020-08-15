@@ -81,7 +81,7 @@ namespace TrenchBroom {
             assert(m_format != MapFormat::Unknown);
 
             std::unique_ptr<TexCoordSystem> texCoordSystem;
-            std::unique_ptr<BrushFaceAttributes> attribs;
+            BrushFaceAttributes attribs("");
 
             if (Model::isParallelTexCoordSystem(m_format)) {
                 // Convert paraxial to parallel
@@ -89,28 +89,28 @@ namespace TrenchBroom {
             } else {
                 // Pass through paraxial
                 texCoordSystem = std::make_unique<ParaxialTexCoordSystem>(point1, point2, point3, inputAttribs);
-                attribs = std::make_unique<BrushFaceAttributes>(inputAttribs);
+                attribs = inputAttribs;
             }
 
-            return BrushFace::create(point1, point2, point3, *attribs, std::move(texCoordSystem));
+            return BrushFace::create(point1, point2, point3, attribs, std::move(texCoordSystem));
         }
 
         kdl::result<BrushFace, BrushError> ModelFactoryImpl::doCreateFaceFromValve(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& inputAttribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
             assert(m_format != MapFormat::Unknown);
 
             std::unique_ptr<TexCoordSystem> texCoordSystem;
-            std::unique_ptr<BrushFaceAttributes> attribs;
+            BrushFaceAttributes attribs("");
 
             if (Model::isParallelTexCoordSystem(m_format)) {
                 // Pass through parallel
                 texCoordSystem = std::make_unique<ParallelTexCoordSystem>(texAxisX, texAxisY);
-                attribs = std::make_unique<BrushFaceAttributes>(inputAttribs);
+                attribs = inputAttribs;
             } else {
                 // Convert parallel to paraxial
                 std::tie(texCoordSystem, attribs) = ParaxialTexCoordSystem::fromParallel(point1, point2, point3, inputAttribs, texAxisX, texAxisY);
             }
 
-            return BrushFace::create(point1, point2, point3, *attribs, std::move(texCoordSystem));
+            return BrushFace::create(point1, point2, point3, attribs, std::move(texCoordSystem));
         }
     }
 }

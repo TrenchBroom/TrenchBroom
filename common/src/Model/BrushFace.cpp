@@ -339,14 +339,14 @@ namespace TrenchBroom {
         void BrushFace::convertToParaxial() {
             auto [newTexCoordSystem, newAttributes] = m_texCoordSystem->toParaxial(m_points[0], m_points[1], m_points[2], m_attributes);
 
-            m_attributes = *newAttributes;
+            m_attributes = newAttributes;
             m_texCoordSystem = std::move(newTexCoordSystem);
         }
 
         void BrushFace::convertToParallel() {
             auto [newTexCoordSystem, newAttributes] = m_texCoordSystem->toParallel(m_points[0], m_points[1], m_points[2], m_attributes);
 
-            m_attributes = *newAttributes;
+            m_attributes = newAttributes;
             m_texCoordSystem = std::move(newTexCoordSystem);
         }
 

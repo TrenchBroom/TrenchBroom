@@ -263,13 +263,13 @@ namespace TrenchBroom {
             return vm::to_degrees(angleInRadians);
         }
 
-        std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> ParaxialTexCoordSystem::doToParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const {
+        std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParaxialTexCoordSystem::doToParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const {
             return ParallelTexCoordSystem::fromParaxial(point0, point1, point2, attribs);
         }
 
-        std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> ParaxialTexCoordSystem::doToParaxial(const vm::vec3&, const vm::vec3&, const vm::vec3&, const BrushFaceAttributes& attribs) const {
+        std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParaxialTexCoordSystem::doToParaxial(const vm::vec3&, const vm::vec3&, const vm::vec3&, const BrushFaceAttributes& attribs) const {
             // Already in the requested format
-            return { clone(), std::make_unique<BrushFaceAttributes>(attribs)};
+            return { clone(), attribs };
         }
 
         void ParaxialTexCoordSystem::rotateAxes(vm::vec3& xAxis, vm::vec3& yAxis, const FloatType angleInRadians, const size_t planeNormIndex) const {
@@ -610,7 +610,7 @@ namespace TrenchBroom {
             }
         }
 
-        std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> ParaxialTexCoordSystem::fromParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs, const vm::vec3& xAxis, const vm::vec3& yAxis) {
+        std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParaxialTexCoordSystem::fromParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs, const vm::vec3& xAxis, const vm::vec3& yAxis) {
             const vm::plane3 facePlane = planeFromPoints(point0, point1, point2);
             const vm::mat4x4f worldToTexSpace = FromParallel::valveTo4x4Matrix(facePlane, attribs, xAxis, yAxis);
             const auto facePoints = std::array<vm::vec3f, 3>{vm::vec3f(point0), vm::vec3f(point1), vm::vec3f(point2)};
@@ -629,7 +629,7 @@ namespace TrenchBroom {
             }
 
             return { std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, newAttribs),
-                     std::make_unique<BrushFaceAttributes>(newAttribs) };
+                     newAttribs };
         }
     }
 }

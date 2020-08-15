@@ -73,9 +73,9 @@ namespace TrenchBroom {
         m_xAxis(xAxis),
         m_yAxis(yAxis) {}
 
-        std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> ParallelTexCoordSystem::fromParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) {
+        std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParallelTexCoordSystem::fromParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) {
             const auto tempParaxial = ParaxialTexCoordSystem(point0, point1, point2, attribs);
-            return { ParallelTexCoordSystem(tempParaxial.xAxis(), tempParaxial.yAxis()).clone(), std::make_unique<BrushFaceAttributes>(attribs) };
+            return { ParallelTexCoordSystem(tempParaxial.xAxis(), tempParaxial.yAxis()).clone(), attribs };
         }
 
         std::unique_ptr<TexCoordSystem> ParallelTexCoordSystem::doClone() const {
@@ -338,11 +338,11 @@ namespace TrenchBroom {
             yAxis = vm::normalize(vm::cross(m_xAxis, normal));
         }
 
-        std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> ParallelTexCoordSystem::doToParallel(const vm::vec3&, const vm::vec3&, const vm::vec3&, const BrushFaceAttributes& attribs) const {
-            return { clone(), std::make_unique<BrushFaceAttributes>(attribs) };
+        std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParallelTexCoordSystem::doToParallel(const vm::vec3&, const vm::vec3&, const vm::vec3&, const BrushFaceAttributes& attribs) const {
+            return { clone(), attribs };
         }
 
-        std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> ParallelTexCoordSystem::doToParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const {
+        std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParallelTexCoordSystem::doToParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const {
             return ParaxialTexCoordSystem::fromParallel(point0, point1, point2, attribs, m_xAxis, m_yAxis);
         }
     }

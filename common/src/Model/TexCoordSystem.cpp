@@ -219,11 +219,11 @@ namespace TrenchBroom {
                          dot(point, safeScaleAxis(getYAxis(), scale.y())));
         }
 
-        std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> TexCoordSystem::toParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const {
+        std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> TexCoordSystem::toParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const {
             return doToParallel(point0, point1, point2, attribs);
         }
 
-        std::tuple<std::unique_ptr<TexCoordSystem>, std::unique_ptr<BrushFaceAttributes>> TexCoordSystem::toParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const {
+        std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> TexCoordSystem::toParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const {
             return doToParaxial(point0, point1, point2, attribs);
         }
     }
