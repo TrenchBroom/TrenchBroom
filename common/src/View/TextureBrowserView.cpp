@@ -159,18 +159,17 @@ namespace TrenchBroom {
                 for (const Assets::TextureCollection* collection : getCollections()) {
                     layout.addGroup(collection->name(), static_cast<float>(fontSize) + 2.0f);
                     for (const Assets::Texture* texture : getTextures(collection))
-                        addTextureToLayout(layout, texture, font);
+                        addTextureToLayout(layout, texture, collection->name(), font);
                 }
             } else {
                 for (const Assets::Texture* texture : getTextures())
-                    addTextureToLayout(layout, texture, font);
+                    addTextureToLayout(layout, texture, "", font);
             }
         }
 
-        void TextureBrowserView::addTextureToLayout(Layout& layout, const Assets::Texture* texture, const Renderer::FontDescriptor& font) {
+        void TextureBrowserView::addTextureToLayout(Layout& layout, const Assets::Texture* texture, const std::string& groupName, const Renderer::FontDescriptor& font) {
             const float maxCellWidth = layout.maxCellWidth();
 
-            const auto& groupName   = texture->collection()->name();
             const auto  textureName = IO::Path(texture->name()).lastComponent().asString();
 
             const auto textureFont = fontManager().selectFontSize(font, textureName, maxCellWidth, 6);
