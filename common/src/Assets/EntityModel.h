@@ -219,11 +219,11 @@ namespace TrenchBroom {
             void addTexturedMesh(EntityModelLoadedFrame& frame, const std::vector<EntityModelVertex>& vertices, const EntityModelTexturedIndices& indices);
 
             /**
-             * Adds the given texture as a skin to this surface.
+             * Sets the given textures as skins to this surface.
              *
-             *@param skin the skin to add
+             * @param skins the textures to set
              */
-            void addSkin(Texture skin);
+            void setSkins(std::vector<Texture> skins);
 
             /**
              * Returns the number of frame meshes in this surface, should match the model's frame count.

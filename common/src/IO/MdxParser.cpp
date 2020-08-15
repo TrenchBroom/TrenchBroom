@@ -353,13 +353,18 @@ namespace TrenchBroom {
         }
 
         void MdxParser::loadSkins(Assets::EntityModelSurface& surface, const MdxSkinList& skins, Logger& logger) {
+            std::vector<Assets::Texture> textures;
+            textures.reserve(skins.size());
+        
             for (const auto& skin : skins) {
                 auto path = Path(skin);
                 if (path.isAbsolute()) {
                     path = path.makeRelative();
                 }
-                surface.addSkin(loadSkin(path, m_fs, logger));
+                textures.push_back(loadSkin(path, m_fs, logger));
             }
+            
+            surface.setSkins(std::move(textures));
         }
 
         void MdxParser::buildFrame(Assets::EntityModel& model, Assets::EntityModelSurface& surface, const size_t frameIndex, const MdxFrame& frame, const MdxMeshList& meshes) {

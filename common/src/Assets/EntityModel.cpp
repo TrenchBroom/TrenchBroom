@@ -335,8 +335,8 @@ namespace TrenchBroom {
             m_meshes[frame.index()] = std::make_unique<EntityModelTexturedMesh>(frame, vertices, indices);
         }
 
-        void EntityModelSurface::addSkin(Texture skin) {
-            m_skins->addTexture(std::move(skin));
+        void EntityModelSurface::setSkins(std::vector<Texture> skins) {
+            m_skins = std::make_unique<TextureCollection>(std::move(skins));
         }
 
         size_t EntityModelSurface::frameCount() const {

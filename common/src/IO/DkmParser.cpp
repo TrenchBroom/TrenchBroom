@@ -381,10 +381,15 @@ namespace TrenchBroom {
         }
 
         void DkmParser::loadSkins(Assets::EntityModelSurface& surface, const DkmParser::DkmSkinList& skins, Logger& logger) {
+            std::vector<Assets::Texture> textures;
+            textures.reserve(skins.size());
+            
             for (const auto& skin : skins) {
                 const auto skinPath = findSkin(skin);
-                surface.addSkin(loadSkin(skinPath, m_fs, logger));
+                textures.push_back(loadSkin(skinPath, m_fs, logger));
             }
+            
+            surface.setSkins(std::move(textures));
         }
 
         /**

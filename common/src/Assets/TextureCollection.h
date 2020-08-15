@@ -59,9 +59,6 @@ namespace TrenchBroom {
 
             ~TextureCollection();
 
-            void addTextures(std::vector<Texture> textures);
-            void addTexture(Texture texture);
-
             bool loaded() const;
             const IO::Path& path() const;
             std::string name() const;

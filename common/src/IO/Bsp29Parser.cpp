@@ -99,9 +99,7 @@ namespace TrenchBroom {
             model->addFrames(frameCount);
 
             auto& surface = model->addSurface(m_name);
-            for (auto& texture : textures) {
-                surface.addSkin(std::move(texture));
-            }
+            surface.setSkins(std::move(textures));
 
             return model;
         }

@@ -472,12 +472,14 @@ namespace TrenchBroom {
             auto& surface = model->addSurface(m_name);
 
             // Load the textures
-            for (size_t i = 0; i < scene.materialPaths.size(); ++i) {
-                auto path = scene.materialPaths[i];
-                surface.addSkin(loadTexture(logger, path));
+            std::vector<Assets::Texture> textures;
+            textures.reserve(scene.materialPaths.size());
+            for (const auto& path : scene.materialPaths) {
+                textures.push_back(loadTexture(logger, path));
             }
             
-            surface.addSkin(loadDefaultTexture(m_fs, logger, ""));
+            textures.push_back(loadDefaultTexture(m_fs, logger, ""));
+            surface.setSkins(std::move(textures));
 
             // Count vertices and build bounds
             auto bounds = vm::bbox3f::builder();
