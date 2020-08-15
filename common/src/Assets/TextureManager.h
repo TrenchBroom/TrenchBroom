@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_TextureManager
 #define TrenchBroom_TextureManager
 
-#include "Notifier.h"
-
 #include <map>
 #include <string>
 #include <vector>
@@ -55,8 +53,6 @@ namespace TrenchBroom {
             int m_minFilter;
             int m_magFilter;
             bool m_resetTextureMode;
-        public:
-            Notifier<> usageCountDidChange;
         public:
             TextureManager(int magFilter, int minFilter, Logger& logger);
             ~TextureManager();
