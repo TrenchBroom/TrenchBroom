@@ -88,12 +88,13 @@ namespace TrenchBroom {
 
         Action::~Action() = default;
 
-        Action::Action(const IO::Path& preferencePath, const QString& label, const ActionContext::Type actionContext, const QKeySequence& defaultShortcut, const IO::Path& iconPath) :
+        Action::Action(const IO::Path& preferencePath, const QString& label, const ActionContext::Type actionContext, const QKeySequence& defaultShortcut, const IO::Path& iconPath, const QString& statusTip) :
         m_label(label),
         m_preferencePath(preferencePath),
         m_actionContext(actionContext),
         m_defaultShortcut(defaultShortcut),
-        m_iconPath(iconPath) {}
+        m_iconPath(iconPath),
+        m_statusTip(statusTip) {}
 
         const QString& Action::label() const {
             return m_label;
@@ -130,6 +131,10 @@ namespace TrenchBroom {
         const IO::Path& Action::iconPath() const {
             assert(hasIcon());
             return m_iconPath;
+        }
+
+        const QString& Action::statusTip() const {
+            return m_statusTip;
         }
 
         // MenuVisitor
@@ -749,7 +754,8 @@ namespace TrenchBroom {
                 [](ActionExecutionContext& context) {
                     context.frame()->exportDocumentAsMap();
                 },
-                [](ActionExecutionContext& context) { return context.hasDocument(); }));
+                [](ActionExecutionContext& context) { return context.hasDocument(); },
+                IO::Path(), QObject::tr("Exports the current map to a .map file. Layers marked Omit From Export will be omitted.")));
 
             /* ========== File Menu (Associated Resources) ========== */
             fileMenu.addSeparator();

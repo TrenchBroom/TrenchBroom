@@ -59,6 +59,7 @@ namespace TrenchBroom {
             if (tAction->hasIcon()) {
                 qAction->setIcon(IO::loadSVGIcon(tAction->iconPath()));
             }
+            qAction->setStatusTip(tAction->statusTip());
             updateActionKeySeqeunce(qAction, tAction);
 
             const auto& triggerFn = m_triggerFn;

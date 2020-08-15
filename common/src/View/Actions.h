@@ -69,8 +69,9 @@ namespace TrenchBroom {
             ActionContext::Type m_actionContext;
             QKeySequence m_defaultShortcut;
             IO::Path m_iconPath;
+            QString m_statusTip;
         public:
-            Action(const IO::Path& preferencePath, const QString& label, const ActionContext::Type actionContext, const QKeySequence& defaultShortcut, const IO::Path& iconPath);
+            Action(const IO::Path& preferencePath, const QString& label, const ActionContext::Type actionContext, const QKeySequence& defaultShortcut, const IO::Path& iconPath, const QString& statusTip);
             virtual ~Action();
 
             const QString& label() const;
@@ -87,6 +88,8 @@ namespace TrenchBroom {
 
             bool hasIcon() const;
             const IO::Path& iconPath() const;
+
+            const QString& statusTip() const;
 
             deleteCopy(Action)
 
@@ -108,8 +111,8 @@ namespace TrenchBroom {
             bool m_checkable;
         public:
             LambdaAction(const IO::Path& preferencePath, const QString& label, const ActionContext::Type actionContext, const QKeySequence& defaultShortcut,
-                const ExecuteFn& execute, const EnabledFn& enabled, const CheckedFn& checked, const bool checkable, const IO::Path& iconPath)
-                : Action(preferencePath, label, actionContext, defaultShortcut, iconPath),
+                const ExecuteFn& execute, const EnabledFn& enabled, const CheckedFn& checked, const bool checkable, const IO::Path& iconPath, const QString& statusTip)
+                : Action(preferencePath, label, actionContext, defaultShortcut, iconPath, statusTip),
                 m_execute(execute),
                 m_enabled(enabled),
                 m_checked(checked),
@@ -289,33 +292,35 @@ namespace TrenchBroom {
                     enabled,
                     checkedFn,
                     false,
-                    IO::Path()));
+                    IO::Path(),
+                    QString()));
             }
 
             template <class ExecuteFn, class EnabledFn>
-            const Action* createMenuAction(const IO::Path& preferencePath, const QString& label, const int key, const ExecuteFn& execute, const EnabledFn& enabled, const IO::Path& iconPath = IO::Path()) {
-                return createAction(preferencePath, label, ActionContext::Any, QKeySequence(key), execute, enabled, iconPath);
+            const Action* createMenuAction(const IO::Path& preferencePath, const QString& label, const int key, const ExecuteFn& execute, const EnabledFn& enabled, const IO::Path& iconPath = IO::Path(), const QString& statusTip = QString()) {
+                return createAction(preferencePath, label, ActionContext::Any, QKeySequence(key), execute, enabled, iconPath, statusTip);
             }
 
             template <class ExecuteFn, class EnabledFn, class CheckedFn>
-            const Action* createMenuAction(const IO::Path& preferencePath, const QString& label, const int key, const ExecuteFn& execute, const EnabledFn& enabled, const CheckedFn& checked, const IO::Path& iconPath = IO::Path()) {
-                return createAction(preferencePath, label, ActionContext::Any, QKeySequence(key), execute, enabled, checked, iconPath);
+            const Action* createMenuAction(const IO::Path& preferencePath, const QString& label, const int key, const ExecuteFn& execute, const EnabledFn& enabled, const CheckedFn& checked, const IO::Path& iconPath = IO::Path(), const QString& statusTip = QString()) {
+                return createAction(preferencePath, label, ActionContext::Any, QKeySequence(key), execute, enabled, checked, iconPath, statusTip);
             }
 
             template <class ExecuteFn, class EnabledFn>
-            const Action* createMenuAction(const IO::Path& preferencePath, const QString& label, const QKeySequence::StandardKey key, const ExecuteFn& execute, const EnabledFn& enabled, const IO::Path& iconPath = IO::Path()) {
-                return createAction(preferencePath, label, ActionContext::Any, QKeySequence(key), execute, enabled, iconPath);
+            const Action* createMenuAction(const IO::Path& preferencePath, const QString& label, const QKeySequence::StandardKey key, const ExecuteFn& execute, const EnabledFn& enabled, const IO::Path& iconPath = IO::Path(), const QString& statusTip = QString()) {
+                return createAction(preferencePath, label, ActionContext::Any, QKeySequence(key), execute, enabled, iconPath, statusTip);
             }
 
             template <class ExecuteFn, class EnabledFn, class CheckedFn>
-            const Action* createMenuAction(const IO::Path& preferencePath, const QString& label, const QKeySequence::StandardKey key, const ExecuteFn& execute, const EnabledFn& enabled, const CheckedFn& checked, const IO::Path& iconPath = IO::Path()) {
-                return createAction(preferencePath, label, ActionContext::Any, QKeySequence(key), execute, enabled, checked, iconPath);
+            const Action* createMenuAction(const IO::Path& preferencePath, const QString& label, const QKeySequence::StandardKey key, const ExecuteFn& execute, const EnabledFn& enabled, const CheckedFn& checked, const IO::Path& iconPath = IO::Path(), const QString& statusTip = QString()) {
+                return createAction(preferencePath, label, ActionContext::Any, QKeySequence(key), execute, enabled, checked, iconPath, statusTip);
             }
 
             template <class ExecuteFn, class EnabledFn>
             const Action* createAction(const IO::Path& preferencePath, const QString& label, const ActionContext::Type actionContext, const QKeySequence& defaultShortcut,
                                        const ExecuteFn& execute, const EnabledFn& enabled,
-                                       const IO::Path& iconPath = IO::Path()) {
+                                       const IO::Path& iconPath = IO::Path(),
+                                       const QString& statusTip = QString()) {
 
                 const auto checkedFn = [](ActionExecutionContext&) { return false; };
                 auto action = std::unique_ptr<Action>(new LambdaAction<ExecuteFn, EnabledFn, decltype(checkedFn)>(
@@ -327,7 +332,8 @@ namespace TrenchBroom {
                     enabled,
                     checkedFn,
                     false,
-                    iconPath));
+                    iconPath,
+                    statusTip));
 
                 auto [it, didInsert] = m_actions.insert({ preferencePath, std::move(action) });
                 ensure(didInsert, "duplicate action name");
@@ -337,7 +343,8 @@ namespace TrenchBroom {
             template <class ExecuteFn, class EnabledFn, class CheckedFn>
             const Action* createAction(const IO::Path& preferencePath, const QString& label, const ActionContext::Type actionContext, const QKeySequence& defaultShortcut,
                                        const ExecuteFn& execute, const EnabledFn& enabled,
-                                       const CheckedFn& checked, const IO::Path& iconPath = IO::Path()) {
+                                       const CheckedFn& checked, const IO::Path& iconPath = IO::Path(),
+                                       const QString& statusTip = QString()) {
                 auto action = std::unique_ptr<Action>(new LambdaAction<ExecuteFn, EnabledFn, CheckedFn>(
                     preferencePath,
                     label,
@@ -347,7 +354,8 @@ namespace TrenchBroom {
                     enabled,
                     checked,
                     true,
-                    iconPath));
+                    iconPath,
+                    statusTip));
 
                 auto [it, didInsert] = m_actions.insert({ preferencePath, std::move(action) });
                 ensure(didInsert, "duplicate action name");
