@@ -49,7 +49,8 @@ namespace TrenchBroom {
             const Model::MapFormat preferredFormat = m_factory.format();
 
             try {
-                return readAsFormat(worldBounds, preferredFormat, status);
+                readAsFormat(worldBounds, preferredFormat, status);
+                return m_nodes;
             } catch (const ParserException&) {
             }
 
@@ -59,7 +60,8 @@ namespace TrenchBroom {
                 }
 
                 try {
-                    return readAsFormat(worldBounds, format, status);
+                    readAsFormat(worldBounds, format, status);
+                    return m_nodes;
                 } catch (const ParserException&) {
                 }
             }
@@ -68,11 +70,10 @@ namespace TrenchBroom {
             return m_nodes;
         }
 
-        const std::vector<Model::Node*>& NodeReader::readAsFormat(const vm::bbox3& worldBounds, Model::MapFormat format, ParserStatus& status) {
+        void NodeReader::readAsFormat(const vm::bbox3& worldBounds, Model::MapFormat format, ParserStatus& status) {
             try {
                 reset();
                 readEntities(format, worldBounds, status);
-                return m_nodes;
             } catch (const ParserException&) {
                 kdl::vec_clear_and_delete(m_nodes);
             }
@@ -80,7 +81,6 @@ namespace TrenchBroom {
             try {
                 reset();
                 readBrushes(format, worldBounds, status);
-                return m_nodes;
             } catch (const ParserException&) {
                 kdl::vec_clear_and_delete(m_nodes);
                 throw;
