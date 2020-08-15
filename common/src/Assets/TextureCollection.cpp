@@ -144,13 +144,11 @@ namespace TrenchBroom {
 
         void TextureCollection::incUsageCount() {
             ++m_usageCount;
-            usageCountDidChange();
         }
 
         void TextureCollection::decUsageCount() {
             assert(m_usageCount > 0);
             --m_usageCount;
-            usageCountDidChange();
         }
     }
 }

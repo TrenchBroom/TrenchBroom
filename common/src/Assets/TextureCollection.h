@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_TextureCollection
 #define TrenchBroom_TextureCollection
 
-#include "Notifier.h"
 #include "Assets/Texture.h"
 #include "IO/Path.h"
 #include "Renderer/GL.h"
@@ -43,8 +42,6 @@ namespace TrenchBroom {
             TextureIdList m_textureIds;
 
             friend class Texture;
-        public:
-            Notifier<> usageCountDidChange;
         public:
             TextureCollection();
             explicit TextureCollection(std::vector<Texture> textures);
