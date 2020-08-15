@@ -63,6 +63,7 @@ namespace TrenchBroom {
 
         TextureManager::~TextureManager() {
             clear();
+            kdl::vec_clear_and_delete(m_toRemove);
         }
 
         void TextureManager::setTextureCollections(const std::vector<IO::Path>& paths, IO::TextureLoader& loader) {
@@ -124,7 +125,6 @@ namespace TrenchBroom {
 
         void TextureManager::clear() {
             kdl::vec_clear_and_delete(m_collections);
-            kdl::vec_clear_and_delete(m_toRemove);
 
             m_toPrepare.clear();
             m_texturesByName.clear();
