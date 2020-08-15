@@ -230,7 +230,7 @@ namespace TrenchBroom {
              * @param skin the texture to use when rendering the mesh
              * @return the renderer
              */
-            std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(const Assets::Texture* skin) {
+            std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(const Texture* skin) {
                 const auto vertexArray = Renderer::VertexArray::ref(m_vertices);
                 return doBuildRenderer(skin, vertexArray);
             }
@@ -242,7 +242,7 @@ namespace TrenchBroom {
              * @param vertices the vertices associated with this mesh
              * @return the renderer
              */
-            virtual std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(const Assets::Texture* skin, const Renderer::VertexArray& vertices) = 0;
+            virtual std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(const Texture* skin, const Renderer::VertexArray& vertices) = 0;
         };
 
         // EntityModel::IndexedMesh
@@ -269,7 +269,7 @@ namespace TrenchBroom {
                 });
         }
         private:
-            std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(const Assets::Texture* skin, const Renderer::VertexArray& vertices) override {
+            std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(const Texture* skin, const Renderer::VertexArray& vertices) override {
                 const Renderer::TexturedIndexRangeMap texturedIndices(skin, m_indices);
                 return std::make_unique<Renderer::TexturedIndexRangeRenderer>(vertices, texturedIndices);
             }
@@ -294,12 +294,12 @@ namespace TrenchBroom {
             EntityModelTexturedMesh(EntityModelLoadedFrame& frame, const std::vector<EntityModelVertex>& vertices, const EntityModelTexturedIndices& indices) :
             EntityModelMesh(vertices),
             m_indices(indices) {
-                m_indices.forEachPrimitive([&frame, &vertices](const Assets::Texture* /* texture */, const Renderer::PrimType primType, const size_t index, const size_t count) {
+                m_indices.forEachPrimitive([&frame, &vertices](const Texture* /* texture */, const Renderer::PrimType primType, const size_t index, const size_t count) {
                     frame.addToSpacialTree(vertices, primType, index, count);
                 });
             }
         private:
-            std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(const Assets::Texture* /* skin */, const Renderer::VertexArray& vertices) override {
+            std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(const Texture* /* skin */, const Renderer::VertexArray& vertices) override {
                 return std::make_unique<Renderer::TexturedIndexRangeRenderer>(vertices, m_indices);
             }
         };
@@ -309,7 +309,7 @@ namespace TrenchBroom {
         EntityModelSurface::EntityModelSurface(const std::string& name, const size_t frameCount) :
         m_name(name),
         m_meshes(frameCount),
-        m_skins(std::make_unique<Assets::TextureCollection>()) {}
+        m_skins(std::make_unique<TextureCollection>()) {}
 
         EntityModelSurface::~EntityModelSurface() = default;
 
@@ -335,7 +335,7 @@ namespace TrenchBroom {
             m_meshes[frame.index()] = std::make_unique<EntityModelTexturedMesh>(frame, vertices, indices);
         }
 
-        void EntityModelSurface::addSkin(Assets::Texture skin) {
+        void EntityModelSurface::addSkin(Texture skin) {
             m_skins->addTexture(std::move(skin));
         }
 
@@ -347,11 +347,11 @@ namespace TrenchBroom {
             return m_skins->textureCount();
         }
 
-        const Assets::Texture* EntityModelSurface::skin(const std::string& name) const {
+        const Texture* EntityModelSurface::skin(const std::string& name) const {
             return m_skins->textureByName(name);
         }
 
-        const Assets::Texture* EntityModelSurface::skin(const size_t index) const {
+        const Texture* EntityModelSurface::skin(const size_t index) const {
             return m_skins->textureByIndex(index);
         }
 
