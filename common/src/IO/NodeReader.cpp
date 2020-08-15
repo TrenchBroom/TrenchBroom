@@ -47,18 +47,7 @@ namespace TrenchBroom {
         const std::vector<Model::Node*>& NodeReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
             // try preferred format first
             const Model::MapFormat preferredFormat = m_factory.format();
-
-            try {
-                readAsFormat(worldBounds, preferredFormat, status);
-                return m_nodes;
-            } catch (const ParserException&) {
-            }
-
             for (const auto format : Model::compatibleFormats(preferredFormat)) {
-                if (format == preferredFormat) {
-                    continue;
-                }
-
                 try {
                     readAsFormat(worldBounds, format, status);
                     return m_nodes;
