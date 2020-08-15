@@ -63,6 +63,7 @@ namespace TrenchBroom {
             try {
                 reset();
                 readEntities(format, worldBounds, status);
+                return;
             } catch (const ParserException&) {
                 kdl::vec_clear_and_delete(m_nodes);
             }
@@ -70,6 +71,7 @@ namespace TrenchBroom {
             try {
                 reset();
                 readBrushes(format, worldBounds, status);
+                return;
             } catch (const ParserException&) {
                 kdl::vec_clear_and_delete(m_nodes);
                 throw;
