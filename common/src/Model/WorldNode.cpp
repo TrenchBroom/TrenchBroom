@@ -415,8 +415,12 @@ namespace TrenchBroom {
             return m_factory->createFace(point1, point2, point3, attribs);
         }
 
-        kdl::result<BrushFace, BrushError> WorldNode::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
-            return m_factory->createFace(point1, point2, point3, attribs, texAxisX, texAxisY);
+        kdl::result<BrushFace, BrushError> WorldNode::doCreateFaceFromStandard(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
+            return m_factory->createFaceFromStandard(point1, point2, point3, attribs);
+        }
+
+        kdl::result<BrushFace, BrushError> WorldNode::doCreateFaceFromValve(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
+            return m_factory->createFaceFromValve(point1, point2, point3, attribs, texAxisX, texAxisY);
         }
 
         void WorldNode::doAcceptTagVisitor(TagVisitor& visitor) {

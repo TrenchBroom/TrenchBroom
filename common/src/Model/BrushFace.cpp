@@ -25,6 +25,8 @@
 #include "Polyhedron.h"
 #include "Assets/Texture.h"
 #include "Model/BrushError.h"
+#include "Model/ParallelTexCoordSystem.h"
+#include "Model/ParaxialTexCoordSystem.h"
 #include "Model/TagMatcher.h"
 #include "Model/TagVisitor.h"
 #include "Model/TexCoordSystem.h"
@@ -292,6 +294,10 @@ namespace TrenchBroom {
             }
         }
 
+        const TexCoordSystem& BrushFace::texCoordSystem() const {
+            return *m_texCoordSystem;
+        }
+
         Assets::Texture* BrushFace::texture() const {
             return m_textureReference.texture();
         }
@@ -329,6 +335,21 @@ namespace TrenchBroom {
         void BrushFace::resetTextureAxes() {
             m_texCoordSystem->resetTextureAxes(m_boundary.normal);
         }
+
+        void BrushFace::convertToParaxial() {
+            auto [newTexCoordSystem, newAttributes] = m_texCoordSystem->toParaxial(m_points[0], m_points[1], m_points[2], m_attributes);
+
+            m_attributes = newAttributes;
+            m_texCoordSystem = std::move(newTexCoordSystem);
+        }
+
+        void BrushFace::convertToParallel() {
+            auto [newTexCoordSystem, newAttributes] = m_texCoordSystem->toParallel(m_points[0], m_points[1], m_points[2], m_attributes);
+
+            m_attributes = newAttributes;
+            m_texCoordSystem = std::move(newTexCoordSystem);
+        }
+
 
         void BrushFace::moveTexture(const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset) {
             m_texCoordSystem->moveTexture(m_boundary.normal, up, right, offset, m_attributes);

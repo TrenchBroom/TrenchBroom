@@ -25,6 +25,7 @@
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityAttributes.h"
+#include "Model/MapFormat.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/LockState.h"
@@ -135,9 +136,24 @@ namespace TrenchBroom {
             createBrush(startLine, lineCount, extraAttributes, status);
         }
 
-        void MapReader::onBrushFace(const size_t line, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) {
-            m_factory->createFace(point1, point2, point3, attribs, texAxisX, texAxisY)
-                .visit(kdl::overload {
+        void MapReader::onStandardBrushFace(const size_t line, const Model::MapFormat /* format */, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status) {
+            // NOTE: format is the format we're reading from the .map as which may not be this->format().
+            // ModelFactory::createFaceFromStandard() will convert it to this->format().
+            m_factory->createFaceFromStandard(point1, point2, point3, attribs).visit(kdl::overload {
+                    [&](Model::BrushFace&& face) {
+                        face.setFilePosition(line, 1u);
+                        onBrushFace(std::move(face), status);
+                    },
+                    [&](const Model::BrushError e) {
+                        status.error(line, kdl::str_to_string("Skipping face: ", e));
+                    },
+            });
+        }
+
+        void MapReader::onValveBrushFace(const size_t line, const Model::MapFormat /* format */, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) {
+            // NOTE: format is the format we're reading from the .map as which may not be this->format().
+            // ModelFactory::createFaceFromValve() will convert it to this->format().
+            m_factory->createFaceFromValve(point1, point2, point3, attribs, texAxisX, texAxisY).visit(kdl::overload {
                     [&](Model::BrushFace&& face) {
                         face.setFilePosition(line, 1u);
                         onBrushFace(std::move(face), status);

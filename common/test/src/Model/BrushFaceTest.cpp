@@ -153,7 +153,7 @@ namespace TrenchBroom {
             // Otherwise, the UV comparisons below could spuriously pass.
             ASSERT_NE(nullptr, face.texture());
 
-            ASSERT_TRUE(UVListsEqual(uvs, transformedVertUVs));
+            CHECK(UVListsEqual(uvs, transformedVertUVs));
         }
 
         /**
@@ -196,6 +196,30 @@ namespace TrenchBroom {
             }
 
             checkUVListsEqual(face_UVs, resetFace_UVs, face);
+        }
+
+        static void checkFaceUVsEqual(const BrushFace& face, const BrushFace& other) {
+            std::vector<vm::vec3> verts;
+            std::vector<vm::vec2f> faceUVs;
+            std::vector<vm::vec2f> otherFaceUVs;
+
+            for (const auto* vertex : face.vertices()) {
+                verts.push_back(vertex->position());
+
+                const vm::vec3 position(vertex->position());
+                faceUVs.push_back(face.textureCoords(position));
+                otherFaceUVs.push_back(other.textureCoords(position));
+            }
+
+            checkUVListsEqual(faceUVs, otherFaceUVs, face);
+        }
+
+        static void checkBrushUVsEqual(const Brush& brush, const Brush& other) {
+            assert(brush.faceCount() == other.faceCount());
+
+            for (size_t i = 0; i < brush.faceCount(); ++i) {
+                checkFaceUVsEqual(brush.face(i), other.face(i));
+            }
         }
 
         /**
@@ -246,7 +270,8 @@ namespace TrenchBroom {
          * generates many different transformations and checks that the UVs are
          * stable after these transformations.
          */
-        static void checkTextureLockWithTranslationAnd90DegreeRotations(const BrushFace& origFace) {
+        template <class L>
+        static void doWithTranslationAnd90DegreeRotations(L&& lambda) {
             for (int i=0; i<(1 << 7); i++) {
                 vm::mat4x4 xform;
 
@@ -276,16 +301,16 @@ namespace TrenchBroom {
                 if (pitchPlus90) xform = vm::rotation_matrix(0.0, vm::to_radians(90.0), 0.0) * xform;
                 if (yawPlus90) xform = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0)) * xform;
 
-                checkTextureLockOnWithTransform(xform, origFace);
+                lambda(xform);
             }
         }
 
         /**
-         * Tests texture lock by rotating by the given amount, in each axis alone,
+         * Generates transforms for testing texture lock, etc., by rotating by the given amount, in each axis alone,
          * as well as in all combinations of axes.
          */
-        static void checkTextureLockWithMultiAxisRotations(const BrushFace& origFace,
-                                                           double degrees) {
+        template <class L>
+        static void doMultiAxisRotations(const double degrees, L&& lambda) {
             const double rotateRadians = vm::to_radians(degrees);
 
             for (int i=0; i<(1 << 3); i++) {
@@ -305,15 +330,16 @@ namespace TrenchBroom {
                     xform = vm::rotation_matrix(0.0, 0.0, rotateRadians) * xform;
                 }
 
-                checkTextureLockOnWithTransform(xform, origFace);
+                lambda(xform);
             }
         }
 
         /**
-         * Tests texture lock by rotating +/- the given amount, in one axis at a time.
+         * Runs the given lambda of type `const vm::mat4x4& -> void` with
+         * rotations of the given angle in degrees in +/- pitch, yaw, and roll.
          */
-        static void checkTextureLockWithSingleAxisRotations(const BrushFace& origFace,
-                                                            double degrees) {
+        template <class L>
+        static void doWithSingleAxisRotations(const double degrees, L&& lambda) {
             const double rotateRadians = vm::to_radians(degrees);
 
             for (int i=0; i<6; i++) {
@@ -328,7 +354,7 @@ namespace TrenchBroom {
                     case 5: xform = vm::rotation_matrix(0.0, 0.0, -rotateRadians) * xform; break;
                 }
 
-                checkTextureLockOnWithTransform(xform, origFace);
+                lambda(xform);
             }
         }
 
@@ -337,33 +363,43 @@ namespace TrenchBroom {
             checkTextureLockOffWithTransform(xform, origFace);
         }
 
-        static void checkTextureLockWithScale(const BrushFace& origFace, const vm::vec3& scaleFactors) {
+        template <class L>
+        static void doWithScale(const vm::vec3& scaleFactors, L&& lambda) {
             vm::mat4x4 xform = vm::scaling_matrix(scaleFactors);
-            checkTextureLockOnWithTransform(xform, origFace);
+            lambda(xform);
         }
 
-        static void checkTextureLockWithShear(const BrushFace& origFace) {
+        template <class L>
+        static void doWithShear(L&& lambda) {
             // shear the x axis towards the y axis
             vm::mat4x4 xform = vm::shear_matrix(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-            checkTextureLockOnWithTransform(xform, origFace);
+            lambda(xform);
         }
 
-        static void checkTextureLockForFace(const BrushFace& origFace, bool doParallelTests) {
-            checkTextureLockWithTranslationAnd90DegreeRotations(origFace);
-            checkTextureLockWithSingleAxisRotations(origFace, 30);
-            checkTextureLockWithSingleAxisRotations(origFace, 45);
+        template <class L>
+        static void doWithTextureLockTestTransforms(const bool doParallelTests, L&& lambda) {
+            doWithTranslationAnd90DegreeRotations(lambda);
+            doWithSingleAxisRotations(30, lambda);
+            doWithSingleAxisRotations(45, lambda);
 
             // rotation on multiple axes simultaneously is only expected to work on ParallelTexCoordSystem
             if (doParallelTests) {
-                checkTextureLockWithMultiAxisRotations(origFace, 30);
-                checkTextureLockWithMultiAxisRotations(origFace, 45);
+                doMultiAxisRotations(30.0, lambda);
+                doMultiAxisRotations(45.0, lambda);
 
-                checkTextureLockWithShear(origFace);
+                doWithShear(lambda);
             }
 
-            checkTextureLockOffWithTranslation(origFace);
+            doWithScale(vm::vec3(2, 2, 1), lambda);
+            doWithScale(vm::vec3(2, 2, -1), lambda);
+        }
 
-            checkTextureLockWithScale(origFace, vm::vec3(2, 2, 1));
+        static void checkTextureLockForFace(const BrushFace& origFace, const bool doParallelTests) {
+            doWithTextureLockTestTransforms(doParallelTests, [&](const vm::mat4x4& xform){
+                checkTextureLockOnWithTransform(xform, origFace);
+            });
+
+            checkTextureLockOffWithTranslation(origFace);
         }
 
         /**
@@ -639,6 +675,77 @@ namespace TrenchBroom {
             CHECK(brush.moveBoundary(worldBounds, *angledFaceIndex, vm::vec3(-7.9999999999999973, 7.9999999999999973, 0), true).is_success());
 
             kdl::vec_clear_and_delete(nodes);
+        }
+
+        TEST_CASE("BrushFaceTest.formatConversion", "[BrushFaceTest]") {
+            const vm::bbox3 worldBounds(4096.0);
+
+            WorldNode standardWorld(MapFormat::Standard);
+            WorldNode valveWorld(MapFormat::Valve);
+
+            BrushBuilder standardBuilder(&standardWorld, worldBounds);
+            BrushBuilder valveBuilder(&valveWorld, worldBounds);
+
+            Assets::Texture texture("testTexture", 64, 64);
+
+            const Brush startingCube = standardBuilder.createCube(128.0, "")
+                    .and_then([&](Brush&& brush){
+                        for (size_t i = 0; i < brush.faceCount(); ++i) {
+                            BrushFace& face = brush.face(i);
+                            face.setTexture(&texture);
+                        }
+                        return kdl::result<Brush>::success(brush);
+                    }).value();
+
+            auto testTransform = [&](const vm::mat4x4& transform){
+                const Brush standardCube = startingCube.transform(worldBounds, transform, true).value();
+                CHECK(dynamic_cast<const ParaxialTexCoordSystem*>(&standardCube.face(0).texCoordSystem()));
+
+                const Brush valveCube = standardCube.convertToParallel();
+                CHECK(dynamic_cast<const ParallelTexCoordSystem*>(&valveCube.face(0).texCoordSystem()));
+                checkBrushUVsEqual(standardCube, valveCube);
+
+                const Brush standardCubeRoundTrip = valveCube.convertToParaxial();
+                CHECK(dynamic_cast<const ParaxialTexCoordSystem*>(&standardCubeRoundTrip.face(0).texCoordSystem()));
+                checkBrushUVsEqual(standardCube, standardCubeRoundTrip);
+            };
+
+            // NOTE: intentionally include the shear/multi-axis rotations which won't work properly on Standard.
+            // We're not testing texture lock, just generating interesting brushes to test
+            // Standard -> Valve -> Standard round trip, so it doesn't matter if texture lock works.
+            doWithTextureLockTestTransforms(true, testTransform);
+        }
+
+        TEST_CASE("BrushFaceTest.nodeReaderConversion", "[BrushFaceTest]") {
+            const std::string data(R"(
+// entity 0
+{
+"classname" "worldspawn"
+"mapversion" "220"
+// brush 0
+{
+( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) __TB_empty [ 0 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( -64 -64 -16 ) ( -64 -64 -15 ) ( -63 -64 -16 ) __TB_empty [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( -64 -64 -16 ) ( -63 -64 -16 ) ( -64 -63 -16 ) __TB_empty [ -1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+( 64 64 16 ) ( 64 65 16 ) ( 65 64 16 ) __TB_empty [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+( 64 64 16 ) ( 65 64 16 ) ( 64 64 17 ) __TB_empty [ -1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( 64 64 16 ) ( 64 64 17 ) ( 64 65 16 ) __TB_empty [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
+}
+}
+)");
+
+            const vm::bbox3 worldBounds(4096.0);
+            WorldNode world(MapFormat::Standard);
+
+            IO::TestParserStatus status;
+            IO::NodeReader reader(data, world);
+
+            std::vector<Node*> nodes = reader.read(worldBounds, status);
+            auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
+            REQUIRE(brushNode != nullptr);
+
+            Brush brush = brushNode->brush();
+            CHECK(dynamic_cast<const ParaxialTexCoordSystem*>(&brush.face(0).texCoordSystem()) != nullptr);
         }
     }
 }

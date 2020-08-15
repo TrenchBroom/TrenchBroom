@@ -959,6 +959,22 @@ namespace TrenchBroom {
                 );
         }
 
+        Brush Brush::convertToParaxial() const {
+            Brush result(*this);
+            for (auto& face : result.m_faces) {
+                face.convertToParaxial();
+            }
+            return result;
+        }
+
+        Brush Brush::convertToParallel() const {
+            Brush result(*this);
+            for (auto& face : result.m_faces) {
+                face.convertToParallel();
+            }
+            return result;
+        }
+
         bool Brush::checkFaceLinks() const {
             if (faceCount() != m_geometry->faceCount()) {
                 return false;

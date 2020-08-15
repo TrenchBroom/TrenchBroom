@@ -46,6 +46,13 @@ namespace TrenchBroom {
     namespace IO {
         class ParserStatus;
 
+        /**
+         * Abstract superclass containing common code for:
+         *
+         *  - WorldReader (loading a whole .map)
+         *  - NodeReader (reading part of a map, for pasting into an existing map)
+         *  - BrushFaceReader (reading faces when copy/pasting texture alignment)
+         */
         class MapReader : public StandardMapParser {
         protected:
             class ParentInfo {
@@ -105,7 +112,8 @@ namespace TrenchBroom {
             void onEndEntity(size_t startLine, size_t lineCount, ParserStatus& status) override;
             void onBeginBrush(size_t line, ParserStatus& status) override;
             void onEndBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
-            void onBrushFace(size_t line, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) override;
+            void onStandardBrushFace(size_t line, Model::MapFormat format, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status) override;
+            void onValveBrushFace(size_t line, Model::MapFormat format, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) override;
         private: // helper methods
             void createLayer(size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
             void createGroup(size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);

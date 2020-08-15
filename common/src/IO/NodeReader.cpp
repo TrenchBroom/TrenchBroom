@@ -45,24 +45,41 @@ namespace TrenchBroom {
         }
 
         const std::vector<Model::Node*>& NodeReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
-            try {
-                readEntities(m_factory.format(), worldBounds, status);
-            } catch (const ParserException&) {
-                kdl::vec_clear_and_delete(m_nodes);
-
+            // try preferred format first
+            const Model::MapFormat preferredFormat = m_factory.format();
+            for (const auto format : Model::compatibleFormats(preferredFormat)) {
                 try {
-                    reset();
-                    readBrushes(m_factory.format(), worldBounds, status);
+                    readAsFormat(worldBounds, format, status);
+                    return m_nodes;
                 } catch (const ParserException&) {
-                    kdl::vec_clear_and_delete(m_nodes);
-                    throw;
                 }
             }
+
+            assert(m_nodes.empty());
             return m_nodes;
         }
 
-        Model::ModelFactory& NodeReader::initialize([[maybe_unused]] const Model::MapFormat format) {
-            assert(format == m_factory.format());
+        void NodeReader::readAsFormat(const vm::bbox3& worldBounds, Model::MapFormat format, ParserStatus& status) {
+            try {
+                reset();
+                readEntities(format, worldBounds, status);
+                return;
+            } catch (const ParserException&) {
+                kdl::vec_clear_and_delete(m_nodes);
+            }
+
+            try {
+                reset();
+                readBrushes(format, worldBounds, status);
+                return;
+            } catch (const ParserException&) {
+                kdl::vec_clear_and_delete(m_nodes);
+                throw;
+            }
+        }
+
+        Model::ModelFactory& NodeReader::initialize(const Model::MapFormat) {
+            // NOTE: m_factory.format() may be different than the passed in format
             return m_factory;
         }
 

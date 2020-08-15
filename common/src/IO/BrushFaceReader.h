@@ -39,6 +39,9 @@ namespace TrenchBroom {
     namespace IO {
         class ParserStatus;
 
+        /**
+         * Used for pasting brush faces (i.e. their texture alignment only)
+         */
         class BrushFaceReader : public MapReader {
         private:
             Model::ModelFactory& m_factory;
