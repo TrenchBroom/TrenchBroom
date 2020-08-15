@@ -67,13 +67,12 @@ namespace TrenchBroom {
         }
 
         void TextureManager::setTextureCollections(const std::vector<IO::Path>& paths, IO::TextureLoader& loader) {
-            auto collections = collectionMap();
-            m_collections.clear();
+            auto collections = std::move(m_collections);
             clear();
 
             for (const auto& path : paths) {
-                const auto it = collections.find(path);
-                if (it == std::end(collections) || !it->second->loaded()) {
+                const auto it = std::find_if(std::begin(collections), std::end(collections), [&](const auto* c) { return c->path() == path; });
+                if (it == std::end(collections) || !(*it)->loaded()) {
                     try {
                         auto collection = loader.loadTextureCollection(path);
                         m_logger.info() << "Loaded texture collection '" << path << "'";
@@ -86,7 +85,7 @@ namespace TrenchBroom {
                         }
                     }
                 } else {
-                    addTextureCollection(it->second);
+                    addTextureCollection(*it);
                 }
                 if (it != std::end(collections)) {
                     collections.erase(it);
@@ -94,7 +93,7 @@ namespace TrenchBroom {
             }
 
             updateTextures();
-            kdl::vec_append(m_toRemove, kdl::map_values(collections));
+            kdl::vec_append(m_toRemove, std::move(collections));
         }
 
         void TextureManager::setTextureCollections(const std::vector<TextureCollection*>& collections) {
@@ -104,14 +103,6 @@ namespace TrenchBroom {
                 addTextureCollection(collection);
             }
             updateTextures();
-        }
-
-        TextureManager::TextureCollectionMap TextureManager::collectionMap() const {
-            auto result = TextureCollectionMap();
-            for (auto* collection : m_collections) {
-                result.insert(std::make_pair(collection->path(), collection));
-            }
-            return result;
         }
 
         void TextureManager::addTextureCollection(Assets::TextureCollection* collection) {
