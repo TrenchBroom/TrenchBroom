@@ -95,8 +95,8 @@ namespace TrenchBroom {
             return hasAttribute(AttributeNames::LayerOmitFromExport, AttributeValues::LayerOmitFromExportValue);
         }
 
-        void LayerNode::setOmitFromExport(const bool i_omitFromExport) {
-            if (i_omitFromExport) {
+        void LayerNode::setOmitFromExport(const bool omitFromExport) {
+            if (omitFromExport) {
                 addOrUpdateAttribute(AttributeNames::LayerOmitFromExport, AttributeValues::LayerOmitFromExportValue);
             } else {
                 removeAttribute(AttributeNames::LayerOmitFromExport);
