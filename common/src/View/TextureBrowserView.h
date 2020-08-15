@@ -90,7 +90,7 @@ namespace TrenchBroom {
 
             void doInitLayout(Layout& layout) override;
             void doReloadLayout(Layout& layout) override;
-            void addTextureToLayout(Layout& layout, const Assets::Texture* texture, const Renderer::FontDescriptor& font);
+            void addTextureToLayout(Layout& layout, const Assets::Texture* texture, const std::string& groupName, const Renderer::FontDescriptor& font);
 
             struct CompareByUsageCount;
             struct CompareByName;
