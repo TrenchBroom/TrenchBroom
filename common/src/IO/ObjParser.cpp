@@ -88,17 +88,20 @@ namespace TrenchBroom {
             model->addFrames(1);
             auto& surface = model->addSurface(m_name);
 
+            std::vector<Assets::Texture> textures;
+
             // Load the default material (skin 0) ; must be present as a default for materialless faces
             // This default skin is used for all unloadable textures and all unspecified textures.
             // As such this implicitly covers situations where the default skin is intended to be used, but is manually specified incorrectly.
             if (auto fallbackMaterial = loadFallbackMaterial(logger)) {
-                surface.addSkin(std::move(*fallbackMaterial));
+                textures.push_back(std::move(*fallbackMaterial));
             }
             
             // Define the various OBJ parsing state.
             std::vector<vm::vec3f> positions;
             std::vector<vm::vec2f> texcoords;
             std::vector<ObjFace> faces;
+            
             // Begin parsing.
             size_t current_material = 0;
             size_t last_material = 0;
@@ -125,7 +128,7 @@ namespace TrenchBroom {
                         } else {
                             auto tex = loadMaterial(tokens[1], logger);
                             if (tex) {
-                                surface.addSkin(std::move(*tex));
+                                textures.push_back(std::move(*tex));
                                 ++last_material;
                                 current_material = last_material;
                             } else {
@@ -143,6 +146,8 @@ namespace TrenchBroom {
                     }
                 }
             }
+            surface.setSkins(std::move(textures));
+            
             // Done parsing; transform (and get the 'reverse' flag for future use)
             const bool reverse = transformObjCoordinateSet(positions, texcoords);
             // Everything's in TrenchBroom Relative Coordinates! Build bounds.

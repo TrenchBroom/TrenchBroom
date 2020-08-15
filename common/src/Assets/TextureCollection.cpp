@@ -34,8 +34,11 @@ namespace TrenchBroom {
 
         TextureCollection::TextureCollection(std::vector<Texture> textures) :
         m_loaded(false),
+        m_textures(std::move(textures)),
         m_usageCount(0) {
-            addTextures(std::move(textures));
+            for (auto& texture : m_textures) {
+                texture.setCollection(this);
+            }
         }
 
         TextureCollection::TextureCollection(const IO::Path& path) :
@@ -46,8 +49,11 @@ namespace TrenchBroom {
         TextureCollection::TextureCollection(const IO::Path& path, std::vector<Texture> textures) :
         m_loaded(true),
         m_path(path),
+        m_textures(std::move(textures)),
         m_usageCount(0) {
-            addTextures(std::move(textures));
+            for (auto& texture : m_textures) {
+                texture.setCollection(this);
+            }
         }
 
         TextureCollection::~TextureCollection() {
@@ -56,17 +62,6 @@ namespace TrenchBroom {
                                           static_cast<GLuint*>(&m_textureIds.front())));
                 m_textureIds.clear();
             }
-        }
-
-        void TextureCollection::addTextures(std::vector<Texture> textures) {
-            for (auto& texture : textures)
-                addTexture(std::move(texture));
-        }
-
-        void TextureCollection::addTexture(Texture texture) {
-            texture.setCollection(this);
-            m_textures.push_back(std::move(texture));
-            m_loaded = true;
         }
 
         bool TextureCollection::loaded() const {
