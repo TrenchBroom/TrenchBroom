@@ -28,6 +28,7 @@
 class QCompleter;
 class QLineEdit;
 class QWidget;
+class QHBoxLayout;
 
 namespace TrenchBroom {
     namespace Model {
@@ -50,7 +51,8 @@ namespace TrenchBroom {
             std::weak_ptr<MapDocument> m_document;
             Model::CompilationProfile* m_profile;
             Model::CompilationTask* m_task;
-            TitledPanel* m_panel;
+            QCheckBox* m_enabledCheckbox;
+            QHBoxLayout* m_taskLayout;
 
             using Completers = std::vector<QCompleter*>;
             Completers m_completers;
@@ -60,6 +62,9 @@ namespace TrenchBroom {
             ~CompilationTaskEditorBase() override;
         protected:
             void setupCompleter(MultiCompletionLineEdit* lineEdit);
+            void addMainLayout(QLayout* layout);
+        protected:
+            void updateItem() override;
         private:
             void updateCompleter(QCompleter* completer);
         private:

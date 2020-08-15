@@ -75,7 +75,7 @@ namespace TrenchBroom {
             
             CompilationContext context(document, variables, outputAdapter, false);
             
-            Model::CompilationRunTool task("", "");
+            Model::CompilationRunTool task(true, "", "");
             CompilationRunToolTaskRunner runner(context, task);
             
             ExecuteTask exec(runner);

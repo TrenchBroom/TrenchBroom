@@ -23,11 +23,26 @@
 
 namespace TrenchBroom {
     namespace Model {
-        CompilationTask::CompilationTask() = default;
+        // CompilationTask
+
+        CompilationTask::CompilationTask(const bool enabled)
+        : m_enabled(enabled) {}
 
         CompilationTask::~CompilationTask() = default;
 
-        CompilationExportMap::CompilationExportMap(const std::string& targetSpec) :
+        bool CompilationTask::enabled() const {
+            return m_enabled;
+        }
+
+        void CompilationTask::setEnabled(const bool enabled) {
+            m_enabled = enabled;
+            taskDidChange();
+        }
+
+        // CompilationExportMap
+
+        CompilationExportMap::CompilationExportMap(const bool enabled, const std::string& targetSpec) :
+        CompilationTask(enabled),
         m_targetSpec(targetSpec) {}
 
         void CompilationExportMap::accept(CompilationTaskVisitor& visitor) {
@@ -56,11 +71,13 @@ namespace TrenchBroom {
         }
 
         CompilationExportMap* CompilationExportMap::clone() const {
-            return new CompilationExportMap(m_targetSpec);
+            return new CompilationExportMap(enabled(), m_targetSpec);
         }
 
-        CompilationCopyFiles::CompilationCopyFiles(const std::string& sourceSpec, const std::string& targetSpec) :
-        CompilationTask(),
+        // CompilationCopyFiles
+
+        CompilationCopyFiles::CompilationCopyFiles(const bool enabled, const std::string& sourceSpec, const std::string& targetSpec) :
+        CompilationTask(enabled),
         m_sourceSpec(sourceSpec),
         m_targetSpec(targetSpec) {}
 
@@ -99,11 +116,13 @@ namespace TrenchBroom {
         }
 
         CompilationCopyFiles* CompilationCopyFiles::clone() const {
-            return new CompilationCopyFiles(m_sourceSpec, m_targetSpec);
+            return new CompilationCopyFiles(enabled(), m_sourceSpec, m_targetSpec);
         }
 
-        CompilationRunTool::CompilationRunTool(const std::string& toolSpec, const std::string& parameterSpec) :
-        CompilationTask(),
+        // CompilationRunTool
+
+        CompilationRunTool::CompilationRunTool(const bool enabled, const std::string& toolSpec, const std::string& parameterSpec) :
+        CompilationTask(enabled),
         m_toolSpec(toolSpec),
         m_parameterSpec(parameterSpec) {}
 
@@ -142,7 +161,7 @@ namespace TrenchBroom {
         }
 
         CompilationRunTool* CompilationRunTool::clone() const {
-            return new CompilationRunTool(m_toolSpec, m_parameterSpec);
+            return new CompilationRunTool(enabled(), m_toolSpec, m_parameterSpec);
         }
 
         CompilationTaskVisitor::~CompilationTaskVisitor() = default;

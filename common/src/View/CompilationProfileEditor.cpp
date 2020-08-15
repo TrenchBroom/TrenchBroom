@@ -153,11 +153,11 @@ namespace TrenchBroom {
             std::unique_ptr<Model::CompilationTask> task = nullptr;
             auto* chosenAction = menu.exec(QCursor::pos());
             if (chosenAction == exportMapAction) {
-                task = std::make_unique<Model::CompilationExportMap>("${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map");
+                task = std::make_unique<Model::CompilationExportMap>(true, "${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map");
             } else if (chosenAction == copyFilesAction) {
-                task = std::make_unique<Model::CompilationCopyFiles>("", "");
+                task = std::make_unique<Model::CompilationCopyFiles>(true, "", "");
             } else if (chosenAction == runToolAction) {
-                task = std::make_unique<Model::CompilationRunTool>("", "");
+                task = std::make_unique<Model::CompilationRunTool>(true, "", "");
             } else {
                 return;
             }

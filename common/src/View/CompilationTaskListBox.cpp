@@ -38,6 +38,7 @@
 #include <QCompleter>
 #include <QFileDialog>
 #include <QFormLayout>
+#include <QHBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
 
@@ -49,18 +50,34 @@ namespace TrenchBroom {
         m_document(std::move(document)),
         m_profile(&profile),
         m_task(&task),
-        m_panel(nullptr) {
-            m_panel = new TitledPanel(m_title);
+        m_enabledCheckbox(nullptr),
+        m_taskLayout(nullptr) {
+            auto* panel = new TitledPanel(m_title);
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
             layout->setSpacing(0);
-            layout->addWidget(m_panel);
+            layout->addWidget(panel);
             layout->addWidget(new BorderLine());
             setLayout(layout);
 
+            m_enabledCheckbox = new QCheckBox();
+            m_enabledCheckbox->setToolTip(tr("Whether to include this task when running the compile profile"));
+
+            m_taskLayout = new QHBoxLayout();
+            m_taskLayout->setContentsMargins(0, 0, 0, 0);
+            m_taskLayout->addSpacing(LayoutConstants::NarrowHMargin);
+            m_taskLayout->addWidget(m_enabledCheckbox, 0, Qt:: AlignVCenter);
+            m_taskLayout->addSpacing(LayoutConstants::NarrowHMargin);
+            // subclasses call addMainLayout() to add their contents after the checkbox
+            panel->getPanel()->setLayout(m_taskLayout);
+
             addProfileObservers();
             addTaskObservers();
+
+            connect(m_enabledCheckbox, &QCheckBox::clicked, this, [&](const bool checked) {
+                m_task->setEnabled(checked);
+            });
         }
 
         CompilationTaskEditorBase::~CompilationTaskEditorBase() {
@@ -76,6 +93,14 @@ namespace TrenchBroom {
 
             m_completers.push_back(completer);
             updateCompleter(completer);
+        }
+
+        void CompilationTaskEditorBase::addMainLayout(QLayout* layout) {
+            m_taskLayout->addLayout(layout, 1);
+        }
+
+        void CompilationTaskEditorBase::updateItem() {
+            m_enabledCheckbox->setChecked(m_task->enabled());
         }
 
         void CompilationTaskEditorBase::updateCompleter(QCompleter* completer) {
@@ -133,6 +158,8 @@ namespace TrenchBroom {
             }
         }
 
+        // CompilationExportMapTaskEditor
+
         CompilationExportMapTaskEditor::CompilationExportMapTaskEditor(std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationExportMap& task, QWidget* parent) :
         CompilationTaskEditorBase("Export Map", std::move(document), profile, task, parent),
         m_targetEditor(nullptr) {
@@ -140,7 +167,7 @@ namespace TrenchBroom {
             formLayout->setContentsMargins(LayoutConstants::WideHMargin, LayoutConstants::WideVMargin, LayoutConstants::WideHMargin, LayoutConstants::WideVMargin);
             formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
             formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-            m_panel->getPanel()->setLayout(formLayout);
+            addMainLayout(formLayout);
 
             m_targetEditor = new MultiCompletionLineEdit();
             setupCompleter(m_targetEditor);
@@ -150,6 +177,8 @@ namespace TrenchBroom {
         }
 
         void CompilationExportMapTaskEditor::updateItem() {
+            CompilationTaskEditorBase::updateItem();
+
             const auto targetSpec = QString::fromStdString(task().targetSpec());
             if (m_targetEditor->text() != targetSpec) {
                 m_targetEditor->setText(targetSpec);
@@ -169,6 +198,8 @@ namespace TrenchBroom {
             }
         }
 
+        // CompilationCopyFilesTaskEditor
+
         CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationCopyFiles& task, QWidget* parent) :
         CompilationTaskEditorBase("Copy Files", std::move(document), profile, task, parent),
         m_sourceEditor(nullptr),
@@ -177,7 +208,7 @@ namespace TrenchBroom {
             formLayout->setContentsMargins(LayoutConstants::WideHMargin, LayoutConstants::WideVMargin, LayoutConstants::WideHMargin, LayoutConstants::WideVMargin);
             formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
             formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-            m_panel->getPanel()->setLayout(formLayout);
+            addMainLayout(formLayout);
 
             m_sourceEditor = new MultiCompletionLineEdit();
             setupCompleter(m_sourceEditor);
@@ -192,6 +223,8 @@ namespace TrenchBroom {
         }
 
         void CompilationCopyFilesTaskEditor::updateItem() {
+            CompilationTaskEditorBase::updateItem();
+
             const auto sourceSpec = QString::fromStdString(task().sourceSpec());
             if (m_sourceEditor->text() != sourceSpec) {
                 m_sourceEditor->setText(sourceSpec);
@@ -223,6 +256,8 @@ namespace TrenchBroom {
             }
         }
 
+        // CompilationRunToolTaskEditor
+
         CompilationRunToolTaskEditor::CompilationRunToolTaskEditor(std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationRunTool& task, QWidget* parent) :
         CompilationTaskEditorBase("Run Tool", std::move(document), profile, task, parent),
         m_toolEditor(nullptr),
@@ -231,7 +266,7 @@ namespace TrenchBroom {
             formLayout->setContentsMargins(LayoutConstants::WideHMargin, LayoutConstants::WideVMargin, LayoutConstants::WideHMargin, LayoutConstants::WideVMargin);
             formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
             formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-            m_panel->getPanel()->setLayout(formLayout);
+            addMainLayout(formLayout);
 
             m_toolEditor = new MultiCompletionLineEdit();
             setupCompleter(m_toolEditor);
@@ -257,6 +292,8 @@ namespace TrenchBroom {
         }
 
         void CompilationRunToolTaskEditor::updateItem() {
+            CompilationTaskEditorBase::updateItem();
+
             const auto toolSpec = QString::fromStdString(task().toolSpec());
             if (m_toolEditor->text() != toolSpec) {
                 m_toolEditor->setText(toolSpec);
