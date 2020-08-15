@@ -29,13 +29,11 @@
 namespace TrenchBroom {
     namespace Assets {
         TextureCollection::TextureCollection() :
-        m_loaded(false),
-        m_usageCount(0) {}
+        m_loaded(false) {}
 
         TextureCollection::TextureCollection(std::vector<Texture> textures) :
         m_loaded(false),
-        m_textures(std::move(textures)),
-        m_usageCount(0) {
+        m_textures(std::move(textures)) {
             for (auto& texture : m_textures) {
                 texture.setCollection(this);
             }
@@ -43,14 +41,12 @@ namespace TrenchBroom {
 
         TextureCollection::TextureCollection(const IO::Path& path) :
         m_loaded(false),
-        m_path(path),
-        m_usageCount(0) {}
+        m_path(path) {}
 
         TextureCollection::TextureCollection(const IO::Path& path, std::vector<Texture> textures) :
         m_loaded(true),
         m_path(path),
-        m_textures(std::move(textures)),
-        m_usageCount(0) {
+        m_textures(std::move(textures)) {
             for (auto& texture : m_textures) {
                 texture.setCollection(this);
             }
@@ -115,10 +111,6 @@ namespace TrenchBroom {
             return const_cast<Texture*>(const_cast<const TextureCollection*>(this)->textureByName(name));
         }
 
-        size_t TextureCollection::usageCount() const {
-            return m_usageCount;
-        }
-
         bool TextureCollection::prepared() const {
             return !m_textureIds.empty();
         }
@@ -140,15 +132,6 @@ namespace TrenchBroom {
             for (auto& texture : m_textures) {
                 texture.setMode(minFilter, magFilter);
             }
-        }
-
-        void TextureCollection::incUsageCount() {
-            ++m_usageCount;
-        }
-
-        void TextureCollection::decUsageCount() {
-            assert(m_usageCount > 0);
-            --m_usageCount;
         }
     }
 }

@@ -37,8 +37,6 @@ namespace TrenchBroom {
             IO::Path m_path;
             std::vector<Texture> m_textures;
 
-            size_t m_usageCount;
-
             TextureIdList m_textureIds;
 
             friend class Texture;
@@ -70,14 +68,9 @@ namespace TrenchBroom {
             const Texture* textureByName(const std::string& name) const;
             Texture* textureByName(const std::string& name);
 
-            size_t usageCount() const;
-
             bool prepared() const;
             void prepare(int minFilter, int magFilter);
             void setTextureMode(int minFilter, int magFilter);
-        private:
-            void incUsageCount();
-            void decUsageCount();
         };
     }
 }
