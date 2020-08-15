@@ -65,13 +65,13 @@ namespace TrenchBroom {
         m_sortOrder(TextureSortOrder::Name),
         m_selectedTexture(nullptr) {
             auto doc = kdl::mem_lock(m_document);
-            doc->textureManager().usageCountDidChange.addObserver(this, &TextureBrowserView::usageCountDidChange);
+            doc->textureUsageCountsDidChangeNotifier.addObserver(this, &TextureBrowserView::usageCountDidChange);
         }
 
         TextureBrowserView::~TextureBrowserView() {
             if (!kdl::mem_expired(m_document)) {
                 auto doc = kdl::mem_lock(m_document);
-                doc->textureManager().usageCountDidChange.removeObserver(this, &TextureBrowserView::usageCountDidChange);
+                doc->textureUsageCountsDidChangeNotifier.removeObserver(this, &TextureBrowserView::usageCountDidChange);
             }
             clear();
         }
@@ -243,16 +243,9 @@ namespace TrenchBroom {
             }
         };
 
-        std::vector<Assets::TextureCollection*> TextureBrowserView::getCollections() const {
+        const std::vector<Assets::TextureCollection*>& TextureBrowserView::getCollections() const {
             auto doc = kdl::mem_lock(m_document);
-            std::vector<Assets::TextureCollection*> collections = doc->textureManager().collections();
-            if (m_hideUnused) {
-                kdl::vec_erase_if(collections, MatchUsageCount());
-            }
-            if (m_sortOrder == TextureSortOrder::Usage) {
-                kdl::vec_sort(collections, CompareByUsageCount());
-            }
-            return collections;
+            return doc->textureManager().collections();
         }
 
         std::vector<const Assets::Texture*> TextureBrowserView::getTextures(const Assets::TextureCollection* collection) const {
