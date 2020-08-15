@@ -51,13 +51,13 @@ namespace TrenchBroom {
         class Selection;
 
         class ResizeBrushesTool : public Tool {
-        private:
+        public:
             static const Model::HitType::Type Resize3DHitType;
             static const Model::HitType::Type Resize2DHitType;
 
             using Resize2DHitData = std::vector<Model::BrushFaceHandle>;
             using Resize3DHitData = Model::BrushFaceHandle;
-
+        private:
             /**
              * Brush and face normal pair.
              */

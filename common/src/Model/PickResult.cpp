@@ -24,9 +24,12 @@
 #include "Model/Hit.h"
 #include "Model/HitQuery.h"
 
+#include <vecmath/scalar.h>
 #include <vecmath/util.h>
+#include <vecmath/vec.h>
 
 #include <algorithm>
+#include <cassert>
 
 namespace TrenchBroom {
     namespace Model {
@@ -67,6 +70,11 @@ namespace TrenchBroom {
         }
 
         void PickResult::addHit(const Hit& hit) {
+            assert(!vm::is_nan(hit.distance()));
+            assert(!vm::is_nan(hit.hitPoint()));
+            if (vm::is_nan(hit.distance()) || vm::is_nan(hit.hitPoint())) {
+                return;
+            }
             ensure(m_compare.get() != nullptr, "compare is null");
             auto pos = std::upper_bound(std::begin(m_hits), std::end(m_hits), hit, CompareWrapper(m_compare.get()));
             m_hits.insert(pos, hit);
