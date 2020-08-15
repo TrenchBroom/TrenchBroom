@@ -52,7 +52,7 @@ namespace TrenchBroom {
         TextureCollectionLoader(logger, exclusions),
         m_searchPaths(searchPaths) {}
 
-        std::unique_ptr<Assets::TextureCollection> FileTextureCollectionLoader::loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader) {
+        Assets::TextureCollection FileTextureCollectionLoader::loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader) {
             const auto wadPath = Disk::resolvePath(m_searchPaths, path);
             WadFileSystem wadFS(wadPath, m_logger);
 
@@ -73,14 +73,14 @@ namespace TrenchBroom {
                 }
             }
 
-            return std::make_unique<Assets::TextureCollection>(path, std::move(textures));
+            return Assets::TextureCollection(path, std::move(textures));
         }
 
         DirectoryTextureCollectionLoader::DirectoryTextureCollectionLoader(Logger& logger, const FileSystem& gameFS, const std::vector<std::string>& exclusions) :
         TextureCollectionLoader(logger, exclusions),
         m_gameFS(gameFS) {}
 
-        std::unique_ptr<Assets::TextureCollection> DirectoryTextureCollectionLoader::loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader) {
+        Assets::TextureCollection DirectoryTextureCollectionLoader::loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader) {
             const auto texturePaths = m_gameFS.findItems(path, FileExtensionMatcher(textureExtensions));
             auto textures = std::vector<Assets::Texture>();
             textures.reserve(texturePaths.size());
@@ -98,7 +98,7 @@ namespace TrenchBroom {
                 }
             }
             
-            return std::make_unique<Assets::TextureCollection>(path, std::move(textures));
+            return Assets::TextureCollection(path, std::move(textures));
         }
     }
 }

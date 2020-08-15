@@ -49,7 +49,7 @@ namespace TrenchBroom {
         public:
             virtual ~TextureCollectionLoader();
         public:
-            virtual std::unique_ptr<Assets::TextureCollection> loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader) = 0;
+            virtual Assets::TextureCollection loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader) = 0;
         protected:
             bool shouldExclude(const std::string& textureName);
         };
@@ -60,7 +60,7 @@ namespace TrenchBroom {
         public:
             FileTextureCollectionLoader(Logger& logger, const std::vector<Path>& searchPaths, const std::vector<std::string>& exclusions);
         private:
-            std::unique_ptr<Assets::TextureCollection> loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader);
+            Assets::TextureCollection loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader);
         };
 
         class DirectoryTextureCollectionLoader : public TextureCollectionLoader {
@@ -69,7 +69,7 @@ namespace TrenchBroom {
         public:
             DirectoryTextureCollectionLoader(Logger& logger, const FileSystem& gameFS, const std::vector<std::string>& exclusions);
         private:
-            std::unique_ptr<Assets::TextureCollection> loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader);
+            Assets::TextureCollection loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader);
         };
     }
 }

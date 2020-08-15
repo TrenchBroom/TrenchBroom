@@ -97,8 +97,8 @@ namespace TrenchBroom {
             struct MatchUsageCount;
             struct MatchName;
 
-            const std::vector<Assets::TextureCollection*>& getCollections() const;
-            std::vector<const Assets::Texture*> getTextures(const Assets::TextureCollection* collection) const;
+            const std::vector<Assets::TextureCollection>& getCollections() const;
+            std::vector<const Assets::Texture*> getTextures(const Assets::TextureCollection& collection) const;
             std::vector<const Assets::Texture*> getTextures() const;
 
             void filterTextures(std::vector<const Assets::Texture*>& textures) const;

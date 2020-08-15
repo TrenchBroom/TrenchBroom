@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_TextureManager
 #define TrenchBroom_TextureManager
 
+#include "Assets/TextureCollection.h"
+
 #include <map>
 #include <string>
 #include <vector>
@@ -42,10 +44,10 @@ namespace TrenchBroom {
 
             Logger& m_logger;
 
-            std::vector<TextureCollection*> m_collections;
+            std::vector<TextureCollection> m_collections;
 
-            std::vector<TextureCollection*> m_toPrepare;
-            std::vector<TextureCollection*> m_toRemove;
+            std::vector<size_t> m_toPrepare;
+            std::vector<TextureCollection> m_toRemove;
 
             TextureMap m_texturesByName;
             std::vector<const Texture*> m_textures;
@@ -58,9 +60,9 @@ namespace TrenchBroom {
             ~TextureManager();
 
             void setTextureCollections(const std::vector<IO::Path>& paths, IO::TextureLoader& loader);
-            void setTextureCollections(const std::vector<TextureCollection*>& collections);
+            void setTextureCollections(std::vector<TextureCollection> collections);
         private:
-            void addTextureCollection(Assets::TextureCollection* collection);
+            void addTextureCollection(Assets::TextureCollection collection);
         public:
             void clear();
 
@@ -71,8 +73,7 @@ namespace TrenchBroom {
             Texture* texture(const std::string& name);
             
             const std::vector<const Texture*>& textures() const;
-            const std::vector<TextureCollection*>& collections() const;
-            const std::vector<std::string> collectionNames() const;
+            const std::vector<TextureCollection>& collections() const;
         private:
             void resetTextureMode();
             void prepare();

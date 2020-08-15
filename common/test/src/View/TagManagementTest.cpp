@@ -46,7 +46,7 @@ namespace TrenchBroom {
             Assets::Texture* m_textureA;
             Assets::Texture* m_textureB;
             Assets::Texture* m_textureC;
-            Assets::TextureCollection* m_textureCollection;
+            const Assets::TextureCollection* m_textureCollection;
         private:
             void SetUp() {
                 auto textureA = Assets::Texture("some_texture", 16, 16);
@@ -64,17 +64,16 @@ namespace TrenchBroom {
                 textures.push_back(std::move(textureB));
                 textures.push_back(std::move(textureC));
 
-                auto textureCollection = std::make_unique<Assets::TextureCollection>(std::move(textures));
+                std::vector<Assets::TextureCollection> collections;
+                collections.emplace_back(std::move(textures));
+                
+                auto& textureManager = document->textureManager();
+                textureManager.setTextureCollections(std::move(collections));
+                m_textureCollection = &textureManager.collections().back();
 
-                document->textureManager().setTextureCollections(std::vector<Assets::TextureCollection*>({
-                    textureCollection.get()
-                }));
-
-                m_textureA = textureCollection->textureByName("some_texture");
-                m_textureB= textureCollection->textureByName("other_texture");
-                m_textureC = textureCollection->textureByName("yet_another_texture");
-
-                m_textureCollection = textureCollection.release();
+                m_textureA = textureManager.texture("some_texture");
+                m_textureB= textureManager.texture("other_texture");
+                m_textureC = textureManager.texture("yet_another_texture");
 
                 const std::string textureMatch("some_texture");
                 const std::string texturePatternMatch("*er_texture");
