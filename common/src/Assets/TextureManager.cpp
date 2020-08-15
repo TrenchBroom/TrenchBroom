@@ -76,7 +76,6 @@ namespace TrenchBroom {
                     try {
                         auto collection = loader.loadTextureCollection(path);
                         m_logger.info() << "Loaded texture collection '" << path << "'";
-                        collection->usageCountDidChange.addObserver(usageCountDidChange);
                         addTextureCollection(collection.release());
                     } catch (const Exception& e) {
                         addTextureCollection(new Assets::TextureCollection(path));
@@ -99,7 +98,6 @@ namespace TrenchBroom {
         void TextureManager::setTextureCollections(const std::vector<TextureCollection*>& collections) {
             clear();
             for (auto* collection : collections) {
-                collection->usageCountDidChange.addObserver(usageCountDidChange);
                 addTextureCollection(collection);
             }
             updateTextures();
