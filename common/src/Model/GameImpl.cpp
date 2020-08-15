@@ -181,20 +181,28 @@ namespace TrenchBroom {
             return worldReader.read(format, worldBounds, parserStatus);
         }
 
-        void GameImpl::doWriteMap(WorldNode& world, const IO::Path& path) const {
+        void GameImpl::doWriteMap(WorldNode& world, const IO::Path& path, const bool exporting) const {
             const auto mapFormatName = formatName(world.format());
 
             IO::OpenFile open(path, true);
             IO::writeGameComment(open.file, gameName(), mapFormatName);
 
             IO::NodeWriter writer(world, open.file);
+            writer.setExporting(exporting);
             writer.writeMap();
+        }
+
+        void GameImpl::doWriteMap(WorldNode& world, const IO::Path& path) const {
+            doWriteMap(world, path, false);
         }
 
         void GameImpl::doExportMap(WorldNode& world, const Model::ExportFormat format, const IO::Path& path) const {
             switch (format) {
                 case Model::ExportFormat::WavefrontObj:
                     IO::NodeWriter(world, new IO::ObjFileSerializer(path)).writeMap();
+                    break;
+                case Model::ExportFormat::Map:
+                    doWriteMap(world, path, true);
                     break;
             }
         }

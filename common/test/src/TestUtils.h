@@ -78,6 +78,17 @@ namespace TrenchBroom {
     int getComponentOfPixel(const Assets::Texture* texture, std::size_t x, std::size_t y, Component component);
     void checkColor(const Assets::Texture* texturePtr, std::size_t x, std::size_t y,
                     int r, int g, int b, int a, ColorMatch match = ColorMatch::Exact);
+
+    class GlobMatcher : public Catch::MatcherBase<std::string> {
+    private:
+        std::string m_glob;
+    public:
+        explicit GlobMatcher(const std::string& glob);
+        bool match(const std::string& value) const override;
+        std::string describe() const override;
+    };
+
+    GlobMatcher MatchesGlob(const std::string& glob);
 }
 
 template <typename L, typename R>

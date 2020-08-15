@@ -745,6 +745,11 @@ namespace TrenchBroom {
                     context.frame()->exportDocumentAsObj();
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); }));
+            exportMenu.addItem(createMenuAction(IO::Path("Menu/File/Export/Map..."), QObject::tr("Map..."), 0,
+                [](ActionExecutionContext& context) {
+                    context.frame()->exportDocumentAsMap();
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); }));
 
             /* ========== File Menu (Associated Resources) ========== */
             fileMenu.addSeparator();

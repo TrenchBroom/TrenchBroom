@@ -91,6 +91,18 @@ namespace TrenchBroom {
             addOrUpdateAttribute(AttributeNames::LayerColor, color.toString());
         }
 
+        bool LayerNode::omitFromExport() const {
+            return hasAttribute(AttributeNames::LayerOmitFromExport, AttributeValues::LayerOmitFromExportValue);
+        }
+
+        void LayerNode::setOmitFromExport(const bool omitFromExport) {
+            if (omitFromExport) {
+                addOrUpdateAttribute(AttributeNames::LayerOmitFromExport, AttributeValues::LayerOmitFromExportValue);
+            } else {
+                removeAttribute(AttributeNames::LayerOmitFromExport);
+            }
+        }
+
         void LayerNode::setSortIndex(int index) {
             if (isDefaultLayer()) {
                 return;

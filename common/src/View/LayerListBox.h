@@ -46,6 +46,7 @@ namespace TrenchBroom {
             QAbstractButton* m_activeButton;
             QLabel* m_nameText;
             QLabel* m_infoText;
+            QAbstractButton* m_omitFromExportButton;
             QAbstractButton* m_hiddenButton;
             QAbstractButton* m_lockButton;
         public:
@@ -60,6 +61,7 @@ namespace TrenchBroom {
             bool eventFilter(QObject* target, QEvent* event) override;
         signals:
             void layerActiveClicked(Model::LayerNode* layer);
+            void layerOmitFromExportToggled(Model::LayerNode* layer);
             void layerVisibilityToggled(Model::LayerNode* layer);
             void layerLockToggled(Model::LayerNode* layer);
             void layerDoubleClicked(Model::LayerNode* layer);
@@ -96,6 +98,7 @@ namespace TrenchBroom {
             void layerSelected(Model::LayerNode* layer);
             void layerSetCurrent(Model::LayerNode* layer);
             void layerRightClicked(Model::LayerNode* layer);
+            void layerOmitFromExportToggled(Model::LayerNode* layer);
             void layerVisibilityToggled(Model::LayerNode* layer);
             void layerLockToggled(Model::LayerNode* layer);
         };

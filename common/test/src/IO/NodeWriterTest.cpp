@@ -19,6 +19,7 @@
 
 #include <catch2/catch.hpp>
 
+#include "TestUtils.h"
 #include "GTestCompat.h"
 
 #include "Exceptions.h"
@@ -27,6 +28,7 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
+#include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/LockState.h"
@@ -80,6 +82,7 @@ namespace TrenchBroom {
             map.defaultLayer()->setLayerColor(Color(0.25f, 0.75f, 1.0f));
             map.defaultLayer()->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
             map.defaultLayer()->setLockState(Model::LockState::Lock_Locked);
+            map.defaultLayer()->setOmitFromExport(true);
 
             std::stringstream str;
             NodeWriter writer(map, str);
@@ -93,6 +96,7 @@ R"(// entity 0
 "_tb_layer_color" "0.25 0.75 1"
 "_tb_layer_locked" "1"
 "_tb_layer_hidden" "1"
+"_tb_layer_omit_from_export" "1"
 }
 )";
             CHECK(actual == expected);
@@ -314,6 +318,7 @@ R"(// entity 0
             layer->setSortIndex(1);
             layer->setLockState(Model::LockState::Lock_Locked);
             layer->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
+            layer->setOmitFromExport(true);
             map.addChild(layer);
 
             std::stringstream str;
@@ -334,6 +339,7 @@ R"(// entity 0
 "_tb_layer_sort_index" "1"
 "_tb_layer_locked" "1"
 "_tb_layer_hidden" "1"
+"_tb_layer_omit_from_export" "1"
 }
 )";
 
@@ -502,6 +508,81 @@ R"(// entity 0
 
             const std::string actual = str.str();
             ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
+        }
+
+        TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers", "[NodeWriterTest]") {
+            const vm::bbox3 worldBounds(8192.0);
+
+            Model::WorldNode map(Model::MapFormat::Standard);
+            Model::BrushBuilder builder(&map, worldBounds);
+
+            // default layer (omit from export)
+            map.defaultLayer()->setOmitFromExport(true);
+
+            auto* defaultLayerPointEntity = map.createEntity();
+            defaultLayerPointEntity->addOrUpdateAttribute("classname", "defaultLayerPointEntity");
+
+            auto* defaultLayerBrush = map.createBrush(builder.createCube(64.0, "defaultTexture").value());
+            map.defaultLayer()->addChild(defaultLayerPointEntity);
+            map.defaultLayer()->addChild(defaultLayerBrush);
+
+            // layer1 (omit from export)
+            auto* layer1 = map.createLayer("Custom Layer 1");
+            map.addChild(layer1);
+            layer1->setOmitFromExport(true);
+
+            auto* layer1PointEntity = map.createEntity();
+            layer1PointEntity->addOrUpdateAttribute("classname", "layer1PointEntity");
+            layer1->addChild(layer1PointEntity);
+
+            auto* layer1Brush = map.createBrush(builder.createCube(64.0, "layer1Texture").value());
+            layer1->addChild(layer1Brush);
+
+            // layer2
+            auto* layer2 = map.createLayer("Custom Layer 2");
+            map.addChild(layer2);
+
+            auto* layer2PointEntity = map.createEntity();
+            layer2PointEntity->addOrUpdateAttribute("classname", "layer2PointEntity");
+            layer2->addChild(layer2PointEntity);
+
+            auto* layer2Brush = map.createBrush(builder.createCube(64.0, "layer2Texture").value());
+            layer2->addChild(layer2Brush);
+
+            std::stringstream str;
+            NodeWriter writer(map, str);
+            writer.setExporting(true);
+            writer.writeMap();
+
+            const std::string expected =
+R"(// entity 0
+{
+"classname" "worldspawn"
+"_tb_layer_omit_from_export" "1"
+}
+// entity 1
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Custom Layer 2"
+"_tb_id" "*"
+// brush 0
+{
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) layer2Texture 0 0 0 1 1
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) layer2Texture 0 0 0 1 1
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) layer2Texture 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) layer2Texture 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) layer2Texture 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) layer2Texture 0 0 0 1 1
+}
+}
+// entity 2
+{
+"classname" "layer2PointEntity"
+"_tb_layer" "*"
+}
+)";
+            CHECK_THAT(str.str(), MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.writeNodesWithNestedGroup", "[NodeWriterTest]") {

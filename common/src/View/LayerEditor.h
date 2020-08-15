@@ -63,6 +63,8 @@ namespace TrenchBroom {
             bool canToggleLayerLocked() const;
             void toggleLayerLocked(Model::LayerNode* layer);
 
+            void toggleOmitLayerFromExport(Model::LayerNode* layer);
+
             void isolateLayer(Model::LayerNode* layer);
 
             void onSelectAllInLayer();

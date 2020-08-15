@@ -165,6 +165,7 @@ namespace TrenchBroom {
             bool saveDocument();
             bool saveDocumentAs();
             bool exportDocumentAsObj();
+            bool exportDocumentAsMap();
             bool exportDocument(Model::ExportFormat format, const IO::Path& path);
         private:
             bool confirmOrDiscardChanges();

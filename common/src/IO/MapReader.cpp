@@ -186,6 +186,9 @@ namespace TrenchBroom {
             if (findAttribute(attributes, Model::AttributeNames::LayerHidden) == Model::AttributeValues::LayerHiddenValue) {
                 layer->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
             }
+            if (findAttribute(attributes, Model::AttributeNames::LayerOmitFromExport) == Model::AttributeValues::LayerOmitFromExportValue) {
+                layer->addOrUpdateAttribute(Model::AttributeNames::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue);
+            }
 
             setExtraAttributes(layer, extraAttributes);
             m_layers.insert(std::make_pair(layerId, layer));
