@@ -566,7 +566,7 @@ namespace TrenchBroom {
                 return std::vector<Model::AttributableNode*>({ m_world.get() });
 
             Model::CollectAttributableNodesVisitor visitor;
-            Model::Node::accept(std::begin(m_selectedNodes), std::end(m_selectedNodes), visitor);
+            Model::Node::acceptAndRecurse(std::begin(m_selectedNodes), std::end(m_selectedNodes), visitor);
             return visitor.nodes();
         }
 
