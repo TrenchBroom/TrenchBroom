@@ -2147,11 +2147,13 @@ namespace TrenchBroom {
         void MapDocument::setTextures() {
             SetTextures visitor(*m_textureManager);
             m_world->acceptAndRecurse(visitor);
+            textureUsageCountsDidChangeNotifier();
         }
 
         void MapDocument::setTextures(const std::vector<Model::Node*>& nodes) {
             SetTextures visitor(*m_textureManager);
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
+            textureUsageCountsDidChangeNotifier();
         }
 
         void MapDocument::setTextures(const std::vector<Model::BrushFaceHandle>& faceHandles) {
@@ -2161,6 +2163,7 @@ namespace TrenchBroom {
                 Assets::Texture* texture = m_textureManager->texture(face.attributes().textureName());
                 node->setFaceTexture(faceHandle.faceIndex(), texture);
             }
+            textureUsageCountsDidChangeNotifier();
         }
 
         void MapDocument::unsetTextures() {
@@ -2171,6 +2174,7 @@ namespace TrenchBroom {
         void MapDocument::unsetTextures(const std::vector<Model::Node*>& nodes) {
             UnsetTextures visitor;
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
+            textureUsageCountsDidChangeNotifier();
         }
 
         class MapDocument::SetEntityDefinitions : public Model::NodeVisitor {

@@ -164,6 +164,8 @@ namespace TrenchBroom {
 
             Notifier<> textureCollectionsWillChangeNotifier;
             Notifier<> textureCollectionsDidChangeNotifier;
+            
+            Notifier<> textureUsageCountsDidChangeNotifier;
 
             Notifier<> entityDefinitionsDidChangeNotifier;
             Notifier<> modsDidChangeNotifier;
