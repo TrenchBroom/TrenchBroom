@@ -43,6 +43,7 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        struct EntityDefinitionClassInfo;
         class ParserStatus;
 
         class EntParser : public EntityDefinitionParser {
@@ -51,16 +52,16 @@ namespace TrenchBroom {
 
             const char* m_begin;
             const char* m_end;
-            const Color m_defaultEntityColor;
         public:
             EntParser(const char* begin, const char* end, const Color& defaultEntityColor);
             EntParser(const std::string& str, const Color& defaultEntityColor);
         private:
-            EntityDefinitionList doParseDefinitions(ParserStatus& status) override;
-            EntityDefinitionList parseClasses(const tinyxml2::XMLDocument& document, ParserStatus& status);
-            Assets::EntityDefinition* parseClass(const tinyxml2::XMLElement& element, const AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
-            Assets::EntityDefinition* parsePointEntityDefinition(const tinyxml2::XMLElement& element, const AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
-            Assets::EntityDefinition* parseBrushEntityDefinition(const tinyxml2::XMLElement& element, const AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
+            std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;
+            
+            std::vector<EntityDefinitionClassInfo> parseClassInfos(const tinyxml2::XMLDocument& document, ParserStatus& status);
+            std::optional<EntityDefinitionClassInfo> parseClassInfo(const tinyxml2::XMLElement& element, const AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
+            EntityDefinitionClassInfo parsePointClassInfo(const tinyxml2::XMLElement& element, const AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
+            EntityDefinitionClassInfo parseBrushClassInfo(const tinyxml2::XMLElement& element, const AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
 
             Assets::ModelDefinition parseModel(const tinyxml2::XMLElement& element, ParserStatus& status);
 

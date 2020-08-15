@@ -91,6 +91,19 @@ namespace TrenchBroom {
         ModelDefinition::ModelDefinition(const EL::Expression& expression) :
         m_expression(expression) {}
 
+        bool operator==(const ModelDefinition& lhs, const ModelDefinition& rhs) {
+            return lhs.m_expression.asString() == rhs.m_expression.asString();
+        }
+        
+        bool operator!=(const ModelDefinition& lhs, const ModelDefinition& rhs) {
+            return !(lhs == rhs);
+        }
+
+        std::ostream& operator<<(std::ostream& str, const ModelDefinition& def) {
+            str << "ModelDefinition{ " << def.m_expression << " }";
+            return str;
+        }
+
         void ModelDefinition::append(const ModelDefinition& other) {
             std::vector<EL::Expression> cases;
             cases.push_back(m_expression);

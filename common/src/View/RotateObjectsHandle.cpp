@@ -153,6 +153,7 @@ namespace TrenchBroom {
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.setShowOccludedObjects();
 
+            renderService.setLineWidth(2.0f);
             renderService.setForegroundColor(pref(Preferences::axisColor(vm::find_abs_max_component(camera.direction()))));
             renderService.renderCircle(vm::vec3f(m_position), vm::find_abs_max_component(camera.direction()), 64, radius);
 
@@ -179,7 +180,7 @@ namespace TrenchBroom {
                 case HitArea::XAxis:
                 case HitArea::YAxis:
                 case HitArea::ZAxis:
-                    renderService.setLineWidth(2.0f);
+                    renderService.setLineWidth(3.0f);
                     renderService.setForegroundColor(pref(Preferences::axisColor(vm::find_abs_max_component(camera.direction()))));
                     renderService.renderCircle(vm::vec3f(m_position), vm::find_abs_max_component(camera.direction()), 64, radius);
                     break;
@@ -210,6 +211,7 @@ namespace TrenchBroom {
 
             renderService.renderCoordinateSystem(vm::bbox3f(radius).translate(vm::vec3f(m_position)));
 
+            renderService.setLineWidth(2.0f);
             renderService.setForegroundColor(pref(Preferences::XAxisColor));
             renderService.renderCircle(vm::vec3f(m_position), vm::axis::x, 64, radius, zAxis, yAxis);
             renderService.setForegroundColor(pref(Preferences::YAxisColor));
@@ -242,17 +244,17 @@ namespace TrenchBroom {
                     break;
                 case HitArea::XAxis:
                     renderService.setForegroundColor(pref(Preferences::XAxisColor));
-                    renderService.setLineWidth(2.0f);
+                    renderService.setLineWidth(3.0f);
                     renderService.renderCircle(vm::vec3f(m_position), vm::axis::x, 64, radius, zAxis, yAxis);
                     break;
                 case HitArea::YAxis:
                     renderService.setForegroundColor(pref(Preferences::YAxisColor));
-                    renderService.setLineWidth(2.0f);
+                    renderService.setLineWidth(3.0f);
                     renderService.renderCircle(vm::vec3f(m_position), vm::axis::y, 64, radius, xAxis, zAxis);
                     break;
                 case HitArea::ZAxis:
                     renderService.setForegroundColor(pref(Preferences::ZAxisColor));
-                    renderService.setLineWidth(2.0f);
+                    renderService.setLineWidth(3.0f);
                     renderService.renderCircle(vm::vec3f(m_position), vm::axis::z, 64, radius, xAxis, yAxis);
                     break;
                 case HitArea::None:

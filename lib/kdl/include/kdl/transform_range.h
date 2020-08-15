@@ -18,6 +18,7 @@
 #ifndef KDL_TRANSFORM_RANGE_H
 #define KDL_TRANSFORM_RANGE_H
 
+#include <utility>
 #include <type_traits>
 
 namespace kdl {

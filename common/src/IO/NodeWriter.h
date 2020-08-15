@@ -51,6 +51,7 @@ namespace TrenchBroom {
             NodeWriter(const Model::WorldNode& world, std::ostream& stream);
             NodeWriter(const Model::WorldNode& world, NodeSerializer* serializer);
 
+            void setExporting(bool exporting);
             void writeMap();
         private:
             void writeDefaultLayer();

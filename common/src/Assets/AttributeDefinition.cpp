@@ -21,6 +21,7 @@
 
 #include "Macros.h"
 
+#include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -162,10 +163,6 @@ namespace TrenchBroom {
         m_value(value),
         m_description(description) {}
 
-        bool ChoiceAttributeOption::operator==(const ChoiceAttributeOption& other) const {
-            return m_value == other.m_value && m_description == other.m_description;
-        }
-
         const std::string& ChoiceAttributeOption::value() const {
             return m_value;
         }
@@ -182,6 +179,22 @@ namespace TrenchBroom {
             return m_options;
         }
 
+        bool operator==(const ChoiceAttributeOption& lhs, const ChoiceAttributeOption& rhs) {
+            return lhs.value() == rhs.value()
+                && lhs.description() == rhs.description();
+        }
+        
+        bool operator!=(const ChoiceAttributeOption& lhs, const ChoiceAttributeOption& rhs) {
+            return !(lhs == rhs);
+        }
+
+        std::ostream& operator<<(std::ostream& str, const ChoiceAttributeOption& opt) {
+            str << "ChoiceAttributeOption{"
+                << "value: " << opt.value() << ", "
+                << "description: '" << opt.description() << "}";
+            return str;
+        }
+
         bool ChoiceAttributeDefinition::doEquals(const AttributeDefinition* other) const {
             return options() == static_cast<const ChoiceAttributeDefinition*>(other)->options();
         }
@@ -195,13 +208,6 @@ namespace TrenchBroom {
         m_shortDescription(shortDescription),
         m_longDescription(longDescription),
         m_isDefault(isDefault) {}
-
-        bool FlagsAttributeOption::operator==(const FlagsAttributeOption& other) const {
-            return (m_value == other.m_value &&
-                    m_shortDescription == other.m_shortDescription &&
-                    m_longDescription == other.m_longDescription &&
-                    m_isDefault == other.m_isDefault);
-        }
 
         int FlagsAttributeOption::value() const {
             return m_value;
@@ -217,6 +223,26 @@ namespace TrenchBroom {
 
         bool FlagsAttributeOption::isDefault() const {
             return m_isDefault;
+        }
+
+        bool operator==(const FlagsAttributeOption& lhs, const FlagsAttributeOption& rhs) {
+            return lhs.value() == rhs.value()
+                && lhs.shortDescription() == rhs.shortDescription()
+                && lhs.longDescription() == rhs.longDescription()
+                && lhs.isDefault() == rhs.isDefault();
+        }
+        
+        bool operator!=(const FlagsAttributeOption& lhs, const FlagsAttributeOption& rhs) {
+            return !(lhs == rhs);
+        }
+
+        std::ostream& operator<<(std::ostream& str, const FlagsAttributeOption& opt) {
+            str << "FlagAttributeOption{"
+                << "value: " << opt.value() << ", "
+                << "shortDescription: '" << opt.shortDescription() << "', "
+                << "longDescription: '" << opt.longDescription() << "', "
+                << "isDefault: " << opt.isDefault() << "}";
+            return str;
         }
 
         FlagsAttributeDefinition::FlagsAttributeDefinition(const std::string& name) :

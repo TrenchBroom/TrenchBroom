@@ -102,11 +102,6 @@ namespace TrenchBroom {
         using Exception::Exception;
     };
 
-    class ResourceNotFoundException : public Exception {
-    public:
-        using Exception::Exception;
-    };
-
     class FileFormatException : public Exception {
     public:
         using Exception::Exception;

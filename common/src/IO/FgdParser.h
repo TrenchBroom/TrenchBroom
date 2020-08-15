@@ -22,7 +22,6 @@
 
 #include "FloatType.h"
 #include "Color.h"
-#include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
@@ -38,6 +37,8 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        struct EntityDefinitionClassInfo;
+        enum class EntityDefinitionClassType;
         class FileSystem;
         class ParserStatus;
         class Path;
@@ -72,13 +73,10 @@ namespace TrenchBroom {
         private:
             using Token = FgdTokenizer::Token;
 
-            Color m_defaultEntityColor;
-
             std::vector<Path> m_paths;
             std::shared_ptr<FileSystem> m_fs;
 
             FgdTokenizer m_tokenizer;
-            std::map<std::string, EntityDefinitionClassInfo> m_baseClasses;
         public:
             FgdParser(const char* begin, const char* end, const Color& defaultEntityColor, const Path& path);
             FgdParser(const std::string& str, const Color& defaultEntityColor, const Path& path);
@@ -92,15 +90,16 @@ namespace TrenchBroom {
             bool isRecursiveInclude(const Path& path) const;
         private:
             TokenNameMap tokenNames() const override;
-            EntityDefinitionList doParseDefinitions(ParserStatus& status) override;
 
-            void parseDefinitionOrInclude(ParserStatus& status, EntityDefinitionList& definitions);
+            std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;
 
-            Assets::EntityDefinition* parseDefinition(ParserStatus& status);
-            Assets::EntityDefinition* parseSolidClass(ParserStatus& status);
-            Assets::EntityDefinition* parsePointClass(ParserStatus& status);
-            EntityDefinitionClassInfo parseBaseClass(ParserStatus& status);
-            EntityDefinitionClassInfo parseClass(ParserStatus& status);
+            void parseClassInfoOrInclude(ParserStatus& status, std::vector<EntityDefinitionClassInfo>& classInfos);
+
+            std::optional<EntityDefinitionClassInfo> parseClassInfo(ParserStatus& status);
+            EntityDefinitionClassInfo parseSolidClassInfo(ParserStatus& status);
+            EntityDefinitionClassInfo parsePointClassInfo(ParserStatus& status);
+            EntityDefinitionClassInfo parseBaseClassInfo(ParserStatus& status);
+            EntityDefinitionClassInfo parseClassInfo(ParserStatus& status, EntityDefinitionClassType classType);
             void skipMainClass(ParserStatus& status);
 
             std::vector<std::string> parseSuperClasses(ParserStatus& status);
@@ -108,7 +107,7 @@ namespace TrenchBroom {
             std::string parseNamedValue(ParserStatus& status, const std::string& name);
             void skipClassAttribute(ParserStatus& status);
 
-            AttributeDefinitionMap parseProperties(ParserStatus& status);
+            AttributeDefinitionList parseProperties(ParserStatus& status);
             AttributeDefinitionPtr parseTargetSourceAttribute(ParserStatus& status, const std::string& name);
             AttributeDefinitionPtr parseTargetDestinationAttribute(ParserStatus& status, const std::string& name);
             AttributeDefinitionPtr parseStringAttribute(ParserStatus& status, const std::string& name);
@@ -130,8 +129,8 @@ namespace TrenchBroom {
             Color parseColor(ParserStatus& status);
             std::string parseString(ParserStatus& status);
 
-            EntityDefinitionList parseInclude(ParserStatus& status);
-            EntityDefinitionList handleInclude(ParserStatus& status, const Path& path);
+            std::vector<EntityDefinitionClassInfo> parseInclude(ParserStatus& status);
+            std::vector<EntityDefinitionClassInfo> handleInclude(ParserStatus& status, const Path& path);
         };
     }
 }

@@ -58,6 +58,9 @@ namespace TrenchBroom {
 
             std::optional<Color> layerColor() const;
             void setLayerColor(const Color& color);
+
+            bool omitFromExport() const;
+            void setOmitFromExport(bool omitFromExport);
         private: // implement Node interface
             const std::string& doGetName() const override;
             const vm::bbox3& doGetLogicalBounds() const override;

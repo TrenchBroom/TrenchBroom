@@ -313,10 +313,9 @@ namespace TrenchBroom {
 
             auto document = kdl::mem_lock(m_document);
             const auto& grid = document->grid();
-            const auto relativeFaceDelta = grid.snap(dragDist) * faceNormal;
-            const auto absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal * dragDist);
+            const auto unsnappedDelta = faceNormal * dragDist;
+            const auto faceDelta = grid.snap() ? grid.moveDelta(dragFace, unsnappedDelta) : unsnappedDelta;
 
-            const auto faceDelta = selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
             if (vm::is_zero(faceDelta, vm::C::almost_zero())) {
                 return true;
             }

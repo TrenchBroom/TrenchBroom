@@ -47,6 +47,7 @@ namespace TrenchBroom {
         m_activeButton(nullptr),
         m_nameText(nullptr),
         m_infoText(nullptr),
+        m_omitFromExportButton(nullptr),
         m_hiddenButton(nullptr),
         m_lockButton(nullptr) {
             m_nameText = new QLabel(QString::fromStdString(m_layer->name()));
@@ -57,10 +58,14 @@ namespace TrenchBroom {
             makeInfo(m_infoText);
 
             m_activeButton = new QRadioButton();
+            m_omitFromExportButton = createBitmapButton("OmitFromExport.svg", tr("Omit from export"));
             m_hiddenButton = createBitmapToggleButton("Hidden.svg", tr("Toggle hidden state"));
             m_lockButton = createBitmapToggleButton("Lock.svg", tr("Toggle locked state"));
 
             auto documentS = kdl::mem_lock(m_document);
+            connect(m_omitFromExportButton, &QAbstractButton::clicked, this, [this]() {
+                emit layerOmitFromExportToggled(m_layer);
+            });
             connect(m_activeButton, &QAbstractButton::clicked, this, [this]() {
                 emit layerActiveClicked(m_layer);
             });
@@ -88,6 +93,7 @@ namespace TrenchBroom {
             itemPanelLayout->addWidget(m_activeButton);
             itemPanelLayout->addSpacing(LayoutConstants::NarrowHMargin);
             itemPanelLayout->addLayout(textLayout, 1);
+            itemPanelLayout->addWidget(m_omitFromExportButton);
             itemPanelLayout->addWidget(m_hiddenButton);
             itemPanelLayout->addWidget(m_lockButton);
             setLayout(itemPanelLayout);
@@ -120,6 +126,7 @@ namespace TrenchBroom {
             m_activeButton->setChecked(document->currentLayer() == m_layer);
             m_lockButton->setChecked(m_layer->locked());
             m_hiddenButton->setChecked(m_layer->hidden());
+            m_omitFromExportButton->setVisible(m_layer->omitFromExport());
         }
 
         Model::LayerNode* LayerListBoxWidget::layer() const {
@@ -239,6 +246,7 @@ namespace TrenchBroom {
             connect(renderer, &LayerListBoxWidget::layerActiveClicked,     this, &LayerListBox::layerSetCurrent);
             connect(renderer, &LayerListBoxWidget::layerDoubleClicked,     this, &LayerListBox::layerSetCurrent);
             connect(renderer, &LayerListBoxWidget::layerRightClicked,      this, &LayerListBox::layerRightClicked);
+            connect(renderer, &LayerListBoxWidget::layerOmitFromExportToggled, this, &LayerListBox::layerOmitFromExportToggled);
             connect(renderer, &LayerListBoxWidget::layerVisibilityToggled, this, &LayerListBox::layerVisibilityToggled);
             connect(renderer, &LayerListBoxWidget::layerLockToggled,       this, &LayerListBox::layerLockToggled);
             return renderer;

@@ -96,6 +96,9 @@ namespace TrenchBroom {
             QAction* toggleLayerLockedAction = popupMenu.addAction(layer->locked() ? tr("Unlock layer") : tr("Lock layer"), this, [this, layer](){
                 toggleLayerLocked(layer);
             });
+            QAction* toggleLayerOmitFromExportAction = popupMenu.addAction(tr("Omit From Export"), this, [this, layer](){
+                toggleOmitLayerFromExport(layer);
+            });
             popupMenu.addSeparator();
             QAction* showAllLayersAction = popupMenu.addAction(tr("Show All Layers"), this, &LayerEditor::onShowAllLayers);
             QAction* hideAllLayersAction = popupMenu.addAction(tr("Hide All Layers"), this, &LayerEditor::onHideAllLayers);
@@ -110,6 +113,8 @@ namespace TrenchBroom {
             moveSelectionToLayerAction->setEnabled(canMoveSelectionToLayer());
             toggleLayerVisibleAction->setEnabled(canToggleLayerVisible());
             isolateLayerAction->setEnabled(document->canIsolateLayers({layer}));
+            toggleLayerOmitFromExportAction->setCheckable(true);
+            toggleLayerOmitFromExportAction->setChecked(layer->omitFromExport());
 
             toggleLayerLockedAction->setEnabled(canToggleLayerLocked());
             showAllLayersAction->setEnabled(canShowAllLayers());
@@ -150,6 +155,11 @@ namespace TrenchBroom {
             } else {
                 document->resetLock(std::vector<Model::Node*>(1, layer));
             }
+        }
+
+        void LayerEditor::toggleOmitLayerFromExport(Model::LayerNode* layer) {
+            ensure(layer != nullptr, "layer is null");
+            kdl::mem_lock(m_document)->setOmitLayerFromExport(layer, !layer->omitFromExport());
         }
 
         void LayerEditor::isolateLayer(Model::LayerNode* layer) {
@@ -376,6 +386,7 @@ namespace TrenchBroom {
             m_layerList = new LayerListBox(m_document, this);
             connect(m_layerList, &LayerListBox::layerSetCurrent, this, &LayerEditor::onSetCurrentLayer);
             connect(m_layerList, &LayerListBox::layerRightClicked, this, &LayerEditor::onLayerRightClick);
+            connect(m_layerList, &LayerListBox::layerOmitFromExportToggled, this, &LayerEditor::toggleOmitLayerFromExport);
             connect(m_layerList, &LayerListBox::layerVisibilityToggled, this, [this](Model::LayerNode* layer){
                 toggleLayerVisible(layer);
             });

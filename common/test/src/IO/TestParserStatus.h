@@ -25,18 +25,19 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
         class TestParserStatus : public ParserStatus {
         private:
             static NullLogger _logger;
-            using StatusCounts = std::map<LogLevel, size_t>;
-            StatusCounts m_statusCounts;
+            std::map<LogLevel, std::vector<std::string>> m_messages;
         public:
             TestParserStatus();
         public:
             size_t countStatus(LogLevel level) const;
+            const std::vector<std::string>& messages(LogLevel level) const;
         private:
             void doProgress(double progress) override;
             void doLog(LogLevel level, const std::string& str) override;

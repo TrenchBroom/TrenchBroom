@@ -367,6 +367,7 @@ namespace TrenchBroom {
             bool canHideLayers(const std::vector<Model::LayerNode*>& layers) const;
             void isolateLayers(const std::vector<Model::LayerNode*>& layers);
             bool canIsolateLayers(const std::vector<Model::LayerNode*>& layers) const;
+            void setOmitLayerFromExport(Model::LayerNode* layer, bool omitFromExport);
         public: // modifying transient node attributes, declared in MapFacade interface
             void isolate();
             void hide(std::vector<Model::Node*> nodes) override; // Don't take the nodes by reference!

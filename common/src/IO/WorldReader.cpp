@@ -102,7 +102,8 @@ namespace TrenchBroom {
 
             // handle default layer attributes, which are stored in worldspawn
             for (const Model::EntityAttribute& attribute : attributes) {
-                if (attribute.name() == Model::AttributeNames::LayerColor) {
+                if (attribute.name() == Model::AttributeNames::LayerColor
+                    || attribute.name() == Model::AttributeNames::LayerOmitFromExport) {
                     m_world->defaultLayer()->addOrUpdateAttribute(attribute.name(), attribute.value());
                 } else if (attribute.hasNameAndValue(Model::AttributeNames::LayerLocked, Model::AttributeValues::LayerLockedValue)) {
                     m_world->defaultLayer()->setLockState(Model::LockState::Lock_Locked);

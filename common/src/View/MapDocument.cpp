@@ -566,7 +566,7 @@ namespace TrenchBroom {
                 return std::vector<Model::AttributableNode*>({ m_world.get() });
 
             Model::CollectAttributableNodesVisitor visitor;
-            Model::Node::accept(std::begin(m_selectedNodes), std::end(m_selectedNodes), visitor);
+            Model::Node::acceptAndRecurse(std::begin(m_selectedNodes), std::end(m_selectedNodes), visitor);
             return visitor.nodes();
         }
 
@@ -1321,6 +1321,16 @@ namespace TrenchBroom {
             Transaction transaction(this, "Isolate Objects");
             executeAndStore(SetVisibilityCommand::hide(collectUnselected.nodes()));
             executeAndStore(SetVisibilityCommand::show(collectSelected.nodes()));
+        }
+
+        void MapDocument::setOmitLayerFromExport(Model::LayerNode* layer, const bool omitFromExport) {
+            if (omitFromExport) {
+                Transaction transaction(this, "Omit Layer From Export");
+                executeAndStore(ChangeEntityAttributesCommand::setForNodes({ layer }, Model::AttributeNames::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue));
+            } else {
+                Transaction transaction(this, "Include Layer In Export");
+                executeAndStore(ChangeEntityAttributesCommand::removeForNodes({ layer }, Model::AttributeNames::LayerOmitFromExport));
+            }
         }
 
         void MapDocument::hide(const std::vector<Model::Node*> nodes) {

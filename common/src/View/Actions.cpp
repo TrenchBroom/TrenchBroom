@@ -88,12 +88,13 @@ namespace TrenchBroom {
 
         Action::~Action() = default;
 
-        Action::Action(const IO::Path& preferencePath, const QString& label, const ActionContext::Type actionContext, const QKeySequence& defaultShortcut, const IO::Path& iconPath) :
+        Action::Action(const IO::Path& preferencePath, const QString& label, const ActionContext::Type actionContext, const QKeySequence& defaultShortcut, const IO::Path& iconPath, const QString& statusTip) :
         m_label(label),
         m_preferencePath(preferencePath),
         m_actionContext(actionContext),
         m_defaultShortcut(defaultShortcut),
-        m_iconPath(iconPath) {}
+        m_iconPath(iconPath),
+        m_statusTip(statusTip) {}
 
         const QString& Action::label() const {
             return m_label;
@@ -130,6 +131,10 @@ namespace TrenchBroom {
         const IO::Path& Action::iconPath() const {
             assert(hasIcon());
             return m_iconPath;
+        }
+
+        const QString& Action::statusTip() const {
+            return m_statusTip;
         }
 
         // MenuVisitor
@@ -629,7 +634,7 @@ namespace TrenchBroom {
 
             /* ========== Tag Actions ========== */
             createAction(IO::Path("Controls/Map view/Make structural"), QObject::tr("Make Structural"),
-                ActionContext::NodeSelection, QKeySequence(Qt::ALT + Qt::Key_S),
+                ActionContext::AnyView | ActionContext::NodeSelection, QKeySequence(Qt::ALT + Qt::Key_S),
                 [](ActionExecutionContext& context) { context.view()->makeStructural(); },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });
 
@@ -745,6 +750,12 @@ namespace TrenchBroom {
                     context.frame()->exportDocumentAsObj();
                 },
                 [](ActionExecutionContext& context) { return context.hasDocument(); }));
+            exportMenu.addItem(createMenuAction(IO::Path("Menu/File/Export/Map..."), QObject::tr("Map..."), 0,
+                [](ActionExecutionContext& context) {
+                    context.frame()->exportDocumentAsMap();
+                },
+                [](ActionExecutionContext& context) { return context.hasDocument(); },
+                IO::Path(), QObject::tr("Exports the current map to a .map file. Layers marked Omit From Export will be omitted.")));
 
             /* ========== File Menu (Associated Resources) ========== */
             fileMenu.addSeparator();

@@ -26,8 +26,9 @@
 
 #include <vecmath/bbox.h>
 
-#include <map>
+#include <iosfwd>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -37,50 +38,35 @@ namespace TrenchBroom {
     }
 
     namespace IO {
-        class EntityDefinitionClassInfo {
-        private:
-            size_t m_line;
-            size_t m_column;
-            std::string m_name;
-            std::string m_description;
-            bool m_hasDescription;
-            Color m_color;
-            bool m_hasColor;
-            vm::bbox3 m_size;
-            bool m_hasSize;
-            std::map<std::string, std::shared_ptr<Assets::AttributeDefinition>> m_attributes;
-            Assets::ModelDefinition m_modelDefinition;
-            bool m_hasModelDefinition;
-        public:
-            EntityDefinitionClassInfo();
-            EntityDefinitionClassInfo(size_t line, size_t column, const Color& defaultColor);
-
-            size_t line() const;
-            size_t column() const;
-            const std::string& name() const;
-            const std::string& description() const;
-            bool hasDescription() const;
-            const Color& color() const;
-            bool hasColor() const;
-            const vm::bbox3& size() const;
-            bool hasSize() const;
-            std::vector<std::shared_ptr<Assets::AttributeDefinition>> attributeList() const;
-            const std::map<std::string, std::shared_ptr<Assets::AttributeDefinition>>& attributeMap() const;
-            const Assets::ModelDefinition& modelDefinition() const;
-            bool hasModelDefinition() const;
-
-            void setName(const std::string& name);
-            void setDescription(const std::string& description);
-            void setColor(const Color& color);
-            void setSize(const vm::bbox3& size);
-            void addAttributeDefinition(std::shared_ptr<Assets::AttributeDefinition> attributeDefinition);
-            void addAttributeDefinitions(const std::map<std::string, std::shared_ptr<Assets::AttributeDefinition>>& attributeDefinitions);
-            void setModelDefinition(const Assets::ModelDefinition& modelDefinition);
-
-            void resolveBaseClasses(const std::map<std::string, EntityDefinitionClassInfo>& baseClasses, const std::vector<std::string>& classnames);
-        private:
-            static void mergeProperties(Assets::AttributeDefinition* classAttribute, const Assets::AttributeDefinition* baseclassAttribute);
+        enum class EntityDefinitionClassType {
+            PointClass,
+            BrushClass,
+            BaseClass
         };
+        
+        std::ostream& operator<<(std::ostream& str, EntityDefinitionClassType type);
+    
+        struct EntityDefinitionClassInfo {
+            EntityDefinitionClassType type;
+            size_t line;
+            size_t column;
+            std::string name;
+
+            std::optional<std::string> description;
+            std::optional<Color> color;
+            std::optional<vm::bbox3> size;
+            std::optional<Assets::ModelDefinition> modelDefinition;
+
+            std::vector<std::shared_ptr<Assets::AttributeDefinition>> attributes;
+            std::vector<std::string> superClasses;
+        };
+
+        bool addAttribute(std::vector<std::shared_ptr<Assets::AttributeDefinition>>& attributes, std::shared_ptr<Assets::AttributeDefinition> attribute);
+
+        bool operator==(const EntityDefinitionClassInfo& lhs, const EntityDefinitionClassInfo& rhs);
+        bool operator!=(const EntityDefinitionClassInfo& lhs, const EntityDefinitionClassInfo& rhs);
+        
+        std::ostream& operator<<(std::ostream& str, const EntityDefinitionClassInfo& classInfo);
     }
 }
 

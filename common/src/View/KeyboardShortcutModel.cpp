@@ -50,7 +50,9 @@ namespace TrenchBroom {
             m_actions.clear();
             initializeActions();
             updateConflicts();
-            emit dataChanged(createIndex(0, 0), createIndex(totalActionCount(), 3));
+            if (totalActionCount() > 0) {
+                emit dataChanged(createIndex(0, 0), createIndex(totalActionCount() - 1, 2));
+            }
         }
 
         int KeyboardShortcutModel::rowCount(const QModelIndex& /* parent */) const {
