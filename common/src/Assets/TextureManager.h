@@ -40,8 +40,6 @@ namespace TrenchBroom {
 
         class TextureManager {
         private:
-            using TextureCollectionMap = std::map<IO::Path, TextureCollection*>;
-            using TextureCollectionMapEntry = std::pair<IO::Path, TextureCollection*>;
             using TextureMap = std::map<std::string, Texture*>;
 
             Logger& m_logger;
@@ -66,7 +64,6 @@ namespace TrenchBroom {
             void setTextureCollections(const std::vector<IO::Path>& paths, IO::TextureLoader& loader);
             void setTextureCollections(const std::vector<TextureCollection*>& collections);
         private:
-            TextureCollectionMap collectionMap() const;
             void addTextureCollection(Assets::TextureCollection* collection);
         public:
             void clear();
