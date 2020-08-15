@@ -33,11 +33,7 @@ namespace TrenchBroom {
 
         TextureCollection::TextureCollection(std::vector<Texture> textures) :
         m_loaded(false),
-        m_textures(std::move(textures)) {
-            for (auto& texture : m_textures) {
-                texture.setCollection(this);
-            }
-        }
+        m_textures(std::move(textures)) {}
 
         TextureCollection::TextureCollection(const IO::Path& path) :
         m_loaded(false),
@@ -46,11 +42,7 @@ namespace TrenchBroom {
         TextureCollection::TextureCollection(const IO::Path& path, std::vector<Texture> textures) :
         m_loaded(true),
         m_path(path),
-        m_textures(std::move(textures)) {
-            for (auto& texture : m_textures) {
-                texture.setCollection(this);
-            }
-        }
+        m_textures(std::move(textures)) {}
 
         TextureCollection::~TextureCollection() {
             if (!m_textureIds.empty()) {
