@@ -56,7 +56,7 @@ namespace TrenchBroom {
             // show the completions immediately when the editor is opened if the editor's text is empty
             auto* lineEdit = dynamic_cast<QLineEdit*>(editor);
             if (lineEdit != nullptr) {
-                // Delay to work around https://github.com/kduske/TrenchBroom/issues/3082
+                // Delay to work around https://github.com/TrenchBroom/TrenchBroom/issues/3082
                 // Briefly, when typing the first letter of the text you want to enter to open the cell editor,
                 // when setEditorData() runs, the letter has not been inserted into the QLineEdit yet.
                 // Opening the completion popup and then typing the letter causes the editor to close, which is

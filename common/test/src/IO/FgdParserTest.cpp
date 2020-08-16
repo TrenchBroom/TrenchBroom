@@ -371,7 +371,7 @@ namespace TrenchBroom {
 
         /**
          * Support having an integer (or decimal) as a default for a string attribute. Technically
-         * a type mismatch, but appears in the wild; see: https://github.com/kduske/TrenchBroom/issues/2833
+         * a type mismatch, but appears in the wild; see: https://github.com/TrenchBroom/TrenchBroom/issues/2833
          */
         TEST_CASE("FgdParserTest.parseStringAttribute_IntDefault", "[FgdParserTest]") {
             const std::string file = R"(@PointClass = info_notnull : "Wildcard entity"

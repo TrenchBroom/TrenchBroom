@@ -418,7 +418,7 @@ namespace TrenchBroom {
                 // If we snap the selection bounds' center to the grid size, then
                 // selections that are an odd number of grid units wide get translated.
                 // Instead, snap to 1/2 the grid size.
-                // (see: https://github.com/kduske/TrenchBroom/issues/1495 )
+                // (see: https://github.com/TrenchBroom/TrenchBroom/issues/1495 )
                 Grid halfGrid(document->grid().size());
                 halfGrid.decSize();
 

@@ -531,7 +531,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.ungroupInnerGroup") {
-            // see https://github.com/kduske/TrenchBroom/issues/2050
+            // see https://github.com/TrenchBroom/TrenchBroom/issues/2050
             Model::EntityNode* outerEnt1 = new Model::EntityNode();
             Model::EntityNode* outerEnt2 = new Model::EntityNode();
             Model::EntityNode* innerEnt1 = new Model::EntityNode();
@@ -924,7 +924,7 @@ namespace TrenchBroom {
             ASSERT_THROW(document->throwExceptionDuringCommand(), CommandProcessorException);
         }
 
-        // https://github.com/kduske/TrenchBroom/issues/2476
+        // https://github.com/TrenchBroom/TrenchBroom/issues/2476
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.selectTouching") {
             // delete default brush
             document->selectAllNodes();
@@ -997,7 +997,7 @@ namespace TrenchBroom {
             CHECK(!brushEnt->selected());
         }
 
-        // https://github.com/kduske/TrenchBroom/issues/2776
+        // https://github.com/TrenchBroom/TrenchBroom/issues/2776
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.pasteAndTranslateGroup") {
             // delete default brush
             document->selectAllNodes();
@@ -1026,7 +1026,7 @@ namespace TrenchBroom {
             ASSERT_EQ(box.translate(delta), document->selectionBounds());
         }
 
-        // https://github.com/kduske/TrenchBroom/issues/3117
+        // https://github.com/TrenchBroom/TrenchBroom/issues/3117
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.isolate") {
             // delete default brush
             document->selectAllNodes();

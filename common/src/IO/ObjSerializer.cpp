@@ -90,7 +90,7 @@ namespace TrenchBroom {
             std::fprintf(m_stream, "# texture coordinates\n");
             for (const vm::vec2f& elem : m_texCoords.list()) {
                 // multiplying Y by -1 needed to get the UV's to appear correct in Blender and UE4
-                // (see: https://github.com/kduske/TrenchBroom/issues/2851 )
+                // (see: https://github.com/TrenchBroom/TrenchBroom/issues/2851 )
                 std::fprintf(m_stream, "vt %.17g %.17g\n", static_cast<double>(elem.x()), static_cast<double>(-elem.y()));
             }
         }

@@ -51,7 +51,7 @@ namespace TrenchBroom {
             inputState.setPickResult(std::move(pickResult));
         }
 
-        // https://github.com/kduske/TrenchBroom/issues/2602
+        // https://github.com/TrenchBroom/TrenchBroom/issues/2602
         TEST_CASE_METHOD(ClipToolControllerTest, "ClipToolControllerTest.testTwoPointsCreateClipPlane") {
             const auto data = R"(
 // entity 0

@@ -91,7 +91,7 @@ namespace TrenchBroom {
             auto* reportButton = buttonBox->addButton(tr("Report"), QDialogButtonBox::AcceptRole);
             
             connect(reportButton, &QAbstractButton::clicked, this, [](){
-                QDesktopServices::openUrl(QUrl("https://github.com/kduske/TrenchBroom/issues/new"));
+                QDesktopServices::openUrl(QUrl("https://github.com/TrenchBroom/TrenchBroom/issues/new"));
             });
             connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 

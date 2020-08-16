@@ -144,7 +144,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesWhenCrashFilesPresent") {
-            // https://github.com/kduske/TrenchBroom/issues/2544
+            // https://github.com/TrenchBroom/TrenchBroom/issues/2544
 
             using namespace std::literals::chrono_literals;
 

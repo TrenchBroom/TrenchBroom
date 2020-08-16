@@ -1032,7 +1032,7 @@ namespace TrenchBroom {
                     const vm::bbox3 bounds = m_document->selectionBounds();
 
                     // The pasted objects must be hidden to prevent the picking done in pasteObjectsDelta
-                    // from hitting them (https://github.com/kduske/TrenchBroom/issues/2755)
+                    // from hitting them (https://github.com/TrenchBroom/TrenchBroom/issues/2755)
                     const std::vector<Model::Node*> nodes = m_document->selectedNodes().nodes();
                     m_document->hide(nodes);
                     const vm::vec3 delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
