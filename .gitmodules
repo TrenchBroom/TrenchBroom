@@ -1,6 +1,6 @@
 [submodule "lib/vecmath"]
 	path = lib/vecmath
-	url = https://github.com/kduske/vecmath.git
+	url = https://github.com/TrenchBroom/vecmath.git
 [submodule "lib/Catch2"]
 	path = lib/Catch2
 	url = https://github.com/catchorg/Catch2
