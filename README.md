@@ -5,11 +5,11 @@
 TrenchBroom is a modern cross-platform level editor for Quake-engine based games.
 
 - Trailer:   https://www.youtube.com/watch?v=shcAvnYp9ow
-- Website:   http://kristianduske.com/trenchbroom
+- Website:   http://github.com/TrenchBroom/TrenchBroom
 - Discord:   https://discord.gg/WGf9uve
 - Tutorial:  https://www.youtube.com/watch?v=gONePWocbqA
 
-[![Build Status](https://travis-ci.org/kduske/TrenchBroom.svg?branch=release%2Fv2.0.0)](https://travis-ci.org/kduske/TrenchBroom) [![Build status](https://ci.appveyor.com/api/projects/status/github/kduske/trenchbroom?branch=release%2Fv2.0.0&svg=true)](https://ci.appveyor.com/project/kduske/trenchbroom/branch/release/v2.0.0)
+[![Build Status](https://travis-ci.org/TrenchBroom/TrenchBroom.svg)](https://travis-ci.org/TrenchBroom/TrenchBroom) [![Build status](https://ci.appveyor.com/api/projects/status/github/TrenchBroom/trenchbroom?svg=true)](https://ci.appveyor.com/project/TrenchBroom/trenchbroom)
 
 ## Features
 * **General**
@@ -71,4 +71,4 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 - [Source Sans Pro](https://fonts.google.com/specimen/Source+Sans+Pro) font
 
 ## Changes
-See [releases](https://github.com/kduske/TrenchBroom/releases) for latest changes.
+See [releases](https://github.com/TrenchBroom/TrenchBroom/releases) for latest changes.
