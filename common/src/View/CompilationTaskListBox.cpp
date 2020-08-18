@@ -35,6 +35,7 @@
 #include <kdl/memory_utils.h>
 
 #include <QBoxLayout>
+#include <QCheckBox>
 #include <QCompleter>
 #include <QFileDialog>
 #include <QFormLayout>
