@@ -59,6 +59,7 @@ namespace TrenchBroom {
             void profileSelectionChanged();
         signals:
             void selectedProfileChanged();
+            void profileChanged();
         };
     }
 }

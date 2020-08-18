@@ -62,6 +62,7 @@ namespace TrenchBroom {
             void compilationEnded();
 
             void selectedProfileChanged();
+            void profileChanged();
         };
     }
 }

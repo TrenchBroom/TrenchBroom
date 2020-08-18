@@ -231,6 +231,7 @@ namespace TrenchBroom {
 
         void CompilationProfileEditor::profileDidChange() {
             refresh();
+            emit profileChanged();
         }
 
         void CompilationProfileEditor::refresh() {

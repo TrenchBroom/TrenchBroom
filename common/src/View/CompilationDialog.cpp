@@ -118,6 +118,7 @@ namespace TrenchBroom {
             connect(&m_run, &CompilationRun::compilationStarted, this, &CompilationDialog::compilationStarted);
             connect(&m_run, &CompilationRun::compilationEnded, this, &CompilationDialog::compilationEnded);
             connect(m_profileManager, &CompilationProfileManager::selectedProfileChanged, this, &CompilationDialog::selectedProfileChanged);
+            connect(m_profileManager, &CompilationProfileManager::profileChanged, this, &CompilationDialog::profileChanged);
 
             connect(m_compileButton, &QPushButton::clicked, this, [&]() { startCompilation(false); });
             connect(m_testCompileButton, &QPushButton::clicked, this, [&]() { startCompilation(true); });
@@ -210,6 +211,10 @@ namespace TrenchBroom {
         }
 
         void CompilationDialog::selectedProfileChanged() {
+            updateCompileButtons();
+        }
+
+        void CompilationDialog::profileChanged() {
             updateCompileButtons();
         }
     }
