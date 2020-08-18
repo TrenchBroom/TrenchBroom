@@ -25,10 +25,12 @@
 #include <memory>
 #include <vector>
 
+class QCheckBox;
 class QCompleter;
+class QHBoxLayout;
+class QLayout;
 class QLineEdit;
 class QWidget;
-class QHBoxLayout;
 
 namespace TrenchBroom {
     namespace Model {
