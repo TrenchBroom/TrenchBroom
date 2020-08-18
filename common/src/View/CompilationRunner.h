@@ -125,7 +125,7 @@ namespace TrenchBroom {
             TaskRunnerList m_taskRunners;
             TaskRunnerList::iterator m_currentTask;
         public:
-            CompilationRunner(std::unique_ptr<CompilationContext> context, const Model::CompilationProfile* profile);
+            CompilationRunner(std::unique_ptr<CompilationContext> context, const Model::CompilationProfile* profile, QObject* parent = nullptr);
             ~CompilationRunner() override;
         private:
             class CreateTaskRunnerVisitor;
