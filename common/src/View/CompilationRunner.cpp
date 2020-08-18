@@ -216,10 +216,10 @@ namespace TrenchBroom {
         }
 
         CompilationRunner::CompilationRunner(std::unique_ptr<CompilationContext> context, const Model::CompilationProfile* profile, QObject* parent) :
+        QObject(parent),
         m_context(std::move(context)),
         m_taskRunners(createTaskRunners(*m_context, profile)),
-        m_currentTask(std::end(m_taskRunners)),
-        QObject(parent) {}
+        m_currentTask(std::end(m_taskRunners)) {}
 
         CompilationRunner::~CompilationRunner() = default;
 
