@@ -73,6 +73,8 @@ namespace TrenchBroom {
             void profileWillBeRemoved();
             void profileDidChange();
             void refresh();
+        signals:
+            void profileChanged();
         };
     }
 }
