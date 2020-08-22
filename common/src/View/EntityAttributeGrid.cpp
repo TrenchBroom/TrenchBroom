@@ -47,6 +47,8 @@
 #include <QSortFilterProxyModel>
 #include <QTimer>
 
+#define GRID_LOG(x)
+
 namespace TrenchBroom {
     namespace View {
         EntityAttributeGrid::EntityAttributeGrid(std::weak_ptr<MapDocument> document, QWidget* parent) :
@@ -63,23 +65,24 @@ namespace TrenchBroom {
         void EntityAttributeGrid::backupSelection() {
             m_selectionBackup.clear();
 
-            qDebug() << "Backup selection";
+            GRID_LOG(qDebug() << "Backup selection");
             for (const QModelIndex& index : m_table->selectionModel()->selectedIndexes()) {
                 const QModelIndex sourceIndex = m_proxyModel->mapToSource(index);
                 const std::string attributeName = m_model->attributeName(sourceIndex.row());
                 m_selectionBackup.push_back({ attributeName, sourceIndex.column() });
 
-                qDebug() << "Backup selection: " << QString::fromStdString(attributeName) << "," << sourceIndex.column();
+                GRID_LOG(qDebug() << "Backup selection: " << QString::fromStdString(attributeName) << "," << sourceIndex.column());
             }
         }
 
         void EntityAttributeGrid::restoreSelection() {
             m_table->selectionModel()->clearSelection();
 
+            GRID_LOG(qDebug() << "Restore selection");
             for (const auto& selection : m_selectionBackup) {
                 const int row = m_model->rowForAttributeName(selection.attributeName);
                 if (row == -1) {
-                    qDebug() << "Restore selection: couldn't find " << QString::fromStdString(selection.attributeName);
+                    GRID_LOG(qDebug() << "Restore selection: couldn't find " << QString::fromStdString(selection.attributeName));
                     continue;
                 }
                 const QModelIndex sourceIndex = m_model->index(row, selection.column);
@@ -87,8 +90,9 @@ namespace TrenchBroom {
                 m_table->selectionModel()->select(proxyIndex, QItemSelectionModel::Select);
                 m_table->selectionModel()->setCurrentIndex(proxyIndex, QItemSelectionModel::Current);
 
-                qDebug() << "Restore selection: " << QString::fromStdString(selection.attributeName) << "," << selection.column;
+                GRID_LOG(qDebug() << "Restore selection: " << QString::fromStdString(selection.attributeName) << "," << selection.column);
             }
+            GRID_LOG(qDebug() << "Restore selection: current is " << QString::fromStdString(selectedRowName()));
         }
 
         void EntityAttributeGrid::addAttribute() {
@@ -241,7 +245,7 @@ namespace TrenchBroom {
                 // So selectedRowsAndCursorRow() will return a mix of the new current row and old selection.
                 // Because of this, it's important to also call updateControlsEnabled() in response to QItemSelectionModel::selectionChanged
                 // as we do below. (#3165)
-                qDebug() << "current changed form " << previous << " to " << current;
+                GRID_LOG(qDebug() << "current changed form " << previous << " to " << current);
                 updateControlsEnabled();
                 ensureSelectionVisible();
                 emit currentRowChanged();

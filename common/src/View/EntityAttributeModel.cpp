@@ -52,6 +52,8 @@
 #include <QString>
 #include <QTimer>
 
+#define MODEL_LOG(x)
+
 namespace TrenchBroom {
     namespace View {
         // AttributeRow
@@ -313,7 +315,7 @@ namespace TrenchBroom {
             const auto oldRowMap = makeNameToAttributeRowMap(m_rows);
 
             if (newRowMap == oldRowMap) {
-                qDebug() << "EntityAttributeModel::setRows: no change";
+                MODEL_LOG(qDebug() << "EntityAttributeModel::setRows: no change");
                 return;
             }
 
@@ -330,7 +332,7 @@ namespace TrenchBroom {
                 const AttributeRow& oldDeletion = oldRowMap.at(diff.removed[0]);
                 const AttributeRow& newAddition = newRowMap.at(diff.added[0]);
 
-                qDebug() << "EntityAttributeModel::setRows: one row changed: " << mapStringToUnicode(document->encoding(), oldDeletion.name()) << " -> " << mapStringToUnicode(document->encoding(), newAddition.name());
+                MODEL_LOG(qDebug() << "EntityAttributeModel::setRows: one row changed: " << mapStringToUnicode(document->encoding(), oldDeletion.name()) << " -> " << mapStringToUnicode(document->encoding(), newAddition.name()));
 
                 const auto oldIndex = kdl::vec_index_of(m_rows, oldDeletion);
                 ensure(oldIndex, "deleted row must be found");
@@ -346,13 +348,13 @@ namespace TrenchBroom {
 
             // Handle edited rows
 
-            qDebug() << "EntityAttributeModel::setRows: " << diff.updated.size() << " common keys";
+            MODEL_LOG(qDebug() << "EntityAttributeModel::setRows: " << diff.updated.size() << " common keys");
             for (const auto& key : diff.updated) {
                 const AttributeRow& oldRow = oldRowMap.at(key);
                 const AttributeRow& newRow = newRowMap.at(key);
                 const auto oldIndex = kdl::vec_index_of(m_rows, oldRow);
 
-                qDebug() << "   updating row " << *oldIndex << "(" << QString::fromStdString(key) << ")";
+                MODEL_LOG(qDebug() << "   updating row " << *oldIndex << "(" << QString::fromStdString(key) << ")");
 
                 m_rows.at(*oldIndex) = newRow;
 
@@ -364,7 +366,7 @@ namespace TrenchBroom {
 
             // Insertions
             if (!diff.added.empty()) {
-                qDebug() << "EntityAttributeModel::setRows: inserting " << diff.added.size() << " rows";
+                MODEL_LOG(qDebug() << "EntityAttributeModel::setRows: inserting " << diff.added.size() << " rows");
 
                 const int firstNewRow = static_cast<int>(m_rows.size());
                 const int lastNewRow = firstNewRow + static_cast<int>(diff.added.size()) - 1;
@@ -380,7 +382,7 @@ namespace TrenchBroom {
 
             // Deletions
             if (!diff.removed.empty()) {
-                qDebug() << "EntityAttributeModel::setRows: deleting " << diff.removed.size() << " rows";
+                MODEL_LOG(qDebug() << "EntityAttributeModel::setRows: deleting " << diff.removed.size() << " rows");
 
                 for (const std::string& key : diff.removed) {
                     const AttributeRow& row = oldRowMap.at(key);
@@ -504,7 +506,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeModel::updateFromMapDocument() {
-            qDebug() << "updateFromMapDocument";
+            MODEL_LOG(qDebug() << "updateFromMapDocument");
 
             auto document = kdl::mem_lock(m_document);
 
@@ -640,15 +642,15 @@ namespace TrenchBroom {
 
             if (index.column() == 0) {
                 // rename key
-                qDebug() << "tried to rename " << mapStringToUnicode(document->encoding(), attributeRow.name()) << " to " << value.toString();
+                MODEL_LOG(qDebug() << "tried to rename " << mapStringToUnicode(document->encoding(), attributeRow.name()) << " to " << value.toString());
 
                 const std::string newName = mapStringFromUnicode(document->encoding(), value.toString());
                 if (renameAttribute(rowIndex, newName, attributables)) {
                     return true;
                 }
             } else if (index.column() == 1) {
-                qDebug() << "tried to set " << mapStringToUnicode(document->encoding(), attributeRow.name()) << " to "
-                         << value.toString();
+                MODEL_LOG(qDebug() << "tried to set " << mapStringToUnicode(document->encoding(), attributeRow.name()) << " to "
+                                   << value.toString());
 
                 if (updateAttribute(rowIndex, mapStringFromUnicode(document->encoding(), value.toString()), attributables)) {
                     return true;
