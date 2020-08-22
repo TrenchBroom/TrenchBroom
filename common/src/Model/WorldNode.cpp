@@ -355,32 +355,28 @@ namespace TrenchBroom {
         void WorldNode::doAttributesDidChange(const vm::bbox3& /* oldBounds */) {}
 
         bool WorldNode::doIsAttributeNameMutable(const std::string& name) const {
-            if (name == AttributeNames::Classname)
-                return false;
-            if (name == AttributeNames::Mods)
-                return false;
-            if (name == AttributeNames::EntityDefinitions)
-                return false;
-            if (name == AttributeNames::Wad)
-                return false;
-            if (name == AttributeNames::Textures)
-                return false;
-            return true;
+            return !(name == AttributeNames::Classname
+                || name == AttributeNames::Mods
+                || name == AttributeNames::EntityDefinitions
+                || name == AttributeNames::Wad
+                || name == AttributeNames::Textures
+                || name == AttributeNames::SoftMapBounds
+                || name == AttributeNames::LayerColor
+                || name == AttributeNames::LayerLocked
+                || name == AttributeNames::LayerHidden
+                || name == AttributeNames::LayerOmitFromExport);
         }
 
         bool WorldNode::doIsAttributeValueMutable(const std::string& name) const {
-            if (name == AttributeNames::Mods)
-                return false;
-            if (name == AttributeNames::EntityDefinitions)
-                return false;
-            if (name == AttributeNames::Wad)
-                return false;
-            if (name == AttributeNames::Textures)
-                return false;
-            if (name == AttributeNames::SoftMapBounds) {
-                return false;
-            }
-            return true;
+            return !(name == AttributeNames::Mods
+                || name == AttributeNames::EntityDefinitions
+                || name == AttributeNames::Wad
+                || name == AttributeNames::Textures
+                || name == AttributeNames::SoftMapBounds
+                || name == AttributeNames::LayerColor
+                || name == AttributeNames::LayerLocked
+                || name == AttributeNames::LayerHidden
+                || name == AttributeNames::LayerOmitFromExport);
         }
 
         vm::vec3 WorldNode::doGetLinkSourceAnchor() const {
