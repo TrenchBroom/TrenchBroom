@@ -43,6 +43,11 @@ namespace TrenchBroom {
         class MapDocument;
         class Selection;
 
+        struct AttributeGridSelection {
+            std::string attributeName;
+            int column;
+        };
+
         /**
          * Panel with the entity attribute table, and the toolbar below it (add/remove icons,
          * "show default properties" checkbox, etc.)
@@ -58,10 +63,14 @@ namespace TrenchBroom {
             QAbstractButton* m_addAttributeButton;
             QAbstractButton* m_removePropertiesButton;
             QCheckBox* m_showDefaultPropertiesCheckBox;
+            std::vector<AttributeGridSelection> m_selectionBackup;
         public:
             explicit EntityAttributeGrid(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~EntityAttributeGrid() override;
         private:
+            void backupSelection();
+            void restoreSelection();
+
             void addAttribute();
             void removeSelectedAttributes();
 

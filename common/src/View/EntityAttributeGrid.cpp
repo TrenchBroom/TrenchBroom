@@ -19,6 +19,7 @@
 
 #include "EntityAttributeGrid.h"
 
+#include "Macros.h"
 #include "Model/EntityAttributes.h"
 #include "View/BorderLine.h"
 #include "View/EntityAttributeItemDelegate.h"
@@ -44,6 +45,7 @@
 #include <QDebug>
 #include <QKeyEvent>
 #include <QSortFilterProxyModel>
+#include <QTimer>
 
 namespace TrenchBroom {
     namespace View {
@@ -56,6 +58,37 @@ namespace TrenchBroom {
 
         EntityAttributeGrid::~EntityAttributeGrid() {
             unbindObservers();
+        }
+
+        void EntityAttributeGrid::backupSelection() {
+            m_selectionBackup.clear();
+
+            qDebug() << "Backup selection";
+            for (const QModelIndex& index : m_table->selectionModel()->selectedIndexes()) {
+                const QModelIndex sourceIndex = m_proxyModel->mapToSource(index);
+                const std::string attributeName = m_model->attributeName(sourceIndex.row());
+                m_selectionBackup.push_back({ attributeName, sourceIndex.column() });
+
+                qDebug() << "Backup selection: " << QString::fromStdString(attributeName) << "," << sourceIndex.column();
+            }
+        }
+
+        void EntityAttributeGrid::restoreSelection() {
+            m_table->selectionModel()->clearSelection();
+
+            for (const auto& selection : m_selectionBackup) {
+                const int row = m_model->rowForAttributeName(selection.attributeName);
+                if (row == -1) {
+                    qDebug() << "Restore selection: couldn't find " << QString::fromStdString(selection.attributeName);
+                    continue;
+                }
+                const QModelIndex sourceIndex = m_model->index(row, selection.column);
+                const QModelIndex proxyIndex = m_proxyModel->mapFromSource(sourceIndex);
+                m_table->selectionModel()->select(proxyIndex, QItemSelectionModel::Select);
+                m_table->selectionModel()->setCurrentIndex(proxyIndex, QItemSelectionModel::Current);
+
+                qDebug() << "Restore selection: " << QString::fromStdString(selection.attributeName) << "," << selection.column;
+            }
         }
 
         void EntityAttributeGrid::addAttribute() {
@@ -202,6 +235,8 @@ namespace TrenchBroom {
             });
 
             connect(m_table->selectionModel(), &QItemSelectionModel::currentChanged, this, [=](const QModelIndex& current, const QModelIndex& previous){
+                unused(current);
+                unused(previous);
                 // NOTE: when we get this signal, the selection hasn't been updated yet.
                 // So selectedRowsAndCursorRow() will return a mix of the new current row and old selection.
                 // Because of this, it's important to also call updateControlsEnabled() in response to QItemSelectionModel::selectionChanged
@@ -213,6 +248,9 @@ namespace TrenchBroom {
             });
 
             connect(m_table->selectionModel(), &QItemSelectionModel::selectionChanged, this, [=](){
+                if (!m_table->selectionModel()->selectedIndexes().empty()) {
+                    backupSelection();
+                }
                 updateControlsEnabled();
                 emit currentRowChanged();
             });
@@ -292,9 +330,15 @@ namespace TrenchBroom {
             // is selected. If we call this directly, it'll cause the table to be rebuilt based on that intermediate
             // state. Everything is fine except you lose the selected row in the table, unless it's a key
             // name that exists in worldspawn. To avoid that problem, make a delayed call to update the table.
-            QMetaObject::invokeMethod(m_model, "updateFromMapDocument", Qt::QueuedConnection);
+            QTimer::singleShot(0, this, [&](){
+                m_model->updateFromMapDocument();
+
+                if (m_table->selectionModel()->selectedIndexes().empty()) {
+                    restoreSelection();
+                }
+                ensureSelectionVisible();
+            });
             updateControlsEnabled();
-            ensureSelectionVisible();
         }
 
         void EntityAttributeGrid::ensureSelectionVisible() {
