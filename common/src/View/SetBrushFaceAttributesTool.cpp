@@ -72,7 +72,7 @@ namespace TrenchBroom {
 
                 if (!document->canUndoCommand() || document->undoCommandName() != TransferFaceAttributesTransactionName) {
                     // The last click may not have been handled by this tool, see:
-                    // https://github.com/kduske/TrenchBroom/issues/3332
+                    // https://github.com/TrenchBroom/TrenchBroom/issues/3332
                     return false;
                 }
                 document->undoCommand();

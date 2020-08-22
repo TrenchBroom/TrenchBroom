@@ -75,7 +75,7 @@ namespace TrenchBroom {
         }
         
         TEST_CASE("GameTest.loadCorruptPackages", "[GameTest]") {
-            // https://github.com/kduske/TrenchBroom/issues/2496
+            // https://github.com/TrenchBroom/TrenchBroom/issues/2496
 
             const auto games = std::vector<IO::Path> {
                 IO:: Path("Quake"),

@@ -241,7 +241,7 @@ namespace TrenchBroom {
             //
             // Previously were calling `qt_set_sequence_auto_mnemonic(false);` in main(), but it turns out we
             // also need to suppress an Alt press followed by release from focusing the menu bar
-            // (https://github.com/kduske/TrenchBroom/issues/3140), so the following QProxyStyle disables
+            // (https://github.com/TrenchBroom/TrenchBroom/issues/3140), so the following QProxyStyle disables
             // that completely.
             
             class TrenchBroomProxyStyle : public QProxyStyle {

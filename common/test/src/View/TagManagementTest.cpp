@@ -142,7 +142,7 @@ namespace TrenchBroom {
         }
     
 
-        // https://github.com/kduske/TrenchBroom/issues/2905
+        // https://github.com/TrenchBroom/TrenchBroom/issues/2905
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.duplicateTag") {
             game->setSmartTags({
                 Model::SmartTag("texture", {}, std::make_unique<Model::TextureNameTagMatcher>("some_texture")),

@@ -84,7 +84,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("Md3ParserTest.loadFailure_2659", "[Md3ParserTest]") {
-            // see https://github.com/kduske/TrenchBroom/issues/2659
+            // see https://github.com/TrenchBroom/TrenchBroom/issues/2659
 
             NullLogger logger;
             const auto shaderSearchPath = Path("scripts");

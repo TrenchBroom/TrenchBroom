@@ -422,7 +422,7 @@ namespace TrenchBroom {
         bool BrushRenderer::shouldDrawFaceInTransparentPass(const Model::BrushNode* brush, const Model::BrushFace& face) const {
             if (m_transparencyAlpha >= 1.0f) {
                 // In this case, draw everything in the opaque pass
-                // see: https://github.com/kduske/TrenchBroom/issues/2848
+                // see: https://github.com/TrenchBroom/TrenchBroom/issues/2848
                 return false;
             }
 

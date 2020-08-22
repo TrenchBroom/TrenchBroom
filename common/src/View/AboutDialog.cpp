@@ -56,7 +56,7 @@ namespace TrenchBroom {
         }
 
         void AboutDialog::createGui() {
-            const QString creditsString = tr("github.com/kduske/TrenchBroom\n\n"
+            const QString creditsString = tr("github.com/TrenchBroom/TrenchBroom\n\n"
                                              "<b>Developers</b>\n"
                                              "Kristian Duske\n"
                                              "Eric Wasylishen\n\n"
