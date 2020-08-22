@@ -1,5 +1,9 @@
 image: Visual Studio 2019
 version: 2.0.0-appveyor-{build}
+branches:
+  only:
+    - master
+    - /v.*/
 environment:
   matrix:
     - TB_ARCH: Win32
