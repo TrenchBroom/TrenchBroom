@@ -72,7 +72,7 @@ namespace TrenchBroom {
                                                   new SmartFlagsEditor(m_document)));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorKeyMatcher({ "*_color", "*_color2", "*_colour" })),
                                                   new SmartColorEditor(m_document)));
-            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartTypeEditorMatcher(Assets::AttributeDefinitionType::ChoiceAttribute)),
+            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartTypeWithSameDefinitionEditorMatcher(Assets::AttributeDefinitionType::ChoiceAttribute)),
                                                   new SmartChoiceEditor(m_document)));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorDefaultMatcher()),
                                                   new SmartDefaultAttributeEditor(m_document)));

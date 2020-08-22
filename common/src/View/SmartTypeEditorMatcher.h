@@ -35,11 +35,28 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        /**
+         * Matches if all of the nodes have an attribute definition for the give attribute name that is of the
+         * type passed to the constructor.
+         */
         class SmartTypeEditorMatcher : public SmartAttributeEditorMatcher {
         private:
             Assets::AttributeDefinitionType m_type;
         public:
             SmartTypeEditorMatcher(Assets::AttributeDefinitionType type);
+        private:
+            bool doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const override;
+        };
+
+        /**
+         * Matches if all of the nodes have an attribute definition for the give attribute name that is of the
+         * type passed to the constructor, and these attribute definitions are all equal.
+         */
+        class SmartTypeWithSameDefinitionEditorMatcher : public SmartAttributeEditorMatcher {
+        private:
+            Assets::AttributeDefinitionType m_type;
+        public:
+            SmartTypeWithSameDefinitionEditorMatcher(Assets::AttributeDefinitionType type);
         private:
             bool doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const override;
         };
