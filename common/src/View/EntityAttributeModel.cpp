@@ -40,6 +40,7 @@
 
 #include <iterator>
 #include <optional>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -251,34 +252,49 @@ namespace TrenchBroom {
             updateFromMapDocument();
         }
 
-        static std::vector<AttributeRow> buildVec(const std::map<std::string, AttributeRow>& rows) {
-            std::vector<AttributeRow> result;
-            result.reserve(rows.size());
-            for (auto& [key, row] : rows) {
-                unused(key);
-                result.push_back(row);
-            }
-            return result;
-        }
-
-        /* FIXME: remove unused code
-        static auto buildAttributeToRowIndexMap(const std::vector<AttributeRow>& rows) {
-            std::map<std::string, int> result;
-            for (size_t i = 0; i < rows.size(); ++i) {
-                const AttributeRow& row = rows[i];
-                result[row.name()] = static_cast<int>(i);
-            }
-            return result;
-        }
-
-        static std::set<std::string> attributeRowKeySet(const std::vector<AttributeRow>& rows) {
-            std::set<std::string> result;
+        static auto makeNameToAttributeRowMap(const std::vector<AttributeRow>& rows) {
+            std::map<std::string, AttributeRow> result;
             for (const auto& row : rows) {
-                result.insert(row.name());
+                result[row.name()] = row;
             }
             return result;
         }
-        */
+
+        using AttributeRowMap = std::map<std::string, AttributeRow>;
+
+        struct KeyDiff {
+            std::vector<std::string> removed;
+            std::vector<std::string> added;
+            std::vector<std::string> updated;
+            std::vector<std::string> unchanged;
+        };
+
+        static KeyDiff compareAttributeMaps(const AttributeRowMap& oldRows, const AttributeRowMap& newRows) {
+            KeyDiff result;
+            result.removed.reserve(oldRows.size());
+            result.added.reserve(newRows.size());
+            result.updated.reserve(newRows.size());
+            result.unchanged.reserve(newRows.size());
+
+            for (const auto& [key, value] : oldRows) {
+                if (auto it = newRows.find(key); it != std::end(newRows)) {
+                    if (it->second == value) {
+                        result.unchanged.push_back(key);
+                    } else {
+                        result.updated.push_back(key);
+                    }
+                } else {
+                    result.removed.push_back(key);
+                }
+            }
+            for (const auto& [key, value] : newRows) {
+                unused(value);
+                if (oldRows.find(key) == std::end(oldRows)) {
+                    result.added.push_back(key);
+                }
+            }
+            return result;
+        }
 
         bool EntityAttributeModel::showDefaultRows() const {
             return m_showDefaultRows;
@@ -292,15 +308,16 @@ namespace TrenchBroom {
             updateFromMapDocument();
         }
 
-        void EntityAttributeModel::setRows(const std::map<std::string, AttributeRow>& newRowsKeyMap) {
+        void EntityAttributeModel::setRows(const std::map<std::string, AttributeRow>& newRowMap) {
             auto document = kdl::mem_lock(m_document);
-            const auto newRowSet = kdl::vector_set(kdl::map_values(newRowsKeyMap));
-            const auto oldRowSet = kdl::vector_set(std::begin(m_rows), std::end(m_rows));
+            const auto oldRowMap = makeNameToAttributeRowMap(m_rows);
 
-            if (newRowSet == oldRowSet) {
+            if (newRowMap == oldRowMap) {
                 qDebug() << "EntityAttributeModel::setRows: no change";
                 return;
             }
+
+            const KeyDiff diff = compareAttributeMaps(oldRowMap, newRowMap);
 
             // If exactly one row was changed
             // we can tell Qt the row was edited instead. This allows the selection/current index
@@ -308,12 +325,10 @@ namespace TrenchBroom {
             //
             // This situation happens when you rename a key and then press Tab to switch
             // to editing the value for the newly renamed key.
-            const auto newMinusOld = kdl::set_difference(newRowSet, oldRowSet);
-            const auto oldMinusNew = kdl::set_difference(oldRowSet, newRowSet);
 
-            if (newMinusOld.size() == 1 && oldMinusNew.size() == 1) {
-                const AttributeRow oldDeletion = *oldMinusNew.begin();
-                const AttributeRow newAddition = *newMinusOld.begin();
+            if (diff.removed.size() == 1 && diff.added.size() == 1 && diff.updated.empty()) {
+                const AttributeRow& oldDeletion = oldRowMap.at(diff.removed[0]);
+                const AttributeRow& newAddition = newRowMap.at(diff.added[0]);
 
                 qDebug() << "EntityAttributeModel::setRows: one row changed: " << mapStringToUnicode(document->encoding(), oldDeletion.name()) << " -> " << mapStringToUnicode(document->encoding(), newAddition.name());
 
@@ -329,27 +344,46 @@ namespace TrenchBroom {
                 return;
             }
 
+            // Handle edited rows
+
+            qDebug() << "EntityAttributeModel::setRows: " << diff.updated.size() << " common keys";
+            for (const auto& key : diff.updated) {
+                const AttributeRow& oldRow = oldRowMap.at(key);
+                const AttributeRow& newRow = newRowMap.at(key);
+                const auto oldIndex = kdl::vec_index_of(m_rows, oldRow);
+
+                qDebug() << "   updating row " << *oldIndex << "(" << QString::fromStdString(key) << ")";
+
+                m_rows.at(*oldIndex) = newRow;
+
+                // Notify Qt
+                const QModelIndex topLeft = index(static_cast<int>(*oldIndex), 0);
+                const QModelIndex bottomRight = index(static_cast<int>(*oldIndex), 1);
+                emit dataChanged(topLeft, bottomRight);
+            }
+
             // Insertions
-            if (!newMinusOld.empty() && oldMinusNew.empty()) {
-                qDebug() << "EntityAttributeModel::setRows: inserting " << newMinusOld.size() << " rows";
+            if (!diff.added.empty()) {
+                qDebug() << "EntityAttributeModel::setRows: inserting " << diff.added.size() << " rows";
 
                 const int firstNewRow = static_cast<int>(m_rows.size());
-                const int lastNewRow = firstNewRow + static_cast<int>(newMinusOld.size()) - 1;
+                const int lastNewRow = firstNewRow + static_cast<int>(diff.added.size()) - 1;
                 assert(lastNewRow >= firstNewRow);
 
                 beginInsertRows(QModelIndex(), firstNewRow, lastNewRow);
-                for (const AttributeRow& row : newMinusOld) {
+                for (const std::string& key : diff.added) {
+                    const AttributeRow& row = newRowMap.at(key);
                     m_rows.push_back(row);
                 }
                 endInsertRows();
-                return;
             }
 
             // Deletions
-            if (newMinusOld.empty() && !oldMinusNew.empty()) {
-                qDebug() << "EntityAttributeModel::setRows: deleting " << oldMinusNew.size() << " rows";
+            if (!diff.removed.empty()) {
+                qDebug() << "EntityAttributeModel::setRows: deleting " << diff.removed.size() << " rows";
 
-                for (const AttributeRow& row : oldMinusNew) {
+                for (const std::string& key : diff.removed) {
+                    const AttributeRow& row = oldRowMap.at(key);
                     const auto index = kdl::vec_index_of(m_rows, row);
                     assert(index);
 
@@ -357,15 +391,7 @@ namespace TrenchBroom {
                     m_rows.erase(std::next(m_rows.begin(), static_cast<int>(*index)));
                     endRemoveRows();
                 }
-                return;
             }
-
-            // Fallback case: this will reset selections
-            qDebug() << "EntityAttributeModel::setRows. resetting model (selections will be lost)";
-
-            beginResetModel();
-            m_rows = buildVec(newRowsKeyMap);
-            endResetModel();
         }
 
         const AttributeRow* EntityAttributeModel::dataForModelIndex(const QModelIndex& index) const {
@@ -598,6 +624,7 @@ namespace TrenchBroom {
 
         bool EntityAttributeModel::setData(const QModelIndex &index, const QVariant &value, int role) {
             const auto& attributeRow = m_rows.at(static_cast<size_t>(index.row()));
+            unused(attributeRow);
 
             if (role != Qt::EditRole) {
                 return false;
