@@ -242,6 +242,7 @@ namespace TrenchBroom {
             }
 
             void createTagActions();
+            void clearTagActions();
             void createEntityDefinitionActions();
         public: // new, load, save document
             void newDocument(Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game);
