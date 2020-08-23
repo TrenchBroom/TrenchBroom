@@ -324,6 +324,10 @@ namespace TrenchBroom {
             m_tagActions = actionManager.createTagActions(m_tagManager->smartTags());
         }
 
+        void MapDocument::clearTagActions() {
+            m_tagActions.clear();
+        }
+
         void MapDocument::createEntityDefinitionActions() {
             const auto& actionManager = ActionManager::instance();
             m_entityDefinitionActions = actionManager.createEntityDefinitionActions(m_entityDefinitionManager->definitions());
@@ -391,6 +395,7 @@ namespace TrenchBroom {
                 m_editorContext->reset();
                 clearSelection();
                 unloadAssets();
+                clearTagActions();
                 clearWorld();
                 clearModificationCount();
 
