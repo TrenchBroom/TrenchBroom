@@ -111,12 +111,14 @@ namespace TrenchBroom {
             assert(!prepared());
 
             m_textureIds.resize(textureCount());
-            glAssert(glGenTextures(static_cast<GLsizei>(textureCount()),
-                                   static_cast<GLuint*>(&m_textureIds.front())));
+            if (textureCount() != 0u) {
+                glAssert(glGenTextures(static_cast<GLsizei>(textureCount()),
+                                       static_cast<GLuint*>(&m_textureIds.front())));
 
-            for (size_t i = 0; i < textureCount(); ++i) {
-                Texture& texture = m_textures[i];
-                texture.prepare(m_textureIds[i], minFilter, magFilter);
+                for (size_t i = 0; i < textureCount(); ++i) {
+                    Texture& texture = m_textures[i];
+                    texture.prepare(m_textureIds[i], minFilter, magFilter);
+                }
             }
         }
 
