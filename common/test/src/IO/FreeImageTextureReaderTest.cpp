@@ -72,6 +72,15 @@ namespace TrenchBroom {
             ASSERT_NE(0u, texture.height());
         }
 
+        TEST_CASE("FreeImageTextureReaderTest.testLoad16BitPng", "[FreeImageTextureReaderTest]") {
+            const auto texture = loadTexture("16bitGrayscale.png");
+
+            // we don't support this format currently
+            ASSERT_EQ("16bitGrayscale.png", texture.name());
+            ASSERT_NE(0u, texture.width());
+            ASSERT_NE(0u, texture.height());
+        }
+
         // https://github.com/TrenchBroom/TrenchBroom/issues/2474
         static void testImageContents(const Assets::Texture& texture, const ColorMatch match) {
             const std::size_t w = 64u;
