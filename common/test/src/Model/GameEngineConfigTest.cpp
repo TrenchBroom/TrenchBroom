@@ -40,7 +40,7 @@ namespace TrenchBroom {
             config.configDidChange.addObserver(&o, &GameEngineConfigObserver::onCall);
             CHECK(o.callCount == 0);
 
-            config.addProfile(std::move(std::make_unique<GameEngineProfile>("engine name", IO::Path(), "params")));
+            config.addProfile(std::make_unique<GameEngineProfile>("engine name", IO::Path(), "params"));
             CHECK(o.callCount == 1);
 
             SECTION("profile list") {

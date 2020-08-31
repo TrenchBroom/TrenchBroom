@@ -37,9 +37,9 @@ namespace TrenchBroom {
             CompilationConfigObserver o;
 
             auto tasks = std::vector<std::unique_ptr<CompilationTask>>();
-            tasks.push_back(std::move(std::make_unique<CompilationExportMap>("target spec 1")));
-            tasks.push_back(std::move(std::make_unique<CompilationCopyFiles>("src", "dest")));
-            tasks.push_back(std::move(std::make_unique<CompilationRunTool>("tool", "args")));
+            tasks.push_back(std::make_unique<CompilationExportMap>("target spec 1"));
+            tasks.push_back(std::make_unique<CompilationCopyFiles>("src", "dest"));
+            tasks.push_back(std::make_unique<CompilationRunTool>("tool", "args"));
 
             auto config = CompilationConfig();
             config.configDidChange.addObserver(&o, &CompilationConfigObserver::onCall);
