@@ -39,6 +39,10 @@ namespace TrenchBroom {
         class CompilationProfile {
         public:
             Notifier<> profileWillBeRemoved;
+            /**
+             * Called when name or workDirSpec changed, or tasks are added/removed
+             * (not when tasks are changed).
+             */
             Notifier<> profileDidChange;
         private:
             std::string m_name;

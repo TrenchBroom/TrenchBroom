@@ -179,7 +179,9 @@ namespace TrenchBroom {
          * Called by CompilationTask only
          */
         void CompilationProfile::taskDidChange(CompilationTask*) {
-            sendDidChangeNotifications();
+            if (m_parent != nullptr) {
+                m_parent->configDidChange();
+            }
         }
     }
 }
