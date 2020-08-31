@@ -38,7 +38,11 @@ namespace TrenchBroom {
             m_profiles.reserve(other.m_profiles.size());
 
             for (const auto& original : other.m_profiles) {
-                m_profiles.push_back(original->clone());
+                auto clone = original->clone();
+                ensure(clone->parent() == nullptr, "profile already has a parent");
+
+                clone->setParent(this);
+                m_profiles.push_back(std::move(clone));
             }
         }
 
@@ -54,6 +58,7 @@ namespace TrenchBroom {
             using std::swap;
             swap(lhs.m_profiles, rhs.m_profiles);
             swap(lhs.profilesDidChange, rhs.profilesDidChange);
+            swap(lhs.configDidChange, rhs.configDidChange);
         }
 
         size_t GameEngineConfig::profileCount() const {
@@ -76,8 +81,11 @@ namespace TrenchBroom {
 
         void GameEngineConfig::addProfile(std::unique_ptr<GameEngineProfile> profile) {
             ensure(profile != nullptr, "profile is null");
+            ensure(profile->parent() == nullptr, "profile already has a parent");
+            profile->setParent(this);
             m_profiles.push_back(std::move(profile));
             profilesDidChange();
+            configDidChange();
         }
 
         void GameEngineConfig::removeProfile(const size_t index) {
@@ -85,6 +93,11 @@ namespace TrenchBroom {
             m_profiles[index]->profileWillBeRemoved();
             kdl::vec_erase_at(m_profiles, index);
             profilesDidChange();
+            configDidChange();
+        }
+
+        void GameEngineConfig::profileDidChange(GameEngineProfile*) {
+            configDidChange();
         }
     }
 }

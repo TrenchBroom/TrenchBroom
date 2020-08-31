@@ -34,7 +34,14 @@ namespace TrenchBroom {
         private:
             std::vector<std::unique_ptr<GameEngineProfile>> m_profiles;
         public:
+            /**
+             * The profiles list changed.
+             */
             mutable Notifier<> profilesDidChange;
+            /**
+             * Anything in the config changed.
+             */
+            mutable Notifier<> configDidChange;
         public:
             GameEngineConfig();
             GameEngineConfig(std::vector<std::unique_ptr<GameEngineProfile>> profiles);
@@ -50,6 +57,8 @@ namespace TrenchBroom {
 
             void addProfile(std::unique_ptr<GameEngineProfile> profile);
             void removeProfile(size_t index);
+
+            void profileDidChange(GameEngineProfile* profile);
         };
     }
 }

@@ -29,6 +29,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class CompilationConfig;
         class CompilationTask;
         class CompilationTaskConstVisitor;
         class CompilationTaskVisitor;
@@ -43,12 +44,16 @@ namespace TrenchBroom {
             std::string m_name;
             std::string m_workDirSpec;
             std::vector<std::unique_ptr<CompilationTask>> m_tasks;
+            CompilationConfig* m_parent;
         public:
             CompilationProfile(const std::string& name, const std::string& workDirSpec);
             CompilationProfile(const std::string& name, const std::string& workDirSpec, std::vector<std::unique_ptr<CompilationTask>> tasks);
             ~CompilationProfile();
 
             std::unique_ptr<CompilationProfile> clone() const;
+
+            CompilationConfig* parent() const;
+            void setParent(CompilationConfig* parent);
 
             const std::string& name() const;
             void setName(const std::string& name);
@@ -70,6 +75,10 @@ namespace TrenchBroom {
             void accept(ConstCompilationTaskVisitor& visitor) const;
             void accept(const CompilationTaskConstVisitor& visitor);
             void accept(const ConstCompilationTaskConstVisitor& visitor) const;
+        private:
+            void sendDidChangeNotifications();
+        public:
+            void taskDidChange(CompilationTask* task);
 
             deleteCopyAndMove(CompilationProfile)
         };
