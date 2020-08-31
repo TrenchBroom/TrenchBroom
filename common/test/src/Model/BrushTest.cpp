@@ -309,7 +309,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushTest.constructBrushWithManySides", "[BrushTest]") {
             /*
-             See https://github.com/kduske/TrenchBroom/issues/1153
+             See https://github.com/TrenchBroom/TrenchBroom/issues/1153
              The faces have been reordered according to Model::BrushFace::sortFaces and all non-interesting faces
              have been removed from the brush.
 
@@ -344,7 +344,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushTest.constructBrushAfterRotateFail", "[BrushTest]") {
             /*
-             See https://github.com/kduske/TrenchBroom/issues/1173
+             See https://github.com/TrenchBroom/TrenchBroom/issues/1173
 
              This is the brush after rotation. Rebuilding the geometry should assert.
 
@@ -2417,7 +2417,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("BrushTest.moveVertexFail_2158", "[BrushTest]") {
-            // see https://github.com/kduske/TrenchBroom/issues/2158
+            // see https://github.com/TrenchBroom/TrenchBroom/issues/2158
             const std::string data("{\n"
                               "( 320 256 320 ) ( 384 192 320 ) ( 352 224 384 ) sky1 0 96 0 1 1\n"
                               "( 384 128 320 ) ( 320 64 320 ) ( 352 96 384 ) sky1 0 96 0 1 1\n"
@@ -2455,7 +2455,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("BrushTest.moveVerticesFail_2158", "[BrushTest]") {
-            // see https://github.com/kduske/TrenchBroom/issues/2158
+            // see https://github.com/TrenchBroom/TrenchBroom/issues/2158
             const vm::bbox3 worldBounds(4096.0);
             WorldNode world(MapFormat::Standard);
 
@@ -2524,7 +2524,7 @@ namespace TrenchBroom {
 
 
         TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082", "[BrushTest]") {
-            // see https://github.com/kduske/TrenchBroom/issues/2082
+            // see https://github.com/TrenchBroom/TrenchBroom/issues/2082
 
             const vm::bbox3 worldBounds(4096.0);
             WorldNode world(Model::MapFormat::Valve);
@@ -2610,7 +2610,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("BrushTest.snapIssue1198", "[BrushTest]") {
-            // https://github.com/kduske/TrenchBroom/issues/1198
+            // https://github.com/TrenchBroom/TrenchBroom/issues/1198
             const std::string data("{\n"
                               "( 167.63423 -46.88446 472.36551 ) ( 66.06285 -1.98675 573.93711 ) ( 139.12681 -168.36963 500.87299 ) rock_1736 -158 527 166.79401 0.97488 -0.85268 //TX1\n"
                               "( 208 -298.77704 309.53674 ) ( 208 -283.89740 159.77713 ) ( 208 -425.90924 294.65701 ) rock_1736 -261 -291 186.67561 1 1.17558 //TX1\n"
@@ -2631,7 +2631,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("BrushTest.snapIssue1202", "[BrushTest]") {
-            // https://github.com/kduske/TrenchBroom/issues/1202
+            // https://github.com/TrenchBroom/TrenchBroom/issues/1202
             const std::string data("{\n"
                               "( -384 -1440 416 ) ( -384 -1440 544 ) ( -512 -1440 416 ) skip -384 416 0 -1 1 //TX1\n"
                               "( -479.20200 -1152 448 ) ( -388.69232 -1242.50967 448 ) ( -607.20203 -1152 448 ) skip -476 1631 -45 1 -0.70711 //TX2\n"
@@ -2645,7 +2645,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("BrushTest.snapIssue1203", "[BrushTest]") {
-            // https://github.com/kduske/TrenchBroom/issues/1203
+            // https://github.com/TrenchBroom/TrenchBroom/issues/1203
             const std::string data("{\n"
                               "( -2255.07542 -1621.75354 1184 ) ( -2340.26373 -1524.09826 1184 ) ( -2255.07542 -1621.75354 1312 ) metal5_6 2126 1184 0 0.76293 1 //TX2\n"
                               "( -2274.59294 -1572.67199 1077.14252 ) ( -2216.18139 -1643.55025 1214.27523 ) ( -2179.93925 -1486.72565 1086.37772 ) metal1_2 -86 -3857 66.92847 1.16449 -0.65206 //TX2\n"
@@ -2661,7 +2661,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("BrushTest.snapIssue1205", "[BrushTest]") {
-            // https://github.com/kduske/TrenchBroom/issues/1205
+            // https://github.com/TrenchBroom/TrenchBroom/issues/1205
             const std::string data("{\n"
                               "( 304 -895.52890 1232 ) ( 304 -763.64662 1232 ) ( 304 -895.52890 1104 ) bookshelf1w 1232 -869 -90 1 1.03033 //TX1\n"
                               "( -23.76447 -759.76453 1232 ) ( 69.49032 -666.50962 1232 ) ( -23.76447 -759.76453 1104 ) bookshelf1w 1232 -1043 -90 1 0.72855 //TX1\n"
@@ -2685,7 +2685,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("BrushTest.snapIssue1206", "[BrushTest]") {
-            // https://github.com/kduske/TrenchBroom/issues/1206
+            // https://github.com/TrenchBroom/TrenchBroom/issues/1206
             const std::string data("{\n"
                               "( -637.50000 1446.44631 1339.47316 ) ( -637.50000 1560.93298 1396.71649 ) ( -765.50000 1446.44631 1339.47316 ) column01_3 -638 1617 0 -1 0.89443 //TX1\n"
                               "( -632.50000 1438.33507 1340.33194 ) ( -632.50000 1538.28627 1260.37098 ) ( -760.50000 1438.33507 1340.33194 ) column01_3 -632 1842 0 -1 0.78087 //TX1\n"
@@ -2699,7 +2699,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("BrushTest.snapIssue1207", "[BrushTest]") {
-            // https://github.com/kduske/TrenchBroom/issues/1207
+            // https://github.com/TrenchBroom/TrenchBroom/issues/1207
             const std::string data("{\n"
                               "( -635.50000 1442.50000 1353.50012 ) ( -763.50000 1442.50000 1353.50012 ) ( -635.50000 1314.50000 1353.50012 ) column01_3 1442 635 -90 1 -1 //TX1\n"
                               "( -635.50000 1442.50000 1355 ) ( -507.50000 1442.50000 1355 ) ( -635.50000 1314.50000 1355 ) column01_3 1442 -635 -90 1 1 //TX1\n"
@@ -2712,7 +2712,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("BrushTest.snapIssue1232", "[BrushTest]") {
-            // https://github.com/kduske/TrenchBroom/issues/1232
+            // https://github.com/TrenchBroom/TrenchBroom/issues/1232
             const std::string data("{\n"
                               "  ( 2152.22540 381.27455 2072 ) ( 2152.22540 381.27455 2200 ) ( 2020.34268 513.15633 2072 ) wbord05 2089 2072 0 -1.03033 1 //TX1\n"
                               "  ( 2042 335.61771 2072 ) ( 2042 335.61771 2200 ) ( 2042 522.12738 2072 ) wbord05 -230 2072 0 1.45711 1 //TX1\n"
@@ -2738,7 +2738,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("BrushTest.snapIssue1395_24202", "[BrushTest]") {
-            // https://github.com/kduske/TrenchBroom/issues/1395 brush at line 24202
+            // https://github.com/TrenchBroom/TrenchBroom/issues/1395 brush at line 24202
             const std::string data("{\n"
                               "( -4 -325 952 ) ( -16 -356 1032 ) ( -44 -309 1016 ) rock3_8 -1.28601 -6.46194 113.395 0.943603 1.06043\n"
                               "( -17.57635498046875 -263.510009765625 988.9852294921875 ) ( -137.5655517578125 -375.941162109375 743.296875 ) ( 34.708740234375 -300.228759765625 1073.855712890625 ) rock3_8 -1.28595 -6.46191 113.395 0.943603 1.06043\n"
@@ -2756,7 +2756,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("BrushTest.snapIssue1395_18995", "[BrushTest]") {
-            // https://github.com/kduske/TrenchBroom/issues/1395 brush at line 24202
+            // https://github.com/TrenchBroom/TrenchBroom/issues/1395 brush at line 24202
             const std::string data("{\n"
                               "( 335 891 680 ) ( 314 881 665 ) ( 451 826 680 ) wswamp1_2 2 0 0 1 1\n"
                               "( 450 813 671 ) ( 451 826 680 ) ( 446 807 665 ) wswamp1_2 2 0 0 1 1\n"
@@ -2783,7 +2783,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("BrushTest.snapToGrid64", "[BrushTest]") {
-            // https://github.com/kduske/TrenchBroom/issues/1415
+            // https://github.com/TrenchBroom/TrenchBroom/issues/1415
             const std::string data("{\n"
                               "    ( 400 224 272 ) ( 416 272 224 ) ( 304 224 224 ) techrock 128 -0 -0 1 1\n"
                               "    ( 416 448 224 ) ( 416 272 224 ) ( 400 448 272 ) techrock 64 -0 -0 1 1\n"
@@ -2800,7 +2800,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("BrushNodeTest.moveEdgesFail_2361", "[BrushNodeTest]") {
-            // see https://github.com/kduske/TrenchBroom/issues/2361
+            // see https://github.com/TrenchBroom/TrenchBroom/issues/2361
 
             const vm::bbox3 worldBounds(8192.0);
             WorldNode world(MapFormat::Standard);
@@ -2899,7 +2899,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("BrushTest.moveFaceFailure_1499", "[BrushTest]") {
-            // https://github.com/kduske/TrenchBroom/issues/1499
+            // https://github.com/TrenchBroom/TrenchBroom/issues/1499
 
             const vm::vec3 p1(-4408.0, 16.0, 288.0);
             const vm::vec3 p2(-4384.0, 40.0, 288.0);
@@ -2953,7 +2953,7 @@ namespace TrenchBroom {
         }
         
         TEST_CASE("BrushTest.convexMergeCrash_2789", "[BrushTest]") {
-            // see https://github.com/kduske/TrenchBroom/issues/2789
+            // see https://github.com/TrenchBroom/TrenchBroom/issues/2789
             const vm::bbox3 worldBounds(4096.0);
             WorldNode world(MapFormat::Valve);
 
@@ -3040,7 +3040,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("BrushTest.convexMergeIncorrectResult_2789", "[BrushTest]") {
-            // weirdcurvemerge.map from https://github.com/kduske/TrenchBroom/issues/2789
+            // weirdcurvemerge.map from https://github.com/TrenchBroom/TrenchBroom/issues/2789
             const vm::bbox3 worldBounds(8192.0);
             WorldNode world(MapFormat::Valve);
 
@@ -3245,7 +3245,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("BrushTest.subtractTruncatedCones", "[BrushTest]") {
-            // https://github.com/kduske/TrenchBroom/issues/1469
+            // https://github.com/TrenchBroom/TrenchBroom/issues/1469
 
             const std::string minuendStr(R"({
                 ( 29.393876913416079 -16.970562748463635 32 ) ( 16.970562748495468 29.393876913411077 32 ) ( 11.313708499003496 19.595917942278447 -16 ) __TB_empty [ -0.258819 0.965926 0 -0.507559 ] [ -0.158797 -0.0425496 -0.986394 -0.257094 ] -0 1 1
@@ -3323,7 +3323,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("BrushTest.subtractDome", "[BrushTest]") {
-            // see https://github.com/kduske/TrenchBroom/issues/2707
+            // see https://github.com/TrenchBroom/TrenchBroom/issues/2707
 
             const std::string minuendStr(R"({
                 ( -1598.09391534391647838 -277.57717407067275417 -20 ) ( -1598.09391534391647838 54.02274375211438695 -20 ) ( -1598.09391534391647838 -277.57717407067275417 -12 ) 128_gold_2 -14.94120025634765625 -108 -0 0.72087001800537109 1
@@ -3357,7 +3357,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments", "[BrushTest]") {
-            // see https://github.com/kduske/TrenchBroom/pull/1764#issuecomment-296341588
+            // see https://github.com/TrenchBroom/TrenchBroom/pull/1764#issuecomment-296341588
             // subtract creates missing fragments
 
             const std::string minuendStr("{\n"

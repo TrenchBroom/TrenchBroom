@@ -20,7 +20,6 @@
 #include "TextureCollection.h"
 
 #include "Ensure.h"
-#include "Assets/Texture.h"
 
 #include <kdl/vector_utils.h>
 
@@ -30,46 +29,27 @@
 namespace TrenchBroom {
     namespace Assets {
         TextureCollection::TextureCollection() :
-        m_loaded(false),
-        m_usageCount(0) {}
+        m_loaded(false) {}
 
-        TextureCollection::TextureCollection(const std::vector<Texture*>& textures) :
+        TextureCollection::TextureCollection(std::vector<Texture> textures) :
         m_loaded(false),
-        m_usageCount(0) {
-            addTextures(textures);
-        }
+        m_textures(std::move(textures)) {}
 
         TextureCollection::TextureCollection(const IO::Path& path) :
         m_loaded(false),
-        m_path(path),
-        m_usageCount(0) {}
+        m_path(path) {}
 
-        TextureCollection::TextureCollection(const IO::Path& path, const std::vector<Texture*>& textures) :
+        TextureCollection::TextureCollection(const IO::Path& path, std::vector<Texture> textures) :
         m_loaded(true),
         m_path(path),
-        m_usageCount(0) {
-            addTextures(textures);
-        }
+        m_textures(std::move(textures)) {}
 
         TextureCollection::~TextureCollection() {
-            kdl::vec_clear_and_delete(m_textures);
             if (!m_textureIds.empty()) {
                 glAssert(glDeleteTextures(static_cast<GLsizei>(m_textureIds.size()),
                                           static_cast<GLuint*>(&m_textureIds.front())));
                 m_textureIds.clear();
             }
-        }
-
-        void TextureCollection::addTextures(const std::vector<Texture*>& textures) {
-            for (Texture* texture : textures)
-                addTexture(texture);
-        }
-
-        void TextureCollection::addTexture(Texture* texture) {
-            ensure(texture != nullptr, "texture is null");
-            m_textures.push_back(texture);
-            texture->setCollection(this);
-            m_loaded = true;
         }
 
         bool TextureCollection::loaded() const {
@@ -90,29 +70,37 @@ namespace TrenchBroom {
             return m_textures.size();
         }
 
-        const std::vector<Texture*>& TextureCollection::textures() const {
+        const std::vector<Texture>& TextureCollection::textures() const {
             return m_textures;
         }
 
-        Texture* TextureCollection::textureByIndex(const size_t index) const {
+        std::vector<Texture>& TextureCollection::textures() {
+            return m_textures;
+        }
+
+        const Texture* TextureCollection::textureByIndex(const size_t index) const {
             if (index >= m_textures.size()) {
                 return nullptr;
             } else {
-                return m_textures[index];
+                return &(m_textures[index]);
             }
         }
 
-        Texture* TextureCollection::textureByName(const std::string& name) const {
-            for (auto* texture : m_textures) {
-                if (texture->name() == name) {
-                    return texture;
+        Texture* TextureCollection::textureByIndex(const size_t index) {
+            return const_cast<Texture*>(const_cast<const TextureCollection*>(this)->textureByIndex(index));
+        }
+
+        const Texture* TextureCollection::textureByName(const std::string& name) const {
+            for (const auto& texture : m_textures) {
+                if (texture.name() == name) {
+                    return &texture;
                 }
             }
             return nullptr;
         }
 
-        size_t TextureCollection::usageCount() const {
-            return m_usageCount;
+        Texture* TextureCollection::textureByName(const std::string& name) {
+            return const_cast<Texture*>(const_cast<const TextureCollection*>(this)->textureByName(name));
         }
 
         bool TextureCollection::prepared() const {
@@ -123,30 +111,21 @@ namespace TrenchBroom {
             assert(!prepared());
 
             m_textureIds.resize(textureCount());
-            glAssert(glGenTextures(static_cast<GLsizei>(textureCount()),
-                                   static_cast<GLuint*>(&m_textureIds.front())));
+            if (textureCount() != 0u) {
+                glAssert(glGenTextures(static_cast<GLsizei>(textureCount()),
+                                       static_cast<GLuint*>(&m_textureIds.front())));
 
-            for (size_t i = 0; i < textureCount(); ++i) {
-                Texture* texture = m_textures[i];
-                texture->prepare(m_textureIds[i], minFilter, magFilter);
+                for (size_t i = 0; i < textureCount(); ++i) {
+                    Texture& texture = m_textures[i];
+                    texture.prepare(m_textureIds[i], minFilter, magFilter);
+                }
             }
         }
 
         void TextureCollection::setTextureMode(const int minFilter, const int magFilter) {
-            for (auto* texture : m_textures) {
-                texture->setMode(minFilter, magFilter);
+            for (auto& texture : m_textures) {
+                texture.setMode(minFilter, magFilter);
             }
-        }
-
-        void TextureCollection::incUsageCount() {
-            ++m_usageCount;
-            usageCountDidChange();
-        }
-
-        void TextureCollection::decUsageCount() {
-            assert(m_usageCount > 0);
-            --m_usageCount;
-            usageCountDidChange();
         }
     }
 }

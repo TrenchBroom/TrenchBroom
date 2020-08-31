@@ -75,7 +75,7 @@ namespace TrenchBroom {
         }
         
         TEST_CASE("GameTest.loadCorruptPackages", "[GameTest]") {
-            // https://github.com/kduske/TrenchBroom/issues/2496
+            // https://github.com/TrenchBroom/TrenchBroom/issues/2496
 
             const auto games = std::vector<IO::Path> {
                 IO:: Path("Quake"),
@@ -154,21 +154,21 @@ namespace TrenchBroom {
              * skies/hub1/dusk -> test/editor_image.jpg
              */
 
-            const auto* testCollection = textureManager.collections().front();
-            ASSERT_EQ(5u, testCollection->textureCount());
+            const auto& testCollection = textureManager.collections().front();
+            ASSERT_EQ(5u, testCollection.textureCount());
 
-            const auto& testTextures = testCollection->textures();
-            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto* t) { return t->name() == "test/test"; }));
-            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto* t) { return t->name() == "test/not_existing"; }));
-            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto* t) { return t->name() == "test/editor_image"; }));
-            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto* t) { return t->name() == "test/not_existing2"; }));
-            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto* t) { return t->name() == "test/test2"; }));
+            const auto& testTextures = testCollection.textures();
+            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto& t) { return t.name() == "test/test"; }));
+            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto& t) { return t.name() == "test/not_existing"; }));
+            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto& t) { return t.name() == "test/editor_image"; }));
+            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto& t) { return t.name() == "test/not_existing2"; }));
+            ASSERT_EQ(1, std::count_if(std::begin(testTextures), std::end(testTextures), [](const auto& t) { return t.name() == "test/test2"; }));
             
-            const auto* skiesCollection = textureManager.collections().back();
-            ASSERT_EQ(1u, skiesCollection->textureCount());
+            const auto& skiesCollection = textureManager.collections().back();
+            ASSERT_EQ(1u, skiesCollection.textureCount());
             
-            const auto& skiesTextures = testCollection->textures();
-            ASSERT_TRUE(skiesTextures.front()->name() == "test/editor_image");
+            const auto& skiesTextures = testCollection.textures();
+            ASSERT_TRUE(skiesTextures.front().name() == "test/editor_image");
         }
     }
 }

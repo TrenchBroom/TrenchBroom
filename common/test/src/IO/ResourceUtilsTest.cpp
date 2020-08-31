@@ -37,8 +37,7 @@ namespace TrenchBroom {
             NullLogger logger;
             
             auto texture = loadDefaultTexture(*fs, logger, "some_name");
-            ASSERT_NE(nullptr, texture);
-            ASSERT_EQ("some_name", texture->name());
+            ASSERT_EQ("some_name", texture.name());
         }
     }
 }

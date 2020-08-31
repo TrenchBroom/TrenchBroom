@@ -36,13 +36,12 @@ namespace TrenchBroom {
     
         static void assertTexture(const Path& path, const size_t width, const size_t height, const FileSystem& fs, const TextureReader& reader) {
             const Path filePath = fixturePath + path;
-            auto texture = std::unique_ptr<Assets::Texture>{ reader.readTexture(fs.openFile(filePath)) };
-            ASSERT_TRUE(texture != nullptr);
+            auto texture = reader.readTexture(fs.openFile(filePath));
 
             const auto& name = path.suffix(2).deleteExtension().asString("/");
-            ASSERT_EQ(name, texture->name());
-            ASSERT_EQ(width, texture->width());
-            ASSERT_EQ(height, texture->height());
+            ASSERT_EQ(name, texture.name());
+            ASSERT_EQ(width, texture.width());
+            ASSERT_EQ(height, texture.height());
         }
 
         TEST_CASE("WalTextureReaderTest.testLoadQ2WalDir", "[WalTextureReaderTest]") {

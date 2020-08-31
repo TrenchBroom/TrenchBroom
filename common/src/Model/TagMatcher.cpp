@@ -66,7 +66,7 @@ namespace TrenchBroom {
         void TextureTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const {
             const auto& textureManager = facade.textureManager();
             const auto& allTextures = textureManager.textures();
-            auto matchingTextures = std::vector<Assets::Texture*>{};
+            auto matchingTextures = std::vector<const Assets::Texture*>{};
 
             std::copy_if(std::begin(allTextures), std::end(allTextures), std::back_inserter(matchingTextures), [this](auto* texture) {
                 return matchesTexture(texture);
@@ -76,7 +76,7 @@ namespace TrenchBroom {
                 return kdl::ci::str_compare(lhs->name(), rhs->name()) < 0;
             });
 
-            Assets::Texture* texture = nullptr;
+            const Assets::Texture* texture = nullptr;
             if (matchingTextures.empty()) {
                 return;
             } else if (matchingTextures.size() == 1) {
@@ -118,7 +118,7 @@ namespace TrenchBroom {
             return visitor.matches();
         }
 
-        bool TextureNameTagMatcher::matchesTexture(Assets::Texture *texture) const {
+        bool TextureNameTagMatcher::matchesTexture(const Assets::Texture* texture) const {
             if (texture == nullptr) {
                 return false;
             }
@@ -157,7 +157,7 @@ namespace TrenchBroom {
             return visitor.matches();
         }
 
-        bool SurfaceParmTagMatcher::matchesTexture(Assets::Texture *texture) const {
+        bool SurfaceParmTagMatcher::matchesTexture(const Assets::Texture* texture) const {
             if (texture == nullptr) {
                 return false;
             }

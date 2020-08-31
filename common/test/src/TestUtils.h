@@ -75,8 +75,8 @@ namespace TrenchBroom {
         Exact, Approximate
     };
 
-    int getComponentOfPixel(const Assets::Texture* texture, std::size_t x, std::size_t y, Component component);
-    void checkColor(const Assets::Texture* texturePtr, std::size_t x, std::size_t y,
+    int getComponentOfPixel(const Assets::Texture& texture, std::size_t x, std::size_t y, Component component);
+    void checkColor(const Assets::Texture& texture, std::size_t x, std::size_t y,
                     int r, int g, int b, int a, ColorMatch match = ColorMatch::Exact);
 
     class GlobMatcher : public Catch::MatcherBase<std::string> {

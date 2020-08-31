@@ -707,7 +707,7 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
                          "}\n", result.c_str());
         }
 
-        // https://github.com/kduske/TrenchBroom/issues/1739
+        // https://github.com/TrenchBroom/TrenchBroom/issues/1739
         TEST_CASE("NodeWriterTest.writePropertiesWithNewlineEscapeSequence", "[NodeWriterTest]") {
             Model::WorldNode map(Model::MapFormat::Standard);
             map.addOrUpdateAttribute("classname", "worldspawn");
@@ -725,7 +725,7 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
                          "}\n", result.c_str());
         }
 
-        // https://github.com/kduske/TrenchBroom/issues/2556
+        // https://github.com/TrenchBroom/TrenchBroom/issues/2556
         TEST_CASE("NodeWriterTest.writePropertiesWithTrailingBackslash", "[NodeWriterTest]") {
             Model::WorldNode map(Model::MapFormat::Standard);
             map.addOrUpdateAttribute("classname", "worldspawn");

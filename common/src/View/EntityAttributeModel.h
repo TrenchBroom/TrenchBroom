@@ -107,6 +107,9 @@ namespace TrenchBroom {
          *
          * All edits to the table flow this way; the EntityAttributeGridTable is never modified in response to
          * a UI action.
+         *
+         * The order of m_rows is not significant; it's expected that there is a sort proxy model
+         * used on top of this model.
          */
         class EntityAttributeModel : public QAbstractTableModel {
             Q_OBJECT

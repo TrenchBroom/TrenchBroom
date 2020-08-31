@@ -116,9 +116,9 @@ namespace TrenchBroom {
              * the default texture is returned.
              *
              * @param file the file containing the texture
-             * @return an Assets::Texture object allocated with new
+             * @return an Assets::Texture object
              */
-            Assets::Texture* readTexture(std::shared_ptr<File> file) const;
+            Assets::Texture readTexture(std::shared_ptr<File> file) const;
         protected:
             std::string textureName(const std::string& textureName, const Path& path) const;
             std::string textureName(const Path& path) const;
@@ -128,9 +128,9 @@ namespace TrenchBroom {
              * report errors loading textures except for unrecoverable errors (out of memory, bugs, etc.).
              *
              * @param file the file containing the texture
-             * @return an Assets::Texture object allocated with new
+             * @return an Assets::Texture object
              */
-            virtual Assets::Texture* doReadTexture(std::shared_ptr<File> file) const = 0;
+            virtual Assets::Texture doReadTexture(std::shared_ptr<File> file) const = 0;
         protected:
             static bool checkTextureDimensions(size_t width, size_t height);
         public:

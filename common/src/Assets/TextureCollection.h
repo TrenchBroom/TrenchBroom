@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_TextureCollection
 #define TrenchBroom_TextureCollection
 
-#include "Notifier.h"
+#include "Assets/Texture.h"
 #include "IO/Path.h"
 #include "Renderer/GL.h"
 
@@ -29,49 +29,48 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        class Texture;
-
         class TextureCollection {
         private:
             using TextureIdList = std::vector<GLuint>;
 
             bool m_loaded;
             IO::Path m_path;
-            std::vector<Texture*> m_textures;
-
-            size_t m_usageCount;
+            std::vector<Texture> m_textures;
 
             TextureIdList m_textureIds;
 
             friend class Texture;
         public:
-            Notifier<> usageCountDidChange;
-        public:
             TextureCollection();
-            explicit TextureCollection(const std::vector<Texture*>& textures);
+            explicit TextureCollection(std::vector<Texture> textures);
             explicit TextureCollection(const IO::Path& path);
-            TextureCollection(const IO::Path& path, const std::vector<Texture*>& textures);
-            virtual ~TextureCollection();
+            TextureCollection(const IO::Path& path, std::vector<Texture> textures);
 
-            void addTextures(const std::vector<Texture*>& textures);
-            void addTexture(Texture* texture);
+            TextureCollection(const TextureCollection&) = delete;
+            TextureCollection& operator=(const TextureCollection&) = delete;
+            
+            TextureCollection(TextureCollection&& other) = default;
+            TextureCollection& operator=(TextureCollection&& other) = default;
+
+            ~TextureCollection();
 
             bool loaded() const;
             const IO::Path& path() const;
             std::string name() const;
             size_t textureCount() const;
-            const std::vector<Texture*>& textures() const;
-            Texture* textureByIndex(size_t index) const;
-            Texture* textureByName(const std::string& name) const;
 
-            size_t usageCount() const;
+            const std::vector<Texture>& textures() const;
+            std::vector<Texture>& textures();
+
+            const Texture* textureByIndex(size_t index) const;
+            Texture* textureByIndex(size_t index);
+
+            const Texture* textureByName(const std::string& name) const;
+            Texture* textureByName(const std::string& name);
 
             bool prepared() const;
             void prepare(int minFilter, int magFilter);
             void setTextureMode(int minFilter, int magFilter);
-        private:
-            void incUsageCount();
-            void decUsageCount();
         };
     }
 }

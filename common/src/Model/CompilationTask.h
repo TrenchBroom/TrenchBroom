@@ -27,6 +27,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class CompilationProfile;
         class CompilationTaskConstVisitor;
         class CompilationTaskVisitor;
         class ConstCompilationTaskConstVisitor;
@@ -38,10 +39,15 @@ namespace TrenchBroom {
         public:
             Notifier<> taskWillBeRemoved;
             Notifier<> taskDidChange;
+        private:
+            CompilationProfile* m_parent;
         protected:
             explicit CompilationTask(bool enabled);
         public:
             virtual ~CompilationTask();
+
+            CompilationProfile* parent() const;
+            void setParent(CompilationProfile* parent);
 
             virtual void accept(CompilationTaskVisitor& visitor) = 0;
             virtual void accept(ConstCompilationTaskVisitor& visitor) const = 0;
@@ -54,6 +60,8 @@ namespace TrenchBroom {
             virtual CompilationTask* clone() const = 0;
 
             deleteCopyAndMove(CompilationTask)
+        protected:
+            void sendDidChangeNotifications();
         };
 
         class CompilationExportMap : public CompilationTask {

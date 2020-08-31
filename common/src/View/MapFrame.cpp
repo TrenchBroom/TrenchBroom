@@ -1032,7 +1032,7 @@ namespace TrenchBroom {
                     const vm::bbox3 bounds = m_document->selectionBounds();
 
                     // The pasted objects must be hidden to prevent the picking done in pasteObjectsDelta
-                    // from hitting them (https://github.com/kduske/TrenchBroom/issues/2755)
+                    // from hitting them (https://github.com/TrenchBroom/TrenchBroom/issues/2755)
                     const std::vector<Model::Node*> nodes = m_document->selectedNodes().nodes();
                     m_document->hide(nodes);
                     const vm::vec3 delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
@@ -1587,43 +1587,30 @@ namespace TrenchBroom {
             showModelessDialog(m_compilationDialog);
         }
 
-        void MapFrame::compilationDialogWillClose() {
-            // Save the compilation and engine configurations just in case:
-            const auto& gameName = m_document->game()->gameName();
-            auto& gameFactory = Model::GameFactory::instance();
-            gameFactory.saveConfigs(gameName);
-        }
-
         void MapFrame::showLaunchEngineDialog() {
             LaunchGameEngineDialog dialog(m_document, this);
             dialog.exec();
-
-            const auto& gameName = m_document->game()->gameName();
-            auto& gameFactory = Model::GameFactory::instance();
-            gameFactory.saveConfigs(gameName);
         }
 
-        static std::optional<Assets::Texture*> textureToReveal(std::shared_ptr<MapDocument> document) {
-            kdl::vector_set<Assets::Texture*> selectedTextures;
+        static const Assets::Texture* textureToReveal(std::shared_ptr<MapDocument> document) {
+            kdl::vector_set<const Assets::Texture*> selectedTextures;
             for (const Model::BrushFaceHandle& face : document->allSelectedBrushFaces()) {
                 selectedTextures.insert(face.face().texture());
             }
             if (selectedTextures.size() == 1) {
-                return { *selectedTextures.begin() };
+                return *selectedTextures.begin();
             }
-            return std::nullopt;
+            return nullptr;
         }
 
         bool MapFrame::canRevealTexture() const {
-            return textureToReveal(m_document).has_value();
+            return textureToReveal(m_document) != nullptr;
         }
 
         void MapFrame::revealTexture() {
-            auto texture = textureToReveal(m_document);
-
-            if (texture) {
+            if (const auto texture = textureToReveal(m_document)) {
                 m_inspector->switchToPage(InspectorPage::Face);
-                m_inspector->faceInspector()->revealTexture(texture.value());
+                m_inspector->faceInspector()->revealTexture(texture);
             }
         }
 

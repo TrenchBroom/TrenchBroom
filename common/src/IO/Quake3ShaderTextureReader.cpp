@@ -35,7 +35,7 @@ namespace TrenchBroom {
         Quake3ShaderTextureReader::Quake3ShaderTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger) :
         TextureReader(nameStrategy, fs, logger) {}
 
-        Assets::Texture* Quake3ShaderTextureReader::doReadTexture(std::shared_ptr<File> file) const {
+        Assets::Texture Quake3ShaderTextureReader::doReadTexture(std::shared_ptr<File> file) const {
             const auto* shaderFile = dynamic_cast<ObjectFile<Assets::Quake3Shader>*>(file.get());
             if (shaderFile == nullptr) {
                 throw AssetException("File is not a shader");
@@ -47,39 +47,39 @@ namespace TrenchBroom {
                 throw AssetException("Could not find texture path for shader '" + shader.shaderPath.asString() + "'");
             }
 
-            auto* texture = loadTextureImage(shader.shaderPath, texturePath);
-            texture->setSurfaceParms(shader.surfaceParms);
-            texture->setOpaque();
+            auto texture = loadTextureImage(shader.shaderPath, texturePath);
+            texture.setSurfaceParms(shader.surfaceParms);
+            texture.setOpaque();
 
             // Note that Quake 3 has a different understanding of front and back, so we need to invert them.
             switch (shader.culling) {
                 case Assets::Quake3Shader::Culling::Front:
-                    texture->setCulling(Assets::TextureCulling::CullBack);
+                    texture.setCulling(Assets::TextureCulling::CullBack);
                     break;
                 case Assets::Quake3Shader::Culling::Back:
-                    texture->setCulling(Assets::TextureCulling::CullFront);
+                    texture.setCulling(Assets::TextureCulling::CullFront);
                     break;
                 case Assets::Quake3Shader::Culling::None:
-                    texture->setCulling(Assets::TextureCulling::CullNone);
+                    texture.setCulling(Assets::TextureCulling::CullNone);
                     break;
             }
 
             if (!shader.stages.empty()) {
                 const auto& stage = shader.stages.front();
                 if (stage.blendFunc.enable()) {
-                    texture->setBlendFunc(
+                    texture.setBlendFunc(
                         glGetEnum(stage.blendFunc.srcFactor),
                         glGetEnum(stage.blendFunc.destFactor)
                     );
                 } else {
-                    texture->disableBlend();
+                    texture.disableBlend();
                 }
             }
 
             return texture;
         }
 
-        Assets::Texture* Quake3ShaderTextureReader::loadTextureImage(const Path& shaderPath, const Path& imagePath) const {
+        Assets::Texture Quake3ShaderTextureReader::loadTextureImage(const Path& shaderPath, const Path& imagePath) const {
             const auto name = textureName(shaderPath);
             if (!m_fs.fileExists(imagePath)) {
                 throw AssetException("Image file '" + imagePath.asString() + "' does not exist");

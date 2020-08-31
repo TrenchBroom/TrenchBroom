@@ -2336,9 +2336,9 @@ Additional keys will be required to configure the matcher, depending on the valu
 
 #### Face Attributes
 
-Face attributes currently come in two flavors: surface flags and content flags. Therefore, the `faceattribs` key contains two entries with keys `surfaceflags` and `contentflags` for the surface and content flags, respectively.
+The main part of the `faceattribs` object is the set of definitions of available surface flags (generally affecting the appearance/behavior of an individual face) and content flags (generally affecting the behavior of the brush containing the face). These definitions are specified through the `surfaceflags` and `contentflags` keys.
 
-Each of these entries is a list of flag definitions. Note that the position of each flag definition within its list determines the value of that flag. Suppose that `i` is the 0-based list index of a flag; that flag's value then corresponds to 2 to the power of `i`. The first flag in the list has value 2^0 = 1, the second has value 2^1 = 2, the third has value 2^2 = 4, and so on.
+The value for each of those keys is a list of flag definitions. Note that the position of each flag definition within its list determines the value of that flag. Suppose that `i` is the 0-based list index of a flag; that flag's value then corresponds to 2 to the power of `i`. The first flag in the list has value 2^0 = 1, the second has value 2^1 = 2, the third has value 2^2 = 4, and so on.
 
 Consider the following example:
 
@@ -2384,6 +2384,24 @@ Note that before version 4 of the game config format, the `unused` key is not av
 
 This approach will however cause flags named "unused" to appear in the flag editor UI.
 
+The `faceattribs` object may contain one other key, `defaults`. The value of this key is an object that defines the initial values seen in the [face attribute editor](#face_attribute_editor) for the face of a newly created brush. The following `defaults` keys are supported:
+
+Key              Description
+------           -----------
+offset           List of two numbers specifying the default X and Y offset
+scale            List of two numbers specifying the default X and Y scale
+rotation         Number specifying the default rotation angle
+surfaceValue     Number specifying the default surface value (only applicable if surfaceflags exist)
+surfaceFlags     List of strings naming the default surface flags
+surfaceContents  List of strings naming the default content flags
+color            String specifying the default surface color (only applicable for Daikatana)
+
+List values must be given in array format, e.g. a default scale of 0.5 along each axis would be specified within the `defaults` object as: `"scale": [0.5, 0.5]`
+
+The flag names specified for `surfaceFlags` or `surfaceContents` must correspond to the `name` value for existing flags defined in the `surfaceflags` or `contentflags` (respectively) of the `faceattribs` object.
+
+The `color` value must be a string of the form "R G B" or "R G B A". R G B and A are each a floating-point number from 0.0 to 1.0. If A is omitted it is assumed to be 1.0.
+
 # Getting Involved
 
 ## Suggesting a Feature
@@ -2419,8 +2437,8 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 - [Quake Mapping Discord] - Quake Mapping Discord
 - [Tome of Preach] - Quake Map Hacks and QuakeC Hacks
 
-[TrenchBroom on GitHub]: http://github.com/kduske/TrenchBroom/
-[TrenchBroom issue tracker]: http://github.com/kduske/TrenchBroom/issues/
+[TrenchBroom on GitHub]: http://github.com/TrenchBroom/TrenchBroom/
+[TrenchBroom issue tracker]: http://github.com/TrenchBroom/TrenchBroom/issues/
 [TrenchBroom Discord]: https://discord.gg/WGf9uve
 [func_msgboard]: http://celephais.net/board/
 [Quake Tools]: https://joshua.itch.io/quake-tools

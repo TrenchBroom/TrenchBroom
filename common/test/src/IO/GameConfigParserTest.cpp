@@ -68,6 +68,7 @@ namespace TrenchBroom {
             const std::string config(R"(
 {
     "version": 3,
+    "unexpectedKey": [],
     "name": "Quake",
     "icon": "Icon.png",
     "fileformats": [

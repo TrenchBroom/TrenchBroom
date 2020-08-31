@@ -78,9 +78,9 @@ namespace TrenchBroom {
             CompilationVariables variables(document, buildWorkDir(profile, document));
 
             auto compilationContext = std::make_unique<CompilationContext>(document, variables, TextOutputAdapter(currentOutput), test);
-            m_currentRun = std::make_unique<CompilationRunner>(std::move(compilationContext), profile);
-            connect(m_currentRun.get(), &CompilationRunner::compilationStarted, this, &CompilationRun::compilationStarted);
-            connect(m_currentRun.get(), &CompilationRunner::compilationEnded, this, [&]() { cleanup(); emit compilationEnded(); });
+            m_currentRun = new CompilationRunner(std::move(compilationContext), profile, this);
+            connect(m_currentRun, &CompilationRunner::compilationStarted, this, &CompilationRun::compilationStarted);
+            connect(m_currentRun, &CompilationRunner::compilationEnded, this, [&]() { cleanup(); emit compilationEnded(); });
             m_currentRun->execute();
         }
 
@@ -89,7 +89,11 @@ namespace TrenchBroom {
         }
 
         void CompilationRun::cleanup() {
-            m_currentRun.reset();
+            if (m_currentRun != nullptr) {
+                // It's not safe to delete a CompilationRunner during execution of one of its signals, so use deleteLater()
+                m_currentRun->deleteLater();
+                m_currentRun = nullptr;
+            }
         }
     }
 }

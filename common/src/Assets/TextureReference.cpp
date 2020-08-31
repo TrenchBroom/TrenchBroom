@@ -55,7 +55,7 @@ namespace TrenchBroom {
             }
         }
         
-        Assets::Texture* TextureReference::texture() const {
+        const Assets::Texture* TextureReference::texture() const {
             return m_texture;
         }
     }

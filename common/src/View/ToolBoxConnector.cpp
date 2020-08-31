@@ -274,7 +274,7 @@ namespace TrenchBroom {
             // Move the mouse back to where it was when the user clicked (see InputEventRecorder::recordEvent)
             // and re-pick, since we're currently 2px off from there, and the user will expects to drag exactly
             // what was under the pixel they clicked.
-            // See: https://github.com/kduske/TrenchBroom/issues/2808
+            // See: https://github.com/TrenchBroom/TrenchBroom/issues/2808
             mouseMoved(event.posX, event.posY);
             updatePickResult();
 

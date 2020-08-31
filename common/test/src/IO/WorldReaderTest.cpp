@@ -1169,7 +1169,7 @@ common/caulk
         }
 
         TEST_CASE("WorldReaderTest.parseMultipleClassnames", "[WorldReaderTest]") {
-            // See https://github.com/kduske/TrenchBroom/issues/1485
+            // See https://github.com/TrenchBroom/TrenchBroom/issues/1485
 
             const std::string data(R"(
 {
@@ -1270,7 +1270,7 @@ common/caulk
             ASSERT_STREQ("test\\\\", world->attribute("message").c_str());
         }
 
-        // https://github.com/kduske/TrenchBroom/issues/1739
+        // https://github.com/TrenchBroom/TrenchBroom/issues/1739
         TEST_CASE("WorldReaderTest.parseAttributeNewlineEscapeSequence", "[WorldReaderTest]") {
             const std::string data(R"(
 {

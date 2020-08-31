@@ -76,7 +76,7 @@ namespace TrenchBroom {
             void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
             bool canEnable() const override;
         private:
-            virtual bool matchesTexture(Assets::Texture* texture) const = 0;
+            virtual bool matchesTexture(const Assets::Texture* texture) const = 0;
         };
 
         class TextureNameTagMatcher : public TextureTagMatcher {
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             std::unique_ptr<TagMatcher> clone() const override;
             bool matches(const Taggable& taggable) const override;
         private:
-            bool matchesTexture(Assets::Texture* texture) const override;
+            bool matchesTexture(const Assets::Texture* texture) const override;
             bool matchesTextureName(std::string_view textureName) const;
         };
 
@@ -100,7 +100,7 @@ namespace TrenchBroom {
             std::unique_ptr<TagMatcher> clone() const override;
             bool matches(const Taggable& taggable) const override;
         private:
-            bool matchesTexture(Assets::Texture* texture) const override;
+            bool matchesTexture(const Assets::Texture* texture) const override;
         };
 
         class FlagsTagMatcher : public TagMatcher {

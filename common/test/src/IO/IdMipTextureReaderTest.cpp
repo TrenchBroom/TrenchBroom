@@ -40,12 +40,10 @@ namespace TrenchBroom {
     namespace IO {
         static void assertTexture(const std::string& name, const size_t width, const size_t height, const FileSystem& fs, const TextureReader& loader) {
 
-            const Assets::Texture* texture = loader.readTexture(fs.openFile(Path(name + ".D")));
-            ASSERT_TRUE(texture != nullptr);
-            ASSERT_EQ(name, texture->name());
-            ASSERT_EQ(width, texture->width());
-            ASSERT_EQ(height, texture->height());
-            delete texture;
+            const Assets::Texture texture = loader.readTexture(fs.openFile(Path(name + ".D")));
+            ASSERT_EQ(name, texture.name());
+            ASSERT_EQ(width, texture.width());
+            ASSERT_EQ(height, texture.height());
         }
 
         TEST_CASE("IdMipTextureReaderTest.testLoadWad", "[IdMipTextureReaderTest]") {

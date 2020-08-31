@@ -26,7 +26,7 @@
 namespace kdl {
     template <typename Value, typename... Errors>
     std::ostream& operator<<(std::ostream& str, const result<Value, Errors...>& result) {
-        result.visit([&](const auto& x) { str << x; });
+        result.visit([&](const auto& x) { str << x; });
         return str;
     }
 
@@ -34,7 +34,7 @@ namespace kdl {
     std::ostream& operator<<(std::ostream& str, const result<void, Errors...>& result) {
         result.visit(kdl::overload {
             []()               { str << "void"; },
-            [&](const auto& e) { str << e; }
+            [&](const auto& e) { str << e; }
         });
         return str;
     }

@@ -75,7 +75,6 @@ namespace TrenchBroom {
             using Buffer = std::vector<unsigned char>;
             using BufferList = std::vector<Buffer>;
         private:
-            TextureCollection* m_collection;
             std::string m_name;
 
             size_t m_width;
@@ -103,11 +102,16 @@ namespace TrenchBroom {
             Texture(const std::string& name, size_t width, size_t height, const Color& averageColor, Buffer&& buffer, GLenum format, TextureType type);
             Texture(const std::string& name, size_t width, size_t height, const Color& averageColor, BufferList&& buffers, GLenum format, TextureType type);
             Texture(const std::string& name, size_t width, size_t height, GLenum format = GL_RGB, TextureType type = TextureType::Opaque);
+
+            Texture(const Texture&) = delete;
+            Texture& operator=(const Texture&) = delete;
+            
+            Texture(Texture&& other) = default;
+            Texture& operator=(Texture&& other) = default;
+
             ~Texture();
 
             static TextureType selectTextureType(bool masked);
-
-            TextureCollection* collection() const;
 
             const std::string& name() const;
 
@@ -150,9 +154,6 @@ namespace TrenchBroom {
              */
             GLenum format() const;
             TextureType type() const;
-        private:
-            void setCollection(TextureCollection* collection);
-            friend class TextureCollection;
         };
     }
 }

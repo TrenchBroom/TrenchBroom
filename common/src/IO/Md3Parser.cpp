@@ -262,13 +262,17 @@ namespace TrenchBroom {
         }
 
         void Md3Parser::loadSurfaceSkins(Assets::EntityModelSurface& surface, const std::vector<Path>& shaders, Logger& logger) {
+            std::vector<Assets::Texture> textures;
+            textures.reserve(shaders.size());
+            
             for (const auto& shader : shaders) {
-                auto skin = loadShader(logger, shader);
-                surface.addSkin(skin.release());
+                textures.push_back(loadShader(logger, shader));
             }
+            
+            surface.setSkins(std::move(textures));
         }
 
-        std::unique_ptr<Assets::Texture> Md3Parser::loadShader(Logger& logger, const Path& path) const {
+        Assets::Texture Md3Parser::loadShader(Logger& logger, const Path& path) const {
             const auto shaderPath = path.deleteExtension();
             return IO::loadShader(shaderPath, m_fs, logger);
         }

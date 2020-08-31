@@ -148,7 +148,7 @@ namespace TrenchBroom {
             // and exited early. But sometimes we may receive a button up event without having received a
             // corresponding mouse down event. In that case, we want to activate in any case, but only discard the
             // event if it was a left click.
-            // see https://github.com/kduske/TrenchBroom/issues/3045
+            // see https://github.com/TrenchBroom/TrenchBroom/issues/3045
             return event->button() == Qt::LeftButton;
         }
 

@@ -65,13 +65,6 @@ namespace TrenchBroom {
                 const auto type = EL::typeForName(typeName);
                 expectMapEntry(value, key, type);
             }
-
-            // Are there any unexpected keys present?
-            for (const auto& key : value.keys()) {
-                if (!mandatory.contains(key) && !optional.contains(key)) {
-                    throw ParserException(value.line(), value.column(), "Unexpected map entry '" + key + "'");
-                }
-            }
         }
 
         void ConfigParserBase::expectMapEntry(const EL::Value& value, const std::string& key, EL::ValueType type) const {

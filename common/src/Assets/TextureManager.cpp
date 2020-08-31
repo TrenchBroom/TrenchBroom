@@ -61,31 +61,27 @@ namespace TrenchBroom {
         m_magFilter(magFilter),
         m_resetTextureMode(false) {}
 
-        TextureManager::~TextureManager() {
-            clear();
-        }
+        TextureManager::~TextureManager() = default;
 
         void TextureManager::setTextureCollections(const std::vector<IO::Path>& paths, IO::TextureLoader& loader) {
-            auto collections = collectionMap();
-            m_collections.clear();
+            auto collections = std::move(m_collections);
             clear();
 
             for (const auto& path : paths) {
-                const auto it = collections.find(path);
-                if (it == std::end(collections) || !it->second->loaded()) {
+                const auto it = std::find_if(std::begin(collections), std::end(collections), [&](const auto& c) { return c.path() == path; });
+                if (it == std::end(collections) || !it->loaded()) {
                     try {
                         auto collection = loader.loadTextureCollection(path);
                         m_logger.info() << "Loaded texture collection '" << path << "'";
-                        collection->usageCountDidChange.addObserver(usageCountDidChange);
-                        addTextureCollection(collection.release());
+                        addTextureCollection(std::move(collection));
                     } catch (const Exception& e) {
-                        addTextureCollection(new Assets::TextureCollection(path));
+                        addTextureCollection(Assets::TextureCollection(path));
                         if (it == std::end(collections)) {
                             m_logger.error() << "Could not load texture collection '" << path << "': " << e.what();
                         }
                     }
                 } else {
-                    addTextureCollection(it->second);
+                    addTextureCollection(std::move(*it));
                 }
                 if (it != std::end(collections)) {
                     collections.erase(it);
@@ -93,38 +89,29 @@ namespace TrenchBroom {
             }
 
             updateTextures();
-            kdl::vec_append(m_toRemove, kdl::map_values(collections));
+            kdl::vec_append(m_toRemove, std::move(collections));
         }
 
-        void TextureManager::setTextureCollections(const std::vector<TextureCollection*>& collections) {
-            clear();
-            for (auto* collection : collections) {
-                collection->usageCountDidChange.addObserver(usageCountDidChange);
-                addTextureCollection(collection);
+        void TextureManager::setTextureCollections(std::vector<TextureCollection> collections) {
+            for (auto& collection : collections) {
+                addTextureCollection(std::move(collection));
             }
             updateTextures();
         }
 
-        TextureManager::TextureCollectionMap TextureManager::collectionMap() const {
-            auto result = TextureCollectionMap();
-            for (auto* collection : m_collections) {
-                result.insert(std::make_pair(collection->path(), collection));
-            }
-            return result;
-        }
-
-        void TextureManager::addTextureCollection(Assets::TextureCollection* collection) {
-            m_collections.push_back(collection);
-            if (collection->loaded() && !collection->prepared()) {
-                m_toPrepare.push_back(collection);
+        void TextureManager::addTextureCollection(Assets::TextureCollection collection) {
+            const auto index = m_collections.size();
+            m_collections.push_back(std::move(collection));
+            
+            if (m_collections[index].loaded() && !m_collections[index].prepared()) {
+                m_toPrepare.push_back(index);
             }
 
-            m_logger.debug() << "Added texture collection " << collection->path();
+            m_logger.debug() << "Added texture collection " << m_collections[index].path();
         }
 
         void TextureManager::clear() {
-            kdl::vec_clear_and_delete(m_collections);
-            kdl::vec_clear_and_delete(m_toRemove);
+            m_collections.clear();
 
             m_toPrepare.clear();
             m_texturesByName.clear();
@@ -142,10 +129,10 @@ namespace TrenchBroom {
         void TextureManager::commitChanges() {
             resetTextureMode();
             prepare();
-            kdl::vec_clear_and_delete(m_toRemove);
+            m_toRemove.clear();
         }
 
-        Texture* TextureManager::texture(const std::string& name) const {
+        const Texture* TextureManager::texture(const std::string& name) const {
             auto it = m_texturesByName.find(kdl::str_to_lower(name));
             if (it == std::end(m_texturesByName)) {
                 return nullptr;
@@ -154,33 +141,32 @@ namespace TrenchBroom {
             }
         }
 
-        const std::vector<Texture*>& TextureManager::textures() const {
+        Texture* TextureManager::texture(const std::string& name) {
+            return const_cast<Texture*>(const_cast<const TextureManager*>(this)->texture(name));
+        }
+
+        const std::vector<const Texture*>& TextureManager::textures() const {
             return m_textures;
         }
 
-        const std::vector<TextureCollection*>& TextureManager::collections() const {
+        const std::vector<TextureCollection>& TextureManager::collections() const {
             return m_collections;
-        }
-
-        const std::vector<std::string> TextureManager::collectionNames() const {
-            std::vector<std::string> result;
-            result.reserve(m_collections.size());
-            std::transform(std::begin(m_collections), std::end(m_collections), std::back_inserter(result),
-                           [](auto collection) { return collection->name(); });
-            return result;
         }
 
         void TextureManager::resetTextureMode() {
             if (m_resetTextureMode) {
-                std::for_each(std::begin(m_collections), std::end(m_collections),
-                              [this](auto collection) { collection->setTextureMode(m_minFilter, m_magFilter); });
+                for (auto& collection : m_collections) {
+                    collection.setTextureMode(m_minFilter, m_magFilter);
+                }
                 m_resetTextureMode = false;
             }
         }
 
         void TextureManager::prepare() {
-            std::for_each(std::begin(m_toPrepare), std::end(m_toPrepare),
-                          [this](auto collection) { collection->prepare(m_minFilter, m_magFilter); });
+            for (const size_t index : m_toPrepare) {
+                auto& collection = m_collections[index];
+                collection.prepare(m_minFilter, m_magFilter);
+            }
             m_toPrepare.clear();
         }
 
@@ -188,22 +174,22 @@ namespace TrenchBroom {
             m_texturesByName.clear();
             m_textures.clear();
 
-            for (auto* collection : m_collections) {
-                for (auto* texture : collection->textures()) {
-                    const auto key = kdl::str_to_lower(texture->name());
-                    texture->setOverridden(false);
+            for (auto& collection : m_collections) {
+                for (auto& texture : collection.textures()) {
+                    const auto key = kdl::str_to_lower(texture.name());
+                    texture.setOverridden(false);
 
                     auto mIt = m_texturesByName.find(key);
                     if (mIt != std::end(m_texturesByName)) {
                         mIt->second->setOverridden(true);
-                        mIt->second = texture;
+                        mIt->second = &texture;
                     } else {
-                        m_texturesByName.insert(std::make_pair(key, texture));
+                        m_texturesByName.insert(std::make_pair(key, &texture));
                     }
                 }
             }
 
-            m_textures = kdl::map_values(m_texturesByName);
+            m_textures = kdl::vec_transform(kdl::map_values(m_texturesByName), [](auto* t) { return const_cast<const Texture*>(t); });
         }
     }
 }

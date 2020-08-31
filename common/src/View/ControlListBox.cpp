@@ -283,7 +283,7 @@ namespace TrenchBroom {
                 auto* renderer = this->renderer(row);
                 // FIXME: this uses QListWidgetItem::isSelected() but addItemRenderer() is doing
                 // it based on QListWidget::currentItem() - should be consistent.
-                // (see: https://github.com/kduske/TrenchBroom/issues/3104)
+                // (see: https://github.com/TrenchBroom/TrenchBroom/issues/3104)
                 renderer->setSelected(listItem->isSelected(), m_listWidget);
                 if (listItem->isSelected()) {
                     selectedRowChanged(row);

@@ -76,7 +76,7 @@ namespace TrenchBroom {
             std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
             void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
 
-            std::vector<Assets::Texture*> parseTextures(Reader reader, Logger& logger);
+            std::vector<Assets::Texture> parseTextures(Reader reader, Logger& logger);
             TextureInfoList parseTextureInfos(Reader reader, size_t textureInfoCount);
             std::vector<vm::vec3f> parseVertices(Reader reader, size_t vertexCount);
             EdgeInfoList parseEdgeInfos(Reader reader, size_t edgeInfoCount);

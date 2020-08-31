@@ -19,6 +19,8 @@
 
 #include "GameEngineProfile.h"
 
+#include "Model/GameEngineConfig.h"
+
 #include <memory>
 #include <string>
 
@@ -27,10 +29,19 @@ namespace TrenchBroom {
         GameEngineProfile::GameEngineProfile(const std::string& name, const IO::Path& path, const std::string& parameterSpec) :
         m_name(name),
         m_path(path),
-        m_parameterSpec(parameterSpec) {}
+        m_parameterSpec(parameterSpec),
+        m_parent(nullptr) {}
 
         std::unique_ptr<GameEngineProfile> GameEngineProfile::clone() const {
             return std::make_unique<GameEngineProfile>(m_name, m_path, m_parameterSpec);
+        }
+
+        GameEngineConfig* GameEngineProfile::parent() const {
+            return m_parent;
+        }
+
+        void GameEngineProfile::setParent(GameEngineConfig* parent) {
+            m_parent = parent;
         }
 
         const std::string& GameEngineProfile::name() const {
@@ -46,18 +57,31 @@ namespace TrenchBroom {
         }
 
         void GameEngineProfile::setName(const std::string& name) {
-            m_name = name;
-            profileDidChange();
+            if (m_name != name) {
+                m_name = name;
+                sendDidChangeNotifications();
+            }
         }
 
         void GameEngineProfile::setPath(const IO::Path& path) {
-            m_path = path;
-            profileDidChange();
+            if (m_path != path) {
+                m_path = path;
+                sendDidChangeNotifications();
+            }
         }
 
         void GameEngineProfile::setParameterSpec(const std::string& parameterSpec) {
-            m_parameterSpec = parameterSpec;
+            if (m_parameterSpec != parameterSpec) {
+                m_parameterSpec = parameterSpec;
+                sendDidChangeNotifications();
+            }
+        }
+
+        void GameEngineProfile::sendDidChangeNotifications() {
             profileDidChange();
+            if (m_parent != nullptr) {
+                m_parent->profileDidChange(this);
+            }
         }
     }
 }

@@ -81,7 +81,8 @@ namespace TrenchBroom {
             ASSERT_NO_THROW(parser.loadFrame(0, *model, logger));
             ASSERT_TRUE(model->frame(0)->loaded());
             
-            ASSERT_EQ(1u, model->surface(0).skinCount());
+            // account for the default texture
+            ASSERT_EQ(2u, model->surface(0).skinCount());
             ASSERT_EQ("textures/bigtile", model->surface(0).skin(0)->name());
         }
         
@@ -108,7 +109,8 @@ namespace TrenchBroom {
             ASSERT_NO_THROW(parser.loadFrame(0, *model, logger));
             ASSERT_TRUE(model->frame(0)->loaded());
             
-            ASSERT_EQ(1u, model->surface(0).skinCount());
+            // account for the default texture
+            ASSERT_EQ(2u, model->surface(0).skinCount());
             // shader name is correct, but we loaded the default material
             
             const auto* texture = model->surface(0).skin(0);

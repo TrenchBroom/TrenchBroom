@@ -186,7 +186,7 @@ namespace TrenchBroom {
             // This avoids a potential performance trap where we'd have to exhaustively
             // test many objects if most of the map was inside groups, but it means
             // the pick results need to be postprocessed to account for groups (if desired).
-            // See: https://github.com/kduske/TrenchBroom/issues/2742
+            // See: https://github.com/TrenchBroom/TrenchBroom/issues/2742
         }
 
         void GroupNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) {

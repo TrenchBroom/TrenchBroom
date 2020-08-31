@@ -103,7 +103,7 @@ namespace TrenchBroom {
             }
         }
 
-        std::unique_ptr<Assets::TextureCollection> TextureLoader::loadTextureCollection(const Path& path) {
+        Assets::TextureCollection TextureLoader::loadTextureCollection(const Path& path) {
             return m_textureCollectionLoader->loadTextureCollection(path, m_textureExtensions, *m_textureReader);
         }
 

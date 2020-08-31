@@ -41,7 +41,7 @@ namespace TrenchBroom {
         class CompilationRun : public QObject {
             Q_OBJECT
         private:
-            std::unique_ptr<CompilationRunner> m_currentRun;
+            CompilationRunner* m_currentRun;
         public:
             CompilationRun();
             ~CompilationRun() override;

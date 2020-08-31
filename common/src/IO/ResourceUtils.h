@@ -45,7 +45,7 @@ namespace TrenchBroom {
          * @param name the name of the texture to be returned
          * @return the default texture
          */
-        std::unique_ptr<Assets::Texture> loadDefaultTexture(const FileSystem& fs, Logger& logger, const std::string& name);
+        Assets::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger, const std::string& name);
         
         QPixmap loadPixmapResource(const std::string& name);
         QPixmap loadPixmapResource(const Path& imagePath);

@@ -48,8 +48,12 @@ namespace TrenchBroom {
             CompilationRun m_run;
         public:
             explicit CompilationDialog(MapFrame* mapFrame);
+            ~CompilationDialog() override;
         private:
             void createGui();
+
+            void bindObservers();
+            void unbindObservers();
 
             void keyPressEvent(QKeyEvent* event) override;
 
@@ -62,6 +66,9 @@ namespace TrenchBroom {
             void compilationEnded();
 
             void selectedProfileChanged();
+        private:
+            void configDidChange();
+            void saveProfile();
         };
     }
 }

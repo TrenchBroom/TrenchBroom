@@ -93,15 +93,13 @@ namespace TrenchBroom {
             const auto modelsLength = reader.readSize<int32_t>();
             const auto frameCount = modelsLength / BspLayout::ModelSize;
 
-            const auto textures = parseTextures(reader.subReaderFromBegin(textureOffset), logger);
+            auto textures = parseTextures(reader.subReaderFromBegin(textureOffset), logger);
 
             auto model = std::make_unique<Assets::EntityModel>(m_name, Assets::PitchType::Normal);
             model->addFrames(frameCount);
 
             auto& surface = model->addSurface(m_name);
-            for (auto* texture : textures) {
-                surface.addSkin(texture);
-            }
+            surface.setSkins(std::move(textures));
 
             return model;
         }
@@ -154,18 +152,19 @@ namespace TrenchBroom {
             parseFrame(reader.subReaderFromBegin(modelsOffset + frameIndex * BspLayout::ModelSize, BspLayout::ModelSize), frameIndex, model, textureInfos, vertices, edgeInfos, faceInfos, faceEdges);
         }
 
-        std::vector<Assets::Texture*> Bsp29Parser::parseTextures(Reader reader, Logger& logger) {
+        std::vector<Assets::Texture> Bsp29Parser::parseTextures(Reader reader, Logger& logger) {
             const TextureReader::TextureNameStrategy nameStrategy;
             IdMipTextureReader textureReader(nameStrategy, m_fs, logger, m_palette);
 
             const auto textureCount = reader.readSize<int32_t>();
-            std::vector<Assets::Texture*> result(textureCount);
+            std::vector<Assets::Texture> result;
+            result.reserve(textureCount);
 
             for (size_t i = 0; i < textureCount; ++i) {
                 const auto textureOffset = reader.readInt<int32_t>();
                 // 2153: Some BSPs contain negative texture offsets.
                 if (textureOffset < 0) {
-                    result[i] = loadDefaultTexture(m_fs, logger, "unknown").release();
+                    result.push_back(loadDefaultTexture(m_fs, logger, "unknown"));
                     continue;
                 }
 
@@ -181,7 +180,7 @@ namespace TrenchBroom {
                 // We can't easily tell where the texture ends without duplicating all of the parsing code (including HlMip) here.
                 // Just prevent the texture reader from reading past the end of the .bsp file.
                 auto fileView = std::make_shared<NonOwningBufferFile>(texturePath, subReader.begin(), subReader.end());
-                result[i] = textureReader.readTexture(fileView);
+                result.push_back(textureReader.readTexture(fileView));
             }
 
             return result;

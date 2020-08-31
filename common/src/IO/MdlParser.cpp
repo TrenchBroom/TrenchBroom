@@ -305,6 +305,8 @@ namespace TrenchBroom {
                               ? Assets::TextureType::Masked
                               : Assets::TextureType::Opaque;
             Color avgColor;
+            std::vector<Assets::Texture> textures;
+            textures.reserve(count);
 
             for (size_t i = 0; i < count; ++i) {
                 const auto skinGroup = reader.readSize<int32_t>();
@@ -313,7 +315,7 @@ namespace TrenchBroom {
                     m_palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
 
                     const std::string textureName = m_name + "_" + kdl::str_to_string(i);
-                    surface.addSkin(new Assets::Texture(textureName, width, height, avgColor, std::move(rgbaImage), GL_RGBA, type));
+                    textures.emplace_back(textureName, width, height, avgColor, std::move(rgbaImage), GL_RGBA, type);
                 } else {
                     const auto pictureCount = reader.readSize<int32_t>();
 
@@ -324,9 +326,11 @@ namespace TrenchBroom {
                     reader.seekForward((pictureCount - 1) * size);  // skip all remaining pictures
 
                     const std::string textureName = m_name + "_" + kdl::str_to_string(i);
-                    surface.addSkin(new Assets::Texture(textureName, width, height, avgColor, std::move(rgbaImage), GL_RGBA, type));
+                    textures.emplace_back(textureName, width, height, avgColor, std::move(rgbaImage), GL_RGBA, type);
                 }
             }
+            
+            surface.setSkins(std::move(textures));
         }
 
         void MdlParser::skipSkins(Reader& reader, const size_t count, const size_t width, const size_t height, const int /* flags */) {

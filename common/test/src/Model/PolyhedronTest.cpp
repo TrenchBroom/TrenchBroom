@@ -257,7 +257,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("PolyhedronTest.convexHullWithFailingPoints8", "[PolyhedronTest]") {
-            // Cause of https://github.com/kduske/TrenchBroom/issues/1469
+            // Cause of https://github.com/TrenchBroom/TrenchBroom/issues/1469
             // See also BrushTest.subtractTruncatedCones
 
             const auto vertices = std::vector<vm::vec3>({
@@ -608,7 +608,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
         }
 
         TEST_CASE("PolyhedronTest.testAddColinearPointToRectangleOnEdge", "[PolyhedronTest]") {
-            // https://github.com/kduske/TrenchBroom/issues/1659
+            // https://github.com/TrenchBroom/TrenchBroom/issues/1659
             /*
              p4 p5 p3
              *--+--*
@@ -1252,7 +1252,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
         }
 
         TEST_CASE("PolyhedronTest.clipWithInvalidSeam", "[PolyhedronTest]") {
-            // see https://github.com/kduske/TrenchBroom/issues/1801
+            // see https://github.com/TrenchBroom/TrenchBroom/issues/1801
             // see BrushTest::invalidBrush1801
 
             Polyhedron3d poly { // create a huge cube
@@ -1544,7 +1544,7 @@ TEST_CASE("PolyhedronTest.testWeaveSimpleCap", "[PolyhedronTest]") {
         }
 
         TEST_CASE("PolyhedronTest.subtractTetrahedronFromCubeWithOverlappingFragments", "[PolyhedronTest]") {
-            // see https://github.com/kduske/TrenchBroom/pull/1764#issuecomment-296342133
+            // see https://github.com/TrenchBroom/TrenchBroom/pull/1764#issuecomment-296342133
             // merge creates overlapping fragments
 
             std::vector<vm::vec3d> minuendVertices, subtrahendVertices;

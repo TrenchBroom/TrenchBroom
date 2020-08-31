@@ -18,6 +18,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/FgdParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/FreeImageTextureReaderTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/GameConfigParserTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/IO/GameEngineConfigParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/IdMipTextureReaderTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/IdPakFileSystemTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/M8TextureReaderTest.cpp"
@@ -47,9 +48,11 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Model/BrushFaceTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/BrushNodeTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/BrushTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Model/CompilationConfigTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/EditorContextTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/EntityNodeTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/GameTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Model/GameEngineConfigTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/NodeTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/PolyhedronTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/PortalFileTest.cpp"
@@ -138,6 +141,10 @@ if(WIN32)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::QWindowsIntegrationPlugin>" "$<TARGET_FILE_DIR:common-test>/platforms"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::QWindowsVistaStylePlugin>" "$<TARGET_FILE_DIR:common-test>/styles")
 endif()
+
+# Copy some resource files required when initializing TrenchBroomApp
+add_custom_command(TARGET common-test POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/graphics/images" "${TEST_RESOURCE_DEST_DIR}/images")
 
 # Clear all fixtures
 add_custom_command(TARGET common-test POST_BUILD

@@ -87,12 +87,12 @@ namespace TrenchBroom {
             delete m_nameStrategy;
         }
 
-        Assets::Texture* TextureReader::readTexture(std::shared_ptr<File> file) const {
+        Assets::Texture TextureReader::readTexture(std::shared_ptr<File> file) const {
             try {
                 return doReadTexture(file);
             } catch (const AssetException& e) {
                 m_logger.error() << "Could not read texture '" << file->path() << "': " << e.what();
-                return loadDefaultTexture(m_fs, m_logger, textureName(file->path())).release();
+                return loadDefaultTexture(m_fs, m_logger, textureName(file->path()));
             }
         }
 

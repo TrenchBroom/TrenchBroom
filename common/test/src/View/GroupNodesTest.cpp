@@ -122,7 +122,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.pasteInGroup", "[GroupNodesTest]") {
-            // https://github.com/kduske/TrenchBroom/issues/1734
+            // https://github.com/TrenchBroom/TrenchBroom/issues/1734
 
             const std::string data("{"
                               "\"classname\" \"light\""

@@ -522,7 +522,7 @@ namespace TrenchBroom {
             checkTextureLockOffWithScale(cube);
         }
 
-        // https://github.com/kduske/TrenchBroom/issues/2001
+        // https://github.com/TrenchBroom/TrenchBroom/issues/2001
         TEST_CASE("BrushFaceTest.testValveRotation", "[BrushFaceTest]") {
             const std::string data("{\n"
                                       "\"classname\" \"worldspawn\"\n"
@@ -580,7 +580,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(nodes);
         }
 
-        // https://github.com/kduske/TrenchBroom/issues/1995
+        // https://github.com/TrenchBroom/TrenchBroom/issues/1995
         TEST_CASE("BrushFaceTest.testCopyTexCoordSystem", "[BrushFaceTest]") {
             const std::string data("{\n"
                                       "    \"classname\" \"worldspawn\"\n"
@@ -639,7 +639,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(nodes);
         }
 
-        // https://github.com/kduske/TrenchBroom/issues/2315
+        // https://github.com/TrenchBroom/TrenchBroom/issues/2315
         TEST_CASE("BrushFaceTest.move45DegreeFace", "[BrushFaceTest]") {
             const std::string data(R"(
 // entity 0

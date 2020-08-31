@@ -34,6 +34,9 @@ namespace TrenchBroom {
         class GameEngineProfileEditor;
         class GameEngineProfileListBox;
 
+        /**
+         * Widget for editing game engine profiles (name/path, not parameters).
+         */
         class GameEngineProfileManager : public QWidget {
             Q_OBJECT
         private:

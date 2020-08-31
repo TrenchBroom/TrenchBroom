@@ -46,33 +46,34 @@ namespace TrenchBroom {
             Assets::Texture* m_textureA;
             Assets::Texture* m_textureB;
             Assets::Texture* m_textureC;
-            Assets::TextureCollection* m_textureCollection;
+            const Assets::TextureCollection* m_textureCollection;
         private:
             void SetUp() {
-                auto textureA = std::make_unique<Assets::Texture>("some_texture", 16, 16);
-                auto textureB = std::make_unique<Assets::Texture>("other_texture", 32, 32);
-                auto textureC = std::make_unique<Assets::Texture>("yet_another_texture", 64, 64);
+                auto textureA = Assets::Texture("some_texture", 16, 16);
+                auto textureB = Assets::Texture("other_texture", 32, 32);
+                auto textureC = Assets::Texture("yet_another_texture", 64, 64);
 
                 const std::string singleParam("some_parm");
                 const std::set<std::string> multiParams({"parm1", "parm2"});
 
-                textureA->setSurfaceParms({singleParam});
-                textureB->setSurfaceParms(multiParams);
+                textureA.setSurfaceParms({singleParam});
+                textureB.setSurfaceParms(multiParams);
 
-                auto textureCollection = std::make_unique<Assets::TextureCollection>(std::vector<Assets::Texture*>({
-                    textureA.get(),
-                    textureB.get(),
-                    textureC.get()
-                }));
+                std::vector<Assets::Texture> textures;
+                textures.push_back(std::move(textureA));
+                textures.push_back(std::move(textureB));
+                textures.push_back(std::move(textureC));
 
-                document->textureManager().setTextureCollections(std::vector<Assets::TextureCollection*>({
-                    textureCollection.get()
-                }));
+                std::vector<Assets::TextureCollection> collections;
+                collections.emplace_back(std::move(textures));
+                
+                auto& textureManager = document->textureManager();
+                textureManager.setTextureCollections(std::move(collections));
+                m_textureCollection = &textureManager.collections().back();
 
-                m_textureA = textureA.release();
-                m_textureB = textureB.release();
-                m_textureC = textureC.release();
-                m_textureCollection = textureCollection.release();
+                m_textureA = textureManager.texture("some_texture");
+                m_textureB= textureManager.texture("other_texture");
+                m_textureC = textureManager.texture("yet_another_texture");
 
                 const std::string textureMatch("some_texture");
                 const std::string texturePatternMatch("*er_texture");
@@ -141,7 +142,7 @@ namespace TrenchBroom {
         }
     
 
-        // https://github.com/kduske/TrenchBroom/issues/2905
+        // https://github.com/TrenchBroom/TrenchBroom/issues/2905
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.duplicateTag") {
             game->setSmartTags({
                 Model::SmartTag("texture", {}, std::make_unique<Model::TextureNameTagMatcher>("some_texture")),
