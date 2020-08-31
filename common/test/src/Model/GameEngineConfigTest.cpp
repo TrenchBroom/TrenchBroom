@@ -45,7 +45,7 @@ namespace TrenchBroom {
 
             SECTION("profile list") {
                 SECTION("addition") {
-                    config.addProfile(std::move(std::make_unique<GameEngineProfile>("engine name 2", IO::Path(), "params")));
+                    config.addProfile(std::make_unique<GameEngineProfile>("engine name 2", IO::Path(), "params"));
                     CHECK(o.callCount == 2);
                 }
                 SECTION("removal") {
