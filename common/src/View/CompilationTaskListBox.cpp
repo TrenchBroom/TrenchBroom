@@ -288,8 +288,7 @@ namespace TrenchBroom {
             if (!toolSpec.isEmpty()) {
                 updateFileDialogDefaultDirectoryWithFilename(FileDialogDir::CompileTool, toolSpec);
 
-                // will call toolSpecChanged and update the model there
-                m_toolEditor->setText(toolSpec);
+                task().setToolSpec(toolSpec.toStdString());
             }
         }
 
