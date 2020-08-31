@@ -70,15 +70,23 @@ namespace TrenchBroom {
              * @throw std::vector<std::string> if loading game configurations fails
              */
             void initialize();
-            void saveAllConfigs();
             /**
-             * Saves the compilation and game engine configurations for the game with the given name.
+             * Saves the game engine configurations for the game with the given name.
              *
              * @param gameName the game for which the configurations should be saved
              *
              * @throw GameException if no config with the given name exists
              */
-            void saveConfigs(const std::string& gameName);
+            void saveGameEngineConfigs(const std::string& gameName);
+            /**
+             * Saves the compilation configurations for the game with the given name.
+             *
+             * @param gameName the game for which the configurations should be saved
+             * @param logger the logger
+             *
+             * @throw GameException if no config with the given name exists
+             */
+            void saveCompilationConfigs(const std::string& gameName, Logger& logger);
 
             const std::vector<std::string>& gameList() const;
             size_t gameCount() const;
@@ -111,13 +119,8 @@ namespace TrenchBroom {
             void loadCompilationConfig(GameConfig& gameConfig);
             void loadGameEngineConfig(GameConfig& gameConfig);
 
-            void writeCompilationConfigs();
-            void writeCompilationConfig(const GameConfig& gameConfig);
-
-            void writeGameEngineConfigs();
+            void writeCompilationConfig(const GameConfig& gameConfig, Logger& logger);
             void writeGameEngineConfig(const GameConfig& gameConfig);
-
-
         };
     }
 }

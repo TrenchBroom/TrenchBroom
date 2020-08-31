@@ -37,6 +37,9 @@ namespace TrenchBroom {
         class GameEngineProfileListBox;
         class MultiCompletionLineEdit;
 
+        /**
+         * Dialog for launching engine; lets you edit the parameters of a GameEngineProfile.
+         */
         class LaunchGameEngineDialog : public QDialog {
         private:
             std::weak_ptr<MapDocument> m_document;
@@ -46,14 +49,20 @@ namespace TrenchBroom {
             Model::GameEngineProfile* m_lastProfile;
         public:
             explicit LaunchGameEngineDialog(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+            ~LaunchGameEngineDialog() override;
         private:
             void createGui();
             LaunchGameEngineVariables variables() const;
         private slots:
             void gameEngineProfileChanged();
-            void parametersChanged(const QString& text);
+            void parametersChanged();
             void editGameEngines();
             void launchEngine();
+        private:
+            void bindObservers();
+            void unbindObservers();
+            void configDidChange();
+            void saveConfig();
         };
     }
 }

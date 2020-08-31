@@ -38,6 +38,9 @@ namespace TrenchBroom {
         class MapDocument;
         class MultiCompletionLineEdit;
 
+        /**
+         * Editor UI for a single compilation profile
+         */
         class CompilationProfileEditor : public QWidget {
             Q_OBJECT
         private:
@@ -58,8 +61,8 @@ namespace TrenchBroom {
             QWidget* createEditorPage(QWidget* parent);
 
         private slots:
-            void nameChanged(const QString& text);
-            void workDirChanged(const QString& text);
+            void nameChanged();
+            void workDirChanged();
 
             void addTask();
             void removeTask();

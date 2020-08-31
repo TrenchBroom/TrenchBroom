@@ -191,7 +191,9 @@ namespace TrenchBroom {
 
         GameConfig::GameConfig() :
         m_experimental(false),
-        m_maxPropertyLength(1023) {}
+        m_maxPropertyLength(1023),
+        m_compilationConfigParseFailed(false),
+        m_gameEngineConfigParseFailed(false) {}
 
         GameConfig::GameConfig(std::string name,
                                IO::Path path,
@@ -215,7 +217,9 @@ namespace TrenchBroom {
         m_faceAttribsConfig(std::move(faceAttribsConfig)),
         m_smartTags(std::move(smartTags)),
         m_maxPropertyLength(1023),
-        m_softMapBounds(std::move(softMapBounds)) {
+        m_softMapBounds(std::move(softMapBounds)),
+        m_compilationConfigParseFailed(false),
+        m_gameEngineConfigParseFailed(false) {
             assert(!kdl::str_trim(m_name).empty());
             assert(m_path.isEmpty() || m_path.isAbsolute());
         }
@@ -276,6 +280,14 @@ namespace TrenchBroom {
             m_compilationConfig = compilationConfig;
         }
 
+        bool GameConfig::compilationConfigParseFailed() const {
+            return m_compilationConfigParseFailed;
+        }
+
+        void GameConfig::setCompilationConfigParseFailed(const bool failed) const {
+            m_compilationConfigParseFailed = failed;
+        }
+
         GameEngineConfig& GameConfig::gameEngineConfig() {
             return m_gameEngineConfig;
         }
@@ -286,6 +298,14 @@ namespace TrenchBroom {
 
         void GameConfig::setGameEngineConfig(const GameEngineConfig& gameEngineConfig) {
             m_gameEngineConfig = gameEngineConfig;
+        }
+
+        bool GameConfig::gameEngineConfigParseFailed() const {
+            return m_gameEngineConfigParseFailed;
+        }
+
+        void GameConfig::setGameEngineConfigParseFailed(const bool failed) const {
+            m_gameEngineConfigParseFailed = failed;
         }
 
         size_t GameConfig::maxPropertyLength() const {

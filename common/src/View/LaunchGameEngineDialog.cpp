@@ -60,6 +60,11 @@ namespace TrenchBroom {
         m_launchButton(nullptr),
         m_lastProfile(nullptr) {
             createGui();
+            bindObservers();
+        }
+
+        LaunchGameEngineDialog::~LaunchGameEngineDialog() {
+            unbindObservers();
         }
 
         void LaunchGameEngineDialog::createGui() {
@@ -138,7 +143,7 @@ namespace TrenchBroom {
 
             connect(openPreferencesButton, &QPushButton::clicked, this, &LaunchGameEngineDialog::editGameEngines);
 
-            connect(m_parameterText, &QLineEdit::textChanged, this, &LaunchGameEngineDialog::parametersChanged);
+            connect(m_parameterText, &QLineEdit::editingFinished, this, &LaunchGameEngineDialog::parametersChanged);
             connect(m_parameterText, &QLineEdit::returnPressed, this, &LaunchGameEngineDialog::launchEngine);
 
             connect(m_launchButton, &QPushButton::clicked, this, &LaunchGameEngineDialog::launchEngine);
@@ -171,10 +176,10 @@ namespace TrenchBroom {
             }
         }
 
-        void LaunchGameEngineDialog::parametersChanged(const QString& text) {
+        void LaunchGameEngineDialog::parametersChanged() {
             Model::GameEngineProfile* profile = m_gameEngineList->selectedProfile();
             if (profile != nullptr) {
-                const auto parameterSpec = text.toStdString();
+                const auto parameterSpec = m_parameterText->text().toStdString();
                 if (profile->parameterSpec() != parameterSpec) {
                     profile->setParameterSpec(parameterSpec);
                 }
@@ -235,6 +240,41 @@ namespace TrenchBroom {
                 const auto message = kdl::str_to_string("Could not launch game engine: ", e.what());
                 QMessageBox::critical(this, "TrenchBroom", QString::fromStdString(message), QMessageBox::Ok);
             }
+        }
+
+        void LaunchGameEngineDialog::bindObservers() {
+            auto document = kdl::mem_lock(m_document);
+
+            const auto& gameName =  document->game()->gameName();
+            auto& gameFactory = Model::GameFactory::instance();
+            auto& gameConfig = gameFactory.gameConfig(gameName);
+            auto& gameEngineConfig = gameConfig.gameEngineConfig();
+
+            gameEngineConfig.configDidChange.addObserver(this, &LaunchGameEngineDialog::configDidChange);
+        }
+
+        void LaunchGameEngineDialog::unbindObservers() {
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
+
+                const auto& gameName =  document->game()->gameName();
+                auto& gameFactory = Model::GameFactory::instance();
+                auto& gameConfig = gameFactory.gameConfig(gameName);
+                auto& gameEngineConfig = gameConfig.gameEngineConfig();
+
+                gameEngineConfig.configDidChange.removeObserver(this, &LaunchGameEngineDialog::configDidChange);
+            }
+        }
+
+        void LaunchGameEngineDialog::configDidChange() {
+            saveConfig();
+        }
+
+        void LaunchGameEngineDialog::saveConfig() {
+            auto document = kdl::mem_lock(m_document);
+            const auto& gameName = document->game()->gameName();
+            auto& gameFactory = Model::GameFactory::instance();
+            gameFactory.saveGameEngineConfigs(gameName);
         }
     }
 }

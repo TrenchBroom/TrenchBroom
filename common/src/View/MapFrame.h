@@ -340,7 +340,6 @@ namespace TrenchBroom {
             bool currentViewMaximized();
 
             void showCompileDialog();
-            void compilationDialogWillClose();
 
             void showLaunchEngineDialog();
 
