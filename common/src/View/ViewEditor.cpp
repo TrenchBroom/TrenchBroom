@@ -305,7 +305,7 @@ namespace TrenchBroom {
             TitledPanel* panel = new TitledPanel("Entities", parent, false);
 
             m_showEntityClassnamesCheckBox = new QCheckBox(tr("Show entity classnames"));
-            m_showGroupBoundsCheckBox = new QCheckBox(tr("Show group bounds"));
+            m_showGroupBoundsCheckBox = new QCheckBox(tr("Show group bounds and names"));
             m_showBrushEntityBoundsCheckBox = new QCheckBox(tr("Show brush entity bounds"));
             m_showPointEntityBoundsCheckBox = new QCheckBox(tr("Show point entity bounds"));
 
