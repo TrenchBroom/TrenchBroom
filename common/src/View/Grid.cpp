@@ -131,28 +131,66 @@ namespace TrenchBroom {
             return actualDelta;
         }
 
-        vm::vec3 Grid::moveDeltaForBounds(const vm::plane3& dragPlane, const vm::bbox3& bounds, const vm::bbox3& /* worldBounds */, const vm::ray3& ray) const {
+        /**
+         * Suggests a placement for a box of the given size following some heuristics described below.
+         *
+         * The placement is returned as a delta from bounds.min (which is not used, otherwise).
+         * Intended to be used for placing objects (e.g. when pasting, or dragging from the entity browser)
+         *
+         * - One of the box corners is placed at the ray/targetPlane intersection, grid snapped
+         * - Exception to the previous point: if the targetPlane is axial plane,
+         *   we'll treat the plane's normal axis as "on grid" even if it's not. This allows, e.g. pasting on
+         *   top of 1 unit thick floor detail on grid 8.
+         * - The box is positioned so it's above the targetPlane (snapped to axial). It might
+         *   clip into targetPlane.
+         * - The box is positioned so it's on the opposite side of the ray/targetPlane intersection point
+         *   from the pickRay source. The effect of this rule is, when dragging an entity from the entity browser
+         *   onto the map, the mouse is always grabbing the edge of the entity bbox that's closest to the camera.
+         */
+        vm::vec3 Grid::moveDeltaForBounds(const vm::plane3& targetPlane, const vm::bbox3& bounds, const vm::bbox3& /* worldBounds */, const vm::ray3& ray) const {
+            // First, find the ray/plane intersection, and snap it to grid.
+            // This will become one of the corners of our resulting bbox.
+            // Note that this means we might let the box clip into the plane somewhat.
+            const FloatType dist = vm::intersect_ray_plane(ray, targetPlane);
+            const vm::vec3 hitPoint = vm::point_at_distance(ray, dist);
 
-            // First, compute the snapped position under the mouse:
-            const auto dist = vm::intersect_ray_plane(ray, dragPlane);
-            const auto hitPoint = vm::point_at_distance(ray, dist);
-            const auto newPos = snapTowards(hitPoint, dragPlane, -ray.direction);
-            const auto offset = newPos - hitPoint;
+            // Local axis system where Z is the largest magnitude component of targetPlane.normal, and X and Y are
+            // the other two axes.
+            const size_t localZ = vm::find_abs_max_component(targetPlane.normal, 0);
+            const size_t localX = vm::find_abs_max_component(targetPlane.normal, 1);
+            const size_t localY = vm::find_abs_max_component(targetPlane.normal, 2);
 
-            const auto normal = dragPlane.normal;
-            const auto size = bounds.size();
+            vm::vec3 firstCorner = snap(hitPoint);
+            if (vm::is_equal(targetPlane.normal,
+                             vm::get_abs_max_component_axis(targetPlane.normal),
+                             vm::C::almost_zero())) {
+                // targetPlane is axial. As a special case, only snap X and Y
+                firstCorner[localZ] = hitPoint[localZ];
+            }
 
-            auto newMinPos = newPos;
-            for (size_t i = 0; i < 3; ++i) {
-                if (vm::is_zero(offset[i], vm::C::almost_zero())) {
-                    if (normal[i] < 0.0) {
-                        newMinPos[i] -= size[i];
-                    }
-                } else {
-                    if ((size[i] >= 0.0) != (ray.direction[i] >= 0.0)) {
-                        newMinPos[i] -= size[i];
-                    }
-                }
+            vm::vec3 newMinPos = firstCorner;
+
+            // The remaining task is to decide which corner of the bbox firstCorner is.
+            // Start with using firstCorner as the bbox min, and for each axis,
+            // we'll either subtract the box size along that axis (or not) to shift the box position.
+
+            // 1. Look at the component of targetPlane.normal with the greatest magnitude.
+            if (targetPlane.normal[localZ] < 0.0) {
+                // The plane normal we're snapping to is negative in localZ (e.g. a ceiling), so
+                // align the box max with the snap point on that axis
+                newMinPos[localZ] -= bounds.size()[localZ];
+            }
+            // else, the plane normal is positive in localZ (e.g. a floor), so newMinPos
+            // is already the correct box min position on that axis.
+
+            // 2. After dealing with localZ, we'll adjust the box position on the other
+            // two axes so it's furthest from the source of the ray. See moveDeltaForBounds() docs
+            // for the rationale.
+            if (ray.direction[localX] < 0.0) {
+                newMinPos[localX] -= bounds.size()[localX];
+            }
+            if (ray.direction[localY] < 0.0) {
+                newMinPos[localY] -= bounds.size()[localY];
             }
 
             return newMinPos - bounds.min;
