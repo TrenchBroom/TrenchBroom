@@ -67,5 +67,16 @@ namespace TrenchBroom {
             context.declareVariable("TEST", Value("interesting"));
             ASSERT_EL(" an \\interesting expression", " an \\${TEST} expression", context);
         }
+
+        TEST_CASE("ELInterpolatorTest.interpolateStringWithUnknownVariable", "[ELInterpolatorTest]") {
+            EvaluationContext context;
+            CHECK_THROWS(interpolate(" an ${TEST} expression", context));
+        }
+
+        TEST_CASE("ELInterpolatorTest.interpolateStringWithUnterminatedEL", "[ELInterpolatorTest]") {
+            EvaluationContext context;
+            CHECK_THROWS(interpolate(" an ${TEST", context));
+            CHECK_THROWS(interpolate(" an ${TEST expression", context));
+        }
     }
 }
