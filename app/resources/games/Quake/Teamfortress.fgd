@@ -494,7 +494,7 @@
 // triggers
 //
 
-@baseclass base(Appearflags, Target, Killarget, Targetname) = Trigger
+@baseclass base(Appearflags, Target, Targetname) = Trigger
 [
 	sounds(choices) : "Sound style" : 0 =
 	[
