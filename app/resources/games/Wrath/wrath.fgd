@@ -1,0 +1,388 @@
+//  Name     : wrath_wtf.fgd
+//  Version  : 202009041600
+//  Edited by: xaGe
+
+//  Found the orginal version of this named wrath_auto on a discord channel made by a Wrath player.
+//  I am sure the Wrath team has a very awesome fgd they use to make the game and will release at some point.
+//  Knowing that I didn't put more than a few hours into this to work with and be included in a custom game support
+//  add on I have made for recent TrenchBroom builds from recent commits. I haven't tested this to much with running
+//  maps made and compiled with it in game.
+//
+
+@SolidClass = worldspawn : "World entity"
+[
+    _lightmapscale(integer) : "Description" : 1
+    fog(string) : "Description" : ""
+    gridsize(string) : "Description" : ""
+    sounds(integer) : "Description" : 2
+    _blocksize(integer) : "Description" : 2048
+    message(string) : "Message to player" : "Map name"
+]
+
+@PointClass size(-16 -16 -24, 16 16 32) color(0 255 0) = info_player_start : "Player start position"
+[
+    location(integer) : "Description" : 1
+    health(integer) : "Starting health" : 75
+    nomelee(integer) : "Description" : 0
+]
+
+@SolidClass = func_water : "Description"
+[
+    watertype(integer) : "Water type" : -3
+    cshift(string) : "unknown" : "8 32 16 128"
+    colormod(string) : "RED GREEN BLUE" : ".5 .55 .5"
+    alpha(string) : "water transparency" : "0.75"
+    _lightmapscale(integer) : "Description" : 2
+    deep(integer) : "Description" : 1
+]
+
+@PointClass model({ "path" : model}) = place_model : "misc model entity"
+[
+    model(string) : "subdir path/to/model.md3" : "models/portals/portal_generic.md3"
+]
+
+@SolidClass = trigger_changelevel : "Trigger: Change level"
+[
+    map(string) : "Level name to load" : "hub1"
+    location(integer) : "Location to spawn to" : 2
+]
+
+@SolidClass = func_particles : "Description"
+[
+    density(integer) : "Description" : 20
+    delay(string) : "Description" : "0.1"
+    particlename(string) : "Description" : "waterfall_base1"
+]
+
+@PointClass = soundbox : "sound entity"
+[
+    rad_sound(integer) : "unknown" : 2048
+    volume(integer) : "volume level" : 1
+    noise(string) : "sound to play" : "sound/doors/e1m2_pillar.ogg"
+    targetname(string) : "name" : "FWTBT"
+]
+
+@PointClass size(-16 -16 -0, 16 16 48) model({"path": "models/objects/fixtures/fire1.md3", "skin": 0}) = object_fire1 : "fire"
+[
+    _tb_group(integer) : "Description" : 118
+]
+
+@PointClass size(-8 -8 -8, 8 8 8) color(200 228 255) = light : "Non-displayed light. Lights pointed at a target will be spotlights."
+[
+	light(integer) : "Brightness" : 300
+	_color(color1) : "RGB Color" : "1 1 0.5"
+	spawnflags(flags) =
+	[
+		1 : "Linear" : 0 : "Gives light linear falloff instead of inverse square."
+	]
+]
+@SolidClass = func_destruct : "brush entity then can be destroyed by player"
+[
+    spawnflags(integer) : "Description" : 1
+    targetname(string) : "name" : "destructo_discs2"
+    particlename(string) : "particle type to display" : "stone1"
+    gibmodel3(string) : "md3 model chunks to throw" : "models/destruct/e1m2/stone1_c.md3"
+    gibmodel2(string) : "md3 model chunks to throw" : "models/destruct/e1m2/stone1_b.md3"
+    gibmodel1(string) : "md3 model chunks to throw" : "models/destruct/e1m2/stone1_a.md3"
+    base_scale(string) : "Description" : "1.5"
+    type(integer) : "Description" : 0
+    noise(string) : "Noise to make when broke" : "sound/impact/destruct/stone_break1.ogg"
+    health(integer) : "Description" : 10
+    gibcount(integer) : "Description" : 35
+    mass(string) : "Description" : "0.75"
+    rad_sound(integer) : "Description" : 1024
+    volume(integer) : "Description" : 1
+    bouncefactor(string) : "Description" : "0.25"
+    spread_vel(integer) : "Description" : 200
+    only_damage_monster(integer) : "Description" : 1
+    target(string) : "Target" : "Bresil"
+    _phong(integer) : "Description" : 1
+]
+
+@PointClass size(-32 -32 -0, 32 32 48) model({"path": "models/objects/coffers/coffer1_locked.md3"}) = object_coffer : "object_coffer"
+[
+    coffer_health(integer) : "Description" : 2
+    coffer_armor(integer) : "Description" : 2
+    coffer_ammo(integer) : "Description" : 4
+    coffer_artifacts(integer) : "Description" : 5
+    keyrequired(integer) : "Description" : 1
+]
+
+@PointClass size(-8 -8 -8, 8 8 8) model({"path": "models/items/lifeblood_beaker.md3"}) = health_life_beaker : "health beaker" []
+@PointClass size(-8 -8 -8, 8 8 8) model({"path": "models/items/lifeblood_vial.md3"}) = health_life_vial : "health vial" []
+@PointClass size(-16 -16 -48, 16 16 8) model({"path": "models/items/coffer_key1.md3"}) = key_coffer : "key_coffer" []
+@PointClass size(-8 -8 -8, 8 8 8) model({"path": "models/items/armor_shard.md3"}) = armor_shard : "Description" []
+@PointClass size(-8 -8 -8, 8 8 8) model({"path": "models/items/armor_shard_dark.md3"}) = armor_shard_dark : "dark armor shard" []
+@PointClass = portal_hub1 : "point entity" []
+@SolidClass = trigger_shrine : "brush trigger" []
+@PointClass size(-16 -16 -8, 16 16 8) model({"path": "models/items/shells.md3"}) = ammo_shells : "shell ammo" []
+@PointClass size(-16 -16 8, 16 16 8) model({"path": "models/items/slugs.md3"}) = ammo_slugs : "slug ammo" []
+@PointClass size(-8 -8 -10, 8 8 14) model({"path": "models/items/fangs.md3"}) = ammo_fangs : "fang ammo" []
+@SolidClass = trigger_secret : "Description" []
+@PointClass size(-16 -16 -10, 16 16 6) model({"path": "models/items/cysts.md3"}) = ammo_cysts : "Description" []
+@PointClass size(-16 -16 -10, 16 16 22) model({"path": "models/items/armor.md3"}) = armor_armor : "chest armor" []
+@PointClass size(-16 -16 -16, 16 16 16) model({"path": "models/items/helm.md3"}) = armor_helm : "Description" []
+@PointClass size(-16 -16 -32, 16 16 16) model({"path": "models/artifacts/cruel_aegis.md3"}) = artifact_cruel_aegis : "Artifact: Cruel Aegis" []
+@PointClass size(-16 -16 -32, 16 16 16) model({"path": "models/artifacts/drowners_apparatus.md3"}) = artifact_drowners_apparatus : "Artifact: Drowners Apparatus" []
+@PointClass size(-16 -16 -32, 16 16 16) model({"path": "models/artifacts/soul_tether.md3"}) = artifact_soul_tether : "Artifact: Soul Tether" []
+@PointClass size(-16 -16 -32, 16 16 16) model({"path": "models/artifacts/life_siphon.md3"}) = artifact_life_siphon : "Artifact: Life Siphon"
+[
+    secret(integer) : "Description" : 1
+    targetname(string) : "Description" : "Bresil"
+]
+
+@PointClass size(-16 -16 -0, 16 16 32) model({"path": "models/destruct/urns/urn32.md3"}) = breakable_urn_small : "small urn"
+[
+    urn_health(integer) : "Description" : 2
+    urn_armor(integer) : "Description" : 2
+    urn_ammo(integer) : "Description" : 4
+    health(integer) : "Description" : 1
+]
+
+@PointClass size(-16 -16 -0, 16 16 48) model({"path": "models/destruct/urns/urn48.md3"}) = breakable_urn_medium : "medium urn"
+[
+    urn_health(integer) : "Description" : 1
+    urn_ammo(integer) : "Description" : 4
+    urn_armor(integer) : "Description" : 2
+    health(integer) : "Description" : 1
+]
+
+@PointClass size(-16 -16 -0, 16 16 64) model({"path": "models/destruct/urns/urn64.md3"}) = breakable_urn_large : "large urn"
+[
+    urn_armor(integer) : "Description" : 2
+    urn_ammo(integer) : "Description" : 3
+    urn_artifacts(integer) : "Description" : 5
+    urn_health(integer) : "Description" : 1
+    health(integer) : "Description" : 1
+]
+
+@PointClass size(-16 -16 -16, 16 16 16) model({"path": "models/items/helm_dark.md3"}) = armor_helm_dark : "dark helmet" []
+@SolidClass = trigger_melee : "brush entity" []
+@SolidClass = trigger_once : "brush entity"
+[
+    message(string) : "Description" : "If you can see this you are CHEATING!"
+    target(string) : "Description" : "BitchAreYouForReal"
+    delay(string) : "Description" : "1.2"
+    spawnflags(integer) : "Description" : 1
+    targetname(string) : "Description" : "Chaaaaaarge"
+    disarmed(integer) : "Description" : 1
+    player_weapon(integer) : "Description" : 2
+]
+
+@SolidClass = func_door : "Door made of brushes"
+[
+    noise(string) : "door knock" : "doors/e1_door1.ogg"
+    noise1(string) : "door start sound" : "doors/glyph_start.ogg"
+    noise2(string) : "door stop sound" : "doors/glyph_stop.ogg"
+    _minlight(integer) : "Description" : 64
+    speed(integer) : "Description" : 16
+    notouch(integer) : "Description" : 1
+    lip(integer) : "Description" : -2
+    wait(integer) : "Description" : -1
+    targetname(string) : "Description" : "opensesame"
+    target(string) : "Description" : "RedDoor3"
+    keyrequired(integer) : "Description" : 0
+    radius(integer) : "Description" : 2048
+    rad_sound(integer) : "Description" : 2048
+    spawnflags(integer) : "Description" : 1
+]
+
+@SolidClass = trigger_aggro : "Description"
+[
+    target(string) : "Description" : "BitchAreYouForReal"
+]
+
+@PointClass = enemy_spawner : "Description"
+[
+    classmonster2(integer) : "Description" : 1
+    spawnflags(integer) : "Description" : 1
+    classmonster1(integer) : "Description" : 1
+    targetname(string) : "Description" : "OhYes"
+    type(integer) : "Description" : 0
+    turret(integer) : "Description" : 1
+    rise(integer) : "Description" : 1
+    target(string) : "Description" : "GaucheDroite"
+    likecharge(integer) : "Description" : 1
+    angles(string) : "Description" : "0.128108 45.0278 1.56751"
+    classmonster4(integer) : "Description" : 1
+    classmonster3(integer) : "Description" : 1
+    delay(integer) : "Description" : 5
+    count(integer) : "Description" : 1
+    wait(string) : "Description" : ".2"
+    classmonster5(integer) : "Description" : 11
+]
+
+@PointClass size(-16 -16 -16, 16 16 16) model({"path": "models/objects/switches/e1_switch1.md3"}) = switch_e1_switch1 : "A switch"
+[
+    target(string) : "Description" : "IMustGoOn"
+    wait(integer) : "Description" : -1
+    delay(string) : "Description" : ".2"
+]
+
+@PointClass = trigger_relay : "Description"
+[
+    targetname(string) : "Description" : "RedKeyBridgeActivate1"
+    target(string) : "Description" : "RKeyBridge1"
+    delay(string) : "Description" : "0.5"
+    spawnflags(integer) : "Description" : 256
+]
+
+@PointClass = enemy_spawner_warp : "enemy spawner that warps in monsters"
+[
+    turret(integer) : "Description" : 1
+    targetname(string) : "Description" : "OnEnAGros1"
+    spawnflags(integer) : "Description" : 1
+    fastwarp(integer) : "Description" : 1
+    target(string) : "Description" : "HEY3"
+    likecharge(integer) : "Description" : 1
+    type(integer) : "Description" : 1
+    wait(string) : "Description" : "1.5"
+    delay(integer) : "Description" : 2
+    count(integer) : "Description" : 1
+    classmonster1(integer) : "Description" : 2
+    classmonster2(integer) : "Description" : 11
+    classmonster3(integer) : "Description" : 11
+    classmonster4(integer) : "Description" : 11
+    classmonster5(integer) : "Description" : 11
+]
+
+@PointClass = path_corner : "Path corner entity that func_trains can be made to follow."
+[
+    wait(integer) : "Description" : -1
+    target(string) : "Description" : "Posthuman1"
+    targetname(string) : "Description" : "Posthuman"
+    speed(integer) : "Description" : 224
+]
+
+@PointClass = item_spawner : "Spawns items"
+[
+    targetname(string) : "Description" : "BigTiddiesFTW"
+    classitem2(integer) : "Description" : 9
+    classitem1(integer) : "Description" : 9
+    classitem5(integer) : "Description" : 9
+    classitem4(integer) : "Description" : 9
+    classitem3(integer) : "Description" : 9
+    spawnflags(integer) : "Description" : 1024
+]
+
+@PointClass size(-16 -16 -48, 16 16 16) model({"path": "models/items/glyph_red.md3"}) = key_red : "red key"
+[
+    target(string) : "Description" : "RedKey1"
+]
+
+@PointClass size(-16 -16 -48, 16 16 16) model({"path": "models/items/relic.md3"}) = relic_e1m1 : "Description"
+[
+    target(string) : "Description" : "portal_level_to_hub1"
+]
+
+@PointClass = teleporter : "Description"
+[
+    inactive(integer) : "Description" : 1
+    target(string) : "Description" : "ToHere1"
+    targetname(string) : "Description" : "ToHere2"
+]
+
+@PointClass size(-8 -8 -24, 8 8 16) model({"path": "models/objects/fixtures/torch1.md3"}) = object_torch1 : "flamey wall torch"
+[
+    skin(integer) : "Description" : 1
+    _tb_group(integer) : "Description" : 114
+]
+
+@PointClass = trigger_counter : "Description"
+[
+    spawnflags(integer) : "Description" : 1
+    targetname(string) : "Description" : "GaucheDroite"
+    target(string) : "Description" : "Pecores"
+    count(integer) : "Description" : 2
+    delay(integer) : "Description" : 1
+]
+
+@PointClass size(-16 -16 -10, 16 16 22) model({"path": "models/items/armor_dark.md3"}) = armor_armor_dark : "chest armor dark" []
+@PointClass size(-64 -64 -64, 64 64 64) model({"path": "models/portals/portal_generic.md3"}) = portal_level_to_hub : "Portal to hub"
+[
+    location(integer) : "Description" : 2
+    targetname(string) : "Description" : "portal_level_to_hub"
+    model(string) : "Description" : "models/portals/portal_level_to_hub.md3"
+    map(string) : "Description" : "hub1"
+]
+
+@PointClass = weapon_spawner : "Description"
+[
+    targetname(string) : "Description" : "PlayAlone"
+    classweapon2(integer) : "Description" : 0
+    classweapon1(integer) : "Description" : 4
+    classweapon5(integer) : "Description" : 0
+    classweapon4(integer) : "Description" : 0
+    classweapon3(integer) : "Description" : 0
+    target(string) : "Description" : "HMMMMMMMM"
+    spawnflags(integer) : "Description" : 2
+]
+
+@SolidClass = func_button : "brush entity"
+[
+    noise(string) : "Description" : "objects/switches/e1m2_pillar_switch.ogg"
+    target(string) : "Description" : "RedKeyPillarRelay1"
+    wait(integer) : "Description" : -1
+    delay(string) : "Description" : "0.2"
+    lip(integer) : "Description" : -2
+]
+
+@SolidClass = func_train : "Trains are moving solids(brush(s)) that follow a looped string of path_corner entities."
+[
+    _minlight(integer) : "Description" : 72
+    sounds(integer) : "Description" : 0
+    speed(integer) : "Description" : 440
+    target(string) : "Description" : "Pillar4"
+    targetname(string) : "Description" : "RedKeyPillar1"
+]
+
+@SolidClass = func_rotate : "brush entity"
+[
+    rot_ang_z(string) : "Description" : "112.75"
+    rot_ang_x(integer) : "Description" : 0
+    rot_ang_y(integer) : "Description" : 0
+    targetname(string) : "Description" : "DaBridgeBridge"
+    wait(integer) : "Description" : 10
+]
+
+@PointClass = info_null : "point entity Used as a positional target for light entities to create a spotlight effect."
+[
+    targetname(string) : "Description" : "I can make magic"
+]
+
+@SolidClass = trigger_monsterjump : "brush entity making monsters jump in the direction its angeled."
+[
+    speed(integer) : "Description" : 128
+]
+
+@SolidClass = trigger_multiple : "brush entity"
+[
+    message(string) : "Description" : "I`m triggered"
+]
+
+@PointClass size(-16 -16 -48, 16 16 16) model({"path": "models/items/relic.md3"}) = relic_e1m2 : "Relic: E1M2"
+[
+    target(string) : "Description" : "portal_level_to_hub"
+]
+
+@SolidClass = trigger_turret : "brush entity" []
+
+// Monsters
+@PointClass size(-16 -16 -32, 16 16 40) model({"path": "models/enemies/afflicted/afflicted.md3"}) = monster_afflicted : "Monster: Afflicted" []
+//@PointClass size(-16 -16 -32, 16 16 40) model({"path": "models/enemies/dummy/dummy.md3"}) = monster_dummy : "Monster: Dummy (Probably not in the game :-P)" [] // doubt this is in the game
+@PointClass size(-40 -40 -32, 40 40 64) model({"path": "models/enemies/executioner/executioner.md3"}) = monster_executioner : "Monster: Executioner" []
+@PointClass size(-16 -16 -32, 16 16 40) model({"path": "models/enemies/fallen/fallen1.md3"}) = monster_fallen : "Monster: Fallen" []
+@PointClass size(-48 -48 -48, 48 48 48) model({"path": "models/enemies/heretic/heretic.md3"}) = monster_heretic : "Monster: Heretic" []
+@PointClass size(-32 -32 -32, 32 32 48) model({"path": "models/enemies/invader/invader.md3"}) = monster_invader : "Monster: Invader" []
+@PointClass size(-24 -24 -0, 24 24 80) model({"path": "models/enemies/oppressor/oppressor.md3"}) = monster_oppressor : "Monster: Oppressor" []
+@PointClass size(-56 -56 -32, 56 56 64) model({"path": "models/enemies/stricken/stricken.md3"}) = monster_stricken : "Monster: Stricken" []
+@PointClass size(-16 -16 -32, 16 16 32) model({"path": "models/enemies/widow/widow.md3"}) = monster_widow : "Monster: Widow" []
+@PointClass size(-16 -16 -32, 16 16 32) model({"path": "models/enemies/wraith/wraith.md3"}) = monster_wraith : "Monster: Wraith" []
+@PointClass size(-24 -24 -32, 24 24 48) model({"path": "models/enemies/wretch/wretch.md3"}) = monster_wretch : "Monster: Wretch" []
+
+// weapons
+@PointClass size(-16 -16 -16, 16 16 16) model({"path": "models/weapons/cannon/w_cannon.md3"}) = weapon_cannon : "Cannon" []
+@PointClass size(-16 -16 -16, 16 16 16) model({"path": "models/weapons/coachgun/w_coachgun.md3"}) = weapon_coachgun : "Coach gun" []
+@PointClass size(-16 -16 -16, 16 16 16) model({"path": "models/weapons/spitter/w_spitter.md3"}) = weapon_spitter : "Spitter gun" []
+@PointClass size(-16 -16 -16, 16 16 16) model({"path": "models/weapons/shotgun/w_shotgun.md3"}) = weapon_shotgun : "Shotgun" []
+@PointClass size(-16 -16 -16, 16 16 16) model({"path": "models/weapons/retcher/w_retcher.md3"}) = weapon_retcher : "Retcher" []
