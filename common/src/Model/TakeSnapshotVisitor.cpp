@@ -19,23 +19,23 @@
 
 #include "TakeSnapshotVisitor.h"
 
-#include "Model/Brush.h"
-#include "Model/Entity.h"
-#include "Model/Group.h"
-#include "Model/Layer.h"
-#include "Model/World.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
+#include "Model/WorldNode.h"
 
 namespace TrenchBroom {
     namespace Model {
-        const NodeSnapshotList& TakeSnapshotVisitor::result() const {
+        const std::vector<NodeSnapshot*>& TakeSnapshotVisitor::result() const {
             return m_result;
         }
 
-        void TakeSnapshotVisitor::doVisit(World* world)   { handleNode(world); }
-        void TakeSnapshotVisitor::doVisit(Layer* layer)   { handleNode(layer); }
-        void TakeSnapshotVisitor::doVisit(Group* group)   { handleNode(group); }
-        void TakeSnapshotVisitor::doVisit(Entity* entity) { handleNode(entity); }
-        void TakeSnapshotVisitor::doVisit(Brush* brush)   { handleNode(brush); }
+        void TakeSnapshotVisitor::doVisit(WorldNode* world)   { handleNode(world); }
+        void TakeSnapshotVisitor::doVisit(LayerNode* layer)   { handleNode(layer); }
+        void TakeSnapshotVisitor::doVisit(GroupNode* group)   { handleNode(group); }
+        void TakeSnapshotVisitor::doVisit(EntityNode* entity) { handleNode(entity); }
+        void TakeSnapshotVisitor::doVisit(BrushNode* brush)   { handleNode(brush); }
 
         void TakeSnapshotVisitor::handleNode(Node* node) {
             NodeSnapshot* snapshot = node->takeSnapshot();

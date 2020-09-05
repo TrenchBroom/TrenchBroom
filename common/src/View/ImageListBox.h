@@ -20,23 +20,38 @@
 #ifndef TrenchBroom_ImageListBox
 #define TrenchBroom_ImageListBox
 
-#include "ControlListBox.h"
+#include "View/ControlListBox.h"
 
-class wxStaticText;
-class wxStaticBitmap;
+class QLabel;
+class QPixmap;
 
 namespace TrenchBroom {
     namespace View {
-        class ImageListBox : public ControlListBox {
+        class ElidedLabel;
+
+        class ImageListBoxItemRenderer : public ControlListBoxItemRenderer {
+            Q_OBJECT
+        private:
+            ElidedLabel* m_titleLabel;
+            ElidedLabel* m_subtitleLabel;
+            QLabel* m_imageLabel;
         public:
-            ImageListBox(wxWindow* parent, const wxString& emptyText);
+            ImageListBoxItemRenderer(const QString& title, const QString& subtitle, const QPixmap& image, QWidget* parent) ;
+            void updateItem() override;
+        };
+
+        class ImageListBox : public ControlListBox {
+            Q_OBJECT
+        public:
+            explicit ImageListBox(const QString& emptyText, bool showSeparator, QWidget* parent = nullptr);
         private:
-            class ImageListBoxItem;
-            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index) override;
+            ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
         private:
-            virtual bool image(size_t index, wxBitmap& result) const;
-            virtual wxString title(size_t index) const = 0;
-            virtual wxString subtitle(size_t index) const = 0;
+            friend class ImageListBoxItemRenderer;
+
+            virtual QPixmap image(size_t index) const;
+            virtual QString title(size_t index) const = 0;
+            virtual QString subtitle(size_t index) const = 0;
         };
     }
 }

@@ -23,67 +23,55 @@
 #include "Model/Object.h"
 #include "View/MapDocument.h"
 
-#include <wx/window.h>
+#include <kdl/memory_utils.h>
+
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
-        SmartAttributeEditor::SmartAttributeEditor(View::MapDocumentWPtr document) :
+        SmartAttributeEditor::SmartAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
+        QWidget(parent),
         m_document(document),
         m_active(false) {}
 
         SmartAttributeEditor::~SmartAttributeEditor() {}
 
-        wxWindow* SmartAttributeEditor::activate(wxWindow* parent, const Model::AttributeName& name) {
+        void SmartAttributeEditor::activate(const std::string& name) {
             assert(!m_active);
-
             m_name = name;
-
-            wxWindow* visual = createVisual(parent);
             m_active = true;
-            return visual;
         }
 
-        void SmartAttributeEditor::update(const Model::AttributableNodeList& attributables) {
+        void SmartAttributeEditor::update(const std::vector<Model::AttributableNode*>& attributables) {
             m_attributables = attributables;
-            updateVisual(m_attributables);
+            doUpdateVisual(m_attributables);
         }
 
         void SmartAttributeEditor::deactivate() {
             m_active = false;
-            destroyVisual();
             m_name = "";
         }
 
-        bool SmartAttributeEditor::usesName(const Model::AttributeName& name) const {
+        bool SmartAttributeEditor::usesName(const std::string& name) const {
             return m_name == name;
         }
 
-        View::MapDocumentSPtr SmartAttributeEditor::document() const {
-            return lock(m_document);
+        std::shared_ptr<MapDocument> SmartAttributeEditor::document() const {
+            return kdl::mem_lock(m_document);
         }
 
-        const Model::AttributeName& SmartAttributeEditor::name() const {
+        const std::string& SmartAttributeEditor::name() const {
             return m_name;
         }
 
-        const Model::AttributableNodeList SmartAttributeEditor::attributables() const {
+        const std::vector<Model::AttributableNode*> SmartAttributeEditor::attributables() const {
             return m_attributables;
         }
 
-        void SmartAttributeEditor::addOrUpdateAttribute(const Model::AttributeValue& value) {
+        void SmartAttributeEditor::addOrUpdateAttribute(const std::string& value) {
             assert(m_active);
             document()->setAttribute(m_name, value);
-        }
-        wxWindow* SmartAttributeEditor::createVisual(wxWindow* parent) {
-            return doCreateVisual(parent);
-        }
-
-        void SmartAttributeEditor::destroyVisual() {
-            doDestroyVisual();
-        }
-
-        void SmartAttributeEditor::updateVisual(const Model::AttributableNodeList& attributables) {
-            doUpdateVisual(attributables);
         }
     }
 }

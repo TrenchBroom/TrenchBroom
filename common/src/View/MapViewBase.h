@@ -20,29 +20,40 @@
 #ifndef TrenchBroom_MapViewBase
 #define TrenchBroom_MapViewBase
 
-#include "Assets/EntityDefinition.h"
-#include "Model/ModelTypes.h"
-#include "Model/NodeCollection.h"
-#include "Renderer/RenderContext.h"
 #include "View/ActionContext.h"
 #include "View/CameraLinkHelper.h"
-#include "View/GLAttribs.h"
-#include "View/InputState.h"
 #include "View/MapView.h"
 #include "View/RenderView.h"
 #include "View/ToolBoxConnector.h"
-#include "View/UndoableCommand.h"
-#include "View/ViewTypes.h"
 
 #include <memory>
+#include <utility>
+#include <vector>
 
-wxDECLARE_EVENT(SHOW_POPUP_MENU_EVENT, wxCommandEvent);
+class QMenu;
+class QShortcut;
+class QString;
+class QAction;
 
 namespace TrenchBroom {
     class Logger;
 
+    namespace Assets {
+        class BrushEntityDefinition;
+        class EntityDefinition;
+        enum class EntityDefinitionType;
+        class PointEntityDefinition;
+    }
+
     namespace IO {
         class Path;
+    }
+
+    namespace Model {
+        class GroupNode;
+        class Node;
+        class NodeCollection;
+        class SmartTag;
     }
 
     namespace Renderer {
@@ -52,50 +63,71 @@ namespace TrenchBroom {
         class PrimitiveRenderer;
         class RenderBatch;
         class RenderContext;
-        class Vbo;
+        enum class RenderMode;
     }
 
     namespace View {
+        class Action;
         class AnimationManager;
         class Command;
-        class FlyModeHelper;
-        class GLContextManager;
+        class MapDocument;
         class MapViewToolBox;
-        class MovementRestriction;
         class Selection;
         class Tool;
+        class UndoableCommand;
 
-        class MapViewBase : public MapView, public RenderView, public ToolBoxConnector, public CameraLinkableView {
+        class MapViewBase : public RenderView, public MapView, public ToolBoxConnector, public CameraLinkableView {
+            Q_OBJECT
         public:
-            static const wxString &glRendererString();
-            static const wxString &glVendorString();
-            static const wxString &glVersionString();
+            static const int DefaultCameraAnimationDuration;
         protected:
-            static const wxLongLong DefaultCameraAnimationDuration;
-
             Logger* m_logger;
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             MapViewToolBox& m_toolBox;
 
-            AnimationManager* m_animationManager;
+            std::unique_ptr<AnimationManager> m_animationManager;
         private:
             Renderer::MapRenderer& m_renderer;
-            Renderer::Compass* m_compass;
+            std::unique_ptr<Renderer::Compass> m_compass;
             std::unique_ptr<Renderer::PrimitiveRenderer> m_portalFileRenderer;
-        protected:
-            MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
 
-            void setCompass(Renderer::Compass* compass);
+            /**
+             * Tracks whether this map view has most recently gotten the focus. This is tracked and updated by a
+             * MapViewActivationTracker instance.
+             */
+            bool m_isCurrent;
+        private: // shortcuts
+            std::vector<std::pair<QShortcut*, const Action*>> m_shortcuts;
+        protected:
+            MapViewBase(Logger* logger, std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
+
+            void setCompass(std::unique_ptr<Renderer::Compass> compass);
+
+            /**
+             * Perform tasks that are needed for a fully initialized MapViewBase.
+             * 
+             * This must be called exactly once, at the end of subclasses's constructors.
+             * (Does virtual function calls, so we can't call it in the MapViewBase constructor.)
+             * 
+             * On normal app startup, these tasks are handled by documentDidChange(),
+             * but when changing map view layouts (e.g. 1 pane to 2 pane) there are 
+             * no document notifications to handle these tasks, so it must be done by the constructor.
+             */
+            void mapViewBaseVirtualInit();
         public:
             ~MapViewBase() override;
+        public:
+            void setIsCurrent(bool isCurrent);
         private:
             void bindObservers();
             void unbindObservers();
 
-            void nodesDidChange(const Model::NodeList& nodes);
+            void createActionsAndUpdatePicking();
+
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void toolChanged(Tool* tool);
-            void commandDone(Command::Ptr command);
-            void commandUndone(UndoableCommand::Ptr command);
+            void commandDone(Command* command);
+            void commandUndone(UndoableCommand* command);
             void selectionDidChange(const Selection& selection);
             void textureCollectionsDidChange();
             void entityDefinitionsDidChange();
@@ -107,78 +139,56 @@ namespace TrenchBroom {
             void portalFileDidChange();
             void preferenceDidChange(const IO::Path& path);
             void documentDidChange(MapDocument* document);
-        private: // interaction events
-            void bindEvents();
-
-            void OnMoveObjectsForward(wxCommandEvent& event);
-            void OnMoveObjectsBackward(wxCommandEvent& event);
-            void OnMoveObjectsLeft(wxCommandEvent& event);
-            void OnMoveObjectsRight(wxCommandEvent& event);
-            void OnMoveObjectsUp(wxCommandEvent& event);
-            void OnMoveObjectsDown(wxCommandEvent& event);
-
-            void OnDuplicateObjectsForward(wxCommandEvent& event);
-            void OnDuplicateObjectsBackward(wxCommandEvent& event);
-            void OnDuplicateObjectsLeft(wxCommandEvent& event);
-            void OnDuplicateObjectsRight(wxCommandEvent& event);
-            void OnDuplicateObjectsUp(wxCommandEvent& event);
-            void OnDuplicateObjectsDown(wxCommandEvent& event);
-
-            void OnRollObjectsCW(wxCommandEvent& event);
-            void OnRollObjectsCCW(wxCommandEvent& event);
-            void OnPitchObjectsCW(wxCommandEvent& event);
-            void OnPitchObjectsCCW(wxCommandEvent& event);
-            void OnYawObjectsCW(wxCommandEvent& event);
-            void OnYawObjectsCCW(wxCommandEvent& event);
-
-            void OnFlipObjectsH(wxCommandEvent& event);
-            void OnFlipObjectsV(wxCommandEvent& event);
+        private: // shortcut setup
+            void createActions();
+            void updateActionBindings();
+            void updateActionStates();
+        public:
+            void triggerAction(const Action& action);
+            void triggerAmbiguousAction(const QString& label);
+        public: // move, rotate, flip actions
+            void move(vm::direction direction);
+            void moveVertices(vm::direction direction);
+            void moveRotationCenter(vm::direction direction);
+            void moveObjects(vm::direction direction);
+            vm::vec3 moveDirection(vm::direction direction) const;
 
             void duplicateAndMoveObjects(vm::direction direction);
             void duplicateObjects();
-            void moveObjects(vm::direction direction);
-            vm::vec3 moveDirection(vm::direction direction) const;
+
             void rotateObjects(vm::rotation_axis axis, bool clockwise);
             vm::vec3 rotationAxis(vm::rotation_axis axis, bool clockwise) const;
-        private: // tool mode events
-            void OnToggleRotateObjectsTool(wxCommandEvent& event);
-            void OnMoveRotationCenterForward(wxCommandEvent& event);
-            void OnMoveRotationCenterBackward(wxCommandEvent& event);
-            void OnMoveRotationCenterLeft(wxCommandEvent& event);
-            void OnMoveRotationCenterRight(wxCommandEvent& event);
-            void OnMoveRotationCenterUp(wxCommandEvent& event);
-            void OnMoveRotationCenterDown(wxCommandEvent& event);
-            void moveRotationCenter(vm::direction direction);
 
-            void OnToggleScaleObjectsTool(wxCommandEvent& event);
-            void OnToggleShearObjectsTool(wxCommandEvent& event);
+            void flipObjects(vm::direction direction);
+            bool canFlipObjects() const;
+        public: // texture actions
+            enum class TextureActionMode {
+                Normal,
+                Coarse,
+                Fine
+            };
 
-            void OnToggleClipSide(wxCommandEvent& event);
-            void OnPerformClip(wxCommandEvent& event);
+            void moveTextures(vm::direction direction, TextureActionMode mode);
+            vm::vec2f moveTextureOffset(vm::direction direction, TextureActionMode mode) const;
+            float moveTextureDistance(TextureActionMode mode) const;
+            void rotateTextures(bool clockwise, TextureActionMode mode);
+            float rotateTextureAngle(bool clockwise, TextureActionMode mode) const;
+        public: // tool mode actions
+            void createComplexBrush();
 
-            void OnMoveVerticesForward(wxCommandEvent& event);
-            void OnMoveVerticesBackward(wxCommandEvent& event);
-            void OnMoveVerticesLeft(wxCommandEvent& event);
-            void OnMoveVerticesRight(wxCommandEvent& event);
-            void OnMoveVerticesUp(wxCommandEvent& event);
-            void OnMoveVerticesDown(wxCommandEvent& event);
-            void moveVertices(vm::direction direction);
+            void toggleClipSide();
+            void performClip();
+        public: // misc actions
+            void resetCameraZoom();
+            void cancel();
+            void deactivateTool();
+        public: // reparenting objects
+            void addSelectedObjectsToGroup();
+            void removeSelectedObjectsFromGroup();
+            Model::Node* findNewGroupForObjects(const std::vector<Model::Node*>& nodes) const;
 
-            void OnCancel(wxCommandEvent& event);
-            bool cancel();
-
-            void OnDeactivateTool(wxCommandEvent& event);
-        private: // group management
-            void OnGroupSelectedObjects(wxCommandEvent& event);
-            void OnUngroupSelectedObjects(wxCommandEvent& event);
-            void OnRenameGroups(wxCommandEvent& event);
-        private: // reparenting objects
-            void OnAddObjectsToGroup(wxCommandEvent& event);
-            void OnRemoveObjectsFromGroup(wxCommandEvent& event);
-            Model::Node* findNewGroupForObjects(const Model::NodeList& nodes) const;
-
-            void OnMergeGroups(wxCommandEvent& event);
-            Model::Group* findGroupToMergeGroupsInto(const Model::NodeCollection& selectedNodes) const;
+            void mergeSelectedGroups();
+            Model::GroupNode* findGroupToMergeGroupsInto(const Model::NodeCollection& selectedNodes) const;
 
             /**
              * Checks whether the given node can be reparented under the given new parent.
@@ -189,10 +199,10 @@ namespace TrenchBroom {
              */
             bool canReparentNode(const Model::Node* node, const Model::Node* newParent) const;
 
-            void OnMoveBrushesTo(wxCommandEvent& event);
-            Model::Node* findNewParentEntityForBrushes(const Model::NodeList& nodes) const;
+            void moveSelectedBrushesToEntity();
+            Model::Node* findNewParentEntityForBrushes(const std::vector<Model::Node*>& nodes) const;
 
-            bool canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
+            bool canReparentNodes(const std::vector<Model::Node*>& nodes, const Model::Node* newParent) const;
             /**
              * Reparents nodes, and deselects everything as a side effect.
              *
@@ -203,70 +213,65 @@ namespace TrenchBroom {
              *                         if false, only the brushes listed in `nodes` are reparented, not any
              *                         parent entities.
              */
-            void reparentNodes(const Model::NodeList& nodes, Model::Node* newParent, bool preserveEntities);
-            Model::NodeList collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
+            void reparentNodes(const std::vector<Model::Node*>& nodes, Model::Node* newParent, bool preserveEntities);
+            std::vector<Model::Node*> collectReparentableNodes(const std::vector<Model::Node*>& nodes, const Model::Node* newParent) const;
 
-            void OnCreatePointEntity(wxCommandEvent& event);
-            void OnCreateBrushEntity(wxCommandEvent& event);
+            void createPointEntity();
+            void createBrushEntity();
 
-            Assets::EntityDefinition* findEntityDefinition(Assets::EntityDefinition::Type type, size_t index) const;
+            Assets::EntityDefinition* findEntityDefinition(Assets::EntityDefinitionType type, size_t index) const;
             void createPointEntity(const Assets::PointEntityDefinition* definition);
             void createBrushEntity(const Assets::BrushEntityDefinition* definition);
             bool canCreateBrushEntity();
-        private: // tags
-            void OnToggleTagVisible(wxCommandEvent& event);
-
-            class EnableDisableTagCallback;
-            void OnEnableTag(wxCommandEvent& event);
-            void OnDisableTag(wxCommandEvent& event);
-        private: // make structural
-            void OnMakeStructural(wxCommandEvent& event);
-        private: // entity definitions
-            void OnToggleEntityDefinitionVisible(wxCommandEvent& event);
-            void OnCreateEntity(wxCommandEvent& event);
-        private: // view filters
-            void OnToggleShowEntityClassnames(wxCommandEvent& event);
-            void OnToggleShowGroupBounds(wxCommandEvent& event);
-            void OnToggleShowBrushEntityBounds(wxCommandEvent& event);
-            void OnToggleShowPointEntityBounds(wxCommandEvent& event);
-            void OnToggleShowPointEntities(wxCommandEvent& event);
-            void OnToggleShowPointEntityModels(wxCommandEvent& event);
-            void OnToggleShowBrushes(wxCommandEvent& event);
-            void OnRenderModeShowTextures(wxCommandEvent& event);
-            void OnRenderModeHideTextures(wxCommandEvent& event);
-            void OnRenderModeHideFaces(wxCommandEvent& event);
-            void OnRenderModeShadeFaces(wxCommandEvent& event);
-            void OnRenderModeUseFog(wxCommandEvent& event);
-            void OnRenderModeShowEdges(wxCommandEvent& event);
-            void OnRenderModeShowAllEntityLinks(wxCommandEvent& event);
-            void OnRenderModeShowTransitiveEntityLinks(wxCommandEvent& event);
-            void OnRenderModeShowDirectEntityLinks(wxCommandEvent& event);
-            void OnRenderModeHideEntityLinks(wxCommandEvent& event);
-        private: // other events
-            void OnSetFocus(wxFocusEvent& event);
-            void OnKillFocus(wxFocusEvent& event);
-            void OnActivateFrame(wxActivateEvent& event);
-        protected: // accelerator table management
-            void updateAcceleratorTable();
-        private:
-            void updateAcceleratorTable(bool hasFocus);
-            ActionContext actionContext() const;
+        public: // tags
+            void toggleTagVisible(const Model::SmartTag& tag);
+            void enableTag(const Model::SmartTag& tag);
+            void disableTag(const Model::SmartTag& tag);
+        public: // make structural
+            void makeStructural();
+        public: // entity definitions
+            void toggleEntityDefinitionVisible(const Assets::EntityDefinition* definition);
+            void createEntity(const Assets::EntityDefinition* definition);
+        public: // view filters
+            void toggleShowEntityClassnames();
+            void toggleShowGroupBounds();
+            void toggleShowBrushEntityBounds();
+            void toggleShowPointEntityBounds();
+            void toggleShowPointEntities();
+            void toggleShowPointEntityModels();
+            void toggleShowBrushes();
+            void showTextures();
+            void hideTextures();
+            void hideFaces();
+            void toggleShadeFaces();
+            void toggleShowFog();
+            void toggleShowEdges();
+            void showAllEntityLinks();
+            void showTransitivelySelectedEntityLinks();
+            void showDirectlySelectedEntityLinks();
+            void hideAllEntityLinks();
+        protected:
+            void focusInEvent(QFocusEvent* event) override;
+            void focusOutEvent(QFocusEvent* event) override;
+        public:
+            ActionContext::Type actionContext() const;
         private: // implement ViewEffectsService interface
             void doFlashSelection() override;
         private: // implement MapView interface
+            void doInstallActivationTracker(MapViewActivationTracker& activationTracker) override;
             bool doGetIsCurrent() const override;
-            void doSetToolBoxDropTarget() override;
-            void doClearDropTarget() override;
-            bool doCanFlipObjects() const override;
-            void doFlipObjects(vm::direction direction) override;
+            MapViewBase* doGetFirstMapViewBase() override;
             bool doCancelMouseDrag() override;
+            void doRefreshViews() override;
+        protected: // RenderView overrides
+            void initializeGL() override;
         private: // implement RenderView interface
-            void doInitializeGL(bool firstInitialization) override;
             bool doShouldRenderFocusIndicator() const override;
             void doRender() override;
 
             void setupGL(Renderer::RenderContext& renderContext);
             void renderCoordinateSystem(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void renderSoftMapBounds(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderPointFile(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
             void renderPortalFile(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
@@ -274,37 +279,42 @@ namespace TrenchBroom {
             void validatePortalFileRenderer(Renderer::RenderContext& renderContext);
 
             void renderCompass(Renderer::RenderBatch& renderBatch);
+            void renderFPS(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         public: // implement InputEventProcessor interface
             void processEvent(const KeyEvent& event) override;
             void processEvent(const MouseEvent& event) override;
             void processEvent(const CancelEvent& event) override;
         private: // implement ToolBoxConnector
             void doShowPopupMenu() override;
-            void OnShowPopupMenu(wxCommandEvent& event);
+        public slots:
+            void showPopupMenuLater();
+        protected: // QWidget overrides
+            void dragEnterEvent(QDragEnterEvent* event) override;
+            void dragLeaveEvent(QDragLeaveEvent* event) override;
+            void dragMoveEvent(QDragMoveEvent* event) override;
+            void dropEvent(QDropEvent* event) override;
+        private:
+            QMenu* makeEntityGroupsMenu(Assets::EntityDefinitionType type);
 
-            wxMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type, int id);
-
-            void OnUpdatePopupMenuItem(wxUpdateUIEvent& event);
-            void updateGroupObjectsMenuItem(wxUpdateUIEvent& event) const;
-            void updateUngroupObjectsMenuItem(wxUpdateUIEvent& event) const;
-            void updateMergeGroupsMenuItem(wxUpdateUIEvent& event) const;
-            void updateRenameGroupsMenuItem(wxUpdateUIEvent& event) const;
-            void updateMakeStructuralMenuItem(wxUpdateUIEvent& event) const;
+            bool canMergeGroups() const;
+            bool canMakeStructural() const;
         private: // subclassing interface
             virtual vm::vec3 doGetMoveDirection(vm::direction direction) const = 0;
+            virtual size_t doGetFlipAxis(const vm::direction direction) const = 0;
             virtual vm::vec3 doComputePointEntityPosition(const vm::bbox3& bounds) const = 0;
 
-            virtual ActionContext doGetActionContext() const = 0;
-            virtual wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const = 0;
+            virtual ActionContext::Type doGetActionContext() const = 0;
+            virtual ActionView doGetActionView() const = 0;
             virtual bool doCancel() = 0;
 
-            virtual Renderer::RenderContext::RenderMode doGetRenderMode() = 0;
+            virtual Renderer::RenderMode doGetRenderMode() = 0;
             virtual Renderer::Camera& doGetCamera() = 0;
             virtual void doPreRender();
             virtual void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            virtual void doRenderSoftWorldBounds(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
 
             virtual bool doBeforePopupMenu();
             virtual void doAfterPopupMenu();

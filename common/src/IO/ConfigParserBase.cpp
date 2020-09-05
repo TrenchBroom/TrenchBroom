@@ -19,10 +19,12 @@
 
 #include "ConfigParserBase.h"
 
-#include "CollectionUtils.h"
 #include "Exceptions.h"
+#include "EL/EvaluationContext.h"
+#include "EL/Expression.h"
+#include "EL/Value.h"
 
-#include <cstdarg>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -30,7 +32,7 @@ namespace TrenchBroom {
         m_parser(ELParser::Mode::Strict, begin, end),
         m_path(path) {}
 
-        ConfigParserBase::ConfigParserBase(const String& str, const Path& path) :
+        ConfigParserBase::ConfigParserBase(const std::string& str, const Path& path) :
         m_parser(ELParser::Mode::Strict, str),
         m_path(path) {}
 
@@ -46,20 +48,20 @@ namespace TrenchBroom {
             }
         }
 
-        void ConfigParserBase::expectStructure(const EL::Value& value, const String& structure) const {
+        void ConfigParserBase::expectStructure(const EL::Value& value, const std::string& structure) const {
             ELParser parser(ELParser::Mode::Strict, structure);
             const auto expected = parser.parse().evaluate(EL::EvaluationContext());
-            assert(expected.type() == EL::Type_Array);
+            assert(expected.type() == EL::ValueType::Array);
 
-            const auto& mandatory = expected[0];
-            assert(mandatory.type() == EL::Type_Map);
+            const auto mandatory = expected[0];
+            assert(mandatory.type() == EL::ValueType::Map);
 
-            const auto& optional = expected[1];
-            assert(optional.type() == EL::Type_Map);
+            const auto optional = expected[1];
+            assert(optional.type() == EL::ValueType::Map);
 
             // Are all mandatory keys present?
             for (const auto& key : mandatory.keys()) {
-                const auto& typeName = mandatory[key].stringValue();
+                const auto typeName = mandatory[key].stringValue();
                 const auto type = EL::typeForName(typeName);
                 expectMapEntry(value, key, type);
             }
@@ -72,7 +74,7 @@ namespace TrenchBroom {
             }
         }
 
-        void ConfigParserBase::expectMapEntry(const EL::Value& value, const String& key, EL::ValueType type) const {
+        void ConfigParserBase::expectMapEntry(const EL::Value& value, const std::string& key, EL::ValueType type) const {
             const auto& map = value.mapValue();
             const auto it = map.find(key);
             if (it == std::end(map)) {

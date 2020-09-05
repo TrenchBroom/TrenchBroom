@@ -34,14 +34,14 @@ namespace TrenchBroom {
             const vm::vec2f halfSize = size / 2.0f;
             const TextAlignment::Type a = alignment();
             const vm::vec2f factors = alignmentFactors(a);
-            const vm::vec2f extra = extraOffsets(a, size);
+            const vm::vec2f extra = extraOffsets(a);
             vm::vec3f offset = camera.project(basePosition());
             for (size_t i = 0; i < 2; i++)
                 offset[i] = vm::round(offset[i] + factors[i] * size[i] - halfSize[i] + extra[i]);
             return offset;
         }
 
-        vm::vec3f TextAnchor3D::position(const Camera& camera) const {
+        vm::vec3f TextAnchor3D::position(const Camera& /* camera */) const {
             return basePosition();
         }
 
@@ -58,8 +58,8 @@ namespace TrenchBroom {
             return factors;
         }
 
-        vm::vec2f TextAnchor3D::extraOffsets(const TextAlignment::Type a, const vm::vec2f& size) const {
-            return vm::vec2f::zero;
+        vm::vec2f TextAnchor3D::extraOffsets(const TextAlignment::Type /* a */) const {
+            return vm::vec2f::zero();
         }
 
         vm::vec3f SimpleTextAnchor::basePosition() const {
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             return m_alignment;
         }
 
-        vm::vec2f SimpleTextAnchor::extraOffsets(const TextAlignment::Type a, const vm::vec2f& size) const {
+        vm::vec2f SimpleTextAnchor::extraOffsets(const TextAlignment::Type /* a */) const {
             return m_extraOffsets;
         }
 

@@ -44,7 +44,7 @@ namespace TrenchBroom {
             const vm::vec3f m_targetDirection;
             const vm::vec3f m_targetUp;
         public:
-            CameraAnimation(Renderer::Camera& camera, const vm::vec3f& targetPosition, const vm::vec3f& targetDirection, const vm::vec3f& targetUp, const wxLongLong& duration);
+            CameraAnimation(Renderer::Camera& camera, const vm::vec3f& targetPosition, const vm::vec3f& targetDirection, const vm::vec3f& targetUp, double duration);
         private:
             void doUpdate(double progress) override;
         };

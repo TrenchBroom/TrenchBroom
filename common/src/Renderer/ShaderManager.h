@@ -20,50 +20,37 @@
 #ifndef TrenchBroom_ShaderManager
 #define TrenchBroom_ShaderManager
 
-#include "StringUtils.h"
 #include "Renderer/GL.h"
-#include "Renderer/ShaderProgram.h"
 
 #include <map>
+#include <memory>
+#include <string>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace Renderer {
         class Shader;
         class ShaderConfig;
+        class ShaderProgram;
 
         class ShaderManager {
         private:
-            using ShaderCache = std::map<String, Shader*>;
-            using ShaderCacheEntry = std::pair<String, Shader*>;
-            using ShaderProgramCache = std::map<const ShaderConfig*, ShaderProgram*>;
-            using ShaderProgramCacheEntry = std::pair<const ShaderConfig*, ShaderProgram*>;
+            friend class ShaderProgram;
+            using ShaderCache = std::map<std::string, std::unique_ptr<Shader>>;
+            using ShaderProgramCache = std::map<const ShaderConfig*, std::unique_ptr<ShaderProgram>>;
 
             ShaderCache m_shaders;
             ShaderProgramCache m_programs;
+            ShaderProgram* m_currentProgram;
         public:
+            ShaderManager();
             ~ShaderManager();
-
-            ShaderProgram& program(const ShaderConfig& config);
-        private:
-            ShaderProgram* createProgram(const ShaderConfig& config);
-            Shader& loadShader(const String& name, const GLenum type);
-        };
-
-        class ActiveShader {
-        private:
-            ShaderProgram& m_program;
         public:
-            ActiveShader(ShaderManager& shaderManager, const ShaderConfig& shaderConfig);
-            ~ActiveShader();
-
-            template <class T>
-            void set(const String& name, const T& value) {
-                m_program.set(name, value);
-            }
+            ShaderProgram& program(const ShaderConfig& config);
+            ShaderProgram* currentProgram();
+        private:
+            void setCurrentProgram(ShaderProgram* program);
+            std::unique_ptr<ShaderProgram> createProgram(const ShaderConfig& config);
+            Shader& loadShader(const std::string& name, const GLenum type);
         };
     }
 }

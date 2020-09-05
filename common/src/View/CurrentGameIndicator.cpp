@@ -19,39 +19,46 @@
 
 #include "CurrentGameIndicator.h"
 
+#include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "Model/GameFactory.h"
 #include "View/ViewConstants.h"
+#include "View/QtUtils.h"
 
-#include <wx/settings.h>
-#include <wx/sizer.h>
-#include <wx/statbmp.h>
-#include <wx/stattext.h>
+#include <string>
+
+#include <QBoxLayout>
+#include <QLabel>
 
 namespace TrenchBroom {
     namespace View {
-        CurrentGameIndicator::CurrentGameIndicator(wxWindow* parent, const String& gameName) :
-        wxPanel(parent) {
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
+        CurrentGameIndicator::CurrentGameIndicator(const std::string& gameName, QWidget* parent) :
+        QWidget(parent) {
+            // Use white background (or whatever color a text widget uses)
+            setBaseWindowColor(this);
 
-            Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            auto& gameFactory = Model::GameFactory::instance();
 
-            const IO::Path gamePath = gameFactory.gamePath(gameName);
-            IO::Path iconPath = gameFactory.iconPath(gameName);
-            if (iconPath.isEmpty())
-                iconPath = IO::Path("DefaultGameIcon.png");
+            const auto gamePath = gameFactory.gamePath(gameName);
+            auto iconPath = gameFactory.iconPath(gameName);
+            if (iconPath.isEmpty()) {
+                iconPath = IO::Path("DefaultGameIcon.svg");
+            }
 
-            const wxBitmap gameIcon = IO::loadImageResource(iconPath);
-            wxStaticBitmap* gameIconImg = new wxStaticBitmap(this, wxID_ANY, gameIcon);
-            wxStaticText* gameNameText = new wxStaticText(this, wxID_ANY, gameName);
-            gameNameText->SetFont(gameNameText->GetFont().Larger().Larger().Bold());
+            const auto gameIcon = IO::loadPixmapResource(iconPath);
+            auto* gameIconLabel = new QLabel();
+            gameIconLabel->setPixmap(gameIcon);
 
-            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->AddSpacer(LayoutConstants::WideHMargin);
-            sizer->Add(gameIconImg, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin));
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(gameNameText, wxSizerFlags().CenterVertical().Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin));
-            SetSizer(sizer);
+            auto* gameNameLabel = new QLabel(QString::fromStdString(gameName));
+            makeHeader(gameNameLabel);
+
+            auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(LayoutConstants::WideHMargin, LayoutConstants::MediumVMargin, LayoutConstants::WideHMargin, LayoutConstants::MediumVMargin);
+            layout->setSpacing(LayoutConstants::MediumHMargin);
+            setLayout(layout);
+
+            layout->addWidget(gameIconLabel, 0, Qt::AlignLeft | Qt::AlignVCenter);
+            layout->addWidget(gameNameLabel, 1, Qt::AlignLeft | Qt::AlignVCenter);
         }
     }
 }

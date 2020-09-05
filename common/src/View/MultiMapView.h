@@ -24,40 +24,42 @@
 
 #include <vector>
 
-class wxWindow;
+class QWidget;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
-        class MapView;
-
         class MultiMapView : public MapViewContainer {
         private:
             using MapViewList = std::vector<MapView*>;
             MapViewList m_mapViews;
             MapView* m_maximizedView;
         protected:
-            MultiMapView(wxWindow* parent);
+            explicit MultiMapView(QWidget* parent = nullptr);
         public:
-            virtual ~MultiMapView() override;
+            ~MultiMapView() override;
         protected:
             void addMapView(MapView* mapView);
         private: // implement ViewEffectsService interface
             void doFlashSelection() override;
         private: // implement MapView interface
+            void doInstallActivationTracker(MapViewActivationTracker& activationTracker) override;
             bool doGetIsCurrent() const override;
-            void doSetToolBoxDropTarget() override;
-            void doClearDropTarget() override;
+            MapViewBase* doGetFirstMapViewBase() override;
             bool doCanSelectTall() override;
             void doSelectTall() override;
             void doFocusCameraOnSelection(bool animate) override;
             void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
             void doMoveCameraToCurrentTracePoint() override;
             bool doCancelMouseDrag() override;
+            void doRefreshViews() override;
         private: // implement MapViewContainer interface
             bool doCanMaximizeCurrentView() const override;
             bool doCurrentViewMaximized() const override;
             void doToggleMaximizeCurrentView() override;
             MapView* doGetCurrentMapView() const override;
+        public:
+            void cycleChildMapView(MapView* after) override;
         private: // subclassing interface
             virtual void doMaximizeView(MapView* view) = 0;
             virtual void doRestoreViews() = 0;

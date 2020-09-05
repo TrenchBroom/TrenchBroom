@@ -22,7 +22,7 @@
 
 #include "View/Animation.h"
 
-class wxWindow;
+class QWidget;
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -35,9 +35,9 @@ namespace TrenchBroom {
             static const Type AnimationType;
 
             Renderer::MapRenderer& m_renderer;
-            wxWindow& m_view;
+            QWidget* m_view;
         public:
-            FlashSelectionAnimation(Renderer::MapRenderer& renderer, wxWindow& view, const wxLongLong& duration);
+            FlashSelectionAnimation(Renderer::MapRenderer& renderer, QWidget* view, double duration);
         private:
             void doUpdate(double progress) override;
         };

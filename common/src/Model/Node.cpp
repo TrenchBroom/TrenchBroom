@@ -19,12 +19,21 @@
 
 #include "Node.h"
 
-#include "CollectionUtils.h"
+#include "Ensure.h"
+#include "Macros.h"
 #include "Model/Issue.h"
 #include "Model/IssueGenerator.h"
+#include "Model/LockState.h"
+#include "Model/VisibilityState.h"
 
-#include <algorithm>
+#include <kdl/vector_utils.h>
+
+#include <vecmath/bbox.h>
+
 #include <cassert>
+#include <iterator>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -34,8 +43,8 @@ namespace TrenchBroom {
         m_selected(false),
         m_childSelectionCount(0),
         m_descendantSelectionCount(0),
-        m_visibilityState(Visibility_Inherited),
-        m_lockState(Lock_Inherited),
+        m_visibilityState(VisibilityState::Visibility_Inherited),
+        m_lockState(LockState::Lock_Inherited),
         m_lineNumber(0),
         m_lineCount(0),
         m_issuesValid(false),
@@ -46,7 +55,7 @@ namespace TrenchBroom {
             clearIssues();
         }
 
-        const String& Node::name() const {
+        const std::string& Node::name() const {
             return doGetName();
         }
 
@@ -75,15 +84,15 @@ namespace TrenchBroom {
             node->setLockState(m_lockState);
         }
 
-        NodeList Node::clone(const vm::bbox3& worldBounds, const NodeList& nodes) {
-            NodeList clones;
+        std::vector<Node*> Node::clone(const vm::bbox3& worldBounds, const std::vector<Node*>& nodes) {
+            std::vector<Node*> clones;
             clones.reserve(nodes.size());
             clone(worldBounds, std::begin(nodes), std::end(nodes), std::back_inserter(clones));
             return clones;
         }
 
-        NodeList Node::cloneRecursively(const vm::bbox3& worldBounds, const NodeList& nodes) {
-            NodeList clones;
+        std::vector<Node*> Node::cloneRecursively(const vm::bbox3& worldBounds, const std::vector<Node*>& nodes) {
+            std::vector<Node*> clones;
             clones.reserve(nodes.size());
             cloneRecursively(worldBounds, std::begin(nodes), std::end(nodes), std::back_inserter(clones));
             return clones;
@@ -103,7 +112,7 @@ namespace TrenchBroom {
             return node->isDescendantOf(this);
         }
 
-        bool Node::isAncestorOf(const NodeList& nodes) const {
+        bool Node::isAncestorOf(const std::vector<Node*>& nodes) const {
             return std::any_of(std::begin(nodes), std::end(nodes), [this](const Node* node) { return isAncestorOf(node); });
         }
 
@@ -117,13 +126,17 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool Node::isDescendantOf(const NodeList& nodes) const {
+        bool Node::isDescendantOf(const std::vector<Node*>& nodes) const {
             return any_of(std::begin(nodes), std::end(nodes), [this](const Node* node) { return isDescendantOf(node); });
         }
 
-        NodeList Node::findDescendants(const NodeList& nodes) const {
-            NodeList result;
-            std::copy_if(std::begin(nodes), std::end(nodes), std::back_inserter(result), [this](const Node* node) { return node->isDescendantOf(this); });
+        std::vector<Node*> Node::findDescendants(const std::vector<Node*>& nodes) const {
+            std::vector<Node*> result;
+            for (auto* node : nodes) {
+                if (node->isDescendantOf(this)) {
+                    result.push_back(node);
+                }
+            }
             return result;
         }
 
@@ -139,7 +152,7 @@ namespace TrenchBroom {
             return m_children.size();
         }
 
-        const NodeList& Node::children() const {
+        const std::vector<Node*>& Node::children() const {
             return m_children;
         }
 
@@ -155,21 +168,21 @@ namespace TrenchBroom {
             return doShouldAddToSpacialIndex();
         }
 
-        void Node::addChildren(const NodeList& children) {
+        void Node::addChildren(const std::vector<Node*>& children) {
             addChildren(std::begin(children), std::end(children), children.size());
         }
 
         void Node::addChild(Node* child) {
             doAddChild(child);
-            incDescendantCount(child->descendantCount() + 1);
-            incChildSelectionCount(child->selected() ? 1 : 0);
+            incDescendantCount(child->descendantCount() + 1u);
+            incChildSelectionCount(child->selected() ? 1u : 0u);
             incDescendantSelectionCount(child->descendantSelectionCount());
         }
 
         void Node::removeChild(Node* child) {
             doRemoveChild(child);
-            decDescendantCount(child->descendantCount() + 1);
-            decChildSelectionCount(child->selected() ? 1 : 0);
+            decDescendantCount(child->descendantCount() + 1u);
+            decChildSelectionCount(child->selected() ? 1u : 0u);
             decDescendantSelectionCount(child->descendantSelectionCount());
         }
 
@@ -185,7 +198,7 @@ namespace TrenchBroom {
 
         void Node::doAddChild(Node* child) {
             ensure(child != nullptr, "child is null");
-            assert(!VectorUtils::contains(m_children, child));
+            assert(!kdl::vec_contains(m_children, child));
             assert(child->parent() == nullptr);
             assert(canAddChild(child));
 
@@ -205,13 +218,13 @@ namespace TrenchBroom {
             childWillBeRemoved(child);
             // nodeWillChange();
             child->setParent(nullptr);
-            VectorUtils::erase(m_children, child);
+            kdl::vec_erase(m_children, child);
             childWasRemoved(child);
             // nodeDidChange();
         }
 
         void Node::clearChildren() {
-            VectorUtils::clearAndDelete(m_children);
+            kdl::vec_clear_and_delete(m_children);
         }
 
         void Node::childWillBeAdded(Node* node) {
@@ -304,13 +317,17 @@ namespace TrenchBroom {
 
         void Node::ancestorWillChange() {
             doAncestorWillChange();
-            std::for_each(std::begin(m_children), std::end(m_children), [](Node* child) { child->ancestorWillChange(); });
+            for (auto* child : m_children) {
+                child->ancestorWillChange();
+            }
             invalidateIssues();
         }
 
         void Node::ancestorDidChange() {
             doAncestorDidChange();
-            std::for_each(std::begin(m_children), std::end(m_children), [](Node* child) { child->ancestorDidChange(); });
+            for (auto* child : m_children) {
+                child->ancestorDidChange();
+            }
             invalidateIssues();
         }
 
@@ -336,9 +353,19 @@ namespace TrenchBroom {
             m_node->nodeDidChange();
         }
 
+        Node::NotifyPhysicalBoundsChange::NotifyPhysicalBoundsChange(Node* node) :
+        m_node(node),
+        m_oldBounds(m_node->physicalBounds()) {
+            ensure(m_node != nullptr, "node is null");
+        }
+        
+        Node::NotifyPhysicalBoundsChange::~NotifyPhysicalBoundsChange() {
+            m_node->nodePhysicalBoundsDidChange(m_oldBounds);
+        }
+
         // notice that we take a copy here so that we can safely propagate the old bounds up
         void Node::nodePhysicalBoundsDidChange(const vm::bbox3 oldBounds) {
-            doNodePhysicalBoundsDidChange(oldBounds);
+            doNodePhysicalBoundsDidChange();
             if (m_parent != nullptr)
                 m_parent->childPhysicalBoundsDidChange(this, oldBounds);
         }
@@ -376,12 +403,12 @@ namespace TrenchBroom {
                 nodePhysicalBoundsDidChange(myOldBounds);
             }
 
-            doChildPhysicalBoundsDidChange(node, oldBounds);
+            doChildPhysicalBoundsDidChange();
             descendantPhysicalBoundsDidChange(node, oldBounds, 1);
         }
 
         void Node::descendantPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {
-            doDescendantPhysicalBoundsDidChange(node, oldBounds, depth);
+            doDescendantPhysicalBoundsDidChange(node);
             if (shouldPropagateDescendantEvents() && m_parent != nullptr) {
                 m_parent->descendantPhysicalBoundsDidChange(node, oldBounds, depth + 1);
             }
@@ -446,8 +473,8 @@ namespace TrenchBroom {
             decChildSelectionCount(1);
         }
 
-        NodeList Node::nodesRequiredForViewSelection() {
-            return NodeList{this};
+        std::vector<Node*> Node::nodesRequiredForViewSelection() {
+            return std::vector<Node*>{this};
         }
 
         void Node::incChildSelectionCount(const size_t delta) {
@@ -488,22 +515,22 @@ namespace TrenchBroom {
 
         bool Node::visible() const {
             switch (m_visibilityState) {
-                case Visibility_Inherited:
+                case VisibilityState::Visibility_Inherited:
                     return m_parent == nullptr || m_parent->visible();
-                case Visibility_Hidden:
+                case VisibilityState::Visibility_Hidden:
                     return false;
-                case Visibility_Shown:
+                case VisibilityState::Visibility_Shown:
                     return true;
                 switchDefault()
             }
         }
 
         bool Node::shown() const {
-            return m_visibilityState == Visibility_Shown;
+            return m_visibilityState == VisibilityState::Visibility_Shown;
         }
 
         bool Node::hidden() const {
-            return m_visibilityState == Visibility_Hidden;
+            return m_visibilityState == VisibilityState::Visibility_Hidden;
         }
 
         VisibilityState Node::visibilityState() const {
@@ -520,17 +547,17 @@ namespace TrenchBroom {
 
         bool Node::ensureVisible() {
             if (!visible())
-                return setVisibilityState(Visibility_Shown);
+                return setVisibilityState(VisibilityState::Visibility_Shown);
             return false;
         }
 
         bool Node::editable() const {
             switch (m_lockState) {
-                case Lock_Inherited:
+                case LockState::Lock_Inherited:
                     return m_parent == nullptr || m_parent->editable();
-                case Lock_Locked:
+                case LockState::Lock_Locked:
                     return false;
-                case Lock_Unlocked:
+                case LockState::Lock_Unlocked:
                     return true;
                 switchDefault()
             }
@@ -553,11 +580,11 @@ namespace TrenchBroom {
 
         }
 
-        void Node::pick(const vm::ray3& ray, PickResult& pickResult) const {
+        void Node::pick(const vm::ray3& ray, PickResult& pickResult) {
             doPick(ray, pickResult);
         }
 
-        void Node::findNodesContaining(const vm::vec3& point, NodeList& result) {
+        void Node::findNodesContaining(const vm::vec3& point, std::vector<Node*>& result) {
             doFindNodesContaining(point, result);
         }
 
@@ -565,7 +592,7 @@ namespace TrenchBroom {
             return m_lineNumber;
         }
 
-        void Node::setFilePosition(const size_t lineNumber, const size_t lineCount) {
+        void Node::setFilePosition(const size_t lineNumber, const size_t lineCount) const {
             m_lineNumber = lineNumber;
             m_lineCount = lineCount;
         }
@@ -574,7 +601,7 @@ namespace TrenchBroom {
             return lineNumber >= m_lineNumber && lineNumber < m_lineNumber + m_lineCount;
         }
 
-        const IssueList& Node::issues(const IssueGeneratorList& issueGenerators) {
+        const std::vector<Issue*>& Node::issues(const std::vector<IssueGenerator*>& issueGenerators) {
             validateIssues(issueGenerators);
             return m_issues;
         }
@@ -591,7 +618,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Node::validateIssues(const IssueGeneratorList& issueGenerators) {
+        void Node::validateIssues(const std::vector<IssueGenerator*>& issueGenerators) {
             if (!m_issuesValid) {
                 for (const auto* generator : issueGenerators) {
                     doGenerateIssues(generator, m_issues);
@@ -606,22 +633,22 @@ namespace TrenchBroom {
         }
 
         void Node::clearIssues() const {
-            VectorUtils::clearAndDelete(m_issues);
+            kdl::vec_clear_and_delete(m_issues);
         }
 
-        void Node::findAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const {
+        void Node::findAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<AttributableNode*>& result) const {
             return doFindAttributableNodesWithAttribute(name, value, result);
         }
 
-        void Node::findAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const {
+        void Node::findAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<AttributableNode*>& result) const {
             return doFindAttributableNodesWithNumberedAttribute(prefix, value, result);
         }
 
-        void Node::addToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
+        void Node::addToIndex(AttributableNode* attributable, const std::string& name, const std::string& value) {
             doAddToIndex(attributable, name, value);
         }
 
-        void Node::removeFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
+        void Node::removeFromIndex(AttributableNode* attributable, const std::string& name, const std::string& value) {
             doRemoveFromIndex(attributable, name, value);
         }
 
@@ -635,15 +662,15 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        void Node::doChildWillBeAdded(Node* node) {}
-        void Node::doChildWasAdded(Node* node) {}
-        void Node::doChildWillBeRemoved(Node* node) {}
-        void Node::doChildWasRemoved(Node* node) {}
+        void Node::doChildWillBeAdded(Node* /* node */) {}
+        void Node::doChildWasAdded(Node* /* node */) {}
+        void Node::doChildWillBeRemoved(Node* /* node */) {}
+        void Node::doChildWasRemoved(Node* /* node */) {}
 
-        void Node::doDescendantWillBeAdded(Node* newParent, Node* node, const size_t depth) {}
-        void Node::doDescendantWasAdded(Node* node, const size_t depth) {}
-        void Node::doDescendantWillBeRemoved(Node* node, const size_t depth) {}
-        void Node::doDescendantWasRemoved(Node* oldParent, Node* node, const size_t depth) {}
+        void Node::doDescendantWillBeAdded(Node* /* newParent */, Node* /* node */, const size_t /* depth */) {}
+        void Node::doDescendantWasAdded(Node* /* node */, const size_t /* depth */) {}
+        void Node::doDescendantWillBeRemoved(Node* /* node */, const size_t /* depth */) {}
+        void Node::doDescendantWasRemoved(Node* /* oldParent */, Node* /* node */, const size_t /* depth */) {}
         bool Node::doShouldPropagateDescendantEvents() const { return true; }
 
         void Node::doParentWillChange() {}
@@ -651,31 +678,31 @@ namespace TrenchBroom {
         void Node::doAncestorWillChange() {}
         void Node::doAncestorDidChange() {}
 
-        void Node::doNodePhysicalBoundsDidChange(const vm::bbox3& oldBounds) {}
-        void Node::doChildPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds) {}
-        void Node::doDescendantPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds, const size_t depth) {}
+        void Node::doNodePhysicalBoundsDidChange() {}
+        void Node::doChildPhysicalBoundsDidChange() {}
+        void Node::doDescendantPhysicalBoundsDidChange(Node* /* node */) {}
 
-        void Node::doChildWillChange(Node* node) {}
-        void Node::doChildDidChange(Node* node) {}
-        void Node::doDescendantWillChange(Node* node) {}
-        void Node::doDescendantDidChange(Node* node)  {}
+        void Node::doChildWillChange(Node* /* node */) {}
+        void Node::doChildDidChange(Node* /* node */) {}
+        void Node::doDescendantWillChange(Node* /* node */) {}
+        void Node::doDescendantDidChange(Node* /* node */)  {}
 
-        void Node::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const {
+        void Node::doFindAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<AttributableNode*>& result) const {
             if (m_parent != nullptr)
                 m_parent->findAttributableNodesWithAttribute(name, value, result);
         }
 
-        void Node::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const {
+        void Node::doFindAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<AttributableNode*>& result) const {
             if (m_parent != nullptr)
                 m_parent->findAttributableNodesWithNumberedAttribute(prefix, value, result);
         }
 
-        void Node::doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
+        void Node::doAddToIndex(AttributableNode* attributable, const std::string& name, const std::string& value) {
             if (m_parent != nullptr)
                 m_parent->addToIndex(attributable, name, value);
         }
 
-        void Node::doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
+        void Node::doRemoveFromIndex(AttributableNode* attributable, const std::string& name, const std::string& value) {
             if (m_parent != nullptr)
                 m_parent->removeFromIndex(attributable, name, value);
         }

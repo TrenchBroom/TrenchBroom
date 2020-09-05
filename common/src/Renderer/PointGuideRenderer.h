@@ -20,35 +20,40 @@
 #ifndef TrenchBroom_PointGuideRenderer
 #define TrenchBroom_PointGuideRenderer
 
-#include "TrenchBroom.h"
 #include "Color.h"
+#include "FloatType.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/SpikeGuideRenderer.h"
-#include "View/ViewTypes.h"
 
 #include <vecmath/vec.h>
 
+#include <memory>
+
 namespace TrenchBroom {
+    namespace View {
+        class MapDocument;
+    }
+
     namespace Renderer {
         class RenderContext;
-        class Vbo;
+        class VboManager;
 
         class PointGuideRenderer : public DirectRenderable {
         private:
             static const FloatType SpikeLength;
 
-            View::MapDocumentWPtr m_document;
+            std::weak_ptr<View::MapDocument> m_document;
 
             Color m_color;
             vm::vec3 m_position;
             SpikeGuideRenderer m_spikeRenderer;
         public:
-            PointGuideRenderer(View::MapDocumentWPtr document);
+            PointGuideRenderer(std::weak_ptr<View::MapDocument> document);
 
             void setColor(const Color& color);
             void setPosition(const vm::vec3& position);
         private:
-            void doPrepareVertices(Vbo& vertexVbo) override;
+            void doPrepareVertices(VboManager& vboManager) override;
             void doRender(RenderContext& renderContext) override;
         };
     }

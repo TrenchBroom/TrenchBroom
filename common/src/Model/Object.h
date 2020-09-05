@@ -20,14 +20,24 @@
 #ifndef TrenchBroom_Object
 #define TrenchBroom_Object
 
-#include "TrenchBroom.h"
-#include "Model/ModelTypes.h"
-#include "Model/Pickable.h"
+#include "FloatType.h"
+
+#include <kdl/result_forward.h>
+
+#include <iosfwd>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
-        class NodeSnapshot;
-        class PickResult;
+        class GroupNode;
+        class LayerNode;
+        class Node;
+
+        struct TransformError {
+            std::string msg;
+            
+            friend std::ostream& operator<<(std::ostream& str, const TransformError& e);
+        };
 
         class Object {
         protected:
@@ -36,26 +46,36 @@ namespace TrenchBroom {
             virtual ~Object();
 
             Node* container() const;
-            Layer* layer() const;
-            Group* group() const;
+            LayerNode* layer() const;
+            GroupNode* group() const;
 
             bool grouped() const;
             bool groupOpened() const;
 
-            void transform(const vm::mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds);
+            /**
+             * Transforms this object by the given transformation.
+             *
+             * If the transformation fails, then this object may be partially transformed, but it will be in a valid
+             * state. In that case, an error is returned.
+             *
+             * @param worldBounds the world bounds
+             * @param transformation the transformation to apply
+             * @param lockTextures whether textures should be locked
+             * @return nothing or an error indicating why the operation failed
+             */
+            kdl::result<void, TransformError> transform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures);
             bool contains(const Node* object) const;
             bool intersects(const Node* object) const;
         private: // subclassing interface
             virtual Node* doGetContainer() const = 0;
-            virtual Layer* doGetLayer() const = 0;
-            virtual Group* doGetGroup() const = 0;
+            virtual LayerNode* doGetLayer() const = 0;
+            virtual GroupNode* doGetGroup() const = 0;
 
-            virtual void doTransform(const vm::mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds) = 0;
+            virtual kdl::result<void, TransformError> doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) = 0;
             virtual bool doContains(const Node* node) const = 0;
             virtual bool doIntersects(const Node* node) const = 0;
         };
     }
 }
-
 
 #endif /* defined(TrenchBroom_Object) */

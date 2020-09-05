@@ -20,34 +20,40 @@
 #ifndef TrenchBroom_MapViewContainer
 #define TrenchBroom_MapViewContainer
 
-#include "View/MapView.h"
+#include <QWidget>
 
-#include <wx/panel.h>
+#include "View/MapView.h"
 
 namespace TrenchBroom {
     namespace View {
+        class MapViewActivationTracker;
         class MapViewBase;
 
-        class MapViewContainer : public wxPanel, public MapView {
+        class MapViewContainer : public QWidget, public MapView {
+            Q_OBJECT
         public:
-            MapViewContainer(wxWindow* parent);
-            virtual ~MapViewContainer() override;
+            explicit MapViewContainer(QWidget* parent);
+            ~MapViewContainer() override;
         public:
             bool canMaximizeCurrentView() const;
             bool currentViewMaximized() const;
             void toggleMaximizeCurrentView();
         protected:
+            /**
+             * Returns the current map view. This is the map view which had last received focus.
+             *
+             * @return the current map view
+             */
             MapView* currentMapView() const;
         private: // implement MapView interface
-            bool doCanFlipObjects() const override;
-            void doFlipObjects(vm::direction direction) override;
-
             vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const override;
         private: // subclassing interface
             virtual bool doCanMaximizeCurrentView() const = 0;
             virtual bool doCurrentViewMaximized() const = 0;
             virtual void doToggleMaximizeCurrentView() = 0;
             virtual MapView* doGetCurrentMapView() const = 0;
+        public:
+            virtual void cycleChildMapView(MapView* after) = 0;
         };
     }
 }

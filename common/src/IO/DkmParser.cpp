@@ -20,17 +20,21 @@
 #include "DkmParser.h"
 
 #include "Exceptions.h"
+#include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
-#include "Assets/Palette.h"
 #include "IO/FileSystem.h"
-#include "IO/ImageLoader.h"
+#include "IO/FileMatcher.h"
 #include "IO/Path.h"
 #include "IO/Reader.h"
 #include "IO/SkinLoader.h"
+#include "Renderer/GLVertex.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/IndexRangeMapBuilder.h"
-#include "Renderer/GLVertex.h"
-#include "Renderer/GLVertexType.h"
+#include "Renderer/PrimType.h"
+
+#include <kdl/string_format.h>
+
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -225,7 +229,7 @@ namespace TrenchBroom {
         vertexCount(static_cast<size_t>(i_vertexCount < 0 ? -i_vertexCount : i_vertexCount)),
         vertices(vertexCount) {}
 
-        DkmParser::DkmParser(const String& name, const char* begin, const char* end, const FileSystem& fs) :
+        DkmParser::DkmParser(const std::string& name, const char* begin, const char* end, const FileSystem& fs) :
         m_name(name),
         m_begin(begin),
         m_end(end),
@@ -239,10 +243,10 @@ namespace TrenchBroom {
             const int version = reader.readInt<int32_t>();
 
             if (ident != DkmLayout::Ident) {
-                throw AssetException() << "Unknown DKM model ident: " << ident;
+                throw AssetException("Unknown DKM model ident: " + std::to_string(ident));
             }
             if (version != DkmLayout::Version1 && version != DkmLayout::Version2) {
-                throw AssetException() << "Unknown DKM model version: " << version;
+                throw AssetException("Unknown DKM model version: " + std::to_string(version));
             }
 
             /* const auto origin = */ reader.readVec<float,3>();
@@ -261,25 +265,25 @@ namespace TrenchBroom {
 
             const auto skins = parseSkins(reader.subReaderFromBegin(skinOffset), skinCount);
 
-            auto model = std::make_unique<Assets::EntityModel>(m_name);
+            auto model = std::make_unique<Assets::EntityModel>(m_name, Assets::PitchType::Normal);
             model->addFrames(frameCount);
 
             auto& surface = model->addSurface(m_name);
-            loadSkins(surface, skins);
+            loadSkins(surface, skins, logger);
 
             return model;
         }
 
-        void DkmParser::doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) {
+        void DkmParser::doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */) {
             auto reader = Reader::from(m_begin, m_end);
             const int ident = reader.readInt<int32_t>();
             const int version = reader.readInt<int32_t>();
 
             if (ident != DkmLayout::Ident) {
-                throw AssetException() << "Unknown DKM model ident: " << ident;
+                throw AssetException("Unknown DKM model ident: " + std::to_string(ident));
             }
             if (version != DkmLayout::Version1 && version != DkmLayout::Version2) {
-                throw AssetException() << "Unknown DKM model version: " << version;
+                throw AssetException("Unknown DKM model version: " + std::to_string(version));
             }
 
             /* const auto origin = */ reader.readVec<float,3>();
@@ -317,7 +321,7 @@ namespace TrenchBroom {
             return skins;
         }
 
-        DkmParser::DkmFrame DkmParser::parseFrame(Reader reader, const size_t frameIndex, const size_t vertexCount, const int version) {
+        DkmParser::DkmFrame DkmParser::parseFrame(Reader reader, const size_t /* frameIndex */, const size_t vertexCount, const int version) {
             assert(version == 1 || version == 2);
 
             auto frame = DkmFrame(vertexCount);
@@ -326,8 +330,8 @@ namespace TrenchBroom {
             frame.offset = reader.readVec<float,3>();
             frame.name = reader.readString(DkmLayout::FrameNameLength);
 
-            assert(!vm::isNaN(frame.scale));
-            assert(!vm::isNaN(frame.offset));
+            assert(!vm::is_nan(frame.scale));
+            assert(!vm::is_nan(frame.offset));
 
             if (version == 1) {
                 for (size_t i = 0; i < vertexCount; ++i) {
@@ -354,7 +358,7 @@ namespace TrenchBroom {
             return frame;
         }
 
-        DkmParser::DkmMeshList DkmParser::parseMeshes(Reader reader, const size_t commandCount) {
+        DkmParser::DkmMeshList DkmParser::parseMeshes(Reader reader, const size_t /* commandCount */) {
             DkmMeshList meshes;
 
             // vertex count is signed, where < 0 indicates a triangle fan and > 0 indicates a triangle strip
@@ -376,11 +380,16 @@ namespace TrenchBroom {
             return meshes;
         }
 
-        void DkmParser::loadSkins(Assets::EntityModel::Surface& surface, const DkmParser::DkmSkinList& skins) {
+        void DkmParser::loadSkins(Assets::EntityModelSurface& surface, const DkmParser::DkmSkinList& skins, Logger& logger) {
+            std::vector<Assets::Texture> textures;
+            textures.reserve(skins.size());
+            
             for (const auto& skin : skins) {
                 const auto skinPath = findSkin(skin);
-                surface.addSkin(loadSkin(m_fs.openFile(skinPath)));
+                textures.push_back(loadSkin(skinPath, m_fs, logger));
             }
+            
+            surface.setSkins(std::move(textures));
         }
 
         /**
@@ -388,14 +397,14 @@ namespace TrenchBroom {
          * not exist, and the correct skin file name will be "x/y.wal" instead. That's why we try to find
          * a matching file name by disregarding the extension.
          */
-        const IO::Path DkmParser::findSkin(const String& skin) const {
+        Path DkmParser::findSkin(const std::string& skin) const {
             const Path skinPath(skin);
             if (m_fs.fileExists(skinPath)) {
                 return skinPath;
             }
 
             // try "wal" extension instead
-            if (StringUtils::toLower(skinPath.extension()) == "bmp") {
+            if (kdl::str_to_lower(skinPath.extension()) == "bmp") {
                 const auto walPath = skinPath.replaceExtension("wal");
                 if (m_fs.fileExists(walPath)) {
                     return walPath;
@@ -413,21 +422,21 @@ namespace TrenchBroom {
             }
         }
 
-        void DkmParser::buildFrame(Assets::EntityModel& model, Assets::EntityModel::Surface& surface, const size_t frameIndex, const DkmFrame& frame, const DkmMeshList& meshes) {
+        void DkmParser::buildFrame(Assets::EntityModel& model, Assets::EntityModelSurface& surface, const size_t frameIndex, const DkmFrame& frame, const DkmMeshList& meshes) {
             size_t vertexCount = 0;
             Renderer::IndexRangeMap::Size size;
             for (const auto& md2Mesh : meshes) {
                 vertexCount += md2Mesh.vertices.size();
                 if (md2Mesh.type == DkmMesh::Fan) {
-                    size.inc(GL_TRIANGLE_FAN);
+                    size.inc(Renderer::PrimType::TriangleFan);
                 } else {
-                    size.inc(GL_TRIANGLE_STRIP);
+                    size.inc(Renderer::PrimType::TriangleStrip);
                 }
             }
 
             vm::bbox3f::builder bounds;
 
-            Renderer::IndexRangeMapBuilder<Assets::EntityModel::Vertex::Type> builder(vertexCount, size);
+            Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type> builder(vertexCount, size);
             for (const auto& md2Mesh : meshes) {
                 if (!md2Mesh.vertices.empty()) {
                     vertexCount += md2Mesh.vertices.size();
@@ -447,10 +456,8 @@ namespace TrenchBroom {
             surface.addIndexedMesh(modelFrame, builder.vertices(), builder.indices());
         }
 
-        Assets::EntityModel::VertexList DkmParser::getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const {
-            using Vertex = Assets::EntityModel::Vertex;
-
-            Vertex::List result(0);
+        std::vector<Assets::EntityModelVertex> DkmParser::getVertices(const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const {
+            std::vector<Assets::EntityModelVertex> result;
             result.reserve(meshVertices.size());
 
             for (const DkmMeshVertex& md2MeshVertex : meshVertices) {

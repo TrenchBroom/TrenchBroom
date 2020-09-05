@@ -19,13 +19,9 @@
 
 #include "MapFacade.h"
 
-#include "Model/NodeCollection.h"
-
-#include <cassert>
-
 namespace TrenchBroom {
     namespace Model {
-        MapFacade::~MapFacade() {}
+        MapFacade::~MapFacade() = default;
 
         MapFacade::MoveVerticesResult::MoveVerticesResult(const bool i_success, const bool i_hasRemainingVertices) :
         success(i_success),

@@ -1,0 +1,624 @@
+//
+// D-Day Normandy game definition file (.fgd)
+//
+// Written by Christian aka Vio
+//	https://github.com/chow-land
+//
+// Original dday entity guide:
+// https://www.quakewiki.net/archives/dday.planetquake.gamespy.com/site/user_guides/manual/pages/mapmaking.htm
+//
+// Last updated:  July 15th, 2020
+//
+
+@SolidClass = worldspawn : "World entity"
+[
+	sky(string) : "Environment map name"
+	skyaxis(string) : "Vector axis for rotating sky"
+	skyrotate(string) : "Speed of rotation (degrees/second)"
+	gravity(integer) : "Gravity" : 800
+	message(string) : "Level name"
+]
+
+
+@baseclass base(Appearflags, Targetname) size(-16 -16 -24, 16 16 32) color(0 255 0) = PlayerClass []
+
+@PointClass = info_team_start : "Configures info for a team. There should be 2 of these on your map."
+[
+	obj_owner(integer) : "Owning team (0-allies or 10-axis)"
+	message(string) :"Team Name (required)"
+	dll(choices) : "Team DLL" = 
+	[
+		"usa" : "USA"
+		"usm" : "US Marines"
+		"grm" : "Germans"
+		"gbr" : "British"
+		"rus" : "Russians"
+		"jpn" : "Japanese"
+		"pol" : "Polish"
+	]
+	kills(integer) : "Kills to win"
+	points(integer) : "Points to win"
+	nextmap(string) : "Map to load if the team that owns this entity wins (obsolete)"
+]
+
+
+// PLAYER SPAWNS
+
+@PointClass base(PlayerClass) color(127 0 128) = info_player_start : "You wait here when you are dead" []
+
+@PointClass base(PlayerClass) color(0 255 0) = info_reinforcements_start : "All players on team will spawn here, unless there is a class-specific spawn for that player's current class. If there are multiple info_reinforcements_start entities for a given team the player will spawn at a random one."
+[
+	obj_owner(integer) : "Owning Team" : 0
+	angle(string) : "Direction the player will face when spawning" : "0 0 0"
+]
+
+
+// CLASS-SPECIFIC SPAWNS
+
+@PointClass base(PlayerClass) color(0 0 255) = info_infantry_start : "Infantry class spawns here"
+[
+	obj_owner(integer) : "Owning Team" : 0
+	angle(string) : "Direction the player will face when spawning" : "0 0 0"
+]
+
+@PointClass base(PlayerClass) color(0 0 255) = info_officer_start : "Officer class spawns here"
+[
+	obj_owner(integer) : "Owning Team" : 0
+	angle(string) : "Direction the player will face when spawning" : "0 0 0"
+]
+
+@PointClass base(PlayerClass) color(0 0 255) = info_lgunner_start : "Light Machinegun class spawns here"
+[
+	obj_owner(integer) : "Owning Team" : 0
+	angle(string) : "Direction the player will face when spawning" : "0 0 0"
+]
+
+@PointClass base(PlayerClass) color(0 0 255) = info_hgunner_start : "Heavy Machinegun class spawns here"
+[
+	obj_owner(integer) : "Owning Team" : 0
+	angle(string) : "Direction the player will face when spawning" : "0 0 0"
+]
+
+@PointClass base(PlayerClass) color(0 0 255) = info_sniper_start : "Sniper class spawns here"
+[
+	obj_owner(integer) : "Owning Team" : 0
+	angle(string) : "Direction the player will face when spawning" : "0 0 0"
+]
+
+@PointClass base(PlayerClass) color(0 0 255) = info_special_start : "Special class spawns here (usually Airborne, but varies for different team dlls"
+[
+	obj_owner(integer) : "Owning Team" : 0
+	angle(string) : "Direction the player will face when spawning" : "0 0 0"
+]
+
+@PointClass base(PlayerClass) color(0 0 255) = info_engineer_start : "Engineer class spawns here"
+[
+	obj_owner(integer) : "Owning Team" : 0
+	angle(string) : "Direction the player will face when spawning" : "0 0 0"
+]
+
+@PointClass base(PlayerClass) color(0 0 255) = info_medic_start : "Medic Class spawns here"
+[
+	obj_owner(integer) : "Owning Team" : 0
+	angle(string) : "Direction the player will face when spawning" : "0 0 0"
+]
+
+@PointClass base(PlayerClass) color(0 0 255) = info_flamethrower_start : "Flamethrower class spawns here"
+[
+	obj_owner(integer) : "Owning Team" : 0
+	angle(string) : "Direction the player will face when spawning" : "0 0 0"
+]
+
+
+// MAP PROPS
+
+@PointClass base(Appearflags, Targetname) color(255 128 0) size(-16 -16 0, 16 16 32) model({ "path": ":models/ships/viper/tris.md2" }) = misc_viper : "The default viper ship entity from Quake2, but replaced with a P51 Mustang."
+[
+	target(string) : "Direction the P51 model will face"
+	speed(integer) : "How fast the P51 should fly"
+
+]
+
+@PointClass base(Appearflags, Targetname) color(255 128 0) size(-16 -16 0, 16 16 32) = misc_md2 : "General purpose entity for adding an .md2 map model."
+[
+	model(string) : "Path to the model, example: models/mapmodels/tree/tris.md2"
+	angle(integer) : "Direction the model will face"
+]
+
+
+@PointClass base(Appearflags, Targetname) color(255 128 0) size(-16 -16 0, 16 16 32) model({ "path" : ":models/objects/banner/tris.md2" }) = misc_banner : "German flag 1"
+[
+	angle(integer) : "Direction the banner will face"
+]
+
+@PointClass base(Appearflags, Targetname) color(255 128 0) size(-16 -16 0, 16 16 32) model({ "path" : ":models/objects/banner1/tris.md2" }) = misc_banner_1 : "German flag 2"
+[
+	angle(integer) : "Direction the banner will face"
+]
+
+@PointClass base(Appearflags, Targetname) color(255 128 0) size(-16 -16 0, 16 16 32) model({ "path" : ":models/objects/banner2/tris.md2" }) = misc_banner_2 : "German flag 3"
+[
+	angle(integer) : "Direction the banner will face"
+]
+
+@PointClass base(Appearflags, Targetname) color(255 128 0) size(-16 -16 0, 16 16 32) model({ "path" : ":models/objects/banner3/tris.md2" }) = misc_banner_3 : "British flag"
+[
+	angle(integer) : "Direction the banner will face"
+]
+
+@PointClass base(Appearflags, Targetname) color(255 128 0) size(-16 -16 0, 16 16 32) model({ "path" : ":models/objects/banner4/tris.md2" }) = misc_banner_4 : "US Flag"
+[
+	angle(integer) : "Direction the banner will face"
+]
+
+@PointClass base(Appearflags, Targetname) color(255 128 0) size(-16 -16 0, 16 16 32) model({ "path" : ":models/deadbods/dude/tris.md2" }) = misc_skeleton : "A skeleton lying on its back."
+[
+	angle(integer) : "Direction the skeleton model will face"
+]
+
+
+// OBJECTIVES
+
+@SolidClass base(AppearFlag, TargetName, Target) color(0 0 255) = objective_touch : "Player touches this and is awarded points"
+[
+	obj_owner(integer) : "Assign a value (0, 1, 99); 0=Allies 1=Axis 99=Neutral (Anyone can claim it first)"
+	message(string) : "Name of the region the entity touches (Center Pill, Right Pill, Donut Room, etc.)"
+	health(integer) : "Enter a number value representing the number of points to be awarded to the other team when the entity is claimed"
+	dmg(integer) : "Enter a number value representing the number of points to be deducted when the entity owner loses the objective"
+]
+
+
+@SolidClass base(AppearFlag, TargetName, Target) color(0 0 255) = func_explosive_objective : "Gives points when blown up"
+[
+	obj_owner(integer) : "Assign a value (0, 1, 99); 0=Allies 1=Axis 99=Neutral (Anyone can claim it first)"
+	obj_name(string) : "Name of the object to be displayed when destroyed"
+	obj_loss(integer) : "Amount of points taken away from the owner when destroyed"
+	obj_gain(integer) : "Amount of points given to the team that doesn’t own the objective when it is destroyed"
+	message(string) : "Name of the region the entity touches (Center Pill, Right Pill, Donut Room, etc.)"
+	health(integer) : "	Amount of damage it takes to blow the objective up"
+	dmg(integer) : "Radius damage to inflict on people surrounding the objective when it explodes"
+]
+
+
+// The quake2 turret entities can be used in dday to create Player-usable turrets. 
+// The process for creating turrets is the same as in regular quake2, with the addition of a new entity, "turret_range", which defines the area where the player must occupy to use the turret. To use a turret you need to switch to fists and then right click.
+// More info: http://ddaydev.com/forum/viewtopic.php?f=2&t=235
+
+
+@SolidClass base (AppearFlags, TargetName, Target) color (128 0 128) = turret_range : "Turret Range. Use this to define the area the player must occupy to use the turret."
+[
+	team(string) : "Team"
+]
+
+@SolidClass base(Appearflags, Targetname, Target) color(128 255 128) = turret_breach : "Turret breach"
+[
+	// These first 6 values are dday specific.
+	rate(integer) : "firing rate, set to 0 for machineguns or higher for tanks"
+	count(integer) : "number of rounds, -1 is infinite"
+	ammo_type(string) : "shell, fire, bullet, tracer, rocket, or grenade"
+	fire_sound(string) : "the .wav file you want to play for firing"
+	ammo_speed(integer) : "how fast the ammo goes through the air"
+	model(string) : "if you want to use an md2 for the gun instead of bsp brushes in the map"
+
+	speed(integer) : "Speed" : 50
+	dmg(integer) : "Damage" : 10
+	minpitch(integer) : "Miminum pitch angle" : -30
+	maxpitch(integer) : "Maximum pitch angle" : 30
+	minyaw(integer) : "Minimum yaw angle" : 0
+	maxyaw(integer) : "Maximum yaw angle" : 360
+	team(string) : "Team"
+	_minlight(string) : "Minimum light (optional)"
+]
+@SolidClass base(Appearflags) color(128 255 128) = turret_base : "Turret base"
+[
+	team(string) : "Team"
+	_minlight(string) : "Minimum light (optional)"
+]
+
+
+// Vanilla Q2 Entities Supported by D-Day
+
+
+// Keep in mind when using func_areaportal that it must
+// *completely* separate two areas.  otherwise, you will
+// get an error message and the areaportal will not work
+//
+// 0221 - is there any point in a "style" key?
+@SolidClass base(Appearflags, Targetname) = func_areaportal : "Area portal (Vis blocker)" []
+
+// 0221 - added "pathtarget"
+// 0221 - changed "sounds" information
+@SolidClass base(Appearflags, Target, Targetname) color(0 128 204) = func_button : "Button"
+[
+	pathtarget(string) : "Elevator level target"
+	speed(integer) : "Speed" : 40
+	wait(choices) : "Wait before reset" : 1 =
+	[
+		-1 : "Never Return"
+	]
+	lip(integer) : "Lip remaining after move" : 4
+	health(integer) : "Health (shootable)"
+	sounds(choices) : "Sounds" : 0 =
+	[
+		0 : "Audible"
+		1 : "Silent"
+	]
+//	sounds(choices) : "Sounds" : 2 =
+//	[
+//		1 : "Silent"
+//		2 : "Steam Metal"
+//		3 : "Wodden Clunk"
+//		4 : "Metallic Click"
+//		5 : "In-Out"
+//	]
+	message(string) : "Activation message"
+	_minlight(integer) : "Minimum light (optional)"
+]
+
+
+
+
+// 0221 - updated "sounds" information
+// 0221 - added "killtarget"
+@SolidClass base(Appearflags, Targetname, Target) color(0 128 204) = func_door : "Door"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Start Open" : 0
+		4 : "Crusher" : 0
+		8 : "No Monsters" : 0
+		16 : "Animated" : 0
+		32 : "Toggle" : 0
+		64 : "Animated Fast" : 0
+	]
+	killtarget(string) : "Kill Target"
+	team(string) : "Team"
+	message(string) : "Trigger message"
+	health(integer) : "Health (shootable)"
+	speed(integer) : "Speed" : 100
+	wait(choices) : "Wait before close" : 3 =
+	[
+		-1 : "Stay open"
+	]
+	lip(integer) : "Lip remaining after move" : 8
+	dmg(integer) : "Damage when blocked" : 2
+	sounds(choices) : "Sounds" : 0 =
+	[
+		0 : "Audible"
+		1 : "Silent"
+	]
+//	sounds(choices) : "Sounds" : 3 =
+//	[
+//		1 : "Silent"
+//		2 : "Light"
+//		3 : "Medium"
+//		4 : "Heavy"
+//	]
+	_minlight(integer) : "Minimum light (optional)"
+]
+
+// 0221 - added "killtarget" and "target" keys
+// 0221 - updated "sounds" info
+// 0221 - removed "lip" key
+@SolidClass base(Appearflags, Targetname, Target) color(0 128 204) = func_door_rotating : "Rotating Door"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Start Open" : 0
+		2 : "Reverse" : 0
+		4 : "Crusher" : 0
+		8 : "No Monsters" : 0
+		16 : "Animated" : 0
+		32 : "Toggle" : 0
+		64 : "X Axis" : 0
+		128 : "Y Axis" : 0
+	]
+	killtarget(string) : "Kill Target"
+	team(string) : "Team"
+	distance(integer) : "Degrees of rotation" : 90
+	message(string) : "Trigger message"
+	health(integer) : "Health (shootable)"
+	speed(integer) : "Speed" : 100
+	wait(choices) : "Wait before close" : 3 =
+	[
+		-1 : "Stay open"
+	]
+	dmg(integer) : "Damage when blocked" : 2
+	sounds(choices) : "Sounds" : 0 =
+	[
+		0 : "Audible"
+		1 : "Silent"
+	]
+//	sounds(choices) : "Sounds" : 3 =
+//	[
+//		1 : "Silent"
+//		2 : "Light"
+//		3 : "Medium"
+//		4 : "Heavy"
+//	]
+	_minlight(integer) : "Minimum light (optional)"
+]
+
+
+// not visible in DM mode
+//
+// 0221 - added "_minlight" key (even tho you dont want it to stand out)
+@SolidClass base(Appearflags, Targetname, Target) color(0 128 204) = func_explosive : "Exploding/Breakable brush"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Trigger Spawn" : 0
+		2 : "Animated" : 0
+		4 : "Animated Fast" : 0
+	]
+	health(integer) : "Health" : 100
+	mass(integer) : "Mass (debris)" : 75
+	dmg(integer) : "Damage" : 0
+	_minlight(integer) : "Minimum light (optional)"
+]
+
+@SolidClass base(Appearflags, Targetname) color(255 0 0) = func_killbox : "Instant death" []
+
+// 0221 - added "_minlight" key
+@SolidClass base(Appearflags, Targetname) color (0 128 204) = func_object : "Solid bmodel, will fall if its support is removed"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Trigger Spawn" : 0
+		2 : "Animated" : 0
+		4 : "Animated Fast" : 0
+	]
+	_minlight(integer) : "Minimum light (optional)"
+]
+
+// 0221 - removed "sounds" key
+@SolidClass base(Appearflags, Targetname) color(0 128 204) = func_plat : "Platform"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Plat Low Trigger" : 0
+	]
+	speed(integer) : "Speed" : 100
+	accel(integer) : "Acceleration" : 500
+	lip(integer) : "Lip remaining after move" : 8
+	height(integer) : "Movement distance"
+	_minlight(integer) : "Minimum light (optional)"
+]
+
+// 0222 - added "team" key
+@SolidClass base(Appearflags, Targetname) color(0 128 204) = func_rotating : "Rotating brush"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Start On" : 0
+		2 : "Reverse" : 0
+		4 : "X Axis" : 0
+		8 : "Y Axis" : 0
+		16 : "Pain on Touch" : 0
+		32 : "Block Stops" : 0
+		64 : "Animated" : 0
+		128 : "Animated Fast" : 0
+	]
+	team(string) : "Team"
+	speed(integer) : "Speed" : 100
+	dmg(integer) : "Damage when blocked" : 2
+	_minlight(integer) : "Minimum light (optional)"
+]
+
+@PointClass base(Appearflags, Targetname, Target) color(76 25 153) size(-8 -8 -8, 8 8 8) = func_timer : "Timer"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Start On" : 0
+	]
+	wait(integer) : "Base wait time" : 1
+	random(integer) : "Wait variance (+/-)"
+	delay(integer) : "Delay before first firing"
+	pausetime(integer) : "Additional delay"
+]
+
+// 0219 - added "team" key
+@SolidClass base(Appearflags, Targetname) color(0 128 204) = func_train : "Moving platform"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Start On" : 0
+		2 : "Toggle" : 0
+		4 : "Block Stops" : 0
+	]
+	target(string) : "First stop target"
+	team(string) : "Team"
+	speed(integer) : "Speed" : 100
+	dmg(integer) : "Damage when blocked" : 2
+	noise(string) : "Sound (path/file.wav)"
+	_minlight(integer) : "Minimum light (optional)"
+]
+
+// 0221 - added a "_minlight" key
+@SolidClass base(Appearflags, Targetname) color(0 128 204) = func_wall : "Solid Wall"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Trigger Spawn" : 0
+		2 : "Toggle" : 0
+		4 : "Start On" : 0
+		8 : "Animated" : 0
+		16 : "Animated Fast" : 0
+	]
+	_minlight(integer) : "Minimum light (optional)"
+]
+
+@PointClass base(Appearflags, Targetname) color(0 128 0) size(-4 -4 -4, 4 4 4) = info_null : "Spotlight target" []
+@PointClass base(info_null) = info_notnull : "Lightning target" []
+
+
+@PointClass base(Appearflags, Target, Targetname) color(0 255 0) size(-8 -8 -8, 8 8 8) = light : "Light"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Start Off" : 0
+	]
+	light(integer) : "Brightness" : 300
+	style(Choices) : "Style" : 0 =
+	[
+		0 : "Normal"
+		1 : "Flicker #1"
+		6 : "Flicker #2"
+		2 : "Slow Strong Pulse"
+		3 : "Candle #1"
+		7 : "Candle #2"
+		8 : "Candle #3"
+		4 : "Fast Strobe"
+		5 : "Gentle Pulse #1"
+		9 : "Slow Strobe"
+		10 : "Fluorescent Flicker"
+		11 : "Slow pulse, no black"
+	]
+	_cone(integer) : "Size of light (spotlight)" : 10
+]
+
+// actor code is still broken...leaving this in because i know *someone* will fix
+// this because its pretty damn cool.
+@PointClass base(PlayerClass, Target) = misc_actor : "Actor"
+[
+	health(integer) : "Health" : 100
+]
+
+@PointClass base(Appearflags, Targetname) color(255 0 0) size(-32 -32 -24, 32 32 -16) model({ "path": ":models/objects/dmspot/tris.md2", "skin": 1 }) = misc_teleporter : "Teleporter: To hide the teleport pads, place them units 10 units into a brush."	[	target(string) : "Teleport Destination"	]
+@PointClass base(Appearflags, Targetname) color(255 0 0) size(-32 -32 -24, 32 32 -16) model({ "path": ":models/objects/dmspot/tris.md2", "skin": 0 }) = misc_teleporter_dest : "Teleport Destination: To hide the teleport pads, place them units 10 units into a brush." []
+
+
+// using a "wait" value of -1 on a path corner causes a func_train to go silent between
+// itself and the next path corner when the train is restarted. The train's sound will
+// resume as soon as it reaches a path corner with a "wait" value other than -1
+@PointClass base(Appearflags, Targetname) color(128 76 0) size(-8 -8 -8, 8 8 8) = path_corner : "Path marker"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Teleport" : 0
+	]
+	target(string) : "Next path target"
+	pathtarget(string) : "Event to trigger"
+	wait(choices) : "Wait" : 0 =
+	[
+		-1 : "Wait for retrigger"
+	]
+]
+
+@PointClass base(Appearflags, Targetname) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_explosion : "Explosion"
+[
+	delay(integer) : "Delay before explosion"
+	dmg(integer) : "Radius damage" : 0
+]
+
+// looped sounds are automatically volume 1, attenuation 3 :\
+@PointClass base(Appearflags, Targetname) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_speaker : "Sound player"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Looped On" : 0
+		2 : "Looped Off" : 0
+		4 : "Reliable" : 0
+	]
+	noise(string) : "Sound (path/file.wav)"
+	attenuation(Choices) : "Attenuation" : 1 =
+	[
+		-1 : "None, send to whole level"
+		1 : "Normal fighting sounds"
+		2 : "Idle sound level"
+		3 : "Ambient sound level"
+	]
+	volume(integer) : "Volume (0.0 - 1.0)" : 1
+]
+
+// "sounds" values other than 1 are silent.  leaving in the other
+// options for availability to mods/fixes
+//
+// 0221 - clarified "count" description
+@PointClass base(Appearflags, Targetname) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_splash : "Creates a splash when used"
+[
+	sounds(choices) : "Type of splash" : 2 =
+	[
+		1 : "Sparks"
+		2 : "Blue water"
+		3 : "Brown water"
+		4 : "Slime"
+		5 : "Lava"
+		6 : "Blood"
+	]
+	count(integer) : "Number of pixels in splash (1 - 255)"
+	dmg(integer) : "Radius damage"
+]
+
+
+// 0221 - added "delay" and "killtarget" keys
+@PointClass base(Appearflags, Target) color(128 128 128) size(-8 -8 -8, 8 8 8) = trigger_always : "Always triggers"
+[
+	killtarget(string) : "Kill Target"
+	delay(integer) : "Time before triggering"
+]
+
+@SolidClass base(Appearflags, Targetname, Target) color(128 128 128) = trigger_counter : "Counter"
+[
+	spawnflags(Flags) =
+	[
+		1 : "No Message" : 0
+	]
+	count(integer) : "Count before trigger" : 2
+]
+
+@PointClass base(Appearflags, Targetname, Target) color(76 25 153) = trigger_elevator : "Elevator trigger" []
+
+@SolidClass base(Appearflags) color(128 128 128) = trigger_gravity : "Change gravity"
+[
+	gravity(integer) : "Gravity (standard = 1.0)" : 1
+]
+
+@SolidClass base(Appearflags, Targetname) color(128 128 128) = trigger_hurt : "Hurts on touch"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Start Off" : 0
+		2 : "Toggle" : 0
+		4 : "Silent" : 0
+		8 : "No Protection" : 0
+		16 : "Slow hurt" : 0
+	]
+	dmg(integer) : "Damage" : 5
+]
+
+// 0221 - switched around _relay, _once, and _multiple
+@PointClass base(Appearflags, Targetname, Target) color(128 128 128) = trigger_relay : "Relay trigger"
+[
+	killtarget(string) : "Kill Target"
+	delay(integer) : "Time before triggering"
+	message(string) : "Trigger message"
+]
+
+// 0303 - removed "sounds" key
+@SolidClass base(trigger_relay) = trigger_once : "Single fire trigger"
+[
+	spawnflags(Flags) =
+	[
+		4 : "Triggered" : 0
+	]
+]
+
+@SolidClass base(trigger_once) = trigger_multiple : "Multiple fire trigger"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Monster" : 0
+		2 : "Not Player" : 0
+	]
+	wait(integer) : "Seconds between triggers" : 0
+]
+
+@SolidClass base(Appearflags) color(128 128 128) = trigger_push : "Push trigger"
+[
+	spawnflags(Flags) =
+	[
+		1 : "Push Once" : 0
+	]
+	speed(integer) : "Speed of push" : 1000
+]

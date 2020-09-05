@@ -22,17 +22,21 @@
 #include "IO/Path.h"
 #include "Model/TagManager.h"
 
+#include <cassert>
+#include <string>
+#include <utility>
+
 namespace TrenchBroom {
     namespace Model {
-        TagAttribute::TagAttribute(const AttributeType type, String name) :
+        TagAttribute::TagAttribute(const AttributeType type, const std::string& name) :
         m_type(type),
-        m_name(std::move(name) ){}
+        m_name(name) {}
 
         TagAttribute::AttributeType TagAttribute::type() const {
             return m_type;
         }
 
-        const String& TagAttribute::name() const {
+        const std::string& TagAttribute::name() const {
             return m_name;
         }
 
@@ -44,13 +48,13 @@ namespace TrenchBroom {
             return lhs.m_name < rhs.m_name;
         }
 
-        Tag::Tag(const size_t index, String name, std::vector<TagAttribute> attributes) :
+        Tag::Tag(const size_t index, const std::string& name, std::vector<TagAttribute> attributes) :
         m_index(index),
-        m_name(std::move(name)),
+        m_name(name),
         m_attributes(std::move(attributes)) {}
 
-        Tag::Tag(String name, std::vector<TagAttribute> attributes) :
-        Tag(0, std::move(name), std::move(attributes)) {}
+        Tag::Tag(const std::string& name, std::vector<TagAttribute> attributes) :
+        Tag(0, name, std::move(attributes)) {}
 
         Tag::~Tag() = default;
 
@@ -60,8 +64,8 @@ namespace TrenchBroom {
         Tag& Tag::operator=(const Tag& other) = default;
         Tag& Tag::operator=(Tag&& other) = default;
 
-        Tag::TagType Tag::type() const {
-            return 1UL << m_index;
+        TagType::Type Tag::type() const {
+            return TagType::Type(1) << m_index;
         }
 
         size_t Tag::index() const {
@@ -72,7 +76,7 @@ namespace TrenchBroom {
             m_index = index;
         }
 
-        const String& Tag::name() const {
+        const std::string& Tag::name() const {
             return m_name;
         }
 
@@ -89,23 +93,30 @@ namespace TrenchBroom {
         }
 
         TagReference::TagReference(const Tag& tag) :
-        m_tag(tag) {}
+        m_tag(&tag) {}
 
         const Tag& TagReference::tag() const {
-            return m_tag;
+            return *m_tag;
         }
 
         bool operator==(const TagReference& lhs, const TagReference& rhs) {
-            return lhs.m_tag == rhs.m_tag;
+            return *(lhs.m_tag) == *(rhs.m_tag);
         }
 
         bool operator<(const TagReference& lhs, const TagReference& rhs) {
-            return lhs.m_tag < rhs.m_tag;
+            return *(lhs.m_tag) < *(rhs.m_tag);
         }
 
         Taggable::Taggable() :
         m_tagMask(0),
         m_attributeMask(0) {}
+
+        void swap(Taggable& lhs, Taggable& rhs) noexcept {
+            using std::swap;
+            swap(lhs.m_tagMask, rhs.m_tagMask);
+            swap(lhs.m_tags, rhs.m_tags);
+            swap(lhs.m_attributeMask, rhs.m_attributeMask);
+        }
 
         Taggable::~Taggable() = default;
 
@@ -117,11 +128,11 @@ namespace TrenchBroom {
             return hasTag(tag.type());
         }
 
-        bool Taggable::hasTag(Tag::TagType mask) const {
+        bool Taggable::hasTag(TagType::Type mask) const {
             return (m_tagMask & mask) != 0;
         }
 
-        Tag::TagType Taggable::tagMask() const {
+        TagType::Type Taggable::tagMask() const {
             return m_tagMask;
         }
 
@@ -138,19 +149,17 @@ namespace TrenchBroom {
         }
 
         bool Taggable::removeTag(const Tag& tag) {
-            if (!hasTag(tag)) {
+            const auto it = m_tags.find(TagReference(tag));
+            if (it == std::end(m_tags)) {
                 return false;
-            } else {
-                m_tagMask &= ~tag.type();
-                auto it = m_tags.find(TagReference(tag));
-                assert(it != std::end(m_tags));
-                m_tags.erase(it);
-
-                assert(!hasTag(tag));
-
-                updateAttributeMask();
-                return true;
             }
+
+            m_tagMask &= ~tag.type();
+            m_tags.erase(it);
+            assert(!hasTag(tag));
+
+            updateAttributeMask();
+            return true;
         }
 
         void Taggable::initializeTags(TagManager& tagManager) {
@@ -195,8 +204,8 @@ namespace TrenchBroom {
 
         TagMatcher::~TagMatcher() = default;
 
-        void TagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const {}
-        void TagMatcher::disable(TagMatcherCallback& callback, MapFacade& facade) const {}
+        void TagMatcher::enable(TagMatcherCallback& /* callback */, MapFacade& /* facade */) const {}
+        void TagMatcher::disable(TagMatcherCallback& /* callback */, MapFacade& /* facade */) const {}
 
         bool TagMatcher::canEnable() const {
             return false;
@@ -206,8 +215,8 @@ namespace TrenchBroom {
             return false;
         }
 
-        SmartTag::SmartTag(String name, std::vector<TagAttribute> attributes, std::unique_ptr<TagMatcher> matcher) :
-        Tag(std::move(name), std::move(attributes)),
+        SmartTag::SmartTag(const std::string& name, std::vector<TagAttribute> attributes, std::unique_ptr<TagMatcher> matcher) :
+        Tag(name, std::move(attributes)),
         m_matcher(std::move(matcher)) {}
 
         SmartTag::SmartTag(const SmartTag& other) :

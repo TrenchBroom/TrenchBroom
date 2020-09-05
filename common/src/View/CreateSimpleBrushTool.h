@@ -20,15 +20,18 @@
 #ifndef TrenchBroom_CreateSimpleBrushTool
 #define TrenchBroom_CreateSimpleBrushTool
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "View/CreateBrushToolBase.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
+
         class CreateSimpleBrushTool : public CreateBrushToolBase {
         public:
-            CreateSimpleBrushTool(MapDocumentWPtr document);
+            explicit CreateSimpleBrushTool(std::weak_ptr<MapDocument> document);
             void update(const vm::bbox3& bounds);
         };
     }

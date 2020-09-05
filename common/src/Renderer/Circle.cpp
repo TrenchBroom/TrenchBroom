@@ -19,6 +19,7 @@
 
 #include "Circle.h"
 
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
@@ -36,7 +37,7 @@ namespace TrenchBroom {
         m_filled(filled) {
             assert(radius > 0.0f);
             assert(segments > 0);
-            init2D(radius, segments, 0.0f, vm::Cf::twoPi());
+            init2D(radius, segments, 0.0f, vm::Cf::two_pi());
         }
 
         Circle::Circle(const float radius, const size_t segments, const bool filled, const float startAngle, const float angleLength) :
@@ -59,7 +60,7 @@ namespace TrenchBroom {
         m_filled(filled) {
             assert(radius > 0.0f);
             assert(segments > 0);
-            assert(angleLength > 0.0);
+            assert(angleLength > 0.0f);
             init3D(radius, segments, axis, startAngle, angleLength);
         }
 
@@ -67,12 +68,12 @@ namespace TrenchBroom {
             return m_array.prepared();
         }
 
-        void Circle::prepare(Vbo& vbo) {
-            m_array.prepare(vbo);
+        void Circle::prepare(VboManager& vboManager) {
+            m_array.prepare(vboManager);
         }
 
         void Circle::render() {
-            m_array.render(m_filled ? GL_TRIANGLE_FAN : GL_LINE_LOOP);
+            m_array.render(m_filled ? PrimType::TriangleFan : PrimType::LineLoop);
         }
 
         void Circle::init2D(const float radius, const size_t segments, const float startAngle, const float angleLength) {
@@ -80,7 +81,7 @@ namespace TrenchBroom {
 
             auto positions = circle2D(radius, startAngle, angleLength, segments);
             if (m_filled) {
-                positions.push_back(vm::vec2f::zero);
+                positions.push_back(vm::vec2f::zero());
             }
             m_array = VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
         }
@@ -90,7 +91,7 @@ namespace TrenchBroom {
 
             auto positions = circle2D(radius, axis, startAngle, angleLength, segments);
             if (m_filled) {
-                positions.emplace_back(vm::vec3f::zero);
+                positions.emplace_back(vm::vec3f::zero());
             }
             m_array = VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
         }

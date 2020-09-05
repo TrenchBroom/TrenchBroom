@@ -20,18 +20,17 @@
 #ifndef TrenchBroom_Compass
 #define TrenchBroom_Compass
 
-#include "Color.h"
 #include "Renderer/IndexRangeRenderer.h"
 #include "Renderer/Renderable.h"
 
 #include <vecmath/forward.h>
 
 namespace TrenchBroom {
+    class Color;
+
     namespace Renderer {
         class Camera;
         class RenderBatch;
-        class RenderContext;
-        class Vbo;
 
         class Compass : public DirectRenderable {
         private:
@@ -51,7 +50,7 @@ namespace TrenchBroom {
 
             void render(RenderBatch& renderBatch);
         private: // implement Renderable interface
-            void doPrepareVertices(Vbo& vertexVbo) override;
+            void doPrepareVertices(VboManager& vboManager) override;
             void doRender(RenderContext& renderContext) override;
         private:
             void makeArrows();

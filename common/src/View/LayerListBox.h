@@ -20,77 +20,87 @@
 #ifndef TrenchBroom_LayerListBox
 #define TrenchBroom_LayerListBox
 
-#include "Model/ModelTypes.h"
 #include "View/ControlListBox.h"
-#include "View/ViewTypes.h"
 
+#include <memory>
 #include <vector>
 
-class wxScrolledWindow;
+class QLabel;
+class QAbstractButton;
+class QListWidget;
 
 namespace TrenchBroom {
-    namespace View {
-        class LayerCommand;
+    namespace Model {
+        class LayerNode;
+        class Node;
     }
-}
 
-using LayerCommandFunction = void(wxEvtHandler::*)(TrenchBroom::View::LayerCommand&);
-
-wxDECLARE_EVENT(LAYER_SELECTED_EVENT, TrenchBroom::View::LayerCommand);
-#define LayerSelectedHandler(func) wxEVENT_HANDLER_CAST(LayerCommandFunction, func)
-
-wxDECLARE_EVENT(LAYER_SET_CURRENT_EVENT, TrenchBroom::View::LayerCommand);
-#define LayerSetCurrentHandler(func) wxEVENT_HANDLER_CAST(LayerCommandFunction, func)
-
-wxDECLARE_EVENT(LAYER_RIGHT_CLICK_EVENT, TrenchBroom::View::LayerCommand);
-#define LayerRightClickHandler(func) wxEVENT_HANDLER_CAST(LayerCommandFunction, func)
-
-wxDECLARE_EVENT(LAYER_TOGGLE_VISIBLE_EVENT, TrenchBroom::View::LayerCommand);
-#define LayerToggleVisibleHandler(func) wxEVENT_HANDLER_CAST(LayerCommandFunction, func)
-
-wxDECLARE_EVENT(LAYER_TOGGLE_LOCKED_EVENT, TrenchBroom::View::LayerCommand);
-#define LayerToggleLockedHandler(func) wxEVENT_HANDLER_CAST(LayerCommandFunction, func)
-
-namespace TrenchBroom {
     namespace View {
-        class LayerCommand : public wxCommandEvent {
-        protected:
-            Model::Layer* m_layer;
+        class MapDocument;
+
+        class LayerListBoxWidget : public ControlListBoxItemRenderer {
+            Q_OBJECT
+        private:
+            std::weak_ptr<MapDocument> m_document;
+            Model::LayerNode* m_layer;
+            QAbstractButton* m_activeButton;
+            QLabel* m_nameText;
+            QLabel* m_infoText;
+            QAbstractButton* m_omitFromExportButton;
+            QAbstractButton* m_hiddenButton;
+            QAbstractButton* m_lockButton;
         public:
-            LayerCommand(wxEventType commandType, int id = 0);
+            LayerListBoxWidget(std::weak_ptr<MapDocument> document, Model::LayerNode* layer, QWidget* parent = nullptr);
 
-            Model::Layer* layer() const;
-            void setLayer(Model::Layer* layer);
-
-            virtual wxEvent* Clone() const override;
+            void updateItem() override;
+        private:
+            void updateLayerItem();
+        public:
+            Model::LayerNode* layer() const;
+        private:
+            bool eventFilter(QObject* target, QEvent* event) override;
+        signals:
+            void layerActiveClicked(Model::LayerNode* layer);
+            void layerOmitFromExportToggled(Model::LayerNode* layer);
+            void layerVisibilityToggled(Model::LayerNode* layer);
+            void layerLockToggled(Model::LayerNode* layer);
+            void layerDoubleClicked(Model::LayerNode* layer);
+            void layerRightClicked(Model::LayerNode* layer);
         };
 
         class LayerListBox : public ControlListBox {
+            Q_OBJECT
         private:
-            class LayerItem;
-
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
         public:
-            LayerListBox(wxWindow* parent, MapDocumentWPtr document);
+            explicit LayerListBox(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~LayerListBox() override;
 
-            Model::Layer* selectedLayer() const;
-            void setSelectedLayer(Model::Layer* layer);
+            Model::LayerNode* selectedLayer() const;
+            void setSelectedLayer(Model::LayerNode* layer);
+        private:
+            size_t itemCount() const override;
 
-            void OnSelectionChanged(wxCommandEvent& event);
-            void OnDoubleClick(wxCommandEvent& event);
-            void OnRightClick(wxCommandEvent& event);
+            ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
+
+            void selectedRowChanged(int index) override;
         private:
             void bindObservers();
             void unbindObservers();
 
             void documentDidChange(MapDocument* document);
-            void nodesDidChange(const Model::NodeList& nodes);
-            void currentLayerDidChange(const Model::Layer* layer);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
+            void currentLayerDidChange(const Model::LayerNode* layer);
 
-            void bindEvents();
-        private:
-            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index) override;
+            const LayerListBoxWidget* widgetAtRow(int row) const;
+            Model::LayerNode* layerForRow(int row) const;
+        signals:
+            void layerSelected(Model::LayerNode* layer);
+            void layerSetCurrent(Model::LayerNode* layer);
+            void layerRightClicked(Model::LayerNode* layer);
+            void layerOmitFromExportToggled(Model::LayerNode* layer);
+            void layerVisibilityToggled(Model::LayerNode* layer);
+            void layerLockToggled(Model::LayerNode* layer);
         };
     }
 }

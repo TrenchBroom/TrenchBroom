@@ -19,29 +19,24 @@
 
 #include "HlMipTextureReader.h"
 
-#include "Color.h"
-#include "StringUtils.h"
 #include "Assets/Palette.h"
-#include "Assets/Texture.h"
 #include "IO/Reader.h"
-#include "IO/Path.h"
 
-#include <cstring>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
-        HlMipTextureReader::HlMipTextureReader(const NameStrategy& nameStrategy) :
-        MipTextureReader(nameStrategy) {}
+        HlMipTextureReader::HlMipTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger) :
+        MipTextureReader(nameStrategy, fs, logger) {}
 
         Assets::Palette HlMipTextureReader::doGetPalette(Reader& reader, const size_t offset[], const size_t width, const size_t height) const {
             const size_t start = offset[0] + (width * height * 85 >> 6) + 2;
             reader.seekFromBegin(start);
 
-            const size_t paletteSize = reader.size() - start;
-            unsigned char* paletteData = new unsigned char[paletteSize];
-            reader.read(paletteData, paletteSize);
+            std::vector<unsigned char> data(reader.size() - start);
+            reader.read(data.data(), data.size());
 
-            return Assets::Palette(paletteSize, paletteData);
+            return Assets::Palette(std::move(data));
         }
     }
 }

@@ -20,14 +20,14 @@
 #ifndef TrenchBroom_CyclingMapView
 #define TrenchBroom_CyclingMapView
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "View/CameraLinkHelper.h"
 #include "View/MapViewContainer.h"
-#include "View/ViewTypes.h"
 
-#include <wx/panel.h>
-
+#include <memory>
 #include <vector>
+
+class QStackedLayout;
 
 namespace TrenchBroom {
     class Logger;
@@ -38,10 +38,11 @@ namespace TrenchBroom {
 
     namespace View {
         class GLContextManager;
-        class MapViewBase;
+        class MapDocument;
         class MapViewToolBox;
 
         class CyclingMapView : public MapViewContainer, public CameraLinkableView {
+            Q_OBJECT
         public:
             typedef enum {
                 View_3D  = 1,
@@ -54,26 +55,26 @@ namespace TrenchBroom {
             } View;
         private:
             Logger* m_logger;
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             using MapViewList = std::vector<MapViewBase*>;
             MapViewList m_mapViews;
             MapViewBase* m_currentMapView;
+
+            QStackedLayout* m_layout;
         public:
-            CyclingMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, View views);
+            CyclingMapView(std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox,
+                           Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager,
+                           View views, Logger* logger, QWidget* parent = nullptr);
         private:
             void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, View views);
-        private:
-            void bindEvents();
-            void OnCycleMapView(wxCommandEvent& event);
+            void addMapView(MapViewBase* mapView);
         private:
             void switchToMapView(MapViewBase* mapView);
         private: // implement ViewEffectsService interface
             void doFlashSelection() override;
         private: // implement MapView interface
             bool doGetIsCurrent() const override;
-            void doSetToolBoxDropTarget() override;
-            void doClearDropTarget() override;
             bool doCanSelectTall() override;
             void doSelectTall() override;
             void doFocusCameraOnSelection(bool animate) override;
@@ -84,9 +85,13 @@ namespace TrenchBroom {
             void doToggleMaximizeCurrentView() override;
 
             bool doCancelMouseDrag() override;
-
+            void doRefreshViews() override;
         private: // implement MapViewContainer interface
+            void doInstallActivationTracker(MapViewActivationTracker& activationTracker) override;
             MapView* doGetCurrentMapView() const override;
+            MapViewBase* doGetFirstMapViewBase() override;
+        public:
+            void cycleChildMapView(MapView* after) override;
         private: // implement CameraLinkableView interface
             void doLinkCamera(CameraLinkHelper& linkHelper) override;
         };

@@ -19,21 +19,25 @@
 
 #include "EntityDefinitionFileSpec.h"
 
+
+#include <kdl/string_compare.h>
+
 #include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace Assets {
         EntityDefinitionFileSpec::EntityDefinitionFileSpec() :
-        m_type(Type_Unset),
+        m_type(Type::Unset),
         m_path("") {}
 
-        EntityDefinitionFileSpec EntityDefinitionFileSpec::parse(const String& str) {
-            if (StringUtils::isPrefix(str, "external:")) {
+        EntityDefinitionFileSpec EntityDefinitionFileSpec::parse(const std::string& str) {
+            if (kdl::cs::str_is_prefix(str, "external:")) {
                 const IO::Path path(str.substr(9));
                 return EntityDefinitionFileSpec::external(path);
             }
 
-            if (StringUtils::isPrefix(str, "builtin:")) {
+            if (kdl::cs::str_is_prefix(str, "builtin:")) {
                 const IO::Path path(str.substr(8));
                 return EntityDefinitionFileSpec::builtin(path);
             }
@@ -47,11 +51,11 @@ namespace TrenchBroom {
         }
 
         EntityDefinitionFileSpec EntityDefinitionFileSpec::builtin(const IO::Path& path) {
-            return EntityDefinitionFileSpec(Type_Builtin, path);
+            return EntityDefinitionFileSpec(Type::Builtin, path);
         }
 
         EntityDefinitionFileSpec EntityDefinitionFileSpec::external(const IO::Path& path) {
-            return EntityDefinitionFileSpec(Type_External, path);
+            return EntityDefinitionFileSpec(Type::External, path);
         }
 
         EntityDefinitionFileSpec EntityDefinitionFileSpec::unset() {
@@ -71,22 +75,22 @@ namespace TrenchBroom {
         }
 
         bool EntityDefinitionFileSpec::valid() const {
-            return m_type != Type_Unset;
+            return m_type != Type::Unset;
         }
 
         bool EntityDefinitionFileSpec::builtin() const {
-            return m_type == Type_Builtin;
+            return m_type == Type::Builtin;
         }
 
         bool EntityDefinitionFileSpec::external() const {
-            return m_type == Type_External;
+            return m_type == Type::External;
         }
 
         const IO::Path& EntityDefinitionFileSpec::path() const {
             return m_path;
         }
 
-        String EntityDefinitionFileSpec::asString() const {
+        std::string EntityDefinitionFileSpec::asString() const {
             if (!valid())
                 return "";
             if (builtin())

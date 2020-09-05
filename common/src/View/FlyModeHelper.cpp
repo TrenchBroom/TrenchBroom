@@ -21,121 +21,123 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "TemporarilySetAny.h"
 #include "Renderer/Camera.h"
-#include "View/ExecutableEvent.h"
-#include "View/KeyboardShortcut.h"
-#include "IO/Path.h"
 
 #include <vecmath/vec.h>
 
-#include <wx/time.h>
+#include <QElapsedTimer>
+#include <QMouseEvent>
 
 namespace TrenchBroom {
     namespace View {
-        FlyModeHelper::FlyModeHelper(Renderer::Camera& camera) :
-        m_camera(camera) {
-            resetKeys();
-            m_lastPollTime = ::wxGetLocalTimeMillis();
+        static qint64 msecsSinceReference() {
+            QElapsedTimer timer;
+            timer.start();
+            return timer.msecsSinceReference();
         }
 
-        FlyModeHelper::~FlyModeHelper() {
-            /* Since the window is already deleted when this destructor is called, we omit the cleanup.
-            if (enabled())
-                disable();
-             */
-        }
+        FlyModeHelper::FlyModeHelper(Renderer::Camera& camera) :
+        m_camera(camera),
+        m_forward(false),
+        m_backward(false),
+        m_left(false),
+        m_right(false),
+        m_up(false),
+        m_down(false),
+        m_lastPollTime(msecsSinceReference()) {}
 
         void FlyModeHelper::pollAndUpdate() {
-            const auto currentTime = ::wxGetLocalTimeMillis();
-            const auto time = float((currentTime - m_lastPollTime).ToLong());
+            const auto currentTime = msecsSinceReference();
+            const auto time = float(currentTime - m_lastPollTime);
             m_lastPollTime = currentTime;
 
             if (anyKeyDown()) {
                 const auto delta = moveDelta(time);
-                if (!isZero(delta, vm::Cf::almostZero())) {
+                if (!vm::is_zero(delta, vm::Cf::almost_zero())) {
                     m_camera.moveBy(delta);
                 }
             }
         }
 
-        bool FlyModeHelper::keyDown(wxKeyEvent& event) {
-            const KeyboardShortcut& forward = pref(Preferences::CameraFlyForward);
-            const KeyboardShortcut& backward = pref(Preferences::CameraFlyBackward);
-            const KeyboardShortcut& left = pref(Preferences::CameraFlyLeft);
-            const KeyboardShortcut& right = pref(Preferences::CameraFlyRight);
-            const KeyboardShortcut& up = pref(Preferences::CameraFlyUp);
-            const KeyboardShortcut& down = pref(Preferences::CameraFlyDown);
+        static bool eventMatchesShortcut(const QKeySequence& shortcut, QKeyEvent* event) {
+            if (shortcut.isEmpty()) {
+                return false;
+            }
+
+            // NOTE: For triggering fly mode we only support single keys.
+            // e.g. you can't bind Shift+W to fly forward, only Shift or W.
+            const int ourKey = shortcut[0];
+            const int theirKey = event->key();
+            return ourKey == theirKey;
+        }
+
+        void FlyModeHelper::keyDown(QKeyEvent* event) {
+            const QKeySequence& forward = pref(Preferences::CameraFlyForward());
+            const QKeySequence& backward = pref(Preferences::CameraFlyBackward());
+            const QKeySequence& left = pref(Preferences::CameraFlyLeft());
+            const QKeySequence& right = pref(Preferences::CameraFlyRight());
+            const QKeySequence& up = pref(Preferences::CameraFlyUp());
+            const QKeySequence& down = pref(Preferences::CameraFlyDown());
 
             const auto wasAnyKeyDown = anyKeyDown();
-            auto anyMatch = false;
-            if (forward.matchesKeyDown(event)) {
+
+            if (eventMatchesShortcut(forward, event)) {
                 m_forward = true;
-                anyMatch = true;
             }
-            if (backward.matchesKeyDown(event)) {
+            if (eventMatchesShortcut(backward, event)) {
                 m_backward = true;
-                anyMatch = true;
             }
-            if (left.matchesKeyDown(event)) {
+            if (eventMatchesShortcut(left, event)) {
                 m_left = true;
-                anyMatch = true;
             }
-            if (right.matchesKeyDown(event)) {
+            if (eventMatchesShortcut(right, event)) {
                 m_right = true;
-                anyMatch = true;
             }
-            if (up.matchesKeyDown(event)) {
+            if (eventMatchesShortcut(up, event)) {
                 m_up = true;
-                anyMatch = true;
             }
-            if (down.matchesKeyDown(event)) {
+            if (eventMatchesShortcut(down, event)) {
                 m_down = true;
-                anyMatch = true;
             }
 
             if (anyKeyDown() && !wasAnyKeyDown) {
                 // Reset the last polling time, otherwise the view will jump!
-                m_lastPollTime = ::wxGetLocalTimeMillis();
+                m_lastPollTime = msecsSinceReference();
             }
-
-            return anyMatch;
         }
 
-        bool FlyModeHelper::keyUp(wxKeyEvent& event) {
-            const KeyboardShortcut& forward = pref(Preferences::CameraFlyForward);
-            const KeyboardShortcut& backward = pref(Preferences::CameraFlyBackward);
-            const KeyboardShortcut& left = pref(Preferences::CameraFlyLeft);
-            const KeyboardShortcut& right = pref(Preferences::CameraFlyRight);
-            const KeyboardShortcut& up = pref(Preferences::CameraFlyUp);
-            const KeyboardShortcut& down = pref(Preferences::CameraFlyDown);
+        void FlyModeHelper::keyUp(QKeyEvent* event) {
+            const QKeySequence& forward = pref(Preferences::CameraFlyForward());
+            const QKeySequence& backward = pref(Preferences::CameraFlyBackward());
+            const QKeySequence& left = pref(Preferences::CameraFlyLeft());
+            const QKeySequence& right = pref(Preferences::CameraFlyRight());
+            const QKeySequence& up = pref(Preferences::CameraFlyUp());
+            const QKeySequence& down = pref(Preferences::CameraFlyDown());
 
-            bool anyMatch = false;
-            if (forward.matchesKeyUp(event)) {
+            if (event->isAutoRepeat()) {
+                // If it's an auto-repeat event, exit early without clearing the key down state.
+                // Otherwise, the fake keyUp()/keyDown() calls would introduce movement stutters.
+                return;
+            }
+
+            if (eventMatchesShortcut(forward, event)) {
                 m_forward = false;
-                anyMatch = true;
             }
-            if (backward.matchesKeyUp(event)) {
+            if (eventMatchesShortcut(backward, event)) {
                 m_backward = false;
-                anyMatch = true;
             }
-            if (left.matchesKeyUp(event)) {
+            if (eventMatchesShortcut(left, event)) {
                 m_left = false;
-                anyMatch = true;
             }
-            if (right.matchesKeyUp(event)) {
+            if (eventMatchesShortcut(right, event)) {
                 m_right = false;
-                anyMatch = true;
             }
-            if (up.matchesKeyUp(event)) {
+            if (eventMatchesShortcut(up, event)) {
                 m_up = false;
-                anyMatch = true;
             }
-            if (down.matchesKeyUp(event)) {
+            if (eventMatchesShortcut(down, event)) {
                 m_down = false;
-                anyMatch = true;
             }
-            return anyMatch;
         }
 
         bool FlyModeHelper::anyKeyDown() const {
@@ -163,10 +165,10 @@ namespace TrenchBroom {
                 delta = delta + m_camera.right() * dist;
             }
             if (m_up) {
-                delta = delta + vm::vec3f::pos_z * dist;
+                delta = delta + vm::vec3f::pos_z() * dist;
             }
             if (m_down) {
-                delta = delta - vm::vec3f::pos_z * dist;
+                delta = delta - vm::vec3f::pos_z() * dist;
             }
             return delta;
         }

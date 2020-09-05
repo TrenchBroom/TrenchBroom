@@ -23,56 +23,55 @@
 #include "View/DirectoryTextureCollectionEditor.h"
 #include "View/FileTextureCollectionEditor.h"
 #include "View/MapDocument.h"
+#include "View/QtUtils.h"
 
-#include <wx/sizer.h>
+#include <kdl/memory_utils.h>
+
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
-        TextureCollectionEditor::TextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document) :
-        wxPanel(parent),
-        m_document(document) {
-            MapDocumentSPtr doc = lock(m_document);
-            doc->documentWasNewedNotifier.addObserver(this, &TextureCollectionEditor::documentWasNewed);
-            doc->documentWasLoadedNotifier.addObserver(this, &TextureCollectionEditor::documentWasLoaded);
+        TextureCollectionEditor::TextureCollectionEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
+        QWidget(parent),
+        m_document(std::move(document)) {
+            auto doc = kdl::mem_lock(m_document);
+            doc->documentWasNewedNotifier.addObserver(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
+            doc->documentWasLoadedNotifier.addObserver(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
         }
 
         TextureCollectionEditor::~TextureCollectionEditor() {
-            if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
-                document->documentWasNewedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasNewed);
-                document->documentWasLoadedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasLoaded);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
+                document->documentWasNewedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
+                document->documentWasLoadedNotifier.removeObserver(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
             }
         }
 
-        void TextureCollectionEditor::documentWasNewed(MapDocument* document) {
-            DestroyChildren();
-            createGui();
-        }
-
-        void TextureCollectionEditor::documentWasLoaded(MapDocument* document) {
-            DestroyChildren();
+        void TextureCollectionEditor::documentWasNewedOrLoaded(MapDocument*) {
             createGui();
         }
 
         void TextureCollectionEditor::createGui() {
-            wxWindow* collectionEditor = nullptr;
+            deleteChildWidgetsLaterAndDeleteLayout(this);
 
-            auto document = lock(m_document);
-            const Model::Game::TexturePackageType type = document->game()->texturePackageType();
+            QWidget* collectionEditor = nullptr;
+
+            auto document = kdl::mem_lock(m_document);
+            const auto type = document->game()->texturePackageType();
             switch (type) {
                 case Model::Game::TexturePackageType::File:
-                    collectionEditor = new FileTextureCollectionEditor(this, m_document);
+                    collectionEditor = new FileTextureCollectionEditor(m_document);
                     break;
                 case Model::Game::TexturePackageType::Directory:
-                    collectionEditor = new DirectoryTextureCollectionEditor(this, m_document);
+                    collectionEditor = new DirectoryTextureCollectionEditor(m_document);
                     break;
             }
 
-            auto* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(collectionEditor, wxSizerFlags().Expand().Proportion(1));
-
-            SetSizer(sizer);
-            GetParent()->Layout();
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(collectionEditor, 1);
+            setLayout(layout);
         }
     }
 }

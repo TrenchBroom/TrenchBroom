@@ -20,6 +20,7 @@
 #include "ChangeEntityAttributesCommand.h"
 
 #include "Macros.h"
+#include "Model/EntityAttributeSnapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
@@ -27,87 +28,131 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ChangeEntityAttributesCommand::Type = Command::freeType();
 
-        ChangeEntityAttributesCommand::Ptr ChangeEntityAttributesCommand::set(const Model::AttributeName& name, const Model::AttributeValue& value) {
-            Ptr command(new ChangeEntityAttributesCommand(Action_Set));
+        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::set(const std::string& name, const std::string& value) {
+            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Set, std::nullopt);
             command->setName(name);
             command->setNewValue(value);
             return command;
         }
 
-        ChangeEntityAttributesCommand::Ptr ChangeEntityAttributesCommand::remove(const Model::AttributeName& name) {
-            Ptr command(new ChangeEntityAttributesCommand(Action_Remove));
+        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::remove(const std::string& name) {
+            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Remove, std::nullopt);
             command->setName(name);
             return command;
         }
 
-        ChangeEntityAttributesCommand::Ptr ChangeEntityAttributesCommand::rename(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
-            Ptr command(new ChangeEntityAttributesCommand(Action_Rename));
+        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::rename(const std::string& oldName, const std::string& newName) {
+            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Rename, std::nullopt);
             command->setName(oldName);
             command->setNewName(newName);
             return command;
         }
 
-        void ChangeEntityAttributesCommand::setName(const Model::AttributeName& name) {
+        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::setForNodes(const std::vector<Model::AttributableNode*>& nodes, const std::string& name, const std::string& value) {
+            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Set, std::make_optional(nodes));
+            command->setName(name);
+            command->setNewValue(value);
+            return command;
+        }
+
+        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::removeForNodes(const std::vector<Model::AttributableNode*>& nodes, const std::string& name) {
+            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Remove, std::make_optional(nodes));
+            command->setName(name);
+            return command;
+        }
+
+        std::unique_ptr<ChangeEntityAttributesCommand> ChangeEntityAttributesCommand::renameForNodes(const std::vector<Model::AttributableNode*>& nodes, const std::string& oldName, const std::string& newName) {
+            auto command = std::make_unique<ChangeEntityAttributesCommand>(Action::Rename, std::make_optional(nodes));
+            command->setName(oldName);
+            command->setNewName(newName);
+            return command;
+        }
+
+        void ChangeEntityAttributesCommand::setName(const std::string& name) {
             m_oldName = name;
         }
 
-        void ChangeEntityAttributesCommand::setNewName(const Model::AttributeName& newName) {
-            assert(m_action == Action_Rename);
+        void ChangeEntityAttributesCommand::setNewName(const std::string& newName) {
+            assert(m_action == Action::Rename);
             m_newName = newName;
         }
 
-        void ChangeEntityAttributesCommand::setNewValue(const Model::AttributeValue& newValue) {
-            assert(m_action == Action_Set);
+        void ChangeEntityAttributesCommand::setNewValue(const std::string& newValue) {
+            assert(m_action == Action::Set);
             m_newValue = newValue;
         }
 
-        ChangeEntityAttributesCommand::ChangeEntityAttributesCommand(const Action action) :
+        ChangeEntityAttributesCommand::ChangeEntityAttributesCommand(const Action action, std::optional<std::vector<Model::AttributableNode*>> targetNodes) :
         DocumentCommand(Type, makeName(action)),
-        m_action(action) {}
+        m_action(action),
+        m_targetNodes(std::move(targetNodes)) {}
 
-        String ChangeEntityAttributesCommand::makeName(const Action action) {
+        ChangeEntityAttributesCommand::~ChangeEntityAttributesCommand() = default;
+
+        std::string ChangeEntityAttributesCommand::makeName(const Action action) {
             switch (action) {
-                case Action_Set:
+                case Action::Set:
                     return "Set Property";
-                case Action_Remove:
+                case Action::Remove:
                     return "Remove Property";
-                case Action_Rename:
+                case Action::Rename:
                     return "Rename Property";
 				switchDefault()
             }
         }
 
-        bool ChangeEntityAttributesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            switch (m_action) {
-                case Action_Set:
-                    m_snapshots = document->performSetAttribute(m_oldName, m_newValue);
-                    break;
-                case Action_Remove:
-                    m_snapshots = document->performRemoveAttribute(m_oldName);
-                    break;
-                case Action_Rename:
-                    m_snapshots = document->performRenameAttribute(m_oldName, m_newName);
-                    break;
-            };
-            return true;
+        std::unique_ptr<CommandResult> ChangeEntityAttributesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+            if (!m_targetNodes.has_value()) {
+                switch (m_action) {
+                    case Action::Set:
+                        m_snapshots =    document->performSetAttribute(m_oldName, m_newValue);
+                        break;
+                    case Action::Remove:
+                        m_snapshots = document->performRemoveAttribute(m_oldName);
+                        break;
+                    case Action::Rename:
+                        m_snapshots = document->performRenameAttribute(m_oldName, m_newName);
+                        break;
+                }
+            } else {
+                switch (m_action) {
+                    case Action::Set:
+                        m_snapshots =    document->performSetAttributeForNodes(*m_targetNodes, m_oldName, m_newValue);
+                        break;
+                    case Action::Remove:
+                        m_snapshots = document->performRemoveAttributeForNodes(*m_targetNodes, m_oldName);
+                        break;
+                    case Action::Rename:
+                        m_snapshots = document->performRenameAttributeForNodes(*m_targetNodes, m_oldName, m_newName);
+                        break;
+                }
+            }
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool ChangeEntityAttributesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> ChangeEntityAttributesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+            // NOTE: This is the same whether m_target is Target::SelectedNodes or Target::NodeList
             document->restoreAttributes(m_snapshots);
             m_snapshots.clear();
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool ChangeEntityAttributesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool ChangeEntityAttributesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool ChangeEntityAttributesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            ChangeEntityAttributesCommand* other = static_cast<ChangeEntityAttributesCommand*>(command.get());
-            if (other->m_action != m_action)
+        bool ChangeEntityAttributesCommand::doCollateWith(UndoableCommand* command) {
+            ChangeEntityAttributesCommand* other = static_cast<ChangeEntityAttributesCommand*>(command);
+            if (other->m_action != m_action) {
                 return false;
-            if (other->m_oldName != m_oldName)
+            }
+            if (other->m_targetNodes != m_targetNodes) {
                 return false;
+            }
+            if (other->m_oldName != m_oldName) {
+                return false;
+            }
+
             m_newName = other->m_newName;
             m_newValue = other->m_newValue;
             return true;

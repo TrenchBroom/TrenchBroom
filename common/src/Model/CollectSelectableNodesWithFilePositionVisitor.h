@@ -26,9 +26,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EditorContext;
-        class Node;
-
         class MatchNodesWithFilePosition {
         private:
             const std::vector<size_t> m_positions;

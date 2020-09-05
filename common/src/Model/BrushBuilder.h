@@ -20,33 +20,44 @@
 #ifndef TrenchBroom_BrushBuilder
 #define TrenchBroom_BrushBuilder
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
+#include "Model/Polyhedron3.h"
+#include "BrushFaceAttributes.h"
+
+#include <kdl/result_forward.h>
 
 #include <vecmath/bbox.h>
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class Brush;
         class ModelFactory;
+        
+        enum class BrushError;
 
         class BrushBuilder {
         private:
-            ModelFactory* m_factory;
+            const ModelFactory* m_factory;
             const vm::bbox3 m_worldBounds;
+            const BrushFaceAttributes m_defaultAttribs;
         public:
-            BrushBuilder(ModelFactory* factory, const vm::bbox3& worldBounds);
+            BrushBuilder(const ModelFactory* factory, const vm::bbox3& worldBounds);
+            BrushBuilder(const ModelFactory* factory, const vm::bbox3& worldBounds, const BrushFaceAttributes& defaultAttribs);
 
-            Brush* createCube(FloatType size, const String& textureName) const;
-            Brush* createCube(FloatType size, const String& leftTexture, const String& rightTexture, const String& frontTexture, const String& backTexture, const String& topTexture, const String& bottomTexture) const;
+            kdl::result<Brush, BrushError> createCube(FloatType size, const std::string& textureName) const;
+            kdl::result<Brush, BrushError> createCube(FloatType size, const std::string& leftTexture, const std::string& rightTexture, const std::string& frontTexture, const std::string& backTexture, const std::string& topTexture, const std::string& bottomTexture) const;
 
-            Brush* createCuboid(const vm::vec3& size, const String& textureName) const;
-            Brush* createCuboid(const vm::vec3& size, const String& leftTexture, const String& rightTexture, const String& frontTexture, const String& backTexture, const String& topTexture, const String& bottomTexture) const;
+            kdl::result<Brush, BrushError> createCuboid(const vm::vec3& size, const std::string& textureName) const;
+            kdl::result<Brush, BrushError> createCuboid(const vm::vec3& size, const std::string& leftTexture, const std::string& rightTexture, const std::string& frontTexture, const std::string& backTexture, const std::string& topTexture, const std::string& bottomTexture) const;
 
-            Brush* createCuboid(const vm::bbox3& bounds, const String& textureName) const;
-            Brush* createCuboid(const vm::bbox3& bounds, const String& leftTexture, const String& rightTexture, const String& frontTexture, const String& backTexture, const String& topTexture, const String& bottomTexture) const;
+            kdl::result<Brush, BrushError> createCuboid(const vm::bbox3& bounds, const std::string& textureName) const;
+            kdl::result<Brush, BrushError> createCuboid(const vm::bbox3& bounds, const std::string& leftTexture, const std::string& rightTexture, const std::string& frontTexture, const std::string& backTexture, const std::string& topTexture, const std::string& bottomTexture) const;
 
-            Brush* createBrush(const std::vector<vm::vec3>& points, const String& textureName) const;
-            Brush* createBrush(const Polyhedron3& polyhedron, const String& textureName) const;
+            kdl::result<Brush, BrushError> createBrush(const std::vector<vm::vec3>& points, const std::string& textureName) const;
+            kdl::result<Brush, BrushError> createBrush(const Polyhedron3& polyhedron, const std::string& textureName) const;
         };
     }
 }

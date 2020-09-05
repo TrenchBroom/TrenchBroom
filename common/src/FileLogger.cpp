@@ -25,8 +25,9 @@
 #include "IO/SystemPaths.h"
 
 #include <cassert>
+#include <string>
 
-#include <wx/string.h>
+#include <QString>
 
 namespace TrenchBroom {
     FileLogger::FileLogger(const IO::Path& filePath) :
@@ -49,7 +50,7 @@ namespace TrenchBroom {
         return Instance;
     }
 
-    void FileLogger::doLog(const LogLevel level, const String& message) {
+    void FileLogger::doLog(const LogLevel /* level */, const std::string& message) {
         assert(m_file != nullptr);
         if (m_file != nullptr) {
             std::fprintf(m_file, "%s\n", message.c_str());
@@ -57,7 +58,7 @@ namespace TrenchBroom {
         }
     }
 
-    void FileLogger::doLog(const LogLevel level, const wxString& message) {
-        log(level, message.ToStdString());
+    void FileLogger::doLog(const LogLevel level, const QString& message) {
+        log(level, message.toStdString());
     }
 }

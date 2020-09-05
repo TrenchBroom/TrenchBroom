@@ -20,22 +20,18 @@
 #ifndef TrenchBroom_Texture
 #define TrenchBroom_Texture
 
-#include "ByteBuffer.h"
 #include "Color.h"
-#include "StringUtils.h"
 #include "Renderer/GL.h"
 
 #include <vecmath/forward.h>
 
-#include <utility>
-#include <cassert>
+#include <set>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
         class TextureCollection;
-
-        using TextureBuffer = Buffer<unsigned char>;
 
         enum class TextureType {
             Opaque,
@@ -54,19 +50,32 @@ namespace TrenchBroom {
         };
 
         struct TextureBlendFunc {
-            bool enable;
+            enum class Enable {
+                /**
+                 * Don't change GL_BLEND and don't change the blend function.
+                 */
+                UseDefault,
+                /**
+                 * Don't change GL_BLEND, but set the blend function.
+                 */
+                UseFactors,
+                /**
+                 * Set GL_BLEND to off.
+                 */
+                DisableBlend
+            };
+            
+            Enable enable;
             GLenum srcFactor;
             GLenum destFactor;
         };
 
-        vm::vec2s sizeAtMipLevel(size_t width, size_t height, size_t level);
-        size_t bytesPerPixelForFormat(GLenum format);
-        void setMipBufferSize(TextureBuffer::List& buffers, size_t mipLevels, size_t width, size_t height, GLenum format);
-
         class Texture {
         private:
-            TextureCollection* m_collection;
-            String m_name;
+            using Buffer = std::vector<unsigned char>;
+            using BufferList = std::vector<Buffer>;
+        private:
+            std::string m_name;
 
             size_t m_width;
             size_t m_height;
@@ -79,7 +88,7 @@ namespace TrenchBroom {
             TextureType m_type;
 
             // Quake 3 surface parameters; move these to materials when we add proper support for those.
-            StringSet m_surfaceParms;
+            std::set<std::string> m_surfaceParms;
 
             // Quake 3 surface culling; move to materials
             TextureCulling m_culling;
@@ -88,31 +97,39 @@ namespace TrenchBroom {
             TextureBlendFunc m_blendFunc;
 
             mutable GLuint m_textureId;
-            mutable TextureBuffer::List m_buffers;
+            mutable BufferList m_buffers;
         public:
-            Texture(const String& name, size_t width, size_t height, const Color& averageColor, const TextureBuffer& buffer, GLenum format, TextureType type);
-            Texture(const String& name, size_t width, size_t height, const Color& averageColor, const TextureBuffer::List& buffers, GLenum format, TextureType type);
-            Texture(const String& name, size_t width, size_t height, GLenum format = GL_RGB, TextureType type = TextureType::Opaque);
+            Texture(const std::string& name, size_t width, size_t height, const Color& averageColor, Buffer&& buffer, GLenum format, TextureType type);
+            Texture(const std::string& name, size_t width, size_t height, const Color& averageColor, BufferList&& buffers, GLenum format, TextureType type);
+            Texture(const std::string& name, size_t width, size_t height, GLenum format = GL_RGB, TextureType type = TextureType::Opaque);
+
+            Texture(const Texture&) = delete;
+            Texture& operator=(const Texture&) = delete;
+            
+            Texture(Texture&& other) = default;
+            Texture& operator=(Texture&& other) = default;
+
             ~Texture();
 
             static TextureType selectTextureType(bool masked);
 
-            TextureCollection* collection() const;
-
-            const String& name() const;
+            const std::string& name() const;
 
             size_t width() const;
             size_t height() const;
             const Color& averageColor() const;
 
-            const StringSet& surfaceParms() const;
-            void setSurfaceParms(const StringSet& surfaceParms);
+            bool masked() const;
+            void setOpaque();
+            
+            const std::set<std::string>& surfaceParms() const;
+            void setSurfaceParms(const std::set<std::string>& surfaceParms);
 
             TextureCulling culling() const;
             void setCulling(TextureCulling culling);
 
-            const TextureBlendFunc& blendFunc() const;
             void setBlendFunc(GLenum srcFactor, GLenum destFactor);
+            void disableBlend();
 
             size_t usageCount() const;
             void incUsageCount();
@@ -131,16 +148,12 @@ namespace TrenchBroom {
              * Returns the texture data in the format returned by format().
              * Once prepare() is called, this will be an empty vector.
              */
-            const TextureBuffer::List& buffersIfUnprepared() const;
+            const BufferList& buffersIfUnprepared() const;
             /**
              * Will be one of GL_RGB, GL_BGR, GL_RGBA, GL_BGRA.
              */
             GLenum format() const;
             TextureType type() const;
-
-        private:
-            void setCollection(TextureCollection* collection);
-            friend class TextureCollection;
         };
     }
 }

@@ -19,18 +19,21 @@
 
 #include "GameEngineProfile.h"
 
+#include <memory>
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
-        GameEngineProfile::GameEngineProfile(const String& name, const IO::Path& path, const String& parameterSpec) :
+        GameEngineProfile::GameEngineProfile(const std::string& name, const IO::Path& path, const std::string& parameterSpec) :
         m_name(name),
         m_path(path),
         m_parameterSpec(parameterSpec) {}
 
-        GameEngineProfile* GameEngineProfile::clone() const {
-            return new GameEngineProfile(m_name, m_path, m_parameterSpec);
+        std::unique_ptr<GameEngineProfile> GameEngineProfile::clone() const {
+            return std::make_unique<GameEngineProfile>(m_name, m_path, m_parameterSpec);
         }
 
-        const String& GameEngineProfile::name() const {
+        const std::string& GameEngineProfile::name() const {
             return m_name;
         }
 
@@ -38,11 +41,11 @@ namespace TrenchBroom {
             return m_path;
         }
 
-        const String& GameEngineProfile::parameterSpec() const {
+        const std::string& GameEngineProfile::parameterSpec() const {
             return m_parameterSpec;
         }
 
-        void GameEngineProfile::setName(const String& name) {
+        void GameEngineProfile::setName(const std::string& name) {
             m_name = name;
             profileDidChange();
         }
@@ -52,7 +55,7 @@ namespace TrenchBroom {
             profileDidChange();
         }
 
-        void GameEngineProfile::setParameterSpec(const String& parameterSpec) {
+        void GameEngineProfile::setParameterSpec(const std::string& parameterSpec) {
             m_parameterSpec = parameterSpec;
             profileDidChange();
         }

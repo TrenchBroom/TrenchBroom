@@ -21,18 +21,22 @@
 #define CompilationConfig_h
 
 #include "Notifier.h"
-#include "Model/CompilationProfile.h"
+
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class CompilationProfile;
+
         class CompilationConfig {
         private:
-            CompilationProfile::List m_profiles;
+            std::vector<std::unique_ptr<CompilationProfile>> m_profiles;
         public:
             mutable Notifier<> profilesDidChange;
         public:
             CompilationConfig();
-            CompilationConfig(const CompilationProfile::List& profiles);
+            explicit CompilationConfig(std::vector<std::unique_ptr<CompilationProfile>> profiles);
             CompilationConfig(const CompilationConfig& other);
             ~CompilationConfig();
 
@@ -41,8 +45,9 @@ namespace TrenchBroom {
 
             size_t profileCount() const;
             CompilationProfile* profile(size_t index) const;
+            size_t indexOfProfile(CompilationProfile* profile) const;
 
-            void addProfile(CompilationProfile* profile);
+            void addProfile(std::unique_ptr<CompilationProfile> profile);
             void removeProfile(size_t index);
         };
     }

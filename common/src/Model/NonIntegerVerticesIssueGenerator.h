@@ -21,7 +21,8 @@
 #define TrenchBroom_NonIntegerVerticesIssueGenerator
 
 #include "Model/IssueGenerator.h"
-#include "Model/ModelTypes.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -32,7 +33,7 @@ namespace TrenchBroom {
         public:
             NonIntegerVerticesIssueGenerator();
         private:
-            void doGenerate(Brush* brush, IssueList& issues) const override;
+            void doGenerate(BrushNode* brushNode, IssueList& issues) const override;
         };
     }
 }

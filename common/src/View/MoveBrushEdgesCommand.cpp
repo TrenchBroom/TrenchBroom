@@ -19,39 +19,49 @@
 
 #include "MoveBrushEdgesCommand.h"
 
-#include "Model/Brush.h"
-#include "Model/Snapshot.h"
+#include "FloatType.h"
+#include "Model/BrushNode.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "View/VertexHandleManager.h"
+
+#include <vecmath/segment.h> // do not remove
+#include <vecmath/polygon.h> // do not remove
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveBrushEdgesCommand::Type = Command::freeType();
 
-        MoveBrushEdgesCommand::Ptr MoveBrushEdgesCommand::move(const Model::EdgeToBrushesMap& edges, const vm::vec3& delta) {
-            Model::BrushList brushes;
-            Model::BrushEdgesMap brushEdges;
+        std::unique_ptr<MoveBrushEdgesCommand> MoveBrushEdgesCommand::move(const EdgeToBrushesMap& edges, const vm::vec3& delta) {
+            std::vector<Model::BrushNode*> brushes;
+            BrushEdgesMap brushEdges;
             std::vector<vm::segment3> edgePositions;
             extractEdgeMap(edges, brushes, brushEdges, edgePositions);
 
-            return Ptr(new MoveBrushEdgesCommand(brushes, brushEdges, edgePositions, delta));
+            return std::make_unique<MoveBrushEdgesCommand>(brushes, brushEdges, edgePositions, delta);
         }
 
-        MoveBrushEdgesCommand::MoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) :
+        MoveBrushEdgesCommand::MoveBrushEdgesCommand(const std::vector<Model::BrushNode*>& brushes, const BrushEdgesMap& edges, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta) :
         VertexCommand(Type, "Move Brush Edges", brushes),
         m_edges(edges),
         m_oldEdgePositions(edgePositions),
         m_delta(delta) {
-            assert(!isZero(m_delta, vm::C::almostZero()));
+            assert(!vm::is_zero(m_delta, vm::C::almost_zero()));
         }
+
+        MoveBrushEdgesCommand::~MoveBrushEdgesCommand() = default;
 
         bool MoveBrushEdgesCommand::doCanDoVertexOperation(const MapDocument* document) const {
             const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_edges) {
-                Model::Brush* brush = entry.first;
+                const Model::BrushNode* brushNode = entry.first;
                 const std::vector<vm::segment3>& edges = entry.second;
-                if (!brush->canMoveEdges(worldBounds, edges, m_delta))
+                const Model::Brush& brush = brushNode->brush();
+                if (!brush.canMoveEdges(worldBounds, edges, m_delta)) {
                     return false;
+                }
             }
             return true;
         }
@@ -61,14 +71,14 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MoveBrushEdgesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            MoveBrushEdgesCommand* other = static_cast<MoveBrushEdgesCommand*>(command.get());
+        bool MoveBrushEdgesCommand::doCollateWith(UndoableCommand* command) {
+            MoveBrushEdgesCommand* other = static_cast<MoveBrushEdgesCommand*>(command);
 
             if (!canCollateWith(*other)) {
                 return false;
             }
 
-            if (!VectorUtils::equals(m_newEdgePositions, other->m_oldEdgePositions)) {
+            if (m_newEdgePositions != other->m_oldEdgePositions) {
                 return false;
             }
 

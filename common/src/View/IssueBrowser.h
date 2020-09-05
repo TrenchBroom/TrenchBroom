@@ -20,58 +20,59 @@
 #ifndef TrenchBroom_IssueBrowser
 #define TrenchBroom_IssueBrowser
 
-#include "Model/ModelTypes.h"
-#include "View/ViewTypes.h"
 #include "View/TabBook.h"
 
-class wxCheckBox;
-class wxCommandEvent;
-class wxMouseEvent;
-class wxSimplebook;
-class wxSizeEvent;
-class wxWindow;
+#include <memory>
+#include <vector>
+
+class QCheckBox;
+class QStackedLayout;
+class QWidget;
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFaceHandle;
         class Issue;
+        class Node;
     }
 
     namespace View {
-        class FlagChangedCommand;
         class FlagsPopupEditor;
         class IssueBrowserView;
+        class MapDocument;
 
         class IssueBrowser : public TabBookPage {
+            Q_OBJECT
         private:
             static const int SelectObjectsCommandId = 1;
             static const int ShowIssuesCommandId = 2;
             static const int HideIssuesCommandId = 3;
             static const int FixObjectsBaseId = 4;
 
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             IssueBrowserView* m_view;
-            wxCheckBox* m_showHiddenIssuesCheckBox;
+            QCheckBox* m_showHiddenIssuesCheckBox;
             FlagsPopupEditor* m_filterEditor;
         public:
-            IssueBrowser(wxWindow* parent, MapDocumentWPtr document);
+            explicit IssueBrowser(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~IssueBrowser() override;
 
-            wxWindow* createTabBarPage(wxWindow* parent) override;
-
-            void OnShowHiddenIssuesChanged(wxCommandEvent& event);
-            void OnFilterChanged(FlagChangedCommand& command);
+            QWidget* createTabBarPage(QWidget* parent) override;
         private:
             void bindObservers();
             void unbindObservers();
             void documentWasNewedOrLoaded(MapDocument* document);
             void documentWasSaved(MapDocument* document);
-            void nodesWereAdded(const Model::NodeList& nodes);
-            void nodesWereRemoved(const Model::NodeList& nodes);
-            void nodesDidChange(const Model::NodeList& nodes);
-            void brushFacesDidChange(const Model::BrushFaceList& faces);
+            void nodesWereAdded(const std::vector<Model::Node*>& nodes);
+            void nodesWereRemoved(const std::vector<Model::Node*>& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
+            void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
             void issueIgnoreChanged(Model::Issue* issue);
 
             void updateFilterFlags();
+
+            void showHiddenIssuesChanged();
+            void filterChanged(size_t index, int value, int setFlag, int mixedFlag);
         };
     }
 }

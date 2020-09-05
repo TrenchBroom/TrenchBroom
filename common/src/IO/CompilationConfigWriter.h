@@ -20,10 +20,11 @@
 #ifndef CompilationConfigWriter_h
 #define CompilationConfigWriter_h
 
-#include "EL.h"
 #include "Macros.h"
+#include "EL/EL_Forward.h"
 
-#include <iostream>
+#include <iosfwd>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -47,7 +48,7 @@ namespace TrenchBroom {
             class WriteCompilationTaskVisitor;
             EL::Value writeTasks(const Model::CompilationProfile* profile) const;
 
-            String escape(const String& str) const;
+            std::string escape(const std::string& str) const;
 
             deleteCopyAndMove(CompilationConfigWriter)
         };

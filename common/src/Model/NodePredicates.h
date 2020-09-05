@@ -20,20 +20,18 @@
 #ifndef TrenchBroom_NodePredicates
 #define TrenchBroom_NodePredicates
 
-#include <stdio.h>
-
 #undef True
 #undef False
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
-        class Entity;
-        class Group;
-        class Layer;
+        class BrushNode;
+        class EntityNode;
+        class GroupNode;
+        class LayerNode;
         class Node;
         class Object;
-        class World;
+        class WorldNode;
 
         namespace NodePredicates {
             struct True {
@@ -49,19 +47,19 @@ namespace TrenchBroom {
             private:
                 P m_p;
             public:
-                Id(const P& p) :
+                explicit Id(const P& p) :
                 m_p(p) {}
 
-                bool operator()(const World* world) const   { return m_p(world);  }
-                bool operator()(World* world) const         { return m_p(world);  }
-                bool operator()(const Layer* layer) const   { return m_p(layer);  }
-                bool operator()(Layer* layer) const         { return m_p(layer);  }
-                bool operator()(const Group* group) const   { return m_p(group);  }
-                bool operator()(Group* group) const         { return m_p(group);  }
-                bool operator()(const Entity* entity) const { return m_p(entity); }
-                bool operator()(Entity* entity) const       { return m_p(entity); }
-                bool operator()(const Brush* brush) const   { return m_p(brush);  }
-                bool operator()(Brush* brush) const         { return m_p(brush);  }
+                bool operator()(const WorldNode* world) const   { return m_p(world);  }
+                bool operator()(WorldNode* world) const         { return m_p(world);  }
+                bool operator()(const LayerNode* layer) const   { return m_p(layer);  }
+                bool operator()(LayerNode* layer) const         { return m_p(layer);  }
+                bool operator()(const GroupNode* group) const   { return m_p(group);  }
+                bool operator()(GroupNode* group) const         { return m_p(group);  }
+                bool operator()(const EntityNode* entity) const { return m_p(entity); }
+                bool operator()(EntityNode* entity) const       { return m_p(entity); }
+                bool operator()(const BrushNode* brush) const   { return m_p(brush);  }
+                bool operator()(BrushNode* brush) const         { return m_p(brush);  }
             };
 
             template <typename P>
@@ -69,19 +67,19 @@ namespace TrenchBroom {
             private:
                 P m_p;
             public:
-                Not(const P& p) :
+                explicit Not(const P& p) :
                 m_p(p) {}
 
-                bool operator()(const World* world) const   { return !m_p(world);  }
-                bool operator()(World* world) const         { return !m_p(world);  }
-                bool operator()(const Layer* layer) const   { return !m_p(layer);  }
-                bool operator()(Layer* layer) const         { return !m_p(layer);  }
-                bool operator()(const Group* group) const   { return !m_p(group);  }
-                bool operator()(Group* group) const         { return !m_p(group);  }
-                bool operator()(const Entity* entity) const { return !m_p(entity); }
-                bool operator()(Entity* entity) const       { return !m_p(entity); }
-                bool operator()(const Brush* brush) const   { return !m_p(brush);  }
-                bool operator()(Brush* brush) const         { return !m_p(brush);  }
+                bool operator()(const WorldNode* world) const   { return !m_p(world);  }
+                bool operator()(WorldNode* world) const         { return !m_p(world);  }
+                bool operator()(const LayerNode* layer) const   { return !m_p(layer);  }
+                bool operator()(LayerNode* layer) const         { return !m_p(layer);  }
+                bool operator()(const GroupNode* group) const   { return !m_p(group);  }
+                bool operator()(GroupNode* group) const         { return !m_p(group);  }
+                bool operator()(const EntityNode* entity) const { return !m_p(entity); }
+                bool operator()(EntityNode* entity) const       { return !m_p(entity); }
+                bool operator()(const BrushNode* brush) const   { return !m_p(brush);  }
+                bool operator()(BrushNode* brush) const         { return !m_p(brush);  }
             };
 
             template <typename P1, typename P2>
@@ -94,16 +92,16 @@ namespace TrenchBroom {
                 m_p1(p1),
                 m_p2(p2) {}
 
-                bool operator()(const World* world) const   { return m_p1(world)  && m_p2(world);  }
-                bool operator()(World* world) const         { return m_p1(world)  && m_p2(world);  }
-                bool operator()(const Layer* layer) const   { return m_p1(layer)  && m_p2(layer);  }
-                bool operator()(Layer* layer) const         { return m_p1(layer)  && m_p2(layer);  }
-                bool operator()(const Group* group) const   { return m_p1(group)  && m_p2(group);  }
-                bool operator()(Group* group) const         { return m_p1(group)  && m_p2(group);  }
-                bool operator()(const Entity* entity) const { return m_p1(entity) && m_p2(entity); }
-                bool operator()(Entity* entity) const       { return m_p1(entity) && m_p2(entity); }
-                bool operator()(const Brush* brush) const   { return m_p1(brush)  && m_p2(brush);  }
-                bool operator()(Brush* brush) const         { return m_p1(brush)  && m_p2(brush);  }
+                bool operator()(const WorldNode* world) const   { return m_p1(world)  && m_p2(world);  }
+                bool operator()(WorldNode* world) const         { return m_p1(world)  && m_p2(world);  }
+                bool operator()(const LayerNode* layer) const   { return m_p1(layer)  && m_p2(layer);  }
+                bool operator()(LayerNode* layer) const         { return m_p1(layer)  && m_p2(layer);  }
+                bool operator()(const GroupNode* group) const   { return m_p1(group)  && m_p2(group);  }
+                bool operator()(GroupNode* group) const         { return m_p1(group)  && m_p2(group);  }
+                bool operator()(const EntityNode* entity) const { return m_p1(entity) && m_p2(entity); }
+                bool operator()(EntityNode* entity) const       { return m_p1(entity) && m_p2(entity); }
+                bool operator()(const BrushNode* brush) const   { return m_p1(brush)  && m_p2(brush);  }
+                bool operator()(BrushNode* brush) const         { return m_p1(brush)  && m_p2(brush);  }
             };
 
             template <typename P1, typename P2>
@@ -116,54 +114,54 @@ namespace TrenchBroom {
                 m_p1(p1),
                 m_p2(p2) {}
 
-                bool operator()(const World* world) const   { return m_p1(world)  || m_p2(world);  }
-                bool operator()(World* world) const         { return m_p1(world)  || m_p2(world);  }
-                bool operator()(const Layer* layer) const   { return m_p1(layer)  || m_p2(layer);  }
-                bool operator()(Layer* layer) const         { return m_p1(layer)  || m_p2(layer);  }
-                bool operator()(const Group* group) const   { return m_p1(group)  || m_p2(group);  }
-                bool operator()(Group* group) const         { return m_p1(group)  || m_p2(group);  }
-                bool operator()(const Entity* entity) const { return m_p1(entity) || m_p2(entity); }
-                bool operator()(Entity* entity) const       { return m_p1(entity) || m_p2(entity); }
-                bool operator()(const Brush* brush) const   { return m_p1(brush)  || m_p2(brush);  }
-                bool operator()(Brush* brush) const         { return m_p1(brush)  || m_p2(brush);  }
+                bool operator()(const WorldNode* world) const   { return m_p1(world)  || m_p2(world);  }
+                bool operator()(WorldNode* world) const         { return m_p1(world)  || m_p2(world);  }
+                bool operator()(const LayerNode* layer) const   { return m_p1(layer)  || m_p2(layer);  }
+                bool operator()(LayerNode* layer) const         { return m_p1(layer)  || m_p2(layer);  }
+                bool operator()(const GroupNode* group) const   { return m_p1(group)  || m_p2(group);  }
+                bool operator()(GroupNode* group) const         { return m_p1(group)  || m_p2(group);  }
+                bool operator()(const EntityNode* entity) const { return m_p1(entity) || m_p2(entity); }
+                bool operator()(EntityNode* entity) const       { return m_p1(entity) || m_p2(entity); }
+                bool operator()(const BrushNode* brush) const   { return m_p1(brush)  || m_p2(brush);  }
+                bool operator()(BrushNode* brush) const         { return m_p1(brush)  || m_p2(brush);  }
             };
 
             class EqualsNode {
             private:
                 const Node* m_node;
             public:
-                EqualsNode(const Node* node) :
+                explicit EqualsNode(const Node* node) :
                 m_node(node) {}
 
-                bool operator()(const World* world) const;
-                bool operator()(World* world) const;
-                bool operator()(const Layer* layer) const;
-                bool operator()(Layer* layer) const;
-                bool operator()(const Group* group) const;
-                bool operator()(Group* group) const;
-                bool operator()(const Entity* entity) const;
-                bool operator()(Entity* entity) const;
-                bool operator()(const Brush* brush) const;
-                bool operator()(Brush* brush) const;
+                bool operator()(const WorldNode* world) const;
+                bool operator()(WorldNode* world) const;
+                bool operator()(const LayerNode* layer) const;
+                bool operator()(LayerNode* layer) const;
+                bool operator()(const GroupNode* group) const;
+                bool operator()(GroupNode* group) const;
+                bool operator()(const EntityNode* entity) const;
+                bool operator()(EntityNode* entity) const;
+                bool operator()(const BrushNode* brush) const;
+                bool operator()(BrushNode* brush) const;
             };
 
             class EqualsObject {
             private:
                 const Object* m_object;
             public:
-                EqualsObject(const Object* object) :
+                explicit EqualsObject(const Object* object) :
                 m_object(object) {}
 
-                bool operator()(const World* world) const;
-                bool operator()(World* world) const;
-                bool operator()(const Layer* layer) const;
-                bool operator()(Layer* layer) const;
-                bool operator()(const Group* group) const;
-                bool operator()(Group* group) const;
-                bool operator()(const Entity* entity) const;
-                bool operator()(Entity* entity) const;
-                bool operator()(const Brush* brush) const;
-                bool operator()(Brush* brush) const;
+                bool operator()(const WorldNode* world) const;
+                bool operator()(WorldNode* world) const;
+                bool operator()(const LayerNode* layer) const;
+                bool operator()(LayerNode* layer) const;
+                bool operator()(const GroupNode* group) const;
+                bool operator()(GroupNode* group) const;
+                bool operator()(const EntityNode* entity) const;
+                bool operator()(EntityNode* entity) const;
+                bool operator()(const BrushNode* brush) const;
+                bool operator()(BrushNode* brush) const;
             };
         }
     }

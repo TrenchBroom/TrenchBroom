@@ -19,34 +19,38 @@
 
 #include "FaceTool.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
+
+#include <kdl/memory_utils.h>
+#include <kdl/string_format.h>
 
 namespace TrenchBroom {
     namespace View {
-        FaceTool::FaceTool(MapDocumentWPtr document) :
-        VertexToolBase(document) {}
+        FaceTool::FaceTool(std::weak_ptr<MapDocument> document) :
+        VertexToolBase(document),
+        m_faceHandles(std::make_unique<FaceHandleManager>()) {}
 
-        Model::BrushSet FaceTool::findIncidentBrushes(const vm::polygon3& handle) const {
-            return findIncidentBrushes(m_faceHandles, handle);
+        std::vector<Model::BrushNode*> FaceTool::findIncidentBrushes(const vm::polygon3& handle) const {
+            return findIncidentBrushes(*m_faceHandles, handle);
         }
 
         void FaceTool::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
-            m_faceHandles.pickCenterHandle(pickRay, camera, pickResult);
+            m_faceHandles->pickCenterHandle(pickRay, camera, pickResult);
         }
 
         FaceHandleManager& FaceTool::handleManager() {
-            return m_faceHandles;
+            return *m_faceHandles;
         }
 
         const FaceHandleManager& FaceTool::handleManager() const {
-            return m_faceHandles;
+            return *m_faceHandles;
         }
 
         FaceTool::MoveResult FaceTool::move(const vm::vec3& delta) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
-            const auto handles = m_faceHandles.selectedHandles();
-            const auto brushMap = buildBrushMap(m_faceHandles, std::begin(handles), std::end(handles));
+            const auto handles = m_faceHandles->selectedHandles();
+            const auto brushMap = buildBrushMap(*m_faceHandles, std::begin(handles), std::end(handles));
             if (document->moveFaces(brushMap, delta)) {
                 m_dragHandlePosition = m_dragHandlePosition.translate(delta);
                 return MR_Continue;
@@ -54,16 +58,16 @@ namespace TrenchBroom {
             return MR_Deny;
         }
 
-        String FaceTool::actionName() const {
-            return StringUtils::safePlural(m_faceHandles.selectedHandleCount(), "Move Face", "Move Faces");
+        std::string FaceTool::actionName() const {
+            return kdl::str_plural(m_faceHandles->selectedHandleCount(), "Move Face", "Move Faces");
         }
 
         void FaceTool::removeSelection() {
-            const auto handles = m_faceHandles.selectedHandles();
-            const auto brushMap = buildBrushMap(m_faceHandles, std::begin(handles), std::end(handles));
+            const auto handles = m_faceHandles->selectedHandles();
+            const auto brushMap = buildBrushMap(*m_faceHandles, std::begin(handles), std::end(handles));
 
-            Transaction transaction(m_document, StringUtils::safePlural(handleManager().selectedHandleCount(), "Remove Face", "Remove Faces"));
-            lock(m_document)->removeFaces(brushMap);
+            Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Remove Face", "Remove Faces"));
+            kdl::mem_lock(m_document)->removeFaces(brushMap);
         }
     }
 }

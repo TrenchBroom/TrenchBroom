@@ -20,30 +20,29 @@
 #ifndef TrenchBroom_MatchNodesByVisibility
 #define TrenchBroom_MatchNodesByVisibility
 
-#include "Model/ModelTypes.h"
-
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
-        class Entity;
-        class Group;
-        class Layer;
+        class BrushNode;
+        class EntityNode;
+        class GroupNode;
+        class LayerNode;
         class Node;
-        class World;
+        enum class VisibilityState;
+        class WorldNode;
 
         class MatchNodesByVisibility {
         private:
             VisibilityState m_visibility;
         public:
-            MatchNodesByVisibility(VisibilityState visibility);
+            explicit MatchNodesByVisibility(VisibilityState visibility);
 
-            bool operator()(const Model::World* world) const;
-            bool operator()(const Model::Layer* layer) const;
-            bool operator()(const Model::Group* group) const;
-            bool operator()(const Model::Entity* entity) const;
-            bool operator()(const Model::Brush* brush) const;
+            bool operator()(const WorldNode* world) const;
+            bool operator()(const LayerNode* layer) const;
+            bool operator()(const GroupNode* group) const;
+            bool operator()(const EntityNode* entity) const;
+            bool operator()(const BrushNode* brush) const;
         private:
-            bool match(const Model::Node* node) const;
+            bool match(const Node* node) const;
         };
     }
 }

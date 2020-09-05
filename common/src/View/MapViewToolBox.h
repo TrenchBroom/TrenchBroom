@@ -20,19 +20,14 @@
 #ifndef TrenchBroom_MapViewToolBox
 #define TrenchBroom_MapViewToolBox
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "View/ToolBox.h"
-#include "View/ViewTypes.h"
 
 #include <memory>
 
-class wxBookCtrlBase;
+class QStackedLayout;
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class Camera;
-    }
-
     namespace View {
         class ClipTool;
         class CreateComplexBrushTool;
@@ -46,12 +41,11 @@ namespace TrenchBroom {
         class VertexTool;
         class EdgeTool;
         class FaceTool;
-        class VertexToolOld;
-        class Selection;
+        class MapDocument;
 
         class MapViewToolBox : public ToolBox {
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             std::unique_ptr<ClipTool> m_clipTool;
             std::unique_ptr<CreateComplexBrushTool> m_createComplexBrushTool;
@@ -66,7 +60,7 @@ namespace TrenchBroom {
             std::unique_ptr<EdgeTool> m_edgeTool;
             std::unique_ptr<FaceTool> m_faceTool;
         public:
-            MapViewToolBox(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl);
+            MapViewToolBox(std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl);
             ~MapViewToolBox();
         public: // tools
             ClipTool* clipTool() const;
@@ -117,9 +111,9 @@ namespace TrenchBroom {
 
             void moveVertices(const vm::vec3& delta);
         private: // Tool related methods
-            void createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl);
+            void createTools(std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl);
         private: // notification
-            void registerTool(Tool* tool, wxBookCtrlBase* bookCtrl);
+            void registerTool(Tool* tool, QStackedLayout* bookCtrl);
             void bindObservers();
             void unbindObservers();
             void toolActivated(Tool* tool);

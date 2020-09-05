@@ -20,47 +20,68 @@
 #ifndef TrenchBroom_GameConfigParser
 #define TrenchBroom_GameConfigParser
 
+#include "FloatType.h"
 #include "Macros.h"
-#include "StringUtils.h"
+#include "EL/EL_Forward.h"
+#include "EL/Value.h"
 #include "IO/ConfigParserBase.h"
-#include "Model/GameConfig.h"
 
-#include <iostream>
+#include <string>
+#include <optional>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFaceAttributes;
+        struct EntityConfig;
+        struct FaceAttribsConfig;
+        struct FileSystemConfig;
+        struct FlagConfig;
+        struct FlagsConfig;
+        class GameConfig;
+        struct MapFormatConfig;
+        struct PackageFormatConfig;
         class SmartTag;
         class TagAttribute;
+        struct TextureConfig;
+        struct TexturePackageConfig;
     }
-
     namespace IO {
-        class ParserStatus;
+        class Path;
 
         class GameConfigParser : public ConfigParserBase {
+        private:
+            EL::IntegerType m_version;
         public:
             GameConfigParser(const char* begin, const char* end, const Path& path);
-            explicit GameConfigParser(const String& str, const Path& path = Path(""));
+            explicit GameConfigParser(const std::string& str, const Path& path = Path(""));
 
             Model::GameConfig parse();
         private:
-            Model::GameConfig::MapFormatConfig::List parseMapFormatConfigs(const EL::Value& values) const;
-            Model::GameConfig::FileSystemConfig parseFileSystemConfig(const EL::Value& values) const;
-            Model::GameConfig::PackageFormatConfig parsePackageFormatConfig(const EL::Value& values) const;
-            Model::GameConfig::TextureConfig parseTextureConfig(const EL::Value& values) const;
-            Model::GameConfig::TexturePackageConfig parseTexturePackageConfig(const EL::Value& values) const;
-            Model::GameConfig::EntityConfig parseEntityConfig(const EL::Value& values) const;
-            Model::GameConfig::FaceAttribsConfig parseFaceAttribsConfig(const EL::Value& values) const;
-            Model::GameConfig::FlagConfigList parseFlagConfig(const EL::Value& values) const;
-            std::vector<Model::SmartTag> parseTags(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfigs) const;
+            std::vector<Model::MapFormatConfig> parseMapFormatConfigs(const EL::Value& values) const;
+            Model::FileSystemConfig parseFileSystemConfig(const EL::Value& values) const;
+            Model::PackageFormatConfig parsePackageFormatConfig(const EL::Value& values) const;
+            Model::TextureConfig parseTextureConfig(const EL::Value& values) const;
+            Model::TexturePackageConfig parseTexturePackageConfig(const EL::Value& values) const;
+            Model::EntityConfig parseEntityConfig(const EL::Value& values) const;
+            Model::FaceAttribsConfig parseFaceAttribsConfig(const EL::Value& values) const;
+            Model::FlagsConfig parseFlagsConfig(const EL::Value& values) const;
+            void parseFlag(const EL::Value& entry, const size_t index, std::vector<Model::FlagConfig>& flags) const;
+            Model::BrushFaceAttributes parseFaceAttribsDefaults(const EL::Value& value, const Model::FlagsConfig& surfaceFlags, const Model::FlagsConfig& contentFlags) const;
+            std::vector<Model::SmartTag> parseTags(const EL::Value& value, const Model::FaceAttribsConfig& faceAttribsConfigs) const;
+            std::optional<vm::bbox3> parseSoftMapBounds(const EL::Value& value) const;
 
             void parseBrushTags(const EL::Value& value, std::vector<Model::SmartTag>& results) const;
-            void parseFaceTags(const EL::Value& value, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig, std::vector<Model::SmartTag>& results) const;
-            int parseFlagValue(const EL::Value& value, const Model::GameConfig::FlagsConfig& flags) const;
+            void parseFaceTags(const EL::Value& value, const Model::FaceAttribsConfig& faceAttribsConfig, std::vector<Model::SmartTag>& results) const;
+            void parseSurfaceParmTag(const std::string& name, const EL::Value& value, std::vector<Model::SmartTag>& result) const;
+            int parseFlagValue(const EL::Value& value, const Model::FlagsConfig& flags) const;
             std::vector<Model::TagAttribute> parseTagAttributes(const EL::Value& values) const;
 
             deleteCopyAndMove(GameConfigParser)
         };
+
+        std::optional<vm::bbox3> parseSoftMapBoundsString(const std::string& string);
+        std::string serializeSoftMapBoundsString(const vm::bbox3& bounds);
     }
 }
 

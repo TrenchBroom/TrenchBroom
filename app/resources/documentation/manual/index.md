@@ -37,7 +37,7 @@ TrenchBroom is a level editing program for brush-based game engines such as Quak
 
 ## About This Document
 
-This document is intended to help you learn to use the TrenchBroom editor. It is not intended to teach you how to map, and it isn't a tutorial either. If you are having technical problems with your maps, or need information on how to create particular effects or setups for the particular game you are mapping for, you should ask other mappers for help (see [References and Links](#references_and_links) to find mapping communities and such). This document will only teach you how to use this editor. 
+This document is intended to help you learn to use the TrenchBroom editor. It is not intended to teach you how to map, and it isn't a tutorial either. If you are having technical problems with your maps, or need information on how to create particular effects or setups for the particular game you are mapping for, you should ask other mappers for help (see [References and Links](#references_and_links) to find mapping communities and such). This document will only teach you how to use this editor.
 
 # Getting Started {#getting_started}
 
@@ -131,13 +131,13 @@ Once you have selected a game and a map format, TrenchBroom will open the main e
 
 The main window consists of a menu bar, a toolbar, the editing area, an inspector on the right and an info panel at the bottom. In the screenshot below, there are three editing area: one 3D viewport and two orthographic 2D editing area.
 
-![The main editing window (Linux XFCE)](images/MainWindow.png)
+![The main editing window (Ubuntu Linux)](images/MainWindow.png)
 
 The sizes of the editing area, the inspector and the info bar can be changed by dragging the dividers with the mouse. This applies to some of the dividers in the inspector as well. If a divider is 2 pixels thick, it can be dragged with the mouse. The positions of the dividers and the size of the editing window are saved when you close a window. The following subsections introduce the most important parts of the main window: the editing area, the inspector, and the info bar. The toolbar and the menu will be explained in more detail in later sections.
 
 ### The Editing Area
 
-The editing area is divided in two sections: The context sensitive info bar at the top and the viewports below. The info bar contains different controls depending on which tool is currently activated. You can switch between tools such as the rotate tool and the vertex tool using the toolbar buttons, the menu or with the respective keyboard shortcuts. The context sensitive controls allow you to perform certain actions that are relevant to the current tool such as setting the rotation center when in the rotate tool or moving objects by a given delta when in the default move tool. Additonally, there is a button labeled "View" on the right of the info bar. Clicking on this button unfolds a dropdown containing controls to [filter out](#filtering_rendering_options) certain objects in the viewports or to change how the viewport [renders its contents](#filtering_rendering_options).
+The editing area is divided in two sections: The context sensitive info bar at the top and the viewports below. The info bar contains different controls depending on which tool is currently activated. You can switch between tools such as the rotate tool and the vertex tool using the toolbar buttons, the menu or with the respective keyboard shortcuts. The context sensitive controls allow you to perform certain actions that are relevant to the current tool such as setting the rotation center when in the rotate tool or moving objects by a given delta when in the default move tool. Additonally, there is a button labeled "View Options" on the right of the info bar. Clicking on this button unfolds a dropdown containing controls to [filter out](#filtering_rendering_options) certain objects in the viewports or to change how the viewport [renders its contents](#filtering_rendering_options).
 
 ![The info bar with view dropdown (Windows 10)](images/ViewDropdown.png)
 
@@ -158,7 +158,7 @@ XY          +X            +Y         +Z             Top
 XZ          +X            +Z         -Y             Front
 YZ          +Y            +Z         +X             Side
 
-The normal axis is the axis that would be protruding from the screen when looking at the respective 2D viewport. In the case of the XY viewport, the normal axis is the positive Z axis, but in the case of the XZ viewport, the normal axis is the negative Y axis. For the mathematically inclined, the normal axis is the cross product of the right axis and the up axis. Sometimes, we will also refer to the inverted normal axis as the depth axis. So, the depth axis of the XY viewport is the negative Z axis. We also refer to the plane that is spanned by the first two axes as the view plane of a 2D viewport. Accordingly, the view plane of the XZ viewport is the X/Z plane. 
+The normal axis is the axis that would be protruding from the screen when looking at the respective 2D viewport. In the case of the XY viewport, the normal axis is the positive Z axis, but in the case of the XZ viewport, the normal axis is the negative Y axis. For the mathematically inclined, the normal axis is the cross product of the right axis and the up axis. Sometimes, we will also refer to the inverted normal axis as the depth axis. So, the depth axis of the XY viewport is the negative Z axis. We also refer to the plane that is spanned by the first two axes as the view plane of a 2D viewport. Accordingly, the view plane of the XZ viewport is the X/Z plane.
 
 ![The compass](images/Compass3D.png) In the bottom left of each viewport, there is a compass that indicates the orientation of the camera of that viewport. In the 3D viewport, you can see how the compass rotates when you rotate the camera. In the 2D viewport, the compass axes are fixed, but they indicate which of the coordinate system axes are the right and the up axis for that viewport. The colors of the compass hands represent the axes: Red is the X axis, green is the Y axis, and blue is the Z axis (RGB vs. XYZ).
 
@@ -182,7 +182,7 @@ Navigation in TrenchBroom is quite simple and straightforward. You will mostly u
 
 ### Looking and Moving Around
 
-In the 3D viewport, can look around by holding the right mouse button and dragging the mouse around. There are several ways to move the camera around. First and foremost, you can move the camera forward and backward in the viewing direction by spinning the scroll wheel. If you prefer to have the scroll wheel move the camera in the direction where the mouse cursor is pointing, you can check the "Move camera towards cursor" option in the preferences. To move the camera sideways and up / down, hold the middle mouse button and drag the mouse in any direction. For tablet users, there is an option in the preferences that will enable you to move the camera horizontally by holding #key(307). Additionally, you can use the following keyboard shortcuts:
+In the 3D viewport, can look around by holding the right mouse button and dragging the mouse around. There are several ways to move the camera around. First and foremost, you can move the camera forward and backward in the viewing direction by spinning the scroll wheel. If you prefer to have the scroll wheel move the camera in the direction where the mouse cursor is pointing, you can check the "Move camera towards cursor" option in the preferences. To move the camera sideways and up / down, hold the middle mouse button and drag the mouse in any direction. For tablet users, there is an option in the preferences that will enable you to move the camera horizontally by holding #key(Alt). Additionally, you can use the following keyboard shortcuts:
 
 Direction    Key
 ---------    ---
@@ -197,13 +197,13 @@ Down         #action(Controls/Camera/Move down)
 
 The camera orbit mode allows you to rotate the camera about a selectable point. To get an idea as to what this means, imagine that you define a point in the map by clicking on a brush. The point where you clicked will be the center of your camera orbit. Now image a sphere whose center is the point where you just clicked and whose radius is the distance between the camera and the point. Orbiting will move the camera on the surface of that sphere while adjusting the camera's direction so that you keep looking at the same point. Visually, this is the same as rotating the entire map about the orbit center. Of course, you are not actually rotating anything - only the camera's position and direction are modified. Note that, since up and down are always fixed, you cannot cross the north and south poles of the orbit sphere.
 
-Camera orbit mode is very useful if you are editing a brush because it allows you to view this brush from all sides quickly. Its best to try it and see for yourself how useful it is. To invoke the orbit mode, click and drag with the right mouse button while holding #key(307). The orbit center is the point in the map which you initially clicked. Dragging sideways will orbit the camera horizontally and dragging up and down will orbit the camera vertically. You can change the orbit radius during the orbit with the scroll wheel.
+Camera orbit mode is very useful if you are editing a brush because it allows you to view this brush from all sides quickly. Its best to try it and see for yourself how useful it is. To invoke the orbit mode, click and drag with the right mouse button while holding #key(Alt). The orbit center is the point in the map which you initially clicked. Dragging sideways will orbit the camera horizontally and dragging up and down will orbit the camera vertically. You can change the orbit radius during the orbit with the scroll wheel.
 
 ### Automatic Navigation
 
 You can center the camera on the current selection by choosing #menu(Menu/View/Camera/Focus on Selection) from the menu. This will position the camera so that all selected objects become visible. The camera will not be rotated at all; only its position will be changed. Note that this action will also adjust the 2D viewports so that the selection becomes visible there as well.
 
-Finally, you can move the camera to a particular position. To do this, choose #menu(Menu/View/Camera/Move Camera to) and enter the position into the dialog that pops up. This does not affect the 2D views.
+Finally, you can move the camera to a particular position. To do this, choose #menu(Menu/View/Camera/Move Camera to...) and enter the position into the dialog that pops up. This does not affect the 2D views.
 
 ## Navigating the 2D Viewports
 
@@ -215,7 +215,7 @@ Navigating the 2D viewports is naturally a lot simpler than navigating the 3D vi
 
 For the 3D view, the camera FOV (field of vision) can be adjusted in the view preferences by dragging the slider. This is a permanent setting.
 
-To temporarily adjust the camera's zoom, hold #key(306) and scroll the mouse wheel. To reset the zoom factor, hit #action(Controls/Map view/Reset camera zoom).
+To temporarily adjust the camera's zoom, hold #key(Shift) and scroll the mouse wheel. To reset the zoom factor, hit #action(Controls/Map view/Reset camera zoom).
 
 # Selection {#selection}
 
@@ -227,17 +227,17 @@ In the 3D viewport, selected objects are rendered with red edges and slightly ti
 
 ## Selecting Objects
 
-To select a single object, simply left click it in a viewport. Left clicking anywhere in a viewport deselects all other selected objects, so if you wish to select multiple objects, hold #key(308) while left clicking the objects to be selected. If you click an already selected object while holding #key(308), it will be deselected. You can also _paint select_ multiple objects. First, select an object, then hold #key(308) while dragging over unselected objects. Take care not to begin your dragging over a selected object, as this will [duplicate the selected objects](#duplicating_objects). Note that this even applies to occluded objects, so when you start your paint selection, you must ensure that no object under the mouse is selected.
+To select a single object, simply left click it in a viewport. Left clicking anywhere in a viewport deselects all other selected objects, so if you wish to select multiple objects, hold #key(Ctrl) while left clicking the objects to be selected. If you click an already selected object while holding #key(Ctrl), it will be deselected. You can also _paint select_ multiple objects. First, select an object, then hold #key(Ctrl) while dragging over unselected objects. Take care not to begin your dragging over a selected object, as this will [duplicate the selected objects](#duplicating_objects). Note that this even applies to occluded objects, so when you start your paint selection, you must ensure that no object under the mouse is selected.
 
-In the 3D viewport, you can only select the frontmost object with the mouse. To select an object that is obstructed by another object, you can use the mouse wheel. First, select the frontmost object, that is, the object that occludes the object that you really wish to select. Then, hold #key(308) and scroll up to push the selection away from the camera or scroll down to pull the selection towards the camera. Note that the selection depends on what object is under the mouse, so you need to make sure that the mouse cursor hovers over the object that you wish to select.
+In the 3D viewport, you can only select the frontmost object with the mouse. To select an object that is obstructed by another object, you can use the mouse wheel. First, select the frontmost object, that is, the object that occludes the object that you really wish to select. Then, hold #key(Ctrl) and scroll up to push the selection away from the camera or scroll down to pull the selection towards the camera. Note that the selection depends on what object is under the mouse, so you need to make sure that the mouse cursor hovers over the object that you wish to select.
 
 ![Selection drilling in the 3D viewport](images/DrillSelection.gif)
 
 In a 2D viewport, you can also left click an object to select it. But unlike in the 3D viewport, this will not necessarily select the frontmost object. Instead, TrenchBroom will analyze the objects under the mouse, specifically the faces under the mouse, and it will find the one with the smallest visible area. Having found such a face, it will select the object to which this face belongs. Since entities don't necessarily have faces, the faces of their bounding boxes will be considered instead. The advantage of this technique is that it allows you to easily select occluded objects in the 2D viewports.
 
-You may also think of left click selection like this: In both the 3D viewport or a 2D viewport, TrenchBroom first compiles a set of candidate objects. These are all objects under the mouse. Then, it must choose an object to be selected from these candidates. In the 3D viewport, the frontmost object always wins (unless you're using the scroll wheel to drill the selection), and in a 2D view, the object with the smallest visible area wins. Other than that, selection behaves exactly the same in both viewports, that is, you can hold #key(308) to select multiple objects and so on.
+You may also think of left click selection like this: In both the 3D viewport or a 2D viewport, TrenchBroom first compiles a set of candidate objects. These are all objects under the mouse. Then, it must choose an object to be selected from these candidates. In the 3D viewport, the frontmost object always wins (unless you're using the scroll wheel to drill the selection), and in a 2D view, the object with the smallest visible area wins. Other than that, selection behaves exactly the same in both viewports, that is, you can hold #key(Ctrl) to select multiple objects and so on.
 
-Sometimes, selecting objects manually is too tedious. To select all currently editable objects, you can choose #menu(Menu/Edit/Select All) from the menu. Note that hidden and locked objects are excluded, so this command is particularly useful in conjunction with those features. Another option to select multiple objects at once is to use _selection brushes_. Just create one or more new brushes that enclose or touch all the objects you wish to select. These brushes are called a selection brushes. Select all of these newly created selection brushes, and choose #menu(Menu/Edit/Select Touching) to select every object touched by the selection brushes, or choose #menu(Menu/Edit/Select Inside) to select every object enclosed inside them. 
+Sometimes, selecting objects manually is too tedious. To select all currently editable objects, you can choose #menu(Menu/Edit/Select All) from the menu. Note that hidden and locked objects are excluded, so this command is particularly useful in conjunction with those features. Another option to select multiple objects at once is to use _selection brushes_. Just create one or more new brushes that enclose or touch all the objects you wish to select. These brushes are called a selection brushes. Select all of these newly created selection brushes, and choose #menu(Menu/Edit/Select Touching) to select every object touched by the selection brushes, or choose #menu(Menu/Edit/Select Inside) to select every object enclosed inside them.
 
 ![Using a selection brush](images/SelectTouching.gif)
 
@@ -245,13 +245,15 @@ A similar operation can be found under #menu(Menu/Edit/Select Tall), but this pa
 
 If you have selected a single brush that belongs to an entity or group, and you wish to select every other object belonging to that entity or group, you can choose #menu(Menu/Edit/Select Siblings). The same effect can be achieved by left double clicking on a brush that belongs to an entity or group. The menu command #menu(Menu/Edit/Select by Line Number) is useful for diagnostic purposes. If an external program such as a map compiler presents you with an error message and a line number indicating where in the map file that error occured, you can use this menu command to have TrenchBroom select the offending object for you.
 
+Choose #menu(Menu/Edit/Select Inverse) from the menu to invert the selection, i.e. select everything that is currently unselected (excluding hidden and locked objects).
+
 Finally, you can deselect everything by left clicking in the void, or by choosing #menu(Menu/Edit/Select None).
 
 ## Selecting Brush Faces
 
 ![Selected brush face](images/BrushFaceSelection.png)
 
-To select a brush face, you need to hold #key(306) and left click it in the 3D viewport. You can select multiple brush faces by additionally holding #key(308). To select all faces of a brush, you can left double click that brush while holding #key(306). If you additionally hold #key(308), the faces are added to the current selection. To paint select brush faces, first select one brush face, then left drag while holding #key(308) and #key(306). To deselect all brush faces, simply click in the void or choose #menu(Menu/Edit/Select None).
+To select a brush face, you need to hold #key(Shift) and left click it in the 3D viewport. You can select multiple brush faces by additionally holding #key(Ctrl). To select all faces of a brush, you can left double click that brush while holding #key(Shift). If you additionally hold #key(Ctrl), the faces are added to the current selection. To paint select brush faces, first select one brush face, then left drag while holding #key(Ctrl) and #key(Shift). To deselect all brush faces, simply click in the void or choose #menu(Menu/Edit/Select None).
 
 # Editing
 
@@ -273,7 +275,7 @@ Mods are stored in a worldspawn property called "_tb_mod".
 
 ### Loading Entity Definitions {#entity_definition_setup}
 
-![Entity definition editor](images/EntityDefinitionEditor.png) Entity definitions are text files containing information about [the meaning of entities and their properties](#entity_definitions). Depending on the game and mod you are mapping for, you might want to load different entity definitions into the editor. To load an entity definition file into TrenchBroom, switch to the entity inspector and unfold the entity definition browser at the bottom of the inspector. The entity definition browser is horizontally divided into two areas. The upper area contains a list of _builtin_ entity definition files. These are the entity definition files that came with TrenchBroom for the game you are currently working on. You can select one of these builtin files by clicking on it. TrenchBroom will load the file and update its resources accordingly. Alternatively, you may want to load an external entity definition file of your own. To do this, click the button labeled "Browse" in the lower area of the entity defiinition browser and choose the file you wish to load. Alternatively, you can just drag and drop an entity definition file onto TrenchBroom's Main Window from a file manager (such as Windows Explorer). Currently, TrenchBroom supports Radiant DEF files and ENT files as well as [Valve FGD][FGD File Format] files. To reload the entity definitions (as well as the referenced models) from the currently loaded external file, you can click the button labeled "Reload" at the bottom or use #menu(Menu/File/Reload Entity Definitions). This may be useful if you're editing an entity definition file for a mod you're working on.
+![Entity definition editor](images/EntityDefinitionEditor.png) Entity definitions are text files containing information about [the meaning of entities and their properties](#entity_definitions). Depending on the game and mod you are mapping for, you might want to load different entity definitions into the editor. To load an entity definition file into TrenchBroom, switch to the entity inspector and unfold the entity definition browser at the bottom of the inspector. The entity definition browser is horizontally divided into two areas. The upper area contains a list of _builtin_ entity definition files. These are the entity definition files that came with TrenchBroom for the game you are currently working on. You can select one of these builtin files by clicking on it. TrenchBroom will load the file and update its resources accordingly. Alternatively, you may want to load an external entity definition file of your own. To do this, click the button labeled "Browse" in the lower area of the entity definition browser and choose the file you wish to load. Currently, TrenchBroom supports Radiant DEF files and ENT files as well as [Valve FGD][FGD File Format] files. To reload the entity definitions (as well as the referenced models) from the currently loaded external file, you can click the button labeled "Reload" at the bottom or use #menu(Menu/File/Reload Entity Definitions). This may be useful if you're editing an entity definition file for a mod you're working on.
 
 Note that FGD and ENT files contain much more information than DEF files and are generally preferrable. While TrenchBroom supports all of these file types, its support for FGD and for ENT is better and more comprehensive. Unfortunately, DEF files are still relevant because Radiant style editors require them, so TrenchBroom allows you to use them, too.
 
@@ -287,7 +289,7 @@ To reload all texture collections from disk, choose #menu(Menu/File/Reload Textu
 
 #### Texture Archive Management
 
-![Texture collection editor](images/TextureCollectionArchiveEditor.png) Unfolding the texture collection editor presents you with a list of the currently loaded texture collections and a few buttons to manage that list. To load a texture collection, click the "+" button below the list, and to remove the selected texture collections, click the "-" button. Alternatively, you can load a texture collection archive by dragging and dropping it onto TrenchBroom's Main Window from a file manager (such as Windows Explorer). The order in which the texture collections are loaded determines their respective priorities when TrenchBroom resolves name conflicts, so you can change the loading order by selecting a texture collection and clicking the triangle buttons. The lower a texture collection appears in the list, the higher is its priority. An easy way to think about this is to imagine that textures overwrite each other: If a texture is loaded that has a name conflict with an already loaded texture, then the newly loaded texture overwrites the previously loaded one.
+![Texture collection editor](images/TextureCollectionArchiveEditor.png) Unfolding the texture collection editor presents you with a list of the currently loaded texture collections and a few buttons to manage that list. To load a texture collection, click the "+" button below the list, and to remove the selected texture collections, click the "-" button. The order in which the texture collections are loaded determines their respective priorities when TrenchBroom resolves name conflicts, so you can change the loading order by selecting a texture collection and clicking the triangle buttons. The lower a texture collection appears in the list, the higher is its priority. An easy way to think about this is to imagine that textures overwrite each other: If a texture is loaded that has a name conflict with an already loaded texture, then the newly loaded texture overwrites the previously loaded one.
 
 It depends on the game how the texture collection paths are saved in the map file. For Quake and its direct descendants such as Hexen 2, the texture collection paths are stored in a worldspawn property called "wad", as that is what the BSP compilers expect. For other games, they are stored in a worldspawn property called "_tb_textures".
 
@@ -295,7 +297,9 @@ It depends on the game how the texture collection paths are saved in the map fil
 
 ![Texture collection editor](images/TextureCollectionDirectoryEditor.png) If the game you are currently editing comes with builtin textures, then these textures are usually stored in the game's assets at a particular path. For example in the case of Quake 2, the textures are stored in the PAK files in subdirectories under the path `textures`. TrenchBroom will find these texture collections and allow you to load them selectively in the texture collection editor. On the left side, TrenchBroom presents you with a list of all the texture collections it has found for the game, and on the right side, it shows a list of all texture collections that have been loaded. You can load a texture collection by selecting it on the left and clicking the "+" button below the list on the right. To remove a texture collection, select it on the right and click the "-" button.
 
-If you want to provide your own custom textures, you need to put them in a subdirectory where TrenchBroom can find them. For Quake 2, this means that you need to create a subdirectory called `textures` in the directory of the mod you're mapping for, or in the baseq2 directory. Then you need to create another subdirectory with a name of your choice. Then you copy your texture files into that directory. TrenchBroom will then find that directory (possibly after restarting the editor) and allow you to load the textures from there.
+If you want to provide your own custom textures, you need to put them in a subdirectory where TrenchBroom can find them. For Quake 2, this means that you need to create a subdirectory called `textures` in the directory of the mod you're mapping for, or in the `baseq2` directory. Then you need to create another subdirectory with a name of your choice. Then you copy your texture files into that directory. TrenchBroom will then find that directory (possibly after restarting the editor) and allow you to load the textures from there. Currently, for a generic game you must create a `textures` folder in the game path directory you set in [game configuration](#game_configuration), or in a directory you loaded as a mod.
+
+You need to place your textures in a subdirectory exactly one level deep in the `textures` folder. Any loose images in `textures` will not be detected, nor will any nested in subdirectories of your collection.
 
 The following table lists the texture directories for all supported games.
 
@@ -303,6 +307,7 @@ Game      Texture Directory Default
 ----      ----------------- -------
 Quake 2   `<MOD>/textures`  `baseq2/textures`
 Daikatana `<MOD>/textures`  `data/textures`
+Generic   `<MOD>/textures`  `<GamePath>/textures`
 
 ## Interacting With the Editor
 
@@ -359,7 +364,7 @@ In addition, you can hit #action(Controls/Map view/Deactivate current tool) to d
 
 ### Mouse Input in 3D
 
-It is very important that you understand how mouse input is mapped to 3D coordinates when editing objects in TrenchBroom's 3D viewport. Since the mouse is a 2D input device, you cannot directly control all three dimensions when you edit objects with the mouse. For example, if you want to move a brush around, you can only move it in two directions by dragging it. Because of this, TrenchBroom maps mouse input to the horizontal XY plane. This means that you can only move things around horizontally by default. To move an object vertically, you need to hold #key(307) during editing. This applies to moving objects and vertices, for the most part.
+It is very important that you understand how mouse input is mapped to 3D coordinates when editing objects in TrenchBroom's 3D viewport. Since the mouse is a 2D input device, you cannot directly control all three dimensions when you edit objects with the mouse. For example, if you want to move a brush around, you can only move it in two directions by dragging it. Because of this, TrenchBroom maps mouse input to the horizontal XY plane. This means that you can only move things around horizontally by default. To move an object vertically, you need to hold #key(Alt) during editing. This applies to moving objects and vertices, for the most part.
 
 But this is not always true, since some editing operations are spacially restricted. For example, when resizing a brush, you drag one of its faces along its normal, so the editing operation is restricted to that normal vector. In fact, the mouse pointer's position must be mapped to a one-dimensional value that represents the distance by which the brush face has been dragged. Whenever mouse input has to be mapped to one or two dimensions, TrenchBroom does this mapping automatically and no additional thought is required. But if mouse input must be mapped to three dimensions, TrenchBroom does so by employing the editing plane metaphor explained before.
 
@@ -369,7 +374,7 @@ Mapping mouse input to 3D coordinates is much simpler in the 2D viewports, becau
 
 ### Axis Restriction {#axis_restriction}
 
-To avoid imprecise movements when moving objects in two dimensions, you can limit movement to a single axis when using the mouse. By default, objects are moved on the XY plane in the 3D viewport or on the view plane in the 2D viewports. To move objects vertically in the 3D viewport, you have to hold #key(307). This works either when you start moving the objects and also during a drag. Furthermore, when moving objects on the XY plane in the 3D viewport or on the view plane in the 2D viewports, you can restrict the movement to one axis by holding #key(306). TrenchBroom will then restrict movement to the axis on which the objects have moved the farthest. So if you are moving objects in the 3D viewport and you want to restrict movement to the X axis, move the objects some distance along the X axis and press #key(306) to lock all movement to that axis. When you release #key(306), the restriction is lifted again and the objects will move to the position under the mouse. This applies not only to moving objects, but also moving vertices in the vertex tool and moving clip points in the clip tool. In the clip tool, the axis restriction only works in the 2D viewports however.
+To avoid imprecise movements when moving objects in two dimensions, you can limit movement to a single axis when using the mouse. By default, objects are moved on the XY plane in the 3D viewport or on the view plane in the 2D viewports. To move objects vertically in the 3D viewport, you have to hold #key(Alt). This works either when you start moving the objects and also during a drag. Furthermore, when moving objects on the XY plane in the 3D viewport or on the view plane in the 2D viewports, you can restrict the movement to one axis by holding #key(Shift). TrenchBroom will then restrict movement to the axis on which the objects have moved the farthest. So if you are moving objects in the 3D viewport and you want to restrict movement to the X axis, move the objects some distance along the X axis and press #key(Shift) to lock all movement to that axis. When you release #key(Shift), the restriction is lifted again and the objects will move to the position under the mouse. This applies not only to moving objects, but also moving vertices in the vertex tool and moving clip points in the clip tool. In the clip tool, the axis restriction only works in the 2D viewports however.
 
 ![Moving a brush in the 3D viewport with trace line](images/MoveTrace.png)
 
@@ -379,7 +384,7 @@ Note that TrenchBroom draws a trace line for you when you move objects with the 
 
 TrenchBroom provides you with a static grid to align your objects to each other. The grid size can be 1, 2, 4, 8, 16, etc. up to 256. If grid snapping is enabled, then most editing operations will be snapped to the grid. For example, you can only move objects by the current grid size if grid snapping is enabled. In the 3D viewport, the grid is projected onto the brush faces. Therefore the grid may appear distorted if a brush face is not axis aligned. In the 2D viewports, the grid is just drawn in the background. You can change the brightness of the grid lines in the preferences.
 
-The grid size can be set via the menu, or by scrolling the mouse wheel while holding both #key(307) and #key(308).
+The grid size can be set via the menu, or by scrolling the mouse wheel while holding both #key(Alt) and #key(Ctrl).
 
 ## Creating Objects
 
@@ -387,7 +392,7 @@ TrenchBroom gives you various options on how to create new objects. In the follo
 
 ### Creating Simple Brushes
 
-The easiest way to create a new brush is to just draw it with the mouse. To draw a brush, make sure nothing is currently selected and left drag in the 3D viewport or any of the 2D viewports. If you draw a brush in the 3D viewport, its shape is controlled by the point where you initially started your drag, the point currently under the mouse, and the current grid size. Essentially, you will draw your brush on the XY plane, and its height will be set to the current grid size. But it is possible to change the height while drawing a brush by holding #key(307). Whenever #key(307) is held, you can change the brush height, otherwise you control the X/Y extents of the brush.
+The easiest way to create a new brush is to just draw it with the mouse. To draw a brush, make sure nothing is currently selected and left drag in the 3D viewport or any of the 2D viewports. If you draw a brush in the 3D viewport, its shape is controlled by the point where you initially started your drag, the point currently under the mouse, and the current grid size. Essentially, you will draw your brush on the XY plane, and its height will be set to the current grid size. But it is possible to change the height while drawing a brush by holding #key(Alt). Whenever #key(Alt) is held, you can change the brush height, otherwise you control the X/Y extents of the brush.
 
 ![Creating a cuboid in the 3D viewport](images/CreateSimpleBrush.gif)
 
@@ -401,7 +406,7 @@ This way of creating brushes only allows you to create cuboids. In the next sect
 
 ![Drawing a rectangle and duplicating it](images/CreateBrushByDuplicatingPolygon.gif) If you want to create a brush that is not a simple, axis-aligned cuboid, you can use the brush tool. The brush tool allows you to define a set of points and create the convex hull of these points. A convex hull is the smallest convex volume that contains all the points. The points become the vertices of the new brush, unless they are placed within the brush, in which case they are discarded. Accordingly, the brush tool gives you several ways to place points, but there are two limitations: First, you can only place points in the 3D viewport, and second, you can only place points by using other brushes as reference.
 
-To use the brush tool, you first have to activate it by choosing #menu(Menu/Edit/Tools/Brush Tool). Then, you can place single points onto the grid by left clicking on the faces of other brushes. Additionally, you can left double click on a face to place points on all of its vertices. You can also draw a rectangular shape by left dragging on an existing brush face and thereby place four points at the corners of that rectangle. Finally, if the points you have placed so far form a polygon, you can duplicate and move that polygon along its normal by left dragging it while holding #key(306). Once you have placed all points, hit #action(Controls/Map view/Create brush) to actually create the brush.
+To use the brush tool, you first have to activate it by choosing #menu(Menu/Edit/Tools/Brush Tool). Then, you can place single points onto the grid by left clicking on the faces of other brushes. Additionally, you can left double click on a face to place points on all of its vertices. You can also draw a rectangular shape by left dragging on an existing brush face and thereby place four points at the corners of that rectangle. Finally, if the points you have placed so far form a polygon, you can duplicate and move that polygon along its normal by left dragging it while holding #key(Shift). Once you have placed all points, hit #action(Controls/Map view/Create brush) to actually create the brush.
 
 It is not possible to modify or remove points after they have been placed, except discarding all of them by hitting the #action(Controls/Map view/Cancel) key.
 
@@ -450,7 +455,7 @@ Down          #action(Controls/Map view/Duplicate and move objects down; Duplica
 Forward       #action(Controls/Map view/Duplicate and move objects forward; Duplicate and move objects down)       #action(Controls/Map view/Duplicate and move objects up; Duplicate and move objects forward)
 Backward      #action(Controls/Map view/Duplicate and move objects backward; Duplicate and move objects up)        #action(Controls/Map view/Duplicate and move objects down; Duplicate and move objects backward)
 
-Essentially, these are the same keyboard shortcuts that you use to [move objects around](#moving_objects) in the 3D and 2D viewports, but while holding #key(308). In the same vein, you can hold #key(308) while left dragging a selected object to duplicate and move all selected objects.
+Essentially, these are the same keyboard shortcuts that you use to [move objects around](#moving_objects) in the 3D and 2D viewports, but while holding #key(Ctrl). In the same vein, you can hold #key(Ctrl) while left dragging a selected object to duplicate and move all selected objects.
 
 ![Duplicating and moving a brush](images/DuplicateAndMove.gif)
 
@@ -472,9 +477,9 @@ The following section is divided into several sub sections: First, we introduce 
 
 ### Moving Objects {#moving_objects}
 
-You can move objects around by using either the mouse or keyboard shortcuts. Left click and drag on a selected object to move it (and all other selected objects) around. In the 3D viewport, the objects are moved on the XY plane by default. Hold #key(307) to move the objects vertically along the Z axis. In a 2D viewport, the objects are moved on the viewport's view plane. There is no way to change an object's distance from the camera using the mouse in a 2D viewport. If grid snapping is enabled, the distances by which you move them are snapped to the grid component-wise, that is, if the grid is set to 16 units, you can move objects by 16 units in either direction.
+You can move objects around by using either the mouse or keyboard shortcuts. Left click and drag on a selected object to move it (and all other selected objects) around. In the 3D viewport, the objects are moved on the XY plane by default. Hold #key(Alt) to move the objects vertically along the Z axis. In a 2D viewport, the objects are moved on the viewport's view plane. There is no way to change an object's distance from the camera using the mouse in a 2D viewport. If grid snapping is enabled, the distances by which you move them are snapped to the grid component-wise, that is, if the grid is set to 16 units, you can move objects by 16 units in either direction.
 
-You can also use the keyboard to move objects. Every time you hit one of the shortcuts in the following table, the object will move in the appropriate direction by the current grid size. Also remember that you can [duplicate objects and move them](#duplicating_objects) in the given direction in one operation by holding #key(308) and hitting one of the keyboard shortcuts listed below.
+You can also use the keyboard to move objects. Every time you hit one of the shortcuts in the following table, the object will move in the appropriate direction by the current grid size. Also remember that you can [duplicate objects and move them](#duplicating_objects) in the given direction in one operation by holding #key(Ctrl) and hitting one of the keyboard shortcuts listed below.
 
 Direction     Shortcut (2D)                                                            Shortcut (3D)
 ---------     -------------                                                            -------------
@@ -514,28 +519,16 @@ In the 3D viewport, the rotation handle will appear as in the image on the left.
 
 ![Rotate tool controls](images/RotateToolControls.png)
 
-Like the move tool, the rotate tool places some controls above the viewport. On the very left, there is a combo box that displays the coordinates of the center of rotation. This combo box automatically updates if you move the rotate handle around in the 2D or 3D viewports. If you want to set the center of rotation manually, you can enter three coordinates here and hit #key(13). Alternatively, you can click the button labeled "Reset" to set the center of rotation to the center of the bounding box of the currently selected objects, snapped to the grid. Finally, you can use the combo box to return the center of rotation to a previously used value. The rest of the controls allow you to perform a rotation by entering an angle in the text box, selecting the rotation axis from the dropdown list, and clicking the "Apply" button.
+Like the move tool, the rotate tool places some controls above the viewport. On the very left, there is a combo box that displays the coordinates of the center of rotation. This combo box automatically updates if you move the rotate handle around in the 2D or 3D viewports. If you want to set the center of rotation manually, you can enter three coordinates here and hit #key(Return). Alternatively, you can click the button labeled "Reset" to set the center of rotation to the center of the bounding box of the currently selected objects, snapped to the grid. Finally, you can use the combo box to return the center of rotation to a previously used value. The rest of the controls allow you to perform a rotation by entering an angle in the text box, selecting the rotation axis from the dropdown list, and clicking the "Apply" button.
 
 ![Rotating objects about the Z axis in the 3D viewport](images/RotateTool.gif)
 
-If you look closely at the clip above, you will notice that the entity in the picture, a green armor, rotates nicely with the brush it is placed on. Firstly, its position does not seem to change in relation to the brush, and secondly, its angle of rotation is also changed according to the rotation being performed by the user. Whether and how TrenchBroom can adapt the angle of rotation of an entity depends on the following rules. 
+If you look closely at the clip above, you will notice that the entity in the picture, a green armor, rotates nicely with the brush it is placed on. Firstly, its position does not seem to change in relation to the brush, and secondly, its angle of rotation is also changed according to the rotation being performed by the user. Whether and how TrenchBroom can adapt the angle of rotation of an entity depends on the following rules.
 
-- First, TrenchBroom looks at the entity's classname and its properties to determine its rotation type.
-	- If the entity does not have a classname, then its rotation remains unchanged.
-	- If the classname starts with "light", then TrenchBroom checks its properties.
-		- If it has a property named "mangle", then the value of the property consists of three separate angles (yaw pitch roll).
-		- If it does not have a target property, and
-			- if it has a property called "angles", then the value of the property consists of three separate angles (-pitch yaw roll).
-			- otherwise TrenchBroom assumes it has a property called "angle", which is a single value that indicates the rotation angle about the Z axis.
-	- If the classname does not start with "light", and
-		- if the entity is not a point entity, and
-			- if it has a property called "angles", then the value of the property consists of three separate angles (-pitch yaw roll).
-			- if it has a property called "mangle", then the value of the property consists of three separate angles (yaw pitch roll).
-			- otherwise TrenchBroom assumes it has a property called "angle", which is a single value that indicates the rotation angle about the Z axis.
-		- if the entity is a point entity, and if the origin of the entity's bounding box is at the center, and
-			- if it has a property called "angles", then the value of the property consists of three separate angles (-pitch yaw roll).
-			- if it has a property called "mangle", then the value of the property consists of three separate angles (yaw pitch roll).
-			- otherwise TrenchBroom assumes it has a property called "angle", which is a single value that indicates the rotation angle about the Z axis.
+- "angles" is interpreted as "pitch yaw roll" (if the entity model is a Quake MDL, pitch is inverted)
+- "mangle" is interpreted as "yaw pitch roll" if the entity classnames begins with "light", otherwise it's a synonym for "angles"
+- "angle" is interpreted as the rotation angle about the Z axis
+- If the point entity's bounding box is not centered in the XY plane (e.g. Quake's misc_explobox), attempts to rotate the entity in TrenchBroom will be blocked. This is done to prevent the model from being rotated out of the collision box, which doesn't rotate in Quake.
 
 Finally, if TrenchBroom has found a property that contains the rotation angle of the entity, it adapts the value of that property according to the rotation being performed by the user. These rules are quite complicated because sadly, the entity definitions do not contain information about how rotations should be applied to entities. But in practice, they should just perform as expected when you work with the rotate tool in the editor.
 
@@ -579,20 +572,20 @@ In 2D views:
 
 Two modifiers can be used in both the 2D and 3D views:
 
-- Hold #key(306) to scale all three axes to scale proportionally in 3D views, or only the two axes perpendicular to the camera in 2D views. You can press/unpress #key(306) during a drag. (#key(306) has no effect when dragging corners in 3D, since all 3 axes are already scaled proportionally.)
+- Hold #key(Shift) to scale all three axes to scale proportionally in 3D views, or only the two axes perpendicular to the camera in 2D views. You can press/unpress #key(Shift) during a drag. (#key(Shift) has no effect when dragging corners in 3D, since all 3 axes are already scaled proportionally.)
 
-- Hold #key(307) to move the scale anchor point to the center of the bounding box. Otherwise, the anchor point is opposite the handle being dragged.
+- Hold #key(Alt) to move the scale anchor point to the center of the bounding box. Otherwise, the anchor point is opposite the handle being dragged.
 
-    ![Dragging a side of the bounding box with #key(307)](images/Scale3DSideCenter.gif)
+    ![Dragging a side of the bounding box](images/Scale3DSideCenter.gif)
 
 
 ### Shearing Objects {#shearing_objects}
 
-Hit #menu(Menu/Edit/Tools/Shear Tool) to activate the shear tool. Dragging a side of the bounding box shears along that plane. You can add the #key(307) key to drag vertically if you're not shearing the top or bottom of the bounding box.
+Hit #menu(Menu/Edit/Tools/Shear Tool) to activate the shear tool. Dragging a side of the bounding box shears along that plane. You can add the #key(Alt) key to drag vertically if you're not shearing the top or bottom of the bounding box.
 
 Texture lock in the Shear tool only works in Valve 220 format maps.
 
-![Vertical shearing in the 3D viewport with #key(307)](images/Shear3DVertical.gif)
+![Vertical shearing in the 3D viewport](images/Shear3DVertical.gif)
 
 ### Deleting Objects
 
@@ -604,15 +597,19 @@ TrenchBroom offser several tools to change the shapes of brushes. The most power
 
 ### Resizing
 
-Brushes can be resized using the resize tool by moving their faces along their respective normal vectors with the mouse. To resize a selected brush, hold #key(306) and move your mouse pointer onto or near the face you wish to move. You will notice that one of the brush's faces is highlighted with a yellow outline. Drag with your left mouse button while still holding #key(306) to move the highlighted face along its normal. Note that you can also move brush faces which are behind the brush as long as these faces have an edge that is visible from the camera.
+Brushes can be resized using the resize tool by moving their faces along their respective normal vectors with the mouse. To resize a selected brush, hold #key(Shift) and move your mouse pointer onto or near the face you wish to move. You will notice that one of the brush's faces is highlighted with a yellow outline. Drag with your left mouse button while still holding #key(Shift) to move the highlighted face along its normal. Note that you can also move brush faces which are behind the brush as long as these faces have an edge that is visible from the camera.
 
 ![Resizing a brush in the 3D viewport](images/ResizeTool3D.gif)
 
 Note that you cannot change the number of faces of a brush by with the resize tool. This means that you cannot push a face back into a brush indefinitely. TrenchBroom will refuse to move it further as soon as that movement would make other faces disappear. The same applies to pulling a face out of a brush, which can make that face disappear. This is disallowed as well.
 
-If you hold #key(308) when you start dragging, the brush will not be resized. Instead, a new brush will be created. Both of the original and the new brush together will have the same shape that the original would have had if you had just resized it without holding #key(308), and the two brushes are split where the face you were dragging originally sat.
+If you hold #key(Ctrl) when you start dragging, the brush will not be resized. Instead, a new brush will be created. Both of the original and the new brush together will have the same shape that the original would have had if you had just resized it without holding #key(Ctrl), and the two brushes are split where the face you were dragging originally sat.
 
 ![Splitting a brush in the 3D viewport](images/ResizeTool3DSplitMode.gif)
+
+When starting a drag with #key(Ctrl) you can also drag inward to split the original brush:
+
+![Splitting a brush inward in the 3D viewport](images/ResizeTool3DSplitInwardMode.gif)
 
 You can also resize several brushes at the same time by moving their faces using the resize tool, but only if these faces line up perfectly. As the following animation illustrates, it's not enough that the faces are parallel - they have to be identical.
 
@@ -627,9 +624,9 @@ Both snap modes are used simultaneously. There may be situations when you have t
 
 #### Moving Faces Instead of Resizing {#moving_faces}
 
-The brush resize tool offers a quick way to move an individual face of a brush in 2D views. Hold #key(307) in addition to #key(306) when starting to drag a face in a 2D view to enable this mode. You will notice that a face is highlighted as usual, but when you start dragging the mouse, the face will just be moved in the direction you are dragging. The move is not restricted by the face normal, and other faces will be affected as well.
+The brush resize tool offers a quick way to move an individual face of a brush in 2D views. Hold #key(Alt) in addition to #key(Shift) when starting to drag a face in a 2D view to enable this mode. You will notice that a face is highlighted as usual, but when you start dragging the mouse, the face will just be moved in the direction you are dragging. The move is not restricted by the face normal, and other faces will be affected as well.
 
-![Resizing multiple brushes](images/ResizeTool2DFaceMoving.gif)
+![Moving faces](images/ResizeTool2DFaceMoving.gif)
 
 The distance is snapped to the current grid size. Moving multiple faces is possible if the faces lie on the same plane. The [UV Lock](#uv_lock) setting controls whether texture lock is used when dragging faces using this mode.
 
@@ -669,21 +666,21 @@ Using the vertex tool, you can move individual vertices around in 3D space. Addi
 
 ![Vertex Handles](images/VertexToolHandles.png)
 
-Moving the mouse pointer over a vertex handle highlights that handle with a red circular outline, and the position of that handle is displayed above it. 
+Moving the mouse pointer over a vertex handle highlights that handle with a red circular outline, and the position of that handle is displayed above it.
 
-Selecting vertex handles is treated in the same way as selecting objects. Click on a handle to select it. Multiple handles can be selected by holding #key(308). The vertex tool also allows you to select multiple handles using a selection lasso. Left drag with the mouse button to create a rectangular selection lasso. Release the left mouse button, and all handles inside the lasso are selected. If the lasso rectangle contains a vertex handle that's already selected, then it will be deselected. To ensure that all vertex handles inside the lasso are selected regardless of their previous selection state, hold #key(308). 
+Selecting vertex handles is treated in the same way as selecting objects. Click on a handle to select it. Multiple handles can be selected by holding #key(Ctrl). The vertex tool also allows you to select multiple handles using a selection lasso. Left drag with the mouse button to create a rectangular selection lasso. Release the left mouse button, and all handles inside the lasso are selected. If the lasso rectangle contains a vertex handle that's already selected, then it will be deselected. To ensure that all vertex handles inside the lasso are selected regardless of their previous selection state, hold #key(Ctrl).
 
-When you have selected some vertex handles, you can move them around by dragging them with the left mouse button. Moving vertex handles (and their corresponding vertices) works in a similar fashion to moving objects, so in the 3D viewport, you can move them on the XY plane, or you can hold #key(307) to move them vertically. In a 2D viewport, you can move the vertex handles on the view plane of that viewport. If you begin your drag on an unselected vertex handle, that vertex handle is automatically selected, so if you just want to move a single vertex around, you do not need to select it first. Once you press the left mouse button on a vertex handle to begin a drag, yellow guide lines show up that help you to position the vertex in relation to other objects. When moving vertex handles around, the move distances are snapped to the current grid size component wise, just like when you move objects. If you prefer to have the absolute vertex positions snapped to the grid, you can toggle between relative and absolute snapping using #key(308) during the drag.
+When you have selected some vertex handles, you can move them around by dragging them with the left mouse button. Moving vertex handles (and their corresponding vertices) works in a similar fashion to moving objects, so in the 3D viewport, you can move them on the XY plane, or you can hold #key(Alt) to move them vertically. In a 2D viewport, you can move the vertex handles on the view plane of that viewport. If you begin your drag on an unselected vertex handle, that vertex handle is automatically selected, so if you just want to move a single vertex around, you do not need to select it first. Once you press the left mouse button on a vertex handle to begin a drag, yellow guide lines show up that help you to position the vertex in relation to other objects. When moving vertex handles around, the move distances are snapped to the current grid size component wise, just like when you move objects. If you prefer to have the absolute vertex positions snapped to the grid, you can toggle between relative and absolute snapping using #key(Ctrl) during the drag.
 
 ![Chopping faces](images/VertexToolFaceChopping.gif) TrenchBroom ensures that you do not create invalid brushes with the vertex tool. For example, it is impossible to make a brush concave by pushing a vertex into the brush. To achieve this, TrenchBroom will chop up the faces incident to that vertex into triangles depending on the direction in which that vertex is moved. In the animation on the left, you can see that the top face of the cube has one triangle chopped off in the first move where the vertex is moved downward, while in the second move, the front face is chopped into a triangle fan when the vertex is moved outward. Sometimes, TrenchBroom will even delete a vertex if a move would push it inside the brush, which would make it concave. In such a case, the vertex move is concluded.
 
 The vertex tool also allows you to fuse adjacent vertices. If a vertex ends up on an adjacent vertex during a vertex move, the two vertices will be fused. This does not conclude the move however, you can keep moving the fused vertex, and it remains selected. Note that fusing is not allowed when you are moving edges or faces, even though fusing does happen when you move multiple vertices at once.
 
-If you wish to snap a vertex onto another vertex quickly without performing a drag, you can just click on the target vertex while holding #key(306)#key(307).
+If you wish to snap a vertex onto another vertex quickly without performing a drag, you can just click on the target vertex while holding #key(Shift)#key(Alt).
 
 <br clear="all" />
 
-![Splitting](images/VertexToolSplitting.gif) Besides moving, fusing and deleting vertices, you can also add new vertices to a brush with the vertex tool. Hold #key(306) and move your mouse over the position on the grid where you wish to add a vertex. Notice that a new vertex handle is shown when your mouse pointer is close to that point. Click and drag the handle to add a new vertex.
+![Splitting](images/VertexToolSplitting.gif) Besides moving, fusing and deleting vertices, you can also add new vertices to a brush with the vertex tool. Hold #key(Shift) and move your mouse over the position on the grid where you wish to add a vertex. Notice that a new vertex handle is shown when your mouse pointer is close to that point. Click and drag the handle to add a new vertex.
 
 Additionally, you can delete the selected vertices, edges, and faces from brushes by choosing #menu(Menu/Edit/Delete). Note that this will only succeed if none of the currently selected brushes becomes invalid by the deletions, that is, you can only delete vertices, edges, or faces if all of the selected brushes remain threedimensional after the deletions. If that is not the case, TrenchBroom will refuse the entire operation.
 
@@ -697,12 +694,12 @@ The vertex tool also provides some keyboard shortcuts to move vertices. These ar
 
 Direction     Shortcut (2D)                                                            Shortcut (3D)
 ---------     -------------                                                            -------------
-Left          #action(Controls/Map view/Move vertices left)                            #action(Controls/Map view/Move vertices left)
-Right         #action(Controls/Map view/Move vertices right)                           #action(Controls/Map view/Move vertices right)
-Up            #action(Controls/Map view/Move vertices up; Move vertices forward)       #action(Controls/Map view/Move vertices backward; Move vertices up)
-Down          #action(Controls/Map view/Move vertices down; Move vertices backward)    #action(Controls/Map view/Move vertices forward; Move vertices down)
-Forward       #action(Controls/Map view/Move vertices forward; Move vertices down)     #action(Controls/Map view/Move vertices up; Move vertices forward)
-Backward      #action(Controls/Map view/Move vertices backward; Move vertices up)      #action(Controls/Map view/Move vertices down; Move vertices backward)
+Left          #action(Controls/Map view/Move objects left)                             #action(Controls/Map view/Move objects left)
+Right         #action(Controls/Map view/Move objects right)                            #action(Controls/Map view/Move objects right)
+Up            #action(Controls/Map view/Move objects up; Move objects forward)         #action(Controls/Map view/Move objects backward; Move objects up)
+Down          #action(Controls/Map view/Move objects down; Move objects backward)      #action(Controls/Map view/Move objects forward; Move objects down)
+Forward       #action(Controls/Map view/Move objects forward; Move objects down)       #action(Controls/Map view/Move objects up; Move objects forward)
+Backward      #action(Controls/Map view/Move objects backward; Move objects up)        #action(Controls/Map view/Move objects down; Move objects backward)
 
 This concludes the functionality of the vertex tool. While it is very powerful, it should also be used with care, as vertex editing can sometimes create invalid brushes and microleaks in the map. To help you avoid such problems, the following section contains a few best practices you should keep in mind when you use the vertex tool.
 
@@ -713,7 +710,7 @@ Using the edge tool, you can move individual edge around in 3D space. To activat
 
 ![Edge Handles](images/EdgeTool.png)
 
-Moving the mouse pointer over an edge handle highlights that handle in red. Selecting edge handles works in the same way as selecting vertex handles. Click on a handle to select it. Multiple handles can be selected by holding #key(308). Selected handles are rendered in red. The edge tool also allows you to select multiple handles using a selection lasso. Left drag with the mouse button to create a rectangular selection lasso. Release the left mouse button, and all handles contained in the lasso are selected. If the lasso rectangle contains an edge handle that's already selected, then it will be deselected. To ensure that all edge handles contained in the lasso are selected regardless of their previous selection state, hold #key(308). 
+Moving the mouse pointer over an edge handle highlights that handle in red. Selecting edge handles works in the same way as selecting vertex handles. Click on a handle to select it. Multiple handles can be selected by holding #key(Ctrl). Selected handles are rendered in red. The edge tool also allows you to select multiple handles using a selection lasso. Left drag with the mouse button to create a rectangular selection lasso. Release the left mouse button, and all handles contained in the lasso are selected. If the lasso rectangle contains an edge handle that's already selected, then it will be deselected. To ensure that all edge handles contained in the lasso are selected regardless of their previous selection state, hold #key(Ctrl).
 
 When you have selected some edge handles, you can move them around by dragging them with the left mouse button. Moving edge handles (and their corresponding edges) works in same way as moving vertices, with the exception that the tool only supports relative snapping of the move distances. Like the vertex tool, the edge tool will detect if two or more brushes share an edge and move the edges of all selected brushes if a shared edge is moved.
 
@@ -725,7 +722,7 @@ Using the face tool, you can move individual face around in 3D space. To activat
 
 ![Face Handles](images/FaceTool.png)
 
-Moving the mouse pointer over an face handle highlights that handle with a red outline. Additionally, the face edges are rendered thicker. Selecting face handles works in the same way as selecting vertex handles. Click on a handle to select it. Multiple handles can be selected by holding #key(308). Selected handles are rendered in red. The face tool also allows you to select multiple faces using a selection lasso. Left drag with the mouse button to create a rectangular selection lasso. Release the left mouse button, and all face handles contained in the lasso are selected. If the lasso rectangle contains a face handle that's already selected, then it will be deselected. To ensure that all face handles contained in the lasso are selected regardless of their previous selection state, hold #key(308). 
+Moving the mouse pointer over an face handle highlights that handle with a red outline. Additionally, the face edges are rendered thicker. Selecting face handles works in the same way as selecting vertex handles. Click on a handle to select it. Multiple handles can be selected by holding #key(Ctrl). Selected handles are rendered in red. The face tool also allows you to select multiple faces using a selection lasso. Left drag with the mouse button to create a rectangular selection lasso. Release the left mouse button, and all face handles contained in the lasso are selected. If the lasso rectangle contains a face handle that's already selected, then it will be deselected. To ensure that all face handles contained in the lasso are selected regardless of their previous selection state, hold #key(Ctrl).
 
 When you have selected some face handles, you can move them around by dragging them with the left mouse button. Moving face handles (and their corresponding faces) works in same way as moving vertices, with the exception that the tool only supports relative snapping of the move distances. Like the vertex tool, the face tool will detect if two or more brushes share an face and move the faces of all selected brushes if a shared face is moved.
 
@@ -844,15 +841,36 @@ In TrenchBroom, there is the notion of a current texture, which we have already 
 
 ### Assigning Textures Manually
 
-There are several ways in which TrenchBroom lets you change the texture of a brush face. Firstly, you can change the texture of the currently selected faces by clicking on a texture in the texture browser. This also works if you have selected brushes (and nothing else) - in this case, the new texture is applied to all faces of the currently selected brushes. Secondly, you can copy the texture from a selected face to another face as follows: First, select the brush face that has the texture that you wish to copy, then click on the brush face that you wish to copy the texture to with the left mouse button while holding #key(307). 
+To change the texture of the currently selected faces, left click on a texture in the texture browser. This also works if you have selected brushes (and nothing else) - in this case, the new texture is applied to all faces of the currently selected brushes. 
 
-Holding #key(307) and left clicking transfers the texture by projecting it onto the target face. Alternatively, you can hold #key(306) and #key(307) and left click to transfer the texture by rotating it. This will avoid stretching the texture, but is only available on Valve 220 format maps.
+You can also transfer texture and attributes from one face to another. "Attributes" in this context refers to almost any characteristic &mdash; such as offset, scale, or surface flags &mdash; that you can modify through the [face attribute editor](#face_attribute_editor). The sole exception to this is content flags; the content flags on the target face(s) will always be preserved unchanged.
 
-If you wish to copy the texture to all faces of a brush, you can double click the left mouse button while holding #key(307). Note that this copies the texture and face attributes such as the offset or scale. If you wish to copy the texture only, you need to hold #key(308) in addition to holding #key(307) (or #key(306) and #key(307) to avoiding stretching). Finally, you can use copy and paste to copy the texture and attributes of a selected face onto other faces: First, select the face that you wish to copy from and choose #menu(Menu/Edit/Copy), then selected the faces that you wish to copy to, and choose #menu(Menu/Edit/Paste).
+To do this transfer, start by selecting the source face with #key(Shift) + left click. Then, hold one of the following modifier combinations depending on what you want to transfer:
+
+Modifier Keys            Meaning
+-------------            -------
+#key(Alt)                Transfer texture and attributes from selected face (by projecting it on to the target faces)
+#key(Alt)#key(Shift)     Transfer texture and attributes from selected face (by rotating it on to the target faces, available on Valve format maps only)
+#key(Alt)#key(Ctrl)      Transfer texture only (attributes of the target are preserved)
+
+and perform one of the following actions, depending on which faces you want to transfer to:
+
+Actions                    Faces to transfer to
+-------                    --------------------
+Left mouse click           clicked face
+Left mouse drag            all faces dragged over (each subsequent face dragged over will transfer from the last)
+Left mouse double click    all faces of target brush
+
+To clarify, using the #key(Alt) modifier copies the source face's texture projection to the target face without altering it. Sometimes this is desirable, but it can lead to the target face having a stretched texture if the face normals are very different. The #key(Alt)#key(Shift) combination avoids this by rotating the source face's texture projection onto the target face, but it's only available on Valve format maps.
+
+Finally, you can use copy and paste to copy the texture and attributes of a selected face onto other faces:
+
+1. Select the face that you wish to copy from and choose #menu(Menu/Edit/Copy)
+2. Select the faces that you wish to copy to, and choose #menu(Menu/Edit/Paste)
 
 ### Replacing Textures
 
-If you want to replace a particular texture with another one, you can choose #menu(Menu/Edit/Replace Texture). This opens a window where you can select the texture to be replaced and the replacement texture using two texture browser. This window is depicted in the following screenshot.
+If you want to replace a particular texture with another one, you can choose #menu(Menu/Edit/Replace Texture...). This opens a window where you can select the texture to be replaced and the replacement texture using two texture browser. This window is depicted in the following screenshot.
 
 ![Texture Replace Window (Mac OS X)](images/ReplaceTexture.png)
 
@@ -862,19 +880,19 @@ Select the texture you wish to replace in the left texture browser. This browser
 
 Face attributes control how textures are mapped onto brush faces. At the very least, every face has the attributes offset, scale, and angle. The offset allows you to shift a texture on a face, the scale factors stretch the texture, and by changing the angle you can rotate the texture. Additionally, some engines have further attributes. Quake 2 adds surface flags and a surface value, and additional content flags. All of these values can be changed in different ways: There is a face attribute editor that allows you to enter the values directly, you can use keyboard shortcuts in the 3D viewport, or you can use the UV editor.
 
-#### The Face Attribute Editor
+#### The Face Attribute Editor {#face_attribute_editor}
 
 The face attribute editor is located in the face inspector, right between the UV editor and the texture browser. It contains several controls to edit the face attributes of one or several selected brush faces.
 
 ![Face Attribute Editor (Mac OS X)](images/FaceAttribsEditor.png)
 
-Two types of controls are visible in the screenshot above. Numerical input controls consist of a text field and small buttons to increase or decrease the value in the field. The text field will show the value of the respective face attribute, such as "1" for the X Scale in the screenshot. If more than one brush face is selected, the text field will also show the value if all faces have the same value for the respective attribute, or it will show the placeholder word "multi" otherwise (not supported on Windows). In the screenshot above, the X Offsets of the selected brush faces differ, hence the text field shows "multi". All other values are identical for all selected brush faces, so all other attribute editors show concrete values instead of the placeholder. By entering a number into the text field, the attribute value of all selected brush faces can be set to that value. Consequently, if you were to enter the value "32" into the X Offset editor in our example above, all selected brush faces would have this value as their X Offset afterwards.
+Two types of controls are visible in the screenshot above. Numerical input controls consist of a text field and small buttons to increase or decrease the value in the field. The text field will show the value of the respective face attribute, such as "1" for the X Scale in the screenshot. If more than one brush face is selected, the text field will also show the value if all faces have the same value for the respective attribute, or it will show the placeholder word "multi" otherwise. In the screenshot above, the X Offsets of the selected brush faces differ, hence the text field shows "multi". All other values are identical for all selected brush faces, so all other attribute editors show concrete values instead of the placeholder. By entering a number into the text field, the attribute value of all selected brush faces can be set to that value. Consequently, if you were to enter the value "32" into the X Offset editor in our example above, all selected brush faces would have this value as their X Offset afterwards.
 
 The spin button however works differently. By clicking the up- or down arrow button, you can increase or decrease the value of the respective face attribute by a certain delta value, which depends on the grid settings and the currently pressed modifier keys. The following table explains which delta value is chosen in each case.
 
-Attribute    Default      #key(306) pressed    #key(308) pressed
+Attribute    Default      #key(Shift) pressed  #key(Ctrl) pressed
 ---------    -------      -----------------    -----------------
-Offset       Grid size    2 * grid size        1.0 
+Offset       Grid size    2 * grid size        1.0
 Scale        0.1          0.25                 0.01
 Angle        15°          90°                  1°
 
@@ -884,16 +902,20 @@ In addition to using the buttons to change the values, you can use the scroll wh
 
 For attributes that represent flag values, such as the surface and content flags for Quake 2, there is a different type of control available in the face attribute editor. This control shows a textual representation of the flag values in a text field, and you can change the flags using a dropdown window that is shown if you click on the button labeled "..." next to the text field. The dropdown window contains one checkbox for each flag, and you can check or uncheck them individually.
 
-#### Keyboard Shortcuts
+The text field for content flags will display "multi" if the currently selected faces have different sets of content flags. Note that for games that support content flags, it is almost always desirable to use identical content flags on all faces of a given brush, to avoid unexpected behavior in-game; therefore if the content flags text field shows "multi" when a single brush is selected, this can be an indicator of an error that should be corrected.
+
+The surface flags text field will also display "multi" if the selected faces have different sets of surface flags, but this is not necessarily a situation that needs to be corrected. It is often valid to have different surface flags on different faces of a brush.
+
+#### Keyboard Shortcuts {#keyboard_shortcuts}
 
 In the 3D viewport, you can change the offset and angle of the currently selected brush faces using the following keyboard shortcuts:
 
-Attribute    Keys                                    Default      #key(306) pressed    #key(308) pressed
----------    ----                                    -------      -----------------    -----------------
-Offset       #key(314)#key(316)#key(315)#key(317)    Grid size    2 * grid size        1.0 
-Angle        #key(366)#key(367)                      15°          90°                  1°
+Attribute    Keys                                    Default      #key(Shift) pressed  #key(Ctrl) pressed
+---------    ----                                    -------      -------------------  -----------------
+Offset       #key(Left)#key(Right)#key(Up)#key(Down) Grid size    2 * grid size        1.0
+Angle        #key(PgUp)#key(PgDown)                  15°          90°                  1°
 
-Note that TrenchBroom attempts to match the shortcuts to the directions in which the textures will move visually. This means that pressing #key(315) will move a texture roughly in that directiony visually instead of always applying to the same face attribute. So depending on the camera angle and the orientation of the face itself, pressing #key(315) may affect the X or Y offset by incrementing or decrementing it. The angle is treated similarly: Pressing #key(366) will rotate the texture counter clockwise visually, and pressing #key(367) will rotate it clockwise.
+Note that TrenchBroom attempts to match the shortcuts to the directions in which the textures will move visually. This means that pressing #key(Up) will move a texture roughly in that directiony visually instead of always applying to the same face attribute. So depending on the camera angle and the orientation of the face itself, pressing #key(Up) may affect the X or Y offset by incrementing or decrementing it. The angle is treated similarly: Pressing #key(PgUp) will rotate the texture counter clockwise visually, and pressing #key(PgDown) will rotate it clockwise.
 
 #### The UV Editor {#uv_editor}
 
@@ -907,9 +929,9 @@ To change the offset of the texture in relation to the brush face, you can just 
 
 You can scale the texture by clicking and dragging the gray texture grid lines, which will also snap to the vertices of the brush face. Scaling is relative to the origin of the texture, as marked by the yellow circle. To change the scaling origin, you can left click and drag the yellow circle, or you can left click and drag the red lines meeting at the origin. The lines allow you to set the X and Y coordinates of the origin separately. The origin snaps to the vertices of the face and to its center.
 
-The large yellow circle allows you to rotate the texture about the origin. Left click and drag the circle with the mouse to adjust the rotation angle. The angle will snap to the edges of the brush face to make it easier to adjust it to the shape of the face.
+To rotate the texture about the origin, left click and drag the large yellow circle, or hold #key(Ctrl) and left click and drag anywhere in the UV editor. The angle will snap to the edges of the brush face to make it easier to adjust it to the shape of the face.
 
-If the map you are currently editing uses a [parallel texture projection](#texture_projection_modes), you can also shear the texture by left clicking and dragging the gray texture grid lines while holding #key(307).
+Shearing the texture is possible if the map uses a [parallel texture projection](#texture_projection_modes). Shear by holding #key(Alt) while left clicking and dragging the gray texture grid lines.
 
 At the bottom of the UV editor, you can find a number of controls. On the left, there are five buttons. The first button resets the face attributes to their defaults. The second and third buttons flip the texture horizontally and vertically, respectively, and the fourth and firth buttons rotate the texture by 90° counter clockwise and clockwise. The two controls on the right allow you to subdivide the texture grid. This can be useful to align the texture to smaller brush faces.
 
@@ -923,15 +945,15 @@ The entity property editor is split into two separate areas. At the top, there i
 
 ### Editing Properties
 
-To select an entity property, just click in the row that represents that property in the table. The row will be highlighted, and at the same time, the field which you clicked on will get a black outline. The black outline is called a _cursor_ and it indicates that you can change the outlined field by entering text. In the screenshot above, the "origin" property has been selected, and its key has the cursor, indicating that it is ready to be changed.
+To select an entity property, just click in the row that represents that property in the table. The clicked field will be highlighted, indicating that it has focus. The highlight indicates that you can change the field by entering text. In the screenshot above, the "mangle" property has been selected, and its value has focus, indicating that it is ready to be changed.
 
-If you are changing a lot of properties, you may wish to navigate quickly through the table. You can use the cursor keys to move the cursor around in the table. Alternatively, you can hit #key(9) to move field by field. If the cursor is on a key of some property, hitting tab will move the cursor the value field of that property, and hitting tab again will move it to the key field of the next property, and so on until you reaach the end of the table. You can also move in the opposite direction by hittin #key(306)#key(9). #key(13) moves vertically through the list, meaning that if the cursor is on a property key and you hit enter, the cursor will move to the key of the next property in the list. Use this navigation method to mass renamed property keys, for example.
+If you are changing a lot of properties, you may wish to navigate quickly through the table. You can use the cursor keys to move focus around in the table. Alternatively, you can hit #key(Tab) to move field by field. If the focus is on a key of some property, hitting tab will move the cursor the value field of that property, and hitting tab again will move it to the key field of the next property, and so on until you reach the end of the table. You can also move in the opposite direction by hittin #key(Shift)#key(Tab). #key(Return) moves vertically through the list, meaning that if focus is on a property key and you hit enter, focus will move to the key of the next property in the list. Use this navigation method to mass rename property keys, for example.
 
 To change the key or the value of a property, set the focus to the appropriate field in the table. If you enter some text now, that text will replace the key of the property. An alternative way to change a field is to click on it while its property is already selected. This will show an actual text field in which you can enter the text.
 
-There are several ways to add a property to an entity. First, you can click on the button with the "+" label at the bottom of the table. This will insert a new property with a default name and no value into the table. Second, you can hit #key(308)#key(13) to add a new property. In both cases, the new property will be selected so that you can start editing its key and value right away as described above. Finally, you can add a property by changing the value of a default property. This will promote the default property to an actual property of the entity.
+There are several ways to add a property to an entity. First, you can click on the button with the "+" label at the bottom of the table. This will insert a new property with a default name and no value into the table. Second, you can hit #key(Ctrl)#key(Return) to add a new property. In both cases, the new property will be selected so that you can start editing its key and value right away as described above. Finally, you can add a property by changing the value of a default property. This will promote the default property to an actual property of the entity.
 
-To remove entity properties, you should select the rows in the table that represent them and hit the button labeled "-" at the bottom of the table.
+To remove entity properties, you should click the rows in the table that represent them and hit the button labeled "-" at the bottom of the table.
 
 ### Multiple Entity Selections
 
@@ -941,10 +963,10 @@ If you change an entity property when multiple entities are selected, the change
 
 ### Smart Entity Property Editors
 
-TrenchBroom provides special editors for the following entity properties: spawnflags, colors, and choices. These special editors are callled _smart property editors_ and are displayed below the entity property table if you select an entity property for which such an editor exists. 
+TrenchBroom provides special editors for the following entity properties: spawnflags, colors, and choices. These special editors are callled _smart property editors_ and are displayed below the entity property table if you select an entity property for which such an editor exists.
 
-Type             Editor                                                  Description
-----             ------                                                  -----------
+Type             Editor                                                         Description
+----             ------                                                         -----------
 Spawnflags       ![Smart Spawnflags Editor](images/SmartSpawnflagsEditor.png)   A table of checkboxes which allow you to toggle the individual spawnflag values.
 Color            ![Smart Spawnflags Editor](images/SmartColorEditor.png)        A color chooser control that allows you to convert between byte and float color values, and provides a list of all colors found in the map.
 Choice           ![Smart Spawnflags Editor](images/SmartChoiceEditor.png)       A dropdown list of values. You can also enter any text into the text box.
@@ -990,7 +1012,7 @@ To filter out certain types of objects, you can open the view dropdown window by
 
 ![The info bar with view dropdown (Windows 10)](images/ViewDropdown.png)
 
-In the left of the view dropdown, there is a list of checkboxes that allows you to hide all entities that share the same entity definition (i.e., the same classname). Uncheck an entity definition (or a group thereof) to hide the respective entities. For quickly hiding and showing all entities, you can click on the two buttons below the list. 
+In the left of the view dropdown, there is a list of checkboxes that allows you to hide all entities that share the same entity definition (i.e., the same classname). Uncheck an entity definition (or a group thereof) to hide the respective entities. For quickly hiding and showing all entities, you can click on the two buttons below the list.
 
 The right half of the view dropdown has several options, partitioned into three groups.
 
@@ -1022,33 +1044,35 @@ To add objects to an existing group, select the objects you wish to add to the g
 
 ## Layers {#layers}
 
-Layers decompose your map into several parts. For example, you might create a layer for separate rooms or areas. Layers can contain groups, entities, or brushes, and each of these objects can belong to one layer only. Each layer has a name and can be set to hidden or locked. Every map contains a "Default Layer" that cannot be removed. This layer receives all objects that haven't been assigned to another layer.
+Layers decompose your map into several parts. For example, you might create a layer for separate rooms or areas. Layers can contain groups, entities, or brushes, and each of these objects can belong to one layer only. Each layer has a name and can be set to hidden or locked, or omitted from exported maps. Every map contains a "Default Layer" that cannot be removed. This layer receives all objects that haven't been assigned to another layer.
 
 ![Layer Editor](images/LayerEditor.png)
 
-Layers are managed in the layer editor, which is part of the map inspector. The layer editor displays a list of all layers in your map. You can hide or show a layer by clicking on the eye icon below the layer name, and you can lock or unlock a layer by clicking on the lock icon. To create a new layer, click the plus button at the bottom of the layer list, and to remove one ore more layers, select them and click on the minus button. They eye button next to the minus button shows all layers.
+Layers are managed in the layer editor, which is part of the map inspector. The layer editor displays a list of all layers in your map. You can hide or show a layer by clicking on the eye icon beside the layer name, and you can lock or unlock a layer by clicking on the lock icon. To create a new layer, click the plus button at the bottom of the layer list, and to remove one ore more layers, select them and click on the minus button.
 
-When you create new objects, TrenchBroom puts them into the current layer (unless you are working in a group). The current layer is indicated in the layer list by having its name in bold, and you can set the current layer by double clicking on a layer in the layer list. Note that you cannot hide or lock the current layer, and if you make a layer the current layer, that layer is shown and unlocked automatically. The fact that the current layer can neither be hidden nor locked also implies that you cannot delete the only visible or the only unlocked layer, because then TrenchBroom would have to choose a hidden or a locked layer to be the new current layer at random. You will need to set another layer visible and / or unlocked first.
+New objects created from scratch or pasted from the clipboard are inserted into the current layer (unless you are working in a group). Objects created from other objects (e.g. by duplicating or extrusion) are inserted into the layer of the source object.
+
+The current layer is indicated in the layer list by a radio button and by having its name in bold, and you can set the current layer by double clicking on a layer in the layer list.
 
 # Preferences
 
-The preferences dialog allows you to set the game configurations, to change the view layout and control the rendering, and to customize the mouse and the keyboard shortcuts. You can open the preferences dialog by choosing #menu(Menu/File/Preferences). The dialog is split into four panes, each of which we will review in the following sections. Note that on Windows and Linux, the changes are only applied if you click the "OK" or "Apply" button at the bottom of the dialog, whereas on Mac OS X, the changes are applied immediately.
+The preferences dialog allows you to set the game configurations, to change the view layout and control the rendering, and to customize the mouse and the keyboard shortcuts. You can open the preferences dialog by choosing #menu(Menu/File/Preferences...). The dialog is split into four panes, each of which we will review in the following sections. Note that on Windows and Linux, the changes are only applied if you click the "OK" or "Apply" button at the bottom of the dialog, whereas on Mac OS X, the changes are applied immediately.
 
 ## Game Configuration {#game_configuration}
 
-![Game Configuration Dialog (Linux XFCE)](images/GamePreferences.png)
+![Game Configuration Dialog (Ubuntu Linux)](images/GamePreferences.png)
 
-The game configuration preference pane is where you set up the paths to the games that TrenchBroom supports. For each game, you can set the game path by clicking on the "..." button and selecting the folder in which the game is stored on your hard drive. Alternatively, you can enter a path manually in the text box, but you have to hit #key(13) to apply the change.
+The game configuration preference pane is where you set up the paths to the games that TrenchBroom supports. For each game, you can set the game path by clicking on the "..." button and selecting the folder in which the game is stored on your hard drive. Alternatively, you can enter a path manually in the text box, but you have to hit #key(Return) to apply the change.
 
 Additionally, you can configure the game engines for the selected game by clicking on the 'Configure engines...' button.
 
 ![Game Engine Configuration Dialog (Mac OS X)](images/GameEngineDialog.png)
 
-In this dialog, you can add a game engine profile by clicking on the '+' button below the profile list on the left, and you can delete the selected profile by clicking on the '-' button. To the right of the list, you can edit the details of the selected game engine profile, specifically its name and path. Similar to the game path, if you edit the engine path manually, you have to apply the changes by pressing #key(13) while in the path text box. Click [here](#launching_game_engines) to find out how to launch game engines from within TrenchBroom.
+In this dialog, you can add a game engine profile by clicking on the '+' button below the profile list on the left, and you can delete the selected profile by clicking on the '-' button. To the right of the list, you can edit the details of the selected game engine profile, specifically its name and path. Similar to the game path, if you edit the engine path manually, you have to apply the changes by pressing #key(Return) while in the path text box. Click [here](#launching_game_engines) to find out how to launch game engines from within TrenchBroom.
 
 ## View Layout and Rendering {#view_layout_and_rendering}
 
-![View Configuration Dialog (Linux XFCE)](images/ViewPreferences.png)
+![View Configuration Dialog (Ubuntu Linux)](images/ViewPreferences.png)
 
 In this preference pane, you can choose the layout of the editing area. There are four layouts available:
 
@@ -1074,7 +1098,7 @@ Texture Browser Icon Size 	The size of the texture icons in the texture browser
 
 ## Mouse Input {#mouse_input}
 
-![Mouse Configuration Dialog (Linux XFCE)](images/MousePreferences.png)
+![Mouse Configuration Dialog (Ubuntu Linux)](images/MousePreferences.png)
 
 The mouse input preference pane allows you to change how TrenchBroom interprets mouse movements.
 
@@ -1087,7 +1111,7 @@ Move Keys 	Keyboard shortcuts for moving around in the map, with a separate slid
 
 ## Keyboard Shortcuts {#keyboard_shortcuts}
 
-![Keyboard Configuration Dialog (Linux XFCE)](images/KeyboardPreferences.png)
+![Keyboard Configuration Dialog (Ubuntu Linux)](images/KeyboardPreferences.png)
 
 In this preference pane, you can change the keybaord shortcuts used in TrenchBroom. The table lists all available shortcuts, their context, and the description. To change a keyboard shortcut, click twice (do not double click) on the shortcut in the first column of the table and enter the new shortcut. The context determines when this shortcut is available, for example, the PgDn key triggers different actions depending on whether the rotate tool is active or not. Finally, the desription column explains what a shortcut does in a particular context. Sometimes a shortcut triggers different actions depending on whether the viewport in which it was used is a 3D or a 2D viewport. For example, the PgDn key can move objects backward (away from the camera) in a 2D viewport or down along the Z axis in the 3D viewport. These different actions are listed together in the description column, but they are separated with a semicolon.
 
@@ -1129,11 +1153,11 @@ In addition to making you aware of issues, TrenchBroom can also fix them for you
 
 ## Compiling Maps {#compiling_maps}
 
-TrenchBroom supports compiling your maps from inside the editor. This means that you can create compilation profiles and configure those profiles to run external compilation tools for you. Note however that TrenchBroom does not come with prepackaged compilation tools - you'll have to download and install those yourself. The following screenshot shows the compilation dialog that comes up when choosing #menu(Menu/Run/Compile).
+TrenchBroom supports compiling your maps from inside the editor. This means that you can create compilation profiles and configure those profiles to run external compilation tools for you. Note however that TrenchBroom does not come with prepackaged compilation tools - you'll have to download and install those yourself. The following screenshot shows the compilation dialog that comes up when choosing #menu(Menu/Run/Compile...).
 
-![Compilation Dialog (Windows 7)](images/CompilationDialog.png)
+![Compilation Dialog (Windows 10)](images/CompilationDialog.png)
 
-This dialog allows you to create compilation profiles, which are listed on the left of the dialog. Each compilation profile has a name, a working directory, and a list of tasks. Click the '+' button below the profile list to create a new compilation profile, or click the '-' button to delete the selected profile. If you select a profile, you can edit its name, working directory, and tasks on the right side of the dialog.
+This dialog allows you to create compilation profiles, which are listed on the left of the dialog. Each compilation profile has a name, a working directory, and a list of tasks. Click the '+' button below the profile list to create a new compilation profile, or click the '-' button to delete the selected profile. To duplicate a profile, right click on it and select "Duplicate" from the menu. If you select a profile, you can edit its name, working directory, and tasks on the right side of the dialog.
 
 Name
 :	The name of this compilation profile. Need not be unique and can even be empty.
@@ -1148,6 +1172,8 @@ There are three types of tasks, each with different parameters:
 
 Export Map
 :	Exports the map to a file. This file should be different from the actual file where the map is stored.
+
+    Layers marked "Omit From Export" will not be present in the exported map.
 
     Parameter 	Description
     ---------   -----------
@@ -1170,7 +1196,7 @@ Copy Files
     Target  	The directory to copy the files to. The directory is recursively created if it does not exist. Existing files are overwritten without prompt. Variables are allowed.
 
 
-You can use [expressions](#expression_language) when specifying the working directory of a profile and also for the task parameters. The following table lists the available variables, their scopes, and their meaning. A scope of 'Tool' indicates that the variable is available when specifying tool parameters. A scope of 'Workdir' indicates that the variable is only available when specifying the working directory. Note that TrenchBroom helps you to enter variables by popping up an autocompletion list if you press #key(396)+#key(32).
+You can use [expressions](#expression_language) when specifying the working directory of a profile and also for the task parameters. The following table lists the available variables, their scopes, and their meaning. A scope of 'Tool' indicates that the variable is available when specifying tool parameters. A scope of 'Workdir' indicates that the variable is only available when specifying the working directory. Note that TrenchBroom helps you to enter variables by popping up an autocompletion list.
 
 Variable 		Scope 			Description
 -------- 	    ----- 			-----------
@@ -1194,7 +1220,7 @@ The last step will copy the bsp file to the appropriate directory within the gam
 
 To run a compilation profile, click the 'Run' button in the compilation dialog. Note that the 'Run' button changes into a 'Stop' button once the compilation profile is running. If you click on this button again, TrenchBroom will terminate the currently running tool. A running compilation will also be terminated if you close the compilation dialog or if you close the main window, but TrenchBroom will ask you before this happens. Note that the compilation tools are run in the background. You can keep working on your map if you wish.
 
-If you want to test your compilation profile without actually running it, you can hold the #key(307) when clicking on the 'Run' button. A test run will only print what each task will do without actually executing it.
+If you want to test your compilation profile without actually running it, you can hold the #key(Alt) when clicking on the 'Run' button. A test run will only print what each task will do without actually executing it.
 
 Once the compilation is done, you can launch a game engine and check out your map in the game. The following section explains how you can configure game engines and launch them from within the editor.
 
@@ -1202,7 +1228,7 @@ Once the compilation is done, you can launch a game engine and check out your ma
 
 Before you can launch a game engine in TrenchBroom, you have to make your engine(s) known to TrenchBroom. You can do this by bringing up the game engine profile dialog either from the launch dialog (see below) or from the [game configuration](#game_configuration).
 
-There are two ways to launch a game engine from within TrenchBroom. Either click the 'Launch' button in the compilation dialog or choose #menu(Menu/Run/Launch). This brings up the launch dialog shown in the following screenshot.
+There are two ways to launch a game engine from within TrenchBroom. Either click the 'Launch' button in the compilation dialog or choose #menu(Menu/Run/Launch...). This brings up the launch dialog shown in the following screenshot.
 
 ![Launch Dialog (Mac OS X)](images/LaunchGameEngineDialog.png)
 
@@ -1247,7 +1273,7 @@ The following matrix describes the possible type conversions between these types
 `Boolean`   _trivial_                     `"true"` or `"false"`  `1.0` or `0.0`                error       error
 
 `String`    `false` if value is `"false"` _trivial_              `0.0` if blank, number        error       error
-            or `""`, `true` otherwise                            representation if possible,   
+            or `""`, `true` otherwise                            representation if possible,
                                                                  error otherwise
 
 `Number`    `false` if value is `0.0`,    string representation, _trivial_                     error       error
@@ -1291,7 +1317,7 @@ A name is a string that begins with an alphabetic character or an underscore, po
 
 `MODS`, `_var1`, `_123` are all valid names while `1_MODS`, `$MODS`, `_$MODS` are not. When an expression is evaluated, all variable names are simply replaced by the values of the variables they reference. If a value is not of type `String`, it will be converted to that type. If the value is not convertible to type `String`, then an error will be thrown.
 
-A literal is either a string, a number, a boolean, an array, or a map literal. 
+A literal is either a string, a number, a boolean, an array, or a map literal.
 
 	Literal        = String | Number | Boolean | Array | Map
 
@@ -1674,7 +1700,7 @@ The case operator allows for conditional evaluation of expressions. This is usal
 In a case expression, the part before the `->` operator is called the _premise_ and the part after it is called the _conclusion_. The case operator is evaluated as follows:
 
 - If the premise evaluates to a value `r` that is convertible to `boolean`:
-    - If `r` converts to `true`: 
+    - If `r` converts to `true`:
         - The result of the case expression is the result of evaluating the conclusion.
     - Otherwise, the result of the case expression is `undefined`.
 - Otherwise, an error is thrown.
@@ -1719,7 +1745,7 @@ However, due to how the sub expressions of the switch expression are evaluated, 
     	          'otherwise'   // the default case
     }}
 
-Remember that the switch expression will return the value of the first expression that does not evaluate to `undefined`. Since the first two sub expressions do evaluate to `undefined`, and the string `'otherwise'` is not `undefined`, the switch expression will return `'otherwise'` as its result. 
+Remember that the switch expression will return the value of the first expression that does not evaluate to `undefined`. Since the first two sub expressions do evaluate to `undefined`, and the string `'otherwise'` is not `undefined`, the switch expression will return `'otherwise'` as its result.
 
 #### Binary Operator Precedence
 
@@ -1727,26 +1753,27 @@ Since an expression can be another instance of a binary operator, you can simply
 
 Operator Name 					Precedence
 ----     ----                   ----
-`*`      Multiplication			11
-`/`      Division				11
-`%`      Modulus				11
-`+`      Addition 				10
-`-`      Subtraction 			10
-`<<` 	 Bitwise shift left     9
-`>>` 	 Bitwise shift right    9
-`<`      Less 					8
-`<=`     Less or equal 			8
-`>`      Greater 				8
-`>=`     Greater or equal 		8
-`==`     Equal 					7
-`!=`     Inequal 				7
-`&` 	 Bitwise and   			6
-`^` 	 Bitwise xor   			5
-`|` 	 Bitwise or             4
-`&&`     Logical and 			3
-`||`     Logical or 			2
-`[]`     Range 					1
-`->`     Case 					0
+`*`      Multiplication			12
+`/`      Division				12
+`%`      Modulus				12
+`+`      Addition 				11
+`-`      Subtraction 			11
+`<<` 	 Bitwise shift left     10
+`>>` 	 Bitwise shift right    10
+`<`      Less 					9
+`<=`     Less or equal 			9
+`>`      Greater 				9
+`>=`     Greater or equal 		9
+`==`     Equal 					8
+`!=`     Inequal 				8
+`&` 	 Bitwise and   			7
+`^` 	 Bitwise xor   			6
+`|` 	 Bitwise or             5
+`&&`     Logical and 			4
+`||`     Logical or 			3
+`..`     Range 					2
+`->`     Case 					1
+` `      Other operators        13
 
 Some examples:
 
@@ -1773,7 +1800,7 @@ This section contains some information about what you can do if you run into pro
 
 ### Automatic Backups
 
-TrenchBroom automatically creates backups of your work. As a prerequisite, you have to work on a saved file, that is, a file that exists somewhere on your computer. So when you create a new file, you should save it as soon as you decide that you want to keep it. At that point, TrenchBroom will create its automatic backups. These backups are stored in a folder called "autosave" within the folder where your map file is located. It will create a new backup every ten minutes after the last backup, unless the map file has not been changed since then. To prevent the autosaving from interrupting your workflow, TrenchBroom will only create an autosave if the map file has not been changed for three seconds, however. In total, TrenchBroom will create up to 50 backups. After that, it will delete the oldest backup when it creates a new one so that the total number of backups does not exceed 50. The backups have the same name as the map file you are editing, but with the backup number added to the name just before the extension.
+TrenchBroom automatically creates backups of your work. As a prerequisite, you have to work on a saved file, that is, a file that exists somewhere on your computer. So when you create a new file, you should save it as soon as you decide that you want to keep it. At that point, TrenchBroom will create its automatic backups. These backups are stored in a folder called "autosave" within the folder where your map file is located. It will create a new backup every ten minutes after the last backup, unless the map file has not been changed since then. To prevent the autosaving from interrupting your workflow, TrenchBroom will only create an autosave you are not interacting with it, however. In total, TrenchBroom will create up to 50 backups. After that, it will delete the oldest backup when it creates a new one so that the total number of backups does not exceed 50. The backups have the same name as the map file you are editing, but with the backup number added to the name just before the extension.
 
 You can use these backups to go back to previous versions of you map if problems arise. This may help you when you are fixing bugs or if your map file gets corrupted somehow.
 
@@ -1823,14 +1850,14 @@ So a valid model definitions might look like this:
 	model("progs/armor")
 
 	// use the model found at the given path with skin 1 and frame 0
-    model({ 
-    	"path": "progs/armor", 
-    	"skin": 1 
+    model({
+    	"path": "progs/armor",
+    	"skin": 1
     })
 
 	// use the model found at the given path with skin 1 and frame 3
-    model({ 
-    	"path" : "progs/armor", 
+    model({
+    	"path" : "progs/armor",
     	"skin" : 1,
     	"frame": 3
     })
@@ -1882,12 +1909,12 @@ So far, we have used hardcoded literals for the values of the map entries like s
 
     model({ "path" : "progs/armor", "skin" : 1, "frame": 3 })
 
-However, nothing prevents us from using variables instead of hardcoded literals, thereby referring to the entities properties. 
+However, nothing prevents us from using variables instead of hardcoded literals, thereby referring to the entities properties.
 
-    model({ 
-    	"path" : PATHKEY, 
-    	"skin" : SKINKEY, 
-    	"frame": FRAMEKEY 
+    model({
+    	"path" : PATHKEY,
+    	"skin" : SKINKEY,
+    	"frame": FRAMEKEY
     })
 
 The placeholders `PATHKEY`, `SKINKEY` and `FRAMEKEY` have the following meaning
@@ -1900,7 +1927,7 @@ Placeholder 		Description
 
 A valid dynamic model definition might look like this:
 
-    model({ 
+    model({
     	"path" : mdl,
     	"skin" : skin,
     	"frame": frame
@@ -1937,7 +1964,7 @@ In both files, the model definitions are just specified alongside with other ent
 
 An example from an FGD file might look as follows.
 
-	@PointClass base(Monster) size(-32 -32 -24, 32 32 64) 
+	@PointClass base(Monster) size(-32 -32 -24, 32 32 64)
 	    model({{ perch == "1" -> "progs/gaunt.mdl", { "path": "progs/gaunt.mdl", "skin": 0, "frame": 24 } }})
 	    = monster_gaunt : "Gaunt"
 	[
@@ -1952,17 +1979,17 @@ To improve compatibility to other editors, the model definition can also be name
 
 In an ENT file, the same model specification might look like this.
 
-    <point 
-    	name="ammo_bfg" color=".3 .3 1" 
-    	box="-16 -16 -16 16 16 16" 
-    	model="{{ perch == "1" -> "progs/gaunt.mdl", { "path": "progs/gaunt.mdl", "skin": 0, "frame": 24 } }}"
+    <point
+    	name="ammo_bfg" color=".3 .3 1"
+    	box="-16 -16 -16 16 16 16"
+    	model="{{ perch == '1' -> 'progs/gaunt.mdl', { 'path': 'progs/gaunt.mdl', 'skin': 0, 'frame': 24 } }}"
 	/>
 
 ## Point Files and Portal Files
 
-TrenchBroom can load point files (PTS) generated by QBSP, which help locate leaks. After you open a point file with #menu(Menu/File/Load Point File), it's rendered as a sequence of green line segments which will connect the map interior to the void. Hit #menu(Menu/View/Camera/Move to Next Point) to move the camera to the first point, and continue hitting #menu(Menu/View/Camera/Move to Next Point) to fly along the path, which should show you where the leak is.
+TrenchBroom can load point files (PTS) generated by QBSP, which help locate leaks. After you open a point file with #menu(Menu/File/Load Point File...), it's rendered as a sequence of green line segments which will connect the map interior to the void. Hit #menu(Menu/View/Camera/Move to Next Point) to move the camera to the first point, and continue hitting #menu(Menu/View/Camera/Move to Next Point) to fly along the path, which should show you where the leak is.
 
-Portal files (PRT), also generated by QBSP, let you visualize the portals between BSP leafs. They can be loaded with #menu(Menu/File/Load Portal File) and are rendered as translucent red polygons.
+Portal files (PRT), also generated by QBSP, let you visualize the portals between BSP leafs. They can be loaded with #menu(Menu/File/Load Portal File...) and are rendered as translucent red polygons.
 
 ## Game Configuration Files {#game_configuration_files}
 
@@ -2010,86 +2037,120 @@ Game configuration files need to specify the following information.
 * **Tags** to attach additional information to faces or brushes in the editor, e.g. whether a face is detail or hint. (optional)
 * **Face attributes** to specify which additional attributes to allow on brush faces (optional)
 
-The game configuration is an [expression language](#expression_language) map with a specific structure, which is explained using an example. 
+The game configuration is an [expression language](#expression_language) map with a specific structure, which is explained using an example.
 
     {
-	    "version": 2, // mandatory, indicates the version of the file's syntax
-		"name": "Quake 2", // mandatory, the name to use in the UI
-		"icon": "Quake2/Icon.png", // optional, the icon to show in the UI
-	 	"fileformats": [ // a list of supported file formats with custom initial maps to be loaded when a new file is created
-	 	    { "format": "Standard", "initialmap": "initial_standard.map" },
-	 	    { "format": "Valve", "initialmap": "initial_valve.map" },
-	 	    { "format": "Quake2", "initialmap": "initial_quake2.map" }
-	 	],
-		"filesystem": { // defines the file system used to search for game assets
-			"searchpath": "baseq2", // the path in the game folder at which to search for assets
-	        "packageformat": { "extension": "pak", "format": "idpak" } // the package file format
-		},
-		"textures": { // where to search for textures and how to read them, see below
-	        "package": { "type": "directory", "root": "textures" },
-	        "format": { "extensions": [ "wal" ], "format": "wal" },
-	        "palette": "pics/colormap.pcx",
-	        "attribute": "_tb_textures"
-		},
-	  	"entities": { // the builtin entity definition files for this game
-			"definitions": [ "Quake2/Quake2.fgd" ],
-	    	"defaultcolor": "0.6 0.6 0.6 1.0",
-			"modelformats": [ "md2" ]
-	    },
-	    "tags": {
-	        "brush": [
-	            {
-	                "name": "Trigger",
-	                "attribs": [ "transparent" ],
-	                "match": "classname",
-	                "pattern": "trigger*"
-	            }
-	        ],
-	        "brushface": [
-	            {
-	                "name": "Clip",
-	                "attribs": [ "transparent" ],
-	                "match": "texture",
-	                "pattern": "clip"
-	            },
-	            {
-	                "name": "Skip",
-	                "attribs": [ "transparent" ],
-	                "match": "texture",
-	                "pattern": "skip"
-	            },
-	            {
-	                "name": "Hint",
-	                "attribs": [ "transparent" ],
-	                "match": "texture",
-	                "pattern": "hint*"
-	            },
-	            {
-	                "name": "Liquid",
-	                "match": "texture",
-	                "pattern": "\**"
-	            }
-	        ]
-	    }
+        "version": 4, // mandatory, indicates the version of the file's syntax
+        "name": "Example Resembling Quake 2", // mandatory, the name to use in the UI
+        "icon": "Icon.png", // optional, the icon to show in the UI
+        "fileformats": [ // supported file formats, each with optional initial map to use as "new map"
+            { "format": "Quake2" },
+            { "format": "Quake2 (Valve)", "initialmap": "initial_valve.map" }
+        ],
+        "filesystem": { // defines the file system used to search for game assets
+            "searchpath": "baseq2", // the path in the game folder at which to search for assets
+            "packageformat": { "extension": "pak", "format": "idpak" } // the package file format
+        },
+        "textures": { // where to search for textures and how to read them, see below
+            "package": { "type": "directory", "root": "textures" },
+            "format": { "extensions": [ "wal" ], "format": "wal" },
+            "palette": "pics/colormap.pcx",
+            "attribute": "_tb_textures"
+        },
+        "entities": { // the builtin entity definition files for this game
+            "definitions": [ "Quake2.fgd" ],
+            "defaultcolor": "0.6 0.6 0.6 1.0",
+            "modelformats": [ "md2" ]
+        },
+        "tags": { // "smart tags" select or modify a brush/face based on its characteristics
+            "brush": [
+                {
+                    "name": "Trigger",
+                    "attribs": [ "transparent" ],
+                    "match": "classname",
+                    "pattern": "trigger*",
+                    "texture": "trigger"
+                }
+            ],
+            "brushface": [
+                {
+                    "name": "Clip",
+                    "attribs": [ "transparent" ],
+                    "match": "texture",
+                    "pattern": "clip"
+                },
+                {
+                    "name": "Liquid",
+                    "match": "contentflag",
+                    "flags": [ "lava", "water" ]
+                },
+                {
+                    "name": "Transparent",
+                    "attribs": [ "transparent" ],
+                    "match": "surfaceflag",
+                    "flags": [ "trans33" ]
+                }
+            ]
+        },
+        "faceattribs": { // bitflags assigned to a face to affect its behavior
+            "surfaceflags": [
+                {
+                    "name": "light",
+                    "description": "Emit light from the surface, brightness is specified in the 'value' field"
+                },
+                {
+                    "name": "trans33",
+                    "description": "The surface is 33% transparent"
+                },
+                {
+                    "name": "hint",
+                    "description": "Make a primary bsp splitter"
+                }
+            ],
+            "contentflags": [
+                {
+                    "name": "solid",
+                    "description": "Default for all brushes"
+                },
+                {
+                    "name": "lava",
+                    "description": "The brush is lava"
+                },
+                {
+                    "unused": true
+                },
+                {
+                    "name": "water",
+                    "description": "The brush is water"
+                }
+            ]
+        }
     }
 
 #### Versions
 
-The game configuration files are versioned. Whenever a breaking change to the game configuration format is introduced, the version number will increase and TrenchBroom will reject the old format with an error message. The following sections will explain how to migrate a game configuration file for each version change.
+The game configuration files are versioned. Whenever a breaking change to the game configuration format is introduced, the version number will increase and TrenchBroom will reject the old format with an error message.
 
-**Migrating to Version 3** 
+**Current Versions**
 
-Version 3 deprecates the `brushtypes` key in favor of the `tags` key, but the contents are very similar. The value of the `brushtypes` key is an array of type matchers. The following brush type matchers are supported in version 2:
+TrenchBroom currently supports game config versions 3 and 4. Version 4 is identical to version 3 with two exceptions:
+
+* Version 4 adds support for the `unused` key in surface flags and content flags; this key does not exist in version 3.
+* Version 4 adds support for specifying a list of values for the `pattern` key in surfaceparm-type smart tags; in version 3 only a single value is allowed.
+
+**Migrating from Version 2**
+
+Version 3 deprecated the `brushtypes` key in favor of the `tags` key, but the contents are very similar. The value of the `brushtypes` key is an array of type matchers. The following brush type matchers are supported in version 2:
 
 Match        Description
 -----        -----------
 texture      Match against a texture name, must match all brush faces
 contentflag  Match against face content flags (used by Quake 2, Quake 3)
-surfaceflag  Match against face surface flags (used by Quake 2, Quake 3)
+surfaceflag  Match against face surface flags (used by Quake 2)
 surfaceparm  Match against shader surface parameters (used by Quake 3)
 classname    Match against a brush entity class name
 
-In version 3, the `tags` key is a map with two possible keys: `brush` and `brushface`. For both keys, the value is again an array of type matchers. The `brush` key supports the `classname` matcher and the `brushface` key supports the `texture`, `contentflag`, `surfaceflag` and `surfaceparm` matchers. To migrate the `brushtypes` key to the `tags` key, you create the basic structure as follows:
+In versions 3 and 4, the `tags` key is a map with two possible keys: `brush` and `brushface`. For both keys, the value is again an array of type matchers. The `brush` key supports the `classname` matcher and the `brushface` key supports the `texture`, `contentflag`, `surfaceflag` and `surfaceparm` matchers. To migrate the `brushtypes` key to the `tags` key, you create the basic structure as follows:
 
     "tags": {
         "brush": [ ... ],
@@ -2102,19 +2163,22 @@ Then you need to copy your `classname` matchers into the array value of the `bru
 
 The file format is specified by an array of maps under the key `fileformats`. The following formats are supported.
 
-Format      	 Description
-------      	 -----------
-Standard     	 Standard Quake map file
-Valve       	 Valve map file (like Standard, but with different texture info per face)
-Quake2       	 Quake 2 map file
-Quake3       	 Quake 3 map file (with brush primitives)
-Quake3 (legacy)  Quake 3 map file (without brush primitives)
-Hexen2       	 Hexen 2 map file (like Quake, but with an additional, but unused value per face)
+Format           Description
+------           -----------
+Standard         Standard Quake map file
+Valve            Valve map file (like Standard, but with more control over texture mapping)
+Quake2           Quake 2 map file with Standard style texture info
+Quake2 (Valve)   Quake 2 map file with Valve style texture info
+Quake3 (legacy)  Quake 3 map file with Standard style texture info
+Quake3 (Valve)   Quake 3 map file with Valve style texture info
+Hexen2           Hexen 2 map file (like Quake, but with an additional, but unused value per face)
+
+Note that the "Quake3" format, which will include Quake 3 brush primitives support, is not yet fully implemented and so is omitted from the list above. The "Quake3 (Valve)" format is as expressive for texture placement as the brush primitives format, but "Quake3 (Valve)" cannot be used to read existing map files that contain brush primitives. Also note that none of the Quake 3 formats yet support patch meshes.
 
 Each entry of the array must have the following structure:
 
-    { 
-    	"format": "Standard", 
+    {
+    	"format": "Standard",
     	"initialmap: "initial_standard.map"
     }
 
@@ -2133,7 +2197,9 @@ The following package formats are supported.
 
 Format       Description
 ------       -----------
-idpak        Id pak file, used by Quake, Quake 2, Hexen 2
+idpak        Id pak file
+dkpak        Daikatana pak file
+zip          Zip file, often uses other extensions such as pk3
 
 #### Texture Configurations
 
@@ -2184,7 +2250,16 @@ The `image` format can be used to load a wide array of image formats such as tga
 
 Optionally, you can specify a palette. The value of the `palette` key specifies a path, relative to the file system, where TrenchBroom will look for a palette file that comes with the game's assets.
 
-Finally, the `attribute` key specifies the name of a worldspawn property where TrenchBroom will store the list of selected texture collections in the map file.
+The `attribute` key specifies the name of a worldspawn property where TrenchBroom will store the list of selected texture collections in the map file.
+
+The optional `excludes` key specifies a list of patterns matched against texture names which will be ignored and not displayed in the [texture browser](#texture_browser). Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
+
+	"textures": {
+        "package": { "type": "directory", "root": "textures" },
+        "format": { "extensions": [ "" ], "format": "image" },
+        "attribute": "_tb_textures",
+        "excludes": [ "*_norm", "*_gloss" ]
+    },
 
 #### Entity Configuration
 
@@ -2210,7 +2285,11 @@ dkm          Daikatana model format
 
 #### Tags {#game_configuration_files_tags}
 
-TrenchBroom can recognize certain special brush or face types. An example would be clip faces or trigger brushes. But since the details can be game dependent, these special types are defined in the game configuration. For greater flexibility and future enhancements, a general tagging system is used to realize this functionality. Thereby, the game configuration defines smart tags which are applied automatically to brushes or brush faces depending on certain conditions.
+TrenchBroom can recognize certain special brush or face types. An example would be clip faces or trigger brushes. But since the details can be game dependent, these special types are defined in the game configuration. For greater flexibility and future enhancements, a general "smart tags" system is used to realize this functionality.
+
+TrenchBroom uses these tag definitions to automatically apply attributes to matching brushes/faces &mdash; for example to render trigger brushes partially transparent &mdash; and to populate the filtering options available in the [View menu](#filtering_rendering_options). 
+
+Each smart tag definition also makes one or more related [keyboard shortcuts](#keyboard_shortcuts) available (searching the shortcuts by "Tags" will show all of these). Each tag will always have a related shortcut that can be used to toggle the visibility of brushes whose faces match the tag. Additional shortcuts may also be available to apply the characteristics of the tag to the current selection, or remove those characteristics. These shortcuts depend on the tag's `match` criteria as described below.
 
 The tags are specified separately for brushes and faces under the corresponding keys:
 
@@ -2228,29 +2307,38 @@ Each of these keys has a list of tags. Each tag looks as follows.
         "pattern": "clip"
     },
 
-The most important key is `match`, which specifies how TrenchBroom will determine whether or not to apply this tag. This key can have the following values.
+The only attribute type currently supported in the `attribs` list is "transparent", which as mentioned above will cause faces matching this tag to be rendered with partial transparency in the 3D viewport.
 
-Match        Description
------        -----------
-texture      Match against a texture name, must match all brush faces
-contentflag  Match against face content flags (used by Quake 2, Quake 3)
-surfaceflag  Match against face surface flags (used by Quake 2, Quake 3)
-surfaceparm  Match against shader surface parameters (used by Quake 3)
-classname    Match against a brush entity class name
+The `match` key specifies how TrenchBroom will determine whether or not this tag applies to a brush or face.
 
-Depending on the value of the `match` key, additional keys may be required to configure the matcher.
+For a `brush` smart tag, the `match` key can only have the "classname" value. In addition to the usual keyboard shortcut for view filtering, this kind of smart tag will also generate keyboard shortcuts to either apply the tag (create a brush entity from selected brushes) or remove it (return selected brushes to worldspawn). This can be summarized as follows:
 
-* For the `texture` matcher, the key `pattern` contains a pattern that is matched against the texture name. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
+Match        Description                            Shortcut to apply  Shortcut to remove
+-----        -----------                            -----------------  ------------------
+classname    Match against brush entity class name  Yes                Yes
+
+For a `brushface` smart tag, the `match` key can have the following values and will generate keyboard shortcuts to apply or remove the match criteria on selected faces accordingly:
+
+Match        Description                            Shortcut to apply  Shortcut to remove
+-----        -----------                            -----------------  ------------------
+texture      Match against a texture name           Yes                No
+contentflag  Match against face content flags       Yes                Yes
+surfaceflag  Match against face surface flags       Yes                Yes
+surfaceparm  Match against shader surface parameter Yes                No
+
+Additional keys will be required to configure the matcher, depending on the value of the `match` key.
+
+* For the `classname` matcher, the key `pattern` contains a pattern that is matched against the classname of the brush entity that contains the brush. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
+    - Additionally, the `classname` matcher can contain an optional `texture` key. When this tag is applied by the use of its keyboard shortcut, then the selected brushes will receive the texture with the name given as the value of this key (e.g. `"texture": "trigger"` will assign the `trigger` texture).
+* For the `texture` matcher, the key `pattern` contains a pattern that is matched against a face's texture name. If the pattern does *not* contain a slash, it will only be matched against the segment after the final slash (if any) in the texture name. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 * For the `contentflag` and `surfaceflag` matchers, the key `flags` contains a list of content or surface flag names to match against (see below for more info on content and surface flags).
-* For the `surfaceparm` matcher, the key `pattern` contains a pattern that is matched against the surface parameters. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
-* For the `classname` matcher, key `pattern` contains a pattern that is matched against the classname of the brush entity that contains the brush. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
-	- Additionally, the `classname` matcher can contain an optional `texture` key - when this type is set by the user, then the selected brushes will receive the texture with the name given as the value of this key (e.g. `"texture": "trigger"` will assign the `trigger` texture).
+* For the `surfaceparm` matcher, the key `pattern` contains a name that is matched against the surface parameters of a face's shader. No wildcards allowed; the parameter name must match exactly. In version 4 of the game config format, you may alternately specify a *list* of surfaceparm names for this value, which will match against a shader if it has any of those surfaceparms.
 
 #### Face Attributes
 
-Face attributes currently come in two flavors: surface flags and content flags. Therefore, the `faceattribs` key contains two entries with keys `surfaceflags` and `contentflags` for the surface and content flags, respectively.
+The main part of the `faceattribs` object is the set of definitions of available surface flags (generally affecting the appearance/behavior of an individual face) and content flags (generally affecting the behavior of the brush containing the face). These definitions are specified through the `surfaceflags` and `contentflags` keys.
 
-Each of these entries contains a list where each entry consists of two entries with keys `name` and `description`. Note that the position of each flag entry determines the value of that flag. Suppose that `i` is the 0-based index of the entry, then the flags value corresponds to 2 to the power of `i`: The first entry has value 2^0 = 1, the second has value 2^1 = 2, the third has value 2^2 = 4, and so on.
+The value for each of those keys is a list of flag definitions. Note that the position of each flag definition within its list determines the value of that flag. Suppose that `i` is the 0-based list index of a flag; that flag's value then corresponds to 2 to the power of `i`. The first flag in the list has value 2^0 = 1, the second has value 2^1 = 2, the third has value 2^2 = 4, and so on.
 
 Consider the following example:
 
@@ -2274,8 +2362,8 @@ Consider the following example:
                 "name": "window",
                 "description": "Brush is a window (not really used)"
             }, // value 2
-            { 
-            	"name": "unused" 
+            {
+                "unused": true
             }, // value 4
             {
                 "name": "playerclip",
@@ -2284,7 +2372,35 @@ Consider the following example:
         ]
     }
 
-There are two surface flags with values 1 and 2, and four content flags with values 1, 2, 4, and 8. Note that the third flag, named "unused", is just a placeholder. This is necessary so that the next flag, "playerclip", receives the correct value of 8. Note that the `name` key is mandatory while the `description` key is optional.
+There are two surface flags with values 1 and 2, and three valid content flags with values 1, 2, and 8. Note that the third element in the contentflags list, marked as unused, is just a placeholder. This is necessary so that the next flag, "playerclip", receives the correct value of 8.
+
+For any flag definition *not* marked as unused, the `name` key is mandatory and the `description` key is optional. The name value will appear in the flag editor UI, and the description (if provided) will be visible in a tooltip when hovering over a flag checkbox.
+
+Note that before version 4 of the game config format, the `unused` key is not available for flag definitions. You can still effectively skip unused flag values in version 3 with placeholder flag definitions that by convention simply have the name "unused", for example the third element in the contentflags list above could instead be
+
+            {
+                "name": "unused"
+            }, // value 4
+
+This approach will however cause flags named "unused" to appear in the flag editor UI.
+
+The `faceattribs` object may contain one other key, `defaults`. The value of this key is an object that defines the initial values seen in the [face attribute editor](#face_attribute_editor) for the face of a newly created brush. The following `defaults` keys are supported:
+
+Key              Description
+------           -----------
+offset           List of two numbers specifying the default X and Y offset
+scale            List of two numbers specifying the default X and Y scale
+rotation         Number specifying the default rotation angle
+surfaceValue     Number specifying the default surface value (only applicable if surfaceflags exist)
+surfaceFlags     List of strings naming the default surface flags
+surfaceContents  List of strings naming the default content flags
+color            String specifying the default surface color (only applicable for Daikatana)
+
+List values must be given in array format, e.g. a default scale of 0.5 along each axis would be specified within the `defaults` object as: `"scale": [0.5, 0.5]`
+
+The flag names specified for `surfaceFlags` or `surfaceContents` must correspond to the `name` value for existing flags defined in the `surfaceflags` or `contentflags` (respectively) of the `faceattribs` object.
+
+The `color` value must be a string of the form "R G B" or "R G B A". R G B and A are each a floating-point number from 0.0 to 1.0. If A is omitted it is assumed to be 1.0.
 
 # Getting Involved
 
@@ -2321,9 +2437,9 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 - [Quake Mapping Discord] - Quake Mapping Discord
 - [Tome of Preach] - Quake Map Hacks and QuakeC Hacks
 
-[TrenchBroom on GitHub]: http://github.com/kduske/TrenchBroom/
-[TrenchBroom issue tracker]: http://github.com/kduske/TrenchBroom/issues/
-[TrenchBroom Discord]: https://discord.gg/n7K8Cps
+[TrenchBroom on GitHub]: http://github.com/TrenchBroom/TrenchBroom/
+[TrenchBroom issue tracker]: http://github.com/TrenchBroom/TrenchBroom/issues/
+[TrenchBroom Discord]: https://discord.gg/WGf9uve
 [func_msgboard]: http://celephais.net/board/
 [Quake Tools]: https://joshua.itch.io/quake-tools
 [Tome of Preach]: https://tomeofpreach.wordpress.com/
@@ -2331,4 +2447,4 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 [Tutorials by dumptruck_ds]: https://www.youtube.com/watch?v=gONePWocbqA
 [Quake Level Design Starter Kit]: https://github.com/jonathanlinat/quake-leveldesign-starterkit
 [Quake Mapping Discord]: https://discordapp.com/invite/f5Y99aM
-[FreeIamge Library]: http://freeimage.sourceforge.net/
+[FreeImage Library]: http://freeimage.sourceforge.net/

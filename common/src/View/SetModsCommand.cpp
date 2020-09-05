@@ -22,35 +22,36 @@
 #include "View/MapDocumentCommandFacade.h"
 
 #include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetModsCommand::Type = Command::freeType();
 
-        SetModsCommand::Ptr SetModsCommand::set(const StringList& mods) {
-            return Ptr(new SetModsCommand("Set Mods", mods));
+        std::unique_ptr<SetModsCommand> SetModsCommand::set(const std::vector<std::string>& mods) {
+            return std::make_unique<SetModsCommand>("Set Mods", mods);
         }
 
-        SetModsCommand::SetModsCommand(const String& name, const StringList& mods) :
+        SetModsCommand::SetModsCommand(const std::string& name, const std::vector<std::string>& mods) :
         DocumentCommand(Type, name),
         m_newMods(mods) {}
 
-        bool SetModsCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> SetModsCommand::doPerformDo(MapDocumentCommandFacade* document) {
             m_oldMods = document->mods();
             document->performSetMods(m_newMods);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool SetModsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> SetModsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->performSetMods(m_oldMods);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool SetModsCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool SetModsCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool SetModsCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool SetModsCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

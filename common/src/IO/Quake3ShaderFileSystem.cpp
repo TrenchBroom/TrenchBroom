@@ -19,17 +19,22 @@
 
 #include "Quake3ShaderFileSystem.h"
 
-#include "CollectionUtils.h"
+#include "Logger.h"
 #include "Assets/Quake3Shader.h"
 #include "IO/File.h"
+#include "IO/FileMatcher.h"
 #include "IO/Quake3ShaderParser.h"
 #include "IO/SimpleParserStatus.h"
 
+#include <kdl/vector_utils.h>
+
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
-        Quake3ShaderFileSystem::Quake3ShaderFileSystem(std::shared_ptr<FileSystem> fs, Path shaderSearchPath, Path::List textureSearchPaths, Logger& logger) :
+        Quake3ShaderFileSystem::Quake3ShaderFileSystem(std::shared_ptr<FileSystem> fs, Path shaderSearchPath, std::vector<Path> textureSearchPaths, Logger& logger) :
         ImageFileSystemBase(std::move(fs), Path()),
         m_shaderSearchPath(std::move(shaderSearchPath)),
         m_textureSearchPaths(std::move(textureSearchPaths)),
@@ -56,7 +61,7 @@ namespace TrenchBroom {
                     try {
                         Quake3ShaderParser parser(std::begin(bufferedReader), std::end(bufferedReader));
                         SimpleParserStatus status(m_logger, file->path().asString());
-                        VectorUtils::append(result, parser.parse(status));
+                        kdl::vec_append(result, parser.parse(status));
                     } catch (const ParserException& e) {
                         m_logger.warn() << "Skipping malformed shader file " << path << ": " << e.what();
                     }
@@ -68,12 +73,12 @@ namespace TrenchBroom {
         }
 
         void Quake3ShaderFileSystem::linkShaders(std::vector<Assets::Quake3Shader>& shaders) {
-            const auto extensions = StringList { "tga", "png", "jpg", "jpeg" };
+            const auto extensions = std::vector<std::string> { "tga", "png", "jpg", "jpeg" };
 
-            auto allImages = Path::List();
+            auto allImages = std::vector<Path>();
             for (const auto& path : m_textureSearchPaths) {
                 if (next().directoryExists(path)) {
-                    VectorUtils::append(allImages, next().findItemsRecursively(path, FileExtensionMatcher(extensions)));
+                    kdl::vec_append(allImages, next().findItemsRecursively(path, FileExtensionMatcher(extensions)));
                 }
             }
 
@@ -82,7 +87,7 @@ namespace TrenchBroom {
             linkStandaloneShaders(shaders);
         }
 
-        void Quake3ShaderFileSystem::linkTextures(const Path::List& textures, std::vector<Assets::Quake3Shader>& shaders) {
+        void Quake3ShaderFileSystem::linkTextures(const std::vector<Path>& textures, std::vector<Assets::Quake3Shader>& shaders) {
             m_logger.debug() << "Linking textures...";
             for (const auto& texture : textures) {
                 const auto shaderPath = texture.deleteExtension();

@@ -29,8 +29,6 @@ namespace TrenchBroom {
     class Logger;
 
     namespace IO {
-        class File;
-        class FileSystem;
         class Path;
         class Quake3ShaderFileSystem;
     }
@@ -46,7 +44,7 @@ namespace TrenchBroom {
             void initialize(const GameConfig& config, const IO::Path& gamePath, const std::vector<IO::Path>& additionalSearchPaths, Logger& logger);
             void reloadShaders();
         private:
-            void addDefaultAssetPath(const GameConfig& config, Logger& logger);
+            void addDefaultAssetPaths(const GameConfig& config, Logger& logger);
             void addGameFileSystems(const GameConfig& config, const IO::Path& gamePath, const std::vector<IO::Path>& additionalSearchPaths, Logger& logger);
             void addShaderFileSystem(const GameConfig& config, Logger& logger);
             void addFileSystemPath(const IO::Path& path, Logger& logger);
@@ -54,7 +52,7 @@ namespace TrenchBroom {
         private:
             bool doDirectoryExists(const IO::Path& path) const override;
             bool doFileExists(const IO::Path& path) const override;
-            IO::Path::List doGetDirectoryContents(const IO::Path& path) const override;
+            std::vector<IO::Path> doGetDirectoryContents(const IO::Path& path) const override;
             std::shared_ptr<IO::File> doOpenFile(const IO::Path& path) const override;
         };
     }

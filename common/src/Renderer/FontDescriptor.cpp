@@ -55,7 +55,7 @@ namespace TrenchBroom {
             return m_path;
         }
 
-        String FontDescriptor::name() const {
+        std::string FontDescriptor::name() const {
             return m_path.lastComponent().deleteExtension().asString();
         }
 
@@ -72,7 +72,7 @@ namespace TrenchBroom {
         }
 
         unsigned char FontDescriptor::charCount() const {
-            return m_maxChar - m_minChar + 1;
+            return static_cast<unsigned char>(m_maxChar - m_minChar + 1);
         }
     }
 }

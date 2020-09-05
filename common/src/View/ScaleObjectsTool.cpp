@@ -20,36 +20,39 @@
 
 #include "ScaleObjectsTool.h"
 
-#include "TrenchBroom.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
+#include "FloatType.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+#include "View/ScaleObjectsToolPage.h"
+
+#include <kdl/memory_utils.h>
+#include <kdl/string_utils.h>
 
 #include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 #include <vecmath/line.h>
 #include <vecmath/bbox.h>
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>
 
-#include <algorithm>
-#include <iterator>
 #include <set>
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType ScaleObjectsTool::ScaleToolSideHit = Model::Hit::freeHitType();
-        const Model::Hit::HitType ScaleObjectsTool::ScaleToolEdgeHit = Model::Hit::freeHitType();
-        const Model::Hit::HitType ScaleObjectsTool::ScaleToolCornerHit = Model::Hit::freeHitType();
+        const Model::HitType::Type ScaleObjectsTool::ScaleToolSideHitType = Model::HitType::freeType();
+        const Model::HitType::Type ScaleObjectsTool::ScaleToolEdgeHitType = Model::HitType::freeType();
+        const Model::HitType::Type ScaleObjectsTool::ScaleToolCornerHitType = Model::HitType::freeType();
 
         // Scale tool helper functions
 
         bool BBoxSide::validSideNormal(const vm::vec3& n) {
             for (size_t i = 0; i < 3; ++i) {
-                vm::vec3 expected = vm::vec3::zero;
+                vm::vec3 expected = vm::vec3::zero();
                 expected[i] = 1.0;
                 if (n == expected || n == -expected) {
                     return true;
@@ -61,7 +64,7 @@ namespace TrenchBroom {
         BBoxSide::BBoxSide(const vm::vec3& n)
                 : normal(n) {
             if (!validSideNormal(n)) {
-                throw std::invalid_argument("BBoxSide created with invalid normal " + StringUtils::toString(n));
+                throw std::invalid_argument("BBoxSide created with invalid normal " + kdl::str_to_string(n));
             }
         }
 
@@ -87,7 +90,7 @@ namespace TrenchBroom {
 
         BBoxCorner::BBoxCorner(const vm::vec3& c) : corner(c) {
             if (!validCorner(c)) {
-                throw std::invalid_argument("Corner created with invalid corner " + StringUtils::toString(c));
+                throw std::invalid_argument("Corner created with invalid corner " + kdl::str_to_string(c));
             }
         }
 
@@ -99,10 +102,10 @@ namespace TrenchBroom {
 
         BBoxEdge::BBoxEdge(const vm::vec3 &p0, const vm::vec3& p1) : point0(p0), point1(p1) {
             if (!BBoxCorner::validCorner(p0)) {
-                throw std::invalid_argument("BBoxEdge created with invalid corner " + StringUtils::toString(p0));
+                throw std::invalid_argument("BBoxEdge created with invalid corner " + kdl::str_to_string(p0));
             }
             if (!BBoxCorner::validCorner(p1)) {
-                throw std::invalid_argument("BBoxEdge created with invalid corner " + StringUtils::toString(p1));
+                throw std::invalid_argument("BBoxEdge created with invalid corner " + kdl::str_to_string(p1));
             }
         }
 
@@ -154,10 +157,10 @@ namespace TrenchBroom {
             result.reserve(6);
 
             const vm::bbox3 box{{-1, -1, -1}, {1, 1, 1}};
-            auto op = [&](const vm::vec3& p0, const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, const vm::vec3& normal) {
+            auto op = [&](const vm::vec3& /* p0 */, const vm::vec3& /* p1 */, const vm::vec3& /* p2 */, const vm::vec3& /* p3 */, const vm::vec3& normal) {
                 result.push_back(BBoxSide(normal));
             };
-            box.forEachFace(op);
+            box.for_each_face(op);
 
             assert(result.size() == 6);
             return result;
@@ -171,7 +174,7 @@ namespace TrenchBroom {
             auto op = [&](const vm::vec3& p0, const vm::vec3& p1) {
                 result.push_back(BBoxEdge(p0, p1));
             };
-            box.forEachEdge(op);
+            box.for_each_edge(op);
 
             assert(result.size() == 12);
             return result;
@@ -185,7 +188,7 @@ namespace TrenchBroom {
             auto op = [&](const vm::vec3& point) {
                 result.push_back(BBoxCorner(point));
             };
-            box.forEachVertex(op);
+            box.for_each_vertex(op);
 
             assert(result.size() == 8);
             return result;
@@ -231,7 +234,7 @@ namespace TrenchBroom {
                     res = poly;
                 }
             };
-            box.forEachFace(visitor);
+            box.for_each_face(visitor);
 
             assert(res.vertexCount() == 4);
             return res;
@@ -249,7 +252,7 @@ namespace TrenchBroom {
                     setResult = true;
                 }
             };
-            box.forEachFace(visitor);
+            box.for_each_face(visitor);
             assert(setResult);
             return result;
         }
@@ -269,7 +272,7 @@ namespace TrenchBroom {
                 sideLengthDelta *= 2.0;
             }
 
-            const auto axis = firstComponent(side.normal);
+            const auto axis = vm::find_abs_max_component(side.normal);
             const auto inSideLenth = in.max[axis] - in.min[axis];
             const auto sideLength = inSideLenth + sideLengthDelta;
 
@@ -278,9 +281,9 @@ namespace TrenchBroom {
             }
 
             const auto n = side.normal;
-            const auto axis1 = firstComponent(n);
-            const auto axis2 = secondComponent(n);
-            const auto axis3 = thirdComponent(n);
+            const auto axis1 = vm::find_abs_max_component(n, 0u);
+            const auto axis2 = vm::find_abs_max_component(n, 1u);
+            const auto axis3 = vm::find_abs_max_component(n, 2u);
 
             auto newSize = in.size();
 
@@ -299,7 +302,7 @@ namespace TrenchBroom {
                 ? in.center()
                 : centerForBBoxSide(in, oppositeSide(side));
 
-            const auto matrix = scaleBBoxMatrixWithAnchor(in, newSize, anchor);
+            const auto matrix = vm::scale_bbox_matrix_with_anchor(in, newSize, anchor);
 
             return vm::bbox3(matrix * in.min, matrix * in.max);
         }
@@ -332,10 +335,10 @@ namespace TrenchBroom {
 
             if (anchorType == AnchorPos::Center) {
                 const auto points = std::vector<vm::vec3>{ anchor - (newCorner - anchor), newCorner };
-                return vm::bbox3::mergeAll(std::begin(points), std::end(points));
+                return vm::bbox3::merge_all(std::begin(points), std::end(points));
             } else {
                 const auto points = std::vector<vm::vec3>{ oppositePoint, newCorner };
-                return vm::bbox3::mergeAll(std::begin(points), std::end(points));
+                return vm::bbox3::merge_all(std::begin(points), std::end(points));
             }
         }
 
@@ -366,7 +369,7 @@ namespace TrenchBroom {
                 }
             }
 
-            const auto nonMovingAxis = thirdComponent(oldAnchorDist);
+            const auto nonMovingAxis = vm::find_abs_max_component(oldAnchorDist, 2u);
 
             const auto corner1 = (anchorType == AnchorPos::Center)
                                  ? anchor - newAnchorDist
@@ -380,7 +383,7 @@ namespace TrenchBroom {
             // the only type of proportional scaling we support is optionally
             // scaling the nonMovingAxis.
             if (proportional.isAxisProportional(nonMovingAxis)) {
-                const auto axis1 = firstComponent(oldAnchorDist);
+                const auto axis1 = vm::find_abs_max_component(oldAnchorDist);
                 const auto ratio = (p2 - p1)[axis1] / in.size()[axis1];
 
                 p1[nonMovingAxis] = anchor[nonMovingAxis] - (in.size()[nonMovingAxis] * ratio * 0.5);
@@ -393,7 +396,7 @@ namespace TrenchBroom {
             const auto result = vm::bbox3(min(p1, p2), max(p1, p2));
 
             // check for zero size
-            if (result.empty()) {
+            if (result.is_empty()) {
                 return vm::bbox3();
             } else {
                 return result;
@@ -407,13 +410,13 @@ namespace TrenchBroom {
             // because all of these lines go through the center of the box anyway, so the resulting line would be the
             // same.
 
-            if (hit.type() == ScaleObjectsTool::ScaleToolSideHit) {
+            if (hit.type() == ScaleObjectsTool::ScaleToolSideHitType) {
                 const auto draggingSide = hit.target<BBoxSide>();
 
                 // We could use centerForBBoxSide(draggingSide) here, but this gives better dragging behaviour.
                 // See pickBackSideOfBox() for how hit.hitPoint() is determined.
                 handleLine = vm::line3(hit.hitPoint(), draggingSide.normal);
-            } else if (hit.type() == ScaleObjectsTool::ScaleToolEdgeHit) {
+            } else if (hit.type() == ScaleObjectsTool::ScaleToolEdgeHitType) {
                 const auto endEdge = hit.target<BBoxEdge>();
                 const auto startEdge = oppositeEdge(endEdge);
 
@@ -424,7 +427,7 @@ namespace TrenchBroom {
                 const vm::vec3 handleLineEnd = endEdgeActual.center();
 
                 handleLine = vm::line3(handleLineStart, normalize(handleLineEnd - handleLineStart));
-            } else if (hit.type() == ScaleObjectsTool::ScaleToolCornerHit) {
+            } else if (hit.type() == ScaleObjectsTool::ScaleToolCornerHitType) {
                 const auto endCorner = hit.target<BBoxCorner>();
                 const auto startCorner = oppositeCorner(endCorner);
 
@@ -444,15 +447,15 @@ namespace TrenchBroom {
                              const vm::vec3& delta,
                              const ProportionalAxes& proportional,
                              const AnchorPos anchor) {
-            if (dragStartHit.type() == ScaleObjectsTool::ScaleToolSideHit) {
+            if (dragStartHit.type() == ScaleObjectsTool::ScaleToolSideHitType) {
                 const auto endSide = dragStartHit.target<BBoxSide>();
 
                 return moveBBoxSide(bboxAtDragStart, endSide, delta, proportional, anchor);
-            } else if (dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHit) {
+            } else if (dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHitType) {
                 const auto endEdge = dragStartHit.target<BBoxEdge>();
 
                 return moveBBoxEdge(bboxAtDragStart, endEdge, delta, proportional, anchor);
-            } else if (dragStartHit.type() == ScaleObjectsTool::ScaleToolCornerHit) {
+            } else if (dragStartHit.type() == ScaleObjectsTool::ScaleToolCornerHitType) {
                 const auto endCorner = dragStartHit.target<BBoxCorner>();
 
                 return moveBBoxCorner(bboxAtDragStart, endCorner, delta, anchor);
@@ -464,15 +467,15 @@ namespace TrenchBroom {
 
         // ScaleObjectsTool
 
-        ScaleObjectsTool::ScaleObjectsTool(MapDocumentWPtr document) :
+        ScaleObjectsTool::ScaleObjectsTool(std::weak_ptr<MapDocument> document) :
         Tool(false),
-        m_document(document),
+        m_document(std::move(document)),
         m_toolPage(nullptr),
         m_resizing(false),
         m_anchorPos(AnchorPos::Opposite),
         m_bboxAtDragStart(),
         m_dragStartHit(Model::Hit::NoHit),
-        m_dragCumulativeDelta(vm::vec3::zero),
+        m_dragCumulativeDelta(vm::vec3::zero()),
         m_proportionalAxes(ProportionalAxes::None()) {}
 
         ScaleObjectsTool::~ScaleObjectsTool() = default;
@@ -487,11 +490,11 @@ namespace TrenchBroom {
         }
 
         bool ScaleObjectsTool::applies() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return !document->selectedNodes().empty();
         }
 
-        BackSide pickBackSideOfBox(const vm::ray3& pickRay, const Renderer::Camera& camera, const vm::bbox3& box) {
+        BackSide pickBackSideOfBox(const vm::ray3& pickRay, const Renderer::Camera& /* camera */, const vm::bbox3& box) {
             auto closestDistToRay = std::numeric_limits<FloatType>::max();
             auto bestDistAlongRay = std::numeric_limits<FloatType>::max();
             vm::vec3 bestNormal;
@@ -507,7 +510,7 @@ namespace TrenchBroom {
                     const vm::vec3 points[] = {p0, p1, p2, p3};
                     for (size_t i = 0; i < 4; i++) {
                         const auto result = vm::distance(pickRay, vm::segment3(points[i], points[(i + 1) % 4]));
-                        if (!vm::isnan(result.distance) && result.distance < closestDistToRay) {
+                        if (!vm::is_nan(result.distance) && result.distance < closestDistToRay) {
                             closestDistToRay = result.distance;
                             bestNormal = n;
                             bestDistAlongRay = result.position1;
@@ -515,11 +518,11 @@ namespace TrenchBroom {
                     }
                 }
             };
-            box.forEachFace(visitor);
+            box.for_each_face(visitor);
 
             // The hit point is the closest point on the pick ray to one of the edges of the face.
             // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
-            assert(bestNormal != vm::vec3::zero);
+            assert(bestNormal != vm::vec3::zero());
 
             BackSide result;
             result.distAlongRay = bestDistAlongRay;
@@ -534,8 +537,8 @@ namespace TrenchBroom {
 
                 // The hit point is the closest point on the pick ray to one of the edges of the face.
                 // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
-                assert(result.pickedSideNormal != vm::vec3::zero);
-                pickResult.addHit(Model::Hit(ScaleToolSideHit, result.distAlongRay, pickRay.pointAtDistance(result.distAlongRay), BBoxSide{result.pickedSideNormal}));
+                assert(result.pickedSideNormal != vm::vec3::zero());
+                pickResult.addHit(Model::Hit(ScaleToolSideHitType, result.distAlongRay, vm::point_at_distance(pickRay, result.distAlongRay), BBoxSide{result.pickedSideNormal}));
             }
         }
 
@@ -555,12 +558,12 @@ namespace TrenchBroom {
                 const vm::segment3 points = pointsForBBoxEdge(myBounds, edge);
 
                 // in 2d views, only use edges that are parallel to the camera
-                if (parallel(points.direction(), vm::vec3(camera.direction()))) {
+                if (vm::is_parallel(points.direction(), vm::vec3(camera.direction()))) {
                     // could figure out which endpoint is closer to camera, or just test both.
                     for (const vm::vec3& point : std::vector<vm::vec3>{points.start(), points.end()}) {
-                        const FloatType dist = camera.pickPointHandle(pickRay, point, pref(Preferences::HandleRadius));
-                        if (!vm::isnan(dist)) {
-                            localPickResult.addHit(Model::Hit(ScaleToolEdgeHit, dist, pickRay.pointAtDistance(dist), edge));
+                        const FloatType dist = camera.pickPointHandle(pickRay, point, static_cast<FloatType>(pref(Preferences::HandleRadius)));
+                        if (!vm::is_nan(dist)) {
+                            localPickResult.addHit(Model::Hit(ScaleToolEdgeHitType, dist, vm::point_at_distance(pickRay, dist), edge));
                         }
                     }
                 }
@@ -594,10 +597,10 @@ namespace TrenchBroom {
 
                 // make the spheres for the corner handles slightly larger than the
                 // cylinders of the edge handles, so they take priority where they overlap.
-                const auto cornerRadius = pref(Preferences::HandleRadius) * 2.0;
+                const auto cornerRadius = static_cast<FloatType>(pref(Preferences::HandleRadius)) * 2.0;
                 const auto dist = camera.pickPointHandle(pickRay, point, cornerRadius);
-                if (!vm::isnan(dist)) {
-                    localPickResult.addHit(Model::Hit(ScaleToolCornerHit, dist, pickRay.pointAtDistance(dist), corner));
+                if (!vm::is_nan(dist)) {
+                    localPickResult.addHit(Model::Hit(ScaleToolCornerHitType, dist, vm::point_at_distance(pickRay, dist), corner));
                 }
             }
 
@@ -605,9 +608,9 @@ namespace TrenchBroom {
             for (const auto& edge : allEdges()) {
                 const vm::segment3 points = pointsForBBoxEdge(myBounds, edge);
 
-                const auto dist = camera.pickLineSegmentHandle(pickRay, points, pref(Preferences::HandleRadius));
-                if (!vm::isnan(dist)) {
-                    localPickResult.addHit(Model::Hit(ScaleToolEdgeHit, dist, pickRay.pointAtDistance(dist), edge));
+                const auto dist = camera.pickLineSegmentHandle(pickRay, points, static_cast<FloatType>(pref(Preferences::HandleRadius)));
+                if (!vm::is_nan(dist)) {
+                    localPickResult.addHit(Model::Hit(ScaleToolEdgeHitType, dist, vm::point_at_distance(pickRay, dist), edge));
                 }
             }
 
@@ -615,9 +618,9 @@ namespace TrenchBroom {
             for (const auto& side : allSides()) {
                 const auto poly = polygonForBBoxSide(myBounds, side);
 
-                const auto dist = vm::intersectRayAndPolygon(pickRay, std::begin(poly), std::end(poly));
-                if (!vm::isnan(dist)) {
-                    localPickResult.addHit(Model::Hit(ScaleToolSideHit, dist, pickRay.pointAtDistance(dist), side));
+                const auto dist = vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly));
+                if (!vm::is_nan(dist)) {
+                    localPickResult.addHit(Model::Hit(ScaleToolSideHitType, dist, vm::point_at_distance(pickRay, dist), side));
                 }
             }
 
@@ -632,7 +635,7 @@ namespace TrenchBroom {
 
 
         vm::bbox3 ScaleObjectsTool::bounds() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return document->selectionBounds();
         }
 
@@ -644,7 +647,7 @@ namespace TrenchBroom {
         static std::vector<BBoxSide> sidesForCornerSelection(const BBoxCorner& corner) {
             std::vector<BBoxSide> result;
             for (size_t i = 0; i < 3; ++i) {
-                vm::vec3 sideNormal = vm::vec3::zero;
+                vm::vec3 sideNormal = vm::vec3::zero();
                 sideNormal[i] = corner.corner[i];
 
                 result.push_back(BBoxSide(sideNormal));
@@ -673,7 +676,7 @@ namespace TrenchBroom {
                 }
 
             };
-            box.forEachFace(visitor);
+            box.for_each_face(visitor);
             assert(result.size() == 2);
 
             return result;
@@ -700,7 +703,7 @@ namespace TrenchBroom {
         std::vector<vm::polygon3f> ScaleObjectsTool::polygonsHighlightedByDrag() const {
             std::vector<BBoxSide> sides;
 
-            if (m_dragStartHit.type() == ScaleToolSideHit) {
+            if (m_dragStartHit.type() == ScaleToolSideHitType) {
                 const auto side = m_dragStartHit.target<BBoxSide>();
                 sides = {side};
 
@@ -708,7 +711,7 @@ namespace TrenchBroom {
                 // proportionally.
                 for (size_t i = 0; i < 3; ++i) {
                     // Don't highlight `side` or its opposite
-                    if (i == firstComponent(side.normal)) {
+                    if (i == vm::find_abs_max_component(side.normal)) {
                         continue;
                     }
 
@@ -723,10 +726,10 @@ namespace TrenchBroom {
                         sides.emplace_back(side2);
                     }
                 }
-            } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
+            } else if (m_dragStartHit.type() == ScaleToolEdgeHitType) {
                 const auto edge = m_dragStartHit.target<BBoxEdge>();
                 sides = sidesForEdgeSelection(edge);
-            } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
+            } else if (m_dragStartHit.type() == ScaleToolCornerHitType) {
                 const auto corner = m_dragStartHit.target<BBoxCorner>();
                 sides = sidesForCornerSelection(corner);
             } else {
@@ -746,7 +749,7 @@ namespace TrenchBroom {
         }
 
         vm::polygon3f ScaleObjectsTool::dragSide() const {
-            if (m_dragStartHit.type() == ScaleToolSideHit) {
+            if (m_dragStartHit.type() == ScaleToolSideHitType) {
                 const auto side = m_dragStartHit.target<BBoxSide>();
                 return vm::polygon3f(polygonForBBoxSide(bounds(), side));
             }
@@ -755,7 +758,7 @@ namespace TrenchBroom {
         }
 
         bool ScaleObjectsTool::hasDragEdge() const {
-            return m_dragStartHit.type() == ScaleToolEdgeHit;
+            return m_dragStartHit.type() == ScaleToolEdgeHitType;
         }
 
         vm::segment3f ScaleObjectsTool::dragEdge() const {
@@ -765,7 +768,7 @@ namespace TrenchBroom {
         }
 
         bool ScaleObjectsTool::hasDragCorner() const {
-            return m_dragStartHit.type() == ScaleToolCornerHit;
+            return m_dragStartHit.type() == ScaleToolCornerHitType;
         }
 
         vm::vec3f ScaleObjectsTool::dragCorner() const {
@@ -775,14 +778,14 @@ namespace TrenchBroom {
         }
 
         bool ScaleObjectsTool::hasDragAnchor() const {
-            if (bounds().empty()) {
+            if (bounds().is_empty()) {
                 return false;
             }
 
             const auto type = m_dragStartHit.type();
-            return type == ScaleToolEdgeHit
-                   || type == ScaleToolCornerHit
-                   || type == ScaleToolSideHit;
+            return type == ScaleToolEdgeHitType
+                   || type == ScaleToolCornerHitType
+                   || type == ScaleToolSideHitType;
         }
 
         vm::vec3f ScaleObjectsTool::dragAnchor() const {
@@ -790,19 +793,19 @@ namespace TrenchBroom {
                 return vm::vec3f(bounds().center());
             }
 
-            if (m_dragStartHit.type() == ScaleToolSideHit) {
+            if (m_dragStartHit.type() == ScaleToolSideHitType) {
                 const auto endSide = m_dragStartHit.target<BBoxSide>();
                 const auto startSide = oppositeSide(endSide);
 
                 return vm::vec3f(centerForBBoxSide(bounds(), startSide));
-            } else if (m_dragStartHit.type() == ScaleToolEdgeHit) {
+            } else if (m_dragStartHit.type() == ScaleToolEdgeHitType) {
                 const auto endEdge = m_dragStartHit.target<BBoxEdge>();
                 const auto startEdge = oppositeEdge(endEdge);
 
                 const vm::segment3 startEdgeActual = pointsForBBoxEdge(bounds(), startEdge);
 
                 return vm::vec3f(startEdgeActual.center());
-            } else if (m_dragStartHit.type() == ScaleToolCornerHit) {
+            } else if (m_dragStartHit.type() == ScaleToolCornerHitType) {
                 const auto endCorner = m_dragStartHit.target<BBoxCorner>();
                 const auto startCorner = oppositeCorner(endCorner);
 
@@ -811,7 +814,7 @@ namespace TrenchBroom {
             }
 
             assert(0);
-            return vm::vec3f::zero;
+            return vm::vec3f::zero();
         }
 
         vm::bbox3 ScaleObjectsTool::bboxAtDragStart() const {
@@ -820,7 +823,7 @@ namespace TrenchBroom {
         }
 
         std::vector<vm::vec3> ScaleObjectsTool::cornerHandles() const {
-            if (bounds().empty()) {
+            if (bounds().is_empty()) {
                 return {};
             }
 
@@ -829,23 +832,23 @@ namespace TrenchBroom {
             auto op = [&](const vm::vec3& point) {
                 result.push_back(point);
             };
-            bounds().forEachVertex(op);
+            bounds().for_each_vertex(op);
             return result;
         }
 
         void ScaleObjectsTool::updatePickedHandle(const Model::PickResult &pickResult) {
-            const Model::Hit& hit = pickResult.query().type(ScaleToolSideHit | ScaleToolEdgeHit | ScaleToolCornerHit).occluded().first();
+            const Model::Hit& hit = pickResult.query().type(ScaleToolSideHitType | ScaleToolEdgeHitType | ScaleToolCornerHitType).occluded().first();
 
             // extract the highlighted handle from the hit here, and only refresh views if it changed
-            if (hit.type() == ScaleToolSideHit && m_dragStartHit.type() == ScaleToolSideHit) {
+            if (hit.type() == ScaleToolSideHitType && m_dragStartHit.type() == ScaleToolSideHitType) {
                 if (hit.target<BBoxSide>() == m_dragStartHit.target<BBoxSide>()) {
                     return;
                 }
-            } else if (hit.type() == ScaleToolEdgeHit && m_dragStartHit.type() == ScaleToolEdgeHit) {
+            } else if (hit.type() == ScaleToolEdgeHitType && m_dragStartHit.type() == ScaleToolEdgeHitType) {
                 if (hit.target<BBoxEdge>() == m_dragStartHit.target<BBoxEdge>()) {
                     return;
                 }
-            } else if (hit.type() == ScaleToolCornerHit && m_dragStartHit.type() == ScaleToolCornerHit) {
+            } else if (hit.type() == ScaleToolCornerHitType && m_dragStartHit.type() == ScaleToolCornerHitType) {
                 if (hit.target<BBoxCorner>() == m_dragStartHit.target<BBoxCorner>()) {
                     return;
                 }
@@ -875,17 +878,17 @@ namespace TrenchBroom {
 
         void ScaleObjectsTool::startScaleWithHit(const Model::Hit& hit) {
             ensure(hit.isMatch(), "must start with matching hit");
-            ensure(hit.type() == ScaleToolCornerHit
-                   || hit.type() == ScaleToolEdgeHit
-                   || hit.type() == ScaleToolSideHit, "wrong hit type");
+            ensure(hit.type() == ScaleToolCornerHitType
+                   || hit.type() == ScaleToolEdgeHitType
+                   || hit.type() == ScaleToolSideHitType, "wrong hit type");
             ensure(!m_resizing, "must not be resizing already");
 
             m_bboxAtDragStart = bounds();
             m_dragStartHit = hit;
-            m_dragCumulativeDelta = vm::vec3::zero;
+            m_dragCumulativeDelta = vm::vec3::zero();
 
-            MapDocumentSPtr document = lock(m_document);
-            document->beginTransaction("Scale Objects");
+            auto document = kdl::mem_lock(m_document);
+            document->startTransaction("Scale Objects");
             m_resizing = true;
         }
 
@@ -894,19 +897,19 @@ namespace TrenchBroom {
 
             m_dragCumulativeDelta = m_dragCumulativeDelta + delta;
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
             const auto newBox = moveBBoxForHit(m_bboxAtDragStart, m_dragStartHit, m_dragCumulativeDelta,
                                                m_proportionalAxes, m_anchorPos);
 
-            if (!newBox.empty()) {
+            if (!newBox.is_empty()) {
                 document->scaleObjects(bounds(), newBox);
             }
         }
 
         void ScaleObjectsTool::commitScale() {
-            MapDocumentSPtr document = lock(m_document);
-            if (isZero(m_dragCumulativeDelta, vm::C::almostZero())) {
+            auto document = kdl::mem_lock(m_document);
+            if (vm::is_zero(m_dragCumulativeDelta, vm::C::almost_zero())) {
                 document->cancelTransaction();
             } else {
                 document->commitTransaction();
@@ -915,14 +918,14 @@ namespace TrenchBroom {
         }
 
         void ScaleObjectsTool::cancelScale() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
             m_resizing = false;
         }
 
-        wxWindow* ScaleObjectsTool::doCreatePage(wxWindow* parent) {
+        QWidget* ScaleObjectsTool::doCreatePage(QWidget* parent) {
             assert(m_toolPage == nullptr);
-            m_toolPage = new ScaleObjectsToolPage(parent, m_document);
+            m_toolPage = new ScaleObjectsToolPage(m_document, parent);
             return m_toolPage;
         }
     }

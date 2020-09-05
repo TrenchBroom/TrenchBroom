@@ -20,30 +20,38 @@
 #ifndef TrenchBroom_ReparentNodesCommand
 #define TrenchBroom_ReparentNodesCommand
 
-#include "SharedPointer.h"
-#include "Model/ModelTypes.h"
+#include "Macros.h"
 #include "View/DocumentCommand.h"
 
+#include <map>
+#include <memory>
+#include <vector>
+
 namespace TrenchBroom {
+    namespace Model {
+        class Node;
+    }
+
     namespace View {
         class ReparentNodesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<ReparentNodesCommand>;
         private:
-            Model::ParentChildrenMap m_nodesToAdd;
-            Model::ParentChildrenMap m_nodesToRemove;
+            std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToAdd;
+            std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToRemove;
         public:
-            static Ptr reparent(const Model::ParentChildrenMap& nodesToAdd, const Model::ParentChildrenMap& nodesToRemove);
+            static std::unique_ptr<ReparentNodesCommand> reparent(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove);
+
+            ReparentNodesCommand(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToRemove);
         private:
-            ReparentNodesCommand(const Model::ParentChildrenMap& nodesToAdd, const Model::ParentChildrenMap& nodesToRemove);
-        private:
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(UndoableCommand* command) override;
+
+            deleteCopyAndMove(ReparentNodesCommand)
         };
     }
 }

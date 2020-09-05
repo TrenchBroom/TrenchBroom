@@ -18,152 +18,179 @@
  */
 
 #include "UVEditor.h"
+
+#include "Model/BrushFaceHandle.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "Model/Game.h"
 #include "View/MapDocument.h"
 #include "View/UVView.h"
 #include "View/ViewConstants.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
-#include <wx/bmpbuttn.h>
-#include <wx/settings.h>
-#include <wx/sizer.h>
-#include <wx/spinctrl.h>
-#include <wx/stattext.h>
-#include <wx/textctrl.h>
+#include <kdl/memory_utils.h>
+
+#include <QtGlobal>
+#include <QLabel>
+#include <QHBoxLayout>
+#include <QAbstractButton>
+#include <QSpinBox>
 
 namespace TrenchBroom {
     namespace View {
-        UVEditor::UVEditor(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
-        wxPanel(parent),
-        m_document(document),
+        UVEditor::UVEditor(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent) :
+        QWidget(parent),
+        m_document(std::move(document)),
         m_uvView(nullptr),
         m_xSubDivisionEditor(nullptr),
-        m_ySubDivisionEditor(nullptr) {
+        m_ySubDivisionEditor(nullptr),
+        m_resetTextureButton(nullptr),
+        m_flipTextureHButton(nullptr),
+        m_flipTextureVButton(nullptr),
+        m_rotateTextureCCWButton(nullptr),
+        m_rotateTextureCWButton(nullptr) {
             createGui(contextManager);
+            bindObservers();
+        }
+
+        UVEditor::~UVEditor() {
+            unbindObservers();
         }
 
         bool UVEditor::cancelMouseDrag() {
             return m_uvView->cancelDrag();
         }
 
-        void UVEditor::OnResetTexture(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void UVEditor::updateButtons() {
+            auto document = kdl::mem_lock(m_document);
+            const bool enabled = !document->allSelectedBrushFaces().empty();
 
-            Model::ChangeBrushFaceAttributesRequest request;
-            request.resetAll();
-
-            MapDocumentSPtr document = lock(m_document);
-            document->setFaceAttributes(request);
-        }
-
-        void UVEditor::OnFlipTextureH(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            Model::ChangeBrushFaceAttributesRequest request;
-            request.mulXScale(-1.0f);
-
-            MapDocumentSPtr document = lock(m_document);
-            document->setFaceAttributes(request);
-        }
-
-        void UVEditor::OnFlipTextureV(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            Model::ChangeBrushFaceAttributesRequest request;
-            request.mulYScale(-1.0f);
-
-            MapDocumentSPtr document = lock(m_document);
-            document->setFaceAttributes(request);
-        }
-
-        void UVEditor::OnRotateTextureCCW(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            Model::ChangeBrushFaceAttributesRequest request;
-            request.addRotation(90.0f);
-
-            MapDocumentSPtr document = lock(m_document);
-            document->setFaceAttributes(request);
-        }
-
-        void UVEditor::OnRotateTextureCW(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            Model::ChangeBrushFaceAttributesRequest request;
-            request.addRotation(-90.0f);
-
-            MapDocumentSPtr document = lock(m_document);
-            document->setFaceAttributes(request);
-        }
-
-        void UVEditor::OnUpdateButtonUI(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            MapDocumentSPtr document = lock(m_document);
-            event.Enable(!document->allSelectedBrushFaces().empty());
-        }
-
-        void UVEditor::OnSubDivisionChanged(wxSpinEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            const int x = m_xSubDivisionEditor->GetValue();
-            const int y = m_ySubDivisionEditor->GetValue();
-            m_uvView->setSubDivisions(vm::vec2i(x, y));
+            m_resetTextureButton->setEnabled(enabled);
+            m_flipTextureHButton->setEnabled(enabled);
+            m_flipTextureVButton->setEnabled(enabled);
+            m_rotateTextureCCWButton->setEnabled(enabled);
+            m_rotateTextureCWButton->setEnabled(enabled);
         }
 
         void UVEditor::createGui(GLContextManager& contextManager) {
-            m_uvView = new UVView(this, m_document, contextManager);
+            m_uvView = new UVView(m_document, contextManager);
 
-            wxWindow* resetTextureButton = createBitmapButton(this, "ResetTexture.png", "Reset texture alignment");
-            wxWindow* flipTextureHButton = createBitmapButton(this, "FlipTextureH.png", "Flip texture X axis");
-            wxWindow* flipTextureVButton = createBitmapButton(this, "FlipTextureV.png", "Flip texture Y axis");
-            wxWindow* rotateTextureCCWButton = createBitmapButton(this, "RotateTextureCCW.png", "Rotate texture 90° counter-clockwise");
-            wxWindow* rotateTextureCWButton = createBitmapButton(this, "RotateTextureCW.png", "Rotate texture 90° clockwise");
+            m_resetTextureButton = createBitmapButton("ResetTexture.svg", tr("Reset texture alignment"), this);
+            m_flipTextureHButton = createBitmapButton("FlipTextureH.svg", tr("Flip texture X axis"), this);
+            m_flipTextureVButton = createBitmapButton("FlipTextureV.svg", tr("Flip texture Y axis"), this);
+            m_rotateTextureCCWButton = createBitmapButton("RotateTextureCCW.svg",
+                                                          tr("Rotate texture 90° counter-clockwise"), this);
+            m_rotateTextureCWButton = createBitmapButton("RotateTextureCW.svg", tr("Rotate texture 90° clockwise"),
+                                                         this);
 
-            resetTextureButton->Bind(wxEVT_BUTTON, &UVEditor::OnResetTexture, this);
-            resetTextureButton->Bind(wxEVT_UPDATE_UI, &UVEditor::OnUpdateButtonUI, this);
-            flipTextureHButton->Bind(wxEVT_BUTTON, &UVEditor::OnFlipTextureH, this);
-            flipTextureHButton->Bind(wxEVT_UPDATE_UI, &UVEditor::OnUpdateButtonUI, this);
-            flipTextureVButton->Bind(wxEVT_BUTTON, &UVEditor::OnFlipTextureV, this);
-            flipTextureVButton->Bind(wxEVT_UPDATE_UI, &UVEditor::OnUpdateButtonUI, this);
-            rotateTextureCCWButton->Bind(wxEVT_BUTTON, &UVEditor::OnRotateTextureCCW, this);
-            rotateTextureCCWButton->Bind(wxEVT_UPDATE_UI, &UVEditor::OnUpdateButtonUI, this);
-            rotateTextureCWButton->Bind(wxEVT_BUTTON, &UVEditor::OnRotateTextureCW, this);
-            rotateTextureCWButton->Bind(wxEVT_UPDATE_UI, &UVEditor::OnUpdateButtonUI, this);
+            connect(m_resetTextureButton, &QAbstractButton::clicked, this, &UVEditor::resetTextureClicked);
 
-            wxStaticText* gridLabel = new wxStaticText(this, wxID_ANY, "Grid ");
-            gridLabel->SetFont(gridLabel->GetFont().Bold());
-            m_xSubDivisionEditor = new wxSpinCtrl(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER | wxALIGN_RIGHT);
-            m_xSubDivisionEditor->SetRange(1, 16);
+            connect(m_flipTextureHButton, &QAbstractButton::clicked, this, &UVEditor::flipTextureHClicked);
+            connect(m_flipTextureVButton, &QAbstractButton::clicked, this, &UVEditor::flipTextureVClicked);
+            connect(m_rotateTextureCCWButton, &QAbstractButton::clicked, this, &UVEditor::rotateTextureCCWClicked);
+            connect(m_rotateTextureCWButton, &QAbstractButton::clicked, this, &UVEditor::rotateTextureCWClicked);
 
-            m_ySubDivisionEditor = new wxSpinCtrl(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER | wxALIGN_RIGHT);
-            m_ySubDivisionEditor->SetRange(1, 16);
+            auto* gridLabel = new QLabel("Grid ");
+            makeEmphasized(gridLabel);
+            m_xSubDivisionEditor = new QSpinBox(); //(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER | wxALIGN_RIGHT);
+            m_xSubDivisionEditor->setRange(1, 16);
+            m_xSubDivisionEditor->setValue(1);
 
-            m_xSubDivisionEditor->Bind(wxEVT_SPINCTRL, &UVEditor::OnSubDivisionChanged, this);
-            m_ySubDivisionEditor->Bind(wxEVT_SPINCTRL, &UVEditor::OnSubDivisionChanged, this);
+            m_ySubDivisionEditor = new QSpinBox(); //(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER | wxALIGN_RIGHT);
+            m_ySubDivisionEditor->setRange(1, 16);
+            m_ySubDivisionEditor->setValue(1);
 
-            wxSizer* bottomSizer = new wxBoxSizer(wxHORIZONTAL);
-            bottomSizer->Add(resetTextureButton,                   0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
-            bottomSizer->Add(flipTextureHButton,                   0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
-            bottomSizer->Add(flipTextureVButton,                   0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
-            bottomSizer->Add(rotateTextureCCWButton,               0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
-            bottomSizer->Add(rotateTextureCWButton,                0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
-            bottomSizer->AddStretchSpacer();
-            bottomSizer->Add(gridLabel,                              0, wxALIGN_CENTER_VERTICAL);
-            bottomSizer->Add(new wxStaticText(this, wxID_ANY, "X:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
-            bottomSizer->Add(m_xSubDivisionEditor,                   0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::MediumHMargin);
-            bottomSizer->Add(new wxStaticText(this, wxID_ANY, "Y:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
-            bottomSizer->Add(m_ySubDivisionEditor,                   0, wxALIGN_CENTER_VERTICAL);
-            bottomSizer->SetItemMinSize(m_xSubDivisionEditor, 50, m_xSubDivisionEditor->GetSize().y);
-            bottomSizer->SetItemMinSize(m_ySubDivisionEditor, 50, m_ySubDivisionEditor->GetSize().y);
+            connect(m_xSubDivisionEditor, QOverload<int>::of(&QSpinBox::valueChanged), this,
+                &UVEditor::subDivisionChanged);
+            connect(m_ySubDivisionEditor, QOverload<int>::of(&QSpinBox::valueChanged), this,
+                &UVEditor::subDivisionChanged);
 
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(m_uvView, 1, wxEXPAND);
-            outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);
-            outerSizer->Add(bottomSizer, 0, wxLEFT | wxRIGHT | wxEXPAND, LayoutConstants::MediumHMargin);
-            outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);
+            auto* bottomLayout = new QHBoxLayout();
+            bottomLayout->setContentsMargins(LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
+            bottomLayout->setSpacing(LayoutConstants::NarrowHMargin);
+            bottomLayout->addWidget(m_resetTextureButton);
+            bottomLayout->addWidget(m_flipTextureHButton);
+            bottomLayout->addWidget(m_flipTextureVButton);
+            bottomLayout->addWidget(m_rotateTextureCCWButton);
+            bottomLayout->addWidget(m_rotateTextureCWButton);
+            bottomLayout->addStretch();
+            bottomLayout->addWidget(gridLabel);
+            bottomLayout->addWidget(new QLabel("X:"));
+            bottomLayout->addWidget(m_xSubDivisionEditor);
+            bottomLayout->addSpacing(LayoutConstants::MediumHMargin - LayoutConstants::NarrowHMargin);
+            bottomLayout->addWidget(new QLabel("Y:"));
+            bottomLayout->addWidget(m_ySubDivisionEditor);
 
-            SetSizer(outerSizer);
+            auto* outerLayout = new QVBoxLayout();
+            outerLayout->setContentsMargins(0, 0, 0, 0);
+            outerLayout->setSpacing(LayoutConstants::NarrowVMargin);
+            outerLayout->addWidget(m_uvView, 1);
+            outerLayout->addLayout(bottomLayout);
+            setLayout(outerLayout);
+
+            updateButtons();
+        }
+
+        void UVEditor::selectionDidChange(const Selection&) {
+            updateButtons();
+        }
+
+        void UVEditor::bindObservers() {
+            auto document = kdl::mem_lock(m_document);
+            document->selectionDidChangeNotifier.addObserver(this, &UVEditor::selectionDidChange);
+        }
+
+        void UVEditor::unbindObservers() {
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
+                document->selectionDidChangeNotifier.removeObserver(this, &UVEditor::selectionDidChange);
+            }
+        }
+
+
+        void UVEditor::resetTextureClicked() {
+            Model::ChangeBrushFaceAttributesRequest request;
+
+            auto document = kdl::mem_lock(m_document);
+            request.resetAll(document->game()->defaultFaceAttribs());
+            document->setFaceAttributes(request);
+        }
+
+        void UVEditor::flipTextureHClicked() {
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.mulXScale(-1.0f);
+
+            auto document = kdl::mem_lock(m_document);
+            document->setFaceAttributes(request);
+        }
+
+        void UVEditor::flipTextureVClicked() {
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.mulYScale(-1.0f);
+
+            auto document = kdl::mem_lock(m_document);
+            document->setFaceAttributes(request);
+        }
+
+        void UVEditor::rotateTextureCCWClicked() {
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.addRotation(90.0f);
+
+            auto document = kdl::mem_lock(m_document);
+            document->setFaceAttributes(request);
+        }
+
+        void UVEditor::rotateTextureCWClicked() {
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.addRotation(-90.0f);
+
+            auto document = kdl::mem_lock(m_document);
+            document->setFaceAttributes(request);
+        }
+
+        void UVEditor::subDivisionChanged() {
+            const int x = m_xSubDivisionEditor->value();
+            const int y = m_ySubDivisionEditor->value();
+            m_uvView->setSubDivisions(vm::vec2i(x, y));
         }
     }
 }

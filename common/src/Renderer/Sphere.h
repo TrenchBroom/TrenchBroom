@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class Vbo;
+        class VboManager;
 
         class Sphere {
         private:
@@ -33,7 +33,7 @@ namespace TrenchBroom {
             Sphere(float radius, size_t iterations);
 
             bool prepared() const;
-            void prepare(Vbo& vbo);
+            void prepare(VboManager& vboManager);
             void render();
         };
     }

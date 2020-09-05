@@ -20,14 +20,12 @@
 #ifndef CompilationRun_h
 #define CompilationRun_h
 
-#include "StringUtils.h"
-#include "View/ViewTypes.h"
+#include <QObject>
 
-#include <wx/event.h>
-#include <wx/string.h>
-#include <wx/thread.h>
+#include <memory>
+#include <string>
 
-class wxTextCtrl;
+class QTextEdit;
 
 namespace TrenchBroom {
     class VariableTable;
@@ -38,29 +36,29 @@ namespace TrenchBroom {
 
     namespace View {
         class CompilationRunner;
+        class MapDocument;
 
-        class CompilationRun : public wxEvtHandler {
+        class CompilationRun : public QObject {
+            Q_OBJECT
         private:
             CompilationRunner* m_currentRun;
-            mutable wxCriticalSection m_currentRunSection;
         public:
             CompilationRun();
-            ~CompilationRun();
+            ~CompilationRun() override;
 
             bool running() const;
-            void run(const Model::CompilationProfile* profile, MapDocumentSPtr document, wxTextCtrl* currentOutput);
-            void test(const Model::CompilationProfile* profile, MapDocumentSPtr document, wxTextCtrl* currentOutput);
+            void run(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document, QTextEdit* currentOutput);
+            void test(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document, QTextEdit* currentOutput);
             void terminate();
         private:
             bool doIsRunning() const;
-            void run(const Model::CompilationProfile* profile, MapDocumentSPtr document, wxTextCtrl* currentOutput, bool test);
+            void run(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document, QTextEdit* currentOutput, bool test);
         private:
-            String buildWorkDir(const Model::CompilationProfile* profile, MapDocumentSPtr document);
-
-            void OnCompilationStart(wxEvent& event);
-            void OnCompilationEnd(wxEvent& event);
-
+            std::string buildWorkDir(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document);
             void cleanup();
+        signals:
+            void compilationStarted();
+            void compilationEnded();
         };
     }
 }

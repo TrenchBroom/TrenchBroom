@@ -22,7 +22,9 @@
 #include "Logger.h"
 #include "IO/File.h"
 #include "IO/Reader.h"
-#include "IO/DiskIO.h"
+
+#include <kdl/string_format.h>
+#include <kdl/string_utils.h>
 
 namespace TrenchBroom {
     namespace IO {
@@ -66,7 +68,7 @@ namespace TrenchBroom {
 
             reader.seekFromBegin(WadLayout::MagicOffset);
             const auto magic = reader.readString(WadLayout::MagicSize);
-            if (StringUtils::toLower(magic) != "wad2" && StringUtils::toLower(magic) != "wad3") {
+            if (kdl::str_to_lower(magic) != "wad2" && kdl::str_to_lower(magic) != "wad3") {
                 throw FileSystemException("Unknown wad file type '" + magic + "'");
             }
 
@@ -90,9 +92,7 @@ namespace TrenchBroom {
                 const auto entrySize = reader.readSize<int32_t>();
 
                 if (m_file->size() < entryAddress + entrySize) {
-                    auto msg = StringStream();
-                    msg << "File entry at address " << entryAddress << " is out of bounds";
-                    throw FileSystemException(msg.str()) ;
+                    throw FileSystemException(kdl::str_to_string("File entry at address ", entryAddress, " is out of bounds")) ;
                 }
 
                 reader.seekForward(WadLayout::DirEntryTypeOffset);

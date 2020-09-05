@@ -21,20 +21,16 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
-#include "Renderer/Vbo.h"
-#include "Renderer/GLVertexType.h"
+#include "Renderer/VboManager.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
-#include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
-
-#include <algorithm>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -50,20 +46,21 @@ namespace TrenchBroom {
             m_highlights[color].push_back(position);
         }
 
-        void PointHandleRenderer::doPrepareVertices(Vbo& vertexVbo) {
-            m_handle.prepare(vertexVbo);
-            m_highlight.prepare(vertexVbo);
+        void PointHandleRenderer::doPrepareVertices(VboManager& vboManager) {
+            m_handle.prepare(vboManager);
+            m_highlight.prepare(vboManager);
         }
 
         void PointHandleRenderer::doRender(RenderContext& renderContext) {
             const Camera& camera = renderContext.camera();
             const Camera::Viewport& viewport = camera.viewport();
-            const vm::mat4x4f projection = vm::orthoMatrix(0.0f, 1.0f,
-                                                           static_cast<float>(viewport.x),
-                                                           static_cast<float>(viewport.height),
-                                                           static_cast<float>(viewport.width),
-                                                           static_cast<float>(viewport.y));
-            const vm::mat4x4f view = vm::viewMatrix(vm::vec3f::neg_z, vm::vec3f::pos_y);
+            const vm::mat4x4f projection = vm::ortho_matrix(
+                0.0f, 1.0f,
+                static_cast<float>(viewport.x),
+                static_cast<float>(viewport.height),
+                static_cast<float>(viewport.width),
+                static_cast<float>(viewport.y));
+            const vm::mat4x4f view = vm::view_matrix(vm::vec3f::neg_z(), vm::vec3f::pos_y());
             ReplaceTransformation ortho(renderContext.transformation(), projection, view);
 
             // Un-occluded handles: use depth test, draw fully opaque
@@ -92,7 +89,7 @@ namespace TrenchBroom {
                     const vm::vec3f nudgeTowardsCamera = vm::normalize(camera.position() - position) * pref(Preferences::HandleRadius);
 
                     const vm::vec3f offset = camera.project(position + nudgeTowardsCamera) * vm::vec3f(1.0f, 1.0f, -1.0f);
-                    MultiplyModelMatrix translate(renderContext.transformation(), vm::translationMatrix(offset));
+                    MultiplyModelMatrix translate(renderContext.transformation(), vm::translation_matrix(offset));
                     circle.render();
                 }
             }

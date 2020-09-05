@@ -19,6 +19,9 @@
 
 #include "FontTexture.h"
 
+#include "Ensure.h"
+#include "Macros.h"
+
 #include <cassert>
 #include <cstring>
 #include <memory>

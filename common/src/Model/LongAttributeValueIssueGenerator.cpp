@@ -19,17 +19,16 @@
 
 #include "LongAttributeValueIssueGenerator.h"
 
-#include "StringUtils.h"
-#include "Assets/EntityDefinition.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/RemoveEntityAttributesQuickFix.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 #include "Model/PushSelection.h"
 
-#include <cassert>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -37,13 +36,13 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         private:
-            const AttributeName m_attributeName;
+            const std::string m_attributeName;
         public:
-            LongAttributeValueIssue(AttributableNode* node, const AttributeName& attributeName) :
+            LongAttributeValueIssue(AttributableNode* node, const std::string& attributeName) :
             AttributeIssue(node),
             m_attributeName(attributeName) {}
 
-            const AttributeName& attributeName() const override {
+            const std::string& attributeName() const override {
                 return m_attributeName;
             }
         private:
@@ -51,7 +50,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            std::string doGetDescription() const override {
                 return "The value of entity property '" + m_attributeName + "' is too long.";
             }
         };
@@ -62,7 +61,7 @@ namespace TrenchBroom {
         private:
             size_t m_maxLength;
         public:
-            TruncateLongAttributeValueIssueQuickFix(const size_t maxLength) :
+            explicit TruncateLongAttributeValueIssueQuickFix(const size_t maxLength) :
             IssueQuickFix(LongAttributeValueIssue::Type, "Truncate property values"),
             m_maxLength(maxLength) {}
         private:
@@ -70,8 +69,8 @@ namespace TrenchBroom {
                 const PushSelection push(facade);
 
                 const LongAttributeValueIssue* attrIssue = static_cast<const LongAttributeValueIssue*>(issue);
-                const AttributeName& attributeName = attrIssue->attributeName();
-                const AttributeValue& attributeValue = attrIssue->attributeValue();
+                const auto& attributeName = attrIssue->attributeName();
+                const auto& attributeValue = attrIssue->attributeValue();
 
                 // If world node is affected, the selection will fail, but if nothing is selected,
                 // the removeAttribute call will correctly affect worldspawn either way.
@@ -91,10 +90,11 @@ namespace TrenchBroom {
 
         void LongAttributeValueIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
             for (const EntityAttribute& attribute : node->attributes()) {
-                const AttributeName& attributeName = attribute.name();
-                const AttributeValue& attributeValue = attribute.value();
-                if (attributeValue.size() >= m_maxLength)
+                const auto& attributeName = attribute.name();
+                const auto& attributeValue = attribute.value();
+                if (attributeValue.size() >= m_maxLength) {
                     issues.push_back(new LongAttributeValueIssue(node, attributeName));
+                }
             }
         }
     }

@@ -20,8 +20,10 @@
 #ifndef TrenchBroom_ImageLoaderImpl
 #define TrenchBroom_ImageLoaderImpl
 
-#include "ByteBuffer.h"
 #include "IO/ImageLoader.h"
+
+#include <vector>
+
 #include <FreeImage.h>
 
 namespace TrenchBroom {
@@ -32,7 +34,6 @@ namespace TrenchBroom {
         private:
             InitFreeImage();
             ~InitFreeImage();
-
         public:
             static void initialize();
         };
@@ -41,12 +42,6 @@ namespace TrenchBroom {
         private:
             FIMEMORY* m_stream;
             FIBITMAP* m_bitmap;
-            mutable Buffer<unsigned char> m_palette;
-            mutable bool m_paletteInitialized;
-            mutable Buffer<unsigned char> m_indices;
-            mutable bool m_indicesInitialized;
-            mutable Buffer<unsigned char> m_pixels;
-            mutable bool m_pixelsInitialized;
         public:
             ImageLoaderImpl(const ImageLoader::Format format, const Path& path);
             ImageLoaderImpl(const ImageLoader::Format format, const char* begin, const char* end);
@@ -63,12 +58,12 @@ namespace TrenchBroom {
             bool hasIndices() const;
             bool hasPixels() const;
 
-            const Buffer<unsigned char>& palette() const;
-            const Buffer<unsigned char>& indices() const;
-            const Buffer<unsigned char>& pixels(const ImageLoader::PixelFormat format) const;
+            std::vector<unsigned char> loadPalette() const;
+            std::vector<unsigned char> loadIndices() const;
+            std::vector<unsigned char> loadPixels(const ImageLoader::PixelFormat format) const;
         private:
-            void initializeIndexedPixels(const size_t pSize) const;
-            void initializePixels(const size_t pSize) const;
+            std::vector<unsigned char> loadIndexedPixels(const size_t pSize) const;
+            std::vector<unsigned char> loadPixels(const size_t pSize) const;
             static FREE_IMAGE_FORMAT translateFormat(const ImageLoader::Format format);
             static size_t pixelSize(const ImageLoader::PixelFormat format);
         };

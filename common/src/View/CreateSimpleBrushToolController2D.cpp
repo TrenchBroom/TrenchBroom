@@ -19,21 +19,21 @@
 
 #include "CreateSimpleBrushToolController2D.h"
 
-#include "Polyhedron.h"
+#include "Ensure.h"
 #include "Renderer/Camera.h"
 #include "View/CreateSimpleBrushTool.h"
 #include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 
+#include <kdl/memory_utils.h>
+
 #include <vecmath/intersection.h>
 #include <vecmath/scalar.h>
 
-#include <cassert>
-
 namespace TrenchBroom {
     namespace View {
-        CreateSimpleBrushToolController2D::CreateSimpleBrushToolController2D(CreateSimpleBrushTool* tool, MapDocumentWPtr document) :
+        CreateSimpleBrushToolController2D::CreateSimpleBrushToolController2D(CreateSimpleBrushTool* tool, std::weak_ptr<MapDocument> document) :
         m_tool(tool),
         m_document(document) {
             ensure(m_tool != nullptr, "tool is null");
@@ -55,21 +55,21 @@ namespace TrenchBroom {
                 return DragInfo();
             }
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (document->hasSelection()) {
                 return DragInfo();
             }
 
             const auto& bounds = document->referenceBounds();
             const auto& camera = inputState.camera();
-            const vm::plane3 plane(bounds.min, vm::vec3(firstAxis(camera.direction())));
+            const vm::plane3 plane(bounds.min, vm::vec3(vm::get_abs_max_component_axis(camera.direction())));
 
-            const auto distance = vm::intersectRayAndPlane(inputState.pickRay(), plane);
-            if (vm::isnan(distance)) {
+            const auto distance = vm::intersect_ray_plane(inputState.pickRay(), plane);
+            if (vm::is_nan(distance)) {
                 return DragInfo();
             }
 
-            m_initialPoint = inputState.pickRay().pointAtDistance(distance);
+            m_initialPoint = vm::point_at_distance(inputState.pickRay(), distance);
             if (updateBounds(inputState, m_initialPoint)) {
                 m_tool->refreshViews();
             }
@@ -77,7 +77,7 @@ namespace TrenchBroom {
             return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
         }
 
-        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController2D::doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
+        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController2D::doDrag(const InputState& inputState, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) {
             if (updateBounds(inputState, nextHandlePosition)) {
                 m_tool->refreshViews();
                 return DR_Continue;
@@ -85,8 +85,8 @@ namespace TrenchBroom {
             return DR_Deny;
         }
 
-        void CreateSimpleBrushToolController2D::doEndDrag(const InputState& inputState) {
-            if (!m_bounds.empty())
+        void CreateSimpleBrushToolController2D::doEndDrag(const InputState&) {
+            if (!m_bounds.is_empty())
                 m_tool->createBrush();
         }
 
@@ -94,9 +94,9 @@ namespace TrenchBroom {
             m_tool->cancel();
         }
 
-        void CreateSimpleBrushToolController2D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
+        void CreateSimpleBrushToolController2D::doSetRenderOptions(const InputState&, Renderer::RenderContext&) const {}
 
-        void CreateSimpleBrushToolController2D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void CreateSimpleBrushToolController2D::doRender(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_tool->render(renderContext, renderBatch);
         }
 
@@ -109,10 +109,10 @@ namespace TrenchBroom {
             bounds = merge(bounds, currentPoint);
             snapBounds(inputState, bounds);
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             bounds = vm::intersect(bounds, document->worldBounds());
 
-            if (bounds.empty() || bounds == m_bounds)
+            if (bounds.is_empty() || bounds == m_bounds)
                 return false;
 
             using std::swap;
@@ -123,14 +123,14 @@ namespace TrenchBroom {
         }
 
         void CreateSimpleBrushToolController2D::snapBounds(const InputState& inputState, vm::bbox3& bounds) {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& grid = document->grid();
             auto min = grid.snapDown(bounds.min);
             auto max = grid.snapUp(bounds.max);
 
             const auto& camera = inputState.camera();
             const auto& refBounds = document->referenceBounds();
-            const auto factors = vm::vec3(abs(firstAxis(camera.direction())));
+            const auto factors = vm::vec3(abs(vm::get_abs_max_component_axis(camera.direction())));
             min = vm::mix(min, refBounds.min, factors);
             max = vm::mix(max, refBounds.max, factors);
 

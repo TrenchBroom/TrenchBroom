@@ -20,19 +20,23 @@
 #ifndef TrenchBroom_EntityBrowserView
 #define TrenchBroom_EntityBrowserView
 
-#include "Assets/EntityDefinitionManager.h"
+#include "Renderer/FontDescriptor.h"
 #include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
-#include "View/ViewTypes.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/quat.h>
 #include <vecmath/bbox.h>
 
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
     class Logger;
 
     namespace Assets {
+        class EntityDefinitionManager;
+        enum class EntityDefinitionSortOrder;
         class EntityModelManager;
         class PointEntityDefinition;
     }
@@ -44,9 +48,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class GLContextManager;
-
-        using EntityGroupData = String;
+        using EntityGroupData = std::string;
 
         class EntityCellData {
         private:
@@ -60,12 +62,13 @@ namespace TrenchBroom {
             EntityCellData(const Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const vm::bbox3f& i_bounds);
         };
 
-        class EntityBrowserView : public CellView<EntityCellData, EntityGroupData> {
+        class EntityBrowserView : public CellView {
+            Q_OBJECT
         private:
             using EntityRenderer = Renderer::TexturedRenderer;
 
             using TextVertex = Renderer::GLVertexTypes::P2T2C4::Vertex;
-            using StringMap = std::map<Renderer::FontDescriptor, TextVertex::List>;
+            using StringMap = std::map<Renderer::FontDescriptor, std::vector<TextVertex>>;
 
             Assets::EntityDefinitionManager& m_entityDefinitionManager;
             Assets::EntityModelManager& m_entityModelManager;
@@ -74,21 +77,20 @@ namespace TrenchBroom {
 
             bool m_group;
             bool m_hideUnused;
-            Assets::EntityDefinition::SortOrder m_sortOrder;
-            String m_filterText;
+            Assets::EntityDefinitionSortOrder m_sortOrder;
+            std::string m_filterText;
         public:
-            EntityBrowserView(wxWindow* parent,
-                              wxScrollBar* scrollBar,
+            EntityBrowserView(QScrollBar* scrollBar,
                               GLContextManager& contextManager,
                               Assets::EntityDefinitionManager& entityDefinitionManager,
                               Assets::EntityModelManager& entityModelManager,
                               Logger& logger);
             ~EntityBrowserView() override;
         public:
-            void setSortOrder(Assets::EntityDefinition::SortOrder sortOrder);
+            void setSortOrder(Assets::EntityDefinitionSortOrder sortOrder);
             void setGroup(bool group);
             void setHideUnused(bool hideUnused);
-            void setFilterText(const String& filterText);
+            void setFilterText(const std::string& filterText);
         private:
             void usageCountDidChange();
 
@@ -96,9 +98,7 @@ namespace TrenchBroom {
             void doReloadLayout(Layout& layout) override;
 
             bool dndEnabled() override;
-            void dndWillStart() override;
-            void dndDidEnd() override;
-            wxString dndData(const Layout::Group::Row::Cell& cell) override;
+            QString dndData(const Cell& cell) override;
 
             void addEntityToLayout(Layout& layout, const Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font);
 
@@ -116,9 +116,11 @@ namespace TrenchBroom {
             void renderStrings(Layout& layout, float y, float height);
             StringMap collectStringVertices(Layout& layout, float y, float height);
 
-            vm::mat4x4f itemTransformation(const Layout::Group::Row::Cell& cell, float y, float height) const;
+            vm::mat4x4f itemTransformation(const Cell& cell, float y, float height) const;
 
-            wxString tooltip(const Layout::Group::Row::Cell& cell) override;
+            QString tooltip(const Cell& cell) override;
+
+            const EntityCellData& cellData(const Cell& cell) const;
         };
     }
 }

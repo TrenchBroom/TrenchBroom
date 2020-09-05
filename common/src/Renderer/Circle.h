@@ -27,8 +27,6 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class Vbo;
-
         class Circle {
         private:
             VertexArray m_array;
@@ -40,7 +38,7 @@ namespace TrenchBroom {
             Circle(float radius, size_t segments, bool filled, vm::axis::type axis, float startAngle, float angleLength);
 
             bool prepared() const;
-            void prepare(Vbo& vbo);
+            void prepare(VboManager& vboManager);
             void render();
         private:
             void init3D(float radius, size_t segments, vm::axis::type axis, float startAngle, float angleLength);

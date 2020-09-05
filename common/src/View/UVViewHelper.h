@@ -20,19 +20,17 @@
 #ifndef TrenchBroom_UVViewHelper
 #define TrenchBroom_UVViewHelper
 
-#include "TrenchBroom.h"
-#include "Model/Hit.h"
+#include "FloatType.h"
+#include "Model/HitType.h"
+#include "Model/BrushFaceHandle.h"
 
 #include <vecmath/vec.h>
+
+#include <optional>
 
 namespace TrenchBroom {
     namespace Assets {
         class Texture;
-    }
-
-    namespace Model {
-        class BrushFace;
-        class PickResult;
     }
 
     namespace Renderer {
@@ -42,13 +40,18 @@ namespace TrenchBroom {
         class RenderContext;
     }
 
+    namespace Model {
+        class BrushFace;
+        class PickResult;
+    }
+
     namespace View {
         class UVViewHelper {
         private:
             Renderer::OrthographicCamera& m_camera;
             bool m_zoomValid;
 
-            Model::BrushFace* m_face;
+            std::optional<Model::BrushFaceHandle> m_faceHandle;
 
             vm::vec2i m_subDivisions;
 
@@ -57,12 +60,12 @@ namespace TrenchBroom {
              */
             vm::vec3 m_origin;
         public:
-            UVViewHelper(Renderer::OrthographicCamera& camera);
+            explicit UVViewHelper(Renderer::OrthographicCamera& camera);
 
             bool valid() const;
-            Model::BrushFace* face() const;
+            const Model::BrushFace* face() const;
             const Assets::Texture* texture() const;
-            void setFace(Model::BrushFace* face);
+            void setFaceHandle(std::optional<Model::BrushFaceHandle> faceHandle);
             void cameraViewportChanged();
 
             const vm::vec2i& subDivisions() const;
@@ -77,7 +80,7 @@ namespace TrenchBroom {
             const Renderer::OrthographicCamera& camera() const;
             float cameraZoom() const;
 
-            void pickTextureGrid(const vm::ray3& ray, const Model::Hit::HitType hitTypes[2], Model::PickResult& pickResult) const;
+            void pickTextureGrid(const vm::ray3& ray, const Model::HitType::Type hitTypes[2], Model::PickResult& pickResult) const;
 
             vm::vec2f snapDelta(const vm::vec2f& delta, const vm::vec2f& distance) const;
             vm::vec2f computeDistanceFromTextureGrid(const vm::vec3& position) const;
@@ -85,6 +88,11 @@ namespace TrenchBroom {
             void computeOriginHandleVertices(vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const;
             void computeScaleHandleVertices(const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const;
             void computeLineVertices(const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2, const vm::mat4x4& toTex, const vm::mat4x4& toWorld) const;
+
+            /**
+             * Converts texture space to view space (pixels in the UV viewport).
+             */
+            vm::vec2f texToViewCoords(const vm::vec2f& pos) const;
         private:
             void resetOrigin();
             void resetCamera();

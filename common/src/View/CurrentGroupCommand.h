@@ -20,31 +20,35 @@
 #ifndef TrenchBroom_CurrentGroupCommand
 #define TrenchBroom_CurrentGroupCommand
 
-#include "SharedPointer.h"
-#include "Model/ModelTypes.h"
+#include "Macros.h"
 #include "View/UndoableCommand.h"
 
-#include <map>
+#include <memory>
 
 namespace TrenchBroom {
+    namespace Model {
+        class GroupNode;
+    }
+
     namespace View {
         class CurrentGroupCommand : public UndoableCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<CurrentGroupCommand>;
         private:
-            Model::Group* m_group;
+            Model::GroupNode* m_group;
         public:
-            static Ptr push(Model::Group* group);
-            static Ptr pop();
-        private:
-            CurrentGroupCommand(Model::Group* group);
-        private:
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            static std::unique_ptr<CurrentGroupCommand> push(Model::GroupNode* group);
+            static std::unique_ptr<CurrentGroupCommand> pop();
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            explicit CurrentGroupCommand(Model::GroupNode* group);
+        private:
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
+
+            bool doCollateWith(UndoableCommand* command) override;
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
+
+            deleteCopyAndMove(CurrentGroupCommand)
         };
     }
 }

@@ -23,28 +23,32 @@
 #include "Model/Game.h"
 #include "View/MapDocument.h"
 
-#include <wx/thread.h>
+#include <kdl/vector_utils.h>
+
+#include <memory>
+#include <string>
+#include <thread>
 
 namespace TrenchBroom {
     namespace View {
         namespace CompilationVariableNames {
-            const String WORK_DIR_PATH  = "WORK_DIR_PATH";
-            const String MAP_DIR_PATH   = "MAP_DIR_PATH";
-            const String MAP_BASE_NAME  = "MAP_BASE_NAME";
-            const String MAP_FULL_NAME  = "MAP_FULL_NAME";
-            const String CPU_COUNT      = "CPU_COUNT";
-            const String GAME_DIR_PATH  = "GAME_DIR_PATH";
-            const String MODS           = "MODS";
-            const String APP_DIR_PATH   = "APP_DIR_PATH";
+            const std::string WORK_DIR_PATH  = "WORK_DIR_PATH";
+            const std::string MAP_DIR_PATH   = "MAP_DIR_PATH";
+            const std::string MAP_BASE_NAME  = "MAP_BASE_NAME";
+            const std::string MAP_FULL_NAME  = "MAP_FULL_NAME";
+            const std::string CPU_COUNT      = "CPU_COUNT";
+            const std::string GAME_DIR_PATH  = "GAME_DIR_PATH";
+            const std::string MODS           = "MODS";
+            const std::string APP_DIR_PATH   = "APP_DIR_PATH";
         }
 
-        CommonVariables::CommonVariables(MapDocumentSPtr document) {
+        CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document) {
             const IO::Path filename = document->path().lastComponent();
             const IO::Path gamePath = document->game()->gamePath();
 
-            StringList mods;
+            std::vector<std::string> mods;
             mods.push_back(document->defaultMod());
-            VectorUtils::append(mods, document->mods());
+            kdl::vec_append(mods, document->mods());
 
             using namespace CompilationVariableNames;
             declare(MAP_BASE_NAME, EL::Value(filename.deleteExtension().asString()));
@@ -52,7 +56,7 @@ namespace TrenchBroom {
             declare(MODS, EL::Value(mods));
         }
 
-        CommonCompilationVariables::CommonCompilationVariables(MapDocumentSPtr document) :
+        CommonCompilationVariables::CommonCompilationVariables(std::shared_ptr<MapDocument> document) :
         CommonVariables(document) {
             const IO::Path filename = document->path().lastComponent();
             const IO::Path appPath = IO::SystemPaths::appDirectory();
@@ -62,7 +66,7 @@ namespace TrenchBroom {
             declare(APP_DIR_PATH, EL::Value(appPath.asString()));
         }
 
-        CompilationWorkDirVariables::CompilationWorkDirVariables(MapDocumentSPtr document) :
+        CompilationWorkDirVariables::CompilationWorkDirVariables(std::shared_ptr<MapDocument> document) :
         CommonCompilationVariables(document) {
             const IO::Path filePath = document->path().deleteLastComponent();
 
@@ -70,14 +74,16 @@ namespace TrenchBroom {
             declare(MAP_DIR_PATH, EL::Value(filePath.asString()));
         }
 
-        CompilationVariables::CompilationVariables(MapDocumentSPtr document, const String& workDir) :
+        CompilationVariables::CompilationVariables(std::shared_ptr<MapDocument> document, const std::string& workDir) :
         CommonCompilationVariables(document) {
+            const auto cpuCount = static_cast<size_t>(std::max(std::thread::hardware_concurrency(), 1u));
+
             using namespace CompilationVariableNames;
-            declare(CPU_COUNT, EL::Value(wxThread::GetCPUCount()));
+            declare(CPU_COUNT, EL::Value(cpuCount));
             declare(WORK_DIR_PATH, EL::Value(workDir));
         }
 
-        LaunchGameEngineVariables::LaunchGameEngineVariables(MapDocumentSPtr document) :
+        LaunchGameEngineVariables::LaunchGameEngineVariables(std::shared_ptr<MapDocument> document) :
         CommonVariables(document) {}
     }
 }

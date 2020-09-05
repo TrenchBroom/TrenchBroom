@@ -19,6 +19,12 @@
 
 #include "ModelFactory.h"
 
+#include "Model/Brush.h"
+#include "Model/BrushFace.h"
+#include "Model/BrushNode.h"
+
+#include <kdl/result.h>
+
 namespace TrenchBroom {
     namespace Model {
         ModelFactory::~ModelFactory() {}
@@ -27,32 +33,40 @@ namespace TrenchBroom {
             return doGetFormat();
         }
 
-        World* ModelFactory::createWorld(const vm::bbox3& worldBounds) const {
-            return doCreateWorld(worldBounds);
+        WorldNode* ModelFactory::createWorld() const {
+            return doCreateWorld();
         }
 
-        Layer* ModelFactory::createLayer(const String& name, const vm::bbox3& worldBounds) const {
-            return doCreateLayer(name, worldBounds);
+        LayerNode* ModelFactory::createLayer(const std::string& name) const {
+            return doCreateLayer(name);
         }
 
-        Group* ModelFactory::createGroup(const String& name) const {
+        GroupNode* ModelFactory::createGroup(const std::string& name) const {
             return doCreateGroup(name);
         }
 
-        Entity* ModelFactory::createEntity() const {
+        EntityNode* ModelFactory::createEntity() const {
             return doCreateEntity();
         }
 
-        Brush* ModelFactory::createBrush(const vm::bbox3& worldBounds, const BrushFaceList& faces) const {
-            return doCreateBrush(worldBounds, faces);
+        BrushNode* ModelFactory::createBrush(Brush brush) const {
+            return doCreateBrush(std::move(brush));
         }
 
-        BrushFace* ModelFactory::createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
+        kdl::result<BrushFace, BrushError> ModelFactory::createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
             return doCreateFace(point1, point2, point3, attribs);
         }
 
-        BrushFace* ModelFactory::createFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
-            return doCreateFace(point1, point2, point3, attribs, texAxisX, texAxisY);
+        kdl::result<BrushFace, BrushError> ModelFactory::createFaceFromStandard(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {
+            return doCreateFaceFromStandard(point1, point2, point3, attribs);
+        }
+
+        kdl::result<BrushFace, BrushError> ModelFactory::createFaceFromValve(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const {
+            return doCreateFaceFromValve(point1, point2, point3, attribs, texAxisX, texAxisY);
+        }
+        
+        BrushNode* ModelFactory::doCreateBrush(Brush brush) const {
+            return new BrushNode(std::move(brush));
         }
     }
 }

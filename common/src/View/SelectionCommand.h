@@ -20,59 +20,73 @@
 #ifndef TrenchBroom_SelectionCommand
 #define TrenchBroom_SelectionCommand
 
-#include "StringUtils.h"
-#include "Model/ModelTypes.h"
-#include "Model/BrushFaceReference.h"
+#include "FloatType.h"
+#include "Macros.h"
 #include "View/UndoableCommand.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
+#include <string>
+#include <tuple>
+#include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class BrushFace;
+        class BrushFaceHandle;
+        class BrushFaceReference;
+        class BrushNode;
+        class Node;
+    }
+
     namespace View {
         class SelectionCommand : public UndoableCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<SelectionCommand>;
         private:
-            typedef enum {
-                Action_SelectNodes,
-                Action_SelectFaces,
-                Action_SelectAllNodes,
-                Action_SelectAllFaces,
-                Action_ConvertToFaces,
-                Action_DeselectNodes,
-                Action_DeselectFaces,
-                Action_DeselectAll
-            } Action;
+            enum class Action {
+                SelectNodes,
+                SelectFaces,
+                SelectAllNodes,
+                SelectAllFaces,
+                ConvertToFaces,
+                DeselectNodes,
+                DeselectFaces,
+                DeselectAll
+            };
 
             Action m_action;
 
-            Model::NodeList m_nodes;
-            Model::BrushFaceReference::List m_faceRefs;
+            std::vector<Model::Node*> m_nodes;
+            std::vector<Model::BrushFaceReference> m_faceRefs;
 
-            Model::NodeList m_previouslySelectedNodes;
-            Model::BrushFaceReference::List m_previouslySelectedFaceRefs;
+            std::vector<Model::Node*> m_previouslySelectedNodes;
+            std::vector<Model::BrushFaceReference> m_previouslySelectedFaceRefs;
         public:
-            static Ptr select(const Model::NodeList& nodes);
-            static Ptr select(const Model::BrushFaceList& faces);
+            static std::unique_ptr<SelectionCommand> select(const std::vector<Model::Node*>& nodes);
+            static std::unique_ptr<SelectionCommand> select(const std::vector<Model::BrushFaceHandle>& faces);
 
-            static Ptr convertToFaces();
-            static Ptr selectAllNodes();
-            static Ptr selectAllFaces();
+            static std::unique_ptr<SelectionCommand> convertToFaces();
+            static std::unique_ptr<SelectionCommand> selectAllNodes();
+            static std::unique_ptr<SelectionCommand> selectAllFaces();
 
-            static Ptr deselect(const Model::NodeList& nodes);
-            static Ptr deselect(const Model::BrushFaceList& faces);
-            static Ptr deselectAll();
+            static std::unique_ptr<SelectionCommand> deselect(const std::vector<Model::Node*>& nodes);
+            static std::unique_ptr<SelectionCommand> deselect(const std::vector<Model::BrushFaceHandle>& faces);
+            static std::unique_ptr<SelectionCommand> deselectAll();
+
+            SelectionCommand(Action action, const std::vector<Model::Node*>& nodes, const std::vector<Model::BrushFaceHandle>& faces);
+            ~SelectionCommand() override;
         private:
-            SelectionCommand(Action action, const Model::NodeList& nodes, const Model::BrushFaceList& faces);
-            static String makeName(Action action, const Model::NodeList& nodes, const Model::BrushFaceList& faces);
-        private:
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            static std::string makeName(Action action, size_t nodeCount, size_t faceCount);
+
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatDelimiter() const override;
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(UndoableCommand* command) override;
+
+            deleteCopyAndMove(SelectionCommand)
         };
     }
 }

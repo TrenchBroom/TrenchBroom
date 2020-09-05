@@ -2,11 +2,12 @@ Version.h
 .DS_STORE
 Thumbs.db
 *.sublime-workspace
+.vscode
 
 /cmake-build-debug
 /cmake-build-release
-/build-debug
-/build-release
+/cmake-build-relwithdebinfo
+/build*
 /codeblocks
 /Xcode*
 /vs2010
@@ -14,6 +15,7 @@ Thumbs.db
 /vs2013
 /vs2015
 /vs2017
+/vs2019
 /.idea
 /coverity
 

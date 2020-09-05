@@ -19,59 +19,54 @@
 
 #include "TabBook.h"
 
+#include "Ensure.h"
 #include "Macros.h"
 #include "View/TabBar.h"
 
-#include <wx/simplebook.h>
-#include <wx/sizer.h>
+#include <QStackedLayout>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
-        TabBookPage::TabBookPage(wxWindow* parent) :
-        wxPanel(parent) {}
+        TabBookPage::TabBookPage(QWidget* parent) :
+        QWidget(parent) {}
         TabBookPage::~TabBookPage() {}
 
-        wxWindow* TabBookPage::createTabBarPage(wxWindow* parent) {
-            return new wxPanel(parent);
+        QWidget* TabBookPage::createTabBarPage(QWidget* parent) {
+            return new QWidget(parent);
         }
 
-        TabBook::TabBook(wxWindow* parent) :
-        wxPanel(parent),
-        m_tabBar(new TabBar(this)),
-        m_tabBook(new wxSimplebook(this)) {
-            m_tabBook->Bind(wxEVT_COMMAND_BOOKCTRL_PAGE_CHANGED, &TabBook::OnTabBookPageChanged, this);
+        TabBook::TabBook(QWidget* parent) :
+        QWidget(parent),
+        m_tabBar(new TabBar(this)) {
+            m_tabBook = new QStackedLayout();
+            m_tabBook->setContentsMargins(0, 0, 0, 0);
 
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_tabBar, 0, wxEXPAND);
-            sizer->Add(m_tabBook, 1, wxEXPAND);
-            SetSizer(sizer);
+            QVBoxLayout* sizer = new QVBoxLayout();
+            sizer->setSpacing(0);
+            sizer->setContentsMargins(0,0,0,0);
+            sizer->addWidget(m_tabBar, 0);
+            sizer->addLayout(m_tabBook, 1);
+            setLayout(sizer);
+
+            // Forward the signal, so we don't have to expose the QStackedLayout
+            connect(m_tabBook, &QStackedLayout::currentChanged, this, &TabBook::pageChanged);
         }
 
-        void TabBook::addPage(TabBookPage* page, const wxString& title) {
+        TabBar* TabBook::tabBar() {
+            return m_tabBar;
+        }
+
+        void TabBook::addPage(TabBookPage* page, const QString& title) {
             ensure(page != nullptr, "page is null");
-            assert(page->GetParent() == this);
 
-            RemoveChild(page);
-            page->Reparent(m_tabBook);
-            m_tabBook->AddPage(page, title);
             m_tabBar->addTab(page, title);
+            m_tabBook->addWidget(page);
         }
 
-        void TabBook::switchToPage(const size_t index) {
-            assert(index < m_tabBook->GetPageCount());
-            m_tabBook->SetSelection(index);
-        }
-
-        void TabBook::setTabBarHeight(const int height) {
-            GetSizer()->SetItemMinSize(m_tabBar, wxDefaultCoord, height);
-            Layout();
-        }
-
-        void TabBook::OnTabBookPageChanged(wxBookCtrlEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            ProcessEvent(event);
-            event.Skip();
+        void TabBook::switchToPage(const int index) {
+            assert(index < m_tabBook->count());
+            m_tabBook->setCurrentIndex(index);
         }
     }
 }

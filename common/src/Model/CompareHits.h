@@ -20,9 +20,11 @@
 #ifndef TrenchBroom_CompareHits
 #define TrenchBroom_CompareHits
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 
 #include <vecmath/util.h>
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace Model {
@@ -38,11 +40,10 @@ namespace TrenchBroom {
 
         class CombineCompareHits : public CompareHits {
         private:
-            CompareHits* m_first;
-            CompareHits* m_second;
+            std::unique_ptr<CompareHits> m_first;
+            std::unique_ptr<CompareHits> m_second;
         public:
-            CombineCompareHits(CompareHits* first, CompareHits* second);
-            ~CombineCompareHits() override;
+            CombineCompareHits(std::unique_ptr<CompareHits> first, std::unique_ptr<CompareHits> second);
         private:
             int doCompare(const Hit& lhs, const Hit& rhs) const override;
         };

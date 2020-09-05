@@ -21,23 +21,27 @@
 #define TrenchBroom_SpikeGuideRenderer
 
 #include "Color.h"
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/GLVertexType.h"
-#include "View/ViewTypes.h"
 
 #include <vecmath/forward.h>
+
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class Picker;
     }
 
-    namespace Renderer {
-        class RenderContext;
-        class Vbo;
+    namespace View {
+        // FIXME: Renderer should not depend on View
+        class MapDocument;
+    }
 
+    namespace Renderer {
         class SpikeGuideRenderer : public DirectRenderable {
         private:
             Color m_color;
@@ -45,8 +49,8 @@ namespace TrenchBroom {
             using SpikeVertex = GLVertexTypes::P3C4::Vertex;
             using PointVertex = GLVertexTypes::P3C4::Vertex;
 
-            SpikeVertex::List m_spikeVertices;
-            PointVertex::List m_pointVertices;
+            std::vector<SpikeVertex> m_spikeVertices;
+            std::vector<PointVertex> m_pointVertices;
 
             VertexArray m_spikeArray;
             VertexArray m_pointArray;
@@ -56,10 +60,10 @@ namespace TrenchBroom {
             SpikeGuideRenderer();
 
             void setColor(const Color& color);
-            void add(const vm::ray3& ray, FloatType length, View::MapDocumentSPtr document);
+            void add(const vm::ray3& ray, FloatType length, std::shared_ptr<View::MapDocument> document);
             void clear();
         private:
-            void doPrepareVertices(Vbo& vertexVbo) override;
+            void doPrepareVertices(VboManager& vboManager) override;
             void doRender(RenderContext& renderContext) override;
         private:
             void addPoint(const vm::vec3& position);

@@ -20,17 +20,19 @@
 #ifndef TrenchBroom_EntityAttributeIndex
 #define TrenchBroom_EntityAttributeIndex
 
-#include "StringUtils.h"
-#include "Model/ModelTypes.h"
-#include "Model/EntityAttributes.h"
-#include "StringMap.h"
+#include <kdl/compact_trie_forward.h>
 
-#include <map>
+#include <memory>
+#include <set>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        using AttributableNodeIndexValueContainer = StringMultiMapValueContainer<AttributableNode*>;
-        using AttributableNodeStringIndex = StringMap<AttributableNode*, AttributableNodeIndexValueContainer>;
+        class AttributableNode;
+        class EntityAttribute;
+
+        using AttributableNodeStringIndex = kdl::compact_trie<AttributableNode*>;
 
         class AttributableNodeIndexQuery {
         public:
@@ -42,34 +44,37 @@ namespace TrenchBroom {
             } Type;
         private:
             Type m_type;
-            String m_pattern;
+            std::string m_pattern;
         public:
-            static AttributableNodeIndexQuery exact(const String& pattern);
-            static AttributableNodeIndexQuery prefix(const String& pattern);
-            static AttributableNodeIndexQuery numbered(const String& pattern);
+            static AttributableNodeIndexQuery exact(const std::string& pattern);
+            static AttributableNodeIndexQuery prefix(const std::string& pattern);
+            static AttributableNodeIndexQuery numbered(const std::string& pattern);
             static AttributableNodeIndexQuery any();
 
-            AttributableNodeSet execute(const AttributableNodeStringIndex& index) const;
-            bool execute(const AttributableNode* node, const String& value) const;
-            Model::EntityAttribute::List execute(const AttributableNode* node) const;
+            std::set<AttributableNode*> execute(const AttributableNodeStringIndex& index) const;
+            bool execute(const AttributableNode* node, const std::string& value) const;
+            std::vector<Model::EntityAttribute> execute(const AttributableNode* node) const;
         private:
-            AttributableNodeIndexQuery(Type type, const String& pattern = "");
+            explicit AttributableNodeIndexQuery(Type type, const std::string& pattern = "");
         };
 
         class AttributableNodeIndex {
         private:
-            AttributableNodeStringIndex m_nameIndex;
-            AttributableNodeStringIndex m_valueIndex;
+            std::unique_ptr<AttributableNodeStringIndex> m_nameIndex;
+            std::unique_ptr<AttributableNodeStringIndex> m_valueIndex;
         public:
+            AttributableNodeIndex();
+            ~AttributableNodeIndex();
+
             void addAttributableNode(AttributableNode* attributable);
             void removeAttributableNode(AttributableNode* attributable);
 
-            void addAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
-            void removeAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
+            void addAttribute(AttributableNode* attributable, const std::string& name, const std::string& value);
+            void removeAttribute(AttributableNode* attributable, const std::string& name, const std::string& value);
 
-            AttributableNodeList findAttributableNodes(const AttributableNodeIndexQuery& keyQuery, const AttributeValue& value) const;
-            StringList allNames() const;
-            StringList allValuesForNames(const AttributableNodeIndexQuery& keyQuery) const;
+            std::vector<AttributableNode*> findAttributableNodes(const AttributableNodeIndexQuery& keyQuery, const std::string& value) const;
+            std::vector<std::string> allNames() const;
+            std::vector<std::string> allValuesForNames(const AttributableNodeIndexQuery& keyQuery) const;
         };
     }
 }

@@ -20,12 +20,14 @@
 #ifndef TrenchBroom_FileTextureCollectionEditor
 #define TrenchBroom_FileTextureCollectionEditor
 
-#include "View/ViewTypes.h"
+#include <memory>
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxBitmapButton;
-class wxListBox;
+class QListWidget;
+class QAbstractButton;
+class QDragEnterEvent;
+class QDropEvent;
 
 namespace TrenchBroom {
     namespace IO {
@@ -33,32 +35,40 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class FileTextureCollectionEditor : public wxPanel {
-        private:
-            MapDocumentWPtr m_document;
+        class MapDocument;
 
-            wxListBox* m_collections;
+        class FileTextureCollectionEditor : public QWidget {
+            Q_OBJECT
+        private:
+            std::weak_ptr<MapDocument> m_document;
+
+            QListWidget* m_collections;
+
+            QAbstractButton* m_addTextureCollectionsButton;
+            QAbstractButton* m_removeTextureCollectionsButton;
+            QAbstractButton* m_moveTextureCollectionUpButton;
+            QAbstractButton* m_moveTextureCollectionDownButton;
+            QAbstractButton* m_reloadTextureCollectionsButton;
         public:
-            FileTextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document);
-            ~FileTextureCollectionEditor();
+            explicit FileTextureCollectionEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+            ~FileTextureCollectionEditor() override;
 
             bool debugUIConsistency() const;
             bool canRemoveTextureCollections() const;
             bool canMoveTextureCollectionsUp() const;
             bool canMoveTextureCollectionsDown() const;
+            bool canReloadTextureCollections() const;
 
-            void OnAddTextureCollectionsClicked(wxCommandEvent& event);
-            void OnRemoveTextureCollectionsClicked(wxCommandEvent& event);
-            void OnMoveTextureCollectionUpClicked(wxCommandEvent& event);
-            void OnMoveTextureCollectionDownClicked(wxCommandEvent& event);
-            void OnReloadTextureCollectionsClicked(wxCommandEvent& event);
-            void OnUpdateRemoveButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveUpButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveDownButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateReloadTextureCollectionsButtonUI(wxUpdateUIEvent& event);
+            void addTextureCollections();
+            void removeSelectedTextureCollections();
+            void moveSelectedTextureCollectionsUp();
+            void moveSelectedTextureCollectionsDown();
+            void reloadTextureCollections();
         private:
             void createGui();
-
+        private slots:
+            void updateButtons();
+        private:
             void bindObservers();
             void unbindObservers();
 
@@ -66,6 +76,9 @@ namespace TrenchBroom {
             void preferenceDidChange(const IO::Path& path);
 
             void updateControls();
+        protected:
+            void dragEnterEvent(QDragEnterEvent* event) override;
+            void dropEvent(QDropEvent* event) override;
         };
     }
 }

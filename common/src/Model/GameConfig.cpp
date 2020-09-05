@@ -19,138 +19,145 @@
 
 #include "GameConfig.h"
 
-#include "CollectionUtils.h"
+#include "Ensure.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/SystemPaths.h"
+
+#include <kdl/string_utils.h>
 
 #include <cassert>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        GameConfig::MapFormatConfig::MapFormatConfig(const String& i_format, const IO::Path& i_initialMap) :
+        MapFormatConfig::MapFormatConfig(const std::string& i_format, const IO::Path& i_initialMap) :
         format(i_format),
         initialMap(i_initialMap) {}
 
-        GameConfig::MapFormatConfig::MapFormatConfig() = default;
+        MapFormatConfig::MapFormatConfig() = default;
 
-        bool GameConfig::MapFormatConfig::operator==(const MapFormatConfig& other) const {
+        bool MapFormatConfig::operator==(const MapFormatConfig& other) const {
             return format == other.format && initialMap == other.initialMap;
         }
 
-        GameConfig::PackageFormatConfig::PackageFormatConfig(const String& i_extension, const String& i_format) :
+        PackageFormatConfig::PackageFormatConfig(const std::string& i_extension, const std::string& i_format) :
         extensions(1, i_extension),
         format(i_format) {}
 
-        GameConfig::PackageFormatConfig::PackageFormatConfig(const StringList& i_extensions, const String& i_format) :
+        PackageFormatConfig::PackageFormatConfig(const std::vector<std::string>& i_extensions, const std::string& i_format) :
         extensions(i_extensions),
         format(i_format) {}
 
-        GameConfig::PackageFormatConfig::PackageFormatConfig() = default;
+        PackageFormatConfig::PackageFormatConfig() = default;
 
-        bool GameConfig::PackageFormatConfig::operator==(const PackageFormatConfig& other) const {
+        bool PackageFormatConfig::operator==(const PackageFormatConfig& other) const {
             return (extensions == other.extensions && format == other.format);
         }
 
-        GameConfig::FileSystemConfig::FileSystemConfig(const IO::Path& i_searchPath, const PackageFormatConfig& i_packageFormat) :
+        FileSystemConfig::FileSystemConfig(const IO::Path& i_searchPath, const PackageFormatConfig& i_packageFormat) :
         searchPath(i_searchPath),
         packageFormat(i_packageFormat) {}
 
-        GameConfig::FileSystemConfig::FileSystemConfig() = default;
+        FileSystemConfig::FileSystemConfig() = default;
 
-        bool GameConfig::FileSystemConfig::operator==(const FileSystemConfig& other) const {
+        bool FileSystemConfig::operator==(const FileSystemConfig& other) const {
             return (searchPath == other.searchPath &&
                     packageFormat == other.packageFormat);
         }
 
-        GameConfig::TexturePackageConfig::TexturePackageConfig(const PackageFormatConfig& i_fileFormat) :
+        TexturePackageConfig::TexturePackageConfig(const PackageFormatConfig& i_fileFormat) :
         type(PT_File),
         fileFormat(i_fileFormat) {}
 
-        GameConfig::TexturePackageConfig::TexturePackageConfig(const IO::Path& i_rootDirectory) :
+        TexturePackageConfig::TexturePackageConfig(const IO::Path& i_rootDirectory) :
         type(PT_Directory),
         rootDirectory(i_rootDirectory) {}
 
-        GameConfig::TexturePackageConfig::TexturePackageConfig() :
+        TexturePackageConfig::TexturePackageConfig() :
         type(PT_Unset) {}
 
-        bool GameConfig::TexturePackageConfig::operator==(const TexturePackageConfig& other) const {
+        bool TexturePackageConfig::operator==(const TexturePackageConfig& other) const {
             return (type == other.type &&
                     fileFormat == other.fileFormat &&
                     rootDirectory == other.rootDirectory);
         }
 
-        GameConfig::TextureConfig::TextureConfig(const TexturePackageConfig& i_package, const PackageFormatConfig& i_format, const IO::Path& i_palette, const String& i_attribute, const IO::Path& i_shaderSearchPath) :
+        TextureConfig::TextureConfig(const TexturePackageConfig& i_package, const PackageFormatConfig& i_format, const IO::Path& i_palette, const std::string& i_attribute, const IO::Path& i_shaderSearchPath, const std::vector<std::string>& i_excludes) :
         package(i_package),
         format(i_format),
         palette(i_palette),
         attribute(i_attribute),
-        shaderSearchPath(i_shaderSearchPath) {}
+        shaderSearchPath(i_shaderSearchPath),
+        excludes(i_excludes) {}
 
-        GameConfig::TextureConfig::TextureConfig() = default;
+        TextureConfig::TextureConfig() = default;
 
-        bool GameConfig::TextureConfig::operator==(const TextureConfig& other) const {
+        bool TextureConfig::operator==(const TextureConfig& other) const {
             return (package == other.package &&
                     format == other.format &&
                     palette == other.palette &&
                     attribute == other.attribute &&
-                    shaderSearchPath == other.shaderSearchPath);
+                    shaderSearchPath == other.shaderSearchPath &&
+                    excludes == other.excludes);
         }
 
-        GameConfig::EntityConfig::EntityConfig(const IO::Path& i_defFilePath, const StringSet& i_modelFormats, const Color& i_defaultColor) :
+        EntityConfig::EntityConfig(const IO::Path& i_defFilePath, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor) :
         modelFormats(i_modelFormats),
         defaultColor(i_defaultColor) {
             defFilePaths.push_back(i_defFilePath);
         }
 
-        GameConfig::EntityConfig::EntityConfig(const IO::Path::List& i_defFilePaths, const StringSet& i_modelFormats, const Color& i_defaultColor) :
+        EntityConfig::EntityConfig(const std::vector<IO::Path>& i_defFilePaths, const std::vector<std::string>& i_modelFormats, const Color& i_defaultColor) :
         defFilePaths(i_defFilePaths),
         modelFormats(i_modelFormats),
         defaultColor(i_defaultColor) {}
 
-        GameConfig::EntityConfig::EntityConfig() = default;
+        EntityConfig::EntityConfig() = default;
 
-        bool GameConfig::EntityConfig::operator==(const EntityConfig& other) const {
+        bool EntityConfig::operator==(const EntityConfig& other) const {
             return (defFilePaths == other.defFilePaths &&
                     modelFormats == other.modelFormats &&
                     defaultColor == other.defaultColor);
         }
 
-        GameConfig::FlagConfig::FlagConfig(const String& i_name, const String& i_description) :
+        FlagConfig::FlagConfig(const std::string& i_name, const std::string& i_description, const int i_value) :
         name(i_name),
-        description(i_description) {}
+        description(i_description),
+        value(i_value) {}
 
-        GameConfig::FlagConfig::FlagConfig() = default;
+        FlagConfig::FlagConfig() = default;
 
-        bool GameConfig::FlagConfig::operator==(const FlagConfig& other) const {
+        bool FlagConfig::operator==(const FlagConfig& other) const {
             return (name == other.name &&
-                    description == other.description);
+                    description == other.description &&
+                    value == other.value);
         }
 
-        GameConfig::FlagsConfig::FlagsConfig() = default;
+        FlagsConfig::FlagsConfig() = default;
 
-        GameConfig::FlagsConfig::FlagsConfig(const FlagConfigList& i_flags) :
+        FlagsConfig::FlagsConfig(const std::vector<FlagConfig>& i_flags) :
         flags(i_flags) {}
 
-        int GameConfig::FlagsConfig::flagValue(const String& flagName) const {
+        int FlagsConfig::flagValue(const std::string& flagName) const {
             for (size_t i = 0; i < flags.size(); ++i) {
                 if (flags[i].name == flagName) {
-                    return static_cast<int>(1 << i);
+                    return flags[i].value;
                 }
             }
             return 0;
         }
 
-        String GameConfig::FlagsConfig::flagName(const size_t index) const {
+        std::string FlagsConfig::flagName(const size_t index) const {
             ensure(index < flags.size(), "index out of range");
             return flags[index].name;
         }
 
-        StringList GameConfig::FlagsConfig::flagNames(const int mask) const {
+        std::vector<std::string> FlagsConfig::flagNames(const int mask) const {
             if (mask == 0) {
-                return EmptyStringList;
+                return {};
             }
 
-            StringList names;
+            std::vector<std::string> names;
             for (size_t i = 0; i < flags.size(); ++i) {
                 if (mask & (1 << i)) {
                     names.push_back(flags[i].name);
@@ -159,35 +166,44 @@ namespace TrenchBroom {
             return names;
         }
 
-        bool GameConfig::FlagsConfig::operator==(const FlagsConfig& other) const {
+        bool FlagsConfig::operator==(const FlagsConfig& other) const {
             return flags == other.flags;
         }
 
-        GameConfig::FaceAttribsConfig::FaceAttribsConfig() = default;
+        FaceAttribsConfig::FaceAttribsConfig() :
+        defaults(BrushFaceAttributes::NoTextureName) {}
 
-        GameConfig::FaceAttribsConfig::FaceAttribsConfig(const FlagConfigList& i_surfaceFlags, const FlagConfigList& i_contentFlags) :
+        FaceAttribsConfig::FaceAttribsConfig(const std::vector<FlagConfig>& i_surfaceFlags, const std::vector<FlagConfig>& i_contentFlags, const BrushFaceAttributes& i_defaults) :
         surfaceFlags(i_surfaceFlags),
-        contentFlags(i_contentFlags) {}
+        contentFlags(i_contentFlags),
+        defaults(i_defaults) {}
 
-        bool GameConfig::FaceAttribsConfig::operator==(const FaceAttribsConfig& other) const {
+        FaceAttribsConfig::FaceAttribsConfig(const FlagsConfig& i_surfaceFlags, const FlagsConfig& i_contentFlags, const BrushFaceAttributes& i_defaults) :
+        surfaceFlags(i_surfaceFlags),
+        contentFlags(i_contentFlags),
+        defaults(i_defaults) {}
+
+        bool FaceAttribsConfig::operator==(const FaceAttribsConfig& other) const {
             return (surfaceFlags == other.surfaceFlags &&
-                    contentFlags == other.contentFlags);
+                    contentFlags == other.contentFlags &&
+                    defaults == other.defaults);
         }
 
         GameConfig::GameConfig() :
         m_experimental(false),
         m_maxPropertyLength(1023) {}
 
-        GameConfig::GameConfig(String name,
+        GameConfig::GameConfig(std::string name,
                                IO::Path path,
                                IO::Path icon,
                                const bool experimental,
-                               MapFormatConfig::List fileFormats,
+                               std::vector<MapFormatConfig> fileFormats,
                                FileSystemConfig fileSystemConfig,
                                TextureConfig textureConfig,
                                EntityConfig entityConfig,
                                FaceAttribsConfig faceAttribsConfig,
-                               std::vector<SmartTag> smartTags) :
+                               std::vector<SmartTag> smartTags,
+                               std::optional<vm::bbox3> softMapBounds) :
         m_name(std::move(name)),
         m_path(std::move(path)),
         m_icon(std::move(icon)),
@@ -198,12 +214,13 @@ namespace TrenchBroom {
         m_entityConfig(std::move(entityConfig)),
         m_faceAttribsConfig(std::move(faceAttribsConfig)),
         m_smartTags(std::move(smartTags)),
-        m_maxPropertyLength(1023) {
-            assert(!StringUtils::trim(m_name).empty());
+        m_maxPropertyLength(1023),
+        m_softMapBounds(std::move(softMapBounds)) {
+            assert(!kdl::str_trim(m_name).empty());
             assert(m_path.isEmpty() || m_path.isAbsolute());
         }
 
-        const String& GameConfig::name() const {
+        const std::string& GameConfig::name() const {
             return m_name;
         }
 
@@ -219,28 +236,32 @@ namespace TrenchBroom {
             return m_experimental;
         }
 
-        const GameConfig::MapFormatConfig::List& GameConfig::fileFormats() const {
+        const std::vector<MapFormatConfig>& GameConfig::fileFormats() const {
             return m_fileFormats;
         }
 
-        const GameConfig::FileSystemConfig& GameConfig::fileSystemConfig() const {
+        const FileSystemConfig& GameConfig::fileSystemConfig() const {
             return m_fileSystemConfig;
         }
 
-        const GameConfig::TextureConfig& GameConfig::textureConfig() const {
+        const TextureConfig& GameConfig::textureConfig() const {
             return m_textureConfig;
         }
 
-        const GameConfig::EntityConfig& GameConfig::entityConfig() const {
+        const EntityConfig& GameConfig::entityConfig() const {
             return m_entityConfig;
         }
 
-        const GameConfig::FaceAttribsConfig& GameConfig::faceAttribsConfig() const {
+        const FaceAttribsConfig& GameConfig::faceAttribsConfig() const {
             return m_faceAttribsConfig;
         }
 
         const std::vector<SmartTag>& GameConfig::smartTags() const {
             return m_smartTags;
+        }
+
+        const std::optional<vm::bbox3>& GameConfig::softMapBounds() const {
+            return m_softMapBounds;
         }
 
         CompilationConfig& GameConfig::compilationConfig() {
@@ -271,7 +292,7 @@ namespace TrenchBroom {
             return m_maxPropertyLength;
         }
 
-        IO::Path GameConfig::findInitialMap(const String& formatName) const {
+        IO::Path GameConfig::findInitialMap(const std::string& formatName) const {
             for (const auto& format : m_fileFormats) {
                 if (format.format == formatName) {
                     if (!format.initialMap.isEmpty()) {

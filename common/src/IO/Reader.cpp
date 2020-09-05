@@ -20,10 +20,14 @@
 #include "Reader.h"
 
 #include "IO/IOUtils.h"
+#include "IO/ReaderException.h"
 
 #include <cassert>
+#include <cerrno>
 #include <cstring>
 #include <functional>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -53,7 +57,7 @@ namespace TrenchBroom {
 
         void Reader::Source::ensurePosition(const size_t position) const {
             if (position > size()) {
-                throw ReaderException() << "Position " << position << " is out of bounds for reader of size " << size();
+                throw ReaderException("Position " + std::to_string(position) + " is out of bounds for reader of size " + std::to_string(size()));
             }
         }
 
@@ -130,11 +134,11 @@ namespace TrenchBroom {
             return std::make_tuple(begin, end, std::move(buffer));
         }
 
-        void Reader::FileSource::throwError(const String& msg) const {
+        void Reader::FileSource::throwError(const std::string& msg) const {
             if (std::feof(m_file)) {
-                throw ReaderException() << msg << ": unexpected end of file";
+                throw ReaderException(msg + ": unexpected end of file");
             } else {
-                throw ReaderException() << msg << ": " << std::strerror(errno);
+                throw ReaderException(msg + ": " + std::strerror(errno));
             }
         }
 
@@ -219,7 +223,7 @@ namespace TrenchBroom {
 
         void Reader::seekBackward(const size_t offset) {
             if (offset > position()) {
-                throw ReaderException() << "Cannot seek beyond start of reader at position " << position() << " with offset " << offset;
+                throw ReaderException("Cannot seek beyond start of reader at position " + std::to_string(position()) + " with offset " + std::to_string(offset));
             }
             seekFromBegin(position() - offset);
         }
@@ -257,12 +261,12 @@ namespace TrenchBroom {
             m_source->read(val, size);
         }
 
-        String Reader::readString(const size_t size) {
+        std::string Reader::readString(const size_t size) {
             std::vector<char> buffer;
             buffer.resize(size + 1);
             buffer[size] = 0;
             read(buffer.data(), size);
-            return String(buffer.data());
+            return std::string(buffer.data());
         }
 
         BufferedReader::BufferedReader(const char* begin, const char* end, std::unique_ptr<char[]> buffer) :

@@ -20,8 +20,9 @@
 #ifndef TrenchBroom_ViewConstants_h
 #define TrenchBroom_ViewConstants_h
 
-class wxColour;
-class wxFont;
+class QColor;
+class QFont;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
@@ -35,7 +36,8 @@ namespace TrenchBroom {
             static const int WideHMargin                        = 8;
             static const int MediumHMargin                      = 6;
             static const int NarrowHMargin                      = 4;
-            static const int WideVMargin                        = 4;
+            static const int WideVMargin                        = 8;
+            static const int MediumVMargin                      = 4;
             static const int NarrowVMargin                      = 2;
             static const int StaticBoxSideMargin                = 15;
             static const int StaticBoxTopMargin                 = 20;
@@ -48,14 +50,15 @@ namespace TrenchBroom {
             static const int ToggleButtonStyle                  = 0;
 #elif defined __APPLE__
             static const int DialogOuterMargin                  = 10;
-            static const int DialogButtonTopMargin              = 0;
-            static const int DialogButtonLeftMargin             = 12;
-            static const int DialogButtonRightMargin            = 0;
-            static const int DialogButtonBottomMargin           = 3;
+            static const int DialogButtonTopMargin              = 10;
+            static const int DialogButtonLeftMargin             = 10;
+            static const int DialogButtonRightMargin            = 10;
+            static const int DialogButtonBottomMargin           = 10;
             static const int WideHMargin                        = 8;
             static const int MediumHMargin                      = 4;
             static const int NarrowHMargin                      = 2;
-            static const int WideVMargin                        = 4;
+            static const int WideVMargin                        = 8;
+            static const int MediumVMargin                      = 4;
             static const int NarrowVMargin                      = 2;
             static const int StaticBoxSideMargin                = 10;
             static const int StaticBoxTopMargin                 = 10;
@@ -66,16 +69,17 @@ namespace TrenchBroom {
             static const int TextBoxInnerMargin                 = 0;
             static const int TabBarBarLeftMargin                = 10;
             static const int ToggleButtonStyle                  = 0x08000000; // wxBORDER_SUNKEN
-#elif defined __WXGTK20__
+#else
             static const int DialogOuterMargin                  = 10;
             static const int DialogButtonTopMargin              = 10;
             static const int DialogButtonLeftMargin             = 8;
-            static const int DialogButtonRightMargin            = 0;
+            static const int DialogButtonRightMargin            = 8;
             static const int DialogButtonBottomMargin           = 10;
             static const int WideHMargin                        = 8;
             static const int MediumHMargin                      = 4;
             static const int NarrowHMargin                      = 2;
-            static const int WideVMargin                        = 4;
+            static const int WideVMargin                        = 8;
+            static const int MediumVMargin                      = 4;
             static const int NarrowVMargin                      = 2;
             static const int StaticBoxSideMargin                = 15;
             static const int StaticBoxTopMargin                 = 10;
@@ -92,15 +96,16 @@ namespace TrenchBroom {
         }
 
         namespace Fonts {
-            const wxFont& fixedWidthFont();
+            QFont fixedWidthFont();
         }
 
         namespace Colors {
-            const wxColour& defaultText();
-            const wxColour& highlightText();
-            const wxColour& disabledText();
-            const wxColour& borderColor();
-            const wxColour& separatorColor();
+            QColor defaultText();
+            QColor highlightText();
+            QColor disabledText();
+            QColor disabledCellText();
+            QColor disabledText(const QWidget* widget);
+            QColor window();
         }
     }
 }

@@ -19,34 +19,40 @@
 
 #include "EdgeTool.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
+
+#include <kdl/memory_utils.h>
+#include <kdl/string_format.h>
+
+#include <vecmath/polygon.h>
 
 namespace TrenchBroom {
     namespace View {
-        EdgeTool::EdgeTool(MapDocumentWPtr document) :
-        VertexToolBase(document) {}
+        EdgeTool::EdgeTool(std::weak_ptr<MapDocument> document) :
+        VertexToolBase(document),
+        m_edgeHandles(std::make_unique<EdgeHandleManager>()){}
 
-        Model::BrushSet EdgeTool::findIncidentBrushes(const vm::segment3& handle) const {
-            return findIncidentBrushes(m_edgeHandles, handle);
+        std::vector<Model::BrushNode*> EdgeTool::findIncidentBrushes(const vm::segment3& handle) const {
+            return findIncidentBrushes(*m_edgeHandles, handle);
         }
 
         void EdgeTool::pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
-            m_edgeHandles.pickCenterHandle(pickRay, camera, pickResult);
+            m_edgeHandles->pickCenterHandle(pickRay, camera, pickResult);
         }
 
         EdgeHandleManager& EdgeTool::handleManager() {
-            return m_edgeHandles;
+            return *m_edgeHandles;
         }
 
         const EdgeHandleManager& EdgeTool::handleManager() const {
-            return m_edgeHandles;
+            return *m_edgeHandles;
         }
 
         EdgeTool::MoveResult EdgeTool::move(const vm::vec3& delta) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
-            const auto handles = m_edgeHandles.selectedHandles();
-            const auto brushMap = buildBrushMap(m_edgeHandles, std::begin(handles), std::end(handles));
+            const auto handles = m_edgeHandles->selectedHandles();
+            const auto brushMap = buildBrushMap(*m_edgeHandles, std::begin(handles), std::end(handles));
             if (document->moveEdges(brushMap, delta)) {
                 m_dragHandlePosition = translate(m_dragHandlePosition, delta);
                 return MR_Continue;
@@ -54,16 +60,16 @@ namespace TrenchBroom {
             return MR_Deny;
         }
 
-        String EdgeTool::actionName() const {
-            return StringUtils::safePlural(m_edgeHandles.selectedHandleCount(), "Move Edge", "Move Edges");
+        std::string EdgeTool::actionName() const {
+            return kdl::str_plural(m_edgeHandles->selectedHandleCount(), "Move Edge", "Move Edges");
         }
 
         void EdgeTool::removeSelection() {
-            const auto handles = m_edgeHandles.selectedHandles();
-            const auto brushMap = buildBrushMap(m_edgeHandles, std::begin(handles), std::end(handles));
+            const auto handles = m_edgeHandles->selectedHandles();
+            const auto brushMap = buildBrushMap(*m_edgeHandles, std::begin(handles), std::end(handles));
 
-            Transaction transaction(m_document, StringUtils::safePlural(handleManager().selectedHandleCount(), "Remove Edge", "Remove Edges"));
-            lock(m_document)->removeEdges(brushMap);
+            Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Remove Edge", "Remove Edges"));
+            kdl::mem_lock(m_document)->removeEdges(brushMap);
         }
     }
 }

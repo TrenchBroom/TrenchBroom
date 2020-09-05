@@ -19,16 +19,18 @@
 
 #include "InvalidTextureScaleIssueGenerator.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 #include "Model/PushSelection.h"
 
-#include <cassert>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -38,14 +40,14 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            explicit InvalidTextureScaleIssue(BrushFace* face) :
-            BrushFaceIssue(face) {}
+            explicit InvalidTextureScaleIssue(BrushNode* node, const size_t faceIndex) :
+            BrushFaceIssue(node, faceIndex) {}
 
             IssueType doGetType() const override {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            std::string doGetDescription() const override {
                 return "Face has invalid texture scale.";
             }
         };
@@ -60,19 +62,20 @@ namespace TrenchBroom {
             void doApply(MapFacade* facade, const IssueList& issues) const override {
                 const PushSelection push(facade);
 
-                BrushFaceList faces;
+                std::vector<BrushFaceHandle> faceHandles;
                 for (const auto* issue : issues) {
                     if (issue->type() == InvalidTextureScaleIssue::Type) {
-                        auto* face = static_cast<const InvalidTextureScaleIssue*>(issue)->face();
-                        faces.push_back(face);
+                        BrushNode* node = static_cast<BrushNode*>(issue->node());
+                        const auto faceIndex = static_cast<const InvalidTextureScaleIssue*>(issue)->faceIndex();
+                        faceHandles.push_back(BrushFaceHandle(node, faceIndex));
                     }
                 }
 
                 ChangeBrushFaceAttributesRequest request;
-                request.setScale(vm::vec2f::one);
+                request.setScale(vm::vec2f::one());
 
                 facade->deselectAll();
-                facade->select(faces);
+                facade->select(faceHandles);
                 facade->setFaceAttributes(request);
             }
         };
@@ -82,10 +85,12 @@ namespace TrenchBroom {
             addQuickFix(new InvalidTextureScaleIssueQuickFix());
         }
 
-        void InvalidTextureScaleIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
-            for (const auto& face : brush->faces()) {
-                if (!face->attribs().valid()) {
-                    issues.push_back(new InvalidTextureScaleIssue(face));
+        void InvalidTextureScaleIssueGenerator::doGenerate(BrushNode* brushNode, IssueList& issues) const {
+            const Brush& brush = brushNode->brush();
+            for (size_t i = 0u; i < brush.faceCount(); ++i) {
+                const BrushFace& face = brush.face(i);
+                if (!face.attributes().valid()) {
+                    issues.push_back(new InvalidTextureScaleIssue(brushNode, i));
                 }
             }
         }

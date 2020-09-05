@@ -19,66 +19,69 @@
 
 #include "IssueGenerator.h"
 
-#include "CollectionUtils.h"
+#include "Ensure.h"
 #include "Model/IssueQuickFix.h"
-#include "Model/Entity.h"
-#include "Model/World.h"
+#include "Model/EntityNode.h"
+#include "Model/WorldNode.h"
+
+#include <kdl/vector_utils.h>
 
 #include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
         IssueGenerator::~IssueGenerator() {
-            VectorUtils::clearAndDelete(m_quickFixes);
+            kdl::vec_clear_and_delete(m_quickFixes);
         }
 
         IssueType IssueGenerator::type() const {
             return m_type;
         }
 
-        const String& IssueGenerator::description() const {
+        const std::string& IssueGenerator::description() const {
             return m_description;
         }
 
-        const IssueQuickFixList& IssueGenerator::quickFixes() const {
+        const std::vector<IssueQuickFix*>& IssueGenerator::quickFixes() const {
             return m_quickFixes;
         }
 
-        void IssueGenerator::generate(World* world, IssueList& issues) const {
-            doGenerate(world, issues);
+        void IssueGenerator::generate(WorldNode* worldNode, IssueList& issues) const {
+            doGenerate(worldNode, issues);
         }
 
-        void IssueGenerator::generate(Layer* layer, IssueList& issues) const {
-            doGenerate(layer, issues);
+        void IssueGenerator::generate(LayerNode* layerNode, IssueList& issues) const {
+            doGenerate(layerNode, issues);
         }
 
-        void IssueGenerator::generate(Group* group, IssueList& issues) const {
-            doGenerate(group, issues);
+        void IssueGenerator::generate(GroupNode* groupNode, IssueList& issues) const {
+            doGenerate(groupNode, issues);
         }
 
-        void IssueGenerator::generate(Entity* entity, IssueList& issues) const {
-            doGenerate(entity, issues);
+        void IssueGenerator::generate(EntityNode* entityNode, IssueList& issues) const {
+            doGenerate(entityNode, issues);
         }
 
-        void IssueGenerator::generate(Brush* brush, IssueList& issues) const {
-            doGenerate(brush, issues);
+        void IssueGenerator::generate(BrushNode* brushNode, IssueList& issues) const {
+            doGenerate(brushNode, issues);
         }
 
-        IssueGenerator::IssueGenerator(const IssueType type, const String& description) :
+        IssueGenerator::IssueGenerator(const IssueType type, const std::string& description) :
         m_type(type),
         m_description(description) {}
 
         void IssueGenerator::addQuickFix(IssueQuickFix* quickFix) {
             ensure(quickFix != nullptr, "quickFix is null");
-            assert(!VectorUtils::contains(m_quickFixes, quickFix));
+            assert(!kdl::vec_contains(m_quickFixes, quickFix));
             m_quickFixes.push_back(quickFix);
         }
-
-        void IssueGenerator::doGenerate(World* world,           IssueList& issues) const { doGenerate(static_cast<AttributableNode*>(world), issues); }
-        void IssueGenerator::doGenerate(Layer* layer,           IssueList& issues) const {}
-        void IssueGenerator::doGenerate(Group* group,           IssueList& issues) const {}
-        void IssueGenerator::doGenerate(Entity* entity,         IssueList& issues) const { doGenerate(static_cast<AttributableNode*>(entity), issues); }
-        void IssueGenerator::doGenerate(Brush* brush,           IssueList& issues) const {}
-        void IssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {}
+ 
+        void IssueGenerator::doGenerate(WorldNode* worldNode,   IssueList& issues) const { doGenerate(static_cast<AttributableNode*>(worldNode), issues); }
+        void IssueGenerator::doGenerate(LayerNode*,             IssueList&) const        {}
+        void IssueGenerator::doGenerate(GroupNode*,             IssueList&) const        {}
+        void IssueGenerator::doGenerate(EntityNode* entityNode, IssueList& issues) const { doGenerate(static_cast<AttributableNode*>(entityNode), issues); }
+        void IssueGenerator::doGenerate(BrushNode*,             IssueList&) const        {}
+        void IssueGenerator::doGenerate(AttributableNode*,      IssueList&) const        {}
     }
 }

@@ -19,15 +19,14 @@
 
 #include "MissingClassnameIssueGenerator.h"
 
-#include "StringUtils.h"
-#include "Assets/EntityDefinition.h"
-#include "Model/Brush.h"
-#include "Model/Entity.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 
-#include <cassert>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -35,14 +34,14 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            MissingClassnameIssue(AttributableNode* node) :
+            explicit MissingClassnameIssue(AttributableNode* node) :
             Issue(node) {}
         private:
             IssueType doGetType() const override {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            std::string doGetDescription() const override {
                 return "Entity has no classname property";
             }
         };
@@ -54,7 +53,7 @@ namespace TrenchBroom {
             MissingClassnameIssueQuickFix() :
             IssueQuickFix(MissingClassnameIssue::Type, "Delete entities") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const override {
+            void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
                 facade->deleteObjects();
             }
         };

@@ -20,42 +20,43 @@
 #ifndef TrenchBroom_Inspector
 #define TrenchBroom_Inspector
 
-#include "View/ViewTypes.h"
+#include <memory>
 
-#include <wx/panel.h>
+#include <QWidget>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class Camera;
-    }
-
     namespace View {
-        class EntityInspector;
         class FaceInspector;
+        class EntityInspector;
         class GLContextManager;
+        class MapDocument;
         class MapInspector;
+        class MapViewBar;
+        class SyncHeightEventFilter;
         class TabBook;
 
-        class Inspector : public wxPanel {
-        public:
-            typedef enum {
-                InspectorPage_Map = 0,
-                InspectorPage_Entity = 1,
-                InspectorPage_Face = 2
-            } InspectorPage;
+        enum class InspectorPage {
+            Map = 0,
+            Entity = 1,
+            Face = 2
+        };
 
+        class Inspector : public QWidget {
+            Q_OBJECT
         private:
             TabBook* m_tabBook;
             MapInspector* m_mapInspector;
             EntityInspector* m_entityInspector;
             FaceInspector* m_faceInspector;
+
+            SyncHeightEventFilter* m_syncTabBarEventFilter;
         public:
-            Inspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
-            void connectTopWidgets(wxWindow* master);
+            Inspector(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
+            void connectTopWidgets(MapViewBar* mapViewBar);
             void switchToPage(InspectorPage page);
             bool cancelMouseDrag();
-        private:
-            void OnTopWidgetSize(wxSizeEvent& event);
+
+            FaceInspector* faceInspector();
         };
     }
 }

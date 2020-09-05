@@ -20,10 +20,7 @@
 #ifndef TrenchBroom_RenderBatch
 #define TrenchBroom_RenderBatch
 
-#include "TrenchBroom.h"
-#include "Color.h"
-
-#include <list>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -31,18 +28,17 @@ namespace TrenchBroom {
         class DirectRenderable;
         class IndexedRenderable;
         class RenderContext;
-        class Vbo;
+        class VboManager;
 
         class RenderBatch {
         private:
-            Vbo& m_vertexVbo;
-            Vbo& m_indexVbo;
+            VboManager& m_vboManager;
 
             class IndexedRenderableWrapper;
 
-            using RenderableList = std::list<Renderable*>;
-            using DirectRenderableList = std::list<DirectRenderable*>;
-            using IndexedRenderableList = std::list<IndexedRenderable*>;
+            using RenderableList = std::vector<Renderable*>;
+            using DirectRenderableList = std::vector<DirectRenderable*>;
+            using IndexedRenderableList = std::vector<IndexedRenderable*>;
 
             DirectRenderableList m_directRenderables;
             IndexedRenderableList m_indexedRenderables;
@@ -50,7 +46,7 @@ namespace TrenchBroom {
             RenderableList m_batch;
             RenderableList m_oneshots;
         public:
-            RenderBatch(Vbo& vertexVbo, Vbo& indexVbo);
+            explicit RenderBatch(VboManager& vboManager);
             ~RenderBatch();
 
             void add(Renderable* renderable);

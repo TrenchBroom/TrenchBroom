@@ -28,8 +28,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType ShearTexturesCommand::Type = Command::freeType();
 
-        ShearTexturesCommand::Ptr ShearTexturesCommand::shear(const vm::vec2f& factors) {
-            return Ptr(new ShearTexturesCommand(factors));
+        std::unique_ptr<ShearTexturesCommand> ShearTexturesCommand::shear(const vm::vec2f& factors) {
+            return std::make_unique<ShearTexturesCommand>(factors);
         }
 
         ShearTexturesCommand::ShearTexturesCommand(const vm::vec2f& factors) :
@@ -38,29 +38,29 @@ namespace TrenchBroom {
             assert(factors.x() != 0.0f || factors.y() != 0.0f);
         }
 
-        bool ShearTexturesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> ShearTexturesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             return shearTextures(document, m_factors);
         }
 
-        bool ShearTexturesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> ShearTexturesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             return shearTextures(document, -m_factors);
         }
 
-        bool ShearTexturesCommand::shearTextures(MapDocumentCommandFacade* document, const vm::vec2f& factors) {
+        std::unique_ptr<CommandResult> ShearTexturesCommand::shearTextures(MapDocumentCommandFacade* document, const vm::vec2f& factors) {
             document->performShearTextures(factors);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool ShearTexturesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
-            return true;
+            return document->hasSelectedBrushFaces();
         }
 
-        UndoableCommand::Ptr ShearTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return UndoableCommand::Ptr(new ShearTexturesCommand(m_factors));
+        std::unique_ptr<UndoableCommand> ShearTexturesCommand::doRepeat(MapDocumentCommandFacade*) const {
+            return std::make_unique<ShearTexturesCommand>(m_factors);
         }
 
-        bool ShearTexturesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            ShearTexturesCommand* other = static_cast<ShearTexturesCommand*>(command.get());
+        bool ShearTexturesCommand::doCollateWith(UndoableCommand* command) {
+            ShearTexturesCommand* other = static_cast<ShearTexturesCommand*>(command);
             m_factors = m_factors + other->m_factors;
             return true;
         }

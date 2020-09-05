@@ -19,31 +19,38 @@
 
 #include "EntityColor.h"
 
+#include "Color.h"
 #include "Model/AttributableNode.h"
-#include "Model/Entity.h"
+#include "Assets/ColorRange.h"
+#include "Model/EntityNode.h"
 #include "Model/NodeVisitor.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
+
+#include <kdl/string_utils.h>
 
 #include <cassert>
+#include <sstream>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class DetectColorRangeVisitor : public ConstNodeVisitor {
         private:
-            const AttributeName& m_name;
+            const std::string& m_name;
             Assets::ColorRange::Type m_range;
         public:
-            DetectColorRangeVisitor(const AttributeName& name) :
+            DetectColorRangeVisitor(const std::string& name) :
             m_name(name),
             m_range(Assets::ColorRange::Unset) {}
 
             Assets::ColorRange::Type result() const { return m_range; }
         private:
-            void doVisit(const World* world) override   { visitAttributableNode(world); }
-            void doVisit(const Layer* layer) override   {}
-            void doVisit(const Group* group) override   {}
-            void doVisit(const Entity* entity) override { visitAttributableNode(entity); }
-            void doVisit(const Brush* brush) override   {}
+            void doVisit(const WorldNode* world) override   { visitAttributableNode(world); }
+            void doVisit(const LayerNode*) override         {}
+            void doVisit(const GroupNode*) override         {}
+            void doVisit(const EntityNode* entity) override { visitAttributableNode(entity); }
+            void doVisit(const BrushNode*) override         {}
 
             void visitAttributableNode(const AttributableNode* attributable) {
                 static const auto NullValue("");
@@ -58,19 +65,19 @@ namespace TrenchBroom {
             }
         };
 
-        Assets::ColorRange::Type detectColorRange(const AttributeName& name, const AttributableNodeList& attributables) {
+        Assets::ColorRange::Type detectColorRange(const std::string& name, const std::vector<AttributableNode*>& attributables) {
             DetectColorRangeVisitor visitor(name);
             Node::accept(std::begin(attributables), std::end(attributables), visitor);
             return visitor.result();
         }
 
-        const String convertEntityColor(const String& str, const Assets::ColorRange::Type colorRange) {
+        const std::string convertEntityColor(const std::string& str, const Assets::ColorRange::Type colorRange) {
             const auto color = parseEntityColor(str);
             return entityColorAsString(color, colorRange);
         }
 
-        wxColor parseEntityColor(const String& str) {
-            const auto components = StringUtils::splitAndTrim(str, " ");
+        Color parseEntityColor(const std::string& str) {
+            const auto components = kdl::str_split(str, " ");
             const auto range = Assets::detectColorRange(components);
             assert(range != Assets::ColorRange::Mixed);
 
@@ -85,15 +92,15 @@ namespace TrenchBroom {
                 b = static_cast<int>(std::atof(components[2].c_str()) * 255.0);
             }
 
-            return wxColor(r, g, b);
+            return Color(r, g, b);
         }
 
-        String entityColorAsString(const wxColor& color, const Assets::ColorRange::Type colorRange) {
-            StringStream result;
+        std::string entityColorAsString(const Color& color, const Assets::ColorRange::Type colorRange) {
+            std::stringstream result;
             if (colorRange == Assets::ColorRange::Byte) {
-                result << int(color.Red()) << " " << int(color.Green()) << " " << int(color.Blue());
+                result << int(color.r() * 255.0f) << " " << int(color.g() * 255.0f) << " " << int(color.b() * 255.0f);
             } else if (colorRange == Assets::ColorRange::Float) {
-                result << float(color.Red()) / 255.0f << " " << float(color.Green()) / 255.0f << " "<< float(color.Blue()) / 255.0f;
+                result << float(color.r()) << " " << float(color.g()) << " " << float(color.b());
             }
             return result.str();
         }

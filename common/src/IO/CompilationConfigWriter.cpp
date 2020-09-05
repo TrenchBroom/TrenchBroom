@@ -19,10 +19,14 @@
 
 #include "CompilationConfigWriter.h"
 
+#include "EL/Value.h"
+#include "EL/Types.h"
 #include "Model/CompilationConfig.h"
 #include "Model/CompilationProfile.h"
+#include "Model/CompilationTask.h"
 
 #include <cassert>
+#include <ostream>
 
 namespace TrenchBroom {
     namespace IO {
@@ -63,26 +67,26 @@ namespace TrenchBroom {
         public:
             EL::Value result() const { return EL::Value(m_array); }
         public:
-            void visit(const Model::CompilationExportMap* task) override {
+            void visit(const Model::CompilationExportMap& task) override {
                 EL::MapType map;
                 map["type"] = EL::Value("export");
-                map["target"] = EL::Value(task->targetSpec());
+                map["target"] = EL::Value(task.targetSpec());
                 m_array.push_back(EL::Value(map));
             }
 
-            void visit(const Model::CompilationCopyFiles* task) override {
+            void visit(const Model::CompilationCopyFiles& task) override {
                 EL::MapType map;
                 map["type"] = EL::Value("copy");
-                map["source"] = EL::Value(task->sourceSpec());
-                map["target"] = EL::Value(task->targetSpec());
+                map["source"] = EL::Value(task.sourceSpec());
+                map["target"] = EL::Value(task.targetSpec());
                 m_array.push_back(EL::Value(map));
             }
 
-            void visit(const Model::CompilationRunTool* task) override {
+            void visit(const Model::CompilationRunTool& task) override {
                 EL::MapType map;
                 map["type"] = EL::Value("tool");
-                map["tool"] = EL::Value(task->toolSpec());
-                map["parameters"] = EL::Value(task->parameterSpec());
+                map["tool"] = EL::Value(task.toolSpec());
+                map["parameters"] = EL::Value(task.parameterSpec());
                 m_array.push_back(EL::Value(map));
             }
         };

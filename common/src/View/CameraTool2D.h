@@ -22,7 +22,6 @@
 
 #include "View/Tool.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>

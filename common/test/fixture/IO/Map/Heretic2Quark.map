@@ -1,0 +1,20 @@
+; This map has been written by QuArK - Quake Army Knife, QuArK 6.6
+; It is a map for the game Heretic II.
+; For more information see QuArK's Home Page: http://quark.sourceforge.net/
+
+; Entity 0
+; worldspawn
+{
+ "classname" "worldspawn"
+ "sky" "sky1"
+; Brush 0
+; Border walls:g[1] -> Floor:p[1]
+ {
+  ( 512 -512 0 ) ( -512 -512 0 ) ( -512 512 0 ) general/sand1 0 0 0 1 1
+  ( 512 512 -64 ) ( -512 512 -64 ) ( -512 -512 -64 ) general/sand1 0 0 0 1 -1
+  ( 512 512 0 ) ( -512 512 0 ) ( -512 512 -64 ) general/sand1 0 64 0 -1 1
+  ( 512 -512 -64 ) ( -512 -512 -64 ) ( -512 -512 0 ) general/sand1 0 64 0 1 1
+  ( 512 512 -64 ) ( 512 -512 -64 ) ( 512 -512 0 ) general/sand1 0 64 0 1 1
+  ( -512 512 0 ) ( -512 -512 0 ) ( -512 -512 -64 ) general/sand1 0 64 0 -1 1
+ }
+}

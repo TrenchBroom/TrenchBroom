@@ -20,22 +20,20 @@
 
 #include "ShearObjectsTool.h"
 
-#include "TrenchBroom.h"
+#include "Ensure.h"
+#include "FloatType.h"
 #include "Preferences.h"
-#include "PreferenceManager.h"
-#include "ScaleObjectsTool.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
-#include "Model/CollectMatchingBrushFacesVisitor.h"
-#include "Model/FindMatchingBrushFaceVisitor.h"
-#include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
-#include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+#include "View/ScaleObjectsTool.h"
+
+#include <kdl/memory_utils.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -43,17 +41,13 @@
 #include <vecmath/polygon.h>
 #include <vecmath/intersection.h>
 
-#include <algorithm>
-#include <iterator>
-#include <array>
-
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType ShearObjectsTool::ShearToolSideHit = Model::Hit::freeHitType();
+        const Model::HitType::Type ShearObjectsTool::ShearToolSideHitType = Model::HitType::freeType();
 
-        ShearObjectsTool::ShearObjectsTool(MapDocumentWPtr document) :
+        ShearObjectsTool::ShearObjectsTool(std::weak_ptr<MapDocument> document) :
         Tool(false),
-        m_document(document),
+        m_document(std::move(document)),
         m_resizing(false),
         m_constrainVertical(false),
         m_dragStartHit(Model::Hit::NoHit) {}
@@ -61,7 +55,7 @@ namespace TrenchBroom {
         ShearObjectsTool::~ShearObjectsTool() = default;
 
         bool ShearObjectsTool::applies() const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return !document->selectedNodes().empty();
         }
 
@@ -72,8 +66,8 @@ namespace TrenchBroom {
 
                 // The hit point is the closest point on the pick ray to one of the edges of the face.
                 // For face dragging, we'll project the pick ray onto the line through this point and having the face normal.
-                assert(result.pickedSideNormal != vm::vec3::zero);
-                pickResult.addHit(Model::Hit(ShearToolSideHit, result.distAlongRay, pickRay.pointAtDistance(result.distAlongRay), BBoxSide{result.pickedSideNormal}));
+                assert(result.pickedSideNormal != vm::vec3::zero());
+                pickResult.addHit(Model::Hit(ShearToolSideHitType, result.distAlongRay, vm::point_at_distance(pickRay, result.distAlongRay), BBoxSide{result.pickedSideNormal}));
             }
         }
 
@@ -113,9 +107,9 @@ namespace TrenchBroom {
             for (const auto& side : allSides()) {
                 const auto poly = polygonForBBoxSide(myBounds, side);
 
-                const auto dist = vm::intersectRayAndPolygon(pickRay, std::begin(poly), std::end(poly));
-                if (!vm::isnan(dist)) {
-                    localPickResult.addHit(Model::Hit(ShearToolSideHit, dist, pickRay.pointAtDistance(dist), side));
+                const auto dist = vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly));
+                if (!vm::is_nan(dist)) {
+                    localPickResult.addHit(Model::Hit(ShearToolSideHitType, dist, vm::point_at_distance(pickRay, dist), side));
                 }
             }
 
@@ -130,7 +124,7 @@ namespace TrenchBroom {
 
 
         vm::bbox3 ShearObjectsTool::bounds() const {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return document->selectionBounds();
         }
 
@@ -141,7 +135,7 @@ namespace TrenchBroom {
         }
 
         vm::polygon3f ShearObjectsTool::dragPolygon() const {
-            if (m_dragStartHit.type() == ShearToolSideHit) {
+            if (m_dragStartHit.type() == ShearToolSideHitType) {
                 const auto side = m_dragStartHit.target<BBoxSide>();
                 return vm::polygon3f(polygonForBBoxSide(bounds(), side));
             }
@@ -160,23 +154,23 @@ namespace TrenchBroom {
 
         void ShearObjectsTool::startShearWithHit(const Model::Hit& hit) {
             ensure(hit.isMatch(), "must start with matching hit");
-            ensure(hit.type() == ShearToolSideHit, "wrong hit type");
+            ensure(hit.type() == ShearToolSideHitType, "wrong hit type");
             ensure(!m_resizing, "must not be resizing already");
 
             m_bboxAtDragStart = bounds();
             m_dragStartHit = hit;
-            m_dragCumulativeDelta = vm::vec3::zero;
+            m_dragCumulativeDelta = vm::vec3::zero();
 
-            MapDocumentSPtr document = lock(m_document);
-            document->beginTransaction("Shear Objects");
+            auto document = kdl::mem_lock(m_document);
+            document->startTransaction("Shear Objects");
             m_resizing = true;
         }
 
         void ShearObjectsTool::commitShear() {
             ensure(m_resizing, "must be resizing already");
 
-            MapDocumentSPtr document = lock(m_document);
-            if (isZero(m_dragCumulativeDelta, vm::C::almostZero())) {
+            auto document = kdl::mem_lock(m_document);
+            if (vm::is_zero(m_dragCumulativeDelta, vm::C::almost_zero())) {
                 document->cancelTransaction();
             } else {
                 document->commitTransaction();
@@ -187,7 +181,7 @@ namespace TrenchBroom {
         void ShearObjectsTool::cancelShear() {
             ensure(m_resizing, "must be resizing already");
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
 
             m_resizing = false;
@@ -198,14 +192,11 @@ namespace TrenchBroom {
 
             m_dragCumulativeDelta = m_dragCumulativeDelta + delta;
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
-            if (!isZero(delta, vm::C::almostZero())) {
+            if (!vm::is_zero(delta, vm::C::almost_zero())) {
                 const BBoxSide side = m_dragStartHit.target<BBoxSide>();
-
-                if (document->shearObjects(bounds(), side.normal, delta)) {
-                    // FIXME: What are we supposed to do if this returns false?
-                }
+                document->shearObjects(bounds(), side.normal, delta);
             }
         }
 
@@ -215,24 +206,21 @@ namespace TrenchBroom {
 
         vm::mat4x4 ShearObjectsTool::bboxShearMatrix() const {
             if (!m_resizing) {
-                return vm::mat4x4::identity;
+                return vm::mat4x4::identity();
             }
 
             // happens if you cmd+drag on an edge or corner
-            if (m_dragStartHit.type() != ShearToolSideHit) {
-                return vm::mat4x4::identity;
+            if (m_dragStartHit.type() != ShearToolSideHitType) {
+                return vm::mat4x4::identity();
             }
 
             const BBoxSide side = m_dragStartHit.target<BBoxSide>();
-
-            return shearBBoxMatrix(m_bboxAtDragStart,
-                                   side.normal,
-                                   m_dragCumulativeDelta);
+            return vm::shear_bbox_matrix(m_bboxAtDragStart, side.normal, m_dragCumulativeDelta);
         }
 
         vm::polygon3f ShearObjectsTool::shearHandle() const {
             // happens if you cmd+drag on an edge or corner
-            if (m_dragStartHit.type() != ShearToolSideHit) {
+            if (m_dragStartHit.type() != ShearToolSideHitType) {
                 return vm::polygon3f();
             }
 
@@ -245,10 +233,10 @@ namespace TrenchBroom {
         }
 
         void ShearObjectsTool::updatePickedSide(const Model::PickResult &pickResult) {
-            const Model::Hit& hit = pickResult.query().type(ShearToolSideHit).occluded().first();
+            const Model::Hit& hit = pickResult.query().type(ShearToolSideHitType).occluded().first();
 
             // extract the highlighted handle from the hit here, and only refresh views if it changed
-            if (hit.type() == ShearToolSideHit && m_dragStartHit.type() == ShearToolSideHit) {
+            if (hit.type() == ShearToolSideHitType && m_dragStartHit.type() == ShearToolSideHitType) {
                 if (hit.target<BBoxSide>() == m_dragStartHit.target<BBoxSide>()) {
                     return;
                 }

@@ -19,21 +19,91 @@
 
 #include "GameEngineProfileListBox.h"
 
+#include "IO/PathQt.h"
 #include "Model/GameEngineConfig.h"
 #include "Model/GameEngineProfile.h"
-#include "View/wxUtils.h"
+#include "View/ElidedLabel.h"
+#include "View/QtUtils.h"
 
-#include <wx/settings.h>
-#include <wx/stattext.h>
-#include <wx/sizer.h>
+#include <QBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
-        GameEngineProfileListBox::GameEngineProfileListBox(wxWindow* parent, const Model::GameEngineConfig& config)  :
-        ControlListBox(parent, true, "Click the '+' button to create a game engine profile."),
+        GameEngineProfileItemRenderer::GameEngineProfileItemRenderer(Model::GameEngineProfile* profile, QWidget* parent) :
+        ControlListBoxItemRenderer(parent),
+        m_profile(profile),
+        m_nameLabel(nullptr),
+        m_pathLabel(nullptr) {
+            ensure(m_profile != nullptr, "profile is null");
+            createGui();
+            refresh();
+            addObservers();
+        }
+
+        GameEngineProfileItemRenderer::~GameEngineProfileItemRenderer() {
+            if (m_profile != nullptr) {
+                removeObservers();
+            }
+        }
+
+        void GameEngineProfileItemRenderer::updateItem() {
+            refresh();
+        }
+
+        void GameEngineProfileItemRenderer::createGui() {
+            m_nameLabel = new ElidedLabel("not set", Qt::ElideRight);
+            m_pathLabel = new ElidedLabel("not set", Qt::ElideMiddle);
+
+            makeEmphasized(m_nameLabel);
+            makeInfo(m_pathLabel);
+
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(QMargins());
+            layout->setSpacing(LayoutConstants::NarrowVMargin);
+            layout->addWidget(m_nameLabel);
+            layout->addWidget(m_pathLabel);
+            setLayout(layout);
+        }
+
+        void GameEngineProfileItemRenderer::refresh() {
+            if (m_profile == nullptr) {
+                m_nameLabel->setText("");
+                m_pathLabel->setText("");
+            } else {
+                m_nameLabel->setText(QString::fromStdString(m_profile->name()));
+                m_pathLabel->setText(IO::pathAsQString(m_profile->path()));
+            }
+            if (m_nameLabel->text().isEmpty()) {
+                m_nameLabel->setText("not set");
+            }
+        }
+
+        void GameEngineProfileItemRenderer::addObservers() {
+            m_profile->profileWillBeRemoved.addObserver(this, &GameEngineProfileItemRenderer::profileWillBeRemoved);
+            m_profile->profileDidChange.addObserver(this, &GameEngineProfileItemRenderer::profileDidChange);
+        }
+
+        void GameEngineProfileItemRenderer::removeObservers() {
+            m_profile->profileWillBeRemoved.removeObserver(this, &GameEngineProfileItemRenderer::profileWillBeRemoved);
+            m_profile->profileDidChange.removeObserver(this, &GameEngineProfileItemRenderer::profileDidChange);
+        }
+
+        void GameEngineProfileItemRenderer::profileWillBeRemoved() {
+            if (m_profile != nullptr) {
+                removeObservers();
+                m_profile = nullptr;
+            }
+        }
+
+        void GameEngineProfileItemRenderer::profileDidChange() {
+            refresh();
+        }
+
+        GameEngineProfileListBox::GameEngineProfileListBox(const Model::GameEngineConfig& config, QWidget* parent)  :
+        ControlListBox("Click the '+' button to create a game engine profile.", true, parent),
         m_config(config) {
             m_config.profilesDidChange.addObserver(this, &GameEngineProfileListBox::profilesDidChange);
-            SetItemCount(config.profileCount());
+            reload();
         }
 
         GameEngineProfileListBox::~GameEngineProfileListBox() {
@@ -41,99 +111,38 @@ namespace TrenchBroom {
         }
 
         Model::GameEngineProfile* GameEngineProfileListBox::selectedProfile() const {
-            if (GetSelection() == wxNOT_FOUND)
+            if (currentRow() >= 0 && static_cast<size_t>(currentRow()) < m_config.profileCount()) {
+                return m_config.profile(static_cast<size_t>(currentRow()));
+            } else {
                 return nullptr;
-            return m_config.profile(static_cast<size_t>(GetSelection()));
+            }
         }
 
         void GameEngineProfileListBox::profilesDidChange() {
-            SetItemCount(m_config.profileCount());
+            reload();
         }
 
-        class GameEngineProfileListBox::ProfileItem : public Item {
-        private:
-            Model::GameEngineProfile* m_profile;
-            wxStaticText* m_nameText;
-            wxStaticText* m_pathText;
-        public:
-            ProfileItem(wxWindow* parent, Model::GameEngineProfile* profile, const wxSize& margins) :
-            Item(parent),
-            m_profile(profile),
-            m_nameText(nullptr),
-            m_pathText(nullptr) {
-                ensure(m_profile != nullptr, "profile is null");
+        size_t GameEngineProfileListBox::itemCount() const {
+            return m_config.profileCount();
+        }
 
-                m_nameText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
-                m_pathText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
+        ControlListBoxItemRenderer* GameEngineProfileListBox::createItemRenderer(QWidget* parent, const size_t index) {
+            auto* profile = m_config.profile(index);
+            return new GameEngineProfileItemRenderer(profile, parent);
+        }
 
-                m_nameText->SetFont(m_nameText->GetFont().Bold());
-                m_pathText->SetForegroundColour(makeLighter(m_pathText->GetForegroundColour()));
-#ifndef _WIN32
-                m_pathText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
-#endif
-
-                wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
-                vSizer->Add(m_nameText, wxSizerFlags().Expand());
-                vSizer->Add(m_pathText, wxSizerFlags().Expand());
-
-                wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
-                hSizer->AddSpacer(margins.x);
-                hSizer->Add(vSizer, wxSizerFlags().Expand().Proportion(1).Border(wxTOP | wxBOTTOM, margins.y));
-                hSizer->AddSpacer(margins.x);
-
-                SetSizer(hSizer);
-
-                refresh();
-                addObservers();
+        void GameEngineProfileListBox::selectedRowChanged(const int index) {
+            if (index >= 0 && index < count()) {
+                emit currentProfileChanged(m_config.profile(static_cast<size_t>(index)));
+            } else {
+                emit currentProfileChanged(nullptr);
             }
+        }
 
-            ~ProfileItem() override {
-                if (m_profile != nullptr)
-                    removeObservers();
+        void GameEngineProfileListBox::doubleClicked(const size_t index) {
+            if (index < static_cast<size_t>(count())) {
+                emit profileSelected(m_config.profile(index));
             }
-        private:
-            void addObservers() {
-                m_profile->profileWillBeRemoved.addObserver(this, &ProfileItem::profileWillBeRemoved);
-                m_profile->profileDidChange.addObserver(this, &ProfileItem::profileDidChange);
-            }
-
-            void removeObservers() {
-                m_profile->profileWillBeRemoved.removeObserver(this, &ProfileItem::profileWillBeRemoved);
-                m_profile->profileDidChange.removeObserver(this, &ProfileItem::profileDidChange);
-            }
-
-            void profileWillBeRemoved() {
-                if (m_profile != nullptr) {
-                    removeObservers();
-                    m_profile = nullptr;
-                }
-            }
-
-            void profileDidChange() {
-                refresh();
-            }
-
-            void refresh() {
-                if (m_profile == nullptr) {
-                    m_nameText->SetLabel("");
-                    m_pathText->SetLabel("");
-                } else {
-                    m_nameText->SetLabel(m_profile->name());
-                    m_pathText->SetLabel(m_profile->path().asString());
-                }
-                if (m_nameText->GetLabel().IsEmpty())
-                    m_nameText->SetLabel("not set");
-            }
-        private:
-            void setDefaultColours(const wxColour& foreground, const wxColour& background) override {
-                Item::setDefaultColours(foreground, background);
-                m_pathText->SetForegroundColour(makeLighter(m_pathText->GetForegroundColour()));
-            }
-        };
-
-        ControlListBox::Item* GameEngineProfileListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
-            Model::GameEngineProfile* profile = m_config.profile(index);
-            return new ProfileItem(parent, profile, margins);
         }
     }
 }

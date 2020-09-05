@@ -21,35 +21,34 @@
 #define TrenchBroom_EntityInspector
 
 #include "View/TabBook.h"
-#include "View/ViewTypes.h"
 
-class wxButton;
-class wxCollapsiblePaneEvent;
+#include <memory>
+
+class QSplitter;
 
 namespace TrenchBroom {
-    namespace Model {
-        class Object;
-        class SelectionResult;
-    }
-
     namespace View {
+        class EntityAttributeEditor;
         class EntityBrowser;
         class EntityDefinitionFileChooser;
-        class EntityAttributeEditor;
         class GLContextManager;
+        class MapDocument;
 
         class EntityInspector : public TabBookPage {
+            Q_OBJECT
         private:
+            QSplitter* m_splitter;
             EntityAttributeEditor* m_attributeEditor;
             EntityBrowser* m_entityBrowser;
             EntityDefinitionFileChooser* m_entityDefinitionFileChooser;
         public:
-            EntityInspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            EntityInspector(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
+            ~EntityInspector() override;
         private:
-            void createGui(MapDocumentWPtr document, GLContextManager& contextManager);
-            wxWindow* createAttributeEditor(wxWindow* parent, MapDocumentWPtr document);
-            wxWindow* createEntityBrowser(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
-            wxWindow* createEntityDefinitionFileChooser(wxWindow* parent, MapDocumentWPtr document);
+            void createGui(std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
+            QWidget* createAttributeEditor(QWidget* parent, std::weak_ptr<MapDocument> document);
+            QWidget* createEntityBrowser(QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
+            QWidget* createEntityDefinitionFileChooser(QWidget* parent, std::weak_ptr<MapDocument> document);
         };
     }
 }

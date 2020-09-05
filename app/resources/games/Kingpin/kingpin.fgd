@@ -1,0 +1,2568 @@
+
+//
+// Kingpin game definition file (.fgd)
+// last update: march 7 2019
+//
+// written by FREDZ / fredz@kingpin.info
+// email me with improvements and suggestions
+//
+// special thanks to: ACC for the SPMOD def files and autolycus for the Quake2.fgd.
+//
+
+// base marker definitions
+@baseclass = Appearflags [
+    spawnflags(Flags) =
+    [
+        256 : "Not in Easy" : 0
+        512 : "Not in Normal" : 0
+        1024 : "Not in Hard" : 0
+        2048 : "Not in Deathmatch" : 0
+        4096 : "Not in Coop" : 0
+    ]
+]
+
+@baseclass = Angle [ angle(angle) : "Angle direction" ]
+@baseclass = Targetname [ targetname(target_source) : "This entity's ID" ]
+@baseclass = Target [ target(target_destination) : "Target" ]
+@baseclass = Killtarget [ killtarget(target_destination) : "ID of the entity to delete when triggered" ]
+
+@SolidClass = worldspawn : "World entity"
+[
+    episode(string) : "Episode number"
+    sky(string) : "Environment map name (skybox), also used for reflection"
+    sounds(integer) : "Music cd track number"
+    gravity(integer) : "Gravity" : 800
+    light(integer) :  "Set a low value to LIGHT the entire map without using individual bulbs"
+    message(string) : "Map name"
+    fogdensity(string) : "Fog density for opengl cards"
+    fogdensity2(string) : "Fog density for 3dfx cards"
+    fogval(string) : "RGB values of fog for opengl cards"
+    fogval2(string) : "RGB values of fog for 3dfx cards"
+    _sun_light(string) : "Set sun brightness"
+    _sun_target(string) : "Defines sun yaw and pitch pointing to a spotlight target"
+    _sun_angle(string) : "Defines sun yaw and pitch manually (0 to 360) (-90 to 90)"
+    _sun_vector(string) : "Defines sun yaw and pitch using a X Y Z direction vector"
+    _sun_color(string) : "Defines sun color in scalar R G B"
+    _sun_diffuse(string) : "Diffuse light brightness"
+    _sun_difwait(string) : "Diffuse light attenuation"
+    _sun_ambient(string) : "Set sun ambient brightness"
+    _sun_surface(string) : "Set sun surface brightness"
+]
+
+
+
+@SolidClass = ai_boundary : "Character will abort pursuing player when touching this brush. Will take cover until the player is out of view, then return to guarding position (if character has been assigned one)."
+[
+    moral(choices) : "Moral -- 1 to 7 = coward to psychotic" : 0 =
+    [
+        0 : "Random"
+        1 : "Coward"
+        2 : "Happy"
+        3 : "Normal"
+        4 : "Aggressive"
+        5 : "Beserk"
+        6 : "Heroic"
+        7 : "Psychotic"
+    ]
+    cast_group(choices) : "Gang number" : 0 =
+    [
+        0 : "Neutral"
+        1 : "Friendly"
+        2 : "Enemy"
+    ]
+]
+@PointClass size(-16 -16 -24, 16 16 48) color(128 128 255) = ai_combat_spot : "A good place to go to get a vantage point during fighting. Same code as ai_safespot." []
+@SolidClass = ai_event_follow : "Client touching this brush will become a leader to all other characters in line of sight, that have the same cast_group as the brush (cast_group must be greater than 0 to work)."
+[
+    cast_group(choices) : "Gang number" : 0 =
+    [
+        0 : "Warning: ai_event_follow without a valid cast_group"
+        1 : "Friendly"
+        2 : "Enemy"
+    ]
+]
+@SolidClass = ai_event_hostile : "Character touching this brush will become a hostile enemy to all other characters in line of sight, that have the same cast_group as the brush (cast_group must be greater than 0 to work)."
+[
+    cast_group(choices) : "Gang number" : 0 =
+    [
+        0 : "Warning: ai_event_hostile without a valid cast_group"
+        1 : "Friendly"
+        2 : "Enemy"
+    ]
+]
+@PointClass size(-16 -16 -24, 16 16 48) color(128 128 255) = ai_guard : "Set a cast's 'guard_target' to the 'targetname' of this entity. That character will then guard this location. Same code as ai_safespot just no guard_radius."
+[
+    guard_radius(integer) : "Max guarding radius" : 512
+]
+@SolidClass base(Appearflags, Target) = ai_locked_door : "A character touching this brush will check the targeted door to see if it is closed. If so, the character will head towards the specified path_corner_cast. Example use: guiding AI characters away from a locked door"
+[
+    pathtarget(string) : "path_corner_cast's ID to head for"
+]
+@PointClass size(-16 -16 -24, 16 16 48) color(128 128 255) = ai_safespot : "A good place to go to get a vantage point during fighting. Same code as ai_combat_spot." []
+@SolidClass = ai_territory : "This entity marks the boundary of a gang's territory. A character touching this will be deemed inside the gang's territory. This means war if sighted. Point the angle in the direction of the territory. This lets the AI know if the character is walking into or out of the territory."
+[
+    cast_group(choices) : "Gang number" : 2 =
+    [
+        0 : "Neutral"
+        1 : "Friendly"
+        2 : "Enemy"
+    ]
+    angle(angle) : "Points to the direction of the territory"
+    radius(integer) : "Distance from brush before the player will be attacked" : 512
+    moral(choices) : "Moral -- 1 to 7 = coward to psychotic" : 4 =
+    [
+        0 : "Random"
+        1 : "Coward"
+        2 : "Happy"
+        3 : "Normal"
+        4 : "Aggressive"
+        5 : "Beserk"
+        6 : "Heroic"
+        7 : "Psychotic"
+    ]
+]
+@SolidClass base(Appearflags, Target) = ai_trigger_character : "When the player touches this brush, the targeted character will start following it's path_corner_cast."
+[
+    cast_group(choices) : "Gang number" : 2 =
+    [
+        0 : "Neutral"
+        1 : "Friendly"
+        2 : "Enemy"
+    ]
+]
+
+
+@baseclass base(Appearflags, Targetname, Target, Killtarget, Angle) size(-16 -16 -16, 16 16 16) offset(0 0 16) color(77 77 255) = AmmoClass []
+@PointClass base(AmmoClass) studio("models/pu_icon/hmgclip/tris.md2") = ammo_308 : "Bullets clip for the heavy submachine gun (weapon_heavymachinegun), 30 bullets per clip (max: 90)." []
+@PointClass base(AmmoClass) studio("models/pu_icon/pclip/tris.md2") = ammo_bullets : "Bullets clip for the pistol (weapon_pistol, weapon_spistol) and Thompson submachine gun (weapon_tommygun), 20 bullets per clip (max: 200)." []
+@PointClass base(AmmoClass) studio("models/pu_icon/tgclip/tris.md2") = ammo_cylinder : "Bullets for the Thompson submachine gun (weapon_tommygun) or pistol (weapon_pistol, weapon_spistol), 50 bullets per drum (max: 200)." []
+@PointClass base(AmmoClass) studio("models/pu_icon/flametank/tris.md2") = ammo_flametank : "Gaz for the flame thrower (weapon_flamethrower), 50 units of gaz per tank (max: 200)" []
+@PointClass base(AmmoClass) studio("models/pu_icon/grenade/tris.md2") = ammo_grenades : "Grenades for the grenade launcher (weapon_grenadelauncher), 3 per box (max: 12)." []
+@PointClass base(AmmoClass) studio("models/pu_icon/rocket/tris.md2") = ammo_rockets : "Missiles for the rocket launcher (weapon_bazooka), 5 missiles per box (max: 25)." []
+@PointClass base(AmmoClass) studio("models/pu_icon/shotgun_shell/tris.md2") = ammo_shells : "Shells box for the shotgun (weapon_shotgun), 10 shells per box (max: 100)." []
+
+
+
+@PointClass base(Appearflags, Target, Killtarget, Angle) size(-16 -16 -24, 16 16 48) color(255 128 0) studio("models\actors\bitch\head.mdx;models\actors\bitch\body.mdx;models\actors\bitch\legs.mdx") = cast_bitch : "One-handed weapon chick (gender: female)"
+[
+    head(choices) : "Head shape" :0 =
+    [
+        0 : "Normal"
+        2 : "Pony Tail"
+    ]
+    art_skins(string) : "Head -- torso -- legs skin number (always three digits)"
+    scale(integer) : "Model scale -- 0 to 1" : 1
+    cast_group(choices) : "Gang number" : 0 =
+    [
+        0 : "Neutral"
+        1 : "Friendly"
+        2 : "Enemy"
+    ]
+    currentcash(integer) : "Money (negative value to hire)"
+    localteam(string) : "Gang name"
+    health(integer) : "Health points" : 100
+    name(string) : "Character's name"
+    acc(integer) : "Accuracy" : 2
+    cal(integer) : "Weapon caliber" : 3
+    moral(choices) : "Moral" =
+    [
+        0 : "Random"
+        1 : "Coward"
+        2 : "Happy"
+        3 : "Normal"
+        4 : "Aggressive"
+        5 : "Beserk"
+        6 : "Heroic"
+        7 : "Psychotic"
+    ]
+    item(string) : "Item name to drop on death"
+    guard_target(string) : "Link to ai_guard entity"
+    combattarget(string) : "Link to path_corner_cast"
+    deathtarget(string) : "Target to trigger on death"
+    leader_target(string) : "Link to another gang member"
+    health_target(string) : "Target to health threshold events 1 (trigger or run to)"
+    health_threshold(string) : "Must be set if health_target is used"
+    health_target2(string) : "Target to health threshold events 2 (trigger or run to)"
+    health_threshold2(string) : "Must be set if health_target2 is used"
+    health_target3(string) : "Target to health threshold events 3 (trigger or run to)"
+    health_threshold3(string) : "Must be set if health_target3 is used"
+    gun_noise_delay(integer) : "React delay befor hear gun and thake action"
+    aiflags(string) : "AI flags"
+    spawnflags(flags) =
+    [
+        2 : "Trigger Spawn" : 0
+        32 : "Immediate Follow Path" : 0
+        64 : "Melee" : 0
+        128 : "No Shadow" : 0
+    ]
+]
+@PointClass base(Appearflags, Angle) size(-24 -24 -24, 24 24 48) color(255 128 0) studio("models\actors\bum_sit\head.mdx;models\actors\bum_sit\body.mdx;models\actors\bum_sit\legs.mdx") = cast_bum_sit : "A bum, should always be neutral (gender: male)."
+[
+    art_skins(string) : "Head -- torso -- legs skin number (always three digits)"
+    currentcash(integer) : "Money"
+    scale(integer) : "Model scale -- 0 to 1" : 1
+    cast_group(choices) : "Gang number" : 0 =
+    [
+        0 : "Neutral"
+        1 : "Friendly"
+        2 : "Enemy"
+    ]
+    health(integer) : "Health points" : 100
+    name(string) : "Character's name"
+    count(Flags) =
+    [
+        0 : "None"
+        1 : "Cigar"
+        2 : "Fedora"
+        4 : "Stetson"
+        8 : "Cap"
+    ]
+    spawnflags(flags) =
+    [
+        2 : "Trigger Spawn" : 0
+    ]
+]
+@PointClass base(Appearflags, Target, Killtarget, Angle) size(-16 -16 -16, 16 16 22) color(255 128 0) studio("models\actors\enemy_dog\enemy_dog.mdx") = cast_dog : "Dog."
+[
+    skin(choices) : "Skin" : 1 =
+    [
+        1 : "Black Pitbull"
+        2 : "Rottweiler"
+    ]
+    currentcash(integer) : "Money"
+    scale(integer) : "Model scale -- 0 to 1" : 1
+    cast_group(choices) : "Gang number" : 0 =
+    [
+        0 : "Neutral"
+        1 : "Friendly"
+        2 : "Enemy"
+    ]
+    health(integer) : "Health points" : 100
+    guard_target(string) : "Link to ai_guard entity"
+    combattarget(string) : "Link to path_corner_cast"
+    deathtarget(string) : "Target to trigger on death"
+    leader_target(string) : "Link to another gang member"
+    health_target(string) : "Target to health threshold events 1 (trigger or run to)"
+    health_threshold(string) : "Must be set if health_target is used"
+    health_target2(string) : "Target to health threshold events 2 (trigger or run to)"
+    health_threshold2(string) : "Must be set if health_target2 is used"
+    health_target3(string) : "Target to health threshold events 3 (trigger or run to)"
+    health_threshold3(string) : "Must be set if health_target3 is used"
+    gun_noise_delay(integer) : "React delay befor hear gun and thake action"
+    aiflags(string) : "AI flags"
+    spawnflags(flags) =
+    [
+        2 : "Trigger Spawn" : 0
+    ]
+]
+@PointClass base(Appearflags, Target, Killtarget, Angle) size(-16 -16 -24, 16 16 48) color(255 128 0) studio("models\actors\punk\head.mdx;models\actors\punk\body.mdx;models\actors\punk\legs.mdx") = cast_punk : "Two handed weapon thug (gender: male)."
+[
+    art_skins(string) : "Head -- torso -- legs skin number (always three digits)"
+    head(choices) : "Head shape" : 0 =
+    [
+        0 : "Normal"
+        1 : "Bald"
+        2 : "Weld Head"
+    ]
+    count(Flags) =
+    [
+        0 : "None"
+        1 : "Cigar"
+        2 : "Fedora"
+        4 : "Stetson"
+        8 : "Cap"
+    ]
+    scale(integer) : "Model scale -- 0 to 1" : 1
+    cast_group(choices) : "Gang number" : 0 =
+    [
+        0 : "Neutral"
+        1 : "Friendly"
+        2 : "Enemy"
+    ]
+    currentcash(integer) : "Money (negative value to hire)"
+    localteam(string) : "Gang name"
+    health(integer) : "Health points" : 100
+    name(string) : "Character's name"
+    acc(integer) : "Accuracy" : 2
+    cal(integer) : "Weapon caliber" : 3
+    moral(choices) : "Moral" =
+    [
+        0 : "Random"
+        1 : "Coward"
+        2 : "Happy"
+        3 : "Normal"
+        4 : "Aggressive"
+        5 : "Beserk"
+        6 : "Heroic"
+        7 : "Psychotic"
+    ]
+    item(string) : "Item name to drop on death"
+    guard_target(string) : "Link to ai_guard entity"
+    combattarget(string) : "Link to path_corner_cast"
+    deathtarget(string) : "Target to trigger on death"
+    leader_target(string) : "Link to another gang member"
+    health_target(string) : "Target to health threshold events 1 (trigger or run to)"
+    health_threshold(string) : "Must be set if health_target is used"
+    health_target2(string) : "Target to health threshold events 2 (trigger or run to)"
+    health_threshold2(string) : "Must be set if health_target2 is used"
+    health_target3(string) : "Target to health threshold events 3 (trigger or run to)"
+    health_threshold3(string) : "Must be set if health_target3 is used"
+    gun_noise_delay(integer) : "React delay befor hear gun and thake action"
+    aiflags(string) : "AI flags"
+    spawnflags(flags) =
+    [
+        1 : "Flash Light" : 0
+        2 : "Trigger Spawn" : 0
+        4 : "Flamethrower" : 0
+        8 : "Bazooka" : 0
+        16 : "HMG" : 0
+        32 : "Immediate Follow Path" : 0
+        64 : "Tommygun" : 0
+        128 : "Grenade" : 0
+        8192 : "Shotgun" : 0
+    ]
+]
+@PointClass base(Appearflags, Target, Killtarget, Angle) size(-16 -16 -24, 16 16 48) color(255 128 0) studio("models\actors\runt\head.mdx;models\actors\runt\body.mdx;models\actors\runt\legs.mdx") = cast_runt : "One handed weapon runt (gender: male)."
+[
+    art_skins(string) : "Head -- torso -- legs skin number (always three digits)"
+    count(Flags) =
+    [
+        0 : "None"
+        1 : "Cigar"
+        2 : "Fedora"
+        4 : "Stetson"
+        8 : "Cap"
+    ]
+    scale(integer) : "Model scale -- 0 to 1" : 1
+    cast_group(choices) : "Gang number" : 0 =
+    [
+        0 : "Neutral"
+        1 : "Friendly"
+        2 : "Enemy"
+    ]
+    currentcash(integer) : "Money (negative value to hire)"
+    localteam(string) : "Gang name"
+    health(integer) : "Health points" : 100
+    name(string) : "Character's name"
+    acc(integer) : "Accuracy" : 2
+    cal(integer) : "Weapon caliber" : 3
+    moral(choices) : "Moral" =
+    [
+        0 : "Random"
+        1 : "Coward"
+        2 : "Happy"
+        3 : "Normal"
+        4 : "Aggressive"
+        5 : "Beserk"
+        6 : "Heroic"
+        7 : "Psychotic"
+    ]
+    item(string) : "Item name to drop on death"
+    guard_target(string) : "Link to ai_guard entity"
+    combattarget(string) : "Link to path_corner_cast"
+    deathtarget(string) : "Target to trigger on death"
+    leader_target(string) : "Link to another gang member"
+    health_target(string) : "Target to health threshold events 1 (trigger or run to)"
+    health_threshold(string) : "Must be set if health_target is used"
+    health_target2(string) : "Target to health threshold events 2 (trigger or run to)"
+    health_threshold2(string) : "Must be set if health_target2 is used"
+    health_target3(string) : "Target to health threshold events 3 (trigger or run to)"
+    health_threshold3(string) : "Must be set if health_target3 is used"
+    gun_noise_delay(integer) : "React delay befor hear gun and thake action"
+    aiflags(string) : "AI flags"
+    spawnflags(flags) =
+    [
+        2 : "Trigger Spawn" : 0
+        32 : "Immediate Follow Path" : 0
+        64 : "Melee" : 0
+        128 : "No Shadow" : 0
+    ]
+]
+@PointClass base(Appearflags, Target, Killtarget) size(-16 -16 -24, 16 16 48) color(255 128 0) studio("models\actors\shorty\head.mdx;models\actors\shorty\body.mdx;models\actors\shorty\legs.mdx") = cast_shorty : "Two handed weapon runt (gender: male)."
+[
+    art_skins(string) : "Head -- torso -- legs skin number (always three digits)"
+    scale(integer) : "Model scale -- 0 to 1" : 1
+    cast_group(choices) : "Gang number" : 0 =
+    [
+        0 : "Neutral"
+        1 : "Friendly"
+        2 : "Enemy"
+    ]
+    currentcash(integer) : "Money (negative value to hire)"
+    localteam(string) : "Gang name"
+    health(integer) : "Health points" : 100
+    name(string) : "Character's name"
+    acc(integer) : "Accuracy" : 2
+    cal(integer) : "Weapon caliber" : 3
+    moral(choices) : "Moral" =
+    [
+        0 : "Random"
+        1 : "Coward"
+        2 : "Happy"
+        3 : "Normal"
+        4 : "Aggressive"
+        5 : "Beserk"
+        6 : "Heroic"
+        7 : "Psychotic"
+    ]
+    item(string) : "Item name to drop on death"
+    guard_target(string) : "Link to ai_guard entity"
+    combattarget(string) : "Link to path_corner_cast"
+    deathtarget(string) : "Target to trigger on death"
+    leader_target(string) : "Link to another gang member"
+    health_target(string) : "Target to health threshold events 1 (trigger or run to)"
+    health_threshold(string) : "Must be set if health_target is used"
+    health_target2(string) : "Target to health threshold events 2 (trigger or run to)"
+    health_threshold2(string) : "Must be set if health_target2 is used"
+    health_target3(string) : "Target to health threshold events 3 (trigger or run to)"
+    health_threshold3(string) : "Must be set if health_target3 is used"
+    gun_noise_delay(integer) : "React delay befor hear gun and thake action"
+    aiflags(string) : "AI flags"
+    spawnflags(flags) =
+    [
+        1 : "Flash Light" : 0
+        2 : "Trigger Spawn" : 0
+        4 : "Flamethrower" : 0
+        8 : "Bazooka" : 0
+        16 : "HMG" : 0
+        32 : "Immediate Follow Path" : 0
+        64 : "Tommygun" : 0
+        128 : "Grenade" : 0
+        8192 : "Shotgun" : 0
+    ]
+]
+@PointClass base(Appearflags, Target, Killtarget, Angle) size(-16 -16 -24, 16 16 48) color(255 128 0) studio("models\actors\thug\head.mdx;models\actors\thug\body.mdx;models\actors\thug\legs.mdx") = cast_thug : "One handed weapon thug (gender: male)."
+[
+    art_skins(string) : "Head -- torso -- legs skin number (always three digits)"
+    head(choices) : "Head shape" : 0 =
+    [
+        0 : "Normal"
+        1 : "Bald"
+        2 : "Weld Head"
+    ]
+    count(Flags) =
+    [
+        0 : "None"
+        1 : "Cigar"
+        2 : "Fedora"
+        4 : "Stetson"
+        8 : "Cap"
+    ]
+    scale(integer) : "Model scale -- 0 to 1" : 1
+    cast_group(choices) : "Gang number" : 0 =
+    [
+        0 : "Neutral"
+        1 : "Friendly"
+        2 : "Enemy"
+    ]
+    currentcash(integer) : "Money (negative value to hire)"
+    localteam(string) : "Gang name"
+    health(integer) : "Health points" : 100
+    name(string) : "Character's name"
+    acc(integer) : "Accuracy" : 2
+    cal(integer) : "Weapon caliber" : 3
+    moral(choices) : "Moral" =
+    [
+        0 : "Random"
+        1 : "Coward"
+        2 : "Happy"
+        3 : "Normal"
+        4 : "Aggressive"
+        5 : "Beserk"
+        6 : "Heroic"
+        7 : "Psychotic"
+    ]
+    item(string) : "Item name to drop on death"
+    guard_target(string) : "Link to ai_guard entity"
+    combattarget(string) : "Link to path_corner_cast"
+    deathtarget(string) : "Target to trigger on death"
+    leader_target(string) : "Link to another gang member"
+    health_target(string) : "Target to health threshold events 1 (trigger or run to)"
+    health_threshold(string) : "Must be set if health_target is used"
+    health_target2(string) : "Target to health threshold events 2 (trigger or run to)"
+    health_threshold2(string) : "Must be set if health_target2 is used"
+    health_target3(string) : "Target to health threshold events 3 (trigger or run to)"
+    health_threshold3(string) : "Must be set if health_target3 is used"
+    gun_noise_delay(integer) : "React delay befor hear gun and thake action"
+    aiflags(string) : "AI flags"
+    spawnflags(flags) =
+    [
+        2 : "Trigger Spawn" : 0
+        32 : "Immediate Follow Path" : 0
+        64 : "Melee" : 0
+        128 : "No Shadow" : 0
+    ]
+]
+@PointClass base(Appearflags, Angle) size(-16 -16 -24, 16 16 48) color(255 128 0) studio("models\actors\thug_sit\head.mdx;models\actors\thug_sit\body.mdx;models\actors\thug_sit\legs.mdx") = cast_thug_sit : "Guy with the pistol, should always be neutral (gender: male)."
+[
+    art_skins(string) : "Head -- torso -- legs skin number (always three digits)"
+    head(choices) : "Head shape" : 0 =
+    [
+        0 : "Normal"
+        1 : "Bald"
+        2 : "Weld Head"
+    ]
+    scale(integer) : "Model scale -- 0 to 1" : 1
+    cast_group(choices) : "Gang number" : 0 =
+    [
+        0 : "Neutral"
+        1 : "Friendly"
+        2 : "Enemy"
+    ]
+    count(Flags) =
+    [
+        0 : "None"
+        1 : "Cigar"
+        2 : "Fedora"
+        4 : "Stetson"
+        8 : "Cap"
+    ]
+    health(integer) : "Health points" : 100
+    name(string) : "Character's name"
+    gun_noise_delay(integer) : "React delay befor hear gun and thake action"
+    aiflags(string) : "AI flags"
+    spawnflags(flags) =
+    [
+        2 : "Trigger Spawn" : 0
+        32 : "Immediate Follow Path" : 0
+        64 : "Melee" : 0
+        128 : "No Shadow" : 0
+    ]
+]
+@PointClass base(Appearflags, Target, Killtarget, Angle) size(-16 -16 -24, 16 16 48) color(255 128 0) studio("models\actors\whore\head.mdx;models\actors\whore\body.mdx;models\actors\whore\legs.mdx") = cast_whore : "Two handed weapon chick (gender: female)."
+[
+    art_skins(string) : "Head -- torso -- legs skin number (always three digits)"
+    head(choices) : "Head shape" : 0 =
+    [
+        0 : "Normal"
+        1 : "Bald"
+        2 : "Pony Tail"
+    ]
+    scale(integer) : "Model scale -- 0 to 1" : 1
+    cast_group(choices) : "Gang number" : 0 =
+    [
+        0 : "Neutral"
+        1 : "Friendly"
+        2 : "Enemy"
+    ]
+    currentcash(integer) : "Money (negative value to hire)"
+    localteam(string) : "Gang name"
+    health(integer) : "Health points" : 100
+    name(string) : "Character's name"
+    acc(integer) : "Accuracy" : 2
+    cal(integer) : "Weapon caliber" : 3
+    moral(choices) : "Moral" =
+    [
+        0 : "Random"
+        1 : "Coward"
+        2 : "Happy"
+        3 : "Normal"
+        4 : "Aggressive"
+        5 : "Beserk"
+        6 : "Heroic"
+        7 : "Psychotic"
+    ]
+    item(string) : "Item name to drop on death"
+    guard_target(string) : "Link to ai_guard entity"
+    combattarget(string) : "Link to path_corner_cast"
+    deathtarget(string) : "Target to trigger on death"
+    leader_target(string) : "Link to another gang member"
+    health_target(string) : "Target to health threshold events 1 (trigger or run to)"
+    health_threshold(string) : "Must be set if health_target is used"
+    health_target2(string) : "Target to health threshold events 2 (trigger or run to)"
+    health_threshold2(string) : "Must be set if health_target2 is used"
+    health_target3(string) : "Target to health threshold events 3 (trigger or run to)"
+    health_threshold3(string) : "Must be set if health_target3 is used"
+    gun_noise_delay(integer) : "React delay befor hear gun and thake action"
+    aiflags(string) : "AI flags"
+    spawnflags(flags) =
+    [
+        1 : "Flash Light" : 0
+        2 : "Trigger Spawn" : 0
+        4 : "Flamethrower" : 0
+        8 : "Bazooka" : 0
+        16 : "HMG" : 0
+        32 : "Immediate Follow Path" : 0
+        64 : "Tommygun" : 0
+        128 : "Grenade" : 0
+        8192 : "Shotgun" : 0
+    ]
+]
+
+
+@PointClass size(-16 -16 -16, 16 16 16) color(128 0 255) flags(Angle) = dm_cashspawn : "Spawn location for cash in Grab da Loot games."
+[
+    angle(string) : "Direction to project cash upon spawning"
+    speed(integer) : "Projection's speed"
+    type(string) : "cashroll or cashbag (cashbag takes longer to spawn)"
+]
+@PointClass size(-47 -6 -100, 47 6 100) color(128 0 255)
+    studio(
+        {{
+            style &  2 -> "models/props/flag/flag1.md2",
+            style &  1 -> "models/props/flag/flag3.md2",
+                          "models/props/flag/tris.md2"
+        }}
+    ) = dm_props_banner : "Temp banner for teamplay."
+[
+    scale(float) : "Model scale" : "1.0"
+    style(choices) : "Team that this banner belongs to (1 or 2)" : 0 =
+    [
+        0 : "dm_props_banner has invalid style, should be 1 or 2."
+        1 : "Dragons"
+        2 : "Nikki's Boyz"
+    ]
+]
+@PointClass size(-12 -12 -16, 12 12 12) color(128 0 255) studio("models/pu_icon/money/money_lg.md2") = dm_safebag : "Bag that holds the money in the safe."
+[
+    style(choices) : "Team that this bag belongs to (1 or 2)" : 0 =
+    [
+        0 : "dm_safebag has invalid style, should be 1 or 2."
+        1 : "Dragons"
+        2 : "Nikki's Boyz"
+    ]
+]
+
+
+@SolidClass = elements_raincloud : "Rain falls from this invisible cloud at random points; the center of the cloud to ground trace determines the drop fall distance. Cloud can only be rectangular."
+[
+    fxdensity(integer) : "Total number of drops in the sky, 1 to 1000" : 400
+    firetype(integer) : "Type of drops -- 0 = rain, 1 = drip" : 0
+]
+@SolidClass = elements_snowcloud : "Snow falls from this invisible cloud at random points; the center of the cloud to ground trace determines the drop fall distance. Cloud can only be rectangular."
+[
+    fxdensity(integer) : "Total number of drops in the sky, 1 to 1000" : 400
+]
+
+
+
+@SolidClass base(Appearflags, Targetname) = func_areaportal : "Area portal (Vis blocker), Toggle visibility portal's when activated, usually enclosed in the middle of a door so when it is closed, the area beyond is not rendered (the door must target this entity)" []
+@SolidClass base(Appearflags, Target, Targetname, Killtarget, Angle) = func_button : "When a button is touched, it moves some distance in the direction of its angle, triggers all of it's targets, waits some time, then returns to it's original position where it can be triggered again."
+[
+    speed(integer) : "Moving speed)" : 40
+    accel(integer) : "Acceleration (default=speed)"
+    decel(integer) : "Deceleration (default=speed)"
+    wait(integer) : "Wait before return (default=1) (set to -1=never return)"
+    lip(integer) : "Lip" : 4
+    pathtarget(string) : "Entity to trigger when an entity that has this path_corner targeted touches it"
+    health(string) : "If set, the button is shootable"
+    sounds(choices) : "Sounds" : 0 =
+    [
+        0 : "Audible"
+        1 : "Silent"
+        2 : "world/switches/butn2.wav"
+        3 : "world/switches/valve.wav"
+        4 : "world/switches/wheel.wav"
+        5 : "world/switches/console switch.wav"
+        6 : "world/switches/pushbutton.wav"
+        7 : "world/switches/thunk switch.wav"
+        8 : "world/switches/wall.wav"
+    ]
+    message(string) : "Activation message"
+    spawnflags(flags) =
+    [
+        1 : "Auto Open" : 0
+        2 : "Onoff" : 0
+        4 : "No Monster" : 0
+    ]
+]
+@PointClass base(Appearflags, Targetname) color(0 0 255) size(-8 -8 -8, 8 8 8) = func_clock : "Clock: target a target_string with this. The default is to be a time of day clock. If START_OFF, this entity must be used before it starts"
+[
+    spawnflags(Flags) =
+    [
+        1 : "Timer Up" : 0
+        2 : "Timer Down" : 0
+        4 : "Start Off" : 0
+        8 : "Multi Use" : 0
+    ]
+    count(integer) : "Clock Count"
+    pathtarget(string) : "Target"
+    style(choices) : "Style" : 0 =
+    [
+        0 : "xx"
+        1 : "xx:xx"
+        2 : "xx:xx:xx"
+    ]
+]
+@SolidClass base(Appearflags, Targetname) = func_conveyor : "Conveyors are stationary brushes that move what's on them. The brush should have a surface with at least one current content enabled."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start On" : 0
+        2 : "Toggle" : 0
+    ]
+    speed(integer) : "Speed" : 100
+]
+@SolidClass base(Appearflags, Targetname, Target, Killtarget, Angle) = func_door : "A sliding door."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start Open" : 0
+        4 : "Crusher" : 0
+        8 : "No Monsters" : 0
+        16 : "Animated" : 0
+        32 : "Toggle" : 0
+        64 : "Animated Fast" : 0
+        128 : "Surf2 Alpha" : 0
+    ]
+    target2(string) : "Point to an ai_safespot's ID (for lockpicking purpose), can also be used as an alternate targetname field."
+    team(string) : "Trigger every door with the same team name"
+    message(string) : "Message printed once when the door is touched if it is a trigger door"
+    health(integer) : "If set, door must be shot open"
+    speed(integer) : "Movement speed" : 100
+    accel(string) : "Acceleration (default=speed)"
+    decel(string) : "Deceleration (default=speed)"
+    wait(integer) : "wait before returning (-1 = never return)" : 3
+    lip(integer) : "Lip remaining at end of move" : 8
+    dmg(integer) : "Damage to inflict when blocked" : 2
+    Key(choices) : "Key number required to unlock" : 0 =
+    [
+        -1 : "Trigger Unlock"
+        0 : "Default"
+        1 : "Store Room Key"
+        2 : "Electrical Room Key"
+        3 : "Chem Plant Key"
+        4 : "Bridge Key"
+        5 : "Shipyard Key"
+        6 : "Warehouse Key"
+        7 : "Shop Key"
+        8 : "Ticket Key"
+        9 : "Office Key"
+        10 : "Key10"
+    ]
+    sounds(choices) : "Sounds" : 2 =
+    [
+        0 : "Audible"
+        1 : "Silent"
+        2 : "Metal Sliding"
+        3 : "Wooden Swinging #1"
+        4 : "Metal Swingingt"
+        5 : "Metal Sliding Train"
+        6 : "Metal Rolling"
+        7 : "Metal Swing-up Garage Door"
+        8 : "Wooden Swinging #2"
+        9 : "Wooden Drawer"
+        10 : "Metal Drawer"
+    ]
+]
+
+@SolidClass base(Appearflags, Targetname, Target, Killtarget, Angle) = func_door_rotating : "Rotating Door: You need to have an origin brush as part of this entity. The center of that brush will be the point around which it is rotated. It will rotate around the Z axis by default. You can check either the X_AXIS or Y_AXIS box to change that"
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start Open" : 0
+        2 : "Reverse" : 0
+        4 : "Surf2 Alpha" : 0
+        8 : "No Monsters" : 0
+        16 : "Animated" : 0
+        32 : "Toggle" : 0
+        64 : "X Axis" : 0
+        128 : "Y Axis" : 0
+    ]
+    target2(string) : "Point to an ai_safespot's ID (for lockpicking purpose), can also be used as an alternate targetname field."
+    team(string) : "Trigger every door with the same team name"
+    distance(integer) : "How many degrees the door will be rotated."
+    message(string) : "Message printed once when the door is touched if it is a trigger door"
+    health(integer) : "If set, door must be shot open"
+    speed(integer) : "Movement speed" : 100
+    wait(integer) : "wait before returning (-1 = never return)" : 3
+    dmg(integer) : "Damage to inflict when blocked" : 2
+    style(choices) : "Style" : 0 =
+    [
+        0 : "Rotate away from it's activator"
+        1 : "Fixed rotation "
+    ]
+    Key(choices) : "Key number required to unlock" : 0 =
+    [
+        -1 : "Trigger Unlock"
+        0 : "Default"
+        1 : "Store Room Key"
+        2 : "Electrical Room Key"
+        3 : "Chem Plant Key"
+        4 : "Bridge Key"
+        5 : "Shipyard Key"
+        6 : "Warehouse Key"
+        7 : "Shop Key"
+        8 : "Ticket Key"
+        9 : "Office Key"
+        10 : "Key10"
+    ]
+    sounds(choices) : "Sounds" : 2 =
+    [
+        0 : "Audible"
+        1 : "Silent"
+        2 : "Metal Sliding"
+        3 : "Wooden Swinging #1"
+        4 : "Metal Swingingt"
+        5 : "Metal Sliding Train"
+        6 : "Metal Rolling"
+        7 : "Metal Swing-up Garage Door"
+        8 : "Wooden Swinging #2"
+        9 : "Wooden Drawer"
+        10 : "Metal Drawer"
+    ]
+]
+@SolidClass base(Appearflags, Targetname, Target, Killtarget, Angle) = func_door_secret : "A secret door.  Slide back and then to the side."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Always shoot" : 0
+        2 : "1st Left" : 0
+        4 : "1st Down" : 0
+    ]
+    dmg(integer) : "Damage to inflic when blocked" : 2
+    wait(integer) : "How long to hold in the open position, stay forever if '-1'" : 5
+    health(integer) : "Strength, must be shot-open if set."
+    message(string) : "Message printed once when the door is touched if it is a trigger door"
+]
+@SolidClass base(Appearflags, Targetname, Target, Killtarget) = func_explosive : "Any brush that you want to explode or break apart.  If you want an explosion, set dmg and it will do a radius explosion of that amount at the center of the bursh."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Trigger Spawn" : 0
+        2 : "Animated" : 0
+        4 : "Animated Fast" : 0
+        8 : "Surf2 Alpha" : 0
+    ]
+    health(integer) : "Hit points " : 100
+    mass(integer) : "Amount of debris (debris)" : 75
+    dmg(integer) : "How much radius damage should be done." : 0
+    fxdensity(integer) : "Size of explosion 1 to 100" : 10
+    style(choices) : "Styles" =
+    [
+        "glass" : "Glass debris"
+        "wood" : "Wood debris"
+        "metal" : "Metal debris"
+    ]
+]
+@SolidClass = func_group : "Used to group brushes together just for editor convenience." []
+@SolidClass base(Appearflags, Targetname) = func_killbox : "Kills everything inside when fired, irrespective of protection." []
+@SolidClass base(Appearflags, Target, Killtarget)= func_lift : "Lifts are moving platforms that players and ai_characters can ride (up and down only!!). The targets origin specifies the min point of the train at each corner. The train spawns at the first target it is pointing at. If the train is the target of a button or trigger, it will not begin moving until activated. A button is required for the AI to use."
+[
+    speed(integer) : "Movement speed" : 100
+    dmg(integer) : "Damage to inflict when blocked (BLOCK_STOPS default=0)" : 100
+    noise(sound) : "looping sound to play when the train is in motion"
+    target2(string) : "ID string for attached button"
+    spawnflags(flags) =
+    [
+        1 : "Start On" : 0
+        2 : "Toggle" : 0
+        4 : "Block Stops" : 0
+    ]
+]
+
+@SolidClass base(Appearflags, Targetname) = func_object : "Solid bmodel, will fall if its support is removed"
+[
+    spawnflags(Flags) =
+    [
+        1 : "Trigger Spawn" : 0
+        2 : "Animated" : 0
+        4 : "Animated Fast" : 0
+    ]
+    dmg(integer) : "Damages inflicted to crushed entities" : 100
+]
+@SolidClass base(Appearflags, Target) size(-8 -8 -8, 8 8 8) color(255 128 0) = func_object_repair : "Object to be repaired."
+[
+    delay(integer) : "Time in seconds for sparks to occur" : 1
+]
+@SolidClass base(Appearflags, Targetname) = func_plat : "Platform: Plats are always rendered in the extended position when compiling map, so they will light correctly. If the plat is the target of another trigger or button, it will start out disabled in the extended position until it is triggered, when it will lower and become a normal plat."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Plat Low Trigger" : 0
+    ]
+    speed(integer) : "Moving Speed" : 20
+    accel(integer) : "Acceleration" : 5
+    decel(integer) : "Deceleration" : 5
+    lip(integer) : "Lip remaining after move" : 8
+    height(integer) : "Movement distance"
+    dmg(integer) : "Damages when blocked" : 2
+    wait(integer) : "Time to wait before trigger"
+]
+@SolidClass base(Appearflags, Targetname) = func_rotating : "Rotating brush: You need to have an origin brush as part of this entity. The center of that brush will be the point around which it is rotated. It will rotate around the Z axis by default. You can check either the X_AXIS or Y_AXIS spawnflag to change the rotation axe."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start On" : 0
+        2 : "Reverse" : 0
+        4 : "X Axis" : 0
+        8 : "Y Axis" : 0
+        16 : "Pain on Touch" : 0
+        32 : "Block Stops" : 0
+        64 : "Animated" : 0
+        128 : "Animated Fast" : 0
+    ]
+    speed(integer) : "Moving speed" : 100
+    dmg(integer) : "Damage when blocked" : 2
+]
+@PointClass base(Appearflags, Targetname, Target, Killtarget) color(76 25 153) size(-8 -8 -8, 8 8 8) = func_timer : "Timer: Automatic trigger, can be activated, toggle."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start On" : 0
+    ]
+    wait(integer) : "Base wait time" : 1
+    random(integer) : "Wait variance (+/-), in seconds" : 0
+    delay(integer) : "Delay before first firing when activated" : 0
+    pausetime(integer) : "Additional delay used only the very first time, if START_ON is set"
+    wait(integer) : "Base time between triggering all targets, in seconds" : 1
+]
+@SolidClass base(Appearflags, Targetname, Target, Killtarget) = func_train : "Moving platform: Trains are moving platforms that players can ride. The targets origin specifies the min point of the train at each corner. The train spawns at the first target it is pointing at. If the train is the target of a button or trigger, it will not begin moving until activated."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start On" : 0
+        2 : "Toggle" : 0
+        4 : "Block Stops" : 0
+        8 : "Surf2 Alpha" : 0
+    ]
+    speed(integer) : "Movement speed" : 100
+    dmg(integer) : "Damage to inflict when blocked (BLOCK_STOPS default=100)" : 2
+    noise(sound) : "Sound (path/file.wav)"
+]
+@SolidClass base(Appearflags, Targetname, Target, Killtarget) = func_train_rotating : "Trains are moving platforms that players can ride. The targets origin specifies the min point of the train at each corner. The train spawns at the first target it is pointing at. If the train is the target of a button or trigger, it will not begin moving until activated."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start On" : 0
+        2 : "Toggle" : 0
+        4 : "Block Stops" : 0
+        8 : "Surf2 Alpha" : 0
+    ]
+    speed(integer) : "Movement speed" : 100
+    dmg(integer) : "Damage to inflict when blocked (BLOCK_STOPS default=100)" : 2
+    noise(sound) : "Sound (path/file.wav)"
+    reactdelay(integer) : "Sound length in second" : 1
+]
+@SolidClass base(Appearflags, Targetname) = func_wall : "Solid Wall: This is just a solid wall if not inhibited. Wall is always present by default, unless TRIGGER_SPAWN is set -- When triggered, the wall will shift from OFF to ON (or ON to OFF)."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Trigger Spawn" : 0
+        2 : "Toggle" : 0
+        4 : "Start On" : 0
+        8 : "Animated" : 0
+        16 : "Animated Fast" : 0
+        32 : "Surf2 Alpha" : 0
+    ]
+]
+@SolidClass base(Appearflags, Targetname, Angle) = func_water : "Movable water brush, must be targeted to operate. Use a non-water texture at your own risk."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start Open" : 0
+        2 : "Translucent" : 0
+    ]
+    speed(integer) : "Movement speed" : 25
+    wait(integer) : "Wait before returning (TOGGLE)" : -1
+    lip(integer) : "Lip remaining at end of move" : 0
+    sounds(Choices) : "Sounds" : 1 =
+    [
+        0 : "No Sounds"
+        1 : "Water"
+        2 : "Water"
+    ]
+
+]
+
+
+@PointClass base(Appearflags, Targetname, Target, Killtarget, Angle) size(-16 -16 -16, 16 16 16) color(179 77 102) studio("models\pu_icon\coolmod\tris.md2") = hmg_mod_cooling : "Cooling sleeves for the heavy submachine gun (weapon_heavymachinegun), increase rate of fire, lasts 30 shots before breaking up." []
+
+
+
+@baseclass base(Appearflags, Targetname) size(-4 -4 -4, 4 4 4) color(0 128 0) = NullClass []
+@PointClass base(NullClass) = info_null : "Used as a positional target for spotlights, etc. If no targetname it's removed." []
+@PointClass base(NullClass) = info_notnull : "Used as a positional target for lightning." []
+
+//
+// player start, deathmatch, coop, deathmatch intermission
+//
+
+@baseclass base(Appearflags, Targetname) size(-16 -16 -24, 16 16 32) color(0 255 0) = PlayerClass []
+@PointClass base(PlayerClass, Angle) = info_player_start : "The normal starting point for a level." []
+@PointClass base(PlayerClass, Angle) = info_player_deathmatch : "Spawning point for players in deathmatch games."
+[
+    style(choices) : "Team number for Teamplay" : 0 =
+    [
+        0 : "None"
+        1 : "Dragons"
+        2 : "Nikki's Boyz"
+    ]
+]
+@PointClass base(PlayerClass, Angle) = info_player_coop : "Spawning point for AI gang members in a single-player game. Every single-player map should contain two of these near to the client's start point." []
+@PointClass base(PlayerClass, Angle) = info_player_intermission : "Potential intermission viewpoint for deathmatch games."
+[
+    angles(string) : "Pitch, yaw and roll view direction."
+]
+
+
+@baseclass base(Appearflags, Targetname, Target, Killtarget, Angle) size(-16 -16 -16, 16 16 16) offset(0 0 16) color(77 77 255) = ItemClass []
+@PointClass base(ItemClass) studio("models/pu_icon/armor_head/armor_head.md2") = item_armor_helmet : "Armor: Helmet armor, light." []
+@PointClass base(ItemClass) studio("models/pu_icon/armor_head/armor_head_hd.md2") = item_armor_helmet_heavy : "Armor: Helmet armor, heavy." []
+@PointClass base(ItemClass) studio("models/pu_icon/armor/tris.md2") = item_armor_jacket : "Armor: Jacket armor, light." []
+@PointClass base(ItemClass) studio("models/pu_icon/armor/armorhdtop.md2") = item_armor_jacket_heavy : "Armor: Jacket armor, heavy." []
+@PointClass base(ItemClass) studio("models/pu_icon/armor_lo/armor_lo.md2") = item_armor_legs : "Armor: Legs armor, light." []
+@PointClass base(ItemClass) studio("models/pu_icon/armor_lo/armor_lo_hd.md2") = item_armor_legs_heavy : "Armor: Legs armor, heavy." []
+@PointClass base(ItemClass) studio("models/pu_icon/adrenaline/tris.md2") = item_adrenaline : "Health: adrenaline (totally restores health)." []
+@PointClass base(ItemClass) studio("models/pu_icon/battery/tris.md2") = item_battery : "Pickup item: bike battery ('Battery')." []
+@PointClass base(ItemClass) studio("models/pu_icon/money/money_lg.md2") = item_cashbaglarge : "Cash the player can pick up."
+[
+    currentcash(string) : "Set amount of cash in the bag"
+]
+@PointClass base(ItemClass) studio("models/pu_icon/money/money_sm.md2") = item_cashbagsmall : "Cash the player can pick up."
+[
+    currentcash(string) : "Set amount of cash in the bag"
+]
+@PointClass base(ItemClass) studio("models/pu_icon/cash/tris.md2") = item_cashroll : "Cash the player can pick up."
+[
+    currentcash(string) : "Set amount of cash in the bag"
+]
+@PointClass base(ItemClass) studio("models/pu_icon/coil/tris.md2") = item_coil : "Pickup item: coil ('Coil')." []
+@PointClass base(ItemClass) studio("models/pu_icon/f_light/tris.md2") = item_flashlight : "Pickup item: flashlight ('Flashlight')." []
+@PointClass base(ItemClass) studio("models/pu_icon/health/tris.md2") = item_health_lg: "Health: large medicine bag." []
+@PointClass base(ItemClass) studio("models/pu_icon/health_s/tris.md2") = item_health_sm: "Health: small medkit." []
+@PointClass base(ItemClass) studio("models/pu_icon/head/head.mdx") = item_lizzyhead : "Pickup item: Lizzy's head ('Lizzy Head')." []
+@PointClass base(ItemClass) studio("models/pu_icon/oilcan/tris.md2") = item_oilcan : "Pickup item: oil can ('Oil Can')." []
+@PointClass base(ItemClass) studio("models/pu_icon/backpack/tris.md2") = item_pack : "Pickup item: ammo pack ('Ammo Pack'), provides a few ammos for every weapon." []
+@PointClass base(ItemClass) studio("models/pu_icon/folder/tris.md2") = item_safedocs : "Pickup item: important documents ('Safe docs')." []
+@PointClass base(ItemClass) studio("models/pu_icon/valve/tris.md2") = item_valve : "Pickup item: valve ('Valve')." []
+@PointClass base(ItemClass) studio("models/pu_icon/watch/tris.md2") = item_watch : "Pickup item: Lenny's watch in Skidrow ('Watch')." []
+@PointClass base(ItemClass) studio("models/pu_icon/whiskey/tris.md2") = item_whiskey : "Pickup item: whiskey for the bum in Skidrow ('Whiskey')." []
+
+
+@baseclass base(Appearflags, Targetname, Target, Killtarget, Angle) size(-16 -16 -16, 16 16 16) color(0 128 204) = KeyClass []
+@PointClass base(KeyClass) studio("models/pu_icon/key/key_a.md2") = key_key1 : "Store_Room_Key, will allow player to unlock doors with a 'key' value of '1'" []
+@PointClass base(KeyClass) studio("models/pu_icon/key/key_b.md2") = key_key2 : "Electrical_Room, will allow player to unlock doors with a 'key' value of '2'" []
+@PointClass base(KeyClass) studio("models/pu_icon/key/key_c.md2") = key_key3 : "Chem_Plant_Key, will allow player to unlock doors with a 'key' value of '3'" []
+@PointClass base(KeyClass) studio("models/pu_icon/key/key_c.md2") = key_key4 : "Bridge_Key, will allow player to unlock doors with a 'key' value of '4'" []
+@PointClass base(KeyClass) studio("models/pu_icon/key/key_c.md2") = key_key5 : "Shipyard_Key, will allow player to unlock doors with a 'key' value of '5'" []
+@PointClass base(KeyClass) studio("models/pu_icon/key/key_c.md2") = key_key6 : "Warehouse_Key, will allow player to unlock doors with a 'key' value of '6'" []
+@PointClass base(KeyClass) studio("models/pu_icon/key/key_c.md2") = key_key7 : "Shop_Key, will allow player to unlock doors with a 'key' value of '7'" []
+@PointClass base(KeyClass) studio("models/pu_icon/key/key_c.md2") = key_key8 : "Ticket, will allow player to unlock doors with a 'key' value of '8'" []
+@PointClass base(KeyClass) studio("models/pu_icon/key/key_c.md2") = key_key9 : "Office_Key, will allow player to unlock doors with a 'key' value of '9'" []
+@PointClass base(KeyClass) studio("models/pu_icon/key/key_c.md2") = key_key10 : "Key10, will allow player to unlock doors with a 'key' value of '10'" []
+@PointClass size(-8 -8 -16, 8 8 16) color(0 128 204) studio("models/pu_icon/fuse/tris.md2") = key_fuse : "Pickup item: fuse ('Fuse')."
+[
+    spawnflags(flags) =
+    [
+        1 : "trigger_spawn" : 0
+        2 : "no_touch" : 0
+    ]
+]
+
+
+@PointClass base(Appearflags, Target) color(0 255 0) size(-8 -8 -8, 8 8 8) = junior : "Used for dynamic lighting of characters and alias models."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start Off" : 0
+    ]
+    light(integer) : "Brightness" : 300
+    style(Choices) : "Style" : 0 =
+    [
+        0 : "Normal"
+        1 : "Fire Flicker #1"
+        2 : "Slow Strong Pulse"
+        3 : "Candle #1"
+        4 : "Fast Strobe"
+        5 : "Gentle Pulse #1"
+        6 : "Fire Flicker #2"
+        7 : "Candle #2"
+        8 : "Candle #3"
+        9 : "Slow Strong Strobe"
+        10 : "Fluorescent Flicker #1"
+        11 : "Slow pulse, no black"
+        12 : "Fire Flicker #3"
+        13 : "Fluorescent Flicker #2"
+        14 : "Fluorescent Flicker #3"
+        15 : "Realistic Fade #1"
+        16 : "Realistic Fade #2"
+        17 : "Slow Strongstrobe (out of phase)"
+        18 : "Three Cycle Strobe #1"
+        19 : "Three Cycle Strobe #2"
+        20 : "Three Cycle Strobe #3"
+    ]
+    _color(string) : "Defines the color in scalar R G B values" : "0 0 0"
+]
+@PointClass base(Appearflags, Target, Targetname) color(0 255 0) size(-8 -8 -8, 8 8 8) = light : "Light"
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start Off" : 0
+        2 : "Flare" : 0
+        4 : "Noresize" : 0
+        8 : "Dynamic" : 0
+    ]
+    light(integer) : "Brightness" : 300
+    style(Choices) : "Style" : 0 =
+    [
+        0 : "Normal"
+        1 : "Fire Flicker #1"
+        2 : "Slow Strong Pulse"
+        3 : "Candle #1"
+        4 : "Fast Strobe"
+        5 : "Gentle Pulse #1"
+        6 : "Fire Flicker #2"
+        7 : "Candle #2"
+        8 : "Candle #3"
+        9 : "Slow Strong Strobe"
+        10 : "Fluorescent Flicker #1"
+        11 : "Slow pulse, no black"
+        12 : "Fire Flicker #3"
+        13 : "Fluorescent Flicker #2"
+        14 : "Fluorescent Flicker #3"
+        15 : "Realistic Fade #1"
+        16 : "Realistic Fade #2"
+        17 : "Slow Strongstrobe (out of phase)"
+        18 : "Three Cycle Strobe #1"
+        19 : "Three Cycle Strobe #2"
+        20 : "Three Cycle Strobe #3"
+    ]
+    dmg(Choices) : "Flare type" : 0 =
+    [
+        0 : "White"
+        1 : "Sun"
+        2 : "Amber"
+        3 : "Red"
+        4 : "Blue"
+        5 : "Green"
+    ]
+    _cone(integer) : "Size of light (spotlight)" : 10
+    _color(string) : "Defines the color in scalar R G B values" : "0 0 0"
+    movedir(string) : "Defines the color in scalar R G B values of the flare"
+    health(integer) : "Diameter of the flare" : 24
+    _mangle(string) : "Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector"
+    _spotvector(string) : "Spot direction set by vector X Y Z, or you can use _spotpoint"
+    _spotpoint(string) : "Spot direction set by coordinate X Y Z."
+    _focus(float) : "Cone attenuation for spotlights"
+    _wait(integer) : "Light distance attenuation"
+    _angwait(float) : "Light angle attenuation"
+    _falloff(Choices) : "Fall off style" : 1 =
+    [
+        0 : "Linear"
+        1 : "Inverse"
+        2 : "Inverse Square"
+    ]
+]
+@PointClass base(Appearflags, Target, Targetname) color(255 255 255) size(-2 -2 -5, 2 2 5) studio("models\props\light\tris.md2") = light_bulb : "A bulb that outputs light."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start Off" : 0
+        2 : "Flare" : 0
+        4 : "Noresize" : 0
+        8 : "Dynamic" : 0
+    ]
+    light(integer) : "Brightness" : 300
+    style(Choices) : "Style" : 0 =
+    [
+        0 : "Normal"
+        1 : "Fire Flicker #1"
+        2 : "Slow Strong Pulse"
+        3 : "Candle #1"
+        4 : "Fast Strobe"
+        5 : "Gentle Pulse #1"
+        6 : "Fire Flicker #2"
+        7 : "Candle #2"
+        8 : "Candle #3"
+        9 : "Slow Strong Strobe"
+        10 : "Fluorescent Flicker #1"
+        11 : "Slow pulse, no black"
+        12 : "Fire Flicker #3"
+        13 : "Fluorescent Flicker #2"
+        14 : "Fluorescent Flicker #3"
+        15 : "Realistic Fade #1"
+        16 : "Realistic Fade #2"
+        17 : "Slow Strongstrobe (out of phase)"
+        18 : "Three Cycle Strobe #1"
+        19 : "Three Cycle Strobe #2"
+        20 : "Three Cycle Strobe #3"
+    ]
+    dmg(Choices) : "Flare type" : 0 =
+    [
+        0 : "White"
+        1 : "Sun"
+        2 : "Amber"
+        3 : "Red"
+        4 : "Blue"
+        5 : "Green"
+    ]
+    _cone(integer) : "Size of light (spotlight)" : 10
+    _color(string) : "Defines the color in scalar R G B values" : "0 0 0"
+    movedir(string) : "Defines the color in scalar R G B values of the flare"
+    health(integer) : "Diameter of the flare" : 24
+    _mangle(string) : "Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector"
+    _spotvector(string) : "Spot direction set by vector X Y Z, or you can use _spotpoint"
+    _spotpoint(string) : "Spot direction set by coordinate X Y Z."
+    _focus(float) : "Cone attenuation for spotlights"
+    _wait(integer) : "Light distance attenuation"
+    _angwait(float) : "Light angle attenuation"
+    _falloff(Choices) : "Fall off style" : 1 =
+    [
+        0 : "Linear"
+        1 : "Inverse"
+        2 : "Inverse Square"
+    ]
+]
+@PointClass base(Appearflags, Target, Targetname, Angle) color(255 255 255) size(-36 -34 -32, 36 34 32) studio("models\props\chandelier\tris.md2") = light_chandelier : "A chandelier."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start Off" : 0
+        2 : "Flare" : 0
+        4 : "Noresize" : 0
+        8 : "Dynamic" : 0
+    ]
+    light(integer) : "Brightness" : 300
+    style(Choices) : "Style" : 0 =
+    [
+        0 : "Normal"
+        1 : "Fire Flicker #1"
+        2 : "Slow Strong Pulse"
+        3 : "Candle #1"
+        4 : "Fast Strobe"
+        5 : "Gentle Pulse #1"
+        6 : "Fire Flicker #2"
+        7 : "Candle #2"
+        8 : "Candle #3"
+        9 : "Slow Strong Strobe"
+        10 : "Fluorescent Flicker #1"
+        11 : "Slow pulse, no black"
+        12 : "Fire Flicker #3"
+        13 : "Fluorescent Flicker #2"
+        14 : "Fluorescent Flicker #3"
+        15 : "Realistic Fade #1"
+        16 : "Realistic Fade #2"
+        17 : "Slow Strongstrobe (out of phase)"
+        18 : "Three Cycle Strobe #1"
+        19 : "Three Cycle Strobe #2"
+        20 : "Three Cycle Strobe #3"
+    ]
+    dmg(Choices) : "Flare type" : 0 =
+    [
+        0 : "White"
+        1 : "Sun"
+        2 : "Amber"
+        3 : "Red"
+        4 : "Blue"
+        5 : "Green"
+    ]
+    _cone(integer) : "Size of light (spotlight)" : 10
+    _color(string) : "Defines the color in scalar R G B values" : "0 0 0"
+    movedir(string) : "Defines the color in scalar R G B values of the flare"
+    health(integer) : "Diameter of the flare" : 24
+    _mangle(string) : "Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector"
+    _spotvector(string) : "Spot direction set by vector X Y Z, or you can use _spotpoint"
+    _spotpoint(string) : "Spot direction set by coordinate X Y Z."
+    _focus(float) : "Cone attenuation for spotlights"
+    _wait(integer) : "Light distance attenuation"
+    _angwait(float) : "Light angle attenuation"
+    _falloff(Choices) : "Fall off style" : 1 =
+    [
+        0 : "Linear"
+        1 : "Inverse"
+        2 : "Inverse Square"
+    ]
+]
+@PointClass base(Appearflags, Target, Targetname, Angle) color(255 255 255) size(-8 -8 -12, 8 8 12) studio("models\props\decosconce\tris.md2") = light_deco_sconce : "A deco sconce."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start Off" : 0
+        2 : "Flare" : 0
+        4 : "Noresize" : 0
+        8 : "Dynamic" : 0
+    ]
+    light(integer) : "Brightness" : 300
+    style(Choices) : "Style" : 0 =
+    [
+        0 : "Normal"
+        1 : "Fire Flicker #1"
+        2 : "Slow Strong Pulse"
+        3 : "Candle #1"
+        4 : "Fast Strobe"
+        5 : "Gentle Pulse #1"
+        6 : "Fire Flicker #2"
+        7 : "Candle #2"
+        8 : "Candle #3"
+        9 : "Slow Strong Strobe"
+        10 : "Fluorescent Flicker #1"
+        11 : "Slow pulse, no black"
+        12 : "Fire Flicker #3"
+        13 : "Fluorescent Flicker #2"
+        14 : "Fluorescent Flicker #3"
+        15 : "Realistic Fade #1"
+        16 : "Realistic Fade #2"
+        17 : "Slow Strongstrobe (out of phase)"
+        18 : "Three Cycle Strobe #1"
+        19 : "Three Cycle Strobe #2"
+        20 : "Three Cycle Strobe #3"
+    ]
+    dmg(Choices) : "Flare type" : 0 =
+    [
+        0 : "White"
+        1 : "Sun"
+        2 : "Amber"
+        3 : "Red"
+        4 : "Blue"
+        5 : "Green"
+    ]
+    _cone(integer) : "Size of light (spotlight)" : 10
+    _color(string) : "Defines the color in scalar R G B values" : "0 0 0"
+    movedir(string) : "Defines the color in scalar R G B values of the flare"
+    health(integer) : "Diameter of the flare" : 24
+    _mangle(string) : "Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector"
+    _spotvector(string) : "Spot direction set by vector X Y Z, or you can use _spotpoint"
+    _spotpoint(string) : "Spot direction set by coordinate X Y Z."
+    _focus(float) : "Cone attenuation for spotlights"
+    _wait(integer) : "Light distance attenuation"
+    _angwait(float) : "Light angle attenuation"
+    _falloff(Choices) : "Fall off style" : 1 =
+    [
+        0 : "Linear"
+        1 : "Inverse"
+        2 : "Inverse Square"
+    ]
+]
+@PointClass base(Appearflags, Target, Targetname) color(255 0 0) size(-8 -8 -8, 8 8 8) = light_fire_esm : "Extra-small fire."
+[
+    spawnflags(Flags) =
+    [
+        8 : "Dynamic" : 0
+    ]
+    alphalevel(integer) : "Opacity level -- 1 to 10" : 5
+    light(integer) : "Brightness" : 300
+    style(Choices) : "Style" : 0 =
+    [
+        0 : "Normal"
+        1 : "Fire Flicker #1"
+        2 : "Slow Strong Pulse"
+        3 : "Candle #1"
+        4 : "Fast Strobe"
+        5 : "Gentle Pulse #1"
+        6 : "Fire Flicker #2"
+        7 : "Candle #2"
+        8 : "Candle #3"
+        9 : "Slow Strong Strobe"
+        10 : "Fluorescent Flicker #1"
+        11 : "Slow pulse, no black"
+        12 : "Fire Flicker #3"
+        13 : "Fluorescent Flicker #2"
+        14 : "Fluorescent Flicker #3"
+        15 : "Realistic Fade #1"
+        16 : "Realistic Fade #2"
+        17 : "Slow Strongstrobe (out of phase)"
+        18 : "Three Cycle Strobe #1"
+        19 : "Three Cycle Strobe #2"
+        20 : "Three Cycle Strobe #3"
+    ]
+    dmg(Choices) : "Flare type" : 0 =
+    [
+        0 : "White"
+        1 : "Sun"
+        2 : "Amber"
+        3 : "Red"
+        4 : "Blue"
+        5 : "Green"
+    ]
+    _cone(integer) : "Size of light (spotlight)" : 10
+    _color(string) : "Defines the color in scalar R G B values" : "0 0 0"
+    movedir(string) : "Defines the color in scalar R G B values of the flare"
+    health(integer) : "Diameter of the flare" : 24
+    _mangle(string) : "Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector"
+    _spotvector(string) : "Spot direction set by vector X Y Z, or you can use _spotpoint"
+    _spotpoint(string) : "Spot direction set by coordinate X Y Z."
+    _focus(float) : "Cone attenuation for spotlights"
+    _wait(integer) : "Light distance attenuation"
+    _angwait(float) : "Light angle attenuation"
+    _falloff(Choices) : "Fall off style" : 1 =
+    [
+        0 : "Linear"
+        1 : "Inverse"
+        2 : "Inverse Square"
+    ]
+]
+@PointClass base(Appearflags, Target, Targetname) color(255 0 0) size(-8 -8 -8, 8 8 8) = light_fire_lg : "Cool fire large."
+[
+    spawnflags(Flags) =
+    [
+        8 : "Dynamic" : 0
+    ]
+    alphalevel(integer) : "Opacity level -- 1 to 10" : 5
+    light(integer) : "Brightness" : 300
+    style(Choices) : "Style" : 0 =
+    [
+        0 : "Normal"
+        1 : "Fire Flicker #1"
+        2 : "Slow Strong Pulse"
+        3 : "Candle #1"
+        4 : "Fast Strobe"
+        5 : "Gentle Pulse #1"
+        6 : "Fire Flicker #2"
+        7 : "Candle #2"
+        8 : "Candle #3"
+        9 : "Slow Strong Strobe"
+        10 : "Fluorescent Flicker #1"
+        11 : "Slow pulse, no black"
+        12 : "Fire Flicker #3"
+        13 : "Fluorescent Flicker #2"
+        14 : "Fluorescent Flicker #3"
+        15 : "Realistic Fade #1"
+        16 : "Realistic Fade #2"
+        17 : "Slow Strongstrobe (out of phase)"
+        18 : "Three Cycle Strobe #1"
+        19 : "Three Cycle Strobe #2"
+        20 : "Three Cycle Strobe #3"
+    ]
+    dmg(Choices) : "Flare type" : 0 =
+    [
+        0 : "White"
+        1 : "Sun"
+        2 : "Amber"
+        3 : "Red"
+        4 : "Blue"
+        5 : "Green"
+    ]
+    _cone(integer) : "Size of light (spotlight)" : 10
+    _color(string) : "Defines the color in scalar R G B values" : "0 0 0"
+    movedir(string) : "Defines the color in scalar R G B values of the flare"
+    health(integer) : "Diameter of the flare" : 24
+    _mangle(string) : "Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector"
+    _spotvector(string) : "Spot direction set by vector X Y Z, or you can use _spotpoint"
+    _spotpoint(string) : "Spot direction set by coordinate X Y Z."
+    _focus(float) : "Cone attenuation for spotlights"
+    _wait(integer) : "Light distance attenuation"
+    _angwait(float) : "Light angle attenuation"
+    _falloff(Choices) : "Fall off style" : 1 =
+    [
+        0 : "Linear"
+        1 : "Inverse"
+        2 : "Inverse Square"
+    ]
+]
+@PointClass base(Appearflags, Target, Targetname) color(255 0 0) size(-8 -8 -8, 8 8 8) = light_fire_med : "Cool fire medium."
+[
+    spawnflags(Flags) =
+    [
+        8 : "Dynamic" : 0
+    ]
+    alphalevel(integer) : "Opacity level -- 1 to 10" : 5
+    light(integer) : "Brightness" : 300
+    style(Choices) : "Style" : 0 =
+    [
+        0 : "Normal"
+        1 : "Fire Flicker #1"
+        2 : "Slow Strong Pulse"
+        3 : "Candle #1"
+        4 : "Fast Strobe"
+        5 : "Gentle Pulse #1"
+        6 : "Fire Flicker #2"
+        7 : "Candle #2"
+        8 : "Candle #3"
+        9 : "Slow Strong Strobe"
+        10 : "Fluorescent Flicker #1"
+        11 : "Slow pulse, no black"
+        12 : "Fire Flicker #3"
+        13 : "Fluorescent Flicker #2"
+        14 : "Fluorescent Flicker #3"
+        15 : "Realistic Fade #1"
+        16 : "Realistic Fade #2"
+        17 : "Slow Strongstrobe (out of phase)"
+        18 : "Three Cycle Strobe #1"
+        19 : "Three Cycle Strobe #2"
+        20 : "Three Cycle Strobe #3"
+    ]
+    dmg(Choices) : "Flare type" : 0 =
+    [
+        0 : "White"
+        1 : "Sun"
+        2 : "Amber"
+        3 : "Red"
+        4 : "Blue"
+        5 : "Green"
+    ]
+    _cone(integer) : "Size of light (spotlight)" : 10
+    _color(string) : "Defines the color in scalar R G B values" : "0 0 0"
+    movedir(string) : "Defines the color in scalar R G B values of the flare"
+    health(integer) : "Diameter of the flare" : 24
+    _mangle(string) : "Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector"
+    _spotvector(string) : "Spot direction set by vector X Y Z, or you can use _spotpoint"
+    _spotpoint(string) : "Spot direction set by coordinate X Y Z."
+    _focus(float) : "Cone attenuation for spotlights"
+    _wait(integer) : "Light distance attenuation"
+    _angwait(float) : "Light angle attenuation"
+    _falloff(Choices) : "Fall off style" : 1 =
+    [
+        0 : "Linear"
+        1 : "Inverse"
+        2 : "Inverse Square"
+    ]
+]
+@PointClass base(Appearflags, Target, Targetname) color(255 0 0) size(-8 -8 -8, 8 8 8) = light_fire_sm : "Cool fire small."
+[
+    spawnflags(Flags) =
+    [
+        8 : "Dynamic" : 0
+    ]
+    alphalevel(integer) : "Opacity level -- 1 to 10" : 5
+    light(integer) : "Brightness" : 300
+    style(Choices) : "Style" : 0 =
+    [
+        0 : "Normal"
+        1 : "Fire Flicker #1"
+        2 : "Slow Strong Pulse"
+        3 : "Candle #1"
+        4 : "Fast Strobe"
+        5 : "Gentle Pulse #1"
+        6 : "Fire Flicker #2"
+        7 : "Candle #2"
+        8 : "Candle #3"
+        9 : "Slow Strong Strobe"
+        10 : "Fluorescent Flicker #1"
+        11 : "Slow pulse, no black"
+        12 : "Fire Flicker #3"
+        13 : "Fluorescent Flicker #2"
+        14 : "Fluorescent Flicker #3"
+        15 : "Realistic Fade #1"
+        16 : "Realistic Fade #2"
+        17 : "Slow Strongstrobe (out of phase)"
+        18 : "Three Cycle Strobe #1"
+        19 : "Three Cycle Strobe #2"
+        20 : "Three Cycle Strobe #3"
+    ]
+    dmg(Choices) : "Flare type" : 0 =
+    [
+        0 : "White"
+        1 : "Sun"
+        2 : "Amber"
+        3 : "Red"
+        4 : "Blue"
+        5 : "Green"
+    ]
+    _cone(integer) : "Size of light (spotlight)" : 10
+    _color(string) : "Defines the color in scalar R G B values" : "0 0 0"
+    movedir(string) : "Defines the color in scalar R G B values of the flare"
+    health(integer) : "Diameter of the flare" : 24
+    _mangle(string) : "Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector"
+    _spotvector(string) : "Spot direction set by vector X Y Z, or you can use _spotpoint"
+    _spotpoint(string) : "Spot direction set by coordinate X Y Z."
+    _focus(float) : "Cone attenuation for spotlights"
+    _wait(integer) : "Light distance attenuation"
+    _angwait(float) : "Light angle attenuation"
+    _falloff(Choices) : "Fall off style" : 1 =
+    [
+        0 : "Linear"
+        1 : "Inverse"
+        2 : "Inverse Square"
+    ]
+]
+@PointClass base(Appearflags, Target, Targetname, Angle) color(255 255 255) size(-16 -16 -4, 16 16 4) studio("models\props\pendant\tris.md2") = light_pendant : "A pendant light."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start Off" : 0
+        2 : "Flare" : 0
+        4 : "Noresize" : 0
+        8 : "Dynamic" : 0
+    ]
+    light(integer) : "Brightness" : 300
+    style(Choices) : "Style" : 0 =
+    [
+        0 : "Normal"
+        1 : "Fire Flicker #1"
+        2 : "Slow Strong Pulse"
+        3 : "Candle #1"
+        4 : "Fast Strobe"
+        5 : "Gentle Pulse #1"
+        6 : "Fire Flicker #2"
+        7 : "Candle #2"
+        8 : "Candle #3"
+        9 : "Slow Strong Strobe"
+        10 : "Fluorescent Flicker #1"
+        11 : "Slow pulse, no black"
+        12 : "Fire Flicker #3"
+        13 : "Fluorescent Flicker #2"
+        14 : "Fluorescent Flicker #3"
+        15 : "Realistic Fade #1"
+        16 : "Realistic Fade #2"
+        17 : "Slow Strongstrobe (out of phase)"
+        18 : "Three Cycle Strobe #1"
+        19 : "Three Cycle Strobe #2"
+        20 : "Three Cycle Strobe #3"
+    ]
+    dmg(Choices) : "Flare type" : 0 =
+    [
+        0 : "White"
+        1 : "Sun"
+        2 : "Amber"
+        3 : "Red"
+        4 : "Blue"
+        5 : "Green"
+    ]
+    _cone(integer) : "Size of light (spotlight)" : 10
+    _color(string) : "Defines the color in scalar R G B values" : "0 0 0"
+    movedir(string) : "Defines the color in scalar R G B values of the flare"
+    health(integer) : "Diameter of the flare" : 24
+    _mangle(string) : "Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector"
+    _spotvector(string) : "Spot direction set by vector X Y Z, or you can use _spotpoint"
+    _spotpoint(string) : "Spot direction set by coordinate X Y Z."
+    _focus(float) : "Cone attenuation for spotlights"
+    _wait(integer) : "Light distance attenuation"
+    _angwait(float) : "Light angle attenuation"
+    _falloff(Choices) : "Fall off style" : 1 =
+    [
+        0 : "Linear"
+        1 : "Inverse"
+        2 : "Inverse Square"
+    ]
+]
+@PointClass base(Appearflags, Target, Targetname, Angle) color(255 255 255) size(-4 -4 -8, 4 4 8)
+    model(
+        {{
+            spawnflags & 128 -> "models/props/sconce/lighty.md2",
+            spawnflags & 64 ->  "models/props/sconce/lightr.md2",
+            spawnflags & 32 ->  "models/props/sconce/lightg.md2",
+            spawnflags & 16 ->  "models/props/sconce/lightb.md2",
+                                "models/props/sconce/light.md2"
+        }}
+    ) = light_sconce : "A cage light model, set correct skin with spawnflags."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start off" : 0
+        2 : "Flare" : 0
+        4 : "Noresize" : 0
+        8 : "Dynamic" : 0
+        16 : "Blue model" : 0
+        32 : "Green model" : 0
+        64 : "Red model" : 0
+        128 : "Yellow model" : 0
+    ]
+    light(integer) : "Brightness" : 300
+    style(Choices) : "Style" : 0 =
+    [
+        0 : "Normal"
+        1 : "Fire Flicker #1"
+        2 : "Slow Strong Pulse"
+        3 : "Candle #1"
+        4 : "Fast Strobe"
+        5 : "Gentle Pulse #1"
+        6 : "Fire Flicker #2"
+        7 : "Candle #2"
+        8 : "Candle #3"
+        9 : "Slow Strong Strobe"
+        10 : "Fluorescent Flicker #1"
+        11 : "Slow pulse, no black"
+        12 : "Fire Flicker #3"
+        13 : "Fluorescent Flicker #2"
+        14 : "Fluorescent Flicker #3"
+        15 : "Realistic Fade #1"
+        16 : "Realistic Fade #2"
+        17 : "Slow Strongstrobe (out of phase)"
+        18 : "Three Cycle Strobe #1"
+        19 : "Three Cycle Strobe #2"
+        20 : "Three Cycle Strobe #3"
+    ]
+    dmg(Choices) : "Flare type" : 0 =
+    [
+        0 : "White"
+        1 : "Sun"
+        2 : "Amber"
+        3 : "Red"
+        4 : "Blue"
+        5 : "Green"
+    ]
+    _cone(integer) : "Size of light (spotlight)" : 10
+    _color(string) : "Defines the color in scalar R G B values" : "0 0 0"
+    movedir(string) : "Defines the color in scalar R G B values of the flare"
+    health(integer) : "Diameter of the flare" : 24
+    _mangle(string) : "Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector"
+    _spotvector(string) : "Spot direction set by vector X Y Z, or you can use _spotpoint"
+    _spotpoint(string) : "Spot direction set by coordinate X Y Z."
+    _focus(float) : "Cone attenuation for spotlights"
+    _wait(integer) : "Light distance attenuation"
+    _angwait(float) : "Light angle attenuation"
+    _falloff(Choices) : "Fall off style" : 1 =
+    [
+        0 : "Linear"
+        1 : "Inverse"
+        2 : "Inverse Square"
+    ]
+]
+@PointClass size(-16 -16 -16, 16 16 16) color(0 0 255) = sfx_beacon : "Some rotating beam."[]
+@PointClass base(Appearflags, Target, Targetname) color(0 255 0) size(-2 -2 -2, 2 2 2) = lightflare : "Non-displayed light."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start Off" : 0
+        2 : "Flare" : 0
+        4 : "Noresize" : 0
+        8 : "Dynamic" : 0
+    ]
+    light(integer) : "Brightness" : 300
+    style(Choices) : "Style" : 0 =
+    [
+        0 : "Normal"
+        1 : "Fire Flicker #1"
+        2 : "Slow Strong Pulse"
+        3 : "Candle #1"
+        4 : "Fast Strobe"
+        5 : "Gentle Pulse #1"
+        6 : "Fire Flicker #2"
+        7 : "Candle #2"
+        8 : "Candle #3"
+        9 : "Slow Strong Strobe"
+        10 : "Fluorescent Flicker #1"
+        11 : "Slow pulse, no black"
+        12 : "Fire Flicker #3"
+        13 : "Fluorescent Flicker #2"
+        14 : "Fluorescent Flicker #3"
+        15 : "Realistic Fade #1"
+        16 : "Realistic Fade #2"
+        17 : "Slow Strongstrobe (out of phase)"
+        18 : "Three Cycle Strobe #1"
+        19 : "Three Cycle Strobe #2"
+        20 : "Three Cycle Strobe #3"
+    ]
+    dmg(Choices) : "Flare type" : 0 =
+    [
+        0 : "White"
+        1 : "Sun"
+        2 : "Amber"
+        3 : "Red"
+        4 : "Blue"
+        5 : "Green"
+    ]
+    _cone(integer) : "Size of light (spotlight)" : 10
+    _color(string) : "Defines the color in scalar R G B values" : "0 0 0"
+    movedir(string) : "Defines the color in scalar R G B values of the flare"
+    health(integer) : "Diameter of the flare" : 24
+    _mangle(string) : "Yaw and pitch spot direction -- 0 to 360, -90 to 90, or you can use _spotvector"
+    _spotvector(string) : "Spot direction set by vector X Y Z, or you can use _spotpoint"
+    _spotpoint(string) : "Spot direction set by coordinate X Y Z."
+    _focus(float) : "Cone attenuation for spotlights"
+    _wait(integer) : "Light distance attenuation"
+    _angwait(float) : "Light angle attenuation"
+    _falloff(Choices) : "Fall off style" : 1 =
+    [
+        0 : "Linear"
+        1 : "Inverse"
+        2 : "Inverse Square"
+    ]
+]
+
+
+
+@PointClass base(Appearflags, Targetname) size(-8 -8 -8, 8 8 8) color(255 128 0) = misc_alarm : "Rings when triggered, when turned on, triggers the 'alarm' eventscript."
+[
+    speed(integer) : "Wait time before alarmed" : 3
+    count(integer) : "Duration of alarm ringing" : 60
+]
+@PointClass base(Appearflags, Target, Targetname) size(-16 -16 -16, 16 16 16) color(0 0 255) = misc_cutscene_camera : "Camera, must be triggered by a 'misc_cutscene_trigger' or 'misc_use_cutscene', relay from 'misc_cutscene_camera' to 'misc_cutscene_camera' using 'target', cutscene will end when there's no more camera."
+[
+    cameraorigin(string) : "X Y Z camera start position (overrides entity's origin)"
+    cameraangle(string) : "X Y Z start angles"
+    rotate(string) : "X Y Z rotational velocity during cut scene"
+    target2(string) : "Always look at that entity (overrides angles when moving)"
+    cameravel(string) : "[forward] [right] [up] speed to move from initial angle"
+    cameravelrel(string) : "[forward] [right] [up] speed to move relative to current frame angle"
+    wait(integer) : "Time before switching to next camera in seconds" : 5
+    accel(float) : "Acceleration rate when starting to move"
+    decel(float) : "Deceleration rate when approaching the end of use"
+    delay(integer) : "Delay before starting to move ('decel' and 'accel' must be set)"
+    reactdelay(integer) : "Moving time ('accel' must be set, if there's no 'decel', will never stop moving)"
+    duration(integer) : "Fade out time"
+    name(sound) : "Sound to play once triggered"
+    sight_target(string) : "Talking actor (if there's a sound to play)"
+    deadticks(integer) : "Fov for this camera" : 90
+    scriptname(string) : "Script name to trigger when starting the camera"
+]
+@PointClass base(Appearflags, Target) = misc_cutscene_trigger : "This entity tells the code to unlink the camera from the client, so we can move it around. Once triggered, this entity should trigger a 'misc_cutscene_camera'."
+[
+    debugprint(integer) : "when set to 1, will print out camera end position and angles"
+    duration(float) : "fade in time in seconds"
+]
+@PointClass base(Appearflags, Target) size(-8 -8 -8, 8 8 8) color(128 128 128) = misc_use_cutscene : "This entity tells the code to unlink the camera from the client, so we can move it around. Once triggered, this entity should trigger a 'misc_cutscene_camera'."
+[
+    debugprint(integer) : "when set to 1, will print out camera end position and angles"
+    duration(float) : "fade in time in seconds"
+]
+
+
+
+@PointClass size(-16 -16 -24, 16 16 48) color(102 77 204) = path_attractor : "When this is placed on the map it will attract actors by name from the episode ai routines"
+[
+    delay(integer) : "number of seconds before attract ai" : 10
+]
+@PointClass base(Appearflags, Target, Targetname, Killtarget) size(-8 -8 -8, 8 8 8) color(128 77 0) = path_corner : "It defines a destination point for moving brush entities. Use path_corner_cast for AI's paths."
+[
+    spawnflags(flags) =
+    [
+        1 : "teleport" : 0
+    ]
+    pathtarget(string) : "Entity to trigger when an entity that has this path_corner targeted touches it"
+    wait(integer) : "Wait (in seconds)"
+    speed(integer) : "Func_train_rotating only: departure speed from that corner"
+    rotate(string) : "Func_train_rotating only: angle change for X Y Z to next corner"
+    duration(string) : "Func_train_rotating only: duration for angle change (overrides speed)"
+
+]
+@PointClass base(Appearflags, Target, Targetname, Killtarget) size(-16 -16 -24, 16 16 42) color(128 77 0) = path_corner_cast : "It defines a destination point for moving actors, when an actor reach the point, an event can be triggered. Use path_corner for brush-based entities."
+[
+    spawnflags(flags) =
+    [
+        1 : "teleport" : 0
+    ]
+    pathtarget(string) : "Entity to trigger when an entity that has this path_corner targeted touches it"
+    wait(integer) : "Wait (in seconds)"
+    combattarget(string) : "When the cast reaches this marker, they'll attack this target"
+    name(sound) : "Sound to play when reached."
+    scriptname(string) : "Hard-coded script to call when reaching this marker"
+]
+
+
+@PointClass base(Angle) size(-64 -8 -36, 64 8 28) color(255 128 0) studio("models/props/menu_mdx/frame.mdx") = pawn_o_matic : "Two-sided panels used to select stuff in any pawn-o-matic."
+[
+    count(choices) : "Used to check what pawn-o-matic we're in. 1 or 2, 2 got more items to buy.  But only works on episode skidrow (default=1)" : 1 =
+    [
+        1 : "Less Items"
+        2 : "More Items"
+    ]
+]
+
+@baseclass base(Appearflags, Targetname, Target, Killtarget, Angle) size(-16 -16 -16, 16 16 16) color(179 77 102) = PistolClass []
+@PointClass base(PistolClass ) studio("models/pu_icon/magmod/tris.md2") = pistol_mod_damage : "Magnum mod for the pistol (weapon_pistol, weapon_spistol), increases damages." []
+@PointClass base(PistolClass ) studio("models/pu_icon/reload_mod/tris.md2") = pistol_mod_reload : "Reload mod for the pistol (weapon_pistol, weapon_spistol), increases the reload speed." []
+@PointClass base(PistolClass ) studio("models/pu_icon/ro_fire_mod/tris.md2") = pistol_mod_rof : "Rate of fire mod for the pistol (weapon_pistol, weapon_spistol), increases rate of fire." []
+
+
+
+@PointClass base(Appearflags, Angle) size(-16 -16 -24, 16 16 24) color(0 128 204) studio("models\props\aircon\tris.md2") = props_aircon : "A cool box deluxe." []
+@PointClass base(Appearflags, Angle) size(-32 -16 -8, 32 16 8) color(0 128 204) studio("models\props\crate\tris.md2") = props_ammocrate_bust : "An ammo crate you may bust with a melee weapon (crowbar or pipe) to get its content, will explose if broken otherwise, the bounding box can be rotated in angles of 90 deg and block properly."
+[
+    mass(integer) : "Weigth" : 400
+    health(integer) : "Strength" : 10
+    dmg(integer) : "Damages to inflic on destruction" : 0
+    item(string) : "Item to spawn on destruction"
+]
+@PointClass base(Appearflags, Angle) size(-28 -22 -22, 28 22 22) color(0 128 204) studio("models\props\antenna\antenna.mdx") = props_antenna1a : "An antenna." []
+@PointClass base(Appearflags, Angle) size(-41 -33 -32, 41 33 32) color(0 128 204) studio("models\props\ant1b\antenna.mdx") = props_antenna1b : "An antenna." []
+@PointClass base(Appearflags, Angle) size(-55 -44 -43, 55 44 43) color(0 128 204) studio("models\props\ant1c\antenna.mdx") = props_antenna1c : "An antenna." []
+@PointClass base(Appearflags, Angle) size(-26 -30 -22, 26 30 22) color(0 128 204) studio("models\props\ant2a\antenna.mdx") = props_antenna2a : "An antenna." []
+@PointClass base(Appearflags, Angle) size(-38 -45 -32, 38 45 32) color(0 128 204) studio("models\props\ant2b\antenna.mdx") = props_antenna2b : "An antenna." []
+@PointClass base(Appearflags, Angle) size(-50 -60 -43, 60 50 43) color(0 128 204) studio("models\props\ant2c\antenna.mdx") = props_antenna2c : "An antenna." []
+@PointClass base(Appearflags, Angle) size(-14 -2 -22, 14 2 22) color(0 128 204) studio("models\props\ant3a\antenna.mdx") = props_antenna3a : "An antenna." []
+@PointClass base(Appearflags, Angle) size(-21 -3 -33, 21 3 33) color(0 128 204) studio("models\props\ant3b\antenna.mdx") = props_antenna3b : "An antenna." []
+@PointClass base(Appearflags, Angle) size(-28 -3 -44, 28 3 44) color(0 128 204) studio("models\props\ant3c\antenna.mdx") = props_antenna3c : "An antenna." []
+@PointClass base(Appearflags, Targetname, Target, Angle) size(-140 -40 -58, 140 40 58) color(0 128 204) studio("models\props\blimp\tris.md2") = props_blimp : "A moving blimp, trigger to make visible and start moving."
+[
+    speed(integer) : "Movement speed" : 20
+]
+@PointClass base(Appearflags, Angle) size(-11 -13 -26, 11 13 26) color(0 128 204) studio("models\props\chair\chair.mdx") = props_chair : "A chair\n\nskin=models\props\chair\chair1.tga" []
+@PointClass base(Appearflags, Angle) size(-16 -24 -32, 16 24 32) color(0 128 204) studio("models\props\cigmachine\tris.md2") = props_cig_machine : "A cigarette machine, bounding box can be rotated in angles of 90 deg and block properly." []
+@PointClass base(Appearflags, Angle) size(-16 -24 -32, 24 32 32) color(0 128 204) studio("models\props\vending_mach\tris.md2") = props_cola_machine : "A cola machine, bounding box can be rotated in angles of 90 deg and block properly." []
+@PointClass base(Appearflags, Angle) size(-16 -16 -16, 16 16 16) color(0 128 204) studio("models\props\crate\stillcrate32_1.mdx") = props_crate_bust_32 : "Crate can bust and you can push."
+[
+    mass(integer) : "Weigth" : 400
+    health(integer) : "Strength" : 10
+    dmg(integer) : "Damages to inflic on destruction" : 0
+    item(string) : "Item to spawn on destruction"
+    spawnflags(flags) =
+    [
+        2 : "Non Moveable" : 0
+        4 : "Wood" : 0
+        8 : "Wood 2" : 0
+        16 : "Metal" : 0
+        32 : "Cardboard" : 0
+    ]
+]
+@PointClass base(Appearflags, Angle) size(-24 -24 -24, 24 24 24) color(0 128 204) studio("models\props\crate\stillcrate48_1.mdx") = props_crate_bust_48 : "Crate can bust and you can push."
+[
+    mass(integer) : "Weigth" : 400
+    health(integer) : "Strength" : 10
+    dmg(integer) : "Damages to inflic on destruction" : 0
+    item(string) : "Item to spawn on destruction"
+    spawnflags(flags) =
+    [
+        2 : "Non Moveable" : 0
+        4 : "Wood" : 0
+        8 : "Wood 2" : 0
+        16 : "Metal" : 0
+        32 : "Cardboard" : 0
+    ]
+]
+@PointClass base(Appearflags, Angle) size(-32 -32 -32, 32 32 32) color(0 128 204) studio("models\props\crate\stillcrate64_1.mdx") = props_crate_bust_64 : "Pushable crate can bust."
+[
+    mass(integer) : "Weigth" : 400
+    health(integer) : "Strength" : 10
+    dmg(integer) : "Damages to inflic on destruction" : 0
+    item(string) : "Item to spawn on destruction"
+    spawnflags(flags) =
+    [
+        4 : "Wood" : 0
+        8 : "Wood 2" : 0
+        16 : "Metal" : 0
+        32 : "Cardboard" : 0
+    ]
+]
+@PointClass base(Appearflags, Angle) size(-16 -16 -16, 16 16 16) color(0 128 204) studio("models\pu_icon\exting\ext1.md2") = props_extinguisherA : "A breakable extinguisher."
+[
+    dmg(integer) : "Damages to inflic on destruction" : 25
+]
+@PointClass base(Appearflags, Angle) size(-16 -16 -16, 16 16 16) color(0 128 204) studio("models\pu_icon\exting\ext2.md2") = props_extinguisherB : "A breakable extinguisher."
+[
+    dmg(integer) : "Damages to inflic on destruction" : 25
+]
+@PointClass base(Appearflags, Angle) size(-8 -12 -16, 8 12 16) color(0 128 204) studio("models\props\fan\tris.md2") = props_fan : "A fan." []
+@PointClass base(Appearflags, Angle) size(-10 -10 -19, 10 10 19) color(0 128 204) studio("models\props\hydrant\tris.md2") = props_hydrant : "A hydrant that does jack." []
+@PointClass base(Appearflags, Angle) size(-36 -28 -38, 36 28 38) color(0 128 204) studio("models/props/mattress/matt.md2") = props_mattressA : "A mattress." []
+@PointClass base(Appearflags, Angle) size(-8 -34 -38, 8 34 38) color(0 128 204) studio("models/props/mattress/matt2.md2") = props_mattressB : "A mattress." []
+@PointClass base(Appearflags, Angle) size(-34 -38 -8, 34 38 8) color(0 128 204) studio("models/props/mattress/matt3.md2") = props_mattressC : "A mattress." []
+@PointClass base(Appearflags, Angle) size(-60 -20 -26, 60 20 26) color(0 128 204) studio("models\props\moto\moto.mdx;models\props\moto\chrome.mdx") = props_motorcycle : "A motorcycle." []
+@PointClass base(Appearflags) size(-16 -16 -16, 16 16 16) color(0 128 204) studio("models/props/ride/head.mdx;models/props/ride/moto.mdx;models/props/ride/body.mdx;models/props/ride/legs.mdx;models/props/ride/cigar.mdx") = props_motorcycle_run : "A motorcycle speeding away." []
+@PointClass base(Appearflags) size(-16 -16 -16, 16 16 16) color(0 128 204) studio("models/props/runaway/head.mdx;models/props/runaway/moto.mdx;models/props/runaway/body.mdx;models/props/runaway/legs.mdx") = props_motorcycle_runaway : "A motorcycle riding in place." []
+@PointClass base(Appearflags, Angle) size(-8 -8 -6, 8 8 6) color(0 128 204) studio("models\props\phone\tris.md2") = props_phone : "A phone (telephone)." []
+@PointClass base(Appearflags, Angle) size(-8 -12 -8, 8 12 8) color(0 128 204) studio("models\props\radio\tris.md2") = props_radio : "A radio that will take damage and activate triggers on destruction."
+[
+    health(integer) : "Strength, unbreakable if 666" : 25
+]
+@PointClass base(Appearflags, Angle) size(-12 -12 0, 12 12 10) color(0 128 204) studio("models/actors/rat/rat.mdx") = props_rat : "A rat."
+[
+    option(integer) : "Set to '1' to make them dissapear if cvar props == 0"
+    health(integer) : "Rat health" : 10
+    dmg(integer) : "Rat bite damage" : 2
+]
+@PointClass base(Appearflags, Targetname, Angle) size(-16 -16 -16, 16 16 16) color(0 128 204) = props_rat_spawner : "Base rat spawner, props_rat_spawner_node  determine possible spawn point"
+[
+    option(integer) : "Set to '1' to make them dissapear if cvar props == 0"
+    health(integer) : "Rat health" : 10
+    dmg(integer) : "Rat bite damage" : 2
+    deadticks(integer) : "Total number of rats in level from spawner at a time" : 5
+]
+@PointClass base(Appearflags, Targetname, Angle) size(-16 -16 -16, 16 16 16) color(0 128 204) = props_rat_spawner_node : "Possible rat spawn point for 'props_rat_spawner'" []
+@PointClass base(Appearflags, Targetname, Angle) size(-12 -12 0, 12 12 10) color(0 128 204) studio("models/actors/rat/rat.mdx") = props_rat_trigger : "A rat that is spawned when triggered."
+[
+    option(integer) : "Set to '1' to make them dissapear if cvar props == 0"
+    health(integer) : "Rat health" : 10
+    dmg(integer) : "Rat bite damage" : 2
+]
+@PointClass base(Appearflags, Angle) size(-32 -36 -48, 32 36 48) color(0 128 204) studio("models\props\roof_vent\tris.md2") = props_roof_vent : "A breakable moving roof vent."
+[
+    health(integer) : "Strength" : 25
+]
+@PointClass base(Appearflags, Angle) size(-40 -85 -51, 40 85 51) color(0 128 204) studio("models\props\shelf\flametank.mdx;models\props\shelf\pistol.mdx;models\props\shelf\shotgun.mdx;models\props\shelf\sshell.mdx;models\props\shelf\tomgun.mdx") = props_shelf : "The pawn shop shelf." []
+@PointClass base(Appearflags, Angle) size(-8 -8 -8, 8 8 8) color(0 128 204) = props_steam_machine : "A real steam producer, always on, no model"
+[
+    alphalevel(integer) : "Opacity level, 1 to 10" : 2
+    firetype(integer) : "Length of steam, 1 to 100": 15
+    thudsurf(integer) : "Start size of steam, 1 to 10 " : 5
+    thudsnd(integer) : "End size steam increase, 1 to 10" : 5
+    deadticks(integer) : "Number of steam puffs per length element, 1 to 10" : 2
+]
+@PointClass base(Appearflags, Angle) size(-26 -27 -6, 26 27 6) color(0 128 204) studio("models\props\tablesets\set.mdx") = props_tablesetA : "Card-shark table setting." []
+@PointClass base(Appearflags, Angle) size(-64 -64 -4, 64 64 4) color(0 128 204) studio("models\props\trash\tris.md2") = props_trash : "Some trash." []
+@PointClass base(Appearflags, Angle) size(-8 -2 -2, 8 2 2) color(0 128 204) studio("models\props\trashbottle\tris.md2") = props_trashbottle : "Some trash." []
+@PointClass base(Appearflags, Angle) size(-2 -2 -8, 2 2 8) color(0 128 204) studio("models\props\trashbottle_vert\tris.md2") = props_trashbottle_vert : "A vertical trash bottle." []
+@PointClass base(Appearflags, Angle) size(-16 -16 -21, 16 16 21) color(0 128 204) studio("models/props/t_can2/tris.md2") = props_trashcan_fall : "Trash can you can push."
+[
+    mass(integer) : "Weigth" : 400
+    health(integer) : "Strength" : 10
+    dmg(integer) : "Damages to inflic on destruction" : 0
+    item(string) : "Item to spawn on destruction"
+]
+@PointClass base(Appearflags, Angle) size(-16 -16 -21, 16 16 21) color(0 128 204) studio("models/props/t_can/tris.md2") = props_trashcanA : "A trash can you can push."
+[
+    spawnflags(Flags) =
+    [
+        2 : "Non Moveable" : 0
+    ]
+    mass(integer) : "Weigth" : 400
+    health(integer) : "Strength" : 10
+    dmg(integer) : "Damages to inflic on destruction" : 0
+    item(string) : "Item to spawn on destruction"
+]
+@PointClass base(Appearflags, Angle) size(-40 -40 -8, 40 40 8) color(0 128 204) studio("models\props\trashcorner\tris.md2") = props_trashcorner : "Some trash." []
+@PointClass base(Appearflags, Angle) size(-18 -18 -2, 18 18 2) color(0 128 204) studio("models\props\trashpaper\tris.md2") = props_trashpaper : "Some trash." []
+@PointClass base(Appearflags, Angle) size(-70 -25 -10, 70 25 10) color(0 128 204) studio("models\props\trashwall\tris.md2") = props_trashwall : "Some trash." []
+@PointClass base(Appearflags, Angle) size(-8 -16 -22, 8 16 22) color(0 128 204) studio("models\props\tv\tv.md2") = props_tv : "A television." []
+@PointClass base(Appearflags, Targetname, Angle) size(-64 -26 -48, 64 26 48) color(0 128 204) studio("models\props\wall\wall.mdx") = props_wall_fall : "A wall that falls when trigered." []
+
+
+
+
+@PointClass base(Appearflags, Angle) size(-12 -18 -4, 12 18 4) color(0 128 204) studio("models\props\ashtray_set\tris.md2") = props2_ashtray : "An ashtray." []
+@PointClass base(Appearflags, Targetname, Angle) size(-89 -48 -56, 89 48 56) color(0 128 204) studio("models\props\barl_steel\barrels.mdx;models\props\barl_steel\door.mdx;models\props\barl_steel\tops.mdx") = props2_barrels_fall_ST : "A set of barrels that you can trigger to fall." []
+@PointClass base(Appearflags, Targetname, Angle) size(-69 -33 -49, 69 33 49) color(0 128 204) studio("models\props\barl1\barrels.mdx;models\props\barl1\tops.mdx") = props2_barrels_fallA : "A set of barrels that you can trigger to fall." []
+@PointClass base(Appearflags, Targetname, Angle) size(-33 -81 -49, 33 81 49) color(0 128 204) studio("models\props\barl2\barrels2.mdx;models\props\barl2\tops2.mdx") = props2_barrels_fallB : "Another set of barrels that  you can trigger to fall." []
+@PointClass base(Appearflags, Targetname, Angle) size(-90 -32 -48, 90 32 48) color(0 128 204) studio("models/props/pv_barl1/top_barrel_v4.mdx;models/props/pv_barl1/barrel_v2.mdx;models/props/pv_barl1/barrel_v4.mdx;models/props/pv_barl1/top_barrel_v2.mdx") = props2_barrels_PV_A : "A set of barrels that you can trigger to fall." []
+@PointClass base(Appearflags, Targetname, Angle) size(-17 -77 -49, 17 77 49) color(0 128 204) studio("models/props/pv_barl7/top_barrel_v4.mdx;models/props/pv_barl7/barrel_v2.mdx;models/props/pv_barl7/barrel_v4.mdx;models/props/pv_barl7/top_barrel_v2.mdx") = props2_barrels_PV_B : "A set of barrels that you can trigger to fall." []
+@PointClass base(Appearflags, Targetname, Angle) size(-68 -50 -48, 68 50 48) color(0 128 204) studio("models/props/pv_barl3/top_barrel_v4.mdx;models/props/pv_barl3/barrel_v2.mdx;models/props/pv_barl3/barrel_v4.mdx;models/props/pv_barl3/top_barrel_v2.mdx") = props2_barrels_PV_C : "A set of barrels that you can trigger to fall." []
+@PointClass base(Appearflags, Targetname, Angle) size(-20 -52 -48, 20 52 48) color(0 128 204) studio("models/props/pv_barl4/top_barrel_v4.mdx;models/props/pv_barl4/barrel_v2.mdx;models/props/pv_barl4/barrel_v4.mdx;models/props/pv_barl4/top_barrel_v2.mdx") = props2_barrels_PV_D : "A set of barrels that you can trigger to fall." []
+@PointClass base(Appearflags, Targetname, Angle) size(-24 -64 -48, 24 64 48) color(0 128 204) studio("models/props/pv_barl5/barrel_v4.mdx;models/props/pv_barl5/barrel_v2.mdx;models/props/pv_barl5/top_barrel_v4.mdx;models/props/pv_barl5/top_barrel_v2.mdx") = props2_barrels_PV_E : "A set of barrels that you can trigger to fall." []
+@PointClass base(Appearflags, Targetname, Angle) size(-20 -32 -24, 20 32 24) color(0 128 204) studio("models/props/pv_barl5/top_barrel_v4.mdx;models/props/pv_barl5/barrel_v2.mdx;models/props/pv_barl5/barrel_v4.mdx;models/props/pv_barl5/top_barrel_v2.mdx") = props2_barrels_PV_F : "A set of barrels that you can trigger to fall." []
+@PointClass base(Appearflags, Angle) size(-80 -160 -38, 80 160 38) color(0 128 204) studio("models\props\boat\boat.mdx;models\props\boat\glass.mdx") = props2_boat : "A boat, the bounding box can be rotated in angles of 90 deg and block properly." []
+@PointClass base(Appearflags, Angle) size(-80 -160 -38, 80 160 38) color(0 128 204) studio("models\props\boata\boat.mdx;models\props\boata\window.mdx") = props2_boat_animate : "An animated boat." []
+@PointClass base(Appearflags, Angle) size(-5 -9 -12, 5 9 12) color(0 128 204) studio("models\props\boatphone\tris.md2") = props2_boatphone : "A boat phone." []
+@PointClass base(Appearflags, Angle) size(-41 -41 -75, 41 41 75) color(0 128 204) studio("models\props\buoy\buoy.mdx;models\props\buoy\light.mdx") = props2_buoy : "A buoy" []
+@PointClass base(Appearflags, Angle) size(-41 -41 -75, 41 41 75) color(0 128 204) studio("models\props\buoya\buoy.mdx;models\props\buoya\light.mdx") = props2_buoy_animate : "An animated buoy." []
+@PointClass base(Appearflags, Angle) size(-81 -55 -64, 81 55 64) color(255 0 0) studio("models\props\buoyside\buoy.mdx;models\props\buoyside\light.mdx") = props2_buoy_side : "A buoy on it's side." []
+@PointClass base(Appearflags, Targetname) size(-16 -16 -16, 16 16 16) color(0 128 204) studio("models/props/cars/car.mdx;models/props/cars/legs_boss.mdx;models/props/cars/body_boss.mdx;models/props/cars/head_boss.mdx;models/props/cars/legs_chick.mdx;models/props/cars/body_chick.mdx;models/props/cars/head_chick.mdx") = props2_car_animate : "A car and actors (Blunt & Nikki Blanco) that animate when trigered." []
+@PointClass base(Appearflags, Angle) size(-50 -102 -33, 50 102 33) color(0 128 204) studio("models\props\car\car_td.md2") = props2_car_topdown : "A car with top down, the bounding box can be rotated in angles of 90 deg and block properly." []
+@PointClass base(Appearflags, Angle) size(-50 -102 -35, 50 102 35) color(0 128 204) studio("models\props\car\car_up.md2") = props2_car_topup : "A car with top up, the bounding box can be rotated in angles of 90 deg and block properly." []
+@PointClass base(Appearflags, Angle) size(-24 -24 -32, 24 24 32) color(0 128 204) studio("models/props/confchair/tris.md2") = props2_chair_conf : "An pushable chair."
+[
+    mass(integer) : "Weight" : 400
+    health(integer) : "Strength" : 25
+]
+@PointClass base(Appearflags, Angle) size(-16 -16 -26, 16 16 26) color(0 128 204) studio("models\props\chair\chair.mdx") = props2_chair_push : "A pushable chair."
+[
+    mass(integer) : "Weight" : 400
+    health(integer) : "Strength" : 25
+]
+@PointClass base(Appearflags, Angle) size(-4 -85 -25, 4 85 25) color(0 128 204) studio("models/props/clothes/tris.md2") = props2_clothesline : "A clothes line."
+[
+    spawnflags(Flags) =
+    [
+        2 : "DONOTMOVE" : 0
+    ]
+]
+@PointClass base(Appearflags, Angle) size(-32 -32 -24, 32 32 24) color(0 128 204) studio("models/props/clubchair/tris.md2") = props2_clubchair : "A pushable chair."
+[
+    mass(integer) : "Weight" : 400
+    health(integer) : "Strength" : 25
+]
+@PointClass base(Appearflags, Angle) size(-32 -64 -24, 32 64 24) color(0 128 204) studio("models/props/clubcouch/tris.md2") = props2_clubcouch : "A couch, the bounding box can be rotated in angles of 90 deg and block properly." []
+@PointClass base(Appearflags, Angle) size(-32 -26 -7, 32 26 7) color(0 128 204) studio("models\props\dead_fem\body.mdx;models\props\dead_fem\legs.mdx") = props2_deadgal_headless : "An headless female body you can shoot, the bounding box can be rotated in angles of 90 deg and block properly."
+[
+    health(integer) : "Strength" : 50
+    item(string) : "Item to spawn when gibbed"
+]
+@PointClass base(Appearflags, Angle) size(-40 -27 -9, 40 27 9) color(0 128 204) studio("models\props\deadguy\body.mdx;models\props\deadguy\head.mdx;models\props\deadguy\legs.mdx") = props2_deadguy : "A dead guy body you can shoot, the bounding box can be rotated in angles of 90 deg and block properly."
+[
+    health(integer) : "Strength" : 50
+    item(string) : "Item to spawn when gibbed"
+]
+@PointClass base(Appearflags, Angle) size(-17 -50 0, 13 30 88) color(0 128 204) studio("models\props\cementguy\body.mdx;models\props\cementguy\head.mdx;models\props\cementguy\legs.mdx") = props2_deadguy_underwater : "A drown guy in cement you can shoot, the bounding box can be rotated in angles of 90 deg and block properly."
+[
+    health(integer) : "Strength" : 50
+    item(string) : "Item to spawn when gibbed"
+]
+@PointClass base(Appearflags, Angle) size(-12 -12 0, 12 12 10) color(0 128 204) studio("models\actors\shrimp\shrimp.mdx") = props2_fish : "A shrimp."
+[
+    option(integer) : "If set to '1', will not appear if the cvar 'props' is '0'"
+    dmg(integer) : "Shrimp bite damage" : 2
+    health(integer) : "Health" : 10
+]
+@PointClass base(Appearflags, Target, Angle) size(-16 -16 -16, 16 16 16) color(0 128 204) = props2_fish_spawner : "Base shrimp spawner, props2_fish_spawner_node  determine possible spawn point."
+[
+    option(integer) : "If set to '1', will not appear if the cvar 'props' is '0'"
+    dmg(integer) : "Shrimp bite damage" : 2
+    health(integer) : "Health" : 10
+    deadticks(integer) : "Total number of shrimps in level from spawner at a time" : 5
+]
+@PointClass base(Appearflags, Targetname, Angle) size(-16 -16 -16, 16 16 16) color(0 128 204) = props2_fish_spawner_node : "Possible shrimp spawn point for props2_fish_spawner" []
+@PointClass base(Appearflags, Targetname, Angle) size(-12 -12 0, 12 12 10) color(0 128 204) studio("models\actors\shrimp\shrimp.mdx") = props2_fish_trigger : "A shrimp that is spawned when triggered."
+[
+    option(integer) : "If set to '1', will not appear if the cvar 'props' is '0'"
+    dmg(integer) : "Shrimp bite damage" : 2
+    health(integer) : "Health" : 10
+]
+@PointClass base(Appearflags, Angle) size(-47 -6 -100, 47 6 100) color(0 128 204)
+    model(
+        {{
+            spawnflags &  2 -> "models/props/flag/flag1.md2",
+            spawnflags &  4 -> "models/props/flag/flag2.md2",
+            spawnflags &  8 -> "models/props/flag/flag3.md2",
+                               "models/props/flag/flag1.md2"
+        }}
+    ) = props2_flag : "A flag, the bounding box can be rotated in angles of 90 deg and block properly."
+[
+    spawnflags(flags) =
+    [
+        2 : "Flag1" : 0
+        4 : "Flag2" : 0
+        8 : "Flag3" : 0
+    ]
+]
+@PointClass base(Appearflags, Angle) size(-47 -22 -50, 47 22 50) color(0 128 204) studio("models/props/gargoyle/tris.md2") = props2_gargoyle : "A stone gargoyle." []
+@PointClass base(Appearflags, Targetname, Angle) size(-16 -16 -16, 16 16 16) color(0 128 204) studio("models/props/helicopter/helicopter.mdx;models/props/helicopter/rotor.mdx;models/props/helicopter/legs.mdx;models/props/helicopter/body.mdx;models/props/helicopter/foot.mdx;models/props/helicopter/head.mdx") = props2_helicopter_animate : "A helicopter and actor (Blunt) that animate when trigered." []
+@PointClass base(Appearflags, Angle) size(-16 -16 -88, 16 16 -40) color(0 128 204) studio("models\props\litecone\litecone.mdx") = props2_lighthouse_beam : "A light house light beam that rotates."
+[
+    reactdelay(integer) : "Light distance from center" : 40
+]
+@PointClass base(Appearflags, Angle) size(-10 -7 -5, 10 7 5) color(0 128 204) studio("models\props\lunch_set\tris.md2") = props2_lunch : "A lunch." []
+@PointClass base(Appearflags, Targetname, Angle) size(-42 -18 -38, 42 18 38) color(0 128 204) studio("models\props\pin1\pinball_m.mdx;models\props\pinball\ball.mdx;models\props\pinball\glass.mdx") = props2_pinball_machine : "A pinball machine, the bounding box can be rotated in angles of 90 deg and block properly, animate when triggered."
+[
+//MDX not working yet but need diffrent model loading
+    spawnflags(Flags) =
+    [
+        2 : "PINNUM1" : 0
+        4 : "PINNUM2" : 0
+        8 : "PINNUM2" : 0
+    ]
+]
+@PointClass base(Appearflags, Angle) size(-9 -11 -32, 9 11 32) color(0 128 204) studio("models\props\bush\tris.md2") = props2_plant_bush : "A bush like plant."
+[
+    health(integer) : "Strength" : 25
+]
+@PointClass base(Appearflags, Angle) size(-50 -46 -40, 50 46 40) color(0 128 204) studio("models\props\fern\tris.md2") = props2_plant_fern : "A fern plant."
+[
+    health(integer) : "Strength" : 25
+]
+@PointClass base(Appearflags, Angle) size(-12 -9 -20, 12 9 20) color(0 128 204) studio("models\props\plants\plant_sm.md2") = props2_plant_SM : "A plant small."
+[
+    health(integer) : "Strength" : 25
+]
+@PointClass base(Appearflags, Angle) size(-50 -46 -53, 50 46 53) color(0 128 204) studio("models\props\plants\plant_xl.md2") = props2_plant_XL : "A plant big."
+[
+    health(integer) : "Strength" : 25
+]
+@PointClass base(Appearflags, Angle) size(-60 -20 -56, 60 20 66) color(0 128 204) studio("models/props/shelfmetal1/shelf1.mdx;models/props/shelfmetal1/tanktops.mdx;models/props/shelfmetal1/shelf1.mdx;models/props/shelfmetal1/shelf2.mdx;models/props/shelfmetal1/barre1.mdx;models/props/shelfmetal1/barre2.mdx;models/props/shelfmetal1/barre3.mdx;models/props/shelfmetal1/barre4.mdx;models/props/shelfmetal1/tank_lg1.mdx;models/props/shelfmetal1/tank_lg2.mdx;models/props/shelfmetal1/tank_lg3.mdx;models/props/shelfmetal1/tank_sm.mdx;models/props/shelfmetal1/tank_sm1.mdx;models/props/shelfmetal1/tank_sm2.mdx;models/props/shelfmetal1/barreltops.mdx") = props2_shelf_metal_A_fall : "A falling metal shelf, bounding box can be rotated in angles of 90 deg and block properly." []
+@PointClass base(Appearflags, Angle) size(-60 -20 -56, 60 20 66) color(0 128 204) studio("models/props/shelfmetal2/shelf1.mdx;models/props/shelfmetal2/tanktops.mdx;models/props/shelfmetal2/shelf1.mdx;models/props/shelfmetal2/shelf2.mdx;models/props/shelfmetal2/barre1.mdx;models/props/shelfmetal2/barre2.mdx;models/props/shelfmetal2/barre3.mdx;models/props/shelfmetal2/barre4.mdx;models/props/shelfmetal2/cartboard1.mdx;models/props/shelfmetal2/cartboard2.mdx;models/props/shelfmetal2/tank_lg1.mdx;models/props/shelfmetal2/tank_lg2.mdx;models/props/shelfmetal2/tank_sm.mdx;models/props/shelfmetal2/tank_sm1.mdx;models/props/shelfmetal2/tank_sm2.mdx;models/props/shelfmetal2/barreltops.mdx") = props2_shelf_metal_B_fall : "Another falling metal shelf, bounding box can be rotated in angles of 90 deg and block properly." []
+@PointClass base(Appearflags, Angle) size(-4 -44 -44, 4 44 44) color(0 128 204) studio("models\props\sign\sign.mdx;models\props\sign\bar.mdx") = props2_sign : "A bar swingin sign, the bounding box can be rotated in angles of 90 deg and block properly.a" []
+@PointClass base(Appearflags, Targetname) size(-61 -148 -78, 61 148 78) color(0 128 204) studio("models/props/truck/box.mdx;models/props/truck/c4.mdx;models/props/truck/m26y.mdx;models/props/truck/mn3.mdx;models/props/truck/mp1a.mdx;models/props/truck/tires.mdx;models/props/truck/v1a.mdx") = props2_truck_die : "An exploding truck, animated when triggered." []
+@PointClass base(Appearflags, Angle) size(-16 -16 -24, 16 16 24) color(0 128 204) studio("models/props/vase1/tris.md2") = props2_vaseA : "A breakable vase."
+[
+    health(integer) : "Strength" : 25
+]
+@PointClass base(Appearflags, Angle) size(-16 -16 -24, 16 16 24) color(0 128 204) studio("models/props/vase2/tris.md2") = props2_vaseB : "A breakable vase."
+[
+    health(integer) : "Strength" : 25
+]
+@PointClass base(Appearflags, Angle) size(-2 -40 -12, 2 40 12) color(0 128 204) studio("models\props\fish\tris.md2") = props2_wall_fish : "A fish on the wall, the bounding box can be rotated in angles of 90 deg and block properly." []
+
+
+
+
+@PointClass base(Appearflags, Targetname, Angle) size(-44 -60 -49, 44 60 49) color(0 128 204) studio("models/props/nikki1/barrel_v4.mdx;models/props/nikki1/top_barrel_v4.mdx") = props3_barrels_fall_nikki_A : "A set of exploding barrels, must be triggered. This set is used in pv_boss." []
+@PointClass base(Appearflags, Targetname, Angle) size(-24 -48 -24, 24 48 24) color(0 128 204) studio("models/props/nikki2/barrel_v4.mdx;models/props/nikki2/top_barrel_v4.mdx") = props3_barrels_fall_nikki_B : "A set of exploding barrels, must be triggered. This set is used in pv_boss." []
+@PointClass base(Appearflags, Angle) size(-12 -11 -5, 12 11 5) color(0 128 204) studio("models\props\cash\cashstack.mdx") = props3_cash : "Some cash (model only, not a collectible item)." []
+@PointClass base(Appearflags, Targetname, Angle) size(-12 -14 -8, 12 18 7) color(0 128 204) studio("models\props\bill_counter\cashstack.mdx;models\props\bill_counter\numbers.mdx;models\props\bill_counter\machine.mdx;") = props3_cash_counter_animate : "A cash counter machine that animates when triggered." []
+@PointClass base(Appearflags, Targetname) size(-16 -16 -16, 16 16 16) color(0 128 204) studio("models\props\kpcut1\body.mdx;models\props\kpcut1\legs.mdx;models\props\kpcut1\head.mdx;") = props3_cut_A_animate : "The boss (Kingpin) sitting on a chair, will animate when triggered." []
+@PointClass base(Appearflags, Targetname) size(-16 -16 -16, 16 16 16) color(0 128 204) studio("models\props\kpcut2\body.mdx;models\props\kpcut2\legs.mdx;models\props\kpcut2\head.mdx;") = props3_cut_B_animate : "Talking boss (Kingpin), will animate when triggered." []
+@PointClass base(Appearflags, Targetname) size(-16 -16 -16, 16 16 16) color(0 128 204) studio("models\props\cutbc\body_chick.mdx;models\props\cutbc\legs_chick.mdx;models\props\cutbc\head_chick.mdx;models\props\cutbc\body.mdx;models\props\cutbc\legs.mdx;models\props\cutbc\head.mdx;models\props\cutbc\cigar.mdx") = props3_cut_boss_chick_animate : "A boss (Kingpin) and chick (Blunt) that animate on a balcony when trigered." []
+@PointClass base(Appearflags, Targetname) size(-16 -16 -16, 16 16 16) color(0 128 204) studio("models\props\player\bodyP.mdx;models\props\player\legsP.mdx;models\props\player\headP.mdx;models\props\boss\body_boss.mdx;models\props\boss\legs_boss.mdx;models\props\boss\head_boss.mdx") = props3_cut_boss_player_animate : "A boss (Nikki Blanco) and player that animate when trigered." []
+@PointClass base(Appearflags, Targetname) size(-16 -16 -16, 16 16 16) color(0 128 204) studio("models\props\kpcut3\body.mdx;models\props\kpcut3\legs.mdx;models\props\kpcut3\head.mdx;") = props3_cut_C_animate : "Talking boss (Kingpin), will animate when triggered." []
+@PointClass base(Appearflags, Targetname) size(-16 -16 -16, 16 16 16) color(0 128 204) studio("models\props\kpcut4\body.mdx;models\props\kpcut4\legs.mdx;models\props\kpcut4\head.mdx;") = props3_cut_D_animate : "Talking boss (Kingpin), will animate when triggered." []
+@PointClass base(Appearflags, Targetname) size(-16 -16 -16, 16 16 16) color(0 128 204) studio("models\props\finale\body_bossf.mdx;models\props\finale\legs_bossf.mdx;models\props\finale\head_bossf.mdx;models\props\finale\cigarf.mdx") = props3_cut_final_animate : "The final cut scene (thug standing, then sitting on a chair), animated when triggered." []
+@PointClass base(Appearflags, Targetname) size(-16 -16 -16, 16 16 16) color(0 128 204) studio("models\props\run_to_car\body_boss.mdx;models\props\run_to_car\legs_boss.mdx;models\props\run_to_car\head_boss.mdx") = props3_cut_run_to_car_animate : "Nikki Blanco running to a car, animated when triggered." []
+@PointClass base(Appearflags, Targetname) size(-16 -16 -16, 16 16 16) color(0 128 204) studio("models\props\train_jump\bodyP.mdx;models\props\train_jump\legsP.mdx;models\props\train_jump\headP.mdx;") = props3_cut_train_run_animate : "A player running to a train, will animate when triggered." []
+@PointClass base(Appearflags, Targetname) size(-67 -16 -58, 0 17 8) color(0 128 204) studio("models\props\driver\body_driver.mdx;models\props\driver\legs_driver.mdx;models\props\driver\head_driver.mdx;models\props\driver\wheel.mdx") = props3_cut_truck_driver : "The guy driving a truck in shipyard cutscene, animate when triggered." []
+@PointClass base(Appearflags, Targetname) size(-16 -16 -16, 16 16 16) color(0 128 204) studio("models/props/kpcut4_pinball/body.mdx;models/props/kpcut4_pinball/head.mdx;models/props/kpcut4_pinball/legs.mdx") = props3_cut_pinball_guy_animate : "A cut scene of a boss (Kingpin) and his pinball machine." []
+@PointClass base(Appearflags, Angle) size(-40 -48 -14, 40 48 14) color(0 128 204) studio("models\props\louie\body.mdx;models\props\louie\head.mdx;models\props\louie\legs.mdx") = props3_dead_louie : "A dead Louie body you can shoot."
+[
+    health(integer) : "Strength" : 50
+    item(string) : "Item to spawn when gibbed"
+]
+@PointClass base(Appearflags, Angle) size(-3 -5 -6, 3 5 6) color(0 128 204) studio("models\props\decanter\solid.mdx;models\props\decanter\glass.mdx") = props3_decanter : "A decanter." []
+@PointClass base(Appearflags, Angle) size(-32 -8 -58, 32 8 58) color(0 128 204) studio("models\props\deco_fixture\deco_fixture.mdx") = props3_deco_fixture : "A deco fixture." []
+@PointClass base(Appearflags, Angle) size(-2 -2 -2, 2 2 2) color(0 128 204) studio("models\props\whiskeyglass\solid.mdx;models\props\whiskeyglass\glass.mdx") = props3_whiskey_glass : "A glass of whiskey." []
+
+
+@PointClass size(-8 -8 -8, 8 8 8) color(255 0 0) = smoke_esm : "Smoke effect, extra-small"
+[
+    alphalevel(integer) : "Opacity level, 1 to 10 "
+]
+@PointClass size(-32 -32 -32, 32 32 32) color(255 0 0) = smoke_lg : "Smoke effect, large"
+[
+    alphalevel(integer) : "Opacity level, 1 to 10 "
+]
+@PointClass size(-24 -24 -24, 24 24 24) color(255 0 0) = smoke_med : "Smoke effect, medium"
+[
+    alphalevel(integer) : "Opacity level, 1 to 10 "
+]
+@PointClass size(-16 -16 -16, 16 16 16) color(255 0 0) = smoke_sm : "Smoke effect, small"
+[
+    alphalevel(integer) : "Opacity level, 1 to 10 "
+]
+
+
+@PointClass base(Appearflags, Targetname) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_blaster : "Fires a blaster bold in the set direction when triggered."
+[
+    spawnflags(Flags) =
+    [
+        1 : "No Trail" : 0
+        2 : "No Effects" : 0
+    ]
+    dmg(integer) : "Damage" : 15
+    speed(integer) : "Speed" : 1000
+]
+@SolidClass base(Appearflags, Targetname) color(0 0 255) = target_character : "Use with target_string and func_clock"
+[
+    team(string) : "Team"
+    count(integer) : "Position in the string"
+]
+@PointClass base(Appearflags, Targetname) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_changelevel : "Load a new map when triggered. You can specify the info_player_start to use in the next map, adding its ID after a $ symbol (example: map2$start1 will load map2.bsp and use the info_player_start called start1). Put a * symbol before the next map name to create a new unit, so the game forget infos regarding visited levels (example: *map2)"
+[
+    map(string) : "Next map"
+]
+@PointClass base(Appearflags, Targetname, Target, Killtarget) color(128 128 128) size(-8 -8 -8, 8 8 8) = target_crosslevel_target : "Triggered by a trigger_crosslevel_trigger elsewhere within a unit. If multiple triggers are checked, all must be true. Delay, target and killtarget also work."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Trigger 1" : 0
+        2 : "Trigger 2" : 0
+        4 : "Trigger 3" : 0
+        8 : "Trigger 4" : 0
+        16 : "Trigger 5" : 0
+        32 : "Trigger 6" : 0
+        64 : "Trigger 7" : 0
+        128 : "Trigger 8" : 0
+    ]
+    delay(integer) : "Delay before using targets if the trigger has been activated)" : 1
+    message(string) : "Message to display on trigger"
+]
+@PointClass base(Appearflags, Targetname, Target, Killtarget) color(128 128 128) size(-8 -8 -8, 8 8 8) = target_crosslevel_trigger : "Once this trigger is touched/used, any trigger_crosslevel_target with the same trigger number is automatically used when a level is started within the same unit.  It is OK to check multiple triggers.  Message, delay, target, and killtarget also work."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Trigger 1" : 0
+        2 : "Trigger 2" : 0
+        4 : "Trigger 3" : 0
+        8 : "Trigger 4" : 0
+        16 : "Trigger 5" : 0
+        32 : "Trigger 6" : 0
+        64 : "Trigger 7" : 0
+        128 : "Trigger 8" : 0
+    ]
+    delay(integer) : "Delay before using targets if the trigger has been activated)" : 1
+    message(string) : "Message to display on trigger"
+]
+@PointClass base(Appearflags, Targetname) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_earthquake : "When triggered, this initiates a level-wide earthquake, all players and monsters are affected."
+[
+    speed(integer) : "Severity of quake" : 200
+    count(integer) : "Duration of the quake" : 5
+]
+@PointClass base(Appearflags, Targetname, Target) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_explosion : "Spawns an explosion when used."
+[
+    delay(integer) : "Wait time before explosion"
+    dmg(integer) : "How much radius damage should be done" : 0
+    fxdensity(integer) : "explosion size -- 1 to 100" : 10
+]
+@PointClass base(Appearflags, Targetname, Target) size(-8 -8 -8, 8 8 8) color(255 0 0) = target_fire : "Spawn a fire."
+[
+    fxdensity(integer) : "Size of fire -- 1 to 100)" : 10
+    deadticks(integer) : "Random fire sections per frame" : 3
+    duration(float) : "How long fire stay alive in seconds, last forever if -1" : "5.0"
+    dmg(integer) : "Damage per second" : 10
+    reactdelay(integer) : "Fire spread factor -- 0.0 to 10.0" : 1
+]
+
+@PointClass base(Appearflags, Targetname) size(-8 -8 -8, 8 8 8) color(255 0 0) studio("models/weapons/sshell_md2/tris.md2") = target_flamethrower : "Shoots flame when triggered on, does not when triggered off."
+[
+    dmg(integer) : "Damage the flame does per frame" : 2
+    fxdensity(integer) : "Set to 1 to start on"
+    deadticks(integer) : "Angle adjustment up and down -- -90 to 90" : 0
+]
+@PointClass base(Appearflags, Targetname) size(-8 -8 -8, 8 8 8) color(255 0 255) = target_goal : "Can be triggered once only, Counts a goal completed. These are single use targets."
+[
+    noise(sound) : "Wav sound to play when triggered (default='misc/secret.wav')"
+]
+@PointClass base(Appearflags, Targetname, Target, Angle) color(0 128 204) size(-8 -8 -8, 8 8 8) = target_laser : "Fires a laser when triggered."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start On" : 0
+        2 : "Red" : 0
+        4 : "Green" : 0
+        8 : "Blue" : 0
+        16 : "Yellow" : 0
+        32 : "Orange" : 0
+        64 : "Fat" : 0
+    ]
+    dmg(integer) : "Damage inflicted when blocked" : 1
+]
+@PointClass base(Appearflags, Targetname, Target) color(0 128 204) size(-8 -8 -8, 8 8 8) = target_lightramp : "Light ramp"
+[
+    spawnflags(Flags) =
+    [
+        1 : "Toggle" : 0
+    ]
+    speed(integer) : "How many seconds the ramping will take"
+    message(string) : "Two letters: starting lightlevel and ending lightlevel ('a'=dark to 'z'=bright)"
+]
+@PointClass base(Appearflags, Targetname, Angle) size(-8 -8 -8, 8 8 8) color(255 0 0) = target_mal_laser : "Mal's laser."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start On" : 0
+        2 : "Red" : 0
+        4 : "Green" : 0
+        8 : "Blue" : 0
+        16 : "Yellow" : 0
+        32 : "Orange" : 0
+        64 : "Fat" : 0
+    ]
+    dmg(integer) : "Damage inflicted when blocked" : 5
+    delay(float) : "Delay before first shot" : "0.1"
+    wait(float) : "Time between two shots" : "0.1"
+
+]
+@PointClass base(Appearflags, Targetname) color(255 0 255) size(-8 -8 -8, 8 8 8) = target_secret : "Can be triggered once only, counts a secret found."
+[
+    message(string) : "Message to print" : "You have found a secret."
+    noise(sound) : "Wav sound to play when triggered (default='misc/secret.wav')"
+]
+@PointClass base(Appearflags, Targetname, Target, Angle) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_spawner : "Will spawn an entity when triggered, the spawned entity inherit this entity's spawnflags, angle and origin."
+[
+    speed(integer) : "Speed"
+]
+@PointClass base(Appearflags, Targetname) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_speaker : "Sound emitter, play a sound each time the entity is triggered, can be toggled on and off if LOOPED-ON or LOOPED-OFF is set (looped sounds are always 'attenuation=3', 'volume=1')"
+[
+    spawnflags(Flags) =
+    [
+        1 : "Looped On" : 0
+        2 : "Looped Off" : 0
+        4 : "Reliable" : 0
+    ]
+    noise(sound) : "Sound (path/file.wav)"
+    attenuation(Choices) : "Attenuation" : 1 =
+    [
+        -1 : "None, send to whole level"
+        1 : "Normal fighting sounds"
+        2 : "Idle sound level"
+        3 : "Ambient sound level"
+    ]
+    volume(integer) : "Volume (0.0 - 1.0)" : 1
+]
+@PointClass base(Appearflags, Targetname) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_splash : "A particle emitter, spawns particles when triggered."
+[
+    sounds(choices) : "Type of splash" : 2 =
+    [
+        1 : "Sparks"
+        2 : "Blue water"
+        3 : "Brown water"
+        4 : "Slime"
+        5 : "Lava"
+        6 : "Blood"
+        7 : "Fireworks"
+        8 : "Smoke"
+    ]
+    count(integer) : "Amount of particles -- 1 to 10" :3
+    dmg(integer) : "Radius damage" : 0
+    alphalevel(integer) : "Smoke only: Opacity level -- 1 to 10": 24
+    firetype(integer) : "Smoke only: Smoke size -- 5 to 32" : 24
+    deadticks(integer) : "Smoke only: Lifetime in seconds -- 1 to 60" : 6
+    fxdensity(integer) : "Smoke only: Speed of rising -- 1 to 100 " : 25
+    rotate(string) : "Smoke only: X Y Z velocity (default=up)"
+]
+@PointClass base(Appearflags, Targetname) color(0 0 255) size(-8 -8 -8, 8 8 8) = target_string : "String"
+[
+    team(string) : "Team"
+    message(string) : "Message to display on trigger"
+]
+@PointClass base(Appearflags, Targetname) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_temp_entity : "Fire an origin based temp entity event to the clients."
+[
+    style(string) : "type byte"
+]
+
+
+
+@PointClass base(Appearflags, Target, Killtarget) color(128 128 128) size(-8 -8 -8, 8 8 8) = trigger_always : "This trigger will always fire. It is activated by the world."
+[
+    delay(integer) : "Wait before triggering targeted entities"
+]
+@SolidClass base(Appearflags, Targetname, Target, Killtarget) color(128 128 128) = trigger_counter : "Acts as an intermediary for an action that takes multiple inputs. If the cvar 'developer' is '1' and 'nomessage' is unset, each time this entity is triggered, the message X more to go... will appear (and Armageddon virus installed successfully when the sequence is completed)"
+[
+    spawnflags(Flags) =
+    [
+        1 : "No Message" : 0
+    ]
+    count(integer) : "Number of times this trigger must be activated before triggering its targets" : 2
+]
+@PointClass base(Appearflags, Targetname, Target) color(76 25 153) = trigger_elevator : "Elevator trigger" []
+@SolidClass base(Appearflags) color(128 128 128) = trigger_gravity : "Changes the touching entites gravity to the value of gravity."
+[
+    gravity(integer) : "Gravity (standard = 1.0)" : 1
+]
+@SolidClass base(Appearflags, Targetname) color(128 128 128) = trigger_hurt : "Any entity taking damage touching this trigger will loose 'dmg' health points each server frame (or every second if SLOW spawnflag is set)."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start Off" : 0
+        2 : "Toggle" : 0
+        4 : "Silent" : 0
+        8 : "No Protection" : 0
+        16 : "Slow hurt" : 0
+    ]
+    dmg(integer) : "Damages inflicted when touched." : 5
+]
+@SolidClass base(Appearflags, Targetname) color(128 128 128) = trigger_hurt_electric : "Any entity taking damage touching this trigger will be electrocuted and loose 'dmg' health points each server frame (or every second if SLOW spawnflag is set)."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start Off" : 0
+        2 : "Toggle" : 0
+        4 : "Silent" : 0
+        8 : "No Protection" : 0
+        16 : "Slow hurt" : 0
+    ]
+    dmg(integer) : "Damages inflicted when touched." : 5
+]
+@SolidClass base(Appearflags, Targetname) color(128 128 128) = trigger_hurt_fire : "Any entity taking damage touching this trigger will burn and loose 'dmg' health points each server frame (or every second if SLOW spawnflag is set)."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Start Off" : 0
+        2 : "Toggle" : 0
+        4 : "Silent" : 0
+        8 : "No Protection" : 0
+        16 : "Slow hurt" : 0
+    ]
+    dmg(integer) : "Damages inflicted when touched." : 5
+]
+@PointClass base(Appearflags, Targetname, Target, Killtarget) color(128 128 128) size(-8 -8 -8, 8 8 8) = trigger_key : "A relay trigger that only fires it's targets if player has the proper key."
+[
+    item(string) : "Item classname" : "Item required (pickup name)"
+]
+@SolidClass base(Appearflags, Angle) color(128 128 128) = trigger_monsterjump : "Walking monsters that touch this entity will jump in the direction of the trigger's angle."
+[
+    speed(integer) : "Speed thrown forward" : 200
+    height(integer) : "Height thrown upward" : 200
+]
+@SolidClass base(Appearflags, Target, Killtarget) = trigger_motorcycle : "Skidrow only, will trigger the motorcycle cutscene script. If 'Battery' is in player's inventory, the item is taken away, the targeted entity is triggered, every 'props_motorcycle' entities are removed from the map while a new entity is spawned to make the cutscene animation. If 'Battery' is not in player's inventory, EP_SKIDROW_FOUND_BIKE flag is registered (Found the bike... Broken down piece of junk doesn't have a battery...) and nothing else happen." []
+@SolidClass base(Appearflags, Targetname, Target, Killtarget) = trigger_multiple : "Repeatable trigger. Must be targeted at one or more entities."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Monster" : 0
+        2 : "Not Player" : 0
+        2 : "Triggered" : 0
+    ]
+    wait(float) : "Seconds between triggers" : "0.2"
+    delay(integer) : "Wait before triggering targeted entities"
+    message(string) : "String to be displayed when triggered"
+    sounds(choices) : "Sounds" : 0 =
+    [
+        0 : "Silent"
+        1 : "misc/secret.wav"
+        2 : "misc/talk.wav"
+        3 : "misc/trigger1.wav"
+    ]
+]
+@SolidClass base(Appearflags, Targetname, Target, Killtarget) = trigger_once : "Triggers once, then removes itself. You must set the key 'target' to the name of another object in the level that has a matching 'targetname'. If TRIGGERED is set, this trigger must be triggered before it is live."
+[
+    spawnflags(Flags) =
+    [
+        4 : "Triggered" : 0
+        8 : "Sceneric" : 0
+    ]
+    delay(integer) : "Wait before triggering targeted entities"
+    message(string) : "String to be displayed when triggered"
+    sounds(choices) : "Sounds" : 0 =
+    [
+        0 : "Silent"
+        1 : "misc/secret.wav"
+        2 : "misc/talk.wav"
+        3 : "misc/trigger1.wav"
+    ]
+]
+@SolidClass base(Appearflags, Angle) = trigger_push : "Pushes the player."
+[
+    spawnflags(Flags) =
+    [
+        1 : "Push Once" : 0
+    ]
+    speed(integer) : "Speed of push" : 1000
+]
+@PointClass base(Appearflags, Targetname, Target, Killtarget) color(128 128 128) = trigger_relay : "This fixed size trigger cannot be touched, it can only be fired by other events."
+[
+    delay(integer) : "Time in seconds before triggering the target"
+    message(string) : "Trigger message"
+]
+@SolidClass base(Appearflags, Targetname, Target) = trigger_unlock : "Player will unlock a targeted door when this brush is touched, can also be triggered (door's 'key' must be '-1')" []
+
+
+@baseclass base(Appearflags, Targetname, Target, Killtarget, Angle) size(-16 -16 -16, 16 16 16) offset(0 0 16) color(77 77 255) = WeaponClass []
+@PointClass base(WeaponClass) studio("models/weapons/g_rocket_launcher/tris.md2") = weapon_bazooka : "Rocket launcher (clip size: 3) -- Requires ammo_rockets." []
+@PointClass base(WeaponClass) studio("models/weapons/g_crowbar/tris.md2") = weapon_crowbar : "Crowbar (no clip) -- Melee weapon." []
+@PointClass base(WeaponClass) studio("models/pu_icon/flame_shell/tris.md2") = weapon_flamethrower : "Flame thrower (no clip) -- Requires ammo_flametank." []
+@PointClass base(WeaponClass) studio("models/weapons/g_grenade_launcher/tris.md2") = weapon_grenadelauncher : "Grenade launcher (clip size: 3) -- Requires ammo_grenades." []
+@PointClass base(WeaponClass) studio("models/weapons/g_hmg/tris.md2") = weapon_heavymachinegun : "Heavy submachine gun (clip size: 30) -- Requires ammo_308, can be equipped with Cooling Sleeves (hmg_mod_cooling)." []
+@PointClass base(WeaponClass) studio("models/weapons/g_pistol/tris.md2") = weapon_pistol : "Standard pistol (clip size: 10) -- Requires ammo_bullets or ammo_cylinder, can be equipped with magnum mod (pistol_mod_damage), rate of fire (pistol_mod_rof), reload (pistol_mod_reload)." []
+@PointClass base(WeaponClass) studio("models/weapons/g_shotgun/tris.md2") = weapon_shotgun : "Shotgun (clip size: 8) -- Requires ammo_shells." []
+@PointClass base(WeaponClass) studio("models/weapons/silencer_mdx/pistol.mdx") = weapon_spistol : "Pistol with silencer (clip size: 10) -- Requires ammo_bullets or ammo_cylinder can be equipped with magnum mod (pistol_mod_damage), rate of fire (pistol_mod_rof), reload (pistol_mod_reload). Silencer lasts 20 shots before breaking up." []
+@PointClass base(WeaponClass) studio("models/weapons/g_tomgun/tris.md2") = weapon_tommygun : "Thompson submachine gun (clip size: 50) -- Requires ammo_bullets or ammo_cylinder." []
+
+
+
+
+@PointClass base(Appearflags, Targetname, Target, Killtarget, Angle) size(-16 -16 -16, 16 16 16) offset(0 0 16) color(77 77 255) = item_jetpack : "Pickup item: jetpack ('Jetpack'). No model and broken code." []
+@PointClass base(Appearflags, Targetname, Angle) size(-2 -2 -12, 2 2 12) color(0 255 0) studio("models\objects\minelite\light1\tris.md2") = light_mine1 : "Dusty fluorescent light fixture"
+[
+    light(integer) : "Brightness" : 300
+    style(Choices) : "Style" : 0 =
+    [
+        0 : "Normal"
+        1 : "Fire Flicker #1"
+        2 : "Slow Strong Pulse"
+        3 : "Candle #1"
+        4 : "Fast Strobe"
+        5 : "Gentle Pulse #1"
+        6 : "Fire Flicker #2"
+        7 : "Candle #2"
+        8 : "Candle #3"
+        9 : "Slow Strong Strobe"
+        10 : "Fluorescent Flicker #1"
+        11 : "Slow pulse, no black"
+        12 : "Fire Flicker #3"
+        13 : "Fluorescent Flicker #2"
+        14 : "Fluorescent Flicker #3"
+        15 : "Realistic Fade #1"
+        16 : "Realistic Fade #2"
+        17 : "Slow Strongstrobe (out of phase)"
+        18 : "Three Cycle Strobe #1"
+        19 : "Three Cycle Strobe #2"
+        20 : "Three Cycle Strobe #3"
+    ]
+    _color(string) : "Defines the color in scalar R G B values" : "0 0 0"
+]
+@PointClass base(Appearflags, Targetname, Angle) size(-2 -2 -12, 2 2 12) color(0 255 0) studio("models\objects\minelite\light2\tris.md2") = light_mine2 : "Clean fluorescent light fixture"
+[
+    light(integer) : "Brightness" : 300
+    style(Choices) : "Style" : 0 =
+    [
+        0 : "Normal"
+        1 : "Fire Flicker #1"
+        2 : "Slow Strong Pulse"
+        3 : "Candle #1"
+        4 : "Fast Strobe"
+        5 : "Gentle Pulse #1"
+        6 : "Fire Flicker #2"
+        7 : "Candle #2"
+        8 : "Candle #3"
+        9 : "Slow Strong Strobe"
+        10 : "Fluorescent Flicker #1"
+        11 : "Slow pulse, no black"
+        12 : "Fire Flicker #3"
+        13 : "Fluorescent Flicker #2"
+        14 : "Fluorescent Flicker #3"
+        15 : "Realistic Fade #1"
+        16 : "Realistic Fade #2"
+        17 : "Slow Strongstrobe (out of phase)"
+        18 : "Three Cycle Strobe #1"
+        19 : "Three Cycle Strobe #2"
+        20 : "Three Cycle Strobe #3"
+    ]
+    _color(string) : "Defines the color in scalar R G B values" : "0 0 0"
+]
+@PointClass base(Appearflags, Angle) size(-8 -8 -8, 8 8 8) color(255 0 0) studio("models/objects/gibs/arm/tris.md2") = misc_gib_arm : "Gib Arm. Q2 leftover." []
+@PointClass base(Appearflags, Angle) size(-8 -8 -8, 8 8 8) color(255 0 0) studio("models/objects/gibs/head/tris.md2") = misc_gib_head : "Gib Head. Q2 leftover." []
+@PointClass base(Appearflags, Angle) size(-8 -8 -8, 8 8 8) color(255 0 0) studio("models/objects/gibs/leg/tris.md2") = misc_gib_leg : "Gib Leg. Q2 leftover." []
+@PointClass base(Appearflags, Target, Angle) size(-32 -32 -24, 32 32 -16) color(255 0 0) studio("models\objects\dmspot\tris.md2") = misc_teleporter : "Stepping onto this disc will teleport players to the targeted 'misc_teleporter_dest' object." []
+@PointClass base(Appearflags, Targetname, Angle) size(-32 -32 -24, 32 32 -16) color(255 0 0) model({ "path" : "models\objects\dmspot\tris.md2", "skin" : 1 }) = misc_teleporter_dest : "Teleporter destination point." []
+@PointClass base(Appearflags, Targetname) size(-8 -8 -8, 8 8 8) color(0 128 204) studio("models/props/light/tris.md2") = rotating_light : "a rotating light. From Q2 Xatrix mod."
+[
+    health(integer) : "Strength, the light can be destroyed if set"
+    speed(integer) : "Light radius" :32
+    spawnflags(flags) =
+    [
+        1 : "Start Off" : 0
+        2 : "Alarm" : 0
+    ]
+]
+
+
+
+
+

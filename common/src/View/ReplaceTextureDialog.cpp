@@ -21,127 +21,147 @@
 
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
+#include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectMatchingBrushFacesVisitor.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
 #include "View/TextureBrowser.h"
 #include "View/TitledPanel.h"
-#include "View/ViewConstants.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
-#include <wx/button.h>
-#include <wx/msgdlg.h>
-#include <wx/sizer.h>
+#include <kdl/memory_utils.h>
+#include <kdl/vector_utils.h>
 
-#include <algorithm>
-#include <iterator>
+#include <QDialogButtonBox>
+#include <QMessageBox>
+#include <QPushButton>
+
+#include <sstream>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
-        ReplaceTextureDialog::ReplaceTextureDialog(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
-        wxDialog(parent, wxID_ANY, "Replace Texture", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER),
+        ReplaceTextureDialog::ReplaceTextureDialog(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent) :
+        QDialog(parent),
         m_document(document),
         m_subjectBrowser(nullptr),
-        m_replacementBrowser(nullptr) {
+        m_replacementBrowser(nullptr),
+        m_replaceButton(nullptr) {
             createGui(contextManager);
         }
 
-        void ReplaceTextureDialog::OnReplace(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void ReplaceTextureDialog::accept() {
             const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
             ensure(subject != nullptr, "subject is null");
 
-            Assets::Texture* replacement = m_replacementBrowser->selectedTexture();
+            const Assets::Texture* replacement = m_replacementBrowser->selectedTexture();
             ensure(replacement != nullptr, "replacement is null");
 
-            MapDocumentSPtr document = lock(m_document);
-            const Model::BrushFaceList faces = getApplicableFaces();
+            auto document = kdl::mem_lock(m_document);
+            const auto faces = getApplicableFaces();
 
             if (faces.empty()) {
-                wxMessageBox("None of the selected faces has the selected texture", "Replace Failed", wxOK | wxCENTRE, this);
+                QMessageBox::warning(this, tr("Replace Failed"), tr("None of the selected faces has the selected texture"));
                 return;
             }
 
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.setTextureName(replacement->name());
+            
             Transaction transaction(document, "Replace Textures");
             document->select(faces);
-            document->setTexture(replacement);
+            document->setFaceAttributes(request);
 
-            StringStream msg;
+            std::stringstream msg;
             msg << "Replaced texture '" << subject->name() << "' with '" << replacement->name() << "' on " << faces.size() << " faces.";
-            wxMessageBox(msg.str(), "Replace succeeded", wxOK | wxCENTRE, this);
+
+            QMessageBox::information(this, tr("Replace Succeeded"), QString::fromStdString(msg.str()));
         }
 
-        Model::BrushFaceList ReplaceTextureDialog::getApplicableFaces() const {
-            MapDocumentSPtr document = lock(m_document);
-            Model::BrushFaceList faces = document->allSelectedBrushFaces();
+        std::vector<Model::BrushFaceHandle> ReplaceTextureDialog::getApplicableFaces() const {
+            const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
+            ensure(subject != nullptr, "subject is null");
+
+            auto document = kdl::mem_lock(m_document);
+            auto faces = document->allSelectedBrushFaces();
             if (faces.empty()) {
                 Model::CollectBrushFacesVisitor collect;
                 document->world()->acceptAndRecurse(collect);
                 faces = collect.faces();
             }
 
-            const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
-            ensure(subject != nullptr, "subject is null");
-
-            Model::BrushFaceList result;
-            std::copy_if(std::begin(faces), std::end(faces), std::back_inserter(result), [&subject](const Model::BrushFace* face) { return face->texture() == subject; });
-            return result;
-        }
-
-        void ReplaceTextureDialog::OnUpdateReplaceButton(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
-            const Assets::Texture* replacement = m_replacementBrowser->selectedTexture();
-            event.Enable(subject != nullptr && replacement != nullptr);
+            return kdl::vec_filter(faces, [&](const auto& handle) { return handle.face().texture() == subject; });
         }
 
         void ReplaceTextureDialog::createGui(GLContextManager& contextManager) {
-            setWindowIcon(this);
+            setWindowIconTB(this);
+            setWindowTitle(tr("Replace Texture"));
 
-            TitledPanel* subjectPanel = new TitledPanel(this, "Find");
-            m_subjectBrowser = new TextureBrowser(subjectPanel->getPanel(), m_document, contextManager);
+            auto* subjectPanel = new TitledPanel(tr("Find"));
+            m_subjectBrowser = new TextureBrowser(m_document, contextManager);
             m_subjectBrowser->setHideUnused(true);
+            connect(m_subjectBrowser, &TextureBrowser::textureSelected, this, &ReplaceTextureDialog::subjectSelected);
 
-            wxSizer* subjectPanelSizer = new wxBoxSizer(wxVERTICAL);
-            subjectPanelSizer->Add(m_subjectBrowser, 1, wxEXPAND);
-            subjectPanel->getPanel()->SetSizer(subjectPanelSizer);
+            auto* subjectPanelLayout = new QVBoxLayout();
+            subjectPanelLayout->setContentsMargins(QMargins());
+            subjectPanelLayout->setSpacing(0);
+            subjectPanelLayout->addWidget(m_subjectBrowser);
+            subjectPanel->getPanel()->setLayout(subjectPanelLayout);
 
-            TitledPanel* replacementPanel = new TitledPanel(this, "Replace with");
-            m_replacementBrowser = new TextureBrowser(replacementPanel->getPanel(), m_document, contextManager);
+            auto* replacementPanel = new TitledPanel(tr("Replace with"));
+            m_replacementBrowser = new TextureBrowser(m_document, contextManager);
             m_replacementBrowser->setSelectedTexture(nullptr); // Override the current texture.
+            connect(m_replacementBrowser, &TextureBrowser::textureSelected, this, &ReplaceTextureDialog::replacementSelected);
 
-            wxSizer* replacementPanelSizer = new wxBoxSizer(wxVERTICAL);
-            replacementPanelSizer->Add(m_replacementBrowser, 1, wxEXPAND);
-            replacementPanel->getPanel()->SetSizer(replacementPanelSizer);
+            auto* replacementPanelLayout = new QVBoxLayout();
+            replacementPanelLayout->setContentsMargins(QMargins());
+            replacementPanelLayout->setSpacing(0);
+            replacementPanelLayout->addWidget(m_replacementBrowser, 1);
+            replacementPanel->getPanel()->setLayout(replacementPanelLayout);
 
-            wxSizer* upperSizer = new wxBoxSizer(wxHORIZONTAL);
-            upperSizer->Add(subjectPanel, 1, wxEXPAND);
-            upperSizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), 0, wxEXPAND);
-            upperSizer->Add(replacementPanel, 1, wxEXPAND);
+            auto* upperLayout = new QHBoxLayout();
+            upperLayout->setContentsMargins(QMargins());
+            upperLayout->setSpacing(0);
+            upperLayout->addWidget(subjectPanel, 1);
+            upperLayout->addWidget(new BorderLine(BorderLine::Direction::Vertical), 0);
+            upperLayout->addWidget(replacementPanel, 1);
 
-            wxButton* replaceButton = new wxButton(this, wxID_OK, "Replace");
-            replaceButton->SetToolTip("Perform replacement on all selected faces");
-            wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
-            closeButton->SetToolTip("Close this window");
+            auto* buttonBox = new QDialogButtonBox(this);
+            m_replaceButton = buttonBox->addButton(tr("Replace"), QDialogButtonBox::AcceptRole);
+            m_replaceButton->setToolTip(tr("Perform replacement on all selected faces"));
+            m_replaceButton->setEnabled(false);
+            auto* closeButton = buttonBox->addButton(tr("Close"), QDialogButtonBox::RejectRole);
+            closeButton->setToolTip(tr("Close this window"));
 
-            replaceButton->Bind(wxEVT_BUTTON, &ReplaceTextureDialog::OnReplace, this);
-            replaceButton->Bind(wxEVT_UPDATE_UI, &ReplaceTextureDialog::OnUpdateReplaceButton, this);
+            connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+            connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-            wxStdDialogButtonSizer* buttonSizer = new wxStdDialogButtonSizer();
-            buttonSizer->SetAffirmativeButton(replaceButton);
-            buttonSizer->SetCancelButton(closeButton);
-            buttonSizer->Realize();
+            auto* outerLayout = new QVBoxLayout();
+            outerLayout->setContentsMargins(QMargins());
+            outerLayout->setSpacing(0);
+            outerLayout->addLayout(upperLayout, 1);
+            outerLayout->addLayout(wrapDialogButtonBox(buttonBox), 0);
+            insertTitleBarSeparator(outerLayout);
 
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(upperSizer, 1, wxEXPAND);
-            outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
-            SetSizer(outerSizer);
+            setLayout(outerLayout);
 
-            SetMinSize(wxSize(650, 450));
-            SetSize(wxSize(650, 450));
+            setMinimumSize(650, 450);
+        }
+
+        void ReplaceTextureDialog::subjectSelected(const Assets::Texture* /* subject */) {
+            updateReplaceButton();
+        }
+
+        void ReplaceTextureDialog::replacementSelected(const Assets::Texture* /* replacement */) {
+            updateReplaceButton();
+        }
+
+        void ReplaceTextureDialog::updateReplaceButton() {
+            const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
+            const Assets::Texture* replacement = m_replacementBrowser->selectedTexture();
+            m_replaceButton->setEnabled(subject != nullptr && replacement != nullptr);
         }
     }
 }

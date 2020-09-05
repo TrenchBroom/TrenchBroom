@@ -19,9 +19,12 @@
 
 #include "TextureReader.h"
 
+#include "Logger.h"
 #include "Assets/Texture.h"
+#include "Assets/TextureBuffer.h"
+#include "IO/File.h"
 #include "IO/FileSystem.h"
-#include "IO/Reader.h"
+#include "IO/ResourceUtils.h"
 
 #include <algorithm>
 
@@ -35,7 +38,7 @@ namespace TrenchBroom {
             return doClone();
         }
 
-        String TextureReader::NameStrategy::textureName(const String& textureName, const Path& path) const {
+        std::string TextureReader::NameStrategy::textureName(const std::string& textureName, const Path& path) const {
             return doGetTextureName(textureName, path);
         }
 
@@ -45,52 +48,59 @@ namespace TrenchBroom {
             return new TextureNameStrategy();
         }
 
-        String TextureReader::TextureNameStrategy::doGetTextureName(const String& textureName, const Path& path) const {
+        std::string TextureReader::TextureNameStrategy::doGetTextureName(const std::string& textureName, const Path& /* path */) const {
             return textureName;
         }
 
-        TextureReader::PathSuffixNameStrategy::PathSuffixNameStrategy(const size_t suffixLength, const bool deleteExtension) :
-        m_suffixLength(suffixLength),
-        m_deleteExtension(deleteExtension) {}
+        TextureReader::PathSuffixNameStrategy::PathSuffixNameStrategy(const size_t prefixLength) :
+        m_prefixLength(prefixLength) {}
 
         TextureReader::NameStrategy* TextureReader::PathSuffixNameStrategy::doClone() const {
-            return new PathSuffixNameStrategy(m_suffixLength, m_deleteExtension);
+            return new PathSuffixNameStrategy(m_prefixLength);
         }
 
-        String TextureReader::PathSuffixNameStrategy::doGetTextureName(const String& textureName, const Path& path) const {
-            Path result = path.suffix(std::min(m_suffixLength, path.length()));
-            if (m_deleteExtension)
-                result = result.deleteExtension();
-            return result.asString('/');
+        std::string TextureReader::PathSuffixNameStrategy::doGetTextureName(const std::string& /* textureName */, const Path& path) const {
+            if (m_prefixLength < path.length()) {
+                return path.suffix(path.length() - m_prefixLength).deleteExtension().asString("/");
+            } else {
+                return "";
+            }
         }
 
-        TextureReader::StaticNameStrategy::StaticNameStrategy(const String& name) :
+        TextureReader::StaticNameStrategy::StaticNameStrategy(const std::string& name) :
         m_name(name) {}
 
         TextureReader::NameStrategy* TextureReader::StaticNameStrategy::doClone() const {
             return new StaticNameStrategy(m_name);
         }
 
-        String TextureReader::StaticNameStrategy::doGetTextureName(const String& textureName, const Path& path) const {
+        std::string TextureReader::StaticNameStrategy::doGetTextureName(const std::string& /* textureName */, const Path& /* path */) const {
             return m_name;
         }
 
-        TextureReader::TextureReader(const NameStrategy& nameStrategy) :
-        m_nameStrategy(nameStrategy.clone()) {}
+        TextureReader::TextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger) :
+        m_nameStrategy(nameStrategy.clone()),
+        m_fs(fs),
+        m_logger(logger) {}
 
         TextureReader::~TextureReader() {
             delete m_nameStrategy;
         }
 
-        Assets::Texture* TextureReader::readTexture(std::shared_ptr<File> file) const {
-            return doReadTexture(file);
+        Assets::Texture TextureReader::readTexture(std::shared_ptr<File> file) const {
+            try {
+                return doReadTexture(file);
+            } catch (const AssetException& e) {
+                m_logger.error() << "Could not read texture '" << file->path() << "': " << e.what();
+                return loadDefaultTexture(m_fs, m_logger, textureName(file->path()));
+            }
         }
 
-        String TextureReader::textureName(const String& textureName, const Path& path) const {
+        std::string TextureReader::textureName(const std::string& textureName, const Path& path) const {
             return m_nameStrategy->textureName(textureName, path);
         }
 
-        String TextureReader::textureName(const Path& path) const {
+        std::string TextureReader::textureName(const Path& path) const {
             return m_nameStrategy->textureName(path.lastComponent().asString(), path);
         }
 

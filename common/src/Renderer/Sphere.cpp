@@ -19,12 +19,11 @@
 
 #include "Sphere.h"
 
-#include "TrenchBroom.h"
-#include "Renderer/RenderUtils.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
+#include "Renderer/PrimType.h"
+#include "Renderer/RenderUtils.h"
 
-#include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
 namespace TrenchBroom {
@@ -40,12 +39,12 @@ namespace TrenchBroom {
             return m_array.prepared();
         }
 
-        void Sphere::prepare(Vbo& vbo) {
-            m_array.prepare(vbo);
+        void Sphere::prepare(VboManager& vboManager) {
+            m_array.prepare(vboManager);
         }
 
         void Sphere::render() {
-            m_array.render(GL_TRIANGLES);
+            m_array.render(PrimType::Triangles);
         }
     }
 }

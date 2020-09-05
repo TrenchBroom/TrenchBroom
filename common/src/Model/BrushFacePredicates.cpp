@@ -22,8 +22,8 @@
 namespace TrenchBroom {
     namespace Model {
         namespace BrushFacePredicates {
-            bool True::operator()(const BrushFace* face) const  { return true;  }
-            bool False::operator()(const BrushFace* face) const { return false; }
+            bool True::operator()(const Model::BrushNode* /* brush */, const BrushFace& /* face */) const  { return true;  }
+            bool False::operator()(const Model::BrushNode* /* brush */, const BrushFace& /* face */) const { return false; }
         }
     }
 }

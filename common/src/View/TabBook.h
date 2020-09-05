@@ -20,34 +20,37 @@
 #ifndef TrenchBroom_TabBook
 #define TrenchBroom_TabBook
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxBookCtrlEvent;
-class wxSimplebook;
+class QStackedLayout;
 
 namespace TrenchBroom {
     namespace View {
         class TabBar;
 
-        class TabBookPage : public wxPanel {
+        class TabBookPage : public QWidget {
+            Q_OBJECT
         public:
-            TabBookPage(wxWindow* parent);
+            explicit TabBookPage(QWidget* parent = nullptr);
             virtual ~TabBookPage();
-            virtual wxWindow* createTabBarPage(wxWindow* parent);
+            virtual QWidget* createTabBarPage(QWidget* parent);
         };
 
-        class TabBook : public wxPanel {
+        class TabBook : public QWidget {
+            Q_OBJECT
         private:
             TabBar* m_tabBar;
-            wxSimplebook* m_tabBook;
+            QStackedLayout* m_tabBook;
         public:
-            TabBook(wxWindow* parent);
+            explicit TabBook(QWidget* parent = nullptr);
 
-            void addPage(TabBookPage* page, const wxString& title);
-            void switchToPage(size_t index);
-            void setTabBarHeight(int height);
+            TabBar* tabBar();
 
-            void OnTabBookPageChanged(wxBookCtrlEvent& event);
+            void addPage(TabBookPage* page, const QString& title);
+            void switchToPage(int index);
+
+        signals:
+            void pageChanged(int page);
         };
     }
 }

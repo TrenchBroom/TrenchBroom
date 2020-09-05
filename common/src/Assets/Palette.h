@@ -21,17 +21,16 @@
 #define TrenchBroom_Palette
 
 #include "Color.h"
-#include "ByteBuffer.h"
 #include "IO/Reader.h"
 
 #include <cassert>
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
         class FileSystem;
         class Path;
-        class Reader;
     }
 
     namespace Assets {
@@ -41,15 +40,11 @@ namespace TrenchBroom {
 
         class Palette {
         private:
-            using RawDataPtr = std::unique_ptr<unsigned char[]>;
-
             class Data {
             private:
-                size_t m_size;
-                RawDataPtr m_data;
+                std::vector<unsigned char> m_data;
             public:
-                Data(size_t size, RawDataPtr&& data);
-                Data(size_t size, unsigned char* data);
+                Data(std::vector<unsigned char>&& data);
 
                 /**
                  * Converts the given index buffer to an RGBA image.
@@ -65,7 +60,7 @@ namespace TrenchBroom {
                  *     indicates that the image is opaque
                  */
                 template <typename IndexT, typename ColorT>
-                bool indexedToRgba(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
+                bool indexedToRgba(const std::vector<IndexT>& indexedImage, const size_t pixelCount, std::vector<ColorT>& rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
                     auto reader = IO::Reader::from(&indexedImage[0], &indexedImage[0] + pixelCount);
                     return indexedToRgba(reader, pixelCount, rgbaImage, transparency, averageColor);
                 }
@@ -83,13 +78,13 @@ namespace TrenchBroom {
                  *     indicates that the image is opaque
                  */
                 template <typename ColorT>
-                bool indexedToRgba(IO::Reader& reader, const size_t pixelCount, Buffer<ColorT>& rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
+                bool indexedToRgba(IO::Reader& reader, const size_t pixelCount, std::vector<ColorT>& rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
                     double avg[3];
                     avg[0] = avg[1] = avg[2] = 0.0;
                     bool hasTransparency = false;
                     for (size_t i = 0; i < pixelCount; ++i) {
                         const size_t index = reader.readSize<unsigned char>();
-                        assert(index < m_size);
+                        assert(index < m_data.size());
                         for (size_t j = 0; j < 3; ++j) {
                             const unsigned char c = m_data[index * 3 + j];
                             rgbaImage[i * 4 + j] = c;
@@ -100,14 +95,14 @@ namespace TrenchBroom {
                                 rgbaImage[i * 4 + 3] = 0xFF;
                                 break;
                             case PaletteTransparency::Index255Transparent:
-                                rgbaImage[i * 4 + 3] = (index == 255) ? 0x00 : 0xFF;
+                                rgbaImage[i * 4 + 3] = static_cast<ColorT>((index == 255) ? 0x00 : 0xFF);
                                 hasTransparency |= (index == 255);
                                 break;
                         }
                     }
 
                     for (size_t i = 0; i < 3; ++i) {
-                        averageColor[i] = static_cast<float>(avg[i] / pixelCount / 0xFF);
+                        averageColor[i] = static_cast<float>(avg[i] / static_cast<double>(pixelCount) / static_cast<double>(0xFF));
                     }
                     averageColor[3] = 1.0f;
 
@@ -119,8 +114,7 @@ namespace TrenchBroom {
             DataPtr m_data;
         public:
             Palette();
-            Palette(size_t size, RawDataPtr&& data);
-            Palette(size_t size, unsigned char* data);
+            Palette(std::vector<unsigned char> data);
 
             static Palette loadFile(const IO::FileSystem& fs, const IO::Path& path);
             static Palette loadLmp(IO::Reader& reader);
@@ -144,7 +138,7 @@ namespace TrenchBroom {
              *     indicates that the image is opaque
              */
             template <typename IndexT, typename ColorT>
-            bool indexedToRgba(const Buffer<IndexT>& indexedImage, const size_t pixelCount, Buffer<ColorT>& rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
+            bool indexedToRgba(const std::vector<IndexT>& indexedImage, const size_t pixelCount, std::vector<ColorT>& rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
                 return m_data->indexedToRgba(indexedImage, pixelCount, rgbaImage, transparency, averageColor);
             }
 
@@ -161,7 +155,7 @@ namespace TrenchBroom {
              *     indicates that the image is opaque
              */
             template <typename ColorT>
-            bool indexedToRgba(IO::Reader& reader, const size_t pixelCount, Buffer<ColorT>& rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
+            bool indexedToRgba(IO::Reader& reader, const size_t pixelCount, std::vector<ColorT>& rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
                 return m_data->indexedToRgba(reader, pixelCount, rgbaImage, transparency, averageColor);
             }
         };

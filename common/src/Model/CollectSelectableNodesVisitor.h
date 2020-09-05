@@ -25,8 +25,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EditorContext;
-
         template <typename C, typename S>
         class CollectSelectableNodesTemplate : public CollectMatchingNodesVisitor<MatchSelectableNodes, C, S> {
         public:

@@ -21,43 +21,47 @@
 #define ELExceptions_h
 
 #include "Exceptions.h"
-#include "EL/Types.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace EL {
-        class Exception : public ExceptionStream<Exception> {
+        class Value;
+        enum class ValueType;
+
+        class Exception : public TrenchBroom::Exception {
         public:
-            using ExceptionStream::ExceptionStream;
+            using TrenchBroom::Exception::Exception;
         };
 
         class ConversionError : public Exception {
         public:
-            ConversionError(const String& value, const ValueType from, const ValueType to) noexcept;
+            ConversionError(const std::string& value, ValueType from, ValueType to);
         };
 
         class DereferenceError : public Exception {
         public:
-            DereferenceError(const String& value, const ValueType from, const ValueType to) noexcept;
+            DereferenceError(const std::string& value, ValueType from, ValueType to);
         };
 
         class EvaluationError : public Exception {
         public:
-            EvaluationError(const String& msg) noexcept;
+            using Exception::Exception;
         };
 
         class IndexError : public EvaluationError {
         public:
-            IndexError(const Value& indexableValue, const Value& indexValue) noexcept;
-            IndexError(const Value& indexableValue, size_t index) noexcept;
-            IndexError(const Value& indexableValue, const String& key) noexcept;
+            IndexError(const Value& indexableValue, const Value& indexValue);
+            IndexError(const Value& indexableValue, size_t index);
+            IndexError(const Value& indexableValue, const std::string& key);
         };
 
-        class IndexOutOfBoundsError : public IndexError {
+        class IndexOutOfBoundsError : public EvaluationError {
         public:
-            IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, size_t outOfBoundsIndex) noexcept;
-            IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const String& outOfBoundsIndex) noexcept;
-            IndexOutOfBoundsError(const Value& indexableValue, size_t index) noexcept;
-            IndexOutOfBoundsError(const Value& indexableValue, const String& key) noexcept;
+            IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, size_t outOfBoundsIndex);
+            IndexOutOfBoundsError(const Value& indexableValue, const Value& indexValue, const std::string& outOfBoundsIndex);
+            IndexOutOfBoundsError(const Value& indexableValue, size_t index);
+            IndexOutOfBoundsError(const Value& indexableValue, const std::string& key);
         };
     }
 }

@@ -22,26 +22,31 @@
 
 #include "View/ImageListBox.h"
 
-#include <wx/bitmap.h>
-
-#include <vector>
+#include <QPixmap>
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+
     namespace View {
         class RecentDocumentListBox : public ImageListBox {
+            Q_OBJECT
         private:
-            wxBitmap m_documentIcon;
+            QPixmap m_documentIcon;
         public:
-            RecentDocumentListBox(wxWindow* parent);
-            ~RecentDocumentListBox() override;
-
-            void OnListBoxDoubleClick(wxCommandEvent& event);
-        private:
+            explicit RecentDocumentListBox(QWidget* parent = nullptr);
+        private slots:
             void recentDocumentsDidChange();
+        private:
+            size_t itemCount() const override;
+            QPixmap image(size_t index) const override;
+            QString title(size_t index) const override;
+            QString subtitle(size_t index) const override;
 
-            bool image(size_t n, wxBitmap& result) const override;
-            wxString title(size_t n) const override;
-            wxString subtitle(size_t n) const override;
+            void doubleClicked(size_t index) override;
+        signals:
+            void loadRecentDocument(const IO::Path& path);
         };
     }
 }

@@ -19,37 +19,30 @@
 
 #include "GLContextManager.h"
 
+#include "Exceptions.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/GL.h"
 #include "Renderer/ShaderManager.h"
+#include "Renderer/Shader.h"
+#include "Renderer/ShaderProgram.h"
 #include "Renderer/Vbo.h"
+
+#include <sstream>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
+        std::string GLContextManager::GLVendor = "unknown";
+        std::string GLContextManager::GLRenderer = "unknown";
+        std::string GLContextManager::GLVersion = "unknown";
+
         GLContextManager::GLContextManager() :
         m_initialized(false),
-        m_vertexVbo(new Renderer::Vbo(0xFFFFFF)),
-        m_indexVbo(new Renderer::Vbo(0xFFFFF, GL_ELEMENT_ARRAY_BUFFER)),
-        m_fontManager(new Renderer::FontManager()),
-        m_shaderManager(new Renderer::ShaderManager()) {}
+        m_shaderManager(std::make_unique<Renderer::ShaderManager>()),
+        m_vboManager(std::make_unique<Renderer::VboManager>(m_shaderManager.get())),
+        m_fontManager(std::make_unique<Renderer::FontManager>()) {}
 
-        GLContextManager::~GLContextManager() {
-            delete m_vertexVbo;
-            delete m_indexVbo;
-            delete m_fontManager;
-            delete m_shaderManager;
-        }
-
-        GLContext::Ptr GLContextManager::createContext(wxGLCanvas* canvas) {
-            GLContext::Ptr context(new GLContext(canvas, this));
-            if (m_mainContext.get() == nullptr)
-                m_mainContext = context;
-            return context;
-        }
-
-        wxGLContext* GLContextManager::mainContext() const {
-            return m_mainContext.get();
-        }
+        GLContextManager::~GLContextManager() = default;
 
         bool GLContextManager::initialized() const {
             return m_initialized;
@@ -59,27 +52,28 @@ namespace TrenchBroom {
             glewExperimental = GL_TRUE;
             const GLenum glewState = glewInit();
             if (glewState != GLEW_OK) {
-                RenderException e;
-                e << "Error initializing glew: " << glewGetErrorString(glewState);
-                throw e;
+                auto str = std::stringstream();
+                str << "Error initializing glew: " << glewGetErrorString(glewState);
+                throw RenderException(str.str());
             }
         }
 
         bool GLContextManager::initialize() {
             if (!m_initialized) {
                 initializeGlew();
+
+                GLVendor   = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+                GLRenderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+                GLVersion  = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+
                 m_initialized = true;
                 return true;
             }
             return false;
         }
 
-        Renderer::Vbo& GLContextManager::vertexVbo() {
-            return *m_vertexVbo;
-        }
-
-        Renderer::Vbo& GLContextManager::indexVbo() {
-            return *m_indexVbo;
+        Renderer::VboManager& GLContextManager::vboManager() {
+            return *m_vboManager;
         }
 
         Renderer::FontManager& GLContextManager::fontManager() {

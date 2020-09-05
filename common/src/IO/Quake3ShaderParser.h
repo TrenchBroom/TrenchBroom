@@ -21,8 +21,9 @@
 #define TRENCHBROOM_Q3SHADERPARSER_H
 
 #include "IO/Parser.h"
-#include "IO/Token.h"
 #include "IO/Tokenizer.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -31,6 +32,8 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        class ParserStatus;
+
         namespace Quake3ShaderToken {
             using Type = unsigned int;
             static const Type Number        = 1 << 1; // decimal number
@@ -43,12 +46,10 @@ namespace TrenchBroom {
             static const Type Eof           = 1 << 8; // end of file
         }
 
-        class ParserStatus;
-
         class Quake3ShaderTokenizer : public Tokenizer<Quake3ShaderToken::Type> {
         public:
             Quake3ShaderTokenizer(const char* begin, const char* end);
-            explicit Quake3ShaderTokenizer(const String& str);
+            explicit Quake3ShaderTokenizer(const std::string& str);
         private:
             Token emitToken() override;
         };
@@ -58,7 +59,7 @@ namespace TrenchBroom {
             Quake3ShaderTokenizer m_tokenizer;
         public:
             Quake3ShaderParser(const char* begin, const char* end);
-            explicit Quake3ShaderParser(const String& str);
+            explicit Quake3ShaderParser(const std::string& str);
 
             /**
              * Parses a Quake 3 shader and returns the value of the qer_editorimage entry.
@@ -69,11 +70,11 @@ namespace TrenchBroom {
              */
             std::vector<Assets::Quake3Shader> parse(ParserStatus& status);
         private:
-            void parseTexture(ParserStatus& status, Assets::Quake3Shader& shader);
-            void parseBody(ParserStatus& status, Assets::Quake3Shader& shader);
-            void parseStage(ParserStatus& status, Assets::Quake3Shader& shader);
-            void parseBodyEntry(ParserStatus& status, Assets::Quake3Shader& shader);
-            void parseStageEntry(ParserStatus& status, const Assets::Quake3Shader& shader, Assets::Quake3ShaderStage& stage);
+            void parseTexture(Assets::Quake3Shader& shader, ParserStatus& status);
+            void parseBody(Assets::Quake3Shader& shader, ParserStatus& status);
+            void parseStage(Assets::Quake3Shader& shader, ParserStatus& status);
+            void parseBodyEntry(Assets::Quake3Shader& shader, ParserStatus& status);
+            void parseStageEntry(Assets::Quake3ShaderStage& stage, ParserStatus& status);
             void skipRemainderOfEntry();
         private:
             TokenNameMap tokenNames() const override;

@@ -19,77 +19,60 @@
 
 #include "RecentDocumentListBox.h"
 
-#include "StringUtils.h"
+#include "Ensure.h"
 #include "TrenchBroomApp.h"
 #include "IO/Path.h"
+#include "IO/PathQt.h"
 #include "IO/ResourceUtils.h"
-#include "Model/GameConfig.h"
-#include "Model/GameFactory.h"
-#include "View/RecentDocumentSelectedCommand.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        RecentDocumentListBox::RecentDocumentListBox(wxWindow* parent) :
-        ImageListBox(parent, "No Recent Documents"),
-        m_documentIcon(IO::loadImageResource("DocIcon.png")) {
-            assert(m_documentIcon.IsOk());
+        RecentDocumentListBox::RecentDocumentListBox(QWidget* parent) :
+        ImageListBox("No Recent Documents", true, parent),
+        m_documentIcon(IO::loadPixmapResource("DocIcon.png")) {
             TrenchBroomApp& app = View::TrenchBroomApp::instance();
-            app.recentDocumentsDidChangeNotifier.addObserver(this, &RecentDocumentListBox::recentDocumentsDidChange);
-
-            const IO::Path::List& recentDocuments = app.recentDocuments();
-            SetItemCount(recentDocuments.size());
-
-            Bind(wxEVT_LISTBOX_DCLICK, &RecentDocumentListBox::OnListBoxDoubleClick, this);
-        }
-
-        RecentDocumentListBox::~RecentDocumentListBox() {
-            TrenchBroomApp& app = View::TrenchBroomApp::instance();
-            app.recentDocumentsDidChangeNotifier.removeObserver(this, &RecentDocumentListBox::recentDocumentsDidChange);
-        }
-
-        void RecentDocumentListBox::OnListBoxDoubleClick(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            TrenchBroomApp& app = View::TrenchBroomApp::instance();
-            const IO::Path::List& recentDocuments = app.recentDocuments();
-
-            const int index = GetSelection();
-            if (index < 0 || index >= static_cast<int>(recentDocuments.size()))
-                return;
-
-            const IO::Path& documentPath = recentDocuments[static_cast<size_t>(index)];
-            RecentDocumentSelectedCommand command;
-            command.setDocumentPath(documentPath);
-            command.SetEventObject(this);
-            command.SetId(GetId());
-            ProcessEvent(command);
+            connect(&app, &TrenchBroomApp::recentDocumentsDidChange, this, &RecentDocumentListBox::recentDocumentsDidChange);
+            reload();
         }
 
         void RecentDocumentListBox::recentDocumentsDidChange() {
-            TrenchBroomApp& app = View::TrenchBroomApp::instance();
-            const IO::Path::List& recentDocuments = app.recentDocuments();
-            SetItemCount(recentDocuments.size());
+            reload();
         }
 
-        bool RecentDocumentListBox::image(size_t n, wxBitmap& result) const {
-            result = m_documentIcon;
-            return true;
-        }
-
-        wxString RecentDocumentListBox::title(const size_t n) const {
+        size_t RecentDocumentListBox::itemCount() const {
             const TrenchBroomApp& app = View::TrenchBroomApp::instance();
-            const IO::Path::List& recentDocuments = app.recentDocuments();
-            ensure(n < recentDocuments.size(), "index out of range");
-            return recentDocuments[n].lastComponent().asString();
+            const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
+            return recentDocuments.size();
         }
 
-        wxString RecentDocumentListBox::subtitle(const size_t n) const {
-            const TrenchBroomApp& app = View::TrenchBroomApp::instance();
-            const IO::Path::List& recentDocuments = app.recentDocuments();
-            ensure(n < recentDocuments.size(), "index out of range");
-            return recentDocuments[n].asString();
+        QPixmap RecentDocumentListBox::image(const size_t /* index */) const {
+            return m_documentIcon;
+        }
+
+        QString RecentDocumentListBox::title(const size_t index) const {
+            const auto& app = View::TrenchBroomApp::instance();
+            const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
+            ensure(index < recentDocuments.size(), "index out of range");
+            return IO::pathAsQString(recentDocuments[index].lastComponent());
+        }
+
+        QString RecentDocumentListBox::subtitle(const size_t index) const {
+            const auto& app = View::TrenchBroomApp::instance();
+            const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
+            ensure(index < recentDocuments.size(), "index out of range");
+            return IO::pathAsQString(recentDocuments[index]);
+        }
+
+        void RecentDocumentListBox::doubleClicked(const size_t index) {
+            auto& app = View::TrenchBroomApp::instance();
+            const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
+
+            if (index < recentDocuments.size()) {
+                const IO::Path& documentPath = recentDocuments[index];
+                emit loadRecentDocument(documentPath);
+            }
         }
     }
 }

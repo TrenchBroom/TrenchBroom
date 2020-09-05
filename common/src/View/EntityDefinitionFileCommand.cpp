@@ -20,36 +20,36 @@
 #include "EntityDefinitionFileCommand.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType EntityDefinitionFileCommand::Type = Command::freeType();
 
-        EntityDefinitionFileCommand::Ptr EntityDefinitionFileCommand::set(const Assets::EntityDefinitionFileSpec& spec) {
-            return Ptr(new EntityDefinitionFileCommand("Set Entity Definitions", spec));
+        std::unique_ptr<EntityDefinitionFileCommand> EntityDefinitionFileCommand::set(const Assets::EntityDefinitionFileSpec& spec) {
+            return std::make_unique<EntityDefinitionFileCommand>("Set Entity Definitions", spec);
         }
 
-        EntityDefinitionFileCommand::EntityDefinitionFileCommand(const String& name, const Assets::EntityDefinitionFileSpec& spec) :
+        EntityDefinitionFileCommand::EntityDefinitionFileCommand(const std::string& name, const Assets::EntityDefinitionFileSpec& spec) :
         DocumentCommand(Type, name),
         m_newSpec(spec) {}
 
-        bool EntityDefinitionFileCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> EntityDefinitionFileCommand::doPerformDo(MapDocumentCommandFacade* document) {
             m_oldSpec = document->entityDefinitionFile();
             document->performSetEntityDefinitionFile(m_newSpec);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool EntityDefinitionFileCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> EntityDefinitionFileCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->performSetEntityDefinitionFile(m_oldSpec);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool EntityDefinitionFileCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool EntityDefinitionFileCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool EntityDefinitionFileCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool EntityDefinitionFileCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

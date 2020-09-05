@@ -21,9 +21,12 @@
 #define VertexTool_h
 
 #include "Renderer/PointGuideRenderer.h"
-#include "View/UndoableCommand.h"
 #include "View/VertexToolBase.h"
 #include "View/VertexHandleManager.h"
+
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -41,6 +44,7 @@ namespace TrenchBroom {
         class Grid;
         class Lasso;
         class Selection;
+        class VertexCommand;
 
         class VertexTool : public VertexToolBase<vm::vec3> {
         private:
@@ -52,17 +56,17 @@ namespace TrenchBroom {
 
             Mode m_mode;
 
-            VertexHandleManager m_vertexHandles;
-            EdgeHandleManager m_edgeHandles;
-            FaceHandleManager m_faceHandles;
+            std::unique_ptr<VertexHandleManager> m_vertexHandles;
+            std::unique_ptr<EdgeHandleManager> m_edgeHandles;
+            std::unique_ptr<FaceHandleManager> m_faceHandles;
 
             mutable Renderer::PointGuideRenderer m_guideRenderer;
         public:
-            VertexTool(MapDocumentWPtr document);
+            explicit VertexTool(const std::weak_ptr<MapDocument>& document);
         public:
-            Model::BrushSet findIncidentBrushes(const vm::vec3& handle) const;
-            Model::BrushSet findIncidentBrushes(const vm::segment3& handle) const;
-            Model::BrushSet findIncidentBrushes(const vm::polygon3& handle) const;
+            std::vector<Model::BrushNode*> findIncidentBrushes(const vm::vec3& handle) const;
+            std::vector<Model::BrushNode*> findIncidentBrushes(const vm::segment3& handle) const;
+            std::vector<Model::BrushNode*> findIncidentBrushes(const vm::polygon3& handle) const;
         private:
             using VertexToolBase::findIncidentBrushes;
         public:
@@ -73,13 +77,13 @@ namespace TrenchBroom {
             VertexHandleManager& handleManager() override;
             const VertexHandleManager& handleManager() const override;
         public: // Vertex moving
-            bool startMove(const Model::Hit::List& hits) override;
+            bool startMove(const std::vector<Model::Hit>& hits) override;
             MoveResult move(const vm::vec3& delta) override;
             void endMove() override;
             void cancelMove() override;
 
-            const vm::vec3& getHandlePosition(const Model::Hit& hit) const override;
-            String actionName() const override;
+            vm::vec3 getHandlePosition(const Model::Hit& hit) const override;
+            std::string actionName() const override;
 
             void removeSelection();
         public: // Rendering
@@ -88,8 +92,8 @@ namespace TrenchBroom {
             bool doActivate() override;
             bool doDeactivate() override;
         private:
-            void addHandles(const Model::NodeList& nodes) override;
-            void removeHandles(const Model::NodeList& nodes) override;
+            void addHandles(const std::vector<Model::Node*>& nodes) override;
+            void removeHandles(const std::vector<Model::Node*>& nodes) override;
 
             void addHandles(VertexCommand* command) override;
             void removeHandles(VertexCommand* command) override;

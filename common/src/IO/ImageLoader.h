@@ -20,12 +20,13 @@
 #ifndef TrenchBroom_ImageLoader
 #define TrenchBroom_ImageLoader
 
-#include "ByteBuffer.h"
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
-        class Path;
         class ImageLoaderImpl;
+        class Path;
 
         class ImageLoader {
         public:
@@ -40,7 +41,7 @@ namespace TrenchBroom {
             };
         private:
             // we're using the PIMPL idiom here to insulate the clients from the FreeImage headers
-            ImageLoaderImpl* m_impl;
+            std::unique_ptr<ImageLoaderImpl> m_impl;
         public:
             ImageLoader(const Format format, const Path& path);
             ImageLoader(const Format format, const char* begin, const char* end);
@@ -57,9 +58,9 @@ namespace TrenchBroom {
             bool hasIndices() const;
             bool hasPixels() const;
 
-            const Buffer<unsigned char>& palette() const;
-            const Buffer<unsigned char>& indices() const;
-            const Buffer<unsigned char>& pixels(const PixelFormat format) const;
+            std::vector<unsigned char> loadPalette() const;
+            std::vector<unsigned char> loadIndices() const;
+            std::vector<unsigned char> loadPixels(const PixelFormat format) const;
         private:
             ImageLoader(const ImageLoader& other);
             ImageLoader& operator=(const ImageLoader& other);

@@ -28,8 +28,8 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveTexturesCommand::Type = Command::freeType();
 
-        MoveTexturesCommand::Ptr MoveTexturesCommand::move(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) {
-            return Ptr(new MoveTexturesCommand(cameraUp, cameraRight, delta));
+        std::unique_ptr<MoveTexturesCommand> MoveTexturesCommand::move(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) {
+            return std::make_unique<MoveTexturesCommand>(cameraUp, cameraRight, delta);
         }
 
         MoveTexturesCommand::MoveTexturesCommand(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) :
@@ -38,14 +38,14 @@ namespace TrenchBroom {
         m_cameraRight(cameraRight),
         m_delta(delta) {}
 
-        bool MoveTexturesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> MoveTexturesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             moveTextures(document, m_delta);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool MoveTexturesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> MoveTexturesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             moveTextures(document, -m_delta);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         void MoveTexturesCommand::moveTextures(MapDocumentCommandFacade* document, const vm::vec2f& delta) const {
@@ -53,15 +53,15 @@ namespace TrenchBroom {
         }
 
         bool MoveTexturesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
-            return true;
+            return document->hasSelectedBrushFaces();
         }
 
-        UndoableCommand::Ptr MoveTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return UndoableCommand::Ptr(new MoveTexturesCommand(m_cameraUp, m_cameraRight, m_delta));
+        std::unique_ptr<UndoableCommand> MoveTexturesCommand::doRepeat(MapDocumentCommandFacade*) const {
+            return std::make_unique<MoveTexturesCommand>(m_cameraUp, m_cameraRight, m_delta);
         }
 
-        bool MoveTexturesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            const MoveTexturesCommand* other = static_cast<MoveTexturesCommand*>(command.get());
+        bool MoveTexturesCommand::doCollateWith(UndoableCommand* command) {
+            const MoveTexturesCommand* other = static_cast<MoveTexturesCommand*>(command);
 
             if (other->m_cameraUp != m_cameraUp ||
                 other->m_cameraRight != m_cameraRight)

@@ -19,24 +19,28 @@
 
 #include "RemoveBrushElementsCommand.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
-        RemoveBrushElementsCommand::RemoveBrushElementsCommand(const CommandType type, const String& name, const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices) :
+        RemoveBrushElementsCommand::RemoveBrushElementsCommand(const CommandType type, const std::string& name, const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices) :
         VertexCommand(type, name, brushes),
         m_vertices(vertices) {}
 
         bool RemoveBrushElementsCommand::doCanDoVertexOperation(const MapDocument* document) const {
             const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_vertices) {
-                Model::Brush* brush = entry.first;
+                const Model::BrushNode* brushNode = entry.first;
+                const Model::Brush& brush = brushNode->brush();
                 const std::vector<vm::vec3>& vertices = entry.second;
-                if (!brush->canRemoveVertices(worldBounds, vertices))
+                if (!brush.canRemoveVertices(worldBounds, vertices)) {
                     return false;
+                }
             }
             return true;
         }
@@ -46,7 +50,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool RemoveBrushElementsCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool RemoveBrushElementsCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

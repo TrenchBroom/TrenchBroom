@@ -20,19 +20,24 @@
 #ifndef TrenchBroom_SelectionTool
 #define TrenchBroom_SelectionTool
 
-#include "Model/Hit.h"
-#include "Model/ModelTypes.h"
+#include "Model/HitType.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Node;
+    }
+
     namespace Renderer {
         class RenderContext;
     }
 
     namespace View {
-        class InputState;
+        class MapDocument;
 
         /**
          * Implements the Group picking logic: if `node` is inside a (possibly nested chain of)
@@ -47,13 +52,13 @@ namespace TrenchBroom {
          * The order of the hits is preserved, but if multiple hits map to the same group, that group
          * will only be listed once in the output.
          */
-        Model::NodeList hitsToNodesWithGroupPicking(const Model::Hit::List& hits);
+        std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::vector<Model::Hit>& hits);
 
         class SelectionTool : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
         public:
-            SelectionTool(MapDocumentWPtr document);
+            explicit SelectionTool(std::weak_ptr<MapDocument> document);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;
@@ -65,9 +70,9 @@ namespace TrenchBroom {
             bool isFaceClick(const InputState& inputState) const;
             bool isMultiClick(const InputState& inputState) const;
 
-            const Model::Hit& firstHit(const InputState& inputState, Model::Hit::HitType type) const;
+            const Model::Hit& firstHit(const InputState& inputState, Model::HitType::Type type) const;
 
-            Model::NodeList collectSelectableChildren(const Model::EditorContext& editorContext, const Model::Node* node) const;
+            std::vector<Model::Node*> collectSelectableChildren(const Model::EditorContext& editorContext, const Model::Node* node) const;
 
             void doMouseScroll(const InputState& inputState) override;
             void adjustGrid(const InputState& inputState);

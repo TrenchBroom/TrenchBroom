@@ -20,33 +20,27 @@
 #ifndef TrenchBroom_InfoPanel
 #define TrenchBroom_InfoPanel
 
-#include "View/ViewTypes.h"
+#include <memory>
 
-#include <wx/bitmap.h>
-#include <wx/panel.h>
-
-class wxBookCtrlEvent;
-class wxButton;
-class wxCommandEvent;
-class wxSimplebook;
-class wxWindow;
+#include <QWidget>
 
 namespace TrenchBroom {
     class Logger;
 
     namespace View {
-        class ContainerBar;
         class Console;
         class IssueBrowser;
+        class MapDocument;
         class TabBook;
 
-        class InfoPanel : public wxPanel {
+        class InfoPanel : public QWidget {
+            Q_OBJECT
         private:
             TabBook* m_tabBook;
             Console* m_console;
             IssueBrowser* m_issueBrowser;
         public:
-            InfoPanel(wxWindow* parent, MapDocumentWPtr document);
+            explicit InfoPanel(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             Console* console() const;
         };
     }

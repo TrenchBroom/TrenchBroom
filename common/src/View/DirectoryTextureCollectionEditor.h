@@ -20,33 +20,49 @@
 #ifndef DirectoryTextureCollectionEditor_h
 #define DirectoryTextureCollectionEditor_h
 
-#include "IO/Path.h"
-#include "View/ViewTypes.h"
+#include <memory>
+#include <vector>
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxListBox;
+class QListWidget;
+class QAbstractButton;
 
 namespace TrenchBroom {
-    namespace View {
-        class DirectoryTextureCollectionEditor : public wxPanel {
-        private:
-            MapDocumentWPtr m_document;
+    namespace IO {
+        class Path;
+    }
 
-            wxListBox* m_availableCollectionsList;
-            wxListBox* m_enabledCollectionsList;
-        public:
-            DirectoryTextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document);
-			~DirectoryTextureCollectionEditor();
+    namespace View {
+        class MapDocument;
+
+        class DirectoryTextureCollectionEditor : public QWidget {
+            Q_OBJECT
         private:
-            void OnAddTextureCollections(wxCommandEvent& event);
-            void OnRemoveTextureCollections(wxCommandEvent& event);
-            void OnReloadTextureCollections(wxCommandEvent& event);
-            void OnUpdateAddTextureCollections(wxUpdateUIEvent& event);
-            void OnUpdateRemoveTextureCollections(wxUpdateUIEvent& event);
-            void OnUpdateReloadTextureCollections(wxUpdateUIEvent& event);
+            std::weak_ptr<MapDocument> m_document;
+
+            QListWidget* m_availableCollectionsList;
+            QListWidget* m_enabledCollectionsList;
+
+            QAbstractButton* m_addCollectionsButton;
+            QAbstractButton* m_removeCollectionsButton;
+            QAbstractButton* m_reloadCollectionsButton;
+        public:
+            explicit DirectoryTextureCollectionEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+            ~DirectoryTextureCollectionEditor() override;
+        private:
+            void addSelectedTextureCollections();
+            void removeSelectedTextureCollections();
+            void reloadTextureCollections();
+            void availableTextureCollectionSelectionChanged();
+            void enabledTextureCollectionSelectionChanged();
+
+            bool canAddTextureCollections() const;
+            bool canRemoveTextureCollections() const;
+            bool canReloadTextureCollections() const;
         private:
             void createGui();
+            void updateButtons();
 
             void bindObservers();
             void unbindObservers();
@@ -55,13 +71,13 @@ namespace TrenchBroom {
             void modsDidChange();
             void preferenceDidChange(const IO::Path& path);
 
-            void update();
+            void updateAllTextureCollections();
             void updateAvailableTextureCollections();
             void updateEnabledTextureCollections();
-            void updateListBox(wxListBox* box, const IO::Path::List& paths);
+            void updateListBox(QListWidget* box, const std::vector<IO::Path>& paths);
 
-            IO::Path::List availableTextureCollections() const;
-            IO::Path::List enabledTextureCollections() const;
+            std::vector<IO::Path> availableTextureCollections() const;
+            std::vector<IO::Path> enabledTextureCollections() const;
         };
     }
 }

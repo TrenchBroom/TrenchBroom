@@ -20,28 +20,27 @@
 #ifndef TrenchBroom_EntityDefinitionGroup
 #define TrenchBroom_EntityDefinitionGroup
 
-#include "StringUtils.h"
-#include "Assets/AssetTypes.h"
-#include "Assets/EntityDefinition.h"
-
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
+        class EntityDefinition;
+        enum class EntityDefinitionSortOrder;
+        enum class EntityDefinitionType;
+
         class EntityDefinitionGroup {
-        public:
-            using List = std::vector<EntityDefinitionGroup>;
         private:
-            String m_name;
-            EntityDefinitionList m_definitions;
+            std::string m_name;
+            std::vector<EntityDefinition*> m_definitions;
         public:
-            EntityDefinitionGroup(const String& name, const EntityDefinitionList& definitions);
+            EntityDefinitionGroup(const std::string& name, std::vector<EntityDefinition*> definitions);
 
             size_t index() const;
-            const String& name() const;
-            const String displayName() const;
-            const EntityDefinitionList& definitions() const;
-            EntityDefinitionList definitions(EntityDefinition::Type type, const EntityDefinition::SortOrder order = EntityDefinition::Name) const;
+            const std::string& name() const;
+            const std::string displayName() const;
+            const std::vector<EntityDefinition*>& definitions() const;
+            std::vector<EntityDefinition*> definitions(EntityDefinitionType type, EntityDefinitionSortOrder order) const;
         };
     }
 }

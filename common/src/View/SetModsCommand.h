@@ -20,29 +20,33 @@
 #ifndef TrenchBroom_SetModsCommand
 #define TrenchBroom_SetModsCommand
 
-#include "SharedPointer.h"
+#include "Macros.h"
 #include "View/DocumentCommand.h"
-#include "StringUtils.h"
+
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
         class SetModsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<SetModsCommand>;
         private:
-            StringList m_oldMods;
-            StringList m_newMods;
+            std::vector<std::string> m_oldMods;
+            std::vector<std::string> m_newMods;
         public:
-            static Ptr set(const StringList& mods);
-        private:
-            SetModsCommand(const String& name, const StringList& mods);
+            static std::unique_ptr<SetModsCommand> set(const std::vector<std::string>& mods);
 
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            SetModsCommand(const std::string& name, const std::vector<std::string>& mods);
+        private:
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(UndoableCommand* command) override;
+
+            deleteCopyAndMove(SetModsCommand)
         };
     }
 }

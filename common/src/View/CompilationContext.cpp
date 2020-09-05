@@ -19,30 +19,34 @@
 
 #include "CompilationContext.h"
 
+#include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
+#include "EL/Types.h"
+
+#include <kdl/memory_utils.h>
 
 namespace TrenchBroom {
     namespace View {
-        CompilationContext::CompilationContext(MapDocumentWPtr document, const EL::VariableTable& variables, const TextCtrlOutputAdapter& output, bool test) :
+        CompilationContext::CompilationContext(std::weak_ptr<MapDocument> document, const EL::VariableStore& variables, const TextOutputAdapter& output, bool test) :
         m_document(document),
-        m_variables(variables),
+        m_variables(variables.clone()),
         m_output(output),
         m_test(test) {}
 
-        MapDocumentSPtr CompilationContext::document() const {
-            return lock(m_document);
+        std::shared_ptr<MapDocument> CompilationContext::document() const {
+            return kdl::mem_lock(m_document);
         }
 
         bool CompilationContext::test() const {
             return m_test;
         }
 
-        String CompilationContext::interpolate(const String& input) const {
-            return EL::interpolate(input, EL::EvaluationContext(m_variables));
+        std::string CompilationContext::interpolate(const std::string& input) const {
+            return EL::interpolate(input, EL::EvaluationContext(*m_variables));
         }
 
-        String CompilationContext::variableValue(const String& variableName) const {
-            return m_variables.value(variableName).convertTo(EL::Type_String).stringValue();
+        std::string CompilationContext::variableValue(const std::string& variableName) const {
+            return m_variables->value(variableName).convertTo(EL::ValueType::String).stringValue();
         }
     }
 }

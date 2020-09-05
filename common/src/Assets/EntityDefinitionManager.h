@@ -21,12 +21,10 @@
 #define TrenchBroom_EntityDefinitionManager
 
 #include "Notifier.h"
-#include "Assets/AssetTypes.h"
-#include "Assets/EntityDefinition.h"
-#include "Assets/EntityDefinitionGroup.h"
-#include "Model/ModelTypes.h"
 
 #include <map>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -35,12 +33,21 @@ namespace TrenchBroom {
         class Path;
     }
 
+    namespace Model {
+        class AttributableNode;
+    }
+
     namespace Assets {
+        class EntityDefinition;
+        class EntityDefinitionGroup;
+        enum class EntityDefinitionSortOrder;
+        enum class EntityDefinitionType;
+
         class EntityDefinitionManager {
         private:
-            using Cache = std::map<String, EntityDefinition*>;
-            EntityDefinitionList m_definitions;
-            EntityDefinitionGroup::List m_groups;
+            using Cache = std::map<std::string, EntityDefinition*>;
+            std::vector<EntityDefinition*> m_definitions;
+            std::vector<EntityDefinitionGroup> m_groups;
             Cache m_cache;
         public:
             Notifier<> usageCountDidChangeNotifier;
@@ -48,15 +55,15 @@ namespace TrenchBroom {
             ~EntityDefinitionManager();
 
             void loadDefinitions(const IO::Path& path, const IO::EntityDefinitionLoader& loader, IO::ParserStatus& status);
-            void setDefinitions(const EntityDefinitionList& newDefinitions);
+            void setDefinitions(const std::vector<EntityDefinition*>& newDefinitions);
             void clear();
 
             EntityDefinition* definition(const Model::AttributableNode* attributable) const;
-            EntityDefinition* definition(const Model::AttributeValue& classname) const;
-            EntityDefinitionList definitions(EntityDefinition::Type type, EntityDefinition::SortOrder order = EntityDefinition::Name) const;
-            const EntityDefinitionList& definitions() const;
+            EntityDefinition* definition(const std::string& classname) const;
+            std::vector<EntityDefinition*> definitions(EntityDefinitionType type, EntityDefinitionSortOrder order) const;
+            const std::vector<EntityDefinition*>& definitions() const;
 
-            const EntityDefinitionGroup::List& groups() const;
+            const std::vector<EntityDefinitionGroup>& groups() const;
         private:
             void updateIndices();
             void updateGroups();

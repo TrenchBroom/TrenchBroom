@@ -19,56 +19,46 @@
 
 #include "BorderPanel.h"
 
-#include "View/ViewConstants.h"
+#include <QPainter>
+#include <QPalette>
 
-#include <wx/dcbuffer.h>
+#include "View/ViewConstants.h"
 
 namespace TrenchBroom {
     namespace View {
-        wxIMPLEMENT_DYNAMIC_CLASS(BorderPanel, wxPanel)
-
-        BorderPanel::BorderPanel() :
-        wxPanel(),
-        m_borders(0),
-        m_thickness(1) {}
-
-        BorderPanel::BorderPanel(wxWindow* parent, const int borders, const int thickness) :
-        wxPanel(),
-        m_borders(0),
-        m_thickness(1) {
-            Create(parent, borders, thickness);
+        BorderPanel::BorderPanel(const Sides borders, const int thickness, QWidget* parent) :
+        QWidget(parent),
+        m_borders(borders),
+        m_thickness(thickness) {
+            setForegroundRole(QPalette::Mid);
         }
 
-        BorderPanel::~BorderPanel() {}
+        void BorderPanel::paintEvent(QPaintEvent* /*event*/) {
+            QPainter painter(this);
 
-        void BorderPanel::Create(wxWindow* parent, int borders, int thickness) {
-            wxPanel::Create(parent);
-            m_borders = borders;
-            m_thickness = thickness;
-            SetBackgroundStyle(wxBG_STYLE_PAINT);
-            Bind(wxEVT_PAINT, &BorderPanel::OnPaint, this);
-        }
+            const QRectF r = QRectF(rect());
+            const qreal thickness = static_cast<qreal>(m_thickness);
 
-        void BorderPanel::OnPaint(wxPaintEvent& event) {
-            if (IsBeingDeleted()) return;
+            painter.setRenderHint(QPainter::Antialiasing, false);
 
-            wxAutoBufferedPaintDC dc(this);
-            dc.SetPen(wxPen(GetBackgroundColour()));
-            dc.SetBrush(wxBrush(GetBackgroundColour()));
-            dc.DrawRectangle(GetClientRect());
+            painter.setPen(Qt::NoPen);
+            painter.setBrush(palette().color(backgroundRole()));        
+            painter.drawRect(r);
 
-            dc.SetPen(wxPen(Colors::borderColor()));
-
-            wxRect rect = GetClientRect();
-            if ((m_borders & wxLEFT) != 0)
-                dc.DrawLine(rect.GetLeft(), rect.GetTop(), rect.GetLeft(), rect.GetBottom());
-            if ((m_borders & wxTOP) != 0)
-                dc.DrawLine(rect.GetLeft(), rect.GetTop(), rect.GetRight(), rect.GetTop());
-            if ((m_borders & wxRIGHT) != 0)
-                dc.DrawLine(rect.GetRight(), rect.GetTop(), rect.GetRight(), rect.GetBottom());
-            if ((m_borders & wxBOTTOM) != 0)
-                dc.DrawLine(rect.GetLeft(), rect.GetBottom(), rect.GetRight(), rect.GetBottom());
-            event.Skip();
+            painter.setPen(Qt::NoPen);
+            painter.setBrush(palette().color(foregroundRole()));
+            if ((m_borders & LeftSide) != 0) {
+                painter.drawRect(QRectF(r.topLeft(), QSizeF(thickness, r.height())));
+            }
+            if ((m_borders & TopSide) != 0) {
+                painter.drawRect(QRectF(r.topLeft(), QSizeF(r.width(), thickness)));
+            }
+            if ((m_borders & RightSide) != 0) {
+                painter.drawRect(QRectF(r.topRight() - QPointF(thickness, 0.0),   QSizeF(thickness, r.height())));
+            }
+            if ((m_borders & BottomSide) != 0) {
+                painter.drawRect(QRectF(r.bottomLeft() - QPointF(0.0, thickness), QSizeF(r.width(), thickness)));
+            }    
         }
     }
 }

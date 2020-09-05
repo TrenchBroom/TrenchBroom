@@ -20,24 +20,27 @@
 #ifndef TrenchBroom_CollectMatchingNodesVisitor
 #define TrenchBroom_CollectMatchingNodesVisitor
 
-#include "CollectionUtils.h"
 #include "Model/NodeVisitor.h"
-#include "Model/Brush.h"
-#include "Model/Entity.h"
-#include "Model/Group.h"
-#include "Model/Layer.h"
-#include "Model/World.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
+#include "Model/WorldNode.h"
+
+#include <kdl/vector_set.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class NodeCollectionStrategy {
         protected:
-            NodeList m_nodes;
+            std::vector<Node*> m_nodes;
         public:
             virtual ~NodeCollectionStrategy();
 
             virtual void addNode(Node* node) = 0;
-            const NodeList& nodes() const;
+            const std::vector<Node*>& nodes() const;
         };
 
         class StandardNodeCollectionStrategy : public NodeCollectionStrategy {
@@ -49,7 +52,7 @@ namespace TrenchBroom {
 
         class UniqueNodeCollectionStrategy : public NodeCollectionStrategy {
         private:
-            NodeSet m_addedNodes;
+            kdl::vector_set<Node*> m_addedNodes;
         public:
             virtual ~UniqueNodeCollectionStrategy() override;
         public:
@@ -63,7 +66,7 @@ namespace TrenchBroom {
         public:
             virtual ~FilteringNodeCollectionStrategy() {}
 
-            const NodeList& nodes() const {
+            const std::vector<Node*>& nodes() const {
                 return m_delegate.nodes();
             }
 
@@ -74,11 +77,11 @@ namespace TrenchBroom {
                     m_delegate.addNode(actual);
             }
         private:
-            virtual Node* getNode(World* world) const   { return world;  }
-            virtual Node* getNode(Layer* layer) const   { return layer;  }
-            virtual Node* getNode(Group* group) const   { return group;  }
-            virtual Node* getNode(Entity* entity) const { return entity; }
-            virtual Node* getNode(Brush* brush) const   { return brush;  }
+            virtual Node* getNode(WorldNode* world) const   { return world;  }
+            virtual Node* getNode(LayerNode* layer) const   { return layer;  }
+            virtual Node* getNode(GroupNode* group) const   { return group;  }
+            virtual Node* getNode(EntityNode* entity) const { return entity; }
+            virtual Node* getNode(BrushNode* brush) const   { return brush;  }
         };
 
         template <
@@ -90,23 +93,25 @@ namespace TrenchBroom {
         public:
             CollectMatchingNodesVisitor(const P& p = P(), const S& s = S()) : MatchingNodeVisitor<P,S>(p, s) {}
         private:
-            void doVisit(World* world)   override { C::addNode(world);  }
-            void doVisit(Layer* layer)   override { C::addNode(layer);  }
-            void doVisit(Group* group)   override { C::addNode(group);  }
-            void doVisit(Entity* entity) override { C::addNode(entity); }
-            void doVisit(Brush* brush)   override { C::addNode(brush);  }
+            void doVisit(WorldNode* world)   override { C::addNode(world);  }
+            void doVisit(LayerNode* layer)   override { C::addNode(layer);  }
+            void doVisit(GroupNode* group)   override { C::addNode(group);  }
+            void doVisit(EntityNode* entity) override { C::addNode(entity); }
+            void doVisit(BrushNode* brush)   override { C::addNode(brush);  }
         };
 
         template <typename V, typename I>
-        Model::NodeList collectMatchingNodes(I cur, I end, Node* root) {
-            NodeList result;
+        std::vector<Node*> collectMatchingNodes(I cur, I end, Node* root) {
+            kdl::vector_set<Node*> result;
             while (cur != end) {
                 V visitor(*cur);
                 root->acceptAndRecurse(visitor);
-                result = VectorUtils::setUnion(result, visitor.nodes());
+
+                const auto& nodes = visitor.nodes();
+                result.insert(std::begin(nodes), std::end(nodes));
                 ++cur;
             }
-            return result;
+            return result.release_data();
         }
 
     }

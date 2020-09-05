@@ -19,13 +19,17 @@
 
 #include "EntityDefinitionManager.h"
 
-#include "CollectionUtils.h"
-#include "StringUtils.h"
+#include "Ensure.h"
+#include "Assets/EntityDefinition.h"
+#include "Assets/EntityDefinitionGroup.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
 
-#include <cassert>
+#include <kdl/vector_utils.h>
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -37,7 +41,7 @@ namespace TrenchBroom {
             setDefinitions(loader.loadEntityDefinitions(status, path));
         }
 
-        void EntityDefinitionManager::setDefinitions(const EntityDefinitionList& newDefinitions) {
+        void EntityDefinitionManager::setDefinitions(const std::vector<EntityDefinition*>& newDefinitions) {
             clear();
 
             m_definitions = newDefinitions;
@@ -51,7 +55,7 @@ namespace TrenchBroom {
         void EntityDefinitionManager::clear() {
             clearCache();
             clearGroups();
-            VectorUtils::clearAndDelete(m_definitions);
+            kdl::vec_clear_and_delete(m_definitions);
         }
 
         EntityDefinition* EntityDefinitionManager::definition(const Model::AttributableNode* attributable) const {
@@ -59,58 +63,59 @@ namespace TrenchBroom {
             return definition(attributable->attribute(Model::AttributeNames::Classname));
         }
 
-        EntityDefinition* EntityDefinitionManager::definition(const Model::AttributeValue& classname) const {
+        EntityDefinition* EntityDefinitionManager::definition(const std::string& classname) const {
             auto it = m_cache.find(classname);
-            if (it == std::end(m_cache))
+            if (it == std::end(m_cache)) {
                 return nullptr;
-            return it->second;
+            } else {
+                return it->second;
+            }
         }
 
-        EntityDefinitionList EntityDefinitionManager::definitions(const EntityDefinition::Type type, const EntityDefinition::SortOrder order) const {
+        std::vector<EntityDefinition*> EntityDefinitionManager::definitions(const EntityDefinitionType type, const EntityDefinitionSortOrder order) const {
             return EntityDefinition::filterAndSort(m_definitions, type, order);
         }
 
-        const EntityDefinitionList& EntityDefinitionManager::definitions() const {
+        const std::vector<EntityDefinition*>& EntityDefinitionManager::definitions() const {
             return m_definitions;
         }
 
-        const EntityDefinitionGroup::List& EntityDefinitionManager::groups() const {
+        const std::vector<EntityDefinitionGroup>& EntityDefinitionManager::groups() const {
             return m_groups;
         }
 
         void EntityDefinitionManager::updateIndices() {
-            for (size_t i = 0; i < m_definitions.size(); ++i)
-                m_definitions[i]->setIndex(i+1);
+            for (size_t i = 0; i < m_definitions.size(); ++i) {
+                m_definitions[i]->setIndex(i + 1);
+            }
         }
 
         void EntityDefinitionManager::updateGroups() {
             clearGroups();
 
-            using GroupMap = std::map<String, EntityDefinitionList>;
-            GroupMap groupMap;
+            std::map<std::string, std::vector<EntityDefinition*>> groupMap;
 
-            for (size_t i = 0; i < m_definitions.size(); ++i) {
-                EntityDefinition* definition = m_definitions[i];
-                const String groupName = definition->groupName();
+            for (auto* definition : m_definitions) {
+                const std::string groupName = definition->groupName();
                 groupMap[groupName].push_back(definition);
             }
 
-            for (const auto& entry : groupMap) {
-                const String& groupName = entry.first;
-                const EntityDefinitionList& definitions = entry.second;
-                m_groups.push_back(EntityDefinitionGroup(groupName, definitions));
+            for (auto& [groupName, definitions] : groupMap) {
+                m_groups.push_back(EntityDefinitionGroup(groupName, std::move(definitions)));
             }
         }
 
         void EntityDefinitionManager::updateCache() {
             clearCache();
-            for (EntityDefinition* definition : m_definitions)
+            for (EntityDefinition* definition : m_definitions) {
                 m_cache[definition->name()] = definition;
+            }
         }
 
         void EntityDefinitionManager::bindObservers() {
-            for (EntityDefinition* definition : m_definitions)
+            for (EntityDefinition* definition : m_definitions) {
                 definition->usageCountDidChangeNotifier.addObserver(usageCountDidChangeNotifier);
+            }
         }
 
         void EntityDefinitionManager::clearCache() {

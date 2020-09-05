@@ -20,28 +20,30 @@
 #ifndef TrenchBroom_RemoveBrushEdgesCommand
 #define TrenchBroom_RemoveBrushEdgesCommand
 
-#include "SharedPointer.h"
-#include "Model/ModelTypes.h"
+#include "Macros.h"
 #include "View/RemoveBrushElementsCommand.h"
 
-namespace TrenchBroom {
-    namespace Model {
-        class Snapshot;
-    }
+#include <vecmath/forward.h>
 
+#include <memory>
+#include <vector>
+
+namespace TrenchBroom {
     namespace View {
         class RemoveBrushEdgesCommand : public RemoveBrushElementsCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<RemoveBrushEdgesCommand>;
         private:
             std::vector<vm::segment3> m_oldEdgePositions;
         public:
-            static Ptr remove(const Model::EdgeToBrushesMap& edges);
-        private:
-            RemoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const std::vector<vm::segment3>& edgePositions);
+            static std::unique_ptr<RemoveBrushEdgesCommand> remove(const EdgeToBrushesMap& edges);
 
+            RemoveBrushEdgesCommand(const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::segment3>& edgePositions);
+            ~RemoveBrushEdgesCommand() override;
+        private:
             void doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const override;
+
+            deleteCopyAndMove(RemoveBrushEdgesCommand)
         };
     }
 }

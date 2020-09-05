@@ -21,17 +21,19 @@
 #define TrenchBroom_EntityLinkRenderer
 
 #include "Color.h"
-#include "Model/ModelTypes.h"
-#include "Renderer/Renderable.h"
 #include "Renderer/GLVertex.h"
+#include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
-#include "View/ViewTypes.h"
 
 #include <vecmath/forward.h>
 
+#include <memory>
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
-    namespace Model {
-        class EditorContext;
+    namespace View {
+        class MapDocument; // FIXME: Renderer should not depend on View
     }
 
     namespace Renderer {
@@ -42,16 +44,20 @@ namespace TrenchBroom {
         private:
             using Vertex = GLVertexTypes::P3C4::Vertex;
 
-            using T03 = GLVertexAttributeType<GLVertexAttributeTypeTag::TexCoord0, GL_FLOAT, 3>;
-            using T13 = GLVertexAttributeType<GLVertexAttributeTypeTag::TexCoord1, GL_FLOAT, 3>;
+            struct ArrowPositionName {
+                static inline const std::string name{"arrowPosition"};
+            };
+            struct LineDirName {
+                static inline const std::string name{"lineDir"};
+            };
 
             using ArrowVertex = GLVertexType<
                     GLVertexAttributeTypes::P3,  // vertex of the arrow (exposed in shader as gl_Vertex)
                     GLVertexAttributeTypes::C4,  // arrow color (exposed in shader as gl_Color)
-                    T03,                 // arrow position (exposed in shader as gl_MultiTexCoord0)
-                    T13>::Vertex;        // direction the arrow is pointing (exposed in shader as gl_MultiTexCoord1)
+                    GLVertexAttributeUser<ArrowPositionName, GL_FLOAT, 3, false>,          // arrow position
+                    GLVertexAttributeUser<LineDirName,       GL_FLOAT, 3, false>>::Vertex; // direction the arrow is pointing
 
-            View::MapDocumentWPtr m_document;
+            std::weak_ptr<View::MapDocument> m_document;
 
             Color m_defaultColor;
             Color m_selectedColor;
@@ -61,7 +67,7 @@ namespace TrenchBroom {
 
             bool m_valid;
         public:
-            EntityLinkRenderer(View::MapDocumentWPtr document);
+            EntityLinkRenderer(std::weak_ptr<View::MapDocument> document);
 
             void setDefaultColor(const Color& color);
             void setSelectedColor(const Color& color);
@@ -69,15 +75,15 @@ namespace TrenchBroom {
             void render(RenderContext& renderContext, RenderBatch& renderBatch);
             void invalidate();
         private:
-            void doPrepareVertices(Vbo& vertexVbo) override;
+            void doPrepareVertices(VboManager& vboManager) override;
             void doRender(RenderContext& renderContext) override;
             void renderLines(RenderContext& renderContext);
             void renderArrows(RenderContext& renderContext);
         private:
             void validate();
 
-            static void getArrows(ArrowVertex::List& arrows, const Vertex::List& links);
-            static void addArrow(ArrowVertex::List& arrows, const vm::vec4f& color, const vm::vec3f& arrowPosition, const vm::vec3f& lineDir);
+            static void getArrows(std::vector<ArrowVertex>& arrows, const std::vector<Vertex>& links);
+            static void addArrow(std::vector<ArrowVertex>& arrows, const vm::vec4f& color, const vm::vec3f& arrowPosition, const vm::vec3f& lineDir);
 
             class MatchEntities;
             class CollectEntitiesVisitor;
@@ -87,10 +93,10 @@ namespace TrenchBroom {
             class CollectTransitiveSelectedLinksVisitor;
             class CollectDirectSelectedLinksVisitor;
 
-            void getLinks(Vertex::List& links) const;
-            void getAllLinks(Vertex::List& links) const;
-            void getTransitiveSelectedLinks(Vertex::List& links) const;
-            void getDirectSelectedLinks(Vertex::List& links) const;
+            void getLinks(std::vector<Vertex>& links) const;
+            void getAllLinks(std::vector<Vertex>& links) const;
+            void getTransitiveSelectedLinks(std::vector<Vertex>& links) const;
+            void getDirectSelectedLinks(std::vector<Vertex>& links) const;
             void collectSelectedLinks(CollectLinksVisitor& collectLinks) const;
 
             EntityLinkRenderer(const EntityLinkRenderer& other);

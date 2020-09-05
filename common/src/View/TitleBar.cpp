@@ -19,33 +19,37 @@
 
 #include "TitleBar.h"
 
-#include <wx/settings.h>
-#include <wx/sizer.h>
-#include <wx/stattext.h>
-
+#include "View/ControlListBox.h"
 #include "View/ViewConstants.h"
+#include "View/QtUtils.h"
+
+#include <QLabel>
+#include <QHBoxLayout>
+
 
 namespace TrenchBroom {
     namespace View {
-        TitleBar::TitleBar(wxWindow* parent, const wxString& title, const int hMargin, const int vMargin, const bool boldTitle) :
-        wxWindow(parent, wxID_ANY),
-        m_titleText(new wxStaticText(this, wxID_ANY, title)) {
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_FRAMEBK));
+        TitleBar::TitleBar(const QString& title, QWidget* parent, const int hMargin, const int vMargin, const bool boldTitle) :
+        QWidget(parent),
+        m_titleText(nullptr) {
+            m_titleText = new QLabel(title);
 
-            if (boldTitle)
-                m_titleText->SetFont(m_titleText->GetFont().Bold());
+            // Tell ControlListBox to not update the title label's color when the selection changes, in case this widget
+            // is used inside of a ControlListBox.
+            m_titleText->setProperty(ControlListBox::LabelColorShouldNotUpdateWhenSelected, true);
 
-            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->AddSpacer(hMargin);
-            sizer->Add(m_titleText, 0, wxTOP | wxBOTTOM, vMargin);
-            sizer->AddStretchSpacer();
-            sizer->AddSpacer(hMargin);
+            if (boldTitle) {
+                makeEmphasized(m_titleText);
+            }
 
-            SetSizer(sizer);
+            auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(hMargin, vMargin, hMargin, vMargin);
+            layout->setSpacing(LayoutConstants::WideHMargin);
+            layout->addWidget(m_titleText, 1);
+            setLayout(layout);
         }
 
-        bool TitleBar::AcceptsFocus() const {
-            return false;
-        }
+        TitleBar::TitleBar(const QString& title, const int hMargin, const int vMargin, const bool boldTitle) :
+        TitleBar(title, nullptr, hMargin, vMargin, boldTitle) {}
     }
 }

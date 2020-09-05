@@ -1,140 +1,141 @@
-IF(MSVC EQUAL 1)
-    cmake_minimum_required (VERSION 3.10)
-ELSE()
-    cmake_minimum_required (VERSION 3.1)
-ENDIF()
-
-# Configure CCache if available
-find_program(CCACHE_FOUND ccache)
-if(CCACHE_FOUND)
-    MESSAGE(STATUS "Using CCache")
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-endif(CCACHE_FOUND)
-
+# Using target_link_library to link an object library to qt requires 3.12
+# 3.12.4 is the maximum version supported on travis / linux out of the box
+cmake_minimum_required(VERSION 3.12)
 
 # Fix warning with Ninja and cotire (see https://github.com/sakra/cotire/issues/81)
 if(POLICY CMP0058)
     cmake_policy(SET CMP0058 NEW)
 endif()
 
-# SET(CMAKE_VERBOSE_MAKEFILE ON)
+# Instruct cmake not to set default warning levels for MSVC projects (cmake 3.15 or higher)
+if (POLICY CMP0092)
+    cmake_policy(SET CMP0092 NEW)
+endif()
 
-INCLUDE(cmake/Utils.cmake)
+# Enable the source_group command for creating IDE folders
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+# Set TrenchBroom item as default single startup project (NOTE: CMake 3.6 and newer)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT TrenchBroom)
 
 # Using C and CXX because GLEW is C
-PROJECT(TrenchBroom C CXX)
+project(TrenchBroom C CXX)
 
-# Compiler detection
-SET(COMPILER_IS_CLANG FALSE)
-SET(COMPILER_IS_GNU FALSE)
-SET(COMPILER_IS_MSVC FALSE)
+# Configure CCache if available and requested
+if(TB_ENABLE_CCACHE)
+    find_program(CCACHE_PATH ccache)
+    if(CCACHE_PATH)
+        message(STATUS "Found ccache: ${CCACHE_PATH}")
 
-IF(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    SET(COMPILER_IS_CLANG TRUE)
-ENDIF()
-IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    SET(COMPILER_IS_GNU TRUE)
-ENDIF()
-IF(MSVC EQUAL 1)
-    SET(COMPILER_IS_MSVC TRUE)
-ENDIF()
+        # Set up wrapper scripts, see https://crascit.com/2016/04/09/using-ccache-with-cmake/
+        set(C_LAUNCHER   "${CCACHE_PATH}")
+        set(CXX_LAUNCHER "${CCACHE_PATH}")
+        configure_file(cmake/launch-c.in   launch-c)
+        configure_file(cmake/launch-cxx.in launch-cxx)
 
-# Compiler configuration
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+        if(CMAKE_GENERATOR STREQUAL "Xcode")
+            # Set Xcode project attributes to route compilation and linking
+            # through our scripts
+            set(CMAKE_XCODE_ATTRIBUTE_CC         "${CMAKE_BINARY_DIR}/launch-c")
+            set(CMAKE_XCODE_ATTRIBUTE_CXX        "${CMAKE_BINARY_DIR}/launch-cxx")
+            set(CMAKE_XCODE_ATTRIBUTE_LD         "${CMAKE_BINARY_DIR}/launch-c")
+            set(CMAKE_XCODE_ATTRIBUTE_LDPLUSPLUS "${CMAKE_BINARY_DIR}/launch-cxx")
+        else()
+            # Support Unix Makefiles and Ninja
+            set(CMAKE_C_COMPILER_LAUNCHER   "${CMAKE_BINARY_DIR}/launch-c")
+            set(CMAKE_CXX_COMPILER_LAUNCHER "${CMAKE_BINARY_DIR}/launch-cxx")
+        endif()
+    endif(CCACHE_PATH)
+endif(TB_ENABLE_CCACHE)
 
 # Mac OS X specific configuration. In theory must be done before the PROJECT directive, but that doesn't actually work.
 # These settings are ignored on other platforms
-set(CMAKE_OSX_DEPLOYMENT_TARGET 10.9)
+# We are using deployment target 10.14 because C++17 is only fully supported on that version and up.
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.14)
 
-# Library configuration
-SET(LIB_DIR "${CMAKE_SOURCE_DIR}/lib")
-SET(LIB_BIN_DIR "${LIB_DIR}/bin")
-SET(LIB_INCLUDE_DIR "${LIB_DIR}/include")
-SET(LIB_SOURCE_DIR "${LIB_DIR}/src")
+# Compiler detection
+set(COMPILER_IS_CLANG FALSE)
+set(COMPILER_IS_GNU FALSE)
+set(COMPILER_IS_MSVC FALSE)
 
-# Required wxWidgets version
-SET(TB_MIN_wxWidgets_VERSION_MAJOR 3)
-SET(TB_MIN_wxWidgets_VERSION_MINOR 1)
-SET(TB_MIN_wxWidgets_VERSION_PATCH 1)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    set(COMPILER_IS_CLANG TRUE)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(COMPILER_IS_GNU TRUE)
+elseif(MSVC EQUAL 1)
+    set(COMPILER_IS_MSVC TRUE)
+else()
+    message(FATAL_ERROR "Unsupported compiler detected.")
+endif()
 
-IF(COMPILER_IS_CLANG)
-    MESSAGE(STATUS "Compiler is Clang")
-    SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Weverything -pedantic -Wno-format -Wno-variadic-macros -Wno-c99-extensions -Wno-padded -Wno-unused-parameter -Wno-global-constructors -Wno-exit-time-destructors -Wno-weak-vtables -Wno-weak-template-vtables -Wno-float-equal -Wno-used-but-marked-unused -Wno-format-nonliteral -Wno-missing-noreturn -Wno-unused-local-typedef -Wno-double-promotion -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-implicit-fallthrough -Wno-zero-as-null-pointer-constant")
-    # FIXME: Remove once we switch to Xcode 10
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-missing-braces")
-ELSEIF(COMPILER_IS_GNU)
-    MESSAGE(STATUS "Compiler is GNU")
-    SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Wno-format -Wno-variadic-macros -Wno-padded -Wno-unused-parameter -Wno-float-equal -Wno-format-nonliteral -Wno-missing-noreturn -Wno-zero-as-null-pointer-constant -Wno-error=maybe-uninitialized")
-ELSEIF(COMPILER_IS_MSVC)
-    MESSAGE(STATUS "Compiler is MSVC")
+# Request 8MB stack on Windows. (NOTE: /STACK should be used on .exe targets only.)
+# Default is 1MB and we need more for our current AABB builder on large maps (https://github.com/TrenchBroom/TrenchBroom/issues/2803)
+if(COMPILER_IS_MSVC)
+    set(TB_STACK_SIZE 8388608)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:${TB_STACK_SIZE}")
 
-    STRING(REGEX REPLACE "/W |/W$" "/W3" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    STRING(REGEX REPLACE "/W |/W$" "/W3" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+    # This might work in CMake 3.13 and avoid a global setting, but we are on 3.12 for now
+    # target_link_options(common INTERFACE "/STACK:${TB_STACK_SIZE}")
+endif()
 
-    SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Ox")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /MP /D _CRT_SECURE_NO_DEPRECATE /D _CRT_NONSTDC_NO_DEPRECATE")
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
+# Enable ASAN if possible and requested
+if(TB_ENABLE_ASAN)
+    message(STATUS "Enabling ASan")
+    if(COMPILER_IS_CLANG OR COMPILER_IS_GNU)
+        add_compile_options(-fsanitize=address)
+        add_link_options(-fsanitize=address)
+    else()
+        message(WARNING "TB isn't set up to enable ASan for compiler ${CMAKE_CXX_COMPILER_ID}")
+    endif()
+endif()
 
-    # Generate debug symbols even for Release; we build a stripped pdb in Release mode, see TrenchBroomApp.cmake
-    SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /Zi")
-    SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi")
+include(cmake/Utils.cmake)
 
-    # Request 8MB stack on Windows.
-    # Default is 1MB and we need more for our current AABB builder on large maps (https://github.com/kduske/TrenchBroom/issues/2803)
-    SET(TB_STACK_SIZE 8388608)
-    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:${TB_STACK_SIZE}")
-ELSE()
-    MESSAGE(FATAL_ERROR "Unsupported compiler detected.")
-ENDIF()
+# Find Git
+find_package(Git)
+if(NOT GIT_FOUND)
+    message(FATAL_ERROR "Could not find git")
+endif()
 
-IF(TB_ENABLE_ASAN)
-    MESSAGE(STATUS "AddressSanitizer requested via TB_ENABLE_ASAN cmake variable")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-    SET(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
-    SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fsanitize=address")
+# Find Pandoc
+if (NOT PANDOC_PATH AND NOT PANDOC_PATH-NOTFOUND)
+    find_program(PANDOC_PATH NAMES "pandoc" DOC "Pandoc program location")
+    if(PANDOC_PATH-NOTFOUND)
+        message(FATAL_ERROR "Could not find pandoc")
+    else()
+        message(STATUS "Found Pandoc: ${PANDOC_PATH}")
+    endif()
+endif()
 
-    # Workaround for false positives on macOS
-    IF(COMPILER_IS_CLANG)
-        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_LIBCPP_HAS_NO_ASAN")
-    ENDIF()
-ENDIF()
+# Prevent overriding the parent project's compiler/linker
+# settings on Windows
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-IF(CMAKE_GENERATOR STREQUAL "Xcode")
-    # Xcode requires these flags to allow debugging
-    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -O0 -fno-inline")
+# Prevent gtest from being installed
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 
-    # Xcode should treat the library header files as system headers
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem ${LIB_INCLUDE_DIR}")
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -isystem ${LIB_INCLUDE_DIR}")
-ELSE()
-    INCLUDE_DIRECTORIES(SYSTEM "${LIB_INCLUDE_DIR}")
-ENDIF()
+# Find Qt and OpenGL
+find_package(OpenGL REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Svg REQUIRED)
 
-# Set debug mode directives
-IF(CMAKE_BUILD_TYPE MATCHES "Debug")
-    ADD_DEFINITIONS(-DWXDEBUG -DDEBUG)
-ENDIF()
+# Find threads lib, needed to work around a gtest bug, see: https://stackoverflow.com/questions/21116622/undefined-reference-to-pthread-key-create-linker-error
+# The googletest target links to this
+find_package(Threads)
 
-INCLUDE(cmake/wxWidgets.cmake)
-INCLUDE(cmake/FreeType.cmake)
-INCLUDE(cmake/FreeImage.cmake)
+# Populate version variables using git
+get_git_describe("${GIT_EXECUTABLE}" "${CMAKE_SOURCE_DIR}" GIT_DESCRIBE)
+get_app_version(GIT_DESCRIBE APP_VERSION_YEAR APP_VERSION_NUMBER)
+set(APP_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
 
-# Should be changed to use per directory CMakeList.txt and ADD_SUBDIRECTORY
-INCLUDE(cmake/GTest.cmake)
-INCLUDE(cmake/GMock.cmake)
-INCLUDE(cmake/Glew.cmake)
-INCLUDE(cmake/tinyxml2.cmake)
-INCLUDE(cmake/vecmath.cmake)
-INCLUDE(cmake/Common.cmake)
-INCLUDE(cmake/StackWalker.cmake)
-INCLUDE(cmake/miniz.cmake)
-INCLUDE(cmake/CppCheck.cmake)
+# Some global variables used in several targets
+set(APP_DIR "${CMAKE_SOURCE_DIR}/app")
+set(APP_RESOURCE_DIR "${APP_DIR}/resources")
 
-INCLUDE(cmake/TrenchBroomApp.cmake)
-INCLUDE(cmake/TrenchBroomTest.cmake)
+add_subdirectory(lib)
+add_subdirectory(common)
+add_subdirectory(dump-shortcuts)
+add_subdirectory(app)
+
+# Hack: gmock does not support unity builds but doesn't opt out itself
+set_target_properties(gmock PROPERTIES UNITY_BUILD OFF)

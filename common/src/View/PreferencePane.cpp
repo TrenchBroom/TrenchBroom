@@ -21,8 +21,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        PreferencePane::PreferencePane(wxWindow* parent) :
-        wxPanel(parent, wxID_ANY) {}
+        PreferencePane::PreferencePane(QWidget* parent) :
+        QWidget(parent) {}
 
         PreferencePane::~PreferencePane() = default;
 
@@ -41,14 +41,6 @@ namespace TrenchBroom {
 
         bool PreferencePane::validate() {
             return doValidate();
-        }
-
-        float PreferencePane::getSliderValue(wxSlider* slider) {
-            return static_cast<float>(slider->GetValue()) / static_cast<float>(slider->GetMax());
-        }
-
-        void PreferencePane::setSliderValue(wxSlider* slider, const float value) {
-            slider->SetValue(static_cast<int>(value * slider->GetMax()));
         }
     }
 }

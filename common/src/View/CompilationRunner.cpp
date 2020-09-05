@@ -19,368 +19,237 @@
 
 #include "CompilationRunner.h"
 
-#include "CollectionUtils.h"
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
+#include "IO/FileMatcher.h"
 #include "IO/Path.h"
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
+#include "Model/ExportFormat.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h"
 
-#include <wx/process.h>
-#include <wx/sstream.h>
-#include <wx/timer.h>
+#include <string>
 
-wxDECLARE_EVENT(wxEVT_TASK_START, wxNotifyEvent);
-wxDECLARE_EVENT(wxEVT_TASK_ERROR, wxNotifyEvent);
-wxDECLARE_EVENT(wxEVT_TASK_END, wxNotifyEvent);
-
-wxDEFINE_EVENT(wxEVT_TASK_START, wxNotifyEvent);
-wxDEFINE_EVENT(wxEVT_TASK_ERROR, wxNotifyEvent);
-wxDEFINE_EVENT(wxEVT_TASK_END, wxNotifyEvent);
-
-wxDEFINE_EVENT(wxEVT_COMPILATION_START, wxNotifyEvent);
-wxDEFINE_EVENT(wxEVT_COMPILATION_END, wxNotifyEvent);
+#include <QtGlobal>
+#include <QProcess>
 
 namespace TrenchBroom {
     namespace View {
-        class CompilationRunner::TaskRunner : public wxEvtHandler {
-        protected:
-            CompilationContext& m_context;
-        protected:
-            TaskRunner(CompilationContext& context) :
-            m_context(context) {}
-        public:
-            ~TaskRunner() override {}
+        CompilationTaskRunner::CompilationTaskRunner(CompilationContext& context) :
+        m_context(context) {}
 
-            void execute() {
-                doExecute();
-            }
+        CompilationTaskRunner::~CompilationTaskRunner() = default;
 
-            void terminate() {
-                doTerminate();
-            }
-        protected:
-            void notifyStart() {
-                QueueEvent(new wxNotifyEvent(wxEVT_TASK_START));
-            }
+        void CompilationTaskRunner::execute() {
+            doExecute();
+        }
 
-            void notifyError() {
-                QueueEvent(new wxNotifyEvent(wxEVT_TASK_ERROR));
-            }
+        void CompilationTaskRunner::terminate() {
+            doTerminate();
+        }
 
-            void notifyEnd() {
-                QueueEvent(new wxNotifyEvent(wxEVT_TASK_END));
+        std::string CompilationTaskRunner::interpolate(const std::string& spec) {
+            try {
+                return m_context.interpolate(spec);
+            } catch (const Exception& e) {
+                m_context << "#### Could not interpolate expression '" << spec << "': " << e.what() << "\n";
+                throw;
             }
+        }
 
-            String interpolate(const String& spec) {
+        CompilationExportMapTaskRunner::CompilationExportMapTaskRunner(CompilationContext& context, const Model::CompilationExportMap& task) :
+        CompilationTaskRunner(context),
+        m_task(task.clone()) {}
+
+        CompilationExportMapTaskRunner::~CompilationExportMapTaskRunner() = default;
+
+        void CompilationExportMapTaskRunner::doExecute() {
+            emit start();
+
+            try {
+                const IO::Path targetPath(interpolate(m_task->targetSpec()));
                 try {
-                    return m_context.interpolate(spec);
-                } catch (const Exception& e) {
-                    m_context << "#### Could not interpolate expression '" << spec << "': " << e.what() << "\n";
-                    throw;
-                }
-            }
-        private:
-            virtual void doExecute() = 0;
-            virtual void doTerminate() = 0;
-        private:
-            TaskRunner(const TaskRunner& other);
-            TaskRunner& operator=(const TaskRunner& other);
-        };
-
-        class CompilationRunner::ExportMapRunner : public TaskRunner {
-        private:
-            const Model::CompilationExportMap* m_task;
-        public:
-            ExportMapRunner(CompilationContext& context, const Model::CompilationExportMap* task) :
-            TaskRunner(context),
-            m_task(static_cast<const Model::CompilationExportMap*>(task->clone())) {}
-
-            ~ExportMapRunner() override {
-                delete m_task;
-            }
-        private:
-            void doExecute() override {
-                notifyStart();
-
-                try {
-                    const IO::Path targetPath(interpolate(m_task->targetSpec()));
-                    try {
-                        m_context << "#### Exporting map file '" << targetPath.asString() << "'\n";
-
-                        if (!m_context.test()) {
-                            const IO::Path directoryPath = targetPath.deleteLastComponent();
-                            if (!IO::Disk::directoryExists(directoryPath))
-                                IO::Disk::createDirectory(directoryPath);
-
-                            const MapDocumentSPtr document = m_context.document();
-                            document->saveDocumentTo(targetPath);
-                        }
-                        notifyEnd();
-                    } catch (const Exception& e) {
-                        m_context << "#### Could not export map file '" << targetPath.asString() << "': " << e.what() << "\n";
-                        throw;
-                    }
-                } catch (const Exception&) {
-                    notifyError();
-                }
-
-            }
-
-            void doTerminate() override {}
-        private:
-            ExportMapRunner(const ExportMapRunner& other);
-            ExportMapRunner& operator=(const ExportMapRunner& other);
-        };
-
-        class CompilationRunner::CopyFilesRunner : public TaskRunner {
-        private:
-            const Model::CompilationCopyFiles* m_task;
-        public:
-            CopyFilesRunner(CompilationContext& context, const Model::CompilationCopyFiles* task) :
-            TaskRunner(context),
-            m_task(static_cast<const Model::CompilationCopyFiles*>(task->clone())) {}
-
-            ~CopyFilesRunner() override {
-                delete m_task;
-            }
-        private:
-            void doExecute() override {
-                notifyStart();
-
-                try {
-                    const IO::Path sourcePath(interpolate(m_task->sourceSpec()));
-                    const IO::Path targetPath(interpolate(m_task->targetSpec()));
-
-                    const IO::Path sourceDirPath = sourcePath.deleteLastComponent();
-                    const String sourcePattern = sourcePath.lastComponent().asString();
-
-                    try {
-                        m_context << "#### Copying '" << sourcePath.asString() << "' to '" << targetPath.asString() << "'\n";
-                        if (!m_context.test())
-                            IO::Disk::copyFiles(sourceDirPath, IO::FileNameMatcher(sourcePattern), targetPath, true);
-                        notifyEnd();
-                    } catch (const Exception& e) {
-                        m_context << "#### Could not copy '" << sourcePath.asString() << "' to '" << targetPath.asString() << "': " << e.what() << "\n";
-                        throw;
-                    }
-                } catch (const Exception&) {
-                    notifyError();
-                }
-            }
-
-            void doTerminate() override {}
-        private:
-            CopyFilesRunner(const CopyFilesRunner& other);
-            CopyFilesRunner& operator=(const CopyFilesRunner& other);
-        };
-
-        class CompilationRunner::RunToolRunner : public TaskRunner {
-        private:
-            const Model::CompilationRunTool* m_task;
-            wxProcess* m_process;
-            wxCriticalSection m_processSection;
-            wxTimer* m_timer;
-            bool m_terminated;
-        public:
-            RunToolRunner(CompilationContext& context, const Model::CompilationRunTool* task) :
-            TaskRunner(context),
-            m_task(static_cast<const Model::CompilationRunTool*>(task->clone())),
-            m_process(nullptr),
-            m_timer(nullptr),
-            m_terminated(false) {}
-
-            ~RunToolRunner() override {
-                assert(m_process == nullptr);
-                assert(m_timer == nullptr);
-                delete m_task;
-            }
-        private:
-            void doExecute() override {
-                wxCriticalSectionLocker lockProcess(m_processSection);
-                start();
-            }
-
-            void doTerminate() override {
-                wxCriticalSectionLocker lockProcess(m_processSection);
-                if (m_process != nullptr) {
-                    readRemainingOutput();
-                    m_process->Unbind(wxEVT_END_PROCESS, &RunToolRunner::OnEndProcessAsync, this);
-                    m_process->Detach();
-                    const int pid = static_cast<int>(m_process->GetPid());
-                    end();
-                    ::wxKill(pid, wxSIGKILL);
-                    m_context << "\n\n#### Terminated\n";
-                }
-            }
-        private:
-            void OnTimer(wxTimerEvent& event) {
-                wxCriticalSectionLocker lockProcess(m_processSection);
-                if (m_process != nullptr)
-                    readOutput();
-            }
-
-            void OnEndProcessAsync(wxProcessEvent& event) {
-                QueueEvent(event.Clone());
-            }
-
-            void OnEndProcessSync(wxProcessEvent& event) {
-                wxCriticalSectionLocker lockProcess(m_processSection);
-                if (m_process != nullptr) {
-                    readRemainingOutput();
-                    m_context << "#### Finished with exit status " << event.GetExitCode() << "\n\n";
-                    end();
-                    delete m_process;
-                }
-            }
-        private:
-            void start() {
-                assert(m_process == nullptr);
-                assert(m_timer == nullptr);
-
-                try {
-                    const IO::Path toolPath(interpolate(m_task->toolSpec()));
-                    const String parameters(interpolate(m_task->parameterSpec()));
-                    const String cmd = toolPath.asString() + " " + parameters;
-
-                    m_context << "#### Executing '" << cmd << "'\n";
+                    m_context << "#### Exporting map file '" << targetPath.asString() << "'\n";
 
                     if (!m_context.test()) {
-                        m_process = new wxProcess(this);
-                        m_process->Redirect();
-                        m_process->Bind(wxEVT_END_PROCESS, &RunToolRunner::OnEndProcessAsync, this);
-                        Bind(wxEVT_END_PROCESS, &RunToolRunner::OnEndProcessSync, this);
-
-                        m_timer = new wxTimer();
-                        m_timer->Bind(wxEVT_TIMER, &RunToolRunner::OnTimer, this);
-
-                        wxExecuteEnv* env = new wxExecuteEnv();
-                        env->cwd = m_context.variableValue(CompilationVariableNames::WORK_DIR_PATH);;
-
-                        ::wxExecute(cmd, wxEXEC_ASYNC, m_process, env);
-                        m_timer->Start(50);
-                    } else {
-                        notifyEnd();
-                    }
-                } catch (const Exception&) {
-                    notifyError();
-                }
-            }
-
-            void end() {
-                ensure(m_process != nullptr, "process is null");
-                ensure(m_timer != nullptr, "timer is null");
-
-                delete m_timer;
-                m_timer = nullptr;
-                m_process = nullptr; // process will be deleted by the library
-
-                notifyEnd();
-            }
-        private:
-            void readRemainingOutput() {
-                bool hasOutput = true;
-                bool hasTrailingNewline = true;
-                while (hasOutput) {
-                    hasOutput = false;
-                    if (m_process->IsInputAvailable()) {
-                        const wxString output = readStream(m_process->GetInputStream());
-                        if (!output.IsEmpty()) {
-                            m_context << output;
-                            hasOutput = true;
-                            hasTrailingNewline = output.Last() == '\n';
+                        const IO::Path directoryPath = targetPath.deleteLastComponent();
+                        if (!IO::Disk::directoryExists(directoryPath)) {
+                            IO::Disk::createDirectory(directoryPath);
                         }
-                    }
-                    if (m_process->IsErrorAvailable()) {
-                        const wxString output = readStream(m_process->GetErrorStream());
-                        if (!output.IsEmpty()) {
-                            m_context << output;
-                            hasOutput = true;
-                            hasTrailingNewline = output.Last() == '\n';
-                        }
-                    }
-                }
 
-                if (!hasTrailingNewline)
-                    m_context << '\n';
+                        const auto document = m_context.document();
+                        document->exportDocumentAs(Model::ExportFormat::Map, targetPath);
+                    }
+                    emit end();
+                } catch (const Exception& e) {
+                    m_context << "#### Could not export map file '" << targetPath.asString() << "': " << e.what() << "\n";
+                    throw;
+                }
+            } catch (const Exception&) {
+                emit error();
             }
 
-            bool readOutput() {
-                bool hasOutput = false;
-                if (m_process->IsInputAvailable()) {
-                    const wxString output = readStream(m_process->GetInputStream());
-                    if (!output.IsEmpty()) {
-                        m_context << output;
-                        hasOutput = true;
-                    }
-                }
-                if (m_process->IsErrorAvailable()) {
-                    const wxString output = readStream(m_process->GetErrorStream());
-                    if (!output.IsEmpty()) {
-                        m_context << output;
-                        hasOutput = true;
-                    }
-                }
-                return hasOutput;
-            }
+        }
 
-            wxString readStream(wxInputStream* stream) {
-                ensure(stream != nullptr, "stream is null");
-                wxStringOutputStream out;
-                if (stream->CanRead()) {
-                    static const size_t BUF_SIZE = 8192;
-                    char buffer[BUF_SIZE];
-                    stream->Read(buffer, BUF_SIZE);
-                    out.Write(buffer, stream->LastRead());
-                }
-                const wxString result = out.GetString();
-                return result;
-            }
-        private:
-            RunToolRunner(const RunToolRunner& other);
-            RunToolRunner& operator=(const RunToolRunner& other);
-        };
+        void CompilationExportMapTaskRunner::doTerminate() {}
 
-        CompilationRunner::CompilationRunner(CompilationContext* context, const Model::CompilationProfile* profile) :
-        m_context(context),
+        CompilationCopyFilesTaskRunner::CompilationCopyFilesTaskRunner(CompilationContext& context, const Model::CompilationCopyFiles& task) :
+        CompilationTaskRunner(context),
+        m_task(task.clone()) {}
+
+        CompilationCopyFilesTaskRunner::~CompilationCopyFilesTaskRunner() = default;
+
+        void CompilationCopyFilesTaskRunner::doExecute() {
+            emit start();
+
+            try {
+                const IO::Path sourcePath(interpolate(m_task->sourceSpec()));
+                const IO::Path targetPath(interpolate(m_task->targetSpec()));
+
+                const IO::Path sourceDirPath = sourcePath.deleteLastComponent();
+                const std::string sourcePattern = sourcePath.lastComponent().asString();
+
+                try {
+                    m_context << "#### Copying '" << sourcePath.asString() << "' to '" << targetPath.asString() << "'\n";
+                    if (!m_context.test()) {
+                        IO::Disk::copyFiles(sourceDirPath, IO::FileNameMatcher(sourcePattern), targetPath, true);
+                    }
+                    emit end();
+                } catch (const Exception& e) {
+                    m_context << "#### Could not copy '" << sourcePath.asString() << "' to '" << targetPath.asString() << "': " << e.what() << "\n";
+                    throw;
+                }
+            } catch (const Exception&) {
+                emit error();
+            }
+        }
+
+        void CompilationCopyFilesTaskRunner::doTerminate() {}
+
+        CompilationRunToolTaskRunner::CompilationRunToolTaskRunner(CompilationContext& context, const Model::CompilationRunTool& task) :
+        CompilationTaskRunner(context),
+        m_task(task.clone()),
+        m_process(nullptr),
+        m_terminated(false) {}
+
+        CompilationRunToolTaskRunner::~CompilationRunToolTaskRunner() = default;
+
+        void CompilationRunToolTaskRunner::doExecute() {
+            startProcess();
+        }
+
+        void CompilationRunToolTaskRunner::doTerminate() {
+            if (m_process != nullptr) {
+                disconnect(m_process, &QProcess::errorOccurred, this, &CompilationRunToolTaskRunner::processErrorOccurred);
+                disconnect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &CompilationRunToolTaskRunner::processFinished);
+                m_process->kill();
+                m_context << "\n\n#### Terminated\n";
+            }
+        }
+
+        void CompilationRunToolTaskRunner::startProcess() {
+            assert(m_process == nullptr);
+
+            emit start();
+            try {
+                const auto workDir = m_context.variableValue(CompilationVariableNames::WORK_DIR_PATH);
+                const auto cmd = this->cmd();
+
+                m_context << "#### Executing '" << cmd << "'\n";
+
+                if (!m_context.test()) {
+                    m_process = new QProcess(this);
+                    connect(m_process, &QProcess::errorOccurred, this, &CompilationRunToolTaskRunner::processErrorOccurred);
+                    connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &CompilationRunToolTaskRunner::processFinished);
+                    connect(m_process, &QProcess::readyReadStandardError, this, &CompilationRunToolTaskRunner::processReadyReadStandardError);
+                    connect(m_process, &QProcess::readyReadStandardOutput, this, &CompilationRunToolTaskRunner::processReadyReadStandardOutput);
+
+                    m_process->setWorkingDirectory(QString::fromStdString(workDir));
+                    m_process->start(QString::fromStdString(cmd));
+                    if (!m_process->waitForStarted()) {
+                        emit error();
+                    }
+                } else {
+                    emit end();
+                }
+            } catch (const Exception&) {
+                emit error();
+            }
+        }
+
+        std::string CompilationRunToolTaskRunner::cmd() {
+            const auto toolPath = IO::Path(interpolate(m_task->toolSpec()));
+            const auto parameters = interpolate(m_task->parameterSpec());
+            if (parameters.empty()) {
+                return std::string("\"") + toolPath.asString() + "\"";
+            } else if (toolPath.isEmpty()) {
+                return "";
+            } else {
+                return std::string("\"") + toolPath.asString() + "\" " + parameters;
+            }
+        }
+
+        void CompilationRunToolTaskRunner::processErrorOccurred(const QProcess::ProcessError processError) {
+            m_context << "#### Error " << processError << " occurred when communicating with process\n\n";
+            emit error();
+        }
+
+        void CompilationRunToolTaskRunner::processFinished(const int exitCode, const QProcess::ExitStatus /* exitStatus */) {
+            m_context << "#### Finished with exit status " << exitCode << "\n\n";
+            emit end();
+        }
+
+        void CompilationRunToolTaskRunner::processReadyReadStandardError() {
+            if (m_process != nullptr) {
+                const QByteArray bytes = m_process->readAllStandardError();
+                m_context << bytes.toStdString();
+            }
+        }
+
+        void CompilationRunToolTaskRunner::processReadyReadStandardOutput() {
+            if (m_process != nullptr) {
+                const QByteArray bytes = m_process->readAllStandardOutput();
+                m_context << bytes.toStdString();
+            }
+        }
+
+        CompilationRunner::CompilationRunner(std::unique_ptr<CompilationContext> context, const Model::CompilationProfile* profile, QObject* parent) :
+        QObject(parent),
+        m_context(std::move(context)),
         m_taskRunners(createTaskRunners(*m_context, profile)),
         m_currentTask(std::end(m_taskRunners)) {}
 
-        CompilationRunner::~CompilationRunner() {
-            ListUtils::clearAndDelete(m_taskRunners);
-            delete m_context;
-        }
+        CompilationRunner::~CompilationRunner() = default;
 
         class CompilationRunner::CreateTaskRunnerVisitor : public Model::ConstCompilationTaskVisitor {
         private:
             CompilationContext& m_context;
             TaskRunnerList m_runners;
         public:
-            CreateTaskRunnerVisitor(CompilationContext& context) :
+            explicit CreateTaskRunnerVisitor(CompilationContext& context) :
             m_context(context) {}
 
-            const TaskRunnerList& runners() {
-                return m_runners;
+            TaskRunnerList runners() {
+                return std::move(m_runners);
             }
 
-            void visit(const Model::CompilationExportMap* task) override {
-                appendRunner(new ExportMapRunner(m_context, task));
+            void visit(const Model::CompilationExportMap& task) override {
+                appendRunner(std::make_unique<CompilationExportMapTaskRunner>(m_context, task));
             }
 
-            void visit(const Model::CompilationCopyFiles* task) override {
-                appendRunner(new CopyFilesRunner(m_context, task));
+            void visit(const Model::CompilationCopyFiles& task) override {
+                appendRunner(std::make_unique<CompilationCopyFilesTaskRunner>(m_context, task));
             }
 
-            void visit(const Model::CompilationRunTool* task) override {
-                appendRunner(new RunToolRunner(m_context, task));
+            void visit(const Model::CompilationRunTool& task) override {
+                appendRunner(std::make_unique<CompilationRunToolTaskRunner>(m_context, task));
             }
 
         private:
-            void appendRunner(TaskRunner* runner) {
-                m_runners.push_back(runner);
+            void appendRunner(std::unique_ptr<CompilationTaskRunner> runner) {
+                m_runners.emplace_back(std::move(runner));
             }
         };
 
@@ -392,59 +261,55 @@ namespace TrenchBroom {
 
         void CompilationRunner::execute() {
             assert(!running());
-            m_currentTask = std::begin(m_taskRunners);
-            bindEvents(*m_currentTask);
-            (*m_currentTask)->execute();
 
-            wxNotifyEvent event(wxEVT_COMPILATION_START);
-            ProcessEvent(event);
+            m_currentTask = std::begin(m_taskRunners);
+            bindEvents(m_currentTask->get());
+
+            emit compilationStarted();
+            m_currentTask->get()->execute();
         }
 
         void CompilationRunner::terminate() {
             assert(running());
-            unbindEvents(*m_currentTask);
-            (*m_currentTask)->terminate();
+            unbindEvents(m_currentTask->get());
+            m_currentTask->get()->terminate();
             m_currentTask = std::end(m_taskRunners);
 
-            wxNotifyEvent event(wxEVT_COMPILATION_END);
-            ProcessEvent(event);
+            emit compilationEnded();
         }
 
         bool CompilationRunner::running() const {
             return m_currentTask != std::end(m_taskRunners);
         }
 
-        void CompilationRunner::OnTaskError(wxEvent& event) {
+        void CompilationRunner::bindEvents(CompilationTaskRunner* runner) {
+            connect(runner, &CompilationTaskRunner::error, this, &CompilationRunner::taskError);
+            connect(runner, &CompilationTaskRunner::end, this, &CompilationRunner::taskEnd);
+        }
+
+        void CompilationRunner::unbindEvents(CompilationTaskRunner* runner) {
+            runner->disconnect(this);
+        }
+
+        void CompilationRunner::taskError() {
             if (running()) {
-                unbindEvents(*m_currentTask);
+                unbindEvents(m_currentTask->get());
                 m_currentTask = std::end(m_taskRunners);
-                wxNotifyEvent endEvent(wxEVT_COMPILATION_END);
-                ProcessEvent(endEvent);
+                emit compilationEnded();
             }
         }
 
-        void CompilationRunner::OnTaskEnd(wxEvent& event) {
+        void CompilationRunner::taskEnd() {
             if (running()) {
-                unbindEvents(*m_currentTask);
+                unbindEvents(m_currentTask->get());
                 ++m_currentTask;
                 if (m_currentTask != std::end(m_taskRunners)) {
-                    bindEvents(*m_currentTask);
-                    (*m_currentTask)->execute();
+                    bindEvents(m_currentTask->get());
+                    m_currentTask->get()->execute();
                 } else {
-                    wxNotifyEvent endEvent(wxEVT_COMPILATION_END);
-                    ProcessEvent(endEvent);
+                    emit compilationEnded();
                 }
             }
-        }
-
-        void CompilationRunner::bindEvents(TaskRunner* runner) {
-            runner->Bind(wxEVT_TASK_ERROR, &CompilationRunner::OnTaskError, this);
-            runner->Bind(wxEVT_TASK_END, &CompilationRunner::OnTaskEnd, this);
-        }
-
-        void CompilationRunner::unbindEvents(TaskRunner* runner) {
-            runner->Unbind(wxEVT_TASK_ERROR, &CompilationRunner::OnTaskError, this);
-            runner->Unbind(wxEVT_TASK_END, &CompilationRunner::OnTaskEnd, this);
         }
     }
 }

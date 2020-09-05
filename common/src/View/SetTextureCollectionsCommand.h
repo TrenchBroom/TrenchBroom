@@ -20,30 +20,36 @@
 #ifndef TrenchBroom_TextureCollectionCommand
 #define TrenchBroom_TextureCollectionCommand
 
-#include "SharedPointer.h"
-#include "IO/Path.h"
+#include "Macros.h"
 #include "View/DocumentCommand.h"
-#include "StringUtils.h"
+
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+
     namespace View {
         class SetTextureCollectionsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<SetTextureCollectionsCommand>;
         private:
-            IO::Path::List m_paths;
-            IO::Path::List m_oldPaths;
+            std::vector<IO::Path> m_paths;
+            std::vector<IO::Path> m_oldPaths;
         public:
-            static Ptr set(const IO::Path::List& paths);
-        private:
-            SetTextureCollectionsCommand(const IO::Path::List& paths);
+            static std::unique_ptr<SetTextureCollectionsCommand> set(const std::vector<IO::Path>& paths);
 
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            SetTextureCollectionsCommand(const std::vector<IO::Path>& paths);
+        private:
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(UndoableCommand* command) override;
+
+            deleteCopyAndMove(SetTextureCollectionsCommand)
         };
     }
 }

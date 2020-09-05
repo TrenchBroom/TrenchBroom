@@ -29,13 +29,11 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
-#include <map>
 #include <vector>
 
 namespace TrenchBroom {
-    class AttrString;
-
     namespace Renderer {
+        class AttrString;
         class RenderContext;
         class TextAnchor;
 
@@ -81,7 +79,7 @@ namespace TrenchBroom {
             EntryCollection m_entries;
             EntryCollection m_entriesOnTop;
         public:
-            TextRenderer(const FontDescriptor& fontDescriptor, float maxViewDistance = DefaultMaxViewDistance, float minZoomFactor = DefaultMinZoomFactor, const vm::vec2f& inset = DefaultInset);
+            explicit TextRenderer(const FontDescriptor& fontDescriptor, float maxViewDistance = DefaultMaxViewDistance, float minZoomFactor = DefaultMinZoomFactor, const vm::vec2f& inset = DefaultInset);
 
             void renderString(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position);
             void renderStringOnTop(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position);
@@ -94,10 +92,10 @@ namespace TrenchBroom {
 
             vm::vec2f stringSize(RenderContext& renderContext, const AttrString& string) const;
         private:
-            void doPrepareVertices(Vbo& vertexVbo) override;
-            void prepare(EntryCollection& collection, bool onTop, Vbo& vbo);
+            void doPrepareVertices(VboManager& vboManager) override;
+            void prepare(EntryCollection& collection, bool onTop, VboManager& vboManager);
 
-            void addEntry(const Entry& entry, bool onTop, TextVertex::List& textVertices, RectVertex::List& rectVertices);
+            void addEntry(const Entry& entry, bool onTop, std::vector<TextVertex>& textVertices, std::vector<RectVertex>& rectVertices);
 
             void doRender(RenderContext& renderContext) override;
             void render(EntryCollection& collection, RenderContext& renderContext);

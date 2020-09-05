@@ -20,11 +20,11 @@
 #ifndef TrenchBroom_BrushFaceAttributes
 #define TrenchBroom_BrushFaceAttributes
 
-#include "TrenchBroom.h"
-#include "StringUtils.h"
 #include "Color.h"
 
 #include <vecmath/forward.h>
+
+#include <string>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -33,9 +33,10 @@ namespace TrenchBroom {
 
     namespace Model {
         class BrushFaceAttributes {
+        public:
+            static const std::string NoTextureName;
         private:
-            String m_textureName;
-            Assets::Texture* m_texture;
+            std::string m_textureName;
 
             vm::vec2f m_offset;
             vm::vec2f m_scale;
@@ -47,22 +48,23 @@ namespace TrenchBroom {
 
             Color m_color;
         public:
-            BrushFaceAttributes(const String& textureName);
+            BrushFaceAttributes(const std::string& textureName);
             BrushFaceAttributes(const BrushFaceAttributes& other);
-            ~BrushFaceAttributes();
+            BrushFaceAttributes(const std::string& textureName, const BrushFaceAttributes& other);
+
             BrushFaceAttributes& operator=(BrushFaceAttributes other);
+            
+            friend bool operator==(const BrushFaceAttributes& lhs, const BrushFaceAttributes& rhs);
             friend void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs);
 
             BrushFaceAttributes takeSnapshot() const;
 
-            const String& textureName() const;
-            Assets::Texture* texture() const;
-            vm::vec2f textureSize() const;
+            const std::string& textureName() const;
 
             const vm::vec2f& offset() const;
             float xOffset() const;
             float yOffset() const;
-            vm::vec2f modOffset(const vm::vec2f& offset) const;
+            vm::vec2f modOffset(const vm::vec2f& offset, const vm::vec2f& textureSize) const;
 
             const vm::vec2f& scale() const;
             float xScale() const;
@@ -70,28 +72,28 @@ namespace TrenchBroom {
 
             float rotation() const;
 
+            bool hasSurfaceAttributes() const;
             int surfaceContents() const;
             int surfaceFlags() const;
             float surfaceValue() const;
 
-            void setTexture(Assets::Texture* texture);
-            void unsetTexture();
+            bool hasColor() const;
+            const Color& color() const;
 
             bool valid() const;
 
-            void setOffset(const vm::vec2f& offset);
-            void setXOffset(float xOffset);
-            void setYOffset(float yOffset);
-            void setScale(const vm::vec2f& scale);
-            void setXScale(float xScale);
-            void setYScale(float yScale);
-            void setRotation(float rotation);
-            void setSurfaceContents(int surfaceContents);
-            void setSurfaceFlags(int surfaceFlags);
-            void setSurfaceValue(float surfaceValue);
-
-            const Color& color() const;
-            void setColor(const Color& color);
+            bool setTextureName(const std::string& textureName);
+            bool setOffset(const vm::vec2f& offset);
+            bool setXOffset(float xOffset);
+            bool setYOffset(float yOffset);
+            bool setScale(const vm::vec2f& scale);
+            bool setXScale(float xScale);
+            bool setYScale(float yScale);
+            bool setRotation(float rotation);
+            bool setSurfaceContents(int surfaceContents);
+            bool setSurfaceFlags(int surfaceFlags);
+            bool setSurfaceValue(float surfaceValue);
+            bool setColor(const Color& color);
         };
     }
 }

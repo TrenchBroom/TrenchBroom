@@ -20,38 +20,46 @@
 #ifndef TrenchBroom_MoveBrushVerticesCommand
 #define TrenchBroom_MoveBrushVerticesCommand
 
-#include "SharedPointer.h"
-#include "Model/ModelTypes.h"
+#include "Macros.h"
 #include "View/VertexCommand.h"
 
-namespace TrenchBroom {
-    namespace Model {
-        class Snapshot;
-    }
+#include <memory>
+#include <vector>
 
+namespace TrenchBroom {
     namespace View {
+        class MoveBrushVerticesCommandResult : public CommandResult {
+        private:
+            bool m_hasRemainingVertices;
+        public:
+            MoveBrushVerticesCommandResult(bool success, bool hasRemainingVertices);
+
+            bool hasRemainingVertices() const;
+        };
+
         class MoveBrushVerticesCommand : public VertexCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<MoveBrushVerticesCommand>;
         private:
-            Model::BrushVerticesMap m_vertices;
+            BrushVerticesMap m_vertices;
             std::vector<vm::vec3> m_oldVertexPositions;
             std::vector<vm::vec3> m_newVertexPositions;
             vm::vec3 m_delta;
         public:
-            static Ptr move(const Model::VertexToBrushesMap& vertices, const vm::vec3& delta);
-            bool hasRemainingVertices() const;
-        private:
-            MoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta);
+            static std::unique_ptr<MoveBrushVerticesCommand> move(const VertexToBrushesMap& vertices, const vm::vec3& delta);
 
+            MoveBrushVerticesCommand(const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta);
+        private:
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doCreateCommandResult(bool success) override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             void doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const override;
             void doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const override;
+
+            deleteCopyAndMove(MoveBrushVerticesCommand)
         };
     }
 }

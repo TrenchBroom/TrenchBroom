@@ -19,48 +19,72 @@
 
 #include "NodeReader.h"
 
-#include "Logger.h"
-#include "Model/Brush.h"
-#include "Model/Entity.h"
-#include "Model/Layer.h"
+#include "IO/ParserStatus.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
+#include "Model/EntityAttributes.h"
+#include "Model/LayerNode.h"
 #include "Model/ModelFactory.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
+
+#include <kdl/vector_utils.h>
+
+#include <sstream>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
-        NodeReader::NodeReader(const String& str, Model::ModelFactory& factory) :
+        NodeReader::NodeReader(const std::string& str, Model::ModelFactory& factory) :
         MapReader(str),
         m_factory(factory) {}
 
-        Model::NodeList NodeReader::read(const String& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status) {
+        std::vector<Model::Node*> NodeReader::read(const std::string& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status) {
             NodeReader reader(str, factory);
             return reader.read(worldBounds, status);
         }
 
-        const Model::NodeList& NodeReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
-            try {
-                readEntities(m_factory.format(), worldBounds, status);
-            } catch (const ParserException&) {
-                VectorUtils::clearAndDelete(m_nodes);
-
+        const std::vector<Model::Node*>& NodeReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
+            // try preferred format first
+            const Model::MapFormat preferredFormat = m_factory.format();
+            for (const auto format : Model::compatibleFormats(preferredFormat)) {
                 try {
-                    reset();
-                    readBrushes(m_factory.format(), worldBounds, status);
+                    readAsFormat(worldBounds, format, status);
+                    return m_nodes;
                 } catch (const ParserException&) {
-                    VectorUtils::clearAndDelete(m_nodes);
-                    throw;
                 }
             }
+
+            assert(m_nodes.empty());
             return m_nodes;
         }
 
-        Model::ModelFactory& NodeReader::initialize(const Model::MapFormat format, const vm::bbox3& worldBounds) {
-            assert(format == m_factory.format());
+        void NodeReader::readAsFormat(const vm::bbox3& worldBounds, Model::MapFormat format, ParserStatus& status) {
+            try {
+                reset();
+                readEntities(format, worldBounds, status);
+                return;
+            } catch (const ParserException&) {
+                kdl::vec_clear_and_delete(m_nodes);
+            }
+
+            try {
+                reset();
+                readBrushes(format, worldBounds, status);
+                return;
+            } catch (const ParserException&) {
+                kdl::vec_clear_and_delete(m_nodes);
+                throw;
+            }
+        }
+
+        Model::ModelFactory& NodeReader::initialize(const Model::MapFormat) {
+            // NOTE: m_factory.format() may be different than the passed in format
             return m_factory;
         }
 
-        Model::Node* NodeReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
-            Model::Entity* worldspawn = m_factory.createEntity();
+        Model::Node* NodeReader::onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
+            Model::EntityNode* worldspawn = m_factory.createEntity();
             worldspawn->setAttributes(attributes);
             setExtraAttributes(worldspawn, extraAttributes);
 
@@ -68,40 +92,42 @@ namespace TrenchBroom {
             return worldspawn;
         }
 
-        void NodeReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount, ParserStatus& status) {
+        void NodeReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount, ParserStatus& /* status */) {
             assert(!m_nodes.empty());
             m_nodes.front()->setFilePosition(lineNumber, lineCount);
         }
 
-        void NodeReader::onLayer(Model::Layer* layer, ParserStatus& status) {
+        void NodeReader::onLayer(Model::LayerNode* layer, ParserStatus& /* status */) {
             m_nodes.push_back(layer);
         }
 
-        void NodeReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) {
-            if (parent != nullptr)
+        void NodeReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& /* status */) {
+            if (parent != nullptr) {
                 parent->addChild(node);
-            else
+            } else {
                 m_nodes.push_back(node);
+            }
         }
 
         void NodeReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) {
             if (parentInfo.layer()) {
-                StringStream msg;
+                std::stringstream msg;
                 msg << "Could not resolve parent layer '" << parentInfo.id() << "', adding to default layer";
                 status.warn(node->lineNumber(), msg.str());
             } else {
-                StringStream msg;
+                std::stringstream msg;
                 msg << "Could not resolve parent group '" << parentInfo.id() << "', adding to default layer";
                 status.warn(node->lineNumber(), msg.str());
             }
             m_nodes.push_back(node);
         }
 
-        void NodeReader::onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& status) {
-            if (parent != nullptr)
+        void NodeReader::onBrush(Model::Node* parent, Model::BrushNode* brush, ParserStatus& /* status */) {
+            if (parent != nullptr) {
                 parent->addChild(brush);
-            else
+            } else {
                 m_nodes.push_back(brush);
+            }
         }
     }
 }

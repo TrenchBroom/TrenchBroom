@@ -20,38 +20,39 @@
 #ifndef TrenchBroom_GameFactory
 #define TrenchBroom_GameFactory
 
-#include "StringUtils.h"
-#include "Preference.h"
-#include "IO/Path.h"
-#include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
-#include "Model/ModelTypes.h"
 
 #include <memory>
+#include <map>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
     class Logger;
 
+    template <typename T> class Preference;
+
     namespace IO {
+        class Path;
         class WritableDiskFileSystem;
     }
 
     namespace Model {
+        class Game;
+        class GameConfig;
+
         class GameFactory {
         private:
-            using ConfigMap = std::map<String, GameConfig>;
-            using GamePathMap = std::map<String, Preference<IO::Path> >;
+            using ConfigMap = std::map<std::string, GameConfig>;
+            using GamePathMap = std::map<std::string, Preference<IO::Path>>;
 
             std::unique_ptr<IO::WritableDiskFileSystem> m_configFS;
 
-            StringList m_names;
+            std::vector<std::string> m_names;
             ConfigMap m_configs;
             mutable GamePathMap m_gamePaths;
             mutable GamePathMap m_defaultEngines;
         public:
-            ~GameFactory();
-
             static GameFactory& instance();
 
             /**
@@ -66,24 +67,41 @@ namespace TrenchBroom {
              * caller to inform the user of any errors.
              *
              * @throw FileSystemException if the file system cannot be built.
-             * @throw StringList if loading game configurations fails
+             * @throw std::vector<std::string> if loading game configurations fails
              */
             void initialize();
+            void saveAllConfigs();
+            /**
+             * Saves the compilation and game engine configurations for the game with the given name.
+             *
+             * @param gameName the game for which the configurations should be saved
+             *
+             * @throw GameException if no config with the given name exists
+             */
+            void saveConfigs(const std::string& gameName);
 
-            const StringList& gameList() const;
+            const std::vector<std::string>& gameList() const;
             size_t gameCount() const;
-            GameSPtr createGame(const String& gameName, Logger& logger);
+            std::shared_ptr<Game> createGame(const std::string& gameName, Logger& logger);
 
-            StringList fileFormats(const String& gameName) const;
-            IO::Path iconPath(const String& gameName) const;
-            IO::Path gamePath(const String& gameName) const;
-            bool setGamePath(const String& gameName, const IO::Path& gamePath);
-            bool isGamePathPreference(const String& gameName, const IO::Path& prefPath) const;
+            std::vector<std::string> fileFormats(const std::string& gameName) const;
+            IO::Path iconPath(const std::string& gameName) const;
+            IO::Path gamePath(const std::string& gameName) const;
+            bool setGamePath(const std::string& gameName, const IO::Path& gamePath);
+            bool isGamePathPreference(const std::string& gameName, const IO::Path& prefPath) const;
 
-            GameConfig& gameConfig(const String& gameName);
-            const GameConfig& gameConfig(const String& gameName) const;
+            GameConfig& gameConfig(const std::string& gameName);
+            const GameConfig& gameConfig(const std::string& gameName) const;
 
-            std::pair<String, MapFormat> detectGame(const IO::Path& path) const;
+            /**
+             * Scans the map file at the given path to find game type and map format comments and returns the name of
+             * the game and the map format.
+             *
+             * If no game comment is found or the game is unknown, an empty string is returned as the game name.
+             * If no map format comment is found or the format is unknown, MapFormat::Unknown is returned as the map
+             * format.
+             */
+            std::pair<std::string, MapFormat> detectGame(const IO::Path& path) const;
         private:
             GameFactory();
             void initializeFileSystem();

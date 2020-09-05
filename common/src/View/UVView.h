@@ -20,22 +20,28 @@
 #ifndef TrenchBroom_UVView
 #define TrenchBroom_UVView
 
-#include "TrenchBroom.h"
-#include "Model/Hit.h"
+#include "FloatType.h"
+#include "Model/HitType.h"
 #include "Model/PickResult.h"
-#include "Model/ModelTypes.h"
 #include "Renderer/OrthographicCamera.h"
 #include "View/RenderView.h"
 #include "View/ToolBox.h"
 #include "View/ToolBoxConnector.h"
 #include "View/UVViewHelper.h"
-#include "View/ViewTypes.h"
 
-class wxWindow;
+#include <memory>
+#include <vector>
+
+class QWidget;
 
 namespace TrenchBroom {
     namespace IO {
         class Path;
+    }
+
+    namespace Model {
+        class BrushFaceHandle;
+        class Node;
     }
 
     namespace Renderer {
@@ -45,6 +51,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
         class Selection;
         class UVRotateTool;
         class UVOriginTool;
@@ -59,17 +66,18 @@ namespace TrenchBroom {
          the texture axes as well.
          */
         class UVView : public RenderView, public ToolBoxConnector {
+            Q_OBJECT
         public:
-            static const Model::Hit::HitType FaceHit;
+            static const Model::HitType::Type FaceHitType;
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             Renderer::OrthographicCamera m_camera;
             UVViewHelper m_helper;
 
             ToolBox m_toolBox;
         public:
-            UVView(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            UVView(std::weak_ptr<MapDocument> document, GLContextManager& contextManager);
             ~UVView() override;
 
             void setSubDivisions(const vm::vec2i& subDivisions);
@@ -81,8 +89,8 @@ namespace TrenchBroom {
 
             void selectionDidChange(const Selection& selection);
             void documentWasCleared(MapDocument* document);
-            void nodesDidChange(const Model::NodeList& nodes);
-            void brushFacesDidChange(const Model::BrushFaceList& faces);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
+            void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
             void gridDidChange();
             void cameraDidChange(const Renderer::Camera* camera);
             void preferenceDidChange(const IO::Path& path);

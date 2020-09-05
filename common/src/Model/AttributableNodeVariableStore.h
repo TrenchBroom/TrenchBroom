@@ -21,7 +21,10 @@
 #define AttributableNodeVariableStore_h
 
 #include "Macros.h"
-#include "EL.h"
+#include "EL/VariableStore.h"
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -35,10 +38,10 @@ namespace TrenchBroom {
         private:
             VariableStore* doClone() const override;
             size_t doGetSize() const override;
-            EL::Value doGetValue(const String& name) const override;
-            StringSet doGetNames() const override;
-            void doDeclare(const String& name, const EL::Value& value) override;
-            void doAssign(const String& name, const EL::Value& value) override;
+            EL::Value doGetValue(const std::string& name) const override;
+            std::vector<std::string> doGetNames() const override;
+            void doDeclare(const std::string& name, const EL::Value& value) override;
+            void doAssign(const std::string& name, const EL::Value& value) override;
 
             deleteCopyAndMove(AttributableNodeVariableStore)
         };

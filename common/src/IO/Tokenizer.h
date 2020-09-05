@@ -20,12 +20,10 @@
 #ifndef TrenchBroom_Tokenizer_h
 #define TrenchBroom_Tokenizer_h
 
-#include "Exceptions.h"
 #include "Token.h"
-#include "SharedPointer.h"
 
-#include <cassert>
-#include <stack>
+#include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -34,13 +32,13 @@ namespace TrenchBroom {
             const char* m_begin;
             const char* m_cur;
             const char* m_end;
-            String m_escapableChars;
+            std::string m_escapableChars;
             char m_escapeChar;
             size_t m_line;
             size_t m_column;
             bool m_escaped;
         public:
-            TokenizerState(const char* begin, const char* end, const String& escapableChars, char escapeChar);
+            TokenizerState(const char* begin, const char* end, const std::string& escapableChars, char escapeChar);
 
             TokenizerState* clone(const char* begin, const char* end) const;
 
@@ -57,7 +55,7 @@ namespace TrenchBroom {
             size_t column() const;
 
             bool escaped() const;
-            String unescape(const String& str);
+            std::string unescape(const std::string& str);
             void resetEscaped();
 
             bool eof() const;
@@ -80,8 +78,6 @@ namespace TrenchBroom {
         public:
             using Token = TokenTemplate<TokenType>;
         private:
-            using TokenStack = std::stack<Token>;
-
             using StatePtr = std::shared_ptr<TokenizerState>;
 
             class SaveState {
@@ -102,15 +98,15 @@ namespace TrenchBroom {
 
             template <typename T> friend class Tokenizer;
         public:
-            static const String& Whitespace() {
-                static const String whitespace(" \t\n\r");
+            static const std::string& Whitespace() {
+                static const std::string whitespace(" \t\n\r");
                 return whitespace;
             }
         public:
-            Tokenizer(const char* begin, const char* end, const String& escapableChars, const char escapeChar) :
+            Tokenizer(const char* begin, const char* end, const std::string& escapableChars, const char escapeChar) :
             m_state(std::make_shared<TokenizerState>(begin, end, escapableChars, escapeChar)) {}
 
-            Tokenizer(const String& str, const String& escapableChars, const char escapeChar) :
+            Tokenizer(const std::string& str, const std::string& escapableChars, const char escapeChar) :
             m_state(std::make_shared<TokenizerState>(str.c_str(), str.c_str() + str.size(), escapableChars, escapeChar)) {}
 
             template <typename OtherType>
@@ -146,32 +142,32 @@ namespace TrenchBroom {
                 discardWhile("\n");
             }
 
-            String readRemainder(const TokenType delimiterType) {
+            std::string readRemainder(const TokenType delimiterType) {
                 if (eof()) {
                     return "";
                 }
 
                 Token token = peekToken();
                 const char* startPos = std::begin(token);
-                const char* endPos = startPos;
+                const char* endPos = nullptr;
                 do {
                     token = nextToken();
                     endPos = std::end(token);
                 } while (peekToken().hasType(delimiterType) == 0 && !eof());
 
-                return String(startPos, static_cast<size_t>(endPos - startPos));
+                return std::string(startPos, static_cast<size_t>(endPos - startPos));
             }
 
-            String readAnyString(const String& delims) {
+            std::string readAnyString(const std::string& delims) {
                 while (isWhitespace(curChar())) {
                     advance();
                 }
                 const char* startPos = curPos();
                 const char* endPos = (curChar() == '"' ? readQuotedString() : readUntil(delims));
-                return String(startPos, static_cast<size_t>(endPos - startPos));
+                return std::string(startPos, static_cast<size_t>(endPos - startPos));
             }
 
-            String unescapeString(const String& str) const {
+            std::string unescapeString(const std::string& str) const {
                 return m_state->unescape(str);
             }
 
@@ -260,7 +256,7 @@ namespace TrenchBroom {
                 return m_state->escaped();
             }
 
-            const char* readInteger(const String& delims) {
+            const char* readInteger(const std::string& delims) {
                 if (curChar() != '+' && curChar() != '-' && !isDigit(curChar())) {
                     return nullptr;
                 }
@@ -280,7 +276,7 @@ namespace TrenchBroom {
                 return nullptr;
             }
 
-            const char* readDecimal(const String& delims) {
+            const char* readDecimal(const std::string& delims) {
                 if (curChar() != '+' && curChar() != '-' && curChar() != '.' && !isDigit(curChar())) {
                     return nullptr;
                 }
@@ -319,7 +315,7 @@ namespace TrenchBroom {
                 }
             }
         protected:
-            const char* readUntil(const String& delims) {
+            const char* readUntil(const std::string& delims) {
                 if (!eof()) {
                     do {
                         advance();
@@ -328,17 +324,17 @@ namespace TrenchBroom {
                 return curPos();
             }
 
-            const char* readWhile(const String& allow) {
+            const char* readWhile(const std::string& allow) {
                 while (!eof() && isAnyOf(curChar(), allow)) {
                     advance();
                 }
                 return curPos();
             }
 
-            const char* readQuotedString(const char delim = '"', const String& hackDelims = "") {
+            const char* readQuotedString(const char delim = '"', const std::string& hackDelims = "") {
                 while (!eof() && (curChar() != delim || isEscaped())) {
                     // This is a hack to handle paths with trailing backslashes that get misinterpreted as escaped double quotation marks.
-                    if (!hackDelims.empty() && curChar() == '"' && isEscaped() && hackDelims.find(lookAhead()) != String::npos) {
+                    if (!hackDelims.empty() && curChar() == '"' && isEscaped() && hackDelims.find(lookAhead()) != std::string::npos) {
                         m_state->resetEscaped();
                         break;
                     }
@@ -350,21 +346,21 @@ namespace TrenchBroom {
                 return end;
             }
 
-            const char* discardWhile(const String& allow) {
+            const char* discardWhile(const std::string& allow) {
                 while (!eof() && isAnyOf(curChar(), allow)) {
                     advance();
                 }
                 return curPos();
             }
 
-            const char* discardUntil(const String& delims) {
+            const char* discardUntil(const std::string& delims) {
                 while (!eof() && !isAnyOf(curChar(), delims)) {
                     advance();
                 }
                 return curPos();
             }
 
-            bool matchesPattern(const String& pattern) const {
+            bool matchesPattern(const std::string& pattern) const {
                 if (pattern.empty() || isEscaped() || curChar() != pattern[0]) {
                     return false;
                 }
@@ -376,7 +372,7 @@ namespace TrenchBroom {
                 return true;
             }
 
-            const char* discardUntilPattern(const String& pattern) {
+            const char* discardUntilPattern(const std::string& pattern) {
                 if (pattern.empty()) {
                     return curPos();
                 }
@@ -392,7 +388,7 @@ namespace TrenchBroom {
                 return curPos();
             }
 
-            const char* discard(const String& str) {
+            const char* discard(const std::string& str) {
                 for (size_t i = 0; i < str.size(); ++i) {
                     const char c = lookAhead(i);
                     if (c == 0 || c != str[i]) {
@@ -409,7 +405,7 @@ namespace TrenchBroom {
                 m_state->errorIfEof();
             }
         protected:
-            bool isAnyOf(const char c, const String& allow) const {
+            bool isAnyOf(const char c, const std::string& allow) const {
                 for (const auto& a : allow) {
                     if (c == a) {
                         return true;

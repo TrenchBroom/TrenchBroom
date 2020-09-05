@@ -19,34 +19,33 @@
 
 #include "FindContainerVisitor.h"
 
-#include "Model/Group.h"
-#include "Model/Entity.h"
-#include "Model/Layer.h"
-#include "Model/Node.h"
-#include "Model/World.h"
+#include "Model/GroupNode.h"
+#include "Model/EntityNode.h"
+#include "Model/LayerNode.h"
+#include "Model/WorldNode.h"
 
 namespace TrenchBroom {
     namespace Model {
-        void FindContainerVisitor::doVisit(World* world) {
+        void FindContainerVisitor::doVisit(WorldNode* world) {
             setResult(world);
             cancel();
         }
 
-        void FindContainerVisitor::doVisit(Layer* layer) {
+        void FindContainerVisitor::doVisit(LayerNode* layer) {
             setResult(layer);
             cancel();
         }
 
-        void FindContainerVisitor::doVisit(Group* group) {
+        void FindContainerVisitor::doVisit(GroupNode* group) {
             setResult(group);
             cancel();
         }
 
-        void FindContainerVisitor::doVisit(Entity* entity) {
+        void FindContainerVisitor::doVisit(EntityNode* entity) {
             setResult(entity);
             cancel();
         }
 
-        void FindContainerVisitor::doVisit(Brush* brush) {}
+        void FindContainerVisitor::doVisit(BrushNode*) {}
     }
 }

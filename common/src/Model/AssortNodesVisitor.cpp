@@ -21,32 +21,39 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const LayerList& CollectLayersStrategy::layers() const { return m_layers; }
-        void CollectLayersStrategy::addLayer(TrenchBroom::Model::Layer* layer) { m_layers.push_back(layer); }
+        const std::vector<LayerNode*>& CollectLayersStrategy::layers() const { return m_layers; }
+        void CollectLayersStrategy::addLayer(TrenchBroom::Model::LayerNode* layer) { m_layers.push_back(layer); }
 
-        const LayerList& SkipLayersStrategy::layers() const { return EmptyLayerList; }
-        void SkipLayersStrategy::addLayer(TrenchBroom::Model::Layer* layer) {}
+        const std::vector<LayerNode*> SkipLayersStrategy::m_layers{};
 
-
-        const GroupList& CollectGroupsStrategy::groups() const { return m_groups; }
-        void CollectGroupsStrategy::addGroup(Group* group) { m_groups.push_back(group); }
-
-        const GroupList& SkipGroupsStrategy::groups() const { return EmptyGroupList; }
-        void SkipGroupsStrategy::addGroup(Group* group) {}
+        const std::vector<LayerNode*>& SkipLayersStrategy::layers() const { return m_layers; }
+        void SkipLayersStrategy::addLayer(TrenchBroom::Model::LayerNode* /* layer */) {}
 
 
-        const EntityList& CollectEntitiesStrategy::entities() const { return m_entities; }
-        void CollectEntitiesStrategy::addEntity(Entity* entity) { m_entities.push_back(entity); }
+        const std::vector<GroupNode*>& CollectGroupsStrategy::groups() const { return m_groups; }
+        void CollectGroupsStrategy::addGroup(GroupNode* group) { m_groups.push_back(group); }
 
-        const EntityList& SkipEntitiesStrategy::entities() const { return EmptyEntityList; }
-        void SkipEntitiesStrategy::addEntity(Entity* entity) {}
+        const std::vector<GroupNode*> SkipGroupsStrategy::m_groups{};
 
-
-        const BrushList& CollectBrushesStrategy::brushes() const { return m_brushes; }
-        void CollectBrushesStrategy::addBrush(Brush* brush) { m_brushes.push_back(brush); }
+        const std::vector<GroupNode*>& SkipGroupsStrategy::groups() const { return m_groups; }
+        void SkipGroupsStrategy::addGroup(GroupNode* /* group */) {}
 
 
-        const BrushList& SkipBrushesStrategy::brushes() const { return EmptyBrushList; }
-        void SkipBrushesStrategy::addBrush(Brush* brush) {}
+        const std::vector<EntityNode*>& CollectEntitiesStrategy::entities() const { return m_entities; }
+        void CollectEntitiesStrategy::addEntity(EntityNode* entity) { m_entities.push_back(entity); }
+
+        const std::vector<EntityNode*> SkipEntitiesStrategy::m_entities{};
+
+        const std::vector<EntityNode*>& SkipEntitiesStrategy::entities() const { return m_entities; }
+        void SkipEntitiesStrategy::addEntity(EntityNode* /* entity */) {}
+
+
+        const std::vector<BrushNode*>& CollectBrushesStrategy::brushes() const { return m_brushes; }
+        void CollectBrushesStrategy::addBrush(BrushNode* brush) { m_brushes.push_back(brush); }
+
+        const std::vector<BrushNode*> SkipBrushesStrategy::m_brushes{};
+
+        const std::vector<BrushNode*>& SkipBrushesStrategy::brushes() const { return m_brushes; }
+        void SkipBrushesStrategy::addBrush(BrushNode* /* brush */) {}
     }
 }

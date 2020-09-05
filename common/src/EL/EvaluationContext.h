@@ -20,14 +20,14 @@
 #ifndef EvaluationContext_h
 #define EvaluationContext_h
 
-#include "EL/Value.h"
+#include "Macros.h"
+#include "EL/EL_Forward.h"
 
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace EL {
-        class VariableStore;
-
         class EvaluationContext {
         private:
             std::unique_ptr<VariableStore> m_store;
@@ -36,8 +36,8 @@ namespace TrenchBroom {
             explicit EvaluationContext(const VariableStore& store);
             virtual ~EvaluationContext();
 
-            virtual Value variableValue(const String& name) const;
-            virtual void declareVariable(const String& name, const Value& value);
+            virtual Value variableValue(const std::string& name) const;
+            virtual void declareVariable(const std::string& name, const Value& value);
 
             deleteCopyAndMove(EvaluationContext)
         };
@@ -48,7 +48,7 @@ namespace TrenchBroom {
         public:
             explicit EvaluationStack(const EvaluationContext& next);
 
-            Value variableValue(const String& name) const override;
+            Value variableValue(const std::string& name) const override;
 
             deleteCopyAndMove(EvaluationStack)
         };

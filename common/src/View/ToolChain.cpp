@@ -19,9 +19,11 @@
 
 #include "ToolChain.h"
 
+#include "Ensure.h"
 #include "View/ToolController.h"
 
 #include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
@@ -122,7 +124,7 @@ namespace TrenchBroom {
             return m_suffix->startMouseDrag(inputState);
         }
 
-        ToolController* ToolChain::dragEnter(const InputState& inputState, const String& payload) {
+        ToolController* ToolChain::dragEnter(const InputState& inputState, const std::string& payload) {
             assert(checkInvariant());
             if (chainEndsHere())
                 return nullptr;

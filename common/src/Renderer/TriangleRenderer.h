@@ -23,10 +23,7 @@
 #include "Color.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/GLVertexType.h"
 #include "Renderer/VertexArray.h"
-
-#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -54,7 +51,7 @@ namespace TrenchBroom {
             void setApplyTinting(bool applyTinting);
             void setTintColor(const Color& tintColor);
         private:
-            void doPrepareVertices(Vbo& vertexVbo) override;
+            void doPrepareVertices(VboManager& vboManager) override;
             void doRender(RenderContext& context) override;
         };
     }

@@ -22,46 +22,34 @@
 
 #include "View/PreferencePane.h"
 
-class wxColourPickerCtrl;
-class wxColourPickerEvent;
-class wxCheckBox;
-class wxChoice;
-class wxComboBox;
-class wxSlider;
-class wxComboBox;
+class QCheckBox;
+class QComboBox;
 
 namespace TrenchBroom {
     namespace View {
-        class ViewPreferencePane : public PreferencePane {
-        private:
-            wxChoice* m_layoutChoice;
-            wxSlider* m_brightnessSlider;
-            wxSlider* m_gridAlphaSlider;
-            wxSlider* m_fovSlider;
-            wxCheckBox* m_showAxes;
-            wxChoice* m_textureModeChoice;
-            wxColourPickerCtrl* m_backgroundColorPicker;
-            wxColourPickerCtrl* m_gridColorPicker;
-            wxColourPickerCtrl* m_edgeColorPicker;
-            wxChoice* m_textureBrowserIconSizeChoice;
-            wxComboBox* m_fontPrefsRendererFontSizeCombo;
-        public:
-            explicit ViewPreferencePane(wxWindow* parent);
+        class ColorButton;
+        class SliderWithLabel;
 
-            void OnLayoutChanged(wxCommandEvent& event);
-            void OnBrightnessChanged(wxScrollEvent& event);
-            void OnGridAlphaChanged(wxScrollEvent& event);
-            void OnFovChanged(wxScrollEvent& event);
-            void OnShowAxesChanged(wxCommandEvent& event);
-            void OnTextureModeChanged(wxCommandEvent& event);
-            void OnBackgroundColorChanged(wxColourPickerEvent& event);
-            void OnGridColorChanged(wxColourPickerEvent& event);
-            void OnEdgeColorChanged(wxColourPickerEvent& event);
-            void OnTextureBrowserIconSizeChanged(wxCommandEvent& event);
-            void OnFontPrefsRendererFontSizeChanged(wxCommandEvent& event);
+        class ViewPreferencePane : public PreferencePane {
+            Q_OBJECT
+        private:
+            QComboBox* m_layoutCombo;
+            SliderWithLabel* m_brightnessSlider;
+            SliderWithLabel* m_gridAlphaSlider;
+            SliderWithLabel* m_fovSlider;
+            QCheckBox* m_showAxes;
+            QComboBox* m_textureModeCombo;
+            ColorButton* m_backgroundColorButton;
+            ColorButton* m_gridColorButton;
+            ColorButton* m_edgeColorButton;
+            QComboBox* m_themeCombo;
+            QComboBox* m_textureBrowserIconSizeCombo;
+            QComboBox* m_rendererFontSizeCombo;
+        public:
+            explicit ViewPreferencePane(QWidget* parent = nullptr);
        private:
             void createGui();
-            wxWindow* createViewPreferences();
+            QWidget* createViewPreferences();
 
             void bindEvents();
 
@@ -71,6 +59,20 @@ namespace TrenchBroom {
             bool doValidate() override;
 
             size_t findTextureMode(int minFilter, int magFilter) const;
+            int findThemeIndex(const QString& theme);
+        private slots:
+            void layoutChanged(int index);
+            void brightnessChanged(int value);
+            void gridAlphaChanged(int value);
+            void fovChanged(int value);
+            void showAxesChanged(int state);
+            void textureModeChanged(int index);
+            void backgroundColorChanged(const QColor& color);
+            void gridColorChanged(const QColor& color);
+            void edgeColorChanged(const QColor& color);
+            void themeChanged(int index);
+            void textureBrowserIconSizeChanged(int index);
+            void rendererFontSizeChanged(const QString& text);
         };
     }
 }

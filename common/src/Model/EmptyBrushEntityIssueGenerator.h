@@ -21,7 +21,8 @@
 #define TrenchBroom_EmptyBrushEntityIssueGenerator
 
 #include "Model/IssueGenerator.h"
-#include "Model/ModelTypes.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -32,7 +33,7 @@ namespace TrenchBroom {
         public:
             EmptyBrushEntityIssueGenerator();
         private:
-            void doGenerate(Entity* entity, IssueList& issues) const override;
+            void doGenerate(EntityNode* entity, IssueList& issues) const override;
         };
     }
 }

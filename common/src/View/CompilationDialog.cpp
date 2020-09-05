@@ -20,169 +20,202 @@
 #include "CompilationDialog.h"
 
 #include "Model/Game.h"
-#include "View/BorderLine.h"
+#include "Model/CompilationProfile.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationProfileManager.h"
 #include "View/CompilationRunner.h"
 #include "View/LaunchGameEngineDialog.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
-#include "View/SplitterWindow2.h"
+#include "View/Splitter.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
-#include <wx/button.h>
-#include <wx/msgdlg.h>
-#include <wx/settings.h>
-#include <wx/sizer.h>
-#include <wx/stattext.h>
-#include <wx/textctrl.h>
+#include <QApplication>
+#include <QCloseEvent>
+#include <QDialogButtonBox>
+#include <QLabel>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QTextEdit>
+
+#include "Ensure.h"
 
 namespace TrenchBroom {
     namespace View {
         CompilationDialog::CompilationDialog(MapFrame* mapFrame) :
-        wxDialog(mapFrame, wxID_ANY, "Compile", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER),
+        QDialog(mapFrame),
         m_mapFrame(mapFrame),
+        m_launchButton(nullptr),
+        m_compileButton(nullptr),
+        m_testCompileButton(nullptr),
+        m_stopCompileButton(nullptr),
+        m_closeButton(nullptr),
         m_currentRunLabel(nullptr),
         m_output(nullptr) {
+            ensure(mapFrame != nullptr, "must have a map frame");
             createGui();
-            SetMinSize(wxSize(600, 300));
-            SetSize(wxSize(800, 600));
-            CentreOnParent();
+            setMinimumSize(600, 300);
+            resize(800, 600);
+            updateCompileButtons();
         }
 
         void CompilationDialog::createGui() {
-            setWindowIcon(this);
+            setWindowIconTB(this);
+            setWindowTitle("Compile");
 
-            MapDocumentSPtr document = m_mapFrame->document();
-            Model::GameSPtr game = document->game();
-            Model::CompilationConfig& compilationConfig = game->compilationConfig();
+            auto document = m_mapFrame->document();
+            auto game = document->game();
+            auto& compilationConfig = game->compilationConfig();
 
-            wxPanel* outerPanel = new wxPanel(this);
-            SplitterWindow2* splitter = new SplitterWindow2(outerPanel);
+            m_profileManager = new CompilationProfileManager(document , compilationConfig);
 
-            m_profileManager = new CompilationProfileManager(splitter, document , compilationConfig);
+            auto* outputPanel = new TitledPanel("Output");
+            m_output = new QTextEdit();
+            m_output->setReadOnly(true);
+            m_output->setFont(Fonts::fixedWidthFont());
 
-            TitledPanel* outputPanel = new TitledPanel(splitter, "Output");
-            m_output = new wxTextCtrl(outputPanel->getPanel(), wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2);
-            m_output->SetFont(Fonts::fixedWidthFont());
+            auto* outputLayout = new QVBoxLayout();
+            outputLayout->setContentsMargins(0, 0, 0, 0);
+            outputLayout->setSpacing(0);
+            outputLayout->addWidget(m_output);
+            outputPanel->getPanel()->setLayout(outputLayout);
 
-            splitter->splitHorizontally(m_profileManager, outputPanel, wxSize(100, 100), wxSize(100, 100));
+            auto* splitter = new Splitter(Qt::Vertical);
+            splitter->addWidget(m_profileManager);
+            splitter->addWidget(m_output);
+            splitter->setSizes({2, 1});
 
-            wxSizer* outputSizer = new wxBoxSizer(wxVERTICAL);
-            outputSizer->Add(m_output, 1, wxEXPAND);
-            outputPanel->getPanel()->SetSizer(outputSizer);
+            auto* buttonBox = new QDialogButtonBox();
+            m_launchButton = buttonBox->addButton("Launch...", QDialogButtonBox::NoRole);
+            m_stopCompileButton = buttonBox->addButton("Stop", QDialogButtonBox::NoRole);
+            m_testCompileButton = buttonBox->addButton("Test", QDialogButtonBox::NoRole);
+            m_compileButton = buttonBox->addButton("Compile", QDialogButtonBox::NoRole);
+            m_closeButton = buttonBox->addButton("Close", QDialogButtonBox::RejectRole);
 
-            wxSizer* outerPanelSizer = new wxBoxSizer(wxVERTICAL);
-            outerPanelSizer->Add(splitter, 1, wxEXPAND);
-            outerPanel->SetSizer(outerPanelSizer);
+            m_currentRunLabel = new QLabel("");
+            m_currentRunLabel->setAlignment(Qt::AlignRight);
 
-            wxButton* launchButton = new wxButton(this, wxID_ANY, "Launch...");
-            wxButton* compileButton = new wxButton(this, wxID_OK, "Compile");
-            wxButton* closeButton = new wxButton(this, wxID_CANCEL, "Close");
+            auto* buttonLayout = new QHBoxLayout();
+            buttonLayout->setContentsMargins(0, 0, 0, 0);
+            buttonLayout->setSpacing(LayoutConstants::WideHMargin);
+            buttonLayout->addWidget(m_launchButton, 0, Qt::AlignVCenter);
+            buttonLayout->addWidget(m_currentRunLabel, 1, Qt::AlignVCenter);
+            buttonLayout->addWidget(buttonBox);
 
-            launchButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnLaunchClicked, this);
-            launchButton->Bind(wxEVT_UPDATE_UI, &CompilationDialog::OnUpdateLaunchButtonUI, this);
-            compileButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnToggleCompileClicked, this);
-            compileButton->Bind(wxEVT_UPDATE_UI, &CompilationDialog::OnUpdateCompileButtonUI, this);
-			closeButton->Bind(wxEVT_BUTTON, &CompilationDialog::OnCloseButtonClicked, this);
+            auto* dialogLayout = new QVBoxLayout();
+            dialogLayout->setContentsMargins(0, 0, 0, 0);
+            dialogLayout->setSpacing(0);
+            dialogLayout->addWidget(splitter, 1);
+            dialogLayout->addLayout(wrapDialogButtonBox(buttonLayout));
+            insertTitleBarSeparator(dialogLayout);
 
-            wxStdDialogButtonSizer* stdButtonSizer = new wxStdDialogButtonSizer();
-            stdButtonSizer->SetAffirmativeButton(compileButton);
-			stdButtonSizer->SetCancelButton(closeButton);
-            stdButtonSizer->Realize();
+            setLayout(dialogLayout);
+            
+            m_compileButton->setDefault(true);
 
-            m_currentRunLabel = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT);
+            connect(&m_run, &CompilationRun::compilationStarted, this, &CompilationDialog::compilationStarted);
+            connect(&m_run, &CompilationRun::compilationEnded, this, &CompilationDialog::compilationEnded);
+            connect(m_profileManager, &CompilationProfileManager::selectedProfileChanged, this, &CompilationDialog::selectedProfileChanged);
+            connect(m_profileManager, &CompilationProfileManager::profileChanged, this, &CompilationDialog::profileChanged);
 
-            wxSizer* currentRunLabelSizer = new wxBoxSizer(wxVERTICAL);
-            currentRunLabelSizer->AddStretchSpacer();
-            currentRunLabelSizer->Add(m_currentRunLabel, wxSizerFlags().Expand());
-            currentRunLabelSizer->AddStretchSpacer();
-
-            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-            buttonSizer->Add(launchButton, wxSizerFlags().CenterVertical());
-            buttonSizer->Add(currentRunLabelSizer, wxSizerFlags().Expand().Proportion(1).Border(wxLEFT | wxRIGHT, LayoutConstants::WideHMargin));
-            buttonSizer->Add(stdButtonSizer);
-
-            wxSizer* dialogSizer = new wxBoxSizer(wxVERTICAL);
-            dialogSizer->Add(outerPanel, wxSizerFlags().Expand().Proportion(1));
-            dialogSizer->Add(wrapDialogButtonSizer(buttonSizer, this), wxSizerFlags().Expand());
-            SetSizer(dialogSizer);
-
-            m_run.Bind(wxEVT_COMPILATION_END, &CompilationDialog::OnCompilationEnd, this);
-            Bind(wxEVT_CLOSE_WINDOW, &CompilationDialog::OnClose, this);
+            connect(m_compileButton, &QPushButton::clicked, this, [&]() { startCompilation(false); });
+            connect(m_testCompileButton, &QPushButton::clicked, this, [&]() { startCompilation(true); });
+            connect(m_stopCompileButton, &QPushButton::clicked, this, [&]() { stopCompilation(); });
+            connect(m_launchButton, &QPushButton::clicked, this, [&]() {
+                LaunchGameEngineDialog dialog(m_mapFrame->document(), this);
+                dialog.exec();
+            });
+            connect(m_closeButton, &QPushButton::clicked, this, &CompilationDialog::close);
         }
 
-        void CompilationDialog::OnLaunchClicked(wxCommandEvent& event) {
-            LaunchGameEngineDialog dialog(this, m_mapFrame->document());
-            dialog.ShowModal();
+        void CompilationDialog::keyPressEvent(QKeyEvent* event) {
+            // Dismissing the dialog with Escape, doesn't invoke CompilationDialog::closeEvent
+            // so handle it here, so we can potentially block it.
+            if (event->key() == Qt::Key_Escape) {
+                close();
+                return;
+            }
+
+            QDialog::keyPressEvent(event);
         }
 
-        void CompilationDialog::OnUpdateLaunchButtonUI(wxUpdateUIEvent& event) {
-            event.Enable(!m_run.running());
+        void CompilationDialog::updateCompileButtons() {
+            if (m_run.running()) {
+                m_compileButton->setEnabled(false);
+                m_testCompileButton->setEnabled(false);
+                m_stopCompileButton->setEnabled(true);
+            } else {
+                const auto* profile = m_profileManager->selectedProfile();
+                const auto enable = profile != nullptr && profile->taskCount() > 0;
+
+                m_compileButton->setEnabled(enable);
+                m_testCompileButton->setEnabled(enable);
+                m_stopCompileButton->setEnabled(false);
+            }
         }
 
-        void CompilationDialog::OnToggleCompileClicked(wxCommandEvent& event) {
+        void CompilationDialog::startCompilation(const bool test) {
             if (m_run.running()) {
                 m_run.terminate();
             } else {
-                const Model::CompilationProfile* profile = m_profileManager->selectedProfile();
+                const auto* profile = m_profileManager->selectedProfile();
                 ensure(profile != nullptr, "profile is null");
                 ensure(profile->taskCount() > 0, "profile has no tasks");
 
-                m_output->Clear();
-
-                if (testRun())
+                if (test) {
                     m_run.test(profile, m_mapFrame->document(), m_output);
-                else
+                } else {
                     m_run.run(profile, m_mapFrame->document(), m_output);
-
-                m_currentRunLabel->SetLabel("Running " + profile->name());
-                Layout();
+                }
             }
         }
 
-        void CompilationDialog::OnUpdateCompileButtonUI(wxUpdateUIEvent& event) {
+        void CompilationDialog::stopCompilation() {
             if (m_run.running()) {
-                event.SetText("Stop");
-                event.Enable(true);
-            } else {
-                if (testRun())
-                    event.SetText("Test");
-                else
-                    event.SetText("Run");
-                const Model::CompilationProfile* profile = m_profileManager->selectedProfile();
-                event.Enable(profile != nullptr && profile->taskCount() > 0);
+                m_run.terminate();
             }
         }
 
-		void CompilationDialog::OnCloseButtonClicked(wxCommandEvent& event) {
-			Close();
-		}
-
-		void CompilationDialog::OnClose(wxCloseEvent& event) {
-            if (event.CanVeto() && m_run.running()) {
-                const int result = ::wxMessageBox("Closing this dialog will stop the running compilation. Are you sure?", "TrenchBroom", wxYES_NO, this);
-                if (result == wxNO)
-                    event.Veto();
-                else
-                    m_run.terminate();
-            }
-            if (!event.GetVeto()) {
+        void CompilationDialog::closeEvent(QCloseEvent* event) {
+            if (m_run.running()) {
+                const auto result = QMessageBox::warning(this, "Warning",
+                    "Closing this dialog will stop the running compilation. Are you sure?",
+                    QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+                
+                if (result != QMessageBox::Yes) {
+                    event->ignore();
+                    return;
+                }
+                
+                stopCompilation();
                 m_mapFrame->compilationDialogWillClose();
-                if (GetParent() != nullptr)
-                    GetParent()->Raise();
-                Destroy();
             }
+            event->accept();
         }
 
-        void CompilationDialog::OnCompilationEnd(wxEvent& event) {
-            m_currentRunLabel->SetLabel("");
+        void CompilationDialog::compilationStarted() {
+            const auto* profile = m_profileManager->selectedProfile();
+            ensure(profile != nullptr, "profile is null");
+            m_currentRunLabel->setText(QString::fromStdString("Running " + profile->name()));
+            m_output->setText("");
+            
+            updateCompileButtons();
         }
 
-        bool CompilationDialog::testRun() const {
-            return wxGetKeyState(WXK_ALT);
+        void CompilationDialog::compilationEnded() {
+            m_currentRunLabel->setText("");
+            
+            updateCompileButtons();
+        }
+
+        void CompilationDialog::selectedProfileChanged() {
+            updateCompileButtons();
+        }
+
+        void CompilationDialog::profileChanged() {
+            updateCompileButtons();
         }
     }
 }

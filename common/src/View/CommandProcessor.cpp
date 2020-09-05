@@ -20,391 +20,417 @@
 #include "CommandProcessor.h"
 
 #include "Exceptions.h"
-#include "TemporarilySetAny.h"
-#include "View/MapDocumentCommandFacade.h"
+#include "Notifier.h"
+#include "View/Command.h"
+#include "View/UndoableCommand.h"
 
-#include <wx/time.h>
+#include <kdl/set_temp.h>
+#include <kdl/string_utils.h>
+#include <kdl/vector_utils.h>
 
 #include <algorithm>
 
+#include <QDateTime>
+
 namespace TrenchBroom {
     namespace View {
-        const Command::CommandType CommandGroup::Type = Command::freeType();
-
-        CommandGroup::CommandGroup(const String& name, const CommandList& commands,
-                                   Notifier<Command::Ptr>& commandDoNotifier,
-                                   Notifier<Command::Ptr>& commandDoneNotifier,
-                                   Notifier<UndoableCommand::Ptr>& commandUndoNotifier,
-                                   Notifier<UndoableCommand::Ptr>& commandUndoneNotifier) :
-        UndoableCommand(Type, name),
-        m_commands(commands),
-        m_commandDoNotifier(commandDoNotifier),
-        m_commandDoneNotifier(commandDoneNotifier),
-        m_commandUndoNotifier(commandUndoNotifier),
-        m_commandUndoneNotifier(commandUndoneNotifier) {}
-
-        bool CommandGroup::doPerformDo(MapDocumentCommandFacade* document) {
-            for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
-                UndoableCommand::Ptr command = *it;
-                m_commandDoNotifier(command);
-                if (!command->performDo(document))
-                    throw CommandProcessorException("Partial failure while executing command group");
-                m_commandDoneNotifier(command);
+        template <typename T, typename C>
+        void notifyCommandIfNotType(T& notifier, const Command::CommandType ignore, C* command) {
+            if (command->type() != ignore) {
+                notifier(command);
             }
-            return true;
         }
 
-        bool CommandGroup::doPerformUndo(MapDocumentCommandFacade* document) {
-            for (auto it = m_commands.rbegin(), end = m_commands.rend(); it != end; ++it) {
-                UndoableCommand::Ptr command = *it;
-                m_commandUndoNotifier(command);
-                if (!command->performUndo(document))
-                    throw CommandProcessorException("Partial failure while undoing command group");
-                m_commandUndoneNotifier(command);
-            }
-            return true;
-        }
+        struct CommandProcessor::TransactionState {
+            std::string name;
+            std::vector<std::unique_ptr<UndoableCommand>> commands;
 
-        bool CommandGroup::doIsRepeatDelimiter() const {
-            for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
-                UndoableCommand::Ptr command = *it;
-                if (command->isRepeatDelimiter())
-                    return true;
-            }
-            return false;
-        }
-
-        bool CommandGroup::doIsRepeatable(MapDocumentCommandFacade* document) const {
-            for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
-                UndoableCommand::Ptr command = *it;
-                if (!command->isRepeatable(document))
-                    return false;
-            }
-            return true;
-        }
-
-        UndoableCommand::Ptr CommandGroup::doRepeat(MapDocumentCommandFacade* document) const {
-            CommandList clones;
-            for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
-                UndoableCommand::Ptr command = *it;
-                assert(command->isRepeatable(document));
-                UndoableCommand::Ptr clone = command->repeat(document);
-                clones.push_back(clone);
-            }
-            return UndoableCommand::Ptr(new CommandGroup(name(), clones, m_commandDoNotifier, m_commandDoneNotifier, m_commandUndoNotifier, m_commandUndoneNotifier));
-        }
-
-        bool CommandGroup::doCollateWith(UndoableCommand::Ptr command) {
-            return false;
-        }
-
-        const wxLongLong CommandProcessor::CollationInterval(1000);
-
-        struct CommandProcessor::SubmitAndStoreResult {
-            bool submitted;
-            bool stored;
-
-            SubmitAndStoreResult() :
-            submitted(false),
-            stored(false) {}
+            explicit TransactionState(const std::string& i_name) :
+            name(i_name) {}
         };
 
-        CommandProcessor::CommandProcessor(MapDocumentCommandFacade* document) :
+        struct CommandProcessor::SubmitAndStoreResult {
+            std::unique_ptr<CommandResult> commandResult;
+            bool commandStored;
+
+            SubmitAndStoreResult(std::unique_ptr<CommandResult> i_commandResult, const bool i_commandStored) :
+            commandResult(std::move(i_commandResult)),
+            commandStored(i_commandStored) {}
+        };
+
+        class CommandProcessor::TransactionCommand : public UndoableCommand {
+        public:
+            static const CommandType Type;
+        private:
+            std::vector<std::unique_ptr<UndoableCommand>> m_commands;
+
+            Notifier<Command*>& m_commandDoNotifier;
+            Notifier<Command*>& m_commandDoneNotifier;
+            Notifier<UndoableCommand*>& m_commandUndoNotifier;
+            Notifier<UndoableCommand*>& m_commandUndoneNotifier;
+
+            bool m_isRepeatDelimiter;
+        public:
+            TransactionCommand(
+                const std::string& name, std::vector<std::unique_ptr<UndoableCommand>>&& commands,
+                Notifier<Command*>& i_commandDoNotifier,
+                Notifier<Command*>& i_commandDoneNotifier,
+                Notifier<UndoableCommand*>& i_commandUndoNotifier,
+                Notifier<UndoableCommand*>& i_commandUndoneNotifier) :
+                UndoableCommand(Type, name),
+                m_commands(std::move(commands)),
+                m_commandDoNotifier(i_commandDoNotifier),
+                m_commandDoneNotifier(i_commandDoneNotifier),
+                m_commandUndoNotifier(i_commandUndoNotifier),
+                m_commandUndoneNotifier(i_commandUndoneNotifier),
+                m_isRepeatDelimiter(false) {
+                for (const auto& command : m_commands) {
+                    if (command->isRepeatDelimiter()) {
+                        m_isRepeatDelimiter = true;
+                        break;
+                    }
+                }
+            }
+        private:
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override {
+                for (auto& command : m_commands) {
+                    notifyCommandIfNotType(m_commandDoNotifier, TransactionCommand::Type, command.get());
+                    if (!command->performDo(document)) {
+                        throw CommandProcessorException("Partial failure while executing transaction");
+                    }
+                    notifyCommandIfNotType(m_commandDoneNotifier, TransactionCommand::Type, command.get());
+                }
+                return std::make_unique<CommandResult>(true);
+            }
+
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override {
+                for (auto it = m_commands.rbegin(), end = m_commands.rend(); it != end; ++it) {
+                    auto& command = *it;
+                    notifyCommandIfNotType(m_commandUndoNotifier, TransactionCommand::Type, command.get());
+                    if (!command->performUndo(document)) {
+                        throw CommandProcessorException("Partial failure while undoing transaction");
+                    }
+                    notifyCommandIfNotType(m_commandUndoneNotifier, TransactionCommand::Type, command.get());
+                }
+                return std::make_unique<CommandResult>(true);
+            }
+
+            bool doIsRepeatDelimiter() const override {
+                return m_isRepeatDelimiter;
+            }
+
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const override {
+                for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
+                    auto& command = *it;
+                    if (!command->isRepeatable(document)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override {
+                std::vector<std::unique_ptr<UndoableCommand>> clones;
+                for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
+                    auto& command = *it;
+                    assert(command->isRepeatable(document));
+                    clones.push_back(command->repeat(document));
+                }
+                return std::make_unique<TransactionCommand>(name(), std::move(clones), m_commandDoNotifier, m_commandDoneNotifier, m_commandUndoNotifier, m_commandUndoneNotifier);
+            }
+
+            bool doCollateWith(UndoableCommand*) override {
+                return false;
+            }
+        };
+
+        const Command::CommandType CommandProcessor::TransactionCommand::Type = Command::freeType();
+
+        CommandProcessor::CommandProcessor(MapDocumentCommandFacade* document, const std::chrono::milliseconds collationInterval) :
         m_document(document),
-        m_clearRepeatableCommandStack(false),
-        m_lastCommandTimestamp(0),
-        m_groupLevel(0) {
-            ensure(m_document != nullptr, "document is null");
+        m_collationInterval(collationInterval),
+        m_lastCommandTimestamp(std::chrono::time_point<std::chrono::system_clock>()) {}
+
+        CommandProcessor::~CommandProcessor() = default;
+
+        bool CommandProcessor::canUndo() const {
+            return m_transactionStack.empty() && !m_undoStack.empty();
         }
 
-        bool CommandProcessor::hasLastCommand() const {
-            return !m_lastCommandStack.empty();
+        bool CommandProcessor::canRedo() const {
+            return m_transactionStack.empty() && !m_redoStack.empty();
         }
 
-        bool CommandProcessor::hasNextCommand() const {
-            return !m_nextCommandStack.empty();
-        }
-
-        const String& CommandProcessor::lastCommandName() const {
-            if (!hasLastCommand()) {
+        const std::string& CommandProcessor::undoCommandName() const {
+            if (!canUndo()) {
                 throw CommandProcessorException("Command stack is empty");
             } else {
-                return m_lastCommandStack.back()->name();
+                return m_undoStack.back()->name();
             }
         }
 
-        const String& CommandProcessor::nextCommandName() const {
-            if (!hasNextCommand()) {
+        const std::string& CommandProcessor::redoCommandName() const {
+            if (!canRedo()) {
                 throw CommandProcessorException("Undo stack is empty");
             } else {
-                return m_nextCommandStack.back()->name();
+                return m_redoStack.back()->name();
             }
         }
 
-        void CommandProcessor::beginGroup(const String& name) {
-            if (m_groupLevel == 0) {
-                m_groupName = name;
-            }
-            ++m_groupLevel;
+        void CommandProcessor::startTransaction(const std::string& name) {
+            m_transactionStack.push_back(TransactionState(name));
         }
 
-        void CommandProcessor::endGroup() {
-            if (m_groupLevel == 0) {
-                throw CommandProcessorException("Group stack is empty");
+        void CommandProcessor::commitTransaction() {
+            if (m_transactionStack.empty()) {
+                throw CommandProcessorException("No transaction is currently executing");
             } else {
-                --m_groupLevel;
-                if (m_groupLevel == 0) {
-                    createAndStoreCommandGroup();
-                }
+                createAndStoreTransaction();
             }
         }
 
-        void CommandProcessor::rollbackGroup() {
-            while (!m_groupedCommands.empty()) {
-                undoCommand(popGroupedCommand());
-            }
-        }
-
-        bool CommandProcessor::submitCommand(Command::Ptr command) {
-            const auto success = doCommand(command);
-            if (!success) {
-                return false;
-            } else {
-                m_lastCommandStack.clear();
-                m_nextCommandStack.clear();
-                return true;
-            }
-        }
-
-        bool CommandProcessor::submitAndStoreCommand(UndoableCommand::Ptr command) {
-            const auto result = submitAndStoreCommand(command, true);
-            if (result.submitted) {
-                if (result.stored && m_groupLevel == 0) {
-                    pushRepeatableCommand(command);
-                }
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        bool CommandProcessor::undoLastCommand() {
-            if (m_groupLevel > 0) {
-                throw CommandProcessorException("Cannot undo individual commands of a command group");
-            } else {
-                auto command = popLastCommand();
-                if (undoCommand(command)) {
-                    pushNextCommand(command);
-                    popLastRepeatableCommand(command);
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        bool CommandProcessor::redoNextCommand() {
-            if (m_groupLevel > 0) {
-                throw CommandProcessorException("Cannot redo while in a command group");
-            } else {
-                auto command = popNextCommand();
-                if (doCommand(command)) {
-                    if (pushLastCommand(command, false) && m_groupLevel == 0) {
-                        pushRepeatableCommand(command);
-                    }
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        bool CommandProcessor::repeatLastCommands() {
-            CommandList commands;
-            for (auto it = std::begin(m_repeatableCommandStack), end = std::end(m_repeatableCommandStack); it != end; ++it) {
-                auto command = *it;
-                if (command->isRepeatable(m_document)) {
-                    commands.push_back(UndoableCommand::Ptr(command->repeat(m_document)));
-                }
+        void CommandProcessor::rollbackTransaction() {
+            if (m_transactionStack.empty()) {
+                throw CommandProcessorException("No transaction is currently executing");
             }
 
-            if (commands.empty()) {
-                return false;
+            auto& transaction = m_transactionStack.back();
+            for (auto it = std::rbegin(transaction.commands), end = std::rend(transaction.commands); it != end; ++it) {
+                undoCommand(it->get());
             }
-
-            StringStream name;
-            name << "Repeat " << commands.size() << " Commands";
-
-            auto repeatableCommand = UndoableCommand::Ptr(createCommandGroup(name.str(), commands));
-            return submitAndStoreCommand(repeatableCommand, false).submitted;
+            transaction.commands.clear();
         }
 
-        void CommandProcessor::clearRepeatableCommands() {
-            m_repeatableCommandStack.clear();
-            m_clearRepeatableCommandStack = false;
-        }
-
-        void CommandProcessor::clear() {
-            assert(m_groupLevel == 0);
-
-            clearRepeatableCommands();
-            m_lastCommandStack.clear();
-            m_nextCommandStack.clear();
-            m_lastCommandTimestamp = 0;
-        }
-
-        CommandProcessor::SubmitAndStoreResult CommandProcessor::submitAndStoreCommand(UndoableCommand::Ptr command, const bool collate) {
-            SubmitAndStoreResult result;
-            result.submitted = doCommand(command);
-            if (!result.submitted) {
-                return result;
-            }
-
-            result.stored = storeCommand(command, collate);
-            if (!m_nextCommandStack.empty()) {
-                m_nextCommandStack.clear();
+        std::unique_ptr<CommandResult> CommandProcessor::execute(std::unique_ptr<Command> command) {
+            auto result = executeCommand(command.get());
+            if (result->success()) {
+                m_undoStack.clear();
+                m_redoStack.clear();
             }
             return result;
         }
 
-        bool CommandProcessor::doCommand(Command::Ptr command) {
-            commandDoNotifier(command);
-            if (command->performDo(m_document)) {
-                commandDoneNotifier(command);
-                return true;
+        std::unique_ptr<CommandResult> CommandProcessor::executeAndStore(std::unique_ptr<UndoableCommand> command) {
+            return executeAndStoreCommand(std::move(command), true, true).commandResult;
+        }
+
+        std::unique_ptr<CommandResult> CommandProcessor::undo() {
+            if (!m_transactionStack.empty()) {
+                throw CommandProcessorException("Cannot undo individual commands of a transaction");
+            } else if (m_undoStack.empty()) {
+                throw CommandProcessorException("Undo stack is empty");
             } else {
-                commandDoFailedNotifier(command);
-                return false;
+                auto command = popFromUndoStack();
+                auto result = undoCommand(command.get());
+                if (result->success()) {
+                    const auto commandName = command->name();
+                    pushToRedoStack(std::move(command));
+                    transactionUndoneNotifier(commandName);
+                }
+                return result;
             }
         }
 
-        bool CommandProcessor::undoCommand(UndoableCommand::Ptr command) {
-            commandUndoNotifier(command);
-            if (command->performUndo(m_document)) {
-                commandUndoneNotifier(command);
-                return true;
+        std::unique_ptr<CommandResult> CommandProcessor::redo() {
+            if (!m_transactionStack.empty()) {
+                throw CommandProcessorException("Cannot redo while in a transaction");
+            } else if (m_redoStack.empty()) {
+                throw CommandProcessorException("Redo stack is empty");
             } else {
-                commandUndoFailedNotifier(command);
-                return false;
+                auto command = popFromRedoStack();
+                auto result = executeCommand(command.get());
+                if (result->success()) {
+                    assertResult(pushToUndoStack(std::move(command), false, true))
+                }
+                return result;
             }
         }
 
-        bool CommandProcessor::storeCommand(UndoableCommand::Ptr command, const bool collate) {
-            if (m_groupLevel == 0) {
-                return pushLastCommand(command, collate);
+        bool CommandProcessor::canRepeat() const {
+            return !m_repeatStack.empty();
+        }
+
+        std::unique_ptr<CommandResult> CommandProcessor::repeat() {
+            std::vector<std::unique_ptr<UndoableCommand>> commands;
+
+            for (auto* command : m_repeatStack) {
+                if (command->isRepeatable(m_document)) {
+                    commands.push_back(command->repeat(m_document));
+                }
+            }
+
+            if (commands.empty()) {
+                return std::make_unique<CommandResult>(false);
+            } else if (commands.size() == 1u) {
+                auto command = std::move(commands.front()); commands.clear();
+                return executeAndStoreCommand(std::move(command), false, false).commandResult;
             } else {
-                return pushGroupedCommand(command, collate);
+                const auto name = kdl::str_to_string("Repeat ", commands.size(), " Commands");
+                auto repeatableCommand = createTransaction(name, std::move(commands));
+                return executeAndStoreCommand(std::move(repeatableCommand), false, false).commandResult;
             }
         }
 
-        bool CommandProcessor::pushGroupedCommand(UndoableCommand::Ptr command, const bool collate) {
-            assert(m_groupLevel > 0);
-            if (!m_groupedCommands.empty()) {
-                auto lastCommand = m_groupedCommands.back();
-                if (collate && !lastCommand->collateWith(command)) {
-                    m_groupedCommands.push_back(command);
-                    return false;
+        void CommandProcessor::clearRepeatStack() {
+            m_repeatStack.clear();
+        }
+
+        void CommandProcessor::clear() {
+            assert(m_transactionStack.empty());
+
+            clearRepeatStack();
+            m_undoStack.clear();
+            m_redoStack.clear();
+            m_lastCommandTimestamp = std::chrono::time_point<std::chrono::system_clock>();
+        }
+
+        CommandProcessor::SubmitAndStoreResult CommandProcessor::executeAndStoreCommand(std::unique_ptr<UndoableCommand> command, const bool collate, const bool repeatable) {
+            auto commandResult = executeCommand(command.get());
+            if (!commandResult->success()) {
+                return SubmitAndStoreResult(std::move(commandResult), false);
+            }
+
+            const auto commandStored = storeCommand(std::move(command), collate, repeatable);
+            m_redoStack.clear();
+            return SubmitAndStoreResult(std::move(commandResult), commandStored);
+        }
+
+        std::unique_ptr<CommandResult> CommandProcessor::executeCommand(Command* command) {
+            notifyCommandIfNotType(commandDoNotifier, TransactionCommand::Type, command);
+            auto result = command->performDo(m_document);
+            if (result->success()) {
+                notifyCommandIfNotType(commandDoneNotifier, TransactionCommand::Type, command);
+                if (m_transactionStack.empty()) {
+                    transactionDoneNotifier(command->name());
                 }
             } else {
-                m_groupedCommands.push_back(command);
+                notifyCommandIfNotType(commandDoFailedNotifier, TransactionCommand::Type, command);
             }
+            return result;
+        }
+
+        std::unique_ptr<CommandResult> CommandProcessor::undoCommand(UndoableCommand* command) {
+            notifyCommandIfNotType(commandUndoNotifier, TransactionCommand::Type, command);
+            auto result = command->performUndo(m_document);
+            if (result->success()) {
+                notifyCommandIfNotType(commandUndoneNotifier, TransactionCommand::Type, command);
+            } else {
+                notifyCommandIfNotType(commandUndoFailedNotifier, TransactionCommand::Type, command);
+            }
+            return result;
+        }
+
+        bool CommandProcessor::storeCommand(std::unique_ptr<UndoableCommand> command, const bool collate, const bool repeatable) {
+            if (m_transactionStack.empty()) {
+                return pushToUndoStack(std::move(command), collate, repeatable);
+            } else {
+                return pushTransactionCommand(std::move(command), collate);
+            }
+        }
+
+        bool CommandProcessor::pushTransactionCommand(std::unique_ptr<UndoableCommand> command, const bool collate) {
+            assert(!m_transactionStack.empty());
+            auto& transaction = m_transactionStack.back();
+            if (!transaction.commands.empty()) {
+                auto& lastCommand = transaction.commands.back();
+                if (collate && lastCommand->collateWith(command.get())) {
+                    // the command is not stored because it was collated with its predecessor
+                    return false;
+                }
+            }
+            transaction.commands.push_back(std::move(command));
             return true;
         }
 
-        UndoableCommand::Ptr CommandProcessor::popGroupedCommand() {
-            assert(m_groupLevel > 0);
-            if (m_groupedCommands.empty()) {
-                throw CommandProcessorException("Group command stack is empty");
-            } else {
-                auto groupedCommand = m_groupedCommands.back();
-                m_groupedCommands.pop_back();
-                return groupedCommand;
-            }
-        }
+        void CommandProcessor::createAndStoreTransaction() {
+            assert(!m_transactionStack.empty());
 
-        void CommandProcessor::createAndStoreCommandGroup() {
-            if (!m_groupedCommands.empty()) {
-                if (m_groupName.empty()) {
-                    m_groupName = m_groupedCommands.front()->name();
+            auto transaction = kdl::vec_pop_back(m_transactionStack);
+            if (!transaction.commands.empty()) {
+                if (transaction.name.empty()) {
+                    transaction.name = transaction.commands.front()->name();
                 }
-                auto group(createCommandGroup(m_groupName, m_groupedCommands));
-                m_groupedCommands.clear();
-                pushLastCommand(group, false);
-                pushRepeatableCommand(group);
+                auto command = createTransaction(transaction.name, std::move(transaction.commands));
+
+                if (m_transactionStack.empty()) {
+                    pushToUndoStack(std::move(command), false, true);
+                } else {
+                    pushTransactionCommand(std::move(command), false);
+                }
+                transactionDoneNotifier(transaction.name);
             }
-            m_groupName = "";
         }
 
-        UndoableCommand::Ptr CommandProcessor::createCommandGroup(const String& name, const CommandList& commands) {
-            return UndoableCommand::Ptr(new CommandGroup(name, commands,
-                                                         commandDoNotifier,
-                                                         commandDoneNotifier,
-                                                         commandUndoNotifier,
-                                                         commandUndoneNotifier));
+        std::unique_ptr<UndoableCommand> CommandProcessor::createTransaction(const std::string& name, std::vector<std::unique_ptr<UndoableCommand>> commands) {
+            return std::make_unique<TransactionCommand>(
+                name, std::move(commands),
+                commandDoNotifier,
+                commandDoneNotifier,
+                commandUndoNotifier,
+                commandUndoneNotifier);
         }
 
-        bool CommandProcessor::pushLastCommand(UndoableCommand::Ptr command, const bool collate) {
-            assert(m_groupLevel == 0);
+        bool CommandProcessor::pushToUndoStack(std::unique_ptr<UndoableCommand> command, const bool collate, const bool repeatable) {
+            assert(m_transactionStack.empty());
 
-            const auto timestamp = ::wxGetLocalTimeMillis();
-            const SetLate<wxLongLong> setLastCommandTimestamp(m_lastCommandTimestamp, timestamp);
+            const auto timestamp = std::chrono::system_clock::now();
+            const kdl::set_later setLastCommandTimestamp(m_lastCommandTimestamp, timestamp);
 
             if (collatable(collate, timestamp)) {
-                auto lastCommand = m_lastCommandStack.back();
-                if (lastCommand->collateWith(command)) {
+                auto& lastCommand = m_undoStack.back();
+                if (lastCommand->collateWith(command.get())) {
                     return false;
                 }
             }
-            m_lastCommandStack.push_back(command);
+
+            if (repeatable) {
+                pushToRepeatStack(command.get());
+            }
+
+            m_undoStack.push_back(std::move(command));
             return true;
         }
 
-        bool CommandProcessor::collatable(const bool collate, const wxLongLong& timestamp) const {
-            return collate && !m_lastCommandStack.empty() && timestamp - m_lastCommandTimestamp <= CollationInterval;
+        std::unique_ptr<UndoableCommand> CommandProcessor::popFromUndoStack() {
+            assert(m_transactionStack.empty());
+            assert(!m_undoStack.empty());
+
+            auto lastCommand = kdl::vec_pop_back(m_undoStack);
+            popFromRepeatStack(lastCommand.get());
+            return lastCommand;
         }
 
-        void CommandProcessor::pushNextCommand(UndoableCommand::Ptr command) {
-            assert(m_groupLevel == 0);
-            m_nextCommandStack.push_back(command);
+        bool CommandProcessor::collatable(const bool collate, const std::chrono::system_clock::time_point timestamp) const {
+            return collate && !m_undoStack.empty() && timestamp - m_lastCommandTimestamp <= m_collationInterval;
         }
 
-        void CommandProcessor::pushRepeatableCommand(UndoableCommand::Ptr command) {
+        void CommandProcessor::pushToRedoStack(std::unique_ptr<UndoableCommand> command) {
+            assert(m_transactionStack.empty());
+            m_redoStack.push_back(std::move(command));
+        }
+
+        std::unique_ptr<UndoableCommand> CommandProcessor::popFromRedoStack() {
+            assert(m_transactionStack.empty());
+            assert(!m_redoStack.empty());
+
+            return kdl::vec_pop_back(m_redoStack);
+        }
+
+        void CommandProcessor::pushToRepeatStack(UndoableCommand* command) {
             if (command->isRepeatDelimiter()) {
-                m_clearRepeatableCommandStack = true;
-            } else {
-                if (m_clearRepeatableCommandStack) {
-                    m_repeatableCommandStack.clear();
-                    m_clearRepeatableCommandStack = false;
-                }
-                m_repeatableCommandStack.push_back(command);
+                return;
             }
+
+            if (!m_undoStack.empty() && m_undoStack.back()->isRepeatDelimiter()) {
+                clearRepeatStack();
+            }
+
+            m_repeatStack.push_back(command);
         }
 
-        UndoableCommand::Ptr CommandProcessor::popLastCommand() {
-            assert(m_groupLevel == 0);
-            if (m_lastCommandStack.empty()) {
-                throw CommandProcessorException("Command stack is empty");
-            } else {
-                auto lastCommand = m_lastCommandStack.back();
-                m_lastCommandStack.pop_back();
-                return lastCommand;
-            }
-        }
-
-        UndoableCommand::Ptr CommandProcessor::popNextCommand() {
-            assert(m_groupLevel == 0);
-            if (m_nextCommandStack.empty()) {
-                throw CommandProcessorException("Command stack is empty");
-            } else {
-                auto nextCommand = m_nextCommandStack.back();
-                m_nextCommandStack.pop_back();
-                return nextCommand;
-            }
-        }
-
-        void CommandProcessor::popLastRepeatableCommand(UndoableCommand::Ptr command) {
-            if (!m_repeatableCommandStack.empty() && m_repeatableCommandStack.back() == command) {
-                m_repeatableCommandStack.pop_back();
+        void CommandProcessor::popFromRepeatStack(UndoableCommand* command) {
+            if (!m_repeatStack.empty() && m_repeatStack.back() == command) {
+                m_repeatStack.pop_back();
             }
         }
     }

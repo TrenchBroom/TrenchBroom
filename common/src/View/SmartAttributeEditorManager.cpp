@@ -19,25 +19,29 @@
 
 #include "SmartAttributeEditorManager.h"
 
-#include "CollectionUtils.h"
+#include "Macros.h"
+#include "Assets/AttributeDefinition.h"
 #include "View/MapDocument.h"
 #include "View/SmartChoiceEditor.h"
-#include "View/SmartChoiceEditorMatcher.h"
+#include "View/SmartTypeEditorMatcher.h"
 #include "View/SmartColorEditor.h"
 #include "View/SmartDefaultAttributeEditor.h"
 #include "View/SmartAttributeEditor.h"
 #include "View/SmartAttributeEditorMatcher.h"
-#include "View/SmartSpawnflagsEditor.h"
+#include "View/SmartFlagsEditor.h"
 
-#include <wx/panel.h>
-#include <wx/sizer.h>
+#include <kdl/memory_utils.h>
+
+#include <QWidget>
+#include <QStackedLayout>
 
 namespace TrenchBroom {
     namespace View {
-        SmartAttributeEditorManager::SmartAttributeEditorManager(wxWindow* parent, View::MapDocumentWPtr document) :
-        wxPanel(parent),
+        SmartAttributeEditorManager::SmartAttributeEditorManager(std::weak_ptr<MapDocument> document, QWidget* parent) :
+        QWidget(parent),
         m_document(document),
-        m_name("") {
+        m_name(""),
+        m_stackedLayout(nullptr) {
             createEditors();
             activateEditor(defaultEditor(), "");
             bindObservers();
@@ -45,55 +49,67 @@ namespace TrenchBroom {
 
         SmartAttributeEditorManager::~SmartAttributeEditorManager() {
             unbindObservers();
-            deactivateEditor();
         }
 
-        void SmartAttributeEditorManager::switchEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) {
+        void SmartAttributeEditorManager::switchEditor(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) {
             EditorPtr editor = selectEditor(name, attributables);
             activateEditor(editor, name);
             updateEditor();
         }
 
+        SmartAttributeEditor* SmartAttributeEditorManager::activeEditor() const {
+            return static_cast<SmartAttributeEditor *>(m_stackedLayout->currentWidget());
+        }
+
         bool SmartAttributeEditorManager::isDefaultEditorActive() const {
-            return m_activeEditor == defaultEditor();
+            return activeEditor() == defaultEditor();
         }
 
         void SmartAttributeEditorManager::createEditors() {
-            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorKeyMatcher("spawnflags")),
-                                                  EditorPtr(new SmartSpawnflagsEditor(m_document))));
+            assert(m_editors.empty());
+
+            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartTypeEditorMatcher(Assets::AttributeDefinitionType::FlagsAttribute)),
+                                                  new SmartFlagsEditor(m_document)));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorKeyMatcher({ "*_color", "*_color2", "*_colour" })),
-                                                  EditorPtr(new SmartColorEditor(m_document))));
-            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartChoiceEditorMatcher()),
-                                                  EditorPtr(new SmartChoiceEditor(m_document))));
+                                                  new SmartColorEditor(m_document)));
+            m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartTypeWithSameDefinitionEditorMatcher(Assets::AttributeDefinitionType::ChoiceAttribute)),
+                                                  new SmartChoiceEditor(m_document)));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorDefaultMatcher()),
-                                                  EditorPtr(new SmartDefaultAttributeEditor(m_document))));
+                                                  new SmartDefaultAttributeEditor(m_document)));
+
+            m_stackedLayout = new QStackedLayout();
+            for (auto& [matcherPtr, editor] : m_editors) {
+                unused(matcherPtr);
+                m_stackedLayout->addWidget(editor);
+            }
+            setLayout(m_stackedLayout);
         }
 
         void SmartAttributeEditorManager::bindObservers() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->selectionDidChangeNotifier.addObserver(this, &SmartAttributeEditorManager::selectionDidChange);
             document->nodesDidChangeNotifier.addObserver(this, &SmartAttributeEditorManager::nodesDidChange);
         }
 
         void SmartAttributeEditorManager::unbindObservers() {
-            if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->selectionDidChangeNotifier.removeObserver(this, &SmartAttributeEditorManager::selectionDidChange);
                 document->nodesDidChangeNotifier.removeObserver(this, &SmartAttributeEditorManager::nodesDidChange);
             }
         }
 
-        void SmartAttributeEditorManager::selectionDidChange(const Selection& selection) {
-            MapDocumentSPtr document = lock(m_document);
+        void SmartAttributeEditorManager::selectionDidChange(const Selection&) {
+            auto document = kdl::mem_lock(m_document);
             switchEditor(m_name, document->allSelectedAttributableNodes());
         }
 
-        void SmartAttributeEditorManager::nodesDidChange(const Model::NodeList& nodes) {
-            MapDocumentSPtr document = lock(m_document);
+        void SmartAttributeEditorManager::nodesDidChange(const std::vector<Model::Node*>&) {
+            auto document = kdl::mem_lock(m_document);
             switchEditor(m_name, document->allSelectedAttributableNodes());
         }
 
-        SmartAttributeEditorManager::EditorPtr SmartAttributeEditorManager::selectEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const {
+        SmartAttributeEditorManager::EditorPtr SmartAttributeEditorManager::selectEditor(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const {
             for (const auto& entry : m_editors) {
                 const MatcherPtr matcher = entry.first;
                 if (matcher->matches(name, attributables))
@@ -110,32 +126,28 @@ namespace TrenchBroom {
             return m_editors.back().second;
         }
 
-        void SmartAttributeEditorManager::activateEditor(EditorPtr editor, const Model::AttributeName& name) {
-            if (m_activeEditor != editor || !m_activeEditor->usesName(name)) {
+        void SmartAttributeEditorManager::activateEditor(EditorPtr editor, const std::string& name) {
+            if (m_stackedLayout->currentWidget() != editor || !activeEditor()->usesName(name)) {
                 deactivateEditor();
-                m_activeEditor = editor;
-                m_name = name;
-                wxWindow* window = m_activeEditor->activate(this, m_name);
 
-                wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-                sizer->Add(window, 1, wxEXPAND);
-                SetSizer(sizer);
-                Layout();
+                m_name = name;
+                m_stackedLayout->setCurrentWidget(editor);
+                editor->activate(m_name);
             }
         }
 
         void SmartAttributeEditorManager::deactivateEditor() {
-            if (m_activeEditor.get() != nullptr) {
-                m_activeEditor->deactivate();
-                m_activeEditor = EditorPtr();
+            if (activeEditor() != nullptr) {
+                activeEditor()->deactivate();
+                m_stackedLayout->setCurrentIndex(-1);
                 m_name = "";
             }
         }
 
         void SmartAttributeEditorManager::updateEditor() {
-            if (m_activeEditor.get() != nullptr) {
-                MapDocumentSPtr document = lock(m_document);
-                m_activeEditor->update(document->allSelectedAttributableNodes());
+            if (activeEditor() != nullptr) {
+                auto document = kdl::mem_lock(m_document);
+                activeEditor()->update(document->allSelectedAttributableNodes());
             }
         }
     }

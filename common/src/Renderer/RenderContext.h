@@ -20,33 +20,31 @@
 #ifndef TrenchBroom_RenderContext
 #define TrenchBroom_RenderContext
 
+#include "FloatType.h"
 #include "Renderer/Transformation.h"
-#include "Renderer/RenderBatch.h"
+
+#include <vecmath/bbox.h>
 
 namespace TrenchBroom {
-    namespace View {
-        class MapViewConfig;
-    }
-
     namespace Renderer {
         class Camera;
         class FontManager;
-        class Renderable;
         class ShaderManager;
 
+        enum class RenderMode {
+            Render3D,
+            Render2D
+        };
+
+
         class RenderContext {
-        public:
-            typedef enum {
-                RenderMode_3D,
-                RenderMode_2D
-            } RenderMode;
         private:
-            typedef enum {
-                ShowSelectionGuide_Show,
-                ShowSelectionGuide_Hide,
-                ShowSelectionGuide_ForceShow,
-                ShowSelectionGuide_ForceHide
-            } ShowSelectionGuide;
+            enum class ShowSelectionGuide {
+                Show,
+                Hide,
+                ForceShow,
+                ForceHide
+            };
 
             // general context for any rendering view
             RenderMode m_renderMode;
@@ -78,6 +76,7 @@ namespace TrenchBroom {
             bool m_tintSelection;
 
             ShowSelectionGuide m_showSelectionGuide;
+            vm::bbox3f m_sofMapBounds;
         public:
             RenderContext(RenderMode renderMode, const Camera& camera, FontManager& fontManager, ShaderManager& shaderManager);
 
@@ -124,6 +123,9 @@ namespace TrenchBroom {
 
             bool showGrid() const;
             void setShowGrid(bool showGrid);
+
+            const vm::bbox3f& softMapBounds() const;
+            void setSoftMapBounds(const vm::bbox3f& softMapBounds);
 
             FloatType gridSize() const;
             void setGridSize(FloatType gridSize);

@@ -1,0 +1,53 @@
+/*
+ Copyright (C) 2010-2017 Kristian Duske
+
+ This file is part of TrenchBroom.
+
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef TRENCHBROOM_ELIDEDLABEL_H
+#define TRENCHBROOM_ELIDEDLABEL_H
+
+#include <QString>
+#include <QWidget>
+
+class QLabel;
+
+namespace TrenchBroom {
+    namespace View {
+        class ElidedLabel : public QWidget {
+        private:
+            QLabel* m_label;
+            Qt::TextElideMode m_elideMode;
+            QString m_fullText;
+            QString m_elidedText;
+        public:
+            ElidedLabel(const QString& text, Qt::TextElideMode elideMode, QWidget* parent = nullptr);
+            explicit ElidedLabel(Qt::TextElideMode elideMode, QWidget* parent = nullptr);
+
+            const QString& text() const;
+        public slots:
+            void setText(const QString& text);
+        private:
+            void updateElidedText(int width);
+        public:
+            QSize minimumSizeHint() const override;
+        protected:
+            void resizeEvent(QResizeEvent* event) override;
+        };
+    }
+}
+
+#endif //TRENCHBROOM_ELIDEDLABEL_H

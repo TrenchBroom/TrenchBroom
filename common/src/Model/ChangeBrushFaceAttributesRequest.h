@@ -21,17 +21,16 @@
 #define TrenchBroom_ChangeBrushFaceAttributesRequest
 
 #include "Color.h"
-#include "StringUtils.h"
-#include "Model/ModelTypes.h"
 
 #include <vecmath/forward.h>
 
-namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
+#include <string>
+#include <vector>
 
+namespace TrenchBroom {
     namespace Model {
+        class BrushFace;
+        class BrushFaceHandle;
         class BrushFaceAttributes;
 
         class ChangeBrushFaceAttributesRequest {
@@ -63,11 +62,10 @@ namespace TrenchBroom {
             // TODO: replace with class based enum
             typedef enum {
                 TextureOp_None,
-                TextureOp_Set,
-                TextureOp_Unset
+                TextureOp_Set
             } TextureOp;
         private:
-            Assets::Texture* m_texture;
+            std::string m_textureName;
             float m_xOffset;
             float m_yOffset;
             float m_rotation;
@@ -94,13 +92,12 @@ namespace TrenchBroom {
 
             void clear();
 
-            const String name() const;
-            void evaluate(const BrushFaceList& faces) const;
+            const std::string name() const;
+            bool evaluate(const std::vector<BrushFaceHandle>& faceHandles) const;
 
-            void resetAll();
+            void resetAll(const BrushFaceAttributes& defaultFaceAttributes);
 
-            void setTexture(Assets::Texture* texture);
-            void unsetTexture();
+            void setTextureName(const std::string& textureName);
 
             void resetTextureAxes();
             void resetTextureAxesToParaxial();
@@ -137,14 +134,10 @@ namespace TrenchBroom {
             void setSurfaceFlags(int surfaceFlags);
             void unsetSurfaceFlags(int surfaceFlags);
             void replaceSurfaceFlags(int surfaceFlags);
-            void setSurfaceFlag(size_t surfaceFlag);
-            void unsetSurfaceFlag(size_t surfaceFlag);
 
             void setContentFlags(int contentFlags);
             void unsetContentFlags(int contentFlags);
             void replaceContentFlags(int contentFlags);
-            void setContentFlag(size_t contentFlag);
-            void unsetContentFlag(size_t contentFlag);
 
             void setSurfaceValue(float surfaceValue);
             void addSurfaceValue(float surfaceValue);
@@ -152,8 +145,10 @@ namespace TrenchBroom {
 
             void setColor(const Color& colorValue);
 
-            void setAll(const Model::BrushFace* face);
+            void setAll(const Model::BrushFace& face);
+            void setAllExceptContentFlags(const Model::BrushFace& face);
             void setAll(const Model::BrushFaceAttributes& attributes);
+            void setAllExceptContentFlags(const Model::BrushFaceAttributes& attributes);
 
             bool collateWith(ChangeBrushFaceAttributesRequest& other);
         };

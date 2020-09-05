@@ -19,26 +19,32 @@
 
 #include "MultiMapView.h"
 
+#include "Ensure.h"
 #include "View/MapView.h"
-
-#include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        MultiMapView::MultiMapView(wxWindow* parent) :
+        MultiMapView::MultiMapView(QWidget* parent) :
         MapViewContainer(parent),
         m_maximizedView(nullptr) {}
 
-        MultiMapView::~MultiMapView() {}
+        MultiMapView::~MultiMapView() = default;
 
         void MultiMapView::addMapView(MapView* mapView) {
             ensure(mapView != nullptr, "mapView is nullptr");
             m_mapViews.push_back(mapView);
+            mapView->setContainer(this);
         }
 
         void MultiMapView::doFlashSelection() {
             for (MapView* mapView : m_mapViews)
                 mapView->flashSelection();
+        }
+
+        void MultiMapView::doInstallActivationTracker(MapViewActivationTracker& activationTracker) {
+            for (auto* mapView : m_mapViews) {
+                mapView->installActivationTracker(activationTracker);
+            }
         }
 
         bool MultiMapView::doGetIsCurrent() const {
@@ -49,14 +55,9 @@ namespace TrenchBroom {
             return false;
         }
 
-        void MultiMapView::doSetToolBoxDropTarget() {
-            for (MapView* mapView : m_mapViews)
-                mapView->setToolBoxDropTarget();
-        }
-
-        void MultiMapView::doClearDropTarget() {
-            for (MapView* mapView : m_mapViews)
-                mapView->clearDropTarget();
+        MapViewBase* MultiMapView::doGetFirstMapViewBase() {
+            ensure(!m_mapViews.empty(), "MultiMapView empty in doGetFirstMapViewBase()");
+            return m_mapViews.at(0)->firstMapViewBase();
         }
 
         bool MultiMapView::doCanSelectTall() {
@@ -99,23 +100,37 @@ namespace TrenchBroom {
                 m_maximizedView = nullptr;
             } else {
                 m_maximizedView = currentMapView();
-                doMaximizeView(m_maximizedView);
+                if (m_maximizedView != nullptr) {
+                    doMaximizeView(m_maximizedView);
+                }
             }
         }
 
         MapView* MultiMapView::doGetCurrentMapView() const {
             for (MapView* mapView : m_mapViews) {
-                if (mapView->isCurrent())
+                if (mapView->isCurrent()) {
                     return mapView;
+                }
             }
             return nullptr;
         }
 
+        void MultiMapView::cycleChildMapView(MapView*) {
+            // only CyclingMapView support cycling
+        }
+        
         bool MultiMapView::doCancelMouseDrag() {
             bool result = false;
-            for (MapView* mapView : m_mapViews)
+            for (MapView* mapView : m_mapViews) {
                 result |= mapView->cancelMouseDrag();
+            }
             return result;
+        }
+
+        void MultiMapView::doRefreshViews() {
+            for (MapView* mapView : m_mapViews) {
+                mapView->refreshViews();
+            }
         }
     }
 }

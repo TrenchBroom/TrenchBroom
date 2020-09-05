@@ -20,39 +20,39 @@
 #ifndef TrenchBroom_MoveTexturesCommand
 #define TrenchBroom_MoveTexturesCommand
 
-#include "TrenchBroom.h"
-#include "SharedPointer.h"
+#include "Macros.h"
+#include "FloatType.h"
 #include "View/DocumentCommand.h"
 
 #include <vecmath/vec.h>
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace View {
         class MoveTexturesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<MoveTexturesCommand>;
         private:
             vm::vec3f m_cameraUp;
             vm::vec3f m_cameraRight;
             vm::vec2f m_delta;
         public:
-            static Ptr move(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
-        private:
-            MoveTexturesCommand(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
+            static std::unique_ptr<MoveTexturesCommand> move(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
 
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            MoveTexturesCommand(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
+        private:
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
             void moveTextures(MapDocumentCommandFacade* document, const vm::vec2f& delta) const;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const override;
+            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
-        private:
-            MoveTexturesCommand(const MoveTexturesCommand& other);
-            MoveTexturesCommand& operator=(const MoveTexturesCommand& other);
+            bool doCollateWith(UndoableCommand* command) override;
+
+            deleteCopyAndMove(MoveTexturesCommand)
         };
     }
 }

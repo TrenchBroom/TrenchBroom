@@ -20,18 +20,32 @@
 #ifndef TrenchBroom_Node
 #define TrenchBroom_Node
 
-#include "Model/ModelTypes.h"
+#include "FloatType.h"
+#include "Model/IssueType.h"
 #include "Model/Tag.h"
+
+#include <vecmath/forward.h>
+#include <vecmath/bbox.h>
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class IssueGeneratorRegistry;
+        class AttributableNode;
+        class ConstNodeVisitor;
+        class Issue;
+        class IssueGenerator;
+        enum class LockState;
+        class NodeSnapshot;
+        class NodeVisitor;
         class PickResult;
+        enum class VisibilityState;
 
         class Node : public Taggable {
         private:
             Node* m_parent;
-            NodeList m_children;
+            std::vector<Node*> m_children;
             size_t m_descendantCount;
             bool m_selected;
 
@@ -41,10 +55,10 @@ namespace TrenchBroom {
             VisibilityState m_visibilityState;
             LockState m_lockState;
 
-            size_t m_lineNumber;
-            size_t m_lineCount;
+            mutable size_t m_lineNumber;
+            mutable size_t m_lineCount;
 
-            mutable IssueList m_issues;
+            mutable std::vector<Issue*> m_issues;
             mutable bool m_issuesValid;
             IssueType m_hiddenIssues;
         protected:
@@ -53,9 +67,9 @@ namespace TrenchBroom {
             Node(const Node&);
             Node& operator=(const Node&);
         public:
-            virtual ~Node();
+            ~Node() override;
         public: // getters
-            const String& name() const;
+            const std::string& name() const;
             /**
              * Returns a box that encloses the "logical" part of this node and its children; these are the bounds that are
              * used in game (for entities, the bounds specified in the entity definition file), and used
@@ -77,14 +91,14 @@ namespace TrenchBroom {
         protected:
             void cloneAttributes(Node* node) const;
 
-            static NodeList clone(const vm::bbox3& worldBounds, const NodeList& nodes);
-            static NodeList cloneRecursively(const vm::bbox3& worldBounds, const NodeList& nodes);
+            static std::vector<Node*> clone(const vm::bbox3& worldBounds, const std::vector<Node*>& nodes);
+            static std::vector<Node*> cloneRecursively(const vm::bbox3& worldBounds, const std::vector<Node*>& nodes);
 
             template <typename I, typename O>
             static void clone(const vm::bbox3& worldBounds, I cur, I end, O result) {
                 while (cur != end) {
                     const Node* node = *cur;
-                    result = node->clone(worldBounds);
+                    result++ = node->clone(worldBounds);
                     ++cur;
                 }
             }
@@ -93,7 +107,7 @@ namespace TrenchBroom {
             static void cloneRecursively(const vm::bbox3& worldBounds, I cur, I end, O result) {
                 while (cur != end) {
                     const Node* node = *cur;
-                    result = node->cloneRecursively(worldBounds);
+                    result++ = node->cloneRecursively(worldBounds);
                     ++cur;
                 }
             }
@@ -101,22 +115,22 @@ namespace TrenchBroom {
             size_t depth() const;
             Node* parent() const;
             bool isAncestorOf(const Node* node) const;
-            bool isAncestorOf(const NodeList& nodes) const;
+            bool isAncestorOf(const std::vector<Node*>& nodes) const;
             bool isDescendantOf(const Node* node) const;
-            bool isDescendantOf(const NodeList& nodes) const;
-            NodeList findDescendants(const NodeList& nodes) const;
+            bool isDescendantOf(const std::vector<Node*>& nodes) const;
+            std::vector<Node*> findDescendants(const std::vector<Node*>& nodes) const;
 
             bool removeIfEmpty() const;
 
             bool hasChildren() const;
             size_t childCount() const;
-            const NodeList& children() const;
+            const std::vector<Node*>& children() const;
             size_t descendantCount() const;
             size_t familySize() const;
 
             bool shouldAddToSpacialIndex() const;
         public:
-            void addChildren(const NodeList& children);
+            void addChildren(const std::vector<Node*>& children);
 
             template <typename I>
             void addChildren(I cur, I end, size_t count = 0) {
@@ -204,6 +218,15 @@ namespace TrenchBroom {
             void nodeWillChange();
             void nodeDidChange();
 
+            friend class NotifyPhysicalBoundsChange;
+            class NotifyPhysicalBoundsChange {
+            private:
+                Node* m_node;
+                vm::bbox3 m_oldBounds;
+            public:
+                explicit NotifyPhysicalBoundsChange(Node* node);
+                ~NotifyPhysicalBoundsChange();
+            };
             void nodePhysicalBoundsDidChange(vm::bbox3 oldBounds);
         private:
             void childWillChange(Node* node);
@@ -218,7 +241,13 @@ namespace TrenchBroom {
             void select();
             void deselect();
 
+            /**
+             * Returns true if this node or our parent or grandparent, etc., is selected
+             */
             bool transitivelySelected() const;
+            /**
+             * Returns true if our parent or grandparent, etc., is selected
+             */
             bool parentSelected() const;
 
             bool childSelected() const;
@@ -237,8 +266,8 @@ namespace TrenchBroom {
              * Normally just a list of `this`, but for brush entities,
              * it's a list of the contained brushes (excluding the Entity itself).
              */
-            virtual NodeList nodesRequiredForViewSelection();
-        protected:
+            virtual std::vector<Node*> nodesRequiredForViewSelection();
+        private:
             void incChildSelectionCount(size_t delta);
             void decChildSelectionCount(size_t delta);
         private:
@@ -259,23 +288,26 @@ namespace TrenchBroom {
             LockState lockState() const;
             bool setLockState(LockState lockState);
         public: // picking
-            void pick(const vm::ray3& ray, PickResult& result) const;
-            void findNodesContaining(const vm::vec3& point, NodeList& result);
+            void pick(const vm::ray3& ray, PickResult& result);
+            void findNodesContaining(const vm::vec3& point, std::vector<Node*>& result);
         public: // file position
             size_t lineNumber() const;
-            void setFilePosition(size_t lineNumber, size_t lineCount);
+            void setFilePosition(size_t lineNumber, size_t lineCount) const;
             bool containsLine(size_t lineNumber) const;
         public: // issue management
-            const IssueList& issues(const IssueGeneratorList& issueGenerators);
+            const std::vector<Issue*>& issues(const std::vector<IssueGenerator*>& issueGenerators);
 
             bool issueHidden(IssueType type) const;
             void setIssueHidden(IssueType type, bool hidden);
         public: // should only be called from this and from the world
             void invalidateIssues() const;
         private:
-            void validateIssues(const IssueGeneratorList& issueGenerators);
+            void validateIssues(const std::vector<IssueGenerator*>& issueGenerators);
             void clearIssues() const;
         public: // visitors
+            /**
+             * Visit this node, and recursively visit its children
+             */
             template <class V>
             void acceptAndRecurse(V& visitor) {
                 accept(visitor);
@@ -283,6 +315,9 @@ namespace TrenchBroom {
                     recurse(visitor);
             }
 
+            /**
+             * Visit this node, and recursively visit its children
+             */
             template <class V>
             void acceptAndRecurse(V& visitor) const {
                 accept(visitor);
@@ -290,6 +325,10 @@ namespace TrenchBroom {
                     recurse(visitor);
             }
 
+            /**
+             * For each node in the given range, visit it, and then recursively visit its children,
+             * until the visitor gets cancelled
+             */
             template <typename I, typename V>
             static void acceptAndRecurse(I cur, I end, V& visitor) {
                 while (cur != end && !visitor.cancelled()) {
@@ -298,6 +337,9 @@ namespace TrenchBroom {
                 }
             }
 
+            /**
+             * Visit this node, and recursively visit its parents
+             */
             template <class V>
             void acceptAndEscalate(V& visitor) {
                 accept(visitor);
@@ -305,6 +347,9 @@ namespace TrenchBroom {
                     escalate(visitor);
             }
 
+            /**
+             * Visit this node, and recursively visit its parents
+             */
             template <class V>
             void acceptAndEscalate(V& visitor) const {
                 accept(visitor);
@@ -312,6 +357,10 @@ namespace TrenchBroom {
                     escalate(visitor);
             }
 
+            /**
+             * For each node in the given range, visit it, and then recursively visit its parents,
+             * until the visitor gets cancelled
+             */
             template <typename I, typename V>
             static void acceptAndEscalate(I cur, I end, V& visitor) {
                 while (cur != end && !visitor.cancelled()) {
@@ -320,16 +369,26 @@ namespace TrenchBroom {
                 }
             }
 
+            /**
+             * Visit this node (not visiting parents or children)
+             */
             template <class V>
             void accept(V& visitor) {
                 doAccept(visitor);
             }
 
+            /**
+             * Visit this node (not visiting parents or children)
+             */
             template <class V>
             void accept(V& visitor) const {
                 doAccept(visitor);
             }
 
+            /**
+             * For each node in the given range, visit it (not visiting parents or children),
+             * until the visitor gets cancelled
+             */
             template <typename I, typename V>
             static void accept(I cur, I end, V& visitor) {
                 while (cur != end && !visitor.cancelled()) {
@@ -338,6 +397,9 @@ namespace TrenchBroom {
                 }
             }
 
+            /**
+             * Recursively visit this node's children (but not visiting this)
+             */
             template <class V>
             void recurse(V& visitor) {
                 for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
@@ -346,6 +408,9 @@ namespace TrenchBroom {
                 }
             }
 
+            /**
+             * Recursively visit this node's children (but not visiting this)
+             */
             template <class V>
             void recurse(V& visitor) const {
                 for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
@@ -354,6 +419,10 @@ namespace TrenchBroom {
                 }
             }
 
+            /**
+             * For each node in the given range, recursively visit its children,
+             * until the visitor gets cancelled
+             */
             template <typename I, typename V>
             static void recurse(I cur, I end, V& visitor) {
                 while (cur != end) {
@@ -362,6 +431,9 @@ namespace TrenchBroom {
                 }
             }
 
+            /**
+             * Visit this node's children only
+             */
             template <class V>
             void iterate(V& visitor) {
                 for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
@@ -370,6 +442,9 @@ namespace TrenchBroom {
                 }
             }
 
+            /**
+             * Visit this node's children only
+             */
             template <class V>
             void iterate(V& visitor) const {
                 for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
@@ -378,6 +453,10 @@ namespace TrenchBroom {
                 }
             }
 
+            /**
+             * For each node in the given range, visit its children (not visiting the node itself),
+             * until the visitor gets cancelled
+             */
             template <typename I, typename V>
             static void iterate(I cur, I end, V& visitor) {
                 while (cur != end && !visitor.cancelled()) {
@@ -386,18 +465,28 @@ namespace TrenchBroom {
                 }
             }
 
+            /**
+             * Recursively visit this node's parents (not visiting the node itself)
+             */
             template <class V>
             void escalate(V& visitor) {
                 if (parent() != nullptr && !visitor.cancelled())
                     parent()->acceptAndEscalate(visitor);
             }
 
+            /**
+             * Recursively visit this node's parents (not visiting the node itself)
+             */
             template <class V>
             void escalate(V& visitor) const {
                 if (parent() != nullptr && !visitor.cancelled())
                     parent()->acceptAndEscalate(visitor);
             }
 
+            /**
+             * For each node in the given range, recursively visit its parents (not visiting the node itself),
+             * until the visitor gets cancelled
+             */
             template <typename I, typename V>
             static void escalate(I cur, I end, V& visitor) {
                 while (cur != end && !visitor.cancelled()) {
@@ -406,13 +495,13 @@ namespace TrenchBroom {
                 }
             }
         protected: // index management
-            void findAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const;
-            void findAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const;
+            void findAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<AttributableNode*>& result) const;
+            void findAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<AttributableNode*>& result) const;
 
-            void addToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
-            void removeFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
+            void addToIndex(AttributableNode* attributable, const std::string& name, const std::string& value);
+            void removeFromIndex(AttributableNode* attributable, const std::string& name, const std::string& value);
         private: // subclassing interface
-            virtual const String& doGetName() const = 0;
+            virtual const std::string& doGetName() const = 0;
             virtual const vm::bbox3& doGetLogicalBounds() const = 0;
             virtual const vm::bbox3& doGetPhysicalBounds() const = 0;
 
@@ -442,9 +531,9 @@ namespace TrenchBroom {
             virtual void doAncestorWillChange();
             virtual void doAncestorDidChange();
 
-            virtual void doNodePhysicalBoundsDidChange(const vm::bbox3& oldBounds);
-            virtual void doChildPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds);
-            virtual void doDescendantPhysicalBoundsDidChange(Node* node, const vm::bbox3& oldBounds, size_t depth);
+            virtual void doNodePhysicalBoundsDidChange();
+            virtual void doChildPhysicalBoundsDidChange();
+            virtual void doDescendantPhysicalBoundsDidChange(Node* node);
 
             virtual void doChildWillChange(Node* node);
             virtual void doChildDidChange(Node* node);
@@ -453,19 +542,19 @@ namespace TrenchBroom {
 
             virtual bool doSelectable() const = 0;
 
-            virtual void doPick(const vm::ray3& ray, PickResult& pickResult) const = 0;
-            virtual void doFindNodesContaining(const vm::vec3& point, NodeList& result) = 0;
+            virtual void doPick(const vm::ray3& ray, PickResult& pickResult) = 0;
+            virtual void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) = 0;
 
-            virtual void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) = 0;
+            virtual void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) = 0;
 
             virtual void doAccept(NodeVisitor& visitor) = 0;
             virtual void doAccept(ConstNodeVisitor& visitor) const = 0;
 
-            virtual void doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const;
-            virtual void doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const;
+            virtual void doFindAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<AttributableNode*>& result) const;
+            virtual void doFindAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<AttributableNode*>& result) const;
 
-            virtual void doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
-            virtual void doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
+            virtual void doAddToIndex(AttributableNode* attributable, const std::string& name, const std::string& value);
+            virtual void doRemoveFromIndex(AttributableNode* attributable, const std::string& name, const std::string& value);
         };
     }
 }

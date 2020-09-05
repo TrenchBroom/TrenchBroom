@@ -20,13 +20,11 @@
 #ifndef TrenchBroom_PointHandleRenderer
 #define TrenchBroom_PointHandleRenderer
 
-#include "TrenchBroom.h"
 #include "Color.h"
 #include "Renderer/Circle.h"
 #include "Renderer/Renderable.h"
 
 #include <vecmath/forward.h>
-#include <vecmath/vec.h>
 
 #include <map>
 
@@ -34,7 +32,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class ActiveShader;
         class RenderContext;
-        class Vbo;
+        class VboManager;
 
         class PointHandleRenderer : public DirectRenderable {
         private:
@@ -51,7 +49,7 @@ namespace TrenchBroom {
             void addPoint(const Color& color, const vm::vec3f& position);
             void addHighlight(const Color& color, const vm::vec3f& position);
         private:
-            void doPrepareVertices(Vbo& vertexVbo) override;
+            void doPrepareVertices(VboManager& vboManager) override;
             void doRender(RenderContext& renderContext) override;
             void renderHandles(RenderContext& renderContext, const HandleMap& map, Circle& circle, float opacity);
 

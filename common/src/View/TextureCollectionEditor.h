@@ -20,21 +20,23 @@
 #ifndef TextureCollectionEditor_h
 #define TextureCollectionEditor_h
 
-#include "View/ViewTypes.h"
+#include <memory>
 
-#include <wx/panel.h>
+#include <QWidget>
 
 namespace TrenchBroom {
     namespace View {
-        class TextureCollectionEditor : public wxPanel {
+        class MapDocument;
+
+        class TextureCollectionEditor : public QWidget {
+            Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
         public:
-            TextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document);
-            ~TextureCollectionEditor();
+            explicit TextureCollectionEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+            ~TextureCollectionEditor() override ;
         private:
-            void documentWasNewed(MapDocument* document);
-            void documentWasLoaded(MapDocument* document);
+            void documentWasNewedOrLoaded(MapDocument* document);
 
             void createGui();
         };

@@ -20,17 +20,23 @@
 #ifndef TrenchBroom_TitledPanel
 #define TrenchBroom_TitledPanel
 
-#include <wx/panel.h>
+#include <QWidget>
 
 namespace TrenchBroom {
     namespace View {
-        class TitledPanel : public wxPanel {
-        private:
-            wxWindow* m_panel;
-        public:
-            TitledPanel(wxWindow* parent, const wxString& title, bool showDivider = true, bool boldTitle = true);
+        class TitleBar;
 
-            wxWindow* getPanel() const;
+        class TitledPanel : public QWidget {
+            Q_OBJECT
+        private:
+            TitleBar* m_titleBar;
+            QWidget* m_panel;
+        public:
+            TitledPanel(const QString& title, QWidget* parent, bool showDivider = true, bool boldTitle = true);
+            explicit TitledPanel(const QString& title, bool showDivider = true, bool boldTitle = true);
+
+            TitleBar* getTitleBar() const;
+            QWidget* getPanel() const;
         };
     }
 }

@@ -19,10 +19,16 @@
 
 #include "ModelDefinition.h"
 
+#include "EL/EvaluationContext.h"
+#include "EL/Types.h"
+#include "EL/Value.h"
 #include "Model/EntityAttributesVariableStore.h"
 
-#include <cassert>
-#include <cmath>
+#include <kdl/string_compare.h>
+
+#include <vecmath/scalar.h>
+
+#include <ostream>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -77,22 +83,35 @@ namespace TrenchBroom {
         }
 
         ModelDefinition::ModelDefinition() :
-        m_expression(EL::LiteralExpression::create(EL::Value::Undefined, 0, 0)) {}
+        m_expression(EL::LiteralExpression(EL::Value::Undefined), 0, 0) {}
 
         ModelDefinition::ModelDefinition(const size_t line, const size_t column) :
-        m_expression(EL::LiteralExpression::create(EL::Value::Undefined, line, column)) {}
+        m_expression(EL::LiteralExpression(EL::Value::Undefined), line, column) {}
 
         ModelDefinition::ModelDefinition(const EL::Expression& expression) :
         m_expression(expression) {}
 
-        void ModelDefinition::append(const ModelDefinition& other) {
-            EL::ExpressionBase::List cases;
-            cases.push_back(m_expression.clone());
-            cases.push_back(other.m_expression.clone());
+        bool operator==(const ModelDefinition& lhs, const ModelDefinition& rhs) {
+            return lhs.m_expression.asString() == rhs.m_expression.asString();
+        }
+        
+        bool operator!=(const ModelDefinition& lhs, const ModelDefinition& rhs) {
+            return !(lhs == rhs);
+        }
 
+        std::ostream& operator<<(std::ostream& str, const ModelDefinition& def) {
+            str << "ModelDefinition{ " << def.m_expression << " }";
+            return str;
+        }
+
+        void ModelDefinition::append(const ModelDefinition& other) {
+            std::vector<EL::Expression> cases;
+            cases.push_back(m_expression);
+            cases.push_back(other.m_expression);
+        
             const size_t line = m_expression.line();
             const size_t column = m_expression.column();
-            m_expression = EL::SwitchOperator::create(cases, line, column);
+            m_expression = EL::Expression(EL::SwitchExpression(std::move(cases)), line, column);
         }
 
         ModelSpecification ModelDefinition::modelSpecification(const Model::EntityAttributes& attributes) const {
@@ -104,28 +123,23 @@ namespace TrenchBroom {
         ModelSpecification ModelDefinition::defaultModelSpecification() const {
             const EL::NullVariableStore store;
             const EL::EvaluationContext context(store);
-            try {
-                const EL::Value result = m_expression.evaluate(context);
-                return convertToModel(result);
-            } catch (const EL::EvaluationError&) {
-                return ModelSpecification();
-            }
+            return convertToModel(m_expression.evaluate(context));
         }
 
         ModelSpecification ModelDefinition::convertToModel(const EL::Value& value) const {
             switch (value.type()) {
-                case EL::Type_Map:
+                case EL::ValueType::Map:
                     return ModelSpecification( path(value["path"]),
                                               index(value["skin"]),
                                               index(value["frame"]));
-                case EL::Type_String:
+                case EL::ValueType::String:
                     return ModelSpecification(path(value));
-                case EL::Type_Boolean:
-                case EL::Type_Number:
-                case EL::Type_Array:
-                case EL::Type_Range:
-                case EL::Type_Null:
-                case EL::Type_Undefined:
+                case EL::ValueType::Boolean:
+                case EL::ValueType::Number:
+                case EL::ValueType::Array:
+                case EL::ValueType::Range:
+                case EL::ValueType::Null:
+                case EL::ValueType::Undefined:
                     break;
             }
 
@@ -133,17 +147,17 @@ namespace TrenchBroom {
         }
 
         IO::Path ModelDefinition::path(const EL::Value& value) const {
-            if (value.type() != EL::Type_String)
+            if (value.type() != EL::ValueType::String)
                 return IO::Path();
-            const String& path = value.stringValue();
-            return IO::Path(StringUtils::isPrefix(path, ":") ? path.substr(1) : path);
+            const std::string& path = value.stringValue();
+            return IO::Path(kdl::cs::str_is_prefix(path, ":") ? path.substr(1) : path);
         }
 
         size_t ModelDefinition::index(const EL::Value& value) const {
-            if (!value.convertibleTo(EL::Type_Number))
+            if (!value.convertibleTo(EL::ValueType::Number))
                 return 0;
-            const EL::IntegerType intValue = value.convertTo(EL::Type_Number).integerValue();
-            return static_cast<size_t>(std::max(0l, intValue));
+            const EL::IntegerType intValue = value.convertTo(EL::ValueType::Number).integerValue();
+            return static_cast<size_t>(vm::max(0l, intValue));
         }
     }
 }

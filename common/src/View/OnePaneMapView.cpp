@@ -17,20 +17,17 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QGridLayout>
+
 #include "OnePaneMapView.h"
 
-#include "Model/PointFile.h"
-#include "Renderer/Camera.h"
-#include "View/CommandIds.h"
 #include "View/CyclingMapView.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 
-#include <wx/sizer.h>
-
 namespace TrenchBroom {
     namespace View {
-        OnePaneMapView::OnePaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) :
+        OnePaneMapView::OnePaneMapView(Logger* logger, std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, QWidget* parent) :
         MultiMapView(parent),
         m_logger(logger),
         m_document(document),
@@ -39,15 +36,14 @@ namespace TrenchBroom {
         }
 
         void OnePaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
-
-            m_mapView = new CyclingMapView(this, m_logger, m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_ALL);
+            m_mapView = new CyclingMapView(m_document, toolBox, mapRenderer, contextManager,
+                CyclingMapView::View_ALL, m_logger, this);
             m_mapView->linkCamera(m_linkHelper);
             addMapView(m_mapView);
 
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_mapView, 1, wxEXPAND);
-
-            SetSizer(sizer);
+            auto* layout = new QGridLayout();
+            layout->addWidget(m_mapView, 0, 0, 1, 1);
+            setLayout(layout);
         }
     }
 }

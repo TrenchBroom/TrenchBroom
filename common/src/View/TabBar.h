@@ -22,50 +22,61 @@
 
 #include "View/ContainerBar.h"
 
-#include <wx/stattext.h>
-
 #include <vector>
 
-class wxBookCtrlEvent;
-class wxSimplebook;
+#include <QWidget>
+
+class QHBoxLayout;
+class QLabel;
+class QStackedLayout;
 
 namespace TrenchBroom {
     namespace View {
         class TabBook;
         class TabBookPage;
 
-        class TabBarButton : public wxStaticText {
+        class TabBarButton : public QWidget {
+            Q_OBJECT
         private:
+            QLabel* m_label;
+            QWidget* m_indicator;
             bool m_pressed;
         public:
-            TabBarButton(wxWindow* parent, const wxString& label);
-
+            explicit TabBarButton(const QString& label = "", QWidget* parent = nullptr);
+            /**
+             * Update the label color
+             */
             void setPressed(bool pressed);
+        protected:
+            void mousePressEvent(QMouseEvent *event) override;
 
-            void OnClick(wxMouseEvent& event);
+        signals:
+            void clicked();
+
         private:
-            void updateLabel();
+            void updateState();
         };
 
         class TabBar : public ContainerBar {
+            Q_OBJECT
         private:
             using ButtonList = std::vector<TabBarButton*>;
 
             TabBook* m_tabBook;
-            wxSimplebook* m_barBook;
-            wxSizer* m_controlSizer;
+
+            QStackedLayout* m_barBook;
+            QHBoxLayout* m_controlLayout;
             ButtonList m_buttons;
         public:
-            TabBar(TabBook* tabBook);
+            explicit TabBar(TabBook* tabBook);
 
-            void addTab(TabBookPage* bookPage, const wxString& title);
-
-            void OnButtonClicked(wxCommandEvent& event);
-            void OnTabBookPageChanged(wxBookCtrlEvent& event);
+            void addTab(TabBookPage* bookPage, const QString& title);
         private:
-            size_t findButtonIndex(wxWindow* button) const;
+            size_t findButtonIndex(QWidget* button) const;
             void setButtonActive(int index);
-            void setButtonInactive(int index);
+
+            void buttonClicked();
+            void tabBookPageChanged(int newIndex);
         };
     }
 }

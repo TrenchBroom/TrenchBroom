@@ -24,15 +24,17 @@
 #include "IO/MipTextureReader.h"
 
 namespace TrenchBroom {
+    class Logger;
+    
     namespace IO {
-        class Path;
+        class FileSystem;
         class Reader;
 
         class IdMipTextureReader : public MipTextureReader {
         protected:
             const Assets::Palette m_palette;
         public:
-            IdMipTextureReader(const NameStrategy& nameStrategy, const Assets::Palette& palette);
+            IdMipTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger, const Assets::Palette& palette);
         protected:
             Assets::Palette doGetPalette(Reader& reader, const size_t offset[], size_t width, size_t height) const override;
         };

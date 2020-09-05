@@ -19,46 +19,50 @@
 
 #include "MergeNodesIntoWorldVisitor.h"
 
-#include "CollectionUtils.h"
-#include "Model/Brush.h"
-#include "Model/Entity.h"
+#include "Ensure.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
 #include "Model/EntityAttributes.h"
-#include "Model/Group.h"
-#include "Model/Layer.h"
-#include "Model/World.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
+#include "Model/WorldNode.h"
+
+#include <kdl/vector_utils.h>
 
 #include <cassert>
+#include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        MergeNodesIntoWorldVisitor::MergeNodesIntoWorldVisitor(World* world, Node* parent) :
+        MergeNodesIntoWorldVisitor::MergeNodesIntoWorldVisitor(WorldNode* world, Node* parent) :
         m_world(world),
         m_parent(parent != nullptr ? parent : m_world->defaultLayer()) {
             ensure(m_world != nullptr, "world is null");
             assert(m_parent->isDescendantOf(m_world));
         }
 
-        const ParentChildrenMap& MergeNodesIntoWorldVisitor::result() const {
+        const std::map<Node*, std::vector<Node*>>& MergeNodesIntoWorldVisitor::result() const {
             detachNodes();
             deleteNodes();
             return m_result;
         }
 
-        void MergeNodesIntoWorldVisitor::doVisit(World* world) {
+        void MergeNodesIntoWorldVisitor::doVisit(WorldNode* world) {
             world->iterate(*this);
             deleteNode(world);
         }
 
-        void MergeNodesIntoWorldVisitor::doVisit(Layer* layer) {
+        void MergeNodesIntoWorldVisitor::doVisit(LayerNode* layer) {
             layer->iterate(*this);
             deleteNode(layer);
         }
 
-        void MergeNodesIntoWorldVisitor::doVisit(Group* group) {
+        void MergeNodesIntoWorldVisitor::doVisit(GroupNode* group) {
             addNode(group);
         }
 
-        void MergeNodesIntoWorldVisitor::doVisit(Entity* entity) {
+        void MergeNodesIntoWorldVisitor::doVisit(EntityNode* entity) {
             if (isWorldspawn(entity->classname(), entity->attributes())) {
                 entity->iterate(*this);
                 deleteNode(entity);
@@ -67,7 +71,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MergeNodesIntoWorldVisitor::doVisit(Brush* brush) {
+        void MergeNodesIntoWorldVisitor::doVisit(BrushNode* brush) {
             addNode(brush);
         }
 
@@ -88,7 +92,7 @@ namespace TrenchBroom {
         }
 
         void MergeNodesIntoWorldVisitor::deleteNodes() const {
-            VectorUtils::clearAndDelete(m_nodesToDelete);
+            kdl::vec_clear_and_delete(m_nodesToDelete);
         }
 
         void MergeNodesIntoWorldVisitor::detachNodes() const {

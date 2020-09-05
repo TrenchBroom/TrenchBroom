@@ -21,12 +21,14 @@
 
 #include "View/EdgeTool.h"
 
+#include <vecmath/polygon.h>
+
 namespace TrenchBroom {
     namespace View {
         class EdgeToolController::SelectEdgePart : public SelectPartBase<vm::segment3> {
         public:
             SelectEdgePart(EdgeTool* tool) :
-            SelectPartBase(tool, EdgeHandleManager::HandleHit) {}
+            SelectPartBase(tool, EdgeHandleManager::HandleHitType) {}
         private:
             bool equalHandles(const vm::segment3& lhs, const vm::segment3& rhs) const override {
                 return compare(lhs, rhs, MaxHandleDistance) == 0;
@@ -36,7 +38,7 @@ namespace TrenchBroom {
         class EdgeToolController::MoveEdgePart : public MovePartBase {
         public:
             MoveEdgePart(EdgeTool* tool) :
-            MovePartBase(tool, EdgeHandleManager::HandleHit) {}
+            MovePartBase(tool, EdgeHandleManager::HandleHitType) {}
         };
 
         EdgeToolController::EdgeToolController(EdgeTool* tool) :

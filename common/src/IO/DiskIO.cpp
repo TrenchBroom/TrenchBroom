@@ -19,26 +19,33 @@
 
 #include "DiskIO.h"
 
+#include "Exceptions.h"
 #include "IO/File.h"
+#include "IO/FileMatcher.h"
+#include "IO/PathQt.h"
 
-#include <wx/dir.h>
-#include <wx/filefn.h>
-#include <wx/filename.h>
+#include <kdl/string_compare.h>
 
-#include <cstdio>
 #include <fstream>
+#include <string>
+
+#include <QDir>
+#include <QFileInfo>
 
 namespace TrenchBroom {
     namespace IO {
         namespace Disk {
             bool doCheckCaseSensitive();
-            Path findCaseSensitivePath(const Path::List& list, const Path& path);
+            Path findCaseSensitivePath(const std::vector<Path>& list, const Path& path);
             Path fixCase(const Path& path);
 
             bool doCheckCaseSensitive() {
-                const wxString cwd = ::wxGetCwd();
-                assert(::wxDirExists(cwd));
-                return !::wxDirExists(cwd.Upper()) || !wxDirExists(cwd.Lower());
+                const QDir cwd = QDir::current();
+                assert(cwd.exists());
+
+                const QDir upper = QDir(cwd.path().toUpper());
+                const QDir lower = QDir(cwd.path().toLower());
+                return !upper.exists() || !lower.exists();
             }
 
             bool isCaseSensitive() {
@@ -46,9 +53,9 @@ namespace TrenchBroom {
                 return caseSensitive;
             }
 
-            Path findCaseSensitivePath(const Path::List& list, const Path& path) {
+            Path findCaseSensitivePath(const std::vector<Path>& list, const Path& path) {
                 for (const Path& entry : list) {
-                    if (StringUtils::caseInsensitiveEqual(entry.asString(), path.asString()))
+                    if (kdl::ci::str_is_equal(entry.asString(), path.asString()))
                         return entry;
                 }
                 return Path("");
@@ -61,8 +68,7 @@ namespace TrenchBroom {
 
                     if (path.isEmpty() || !isCaseSensitive())
                         return path;
-                    const String str = path.asString();
-                    if (::wxFileExists(str) || ::wxDirExists(str))
+                    if (QFileInfo::exists(pathAsQString(path)))
                         return path;
 
                     Path result(path.firstComponent());
@@ -71,10 +77,9 @@ namespace TrenchBroom {
                         return result;
 
                     while (!remainder.isEmpty()) {
-                        const String nextPathStr = (result + remainder.firstComponent()).asString();
-                        if (!::wxDirExists(nextPathStr) &&
-                            !::wxFileExists(nextPathStr)) {
-                            const Path::List content = getDirectoryContents(result);
+                        const QString nextPathStr = pathAsQString(result + remainder.firstComponent());
+                        if (!QFileInfo::exists(nextPathStr)) {
+                            const std::vector<Path> content = getDirectoryContents(result);
                             const Path part = findCaseSensitivePath(content, remainder.firstComponent());
                             if (part.isEmpty())
                                 return path;
@@ -102,60 +107,64 @@ namespace TrenchBroom {
 
             bool directoryExists(const Path& path) {
                 const Path fixedPath = fixPath(path);
-                return ::wxDirExists(fixedPath.asString());
+                return QDir(pathAsQString(fixedPath)).exists();
             }
 
             bool fileExists(const Path& path) {
                 const Path fixedPath = fixPath(path);
-                return ::wxFileExists(fixedPath.asString());
+                QFileInfo fileInfo = QFileInfo(pathAsQString(fixedPath));
+                return fileInfo.exists() && fileInfo.isFile();
             }
 
-            String replaceForbiddenChars(const String& name) {
-                static const String forbidden = wxFileName::GetForbiddenChars().ToStdString();
-                return StringUtils::replaceChars(name, forbidden, "_");
-            }
-
-            Path::List getDirectoryContents(const Path& path) {
+            std::vector<Path> getDirectoryContents(const Path& path) {
                 const Path fixedPath = fixPath(path);
-                wxDir dir(fixedPath.asString());
-                if (!dir.IsOpened()) {
+                QDir dir(pathAsQString(fixedPath));
+                if (!dir.exists()) {
                     throw FileSystemException("Cannot open directory: '" + fixedPath.asString() + "'");
                 }
 
-                Path::List result;
-                wxString filename;
-                if (dir.GetFirst(&filename)) {
-                    result.push_back(Path(filename.ToStdString()));
-                    while (dir.GetNext(&filename)) {
-                        result.push_back(Path(filename.ToStdString()));
-                    }
-                }
+                dir.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);
 
+                std::vector<Path> result;
+                for (QString& entry : dir.entryList()) {
+                    result.push_back(pathFromQString(entry));
+                }
                 return result;
             }
 
             std::shared_ptr<File> openFile(const Path& path) {
                 const Path fixedPath = fixPath(path);
                 if (!fileExists(fixedPath)) {
-                    throw FileNotFoundException("File not found: '" + fixedPath.asString() + "'");
+                    throw FileNotFoundException(fixedPath.asString());
                 }
 
                 return std::make_shared<CFile>(fixedPath);
             }
 
-            Path getCurrentWorkingDir() {
-                return Path(::wxGetCwd().ToStdString());
+            std::string readFile(const Path& path) {
+                const Path fixedPath = fixPath(path);
+
+                std::fstream stream(fixedPath.asString().c_str(), std::ios::in);
+                if (!stream.is_open()) {
+                    throw FileSystemException("Cannot open file: " + fixedPath.asString());
+                }
+
+                return std::string((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
             }
 
-            Path::List findItems(const Path& path) {
+            Path getCurrentWorkingDir() {
+                return pathFromQString(QDir::currentPath());
+            }
+
+            std::vector<Path> findItems(const Path& path) {
                 return findItems(path, FileTypeMatcher());
             }
 
-            Path::List findItemsRecursively(const Path& path) {
+            std::vector<Path> findItemsRecursively(const Path& path) {
                 return findItemsRecursively(path, FileTypeMatcher());
             }
 
-            void createFile(const Path& path, const String& contents) {
+            void createFile(const Path& path, const std::string& contents) {
                 const Path fixedPath = fixPath(path);
                 if (fileExists(fixedPath)) {
                     deleteFile(fixedPath);
@@ -165,7 +174,7 @@ namespace TrenchBroom {
                         createDirectory(directory);
                 }
 
-                const String fixedPathStr = fixedPath.asString();
+                const std::string fixedPathStr = fixedPath.asString();
                 std::ofstream stream(fixedPathStr.c_str());
                 stream  << contents;
             }
@@ -186,9 +195,9 @@ namespace TrenchBroom {
                 if (path.isEmpty())
                     return false;
                 const IO::Path parent = path.deleteLastComponent();
-                if (!::wxDirExists(parent.asString()) && !createDirectoryHelper(parent))
+                if (!QDir(pathAsQString(parent)).exists() && !createDirectoryHelper(parent))
                     return false;
-                return ::wxMkdir(path.asString());
+                return QDir().mkdir(pathAsQString(path));
             }
 
             void ensureDirectoryExists(const Path& path) {
@@ -203,33 +212,47 @@ namespace TrenchBroom {
                 const Path fixedPath = fixPath(path);
                 if (!fileExists(fixedPath))
                     throw FileSystemException("Could not delete file '" + fixedPath.asString() + "': File does not exist.");
-                if (!::wxRemoveFile(fixedPath.asString()))
+                if (!QFile::remove(pathAsQString(fixedPath)))
                     throw FileSystemException("Could not delete file '" + path.asString() + "'");
             }
 
             void copyFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
                 const Path fixedSourcePath = fixPath(sourcePath);
                 Path fixedDestPath = fixPath(destPath);
-                if (!overwrite && fileExists(fixedDestPath))
-                    throw FileSystemException("Could not copy file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "': file already exists");
-                if (directoryExists(fixedDestPath))
+                if (directoryExists(fixedDestPath)) {
                     fixedDestPath = fixedDestPath + sourcePath.lastComponent();
-                if (!::wxCopyFile(fixedSourcePath.asString(), fixedDestPath.asString(), overwrite))
+                }
+                const bool exists = fileExists(fixedDestPath);
+                if (!overwrite && exists)
+                    throw FileSystemException("Could not copy file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "': file already exists");
+                if (overwrite && exists) {
+                    if (!QFile::remove(pathAsQString(fixedDestPath))) {
+                        throw FileSystemException("Could not copy file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "': couldn't remove destination");
+                    }
+                }
+                // NOTE: QFile::copy will not overwrite the dest
+                if (!QFile::copy(pathAsQString(fixedSourcePath), pathAsQString(fixedDestPath)))
                     throw FileSystemException("Could not copy file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "'");
             }
 
             void moveFile(const Path& sourcePath, const Path& destPath, const bool overwrite) {
                 const Path fixedSourcePath = fixPath(sourcePath);
                 Path fixedDestPath = fixPath(destPath);
-                if (!overwrite && fileExists(fixedDestPath))
+                const bool exists = fileExists(fixedDestPath);
+                if (!overwrite && exists)
                     throw FileSystemException("Could not move file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "': file already exists");
+                if (overwrite && exists) {
+                    if (!QFile::remove(pathAsQString(fixedDestPath))) {
+                        throw FileSystemException("Could not move file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "': couldn't remove destination");
+                    }
+                }
                 if (directoryExists(fixedDestPath))
                     fixedDestPath = fixedDestPath + sourcePath.lastComponent();
-                if (!::wxRenameFile(fixedSourcePath.asString(), fixedDestPath.asString(), overwrite))
+                if (!QFile::rename(pathAsQString(fixedSourcePath), pathAsQString(fixedDestPath)))
                     throw FileSystemException("Could not move file '" + fixedSourcePath.asString() + "' to '" + fixedDestPath.asString() + "'");
             }
 
-            IO::Path resolvePath(const Path::List& searchPaths, const Path& path) {
+            IO::Path resolvePath(const std::vector<Path>& searchPaths, const Path& path) {
                 if (path.isAbsolute()) {
                     if (fileExists(path) || directoryExists(path))
                         return path;

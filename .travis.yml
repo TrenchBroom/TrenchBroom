@@ -2,20 +2,29 @@ language: cpp
 matrix:
   include:
     - os: linux
-      dist: trusty
-      sudo: required
+      dist: xenial
+      addons:
+        apt:
+          sources:
+            - sourceline: "ppa:ubuntu-toolchain-r/test"
+            - sourceline: "ppa:beineri/opt-qt595-xenial"
+          packages:
+            - g++-7 qt59base qt59svg freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm cppcheck
     - os: linux
-      dist: trusty
-      sudo: required
+      dist: xenial
       env: TB_GCC8=true
+      addons:
+        apt:
+          sources:
+            - sourceline: "ppa:ubuntu-toolchain-r/test"
+            - sourceline: "ppa:beineri/opt-qt595-xenial"
+          packages:
+            - g++-8 qt59base qt59svg freeglut3-dev libglew-dev mesa-common-dev build-essential libglm-dev libxxf86vm-dev libfreeimage-dev pandoc cmake p7zip-full ninja-build xvfb rpm cppcheck
     - os: osx
-      osx_image: xcode9.3
+      osx_image: xcode11.3
     - os: osx
-      osx_image: xcode9.3
+      osx_image: xcode11.3
       env: TB_DEBUG_BUILD=true
-cache:
-  directories:
-  - wx-install-cache
 script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./travis-macos.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./travis-linux.sh; fi

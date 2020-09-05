@@ -19,17 +19,14 @@
 
 #include "LongAttributeNameIssueGenerator.h"
 
-#include "StringUtils.h"
-#include "Assets/EntityDefinition.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/RemoveEntityAttributesQuickFix.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/Issue.h"
-#include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
-#include "Model/PushSelection.h"
 
-#include <cassert>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -37,13 +34,13 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         private:
-            const AttributeName m_attributeName;
+            const std::string m_attributeName;
         public:
-            LongAttributeNameIssue(AttributableNode* node, const AttributeName& attributeName) :
+            LongAttributeNameIssue(AttributableNode* node, const std::string& attributeName) :
             AttributeIssue(node),
             m_attributeName(attributeName) {}
 
-            const AttributeName& attributeName() const override {
+            const std::string& attributeName() const override {
                 return m_attributeName;
             }
         private:
@@ -51,7 +48,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            std::string doGetDescription() const override {
                 return "Entity property key '" + m_attributeName.substr(0, 8) + "...' is too long.";
             }
         };
@@ -66,9 +63,10 @@ namespace TrenchBroom {
 
         void LongAttributeNameIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
             for (const EntityAttribute& attribute : node->attributes()) {
-                const AttributeName& attributeName = attribute.name();
-                if (attributeName.size() >= m_maxLength)
+                const std::string& attributeName = attribute.name();
+                if (attributeName.size() >= m_maxLength) {
                     issues.push_back(new LongAttributeNameIssue(node, attributeName));
+                }
             }
         }
     }

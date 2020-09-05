@@ -20,13 +20,13 @@
 #ifndef TrenchBroom_GetVersion_h
 #define TrenchBroom_GetVersion_h
 
-#include <wx/string.h>
+#include <QString>
 
 namespace TrenchBroom {
     namespace View {
-        wxString getBuildVersion();
-        wxString getBuildIdStr();
-        wxString getBuildType();
+        QString getBuildVersion();
+        QString getBuildIdStr();
+        QString getBuildType();
     }
 }
 

@@ -23,27 +23,36 @@
 #include "View/TitleBar.h"
 #include "View/ViewConstants.h"
 
-#include <wx/sizer.h>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
-        TitledPanel::TitledPanel(wxWindow* parent, const wxString& title, const bool showDivider, const bool boldTitle) :
-        wxPanel(parent),
+        TitledPanel::TitledPanel(const QString& title, QWidget* parent, bool showDivider, bool boldTitle) :
+        QWidget(parent),
+        m_titleBar(nullptr),
         m_panel(nullptr) {
-            const int hMargin = showDivider ? LayoutConstants::NarrowHMargin : 0;
-            const int vMargin = showDivider ? LayoutConstants::NarrowVMargin : 0;
+            m_titleBar = new TitleBar(title, LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin, boldTitle);
+            m_panel = new QWidget();
 
-            m_panel = new wxPanel(this);
-
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(new TitleBar(this, title, hMargin, vMargin, boldTitle), wxSizerFlags().Expand());
-            if (showDivider)
-                sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
-            sizer->Add(m_panel, wxSizerFlags().Expand().Proportion(1));
-            SetSizer(sizer);
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(m_titleBar);
+            if (showDivider) {
+                layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
+            }
+            layout->addWidget(m_panel, 1);
+            setLayout(layout);
         }
 
-        wxWindow* TitledPanel::getPanel() const {
+        TitledPanel::TitledPanel(const QString& title, const bool showDivider, const bool boldTitle) :
+        TitledPanel(title, nullptr, showDivider, boldTitle) {}
+
+        TitleBar* TitledPanel::getTitleBar() const {
+            return m_titleBar;
+        }
+
+        QWidget* TitledPanel::getPanel() const {
             return m_panel;
         }
     }

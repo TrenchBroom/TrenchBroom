@@ -19,13 +19,13 @@
 
 #include "MixedBrushContentsIssueGenerator.h"
 
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/Issue.h"
-#include "Model/IssueQuickFix.h"
-#include "Model/MapFacade.h"
 
 #include <cassert>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -35,14 +35,14 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            MixedBrushContentsIssue(Brush* brush) :
+            explicit MixedBrushContentsIssue(BrushNode* brush) :
             Issue(brush) {}
 
             IssueType doGetType() const override {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            std::string doGetDescription() const override {
                 return "Brush has mixed content flags";
             }
         };
@@ -52,17 +52,19 @@ namespace TrenchBroom {
         MixedBrushContentsIssueGenerator::MixedBrushContentsIssueGenerator() :
         IssueGenerator(MixedBrushContentsIssue::Type, "Mixed brush content flags") {}
 
-        void MixedBrushContentsIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
-            const BrushFaceList& faces = brush->faces();
-            BrushFaceList::const_iterator it = std::begin(faces);
-            BrushFaceList::const_iterator end = std::end(faces);
+        void MixedBrushContentsIssueGenerator::doGenerate(BrushNode* brushNode, IssueList& issues) const {
+            const Brush& brush = brushNode->brush();
+            const auto& faces = brush.faces();
+            auto it = std::begin(faces);
+            auto end = std::end(faces);
             assert(it != end);
 
-            const int contentFlags = (*it)->surfaceContents();
+            const int contentFlags = it->attributes().surfaceContents();
             ++it;
             while (it != end) {
-                if ((*it)->surfaceContents() != contentFlags)
-                    issues.push_back(new MixedBrushContentsIssue(brush));
+                if (it->attributes().surfaceContents() != contentFlags) {
+                    issues.push_back(new MixedBrushContentsIssue(brushNode));
+                }
                 ++it;
             }
         }

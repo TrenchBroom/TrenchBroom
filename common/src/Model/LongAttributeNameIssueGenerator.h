@@ -21,7 +21,8 @@
 #define LongAttributeNameIssueGenerator_h
 
 #include "Model/IssueGenerator.h"
-#include "Model/ModelTypes.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {

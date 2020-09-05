@@ -20,9 +20,11 @@
 #ifndef VariableStore_h
 #define VariableStore_h
 
-#include "Macros.h"
-#include "StringUtils.h"
-#include "EL/Value.h"
+#include "EL/Value.h" // required by VariableTable::Table declaration
+
+#include <map>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace EL {
@@ -38,22 +40,22 @@ namespace TrenchBroom {
 
             VariableStore* clone() const;
             size_t size() const;
-            Value value(const String& name) const;
-            const StringSet names() const;
-            void declare(const String& name, const Value& value = Value::Undefined);
-            void assign(const String& name, const Value& value);
+            Value value(const std::string& name) const;
+            const std::vector<std::string> names() const;
+            void declare(const std::string& name, const Value& value);
+            void assign(const std::string& name, const Value& value);
         private:
             virtual VariableStore* doClone() const = 0;
             virtual size_t doGetSize() const = 0;
-            virtual Value doGetValue(const String& name) const = 0;
-            virtual StringSet doGetNames() const = 0;
-            virtual void doDeclare(const String& name, const Value& value) = 0;
-            virtual void doAssign(const String& name, const Value& value) = 0;
+            virtual Value doGetValue(const std::string& name) const = 0;
+            virtual std::vector<std::string> doGetNames() const = 0;
+            virtual void doDeclare(const std::string& name, const Value& value) = 0;
+            virtual void doAssign(const std::string& name, const Value& value) = 0;
         };
 
         class VariableTable : public VariableStore {
         private:
-            using Table = std::map<String, Value>;
+            using Table = std::map<std::string, Value>;
             Table m_variables;
         public:
             VariableTable();
@@ -61,10 +63,10 @@ namespace TrenchBroom {
         private:
             VariableStore* doClone() const override;
             size_t doGetSize() const override;
-            Value doGetValue(const String& name) const override;
-            StringSet doGetNames() const override;
-            void doDeclare(const String& name, const Value& value) override;
-            void doAssign(const String& name, const Value& value) override;
+            Value doGetValue(const std::string& name) const override;
+            std::vector<std::string> doGetNames() const override;
+            void doDeclare(const std::string& name, const Value& value) override;
+            void doAssign(const std::string& name, const Value& value) override;
         };
 
         class NullVariableStore : public VariableStore {
@@ -73,10 +75,10 @@ namespace TrenchBroom {
         private:
             VariableStore* doClone() const override;
             size_t doGetSize() const override;
-            Value doGetValue(const String& name) const override;
-            StringSet doGetNames() const override;
-            void doDeclare(const String& name, const Value& value) override;
-            void doAssign(const String& name, const Value& value) override;
+            Value doGetValue(const std::string& name) const override;
+            std::vector<std::string> doGetNames() const override;
+            void doDeclare(const std::string& name, const Value& value) override;
+            void doAssign(const std::string& name, const Value& value) override;
         };
     }
 }

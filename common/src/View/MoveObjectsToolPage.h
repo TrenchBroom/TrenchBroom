@@ -20,28 +20,38 @@
 #ifndef TrenchBroom_MoveObjectsToolPage
 #define TrenchBroom_MoveObjectsToolPage
 
-#include "View/ViewTypes.h"
+#include <memory>
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxButton;
-class wxTextCtrl;
+class QAbstractButton;
+class QLineEdit;
 
 namespace TrenchBroom {
     namespace View {
-        class MoveObjectsToolPage : public wxPanel {
-        private:
-            MapDocumentWPtr m_document;
+        class MapDocument;
+        class Selection;
 
-            wxTextCtrl* m_offset;
-            wxButton* m_button;
+        class MoveObjectsToolPage : public QWidget {
+            Q_OBJECT
+        private:
+            std::weak_ptr<MapDocument> m_document;
+
+            QLineEdit* m_offset;
+            QAbstractButton* m_button;
         public:
-            MoveObjectsToolPage(wxWindow* parent, MapDocumentWPtr document);
+            explicit MoveObjectsToolPage(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+            ~MoveObjectsToolPage() override;
         private:
-            void createGui();
+            void bindObservers();
+            void unbindObservers();
 
-            void OnUpdateButton(wxUpdateUIEvent& event);
-            void OnApply(wxCommandEvent& event);
+            void createGui();
+            void updateGui();
+
+            void selectionDidChange(const Selection& selection);
+
+            void applyMove();
         };
     }
 }

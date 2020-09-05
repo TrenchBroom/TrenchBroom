@@ -20,17 +20,14 @@
 #ifndef TrenchBroom_EntityBrowser
 #define TrenchBroom_EntityBrowser
 
-#include "StringUtils.h"
-#include "View/GLAttribs.h"
-#include "View/ViewTypes.h"
+#include <memory>
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxToggleButton;
-class wxChoice;
-class wxGLContext;
-class wxScrollBar;
-class wxSearchCtrl;
+class QPushButton;
+class QComboBox;
+class QLineEdit;
+class QScrollBar;
 
 namespace TrenchBroom {
     namespace IO {
@@ -40,26 +37,23 @@ namespace TrenchBroom {
     namespace View {
         class EntityBrowserView;
         class GLContextManager;
+        class MapDocument;
 
-        class EntityBrowser : public wxPanel {
+        class EntityBrowser : public QWidget {
+            Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
-            wxChoice* m_sortOrderChoice;
-            wxToggleButton* m_groupButton;
-            wxToggleButton* m_usedButton;
-            wxSearchCtrl* m_filterBox;
-            wxScrollBar* m_scrollBar;
+            std::weak_ptr<MapDocument> m_document;
+            QComboBox* m_sortOrderChoice;
+            QPushButton* m_groupButton;
+            QPushButton* m_usedButton;
+            QLineEdit* m_filterBox;
+            QScrollBar* m_scrollBar;
             EntityBrowserView* m_view;
         public:
-            EntityBrowser(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
-            ~EntityBrowser();
+            EntityBrowser(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
+            ~EntityBrowser() override;
 
             void reload();
-
-            void OnSortOrderChanged(wxCommandEvent& event);
-            void OnGroupButtonToggled(wxCommandEvent& event);
-            void OnUsedButtonToggled(wxCommandEvent& event);
-            void OnFilterPatternChanged(wxCommandEvent& event);
         private:
             void createGui(GLContextManager& contextManager);
 

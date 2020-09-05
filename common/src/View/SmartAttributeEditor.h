@@ -20,44 +20,44 @@
 #ifndef TrenchBroom_SmartAttributeEditor
 #define TrenchBroom_SmartAttributeEditor
 
-#include "Model/ModelTypes.h"
-#include "View/ViewTypes.h"
+#include <memory>
+#include <string>
+#include <vector>
 
-#include <wx/event.h>
-
-class wxWindow;
+#include <QWidget>
 
 namespace TrenchBroom {
-    namespace View {
-        class SmartAttributeEditor : public wxEvtHandler {
-        private:
-            View::MapDocumentWPtr m_document;
+    namespace Model {
+        class AttributableNode;
+    }
 
-            Model::AttributeName m_name;
-            Model::AttributableNodeList m_attributables;
+    namespace View {
+        class MapDocument;
+
+        class SmartAttributeEditor : public QWidget {
+            Q_OBJECT
+        private:
+            std::weak_ptr<MapDocument> m_document;
+
+            std::string m_name;
+            std::vector<Model::AttributableNode*> m_attributables;
             bool m_active;
         public:
-            SmartAttributeEditor(View::MapDocumentWPtr document);
+            explicit SmartAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             virtual ~SmartAttributeEditor();
 
-            bool usesName(const Model::AttributeName& name) const;
+            bool usesName(const std::string& name) const;
 
-            wxWindow* activate(wxWindow* parent, const Model::AttributeName& name);
-            void update(const Model::AttributableNodeList& attributables);
+            void activate(const std::string& name);
+            void update(const std::vector<Model::AttributableNode*>& attributables);
             void deactivate();
         protected:
-            View::MapDocumentSPtr document() const;
-            const Model::AttributeName& name() const;
-            const Model::AttributableNodeList attributables() const;
-            void addOrUpdateAttribute(const Model::AttributeValue& value);
+            std::shared_ptr<MapDocument> document() const;
+            const std::string& name() const;
+            const std::vector<Model::AttributableNode*> attributables() const;
+            void addOrUpdateAttribute(const std::string& value);
         private:
-            wxWindow* createVisual(wxWindow* parent);
-            void destroyVisual();
-            void updateVisual(const Model::AttributableNodeList& attributables);
-
-            virtual wxWindow* doCreateVisual(wxWindow* parent) = 0;
-            virtual void doDestroyVisual() = 0;
-            virtual void doUpdateVisual(const Model::AttributableNodeList& attributables) = 0;
+            virtual void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) = 0;
         };
     }
 }

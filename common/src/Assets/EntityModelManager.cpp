@@ -19,16 +19,18 @@
 
 #include "EntityModelManager.h"
 
+#include "Exceptions.h"
 #include "Logger.h"
 #include "Macros.h"
 #include "Assets/EntityModel.h"
+#include "Assets/ModelDefinition.h"
 #include "IO/EntityModelLoader.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"
 
 namespace TrenchBroom {
     namespace Assets {
-        EntityModelManager::EntityModelManager(int magFilter, int minFilter, Logger& logger) :
+        EntityModelManager::EntityModelManager(const int magFilter, const int minFilter, Logger& logger) :
         m_logger(logger),
         m_loader(nullptr),
         m_minFilter(minFilter),
@@ -108,14 +110,6 @@ namespace TrenchBroom {
             }
         }
 
-        bool EntityModelManager::hasModel(const Model::Entity* entity) const {
-            return hasModel(entity->modelSpecification());
-        }
-
-        bool EntityModelManager::hasModel(const Assets::ModelSpecification& spec) const {
-            return renderer(spec) != nullptr;
-        }
-
         EntityModel* EntityModelManager::model(const IO::Path& path) const {
             if (path.isEmpty()) {
                 return nullptr;
@@ -165,14 +159,15 @@ namespace TrenchBroom {
                 ensure(m_loader != nullptr, "loader is null");
                 m_loader->loadFrame(spec.path, spec.frameIndex, model, m_logger);
             } catch (const Exception& e) {
-                m_logger.error() << e.what();
+                // FIXME: be specific about which exceptions to catch here
+                m_logger.error() << "Could not load entity model frame " << spec << ": " << e.what();
             }
         }
 
-        void EntityModelManager::prepare(Renderer::Vbo& vbo) {
+        void EntityModelManager::prepare(Renderer::VboManager& vboManager) {
             resetTextureMode();
             prepareModels();
-            prepareRenderers(vbo);
+            prepareRenderers(vboManager);
         }
 
         void EntityModelManager::resetTextureMode() {
@@ -192,9 +187,9 @@ namespace TrenchBroom {
             m_unpreparedModels.clear();
         }
 
-        void EntityModelManager::prepareRenderers(Renderer::Vbo& vbo) {
+        void EntityModelManager::prepareRenderers(Renderer::VboManager& vboManager) {
             for (auto* renderer : m_unpreparedRenderers) {
-                renderer->prepare(vbo);
+                renderer->prepare(vboManager);
             }
             m_unpreparedRenderers.clear();
         }

@@ -19,22 +19,19 @@
 
 #include "CreateSimpleBrushToolController3D.h"
 
-#include "TrenchBroom.h"
-
+#include "FloatType.h"
 #include "PreferenceManager.h"
-#include "Preferences.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushGeometry.h"
-#include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
-#include "Renderer/RenderService.h"
 #include "View/CreateSimpleBrushTool.h"
 #include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
+
+#include <kdl/memory_utils.h>
 
 #include <vecmath/vec.h>
 #include <vecmath/line.h>
@@ -45,7 +42,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        CreateSimpleBrushToolController3D::CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, MapDocumentWPtr document) :
+        CreateSimpleBrushToolController3D::CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, std::weak_ptr<MapDocument> document) :
         m_tool(tool),
         m_document(document) {
             ensure(tool != nullptr, "tool is null");
@@ -62,9 +59,9 @@ namespace TrenchBroom {
         void CreateSimpleBrushToolController3D::doModifierKeyChange(const InputState& inputState) {
             if (thisToolDragging()) {
                 if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
-                    setRestricter(inputState, new LineDragRestricter(vm::line3(currentHandlePosition(), vm::vec3::pos_z)), true);
+                    setRestricter(inputState, new LineDragRestricter(vm::line3(currentHandlePosition(), vm::vec3::pos_z())), true);
                 } else {
-                    setRestricter(inputState, new PlaneDragRestricter(horizontalPlane(currentHandlePosition())), true);
+                    setRestricter(inputState, new PlaneDragRestricter(vm::horizontal_plane(currentHandlePosition())), true);
                 }
             }
         }
@@ -77,13 +74,13 @@ namespace TrenchBroom {
                 return DragInfo();
             }
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (document->hasSelection()) {
                 return DragInfo();
             }
 
             const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
+            const Model::Hit& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
             if (hit.isMatch()) {
                 m_initialPoint = hit.hitPoint();
             } else {
@@ -94,17 +91,17 @@ namespace TrenchBroom {
             refreshViews();
 
 
-            const vm::plane3 plane = vm::plane3(m_initialPoint, vm::vec3::pos_z);
+            const vm::plane3 plane = vm::plane3(m_initialPoint, vm::vec3::pos_z());
             return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), m_initialPoint);
         }
 
-        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController3D::doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) {
+        RestrictedDragPolicy::DragResult CreateSimpleBrushToolController3D::doDrag(const InputState& inputState, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) {
             updateBounds(nextHandlePosition, vm::vec3(inputState.camera().position()));
             refreshViews();
             return DR_Continue;
         }
 
-        void CreateSimpleBrushToolController3D::doEndDrag(const InputState& inputState) {
+        void CreateSimpleBrushToolController3D::doEndDrag(const InputState&) {
             m_tool->createBrush();
         }
 
@@ -112,9 +109,9 @@ namespace TrenchBroom {
             m_tool->cancel();
         }
 
-        void CreateSimpleBrushToolController3D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
+        void CreateSimpleBrushToolController3D::doSetRenderOptions(const InputState&, Renderer::RenderContext&) const {}
 
-        void CreateSimpleBrushToolController3D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void CreateSimpleBrushToolController3D::doRender(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_tool->render(renderContext, renderBatch);
         }
 
@@ -128,7 +125,7 @@ namespace TrenchBroom {
             bounds.min = min(m_initialPoint, point);
             bounds.max = max(m_initialPoint, point);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& grid = document->grid();
 
             // prevent flickering due to very small rounding errors
@@ -149,7 +146,7 @@ namespace TrenchBroom {
             }
 
             bounds = intersect(bounds, document->worldBounds());
-            if (!bounds.empty()) {
+            if (!bounds.is_empty()) {
                 m_tool->update(bounds);
             }
         }

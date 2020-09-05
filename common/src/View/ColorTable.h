@@ -20,34 +20,41 @@
 #ifndef TrenchBroom_ColorTable
 #define TrenchBroom_ColorTable
 
-#include <wx/scrolwin.h>
+#include <QWidget>
 
 #include <vector>
 
+class QColor;
+
 namespace TrenchBroom {
     namespace View {
-        class ColorTable : public wxScrolledWindow {
-        public:
-            using ColorList = std::vector<wxColour>;
+        class ColorTable : public QWidget {
+            Q_OBJECT
         private:
             int m_cellSize;
-            int m_margin;
-            ColorList m_colors;
-            ColorList m_selectedColors;
+            int m_cellSpacing;
+            std::vector<QColor> m_colors;
+            std::vector<QColor> m_selectedColors;
         public:
-            ColorTable(wxWindow* parent, wxWindowID winId, int cellSize, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxTAB_TRAVERSAL | wxBORDER_NONE);
+            explicit ColorTable(int cellSize, QWidget* parent = nullptr);
 
-            void setColors(const ColorList& colors);
-            void setSelection(const ColorList& colors);
+            void setColors(const std::vector<QColor>& colors);
+            void setSelection(const std::vector<QColor>& colors);
+        protected: // QWidget overrides
+            void paintEvent(QPaintEvent* event) override;
+            void mouseReleaseEvent(QMouseEvent* event) override;
 
-            void OnSize(wxSizeEvent& event);
-            void OnPaint(wxPaintEvent& event);
-            void OnMouseUp(wxMouseEvent& event);
+        public: // QWidget overrides
+            bool hasHeightForWidth() const override;
+            int heightForWidth(int w) const override;
+
         private:
-            void updateVirtualSize();
             int computeCols(int width) const;
             int computeRows(int cols) const;
             int computeHeight(int rows) const;
+
+        signals:
+            void colorTableSelected(QColor color);
         };
     }
 }

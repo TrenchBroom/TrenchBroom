@@ -20,27 +20,22 @@
 #ifndef VertexHandleManager_h
 #define VertexHandleManager_h
 
-#include "TrenchBroom.h"
-#include "Model/Brush.h"
+#include "FloatType.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/Hit.h"
+#include "Model/HitType.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
-#include "View/ViewTypes.h"
 
-#include <vecmath/distance.h>
+#include <kdl/vector_set.h>
 
-#include <algorithm>
-#include <functional>
+#include <vecmath/segment.h>
+
 #include <iterator>
 #include <map>
+#include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Brush;
-        class PickResult;
-    }
-
     namespace Renderer {
         class Camera;
     }
@@ -56,39 +51,45 @@ namespace TrenchBroom {
              * Adds all handles of the the given range of brushes to this handle manager.
              *
              * @tparam I the type of the given range iterators
-             * @param begin the beginning of the range
+             * @param cur the beginning of the range
              * @param end the end of the range
              */
             template <typename I>
-            void addHandles(I begin, I end) {
-                std::for_each(begin, end, [this](const Model::Brush* brush) { addHandles(brush); });
+            void addHandles(I cur, I end) {
+                while (cur != end) {
+                    addHandles(*cur);
+                    ++cur;
+                }
             }
 
             /**
              * Adds all handles of the given brush to this handle manager.
              *
-             * @param brush the brush whose handles to add
+             * @param brushNode the brush whose handles to add
              */
-            virtual void addHandles(const Model::Brush* brush) = 0;
+            virtual void addHandles(const Model::BrushNode* brushNode) = 0;
 
             /**
              * Removes all handles of the given range of brushes from this handle manager.
              *
              * @tparam I the type of the range iterators
-             * @param begin the beginning of the range
+             * @param cur the beginning of the range
              * @param end the end of the range
              */
             template <typename I>
-            void removeHandles(I begin, I end) {
-                std::for_each(begin, end, [this](const Model::Brush* brush) { removeHandles(brush); });
+            void removeHandles(I cur, I end) {
+                while (cur != end) {
+                    removeHandles(*cur);
+                    ++cur;
+                }
             }
 
             /**
              * Removes all handles of the given brush from this handle manager.
              *
-             * @param brush the brush whose handles to remove
+             * @param brushNode the brush whose handles to remove
              */
-            virtual void removeHandles(const Model::Brush* brush) = 0;
+            virtual void removeHandles(const Model::BrushNode* brushNode) = 0;
         };
 
         template <typename H>
@@ -180,7 +181,7 @@ namespace TrenchBroom {
              *
              * @return the hit type value
              */
-            virtual Model::Hit::HitType hitType() const = 0;
+            virtual Model::HitType::Type hitType() const = 0;
 
             /**
              * The total number of selected handles, not counting duplicates.
@@ -217,7 +218,7 @@ namespace TrenchBroom {
             HandleList allHandles() const {
                 HandleList result;
                 result.reserve(totalHandleCount());
-                collectHandles([](const HandleInfo& info) { return true; }, std::back_inserter(result));
+                collectHandles([](const HandleInfo& /* info */) { return true; }, std::back_inserter(result));
                 return result;
             }
 
@@ -250,8 +251,9 @@ namespace TrenchBroom {
                 for (const HandleEntry& entry : m_handles) {
                     const Handle& handle = entry.first;
                     const HandleInfo& info = entry.second;
-                    if (test(info))
-                        out = handle;
+                    if (test(info)) {
+                        out++ = handle;
+                    }
                 }
             }
         public:
@@ -301,7 +303,7 @@ namespace TrenchBroom {
              * @param handle the handle to add
              */
             void add(const Handle& handle) {
-                MapUtils::findOrInsert(m_handles, handle, HandleInfo())->second.inc();
+                m_handles[handle].inc(); // unknown value gets value constructed, which for HandleInfo means its default constructor is called
             }
 
             /**
@@ -338,12 +340,15 @@ namespace TrenchBroom {
              * Selects the given range of handles.
              *
              * @tparam I the type of the range iterator
-             * @param begin the beginning of the range
+             * @param cur the beginning of the range
              * @param end the end of the range
              */
             template <typename I>
-            void select(I begin, I end) {
-                std::for_each(begin, end, [this](const Handle& handle) { select(handle); });
+            void select(I cur, I end) {
+                while (cur != end) {
+                    select(*cur);
+                    ++cur;
+                }
             }
 
             /**
@@ -360,12 +365,15 @@ namespace TrenchBroom {
              * Deselects the given range of handles.
              *
              * @tparam I the type of the range iterators
-             * @param begin the beginning of the range
+             * @param cur the beginning of the range
              * @param end the end of the range
              */
             template <typename I>
-            void deselect(I begin, I end) {
-                std::for_each(begin, end, [this](const Handle& handle) { deselect(handle); });
+            void deselect(I cur, I end) {
+                while (cur != end) {
+                    deselect(*cur);
+                    ++cur;
+                }
             }
 
             /**
@@ -382,9 +390,9 @@ namespace TrenchBroom {
              * Deselects all currently selected handles
              */
             void deselectAll() {
-                std::for_each(std::begin(m_handles), std::end(m_handles), [this](HandleEntry& entry) {
+                for (auto& entry : m_handles) {
                     deselect(entry.second);
-                });
+                }
             }
 
             /**
@@ -399,17 +407,21 @@ namespace TrenchBroom {
                 using SelectionState = std::map<Handle, bool>;
                 SelectionState selectionState;
 
-                std::for_each(begin, end, [&](const Handle& handle) { selectionState[handle] = selected(handle); });
-                std::for_each(begin, end, [&](const Handle& handle) {
-                    if (selectionState[handle]) {
-                        deselect(handle);
+                for (auto cur = begin; cur != end; ++cur) {
+                    selectionState[*cur] = selected(*cur);
+                }
+
+                for (auto cur = begin; cur != end; ++cur) {
+                    if (selectionState[*cur]) {
+                        deselect(*cur);
                     } else {
-                        select(handle);
+                        select(*cur);
                     }
-                });
+                }
             }
         private:
-            void forEachCloseHandle(const H& handle, std::function<void(HandleInfo&)> fun) {
+            template <typename F>
+            void forEachCloseHandle(const H& handle, F fun) {
                 static const auto epsilon = 0.001 * 0.001;
                 for (auto& entry : m_handles) {
                     if (compare(handle, entry.first, epsilon) == 0) {
@@ -452,11 +464,12 @@ namespace TrenchBroom {
              */
             template <typename P>
             void pick(const P& test, Model::PickResult& pickResult) const {
-                std::for_each(std::begin(m_handles), std::end(m_handles), [&test, &pickResult](const HandleEntry& entry) {
-                    const Model::Hit hit = test(entry.first);
-                    if (hit.isMatch())
+                for (const auto& entry : m_handles) {
+                    const auto hit = test(entry.first);
+                    if (hit.isMatch()) {
                         pickResult.addHit(hit);
-                });
+                    }
+                }
             }
         public:
             /**
@@ -469,10 +482,10 @@ namespace TrenchBroom {
              * @return a set of all brushes that are incident to the given handle
              */
             template <typename I>
-            Model::BrushSet findIncidentBrushes(const Handle& handle, I begin, I end) const {
-                Model::BrushSet result;
+            std::vector<Model::BrushNode*> findIncidentBrushes(const Handle& handle, I begin, I end) const {
+                kdl::vector_set<Model::BrushNode*> result;
                 findIncidentBrushes(handle, begin, end, std::inserter(result, result.end()));
-                return result;
+                return result.release_data();
             }
 
             /**
@@ -487,13 +500,13 @@ namespace TrenchBroom {
              * @return a set containing all incident brushes
              */
             template <typename I1, typename I2>
-            Model::BrushSet findIncidentBrushes(I1 hBegin, I1 hEnd, I2 bBegin, I2 bEnd) const {
-                Model::BrushSet result;
+            std::vector<Model::BrushNode*> findIncidentBrushes(I1 hBegin, I1 hEnd, I2 bBegin, I2 bEnd) const {
+                kdl::vector_set<Model::BrushNode*> result;
                 auto out = std::inserter(result, std::end(result));
-                std::for_each(hBegin, hEnd, [this, bBegin, bEnd, out](const Handle& handle) {
-                    findIncidentBrushes(handle, bBegin, bEnd, out);
-                });
-                return result;
+                for (auto hCur = hBegin; hCur != hEnd; ++hCur) {
+                    findIncidentBrushes(*hCur, bBegin, bEnd, out);
+                }
+                return result.release_data();
             }
 
             /**
@@ -508,17 +521,21 @@ namespace TrenchBroom {
              */
             template <typename I, typename O>
             void findIncidentBrushes(const Handle& handle, I begin, I end, O out) const {
-                std::copy_if(begin, end, out, [this, &handle](const Model::Brush* brush) { return this->isIncident(handle, brush); });
+                for (auto cur = begin; cur != end; ++cur) {
+                    if (isIncident(handle, *cur)) {
+                        out++ = *cur;
+                    }
+                }
             }
         private:
             /**
              * Checks whether the given brush is incident to the given handle.
              *
              * @param handle the handle to check
-             * @param brush the brush to check
+             * @param brushNode the brush to check
              * @return true if and only if the given brush is incident to the given handle
              */
-            virtual bool isIncident(const Handle& handle, const Model::Brush* brush) const = 0;
+            virtual bool isIncident(const Handle& handle, const Model::BrushNode* brushNode) const = 0;
         };
 
         /**
@@ -526,7 +543,7 @@ namespace TrenchBroom {
          */
         class VertexHandleManager : public VertexHandleManagerBaseT<vm::vec3> {
         public:
-            static const Model::Hit::HitType HandleHit;
+            static const Model::HitType::Type HandleHitType;
         public:
             using VertexHandleManagerBase::addHandles;
             using VertexHandleManagerBase::removeHandles;
@@ -541,12 +558,12 @@ namespace TrenchBroom {
              */
             void pick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
-            void addHandles(const Model::Brush* brush) override;
-            void removeHandles(const Model::Brush* brush) override;
+            void addHandles(const Model::BrushNode* brushNode) override;
+            void removeHandles(const Model::BrushNode* brushNode) override;
 
-            Model::Hit::HitType hitType() const override;
+            Model::HitType::Type hitType() const override;
         private:
-            bool isIncident(const Handle& handle, const Model::Brush* brush) const override;
+            bool isIncident(const Handle& handle, const Model::BrushNode* brushNode) const override;
         };
 
         /**
@@ -560,7 +577,7 @@ namespace TrenchBroom {
          */
         class EdgeHandleManager : public VertexHandleManagerBaseT<vm::segment3> {
         public:
-            static const Model::Hit::HitType HandleHit;
+            static const Model::HitType::Type HandleHitType;
             using HitType = std::tuple<vm::segment3, vm::vec3>;
         public:
             using VertexHandleManagerBase::addHandles;
@@ -586,12 +603,12 @@ namespace TrenchBroom {
              */
             void pickCenterHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
-            void addHandles(const Model::Brush* brush) override;
-            void removeHandles(const Model::Brush* brush) override;
+            void addHandles(const Model::BrushNode* brushNode) override;
+            void removeHandles(const Model::BrushNode* brushNode) override;
 
-            Model::Hit::HitType hitType() const override;
+            Model::HitType::Type hitType() const override;
         private:
-            bool isIncident(const Handle& handle, const Model::Brush* brush) const override;
+            bool isIncident(const Handle& handle, const Model::BrushNode* brushNode) const override;
         };
 
         /**
@@ -605,7 +622,7 @@ namespace TrenchBroom {
         */
         class FaceHandleManager : public VertexHandleManagerBaseT<vm::polygon3> {
         public:
-            static const Model::Hit::HitType HandleHit;
+            static const Model::HitType::Type HandleHitType;
             using HitType = std::tuple<vm::polygon3, vm::vec3>;
         public:
             using VertexHandleManagerBase::addHandles;
@@ -632,12 +649,12 @@ namespace TrenchBroom {
              */
             void pickCenterHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
         public:
-            void addHandles(const Model::Brush* brush) override;
-            void removeHandles(const Model::Brush* brush) override;
+            void addHandles(const Model::BrushNode* brushNode) override;
+            void removeHandles(const Model::BrushNode* brushNode) override;
 
-            Model::Hit::HitType hitType() const override;
+            Model::HitType::Type hitType() const override;
         private:
-            bool isIncident(const Handle& handle, const Model::Brush* brush) const override;
+            bool isIncident(const Handle& handle, const Model::BrushNode* brushNode) const override;
         };
     }
 }

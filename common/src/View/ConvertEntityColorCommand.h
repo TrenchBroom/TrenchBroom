@@ -20,39 +20,43 @@
 #ifndef TrenchBroom_ConvertEntityColorCommand
 #define TrenchBroom_ConvertEntityColorCommand
 
-#include "Color.h"
-#include "SharedPointer.h"
-#include "Model/EntityAttributeSnapshot.h"
+#include "Macros.h"
 #include "Model/EntityColor.h"
-#include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
 
 #include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
-    namespace View {
-        class MapDocumentCommandFacade;
+    namespace Model {
+        class EntityAttributeSnapshot;
+    }
 
+    namespace View {
         class ConvertEntityColorCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<ConvertEntityColorCommand>;
         private:
-            Model::AttributeName m_attributeName;
+            std::string m_attributeName;
             Assets::ColorRange::Type m_colorRange;
 
-            Model::EntityAttributeSnapshot::Map m_snapshots;
+            std::map<Model::AttributableNode*, std::vector<Model::EntityAttributeSnapshot>> m_snapshots;
         public:
-            static Ptr convert(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
-        private:
-            ConvertEntityColorCommand(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
+            static std::unique_ptr<ConvertEntityColorCommand> convert(const std::string& attributeName, Assets::ColorRange::Type colorRange);
 
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            ConvertEntityColorCommand(const std::string& attributeName, Assets::ColorRange::Type colorRange);
+            ~ConvertEntityColorCommand() override;
+        private:
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(UndoableCommand* command) override;
+
+            deleteCopyAndMove(ConvertEntityColorCommand)
         };
     }
 }

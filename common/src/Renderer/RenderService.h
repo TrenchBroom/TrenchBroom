@@ -20,15 +20,11 @@
 #ifndef TrenchBroom_RenderService
 #define TrenchBroom_RenderService
 
-#include "AttrString.h"
 #include "Macros.h"
-#include "TrenchBroom.h"
 #include "Color.h"
-#include "Renderer/PrimitiveRenderer.h"
 
+#include <vecmath/constants.h>
 #include <vecmath/forward.h>
-#include <vecmath/segment.h>
-#include <vecmath/polygon.h>
 #include <vecmath/util.h>
 
 #include <memory>
@@ -36,19 +32,20 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class FontDescriptor;
+        class AttrString;
         class PointHandleRenderer;
         class PrimitiveRenderer;
+        enum class PrimitiveRendererCullingPolicy;
+        enum class PrimitiveRendererOcclusionPolicy;
         class RenderBatch;
         class RenderContext;
         class TextAnchor;
         class TextRenderer;
-        class Vbo;
 
         class RenderService {
         private:
-            using OcclusionPolicy = PrimitiveRenderer::OcclusionPolicy;
-            using CullingPolicy = PrimitiveRenderer::CullingPolicy;
+            using OcclusionPolicy = PrimitiveRendererOcclusionPolicy;
+            using CullingPolicy = PrimitiveRendererCullingPolicy;
             class HeadsUpTextAnchor;
 
             RenderContext& m_renderContext;
@@ -83,6 +80,10 @@ namespace TrenchBroom {
             void renderString(const AttrString& string, const TextAnchor& position);
             void renderHeadsUp(const AttrString& string);
 
+            void renderString(const std::string& string, const vm::vec3f& position);
+            void renderString(const std::string& string, const TextAnchor& position);
+            void renderHeadsUp(const std::string& string);
+
             void renderHandles(const std::vector<vm::vec3f>& positions);
             void renderHandle(const vm::vec3f& position);
             void renderHandleHighlight(const vm::vec3f& position);
@@ -106,10 +107,10 @@ namespace TrenchBroom {
             void renderBounds(const vm::bbox3f& bounds);
 
             void renderCircle(const vm::vec3f& position, vm::axis::type normal, size_t segments, float radius, const vm::vec3f& startAxis, const vm::vec3f& endAxis);
-            void renderCircle(const vm::vec3f& position, vm::axis::type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = vm::Cf::twoPi());
+            void renderCircle(const vm::vec3f& position, vm::axis::type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = vm::Cf::two_pi());
 
             void renderFilledCircle(const vm::vec3f& position, vm::axis::type normal, size_t segments, float radius, const vm::vec3f& startAxis, const vm::vec3f& endAxis);
-            void renderFilledCircle(const vm::vec3f& position, vm::axis::type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = vm::Cf::twoPi());
+            void renderFilledCircle(const vm::vec3f& position, vm::axis::type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = vm::Cf::two_pi());
         private:
             void flush();
         };

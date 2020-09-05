@@ -21,21 +21,14 @@
 #define TrenchBroom_FlyModeHelper
 
 #include <vecmath/forward.h>
-#include <vecmath/vec.h>
 
-#include <iostream>
+#include <cstdint>
 
-#include <wx/gdicmn.h>
-#include <wx/longlong.h>
-
-class wxKeyEvent;
+class QKeyEvent;
 
 namespace TrenchBroom {
     namespace Renderer {
         class Camera;
-    }
-    namespace IO {
-        class Path;
     }
 
     namespace View {
@@ -50,15 +43,17 @@ namespace TrenchBroom {
             bool m_up;
             bool m_down;
 
-            wxLongLong m_lastPollTime;
+            int64_t m_lastPollTime;
         public:
-            FlyModeHelper(Renderer::Camera& camera);
-            ~FlyModeHelper();
+            explicit FlyModeHelper(Renderer::Camera& camera);
 
             void pollAndUpdate();
         public:
-            bool keyDown(wxKeyEvent& event);
-            bool keyUp(wxKeyEvent& event);
+            void keyDown(QKeyEvent* event);
+            void keyUp(QKeyEvent* event);
+            /**
+             * Returns whether the camera is currently moving due to a fly key being held down.
+             */
             bool anyKeyDown() const;
             void resetKeys();
         private:

@@ -19,38 +19,41 @@
 
 #include "Snapshot.h"
 
-#include "CollectionUtils.h"
-#include "Model/BrushFaceSnapshot.h"
+#include "Exceptions.h"
+#include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
+#include "Model/BrushNode.h"
 #include "Model/Node.h"
 #include "Model/NodeSnapshot.h"
+
+#include <kdl/overload.h>
+#include <kdl/result.h>
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace Model {
         Snapshot::~Snapshot() {
-            VectorUtils::clearAndDelete(m_nodeSnapshots);
-            VectorUtils::clearAndDelete(m_brushFaceSnapshots);
+            kdl::vec_clear_and_delete(m_nodeSnapshots);
         }
 
-        void Snapshot::restoreNodes(const vm::bbox3& worldBounds) {
-            for (NodeSnapshot* snapshot : m_nodeSnapshots)
-                snapshot->restore(worldBounds);
-        }
-
-        void Snapshot::restoreBrushFaces() {
-            for (BrushFaceSnapshot* snapshot : m_brushFaceSnapshots)
-                snapshot->restore();
+        kdl::result<void, SnapshotErrors> Snapshot::restoreNodes(const vm::bbox3& worldBounds) {
+            SnapshotErrors errors;
+            for (NodeSnapshot* snapshot : m_nodeSnapshots) {
+                snapshot->restore(worldBounds)
+                    .visit(kdl::overload {
+                        []() {},
+                        [&](const SnapshotErrors& e) { kdl::vec_append(errors, e); }
+                    });
+            }
+            return errors.empty()
+                ? kdl::result<void, SnapshotErrors>::success()
+                : kdl::result<void, SnapshotErrors>::error(std::move(errors));
         }
 
         void Snapshot::takeSnapshot(Node* node) {
             NodeSnapshot* snapshot = node->takeSnapshot();
             if (snapshot != nullptr)
                 m_nodeSnapshots.push_back(snapshot);
-        }
-
-        void Snapshot::takeSnapshot(BrushFace* face) {
-            BrushFaceSnapshot* snapshot = face->takeSnapshot();
-            if (snapshot != nullptr)
-                m_brushFaceSnapshots.push_back(snapshot);
         }
     }
 }

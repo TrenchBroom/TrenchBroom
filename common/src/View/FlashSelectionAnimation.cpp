@@ -20,18 +20,16 @@
 #include "FlashSelectionAnimation.h"
 
 #include "Color.h"
-#include "PreferenceManager.h"
-#include "Preferences.h"
 #include "Renderer/MapRenderer.h"
 
-#include <wx/window.h>
+#include <QWidget>
 
 namespace TrenchBroom {
     namespace View {
         const Animation::Type FlashSelectionAnimation::AnimationType = Animation::freeType();
 
-        FlashSelectionAnimation::FlashSelectionAnimation(Renderer::MapRenderer& renderer, wxWindow& view, const wxLongLong& duration) :
-        Animation(AnimationType, Curve_EaseInEaseOut, duration),
+        FlashSelectionAnimation::FlashSelectionAnimation(Renderer::MapRenderer& renderer, QWidget* view, const double duration) :
+        Animation(AnimationType, Curve::EaseInEaseOut, duration),
         m_renderer(renderer),
         m_view(view) {}
 
@@ -47,7 +45,7 @@ namespace TrenchBroom {
                 m_renderer.restoreSelectionColors();
             }
 
-            m_view.Refresh();
+            m_view->update();
         }
     }
 }

@@ -20,21 +20,28 @@
 #ifndef TrenchBroom_NodeCollection
 #define TrenchBroom_NodeCollection
 
-#include "Model/ModelTypes.h"
-#include "Model/NodeVisitor.h"
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushNode;
+        class EntityNode;
+        class GroupNode;
+        class LayerNode;
+        class Node;
+
         class NodeCollection {
         private:
             class AddNode;
             class RemoveNode;
+            class FindBrushes;
+            class HasBrush;
         private:
-            NodeList m_nodes;
-            LayerList m_layers;
-            GroupList m_groups;
-            EntityList m_entities;
-            BrushList m_brushes;
+            std::vector<Node*> m_nodes;
+            std::vector<LayerNode*> m_layers;
+            std::vector<GroupNode*> m_groups;
+            std::vector<EntityNode*> m_entities;
+            std::vector<BrushNode*> m_brushes;
         public:
             bool empty() const;
             size_t nodeCount() const;
@@ -51,22 +58,24 @@ namespace TrenchBroom {
             bool hasOnlyEntities() const;
             bool hasBrushes() const;
             bool hasOnlyBrushes() const;
+            bool hasBrushesRecursively() const;
 
-            NodeList::iterator begin();
-            NodeList::iterator end();
-            NodeList::const_iterator begin() const;
-            NodeList::const_iterator end() const;
+            std::vector<Node*>::iterator begin();
+            std::vector<Node*>::iterator end();
+            std::vector<Node*>::const_iterator begin() const;
+            std::vector<Node*>::const_iterator end() const;
 
-            const NodeList& nodes() const;
-            const LayerList& layers() const;
-            const GroupList& groups() const;
-            const EntityList& entities() const;
-            const BrushList& brushes() const;
+            const std::vector<Node*>& nodes() const;
+            const std::vector<LayerNode*>& layers() const;
+            const std::vector<GroupNode*>& groups() const;
+            const std::vector<EntityNode*>& entities() const;
+            const std::vector<BrushNode*>& brushes() const;
+            std::vector<BrushNode*> brushesRecursively() const;
 
-            void addNodes(const NodeList& nodes);
+            void addNodes(const std::vector<Node*>& nodes);
             void addNode(Node* node);
 
-            void removeNodes(const NodeList& nodes);
+            void removeNodes(const std::vector<Node*>& nodes);
             void removeNode(Node* node);
 
             void clear();

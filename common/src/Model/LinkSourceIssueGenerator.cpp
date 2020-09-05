@@ -19,14 +19,14 @@
 
 #include "LinkSourceIssueGenerator.h"
 
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 #include "Model/PushSelection.h"
 
-#include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -34,14 +34,14 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            LinkSourceIssue(AttributableNode* node) :
+            explicit LinkSourceIssue(AttributableNode* node) :
             Issue(node) {}
 
             IssueType doGetType() const override {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            std::string doGetDescription() const override {
                 const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
                 return attributableNode->classname() + " has unused targetname key";
             }

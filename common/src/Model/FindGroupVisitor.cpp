@@ -20,29 +20,29 @@
 #include "FindGroupVisitor.h"
 
 #include "Model/Node.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 
 namespace TrenchBroom {
     namespace Model {
         // FindGroupVisitor
 
-        void FindGroupVisitor::doVisit(World* world) {}
-        void FindGroupVisitor::doVisit(Layer* layer) {}
+        void FindGroupVisitor::doVisit(WorldNode*) {}
+        void FindGroupVisitor::doVisit(LayerNode*) {}
 
-        void FindGroupVisitor::doVisit(Group* group) {
+        void FindGroupVisitor::doVisit(GroupNode* group) {
             setResult(group);
             cancel();
         }
 
-        void FindGroupVisitor::doVisit(Entity* entity) {}
-        void FindGroupVisitor::doVisit(Brush* brush) {}
+        void FindGroupVisitor::doVisit(EntityNode*) {}
+        void FindGroupVisitor::doVisit(BrushNode*) {}
 
         // FindOutermostClosedGroupVisitor
 
-        void FindOutermostClosedGroupVisitor::doVisit(World* world) {}
-        void FindOutermostClosedGroupVisitor::doVisit(Layer* layer) {}
+        void FindOutermostClosedGroupVisitor::doVisit(WorldNode*) {}
+        void FindOutermostClosedGroupVisitor::doVisit(LayerNode*) {}
 
-        void FindOutermostClosedGroupVisitor::doVisit(Group* group) {
+        void FindOutermostClosedGroupVisitor::doVisit(GroupNode* group) {
             const bool closed = !(group->opened() || group->hasOpenedDescendant());
 
             if (closed) {
@@ -50,18 +50,18 @@ namespace TrenchBroom {
             }
         }
 
-        void FindOutermostClosedGroupVisitor::doVisit(Entity* entity) {}
-        void FindOutermostClosedGroupVisitor::doVisit(Brush* brush) {}
+        void FindOutermostClosedGroupVisitor::doVisit(EntityNode*) {}
+        void FindOutermostClosedGroupVisitor::doVisit(BrushNode*) {}
 
         // Helper functions
 
-        Model::Group* findGroup(Model::Node* node) {
+        Model::GroupNode* findGroup(Model::Node* node) {
             FindGroupVisitor visitor;
             node->escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
-        Model::Group* findOutermostClosedGroup(Model::Node* node) {
+        Model::GroupNode* findOutermostClosedGroup(Model::Node* node) {
             FindOutermostClosedGroupVisitor visitor;
             node->escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;

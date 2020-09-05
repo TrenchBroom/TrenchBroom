@@ -19,71 +19,94 @@
 
 #include "FlagsEditor.h"
 
-#include "View/FlagChangedCommand.h"
+#include "Ensure.h"
 #include "View/ViewConstants.h"
-#include "Macros.h"
+#include "View/QtUtils.h"
+
+#include <QGridLayout>
+#include <QCheckBox>
 
 #include <cassert>
-#include <wx/checkbox.h>
-#include <wx/sizer.h>
-#include <wx/wupdlock.h>
 
 namespace TrenchBroom {
     namespace View {
-        FlagsEditor::FlagsEditor(wxWindow* parent, const size_t numCols) :
-        wxPanel(parent),
+        FlagsEditor::FlagsEditor(size_t numCols, QWidget* parent) :
+        QWidget(parent),
         m_numCols(numCols) {
             assert(m_numCols > 0);
         }
 
-        void FlagsEditor::setFlags(const wxArrayString& labels, const wxArrayString& tooltips) {
-            wxArrayInt values(labels.size());
-            for (size_t i = 0; i < labels.size(); ++i)
-                values[i] = (1 << i);
+        void FlagsEditor::setFlags(const QStringList& labels, const QStringList& tooltips) {
+            QList<int> values;
+            values.reserve(labels.size());
+
+            for (int i = 0; i < labels.size(); ++i) {
+                values.push_back(1 << i);
+            }
             setFlags(values, labels, tooltips);
         }
 
-        void FlagsEditor::setFlags(const wxArrayInt& values, const wxArrayString& labels, const wxArrayString& tooltips) {
-            wxWindowUpdateLocker locker(this);
+        void FlagsEditor::setFlags(const QList<int>& values, const QStringList& labels, const QStringList& tooltips) {
+            const auto count = static_cast<size_t>(values.size());
+            const size_t numRows = (count + (m_numCols - 1)) / m_numCols;
+            ensure(numRows * m_numCols >= count, "didn't allocate enough grid cells");
 
-            const size_t count = values.size();
-            setCheckBoxCount(count);
+            m_checkBoxes.clear();
+            m_values.clear();
 
-            const size_t numRows = count / m_numCols;
+            m_checkBoxes.resize(count, nullptr);
+            m_values.resize(count, 0);
 
-            wxFlexGridSizer* sizer = new wxFlexGridSizer(static_cast<int>(numRows),
-                                                         static_cast<int>(m_numCols),
-                                                         0, LayoutConstants::WideHMargin);
+            deleteChildWidgetsLaterAndDeleteLayout(this);
 
-            SetSizer(nullptr); // delete the old sizer, otherwise we cannot add the checkboxes to the new sizer
+            auto* layout = new QGridLayout();
+            layout->setHorizontalSpacing(LayoutConstants::WideHMargin);
+            layout->setVerticalSpacing(0);
+            layout->setSizeConstraint(QLayout::SetMinimumSize);
+
             for (size_t row = 0; row < numRows; ++row) {
                 for (size_t col = 0; col < m_numCols; ++col) {
                     const size_t index = col * numRows + row;
                     if (index < count) {
-                        m_checkBoxes[index]->SetLabel(index < labels.size() ? labels[index] : wxString() << (1 << index));
-                        m_checkBoxes[index]->SetToolTip(index < tooltips.size() ? tooltips[index] : "");
-                        m_values[index] = values[index];
-                        sizer->Add(m_checkBoxes[index]);
+                        const int indexInt = static_cast<int>(index);
+                        const int rowInt = static_cast<int>(row);
+                        const int colInt = static_cast<int>(col);
+                        const int value = values[indexInt];
+
+                        m_checkBoxes[index] = new QCheckBox();
+                        m_values[index] = value;
+
+                        m_checkBoxes[index]->setText(indexInt < labels.size() ? labels[indexInt] : QString::number(value));
+                        m_checkBoxes[index]->setToolTip(indexInt < tooltips.size() ? tooltips[indexInt] : "");
+                        connect(m_checkBoxes[index], &QCheckBox::clicked, this, [index, value, this](){
+                            emit flagChanged(index, value, this->getSetFlagValue(), this->getMixedFlagValue());
+                        });
+
+                        layout->addWidget(m_checkBoxes[index], rowInt, colInt);
                     }
                 }
             }
 
-            SetSizerAndFit(sizer);
+            for (size_t i = 0; i < m_checkBoxes.size(); ++i) {
+                ensure(m_checkBoxes[i] != nullptr, "didn't create enough checkbox widgets");
+            }
+
+            setLayout(layout);
         }
 
         void FlagsEditor::setFlagValue(const int on, const int mixed) {
-            wxWindowUpdateLocker locker(this);
             for (size_t i = 0; i < m_checkBoxes.size(); ++i) {
-                wxCheckBox* checkBox = m_checkBoxes[i];
+                QCheckBox* checkBox = m_checkBoxes[i];
                 const int value = m_values[i];
                 const bool isMixed = (mixed & value) != 0;
                 const bool isChecked = (on & value) != 0;
-                if (isMixed)
-                    checkBox->Set3StateValue(wxCHK_UNDETERMINED);
-                else if (isChecked)
-                    checkBox->Set3StateValue(wxCHK_CHECKED);
-                else
-                    checkBox->Set3StateValue(wxCHK_UNCHECKED);
+                if (isMixed) {
+                    checkBox->setCheckState(Qt::PartiallyChecked);
+                } else if (isChecked) {
+                    checkBox->setCheckState(Qt::Checked);
+                } else {
+                    checkBox->setCheckState(Qt::Unchecked);
+                }
             }
         }
 
@@ -93,19 +116,20 @@ namespace TrenchBroom {
 
         bool FlagsEditor::isFlagSet(const size_t index) const {
             ensure(index < m_checkBoxes.size(), "index out of range");
-            return m_checkBoxes[index]->Get3StateValue() == wxCHK_CHECKED;
+            return m_checkBoxes[index]->checkState() == Qt::Checked;
         }
 
         bool FlagsEditor::isFlagMixed(const size_t index) const {
             ensure(index < m_checkBoxes.size(), "index out of range");
-            return m_checkBoxes[index]->Get3StateValue() == wxCHK_UNDETERMINED;
+            return m_checkBoxes[index]->checkState() == Qt::PartiallyChecked;
         }
 
         int FlagsEditor::getSetFlagValue() const {
             int value = 0;
             for (size_t i = 0; i < m_checkBoxes.size(); ++i) {
-                if (isFlagSet(i))
+                if (isFlagSet(i)) {
                     value |= m_values[i];
+                }
             }
             return value;
         }
@@ -113,53 +137,21 @@ namespace TrenchBroom {
         int FlagsEditor::getMixedFlagValue() const {
             int value = 0;
             for (size_t i = 0; i < m_checkBoxes.size(); ++i) {
-                if (isFlagMixed(i))
+                if (isFlagMixed(i)) {
                     value |= m_values[i];
+                }
             }
             return value;
         }
 
-        wxString FlagsEditor::getFlagLabel(const size_t index) const {
+        QString FlagsEditor::getFlagLabel(const size_t index) const {
             ensure(index < m_checkBoxes.size(), "index out of range");
-            return m_checkBoxes[index]->GetLabel();
+            return m_checkBoxes[index]->text();
         }
 
         int FlagsEditor::lineHeight() const {
             assert(!m_checkBoxes.empty());
-            return m_checkBoxes.front()->GetSize().y;
-        }
-
-        void FlagsEditor::OnCheckBoxClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            const size_t index = getIndexFromEvent(event);
-            ensure(index < m_checkBoxes.size(), "index out of range");
-
-            FlagChangedCommand command;
-            command.setValues(index, getSetFlagValue(), getMixedFlagValue());
-            command.SetEventObject(this);
-            command.SetId(GetId());
-            ProcessEvent(command);
-        }
-
-        void FlagsEditor::setCheckBoxCount(const size_t count) {
-            while (count > m_checkBoxes.size()) {
-                wxCheckBox* checkBox = new wxCheckBox(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxCHK_3STATE);
-                checkBox->Bind(wxEVT_COMMAND_CHECKBOX_CLICKED, &FlagsEditor::OnCheckBoxClicked, this);
-                m_checkBoxes.push_back(checkBox);
-            }
-            while (count < m_checkBoxes.size()) {
-                delete m_checkBoxes.back();
-                m_checkBoxes.pop_back();
-            }
-            m_values.resize(count);
-        }
-
-        size_t FlagsEditor::getIndexFromEvent(const wxCommandEvent& event) const {
-            for (size_t i = 0; i < m_checkBoxes.size(); ++i)
-                if (event.GetEventObject() == m_checkBoxes[i])
-                    return i;
-            return m_checkBoxes.size();
+            return m_checkBoxes.front()->frameSize().height();
         }
     }
 }

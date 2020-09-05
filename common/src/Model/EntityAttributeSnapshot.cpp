@@ -23,21 +23,22 @@
 
 namespace TrenchBroom {
     namespace Model {
-        EntityAttributeSnapshot::EntityAttributeSnapshot(const AttributeName& name, const AttributeValue& value) :
+        EntityAttributeSnapshot::EntityAttributeSnapshot(const std::string& name, const std::string& value) :
         m_name(name),
         m_value(value),
         m_present(true) {}
 
-        EntityAttributeSnapshot::EntityAttributeSnapshot(const AttributeName& name) :
+        EntityAttributeSnapshot::EntityAttributeSnapshot(const std::string& name) :
         m_name(name),
         m_value(""),
         m_present(false) {}
 
         void EntityAttributeSnapshot::restore(AttributableNode* node) const {
-            if (!m_present)
+            if (!m_present) {
                 node->removeAttribute(m_name);
-            else
+            } else {
                 node->addOrUpdateAttribute(m_name, m_value);
+            }
         }
     }
 }

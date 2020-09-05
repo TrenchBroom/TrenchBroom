@@ -20,74 +20,44 @@
 #ifndef TrenchBroom_MousePreferencePane
 #define TrenchBroom_MousePreferencePane
 
-#include "Preferences.h"
 #include "View/PreferencePane.h"
 
-class wxButton;
-class wxCheckBox;
-class wxChoice;
-class wxSlider;
-class wxStaticText;
+class QCheckBox;
+class QKeySequence;
 
 namespace TrenchBroom {
+    template <typename T> class Preference;
+
     namespace View {
-        class KeyboardShortcut;
-        class KeyboardShortcutEditor;
-        class KeyboardShortcutEvent;
+        class KeySequenceEdit;
+        class SliderWithLabel;
 
         class MousePreferencePane : public PreferencePane {
         private:
-            wxSlider* m_lookSpeedSlider;
-            wxCheckBox* m_invertLookHAxisCheckBox;
-            wxCheckBox* m_invertLookVAxisCheckBox;
-            wxSlider* m_panSpeedSlider;
-            wxCheckBox* m_invertPanHAxisCheckBox;
-            wxCheckBox* m_invertPanVAxisCheckBox;
-            wxSlider* m_moveSpeedSlider;
-            wxCheckBox* m_invertMouseWheelCheckBox;
-            wxCheckBox* m_enableAltMoveCheckBox;
-            wxCheckBox* m_invertAltMoveAxisCheckBox;
-            wxCheckBox* m_moveInCursorDirCheckBox;
+            SliderWithLabel* m_lookSpeedSlider;
+            QCheckBox* m_invertLookHAxisCheckBox;
+            QCheckBox* m_invertLookVAxisCheckBox;
+            SliderWithLabel* m_panSpeedSlider;
+            QCheckBox* m_invertPanHAxisCheckBox;
+            QCheckBox* m_invertPanVAxisCheckBox;
+            SliderWithLabel* m_moveSpeedSlider;
+            QCheckBox* m_invertMouseWheelCheckBox;
+            QCheckBox* m_enableAltMoveCheckBox;
+            QCheckBox* m_invertAltMoveAxisCheckBox;
+            QCheckBox* m_moveInCursorDirCheckBox;
 
-            KeyboardShortcutEditor* m_forwardKeyEditor;
-            KeyboardShortcutEditor* m_backwardKeyEditor;
-            KeyboardShortcutEditor* m_leftKeyEditor;
-            KeyboardShortcutEditor* m_rightKeyEditor;
-            KeyboardShortcutEditor* m_upKeyEditor;
-            KeyboardShortcutEditor* m_downKeyEditor;
-            wxSlider* m_flyMoveSpeedSlider;
+            KeySequenceEdit* m_forwardKeyEditor;
+            KeySequenceEdit* m_backwardKeyEditor;
+            KeySequenceEdit* m_leftKeyEditor;
+            KeySequenceEdit* m_rightKeyEditor;
+            KeySequenceEdit* m_upKeyEditor;
+            KeySequenceEdit* m_downKeyEditor;
+            SliderWithLabel* m_flyMoveSpeedSlider;
         public:
-            explicit MousePreferencePane(wxWindow* parent);
-        private:
-            void OnLookSpeedChanged(wxScrollEvent& event);
-            void OnInvertLookHAxisChanged(wxCommandEvent& event);
-            void OnInvertLookVAxisChanged(wxCommandEvent& event);
+            explicit MousePreferencePane(QWidget* parent = nullptr);
 
-            void OnPanSpeedChanged(wxScrollEvent& event);
-            void OnInvertPanHAxisChanged(wxCommandEvent& event);
-            void OnInvertPanVAxisChanged(wxCommandEvent& event);
-
-            void OnMoveSpeedChanged(wxScrollEvent& event);
-
-            void OnInvertMouseWheelChanged(wxCommandEvent& event);
-            void OnEnableAltMoveChanged(wxCommandEvent& event);
-            void OnInvertAltMoveAxisChanged(wxCommandEvent& event);
-            void OnMoveCameraInCursorDirChanged(wxCommandEvent& event);
-
-            void OnForwardKeyChanged(KeyboardShortcutEvent& event);
-            void OnBackwardKeyChanged(KeyboardShortcutEvent& event);
-            void OnLeftKeyChanged(KeyboardShortcutEvent& event);
-            void OnRightKeyChanged(KeyboardShortcutEvent& event);
-            void OnUpKeyChanged(KeyboardShortcutEvent& event);
-            void OnDownKeyChanged(KeyboardShortcutEvent& event);
-
-            bool setShortcut(const KeyboardShortcut& shortcut, Preference<KeyboardShortcut>& preference);
-            bool hasConflict(const KeyboardShortcut& shortcut, const Preference<KeyboardShortcut>& preference) const;
-
-            void OnFlyMoveSpeedChanged(wxScrollEvent& event);
         private:
             void createGui();
-            wxWindow* createCameraPreferences();
 
             void bindEvents();
 
@@ -95,6 +65,32 @@ namespace TrenchBroom {
             void doResetToDefaults() override;
             void doUpdateControls() override;
             bool doValidate() override;
+        private slots:
+            void lookSpeedChanged(int value);
+            void invertLookHAxisChanged(int state);
+            void invertLookVAxisChanged(int state);
+
+            void panSpeedChanged(int value);
+            void invertPanHAxisChanged(int state);
+            void invertPanVAxisChanged(int state);
+
+            void moveSpeedChanged(int value);
+            void invertMouseWheelChanged(int state);
+            void enableAltMoveChanged(int state);
+            void invertAltMoveAxisChanged(int state);
+            void moveInCursorDirChanged(int state);
+
+            void forwardKeyChanged();
+            void backwardKeyChanged();
+            void leftKeyChanged();
+            void rightKeyChanged();
+            void upKeyChanged();
+            void downKeyChanged();
+
+            void flyMoveSpeedChanged(int value);
+        private:
+            void setKeySequence(KeySequenceEdit* editor, Preference<QKeySequence>& preference);
+            bool hasConflict(const QKeySequence& keySequence, const Preference<QKeySequence>& preference) const;
         };
     }
 }

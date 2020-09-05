@@ -20,29 +20,32 @@
 #ifndef TrenchBroom_CreateEntityTool
 #define TrenchBroom_CreateEntityTool
 
-#include "TrenchBroom.h"
-#include "StringUtils.h"
+#include "FloatType.h"
 #include "View/Tool.h"
-#include "View/ViewTypes.h"
 
 #include <vecmath/bbox.h>
 
+#include <memory>
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
-        class Entity;
+        class EntityNode;
         class PickResult;
     }
 
     namespace View {
+        class MapDocument;
+
         class CreateEntityTool : public Tool {
         private:
-            MapDocumentWPtr m_document;
-            Model::Entity* m_entity;
+            std::weak_ptr<MapDocument> m_document;
+            Model::EntityNode* m_entity;
             vm::bbox3 m_referenceBounds;
         public:
-            CreateEntityTool(MapDocumentWPtr document);
+            explicit CreateEntityTool(std::weak_ptr<MapDocument> document);
 
-            bool createEntity(const String& classname);
+            bool createEntity(const std::string& classname);
             void removeEntity();
             void commitEntity();
 

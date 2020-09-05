@@ -19,85 +19,97 @@
 
 #include "BrushBuilder.h"
 
+#include "Ensure.h"
 #include "Polyhedron.h"
 #include "Model/Brush.h"
+#include "Model/BrushError.h"
 #include "Model/BrushFace.h"
 #include "Model/ModelFactory.h"
 
+#include <kdl/overload.h>
+#include <kdl/result.h>
+#include <kdl/string_utils.h>
+
 #include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
-        BrushBuilder::BrushBuilder(ModelFactory* factory, const vm::bbox3& worldBounds) :
+        BrushBuilder::BrushBuilder(const ModelFactory* factory, const vm::bbox3& worldBounds) :
         m_factory(factory),
-        m_worldBounds(worldBounds) {
+        m_worldBounds(worldBounds),
+        m_defaultAttribs(BrushFaceAttributes::NoTextureName) {
             ensure(m_factory != nullptr, "factory is null");
         }
 
-        Brush* BrushBuilder::createCube(const FloatType size, const String& textureName) const {
+        BrushBuilder::BrushBuilder(const ModelFactory* factory, const vm::bbox3& worldBounds, const BrushFaceAttributes& defaultAttribs) :
+        m_factory(factory),
+        m_worldBounds(worldBounds),
+        m_defaultAttribs(defaultAttribs) {
+            ensure(m_factory != nullptr, "factory is null");
+        }
+
+        kdl::result<Brush, BrushError> BrushBuilder::createCube(const FloatType size, const std::string& textureName) const {
             return createCuboid(vm::bbox3(size / 2.0), textureName, textureName, textureName, textureName, textureName, textureName);
         }
 
-        Brush* BrushBuilder::createCube(FloatType size, const String& leftTexture, const String& rightTexture, const String& frontTexture, const String& backTexture, const String& topTexture, const String& bottomTexture) const {
+        kdl::result<Brush, BrushError> BrushBuilder::createCube(FloatType size, const std::string& leftTexture, const std::string& rightTexture, const std::string& frontTexture, const std::string& backTexture, const std::string& topTexture, const std::string& bottomTexture) const {
             return createCuboid(vm::bbox3(size / 2.0), leftTexture, rightTexture, frontTexture, backTexture, topTexture, bottomTexture);
         }
-
-        Brush* BrushBuilder::createCuboid(const vm::vec3& size, const String& textureName) const {
+        
+        kdl::result<Brush, BrushError> BrushBuilder::createCuboid(const vm::vec3& size, const std::string& textureName) const {
             return createCuboid(vm::bbox3(-size / 2.0, size / 2.0), textureName, textureName, textureName, textureName, textureName, textureName);
         }
 
-        Brush* BrushBuilder::createCuboid(const vm::vec3& size, const String& leftTexture, const String& rightTexture, const String& frontTexture, const String& backTexture, const String& topTexture, const String& bottomTexture) const {
+        kdl::result<Brush, BrushError> BrushBuilder::createCuboid(const vm::vec3& size, const std::string& leftTexture, const std::string& rightTexture, const std::string& frontTexture, const std::string& backTexture, const std::string& topTexture, const std::string& bottomTexture) const {
             return createCuboid(vm::bbox3(-size / 2.0, size / 2.0), leftTexture, rightTexture, frontTexture, backTexture, topTexture, bottomTexture);
         }
 
-        Brush* BrushBuilder::createCuboid(const vm::bbox3& bounds, const String& textureName) const {
+        kdl::result<Brush, BrushError> BrushBuilder::createCuboid(const vm::bbox3& bounds, const std::string& textureName) const {
             return createCuboid(bounds, textureName, textureName, textureName, textureName, textureName, textureName);
         }
 
-        Brush* BrushBuilder::createCuboid(const vm::bbox3& bounds, const String& leftTexture, const String& rightTexture, const String& frontTexture, const String& backTexture, const String& topTexture, const String& bottomTexture) const {
-            BrushFaceList faces(6);
-            // left face
-            faces[0] = m_factory->createFace(bounds.min + vm::vec3::zero,
-                                             bounds.min + vm::vec3::pos_y,
-                                             bounds.min + vm::vec3::pos_z,
-                                             leftTexture);
-            // right face
-            faces[1] = m_factory->createFace(bounds.max + vm::vec3::zero,
-                                             bounds.max + vm::vec3::pos_z,
-                                             bounds.max + vm::vec3::pos_y,
-                                             rightTexture);
-            // front face
-            faces[2] = m_factory->createFace(bounds.min + vm::vec3::zero,
-                                             bounds.min + vm::vec3::pos_z,
-                                             bounds.min + vm::vec3::pos_x,
-                                             frontTexture);
-            // back face
-            faces[3] = m_factory->createFace(bounds.max + vm::vec3::zero,
-                                             bounds.max + vm::vec3::pos_x,
-                                             bounds.max + vm::vec3::pos_z,
-                                             backTexture);
-            // top face
-            faces[4] = m_factory->createFace(bounds.max + vm::vec3::zero,
-                                             bounds.max + vm::vec3::pos_y,
-                                             bounds.max + vm::vec3::pos_x,
-                                             topTexture);
-            // bottom face
-            faces[5] = m_factory->createFace(bounds.min + vm::vec3::zero,
-                                             bounds.min + vm::vec3::pos_x,
-                                             bounds.min + vm::vec3::pos_y,
-                                             bottomTexture);
+        kdl::result<Brush, BrushError> BrushBuilder::createCuboid(const vm::bbox3& bounds, const std::string& leftTexture, const std::string& rightTexture, const std::string& frontTexture, const std::string& backTexture, const std::string& topTexture, const std::string& bottomTexture) const {
+            const auto specs = std::vector<std::tuple<vm::vec3, vm::vec3, vm::vec3, BrushFaceAttributes>>({
+                { bounds.min, bounds.min + vm::vec3::pos_y(), bounds.min + vm::vec3::pos_z(), BrushFaceAttributes(leftTexture, m_defaultAttribs) }, // left
+                { bounds.max, bounds.max + vm::vec3::pos_z(), bounds.max + vm::vec3::pos_y(), BrushFaceAttributes(rightTexture, m_defaultAttribs) }, // right
+                { bounds.min, bounds.min + vm::vec3::pos_z(), bounds.min + vm::vec3::pos_x(), BrushFaceAttributes(frontTexture, m_defaultAttribs) }, // front
+                { bounds.max, bounds.max + vm::vec3::pos_x(), bounds.max + vm::vec3::pos_z(), BrushFaceAttributes(backTexture, m_defaultAttribs) }, // back
+                { bounds.max, bounds.max + vm::vec3::pos_y(), bounds.max + vm::vec3::pos_x(), BrushFaceAttributes(topTexture, m_defaultAttribs) }, // top
+                { bounds.min, bounds.min + vm::vec3::pos_x(), bounds.min + vm::vec3::pos_y(), BrushFaceAttributes(bottomTexture, m_defaultAttribs) }, // bottom
+            });
+            
+            std::vector<BrushFace> faces;
+            faces.reserve(6u);
+            
+            for (const auto& [p1, p2, p3, attrs] : specs) {
+                std::optional<BrushError> error;
+                m_factory->createFace(p1, p2, p3, attrs)
+                    .visit(kdl::overload {
+                        [&](BrushFace&& face) {
+                            faces.push_back(std::move(face));
+                        },
+                        [&](const BrushError e) {
+                            error = e;
+                        },
+                    });
 
-            return m_factory->createBrush(m_worldBounds, faces);
+                if (error) {
+                    return kdl::result<Brush, BrushError>::error(*error);
+                }
+            }
+
+            return Brush::create(m_worldBounds, std::move(faces));
         }
-
-        Brush* BrushBuilder::createBrush(const std::vector<vm::vec3>& points, const String& textureName) const {
+        
+        kdl::result<Brush, BrushError> BrushBuilder::createBrush(const std::vector<vm::vec3>& points, const std::string& textureName) const {
             return createBrush(Polyhedron3(points), textureName);
         }
 
-        Brush* BrushBuilder::createBrush(const Polyhedron3& polyhedron, const String& textureName) const {
+        kdl::result<Brush, BrushError> BrushBuilder::createBrush(const Polyhedron3& polyhedron, const std::string& textureName) const {
             assert(polyhedron.closed());
 
-            BrushFaceList brushFaces;
+            std::vector<BrushFace> brushFaces;
 
             const Polyhedron3::FaceList& faces = polyhedron.faces();
             Polyhedron3::FaceList::const_iterator fIt, fEnd;
@@ -114,10 +126,23 @@ namespace TrenchBroom {
                 const vm::vec3& p2 = edge2->origin()->position();
                 const vm::vec3& p3 = edge3->origin()->position();
 
-                brushFaces.push_back(m_factory->createFace(p1, p3, p2, textureName));
+                std::optional<BrushError> error;
+                m_factory->createFace(p1, p3, p2, textureName)
+                    .visit(kdl::overload {
+                        [&](BrushFace&& f) {
+                            brushFaces.push_back(std::move(f));
+                        },
+                        [&](const BrushError e) {
+                            error = e;
+                        },
+                    });
+
+                if (error) {
+                    return kdl::result<Brush, BrushError>::error(*error);
+                }
             }
 
-            return m_factory->createBrush(m_worldBounds, brushFaces);
+            return Brush::create(m_worldBounds, std::move(brushFaces));
         }
     }
 }

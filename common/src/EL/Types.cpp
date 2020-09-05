@@ -19,47 +19,51 @@
 
 #include "Types.h"
 
+#include "Macros.h"
+
+#include <string>
+
 namespace TrenchBroom {
     namespace EL {
-        String typeName(const ValueType type) {
+        std::string typeName(const ValueType type) {
             switch (type) {
-                case Type_Boolean:
+                case ValueType::Boolean:
                     return "Boolean";
-                case Type_String:
+                case ValueType::String:
                     return "String";
-                case Type_Number:
+                case ValueType::Number:
                     return "Number";
-                case Type_Array:
+                case ValueType::Array:
                     return "Array";
-                case Type_Map:
+                case ValueType::Map:
                     return "Map";
-                case Type_Range:
+                case ValueType::Range:
                     return "Range";
-                case Type_Null:
+                case ValueType::Null:
                     return "Null";
-                case Type_Undefined:
+                case ValueType::Undefined:
                     return "Undefined";
                     switchDefault()
             }
         }
 
-        ValueType typeForName(const String& type) {
+        ValueType typeForName(const std::string& type) {
             if (type == "Boolean")
-                return Type_Boolean;
+                return ValueType::Boolean;
             if (type == "String")
-                return Type_String;
+                return ValueType::String;
             if (type == "Number")
-                return Type_Number;
+                return ValueType::Number;
             if (type == "Array")
-                return Type_Array;
+                return ValueType::Array;
             if (type == "Map")
-                return Type_Map;
+                return ValueType::Map;
             if (type == "Range")
-                return Type_Range;
+                return ValueType::Range;
             if (type == "Undefined")
-                return Type_Undefined;
+                return ValueType::Undefined;
             assert(false);
-            return Type_Null;
+            return ValueType::Null;
         }
     }
 }

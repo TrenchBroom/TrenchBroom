@@ -19,14 +19,14 @@
 
 #include "EmptyAttributeValueIssueGenerator.h"
 
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 #include "Model/PushSelection.h"
 
-#include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -34,9 +34,9 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         private:
-            AttributeName m_attributeName;
+            std::string m_attributeName;
         public:
-            EmptyAttributeValueIssue(AttributableNode* node, const AttributeName& attributeName) :
+            EmptyAttributeValueIssue(AttributableNode* node, const std::string& attributeName) :
             Issue(node),
             m_attributeName(attributeName) {}
 
@@ -44,12 +44,12 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            std::string doGetDescription() const override {
                 const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
                 return "Attribute '" + m_attributeName + "' of " + attributableNode->classname() + " has an empty value.";
             }
 
-            const AttributeName& attributeName() const {
+            const std::string& attributeName() const {
                 return m_attributeName;
             }
         };
@@ -63,7 +63,7 @@ namespace TrenchBroom {
         private:
             void doApply(MapFacade* facade, const Issue* issue) const override {
                 const EmptyAttributeValueIssue* actualIssue = static_cast<const EmptyAttributeValueIssue*>(issue);
-                const AttributeName& attributeName = actualIssue->attributeName();
+                const std::string& attributeName = actualIssue->attributeName();
 
                 const PushSelection push(facade);
 

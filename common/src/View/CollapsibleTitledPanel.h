@@ -22,46 +22,46 @@
 
 #include "View/TitleBar.h"
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxStaticText;
-
-wxDECLARE_EVENT(TITLE_BAR_CLICK, wxCommandEvent);
+class QLabel;
 
 namespace TrenchBroom {
     namespace View {
         class BorderLine;
 
         class CollapsibleTitleBar : public TitleBar {
+            Q_OBJECT
         private:
-            wxStaticText* m_stateText;
+            QLabel* m_stateText;
         public:
-            CollapsibleTitleBar(wxWindow* parent, const wxString& title, const wxString& stateText);
+            CollapsibleTitleBar(const QString& title, const QString& stateText, QWidget* parent = nullptr);
 
-            void setStateText(const wxString& stateText);
-        private:
-            void OnClick(wxMouseEvent& event);
+            void setStateText(const QString& stateText);
+        signals:
+            void titleBarClicked();
+        protected:
+            void mousePressEvent(QMouseEvent* event) override;
         };
 
-        class CollapsibleTitledPanel : public wxPanel {
+        class CollapsibleTitledPanel : public QWidget {
+            Q_OBJECT
         private:
             CollapsibleTitleBar* m_titleBar;
             BorderLine* m_divider;
-            wxPanel* m_panel;
+            QWidget* m_panel;
             bool m_expanded;
         public:
-            CollapsibleTitledPanel(wxWindow* parent, const wxString& title, bool initiallyExpanded = true);
+            explicit CollapsibleTitledPanel(const QString& title, bool initiallyExpanded = true, QWidget* parent = nullptr);
 
-            wxWindow* getPanel() const;
+            QWidget* getPanel() const;
 
             void expand();
             void collapse();
             bool expanded() const;
             void setExpanded(bool expanded);
-
-            void OnTitleBarClick(wxCommandEvent& event);
         private:
-            void update();
+            void updateExpanded();
         };
     }
 }

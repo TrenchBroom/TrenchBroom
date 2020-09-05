@@ -20,41 +20,47 @@
 #ifndef TrenchBroom_GameListBox
 #define TrenchBroom_GameListBox
 
-#include "StringUtils.h"
 #include "View/ImageListBox.h"
 
-#include <wx/bitmap.h>
-
+#include <string>
 #include <vector>
+
+class QPixmap;
 
 namespace TrenchBroom {
     namespace View {
         class GameListBox : public ImageListBox {
+            Q_OBJECT
         private:
             struct Info {
-                wxBitmap image;
-                wxString title;
-                wxString subtitle;
+                std::string name;
+                QPixmap image;
+                QString title;
+                QString subtitle;
             };
 
             using InfoList = std::vector<Info>;
 
             InfoList m_gameInfos;
         public:
-            GameListBox(wxWindow* parent);
-
-            String selectedGameName() const;
-            void selectGame(int index);
-
-            void OnListBoxChange(wxCommandEvent& event);
-            void OnListBoxDoubleClick(wxCommandEvent& event);
+            explicit GameListBox(QWidget* parent = nullptr);
+            std::string selectedGameName() const;
+            void selectGame(size_t index);
             void reloadGameInfos();
+            void updateGameInfos();
         private:
-            bool image(size_t n, wxBitmap& result) const override;
-            wxString title(size_t n) const override;
-            wxString subtitle(size_t n) const override;
+            Info makeGameInfo(const std::string& gameName) const;
+        private:
+            size_t itemCount() const override;
+            QPixmap image(size_t index) const override;
+            QString title(size_t index) const override;
+            QString subtitle(size_t index) const override;
 
-            void submitChangeEvent(wxEventType type);
+            void selectedRowChanged(int index) override;
+            void doubleClicked(size_t index) override;
+        signals:
+            void currentGameChanged(const QString& gameName);
+            void selectCurrentGame(const QString& gameName);
         };
     }
 }

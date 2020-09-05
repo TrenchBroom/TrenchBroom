@@ -20,17 +20,17 @@
 #ifndef TrenchBroom_ToolBox
 #define TrenchBroom_ToolBox
 
-#include "StringUtils.h"
 #include "Notifier.h"
 
-#include <wx/datetime.h>
-
 #include <map>
+#include <string>
 #include <vector>
 
-class wxWindow;
-class wxFocusEvent;
-class wxMouseEvent;
+#include <QObject>
+
+class QWindow;
+class QFocusEvent;
+class QMouseEvent;
 
 namespace TrenchBroom {
     namespace Model {
@@ -48,57 +48,34 @@ namespace TrenchBroom {
         class ToolController;
         class ToolChain;
 
-        class ToolBox {
+        class ToolBox : public QObject {
+            Q_OBJECT
         private:
             ToolController* m_dragReceiver;
             ToolController* m_dropReceiver;
-            ToolController* m_savedDropReceiver;
             Tool* m_modalTool;
 
             using ToolList = std::vector<Tool*>;
             using ToolMap = std::map<Tool*, ToolList>;
-            ToolMap m_deactivateWhen;
-
-            using WindowList = std::vector<wxWindow*>;
-            WindowList m_focusGroup;
-
-            bool m_clickToActivate;
-            bool m_ignoreNextClick;
-            wxDateTime m_lastActivation;
+            ToolMap m_suppressedTools;
 
             bool m_enabled;
         public:
             Notifier<Tool*> toolActivatedNotifier;
             Notifier<Tool*> toolDeactivatedNotifier;
             Notifier<Tool*> refreshViewsNotifier;
+            Notifier<Tool*> toolHandleSelectionChangedNotifier;
         public:
             ToolBox();
-        public: // focus window management
-            void addWindow(wxWindow* window);
-            void removeWindow(wxWindow* window);
-        private:
-            void OnSetFocus(wxFocusEvent& event);
-            void OnKillFocus(wxFocusEvent& event);
-            void OnEnterWindow(wxMouseEvent& event);
-            void OnLeaveWindow(wxMouseEvent& event);
-            void setFocusCursor();
-            void clearFocusCursor();
         protected:
             void addTool(Tool* tool);
         public: // picking
             void pick(ToolChain* chain, const InputState& inputState, Model::PickResult& pickResult);
         public: // event handling
-            bool clickToActivate() const;
-            void setClickToActivate(bool clickToActivate);
-            void updateLastActivation();
-
-            bool ignoreNextClick() const;
-            void clearIgnoreNextClick();
-
-            bool dragEnter(ToolChain* chain, const InputState& inputState, const String& text);
-            bool dragMove(ToolChain* chain, const InputState& inputState, const String& text);
+            bool dragEnter(ToolChain* chain, const InputState& inputState, const std::string& text);
+            bool dragMove(ToolChain* chain, const InputState& inputState, const std::string& text);
             void dragLeave(ToolChain* chain, const InputState& inputState);
-            bool dragDrop(ToolChain* chain, const InputState& inputState, const String& text);
+            bool dragDrop(ToolChain* chain, const InputState& inputState, const std::string& text);
 
             void modifierKeyChange(ToolChain* chain, const InputState& inputState);
             void mouseDown(ToolChain* chain, const InputState& inputState);
@@ -117,7 +94,13 @@ namespace TrenchBroom {
 
             bool cancel(ToolChain* chain);
         public: // tool management
-            void deactivateWhen(Tool* master, Tool* slave);
+            /**
+             * Suppress a tool when another becomes active. The suppressed tool becomes temporarily deactivated.
+             *
+             * @param suppressedTool the tool that becomes supressed while the other is active
+             * @param primaryTool the tool that controls when the suppressed tool is deactivated
+             */
+            void suppressWhileActive(Tool* suppressedTool, Tool* primaryTool);
 
             bool anyToolActive() const;
             bool toolActive(const Tool* tool) const;

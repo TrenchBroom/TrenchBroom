@@ -19,76 +19,79 @@
 
 #include "SetVisibilityCommand.h"
 #include "Macros.h"
+#include "Model/VisibilityState.h"
 #include "View/MapDocumentCommandFacade.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetVisibilityCommand::Type = Command::freeType();
 
-        SetVisibilityCommand::Ptr SetVisibilityCommand::show(const Model::NodeList& nodes) {
-            return Ptr(new SetVisibilityCommand(nodes, Action_Show));
+        std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::show(const std::vector<Model::Node*>& nodes) {
+            return std::make_unique<SetVisibilityCommand>(nodes, Action::Show);
         }
 
-        SetVisibilityCommand::Ptr SetVisibilityCommand::hide(const Model::NodeList& nodes) {
-            return Ptr(new SetVisibilityCommand(nodes, Action_Hide));
+        std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::hide(const std::vector<Model::Node*>& nodes) {
+            return std::make_unique<SetVisibilityCommand>(nodes, Action::Hide);
         }
 
-        SetVisibilityCommand::Ptr SetVisibilityCommand::ensureVisible(const Model::NodeList& nodes) {
-            return Ptr(new SetVisibilityCommand(nodes, Action_Ensure));
+        std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::ensureVisible(const std::vector<Model::Node*>& nodes) {
+            return std::make_unique<SetVisibilityCommand>(nodes, Action::Ensure);
         }
 
-        SetVisibilityCommand::Ptr SetVisibilityCommand::reset(const Model::NodeList& nodes) {
-            return Ptr(new SetVisibilityCommand(nodes, Action_Reset));
+        std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::reset(const std::vector<Model::Node*>& nodes) {
+            return std::make_unique<SetVisibilityCommand>(nodes, Action::Reset);
         }
 
-        SetVisibilityCommand::SetVisibilityCommand(const Model::NodeList& nodes, const Action action) :
+        SetVisibilityCommand::SetVisibilityCommand(const std::vector<Model::Node*>& nodes, const Action action) :
         UndoableCommand(Type, makeName(action)),
         m_nodes(nodes),
         m_action(action) {}
 
-        String SetVisibilityCommand::makeName(const Action action) {
+        std::string SetVisibilityCommand::makeName(const Action action) {
             switch (action) {
-                case Action_Reset:
+                case Action::Reset:
                     return "Reset Visibility";
-                case Action_Hide:
+                case Action::Hide:
                     return "Hide Objects";
-                case Action_Show:
+                case Action::Show:
                     return "Show Objects";
-                case Action_Ensure:
+                case Action::Ensure:
                     return "Ensure Objects Visible";
                 switchDefault()
             }
         }
 
-        bool SetVisibilityCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformDo(MapDocumentCommandFacade* document) {
             switch (m_action) {
-                case Action_Reset:
-                    m_oldState = document->setVisibilityState(m_nodes, Model::Visibility_Inherited);
+                case Action::Reset:
+                    m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Visibility_Inherited);
                     break;
-                case Action_Hide:
-                    m_oldState = document->setVisibilityState(m_nodes, Model::Visibility_Hidden);
+                case Action::Hide:
+                    m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Visibility_Hidden);
                     break;
-                case Action_Show:
-                    m_oldState = document->setVisibilityState(m_nodes, Model::Visibility_Shown);
+                case Action::Show:
+                    m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Visibility_Shown);
                     break;
-                case Action_Ensure:
+                case Action::Ensure:
                     m_oldState = document->setVisibilityEnsured(m_nodes);
                     break;
                 switchDefault()
             }
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool SetVisibilityCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->restoreVisibilityState(m_oldState);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool SetVisibilityCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool SetVisibilityCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
 
-        bool SetVisibilityCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool SetVisibilityCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
     }

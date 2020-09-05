@@ -18,17 +18,19 @@
  */
 
 #include "CreateBrushToolBase.h"
+
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Renderer/BrushRenderer.h"
-#include "Renderer/RenderService.h"
 #include "Renderer/SelectionBoundsRenderer.h"
 #include "View/MapDocument.h"
 
+#include <kdl/memory_utils.h>
+
 namespace TrenchBroom {
     namespace View {
-        CreateBrushToolBase::CreateBrushToolBase(const bool initiallyActive, MapDocumentWPtr document) :
+        CreateBrushToolBase::CreateBrushToolBase(const bool initiallyActive, std::weak_ptr<MapDocument> document) :
         Tool(initiallyActive),
         m_document(document),
         m_brush(nullptr),
@@ -40,15 +42,15 @@ namespace TrenchBroom {
         }
 
         const Grid& CreateBrushToolBase::grid() const {
-            return lock(m_document)->grid();
+            return kdl::mem_lock(m_document)->grid();
         }
 
         void CreateBrushToolBase::createBrush() {
             if (m_brush != nullptr) {
-                MapDocumentSPtr document = lock(m_document);
+                auto document = kdl::mem_lock(m_document);
                 const Transaction transaction(document, "Create Brush");
                 document->deselectAll();
-                document->addNode(m_brush, document->currentParent());
+                document->addNode(m_brush, document->parentForNodes());
                 document->select(m_brush);
                 m_brush = nullptr;
                 doBrushWasCreated();
@@ -79,14 +81,14 @@ namespace TrenchBroom {
             m_brushRenderer->setForceTransparent(true);
             m_brushRenderer->setTransparencyAlpha(0.7f);
 
-            m_brushRenderer->setBrushes(Model::BrushList(1, m_brush));
+            m_brushRenderer->setBrushes({ m_brush });
             m_brushRenderer->render(renderContext, renderBatch);
 
             Renderer::SelectionBoundsRenderer boundsRenderer(m_brush->logicalBounds());
             boundsRenderer.render(renderContext, renderBatch);
         }
 
-        void CreateBrushToolBase::updateBrush(Model::Brush* brush) {
+        void CreateBrushToolBase::updateBrush(Model::BrushNode* brush) {
             delete m_brush;
             m_brush = brush;
         }

@@ -19,6 +19,8 @@
 
 #include "CompilationRun.h"
 
+#include "Ensure.h"
+#include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
 #include "Model/CompilationProfile.h"
 #include "Model/Game.h"
@@ -26,10 +28,10 @@
 #include "View/CompilationRunner.h"
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h"
-#include "View/TextCtrlOutputAdapter.h"
+#include "View/TextOutputAdapter.h"
 
-#include <wx/textctrl.h>
-#include <wx/thread.h>
+#include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
@@ -37,70 +39,61 @@ namespace TrenchBroom {
         m_currentRun(nullptr) {}
 
         CompilationRun::~CompilationRun() {
-            if (running())
+            if (running()) {
                 m_currentRun->terminate();
-            delete m_currentRun;
+            }
         }
 
         bool CompilationRun::running() const {
-            wxCriticalSectionLocker lock(m_currentRunSection);
             return doIsRunning();
         }
 
-        void CompilationRun::run(const Model::CompilationProfile* profile, MapDocumentSPtr document, wxTextCtrl* currentOutput) {
-            run(profile, document, currentOutput, false);
+        void CompilationRun::run(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document, QTextEdit* currentOutput) {
+            run(profile, std::move(document), currentOutput, false);
         }
 
-        void CompilationRun::test(const Model::CompilationProfile* profile, MapDocumentSPtr document, wxTextCtrl* currentOutput) {
-            run(profile, document, currentOutput, true);
+        void CompilationRun::test(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document, QTextEdit* currentOutput) {
+            run(profile, std::move(document), currentOutput, true);
         }
 
         void CompilationRun::terminate() {
-            wxCriticalSectionLocker lock(m_currentRunSection);
-            if (doIsRunning())
+            if (doIsRunning()) {
                 m_currentRun->terminate();
+            }
         }
 
         bool CompilationRun::doIsRunning() const {
             return m_currentRun != nullptr && m_currentRun->running();
         }
 
-        void CompilationRun::run(const Model::CompilationProfile* profile, MapDocumentSPtr document, wxTextCtrl* currentOutput, const bool test) {
+        void CompilationRun::run(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document, QTextEdit* currentOutput, const bool test) {
             ensure(profile != nullptr, "profile is null");
-            ensure(document.get() != nullptr, "document is null");
+            ensure(profile->taskCount() > 0, "profile has no tasks");
+            ensure(document != nullptr, "document is null");
             ensure(currentOutput != nullptr, "currentOutput is null");
 
-            wxCriticalSectionLocker lock(m_currentRunSection);
             assert(!doIsRunning());
-            if (m_currentRun != nullptr) {
-                delete m_currentRun;
-                m_currentRun = nullptr;
-            }
+            cleanup();
 
             CompilationVariables variables(document, buildWorkDir(profile, document));
 
-            m_currentRun = new CompilationRunner(new CompilationContext(document, variables, TextCtrlOutputAdapter(currentOutput), test), profile);
-            m_currentRun->Bind(wxEVT_COMPILATION_START, &CompilationRun::OnCompilationStart, this);
-            m_currentRun->Bind(wxEVT_COMPILATION_END, &CompilationRun::OnCompilationStart, this);
+            auto compilationContext = std::make_unique<CompilationContext>(document, variables, TextOutputAdapter(currentOutput), test);
+            m_currentRun = new CompilationRunner(std::move(compilationContext), profile, this);
+            connect(m_currentRun, &CompilationRunner::compilationStarted, this, &CompilationRun::compilationStarted);
+            connect(m_currentRun, &CompilationRunner::compilationEnded, this, [&]() { cleanup(); emit compilationEnded(); });
             m_currentRun->execute();
         }
 
-        String CompilationRun::buildWorkDir(const Model::CompilationProfile* profile, MapDocumentSPtr document) {
+        std::string CompilationRun::buildWorkDir(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document) {
             return EL::interpolate(profile->workDirSpec(), EL::EvaluationContext(CompilationWorkDirVariables(document)));
         }
 
-        void CompilationRun::OnCompilationStart(wxEvent& event) {
-            ProcessEvent(event);
-        }
-
-        void CompilationRun::OnCompilationEnd(wxEvent& event) {
-            cleanup();
-            ProcessEvent(event);
-        }
-
         void CompilationRun::cleanup() {
-            delete m_currentRun;
-            m_currentRun = nullptr;
+            if (m_currentRun != nullptr) {
+                // It's not safe to delete a CompilationRunner during execution of one of its signals, so use deleteLater()
+                m_currentRun->deleteLater();
+                m_currentRun = nullptr;
+            }
         }
     }
 }

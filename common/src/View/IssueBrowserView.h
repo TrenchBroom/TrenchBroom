@@ -20,73 +20,94 @@
 #ifndef TrenchBroom_IssueBrowserView
 #define TrenchBroom_IssueBrowserView
 
-#include "View/ViewTypes.h"
+#include "Model/IssueType.h"
 
-#include "Model/Issue.h"
-#include "Model/ModelTypes.h"
-
-#include <wx/listctrl.h>
-
+#include <memory>
 #include <vector>
 
-class wxWindow;
+#include <QWidget>
+#include <QAbstractItemModel>
+
+class QWidget;
+class QTableView;
 
 namespace TrenchBroom {
+    namespace Model {
+        class Issue;
+        class IssueQuickFix;
+    }
+
     namespace View {
-        class IssueBrowserView : public wxListCtrl {
+        class IssueBrowserModel;
+        class MapDocument;
+
+        class IssueBrowserView : public QWidget {
+            Q_OBJECT
         private:
-            static const int ShowIssuesCommandId = 1;
-            static const int HideIssuesCommandId = 2;
-            static const int FixObjectsBaseId = 3;
+            std::weak_ptr<MapDocument> m_document;
 
-            using IndexList = std::vector<size_t>;
-
-            MapDocumentWPtr m_document;
-            Model::IssueList m_issues;
-
-            Model::IssueType m_hiddenGenerators;
+            int m_hiddenGenerators;
             bool m_showHiddenIssues;
 
             bool m_valid;
-        public:
-            IssueBrowserView(wxWindow* parent, MapDocumentWPtr document);
 
+            QTableView* m_tableView;
+            IssueBrowserModel* m_tableModel;
+        public:
+            explicit IssueBrowserView(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+        private:
+            void createGui();
+        public:
             int hiddenGenerators() const;
             void setHiddenGenerators(int hiddenGenerators);
             void setShowHiddenIssues(bool show);
             void reload();
             void deselectAll();
-
-            void OnSize(wxSizeEvent& event);
-
-            void OnItemRightClick(wxListEvent& event);
-            void OnItemSelectionChanged(wxListEvent& event);
-            void OnShowIssues(wxCommandEvent& event);
-            void OnHideIssues(wxCommandEvent& event);
-            void OnApplyQuickFix(wxCommandEvent& event);
         private:
             class IssueVisible;
             class IssueCmp;
 
             void updateIssues();
 
-            Model::IssueList collectIssues(const IndexList& indices) const;
-            Model::IssueQuickFixList collectQuickFixes(const IndexList& indices) const;
+            std::vector<Model::Issue*> collectIssues(const QList<QModelIndex>& indices) const;
+            std::vector<Model::IssueQuickFix*> collectQuickFixes(const QList<QModelIndex>& indices) const;
             Model::IssueType issueTypeMask() const;
 
             void setIssueVisibility(bool show);
 
+            QList<QModelIndex> getSelection() const;
             void updateSelection();
-            IndexList getSelection() const;
-
-            wxListItemAttr* OnGetItemAttr(long item) const override;
-            wxString OnGetItemText(long item, long column) const override;
-
             void bindEvents();
+
+            void itemRightClicked(const QPoint& pos);
+            void itemSelectionChanged();
+            void showIssues();
+            void hideIssues();
+            void applyQuickFix(const Model::IssueQuickFix* quickFix);
         private:
-            void OnIdle(wxIdleEvent& event);
             void invalidate();
+        public slots:
             void validate();
+        };
+
+        /**
+         * Trivial QAbstractTableModel subclass, when the issues list changes,
+         * it just refreshes the entire list with beginResetModel()/endResetModel().
+         */
+        class IssueBrowserModel : public QAbstractTableModel {
+            Q_OBJECT
+        private:
+            std::vector<Model::Issue*> m_issues;
+        public:
+            explicit IssueBrowserModel(QObject* parent);
+
+            void setIssues(std::vector<Model::Issue*> issues);
+            const std::vector<Model::Issue*>& issues();
+        public: // QAbstractTableModel overrides
+            int rowCount(const QModelIndex& parent) const override;
+            int columnCount(const QModelIndex& parent) const override;
+            QVariant data(const QModelIndex& index, int role) const override;
+            QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
         };
     }
 }

@@ -20,13 +20,22 @@
 #ifndef TrenchBroom_ClipTool
 #define TrenchBroom_ClipTool
 
-#include "TrenchBroom.h"
-#include "Model/Hit.h"
-#include "Model/ModelTypes.h"
+#include "FloatType.h"
+#include "Model/HitType.h"
 #include "View/Tool.h"
-#include "View/ViewTypes.h"
+
+#include <map>
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class BrushFace;
+        class BrushFaceHandle;
+        class Node;
+        class PickResult;
+    }
+
     namespace Renderer {
         class BrushRenderer;
         class Camera;
@@ -34,18 +43,14 @@ namespace TrenchBroom {
         class RenderContext;
     }
 
-    namespace Model {
-        class ModelFactory;
-        class PickResult;
-    }
-
     namespace View {
         class Grid;
+        class MapDocument;
         class Selection;
 
         class ClipTool : public Tool {
         public:
-            static const Model::Hit::HitType PointHit;
+            static const Model::HitType::Type PointHitType;
         private:
             enum ClipSide {
                 ClipSide_Front,
@@ -76,7 +81,7 @@ namespace TrenchBroom {
                 void endDragPoint();
                 void cancelDragPoint();
 
-                bool setFace(const Model::BrushFace* face);
+                bool setFace(const Model::BrushFaceHandle& faceHandle);
                 void reset();
                 size_t getPoints(vm::vec3& point1, vm::vec3& point2, vm::vec3& point3) const;
             private:
@@ -101,7 +106,7 @@ namespace TrenchBroom {
                 virtual void doEndDragPoint() = 0;
                 virtual void doCancelDragPoint() = 0;
 
-                virtual bool doSetFace(const Model::BrushFace* face) = 0;
+                virtual bool doSetFace(const Model::BrushFaceHandle& face) = 0;
                 virtual void doReset() = 0;
                 virtual size_t doGetPoints(vm::vec3& point1, vm::vec3& point2, vm::vec3& point3) const = 0;
             };
@@ -109,21 +114,21 @@ namespace TrenchBroom {
             class PointClipStrategy;
             class FaceClipStrategy;
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             ClipSide m_clipSide;
-            ClipStrategy* m_strategy;
+            std::unique_ptr<ClipStrategy> m_strategy;
 
-            Model::ParentChildrenMap m_frontBrushes;
-            Model::ParentChildrenMap m_backBrushes;
+            std::map<Model::Node*, std::vector<Model::Node*>> m_frontBrushes;
+            std::map<Model::Node*, std::vector<Model::Node*>> m_backBrushes;
 
-            Renderer::BrushRenderer* m_remainingBrushRenderer;
-            Renderer::BrushRenderer* m_clippedBrushRenderer;
+            std::unique_ptr<Renderer::BrushRenderer> m_remainingBrushRenderer;
+            std::unique_ptr<Renderer::BrushRenderer> m_clippedBrushRenderer;
 
             bool m_ignoreNotifications;
             bool m_dragging;
         public:
-            ClipTool(MapDocumentWPtr document);
+            explicit ClipTool(std::weak_ptr<MapDocument> document);
             ~ClipTool() override;
 
             const Grid& grid() const;
@@ -143,7 +148,7 @@ namespace TrenchBroom {
             bool canClip() const;
             void performClip();
         private:
-            Model::ParentChildrenMap clipBrushes();
+            std::map<Model::Node*, std::vector<Model::Node*>> clipBrushes();
         public:
 
             vm::vec3 defaultClipPointPos() const;
@@ -160,7 +165,7 @@ namespace TrenchBroom {
             void endDragPoint();
             void cancelDragPoint();
 
-            void setFace(const Model::BrushFace* face);
+            void setFace(const Model::BrushFaceHandle& face);
             bool reset();
         private:
             void resetStrategy();
@@ -169,11 +174,11 @@ namespace TrenchBroom {
             void clearBrushes();
             void updateBrushes();
 
-            void setFaceAttributes(const Model::BrushFaceList& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const;
+            void setFaceAttributes(const std::vector<Model::BrushFace>& faces, Model::BrushFace& toSet) const;
 
             void clearRenderers();
             void updateRenderers();
-            void addBrushesToRenderer(const Model::ParentChildrenMap& map, Renderer::BrushRenderer* renderer);
+            void addBrushesToRenderer(const std::map<Model::Node*, std::vector<Model::Node*>>& map, Renderer::BrushRenderer& renderer);
 
             bool keepFrontBrushes() const;
             bool keepBackBrushes() const;
@@ -186,9 +191,9 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             void selectionDidChange(const Selection& selection);
-            void nodesWillChange(const Model::NodeList& nodes);
-            void nodesDidChange(const Model::NodeList& nodes);
-            void facesDidChange(const Model::BrushFaceList& nodes);
+            void nodesWillChange(const std::vector<Model::Node*>& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
+            void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& nodes);
         };
     }
 }

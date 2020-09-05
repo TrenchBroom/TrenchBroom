@@ -22,25 +22,24 @@
 
 #include "View/PreferencePane.h"
 
-#include <wx/grid.h>
+class QWidget;
+class QTableView;
+class QSortFilterProxyModel;
 
 namespace TrenchBroom {
     namespace View {
-        class KeyboardShortcutGridTable;
+        class KeyboardShortcutModel;
         class MapDocument;
 
         class KeyboardPreferencePane : public PreferencePane {
+            Q_OBJECT
         private:
-            wxGrid* m_grid;
-            KeyboardShortcutGridTable* m_table;
-
+            QTableView* m_table;
+            KeyboardShortcutModel* m_model;
+            QSortFilterProxyModel* m_proxy;
         public:
-            KeyboardPreferencePane(wxWindow* parent, MapDocument* document);
+            explicit KeyboardPreferencePane(MapDocument* document, QWidget* parent = nullptr);
         private:
-            void OnGridSize(wxSizeEvent& event);
-
-            wxWindow* createMenuShortcutGrid(MapDocument* document);
-
             bool doCanResetToDefaults() override;
             void doResetToDefaults() override;
             void doUpdateControls() override;

@@ -21,12 +21,12 @@
 #define TrenchBroom_CreateEntityToolController
 
 #include "View/ToolController.h"
-#include "StringUtils.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
         class CreateEntityTool;
-        class InputState;
 
         class CreateEntityToolController : public ToolControllerBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoMouseDragPolicy, NoRenderPolicy, DropPolicy> {
         protected:
@@ -39,7 +39,7 @@ namespace TrenchBroom {
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;
 
-            bool doDragEnter(const InputState& inputState, const String& payload) override;
+            bool doDragEnter(const InputState& inputState, const std::string& payload) override;
             bool doDragMove(const InputState& inputState) override;
             void doDragLeave(const InputState& inputState) override;
             bool doDragDrop(const InputState& inputState) override;

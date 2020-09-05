@@ -19,18 +19,14 @@
 
 #include "MoveObjectsTool.h"
 
-#include "TrenchBroom.h"
-#include "Model/Brush.h"
-#include "Model/Entity.h"
-#include "Model/Group.h"
-#include "Model/HitAdapter.h"
-#include "Model/HitQuery.h"
-#include "Model/PickResult.h"
-#include "Renderer/RenderContext.h"
+#include "FloatType.h"
+#include "Model/BrushNode.h"
 #include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/MoveObjectsToolPage.h"
+
+#include <kdl/memory_utils.h>
 
 #include <vecmath/bbox.h>
 
@@ -38,24 +34,29 @@
 
 namespace TrenchBroom {
     namespace View {
-        MoveObjectsTool::MoveObjectsTool(MapDocumentWPtr document) :
+        MoveObjectsTool::MoveObjectsTool(std::weak_ptr<MapDocument> document) :
         Tool(true),
         m_document(document),
         m_duplicateObjects(false) {}
 
         const Grid& MoveObjectsTool::grid() const {
-            return lock(m_document)->grid();
+            return kdl::mem_lock(m_document)->grid();
         }
 
         bool MoveObjectsTool::startMove(const InputState& inputState) {
-            auto document = lock(m_document);
-            document->beginTransaction(duplicateObjects(inputState) ? "Duplicate Objects" : "Move Objects");
+            auto document = kdl::mem_lock(m_document);
+
+            if (!document->selectedBrushFaces().empty()) {
+                return false;
+            }
+
+            document->startTransaction(duplicateObjects(inputState) ? "Duplicate Objects" : "Move Objects");
             m_duplicateObjects = duplicateObjects(inputState);
             return true;
         }
 
-        MoveObjectsTool::MoveResult MoveObjectsTool::move(const InputState& inputState, const vm::vec3& delta) {
-            auto document = lock(m_document);
+        MoveObjectsTool::MoveResult MoveObjectsTool::move(const InputState&, const vm::vec3& delta) {
+            auto document = kdl::mem_lock(m_document);
             const auto& worldBounds = document->worldBounds();
             const auto bounds = document->selectionBounds();
             if (!worldBounds.contains(bounds.translate(delta))) {
@@ -76,13 +77,13 @@ namespace TrenchBroom {
             }
         }
 
-        void MoveObjectsTool::endMove(const InputState& inputState) {
-            auto document = lock(m_document);
+        void MoveObjectsTool::endMove(const InputState&) {
+            auto document = kdl::mem_lock(m_document);
             document->commitTransaction();
         }
 
         void MoveObjectsTool::cancelMove() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
         }
 
@@ -90,8 +91,8 @@ namespace TrenchBroom {
             return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
         }
 
-        wxWindow* MoveObjectsTool::doCreatePage(wxWindow* parent) {
-            return new MoveObjectsToolPage(parent, m_document);
+        QWidget* MoveObjectsTool::doCreatePage(QWidget* parent) {
+            return new MoveObjectsToolPage(m_document, parent);
         }
     }
 }

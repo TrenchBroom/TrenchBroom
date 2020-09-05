@@ -20,28 +20,26 @@
 #ifndef TrenchBroom_CreateBrushToolController3D
 #define TrenchBroom_CreateBrushToolController3D
 
-#include "TrenchBroom.h"
-#include "Polyhedron.h"
+#include "FloatType.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
 
 #include <vecmath/vec.h>
 
-#include <vector>
+#include <memory>
 
 namespace TrenchBroom {
     namespace View {
         class CreateSimpleBrushTool;
-        class Grid;
+        class MapDocument;
 
         class CreateSimpleBrushToolController3D : public ToolControllerBase<NoPickingPolicy, KeyPolicy, NoMousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         private:
             CreateSimpleBrushTool* m_tool;
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             vm::vec3 m_initialPoint;
         public:
-            CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, MapDocumentWPtr document);
+            CreateSimpleBrushToolController3D(CreateSimpleBrushTool* tool, std::weak_ptr<MapDocument> document);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;

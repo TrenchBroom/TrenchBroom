@@ -20,49 +20,57 @@
 #ifndef TrenchBroom_RotateObjectsToolPage
 #define TrenchBroom_RotateObjectsToolPage
 
-#include "TrenchBroom.h"
-#include "View/ViewTypes.h"
+#include "FloatType.h"
 
-#include <vecmath/vec.h>
+#include <vecmath/forward.h>
 #include <vecmath/util.h>
 
-#include <wx/panel.h>
+#include <memory>
 
-class wxButton;
-class wxChoice;
-class wxComboBox;
+#include <QWidget>
+
+class QAbstractButton;
+class QComboBox;
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
         class RotateObjectsTool;
+        class Selection;
         class SpinControl;
-        class SpinControlEvent;
 
-        class RotateObjectsToolPage : public wxPanel {
+        class RotateObjectsToolPage : public QWidget {
+            Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             RotateObjectsTool* m_tool;
 
-            wxComboBox* m_recentlyUsedCentersList;
-            wxButton* m_resetCenterButton;
+            QComboBox* m_recentlyUsedCentersList;
+            QAbstractButton* m_resetCenterButton;
 
             SpinControl* m_angle;
-            wxChoice* m_axis;
-            wxButton* m_rotateButton;
+            QComboBox* m_axis;
+            QAbstractButton* m_rotateButton;
         public:
-            RotateObjectsToolPage(wxWindow* parent, MapDocumentWPtr document, RotateObjectsTool* tool);
+            RotateObjectsToolPage(std::weak_ptr<MapDocument> document, RotateObjectsTool* tool, QWidget* parent = nullptr);
+            ~RotateObjectsToolPage() override;
+
             void setAxis(vm::axis::type axis);
             void setRecentlyUsedCenters(const std::vector<vm::vec3>& centers);
             void setCurrentCenter(const vm::vec3& center);
         private:
-            void createGui();
+            void bindObservers();
+            void unbindObservers();
 
-            void OnIdle(wxIdleEvent& event);
-            void OnCenterChanged(wxCommandEvent& event);
-            void OnResetCenter(wxCommandEvent& event);
-            void OnAngleChanged(SpinControlEvent& event);
-            void OnUpdateRotateButton(wxUpdateUIEvent& event);
-            void OnRotate(wxCommandEvent& event);
+            void createGui();
+            void updateGui();
+
+            void selectionDidChange(const Selection& selection);
+
+            void centerChanged();
+            void resetCenterClicked();
+            void angleChanged(double value);
+            void rotateClicked();
             vm::vec3 getAxis() const;
         };
     }

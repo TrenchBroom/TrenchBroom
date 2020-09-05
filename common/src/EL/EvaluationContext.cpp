@@ -19,7 +19,10 @@
 
 #include "EvaluationContext.h"
 
+#include "EL/Value.h"
 #include "EL/VariableStore.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace EL {
@@ -31,18 +34,18 @@ namespace TrenchBroom {
 
         EvaluationContext::~EvaluationContext() = default;
 
-        Value EvaluationContext::variableValue(const String& name) const {
+        Value EvaluationContext::variableValue(const std::string& name) const {
             return m_store->value(name);
         }
 
-        void EvaluationContext::declareVariable(const String& name, const Value& value) {
+        void EvaluationContext::declareVariable(const std::string& name, const Value& value) {
             m_store->declare(name, value);
         }
 
         EvaluationStack::EvaluationStack(const EvaluationContext& next) :
         m_next(next) {}
 
-        Value EvaluationStack::variableValue(const String& name) const {
+        Value EvaluationStack::variableValue(const std::string& name) const {
             const Value& value = EvaluationContext::variableValue(name);
             if (value != Value::Undefined) {
                 return value;

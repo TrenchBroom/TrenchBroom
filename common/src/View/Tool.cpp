@@ -21,8 +21,8 @@
 
 #include "IO/ResourceUtils.h"
 
-#include <wx/bookctrl.h>
-#include <wx/panel.h>
+#include <QWidget>
+#include <QStackedLayout>
 
 #include <cassert>
 
@@ -61,16 +61,20 @@ namespace TrenchBroom {
             refreshViewsNotifier(this);
         }
 
-        void Tool::createPage(wxBookCtrlBase* book) {
+        void Tool::notifyToolHandleSelectionChanged() {
+            toolHandleSelectionChangedNotifier(this);
+        }
+
+        void Tool::createPage(QStackedLayout* book) {
             assert(m_book == nullptr);
 
             m_book = book;
-            m_pageIndex = m_book->GetPageCount();
-            m_book->AddPage(doCreatePage(m_book), "");
+            m_pageIndex = m_book->count();
+            m_book->addWidget(doCreatePage(m_book->parentWidget()));
         }
 
         void Tool::showPage() {
-            m_book->SetSelection(m_pageIndex);
+            m_book->setCurrentIndex(m_pageIndex);
         }
 
         bool Tool::doActivate() {
@@ -81,8 +85,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        wxWindow* Tool::doCreatePage(wxWindow* parent) {
-            return new wxPanel(parent);
+        QWidget* Tool::doCreatePage(QWidget* parent) {
+            return new QWidget(parent);
         }
     }
 }

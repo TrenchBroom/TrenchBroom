@@ -20,8 +20,8 @@
 #ifndef VertexToolControllerBase_h
 #define VertexToolControllerBase_h
 
-#include "Model/Hit.h"
-#include "Model/ModelTypes.h"
+#include "Model/HitQuery.h"
+#include "Model/HitType.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "View/Lasso.h"
@@ -30,9 +30,14 @@
 
 #include <vecmath/intersection.h>
 
-#include <algorithm>
+#include <unordered_set>
+#include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class BrushNode;
+    }
+
     namespace View {
         class Tool;
 
@@ -44,45 +49,45 @@ namespace TrenchBroom {
             class PartBase {
             protected:
                 T* m_tool;
-                Model::Hit::HitType m_hitType;
+                Model::HitType::Type m_hitType;
             protected:
-                PartBase(T* tool, const Model::Hit::HitType hitType) :
+                PartBase(T* tool, const Model::HitType::Type hitType) :
                 m_tool(tool),
                 m_hitType(hitType) {}
             public:
-                virtual ~PartBase() {}
+                virtual ~PartBase() = default;
             protected:
-                const Model::Hit findDraggableHandle(const InputState& inputState) const {
+                Model::Hit findDraggableHandle(const InputState& inputState) const {
                     return doFindDraggableHandle(inputState);
                 }
 
-                const Model::Hit::List findDraggableHandles(const InputState& inputState) const {
+                std::vector<Model::Hit> findDraggableHandles(const InputState& inputState) const {
                     return doFindDraggableHandles(inputState);
                 }
             private:
-                virtual const Model::Hit doFindDraggableHandle(const InputState& inputState) const {
+                virtual Model::Hit doFindDraggableHandle(const InputState& inputState) const {
                     return findDraggableHandle(inputState, m_hitType);
                 }
 
-                virtual const Model::Hit::List doFindDraggableHandles(const InputState& inputState) const {
+                virtual std::vector<Model::Hit> doFindDraggableHandles(const InputState& inputState) const {
                     return findDraggableHandles(inputState, m_hitType);
                 }
             public:
-                const Model::Hit findDraggableHandle(const InputState& inputState, const Model::Hit::HitType hitType) const {
+                Model::Hit findDraggableHandle(const InputState& inputState, const Model::HitType::Type hitType) const {
                     const auto query = inputState.pickResult().query().type(hitType).occluded();
                     if (!query.empty()) {
                         const auto hits = query.all();
-                        const auto it = std::find_if(std::begin(hits), std::end(hits), [this](const auto& hit){ return this->selected(hit); });
-                        if (it != std::end(hits)) {
-                            return *it;
-                        } else {
-                            return query.first();
+                        for (const auto& hit : hits) {
+                            if (this->selected(hit)) {
+                                return hit;
+                            }
                         }
+                        return query.first();
                     }
                     return Model::Hit::NoHit;
                 }
 
-                const Model::Hit::List findDraggableHandles(const InputState& inputState, const Model::Hit::HitType hitType) const {
+                std::vector<Model::Hit> findDraggableHandles(const InputState& inputState, const Model::HitType::Type hitType) const {
                     return inputState.pickResult().query().type(hitType).occluded().all();
                 }
             private:
@@ -96,11 +101,11 @@ namespace TrenchBroom {
             private:
                 Lasso* m_lasso;
             protected:
-                SelectPartBase(T* tool, const Model::Hit::HitType hitType) :
+                SelectPartBase(T* tool, const Model::HitType::Type hitType) :
                 PartBase(tool, hitType),
                 m_lasso(nullptr) {}
             public:
-                virtual ~SelectPartBase() override {
+                ~SelectPartBase() override {
                     delete m_lasso;
                 }
             protected:
@@ -147,14 +152,14 @@ namespace TrenchBroom {
 
                     const auto& camera = inputState.camera();
                     const auto distance = 64.0f;
-                    const auto plane = orthogonalPlane(vm::vec3(camera.defaultPoint(distance)), vm::vec3(camera.direction()));
-                    const auto initialPoint = inputState.pickRay().pointAtDistance(vm::intersectRayAndPlane(inputState.pickRay(), plane));
+                    const auto plane = vm::orthogonal_plane(vm::vec3(camera.defaultPoint(distance)), vm::vec3(camera.direction()));
+                    const auto initialPoint = vm::point_at_distance(inputState.pickRay(), vm::intersect_ray_plane(inputState.pickRay(), plane));
 
-                    m_lasso = new Lasso(camera, distance, initialPoint);
+                    m_lasso = new Lasso(camera, static_cast<FloatType>(distance), initialPoint);
                     return DragInfo(new PlaneDragRestricter(plane), new NoDragSnapper(), initialPoint);
                 }
 
-                DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
+                DragResult doDrag(const InputState&, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) override {
                     ensure(m_lasso != nullptr, "lasso is null");
                     m_lasso->update(nextHandlePosition);
                     return DR_Continue;
@@ -177,11 +182,11 @@ namespace TrenchBroom {
                     return m_tool->deselectAll();
                 }
             protected:
-                virtual void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const override {
+                void doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const override {
                     renderContext.setForceHideSelectionGuide();
                 }
 
-                virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
+                void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                     m_tool->renderHandles(renderContext, renderBatch);
                     if (m_lasso != nullptr) {
                         m_lasso->render(renderContext, renderBatch);
@@ -189,7 +194,7 @@ namespace TrenchBroom {
                         if (!anyToolDragging(inputState)) {
                             const auto hit = findDraggableHandle(inputState);
                             if (hit.hasType(m_hitType)) {
-                                const auto& handle = m_tool->getHandlePosition(hit);
+                                const auto handle = m_tool->getHandlePosition(hit);
                                 m_tool->renderHighlight(renderContext, renderBatch, handle);
 
                                 if (inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
@@ -200,21 +205,22 @@ namespace TrenchBroom {
                     }
                 }
             protected:
-                Model::Hit::List firstHits(const Model::PickResult& pickResult) const {
-                    Model::Hit::List result;
-                    Model::BrushSet visitedBrushes;
+                std::vector<Model::Hit> firstHits(const Model::PickResult& pickResult) const {
+                    std::vector<Model::Hit> result;
+                    std::unordered_set<Model::BrushNode*> visitedBrushes;
 
                     const Model::Hit& first = pickResult.query().type(m_hitType).occluded().first();
                     if (first.isMatch()) {
-                        const H& firstHandle = first.target<H>();
+                        const H& firstHandle = first.target<const H&>();
 
-                        const Model::Hit::List matches = pickResult.query().type(m_hitType).all();
+                        const std::vector<Model::Hit> matches = pickResult.query().type(m_hitType).all();
                         for (const Model::Hit& match : matches) {
-                            const H& handle = match.target<H>();
+                            const H& handle = match.target<const H&>();
 
                             if (equalHandles(handle, firstHandle)) {
-                                if (allIncidentBrushesVisited(handle, visitedBrushes))
+                                if (allIncidentBrushesVisited(handle, visitedBrushes)) {
                                     result.push_back(match);
+                                }
                             }
                         }
                     }
@@ -222,7 +228,7 @@ namespace TrenchBroom {
                     return result;
                 }
 
-                bool allIncidentBrushesVisited(const H& handle, Model::BrushSet& visitedBrushes) const {
+                bool allIncidentBrushesVisited(const H& handle, std::unordered_set<Model::BrushNode*>& visitedBrushes) const {
                     bool result = true;
                     for (auto brush : m_tool->findIncidentBrushes(handle)) {
                         const bool unvisited = visitedBrushes.insert(brush).second;
@@ -236,11 +242,11 @@ namespace TrenchBroom {
 
             class MovePartBase : public MoveToolController<NoPickingPolicy, MousePolicy>, public PartBase {
             protected:
-                MovePartBase(T* tool, const Model::Hit::HitType hitType) :
+                MovePartBase(T* tool, const Model::HitType::Type hitType) :
                 MoveToolController(tool->grid()),
                 PartBase(tool, hitType) {}
             public:
-                virtual ~MovePartBase() override {}
+                ~MovePartBase() override = default;
             protected:
                 using PartBase::m_tool;
                 using PartBase::findDraggableHandle;
@@ -263,7 +269,7 @@ namespace TrenchBroom {
                         return MoveInfo();
                     }
 
-                    const Model::Hit::List hits = findDraggableHandles(inputState);
+                    const std::vector<Model::Hit> hits = findDraggableHandles(inputState);
                     if (hits.empty()) {
                         return MoveInfo();
                     }
@@ -283,7 +289,7 @@ namespace TrenchBroom {
                             ));
                 }
 
-                DragResult doMove(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
+                DragResult doMove(const InputState&, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
                     switch (m_tool->move(nextHandlePosition - lastHandlePosition)) {
                         case T::MR_Continue:
                             return DR_Continue;
@@ -295,7 +301,7 @@ namespace TrenchBroom {
                     }
                 }
 
-                void doEndMove(const InputState& inputState) override {
+                void doEndMove(const InputState&) override {
                     m_tool->endMove();
                 }
 
@@ -303,7 +309,7 @@ namespace TrenchBroom {
                     m_tool->cancelMove();
                 }
 
-                DragSnapper* doCreateDragSnapper(const InputState& inputState) const  override {
+                DragSnapper* doCreateDragSnapper(const InputState&) const  override {
                     return new DeltaDragSnapper(m_tool->grid());
                 }
 
@@ -321,10 +327,10 @@ namespace TrenchBroom {
         protected:
             T* m_tool;
         protected:
-            VertexToolControllerBase(T* tool) :
+            explicit VertexToolControllerBase(T* tool) :
             m_tool(tool) {}
         public:
-            virtual ~VertexToolControllerBase() override {}
+            ~VertexToolControllerBase() override = default;
         private:
             Tool* doGetTool() override {
                 return m_tool;

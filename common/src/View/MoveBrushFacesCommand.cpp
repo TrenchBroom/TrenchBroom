@@ -20,39 +20,47 @@
 
 #include "MoveBrushFacesCommand.h"
 
-#include "Model/Brush.h"
+#include "FloatType.h"
+#include "Model/BrushNode.h"
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "View/VertexHandleManager.h"
+
+#include <vecmath/polygon.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType MoveBrushFacesCommand::Type = Command::freeType();
 
-        MoveBrushFacesCommand::Ptr MoveBrushFacesCommand::move(const Model::FaceToBrushesMap& faces, const vm::vec3& delta) {
-            Model::BrushList brushes;
-            Model::BrushFacesMap brushFaces;
+        std::unique_ptr<MoveBrushFacesCommand> MoveBrushFacesCommand::move(const FaceToBrushesMap& faces, const vm::vec3& delta) {
+            std::vector<Model::BrushNode*> brushes;
+            BrushFacesMap brushFaces;
             std::vector<vm::polygon3> facePositions;
             extractFaceMap(faces, brushes, brushFaces, facePositions);
 
-            return Ptr(new MoveBrushFacesCommand(brushes, brushFaces, facePositions, delta));
+            return std::make_unique<MoveBrushFacesCommand>(brushes, brushFaces, facePositions, delta);
         }
 
-        MoveBrushFacesCommand::MoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta) :
+        MoveBrushFacesCommand::MoveBrushFacesCommand(const std::vector<Model::BrushNode*>& brushes, const BrushFacesMap& faces, const std::vector<vm::polygon3>& facePositions, const vm::vec3& delta) :
         VertexCommand(Type, "Move Brush Faces", brushes),
         m_faces(faces),
         m_oldFacePositions(facePositions),
         m_delta(delta) {
-            assert(!isZero(m_delta, vm::C::almostZero()));
+            assert(!vm::is_zero(m_delta, vm::C::almost_zero()));
         }
 
         bool MoveBrushFacesCommand::doCanDoVertexOperation(const MapDocument* document) const {
             const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_faces) {
-                Model::Brush* brush = entry.first;
+                const Model::BrushNode* brushNode = entry.first;
+                const Model::Brush& brush = brushNode->brush();
                 const std::vector<vm::polygon3>& faces = entry.second;
-                if (!brush->canMoveFaces(worldBounds, faces, m_delta))
+                if (!brush.canMoveFaces(worldBounds, faces, m_delta)) {
                     return false;
+                }
             }
             return true;
         }
@@ -62,14 +70,14 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MoveBrushFacesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            MoveBrushFacesCommand* other = static_cast<MoveBrushFacesCommand*>(command.get());
+        bool MoveBrushFacesCommand::doCollateWith(UndoableCommand* command) {
+            MoveBrushFacesCommand* other = static_cast<MoveBrushFacesCommand*>(command);
 
             if (!canCollateWith(*other)) {
                 return false;
             }
 
-            if (!VectorUtils::equals(m_newFacePositions, other->m_oldFacePositions)) {
+            if (m_newFacePositions != other->m_oldFacePositions) {
                 return false;
             }
 

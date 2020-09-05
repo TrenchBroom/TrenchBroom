@@ -26,7 +26,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class Vbo;
+        class VboManager;
 
         class IndexRangeRenderer {
         private:
@@ -41,7 +41,7 @@ namespace TrenchBroom {
 
             IndexRangeRenderer(const VertexArray& vertexArray, const IndexRangeMap& indexArray);
 
-            void prepare(Vbo& vbo);
+            void prepare(VboManager& vboManager);
             void render();
         };
     }

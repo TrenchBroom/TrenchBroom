@@ -20,27 +20,27 @@
 #ifndef TrenchBroom_RemoveBrushElementsCommand
 #define TrenchBroom_RemoveBrushElementsCommand
 
-#include "SharedPointer.h"
-#include "Model/ModelTypes.h"
+#include "Macros.h"
 #include "View/VertexCommand.h"
 
+#include <memory>
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
-    namespace Model {
-        class Snapshot;
-    }
-
     namespace View {
-
         class RemoveBrushElementsCommand : public VertexCommand {
         private:
-            Model::BrushVerticesMap m_vertices;
+            BrushVerticesMap m_vertices;
         protected:
-            RemoveBrushElementsCommand(CommandType type, const String& name, const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices);
+            RemoveBrushElementsCommand(CommandType type, const std::string& name, const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices);
         private:
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(UndoableCommand* command) override;
+
+            deleteCopyAndMove(RemoveBrushElementsCommand)
         };
     }
 }

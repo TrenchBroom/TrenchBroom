@@ -20,13 +20,15 @@
 #include "FreeTypeFontFactory.h"
 
 #include "Exceptions.h"
-#include "IO/Path.h"
 #include "IO/SystemPaths.h"
 #include "Renderer/FontDescriptor.h"
+#include "Renderer/FontGlyph.h"
+#include "Renderer/FontGlyphBuilder.h"
 #include "Renderer/FontTexture.h"
 #include "Renderer/TextureFont.h"
 
 #include <algorithm>
+#include <string>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -35,10 +37,7 @@ namespace TrenchBroom {
             FT_Error error = FT_Init_FreeType(&m_library);
             if (error != 0) {
                 m_library = nullptr;
-
-                RenderException e;
-                e << "Error initializing FreeType: " << error;
-                throw e;
+                throw RenderException("Error initializing FreeType: " + std::to_string(error));
             }
         }
 
@@ -58,17 +57,15 @@ namespace TrenchBroom {
         }
 
         FT_Face FreeTypeFontFactory::loadFont(const FontDescriptor& fontDescriptor) {
-            const IO::Path fontPath = fontDescriptor.path().isAbsolute() ? fontDescriptor.path() : IO::SystemPaths::resourceDirectory() + fontDescriptor.path();
+            const auto fontPath = fontDescriptor.path().isAbsolute() ? fontDescriptor.path() : IO::SystemPaths::findResourceFile(fontDescriptor.path());
 
             FT_Face face;
             const FT_Error error = FT_New_Face(m_library, fontPath.asString().c_str(), 0, &face);
             if (error != 0) {
-                RenderException e;
-                e << "Error loading font '" << fontDescriptor.name() << "': " << error;
-                throw e;
+                throw RenderException("Error loading font '" + fontDescriptor.name() + "': " + std::to_string(error));
             }
 
-            const FT_UInt fontSize = static_cast<FT_UInt>(fontDescriptor.size());
+            const auto fontSize = static_cast<FT_UInt>(fontDescriptor.size());
             FT_Set_Pixel_Sizes(face, 0, fontSize);
 
             return face;
@@ -81,7 +78,7 @@ namespace TrenchBroom {
             FontGlyphBuilder glyphBuilder(metrics.maxAscend, metrics.cellSize, 3, *texture);
 
             FT_GlyphSlot glyph = face->glyph;
-            FontGlyph::List glyphs;
+            std::vector<FontGlyph> glyphs;
             for (unsigned char c = firstChar; c < firstChar + charCount; ++c) {
                 FT_Error error = FT_Load_Char(face, static_cast<FT_ULong>(c), FT_LOAD_RENDER);
                 if (error != 0) {
@@ -97,7 +94,7 @@ namespace TrenchBroom {
                 }
             }
 
-            return std::make_unique<TextureFont>(std::move(texture), glyphs, metrics.lineHeight, firstChar, charCount);
+            return std::make_unique<TextureFont>(std::move(texture), glyphs, static_cast<int>(metrics.lineHeight), firstChar, charCount);
         }
 
         FreeTypeFontFactory::Metrics FreeTypeFontFactory::computeMetrics(FT_Face face, const unsigned char firstChar, const unsigned char charCount) const {
@@ -110,22 +107,22 @@ namespace TrenchBroom {
 
             for (unsigned char c = firstChar; c < firstChar + charCount; ++c) {
                 FT_Error error = FT_Load_Char(face, static_cast<FT_ULong>(c), FT_LOAD_RENDER);
-                if (error != 0)
+                if (error != 0) {
                     continue;
+                }
 
-                maxWidth = std::max(maxWidth, glyph->bitmap_left + glyph->bitmap.width);
+                maxWidth = std::max(maxWidth, glyph->bitmap_left + static_cast<FT_Int>(glyph->bitmap.width));
                 maxAscend = std::max(maxAscend, glyph->bitmap_top);
-                maxDescend = std::max(maxDescend, glyph->bitmap.rows - glyph->bitmap_top);
+                maxDescend = std::max(maxDescend, static_cast<FT_Int>(glyph->bitmap.rows) - glyph->bitmap_top);
                 lineHeight = std::max(lineHeight, static_cast<int>(glyph->metrics.height >> 6));
             }
 
             const int cellSize = std::max(maxWidth, maxAscend + maxDescend);
-
-            Metrics metrics;
-            metrics.cellSize = static_cast<size_t>(cellSize);
-            metrics.maxAscend = static_cast<size_t>(maxAscend);
-            metrics.lineHeight = static_cast<size_t>(lineHeight);
-            return metrics;
+            return {
+                static_cast<size_t>(cellSize),
+                static_cast<size_t>(maxAscend),
+                static_cast<size_t>(lineHeight)
+            };
         }
     }
 }

@@ -19,24 +19,19 @@
 
 #include "EntityRenderer.h"
 
-#include "TrenchBroom.h"
-#include "CollectionUtils.h"
+#include "AttrString.h"
+#include "FloatType.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityModelManager.h"
-#include "Assets/ModelDefinition.h"
-#include "Assets/EntityModel.h"
 #include "Model/EditorContext.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Renderer/Camera.h"
-#include "Renderer/IndexRangeMap.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
-#include "Renderer/RenderUtils.h"
-#include "Renderer/ShaderManager.h"
-#include "Renderer/Shaders.h"
 #include "Renderer/TextAnchor.h"
 #include "Renderer/GLVertexType.h"
 
@@ -46,13 +41,15 @@
 #include <vecmath/mat_ext.h>
 #include <vecmath/scalar.h>
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Renderer {
         class EntityRenderer::EntityClassnameAnchor : public TextAnchor3D {
         private:
-            const Model::Entity* m_entity;
+            const Model::EntityNode* m_entity;
         public:
-            EntityClassnameAnchor(const Model::Entity* entity) :
+            EntityClassnameAnchor(const Model::EntityNode* entity) :
             m_entity(entity) {}
         private:
             vm::vec3f basePosition() const override {
@@ -67,10 +64,10 @@ namespace TrenchBroom {
             }
         };
 
-        EntityRenderer::EntityRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext) :
+        EntityRenderer::EntityRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext) :
         m_entityModelManager(entityModelManager),
         m_editorContext(editorContext),
-        m_modelRenderer(m_entityModelManager, m_editorContext),
+        m_modelRenderer(logger, m_entityModelManager, m_editorContext),
         m_boundsValid(false),
         m_showOverlays(true),
         m_showOccludedOverlays(false),
@@ -80,7 +77,7 @@ namespace TrenchBroom {
         m_showAngles(false),
         m_showHiddenEntities(false) {}
 
-        void EntityRenderer::setEntities(const Model::EntityList& entities) {
+        void EntityRenderer::setEntities(const std::vector<Model::EntityNode*>& entities) {
             m_entities = entities;
             m_modelRenderer.setEntities(std::begin(m_entities), std::end(m_entities));
             invalidate();
@@ -215,7 +212,7 @@ namespace TrenchBroom {
                 renderService.setForegroundColor(m_overlayTextColor);
                 renderService.setBackgroundColor(m_overlayBackgroundColor);
 
-                for (const Model::Entity* entity : m_entities) {
+                for (const Model::EntityNode* entity : m_entities) {
                     if (m_showHiddenEntities || m_editorContext.visible(entity)) {
                         if (entity->group() == nullptr || entity->group() == m_editorContext.currentGroup()) {
                             if (m_showOccludedOverlays)
@@ -248,25 +245,25 @@ namespace TrenchBroom {
                 }
 
                 const auto rotation = vm::mat4x4f(entity->rotation());
-                const auto direction = rotation * vm::vec3f::pos_x;
+                const auto direction = rotation * vm::vec3f::pos_x();
                 const auto center = vm::vec3f(entity->logicalBounds().center());
 
                 const auto toCam = renderContext.camera().position() - center;
                 // only distance cull for perspective camera, since the 2D one is always very far from the level
-                if (renderContext.camera().perspectiveProjection() && squaredLength(toCam) > maxDistance2) {
+                if (renderContext.camera().perspectiveProjection() && vm::squared_length(toCam) > maxDistance2) {
                     continue;
                 }
 
                 auto onPlane = toCam - dot(toCam, direction) * direction;
-                if (vm::isZero(onPlane, vm::Cf::almostZero())) {
+                if (vm::is_zero(onPlane, vm::Cf::almost_zero())) {
                     continue;
                 }
 
-                onPlane = normalize(onPlane);
+                onPlane = vm::normalize(onPlane);
 
-                const auto rotZ = rotation * vm::vec3f::pos_z;
-                const auto angle = -measureAngle(rotZ, onPlane, direction);
-                const auto matrix = vm::translationMatrix(center) * vm::rotationMatrix(direction, angle) * rotation * vm::translationMatrix(16.0f * vm::vec3f::pos_x);
+                const auto rotZ = rotation * vm::vec3f::pos_z();
+                const auto angle = -vm::measure_angle(rotZ, onPlane, direction);
+                const auto matrix = vm::translation_matrix(center) * vm::rotation_matrix(direction, angle) * rotation * vm::translation_matrix(16.0f * vm::vec3f::pos_x());
 
                 for (size_t i = 0; i < 3; ++i) {
                     vertices[i] = matrix * arrow[i];
@@ -285,10 +282,12 @@ namespace TrenchBroom {
         }
 
         struct EntityRenderer::BuildColoredSolidBoundsVertices {
-            GLVertexTypes::P3NC4::Vertex::List& vertices;
+            using Vertex = GLVertexTypes::P3NC4::Vertex;
+
+            std::vector<Vertex>& vertices;
             Color color;
 
-            BuildColoredSolidBoundsVertices(GLVertexTypes::P3NC4::Vertex::List& i_vertices, const Color& i_color) :
+            BuildColoredSolidBoundsVertices(std::vector<Vertex>& i_vertices, const Color& i_color) :
             vertices(i_vertices),
             color(i_color) {}
 
@@ -301,10 +300,12 @@ namespace TrenchBroom {
         };
 
         struct EntityRenderer::BuildColoredWireframeBoundsVertices {
-            GLVertexTypes::P3C4::Vertex::List& vertices;
+            using Vertex = GLVertexTypes::P3C4::Vertex;
+
+            std::vector<Vertex>& vertices;
             Color color;
 
-            BuildColoredWireframeBoundsVertices(GLVertexTypes::P3C4::Vertex::List& i_vertices, const Color& i_color) :
+            BuildColoredWireframeBoundsVertices(std::vector<Vertex>& i_vertices, const Color& i_color) :
             vertices(i_vertices),
             color(i_color) {}
 
@@ -315,9 +316,9 @@ namespace TrenchBroom {
         };
 
         struct EntityRenderer::BuildWireframeBoundsVertices {
-            GLVertexTypes::P3::Vertex::List& vertices;
+            std::vector<GLVertexTypes::P3::Vertex>& vertices;
 
-            explicit BuildWireframeBoundsVertices(GLVertexTypes::P3::Vertex::List& i_vertices) :
+            explicit BuildWireframeBoundsVertices(std::vector<GLVertexTypes::P3::Vertex>& i_vertices) :
             vertices(i_vertices) {}
 
             void operator()(const vm::vec3& v1, const vm::vec3& v2) {
@@ -331,12 +332,13 @@ namespace TrenchBroom {
         }
 
         void EntityRenderer::validateBounds() {
-            GLVertexTypes::P3NC4::Vertex::List solidVertices;
+            std::vector<GLVertexTypes::P3NC4::Vertex> solidVertices;
             solidVertices.reserve(36 * m_entities.size());
 
             if (m_overrideBoundsColor) {
-                GLVertexTypes::P3::Vertex::List pointEntityWireframeVertices;
-                GLVertexTypes::P3::Vertex::List brushEntityWireframeVertices;
+                using Vertex = GLVertexTypes::P3::Vertex;
+                std::vector<Vertex> pointEntityWireframeVertices;
+                std::vector<Vertex> brushEntityWireframeVertices;
 
                 pointEntityWireframeVertices.reserve(24 * m_entities.size());
                 brushEntityWireframeVertices.reserve(24 * m_entities.size());
@@ -344,61 +346,62 @@ namespace TrenchBroom {
                 BuildWireframeBoundsVertices pointEntityWireframeBoundsBuilder(pointEntityWireframeVertices);
                 BuildWireframeBoundsVertices brushEntityWireframeBoundsBuilder(brushEntityWireframeVertices);
 
-                for (const Model::Entity* entity : m_entities) {
+                for (const Model::EntityNode* entity : m_entities) {
                     if (m_editorContext.visible(entity)) {
                         const bool pointEntity = !entity->hasChildren();
                         if (pointEntity) {
-                            entity->definitionBounds().forEachEdge(pointEntityWireframeBoundsBuilder);
+                            entity->definitionBounds().for_each_edge(pointEntityWireframeBoundsBuilder);
                         } else {
-                            entity->logicalBounds().forEachEdge(brushEntityWireframeBoundsBuilder);
+                            entity->logicalBounds().for_each_edge(brushEntityWireframeBoundsBuilder);
                         }
 
                         if (pointEntity && !entity->hasPointEntityModel()) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
-                            entity->logicalBounds().forEachFace(solidBoundsBuilder);
+                            entity->logicalBounds().for_each_face(solidBoundsBuilder);
                         }
                     }
                 }
 
-                m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(pointEntityWireframeVertices)), GL_LINES);
-                m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(brushEntityWireframeVertices)), GL_LINES);
+                m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(pointEntityWireframeVertices)), PrimType::Lines);
+                m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(brushEntityWireframeVertices)), PrimType::Lines);
             } else {
-                GLVertexTypes::P3C4::Vertex::List pointEntityWireframeVertices;
-                GLVertexTypes::P3C4::Vertex::List brushEntityWireframeVertices;
+                using Vertex = GLVertexTypes::P3C4::Vertex;
+                std::vector<Vertex> pointEntityWireframeVertices;
+                std::vector<Vertex> brushEntityWireframeVertices;
 
                 pointEntityWireframeVertices.reserve(24 * m_entities.size());
                 brushEntityWireframeVertices.reserve(24 * m_entities.size());
 
-                for (const Model::Entity* entity : m_entities) {
+                for (const Model::EntityNode* entity : m_entities) {
                     if (m_editorContext.visible(entity)) {
                         const bool pointEntity = !entity->hasChildren();
 
                         if (pointEntity && !entity->hasPointEntityModel()) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
-                            entity->definitionBounds().forEachFace(solidBoundsBuilder);
+                            entity->definitionBounds().for_each_face(solidBoundsBuilder);
                         } else {
                             BuildColoredWireframeBoundsVertices pointEntityWireframeBoundsBuilder(pointEntityWireframeVertices, boundsColor(entity));
                             BuildColoredWireframeBoundsVertices brushEntityWireframeBoundsBuilder(brushEntityWireframeVertices, boundsColor(entity));
 
                             if (pointEntity) {
-                                entity->definitionBounds().forEachEdge(pointEntityWireframeBoundsBuilder);
+                                entity->definitionBounds().for_each_edge(pointEntityWireframeBoundsBuilder);
                             } else {
-                                entity->logicalBounds().forEachEdge(brushEntityWireframeBoundsBuilder);
+                                entity->logicalBounds().for_each_edge(brushEntityWireframeBoundsBuilder);
                             }
                         }
                     }
                 }
 
-                m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(pointEntityWireframeVertices)), GL_LINES);
-                m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(brushEntityWireframeVertices)), GL_LINES);
+                m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(pointEntityWireframeVertices)), PrimType::Lines);
+                m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer(VertexArray::move(std::move(brushEntityWireframeVertices)), PrimType::Lines);
             }
 
-            m_solidBoundsRenderer = TriangleRenderer(VertexArray::move(std::move(solidVertices)), GL_QUADS);
+            m_solidBoundsRenderer = TriangleRenderer(VertexArray::move(std::move(solidVertices)), PrimType::Quads);
             m_boundsValid = true;
         }
 
-        AttrString EntityRenderer::entityString(const Model::Entity* entity) const {
-            const Model::AttributeValue& classname = entity->classname();
+        AttrString EntityRenderer::entityString(const Model::EntityNode* entity) const {
+            const auto& classname = entity->classname();
             // const Model::AttributeValue& targetname = entity->attribute(Model::AttributeNames::Targetname);
 
             AttrString str;
@@ -408,7 +411,7 @@ namespace TrenchBroom {
             return str;
         }
 
-        const Color& EntityRenderer::boundsColor(const Model::Entity* entity) const {
+        const Color& EntityRenderer::boundsColor(const Model::EntityNode* entity) const {
             const Assets::EntityDefinition* definition = entity->definition();
             if (definition == nullptr) {
                 return m_boundsColor;

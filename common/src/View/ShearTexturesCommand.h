@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_ShearTexturesCommand
 #define TrenchBroom_ShearTexturesCommand
 
-#include "SharedPointer.h"
+#include "Macros.h"
 #include "View/DocumentCommand.h"
 
 #include <vecmath/forward.h>
@@ -31,26 +31,24 @@ namespace TrenchBroom {
         class ShearTexturesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<ShearTexturesCommand>;
         private:
             vm::vec2f m_factors;
         public:
-            static Ptr shear(const vm::vec2f& factors);
-        private:
+            static std::unique_ptr<ShearTexturesCommand> shear(const vm::vec2f& factors);
+
             ShearTexturesCommand(const vm::vec2f& factors);
+        private:
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
-
-            bool shearTextures(MapDocumentCommandFacade* document, const vm::vec2f& factors);
+            std::unique_ptr<CommandResult> shearTextures(MapDocumentCommandFacade* document, const vm::vec2f& factors);
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const override;
+            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
-        private:
-            ShearTexturesCommand(const ShearTexturesCommand& other);
-            ShearTexturesCommand& operator=(const ShearTexturesCommand& other);
+            bool doCollateWith(UndoableCommand* command) override;
+
+            deleteCopyAndMove(ShearTexturesCommand)
         };
     }
 }

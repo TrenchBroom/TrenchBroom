@@ -1,20 +1,20 @@
-image: Visual Studio 2017
+image: Visual Studio 2019
 version: 2.0.0-appveyor-{build}
+branches:
+  only:
+    - master
+    - /v.*/
+environment:
+  matrix:
+    - TB_ARCH: Win32
+      QT5_INSTALL_DIR: 'C:\Qt\5.12\msvc2017'
+      PATH: '%Qt5_INSTALL_DIR%\bin;%PATH%'
+    - TB_ARCH: x64
+      QT5_INSTALL_DIR: 'C:\Qt\5.12\msvc2017_64'
+      PATH: '%Qt5_INSTALL_DIR%\bin;%PATH%'
 install:
 - cinst pandoc
 - cinst cppcheck
-- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1-headers.7z' -OutFile 'headers.7z'
-- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc141_Dev.7z' -OutFile 'dev.7z'
-- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc141_ReleaseDLL.7z' -OutFile 'dll.7z'
-- ps: Invoke-WebRequest 'https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc141_ReleasePDB.7z' -OutFile 'pdb.7z'
-- ps: if ("fc2fece046792772d4a05946de1b3a8cc8c69733" -ne (Get-FileHash -Path "headers.7z" -Algorithm SHA1).Hash) { exit }
-- ps: if ("b7edda49bfec0654954d263712acc0199af1c141" -ne (Get-FileHash -Path "dev.7z" -Algorithm SHA1).Hash) { exit }
-- ps: if ("e94cbe52d61e6263760648646f7bd694e8ee3c54" -ne (Get-FileHash -Path "dll.7z" -Algorithm SHA1).Hash) { exit }
-- ps: if ("deca4222d38f77186b54ed1faab2c7111aa29c69" -ne (Get-FileHash -Path "pdb.7z" -Algorithm SHA1).Hash) { exit }
-- ps: 7z x headers.7z -oc:\wxWidgets-3.1.1 -aoa
-- ps: 7z x dev.7z -oc:\wxWidgets-3.1.1 -aoa
-- ps: 7z x dll.7z -oc:\wxWidgets-3.1.1 -aoa
-- ps: 7z x pdb.7z -oc:\wxWidgets-3.1.1 -aoa
 clone_depth: 50
 build_script:
 - cmd: call appveyor.bat

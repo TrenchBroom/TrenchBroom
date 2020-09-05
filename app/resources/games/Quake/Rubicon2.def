@@ -705,10 +705,6 @@ Player is invulnerable for 30 seconds.
 { model(":progs/invisibl.mdl"); }
 Player is invisible for 30 seconds.
 */
-/*QUAKED item_artifact_super_damage (0 .5 .8) (-16 -16 -24) (16 16 32)
-The next attack from the player will
-do 4x damage. Lasts 30 seconds.
-*/
 /*QUAKED item_armorInv (0 .5 .8) (-16 -16 0) (16 16 32)
 { model({ "path": ":progs/armor.mdl", "skin": 2 }); }
 Red armor, gives 200 armor points.

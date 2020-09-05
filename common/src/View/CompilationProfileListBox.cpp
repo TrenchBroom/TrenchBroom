@@ -21,19 +21,79 @@
 
 #include "Model/CompilationConfig.h"
 #include "Model/CompilationProfile.h"
-#include "View/wxUtils.h"
+#include "View/ElidedLabel.h"
+#include "View/QtUtils.h"
 
-#include <wx/settings.h>
-#include <wx/stattext.h>
-#include <wx/sizer.h>
+#include <QBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
-        CompilationProfileListBox::CompilationProfileListBox(wxWindow* parent, const Model::CompilationConfig& config)  :
-        ControlListBox(parent, true, "Click the '+' button to create a compilation profile."),
+        CompilationProfileItemRenderer::CompilationProfileItemRenderer(Model::CompilationProfile& profile, QWidget* parent) :
+        ControlListBoxItemRenderer(parent),
+        m_profile(&profile),
+        m_nameText(nullptr),
+        m_taskCountText(nullptr) {
+            setContextMenuPolicy(Qt::CustomContextMenu); // request customContextMenuRequested() to be emitted
+
+            m_nameText = new ElidedLabel("", Qt::ElideRight);
+            m_taskCountText = new ElidedLabel("", Qt::ElideMiddle);
+
+            makeEmphasized(m_nameText);
+            makeInfo(m_taskCountText);
+
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(QMargins());
+            layout->setSpacing(0);
+            layout->addWidget(m_nameText);
+            layout->addWidget(m_taskCountText);
+
+            setLayout(layout);
+
+            addObservers();
+        }
+
+        CompilationProfileItemRenderer::~CompilationProfileItemRenderer() {
+            if (m_profile != nullptr) {
+                removeObservers();
+            }
+        }
+
+        void CompilationProfileItemRenderer::addObservers() {
+            m_profile->profileWillBeRemoved.addObserver(this, &CompilationProfileItemRenderer::profileWillBeRemoved);
+            m_profile->profileDidChange.addObserver(this, &CompilationProfileItemRenderer::profileDidChange);
+        }
+
+        void CompilationProfileItemRenderer::removeObservers() {
+            m_profile->profileWillBeRemoved.removeObserver(this, &CompilationProfileItemRenderer::profileWillBeRemoved);
+            m_profile->profileDidChange.removeObserver(this, &CompilationProfileItemRenderer::profileDidChange);
+        }
+
+        void CompilationProfileItemRenderer::profileWillBeRemoved() {
+            if (m_profile != nullptr) {
+                removeObservers();
+                m_profile = nullptr;
+            }
+        }
+
+        void CompilationProfileItemRenderer::profileDidChange() {
+            updateItem();
+        }
+
+        void CompilationProfileItemRenderer::updateItem() {
+            if (m_profile == nullptr) {
+                m_nameText->setText("");
+                m_taskCountText->setText("");
+            } else {
+                m_nameText->setText(QString::fromStdString(m_profile->name()));
+                m_taskCountText->setText(QString::number(m_profile->taskCount()) + " tasks");
+            }
+        }
+
+        CompilationProfileListBox::CompilationProfileListBox(const Model::CompilationConfig& config, QWidget* parent) :
+        ControlListBox("Click the '+' button to create a compilation profile.", true, parent),
         m_config(config) {
             m_config.profilesDidChange.addObserver(this, &CompilationProfileListBox::profilesDidChange);
-            SetItemCount(config.profileCount());
+            reload();
         }
 
         CompilationProfileListBox::~CompilationProfileListBox() {
@@ -41,93 +101,20 @@ namespace TrenchBroom {
         }
 
         void CompilationProfileListBox::profilesDidChange() {
-            SetItemCount(m_config.profileCount());
+            reload();
         }
 
-        class CompilationProfileListBox::ProfileItem : public Item {
-        private:
-            Model::CompilationProfile* m_profile;
-            wxStaticText* m_nameText;
-            wxStaticText* m_taskCountText;
-        public:
-            ProfileItem(wxWindow* parent, Model::CompilationProfile* profile, const wxSize& margins) :
-            Item(parent),
-            m_profile(profile),
-            m_nameText(nullptr),
-            m_taskCountText(nullptr) {
-                ensure(m_profile != nullptr, "profile is null");
+        size_t CompilationProfileListBox::itemCount() const {
+            return m_config.profileCount();
+        }
 
-                m_nameText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
-                m_taskCountText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
-
-                m_nameText->SetFont(m_nameText->GetFont().Bold());
-                m_taskCountText->SetForegroundColour(makeLighter(m_taskCountText->GetForegroundColour()));
-#ifndef _WIN32
-                m_taskCountText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
-#endif
-
-                wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
-                vSizer->Add(m_nameText, wxSizerFlags().Expand());
-                vSizer->Add(m_taskCountText, wxSizerFlags().Expand());
-
-                wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
-                hSizer->AddSpacer(margins.x);
-                hSizer->Add(vSizer, wxSizerFlags().Expand().Proportion(1).Border(wxTOP | wxBOTTOM, margins.y));
-                hSizer->AddSpacer(margins.x);
-
-                SetSizer(hSizer);
-
-                refresh();
-                addObservers();
-            }
-
-            ~ProfileItem() override {
-                if (m_profile != nullptr)
-                    removeObservers();
-            }
-        private:
-            void addObservers() {
-                m_profile->profileWillBeRemoved.addObserver(this, &ProfileItem::profileWillBeRemoved);
-                m_profile->profileDidChange.addObserver(this, &ProfileItem::profileDidChange);
-            }
-
-            void removeObservers() {
-                m_profile->profileWillBeRemoved.removeObserver(this, &ProfileItem::profileWillBeRemoved);
-                m_profile->profileDidChange.removeObserver(this, &ProfileItem::profileDidChange);
-            }
-
-            void profileWillBeRemoved() {
-                if (m_profile != nullptr) {
-                    removeObservers();
-                    m_profile = nullptr;
-                }
-            }
-
-            void profileDidChange() {
-                refresh();
-            }
-
-            void refresh() {
-                if (m_profile == nullptr) {
-                    m_nameText->SetLabel("");
-                    m_taskCountText->SetLabel("");
-                } else {
-                    m_nameText->SetLabel(m_profile->name());
-                    wxString taskCountLabel;
-                    taskCountLabel << m_profile->taskCount() << " tasks";
-                    m_taskCountText->SetLabel(taskCountLabel);
-                }
-            }
-        private:
-            void setDefaultColours(const wxColour& foreground, const wxColour& background) override {
-                Item::setDefaultColours(foreground, background);
-                m_taskCountText->SetForegroundColour(makeLighter(m_taskCountText->GetForegroundColour()));
-            }
-        };
-
-        ControlListBox::Item* CompilationProfileListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
-            Model::CompilationProfile* profile = m_config.profile(index);
-            return new ProfileItem(parent, profile, margins);
+        ControlListBoxItemRenderer* CompilationProfileListBox::createItemRenderer(QWidget* parent, const size_t index) {
+            auto* profile = m_config.profile(index);
+            auto* renderer = new CompilationProfileItemRenderer(*profile, parent);
+            connect(renderer, &QWidget::customContextMenuRequested, this, [=](const QPoint& pos){
+                emit this->profileContextMenuRequested(renderer->mapToGlobal(pos), profile);
+            });
+            return renderer;
         }
     }
 }

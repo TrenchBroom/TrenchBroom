@@ -21,35 +21,36 @@
 #define TrenchBroom_CollectMatchingIssuesVisitor
 
 #include "Model/NodeVisitor.h"
-#include "Model/Brush.h"
-#include "Model/Entity.h"
-#include "Model/Group.h"
-#include "Model/Layer.h"
-#include "Model/ModelTypes.h"
-#include "Model/World.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
+#include "Model/WorldNode.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         template <typename P>
         class CollectMatchingIssuesVisitor : public NodeVisitor {
         private:
-            const IssueGeneratorList& m_issueGenerators;
+            const std::vector<IssueGenerator*>& m_issueGenerators;
             P m_p;
-            IssueList m_issues;
+            std::vector<Issue*> m_issues;
         public:
-            CollectMatchingIssuesVisitor(const IssueGeneratorList& issueGenerators, const P& p = P()) :
+            CollectMatchingIssuesVisitor(const std::vector<IssueGenerator*>& issueGenerators, const P& p = P()) :
             m_issueGenerators(issueGenerators),
             m_p(p) {}
 
-            const IssueList& issues() const {
+            const std::vector<Issue*>& issues() const {
                 return m_issues;
             }
         private:
-            void doVisit(World* world)   override { collectIssues(world);  }
-            void doVisit(Layer* layer)   override { collectIssues(layer);  }
-            void doVisit(Group* group)   override { collectIssues(group);  }
-            void doVisit(Entity* entity) override { collectIssues(entity); }
-            void doVisit(Brush* brush)   override { collectIssues(brush);  }
+            void doVisit(WorldNode* world)   override { collectIssues(world);  }
+            void doVisit(LayerNode* layer)   override { collectIssues(layer);  }
+            void doVisit(GroupNode* group)   override { collectIssues(group);  }
+            void doVisit(EntityNode* entity) override { collectIssues(entity); }
+            void doVisit(BrushNode* brush)   override { collectIssues(brush);  }
 
             void collectIssues(Node* node) {
                 for (Issue* issue : node->issues(m_issueGenerators)) {

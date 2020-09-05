@@ -20,43 +20,37 @@
 #ifndef TrenchBroom_FrameManager
 #define TrenchBroom_FrameManager
 
-#include "View/ViewTypes.h"
+#include <QObject>
 
-#include <list>
-
-#include <wx/event.h>
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace View {
+        class MapDocument;
         class MapFrame;
 
-        using FrameList = std::list<MapFrame*>;
-
-        class FrameManager {
+        class FrameManager : public QObject {
+            Q_OBJECT
         private:
             bool m_singleFrame;
-            FrameList m_frames;
+            std::vector<MapFrame*> m_frames;
         public:
-            FrameManager(bool singleFrame);
-            ~FrameManager();
+            explicit FrameManager(bool singleFrame);
+            ~FrameManager() override;
 
             MapFrame* newFrame();
             bool closeAllFrames();
 
-            FrameList frames() const;
+            std::vector<MapFrame*> frames() const;
             MapFrame* topFrame() const;
             bool allFramesClosed() const;
 
-            void OnFrameActivate(wxActivateEvent& event);
         private:
+            void onFocusChange(QWidget* old, QWidget* now);
             MapFrame* createOrReuseFrame();
-            MapFrame* createFrame(MapDocumentSPtr document);
-            bool closeAllFrames(bool force);
-            void removeAndDestroyFrame(MapFrame* frame);
+            MapFrame* createFrame(std::shared_ptr<MapDocument> document);
+            void removeFrame(MapFrame* frame);
 
             friend class MapFrame;
         };

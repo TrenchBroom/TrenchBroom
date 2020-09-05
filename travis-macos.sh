@@ -2,32 +2,16 @@
 
 set -o verbose
 
-brew update
-brew install cmake p7zip pandoc cppcheck
+brew update > /dev/null # Discard stdout, otherwise this spams ~3000 lines to the log
+brew install cmake p7zip pandoc cppcheck qt5 ninja
 
-# Patch and build wxWidgets
+# Sometimes homebrew complains that cmake is already installed, but we need the latest version.
+brew upgrade cmake
 
-export WX_CACHE_FULLPATH="${TRAVIS_BUILD_DIR}/wx-install-cache"
-
-if [[ ! -e wx-install-cache/bin/wx-config ]] ; then
-    echo "wxwidgets cache directory invalid. Building wxwidgets..."
-
-    wget https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1.7z
-    if [[ "8d98975eb9f81036261c0643755b98e4bb5ab776" != $(openssl sha1 wxWidgets-3.1.1.7z | cut -f2 -d' ') ]] ; then exit 1 ; fi
-    7z x -o"wxWidgets" -y wxWidgets-3.1.1.7z > /dev/null
-    cd wxWidgets || exit 1
-    for PATCHFILE in ../patches/wxWidgets/*.patch; do
-        echo "Applying $PATCHFILE"
-        patch -p0 < "$PATCHFILE" || exit 1
-    done
-    mkdir build-release
-    cd build-release
-    ../configure --quiet --with-osx_cocoa --disable-shared --disable-mediactrl --with-opengl --with-macosx-version-min=10.9 --with-cxx=17 --prefix=$WX_CACHE_FULLPATH --disable-precomp-headers --with-libpng=builtin --without-libtiff --with-libjpeg=builtin && make -j2 && make install
-    cd ..
-    cd ..
-else
-    echo "using cached copy of wxwidgets"
-fi
+# Check versions
+qmake -v
+cmake --version
+cppcheck --version
 
 # Build TB
 
@@ -44,28 +28,44 @@ echo "TB_ENABLE_ASAN: $TB_ENABLE_ASAN_VALUE"
 
 mkdir build
 cd build
-cmake .. -GXcode -DCMAKE_BUILD_TYPE="$BUILD_TYPE_VALUE" -DCMAKE_CXX_FLAGS="-Werror" -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DwxWidgets_PREFIX=$WX_CACHE_FULLPATH || exit 1
+cmake .. -GNinja -DCMAKE_BUILD_TYPE="$BUILD_TYPE_VALUE" -DCMAKE_CXX_FLAGS="-Werror" -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DTB_RUN_MACDEPLOYQT=1 -DTB_SUPPRESS_PCH=1 -DCMAKE_PREFIX_PATH="$(brew --prefix qt5)" || exit 1
 
 cmake --build . --target cppcheck
 if [[ $? -ne 0 ]] ; then
     echo
     echo "cppcheck detected issues, see below"
     echo
-    
-    cat cppcheck-errors.txt
+
+    cat common/cppcheck-errors.txt
     echo
 
     exit 1
 fi
 
 cmake --build . --config "$BUILD_TYPE_VALUE" || exit 1
-cpack -C $BUILD_TYPE_VALUE || exit 1
 
-./generate_checksum.sh
+BUILD_DIR=$(pwd)
 
-cd "$BUILD_TYPE_VALUE" 
-./TrenchBroom-Test || exit 1
-./TrenchBroom-Benchmark || exit 1
+cd "$BUILD_DIR/lib/vecmath/test"
+./vecmath-test || exit 1
+
+cd "$BUILD_DIR/lib/kdl/test"
+./kdl-test || exit 1
+
+cd "$BUILD_DIR/common/test"
+./common-test || exit 1
+
+if [[ $TB_DEBUG_BUILD != "true" ]] ; then
+    cd "$BUILD_DIR/common/benchmark"
+    ./common-benchmark || exit 1
+else
+    echo "Skipping common-benmchark because this is a debug build"
+fi
+
+cd "$BUILD_DIR"
+
+cpack || exit 1
+./app/generate_checksum.sh
 
 echo "Shared libraries used:"
-otool -L ./TrenchBroom.app/Contents/MacOS/TrenchBroom
+otool -L ./app/TrenchBroom.app/Contents/MacOS/TrenchBroom

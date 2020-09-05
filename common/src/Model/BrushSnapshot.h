@@ -20,26 +20,27 @@
 #ifndef TrenchBroom_BrushSnapshot
 #define TrenchBroom_BrushSnapshot
 
-#include "Model/ModelTypes.h"
 #include "Model/NodeSnapshot.h"
+
+#include <kdl/result_forward.h>
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
-        class BrushFaceSnapshot;
+        class BrushNode;
+        class BrushFace;
 
         class BrushSnapshot : public NodeSnapshot {
         private:
-            Brush* m_brush;
-            BrushFaceList m_faces;
+            BrushNode* m_brushNode;
+            std::vector<BrushFace> m_faces;
         public:
-            BrushSnapshot(Brush* brush);
-            ~BrushSnapshot() override;
+            BrushSnapshot(BrushNode* brushNode);
         private:
-            void takeSnapshot(Brush* brush);
-            void doRestore(const vm::bbox3& worldBounds) override;
+            void takeSnapshot(BrushNode* brushNode);
+            
+            kdl::result<void, SnapshotErrors> doRestore(const vm::bbox3& worldBounds) override;
         };
     }
 }

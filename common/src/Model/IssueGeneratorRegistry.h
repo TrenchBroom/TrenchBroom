@@ -20,22 +20,23 @@
 #ifndef TrenchBroom_IssueGeneratorRegistry
 #define TrenchBroom_IssueGeneratorRegistry
 
-#include "Model/ModelTypes.h"
+#include "Model/IssueType.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class IssueGenerator;
+        class IssueQuickFix;
 
         class IssueGeneratorRegistry {
         private:
-            IssueGeneratorList m_generators;
+            std::vector<IssueGenerator*> m_generators;
         public:
             ~IssueGeneratorRegistry();
 
-            const IssueGeneratorList& registeredGenerators() const;
-            IssueQuickFixList quickFixes(IssueType issueTypes) const;
+            const std::vector<IssueGenerator*>& registeredGenerators() const;
+            std::vector<IssueQuickFix*> quickFixes(IssueType issueTypes) const;
 
             void registerGenerator(IssueGenerator* generator);
             void unregisterAllGenerators();

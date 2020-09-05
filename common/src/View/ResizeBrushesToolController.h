@@ -1,4 +1,4 @@
-#/*
+/*
  Copyright (C) 2010-2017 Kristian Duske
 
  This file is part of TrenchBroom.
@@ -20,22 +20,17 @@
 #ifndef TrenchBroom_ResizeBrushesToolController
 #define TrenchBroom_ResizeBrushesToolController
 
-#include "Model/Hit.h"
 #include "Renderer/EdgeRenderer.h"
 #include "View/ToolController.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class PickResult;
-    }
-
     namespace Renderer {
+        class DirectEdgeRenderer;
         class RenderBatch;
         class RenderContext;
     }
 
     namespace View {
-        class InputState;
         class ResizeBrushesTool;
 
         class ResizeBrushesToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy> {
@@ -48,9 +43,9 @@ namespace TrenchBroom {
             };
             Mode m_mode;
         protected:
-            ResizeBrushesToolController(ResizeBrushesTool* tool);
+            explicit ResizeBrushesToolController(ResizeBrushesTool* tool);
         public:
-            virtual ~ResizeBrushesToolController() override;
+            ~ResizeBrushesToolController() override;
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;
@@ -80,7 +75,7 @@ namespace TrenchBroom {
 
         class ResizeBrushesToolController2D : public ResizeBrushesToolController {
         public:
-            ResizeBrushesToolController2D(ResizeBrushesTool* tool);
+            explicit ResizeBrushesToolController2D(ResizeBrushesTool* tool);
         private:
             Model::Hit doPick(const vm::ray3& pickRay, const Model::PickResult& pickResult) override;
             bool doHandleInput(const InputState& inputState) const override;
@@ -88,7 +83,7 @@ namespace TrenchBroom {
 
         class ResizeBrushesToolController3D : public ResizeBrushesToolController {
         public:
-            ResizeBrushesToolController3D(ResizeBrushesTool* tool);
+            explicit ResizeBrushesToolController3D(ResizeBrushesTool* tool);
         private:
             Model::Hit doPick(const vm::ray3& pickRay, const Model::PickResult& pickResult) override;
             bool doHandleInput(const InputState& inputState) const override;

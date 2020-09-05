@@ -20,10 +20,11 @@
 #ifndef TRENCHBROOM_TAGMANAGER_H
 #define TRENCHBROOM_TAGMANAGER_H
 
-#include "StringUtils.h"
 #include "Model/Tag.h"
 
-#include <list>
+#include <kdl/vector_set.h>
+
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -32,13 +33,19 @@ namespace TrenchBroom {
          */
         class TagManager {
         private:
-            std::list<SmartTag> m_smartTags;
-            class TagCmp;
+            struct TagCmp {
+                bool operator()(const SmartTag& lhs, const SmartTag& rhs) const;
+                bool operator()(const std::string& lhs, const SmartTag& rhs) const;
+                bool operator()(const SmartTag& lhs, const std::string& rhs) const;
+                bool operator()(const std::string& lhs, const std::string& rhs) const;
+            };
+
+            kdl::vector_set<SmartTag, TagCmp> m_smartTags;
         public:
             /**
              * Returns a vector containing all smart tags registered with this manager.
              */
-            const std::list<SmartTag>& smartTags() const;
+            const std::vector<SmartTag>& smartTags() const;
 
             /**
              * Indicates whether a smart tag with the given name is registered with this tag manager.
@@ -46,7 +53,7 @@ namespace TrenchBroom {
              * @param name the tag name to check
              * @return true if a tag with the given name is registered and false otherwise
              */
-            bool isRegisteredSmartTag(const String& name) const;
+            bool isRegisteredSmartTag(const std::string& name) const;
 
             /**
              * Returns the smart tag with the given name.
@@ -56,7 +63,7 @@ namespace TrenchBroom {
              *
              * @throws std::logic_error if no tag with the given name is registered
              */
-            const SmartTag& smartTag(const String& name) const;
+            const SmartTag& smartTag(const std::string& name) const;
 
             /**
              * Indicates whether a smart tag with the given index is registered with this tag manager.
@@ -77,13 +84,16 @@ namespace TrenchBroom {
             const SmartTag& smartTag(size_t index) const;
 
             /**
-             * Register the given smart tag with this tag manager.
+             * Register the given smart tags with this tag manager.
+             * The smart tags are copied into the manager and indexes and types are assigned. If this
+             * manager already contains any smart tags, they are cleared before registering the given smart tags.
              *
-             * @param tag the smart tag to register
+             * @param tags the smart tags to register
              *
-             * @throws std::logic_error if the given smart tag is already registered
+             * @throws std::logic_error if the given vector of smart tags contains more than one smart tag with the same
+             * name
              */
-            void registerSmartTag(SmartTag tag);
+            void registerSmartTags(const std::vector<SmartTag>& tags);
 
             /**
              * Clears all registered smart tags;

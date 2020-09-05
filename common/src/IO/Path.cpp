@@ -20,42 +20,36 @@
 #include "Path.h"
 
 #include "Exceptions.h"
+#include "Macros.h"
 
-#include <algorithm>
-#include <cassert>
+#include <kdl/string_compare.h>
+#include <kdl/string_format.h>
+#include <kdl/string_utils.h>
+#include <kdl/vector_utils.h>
+
 #include <iterator>
+#include <ostream>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
-        const Path::List Path::EmptyList = Path::List(0);
-
-        char Path::separator() {
-#ifdef _WIN32
-            static const char sep = '\\';
-#else
-            static const char sep = '/';
-#endif
-            return sep;
+        static constexpr std::string_view separators() {
+            return std::string_view("/\\");
         }
 
-        const String& Path::separators() {
-            static const String sep("/\\");
-            return sep;
-        }
-
-        Path::Path(bool absolute, const StringList& components) :
+        Path::Path(bool absolute, const std::vector<std::string>& components) :
         m_components(components),
         m_absolute(absolute) {}
 
-        Path::Path(const String& path) {
-            const auto trimmed = StringUtils::trim(path);
-            m_components = StringUtils::split(trimmed, separators());
+        Path::Path(const std::string& path) {
+            const auto trimmed = kdl::str_trim(path);
+            m_components = kdl::str_split(trimmed, separators());
 #ifdef _WIN32
             m_absolute = (hasDriveSpec(m_components) ||
                           (!trimmed.empty() && trimmed[0] == '/') ||
                           (!trimmed.empty() && trimmed[0] == '\\'));
 #else
-            m_absolute = !trimmed.empty() && trimmed[0] == separator();
+            m_absolute = !trimmed.empty() && kdl::cs::str_is_prefix(trimmed, separator());
 #endif
         }
 
@@ -78,11 +72,12 @@ namespace TrenchBroom {
             const auto& rcomps = rhs.m_components;
 
             size_t i = 0;
-            const auto max = std::min(m_components.size(), rcomps.size());
+            const auto max = m_components.size() < rcomps.size() ? m_components.size() : rcomps.size();
             while (i < max) {
                 const auto& mcomp = m_components[i];
                 const auto& rcomp = rcomps[i];
-                const auto result = caseSensitive ? StringUtils::caseSensitiveCompare(mcomp, rcomp) : StringUtils::caseInsensitiveCompare(mcomp, rcomp);
+                const auto result = caseSensitive ? kdl::cs::str_compare(mcomp, rcomp) : kdl::ci::str_compare(mcomp,
+                    rcomp);
                 if (result < 0) {
                     return -1;
                 } else if (result > 0) {
@@ -115,49 +110,38 @@ namespace TrenchBroom {
             return compare(rhs) > 0;
         }
 
-        String Path::asString(const char separator) const {
+        std::string Path::asString(const std::string_view separator) const {
             if (m_absolute) {
 #ifdef _WIN32
                 if (hasDriveSpec(m_components)) {
-                    return StringUtils::join(m_components, separator);
+                    return kdl::str_join(m_components, separator);
                 } else {
-                    return separator + StringUtils::join(m_components, separator);
+                    return std::string(separator) + kdl::str_join(m_components, separator);
                 }
 #else
-                return separator + StringUtils::join(m_components, separator);
+                return std::string(separator) + kdl::str_join(m_components, separator);
 #endif
             }
-            return StringUtils::join(m_components, separator);
+            return kdl::str_join(m_components, separator);
         }
 
-        String Path::asString(const String& separator) const {
-            if (m_absolute) {
-#ifdef _WIN32
-                if (hasDriveSpec(m_components)) {
-                    return StringUtils::join(m_components, separator);
-                } else {
-                    return separator + StringUtils::join(m_components, separator);
-                }
-#else
-                return separator + StringUtils::join(m_components, separator);
-#endif
-            }
-            return StringUtils::join(m_components, separator);
-        }
 
-        StringList Path::asStrings(const Path::List& paths, const char separator) {
-            auto result = StringList();
+
+        std::vector<std::string> Path::asStrings(const std::vector<Path>& paths, const std::string_view separator) {
+            auto result = std::vector<std::string>();
             result.reserve(paths.size());
-            std::transform(std::begin(paths), std::end(paths), std::back_inserter(result),
-                           [separator](const Path& path) { return path.asString(separator); });
+            for (const auto& path : paths) {
+                result.push_back(path.asString(separator));
+            }
             return result;
         }
 
-        Path::List Path::asPaths(const StringList& strs) {
-            auto result = Path::List();
+        std::vector<Path> Path::asPaths(const std::vector<std::string>& strs) {
+            auto result = std::vector<Path>();
             result.reserve(strs.size());
-            std::transform(std::begin(strs), std::end(strs), std::back_inserter(result),
-                           [](const String& str) { return Path(str); });
+            for (const auto& str : strs) {
+                result.push_back(Path(str));
+            }
             return result;
         }
 
@@ -194,14 +178,14 @@ namespace TrenchBroom {
                 throw PathException("Cannot delete first component of empty path");
             }
             if (!m_absolute) {
-                auto components = StringList();
+                auto components = std::vector<std::string>();
                 components.reserve(m_components.size() - 1);
                 components.insert(std::begin(components), std::begin(m_components) + 1, std::end(m_components));
                 return Path(false, components);
             }
 #ifdef _WIN32
             if (!m_components.empty() && hasDriveSpec(m_components[0])) {
-                StringList components;
+                std::vector<std::string> components;
                 components.reserve(m_components.size() - 1);
                 components.insert(std::begin(components), std::begin(m_components) + 1, std::end(m_components));
                 return Path(false, components);
@@ -228,7 +212,7 @@ namespace TrenchBroom {
             }
 
             if (!m_components.empty()) {
-                auto components = StringList();
+                auto components = std::vector<std::string>();
                 components.reserve(m_components.size() - 1);
                 components.insert(std::begin(components), std::begin(m_components), std::end(m_components) - 1);
                 return Path(m_absolute, components);
@@ -254,16 +238,19 @@ namespace TrenchBroom {
                 return Path("");
             }
 
-            auto begin = std::begin(m_components);
-            std::advance(begin, static_cast<StringList::const_iterator::difference_type>(index));
-            auto end = begin;
-            std::advance(end, static_cast<StringList::const_iterator::difference_type>(count));
-            auto newComponents = StringList(count);
-            std::copy(begin, end, std::begin(newComponents));
+            auto newComponents = std::vector<std::string>();
+            newComponents.reserve(count);
+            for (size_t i = 0u; i < count; ++i) {
+                newComponents.push_back(m_components[index + i]);
+            }
             return Path(m_absolute && index == 0, newComponents);
         }
 
-        String Path::filename() const {
+        const std::vector<std::string>& Path::components() const {
+            return m_components;
+        }
+
+        std::string Path::filename() const {
             if (isEmpty()) {
                 throw PathException("Cannot get filename of empty path");
             }
@@ -275,28 +262,28 @@ namespace TrenchBroom {
             }
         }
 
-        String Path::basename() const {
+        std::string Path::basename() const {
             if (isEmpty()) {
                 throw PathException("Cannot get basename of empty path");
             }
 
             const auto filename = this->filename();
             const auto dotIndex = filename.rfind('.');
-            if (dotIndex == String::npos) {
+            if (dotIndex == std::string::npos) {
                 return filename;
             } else {
                 return filename.substr(0, dotIndex);
             }
         }
 
-        String Path::extension() const {
+        std::string Path::extension() const {
             if (isEmpty()) {
                 throw PathException("Cannot get extension of empty path");
             }
 
             const auto filename = this->filename();
             const auto dotIndex = filename.rfind('.');
-            if (dotIndex == String::npos) {
+            if (dotIndex == std::string::npos) {
                 return "";
             } else {
                 return filename.substr(dotIndex + 1);
@@ -311,15 +298,15 @@ namespace TrenchBroom {
             return this->prefix(prefix.length()).compare(prefix, caseSensitive) == 0;
         }
 
-        bool Path::hasFilename(const String& filename, const bool caseSensitive) const {
+        bool Path::hasFilename(const std::string& filename, const bool caseSensitive) const {
             if (caseSensitive) {
-                return StringUtils::caseSensitiveEqual(filename, this->filename());
+                return filename == this->filename();
             } else {
-                return StringUtils::caseInsensitiveEqual(filename, this->filename());
+                return kdl::ci::str_is_equal(filename, this->filename());
             }
         }
 
-        bool Path::hasFilename(const StringList& filenames, const bool caseSensitive) const {
+        bool Path::hasFilename(const std::vector<std::string>& filenames, const bool caseSensitive) const {
             for (const auto& filename : filenames) {
                 if (hasFilename(filename, caseSensitive)) {
                     return true;
@@ -328,15 +315,15 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool Path::hasBasename(const String& basename, const bool caseSensitive) const {
+        bool Path::hasBasename(const std::string& basename, const bool caseSensitive) const {
             if (caseSensitive) {
-                return StringUtils::caseSensitiveEqual(basename, this->basename());
+                return basename == this->basename();
             } else {
-                return StringUtils::caseInsensitiveEqual(basename, this->basename());
+                return kdl::ci::str_is_equal(basename, this->basename());
             }
         }
 
-        bool Path::hasBasename(const StringList& basenames, const bool caseSensitive) const {
+        bool Path::hasBasename(const std::vector<std::string>& basenames, const bool caseSensitive) const {
             for (const auto& basename : basenames) {
                 if (hasBasename(basename, caseSensitive)) {
                     return true;
@@ -345,15 +332,15 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool Path::hasExtension(const String& extension, const bool caseSensitive) const {
+        bool Path::hasExtension(const std::string& extension, const bool caseSensitive) const {
             if (caseSensitive) {
-                return StringUtils::caseSensitiveEqual(extension, this->extension());
+                return extension == this->extension();
             } else {
-                return StringUtils::caseInsensitiveEqual(extension, this->extension());
+                return kdl::ci::str_is_equal(extension, this->extension());
             }
         }
 
-        bool Path::hasExtension(const StringList& extensions, const bool caseSensitive) const {
+        bool Path::hasExtension(const std::vector<std::string>& extensions, const bool caseSensitive) const {
             for (const auto& extension : extensions) {
                 if (hasExtension(extension, caseSensitive)) {
                     return true;
@@ -366,7 +353,7 @@ namespace TrenchBroom {
             return deleteLastComponent() + Path(basename());
         }
 
-        Path Path::addExtension(const String& extension) const {
+        Path Path::addExtension(const std::string& extension) const {
             if (isEmpty()) {
                 throw PathException("Cannot add extension to empty path");
             }
@@ -384,8 +371,15 @@ namespace TrenchBroom {
             return Path(m_absolute, components);
         }
 
-        Path Path::replaceExtension(const String& extension) const {
+        Path Path::replaceExtension(const std::string& extension) const {
             return deleteExtension().addExtension(extension);
+        }
+
+        Path Path::replaceBasename(const std::string& basename) const {
+            if (isEmpty()) {
+                throw PathException("Cannot replace the base name of an empty path.");
+            }
+            return deleteLastComponent() + IO::Path(basename).addExtension(extension());
         }
 
         bool Path::isAbsolute() const {
@@ -414,6 +408,28 @@ namespace TrenchBroom {
             }
 
             return *this + relativePath;
+        }
+
+        Path Path::makeRelative() const {
+            if (isEmpty()) {
+                throw PathException("Cannot make relative path from an empty reference path");
+            }
+
+            if (!isAbsolute()) {
+                throw PathException("Cannot make relative path from relative reference path");
+            }
+
+#ifdef _WIN32
+            if (m_components.empty()) {
+                throw PathException("Cannot make relative path from an reference path with no drive spec");
+            }
+
+            return Path(false, kdl::vec_slice_suffix(m_components, m_components.size() - 1u));
+#else
+            return Path(false, m_components);
+#endif
+
+
         }
 
         Path Path::makeRelative(const Path& absolutePath) const {
@@ -450,14 +466,15 @@ namespace TrenchBroom {
 
             // cross off all common prefixes
             size_t p = 0;
-            while (p < std::min(myResolved.size(), theirResolved.size())) {
+            const auto max = myResolved.size() < theirResolved.size() ? myResolved.size() : theirResolved.size();
+            while (p < max) {
                 if (myResolved[p] != theirResolved[p]) {
                     break;
                 }
                 ++p;
             }
 
-            auto components = StringList();
+            auto components = std::vector<std::string>();
             for (size_t i = p; i < myResolved.size(); ++i) {
                 components.push_back("..");
             }
@@ -473,47 +490,53 @@ namespace TrenchBroom {
         }
 
         Path Path::makeLowerCase() const {
-            auto lcComponents = StringList();
+            auto lcComponents = std::vector<std::string>();
             lcComponents.reserve(m_components.size());
-            std::transform(std::begin(m_components), std::end(m_components), std::back_inserter(lcComponents),
-                           [](const String& component) { return StringUtils::toLower(component); });
+            for (const auto& component : m_components) {
+                lcComponents.push_back(kdl::str_to_lower(component));
+            }
             return Path(m_absolute, lcComponents);
         }
 
-        Path::List Path::makeAbsoluteAndCanonical(const List& paths, const Path& relativePath) {
-            auto result = List();
+        std::vector<Path> Path::makeAbsoluteAndCanonical(const std::vector<Path>& paths, const Path& relativePath) {
+            auto result = std::vector<Path>();
             result.reserve(paths.size());
-            std::transform(std::begin(paths), std::end(paths), std::back_inserter(result),
-                           [&relativePath](const Path& path) { return path.makeAbsolute(relativePath).makeCanonical(); });
+            for (const auto& path : paths) {
+                result.push_back(path.makeAbsolute(relativePath).makeCanonical());
+            }
             return result;
         }
 
-        bool Path::hasDriveSpec(const StringList& components) {
 #ifdef _WIN32
+        bool Path::hasDriveSpec(const std::vector<std::string>& components) {
             if (components.empty()) {
                 return false;
             } else {
                 return hasDriveSpec(components[0]);
             }
-#else
-            return false;
-#endif
         }
+#else
+        bool Path::hasDriveSpec(const std::vector<std::string>& /* components */) {
+            return false;
+        }
+#endif
 
-        bool Path::hasDriveSpec(const String& component) {
 #ifdef _WIN32
+        bool Path::hasDriveSpec(const std::string& component) {
             if (component.size() <= 1) {
                 return false;
             } else {
                 return component[1] == ':';
             }
-#else
-            return false;
-#endif
         }
+#else
+        bool Path::hasDriveSpec(const std::string& /* component */) {
+            return false;
+        }
+#endif
 
-        StringList Path::resolvePath(const bool absolute, const StringList& components) const {
-            auto resolved = StringList();
+        std::vector<std::string> Path::resolvePath(const bool absolute, const std::vector<std::string>& components) const {
+            auto resolved = std::vector<std::string>();
             for (const auto& comp : components) {
                 if (comp == ".") {
                     continue;
@@ -527,6 +550,8 @@ namespace TrenchBroom {
                     if (absolute && hasDriveSpec(resolved[0]) && resolved.size() < 2) {
                         throw PathException("Cannot resolve path");
                     }
+#else
+                    unused(absolute);
 #endif
                     resolved.pop_back();
                     continue;

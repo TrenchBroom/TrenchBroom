@@ -19,10 +19,13 @@
 
 #include "RotateObjectsToolController.h"
 
+#include "FloatType.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/Camera.h"
+#include "Model/HitQuery.h"
+#include "Renderer/ActiveShader.h"
 #include "Renderer/Circle.h"
+#include "Renderer/Renderable.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
@@ -32,14 +35,13 @@
 #include "View/InputState.h"
 #include "View/MoveToolController.h"
 
-#include "TrenchBroom.h"
-
 #include <vecmath/intersection.h>
-#include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 #include <vecmath/quat.h>
 #include <vecmath/util.h>
 #include <vecmath/vec.h>
+
+#include <sstream>
 
 namespace TrenchBroom {
     namespace View {
@@ -55,7 +57,7 @@ namespace TrenchBroom {
         protected:
             explicit RotateObjectsBase(RotateObjectsTool* tool) :
             m_tool(tool),
-            m_area(RotateObjectsHandle::HitArea::HitArea_None),
+            m_area(RotateObjectsHandle::HitArea::None),
             m_angle(FloatType(0.0)) {
                 ensure(m_tool != nullptr, "tool is null");
             }
@@ -73,13 +75,13 @@ namespace TrenchBroom {
                     return false;
                 }
 
-                const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
+                const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHitType).occluded().first();
                 if (!hit.isMatch()) {
                     return false;
                 }
 
                 const RotateObjectsHandle::HitArea area = hit.target<RotateObjectsHandle::HitArea>();
-                if (area == RotateObjectsHandle::HitArea::HitArea_Center) {
+                if (area == RotateObjectsHandle::HitArea::Center) {
                     return false;
                 }
 
@@ -93,13 +95,13 @@ namespace TrenchBroom {
                     return DragInfo();
                 }
 
-                const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
+                const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHitType).occluded().first();
                 if (!hit.isMatch()) {
                     return DragInfo();
                 }
 
                 const RotateObjectsHandle::HitArea area = hit.target<RotateObjectsHandle::HitArea>();
-                if (area == RotateObjectsHandle::HitArea::HitArea_Center) {
+                if (area == RotateObjectsHandle::HitArea::Center) {
                     return DragInfo();
                 }
 
@@ -108,8 +110,8 @@ namespace TrenchBroom {
                 const auto handleArea = hit.target<RotateObjectsHandle::HitArea>();
                 const auto rotationCenter = m_tool->rotationCenter();
                 const auto rotationAxis = m_tool->rotationAxis(handleArea);
-                const auto startPointDistance = vm::intersectRayAndPlane(inputState.pickRay(), vm::plane3(rotationCenter, rotationAxis));
-                if (vm::isnan(startPointDistance)) {
+                const auto startPointDistance = vm::intersect_ray_plane(inputState.pickRay(), vm::plane3(rotationCenter, rotationAxis));
+                if (vm::is_nan(startPointDistance)) {
                     return DragInfo();
                 }
 
@@ -117,22 +119,22 @@ namespace TrenchBroom {
 
                 m_area = handleArea;
                 m_center = rotationCenter;
-                m_start = inputState.pickRay().pointAtDistance(startPointDistance);
+                m_start = vm::point_at_distance(inputState.pickRay(), startPointDistance);
                 m_axis = rotationAxis;
                 m_angle = 0.0;
                 const auto radius = m_tool->majorHandleRadius(inputState.camera());
                 return DragInfo(new CircleDragRestricter(m_center, m_axis, radius), new CircleDragSnapper(m_tool->grid(), m_tool->angle(), m_start, m_center, m_axis, radius));
             }
 
-            DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
-                const vm::vec3 ref = normalize(m_start - m_center);
-                const vm::vec3 vec = normalize(nextHandlePosition - m_center);
-                m_angle = measureAngle(vec, ref, m_axis);
+            DragResult doDrag(const InputState&, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) override {
+                const vm::vec3 ref = vm::normalize(m_start - m_center);
+                const vm::vec3 vec = vm::normalize(nextHandlePosition - m_center);
+                m_angle = vm::measure_angle(vec, ref, m_axis);
                 m_tool->applyRotation(m_center, m_axis, m_angle);
                 return DR_Continue;
             }
 
-            void doEndDrag(const InputState& inputState) override {
+            void doEndDrag(const InputState&) override {
                 m_tool->commitRotation();
             }
 
@@ -146,10 +148,10 @@ namespace TrenchBroom {
                     renderAngleIndicator(renderContext, renderBatch);
                     renderAngleText(renderContext, renderBatch);
                 } else {
-                    const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
+                    const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHitType).occluded().first();
                     if (hit.isMatch()) {
                         const RotateObjectsHandle::HitArea area = hit.target<RotateObjectsHandle::HitArea>();
-                        if (area != RotateObjectsHandle::HitArea::HitArea_Center)
+                        if (area != RotateObjectsHandle::HitArea::Center)
                             doRenderHighlight(inputState, renderContext, renderBatch, hit.target<RotateObjectsHandle::HitArea>());
                     }
                 }
@@ -164,24 +166,24 @@ namespace TrenchBroom {
                 m_position(position),
                 m_circle(radius, 24, true, axis, vm::vec3f(startAxis), vm::vec3f(endAxis)) {}
             private:
-                void doPrepareVertices(Renderer::Vbo& vertexVbo) override {
-                    m_circle.prepare(vertexVbo);
+                void doPrepareVertices(Renderer::VboManager& vboManager) override {
+                    m_circle.prepare(vboManager);
                 }
 
                 void doRender(Renderer::RenderContext& renderContext) override {
-                    glAssert(glDisable(GL_DEPTH_TEST));
+                    glAssert(glDisable(GL_DEPTH_TEST))
 
-                    glAssert(glPushAttrib(GL_POLYGON_BIT));
-                    glAssert(glDisable(GL_CULL_FACE));
-                    glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+                    glAssert(glPushAttrib(GL_POLYGON_BIT))
+                    glAssert(glDisable(GL_CULL_FACE))
+                    glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL))
 
-                    Renderer::MultiplyModelMatrix translation(renderContext.transformation(), translationMatrix(vm::vec3f(m_position)));
+                    Renderer::MultiplyModelMatrix translation(renderContext.transformation(),vm::translation_matrix(vm::vec3f(m_position)));
                     Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
                     shader.set("Color", Color(1.0f, 1.0f, 1.0f, 0.2f));
                     m_circle.render();
 
-                    glAssert(glEnable(GL_DEPTH_TEST));
-                    glAssert(glPopAttrib());
+                    glAssert(glEnable(GL_DEPTH_TEST))
+                    glAssert(glPopAttrib())
                 }
             };
 
@@ -190,7 +192,7 @@ namespace TrenchBroom {
                 const auto startAxis = normalize(m_start - m_center);
                 const auto endAxis = vm::quat3(m_axis, m_angle) * startAxis;
 
-                renderBatch.addOneShot(new AngleIndicatorRenderer(m_center, handleRadius, firstComponent(m_axis), startAxis, endAxis));
+                renderBatch.addOneShot(new AngleIndicatorRenderer(m_center, handleRadius, vm::find_abs_max_component(m_axis), startAxis, endAxis));
             }
 
             void renderAngleText(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -198,11 +200,11 @@ namespace TrenchBroom {
 
                 renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
                 renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
-                renderService.renderString(angleString(vm::toDegrees(m_angle)), vm::vec3f(m_center));
+                renderService.renderString(angleString(vm::to_degrees(m_angle)), vm::vec3f(m_center));
             }
 
-            String angleString(const FloatType angle) const {
-                StringStream str;
+            std::string angleString(const FloatType angle) const {
+                std::stringstream str;
                 str.precision(2);
                 str.setf(std::ios::fixed);
                 str << angle;
@@ -240,24 +242,24 @@ namespace TrenchBroom {
                     return MoveInfo();
                 }
 
-                const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
+                const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHitType).occluded().first();
                 if (!hit.isMatch()) {
                     return MoveInfo();
                 }
 
-                if (hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HitArea::HitArea_Center) {
+                if (hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HitArea::Center) {
                     return MoveInfo();
                 }
 
                 return MoveInfo(m_tool->rotationCenter());
             }
 
-            DragResult doMove(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
+            DragResult doMove(const InputState&, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) override {
                 m_tool->setRotationCenter(nextHandlePosition);
                 return DR_Continue;
             }
 
-            void doEndMove(const InputState& inputState) override {}
+            void doEndMove(const InputState&) override {}
 
             void doCancelMove() override {
                 m_tool->setRotationCenter(initialHandlePosition());
@@ -266,11 +268,11 @@ namespace TrenchBroom {
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override {
                 MoveToolController::doRender(inputState, renderContext, renderBatch);
                 if (thisToolDragging()) {
-                    doRenderHighlight(inputState, renderContext, renderBatch, RotateObjectsHandle::HitArea::HitArea_Center);
+                    doRenderHighlight(inputState, renderContext, renderBatch, RotateObjectsHandle::HitArea::Center);
                 } else if (!anyToolDragging(inputState)) {
-                    const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
-                    if (hit.isMatch() && hit.target<RotateObjectsHandle::HitArea>() == RotateObjectsHandle::HitArea::HitArea_Center) {
-                        doRenderHighlight(inputState, renderContext, renderBatch, RotateObjectsHandle::HitArea::HitArea_Center);
+                    const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHitType).occluded().first();
+                    if (hit.isMatch() && hit.target<RotateObjectsHandle::HitArea>() == RotateObjectsHandle::HitArea::Center) {
+                        doRenderHighlight(inputState, renderContext, renderBatch, RotateObjectsHandle::HitArea::Center);
                     }
                 }
             }
@@ -303,7 +305,7 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
+            const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHitType).occluded().first();
             if (thisToolDragging() || hit.isMatch()) {
                 renderContext.setForceShowSelectionGuide();
             }
@@ -323,7 +325,7 @@ namespace TrenchBroom {
             explicit MoveCenterPart(RotateObjectsTool* tool) :
             MoveCenterBase(tool) {}
         private:
-            void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
+            void doRenderHighlight(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
                 m_tool->renderHighlight2D(renderContext, renderBatch, area);
             }
         };
@@ -333,7 +335,7 @@ namespace TrenchBroom {
             explicit RotateObjectsPart(RotateObjectsTool* tool) :
             RotateObjectsBase(tool) {}
         private:
-            void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
+            void doRenderHighlight(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
                 m_tool->renderHighlight2D(renderContext, renderBatch, area);
             }
         };
@@ -358,7 +360,7 @@ namespace TrenchBroom {
             explicit MoveCenterPart(RotateObjectsTool* tool) :
             MoveCenterBase(tool) {}
         private:
-            void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
+            void doRenderHighlight(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
                 m_tool->renderHighlight3D(renderContext, renderBatch, area);
             }
         };
@@ -368,7 +370,7 @@ namespace TrenchBroom {
             explicit RotateObjectsPart(RotateObjectsTool* tool) :
             RotateObjectsBase(tool) {}
         private:
-            void doRenderHighlight(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
+            void doRenderHighlight(const InputState&, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area) override {
                 m_tool->renderHighlight3D(renderContext, renderBatch, area);
             }
         };

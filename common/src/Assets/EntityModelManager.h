@@ -20,13 +20,12 @@
 #ifndef TrenchBroom_EntityModelManager
 #define TrenchBroom_EntityModelManager
 
-#include "Assets/ModelDefinition.h"
 #include "IO/Path.h"
-#include "Model/ModelTypes.h"
+
+#include <kdl/vector_set.h>
 
 #include <map>
 #include <memory>
-#include <set>
 #include <vector>
 
 namespace TrenchBroom {
@@ -36,23 +35,28 @@ namespace TrenchBroom {
         class EntityModelLoader;
     }
 
+    namespace Model {
+        class EntityNode;
+    }
+
     namespace Renderer {
         class TexturedRenderer;
-        class Vbo;
+        class VboManager;
     }
 
     namespace Assets {
         class EntityModel;
         class EntityModelFrame;
+        struct ModelSpecification;
 
         class EntityModelManager {
         private:
             using ModelCache = std::map<IO::Path, std::unique_ptr<EntityModel>>;
-            using ModelMismatches = std::set<IO::Path>;
+            using ModelMismatches = kdl::vector_set<IO::Path>;
             using ModelList = std::vector<EntityModel*>;
 
-            using RendererCache = std::map<Assets::ModelSpecification, std::unique_ptr<Renderer::TexturedRenderer>>;
-            using RendererMismatches = std::set<Assets::ModelSpecification>;
+            using RendererCache = std::map<ModelSpecification, std::unique_ptr<Renderer::TexturedRenderer>>;
+            using RendererMismatches = kdl::vector_set<ModelSpecification>;
             using RendererList = std::vector<Renderer::TexturedRenderer*>;
 
             Logger& m_logger;
@@ -77,23 +81,20 @@ namespace TrenchBroom {
 
             void setTextureMode(int minFilter, int magFilter);
             void setLoader(const IO::EntityModelLoader* loader);
-            Renderer::TexturedRenderer* renderer(const Assets::ModelSpecification& spec) const;
+            Renderer::TexturedRenderer* renderer(const ModelSpecification& spec) const;
 
-            const EntityModelFrame* frame(const Assets::ModelSpecification& spec) const;
-
-            bool hasModel(const Model::Entity* entity) const;
-            bool hasModel(const Assets::ModelSpecification& spec) const;
+            const EntityModelFrame* frame(const ModelSpecification& spec) const;
         private:
             EntityModel* model(const IO::Path& path) const;
             EntityModel* safeGetModel(const IO::Path& path) const;
             std::unique_ptr<EntityModel> loadModel(const IO::Path& path) const;
-            void loadFrame(const Assets::ModelSpecification& spec, Assets::EntityModel& model) const;
+            void loadFrame(const ModelSpecification& spec, EntityModel& model) const;
         public:
-            void prepare(Renderer::Vbo& vbo);
+            void prepare(Renderer::VboManager& vboManager);
         private:
             void resetTextureMode();
             void prepareModels();
-            void prepareRenderers(Renderer::Vbo& vbo);
+            void prepareRenderers(Renderer::VboManager& vboManager);
         };
     }
 }

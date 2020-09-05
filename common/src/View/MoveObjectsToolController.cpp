@@ -19,12 +19,9 @@
 
 #include "MoveObjectsToolController.h"
 
-#include "Model/Brush.h"
-#include "Model/Entity.h"
-#include "Model/Group.h"
-#include "Model/HitAdapter.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
 #include "Model/HitQuery.h"
-#include "Model/Node.h"
 #include "Renderer/RenderContext.h"
 #include "View/MoveObjectsTool.h"
 #include "View/SelectionTool.h"
@@ -60,7 +57,7 @@ namespace TrenchBroom {
             // selected group, even though the entities/brushes aren't selected themselves.
 
             const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::Entity::EntityHit | Model::Brush::BrushHit).transitivelySelected().occluded().first();
+            const Model::Hit& hit = pickResult.query().pickable().type(Model::EntityNode::EntityHitType | Model::BrushNode::BrushHitType).transitivelySelected().occluded().first();
 
             if (!hit.isMatch())
                 return MoveInfo();
@@ -91,7 +88,7 @@ namespace TrenchBroom {
             m_tool->cancelMove();
         }
 
-        void MoveObjectsToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+        void MoveObjectsToolController::doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
             if (thisToolDragging())
                 renderContext.setForceShowSelectionGuide();
         }

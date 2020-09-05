@@ -20,9 +20,6 @@
 #ifndef TrenchBroom_Macros_h
 #define TrenchBroom_Macros_h
 
-#include "Exceptions.h"
-#include "Ensure.h"
-
 #include <cassert>
 
 // This macro is used to silence compiler warnings about unused variables. These are usually only used in assertions
@@ -40,8 +37,10 @@
 // Annotate an intended switch fallthrough
 #define switchFallthrough() [[fallthrough]]
 
-#define assertResult(funexp) { const bool result = (funexp); unused(result); assert(result); }
+#define assertResult(funexp) { const bool result_ = (funexp); unused(result_); assert(result_); }
 
+#define defineCopy(classname) public: classname(const classname& other) = default; classname& operator=(const classname& other) = default;
+#define defineMove(classname) public: classname(classname&& other) noexcept = default; classname& operator=(classname&& other) = default;
 #define defineCopyAndMove(classname) public: classname(const classname& other) = default; classname(classname&& other) noexcept = default; classname& operator=(const classname& other) = default; classname& operator=(classname&& other) = default;
 
 #define deleteCopy(classname) public: classname(const classname& other) = delete; classname& operator=(const classname& other) = delete;

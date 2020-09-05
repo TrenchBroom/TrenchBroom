@@ -23,6 +23,7 @@ uniform bool ApplyTinting;
 uniform vec4 TintColor;
 
 varying vec4 vertexColor;
+varying vec4 modelCoordinates;
 varying vec3 modelNormal;
 varying vec3 viewVector;
 

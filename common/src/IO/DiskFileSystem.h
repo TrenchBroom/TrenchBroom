@@ -24,10 +24,11 @@
 #include "IO/Path.h"
 
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
-        class File;
+        class Path;
 
         class DiskFileSystem : public FileSystem {
         protected:
@@ -44,7 +45,7 @@ namespace TrenchBroom {
             bool doDirectoryExists(const Path& path) const override;
             bool doFileExists(const Path& path) const override;
 
-            Path::List doGetDirectoryContents(const Path& path) const override;
+            std::vector<Path> doGetDirectoryContents(const Path& path) const override;
             std::shared_ptr<File> doOpenFile(const Path& path) const override;
         };
 
@@ -58,7 +59,7 @@ namespace TrenchBroom {
             WritableDiskFileSystem(const Path& root, bool create);
             WritableDiskFileSystem(std::shared_ptr<FileSystem> next, const Path& root, bool create);
         private:
-            void doCreateFile(const Path& path, const String& contents) override;
+            void doCreateFile(const Path& path, const std::string& contents) override;
             void doCreateDirectory(const Path& path) override;
             void doDeleteFile(const Path& path) override;
             void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite) override;

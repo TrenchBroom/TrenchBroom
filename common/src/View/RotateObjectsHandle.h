@@ -20,13 +20,17 @@
 #ifndef TrenchBroom_RotateObjectsHandle
 #define TrenchBroom_RotateObjectsHandle
 
-#include "TrenchBroom.h"
-#include "Color.h"
+#include "FloatType.h"
 #include "Macros.h"
-#include "Model/Hit.h"
-#include "View/ViewTypes.h"
+#include "Model/HitType.h"
+
+#include <vecmath/vec.h>
 
 namespace TrenchBroom {
+    namespace Model {
+        class Hit;
+    }
+
     namespace Renderer {
         class Camera;
         class RenderBatch;
@@ -34,18 +38,16 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class InputState;
-
         class RotateObjectsHandle {
         public:
-            static const Model::Hit::HitType HandleHit;
+            static const Model::HitType::Type HandleHitType;
 
             enum class HitArea {
-                HitArea_None = 0,
-                HitArea_Center = 1,
-                HitArea_XAxis = 2,
-                HitArea_YAxis = 4,
-                HitArea_ZAxis = 8
+                None = 0,
+                Center = 1,
+                XAxis = 2,
+                YAxis = 4,
+                ZAxis = 8
             };
         private:
             class Handle {

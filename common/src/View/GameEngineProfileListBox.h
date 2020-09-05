@@ -29,19 +29,47 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class ElidedLabel;
+
+        class GameEngineProfileItemRenderer : public ControlListBoxItemRenderer {
+            Q_OBJECT
+        private:
+            Model::GameEngineProfile* m_profile;
+            ElidedLabel* m_nameLabel;
+            ElidedLabel* m_pathLabel;
+        public:
+            explicit GameEngineProfileItemRenderer(Model::GameEngineProfile* profile, QWidget* parent = nullptr);
+            ~GameEngineProfileItemRenderer() override;
+
+            void updateItem() override;
+        private:
+            void createGui();
+            void refresh();
+            void addObservers();
+            void removeObservers();
+            void profileWillBeRemoved();
+            void profileDidChange();
+        };
+
         class GameEngineProfileListBox : public ControlListBox {
+            Q_OBJECT
         private:
             const Model::GameEngineConfig& m_config;
         public:
-            GameEngineProfileListBox(wxWindow* parent, const Model::GameEngineConfig& config);
+            explicit GameEngineProfileListBox(const Model::GameEngineConfig& config, QWidget* parent = nullptr);
             ~GameEngineProfileListBox() override;
 
             Model::GameEngineProfile* selectedProfile() const;
         private:
             void profilesDidChange();
         private:
-            class ProfileItem;
-            Item* createItem(wxWindow* parent, const wxSize& margins, size_t index) override;
+            size_t itemCount() const override;
+            ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
+            void selectedRowChanged(int index) override;
+            void doubleClicked(size_t index) override;
+        signals:
+            void currentProfileChanged(Model::GameEngineProfile* profile);
+            void profileSelected(Model::GameEngineProfile* profile);
         };
     }
 }

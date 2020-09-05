@@ -20,32 +20,31 @@
 #ifndef CompilationContext_h
 #define CompilationContext_h
 
-#include "EL.h"
-#include "Logger.h"
-#include "StringUtils.h"
-#include "View/TextCtrlOutputAdapter.h"
-#include "View/ViewTypes.h"
+#include "EL/VariableStore.h"
+#include "View/TextOutputAdapter.h"
 
-#include <wx/string.h>
-#include <wx/thread.h>
+#include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
+
         class CompilationContext {
         private:
-            MapDocumentWPtr m_document;
-            EL::VariableTable m_variables;
+            std::weak_ptr<MapDocument> m_document;
+            std::unique_ptr<EL::VariableStore> m_variables;
 
-            TextCtrlOutputAdapter m_output;
+            TextOutputAdapter m_output;
             bool m_test;
         public:
-            CompilationContext(MapDocumentWPtr document, const EL::VariableTable& variables, const TextCtrlOutputAdapter& output, bool test);
+            CompilationContext(std::weak_ptr<MapDocument> document, const EL::VariableStore& variables, const TextOutputAdapter& output, bool test);
 
-            MapDocumentSPtr document() const;
+            std::shared_ptr<MapDocument> document() const;
             bool test() const;
 
-            String interpolate(const String& input) const;
-            String variableValue(const String& variableName) const;
+            std::string interpolate(const std::string& input) const;
+            std::string variableValue(const std::string& variableName) const;
 
             template <typename T>
             CompilationContext& operator<<(const T& t) {

@@ -19,33 +19,42 @@
 
 #include "SmartAttributeEditorMatcher.h"
 
+#include <kdl/string_compare.h>
+#include <kdl/vector_utils.h>
+
+#include <vector>
+
 namespace TrenchBroom {
     namespace View {
         SmartAttributeEditorMatcher::~SmartAttributeEditorMatcher() {}
 
-        bool SmartAttributeEditorMatcher::matches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const {
+        bool SmartAttributeEditorMatcher::matches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const {
             return doMatches(name, attributables);
         }
 
-        SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const String& pattern) :
+        SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const std::string& pattern) :
         SmartAttributeEditorKeyMatcher({ pattern }) {}
 
-        SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const std::initializer_list<String> patterns) :
-        m_patterns(patterns) {}
+        SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const std::initializer_list<std::string> patterns) :
+        m_patterns(patterns) {
+            kdl::vec_sort_and_remove_duplicates(m_patterns);
+        }
 
-        bool SmartAttributeEditorKeyMatcher::doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const {
-            if (attributables.empty())
+        bool SmartAttributeEditorKeyMatcher::doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const {
+            if (attributables.empty()) {
                 return false;
+            }
 
-            for (const String& pattern : m_patterns) {
-                if (StringUtils::caseSensitiveMatchesPattern(name, pattern))
+            for (const std::string& pattern : m_patterns) {
+                if (kdl::cs::str_matches_glob(name, pattern)) {
                     return true;
+                }
             }
 
             return false;
         }
 
-        bool SmartAttributeEditorDefaultMatcher::doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const {
+        bool SmartAttributeEditorDefaultMatcher::doMatches(const std::string& /* name */, const std::vector<Model::AttributableNode*>& /* attributables */) const {
             return true;
         }
     }

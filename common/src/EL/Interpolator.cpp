@@ -19,18 +19,24 @@
 
 #include "Interpolator.h"
 
+#include "EL/Expression.h"
+#include "EL/Value.h"
+
+#include <sstream>
+#include <string>
+
 namespace TrenchBroom {
     namespace EL {
-        Interpolator::Interpolator(const String& str) :
+        Interpolator::Interpolator(const std::string& str) :
         ELParser(ELParser::Mode::Lenient, str) {}
 
-        String Interpolator::interpolate(const EvaluationContext& context) {
-            StringStream result;
+        std::string Interpolator::interpolate(const EvaluationContext& context) {
+            std::stringstream result;
             while (!m_tokenizer.eof()) {
                 m_tokenizer.appendUntil("${", result);
                 if (!m_tokenizer.eof()) {
                     Expression expression = parse();
-                    result << expression.evaluate(context).convertTo(EL::Type_String).stringValue();
+                    result << expression.evaluate(context).convertTo(EL::ValueType::String).stringValue();
                     expect(IO::ELToken::CBrace, m_tokenizer.nextToken());
                 }
             }
@@ -38,7 +44,7 @@ namespace TrenchBroom {
             return result.str();
         }
 
-        String interpolate(const String& str, const EvaluationContext& context) {
+        std::string interpolate(const std::string& str, const EvaluationContext& context) {
             Interpolator interpolator(str);
             return interpolator.interpolate(context);
         }

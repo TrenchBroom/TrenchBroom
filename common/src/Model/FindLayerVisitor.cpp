@@ -20,24 +20,41 @@
 #include "FindLayerVisitor.h"
 
 #include "Model/Node.h"
+#include "Model/LayerNode.h"
+
+#include <kdl/vector_set.h>
 
 namespace TrenchBroom {
     namespace Model {
-        void FindLayerVisitor::doVisit(World* world) {}
+        void FindLayerVisitor::doVisit(WorldNode*) {}
 
-        void FindLayerVisitor::doVisit(Layer* layer) {
+        void FindLayerVisitor::doVisit(LayerNode* layer) {
             setResult(layer);
             cancel();
         }
 
-        void FindLayerVisitor::doVisit(Group* group) {}
-        void FindLayerVisitor::doVisit(Entity* entity) {}
-        void FindLayerVisitor::doVisit(Brush* brush) {}
+        void FindLayerVisitor::doVisit(GroupNode*) {}
+        void FindLayerVisitor::doVisit(EntityNode*) {}
+        void FindLayerVisitor::doVisit(BrushNode*) {}
 
-        Model::Layer* findLayer(Model::Node* node) {
+        Model::LayerNode* findLayer(Model::Node* node) {
             FindLayerVisitor visitor;
             node->acceptAndEscalate(visitor);
             return visitor.result();
+        }
+
+        std::vector<Model::LayerNode*> findLayersUserSorted(const std::vector<Model::Node*>& nodes) {
+            kdl::vector_set<Model::LayerNode*> layersSet;
+            for (Model::Node* node : nodes) {
+                Model::LayerNode* layer = findLayer(node);
+                if (layer != nullptr) {
+                    layersSet.insert(layer);
+                }
+            }
+
+            std::vector<Model::LayerNode*> layers = layersSet.release_data();
+            LayerNode::sortLayers(layers);
+            return layers;
         }
     }
 }

@@ -23,23 +23,29 @@
 #include "Model/AttributableNode.h"
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/EditorContext.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
 #include "Model/NodeVisitor.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
+#include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "View/MapDocument.h"
 
+#include <kdl/memory_utils.h>
+
 #include <vecmath/vec.h>
 
 #include <cassert>
+#include <set>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
-        EntityLinkRenderer::EntityLinkRenderer(View::MapDocumentWPtr document) :
+        EntityLinkRenderer::EntityLinkRenderer(std::weak_ptr<View::MapDocument> document) :
         m_document(document),
         m_defaultColor(0.5f, 1.0f, 0.5f, 1.0f),
         m_selectedColor(1.0f, 0.0f, 0.0f, 1.0f),
@@ -59,7 +65,7 @@ namespace TrenchBroom {
             invalidate();
         }
 
-        void EntityLinkRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
+        void EntityLinkRenderer::render(RenderContext&, RenderBatch& renderBatch) {
             renderBatch.add(this);
         }
 
@@ -67,13 +73,13 @@ namespace TrenchBroom {
             m_valid = false;
         }
 
-        void EntityLinkRenderer::doPrepareVertices(Vbo& vertexVbo) {
+        void EntityLinkRenderer::doPrepareVertices(VboManager& vboManager) {
             if (!m_valid) {
                 validate();
 
                 // Upload the VBO's
-                m_entityLinks.prepare(vertexVbo);
-                m_entityLinkArrows.prepare(vertexVbo);
+                m_entityLinks.prepare(vboManager);
+                m_entityLinkArrows.prepare(vboManager);
             }
         }
 
@@ -90,11 +96,11 @@ namespace TrenchBroom {
 
             glAssert(glDisable(GL_DEPTH_TEST));
             shader.set("Alpha", 0.4f);
-            m_entityLinks.render(GL_LINES);
+            m_entityLinks.render(PrimType::Lines);
 
             glAssert(glEnable(GL_DEPTH_TEST));
             shader.set("Alpha", 1.0f);
-            m_entityLinks.render(GL_LINES);
+            m_entityLinks.render(PrimType::Lines);
         }
 
         void EntityLinkRenderer::renderArrows(RenderContext& renderContext) {
@@ -104,19 +110,19 @@ namespace TrenchBroom {
 
             glAssert(glDisable(GL_DEPTH_TEST));
             shader.set("Alpha", 0.4f);
-            m_entityLinkArrows.render(GL_LINES);
+            m_entityLinkArrows.render(PrimType::Lines);
 
             glAssert(glEnable(GL_DEPTH_TEST));
             shader.set("Alpha", 1.0f);
-            m_entityLinkArrows.render(GL_LINES);
+            m_entityLinkArrows.render(PrimType::Lines);
         }
 
         void EntityLinkRenderer::validate() {
-            Vertex::List links;
+            std::vector<Vertex> links;
             getLinks(links);
 
             // build the arrows before destroying `links`
-            ArrowVertex::List arrows;
+            std::vector<ArrowVertex> arrows;
             getArrows(arrows, links);
 
             m_entityLinks = VertexArray::move(std::move(links));
@@ -125,7 +131,7 @@ namespace TrenchBroom {
             m_valid = true;
         }
 
-        void EntityLinkRenderer::getArrows(ArrowVertex::List& arrows, const Vertex::List& links) {
+        void EntityLinkRenderer::getArrows(std::vector<ArrowVertex>& arrows, const std::vector<Vertex>& links) {
             assert((links.size() % 2) == 0);
             for (size_t i = 0; i < links.size(); i += 2) {
                 const auto& startVertex = links[i];
@@ -157,7 +163,7 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityLinkRenderer::addArrow(ArrowVertex::List& arrows, const vm::vec4f& color, const vm::vec3f& arrowPosition, const vm::vec3f& lineDir) {
+        void EntityLinkRenderer::addArrow(std::vector<ArrowVertex>& arrows, const vm::vec4f& color, const vm::vec3f& arrowPosition, const vm::vec3f& lineDir) {
             arrows.emplace_back(vm::vec3f{0, 3, 0}, color, arrowPosition, lineDir);
             arrows.emplace_back(vm::vec3f{9, 0, 0}, color, arrowPosition, lineDir);
 
@@ -167,8 +173,8 @@ namespace TrenchBroom {
 
         class EntityLinkRenderer::MatchEntities {
         public:
-            bool operator()(const Model::Entity* entity) { return true; }
-            bool operator()(const Model::Node* node) { return false; }
+            bool operator()(const Model::EntityNode*) { return true; }
+            bool operator()(const Model::Node*) { return false; }
         };
 
         class EntityLinkRenderer::CollectEntitiesVisitor : public Model::CollectMatchingNodesVisitor<MatchEntities, Model::UniqueNodeCollectionStrategy> {};
@@ -179,25 +185,26 @@ namespace TrenchBroom {
         private:
             const Color& m_defaultColor;
             const Color& m_selectedColor;
-            Vertex::List& m_links;
+            std::vector<Vertex>& m_links;
         protected:
-            CollectLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, Vertex::List& links) :
+            CollectLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, std::vector<Vertex>& links) :
             m_editorContext(editorContext),
             m_defaultColor(defaultColor),
             m_selectedColor(selectedColor),
             m_links(links) {}
         private:
-            void doVisit(Model::World* world) override   {}
-            void doVisit(Model::Layer* layer) override   {}
-            void doVisit(Model::Group* group) override   {}
-            void doVisit(Model::Brush* brush) override   {}
-            void doVisit(Model::Entity* entity) override {
-                if (m_editorContext.visible(entity))
+            void doVisit(Model::WorldNode*) override {}
+            void doVisit(Model::LayerNode*) override {}
+            void doVisit(Model::GroupNode*) override {}
+            void doVisit(Model::BrushNode*) override {}
+            void doVisit(Model::EntityNode* entity) override {
+                if (m_editorContext.visible(entity)) {
                     visitEntity(entity);
+                }
                 stopRecursion();
             }
 
-            virtual void visitEntity(Model::Entity* entity) = 0;
+            virtual void visitEntity(Model::EntityNode* entity) = 0;
         protected:
             void addLink(const Model::AttributableNode* source, const Model::AttributableNode* target) {
                 const auto anySelected = source->selected() || source->descendantSelected() || target->selected() || target->descendantSelected();
@@ -211,17 +218,17 @@ namespace TrenchBroom {
 
         class EntityLinkRenderer::CollectAllLinksVisitor : public CollectLinksVisitor {
         public:
-            CollectAllLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, Vertex::List& links) :
+            CollectAllLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, std::vector<Vertex>& links) :
             CollectLinksVisitor(editorContext, defaultColor, selectedColor, links) {}
         private:
-            void visitEntity(Model::Entity* entity) override {
+            void visitEntity(Model::EntityNode* entity) override {
                 if (m_editorContext.visible(entity)) {
                     addTargets(entity, entity->linkTargets());
                     addTargets(entity, entity->killTargets());
                 }
             }
 
-            void addTargets(Model::Entity* source, const Model::AttributableNodeList& targets) {
+            void addTargets(Model::EntityNode* source, const std::vector<Model::AttributableNode*>& targets) {
                 for (const Model::AttributableNode* target : targets) {
                     if (m_editorContext.visible(target))
                         addLink(source, target);
@@ -231,12 +238,12 @@ namespace TrenchBroom {
 
         class EntityLinkRenderer::CollectTransitiveSelectedLinksVisitor : public CollectLinksVisitor {
         private:
-            Model::NodeSet m_visited;
+            std::set<Model::Node*> m_visited;
         public:
-            CollectTransitiveSelectedLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, Vertex::List& links) :
+            CollectTransitiveSelectedLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, std::vector<Vertex>& links) :
             CollectLinksVisitor(editorContext, defaultColor, selectedColor, links) {}
         private:
-            void visitEntity(Model::Entity* entity) override {
+            void visitEntity(Model::EntityNode* entity) override {
                 if (m_editorContext.visible(entity)) {
                     const bool visited = !m_visited.insert(entity).second;
                     if (!visited) {
@@ -248,7 +255,7 @@ namespace TrenchBroom {
                 }
             }
 
-            void addSources(const Model::AttributableNodeList& sources, Model::Entity* target) {
+            void addSources(const std::vector<Model::AttributableNode*>& sources, Model::EntityNode* target) {
                 for (Model::AttributableNode* source : sources) {
                     if (m_editorContext.visible(source)) {
                         addLink(source, target);
@@ -257,7 +264,7 @@ namespace TrenchBroom {
                 }
             }
 
-            void addTargets(Model::Entity* source, const Model::AttributableNodeList& targets) {
+            void addTargets(Model::EntityNode* source, const std::vector<Model::AttributableNode*>& targets) {
                 for (Model::AttributableNode* target : targets) {
                     if (m_editorContext.visible(target)) {
                         addLink(source, target);
@@ -269,10 +276,10 @@ namespace TrenchBroom {
 
         class EntityLinkRenderer::CollectDirectSelectedLinksVisitor : public CollectLinksVisitor {
         public:
-            CollectDirectSelectedLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, Vertex::List& links) :
+            CollectDirectSelectedLinksVisitor(const Model::EditorContext& editorContext, const Color& defaultColor, const Color& selectedColor, std::vector<Vertex>& links) :
             CollectLinksVisitor(editorContext, defaultColor, selectedColor, links) {}
         private:
-            void visitEntity(Model::Entity* entity) override {
+            void visitEntity(Model::EntityNode* entity) override {
                 if (entity->selected() || entity->descendantSelected()) {
                     addSources(entity->linkSources(), entity);
                     addSources(entity->killSources(), entity);
@@ -281,14 +288,14 @@ namespace TrenchBroom {
                 }
             }
 
-            void addSources(const Model::AttributableNodeList& sources, Model::Entity* target) {
+            void addSources(const std::vector<Model::AttributableNode*>& sources, Model::EntityNode* target) {
                 for (const Model::AttributableNode* source : sources) {
                     if (!source->selected() && !source->descendantSelected() && m_editorContext.visible(source))
                         addLink(source, target);
                 }
             }
 
-            void addTargets(Model::Entity* source, const Model::AttributableNodeList& targets) {
+            void addTargets(Model::EntityNode* source, const std::vector<Model::AttributableNode*>& targets) {
                 for (const Model::AttributableNode* target : targets) {
                     if (m_editorContext.visible(target))
                         addLink(source, target);
@@ -296,8 +303,8 @@ namespace TrenchBroom {
             }
         };
 
-        void EntityLinkRenderer::getLinks(Vertex::List& links) const {
-            View::MapDocumentSPtr document = lock(m_document);
+        void EntityLinkRenderer::getLinks(std::vector<Vertex>& links) const {
+            auto document = kdl::mem_lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
             switch (editorContext.entityLinkMode()) {
                 case Model::EditorContext::EntityLinkMode_All:
@@ -315,27 +322,27 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityLinkRenderer::getAllLinks(Vertex::List& links) const {
-            View::MapDocumentSPtr document = lock(m_document);
+        void EntityLinkRenderer::getAllLinks(std::vector<Vertex>& links) const {
+            auto document = kdl::mem_lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
 
             CollectAllLinksVisitor collectLinks(editorContext, m_defaultColor, m_selectedColor, links);
 
-            Model::World* world = document->world();
+            Model::WorldNode* world = document->world();
             if (world != nullptr)
                 world->acceptAndRecurse(collectLinks);
         }
 
-        void EntityLinkRenderer::getTransitiveSelectedLinks(Vertex::List& links) const {
-            View::MapDocumentSPtr document = lock(m_document);
+        void EntityLinkRenderer::getTransitiveSelectedLinks(std::vector<Vertex>& links) const {
+            auto document = kdl::mem_lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
 
             CollectTransitiveSelectedLinksVisitor visitor(editorContext, m_defaultColor, m_selectedColor, links);
             collectSelectedLinks(visitor);
         }
 
-        void EntityLinkRenderer::getDirectSelectedLinks(Vertex::List& links) const {
-            View::MapDocumentSPtr document = lock(m_document);
+        void EntityLinkRenderer::getDirectSelectedLinks(std::vector<Vertex>& links) const {
+            auto document = kdl::mem_lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
 
             CollectDirectSelectedLinksVisitor visitor(editorContext, m_defaultColor, m_selectedColor, links);
@@ -343,13 +350,13 @@ namespace TrenchBroom {
         }
 
         void EntityLinkRenderer::collectSelectedLinks(CollectLinksVisitor& collectLinks) const {
-            View::MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
 
-            const Model::NodeList& selectedNodes = document->selectedNodes().nodes();
+            const auto& selectedNodes = document->selectedNodes().nodes();
             CollectEntitiesVisitor collectEntities;
             Model::Node::acceptAndEscalate(std::begin(selectedNodes), std::end(selectedNodes), collectEntities);
 
-            const Model::NodeList& selectedEntities = collectEntities.nodes();
+            const auto& selectedEntities = collectEntities.nodes();
             Model::Node::accept(std::begin(selectedEntities), std::end(selectedEntities), collectLinks);
         }
     }

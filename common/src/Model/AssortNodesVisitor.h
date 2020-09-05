@@ -20,83 +20,98 @@
 #ifndef TrenchBroom_AssortNodesVisitor
 #define TrenchBroom_AssortNodesVisitor
 
-#include "Model/ModelTypes.h"
 #include "Model/NodeVisitor.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushNode;
+        class EntityNode;
+        class GroupNode;
+        class LayerNode;
+        class WorldNode;
+
         class CollectLayersStrategy {
         private:
-            LayerList m_layers;
+            std::vector<LayerNode*> m_layers;
         public:
-            const LayerList& layers() const;
+            const std::vector<LayerNode*>& layers() const;
         protected:
-            void addLayer(Layer* layer);
+            void addLayer(LayerNode* layer);
         };
 
         class SkipLayersStrategy {
+        private:
+            static const std::vector<LayerNode*> m_layers;
         public:
-            const LayerList& layers() const;
+            const std::vector<LayerNode*>& layers() const;
         protected:
-            void addLayer(Layer* layer);
+            void addLayer(LayerNode* layer);
         };
 
         class CollectGroupsStrategy {
         private:
-            GroupList m_groups;
+            std::vector<GroupNode*> m_groups;
         public:
-            const GroupList& groups() const;
+            const std::vector<GroupNode*>& groups() const;
         protected:
-            void addGroup(Group* group);
+            void addGroup(GroupNode* group);
         };
 
         class SkipGroupsStrategy {
+        private:
+            static const std::vector<GroupNode*> m_groups;
         public:
-            const GroupList& groups() const;
+            const std::vector<GroupNode*>& groups() const;
         protected:
-            void addGroup(Group* group);
+            void addGroup(GroupNode* group);
         };
 
         class CollectEntitiesStrategy {
         private:
-            EntityList m_entities;
+            std::vector<EntityNode*> m_entities;
         public:
-            const EntityList& entities() const;
+            const std::vector<EntityNode*>& entities() const;
         protected:
-            void addEntity(Entity* entity);
+            void addEntity(EntityNode* entity);
         };
 
         class SkipEntitiesStrategy {
+        private:
+            static const std::vector<EntityNode*> m_entities;
         public:
-            const EntityList& entities() const;
+            const std::vector<EntityNode*>& entities() const;
         protected:
-            void addEntity(Entity* entity);
+            void addEntity(EntityNode* entity);
         };
 
         class CollectBrushesStrategy {
         private:
-            BrushList m_brushes;
+            std::vector<BrushNode*> m_brushes;
         public:
-            const BrushList& brushes() const;
+            const std::vector<BrushNode*>& brushes() const;
         protected:
-            void addBrush(Brush* brush);
+            void addBrush(BrushNode* brush);
         };
 
         class SkipBrushesStrategy {
+        private:
+            static const std::vector<BrushNode*> m_brushes;
         public:
-            const BrushList& brushes() const;
+            const std::vector<BrushNode*>& brushes() const;
         protected:
-            void addBrush(Brush* brush);
+            void addBrush(BrushNode* brush);
         };
 
         template <class LayerStrategy, class GroupStrategy, class EntityStrategy, class BrushStrategy>
         class AssortNodesVisitorT : public NodeVisitor, public LayerStrategy, public GroupStrategy, public EntityStrategy, public BrushStrategy {
         private:
-            void doVisit(World* world)   override {}
-            void doVisit(Layer* layer)   override {  LayerStrategy::addLayer(layer); }
-            void doVisit(Group* group)   override {  GroupStrategy::addGroup(group); }
-            void doVisit(Entity* entity) override { EntityStrategy::addEntity(entity); }
-            void doVisit(Brush* brush)   override {  BrushStrategy::addBrush(brush); }
+            void doVisit(WorldNode* /* world */)   override {}
+            void doVisit(LayerNode* layer)   override {  LayerStrategy::addLayer(layer); }
+            void doVisit(GroupNode* group)   override {  GroupStrategy::addGroup(group); }
+            void doVisit(EntityNode* entity) override { EntityStrategy::addEntity(entity); }
+            void doVisit(BrushNode* brush)   override {  BrushStrategy::addBrush(brush); }
         };
 
         using AssortNodesVisitor = AssortNodesVisitorT<CollectLayersStrategy, CollectGroupsStrategy, CollectEntitiesStrategy, CollectBrushesStrategy>;

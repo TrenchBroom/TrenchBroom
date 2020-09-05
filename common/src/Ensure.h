@@ -20,22 +20,14 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TrenchBroom_Ensure_h
 #define TrenchBroom_Ensure_h
 
-#include <string>
-
 namespace TrenchBroom {
-    void ensureFailed(const char *file, int line, const char *condition, const std::string& message);
+    [[noreturn]] void ensureFailed(const char* file, int line, const char* condition, const char* message);
 }
 
 // These are ugly but necessary to stringify an expression, see: https://en.wikipedia.org/wiki/C_preprocessor#Token_stringification
 #define stringification(expression) #expression
 #define stringification2(expression) stringification(expression)
 
-#ifndef NDEBUG
-    // for debug builds, ensure is just an assertion
-    #define ensure(condition, message) assert(condition)
-#else
-    // for release builds, ensure generates an exception
-    #define ensure(condition, message) do { if (!(condition)) { TrenchBroom::ensureFailed(__FILE__, __LINE__, stringification2(condition), message); } } while (false)
-#endif
+#define ensure(condition, message) do { if (!(condition)) { TrenchBroom::ensureFailed(__FILE__, __LINE__, stringification2(condition), message); } } while (false)
 
 #endif /* defined(TrenchBroom_Ensure) */

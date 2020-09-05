@@ -31,12 +31,11 @@
 #include "View/RotateObjectsTool.h"
 #include "View/ScaleObjectsTool.h"
 #include "View/ShearObjectsTool.h"
-#include "View/SelectionTool.h"
 #include "View/VertexTool.h"
 
 namespace TrenchBroom {
     namespace View {
-        MapViewToolBox::MapViewToolBox(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) :
+        MapViewToolBox::MapViewToolBox(std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl) :
         m_document(document) {
             createTools(document, bookCtrl);
             bindObservers();
@@ -207,44 +206,44 @@ namespace TrenchBroom {
                 faceTool()->moveSelection(delta);
         }
 
-        void MapViewToolBox::createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) {
-            m_clipTool.reset(new ClipTool(document));
-            m_createComplexBrushTool.reset(new CreateComplexBrushTool(document));
-            m_createEntityTool.reset(new CreateEntityTool(document));
-            m_createSimpleBrushTool.reset(new CreateSimpleBrushTool(document));
-            m_moveObjectsTool.reset(new MoveObjectsTool(document));
-            m_resizeBrushesTool.reset(new ResizeBrushesTool(document));
-            m_rotateObjectsTool.reset(new RotateObjectsTool(document));
-            m_scaleObjectsTool.reset(new ScaleObjectsTool(document));
-            m_shearObjectsTool.reset(new ShearObjectsTool(document));
-            m_vertexTool.reset(new VertexTool(document));
-            m_edgeTool.reset(new EdgeTool(document));
-            m_faceTool.reset(new FaceTool(document));
+        void MapViewToolBox::createTools(std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl) {
+            m_clipTool = std::make_unique<ClipTool>(document);
+            m_createComplexBrushTool = std::make_unique<CreateComplexBrushTool>(document);
+            m_createEntityTool = std::make_unique<CreateEntityTool>(document);
+            m_createSimpleBrushTool = std::make_unique<CreateSimpleBrushTool>(document);
+            m_moveObjectsTool = std::make_unique<MoveObjectsTool>(document);
+            m_resizeBrushesTool = std::make_unique<ResizeBrushesTool>(document);
+            m_rotateObjectsTool = std::make_unique<RotateObjectsTool>(document);
+            m_scaleObjectsTool = std::make_unique<ScaleObjectsTool>(document);
+            m_shearObjectsTool = std::make_unique<ShearObjectsTool>(document);
+            m_vertexTool = std::make_unique<VertexTool>(document);
+            m_edgeTool = std::make_unique<EdgeTool>(document);
+            m_faceTool = std::make_unique<FaceTool>(document);
 
-            deactivateWhen(createComplexBrushTool(), moveObjectsTool());
-            deactivateWhen(createComplexBrushTool(), resizeBrushesTool());
-            deactivateWhen(createComplexBrushTool(), createSimpleBrushTool());
-            deactivateWhen(rotateObjectsTool(), moveObjectsTool());
-            deactivateWhen(rotateObjectsTool(), resizeBrushesTool());
-            deactivateWhen(rotateObjectsTool(), createSimpleBrushTool());
-            deactivateWhen(scaleObjectsTool(), moveObjectsTool());
-            deactivateWhen(scaleObjectsTool(), resizeBrushesTool());
-            deactivateWhen(scaleObjectsTool(), createSimpleBrushTool());
-            deactivateWhen(shearObjectsTool(), moveObjectsTool());
-            deactivateWhen(shearObjectsTool(), resizeBrushesTool());
-            deactivateWhen(shearObjectsTool(), createSimpleBrushTool());
-            deactivateWhen(vertexTool(), moveObjectsTool());
-            deactivateWhen(vertexTool(), resizeBrushesTool());
-            deactivateWhen(vertexTool(), createSimpleBrushTool());
-            deactivateWhen(edgeTool(), moveObjectsTool());
-            deactivateWhen(edgeTool(), resizeBrushesTool());
-            deactivateWhen(edgeTool(), createSimpleBrushTool());
-            deactivateWhen(faceTool(), moveObjectsTool());
-            deactivateWhen(faceTool(), resizeBrushesTool());
-            deactivateWhen(faceTool(), createSimpleBrushTool());
-            deactivateWhen(clipTool(), moveObjectsTool());
-            deactivateWhen(clipTool(), resizeBrushesTool());
-            deactivateWhen(clipTool(), createSimpleBrushTool());
+            suppressWhileActive(moveObjectsTool(), createComplexBrushTool());
+            suppressWhileActive(resizeBrushesTool(), createComplexBrushTool());
+            suppressWhileActive(createSimpleBrushTool(), createComplexBrushTool());
+            suppressWhileActive(moveObjectsTool(), rotateObjectsTool());
+            suppressWhileActive(resizeBrushesTool(), rotateObjectsTool());
+            suppressWhileActive(createSimpleBrushTool(), rotateObjectsTool());
+            suppressWhileActive(moveObjectsTool(), scaleObjectsTool());
+            suppressWhileActive(resizeBrushesTool(), scaleObjectsTool());
+            suppressWhileActive(createSimpleBrushTool(), scaleObjectsTool());
+            suppressWhileActive(moveObjectsTool(), shearObjectsTool());
+            suppressWhileActive(resizeBrushesTool(), shearObjectsTool());
+            suppressWhileActive(createSimpleBrushTool(), shearObjectsTool());
+            suppressWhileActive(moveObjectsTool(), vertexTool());
+            suppressWhileActive(resizeBrushesTool(), vertexTool());
+            suppressWhileActive(createSimpleBrushTool(), vertexTool());
+            suppressWhileActive(moveObjectsTool(), edgeTool());
+            suppressWhileActive(resizeBrushesTool(), edgeTool());
+            suppressWhileActive(createSimpleBrushTool(), edgeTool());
+            suppressWhileActive(moveObjectsTool(), faceTool());
+            suppressWhileActive(resizeBrushesTool(), faceTool());
+            suppressWhileActive(createSimpleBrushTool(), faceTool());
+            suppressWhileActive(moveObjectsTool(), clipTool());
+            suppressWhileActive(resizeBrushesTool(), clipTool());
+            suppressWhileActive(createSimpleBrushTool(), clipTool());
 
             registerTool(moveObjectsTool(), bookCtrl);
             registerTool(rotateObjectsTool(), bookCtrl);
@@ -260,7 +259,7 @@ namespace TrenchBroom {
             registerTool(createSimpleBrushTool(), bookCtrl);
         }
 
-        void MapViewToolBox::registerTool(Tool* tool, wxBookCtrlBase* bookCtrl) {
+        void MapViewToolBox::registerTool(Tool* tool, QStackedLayout* bookCtrl) {
             tool->createPage(bookCtrl);
             addTool(tool);
         }
@@ -269,7 +268,7 @@ namespace TrenchBroom {
             toolActivatedNotifier.addObserver(this, &MapViewToolBox::toolActivated);
             toolDeactivatedNotifier.addObserver(this, &MapViewToolBox::toolDeactivated);
 
-            MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
         }
@@ -278,8 +277,8 @@ namespace TrenchBroom {
             toolActivatedNotifier.removeObserver(this, &MapViewToolBox::toolActivated);
             toolDeactivatedNotifier.removeObserver(this, &MapViewToolBox::toolDeactivated);
 
-            if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->documentWasNewedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.addObserver(this, &MapViewToolBox::documentWasNewedOrLoaded);
             }
@@ -290,18 +289,18 @@ namespace TrenchBroom {
             tool->showPage();
         }
 
-        void MapViewToolBox::toolDeactivated(Tool* tool) {
+        void MapViewToolBox::toolDeactivated(Tool*) {
             updateEditorContext();
             m_moveObjectsTool->showPage();
         }
 
         void MapViewToolBox::updateEditorContext() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setBlockSelection(createComplexBrushToolActive());
         }
 
-        void MapViewToolBox::documentWasNewedOrLoaded(MapDocument* document) {
+        void MapViewToolBox::documentWasNewedOrLoaded(MapDocument*) {
             deactivateAllTools();
         }
     }

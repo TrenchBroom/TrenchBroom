@@ -19,47 +19,110 @@
 
 #include "WorldReader.h"
 
-#include "Logger.h"
-#include "Model/Brush.h"
-#include "Model/Layer.h"
-#include "Model/World.h"
+#include "IO/ParserStatus.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityAttributes.h"
+#include "Model/LayerNode.h"
+#include "Model/LockState.h"
+#include "Model/WorldNode.h"
+#include "Model/VisibilityState.h"
+
+#include <kdl/vector_set.h>
+#include <kdl/string_utils.h>
+
+#include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
         WorldReader::WorldReader(const char* begin, const char* end) :
         MapReader(begin, end) {}
 
-        WorldReader::WorldReader(const String& str) :
+        WorldReader::WorldReader(const std::string& str) :
         MapReader(str) {}
 
-        std::unique_ptr<Model::World> WorldReader::read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
+        std::unique_ptr<Model::WorldNode> WorldReader::read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             readEntities(format, worldBounds, status);
+            sanitizeLayerSortIndicies(status);
             m_world->rebuildNodeTree();
             m_world->enableNodeTreeUpdates();
             return std::move(m_world);
         }
 
-        Model::ModelFactory& WorldReader::initialize(const Model::MapFormat format, const vm::bbox3& worldBounds) {
-            m_world = std::make_unique<Model::World>(format, worldBounds);
+        /**
+         * Sanitizes the sort indices of custom layers:
+         * Ensures there are no duplicates or sort indices less than 0.
+         *
+         * This will be a no-op on a well-formed map file.
+         * If the map was saved without layer indices, the file order is used.
+         */
+        void WorldReader::sanitizeLayerSortIndicies(ParserStatus& /* status */) {
+            std::vector<Model::LayerNode*> customLayers = m_world->customLayers();
+            Model::LayerNode::sortLayers(customLayers);
+
+            // Gather the layers whose sort indices are invalid. Visit them in the current sorted order.
+            std::vector<Model::LayerNode*> invalidLayers;
+            std::vector<Model::LayerNode*> validLayers;
+            kdl::vector_set<int> usedIndices;
+            for (auto* layer : customLayers) {
+                // Check for a totally invalid index
+                if (layer->sortIndex() < 0  || layer->sortIndex() == Model::LayerNode::invalidSortIndex()) {
+                    invalidLayers.push_back(layer);
+                    continue;
+                }
+
+                // Check for an index that has already been used
+                const bool wasInserted = usedIndices.insert(layer->sortIndex()).second;
+                if (!wasInserted) {
+                    invalidLayers.push_back(layer);
+                    continue;
+                }
+
+                validLayers.push_back(layer);
+            }
+
+            assert(invalidLayers.size() + validLayers.size() == customLayers.size());
+
+            // Renumber the invalid layers
+            int nextValidLayerIndex = (validLayers.empty() ? 0 : (validLayers.back()->sortIndex() + 1));            
+            for (auto* layer : invalidLayers) {
+                layer->setSortIndex(nextValidLayerIndex++);
+            }
+        }
+
+        Model::ModelFactory& WorldReader::initialize(const Model::MapFormat format) {
+            m_world = std::make_unique<Model::WorldNode>(format);
             m_world->disableNodeTreeUpdates();
             return *m_world;
         }
 
-        Model::Node* WorldReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+        Model::Node* WorldReader::onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
             m_world->setAttributes(attributes);
             setExtraAttributes(m_world.get(), extraAttributes);
+
+            // handle default layer attributes, which are stored in worldspawn
+            for (const Model::EntityAttribute& attribute : attributes) {
+                if (attribute.name() == Model::AttributeNames::LayerColor
+                    || attribute.name() == Model::AttributeNames::LayerOmitFromExport) {
+                    m_world->defaultLayer()->addOrUpdateAttribute(attribute.name(), attribute.value());
+                } else if (attribute.hasNameAndValue(Model::AttributeNames::LayerLocked, Model::AttributeValues::LayerLockedValue)) {
+                    m_world->defaultLayer()->setLockState(Model::LockState::Lock_Locked);
+                } else if (attribute.hasNameAndValue(Model::AttributeNames::LayerHidden, Model::AttributeValues::LayerHiddenValue)) {
+                    m_world->defaultLayer()->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
+                }
+            }
             return m_world->defaultLayer();
         }
 
-        void WorldReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount, ParserStatus& status) {
+        void WorldReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount, ParserStatus& /* status */) {
             m_world->setFilePosition(lineNumber, lineCount);
         }
 
-        void WorldReader::onLayer(Model::Layer* layer, ParserStatus& status) {
+        void WorldReader::onLayer(Model::LayerNode* layer, ParserStatus& /* status */) {
             m_world->addChild(layer);
         }
 
-        void WorldReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) {
+        void WorldReader::onNode(Model::Node* parent, Model::Node* node, ParserStatus& /* status */) {
             if (parent != nullptr) {
                 parent->addChild(node);
             } else {
@@ -69,18 +132,14 @@ namespace TrenchBroom {
 
         void WorldReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) {
             if (parentInfo.layer()) {
-                StringStream msg;
-                msg << "Entity references missing layer '" << parentInfo.id() << "', adding to default layer";
-                status.warn(node->lineNumber(), msg.str());
+                status.warn(node->lineNumber(), kdl::str_to_string("Entity references missing layer '", parentInfo.id(), "', adding to default layer"));
             } else {
-                StringStream msg;
-                msg << "Entity references missing group '" << parentInfo.id() << "', adding to default layer";
-                status.warn(node->lineNumber(), msg.str());
+                status.warn(node->lineNumber(), kdl::str_to_string("Entity references missing group '", parentInfo.id(), "', adding to default layer"));
             }
             m_world->defaultLayer()->addChild(node);
         }
 
-        void WorldReader::onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& status) {
+        void WorldReader::onBrush(Model::Node* parent, Model::BrushNode* brush, ParserStatus& /* status */) {
             if (parent != nullptr) {
                 parent->addChild(brush);
             } else {

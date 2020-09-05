@@ -20,32 +20,36 @@
 #ifndef TrenchBroom_RotateObjectsTool
 #define TrenchBroom_RotateObjectsTool
 
-#include "TrenchBroom.h"
-#include "Model/Hit.h"
+#include "FloatType.h"
 #include "View/Tool.h"
 #include "View/RotateObjectsHandle.h"
 
+#include <vecmath/forward.h>
+
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
         class Camera;
+        class RenderBatch;
+        class RenderContext;
     }
 
     namespace View {
         class Grid;
-        class RotateObjectsHandle;
+        class MapDocument;
         class RotateObjectsToolPage;
 
         class RotateObjectsTool : public Tool {
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             RotateObjectsToolPage* m_toolPage;
             RotateObjectsHandle m_handle;
             double m_angle;
             std::vector<vm::vec3> m_recentlyUsedCenters;
         public:
-            explicit RotateObjectsTool(MapDocumentWPtr document);
+            explicit RotateObjectsTool(std::weak_ptr<MapDocument> document);
 
             bool doActivate() override;
 
@@ -82,7 +86,7 @@ namespace TrenchBroom {
         private:
             void updateRecentlyUsedCenters(const vm::vec3& center);
         private:
-            wxWindow* doCreatePage(wxWindow* parent) override;
+            QWidget* doCreatePage(QWidget* parent) override;
         };
     }
 }

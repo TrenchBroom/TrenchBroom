@@ -22,7 +22,6 @@
 
 #include "View/Tool.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -34,7 +33,7 @@ namespace TrenchBroom {
         private:
             Renderer::OrthographicCamera& m_camera;
         public:
-            UVCameraTool(Renderer::OrthographicCamera& camera);
+            explicit UVCameraTool(Renderer::OrthographicCamera& camera);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;

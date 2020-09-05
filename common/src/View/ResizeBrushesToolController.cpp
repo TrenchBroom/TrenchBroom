@@ -21,18 +21,17 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Reference.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/BrushGeometry.h"
-#include "Model/HitQuery.h"
 #include "Model/PickResult.h"
+#include "Model/Polyhedron.h"
+#include "Renderer/GLVertexType.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/VertexArray.h"
-#include "Renderer/GLVertexType.h"
 #include "View/InputState.h"
 #include "View/ResizeBrushesTool.h"
-
-#include <cassert>
 
 namespace TrenchBroom {
     namespace View {
@@ -42,7 +41,7 @@ namespace TrenchBroom {
             ensure(m_tool != nullptr, "tool is null");
         }
 
-        ResizeBrushesToolController::~ResizeBrushesToolController() {}
+        ResizeBrushesToolController::~ResizeBrushesToolController() = default;
 
         Tool* ResizeBrushesToolController::doGetTool() {
             return m_tool;
@@ -55,24 +54,33 @@ namespace TrenchBroom {
         void ResizeBrushesToolController::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             if (handleInput(inputState)) {
                 const Model::Hit hit = doPick(inputState.pickRay(), pickResult);
-                if (hit.isMatch())
+                if (hit.isMatch()) {
                     pickResult.addHit(hit);
+                }
             }
         }
 
         void ResizeBrushesToolController::doModifierKeyChange(const InputState& inputState) {
-            if (!anyToolDragging(inputState))
+            if (!anyToolDragging(inputState)) {
                 m_tool->updateDragFaces(inputState.pickResult());
+            }
         }
 
         void ResizeBrushesToolController::doMouseMove(const InputState& inputState) {
-            if (handleInput(inputState) && !anyToolDragging(inputState))
+            if (handleInput(inputState) && !anyToolDragging(inputState)) {
                 m_tool->updateDragFaces(inputState.pickResult());
+            }
         }
 
         bool ResizeBrushesToolController::doStartMouseDrag(const InputState& inputState) {
-            if (!handleInput(inputState))
+            if (!handleInput(inputState)) {
                 return false;
+            }
+            // NOTE: We check for MBLeft here rather than in handleInput because we want the
+            // yellow highlight to render as a preview when Shift is down, before you press MBLeft. 
+            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
+                return false;
+            }
 
             m_tool->updateDragFaces(inputState.pickResult());
             m_mode = inputState.modifierKeysDown(ModifierKeys::MKAlt) ? Mode::MoveFace : Mode::Resize;
@@ -108,13 +116,14 @@ namespace TrenchBroom {
             m_tool->cancel();
         }
 
-        void ResizeBrushesToolController::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            if (thisToolDragging())
+        void ResizeBrushesToolController::doSetRenderOptions(const InputState&, Renderer::RenderContext& renderContext) const {
+            if (thisToolDragging()) {
                 renderContext.setForceShowSelectionGuide();
+            }
             // TODO: force rendering of all other map views if the input applies and the tool has drag faces
         }
 
-        void ResizeBrushesToolController::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void ResizeBrushesToolController::doRender(const InputState&, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
             if (m_tool->hasDragFaces()) {
                 Renderer::DirectEdgeRenderer edgeRenderer = buildEdgeRenderer();
                 edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ResizeHandleColor));
@@ -123,16 +132,17 @@ namespace TrenchBroom {
 
         Renderer::DirectEdgeRenderer ResizeBrushesToolController::buildEdgeRenderer() {
             using Vertex = Renderer::GLVertexTypes::P3::Vertex;
-            Vertex::List vertices;
+            std::vector<Vertex> vertices;
 
-            for (const auto* face : m_tool->dragFaces()) {
-                for (const auto* edge : face->edges()) {
+            for (const auto& dragFaceHandle : m_tool->dragFaces()) {
+                const auto& dragFace = dragFaceHandle.face();
+                for (const auto* edge : dragFace.edges()) {
                     vertices.emplace_back(vm::vec3f(edge->firstVertex()->position()));
                     vertices.emplace_back(vm::vec3f(edge->secondVertex()->position()));
                 }
             }
 
-            return Renderer::DirectEdgeRenderer(Renderer::VertexArray::move(std::move(vertices)), GL_LINES);
+            return Renderer::DirectEdgeRenderer(Renderer::VertexArray::move(std::move(vertices)), Renderer::PrimType::Lines);
         }
 
         bool ResizeBrushesToolController::doCancel() {

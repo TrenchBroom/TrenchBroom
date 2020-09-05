@@ -20,18 +20,18 @@
 #ifndef HlMipTextureReader_h
 #define HlMipTextureReader_h
 
-#include "Assets/Palette.h"
 #include "IO/MipTextureReader.h"
 
 namespace TrenchBroom {
+    class Logger;
+    
     namespace IO {
-        class Path;
+        class FileSystem;
         class Reader;
 
         class HlMipTextureReader : public MipTextureReader {
-        private:
         public:
-            HlMipTextureReader(const NameStrategy& nameStrategy);
+            explicit HlMipTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
         protected:
             Assets::Palette doGetPalette(Reader& reader, const size_t offset[], size_t width, size_t height) const override;
         };

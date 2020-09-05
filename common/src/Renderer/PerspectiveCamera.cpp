@@ -20,10 +20,12 @@
 #include "PerspectiveCamera.h"
 
 #include "Color.h"
+#include "Renderer/ActiveShader.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/GLVertexType.h"
 
@@ -31,11 +33,10 @@
 #include <vecmath/vec.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
-#include <vecmath/ray.h>
-#include <vecmath/plane.h>
 #include <vecmath/intersection.h>
 
 #include <limits>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -46,7 +47,7 @@ namespace TrenchBroom {
         PerspectiveCamera::PerspectiveCamera(const float fov, const float nearPlane, const float farPlane, const Viewport& viewport, const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up)
         : Camera(nearPlane, farPlane, viewport, position, direction, up),
         m_fov(fov) {
-            assert(m_fov > 0.0);
+            assert(m_fov > 0.0f);
         }
 
         float PerspectiveCamera::fov() const {
@@ -96,8 +97,8 @@ namespace TrenchBroom {
 
         void PerspectiveCamera::doValidateMatrices(vm::mat4x4f& projectionMatrix, vm::mat4x4f& viewMatrix) const {
             const Viewport& viewport = this->viewport();
-            projectionMatrix = vm::perspectiveMatrix(zoomedFov(), nearPlane(), farPlane(), viewport.width, viewport.height);
-            viewMatrix = vm::viewMatrix(direction(), up()) * translationMatrix(-position());
+            projectionMatrix = vm::perspective_matrix(zoomedFov(), nearPlane(), farPlane(), viewport.width, viewport.height);
+            viewMatrix = vm::view_matrix(direction(), up()) *vm::translation_matrix(-position());
         }
 
         void PerspectiveCamera::doComputeFrustumPlanes(vm::plane3f& topPlane, vm::plane3f& rightPlane, vm::plane3f& bottomPlane, vm::plane3f& leftPlane) const {
@@ -117,10 +118,10 @@ namespace TrenchBroom {
             leftPlane = vm::plane3f(position(), normalize(cross(up(), d)));
         }
 
-        void PerspectiveCamera::doRenderFrustum(RenderContext& renderContext, Vbo& vbo, const float size, const Color& color) const {
+        void PerspectiveCamera::doRenderFrustum(RenderContext& renderContext, VboManager& vboManager, const float size, const Color& color) const {
             using Vertex = GLVertexTypes::P3C4::Vertex;
-            Vertex::List triangleVertices;
-            Vertex::List lineVertices;
+            std::vector<Vertex> triangleVertices;
+            std::vector<Vertex> lineVertices;
             triangleVertices.reserve(6);
             lineVertices.reserve(8 * 2);
 
@@ -146,13 +147,12 @@ namespace TrenchBroom {
             auto triangleArray = VertexArray::ref(triangleVertices);
             auto lineArray = VertexArray::ref(lineVertices);
 
-            ActivateVbo activate(vbo);
-            triangleArray.prepare(vbo);
-            lineArray.prepare(vbo);
+            triangleArray.prepare(vboManager);
+            lineArray.prepare(vboManager);
 
             ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPCShader);
-            triangleArray.render(GL_TRIANGLE_FAN);
-            lineArray.render(GL_LINES);
+            triangleArray.render(PrimType::TriangleFan);
+            lineArray.render(PrimType::Lines);
         }
 
         float PerspectiveCamera::doPickFrustum(const float size, const vm::ray3f& ray) const {
@@ -161,8 +161,8 @@ namespace TrenchBroom {
 
             auto minDistance = std::numeric_limits<float>::max();
             for (size_t i = 0; i < 4; ++i) {
-                const auto distance = vm::intersectRayAndTriangle(ray, position(), verts[i], verts[vm::succ(i, 4)]);
-                if (!vm::isnan(distance)) {
+                const auto distance = vm::intersect_ray_triangle(ray, position(), verts[i], verts[vm::succ(i, 4)]);
+                if (!vm::is_nan(distance)) {
                     minDistance = vm::min(distance, minDistance);
                 }
             }
@@ -180,7 +180,7 @@ namespace TrenchBroom {
 
         vm::vec2f PerspectiveCamera::getFrustum() const {
             const auto& viewport = this->viewport();
-            const auto v = std::tan(vm::toRadians(zoomedFov()) / 2.0f) * 0.75f * nearPlane();
+            const auto v = std::tan(vm::to_radians(zoomedFov()) / 2.0f) * 0.75f * nearPlane();
             const auto h = v * static_cast<float>(viewport.width) / static_cast<float>(viewport.height);
             return vm::vec2f(h, v);
         }
@@ -192,7 +192,7 @@ namespace TrenchBroom {
 
         float PerspectiveCamera::viewportFrustumDistance() const {
             const auto height = static_cast<float>(viewport().height);
-            return (height / 2.0f) / std::tan(vm::toRadians(zoomedFov()) / 2.0f);
+            return (height / 2.0f) / std::tan(vm::to_radians(zoomedFov()) / 2.0f);
         }
 
         bool PerspectiveCamera::isValidZoom(const float zoom) const {

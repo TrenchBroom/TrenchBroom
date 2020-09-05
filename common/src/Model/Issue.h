@@ -20,11 +20,17 @@
 #ifndef TrenchBroom_Issue
 #define TrenchBroom_Issue
 
-#include "Model/ModelTypes.h"
+#include "Model/IssueType.h"
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFace;
+        class BrushNode;
         class EditorContext;
+        class Node;
 
         class Issue {
         private:
@@ -36,35 +42,36 @@ namespace TrenchBroom {
 
             size_t seqId() const;
             size_t lineNumber() const;
-            const String description() const;
+            std::string description() const;
 
             IssueType type() const;
             Node* node() const;
 
 
             class MatchSelectableIssueNodes;
-            bool addSelectableNodes(const EditorContext& editorContext, Model::NodeList& nodes) const;
+            bool addSelectableNodes(const EditorContext& editorContext, std::vector<Model::Node*>& nodes) const;
 
             bool hidden() const;
             void setHidden(bool hidden);
         protected:
-            Issue(Node* node);
+            explicit Issue(Node* node);
             static size_t nextSeqId();
             static IssueType freeType();
         private: // subclassing interface
             virtual size_t doGetLineNumber() const;
             virtual IssueType doGetType() const = 0;
-            virtual const String doGetDescription() const = 0;
+            virtual std::string doGetDescription() const = 0;
         };
 
         class BrushFaceIssue : public Issue {
         private:
-            BrushFace* const m_face;
+            const size_t m_faceIndex;
         protected:
-            BrushFaceIssue(BrushFace* face);
+            explicit BrushFaceIssue(BrushNode* node, size_t faceIndex);
         public:
             ~BrushFaceIssue() override;
-            BrushFace* face() const;
+            size_t faceIndex() const;
+            const BrushFace& face() const;
         private:
             size_t doGetLineNumber() const override;
         };
@@ -74,8 +81,8 @@ namespace TrenchBroom {
             using Issue::Issue;
 
             ~AttributeIssue() override;
-            virtual const AttributeName& attributeName() const = 0;
-            const AttributeValue& attributeValue() const;
+            virtual const std::string& attributeName() const = 0;
+            const std::string& attributeValue() const;
         };
     }
 }

@@ -20,22 +20,27 @@
 #ifndef TrenchBroom_HitQuery
 #define TrenchBroom_HitQuery
 
-#include "Model/Hit.h"
-#include "Model/HitFilter.h"
+#include "FloatType.h"
+#include "Model/HitType.h"
+
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class EditorContext;
+        class Hit;
+        class HitFilter;
 
         class HitQuery {
         private:
-            const Hit::List* m_hits;
+            const std::vector<Hit>* m_hits;
             const EditorContext* m_editorContext;
-            HitFilter* m_include;
-            HitFilter* m_exclude;
+            std::unique_ptr<HitFilter> m_include;
+            std::unique_ptr<HitFilter> m_exclude;
         public:
-            HitQuery(const Hit::List& hits, const EditorContext& editorContext);
-            HitQuery(const Hit::List& hits);
+            HitQuery(const std::vector<Hit>& hits, const EditorContext& editorContext);
+            explicit HitQuery(const std::vector<Hit>& hits);
             HitQuery(const HitQuery& other);
             ~HitQuery();
 
@@ -43,15 +48,15 @@ namespace TrenchBroom {
             friend void swap(HitQuery& lhs, HitQuery& rhs);
 
             HitQuery& pickable();
-            HitQuery& type(Hit::HitType type);
-            HitQuery& occluded(Hit::HitType type = Hit::AnyType);
+            HitQuery& type(HitType::Type type);
+            HitQuery& occluded(HitType::Type type = HitType::AnyType);
             HitQuery& selected();
             HitQuery& transitivelySelected();
             HitQuery& minDistance(FloatType minDistance);
 
             bool empty() const;
             const Hit& first() const;
-            Hit::List all() const;
+            std::vector<Hit> all() const;
         private:
             bool visible(const Hit& hit) const;
         };

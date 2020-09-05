@@ -19,25 +19,25 @@
 
 #include "RotateObjectsTool.h"
 
+#include "Model/Hit.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/RotateObjectsHandle.h"
 #include "View/RotateObjectsToolPage.h"
 
-#include <vecmath/vec.h>
-#include <vecmath/vec.h>
-#include <vecmath/bbox.h>
-#include <vecmath/bbox.h>
+#include <kdl/memory_utils.h>
+#include <kdl/vector_utils.h>
+
 #include <vecmath/scalar.h>
 
 namespace TrenchBroom {
     namespace View {
-        RotateObjectsTool::RotateObjectsTool(MapDocumentWPtr document) :
+        RotateObjectsTool::RotateObjectsTool(std::weak_ptr<MapDocument> document) :
         Tool(false),
         m_document(document),
         m_toolPage(nullptr),
         m_handle(),
-        m_angle(vm::toRadians(15.0)) {}
+        m_angle(vm::to_radians(15.0)) {}
 
         bool RotateObjectsTool::doActivate() {
             resetRotationCenter();
@@ -45,15 +45,15 @@ namespace TrenchBroom {
         }
 
         const Grid& RotateObjectsTool::grid() const {
-            return lock(m_document)->grid();
+            return kdl::mem_lock(m_document)->grid();
         }
 
         void RotateObjectsTool::updateToolPageAxis(const RotateObjectsHandle::HitArea area) {
-            if (area == RotateObjectsHandle::HitArea::HitArea_XAxis) {
+            if (area == RotateObjectsHandle::HitArea::XAxis) {
                 m_toolPage->setAxis(vm::axis::x);
-            } else if (area == RotateObjectsHandle::HitArea::HitArea_YAxis) {
+            } else if (area == RotateObjectsHandle::HitArea::YAxis) {
                 m_toolPage->setAxis(vm::axis::y);
-            } else if (area == RotateObjectsHandle::HitArea::HitArea_ZAxis) {
+            } else if (area == RotateObjectsHandle::HitArea::ZAxis) {
                 m_toolPage->setAxis(vm::axis::z);
             }
         }
@@ -77,7 +77,7 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsTool::resetRotationCenter() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             const auto& bounds = document->selectionBounds();
             const auto position = document->grid().snap(bounds.center());
             setRotationCenter(position);
@@ -92,28 +92,28 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsTool::beginRotation() {
-            MapDocumentSPtr document = lock(m_document);
-            document->beginTransaction("Rotate Objects");
+            auto document = kdl::mem_lock(m_document);
+            document->startTransaction("Rotate Objects");
         }
 
         void RotateObjectsTool::commitRotation() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->commitTransaction();
             updateRecentlyUsedCenters(rotationCenter());
         }
 
         void RotateObjectsTool::cancelRotation() {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
         }
 
         FloatType RotateObjectsTool::snapRotationAngle(const FloatType angle) const {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             return document->grid().snapAngle(angle);
         }
 
         void RotateObjectsTool::applyRotation(const vm::vec3& center, const vm::vec3& axis, const FloatType angle) {
-            MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->rollbackTransaction();
             document->rotateObjects(center, axis, angle);
         }
@@ -146,14 +146,15 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsTool::updateRecentlyUsedCenters(const vm::vec3& center) {
-            VectorUtils::erase(m_recentlyUsedCenters, center);
+            kdl::vec_erase(m_recentlyUsedCenters, center);
             m_recentlyUsedCenters.push_back(center);
             m_toolPage->setRecentlyUsedCenters(m_recentlyUsedCenters);
         }
 
-        wxWindow* RotateObjectsTool::doCreatePage(wxWindow* parent) {
+        QWidget* RotateObjectsTool::doCreatePage(QWidget* parent) {
             assert(m_toolPage == nullptr);
-            m_toolPage = new RotateObjectsToolPage(parent, m_document, this);
+
+            m_toolPage = new RotateObjectsToolPage(m_document, this, parent);
             return m_toolPage;
         }
     }

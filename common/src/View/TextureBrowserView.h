@@ -20,17 +20,16 @@
 #ifndef TrenchBroom_TextureBrowserView
 #define TrenchBroom_TextureBrowserView
 
-#include "StringUtils.h"
-#include "Assets/TextureManager.h"
 #include "Renderer/FontDescriptor.h"
-#include "Renderer/Vbo.h"
-#include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
 
 #include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
-class wxScrollBar;
+class QScrollBar;
 
 namespace TrenchBroom {
     namespace Assets {
@@ -40,68 +39,70 @@ namespace TrenchBroom {
 
     namespace View {
         class GLContextManager;
-        using TextureGroupData = String;
+        class MapDocument;
+        using TextureGroupData = std::string;
 
         struct TextureCellData {
-            Assets::Texture* texture;
-            String mainTitle;
-            String subTitle;
+            const Assets::Texture* texture;
+            std::string mainTitle;
+            std::string subTitle;
             vm::vec2f mainTitleOffset;
             vm::vec2f subTitleOffset;
             Renderer::FontDescriptor mainTitleFont;
             Renderer::FontDescriptor subTitleFont;
         };
 
-        class TextureBrowserView : public CellView<TextureCellData, TextureGroupData> {
-        public:
-            typedef enum {
-                SO_Name,
-                SO_Usage
-            } SortOrder;
+        enum class TextureSortOrder {
+            Name,
+            Usage
+        };
+
+        class TextureBrowserView : public CellView {
+            Q_OBJECT
         private:
             using TextVertex = Renderer::GLVertexTypes::P2T2C4::Vertex;
-            using StringMap = std::map<Renderer::FontDescriptor, TextVertex::List>;
+            using StringMap = std::map<Renderer::FontDescriptor, std::vector<TextVertex>>;
 
-            Assets::TextureManager& m_textureManager;
-
+            std::weak_ptr<MapDocument> m_document;
             bool m_group;
             bool m_hideUnused;
-            SortOrder m_sortOrder;
-            String m_filterText;
+            TextureSortOrder m_sortOrder;
+            std::string m_filterText;
 
-            Assets::Texture* m_selectedTexture;
+            const Assets::Texture* m_selectedTexture;
         public:
-            TextureBrowserView(wxWindow* parent,
-                               wxScrollBar* scrollBar,
+            TextureBrowserView(QScrollBar* scrollBar,
                                GLContextManager& contextManager,
-                               Assets::TextureManager& textureManager);
+                               std::weak_ptr<MapDocument> document);
             ~TextureBrowserView() override;
 
-            void setSortOrder(SortOrder sortOrder);
+            void setSortOrder(TextureSortOrder sortOrder);
             void setGroup(bool group);
             void setHideUnused(bool hideUnused);
-            void setFilterText(const String& filterText);
+            void setFilterText(const std::string& filterText);
 
-            Assets::Texture* selectedTexture() const;
-            void setSelectedTexture(Assets::Texture* selectedTexture);
+            const Assets::Texture* selectedTexture() const;
+            void setSelectedTexture(const Assets::Texture* selectedTexture);
+
+            void revealTexture(const Assets::Texture* texture);
         private:
             void usageCountDidChange();
 
             void doInitLayout(Layout& layout) override;
             void doReloadLayout(Layout& layout) override;
-            void addTextureToLayout(Layout& layout, Assets::Texture* texture, const Renderer::FontDescriptor& font);
+            void addTextureToLayout(Layout& layout, const Assets::Texture* texture, const std::string& groupName, const Renderer::FontDescriptor& font);
 
             struct CompareByUsageCount;
             struct CompareByName;
             struct MatchUsageCount;
             struct MatchName;
 
-            Assets::TextureCollectionList getCollections() const;
-            Assets::TextureList getTextures(const Assets::TextureCollection* collection) const;
-            Assets::TextureList getTextures() const;
+            const std::vector<Assets::TextureCollection>& getCollections() const;
+            std::vector<const Assets::Texture*> getTextures(const Assets::TextureCollection& collection) const;
+            std::vector<const Assets::Texture*> getTextures() const;
 
-            void filterTextures(Assets::TextureList& textures) const;
-            void sortTextures(Assets::TextureList& textures) const;
+            void filterTextures(std::vector<const Assets::Texture*>& textures) const;
+            void sortTextures(std::vector<const Assets::Texture*>& textures) const;
 
             void doClear() override;
             void doRender(Layout& layout, float y, float height) override;
@@ -116,7 +117,12 @@ namespace TrenchBroom {
             StringMap collectStringVertices(Layout& layout, float y, float height);
 
             void doLeftClick(Layout& layout, float x, float y) override;
-            wxString tooltip(const Layout::Group::Row::Cell& cell) override;
+            QString tooltip(const Cell& cell) override;
+            void doContextMenu(Layout& layout, float x, float y, QContextMenuEvent* event) override;
+
+            const TextureCellData& cellData(const Cell& cell) const;
+        signals:
+            void textureSelected(const Assets::Texture* texture);
         };
     }
 }

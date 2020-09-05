@@ -19,10 +19,19 @@
 
 #include "Object.h"
 
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
+
+#include <kdl/result.h>
+
+#include <iostream>
 
 namespace TrenchBroom {
     namespace Model {
+        std::ostream& operator<<(std::ostream& str, const TransformError& e) {
+            str << e.msg;
+            return str;
+        }
+
         Object::Object() {}
         Object::~Object() {}
 
@@ -30,11 +39,11 @@ namespace TrenchBroom {
             return doGetContainer();
         }
 
-        Layer* Object::layer() const {
+        LayerNode* Object::layer() const {
             return doGetLayer();
         }
 
-        Group* Object::group() const {
+        GroupNode* Object::group() const {
             return doGetGroup();
         }
 
@@ -47,8 +56,8 @@ namespace TrenchBroom {
             return containingGroup == nullptr || containingGroup->opened();
         }
 
-        void Object::transform(const vm::mat4x4& transformation, bool lockTextures, const vm::bbox3& worldBounds) {
-            doTransform(transformation, lockTextures, worldBounds);
+        kdl::result<void, TransformError> Object::transform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
+            return doTransform(worldBounds, transformation, lockTextures);
         }
 
         bool Object::contains(const Node* node) const {

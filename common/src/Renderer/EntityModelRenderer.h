@@ -21,32 +21,31 @@
 #define TrenchBroom_EntityModelRenderer
 
 #include "Color.h"
-#include "Assets/ModelDefinition.h"
-#include "Model/ModelTypes.h"
 #include "Renderer/Renderable.h"
 
 #include <map>
-#include <set>
 
 namespace TrenchBroom {
+    class Logger;
+
     namespace Assets {
-        class EntityModel;
         class EntityModelManager;
     }
 
     namespace Model {
         class EditorContext;
-        class Entity;
+        class EntityNode;
     }
 
     namespace Renderer {
         class RenderBatch;
-        class RenderContext;
         class TexturedRenderer;
 
         class EntityModelRenderer : public DirectRenderable {
         private:
-            using EntityMap = std::map<Model::Entity*, TexturedRenderer*>;
+            using EntityMap = std::map<Model::EntityNode*, TexturedRenderer*>;
+
+            Logger& m_logger;
 
             Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;
@@ -58,7 +57,7 @@ namespace TrenchBroom {
 
             bool m_showHiddenEntities;
         public:
-            EntityModelRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
+            EntityModelRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
             ~EntityModelRenderer() override;
 
             template <typename I>
@@ -83,8 +82,8 @@ namespace TrenchBroom {
                 }
             }
 
-            void addEntity(Model::Entity* entity);
-            void updateEntity(Model::Entity* entity);
+            void addEntity(Model::EntityNode* entity);
+            void updateEntity(Model::EntityNode* entity);
             void clear();
 
             bool applyTinting() const;
@@ -97,7 +96,7 @@ namespace TrenchBroom {
 
             void render(RenderBatch& renderBatch);
         private:
-            void doPrepareVertices(Vbo& vertexVbo) override;
+            void doPrepareVertices(VboManager& vboManager) override;
             void doRender(RenderContext& renderContext) override;
         };
     }

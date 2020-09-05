@@ -20,37 +20,35 @@
 #include "SetTextureCollectionsCommand.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include <cassert>
-
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType SetTextureCollectionsCommand::Type = Command::freeType();
 
-        SetTextureCollectionsCommand::Ptr SetTextureCollectionsCommand::set(const IO::Path::List& paths) {
-            return Ptr(new SetTextureCollectionsCommand(paths));
+        std::unique_ptr<SetTextureCollectionsCommand> SetTextureCollectionsCommand::set(const std::vector<IO::Path>& paths) {
+            return std::make_unique<SetTextureCollectionsCommand>(paths);
         }
 
-        SetTextureCollectionsCommand::SetTextureCollectionsCommand(const IO::Path::List& paths) :
+        SetTextureCollectionsCommand::SetTextureCollectionsCommand(const std::vector<IO::Path>& paths) :
         DocumentCommand(Type, "Set Texture Collections"),
         m_paths(paths) {}
 
-        bool SetTextureCollectionsCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> SetTextureCollectionsCommand::doPerformDo(MapDocumentCommandFacade* document) {
             m_oldPaths = document->enabledTextureCollections();
             document->performSetTextureCollections(m_paths);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool SetTextureCollectionsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> SetTextureCollectionsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->performSetTextureCollections(m_oldPaths);
             m_oldPaths.clear();
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool SetTextureCollectionsCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool SetTextureCollectionsCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool SetTextureCollectionsCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool SetTextureCollectionsCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

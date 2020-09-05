@@ -21,91 +21,85 @@
 #define TrenchBroom_TrenchBroomApp
 
 #include "Notifier.h"
-#include "IO/Path.h"
-#include "View/FrameManager.h"
-#include "View/RecentDocuments.h"
-#include <wx/app.h>
 
-#include <functional>
+#include <memory>
+#include <string>
+#include <vector>
 
-class wxExtHelpController;
+#include <QApplication>
+
+class QMenu;
+class QSettings;
 
 namespace TrenchBroom {
     class Logger;
     class RecoverableException;
 
+    namespace IO {
+        class Path;
+    }
+
     namespace View {
         class ExecutableEvent;
+        class FrameManager;
+        class RecentDocuments;
+        class WelcomeWindow;
 
-        class TrenchBroomApp : public wxApp {
+        class TrenchBroomApp : public QApplication {
+            Q_OBJECT
         private:
-            FrameManager* m_frameManager;
-            RecentDocuments<TrenchBroomApp>* m_recentDocuments;
-            wxLongLong m_lastActivation;
-        public:
-            Notifier<> recentDocumentsDidChangeNotifier;
+            std::unique_ptr<FrameManager> m_frameManager;
+            std::unique_ptr<RecentDocuments> m_recentDocuments;
+            std::unique_ptr<WelcomeWindow> m_welcomeWindow;
         public:
             static TrenchBroomApp& instance();
 
-            TrenchBroomApp();
-
-            void detectAndSetupUbuntu();
-        protected:
-            wxAppTraits* CreateTraits() override;
+            TrenchBroomApp(int& argc, char** argv);
+            ~TrenchBroomApp();
         public:
-            FrameManager* frameManager();
+            void parseCommandLineAndShowFrame();
 
-            const IO::Path::List& recentDocuments() const;
-            void addRecentDocumentMenu(wxMenu* menu);
-            void removeRecentDocumentMenu(wxMenu* menu);
+            FrameManager* frameManager();
+        private:
+            static QPalette darkPalette();
+            bool loadStyleSheets();
+            void loadStyle();
+        public:
+            const std::vector<IO::Path>& recentDocuments() const;
+            void addRecentDocumentMenu(QMenu* menu);
+            void removeRecentDocumentMenu(QMenu* menu);
             void updateRecentDocument(const IO::Path& path);
 
-            bool newDocument();
-            bool openDocument(const String& pathStr);
-            bool recoverFromException(const RecoverableException& e, const std::function<bool()>& op);
+            bool openDocument(const IO::Path& path);
+            bool recoverFromException(const RecoverableException& e, const std::function<bool()>& retry);
             void openPreferences();
             void openAbout();
-
-            bool OnInit() override;
-            int OnExit() override;
-
-            bool OnExceptionInMainLoop() override;
-            void OnUnhandledException() override;
-            void OnFatalException() override;
-        private:
-            void handleException();
+            bool initializeGameFactory();
         public:
+            bool newDocument();
+            void openDocument();
+            void showManual();
+            void showPreferences();
+            void showAboutDialog();
+            void debugShowCrashReportDialog();
 
-            int OnRun() override;
+            bool notify(QObject* receiver, QEvent* event) override;
 
-            void OnFileNew(wxCommandEvent& event);
-            void OnFileOpen(wxCommandEvent& event);
-            void OnFileOpenRecent(wxCommandEvent& event);
-            void OnHelpShowManual(wxCommandEvent& event);
-            void OnOpenPreferences(wxCommandEvent& event);
-            void OnOpenAbout(wxCommandEvent& event);
-            void OnDebugShowCrashReportDialog(wxCommandEvent& event);
-
-            void OnExecutableEvent(ExecutableEvent& event);
-
-            int FilterEvent(wxEvent& event) override;
 #ifdef __APPLE__
-            void OnFileExit(wxCommandEvent& event);
-            void OnUpdateUI(wxUpdateUIEvent& event);
-
-            void MacNewFile() override;
-            void MacOpenFiles(const wxArrayString& filenames) override;
-#else
-            void OnInitCmdLine(wxCmdLineParser& parser) override;
-            bool OnCmdLineParsed(wxCmdLineParser& parser) override;
+            bool event(QEvent* event) override;
 #endif
+            bool openFilesOrWelcomeFrame(const QStringList& fileNames);
+        public:
+            void showWelcomeWindow();
+            void closeWelcomeWindow();
         private:
             static bool useSDI();
-            void showWelcomeFrame();
+        signals:
+            void recentDocumentsDidChange();
         };
 
-        void setCrashReportGUIEnbled(const bool guiEnabled);
-        void reportCrashAndExit(const String &stacktrace, const String &reason);
+        void setCrashReportGUIEnbled(bool guiEnabled);
+        [[noreturn]] void reportCrashAndExit(const std::string& stacktrace, const std::string& reason);
         bool isReportingCrash();
     }
 }

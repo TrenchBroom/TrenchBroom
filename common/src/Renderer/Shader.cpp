@@ -19,9 +19,14 @@
 
 #include "Shader.h"
 
-#include <fstream>
-
 #include "Exceptions.h"
+#include "IO/Path.h"
+
+#include <cassert>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -35,7 +40,7 @@ namespace TrenchBroom {
             if (m_shaderId == 0)
                 throw RenderException("Could not create shader " + m_name);
 
-            const StringList source = loadSource(path);
+            const std::vector<std::string> source = loadSource(path);
             const char** linePtrs = new const char*[source.size()];
             for (size_t i = 0; i < source.size(); i++)
                 linePtrs[i] = source[i].c_str();
@@ -48,23 +53,23 @@ namespace TrenchBroom {
             glAssert(glGetShaderiv(m_shaderId, GL_COMPILE_STATUS, &compileStatus));
 
             if (compileStatus == 0) {
-                RenderException ex;
-                ex << "Could not compile shader " << m_name << ": ";
+                auto str = std::stringstream();
+                str << "Could not compile shader " << m_name << ": ";
 
                 GLint infoLogLength;
                 glAssert(glGetShaderiv(m_shaderId, GL_INFO_LOG_LENGTH, &infoLogLength));
                 if (infoLogLength > 0) {
                     char* infoLog = new char[static_cast<size_t>(infoLogLength)];
-                    glGetShaderInfoLog(m_shaderId, infoLogLength, &infoLogLength, infoLog);
+                    glAssert(glGetShaderInfoLog(m_shaderId, infoLogLength, &infoLogLength, infoLog));
                     infoLog[infoLogLength-1] = 0;
 
-                    ex << infoLog;
+                    str << infoLog;
                     delete [] infoLog;
                 } else {
-                    ex << "Unknown error";
+                    str << "Unknown error";
                 }
 
-                throw ex;
+                throw RenderException(str.str());
             }
         }
 
@@ -83,13 +88,14 @@ namespace TrenchBroom {
             glAssert(glDetachShader(programId, m_shaderId));
         }
 
-        StringList Shader::loadSource(const IO::Path& path) {
+        std::vector<std::string> Shader::loadSource(const IO::Path& path) {
             std::fstream stream(path.asString().c_str(), std::ios::in);
-            if (!stream.is_open())
+            if (!stream.is_open()) {
                 throw RenderException("Could not load shader source from " + path.asString());
+            }
 
-            String line;
-            StringList lines;
+            std::string line;
+            std::vector<std::string> lines;
 
             while (!stream.eof()) {
                 std::getline(stream, line);

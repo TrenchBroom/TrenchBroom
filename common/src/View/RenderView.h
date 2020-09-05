@@ -21,65 +21,75 @@
 #define TrenchBroom_RenderView
 
 #include "Color.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/GL.h" // must be included here, before QOpenGLWidget, because it includes glew
 #include "View/InputEvent.h"
-#include "View/GLAttribs.h"
-#include "View/GLContext.h"
 
-#include <GL/glew.h>
-#include <wx/glcanvas.h>
+#include <string>
+
+#include <QOpenGLWidget>
+#include <QElapsedTimer>
+
+#undef Bool
+#undef Status
+#undef CursorShape
 
 namespace TrenchBroom {
     namespace Renderer {
         class FontManager;
-        class RenderContext;
         class ShaderManager;
+        class VboManager;
     }
 
     namespace View {
         class GLContextManager;
 
-        class RenderView : public wxGLCanvas, public InputEventProcessor {
+        class RenderView : public QOpenGLWidget, public InputEventProcessor {
+            Q_OBJECT
         private:
-            GLContext::Ptr m_glContext;
-            wxGLAttributes m_attribs;
-            bool m_initialized;
             Color m_focusColor;
-
+            GLContextManager* m_glContext;
             InputEventRecorder m_eventRecorder;
+        private: // FPS counter
+            // stats since the last counter update
+            int m_framesRendered;
+            int m_maxFrameTimeMsecs;
+            // other
+            int64_t m_lastFPSCounterUpdate;
+            QElapsedTimer m_timeSinceLastFrame;
         protected:
-            RenderView(wxWindow* parent, GLContextManager& contextManager, wxGLAttributes attribs);
-        public:
-            virtual ~RenderView();
-        public:
-            void OnKey(wxKeyEvent& event);
-            void OnMouse(wxMouseEvent& event);
-            void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
-        public:
-            void OnEraseBackground(wxEraseEvent& event);
-            void OnPaint(wxPaintEvent& event);
-            void OnSize(wxSizeEvent& event);
-            void OnSetFocus(wxFocusEvent& event);
-            void OnKillFocus(wxFocusEvent& event);
+            std::string m_currentFPS;
         protected:
-            Renderer::Vbo& vertexVbo();
-            Renderer::Vbo& indexVbo();
+            explicit RenderView(GLContextManager& contextManager, QWidget* parent = nullptr);
+        public:
+            ~RenderView() override;
+        protected: // QWindow overrides
+            void keyPressEvent(QKeyEvent* event) override;
+            void keyReleaseEvent(QKeyEvent* event) override;
+            void mouseDoubleClickEvent(QMouseEvent* event) override;
+            void mouseMoveEvent(QMouseEvent* event) override;
+            void mousePressEvent(QMouseEvent* event) override;
+            void mouseReleaseEvent(QMouseEvent* event) override;
+            void wheelEvent(QWheelEvent* event) override;
+        protected:
+            Renderer::VboManager& vboManager();
             Renderer::FontManager& fontManager();
             Renderer::ShaderManager& shaderManager();
 
             int depthBits() const;
             bool multisample() const;
+        protected: // QOpenGLWidget overrides
+            void initializeGL() override;
+            void paintGL() override;
+            void resizeGL(int w, int h) override;
         private:
-            void bindEvents();
-
-            void initializeGL();
-            void updateViewport();
             void render();
             void processInput();
             void clearBackground();
             void renderFocusIndicator();
+        protected:
+            // called by initializeGL by default
+            virtual bool doInitializeGL();
         private:
-            virtual void doInitializeGL(bool firstInitialization);
             virtual void doUpdateViewport(int x, int y, int width, int height);
             virtual bool doShouldRenderFocusIndicator() const = 0;
             virtual void doRender() = 0;

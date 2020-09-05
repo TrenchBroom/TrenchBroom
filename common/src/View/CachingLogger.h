@@ -20,12 +20,12 @@
 #ifndef TrenchBroom_CachingLogger
 #define TrenchBroom_CachingLogger
 
-#include "StringUtils.h"
 #include "Logger.h"
 
+#include <string>
 #include <vector>
 
-#include <wx/string.h>
+#include <QString>
 
 namespace TrenchBroom {
     namespace View {
@@ -34,9 +34,9 @@ namespace TrenchBroom {
             struct Message {
             public:
                 LogLevel level;
-                wxString str;
+                QString str;
 
-                Message(LogLevel i_level, const wxString& i_str);
+                Message(LogLevel i_level, const QString& i_str);
             };
 
             using MessageList = std::vector<Message>;
@@ -48,8 +48,8 @@ namespace TrenchBroom {
 
             void setParentLogger(Logger* logger);
         private:
-            void doLog(LogLevel level, const String& message) override;
-            void doLog(LogLevel level, const wxString& message) override;
+            void doLog(LogLevel level, const std::string& message) override;
+            void doLog(LogLevel level, const QString& message) override;
         };
     }
 }

@@ -1,0 +1,71 @@
+cmake_minimum_required(VERSION 3.12)
+
+project(kdl VERSION 0.1.0 LANGUAGES CXX)
+
+# instruct cmake not to set default warning levels for MSVC projects (cmake 3.15 or higher)
+if (POLICY CMP0092)
+    cmake_policy(SET CMP0092 NEW)
+endif()
+
+set(KDL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+add_library(kdl INTERFACE)
+target_compile_features(kdl INTERFACE cxx_std_17)
+target_include_directories(kdl INTERFACE
+        $<BUILD_INTERFACE:${KDL_INCLUDE_DIR}>
+        $<INSTALL_INTERFACE:kdl/include/kdl>)
+
+target_link_libraries(kdl INTERFACE)
+
+target_sources(kdl INTERFACE
+    "${KDL_INCLUDE_DIR}/kdl/binary_relation.h"
+    "${KDL_INCLUDE_DIR}/kdl/bitset.h"
+    "${KDL_INCLUDE_DIR}/kdl/collection_utils.h"
+    "${KDL_INCLUDE_DIR}/kdl/compact_trie_forward.h"
+    "${KDL_INCLUDE_DIR}/kdl/compact_trie.h"
+    "${KDL_INCLUDE_DIR}/kdl/enum_array.h"
+    "${KDL_INCLUDE_DIR}/kdl/result.h"
+    "${KDL_INCLUDE_DIR}/kdl/result_combine.h"
+    "${KDL_INCLUDE_DIR}/kdl/result_forward.h"
+    "${KDL_INCLUDE_DIR}/kdl/result_io.h"
+    "${KDL_INCLUDE_DIR}/kdl/intrusive_circular_list_forward.h"
+    "${KDL_INCLUDE_DIR}/kdl/intrusive_circular_list.h"
+    "${KDL_INCLUDE_DIR}/kdl/invoke.h"
+    "${KDL_INCLUDE_DIR}/kdl/map_utils.h"
+    "${KDL_INCLUDE_DIR}/kdl/memory_utils.h"
+    "${KDL_INCLUDE_DIR}/kdl/meta_utils.h"
+    "${KDL_INCLUDE_DIR}/kdl/opt_utils.h"
+    "${KDL_INCLUDE_DIR}/kdl/overload.h"
+    "${KDL_INCLUDE_DIR}/kdl/set_adapter.h"
+    "${KDL_INCLUDE_DIR}/kdl/set_temp.h"
+    "${KDL_INCLUDE_DIR}/kdl/skip_iterator.h"
+    "${KDL_INCLUDE_DIR}/kdl/string_compare_detail.h"
+    "${KDL_INCLUDE_DIR}/kdl/string_compare.h"
+    "${KDL_INCLUDE_DIR}/kdl/string_format.h"
+    "${KDL_INCLUDE_DIR}/kdl/string_utils.h"
+    "${KDL_INCLUDE_DIR}/kdl/transform_range.h"
+    "${KDL_INCLUDE_DIR}/kdl/vector_set_forward.h"
+    "${KDL_INCLUDE_DIR}/kdl/vector_set.h"
+    "${KDL_INCLUDE_DIR}/kdl/vector_utils.h"
+)
+
+target_compile_features(kdl INTERFACE cxx_std_17)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    target_compile_options(kdl INTERFACE -Wall -Wextra -Wconversion -Wshadow-all -pedantic -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-exit-time-destructors)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(kdl INTERFACE -Wall -Wextra -Wconversion -Wshadow=local -pedantic)
+elseif(MSVC EQUAL 1)
+    target_compile_options(kdl INTERFACE /W4 /EHsc /MP)
+
+    # signed/unsigned mismatch: https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-4-c4365
+    target_compile_options(kdl INTERFACE /w44365)
+else()
+    message(FATAL_ERROR "Cannot set compile options for target")
+endif()
+
+# Prevent overriding the parent project's compiler/linker
+# settings on Windows
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+# add_subdirectory(lib)
+add_subdirectory(test)

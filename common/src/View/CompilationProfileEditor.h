@@ -20,12 +20,13 @@
 #ifndef CompilationProfileEditor_h
 #define CompilationProfileEditor_h
 
-#include "View/ViewTypes.h"
+#include <QWidget>
 
-#include <wx/panel.h>
+#include <memory>
 
-class wxSimplebook;
-class wxTextCtrl;
+class QAbstractButton;
+class QLineEdit;
+class QStackedWidget;
 
 namespace TrenchBroom {
     namespace Model {
@@ -33,41 +34,47 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class AutoCompleteTextControl;
-        class CompilationTaskList;
+        class CompilationTaskListBox;
+        class MapDocument;
+        class MultiCompletionLineEdit;
 
-        class CompilationProfileEditor : public wxPanel {
+        class CompilationProfileEditor : public QWidget {
+            Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             Model::CompilationProfile* m_profile;
-            wxSimplebook* m_book;
-            wxTextCtrl* m_nameTxt;
-            AutoCompleteTextControl* m_workDirTxt;
-            CompilationTaskList* m_taskList;
+            QStackedWidget* m_stackedWidget;
+            QLineEdit* m_nameTxt;
+            MultiCompletionLineEdit* m_workDirTxt;
+            CompilationTaskListBox* m_taskList;
+            QAbstractButton* m_addTaskButton;
+            QAbstractButton* m_removeTaskButton;
+            QAbstractButton* m_moveTaskUpButton;
+            QAbstractButton* m_moveTaskDownButton;
         public:
-            CompilationProfileEditor(wxWindow* parent, MapDocumentWPtr document);
-            ~CompilationProfileEditor();
+            explicit CompilationProfileEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+            ~CompilationProfileEditor() override;
         private:
-            wxWindow* createEditorPage(wxWindow* parent);
+            QWidget* createEditorPage(QWidget* parent);
 
-            void OnNameChanged(wxCommandEvent& event);
-            void OnWorkDirChanged(wxCommandEvent& event);
+        private slots:
+            void nameChanged(const QString& text);
+            void workDirChanged(const QString& text);
 
-            void OnAddTask(wxCommandEvent& event);
-            void OnRemoveTask(wxCommandEvent& event);
-            void OnMoveTaskUp(wxCommandEvent& event);
-            void OnMoveTaskDown(wxCommandEvent& event);
+            void addTask();
+            void removeTask();
+            void moveTaskUp();
+            void moveTaskDown();
 
-            void OnUpdateAddTaskButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateRemoveTaskButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveTaskUpButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateMoveTaskDownButtonUI(wxUpdateUIEvent& event);
+            void taskSelectionChanged();
         public:
             void setProfile(Model::CompilationProfile* profile);
         private:
             void profileWillBeRemoved();
             void profileDidChange();
             void refresh();
+        signals:
+            void profileChanged();
         };
     }
 }

@@ -20,23 +20,20 @@
 #ifndef TrenchBroom_EntityAttributeSnapshot
 #define TrenchBroom_EntityAttributeSnapshot
 
-#include "Model/ModelTypes.h"
-
-#include <map>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
+        class AttributableNode;
+
         class EntityAttributeSnapshot {
-        public:
-            using List = std::list<EntityAttributeSnapshot>;
-            using Map = std::map<AttributableNode*, List>;
         private:
-            AttributeName m_name;
-            AttributeValue m_value;
+            std::string m_name;
+            std::string m_value;
             bool m_present;
         public:
-            EntityAttributeSnapshot(const AttributeName& name, const AttributeValue& value);
-            EntityAttributeSnapshot(const AttributeName& name);
+            EntityAttributeSnapshot(const std::string& name, const std::string& value);
+            explicit EntityAttributeSnapshot(const std::string& name);
 
             void restore(AttributableNode* node) const;
         };

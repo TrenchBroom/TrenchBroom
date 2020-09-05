@@ -20,24 +20,22 @@
 #ifndef TextureCollectionLoader_h
 #define TextureCollectionLoader_h
 
-#include "StringUtils.h"
-#include "IO/Path.h"
-
 #include <memory>
+#include <string>
 #include <vector>
+#include <string>
 
 namespace TrenchBroom {
     class Logger;
 
     namespace Assets {
         class TextureCollection;
-        class TextureReader;
-        class TextureManager;
-
     }
+
     namespace IO {
         class File;
         class FileSystem;
+        class Path;
         class TextureReader;
 
         class TextureCollectionLoader {
@@ -45,32 +43,33 @@ namespace TrenchBroom {
             using FileList = std::vector<std::shared_ptr<File>>;
         protected:
             Logger& m_logger;
+            const std::vector<std::string> m_textureExclusions;
         protected:
-            TextureCollectionLoader(Logger& logger);
+            explicit TextureCollectionLoader(Logger& logger, const std::vector<std::string>& exclusions);
         public:
             virtual ~TextureCollectionLoader();
         public:
-            std::unique_ptr<Assets::TextureCollection> loadTextureCollection(const Path& path, const StringList& textureExtensions, const TextureReader& textureReader);
-        private:
-            virtual FileList doFindTextures(const Path& path, const StringList& extensions) = 0;
+            virtual Assets::TextureCollection loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader) = 0;
+        protected:
+            bool shouldExclude(const std::string& textureName);
         };
 
         class FileTextureCollectionLoader : public TextureCollectionLoader {
         private:
-            const Path::List m_searchPaths;
+            const std::vector<Path> m_searchPaths;
         public:
-            FileTextureCollectionLoader(Logger& logger, const Path::List& searchPaths);
+            FileTextureCollectionLoader(Logger& logger, const std::vector<Path>& searchPaths, const std::vector<std::string>& exclusions);
         private:
-            FileList doFindTextures(const Path& path, const StringList& extensions) override;
+            Assets::TextureCollection loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader);
         };
 
         class DirectoryTextureCollectionLoader : public TextureCollectionLoader {
         private:
             const FileSystem& m_gameFS;
         public:
-            DirectoryTextureCollectionLoader(Logger& logger, const FileSystem& gameFS);
+            DirectoryTextureCollectionLoader(Logger& logger, const FileSystem& gameFS, const std::vector<std::string>& exclusions);
         private:
-            FileList doFindTextures(const Path& path, const StringList& extensions) override;
+            Assets::TextureCollection loadTextureCollection(const Path& path, const std::vector<std::string>& textureExtensions, const TextureReader& textureReader);
         };
     }
 }

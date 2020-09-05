@@ -20,16 +20,21 @@
 #ifndef TRENCHBROOM_TAG_H
 #define TRENCHBROOM_TAG_H
 
-#include "StringUtils.h"
+#include "Macros.h"
+#include "Model/TagType.h"
 
+#include <kdl/vector_set.h>
+
+#include <memory>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-
     namespace Model {
+        class ConstTagVisitor;
+        class TagManager;
+        class TagVisitor;
+
         /**
          * This class represents an attribute of a tag. A tag can have multiple attributes, but the names must
          * be unique.
@@ -39,7 +44,7 @@ namespace TrenchBroom {
             using AttributeType = unsigned long;
         private:
             AttributeType m_type;
-            String m_name;
+            std::string m_name;
         public:
             /**
              * Creates a new tag attribute with the given type and name.
@@ -47,7 +52,7 @@ namespace TrenchBroom {
              * @param type the attribute type
              * @param name the attribute name
              */
-            explicit TagAttribute(AttributeType type, String name);
+            explicit TagAttribute(AttributeType type, const std::string& name);
 
             /**
              * Returns the type of this attribute.
@@ -57,7 +62,7 @@ namespace TrenchBroom {
             /**
              * Returns the name of this tag attribute.
              */
-            const String& name() const;
+            const std::string& name() const;
 
             friend bool operator==(const TagAttribute& lhs, const TagAttribute& rhs);
             friend bool operator<(const TagAttribute& lhs, const TagAttribute& rhs);
@@ -70,11 +75,9 @@ namespace TrenchBroom {
          * Furthermore, a tag can have attributes.
          */
         class Tag {
-        public:
-            using TagType = unsigned long;
         protected:
             size_t m_index;
-            String m_name;
+            std::string m_name;
             std::vector<TagAttribute> m_attributes;
 
             /**
@@ -84,7 +87,7 @@ namespace TrenchBroom {
              * @param name the tag's name
              * @param attributes the tag's attributes
              */
-            Tag(size_t index, String name, std::vector<TagAttribute> attributes);
+            Tag(size_t index, const std::string& name, std::vector<TagAttribute> attributes);
         public:
             /**
              * Creates a new tag with the given name and attributes. The tag's type will be set automatically.
@@ -92,7 +95,7 @@ namespace TrenchBroom {
              * @param name the tag's name
              * @param attributes the tag's attributes
              */
-            Tag(String name, std::vector<TagAttribute> attributes);
+            Tag(const std::string& name, std::vector<TagAttribute> attributes);
 
             virtual ~Tag();
 
@@ -105,7 +108,7 @@ namespace TrenchBroom {
             /**
              * Returns the type of this tag.
              */
-            TagType type() const;
+            TagType::Type type() const;
 
             /**
              * Returns the index of this tag.
@@ -122,7 +125,7 @@ namespace TrenchBroom {
             /**
              * Returns the name of this tag.
              */
-            const String& name() const;
+            const std::string& name() const;
 
             /**
              * Returns the attributes of this tag.
@@ -138,7 +141,7 @@ namespace TrenchBroom {
          */
         class TagReference {
         private:
-            const Tag& m_tag;
+            const Tag* m_tag;
         public:
             /**
              * Creates a new reference to the given tag.
@@ -146,6 +149,8 @@ namespace TrenchBroom {
              * @param tag the referenced tag
              */
             explicit TagReference(const Tag& tag);
+
+            defineCopyAndMove(TagReference)
 
             /**
              * Returns the referenced tag.
@@ -156,23 +161,22 @@ namespace TrenchBroom {
             friend bool operator<(const TagReference& lhs, const TagReference& rhs);
         };
 
-        class TagManager;
-        class TagVisitor;
-        class ConstTagVisitor;
-
         /**
          * Implementing this interface gives a class the ability to be tagged.
          */
         class Taggable {
         private:
-            Tag::TagType m_tagMask;
-            std::set<TagReference> m_tags;
+            TagType::Type m_tagMask;
+            kdl::vector_set<TagReference> m_tags;
             TagAttribute::AttributeType m_attributeMask;
         public:
             /**
              * Creates a new instance.
              */
             Taggable();
+            defineCopyAndMove(Taggable)
+
+            friend void swap(Taggable& lhs, Taggable& rhs) noexcept;
 
             virtual ~Taggable();
 
@@ -197,14 +201,14 @@ namespace TrenchBroom {
              * @param mask the mask to check
              * @return true if this tag has any of the given tags
              */
-            bool hasTag(Tag::TagType mask) const;
+            bool hasTag(TagType::Type mask) const;
 
             /**
              * Returns a bit mask indicating which tags this object is tagged with.
              *
              * @return the tag mask
              */
-            Tag::TagType tagMask() const;
+            TagType::Type tagMask() const;
 
             /**
              * Adds the given tag to this object.
@@ -277,7 +281,7 @@ namespace TrenchBroom {
         class TagMatcherCallback {
         public:
             virtual ~TagMatcherCallback();
-            virtual size_t selectOption(const StringList& options) = 0;
+            virtual size_t selectOption(const std::vector<std::string>& options) = 0;
         };
 
         /**
@@ -345,7 +349,7 @@ namespace TrenchBroom {
              * @param attributes the attributes of this tag
              * @param matcher the matcher that decides whether to apply this tag to a given taggable
              */
-            SmartTag(String name, std::vector<TagAttribute> attributes, std::unique_ptr<TagMatcher> matcher);
+            SmartTag(const std::string& name, std::vector<TagAttribute> attributes, std::unique_ptr<TagMatcher> matcher);
 
             SmartTag(const SmartTag& other);
             SmartTag(SmartTag&& other) noexcept;

@@ -33,7 +33,8 @@ namespace TrenchBroom {
         m_faceRenderMode(FaceRenderMode_Textured),
         m_shadeFaces(true),
         m_showFog(false),
-        m_showEdges(true) {}
+        m_showEdges(true),
+        m_showSoftMapBounds(true) {}
 
         bool MapViewConfig::showEntityClassnames() const {
             return m_showEntityClassnames;
@@ -151,6 +152,18 @@ namespace TrenchBroom {
             if (showEdges == m_showEdges)
                 return;
             m_showEdges = showEdges;
+            mapViewConfigDidChangeNotifier();
+        }
+
+        bool MapViewConfig::showSoftMapBounds() const {
+            return m_showSoftMapBounds;
+        }
+
+        void MapViewConfig::setShowSoftMapBounds(const bool showSoftMapBounds) {
+            if (showSoftMapBounds == m_showSoftMapBounds) {
+                return;
+            }
+            m_showSoftMapBounds = showSoftMapBounds;
             mapViewConfigDidChangeNotifier();
         }
     }

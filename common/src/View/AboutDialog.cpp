@@ -19,18 +19,11 @@
 
 #include "AboutDialog.h"
 
-#include "StringUtils.h"
 #include "View/AppInfoPanel.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
-#include <wx/button.h>
-#include <wx/panel.h>
-#include <wx/sizer.h>
-#include <wx/statline.h>
-#include <wx/stattext.h>
-#include <wx/textctrl.h>
-
-#include <iostream>
+#include <QLabel>
+#include <QHBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
@@ -39,108 +32,82 @@ namespace TrenchBroom {
         void AboutDialog::showAboutDialog() {
             if (AboutDialog::instance == nullptr) {
                 AboutDialog::instance = new AboutDialog();
-                AboutDialog::instance->Show();
+                AboutDialog::instance->show();
             } else {
-                AboutDialog::instance->Raise();
+                AboutDialog::instance->show();
+                AboutDialog::instance->raise();
             }
         }
 
         void AboutDialog::closeAboutDialog() {
             if (AboutDialog::instance != nullptr)
-                AboutDialog::instance->Close();
+                AboutDialog::instance->close();
         }
 
         AboutDialog::~AboutDialog() {
             instance = nullptr;
         }
 
-        void AboutDialog::OnClickUrl(wxMouseEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            const wxVariant* var = static_cast<wxVariant*>(event.GetEventUserData());
-            const wxString url = var->GetString();
-            ::wxLaunchDefaultBrowser(url);
-        }
-
         AboutDialog::AboutDialog() :
-        wxDialog(nullptr, wxID_ANY, "About TrenchBroom", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxDIALOG_NO_PARENT | wxSTAY_ON_TOP) {
+        QDialog() {
+            // This makes it so the About dialog doesn't prevent the application from quitting
+            setAttribute(Qt::WA_QuitOnClose, false);
             createGui();
-            CenterOnScreen();
         }
 
         void AboutDialog::createGui() {
-            setWindowIcon(this);
+            const QString creditsString = tr("github.com/TrenchBroom/TrenchBroom\n\n"
+                                             "<b>Developers</b>\n"
+                                             "Kristian Duske\n"
+                                             "Eric Wasylishen\n\n"
+                                             "<b>Contributors</b>\n"
+                                             "20kdc, "
+                                             "aapokaapo, "
+                                             "Ari Vuollet, "
+                                             "bazhenovc, "
+                                             "chronicol, "
+                                             "Corey Jones, "
+                                             "Jonas Lund, "
+                                             "Jonathan Linat, "
+                                             "Josh Palmer, "
+                                             "mankeli, "
+                                             "Matthew Borkowski, "
+                                             "mittorn, "
+                                             "negke, "
+                                             "Philipp Nahratow, "
+                                             "rebb, "
+                                             "Rohit Nirmal, "
+                                             "Scampie, "
+                                             "Yuki Raven\n\n"
+                                             "<b>3rd Party Libraries, Tools and Assets</b>\n"
+                                             "Qt (Cross platform GUI library)\n"
+                                             "FreeType (Font rendering library)\n"
+                                             "FreeImage (Image loading & manipulation library)\n"
+                                             "GLEW (OpenGL extension library)\n"
+                                             "tinyxml2 (XML parsing library)\n"
+                                             "miniz (Archive library)\n"
+                                             "Catch 2 (C++ testing framework)\n"
+                                             "StackWalker (C++ stack trace analyzer)\n"
+                                             "CMake (Cross platform build manager)\n"
+                                             "Pandoc (Universal document converter)\n"
+                                             "Source Sans Pro (Font)\n").replace("\n", "<br/>");
+            setWindowIconTB(this);
 
-            AppInfoPanel* infoPanel = new AppInfoPanel(this);
+            auto* infoPanel = new AppInfoPanel();
+            auto* creditsText = new QLabel(creditsString);
+            creditsText->setWordWrap(true);
+            creditsText->setMaximumWidth(300);
 
-            wxStaticText* creditsText = new wxStaticText(this, wxID_ANY, "");
-            creditsText->SetLabelMarkup("github.com/kduske/TrenchBroom\n\n"
-                                        "<b>Developers</b>\n"
-                                        "Kristian Duske\n"
-                                        "Eric Wasylishen\n\n"
-                                        "<b>Contributors</b>\n"
-                                        "Corey Jones (Documentation)\n"
-                                        "Philipp Nahratow (Bug fixes, Linux builds)\n"
-                                        "rebb (Shaders, bug fixes)\n"
-                                        "chronicol (Documentation)\n"
-                                        "bazhenovc (FreeImage texture loading)\n"
-                                        "Scampie (Documentation)\n"
-                                        "mittorn (Partial Half-Life support)\n"
-                                        "Matthew Borkowski (CSG merging enhancements)\n"
-                                        "Rohit Nirmal (Bug fixes)\n"
-                                        "negke (FGD files)\n"
-                                        "Jonathan Linat (Manual)\n"
-                                        "Yuki Raven (Font size preference)\n"
-                                        "mankeli (Bug fixes)\n"
-                                        "Jonas Lund (Bug fixes)\n\n"
-                                        "<b>3rd Party Libraries, Tools and Assets</b>\n"
-                                        "wxWidgets (Cross platform GUI library)\n"
-                                        "FreeType (Font rendering library)\n"
-                                        "FreeImage (Image loading & manipulation library)\n"
-                                        "GLEW (OpenGL extension library)\n"
-                                        "tinyxml2 (XML parsing library)\n"
-                                        "miniz (Archive library)\n"
-                                        "optional-lite (C++ library)\n"
-                                        "Google Test (C++ testing framework)\n"
-                                        "Google Mock (C++ mocking framework)\n"
-                                        "StackWalker (C++ stack trace analyzer)\n"
-                                        "CMake (Cross platform build manager)\n"
-                                        "Pandoc (Universal document converter)\n"
-                                        "Source Sans Pro (Font)\n");
+            auto* layout = new QHBoxLayout();
+            layout->setSizeConstraint(QLayout::SetFixedSize);
+            layout->setContentsMargins(0, 20, 0, 20);
+            layout->addSpacing(50);
+            layout->addWidget(infoPanel);
+            layout->addSpacing(50);
+            layout->addWidget(creditsText);
+            layout->addSpacing(50);
+            setLayout(layout);
 
-            wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
-            outerSizer->AddSpacer(50);
-            outerSizer->Add(infoPanel, 0, wxALIGN_CENTER | wxBOTTOM, 20);
-            outerSizer->AddSpacer(50);
-            outerSizer->Add(creditsText, 1, wxEXPAND | wxTOP | wxBOTTOM, 20);
-            outerSizer->AddSpacer(50);
-
-            SetSizerAndFit(outerSizer);
-
-            wxAcceleratorEntry entries[1];
-            entries[0] = wxAcceleratorEntry(wxACCEL_NORMAL, WXK_ESCAPE, wxID_CANCEL);
-            SetAcceleratorTable(wxAcceleratorTable(1, entries));
-
-            Bind(wxEVT_MENU, &AboutDialog::OnCancel, this, wxID_CANCEL);
-            Bind(wxEVT_CLOSE_WINDOW, &AboutDialog::OnClose, this);
-        }
-
-        wxStaticText* AboutDialog::createURLText(wxWindow* parent, const String& text, const String& tooltip, const String& url) {
-            wxStaticText* statText = new wxStaticText(parent, wxID_ANY, text);
-            statText->SetFont(statText->GetFont().Underlined());
-            statText->SetForegroundColour(*wxBLUE);
-            statText->SetToolTip(tooltip);
-            statText->SetCursor(wxCURSOR_HAND);
-            statText->Bind(wxEVT_LEFT_UP, &AboutDialog::OnClickUrl, this, wxID_ANY, wxID_ANY, new wxVariant(url));
-            return statText;
-        }
-
-        void AboutDialog::OnCancel(wxCommandEvent& event) {
-            Close();
-        }
-
-        void AboutDialog::OnClose(wxCloseEvent& event) {
-            Destroy();
         }
     }
 }

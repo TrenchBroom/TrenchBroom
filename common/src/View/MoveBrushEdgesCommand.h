@@ -20,38 +20,39 @@
 #ifndef TrenchBroom_MoveBrushEdgesCommand
 #define TrenchBroom_MoveBrushEdgesCommand
 
-#include "SharedPointer.h"
-#include "Model/ModelTypes.h"
+#include "Macros.h"
 #include "View/VertexCommand.h"
 
-namespace TrenchBroom {
-    namespace Model {
-        class Snapshot;
-    }
+#include <vecmath/forward.h>
 
+#include <memory>
+#include <vector>
+
+namespace TrenchBroom {
     namespace View {
         class MoveBrushEdgesCommand : public VertexCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<MoveBrushEdgesCommand>;
         private:
-            Model::BrushEdgesMap m_edges;
+            BrushEdgesMap m_edges;
             std::vector<vm::segment3> m_oldEdgePositions;
             std::vector<vm::segment3> m_newEdgePositions;
             vm::vec3 m_delta;
         public:
-            static Ptr move(const Model::EdgeToBrushesMap& edges, const vm::vec3& delta);
-        private:
-        private:
-            MoveBrushEdgesCommand(const Model::BrushList& brushes, const Model::BrushEdgesMap& edges, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta);
+            static std::unique_ptr<MoveBrushEdgesCommand> move(const EdgeToBrushesMap& edges, const vm::vec3& delta);
 
+            MoveBrushEdgesCommand(const std::vector<Model::BrushNode*>& brushes, const BrushEdgesMap& edges, const std::vector<vm::segment3>& edgePositions, const vm::vec3& delta);
+            ~MoveBrushEdgesCommand() override;
+        private:
             bool doCanDoVertexOperation(const MapDocument* document) const override;
             bool doVertexOperation(MapDocumentCommandFacade* document) override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(UndoableCommand* command) override;
 
             void doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const override;
             void doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const override;
+
+            deleteCopyAndMove(MoveBrushEdgesCommand)
         };
     }
 }

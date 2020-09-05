@@ -20,40 +20,49 @@
 #ifndef TrenchBroom_AddRemoveNodesCommand
 #define TrenchBroom_AddRemoveNodesCommand
 
-#include "SharedPointer.h"
-#include "Model/ModelTypes.h"
+#include "Macros.h"
 #include "View/DocumentCommand.h"
 
+#include <map>
+#include <memory>
+#include <vector>
+
 namespace TrenchBroom {
+    namespace Model {
+        class Node;
+    }
+
     namespace View {
         class AddRemoveNodesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<AddRemoveNodesCommand>;
         private:
-            typedef enum {
-                Action_Add,
-                Action_Remove
-            } Action;
+            enum class Action {
+                Add,
+                Remove
+            };
 
             Action m_action;
-            Model::ParentChildrenMap m_nodesToAdd;
-            Model::ParentChildrenMap m_nodesToRemove;
+            std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToAdd;
+            std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToRemove;
         public:
-            static Ptr add(Model::Node* parent, const Model::NodeList& children);
-            static Ptr add(const Model::ParentChildrenMap& nodes);
-            static Ptr remove(const Model::ParentChildrenMap& nodes);
+            static std::unique_ptr<AddRemoveNodesCommand> add(Model::Node* parent, const std::vector<Model::Node*>& children);
+            static std::unique_ptr<AddRemoveNodesCommand> add(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
+            static std::unique_ptr<AddRemoveNodesCommand> remove(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
+
+            AddRemoveNodesCommand(Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
             ~AddRemoveNodesCommand() override;
         private:
-            AddRemoveNodesCommand(Action action, const Model::ParentChildrenMap& nodes);
-            static String makeName(Action action);
+            static std::string makeName(Action action);
 
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(UndoableCommand* command) override;
+
+            deleteCopyAndMove(AddRemoveNodesCommand)
         };
     }
 }

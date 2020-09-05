@@ -21,11 +21,13 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Renderer/ActiveShader.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
+#include "Model/Polyhedron.h"
 #include "Renderer/Circle.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/RenderBatch.h"
@@ -33,11 +35,12 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Transformation.h"
-#include "Renderer/Vbo.h"
-#include "Renderer/VertexArray.h"
+#include "Renderer/VboManager.h"
 #include "View/MapDocument.h"
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
+
+#include <kdl/memory_utils.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -47,12 +50,12 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Model::Hit::HitType UVRotateTool::AngleHandleHit = Model::Hit::freeHitType();
-        const float UVRotateTool::CenterHandleRadius =  2.5f;
-        const float UVRotateTool::RotateHandleRadius = 32.0f;
-        const float UVRotateTool::RotateHandleWidth  =  5.0f;
+        const Model::HitType::Type UVRotateTool::AngleHandleHitType = Model::HitType::freeType();
+        const double UVRotateTool::CenterHandleRadius =  2.5;
+        const double UVRotateTool::RotateHandleRadius = 32.0;
+        const double UVRotateTool::RotateHandleWidth  =  5.0;
 
-        UVRotateTool::UVRotateTool(MapDocumentWPtr document, UVViewHelper& helper) :
+        UVRotateTool::UVRotateTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper) :
         ToolControllerBase(),
         Tool(true),
         m_document(document),
@@ -71,24 +74,23 @@ namespace TrenchBroom {
             if (!m_helper.valid())
                 return;
 
-            const auto* face = m_helper.face();
-            const auto& boundary = face->boundary();
+            const auto& boundary = m_helper.face()->boundary();
 
             const auto& pickRay = inputState.pickRay();
-            const auto distanceToFace = vm::intersectRayAndPlane(pickRay, boundary);
-            if (!vm::isnan(distanceToFace)) {
-                const auto hitPoint = pickRay.pointAtDistance(distanceToFace);
+            const auto distanceToFace = vm::intersect_ray_plane(pickRay, boundary);
+            if (!vm::is_nan(distanceToFace)) {
+                const auto hitPoint = vm::point_at_distance(pickRay, distanceToFace);
 
-                const auto fromFace = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
-                const auto toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
+                const auto fromFace = m_helper.face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+                const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
 
                 const auto originOnPlane   = toPlane * fromFace * vm::vec3(m_helper.originInFaceCoords());
                 const auto hitPointOnPlane = toPlane * hitPoint;
 
-                const auto zoom = m_helper.cameraZoom();
-                const auto error = vm::abs(RotateHandleRadius / zoom - distance(hitPointOnPlane, originOnPlane));
+                const auto zoom = static_cast<FloatType>(m_helper.cameraZoom());
+                const auto error = vm::abs(RotateHandleRadius / zoom - vm::distance(hitPointOnPlane, originOnPlane));
                 if (error <= RotateHandleWidth / zoom) {
-                    pickResult.addHit(Model::Hit(AngleHandleHit, distanceToFace, hitPoint, 0, error));
+                    pickResult.addHit(Model::Hit(AngleHandleHitType, distanceToFace, hitPoint, 0, error));
                 }
             }
         }
@@ -96,30 +98,43 @@ namespace TrenchBroom {
         bool UVRotateTool::doStartMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
 
-            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
+            // If Ctrl is pressed, allow starting the drag anywhere, not just on the handle
+            const bool ctrlPressed = inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd);
+
+            if (!(inputState.modifierKeysPressed(ModifierKeys::MKNone) || ctrlPressed) ||
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 return false;
             }
 
             const auto& pickResult = inputState.pickResult();
-            const auto& angleHandleHit = pickResult.query().type(AngleHandleHit).occluded().first();
+            const auto& angleHandleHit = pickResult.query().type(AngleHandleHitType).occluded().first();
 
-            if (!angleHandleHit.isMatch()) {
+            if (!m_helper.face()->attributes().valid()) {
                 return false;
             }
 
-            const auto* face = m_helper.face();
-            if (!face->attribs().valid()) {
+            const auto toFace = m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+
+            vm::vec2f hitPointInFaceCoords;
+            if (angleHandleHit.isMatch()) {
+                hitPointInFaceCoords = vm::vec2f(toFace * angleHandleHit.hitPoint());
+            } else if (ctrlPressed) {
+                const auto& boundary = m_helper.face()->boundary();
+                const auto& pickRay = inputState.pickRay();
+                const auto distanceToFace = vm::intersect_ray_plane(pickRay, boundary);
+                if (vm::is_nan(distanceToFace)) {
+                    return false;
+                }
+                const auto hitPoint = vm::point_at_distance(pickRay, distanceToFace);
+                hitPointInFaceCoords = vm::vec2f(toFace * hitPoint);
+            } else {
                 return false;
             }
 
-            const auto toFace = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            m_initalAngle = measureAngle(hitPointInFaceCoords) - m_helper.face()->attributes().rotation();
 
-            const auto hitPointInFaceCoords(toFace * angleHandleHit.hitPoint());
-            m_initalAngle = measureAngle(vm::vec2f(hitPointInFaceCoords)) - face->rotation();
-
-            auto document = lock(m_document);
-            document->beginTransaction("Rotate Texture");
+            auto document = kdl::mem_lock(m_document);
+            document->startTransaction("Rotate Texture");
 
             return true;
         }
@@ -127,14 +142,13 @@ namespace TrenchBroom {
         bool UVRotateTool::doMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
 
-            auto* face = m_helper.face();
-            const auto& boundary = face->boundary();
+            const auto& boundary = m_helper.face()->boundary();
             const auto& pickRay = inputState.pickRay();
-            const auto curPointDistance = vm::intersectRayAndPlane(pickRay, boundary);
-            const auto curPoint = pickRay.pointAtDistance(curPointDistance);
+            const auto curPointDistance = vm::intersect_ray_plane(pickRay, boundary);
+            const auto curPoint = vm::point_at_distance(pickRay, curPointDistance);
 
-            const auto toFaceOld = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
-            const auto toWorld = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const auto toFaceOld = m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+            const auto toWorld = m_helper.face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
             const auto curPointInFaceCoords = vm::vec2f(toFaceOld * curPoint);
             const auto curAngle = measureAngle(curPointInFaceCoords);
@@ -148,15 +162,15 @@ namespace TrenchBroom {
             Model::ChangeBrushFaceAttributesRequest request;
             request.setRotation(snappedAngle);
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->setFaceAttributes(request);
 
             // Correct the offsets.
-            const auto toFaceNew = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const auto toFaceNew = m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             const auto newCenterInFaceCoords = vm::vec2f(toFaceNew * oldCenterInWorldCoords);
 
-            const auto delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / face->scale();
-            const auto newOffset = correct(face->offset() + delta, 4, 0.0f);
+            const auto delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / m_helper.face()->attributes().scale();
+            const auto newOffset = correct(m_helper.face()->attributes().offset() + delta, 4, 0.0f);
 
             request.clear();
             request.setOffset(newOffset);
@@ -166,14 +180,11 @@ namespace TrenchBroom {
         }
 
         float UVRotateTool::measureAngle(const vm::vec2f& point) const {
-            const auto* face = m_helper.face();
             const auto origin = m_helper.originInFaceCoords();
-            return vm::mod(face->measureTextureAngle(origin, point), 360.0f);
+            return vm::mod(m_helper.face()->measureTextureAngle(origin, point), 360.0f);
         }
 
         float UVRotateTool::snapAngle(const float angle) const {
-            const auto* face = m_helper.face();
-
             const float angles[] = {
                 vm::mod(angle +   0.0f, 360.0f),
                 vm::mod(angle +  90.0f, 360.0f),
@@ -182,11 +193,11 @@ namespace TrenchBroom {
             };
             auto minDelta = std::numeric_limits<float>::max();
 
-            const auto toFace = face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
-            for (const auto* edge : face->edges()) {
+            const auto toFace = m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+            for (const auto* edge : m_helper.face()->edges()) {
                 const auto startInFaceCoords = vm::vec2f(toFace * edge->firstVertex()->position());
                 const auto endInFaceCoords   = vm::vec2f(toFace * edge->secondVertex()->position());
-                const auto edgeAngle         = vm::mod(face->measureTextureAngle(startInFaceCoords, endInFaceCoords), 360.0f);
+                const auto edgeAngle         = vm::mod(m_helper.face()->measureTextureAngle(startInFaceCoords, endInFaceCoords), 360.0f);
 
                 for (size_t i = 0; i < 4; ++i) {
                     if (std::abs(angles[i] - edgeAngle) < std::abs(minDelta)) {
@@ -201,13 +212,13 @@ namespace TrenchBroom {
             return angle;
         }
 
-        void UVRotateTool::doEndMouseDrag(const InputState& inputState) {
-            auto document = lock(m_document);
+        void UVRotateTool::doEndMouseDrag(const InputState&) {
+            auto document = kdl::mem_lock(m_document);
             document->commitTransaction();
         }
 
         void UVRotateTool::doCancelMouseDrag() {
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->cancelTransaction();
         }
 
@@ -229,17 +240,16 @@ namespace TrenchBroom {
                 return Renderer::Circle(radius / zoom, segments, fill);
             }
         private:
-            void doPrepareVertices(Renderer::Vbo& vertexVbo) override {
-                m_center.prepare(vertexVbo);
-                m_outer.prepare(vertexVbo);
+            void doPrepareVertices(Renderer::VboManager& vboManager) override {
+                m_center.prepare(vboManager);
+                m_outer.prepare(vboManager);
             }
 
             void doRender(Renderer::RenderContext& renderContext) override {
-                const auto* face = m_helper.face();
-                const auto fromFace = face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+                const auto fromFace = m_helper.face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
-                const auto& boundary = face->boundary();
-                const auto toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
+                const auto& boundary = m_helper.face()->boundary();
+                const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
                 const auto [invertible, fromPlane] = invert(toPlane);
                 assert(invertible); unused(invertible);
 
@@ -252,7 +262,7 @@ namespace TrenchBroom {
                 Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
                 const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), vm::mat4x4f(fromPlane));
                 {
-                    const auto translation = vm::translationMatrix(vm::vec3(originPosition));
+                    const auto translation = vm::translation_matrix(vm::vec3(originPosition));
                     const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), vm::mat4x4f(translation));
                     if (m_highlight) {
                         shader.set("Color", highlightColor);
@@ -263,7 +273,7 @@ namespace TrenchBroom {
                 }
 
                 {
-                    const auto translation = translationMatrix(vm::vec3(faceCenterPosition));
+                    const auto translation =vm::translation_matrix(vm::vec3(faceCenterPosition));
                     const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), vm::mat4x4f(translation));
                     shader.set("Color", highlightColor);
                     m_center.render();
@@ -271,21 +281,20 @@ namespace TrenchBroom {
             }
         };
 
-        void UVRotateTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void UVRotateTool::doRender(const InputState& inputState, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) {
             if (!m_helper.valid()) {
                 return;
             }
 
-            const auto* face = m_helper.face();
-            if (!face->attribs().valid()) {
+            if (!m_helper.face()->attributes().valid()) {
                 return;
             }
 
             const auto& pickResult = inputState.pickResult();
-            const auto& angleHandleHit = pickResult.query().type(AngleHandleHit).occluded().first();
+            const auto& angleHandleHit = pickResult.query().type(AngleHandleHitType).occluded().first();
             const auto highlight = angleHandleHit.isMatch() || thisToolDragging();
 
-            renderBatch.addOneShot(new Render(m_helper, CenterHandleRadius, RotateHandleRadius, highlight));
+            renderBatch.addOneShot(new Render(m_helper, static_cast<float>(CenterHandleRadius), static_cast<float>(RotateHandleRadius), highlight));
         }
 
         bool UVRotateTool::doCancel() {

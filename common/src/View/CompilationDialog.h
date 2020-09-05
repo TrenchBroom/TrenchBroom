@@ -22,41 +22,47 @@
 
 #include "View/CompilationRun.h"
 
-#include <wx/dialog.h>
+#include <QDialog>
 
-class wxStaticText;
-class wxTextCtrl;
+class QLabel;
+class QPushButton;
+class QTextEdit;
 
 namespace TrenchBroom {
     namespace View {
         class CompilationProfileManager;
-        class CompilationRunner;
         class MapFrame;
 
-        class CompilationDialog : public wxDialog {
+        class CompilationDialog : public QDialog {
+            Q_OBJECT
         private:
             MapFrame* m_mapFrame;
             CompilationProfileManager* m_profileManager;
-            wxStaticText* m_currentRunLabel;
-            wxTextCtrl* m_output;
+            QPushButton* m_launchButton;
+            QPushButton* m_compileButton;
+            QPushButton* m_testCompileButton;
+            QPushButton* m_stopCompileButton;
+            QPushButton* m_closeButton;
+            QLabel* m_currentRunLabel;
+            QTextEdit* m_output;
             CompilationRun m_run;
         public:
-            CompilationDialog(MapFrame* mapFrame);
+            explicit CompilationDialog(MapFrame* mapFrame);
         private:
             void createGui();
 
-            void OnLaunchClicked(wxCommandEvent& event);
-            void OnUpdateLaunchButtonUI(wxUpdateUIEvent& event);
+            void keyPressEvent(QKeyEvent* event) override;
 
-            void OnToggleCompileClicked(wxCommandEvent& event);
-            void OnUpdateCompileButtonUI(wxUpdateUIEvent& event);
+            void updateCompileButtons();
+            void startCompilation(bool test);
+            void stopCompilation();
+            void closeEvent(QCloseEvent* event) override;
+        private slots:
+            void compilationStarted();
+            void compilationEnded();
 
-			void OnCloseButtonClicked(wxCommandEvent& event);
-            void OnClose(wxCloseEvent& event);
-
-            void OnCompilationEnd(wxEvent& event);
-
-            bool testRun() const;
+            void selectedProfileChanged();
+            void profileChanged();
         };
     }
 }

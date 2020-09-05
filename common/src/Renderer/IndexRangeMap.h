@@ -20,15 +20,18 @@
 #ifndef IndexRangeMap_h
 #define IndexRangeMap_h
 
-#include "SharedPointer.h"
 #include "Renderer/GL.h"
-#include "Renderer/VertexArray.h"
+#include "Renderer/PrimType.h"
+
+#include <kdl/enum_array.h>
 
 #include <functional>
-#include <map>
+#include <memory>
 
 namespace TrenchBroom {
     namespace Renderer {
+        class VertexArray;
+
         /**
          * Manages ranges of primitives that consist of vertices stored in a vertex array. For each primitive type,
          * multiple ranges of vertices can be stored, each range having an offset and a length. When rendered using a
@@ -49,13 +52,14 @@ namespace TrenchBroom {
                 IndicesAndCounts();
                 IndicesAndCounts(size_t index, size_t count);
 
+                bool empty() const;
                 size_t size() const;
                 void reserve(size_t capacity);
                 void add(PrimType primType, size_t index, size_t count, bool dynamicGrowth);
                 void add(const IndicesAndCounts& other, bool dynamicGrowth);
             };
 
-            using PrimTypeToIndexData = std::map<PrimType, IndicesAndCounts>;
+            using PrimTypeToIndexData = kdl::enum_array<IndicesAndCounts, PrimType, PrimTypeCount>;
             using PrimTypeToIndexDataPtr = std::shared_ptr<PrimTypeToIndexData>;
         public:
             /**
@@ -69,10 +73,10 @@ namespace TrenchBroom {
             private:
                 friend class IndexRangeMap;
 
-                using PrimTypeToSize = std::map<PrimType, size_t>;
+                using PrimTypeToSize = kdl::enum_array<std::size_t, PrimType, PrimTypeCount>;
                 PrimTypeToSize m_sizes;
             public:
-                void inc(PrimType primType, size_t count = 1);
+                void inc(PrimType primType, size_t count = 1u);
 
                 /**
                  * Increase the storage by the given size.
@@ -148,8 +152,6 @@ namespace TrenchBroom {
              * @param func the function to invoke
              */
             void forEachPrimitive(std::function<void(PrimType, size_t index, size_t count)> func) const;
-        private:
-            IndicesAndCounts& find(PrimType primType);
         };
     }
 }

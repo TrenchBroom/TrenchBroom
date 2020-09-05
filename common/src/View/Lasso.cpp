@@ -19,14 +19,12 @@
 
 #include "Lasso.h"
 
-#include "TrenchBroom.h"
-
+#include "FloatType.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderService.h"
 
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
-#include <vecmath/plane.h>
 #include <vecmath/segment.h>
 #include <vecmath/polygon.h>
 #include <vecmath/intersection.h>
@@ -36,8 +34,9 @@ namespace TrenchBroom {
         Lasso::Lasso(const Renderer::Camera& camera, const FloatType distance, const vm::vec3& point) :
         m_camera(camera),
         m_distance(distance),
-        m_transform(vm::coordinateSystemMatrix(m_camera.right(), m_camera.up(), -m_camera.direction(),
-                                               m_camera.defaultPoint(static_cast<float>(m_distance)))),
+        m_transform(vm::coordinate_system_matrix(
+            m_camera.right(), m_camera.up(), -m_camera.direction(),
+            m_camera.defaultPoint(static_cast<float>(m_distance)))),
         m_start(point),
         m_cur(m_start) {}
 
@@ -47,7 +46,7 @@ namespace TrenchBroom {
 
         bool Lasso::selects(const vm::vec3& point, const vm::plane3& plane, const vm::bbox2& box) const {
             const auto projected = project(point, plane);
-            return !isNaN(projected) && box.contains(vm::vec2(projected));
+            return !vm::is_nan(projected) && box.contains(vm::vec2(projected));
         }
 
         bool Lasso::selects(const vm::segment3& edge, const vm::plane3& plane, const vm::bbox2& box) const {
@@ -60,12 +59,12 @@ namespace TrenchBroom {
 
         vm::vec3 Lasso::project(const vm::vec3& point, const vm::plane3& plane) const {
             const auto ray = vm::ray3(m_camera.pickRay(vm::vec3f(point)));
-            const auto hitDistance = vm::intersectRayAndPlane(ray, plane);;
-            if (vm::isnan(hitDistance)) {
-                return vm::vec3::NaN;
+            const auto hitDistance = vm::intersect_ray_plane(ray, plane);
+            if (vm::is_nan(hitDistance)) {
+                return vm::vec3::nan();
             }
 
-            const auto hitPoint = ray.pointAtDistance(hitDistance);
+            const auto hitPoint = vm::point_at_distance(ray, hitDistance);
             return m_transform * hitPoint;
         }
 

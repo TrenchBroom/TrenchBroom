@@ -19,32 +19,32 @@
 
 #include "SnapBrushVerticesCommand.h"
 
-#include "Model/Brush.h"
-#include "Model/BrushGeometry.h"
+#include "Model/BrushNode.h"
 #include "View/MapDocumentCommandFacade.h"
 
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType SnapBrushVerticesCommand::Type = Command::freeType();
 
-        SnapBrushVerticesCommand::Ptr SnapBrushVerticesCommand::snap(const FloatType snapTo) {
-            return Ptr(new SnapBrushVerticesCommand(snapTo));
+        std::unique_ptr<SnapBrushVerticesCommand> SnapBrushVerticesCommand::snap(const FloatType snapTo) {
+            return std::make_unique<SnapBrushVerticesCommand>(snapTo);
         }
 
         SnapBrushVerticesCommand::SnapBrushVerticesCommand(const FloatType snapTo) :
         SnapshotCommand(Type, "Snap Brush Vertices"),
         m_snapTo(snapTo) {}
 
-        bool SnapBrushVerticesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            return document->performSnapVertices(m_snapTo);
+        std::unique_ptr<CommandResult> SnapBrushVerticesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+            const auto success = document->performSnapVertices(m_snapTo);
+            return std::make_unique<CommandResult>(success);
         }
 
-        bool SnapBrushVerticesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool SnapBrushVerticesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
 
-        bool SnapBrushVerticesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            SnapBrushVerticesCommand* other = static_cast<SnapBrushVerticesCommand*>(command.get());
+        bool SnapBrushVerticesCommand::doCollateWith(UndoableCommand* command) {
+            SnapBrushVerticesCommand* other = static_cast<SnapBrushVerticesCommand*>(command);
             return other->m_snapTo == m_snapTo;
         }
     }

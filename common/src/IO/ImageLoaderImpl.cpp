@@ -19,6 +19,7 @@
 
 #include "ImageLoaderImpl.h"
 
+#include "Ensure.h"
 #include "Exceptions.h"
 #include "Macros.h"
 #include "IO/Path.h"
@@ -39,28 +40,24 @@ namespace TrenchBroom {
 
         ImageLoaderImpl::ImageLoaderImpl(const ImageLoader::Format format, const Path& path) :
         m_stream(nullptr),
-        m_bitmap(nullptr),
-        m_paletteInitialized(false),
-        m_indicesInitialized(false),
-        m_pixelsInitialized(false) {
+        m_bitmap(nullptr) {
             InitFreeImage::initialize();
             const FREE_IMAGE_FORMAT fifFormat = translateFormat(format);
-            if (fifFormat == FIF_UNKNOWN)
+            if (fifFormat == FIF_UNKNOWN) {
                 throw FileFormatException("Unknown image format");
+            }
 
             m_bitmap = FreeImage_Load(fifFormat, path.asString().c_str());
         }
 
         ImageLoaderImpl::ImageLoaderImpl(const ImageLoader::Format format, const char* begin, const char* end) :
         m_stream(nullptr),
-        m_bitmap(nullptr),
-        m_paletteInitialized(false),
-        m_indicesInitialized(false),
-        m_pixelsInitialized(false) {
+        m_bitmap(nullptr) {
             InitFreeImage::initialize();
             const FREE_IMAGE_FORMAT fifFormat = translateFormat(format);
-            if (fifFormat == FIF_UNKNOWN)
+            if (fifFormat == FIF_UNKNOWN) {
                 throw FileFormatException("Unknown image format");
+            }
 
             // this is supremely evil, but FreeImage guarantees that it will not modify wrapped memory
             BYTE* address = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
@@ -116,98 +113,88 @@ namespace TrenchBroom {
             return static_cast<bool>(FreeImage_HasPixels(m_bitmap) == TRUE);
         }
 
-        const Buffer<unsigned char>& ImageLoaderImpl::palette() const {
+        std::vector<unsigned char> ImageLoaderImpl::loadPalette() const {
             assert(hasPalette());
-            if (!m_paletteInitialized) {
-                const RGBQUAD* pal = FreeImage_GetPalette(m_bitmap);
-                if (pal != nullptr) {
-                    m_palette = Buffer<unsigned char>(paletteSize() * 3);
-                    for (size_t i = 0; i < paletteSize(); ++i) {
-                        m_palette[i * 3 + 0] = static_cast<unsigned char>(pal[i].rgbRed);
-                        m_palette[i * 3 + 1] = static_cast<unsigned char>(pal[i].rgbGreen);
-                        m_palette[i * 3 + 2] = static_cast<unsigned char>(pal[i].rgbBlue);
-                    }
-
-                    m_paletteInitialized = true;
-                }
+            const RGBQUAD* pal = FreeImage_GetPalette(m_bitmap);
+            if (pal == nullptr) {
+                return {};
             }
 
-            return m_palette;
+            auto result = std::vector<unsigned char>();
+            result.reserve(paletteSize() * 3);
+            for (size_t i = 0; i < paletteSize(); ++i) {
+                result.push_back(static_cast<unsigned char>(pal[i].rgbRed));
+                result.push_back(static_cast<unsigned char>(pal[i].rgbGreen));
+                result.push_back(static_cast<unsigned char>(pal[i].rgbBlue));
+            }
+
+            return result;
         }
 
-        const Buffer<unsigned char>& ImageLoaderImpl::indices() const {
+        std::vector<unsigned char> ImageLoaderImpl::loadIndices() const {
             assert(hasIndices());
-            if (!m_indicesInitialized) {
-                m_indices = Buffer<unsigned char>(width() * height());
-                for (unsigned y = 0; y < height(); ++y) {
-                    for (unsigned x = 0; x < width(); ++x) {
-                        BYTE index = 0;
-                        const bool success = (FreeImage_GetPixelIndex(m_bitmap, x, y, &index) == TRUE);
-                        assert(success);
-                        unused(success);
-                        m_indices[(height() - y - 1) * width() + x] = static_cast<unsigned char>(index);
-                    }
+
+            auto result = std::vector<unsigned char>(width() * height());
+            for (unsigned y = 0; y < height(); ++y) {
+                for (unsigned x = 0; x < width(); ++x) {
+                    BYTE index = 0;
+                    assertResult(FreeImage_GetPixelIndex(m_bitmap, x, y, &index) == TRUE);
+                    result[(height() - y - 1) * width() + x] = static_cast<unsigned char>(index);
                 }
-
-                m_indicesInitialized = true;
             }
 
-            return m_indices;
+            return result;
         }
 
-        const Buffer<unsigned char>& ImageLoaderImpl::pixels(const ImageLoader::PixelFormat format) const {
+        std::vector<unsigned char> ImageLoaderImpl::loadPixels(const ImageLoader::PixelFormat format) const {
             assert(hasPixels());
-            if (!m_pixelsInitialized) {
-                const size_t pSize = pixelSize(format);
-                m_pixels = Buffer<unsigned char>(width() * height() * pSize);
-                if (hasIndices())
-                    initializeIndexedPixels(pSize);
-                else
-                    initializePixels(pSize);
-                m_pixelsInitialized = true;
+            const size_t pSize = pixelSize(format);
+            if (hasIndices()) {
+                return loadIndexedPixels(pSize);
+            } else {
+                return loadPixels(pSize);
             }
-
-            return m_pixels;
         }
 
-        void ImageLoaderImpl::initializeIndexedPixels(const size_t pSize) const {
+        std::vector<unsigned char> ImageLoaderImpl::loadIndexedPixels(const size_t pSize) const {
             assert(pSize == 3);
             const RGBQUAD* pal = FreeImage_GetPalette(m_bitmap);
             ensure(pal != nullptr, "pal is null");
 
+            std::vector<unsigned char> result(width() * height() * pSize);
             for (unsigned y = 0; y < height(); ++y) {
                 for (unsigned x = 0; x < width(); ++x) {
                     BYTE paletteIndex = 0;
-                    const bool success = (FreeImage_GetPixelIndex(m_bitmap, x, y, &paletteIndex) == TRUE);
-                    assert(success);
-                    unused(success);
-
+                    assertResult(FreeImage_GetPixelIndex(m_bitmap, x, y, &paletteIndex) == TRUE);
                     assert(paletteIndex < paletteSize());
 
                     const size_t pixelIndex = ((height() - y - 1) * width() + x) * pSize;
-                    m_pixels[pixelIndex + 0] = static_cast<unsigned char>(pal[paletteIndex].rgbRed);
-                    m_pixels[pixelIndex + 1] = static_cast<unsigned char>(pal[paletteIndex].rgbGreen);
-                    m_pixels[pixelIndex + 2] = static_cast<unsigned char>(pal[paletteIndex].rgbBlue);
+                    result[pixelIndex + 0] = static_cast<unsigned char>(pal[paletteIndex].rgbRed);
+                    result[pixelIndex + 1] = static_cast<unsigned char>(pal[paletteIndex].rgbGreen);
+                    result[pixelIndex + 2] = static_cast<unsigned char>(pal[paletteIndex].rgbBlue);
                 }
             }
+            return result;
         }
 
-        void ImageLoaderImpl::initializePixels(const size_t pSize) const {
+        std::vector<unsigned char> ImageLoaderImpl::loadPixels(const size_t pSize) const {
+            std::vector<unsigned char> result(width() * height() * pSize);
             for (unsigned y = 0; y < height(); ++y) {
                 for (unsigned x = 0; x < width(); ++x) {
                     RGBQUAD pixel;
-                    const bool success = (FreeImage_GetPixelColor(m_bitmap, x, y, &pixel) == TRUE);
-                    assert(success);
-                    unused(success);
+                    assertResult(FreeImage_GetPixelColor(m_bitmap, x, y, &pixel) == TRUE);
 
                     const size_t pixelIndex = ((height() - y - 1) * width() + x) * pSize;
-                    m_pixels[pixelIndex + 0] = static_cast<unsigned char>(pixel.rgbRed);
-                    m_pixels[pixelIndex + 1] = static_cast<unsigned char>(pixel.rgbGreen);
-                    m_pixels[pixelIndex + 2] = static_cast<unsigned char>(pixel.rgbBlue);
-                    if (pSize > 3)
-                        m_pixels[pixelIndex + 3] = static_cast<unsigned char>(pixel.rgbReserved);
+                    result[pixelIndex + 0] = static_cast<unsigned char>(pixel.rgbRed);
+                    result[pixelIndex + 1] = static_cast<unsigned char>(pixel.rgbGreen);
+                    result[pixelIndex + 2] = static_cast<unsigned char>(pixel.rgbBlue);
+                    if (pSize > 3) {
+                        result[pixelIndex + 3] = static_cast<unsigned char>(pixel.rgbReserved);
+                    }
                 }
             }
+
+            return result;
         }
 
         FREE_IMAGE_FORMAT ImageLoaderImpl::translateFormat(const ImageLoader::Format format) {

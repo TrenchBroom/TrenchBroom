@@ -19,9 +19,15 @@
 
 #include "TransformEntityAttributesQuickFix.h"
 
+#include "Model/Issue.h"
+#include "Model/MapFacade.h"
+#include "Model/PushSelection.h"
+
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
-        TransformEntityAttributesQuickFix::TransformEntityAttributesQuickFix(const IssueType issueType, const String& description, const NameTransform& nameTransform, const ValueTransform& valueTransform) :
+        TransformEntityAttributesQuickFix::TransformEntityAttributesQuickFix(const IssueType issueType, const std::string& description, const NameTransform& nameTransform, const ValueTransform& valueTransform) :
         IssueQuickFix(issueType, description),
         m_nameTransform(nameTransform),
         m_valueTransform(valueTransform) {}
@@ -29,11 +35,11 @@ namespace TrenchBroom {
         void TransformEntityAttributesQuickFix::doApply(MapFacade* facade, const Issue* issue) const {
             const PushSelection push(facade);
 
-            const AttributeIssue* attrIssue = static_cast<const AttributeIssue*>(issue);
-            const AttributeName& oldName = attrIssue->attributeName();
-            const AttributeValue& oldValue = attrIssue->attributeValue();
-            const AttributeName newName = m_nameTransform(oldName);
-            const AttributeValue newValue = m_valueTransform(oldValue);
+            const auto* attrIssue = static_cast<const AttributeIssue*>(issue);
+            const auto& oldName = attrIssue->attributeName();
+            const auto& oldValue = attrIssue->attributeValue();
+            const auto newName = m_nameTransform(oldName);
+            const auto newValue = m_valueTransform(oldValue);
 
             // If world node is affected, the selection will fail, but if nothing is selected,
             // the removeAttribute call will correctly affect worldspawn either way.

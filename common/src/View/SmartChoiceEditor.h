@@ -20,15 +20,15 @@
 #ifndef TrenchBroom_SmartChoiceEditor
 #define TrenchBroom_SmartChoiceEditor
 
-#include "Model/ModelTypes.h"
 #include "View/SmartAttributeEditor.h"
-#include "View/ViewTypes.h"
 
-class wxComboBox;
-class wxCommandEvent;
-class wxPanel;
-class wxStaticText;
-class wxWindow;
+#include <memory>
+#include <vector>
+
+class QComboBox;
+class QWidget;
+class QLabel;
+class QWidget;
 
 namespace TrenchBroom {
     namespace Assets {
@@ -36,19 +36,21 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class SmartChoiceEditor : public SmartAttributeEditor {
-        private:
-            wxPanel* m_panel;
-            wxComboBox* m_comboBox;
-        public:
-            SmartChoiceEditor(View::MapDocumentWPtr document);
+        class MapDocument;
 
-            void OnComboBox(wxCommandEvent& event);
-            void OnTextEnter(wxCommandEvent& event);
+        class SmartChoiceEditor : public SmartAttributeEditor {
+            Q_OBJECT
         private:
-            wxWindow* doCreateVisual(wxWindow* parent) override;
-            void doDestroyVisual() override;
-            void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
+            QComboBox* m_comboBox;
+            bool m_ignoreEditTextChanged;
+        public:
+            explicit SmartChoiceEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+
+            void comboBoxActivated(int index);
+            void comboBoxEditTextChanged(const QString& text);
+        private:
+            void createGui();
+            void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) override;
         };
     }
 }

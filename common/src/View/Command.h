@@ -20,36 +20,43 @@
 #ifndef TrenchBroom_Command
 #define TrenchBroom_Command
 
-#include "StringUtils.h"
-#include "SharedPointer.h"
-#include "View/ViewTypes.h"
+#include "Macros.h"
 
-#include <functional>
-#include <vector>
+#include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
         class MapDocumentCommandFacade;
 
+        class CommandResult {
+        private:
+            bool m_success;
+        public:
+            explicit CommandResult(bool success);
+            virtual ~CommandResult();
+
+            bool success() const;
+        };
+
         class Command {
         public:
             using CommandType = size_t;
-            using Ptr = std::shared_ptr<Command>;
 
-            typedef enum {
-                CommandState_Default,
-                CommandState_Doing,
-                CommandState_Done,
-                CommandState_Undoing
-            } CommandState;
+            enum class CommandState {
+                Default,
+                Doing,
+                Done,
+                Undoing
+            } ;
         protected:
             CommandType m_type;
             CommandState m_state;
-            String m_name;
+            std::string m_name;
         public:
             static CommandType freeType();
 
-            Command(CommandType type, const String& name);
+            Command(CommandType type, const std::string& name);
             virtual ~Command();
 
             CommandType type() const;
@@ -62,21 +69,11 @@ namespace TrenchBroom {
             }
 
             CommandState state() const;
-            const String& name() const;
+            const std::string& name() const;
 
-            template <typename C>
-            bool forType(std::function<void(const C&)> f) const {
-                if (!isType(C::Type))
-                    return false;
-
-                const C* _this = static_cast<const C*>(this);
-                f(_this);
-                return true;
-            }
-
-            virtual bool performDo(MapDocumentCommandFacade* document);
+            virtual std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade* document);
         private:
-            virtual bool doPerformDo(MapDocumentCommandFacade* document) = 0;
+            virtual std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) = 0;
 
             deleteCopyAndMove(Command)
         };

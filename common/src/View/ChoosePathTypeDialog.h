@@ -22,36 +22,34 @@
 
 #include "IO/Path.h"
 
-#include <wx/dialog.h>
+#include <QDialog>
 
-class wxRadioButton;
-class wxWindow;
+class QRadioButton;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
-        class ChoosePathTypeDialog : public wxDialog {
+        class ChoosePathTypeDialog : public QDialog {
+            Q_OBJECT
         private:
             IO::Path m_absPath;
             IO::Path m_docRelativePath;
             IO::Path m_gameRelativePath;
             IO::Path m_appRelativePath;
 
-            wxRadioButton* m_absRadio;
-            wxRadioButton* m_docRelativeRadio;
-            wxRadioButton* m_appRelativeRadio;
-            wxRadioButton* m_gameRelativeRadio;
+            QRadioButton* m_absRadio;
+            QRadioButton* m_docRelativeRadio;
+            QRadioButton* m_appRelativeRadio;
+            QRadioButton* m_gameRelativeRadio;
+        private:
+            void createGui();
         public:
             ChoosePathTypeDialog();
-            ChoosePathTypeDialog(wxWindow* parent, const IO::Path& absPath, const IO::Path& docPath, const IO::Path& gamePath);
-            bool Create();
+            ChoosePathTypeDialog(QWidget* parent, const IO::Path& absPath, const IO::Path& docPath, const IO::Path& gamePath);
 
             const IO::Path& path() const;
         private:
-            void OnClose(wxCloseEvent& event);
-        private:
             static IO::Path makeRelativePath(const IO::Path& absPath, const IO::Path& newRootPath);
-        public:
-            wxDECLARE_DYNAMIC_CLASS(ChoosePathTypeDialog);
         };
     }
 }

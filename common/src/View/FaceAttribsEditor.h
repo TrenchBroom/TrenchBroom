@@ -20,70 +20,67 @@
 #ifndef TrenchBroom_FaceAttribsEditor
 #define TrenchBroom_FaceAttribsEditor
 
-#include "Model/ModelTypes.h"
-#include "View/ViewTypes.h"
+#include <QWidget>
 
-#include <wx/panel.h>
+#include <memory>
+#include <vector>
 
-class wxBitmap;
-class wxButton;
-class wxGridBagSizer;
-class wxSpinCtrl;
-class wxSpinEvent;
-class wxStaticText;
-class wxTextCtrl;
+class QLabel;
+class QLineEdit;
+class QGridLayout;
 
 namespace TrenchBroom {
+    namespace Model {
+        class BrushFaceHandle;
+    }
+
     namespace View {
-        class ControllerFacade;
-        class FlagChangedCommand;
         class FlagsPopupEditor;
         class GLContextManager;
+        class MapDocument;
         class Selection;
         class SpinControl;
-        class SpinControlEvent;
         class UVEditor;
 
-        class FaceAttribsEditor : public wxPanel {
+        class FaceAttribsEditor : public QWidget {
+            Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
-            Model::BrushFaceList m_faces;
+            std::weak_ptr<MapDocument> m_document;
 
             UVEditor* m_uvEditor;
-            wxStaticText* m_textureName;
-            wxStaticText* m_textureSize;
+            QLabel* m_textureName;
+            QLabel* m_textureSize;
             SpinControl* m_xOffsetEditor;
             SpinControl* m_yOffsetEditor;
             SpinControl* m_xScaleEditor;
             SpinControl* m_yScaleEditor;
             SpinControl* m_rotationEditor;
-            wxStaticText* m_surfaceValueLabel;
+            QLabel* m_surfaceValueLabel;
             SpinControl* m_surfaceValueEditor;
-            wxGridBagSizer* m_faceAttribsSizer;
 
-            wxStaticText* m_surfaceFlagsLabel;
+            QLabel* m_surfaceFlagsLabel;
             FlagsPopupEditor* m_surfaceFlagsEditor;
-            wxStaticText* m_contentFlagsLabel;
+            QLabel* m_contentFlagsLabel;
             FlagsPopupEditor* m_contentFlagsEditor;
 
-            wxStaticText* m_colorLabel;
-            wxTextCtrl* m_colorEditor;
+            QLabel* m_colorLabel;
+            QLineEdit* m_colorEditor;
         public:
-            FaceAttribsEditor(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
-            ~FaceAttribsEditor();
+            FaceAttribsEditor(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
+            ~FaceAttribsEditor() override;
 
             bool cancelMouseDrag();
         private:
-            void OnXOffsetChanged(SpinControlEvent& event);
-            void OnYOffsetChanged(SpinControlEvent& event);
-            void OnRotationChanged(SpinControlEvent& event);
-            void OnXScaleChanged(SpinControlEvent& event);
-            void OnYScaleChanged(SpinControlEvent& event);
-            void OnSurfaceFlagChanged(FlagChangedCommand& command);
-            void OnContentFlagChanged(FlagChangedCommand& command);
-            void OnSurfaceValueChanged(SpinControlEvent& event);
-            void OnColorValueChanged(wxCommandEvent& event);
-            void OnIdle(wxIdleEvent& event);
+            void xOffsetChanged(double value);
+            void yOffsetChanged(double value);
+            void rotationChanged(double value);
+            void xScaleChanged(double value);
+            void yScaleChanged(double value);
+            void surfaceFlagChanged(size_t index, int value, int setFlag, int mixedFlag);
+            void contentFlagChanged(size_t index, int value, int setFlag, int mixedFlag);
+            void surfaceValueChanged(double value);
+            void colorValueChanged(const QString& text);
+            void updateIncrements();
         private:
             void createGui(GLContextManager& contextManager);
             void bindEvents();
@@ -93,22 +90,25 @@ namespace TrenchBroom {
 
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
-            void brushFacesDidChange(const Model::BrushFaceList& faces);
+            void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
             void selectionDidChange(const Selection& selection);
             void textureCollectionsDidChange();
 
             void updateControls();
 
-            bool hasSurfaceAttribs() const;
-            void showSurfaceAttribEditors();
-            void hideSurfaceAttribEditors();
+            bool hasSurfaceFlags() const;
+            bool hasContentFlags() const;
+            void showSurfaceFlagsEditor();
+            void showContentFlagsEditor();
+            void hideSurfaceFlagsEditor();
+            void hideContentFlagsEditor();
 
             bool hasColorAttribs() const;
             void showColorAttribEditor();
             void hideColorAttribEditor();
 
-            void getSurfaceFlags(wxArrayString& names, wxArrayString& descriptions) const;
-            void getContentFlags(wxArrayString& names, wxArrayString& descriptions) const;
+            void getSurfaceFlags(QList<int>& values, QStringList& names, QStringList& descriptions) const;
+            void getContentFlags(QList<int>& values, QStringList& names, QStringList& descriptions) const;
         };
     }
 }

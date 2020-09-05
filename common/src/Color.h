@@ -22,42 +22,47 @@
 
 #include <vecmath/vec.h>
 
-class Color : public vm::vec<float, 4> {
-public:
-    static bool canParse(const std::string& str);
-    static Color parse(const std::string& str);
+#include <string>
 
-    Color();
-    Color(const vec<float,4>& v);
-    Color(float r, float g, float b, float a = 1.0f);
-    Color(const Color& color, float a);
-    Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 0xFF);
-    Color(const int r, const int g, const int b, const float a);
-    Color(int r, int g, int b, int a = 0xFF);
+namespace TrenchBroom {
+    class Color : public vm::vec<float, 4> {
+    public:
+        static bool canParse(const std::string& str);
+        static Color parse(const std::string& str);
+        std::string toString() const;
 
-    float r() const;
-    float g() const;
-    float b() const;
-    float a() const;
+        Color();
+        Color(const vec<float,4>& v);
+        Color(float r, float g, float b, float a = 1.0f);
+        Color(const Color& color, float a);
+        Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 0xFF);
+        Color(int r, int g, int b, float a);
+        Color(int r, int g, int b, int a = 0xFF);
 
-    template <typename T>
-    Color& mix(const Color& other, const T f) {
-        const float c = static_cast<float>(std::max(static_cast<T>(0.0), std::min(static_cast<T>(1.0), f)));
-        const float d = 1.0f - c;
-        for (size_t i = 0; i < 4; i++)
-            v[i] = d*v[i] + c*other[i];
-        return *this;
-    }
+        float r() const;
+        float g() const;
+        float b() const;
+        float a() const;
 
-    const Color mixed(const Color& other, const float f) const {
-        return Color(*this).mix(other, f);
-    }
+        template <typename T>
+        Color& mix(const Color& other, const T f) {
+            const float c = static_cast<float>(vm::max(static_cast<T>(0.0), vm::min(static_cast<T>(1.0), f)));
+            const float d = 1.0f - c;
+            for (size_t i = 0; i < 4; i++)
+                v[i] = d*v[i] + c*other[i];
+            return *this;
+        }
 
-    friend Color mixAlpha(const Color& color, const float f) {
-        return Color(color.r(), color.g(), color.b(), f * color.a());
-    }
+        Color mixed(const Color& other, const float f) const {
+            return Color(*this).mix(other, f);
+        }
 
-    static void rgbToHSB(float r, float g, float b, float& h, float& s, float& br);
-};
+        friend Color mixAlpha(const Color& color, const float f) {
+            return Color(color.r(), color.g(), color.b(), f * color.a());
+        }
+
+        static void rgbToHSB(float r, float g, float b, float& h, float& s, float& br);
+    };
+}
 
 #endif

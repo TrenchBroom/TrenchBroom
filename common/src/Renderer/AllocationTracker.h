@@ -21,8 +21,6 @@
 #define TrenchBroom_AllocationTracker
 
 #include <vector>
-#include <set>
-#include <utility>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -141,8 +139,8 @@ namespace TrenchBroom {
                 bool operator<(const Range &other) const;
             };
 
-            std::set<Range> freeBlocks() const;
-            std::set<Range> usedBlocks() const;
+            std::vector<Range> freeBlocks() const;
+            std::vector<Range> usedBlocks() const;
             Index largestPossibleAllocation() const;
             void checkInvariants() const;
         };

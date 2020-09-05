@@ -20,11 +20,11 @@
 #ifndef TrenchBroom_ToolBoxConnector
 #define TrenchBroom_ToolBoxConnector
 
+#include "Macros.h"
 #include "View/InputEvent.h"
 #include "View/InputState.h"
-#include "View/PickRequest.h"
 
-#include <wx/gdicmn.h>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -38,6 +38,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class PickRequest;
         class ToolController;
         class ToolBox;
         class ToolChain;
@@ -56,19 +57,19 @@ namespace TrenchBroom {
             ToolBoxConnector();
             ~ToolBoxConnector() override;
 
+        public:
             const vm::ray3& pickRay() const;
             const Model::PickResult& pickResult() const;
 
             void updatePickResult();
-            void updateLastActivation();
         protected:
             void setToolBox(ToolBox& toolBox);
             void addTool(ToolController* tool);
         public: // drag and drop
-            bool dragEnter(wxCoord x, wxCoord y, const String& text);
-            bool dragMove(wxCoord x, wxCoord y, const String& text);
+            bool dragEnter(int x, int y, const std::string& text);
+            bool dragMove(int x, int y, const std::string& text);
             void dragLeave();
-            bool dragDrop(wxCoord x, wxCoord y, const String& text);
+            bool dragDrop(int x, int y, const std::string& text);
         public: // cancel
             bool cancel();
         protected: // rendering
@@ -105,6 +106,8 @@ namespace TrenchBroom {
             virtual PickRequest doGetPickRequest(int x, int y) const = 0;
             virtual Model::PickResult doPick(const vm::ray3& pickRay) const = 0;
             virtual void doShowPopupMenu();
+
+            deleteCopyAndMove(ToolBoxConnector)
         };
     }
 }

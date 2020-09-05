@@ -19,13 +19,14 @@
 
 #include "IdPakFileSystem.h"
 
-#include "CollectionUtils.h"
 #include "IO/File.h"
 #include "IO/Reader.h"
 #include "IO/DiskFileSystem.h"
 
-#include <cassert>
+#include <kdl/string_format.h>
+
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -34,7 +35,7 @@ namespace TrenchBroom {
             static const size_t HeaderMagicLength = 0x4;
             static const size_t EntryLength       = 0x40;
             static const size_t EntryNameLength   = 0x38;
-            static const String HeaderMagic       = "PACK";
+            static const std::string HeaderMagic       = "PACK";
         }
 
         IdPakFileSystem::IdPakFileSystem(const Path& path) :
@@ -63,7 +64,7 @@ namespace TrenchBroom {
                 const auto entryAddress = reader.readSize<int32_t>();
                 const auto entrySize = reader.readSize<int32_t>();
 
-                const auto entryPath = Path(StringUtils::toLower(entryName));
+                const auto entryPath = Path(kdl::str_to_lower(entryName));
                 auto entryFile = std::make_shared<FileView>(entryPath, m_file, entryAddress, entrySize);
                 m_root.addFile(entryPath, entryFile);
             }

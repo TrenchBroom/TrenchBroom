@@ -20,21 +20,22 @@
 #ifndef InputEvent_h
 #define InputEvent_h
 
-#include <wx/event.h>
+#include <QKeyEvent>
 
 #include <chrono>
-#include <list>
+#include <iosfwd>
 #include <memory>
+#include <vector>
 
 // Undefine this symbol since it interferes somehow with our enums.
 #undef None
 
 namespace TrenchBroom {
     namespace View {
-        class KeyEvent;
-        class MouseEvent;
         class CancelEvent;
         class InputEventProcessor;
+        class KeyEvent;
+        class MouseEvent;
 
         /**
          * Superclass for all input events. Provides protocols for event collation and processing.
@@ -106,6 +107,16 @@ namespace TrenchBroom {
              * @param processor the event processor
              */
             void processWith(InputEventProcessor& processor) const override;
+            
+            /**
+             * Indicates whether the given two key events are equal.
+             */
+            friend bool operator==(const KeyEvent& lhs, const KeyEvent& rhs);
+            
+            /**
+             * Prints a textual representation of the given event to the given output stream.
+             */
+            friend std::ostream& operator<<(std::ostream& out, const KeyEvent& event);
         };
 
         /**
@@ -174,7 +185,7 @@ namespace TrenchBroom {
              * @param wheelAxis the wheel axies that was scrolled, if any
              * @param posX the current X position of the mouse pointer
              * @param posY the current Y position of the mouse pointer
-             * @param scrollDistance the distance by which the mouse wheel was scrolled
+             * @param scrollDistance the distance by which the mouse wheel was scrolled, in lines
              */
             MouseEvent(Type type, Button button, WheelAxis wheelAxis, int posX, int posY, float scrollDistance);
         public:
@@ -193,6 +204,16 @@ namespace TrenchBroom {
              * @param processor the event processor
              */
             void processWith(InputEventProcessor& processor) const override;
+            
+            /**
+             * Indicates whether the given two mouse events are equal.
+             */
+            friend bool operator==(const MouseEvent& lhs, const MouseEvent& rhs);
+
+            /**
+             * Prints a textual representation of the given event to the given output stream.
+             */
+            friend std::ostream& operator<<(std::ostream& out, const MouseEvent& event);
         };
 
         /**
@@ -206,6 +227,16 @@ namespace TrenchBroom {
              * @param processor the event processor
              */
             void processWith(InputEventProcessor& processor) const override;
+            
+            /**
+             * Indicates whether the given two cancel events are equal.
+             */
+            friend bool operator==(const CancelEvent&, const CancelEvent&);
+            
+            /**
+             * Prints a textual representation of the given event to the given output stream.
+             */
+            friend std::ostream& operator<<(std::ostream& out, const CancelEvent& event);
         };
 
         /**
@@ -213,7 +244,7 @@ namespace TrenchBroom {
          */
         class InputEventQueue {
         private:
-            using EventQueue = std::list<std::unique_ptr<InputEvent>>;
+            using EventQueue = std::vector<std::unique_ptr<InputEvent>>;
             EventQueue m_eventQueue;
         public:
             /**
@@ -276,6 +307,14 @@ namespace TrenchBroom {
              * The time at which the last mouse down event was recorded.
              */
             std::chrono::time_point<std::chrono::high_resolution_clock> m_lastClickTime;
+            /**
+             * Used in implementing the macOS behaviour where Ctrl+Click is RMB.
+             */
+            bool m_nextMouseUpIsRMB;
+            /**
+             * Used to suppress a click event for the mouse up event that follows a double click.
+             */
+            bool m_nextMouseUpIsDblClick;
         public:
             /**
              * Creates a new event handler.
@@ -287,21 +326,18 @@ namespace TrenchBroom {
              *
              * @param event the event to record
              */
-            void recordEvent(const wxKeyEvent& event);
+            void recordEvent(const QKeyEvent* event);
 
             /**
              * Records the given mouse event.
              *
              * @param event the event to record
              */
-            void recordEvent(const wxMouseEvent& event);
+            void recordEvent(const QMouseEvent* event);
 
-            /**
-             * Records the given capture lost event. Actually generates a cancellation event.
-             *
-             * @param event the event to record
-             */
-            void recordEvent(const wxMouseCaptureLostEvent& event);
+            static QPointF scrollLinesForEvent(const QWheelEvent* qtEvent);
+
+            void recordEvent(const QWheelEvent* event);
 
             /**
              * Processes all recorded events using the given event processor.
@@ -325,7 +361,7 @@ namespace TrenchBroom {
              * @param wxEvent the event to decode
              * @return the event type
              */
-            static KeyEvent::Type getEventType(const wxKeyEvent& wxEvent);
+            static KeyEvent::Type getEventType(const QKeyEvent* wxEvent);
 
             /**
              * Decodes the event type of the given mouse event.
@@ -333,7 +369,7 @@ namespace TrenchBroom {
              * @param wxEvent the event to decode
              * @return the event type
              */
-            static MouseEvent::Type getEventType(const wxMouseEvent& wxEvent);
+            static MouseEvent::Type getEventType(const QMouseEvent* wxEvent);
 
             /**
              * Decodes the button of the given mouse event, if any.
@@ -341,23 +377,7 @@ namespace TrenchBroom {
              * @param wxEvent the event to decode
              * @return the mouse button
              */
-            static MouseEvent::Button getButton(const wxMouseEvent& wxEvent);
-
-            /**
-             * Decodes the wheel axis of the given mouse event, if any.
-             *
-             * @param wxEvent the event to decode
-             * @return the mouse wheel axis
-             */
-            static MouseEvent::WheelAxis getWheelAxis(const wxMouseEvent& wxEvent);
-
-            /**
-             * Computes the scroll distance of the given mouse event.
-             *
-             * @param wxEvent the event
-             * @return the scroll distance
-             */
-            static float getScrollDistance(const wxMouseEvent& wxEvent);
+            static MouseEvent::Button getButton(const QMouseEvent* wxEvent);
         };
 
         /**

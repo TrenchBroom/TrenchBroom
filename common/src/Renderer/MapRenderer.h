@@ -20,26 +20,35 @@
 #ifndef TrenchBroom_MapRenderer
 #define TrenchBroom_MapRenderer
 
-#include "Color.h"
 #include "Macros.h"
-#include "Model/ModelTypes.h"
-#include "View/ViewTypes.h"
 
 #include <map>
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
+    class Color;
+
     namespace IO {
         class Path;
     }
 
     namespace View {
+        // FIXME: Renderer should not depend on View
+        class MapDocument;
         class Selection;
+    }
+
+    namespace Model {
+        class BrushNode;
+        class BrushFaceHandle;
+        class GroupNode;
+        class LayerNode;
+        class Node;
     }
 
     namespace Renderer {
         class EntityLinkRenderer;
-        class FontManager;
         class ObjectRenderer;
         class RenderBatch;
         class RenderContext;
@@ -50,23 +59,23 @@ namespace TrenchBroom {
             class LockedBrushRendererFilter;
             class UnselectedBrushRendererFilter;
 
-            using RendererMap = std::map<Model::Layer*, ObjectRenderer*>;
+            using RendererMap = std::map<Model::LayerNode*, ObjectRenderer*>;
 
-            View::MapDocumentWPtr m_document;
+            std::weak_ptr<View::MapDocument> m_document;
 
             std::unique_ptr<ObjectRenderer> m_defaultRenderer;
             std::unique_ptr<ObjectRenderer> m_selectionRenderer;
             std::unique_ptr<ObjectRenderer> m_lockedRenderer;
             std::unique_ptr<EntityLinkRenderer> m_entityLinkRenderer;
         public:
-            explicit MapRenderer(View::MapDocumentWPtr document);
+            explicit MapRenderer(std::weak_ptr<View::MapDocument> document);
             ~MapRenderer();
 
             deleteCopyAndMove(MapRenderer)
         private:
-            static std::unique_ptr<ObjectRenderer> createDefaultRenderer(View::MapDocumentWPtr document);
-            static std::unique_ptr<ObjectRenderer> createSelectionRenderer(View::MapDocumentWPtr document);
-            static std::unique_ptr<ObjectRenderer> createLockRenderer(View::MapDocumentWPtr document);
+            static std::unique_ptr<ObjectRenderer> createDefaultRenderer(std::weak_ptr<View::MapDocument> document);
+            static std::unique_ptr<ObjectRenderer> createSelectionRenderer(std::weak_ptr<View::MapDocument> document);
+            static std::unique_ptr<ObjectRenderer> createLockRenderer(std::weak_ptr<View::MapDocument> document);
             void clear();
         public: // color config
             void overrideSelectionColors(const Color& color, float mix);
@@ -109,7 +118,7 @@ namespace TrenchBroom {
              */
             void updateRenderers(Renderer renderers);
             void invalidateRenderers(Renderer renderers);
-            void invalidateBrushesInRenderers(Renderer renderers, const Model::BrushList& brushes);
+            void invalidateBrushesInRenderers(Renderer renderers, const std::vector<Model::BrushNode*>& brushes);
             void invalidateEntityLinkRenderer();
             void reloadEntityModels();
         private: // notification
@@ -119,20 +128,19 @@ namespace TrenchBroom {
             void documentWasCleared(View::MapDocument* document);
             void documentWasNewedOrLoaded(View::MapDocument* document);
 
-            void nodesWereAdded(const Model::NodeList& nodes);
-            void nodesWereRemoved(const Model::NodeList& nodes);
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesWereAdded(const std::vector<Model::Node*>& nodes);
+            void nodesWereRemoved(const std::vector<Model::Node*>& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
 
-            void nodeVisibilityDidChange(const Model::NodeList& nodes);
-            void nodeLockingDidChange(const Model::NodeList& nodes);
+            void nodeVisibilityDidChange(const std::vector<Model::Node*>& nodes);
+            void nodeLockingDidChange(const std::vector<Model::Node*>& nodes);
 
-            void groupWasOpened(Model::Group* group);
-            void groupWasClosed(Model::Group* group);
+            void groupWasOpened(Model::GroupNode* group);
+            void groupWasClosed(Model::GroupNode* group);
 
-            void brushFacesDidChange(const Model::BrushFaceList& faces);
+            void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
 
             void selectionDidChange(const View::Selection& selection);
-            Model::BrushSet collectBrushes(const Model::BrushFaceList& faces);
 
             void textureCollectionsWillChange();
             void entityDefinitionsDidChange();

@@ -20,18 +20,18 @@
 #ifndef ELParser_h
 #define ELParser_h
 
-#include "EL.h"
+#include "EL/EL_Forward.h"
 #include "IO/Parser.h"
-#include "IO/Token.h"
 #include "IO/Tokenizer.h"
-
-#include <list>
 
 #ifdef _MSC_VER
 #include <cstdint>
 #elif defined __GNUC__
 #include <stdint.h>
 #endif
+
+#include <iosfwd>
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
@@ -61,13 +61,13 @@ namespace TrenchBroom {
             static const Type Less                  = Type(1) << 22;
             static const Type LessOrEqual           = Type(1) << 23;
             static const Type Equal                 = Type(1) << 24;
-            static const Type Inequal               = Type(1) << 25;
+            static const Type NotEqual              = Type(1) << 25;
             static const Type GreaterOrEqual        = Type(1) << 26;
             static const Type Greater               = Type(1) << 27;
             static const Type Case                  = Type(1) << 28;
             static const Type BitwiseNegation       = Type(1) << 29;
             static const Type BitwiseAnd            = Type(1) << 30;
-            static const Type BitwiseXor            = Type(1) << 31;
+            static const Type BitwiseXOr            = Type(1) << 31;
             static const Type BitwiseOr             = Type(1) << 32;
             static const Type BitwiseShiftLeft      = Type(1) << 33;
             static const Type BitwiseShiftRight     = Type(1) << 34;
@@ -78,22 +78,22 @@ namespace TrenchBroom {
             static const Type Literal               = String | Number | Boolean | Null;
             static const Type UnaryOperator         = Addition | Subtraction | LogicalNegation | BitwiseNegation;
             static const Type SimpleTerm            = Name | Literal | OParen | OBracket | OBrace | UnaryOperator;
-            static const Type CompoundTerm          = Addition | Subtraction | Multiplication | Division | Modulus | LogicalAnd | LogicalOr | Less | LessOrEqual | Equal | Inequal | GreaterOrEqual | Greater | Case | BitwiseAnd | BitwiseXor | BitwiseOr | BitwiseShiftLeft | BitwiseShiftRight;
+            static const Type CompoundTerm          = Addition | Subtraction | Multiplication | Division | Modulus | LogicalAnd | LogicalOr | Less | LessOrEqual | Equal | NotEqual | GreaterOrEqual | Greater | Case | BitwiseAnd | BitwiseXOr | BitwiseOr | BitwiseShiftLeft | BitwiseShiftRight;
         }
 
         class ELTokenizer : public Tokenizer<ELToken::Type> {
         private:
-            const String& NumberDelim() const;
-            const String& IntegerDelim() const;
+            const std::string& NumberDelim() const;
+            const std::string& IntegerDelim() const;
         public:
             ELTokenizer(const char* begin, const char* end);
-            ELTokenizer(const String& str);
+            explicit ELTokenizer(const std::string& str);
 
             template <typename OtherToken>
-            ELTokenizer(Tokenizer<OtherToken>& nestedTokenizer) :
+            explicit ELTokenizer(Tokenizer<OtherToken>& nestedTokenizer) :
             Tokenizer(nestedTokenizer) {}
         public:
-            void appendUntil(const String& pattern, StringStream& str);
+            void appendUntil(const std::string& pattern, std::stringstream& str);
         private:
             Token emitToken() override;
         };
@@ -110,33 +110,34 @@ namespace TrenchBroom {
             using Token = ELTokenizer::Token;
         public:
             ELParser(ELParser::Mode mode, const char* begin, const char* end);
-            ELParser(ELParser::Mode mode, const String& str);
+            ELParser(ELParser::Mode mode, const std::string& str);
 
-            static EL::Expression parseStrict(const String& str);
-            static EL::Expression parseLenient(const String& str);
+            static EL::Expression parseStrict(const std::string& str);
+            static EL::Expression parseLenient(const std::string& str);
 
             template <typename OtherToken>
-            ELParser(Tokenizer<OtherToken>& nestedTokenizer) :
+            explicit ELParser(Tokenizer<OtherToken>& nestedTokenizer) :
                     m_mode(Mode::Lenient),
                     m_tokenizer(nestedTokenizer) {}
 
             EL::Expression parse();
         private:
-            EL::ExpressionBase* parseExpression();
-            EL::ExpressionBase* parseGroupedTerm();
-            EL::ExpressionBase* parseTerm();
-            EL::ExpressionBase* parseSimpleTermOrSwitch();
-            EL::ExpressionBase* parseSimpleTerm();
-            EL::ExpressionBase* parseSubscript(EL::ExpressionBase* lhs);
-            EL::ExpressionBase* parseVariable();
-            EL::ExpressionBase* parseLiteral();
-            EL::ExpressionBase* parseArray();
-            EL::ExpressionBase* parseExpressionOrRange();
-            EL::ExpressionBase* parseExpressionOrAnyRange();
-            EL::ExpressionBase* parseMap();
-            EL::ExpressionBase* parseUnaryOperator();
-            EL::ExpressionBase* parseSwitch();
-            EL::ExpressionBase* parseCompoundTerm(EL::ExpressionBase* lhs);
+            EL::Expression parseExpression();
+            EL::Expression parseGroupedTerm();
+            EL::Expression parseTerm();
+            EL::Expression parseSimpleTermOrSwitch();
+            EL::Expression parseSimpleTermOrSubscript();
+            EL::Expression parseSimpleTerm();
+            EL::Expression parseSubscript(EL::Expression lhs);
+            EL::Expression parseVariable();
+            EL::Expression parseLiteral();
+            EL::Expression parseArray();
+            EL::Expression parseExpressionOrRange();
+            EL::Expression parseExpressionOrAnyRange();
+            EL::Expression parseMap();
+            EL::Expression parseUnaryOperator();
+            EL::Expression parseSwitch();
+            EL::Expression parseCompoundTerm(EL::Expression lhs);
         private:
             TokenNameMap tokenNames() const override;
         };

@@ -19,27 +19,27 @@
 
 #include "CompilationConfig.h"
 
-#include "CollectionUtils.h"
+#include "Ensure.h"
+#include "Model/CompilationProfile.h"
+
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace Model {
         CompilationConfig::CompilationConfig() {}
 
-        CompilationConfig::CompilationConfig(const CompilationProfile::List& profiles) :
-        m_profiles(profiles) {}
+        CompilationConfig::CompilationConfig(std::vector<std::unique_ptr<CompilationProfile>> profiles) :
+        m_profiles(std::move(profiles)) {}
 
         CompilationConfig::CompilationConfig(const CompilationConfig& other) {
             m_profiles.reserve(other.m_profiles.size());
 
-            for (const CompilationProfile* original : other.m_profiles) {
-                CompilationProfile* clone = original->clone();
-                m_profiles.push_back(clone);
+            for (const auto& original : other.m_profiles) {
+                m_profiles.push_back(original->clone());
             }
         }
 
-        CompilationConfig::~CompilationConfig() {
-            VectorUtils::clearAndDelete(m_profiles);
-        }
+        CompilationConfig::~CompilationConfig() = default;
 
         CompilationConfig& CompilationConfig::operator=(CompilationConfig other) {
             using std::swap;
@@ -59,20 +59,27 @@ namespace TrenchBroom {
 
         CompilationProfile* CompilationConfig::profile(const size_t index) const {
             assert(index < profileCount());
-            return m_profiles[index];
+            return m_profiles[index].get();
         }
 
-        void CompilationConfig::addProfile(CompilationProfile* profile) {
+        size_t CompilationConfig::indexOfProfile(CompilationProfile* profile) const {
+            auto result = kdl::vec_index_of(m_profiles, [=](const auto& ptr){
+                return ptr.get() == profile;
+            });
+            assert(result.has_value());
+            return result.value();
+        }
+
+        void CompilationConfig::addProfile(std::unique_ptr<CompilationProfile> profile) {
             ensure(profile != nullptr, "profile is null");
-            m_profiles.push_back(profile);
+            m_profiles.push_back(std::move(profile));
             profilesDidChange();
         }
 
         void CompilationConfig::removeProfile(const size_t index) {
             assert(index < profileCount());
             m_profiles[index]->profileWillBeRemoved();
-            delete m_profiles[index];
-            VectorUtils::erase(m_profiles, index);
+            kdl::vec_erase_at(m_profiles, index);
             profilesDidChange();
         }
     }

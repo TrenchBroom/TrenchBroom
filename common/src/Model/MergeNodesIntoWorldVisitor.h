@@ -20,29 +20,31 @@
 #ifndef TrenchBroom_MergeNodesIntoWorldVisitor
 #define TrenchBroom_MergeNodesIntoWorldVisitor
 
-#include "Model/ModelTypes.h"
 #include "Model/NodeVisitor.h"
+
+#include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class MergeNodesIntoWorldVisitor : public NodeVisitor {
         private:
-            World* m_world;
+            WorldNode* m_world;
             Node* m_parent;
 
-            ParentChildrenMap m_result;
-            mutable NodeList m_nodesToDetach;
-            mutable NodeList m_nodesToDelete;
+            std::map<Node*, std::vector<Node*>> m_result;
+            mutable std::vector<Node*> m_nodesToDetach;
+            mutable std::vector<Node*> m_nodesToDelete;
         public:
-            MergeNodesIntoWorldVisitor(World* world, Node* parent);
+            MergeNodesIntoWorldVisitor(WorldNode* world, Node* parent);
 
-            const ParentChildrenMap& result() const;
+            const std::map<Node*, std::vector<Node*>>& result() const;
         private:
-            void doVisit(World* world) override;
-            void doVisit(Layer* layer) override;
-            void doVisit(Group* group) override;
-            void doVisit(Entity* entity) override;
-            void doVisit(Brush* brush) override;
+            void doVisit(WorldNode* world) override;
+            void doVisit(LayerNode* layer) override;
+            void doVisit(GroupNode* group) override;
+            void doVisit(EntityNode* entity) override;
+            void doVisit(BrushNode* brush) override;
 
             void addNode(Node* node);
             void deleteNode(Node* node);

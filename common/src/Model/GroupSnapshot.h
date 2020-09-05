@@ -20,24 +20,29 @@
 #ifndef TrenchBroom_GroupSnapshot
 #define TrenchBroom_GroupSnapshot
 
-#include "Model/ModelTypes.h"
+#include "FloatType.h"
 #include "Model/NodeSnapshot.h"
+
+#include <kdl/result_forward.h>
 
 #include <vector>
 
 namespace TrenchBroom {
+    class SnapshotException;
+    
     namespace Model {
-        class Group;
+        class GroupNode;
 
         class GroupSnapshot : public NodeSnapshot {
         private:
-            NodeSnapshotList m_snapshots;
+            std::vector<NodeSnapshot*> m_snapshots;
         public:
-            GroupSnapshot(Group* group);
+            GroupSnapshot(GroupNode* group);
             ~GroupSnapshot() override;
         private:
-            void takeSnapshot(Group* group);
-            void doRestore(const vm::bbox3& worldBounds) override;
+            void takeSnapshot(GroupNode* group);
+            
+            kdl::result<void, SnapshotErrors> doRestore(const vm::bbox3& worldBounds) override;
         };
     }
 }

@@ -22,15 +22,20 @@
 
 #include "IO/NodeSerializer.h"
 #include "Model/MapFormat.h"
-#include "Model/Brush.h"
-#include "Model/Node.h"
 
-#include <cstdio>
+#include <cstdio> // for FILE*
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
+    namespace Model {
+        class BrushNode;
+        class BrushFace;
+        class EntityAttribute;
+        class Node;
+    }
 
+    namespace IO {
         class MapFileSerializer : public NodeSerializer {
         private:
             using LineStack = std::vector<size_t>;
@@ -38,24 +43,24 @@ namespace TrenchBroom {
             size_t m_line;
             FILE* m_stream;
         public:
-            static Ptr create(Model::MapFormat format, FILE* stream);
+            static std::unique_ptr<NodeSerializer> create(Model::MapFormat format, FILE* stream);
         protected:
-            MapFileSerializer(FILE* file);
+            explicit MapFileSerializer(FILE* file);
         private:
             void doBeginFile() override;
             void doEndFile() override;
 
             void doBeginEntity(const Model::Node* node) override;
-            void doEndEntity(Model::Node* node) override;
+            void doEndEntity(const Model::Node* node) override;
             void doEntityAttribute(const Model::EntityAttribute& attribute) override;
-            void doBeginBrush(const Model::Brush* brush) override;
-            void doEndBrush(Model::Brush* brush) override;
-            void doBrushFace(Model::BrushFace* face) override;
+            void doBeginBrush(const Model::BrushNode* brush) override;
+            void doEndBrush(const Model::BrushNode* brush) override;
+            void doBrushFace(const Model::BrushFace& face) override;
         private:
-            void setFilePosition(Model::Node* node);
+            void setFilePosition(const Model::Node* node);
             size_t startLine();
         private:
-            virtual size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) = 0;
+            virtual size_t doWriteBrushFace(FILE* stream, const Model::BrushFace& face) = 0;
         };
     }
 }

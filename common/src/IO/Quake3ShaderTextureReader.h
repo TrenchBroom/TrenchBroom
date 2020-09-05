@@ -40,19 +40,18 @@ namespace TrenchBroom {
          * available as a virtual object file in the file system.
          */
         class Quake3ShaderTextureReader : public TextureReader {
-        private:
-            const FileSystem& m_fs;
         public:
             /**
              * Creates a texture reader using the given name strategy and file system to locate the texture image.
              *
              * @param nameStrategy the strategy to determine the texture name
              * @param fs the file system to use when locating the texture image
+             * @param logger the logger to use
              */
-            Quake3ShaderTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs);
+            Quake3ShaderTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
         private:
-            Assets::Texture* doReadTexture(std::shared_ptr<File> file) const override;
-            Assets::Texture* loadTextureImage(const Path& shaderPath, const Path& imagePath) const;
+            Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;
+            Assets::Texture loadTextureImage(const Path& shaderPath, const Path& imagePath) const;
             Path findTexturePath(const Assets::Quake3Shader& shader) const;
             Path findTexture(const Path& texturePath) const;
         };

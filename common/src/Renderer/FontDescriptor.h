@@ -22,6 +22,8 @@
 
 #include "IO/Path.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace Renderer {
         class FontDescriptor {
@@ -37,7 +39,7 @@ namespace TrenchBroom {
             bool operator<(const FontDescriptor& other) const;
 
             const IO::Path& path() const;
-            String name() const;
+            std::string name() const;
             size_t size() const;
             unsigned char minChar() const;
             unsigned char maxChar() const;

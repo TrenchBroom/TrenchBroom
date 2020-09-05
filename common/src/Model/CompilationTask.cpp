@@ -19,137 +19,135 @@
 
 #include "CompilationTask.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
-        CompilationTask::CompilationTask() {}
+        CompilationTask::CompilationTask() = default;
 
-        CompilationTask::~CompilationTask() {}
+        CompilationTask::~CompilationTask() = default;
 
-        CompilationTask* CompilationTask::clone() const {
-            return doClone();
-        }
-
-        CompilationExportMap::CompilationExportMap(const String& targetSpec) :
+        CompilationExportMap::CompilationExportMap(const std::string& targetSpec) :
         m_targetSpec(targetSpec) {}
 
         void CompilationExportMap::accept(CompilationTaskVisitor& visitor) {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         void CompilationExportMap::accept(ConstCompilationTaskVisitor& visitor) const {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         void CompilationExportMap::accept(const CompilationTaskConstVisitor& visitor) {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         void CompilationExportMap::accept(const ConstCompilationTaskConstVisitor& visitor) const {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
-        const String& CompilationExportMap::targetSpec() const {
+        const std::string& CompilationExportMap::targetSpec() const {
             return m_targetSpec;
         }
 
-        void CompilationExportMap::setTargetSpec(const String& targetSpec) {
+        void CompilationExportMap::setTargetSpec(const std::string& targetSpec) {
             m_targetSpec = targetSpec;
             taskDidChange();
         }
 
-        CompilationTask* CompilationExportMap::doClone() const {
+        CompilationExportMap* CompilationExportMap::clone() const {
             return new CompilationExportMap(m_targetSpec);
         }
 
-        CompilationCopyFiles::CompilationCopyFiles(const String& sourceSpec, const String& targetSpec) :
+        CompilationCopyFiles::CompilationCopyFiles(const std::string& sourceSpec, const std::string& targetSpec) :
         CompilationTask(),
         m_sourceSpec(sourceSpec),
         m_targetSpec(targetSpec) {}
 
         void CompilationCopyFiles::accept(CompilationTaskVisitor& visitor) {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         void CompilationCopyFiles::accept(ConstCompilationTaskVisitor& visitor) const {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         void CompilationCopyFiles::accept(const CompilationTaskConstVisitor& visitor) {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         void CompilationCopyFiles::accept(const ConstCompilationTaskConstVisitor& visitor) const {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
-        const String& CompilationCopyFiles::sourceSpec() const {
+        const std::string& CompilationCopyFiles::sourceSpec() const {
             return m_sourceSpec;
         }
 
-        const String& CompilationCopyFiles::targetSpec() const {
+        const std::string& CompilationCopyFiles::targetSpec() const {
             return m_targetSpec;
         }
 
-        void CompilationCopyFiles::setSourceSpec(const String& sourceSpec) {
+        void CompilationCopyFiles::setSourceSpec(const std::string& sourceSpec) {
             m_sourceSpec = sourceSpec;
             taskDidChange();
         }
 
-        void CompilationCopyFiles::setTargetSpec(const String& targetSpec) {
+        void CompilationCopyFiles::setTargetSpec(const std::string& targetSpec) {
             m_targetSpec = targetSpec;
             taskDidChange();
         }
 
-        CompilationTask* CompilationCopyFiles::doClone() const {
+        CompilationCopyFiles* CompilationCopyFiles::clone() const {
             return new CompilationCopyFiles(m_sourceSpec, m_targetSpec);
         }
 
-        CompilationRunTool::CompilationRunTool(const String& toolSpec, const String& parameterSpec) :
+        CompilationRunTool::CompilationRunTool(const std::string& toolSpec, const std::string& parameterSpec) :
         CompilationTask(),
         m_toolSpec(toolSpec),
         m_parameterSpec(parameterSpec) {}
 
         void CompilationRunTool::accept(CompilationTaskVisitor& visitor) {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         void CompilationRunTool::accept(ConstCompilationTaskVisitor& visitor) const {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         void CompilationRunTool::accept(const CompilationTaskConstVisitor& visitor) {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
         void CompilationRunTool::accept(const ConstCompilationTaskConstVisitor& visitor) const {
-            visitor.visit(this);
+            visitor.visit(*this);
         }
 
-        const String& CompilationRunTool::toolSpec() const {
+        const std::string& CompilationRunTool::toolSpec() const {
             return m_toolSpec;
         }
 
-        const String& CompilationRunTool::parameterSpec() const {
+        const std::string& CompilationRunTool::parameterSpec() const {
             return m_parameterSpec;
         }
 
-        void CompilationRunTool::setToolSpec(const String& toolSpec) {
+        void CompilationRunTool::setToolSpec(const std::string& toolSpec) {
             m_toolSpec = toolSpec;
             taskDidChange();
         }
 
-        void CompilationRunTool::setParameterSpec(const String& parameterSpec) {
+        void CompilationRunTool::setParameterSpec(const std::string& parameterSpec) {
             m_parameterSpec = parameterSpec;
             taskDidChange();
         }
 
-        CompilationTask* CompilationRunTool::doClone() const {
+        CompilationRunTool* CompilationRunTool::clone() const {
             return new CompilationRunTool(m_toolSpec, m_parameterSpec);
         }
 
-        CompilationTaskVisitor::~CompilationTaskVisitor() {}
-        ConstCompilationTaskVisitor::~ConstCompilationTaskVisitor() {}
-        CompilationTaskConstVisitor::~CompilationTaskConstVisitor() {}
-        ConstCompilationTaskConstVisitor::~ConstCompilationTaskConstVisitor() {}
+        CompilationTaskVisitor::~CompilationTaskVisitor() = default;
+        ConstCompilationTaskVisitor::~ConstCompilationTaskVisitor() = default;
+        CompilationTaskConstVisitor::~CompilationTaskConstVisitor() = default;
+        ConstCompilationTaskConstVisitor::~ConstCompilationTaskConstVisitor() = default;
     }
 }

@@ -26,37 +26,37 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType RotateTexturesCommand::Type = Command::freeType();
 
-        RotateTexturesCommand::Ptr RotateTexturesCommand::rotate(const float angle) {
-            return Ptr(new RotateTexturesCommand(angle));
+        std::unique_ptr<RotateTexturesCommand> RotateTexturesCommand::rotate(const float angle) {
+            return std::make_unique<RotateTexturesCommand>(angle);
         }
 
         RotateTexturesCommand::RotateTexturesCommand(const float angle) :
         DocumentCommand(Type, "Move Textures"),
         m_angle(angle) {}
 
-        bool RotateTexturesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> RotateTexturesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             return rotateTextures(document, m_angle);
         }
 
-        bool RotateTexturesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> RotateTexturesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             return rotateTextures(document, -m_angle);
         }
 
-        bool RotateTexturesCommand::rotateTextures(MapDocumentCommandFacade* document, const float angle) const {
+        std::unique_ptr<CommandResult> RotateTexturesCommand::rotateTextures(MapDocumentCommandFacade* document, const float angle) const {
             document->performRotateTextures(angle);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
         bool RotateTexturesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
-            return true;
+            return document->hasSelectedBrushFaces();
         }
 
-        UndoableCommand::Ptr RotateTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return UndoableCommand::Ptr(new RotateTexturesCommand(m_angle));
+        std::unique_ptr<UndoableCommand> RotateTexturesCommand::doRepeat(MapDocumentCommandFacade*) const {
+            return std::make_unique<RotateTexturesCommand>(m_angle);
         }
 
-        bool RotateTexturesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            const RotateTexturesCommand* other = static_cast<RotateTexturesCommand*>(command.get());
+        bool RotateTexturesCommand::doCollateWith(UndoableCommand* command) {
+            const RotateTexturesCommand* other = static_cast<RotateTexturesCommand*>(command);
 
             m_angle += other->m_angle;
             return true;

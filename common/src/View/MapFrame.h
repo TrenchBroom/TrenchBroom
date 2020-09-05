@@ -21,20 +21,26 @@
 #define TrenchBroom_MapFrame
 
 #include "Model/MapFormat.h"
-#include "Model/ModelTypes.h"
-#include "View/Inspector.h"
 #include "View/Selection.h"
-#include "View/ViewTypes.h"
-#include "SplitterWindow2.h"
 
-#include <wx/dialog.h>
-#include <wx/frame.h>
+#include <QMainWindow>
+#include <QPointer>
+#include <QDialog>
 
-class wxChoice;
-class wxTextCtrl;
-class wxTimer;
-class wxTimerEvent;
-class wxStatusBar;
+#include <chrono>
+#include <map>
+#include <memory>
+#include <string>
+
+class QAction;
+class QComboBox;
+class QDialog;
+class QDropEvent;
+class QMenuBar;
+class QLabel;
+class QSplitter;
+class QTimer;
+class QToolBar;
 
 namespace TrenchBroom {
     class Logger;
@@ -43,78 +49,87 @@ namespace TrenchBroom {
         class Path;
     }
 
+    namespace Model {
+        enum class ExportFormat;
+        class Game;
+        class GroupNode;
+        class LayerNode;
+    }
+
     namespace View {
+        class Action;
         class Autosaver;
-        class CommandWindowUpdateLocker;
         class Console;
         class FrameManager;
         class GLContextManager;
+        class InfoPanel;
         class Inspector;
+        enum class InspectorPage;
+        class MapDocument;
+        class MapViewBase;
+        enum class PasteType;
         class SwitchableMapViewContainer;
+        class Tool;
 
-        class MapFrame : public wxFrame {
+        class MapFrame : public QMainWindow {
+            Q_OBJECT
         private:
             FrameManager* m_frameManager;
-            MapDocumentSPtr m_document;
+            std::shared_ptr<MapDocument> m_document;
 
-            Autosaver* m_autosaver;
-            wxTimer* m_autosaveTimer;
+            std::chrono::time_point<std::chrono::system_clock> m_lastInputTime;
+            std::unique_ptr<Autosaver> m_autosaver;
+            QTimer* m_autosaveTimer;
 
-            SplitterWindow2* m_hSplitter;
-            SplitterWindow2* m_vSplitter;
+            QToolBar* m_toolBar;
 
-            GLContextManager* m_contextManager;
+            QSplitter* m_hSplitter;
+            QSplitter* m_vSplitter;
+
+            std::unique_ptr<GLContextManager> m_contextManager;
             SwitchableMapViewContainer* m_mapView;
+            /**
+             * Last focused MapViewBase. It's a QPointer to handle changing from e.g. a 2-pane map view to 1-pane.
+             */
+            QPointer<MapViewBase> m_currentMapView;
+            InfoPanel* m_infoPanel;
             Console* m_console;
             Inspector* m_inspector;
 
-            wxWindow* m_lastFocus;
+            QComboBox* m_gridChoice;
+            QLabel* m_statusBarLabel;
 
-            wxChoice* m_gridChoice;
-
-            wxStatusBar* m_statusBar;
-
-            wxDialog* m_compilationDialog;
-
-            CommandWindowUpdateLocker* m_updateLocker;
+            QPointer<QDialog> m_compilationDialog;
+        private: // shortcuts
+            using ActionMap = std::map<const Action*, QAction*>;
+            ActionMap m_actionMap;
+        private: // special menu entries
+            QMenu* m_recentDocumentsMenu;
+            QAction* m_undoAction;
+            QAction* m_redoAction;
         public:
-            MapFrame();
-            MapFrame(FrameManager* frameManager, MapDocumentSPtr document);
-            void Create(FrameManager* frameManager, MapDocumentSPtr document);
-            virtual ~MapFrame();
+            MapFrame(FrameManager* frameManager, std::shared_ptr<MapDocument> document);
+            ~MapFrame() override;
 
-            void positionOnScreen(wxFrame* reference);
-            MapDocumentSPtr document() const;
+            void positionOnScreen(QWidget* reference);
+            std::shared_ptr<MapDocument> document() const;
         public: // getters and such
             Logger& logger() const;
-        public: // drop targets
-            void setToolBoxDropTarget();
-            void clearDropTarget();
-        public: // document management
-            bool newDocument(Model::GameSPtr game, Model::MapFormat mapFormat);
-            bool openDocument(Model::GameSPtr game, Model::MapFormat mapFormat, const IO::Path& path);
-        private:
-            bool saveDocument();
-            bool saveDocumentAs();
-            bool exportDocumentAsObj();
-            bool exportDocument(Model::ExportFormat format, const IO::Path& path);
-
-            bool confirmOrDiscardChanges();
         private: // title bar contents
             void updateTitle();
         private: // menu bar
-#if defined(_WIN32)
-			void OnActivate(wxActivateEvent& event);
-			void OnDelayedActivate(wxIdleEvent& event);
-#endif
-            void OnChildFocus(wxChildFocusEvent& event);
-            void rebuildMenuBar();
-            void createMenuBar();
-            void addRecentDocumentsMenu(wxMenuBar* menuBar);
-            void removeRecentDocumentsMenu(wxMenuBar* menuBar);
+            void createMenus();
+            void updateShortcuts();
+            void updateActionState();
+            void updateUndoRedoActions();
+
+            void addRecentDocumentsMenu();
+            void removeRecentDocumentsMenu();
             void updateRecentDocumentsMenu();
         private: // tool bar
+            class ToolBarBuilder;
             void createToolBar();
+            void updateToolBarWidgets();
         private: // status bar
             void createStatusBar();
             void updateStatusBar();
@@ -127,174 +142,240 @@ namespace TrenchBroom {
             void documentWasCleared(View::MapDocument* document);
             void documentDidChange(View::MapDocument* document);
             void documentModificationStateDidChange();
+
+            void transactionDone(const std::string&);
+            void transactionUndone(const std::string&);
+
             void preferenceDidChange(const IO::Path& path);
             void gridDidChange();
+            void toolActivated(Tool* tool);
+            void toolDeactivated(Tool* tool);
+            void toolHandleSelectionChanged(Tool* tool);
             void selectionDidChange(const Selection& selection);
-            void currentLayerDidChange(const TrenchBroom::Model::Layer* layer);
-            void groupWasOpened(Model::Group* group);
-            void groupWasClosed(Model::Group* group);
+            void currentLayerDidChange(const TrenchBroom::Model::LayerNode* layer);
+            void groupWasOpened(Model::GroupNode* group);
+            void groupWasClosed(Model::GroupNode* group);
+            void nodeVisibilityDidChange(const std::vector<Model::Node*>& nodes);
+            void editorContextDidChange();
         private: // menu event handlers
             void bindEvents();
-
-            void OnFileSave(wxCommandEvent& event);
-            void OnFileSaveAs(wxCommandEvent& event);
-            void OnFileExportObj(wxCommandEvent& event);
-            void OnFileLoadPointFile(wxCommandEvent& event);
-            void OnFileReloadPointFile(wxCommandEvent& event);
-            void OnFileUnloadPointFile(wxCommandEvent& event);
-            void OnFileLoadPortalFile(wxCommandEvent& event);
-            void OnFileReloadPortalFile(wxCommandEvent& event);
-            void OnFileUnloadPortalFile(wxCommandEvent& event);
-            void OnFileReloadTextureCollections(wxCommandEvent& event);
-            void OnFileReloadEntityDefinitions(wxCommandEvent& event);
-            void OnFileClose(wxCommandEvent& event);
-
-            void OnEditUndo(wxCommandEvent& event);
-            void OnEditRedo(wxCommandEvent& event);
-            void OnEditRepeat(wxCommandEvent& event);
-            void OnEditClearRepeat(wxCommandEvent& event);
-
-            void OnEditCut(wxCommandEvent& event);
-            void OnEditCopy(wxCommandEvent& event);
-            void copyToClipboard();
-
-            void OnEditPaste(wxCommandEvent& event);
-            void OnEditPasteAtOriginalPosition(wxCommandEvent& event);
-
-            PasteType paste();
-
-            void OnEditDelete(wxCommandEvent& event);
-            void OnEditDuplicate(wxCommandEvent& event);
-
-            void OnEditSelectAll(wxCommandEvent& event);
-            void OnEditSelectSiblings(wxCommandEvent& event);
-            void OnEditSelectTouching(wxCommandEvent& event);
-            void OnEditSelectInside(wxCommandEvent& event);
-            void OnEditSelectTall(wxCommandEvent& event);
-            void OnEditSelectByLineNumber(wxCommandEvent& event);
-            void OnEditSelectNone(wxCommandEvent& event);
-
-            void OnEditGroupSelectedObjects(wxCommandEvent& event);
-            void OnEditUngroupSelectedObjects(wxCommandEvent& event);
-
-            void OnEditDeactivateTool(wxCommandEvent& event);
-            void OnEditToggleCreateComplexBrushTool(wxCommandEvent& event);
-            void OnEditToggleClipTool(wxCommandEvent& event);
-            void OnEditToggleRotateObjectsTool(wxCommandEvent& event);
-            void OnEditToggleScaleObjectsTool(wxCommandEvent& event);
-            void OnEditToggleShearObjectsTool(wxCommandEvent& event);
-            void OnEditToggleVertexTool(wxCommandEvent& event);
-            void OnEditToggleEdgeTool(wxCommandEvent& event);
-            void OnEditToggleFaceTool(wxCommandEvent& event);
-
-            void OnEditCsgConvexMerge(wxCommandEvent& event);
-            void OnEditCsgSubtract(wxCommandEvent& event);
-            void OnEditCsgIntersect(wxCommandEvent& event);
-            void OnEditCsgHollow(wxCommandEvent& event);
-
-            void OnEditReplaceTexture(wxCommandEvent& event);
-
-            void OnEditToggleTextureLock(wxCommandEvent& event);
-            wxBitmap textureLockBitmap();
-            void OnEditToggleUVLock(wxCommandEvent& event);
-            wxBitmap UVLockBitmap();
-
-            void OnEditSnapVerticesToInteger(wxCommandEvent& event);
-            void OnEditSnapVerticesToGrid(wxCommandEvent& event);
-
-            void OnViewToggleShowGrid(wxCommandEvent& event);
-            void OnViewToggleSnapToGrid(wxCommandEvent& event);
-            void OnViewIncGridSize(wxCommandEvent& event);
-            void OnViewDecGridSize(wxCommandEvent& event);
-            void OnViewSetGridSize(wxCommandEvent& event);
-
-            void OnViewMoveCameraToNextPoint(wxCommandEvent& event);
-            void OnViewMoveCameraToPreviousPoint(wxCommandEvent& event);
-            void OnViewFocusCameraOnSelection(wxCommandEvent& event);
-            void OnViewMoveCameraToPosition(wxCommandEvent& event);
-
-            void OnViewHideSelectedObjects(wxCommandEvent& event);
-            void OnViewIsolateSelectedObjects(wxCommandEvent& event);
-            void OnViewShowHiddenObjects(wxCommandEvent& event);
-
-            void OnViewSwitchToMapInspector(wxCommandEvent& event);
-            void OnViewSwitchToEntityInspector(wxCommandEvent& event);
-            void OnViewSwitchToFaceInspector(wxCommandEvent& event);
-
-            void switchToInspectorPage(Inspector::InspectorPage page);
-            void ensureInspectorVisible();
-
-            void OnViewToggleMaximizeCurrentView(wxCommandEvent& event);
-            void OnViewToggleInfoPanel(wxCommandEvent& event);
-            void OnViewToggleInspector(wxCommandEvent& event);
-
-            void OnRunCompile(wxCommandEvent& event);
         public:
-            void compilationDialogWillClose();
+            bool newDocument(std::shared_ptr<Model::Game> game, Model::MapFormat mapFormat);
+            bool openDocument(std::shared_ptr<Model::Game> game, Model::MapFormat mapFormat, const IO::Path& path);
+            bool saveDocument();
+            bool saveDocumentAs();
+            bool exportDocumentAsObj();
+            bool exportDocumentAsMap();
+            bool exportDocument(Model::ExportFormat format, const IO::Path& path);
         private:
-            void OnRunLaunch(wxCommandEvent& event);
-
-            void OnDebugPrintVertices(wxCommandEvent& event);
-            void OnDebugCreateBrush(wxCommandEvent& event);
-            void OnDebugCreateCube(wxCommandEvent& event);
-            void OnDebugClipBrush(wxCommandEvent& event);
-            void OnDebugCopyJSShortcutMap(wxCommandEvent& event);
-            void OnDebugCrash(wxCommandEvent& event);
-            void OnDebugThrowExceptionDuringCommand(wxCommandEvent& event);
-            void OnDebugSetWindowSize(wxCommandEvent& event);
-
-            void OnFlipObjectsHorizontally(wxCommandEvent& event);
-            void OnFlipObjectsVertically(wxCommandEvent& event);
-
-            void OnUpdateUI(wxUpdateUIEvent& event);
-
-            void OnToolBarSetGridSize(wxCommandEvent& event);
-        private:
-            bool canUnloadPointFile() const;
+            bool confirmOrDiscardChanges();
+        public:
+            void loadPointFile();
+            void reloadPointFile();
+            void unloadPointFile();
             bool canReloadPointFile() const;
             bool canUnloadPortalFile() const;
+
+            void loadPortalFile();
+            void reloadPortalFile();
+            void unloadPortalFile();
             bool canReloadPortalFile() const;
+            bool canUnloadPointFile() const;
 
-            bool canUndo() const;
+            void reloadTextureCollections();
+            void reloadEntityDefinitions();
+            void closeDocument();
+
             void undo();
-            bool canRedo() const;
             void redo();
-            wxTextCtrl* findFocusedTextCtrl() const;
+            bool canUndo() const;
+            bool canRedo() const;
 
-            bool canCut() const;
-            bool canCopy() const;
+            void repeatLastCommands();
+            void clearRepeatableCommands();
+            bool hasRepeatableCommands() const;
+
+            void cutSelection();
+            void copySelection();
+            void copyToClipboard();
+            bool canCutSelection() const;
+            bool canCopySelection() const;
+
+            void pasteAtCursorPosition();
+            void pasteAtOriginalPosition();
+            PasteType paste();
             bool canPaste() const;
-            bool canDelete() const;
-            bool canDuplicate() const;
+
+            void duplicateSelection();
+            bool canDuplicateSelectino() const;
+
+            void deleteSelection();
+            bool canDeleteSelection() const;
+
+            void selectAll();
+            void selectSiblings();
+            void selectTouching();
+            void selectInside();
+            void selectTall();
+            void selectByLineNumber();
+            void selectInverse();
+            void selectNone();
+
+            bool canSelect() const;
             bool canSelectSiblings() const;
             bool canSelectByBrush() const;
             bool canSelectTall() const;
-            bool canSelect() const;
             bool canDeselect() const;
             bool canChangeSelection() const;
-            bool canGroup() const;
-            bool canUngroup() const;
-            bool canHide() const;
-            bool canIsolate() const;
+            bool canSelectInverse() const;
+
+            void groupSelectedObjects();
+            bool canGroupSelectedObjects() const;
+
+            void ungroupSelectedObjects();
+            bool canUngroupSelectedObjects() const;
+
+            void renameSelectedGroups();
+            bool canRenameSelectedGroups() const;
+
+            bool anyToolActive() const;
+            
+            void toggleCreateComplexBrushTool();
+            bool canToggleCreateComplexBrushTool() const;
+            bool createComplexBrushToolActive() const;
+
+            void toggleClipTool();
+            bool canToggleClipTool() const;
+            bool clipToolActive() const;
+
+            void toggleRotateObjectsTool();
+            bool canToggleRotateObjectsTool() const;
+            bool rotateObjectsToolActive() const;
+
+            void toggleScaleObjectsTool();
+            bool canToggleScaleObjectsTool() const;
+            bool scaleObjectsToolActive() const;
+
+            void toggleShearObjectsTool();
+            bool canToggleShearObjectsTool() const;
+            bool shearObjectsToolActive() const;
+
+            bool anyVertexToolActive() const;
+
+            void toggleVertexTool();
+            bool canToggleVertexTool() const;
+            bool vertexToolActive() const;
+
+            void toggleEdgeTool();
+            bool canToggleEdgeTool() const;
+            bool edgeToolActive() const;
+
+            void toggleFaceTool();
+            bool canToggleFaceTool() const;
+            bool faceToolActive() const;
+
+            void csgConvexMerge();
             bool canDoCsgConvexMerge() const;
+
+            void csgSubtract();
             bool canDoCsgSubtract() const;
-            bool canDoCsgIntersect() const;
+
+            void csgHollow();
             bool canDoCsgHollow() const;
+
+            void csgIntersect();
+            bool canDoCsgIntersect() const;
+
+            void snapVerticesToInteger();
+            void snapVerticesToGrid();
             bool canSnapVertices() const;
-            bool canDecGridSize() const;
+
+            void replaceTexture();
+
+            void toggleTextureLock();
+            void toggleUVLock();
+
+            void toggleShowGrid();
+            void toggleSnapToGrid();
+
+            void incGridSize();
             bool canIncGridSize() const;
+
+            void decGridSize();
+            bool canDecGridSize() const;
+
+            void setGridSize(int size);
+
+            void moveCameraToNextPoint();
             bool canMoveCameraToNextPoint() const;
+
+            void moveCameraToPreviousPoint();
             bool canMoveCameraToPreviousPoint() const;
+
+            void focusCameraOnSelection();
             bool canFocusCamera() const;
+
+            void moveCameraToPosition();
+
+            void isolateSelection();
+            bool canIsolateSelection() const;
+
+            void hideSelection();
+            bool canHideSelection() const;
+
+            void showAll();
+
+            void switchToInspectorPage(InspectorPage page);
+
+            void toggleToolbar();
+            bool toolbarVisible() const;
+
+            void toggleInfoPanel();
+            bool infoPanelVisible() const;
+
+            void toggleInspector();
+            bool inspectorVisible() const;
+
+            void toggleMaximizeCurrentView();
+            bool currentViewMaximized();
+
+            void showCompileDialog();
+            void compilationDialogWillClose();
+
+            void showLaunchEngineDialog();
+
+            bool canRevealTexture() const;
+            void revealTexture();
+
+            void debugPrintVertices();
+            void debugCreateBrush();
+            void debugCreateCube();
+            void debugClipBrush();
+            void debugCrash();
+            void debugThrowExceptionDuringCommand();
+            void debugSetWindowSize();
+            void debugShowPalette();
+
+            void focusChange(QWidget* oldFocus, QWidget* newFocus);
+
+            MapViewBase* currentMapViewBase();
+        private:
             bool canCompile() const;
             bool canLaunch() const;
-        private: // other event handlers
-            void OnClose(wxCloseEvent& event);
-            void OnAutosaveTimer(wxTimerEvent& event);
-        private: // grid helpers
-            static int indexForGridSize(const int gridSize);
-            static int gridSizeForIndex(const int index);
-            static int gridSizeForMenuId(const int menuId);
+        protected: // other event handlers
+            void changeEvent(QEvent* event) override;
+            void closeEvent(QCloseEvent* event) override;
+        public: // event filter (suppress autosave for user input events)
+            bool eventFilter(QObject* target, QEvent* event) override;
+        private:
+            void triggerAutosave();
+        };
+
+        class DebugPaletteWindow : public QDialog {
+            Q_OBJECT
+        public:
+            DebugPaletteWindow(QWidget *parent = nullptr);
+            virtual ~DebugPaletteWindow();
         };
     }
 }

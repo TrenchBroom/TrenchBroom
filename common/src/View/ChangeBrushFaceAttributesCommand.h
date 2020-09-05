@@ -20,9 +20,11 @@
 #ifndef TrenchBroom_ChangeBrushFaceAttributesCommand
 #define TrenchBroom_ChangeBrushFaceAttributesCommand
 
-#include "SharedPointer.h"
-#include "View/DocumentCommand.h"
+#include "Macros.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "View/DocumentCommand.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace Model {
@@ -33,25 +35,22 @@ namespace TrenchBroom {
         class ChangeBrushFaceAttributesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<ChangeBrushFaceAttributesCommand>;
         private:
-
             Model::ChangeBrushFaceAttributesRequest m_request;
-            Model::Snapshot* m_snapshot;
+            std::unique_ptr<Model::Snapshot> m_snapshot;
         public:
-            static Ptr command(const Model::ChangeBrushFaceAttributesRequest& request);
-        private:
-            ChangeBrushFaceAttributesCommand(const Model::ChangeBrushFaceAttributesRequest& request);
-        public:
+            static std::unique_ptr<ChangeBrushFaceAttributesCommand> command(const Model::ChangeBrushFaceAttributesRequest& request);
+
+            explicit ChangeBrushFaceAttributesCommand(const Model::ChangeBrushFaceAttributesRequest& request);
             ~ChangeBrushFaceAttributesCommand() override;
         private:
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const override;
+            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(UndoableCommand* command) override;
         private:
             ChangeBrushFaceAttributesCommand(const ChangeBrushFaceAttributesCommand& other);
             ChangeBrushFaceAttributesCommand& operator=(const ChangeBrushFaceAttributesCommand& other);

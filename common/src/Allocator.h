@@ -21,183 +21,183 @@
 #define TrenchBroom_Allocator_h
 
 #include <cassert>
-#include <iostream>
-#include <limits>
 #include <stack>
 #include <vector>
 
 // Undefine this to prevent false positives when looking for memory leaks.
 #define TB_ENABLE_ALLOCATOR 1
 
-template <class T, size_t PoolSize = 64, size_t BlocksPerChunk = 256>
-class Allocator {
-private:
-    class Chunk {
+namespace TrenchBroom {
+    template <class T, size_t PoolSize = 64, size_t BlocksPerChunk = 256>
+    class Allocator {
     private:
-        unsigned char m_blocks[BlocksPerChunk * sizeof(T)];
-        unsigned char m_firstFreeBlock;
-        unsigned char m_numFreeBlocks;
+        class Chunk {
+        private:
+            unsigned char m_blocks[BlocksPerChunk * sizeof(T)];
+            unsigned char m_firstFreeBlock;
+            unsigned char m_numFreeBlocks;
+        public:
+            Chunk() :
+                m_firstFreeBlock(0),
+                m_numFreeBlocks(BlocksPerChunk - 1) {
+                for (size_t i = 0; i < BlocksPerChunk - 1; i++)
+                    m_blocks[i * sizeof(T)] = static_cast<unsigned char>(i + 1);
+            }
+
+            bool contains(const T* t) const {
+                const unsigned char* block = reinterpret_cast<const unsigned char*>(t);
+                if (block < m_blocks)
+                    return false;
+                size_t offset = static_cast<size_t>(block - m_blocks);
+                return offset < (BlocksPerChunk - 1) * sizeof(T);
+            }
+
+            T* allocate() {
+                if (m_numFreeBlocks == 0)
+                    return nullptr;
+
+                unsigned char* block = m_blocks + m_firstFreeBlock * sizeof(T);
+                m_firstFreeBlock = *block;
+                m_numFreeBlocks--;
+                return reinterpret_cast<T*>(block);
+            }
+
+            void deallocate(T* t) {
+                assert(m_numFreeBlocks < BlocksPerChunk - 1);
+                assert(contains(t));
+
+                unsigned char* block = reinterpret_cast<unsigned char*>(t);
+                assert(block >= m_blocks);
+                size_t offset = static_cast<size_t>(block - m_blocks);
+                assert(offset % sizeof(T) == 0);
+
+                size_t index = offset / sizeof(T);
+                assert(index < BlocksPerChunk);
+
+                *block = m_firstFreeBlock;
+                m_firstFreeBlock = static_cast<unsigned char>(index);
+                m_numFreeBlocks++;
+            }
+
+            bool empty() const {
+                return m_numFreeBlocks == BlocksPerChunk - 1;
+            }
+
+            bool full() const {
+                return m_numFreeBlocks == 0;
+            }
+        };
+
+        using ChunkList = std::vector<Chunk*>;
+        using Pool = std::stack<T*>;
+
+        static Pool& pool() {
+            static Pool p;
+            return p;
+        }
+
+        static ChunkList& fullChunks() {
+            static ChunkList chunks;
+            return chunks;
+        }
+
+        static ChunkList& mixedChunks() {
+            static ChunkList chunks;
+            return chunks;
+        }
+
+        static ChunkList emptyChunks() {
+            static ChunkList chunks;
+            return chunks;
+        }
     public:
-        Chunk() :
-        m_firstFreeBlock(0),
-        m_numFreeBlocks(BlocksPerChunk - 1) {
-            for (size_t i = 0; i < BlocksPerChunk - 1; i++)
-                m_blocks[i * sizeof(T)] = static_cast<unsigned char>(i + 1);
-        }
-
-        bool contains(const T* t) const {
-            const unsigned char* block = reinterpret_cast<const unsigned char*>(t);
-            if (block < m_blocks)
-                return false;
-            size_t offset = static_cast<size_t>(block - m_blocks);
-            return offset < (BlocksPerChunk - 1) * sizeof(T);
-        }
-
-        T* allocate() {
-            if (m_numFreeBlocks == 0)
-                return nullptr;
-
-            unsigned char* block = m_blocks + m_firstFreeBlock * sizeof(T);
-            m_firstFreeBlock = *block;
-            m_numFreeBlocks--;
-            return reinterpret_cast<T*>(block);
-        }
-
-        void deallocate(T* t) {
-            assert(m_numFreeBlocks < BlocksPerChunk - 1);
-            assert(contains(t));
-
-            unsigned char* block = reinterpret_cast<unsigned char*>(t);
-            assert(block >= m_blocks);
-            size_t offset = static_cast<size_t>(block - m_blocks);
-            assert(offset % sizeof(T) == 0);
-
-            size_t index = offset / sizeof(T);
-            assert(index < BlocksPerChunk);
-
-            *block = m_firstFreeBlock;
-            m_firstFreeBlock = static_cast<unsigned char>(index);
-            m_numFreeBlocks++;
-        }
-
-        bool empty() const {
-            return m_numFreeBlocks == BlocksPerChunk - 1;
-        }
-
-        bool full() const {
-            return m_numFreeBlocks == 0;
-        }
-    };
-
-    using ChunkList = std::vector<Chunk*>;
-    using Pool = std::stack<T*>;
-
-    static Pool& pool() {
-        static Pool p;
-        return p;
-    }
-
-    static ChunkList& fullChunks() {
-        static ChunkList chunks;
-        return chunks;
-    }
-
-    static ChunkList& mixedChunks() {
-        static ChunkList chunks;
-        return chunks;
-    }
-
-    static ChunkList emptyChunks() {
-        static ChunkList chunks;
-        return chunks;
-    }
-public:
 #ifdef TB_ENABLE_ALLOCATOR
-    void* operator new(size_t size) {
-        assert(size == sizeof(T));
+        void* operator new([[maybe_unused]] size_t size) {
+            assert(size == sizeof(T));
 
-        if (!pool().empty()) {
-            T* t = pool().top();
-            pool().pop();
-            return t;
-        }
+            if (!pool().empty()) {
+                T* t = pool().top();
+                pool().pop();
+                return t;
+            }
 
-        Chunk* chunk = nullptr;
-        if (mixedChunks().empty()) {
-            if (!emptyChunks().empty()) {
-                chunk = emptyChunks().back();
-                emptyChunks().pop_back();
+            Chunk* chunk = nullptr;
+            if (mixedChunks().empty()) {
+                if (!emptyChunks().empty()) {
+                    chunk = emptyChunks().back();
+                    emptyChunks().pop_back();
+                } else {
+                    chunk = new Chunk();
+                }
             } else {
-                chunk = new Chunk();
+                chunk = mixedChunks().back();
+                mixedChunks().pop_back();
             }
-        } else {
-            chunk = mixedChunks().back();
-            mixedChunks().pop_back();
+
+            assert(!chunk->full());
+            T* block = chunk->allocate();
+
+            if (chunk->full()) {
+                fullChunks().push_back(chunk);
+            } else {
+                mixedChunks().push_back(chunk);
+            }
+            return block;
         }
 
-        assert(!chunk->full());
-        T* block = chunk->allocate();
+        void operator delete(void* block) {
+            T* t = reinterpret_cast<T*>(block);
 
-        if (chunk->full()) {
-            fullChunks().push_back(chunk);
-        } else {
-            mixedChunks().push_back(chunk);
-        }
-        return block;
-    }
+            if (PoolSize > 0 && pool().size() < PoolSize) {
+                pool().push(t);
+                return;
+            }
 
-    void operator delete(void* block) {
-        T* t = reinterpret_cast<T*>(block);
+            typename ChunkList::reverse_iterator fullIt, fullEnd, mixedIt, mixedEnd;
+            fullIt = fullChunks().rbegin();
+            fullEnd = fullChunks().rend();
+            mixedIt = mixedChunks().rbegin();
+            mixedEnd = mixedChunks().rend();
 
-        if (PoolSize > 0 && pool().size() < PoolSize) {
-            pool().push(t);
-            return;
-        }
-
-        typename ChunkList::reverse_iterator fullIt, fullEnd, mixedIt, mixedEnd;
-        fullIt = fullChunks().rbegin();
-        fullEnd = fullChunks().rend();
-        mixedIt = mixedChunks().rbegin();
-        mixedEnd = mixedChunks().rend();
-
-        Chunk* chunk = nullptr;
-        while (fullIt < fullEnd || mixedIt < mixedEnd) {
-            if (fullIt < fullEnd) {
-                Chunk* fullChunk = *fullIt;
-                if (fullChunk->contains(t)) {
-                    chunk = fullChunk;
-                    break;
+            Chunk* chunk = nullptr;
+            while (fullIt < fullEnd || mixedIt < mixedEnd) {
+                if (fullIt < fullEnd) {
+                    Chunk* fullChunk = *fullIt;
+                    if (fullChunk->contains(t)) {
+                        chunk = fullChunk;
+                        break;
+                    }
+                    ++fullIt;
                 }
-                ++fullIt;
-            }
-            if (mixedIt < mixedEnd) {
-                Chunk* mixedChunk = *mixedIt;
-                if (mixedChunk->contains(t)) {
-                    chunk = mixedChunk;
-                    break;
+                if (mixedIt < mixedEnd) {
+                    Chunk* mixedChunk = *mixedIt;
+                    if (mixedChunk->contains(t)) {
+                        chunk = mixedChunk;
+                        break;
+                    }
+                    ++mixedIt;
                 }
-                ++mixedIt;
             }
-        }
 
-        assert(chunk != nullptr);
+            assert(chunk != nullptr);
 
-        if (chunk->full()) {
-            fullChunks().erase((fullIt + 1).base());
-            mixedChunks().push_back(chunk);
-        }
+            if (chunk->full()) {
+                fullChunks().erase((fullIt + 1).base());
+                mixedChunks().push_back(chunk);
+            }
 
-        chunk->deallocate(t);
+            chunk->deallocate(t);
 
-        if (chunk->empty()) {
-            mixedChunks().erase((mixedIt + 1).base());
-            if (emptyChunks().size() < 2)
-                emptyChunks().push_back(chunk);
+            if (chunk->empty()) {
+                mixedChunks().erase((mixedIt + 1).base());
+                if (emptyChunks().size() < 2)
+                    emptyChunks().push_back(chunk);
                 else
                     delete chunk;
+            }
         }
-    }
 #endif
-};
+    };
+}
 
 #endif

@@ -20,12 +20,14 @@
 #ifndef TrenchBroom_EntityModelLoader
 #define TrenchBroom_EntityModelLoader
 
-#include "Assets/AssetTypes.h"
-
 #include <memory>
 
 namespace TrenchBroom {
     class Logger;
+
+    namespace Assets {
+        class EntityModel;
+    }
 
     namespace IO {
         class Path;
@@ -33,11 +35,11 @@ namespace TrenchBroom {
         class EntityModelLoader {
         public:
             virtual ~EntityModelLoader();
-            std::unique_ptr<Assets::EntityModel> initializeModel(const IO::Path& path, Logger& logger) const;
-            void loadFrame(const IO::Path& path, size_t frameIndex, Assets::EntityModel& model, Logger& logger) const;
+            std::unique_ptr<Assets::EntityModel> initializeModel(const Path& path, Logger& logger) const;
+            void loadFrame(const Path& path, size_t frameIndex, Assets::EntityModel& model, Logger& logger) const;
         private:
-            virtual std::unique_ptr<Assets::EntityModel> doInitializeModel(const IO::Path& path, Logger& logger) const = 0;
-            virtual void doLoadFrame(const IO::Path& path, size_t frameIndex, Assets::EntityModel& model, Logger& logger) const = 0;
+            virtual std::unique_ptr<Assets::EntityModel> doInitializeModel(const Path& path, Logger& logger) const = 0;
+            virtual void doLoadFrame(const Path& path, size_t frameIndex, Assets::EntityModel& model, Logger& logger) const = 0;
         };
     }
 }

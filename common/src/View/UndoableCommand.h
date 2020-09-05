@@ -20,40 +20,41 @@
 #ifndef TrenchBroom_UndoableCommand
 #define TrenchBroom_UndoableCommand
 
-#include "SharedPointer.h"
+#include "Macros.h"
 #include "View/Command.h"
+
+#include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
         class MapDocumentCommandFacade;
 
         class UndoableCommand : public Command {
+        protected:
+            UndoableCommand(CommandType type, const std::string& name);
         public:
-            using Ptr = std::shared_ptr<UndoableCommand>;
-        public:
-            UndoableCommand(CommandType type, const String& name);
             virtual ~UndoableCommand();
 
-            virtual bool performUndo(MapDocumentCommandFacade* document);
+            virtual std::unique_ptr<CommandResult> performUndo(MapDocumentCommandFacade* document);
 
             bool isRepeatDelimiter() const;
             bool isRepeatable(MapDocumentCommandFacade* document) const;
-            UndoableCommand::Ptr repeat(MapDocumentCommandFacade* document) const;
+            std::unique_ptr<UndoableCommand> repeat(MapDocumentCommandFacade* document) const;
 
-            virtual bool collateWith(UndoableCommand::Ptr command);
+            virtual bool collateWith(UndoableCommand* command);
         private:
-            virtual bool doPerformUndo(MapDocumentCommandFacade* document) = 0;
+            virtual std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) = 0;
 
             virtual bool doIsRepeatDelimiter() const;
             virtual bool doIsRepeatable(MapDocumentCommandFacade* document) const = 0;
-            virtual UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const;
+            virtual std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const;
 
-            virtual bool doCollateWith(UndoableCommand::Ptr command) = 0;
+            virtual bool doCollateWith(UndoableCommand* command) = 0;
         public: // this method is just a service for DocumentCommand and should never be called from anywhere else
             virtual size_t documentModificationCount() const;
-        private:
-            UndoableCommand(const UndoableCommand& other);
-            UndoableCommand& operator=(const UndoableCommand& other);
+
+            deleteCopyAndMove(UndoableCommand)
         };
     }
 }

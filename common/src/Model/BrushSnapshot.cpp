@@ -19,32 +19,38 @@
 
 #include "BrushSnapshot.h"
 
-#include "CollectionUtils.h"
-#include "Model/Brush.h"
+#include "Exceptions.h"
+#include "Model/BrushError.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushNode.h"
+
+#include <kdl/overload.h>
+#include <kdl/result.h>
+#include <kdl/string_utils.h>
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom {
     namespace Model {
-        BrushSnapshot::BrushSnapshot(Brush* brush) :
-        m_brush(brush) {
-            takeSnapshot(brush);
-        }
-
-        BrushSnapshot::~BrushSnapshot() {
-            VectorUtils::clearAndDelete(m_faces);
-        }
-
-        void BrushSnapshot::takeSnapshot(Brush* brush) {
-            for (BrushFace* face : brush->faces()) {
-                BrushFace *faceClone = face->clone();
-                faceClone->setTexture(nullptr);
-                m_faces.push_back(faceClone);
+        BrushSnapshot::BrushSnapshot(BrushNode* brushNode) :
+        m_brushNode(brushNode) {
+            const Brush& brush = m_brushNode->brush();
+            for (const BrushFace& face : brush.faces()) {
+                BrushFace& copy = m_faces.emplace_back(face);
+                copy.setTexture(nullptr);
             }
         }
 
-        void BrushSnapshot::doRestore(const vm::bbox3& worldBounds) {
-            m_brush->setFaces(worldBounds, m_faces);
-            m_faces.clear();
+        kdl::result<void, SnapshotErrors> BrushSnapshot::doRestore(const vm::bbox3& worldBounds) {
+            return Brush::create(worldBounds, std::move(m_faces))
+                .visit(kdl::overload {
+                    [&](Brush&& b) {
+                        m_brushNode->setBrush(std::move(b));
+                        return kdl::result<void, SnapshotErrors>::success();
+                    },
+                    [](const BrushError e) {
+                        return kdl::result<void, SnapshotErrors>::error(SnapshotErrors{e});
+                    }
+                });
         }
     }
 }

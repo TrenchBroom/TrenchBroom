@@ -25,8 +25,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EditorContext;
-
         template <typename C, typename M>
         class CollectSelectedNodesTemplate : public CollectMatchingNodesVisitor<M, C, NeverStopRecursion> {
         public:
@@ -38,6 +36,9 @@ namespace TrenchBroom {
         using CollectUnselectedNodesVisitor = CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, MatchSelectedNodes<false> >;
         using CollectTransitivelySelectedNodesVisitor = CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, MatchTransitivelySelectedNodes<true> > ;
         using CollectTransitivelyUnselectedNodesVisitor = CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, MatchTransitivelySelectedNodes<false> >;
+
+        using CollectTransitivelySelectedOrDescendantSelectedNodesVisitor = CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, MatchTransitivelySelectedOrDescendantSelectedNodes<true>>;
+        using CollectNotTransitivelySelectedOrDescendantSelectedNodesVisitor = CollectSelectedNodesTemplate<StandardNodeCollectionStrategy, MatchTransitivelySelectedOrDescendantSelectedNodes<false>>;
     }
 }
 

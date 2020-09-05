@@ -20,26 +20,27 @@
 #ifndef TrenchBroom_Console
 #define TrenchBroom_Console
 
-#include "StringUtils.h"
-#include "Notifier.h"
 #include "Logger.h"
 #include "View/TabBook.h"
 
-class wxString;
-class wxTextCtrl;
+#include <string>
+
+class QTextEdit;
+class QString;
+class QWidget;
 
 namespace TrenchBroom {
     namespace View {
         class Console : public TabBookPage, public Logger {
         private:
-            wxTextCtrl* m_textView;
+            QTextEdit* m_textView;
         public:
-            Console(wxWindow* parent);
+            explicit Console(QWidget* parent = nullptr);
         private:
-            void doLog(LogLevel level, const String& message) override;
-            void doLog(LogLevel level, const wxString& message) override;
-            void logToDebugOut(LogLevel level, const wxString& message);
-            void logToConsole(LogLevel level, const wxString& message);
+            void doLog(LogLevel level, const std::string& message) override;
+            void doLog(LogLevel level, const QString& message) override;
+            void logToDebugOut(LogLevel level, const QString& message);
+            void logToConsole(LogLevel level, const QString& message);
         };
     }
 }

@@ -18,18 +18,28 @@
  */
 
 #include "Command.h"
-#include "Exceptions.h"
+
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
+        CommandResult::CommandResult(const bool success) :
+        m_success(success) {}
+
+        CommandResult::~CommandResult() = default;
+
+        bool CommandResult::success() const {
+            return m_success;
+        }
+
         Command::CommandType Command::freeType() {
             static CommandType type = 1;
             return type++;
         }
 
-        Command::Command(const CommandType type, const String& name) :
+        Command::Command(const CommandType type, const std::string& name) :
         m_type(type),
-        m_state(CommandState_Default),
+        m_state(CommandState::Default),
         m_name(name) {}
 
         Command::~Command() {}
@@ -46,19 +56,19 @@ namespace TrenchBroom {
             return m_state;
         }
 
-        const String& Command::name() const {
+        const std::string& Command::name() const {
             return m_name;
         }
 
-        bool Command::performDo(MapDocumentCommandFacade* document) {
-            m_state = CommandState_Doing;
-            if (doPerformDo(document)) {
-                m_state = CommandState_Done;
-                return true;
+        std::unique_ptr<CommandResult> Command::performDo(MapDocumentCommandFacade* document) {
+            m_state = CommandState::Doing;
+            auto result = doPerformDo(document);
+            if (result->success()) {
+                m_state = CommandState::Done;
             } else {
-                m_state = CommandState_Default;
-                return false;
+                m_state = CommandState::Default;
             }
+            return result;
         }
     }
 }

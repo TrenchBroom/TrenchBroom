@@ -22,12 +22,10 @@
 
 #include "Macros.h"
 
-#include <cstdio>
-
 namespace TrenchBroom {
     namespace Renderer {
         class RenderContext;
-        class Vbo;
+        class VboManager;
 
         class Renderable {
         public:
@@ -46,9 +44,9 @@ namespace TrenchBroom {
             DirectRenderable() = default;
             ~DirectRenderable() override = default;
 
-            void prepareVertices(Vbo& vertexVbo);
+            void prepareVertices(VboManager& vboManager);
         private:
-            virtual void doPrepareVertices(Vbo& vertexVbo) = 0;
+            virtual void doPrepareVertices(VboManager& vboManager) = 0;
 
             defineCopyAndMove(DirectRenderable)
         };
@@ -58,7 +56,7 @@ namespace TrenchBroom {
             IndexedRenderable() = default;
             ~IndexedRenderable() override = default;
 
-            virtual void prepareVerticesAndIndices(Vbo& vertexVbo, Vbo& indexVbo) = 0;
+            virtual void prepareVerticesAndIndices(VboManager& vboManager) = 0;
 
             defineCopyAndMove(IndexedRenderable)
         };

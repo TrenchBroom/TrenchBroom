@@ -20,28 +20,26 @@
 #ifndef TrenchBroom_MatchSelectableNodes
 #define TrenchBroom_MatchSelectableNodes
 
-#include <stdio.h>
-
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
+        class BrushNode;
         class EditorContext;
-        class Entity;
-        class Group;
-        class Layer;
-        class World;
+        class EntityNode;
+        class GroupNode;
+        class LayerNode;
+        class WorldNode;
 
         class MatchSelectableNodes {
         private:
             const Model::EditorContext& m_editorContext;
         public:
-            MatchSelectableNodes(const Model::EditorContext& editorContext);
+            explicit MatchSelectableNodes(const Model::EditorContext& editorContext);
 
-            bool operator()(const Model::World* world) const;
-            bool operator()(const Model::Layer* layer) const;
-            bool operator()(const Model::Group* group) const;
-            bool operator()(const Model::Entity* entity) const;
-            bool operator()(const Model::Brush* brush) const;
+            bool operator()(const Model::WorldNode* world) const;
+            bool operator()(const Model::LayerNode* layer) const;
+            bool operator()(const Model::GroupNode* group) const;
+            bool operator()(const Model::EntityNode* entity) const;
+            bool operator()(const Model::BrushNode* brush) const;
         };
     }
 }

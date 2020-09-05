@@ -20,18 +20,16 @@
 #ifndef TrenchBroom_MoveObjectsTool
 #define TrenchBroom_MoveObjectsTool
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "View/Tool.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 namespace TrenchBroom {
-    namespace Model {
-        class Hit;
-    }
-
     namespace View {
         class Grid;
         class InputState;
+        class MapDocument;
 
         class MoveObjectsTool : public Tool {
         public:
@@ -41,10 +39,10 @@ namespace TrenchBroom {
                 MR_Cancel
             } MoveResult;
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             bool m_duplicateObjects;
         public:
-            MoveObjectsTool(MapDocumentWPtr document);
+            explicit MoveObjectsTool(std::weak_ptr<MapDocument> document);
         public:
             const Grid& grid() const;
 
@@ -55,7 +53,7 @@ namespace TrenchBroom {
         private:
             bool duplicateObjects(const InputState& inputState) const;
 
-            wxWindow* doCreatePage(wxWindow* parent) override;
+            QWidget* doCreatePage(QWidget* parent) override;
         };
     }
 }

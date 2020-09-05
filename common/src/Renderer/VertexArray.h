@@ -20,16 +20,23 @@
 #ifndef TrenchBroom_VertexArrayRenderer
 #define TrenchBroom_VertexArrayRenderer
 
-#include "CollectionUtils.h"
+#include "Ensure.h"
 #include "Renderer/GL.h"
-#include "SharedPointer.h"
-#include "Renderer/Vbo.h"
-#include "Renderer/VboBlock.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
+#include "Renderer/ShaderManager.h"
+#include "Renderer/VboManager.h"
+#include "Renderer/Vbo.h"
+
+#include <kdl/vector_utils.h>
+
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
+        enum class PrimType;
+
         /**
          * Represents an array of vertices. Optionally, multiple instances of this class can share the same data.
          * Vertex arrays can be copied around without incurring the cost of copying the actual data.
@@ -41,13 +48,12 @@ namespace TrenchBroom {
         private:
             class BaseHolder {
             public:
-                using Ptr = std::shared_ptr<BaseHolder>;
                 virtual ~BaseHolder();
 
                 virtual size_t vertexCount() const = 0;
                 virtual size_t sizeInBytes() const = 0;
 
-                virtual void prepare(Vbo& vbo) = 0;
+                virtual void prepare(VboManager& vboManager) = 0;
                 virtual void setup() = 0;
                 virtual void cleanup() = 0;
             };
@@ -55,9 +61,8 @@ namespace TrenchBroom {
             template <typename VertexSpec>
             class Holder : public BaseHolder {
             private:
-                using VertexList = typename VertexSpec::Vertex::List;
-            private:
-                VboBlock* m_block;
+                VboManager* m_vboManager;
+                Vbo* m_vbo;
                 size_t m_vertexCount;
             public:
                 size_t vertexCount() const override {
@@ -68,74 +73,61 @@ namespace TrenchBroom {
                     return VertexSpec::Size * m_vertexCount;
                 }
 
-                void prepare(Vbo& vbo) override {
-                    if (m_vertexCount > 0 && m_block == nullptr) {
-                        ActivateVbo activate(vbo);
-                        m_block = vbo.allocateBlock(sizeInBytes());
-
-                        MapVboBlock map(m_block);
-                        m_block->writeBuffer(0, doGetVertices());
+                void prepare(VboManager& vboManager) override {
+                    if (m_vertexCount > 0 && m_vbo == nullptr) {
+                        m_vboManager = &vboManager;
+                        m_vbo = vboManager.allocateVbo(VboType::ArrayBuffer, sizeInBytes());;
+                        m_vbo->writeBuffer(0, doGetVertices());
                     }
                 }
 
                 void setup() override {
-                    ensure(m_block != nullptr, "block is null");
-                    VertexSpec::setup(m_block->offset());
+                    ensure(m_vbo != nullptr, "block is null");
+                    m_vbo->bind();
+                    VertexSpec::setup(m_vboManager->shaderManager().currentProgram(), m_vbo->offset());
                 }
 
                 void cleanup() override {
-                    VertexSpec::cleanup();
+                    VertexSpec::cleanup(m_vboManager->shaderManager().currentProgram());
+                    m_vbo->unbind();
                 }
             protected:
                 Holder(const size_t vertexCount) :
-                m_block(nullptr),
+                m_vboManager(nullptr),
+                m_vbo(nullptr),
                 m_vertexCount(vertexCount) {}
 
                 ~Holder() override {
-                    if (m_block != nullptr) {
-                        m_block->free();
-                        m_block = nullptr;
+                    // TODO: Revisit this revisiting OpenGL resource management. We should not store the VboManager,
+                    // since it represents a safe time to delete the OpenGL buffer object.
+                    if (m_vbo != nullptr) {
+                        m_vboManager->destroyVbo(m_vbo);
+                        m_vbo = nullptr;
                     }
                 }
             private:
+                using VertexList = std::vector<typename VertexSpec::Vertex>;
                 virtual const VertexList& doGetVertices() const = 0;
             };
 
             template <typename VertexSpec>
-            class CopyHolder : public Holder<VertexSpec> {
-            public:
-                using VertexList = typename VertexSpec::Vertex::List;
+            class ByValueHolder : public Holder<VertexSpec> {
+            private:
+                using VertexList = std::vector<typename VertexSpec::Vertex>;
             private:
                 VertexList m_vertices;
             public:
-                CopyHolder(const VertexList& vertices) :
+                ByValueHolder(const VertexList& vertices) :
                 Holder<VertexSpec>(vertices.size()),
                 m_vertices(vertices) {}
 
-                void prepare(Vbo& vbo) override {
-                    Holder<VertexSpec>::prepare(vbo);
-                    VectorUtils::clearToZero(m_vertices);
-                }
-            private:
-                const VertexList& doGetVertices() const override {
-                    return m_vertices;
-                }
-            };
-
-            template <typename VertexSpec>
-            class MoveHolder : public Holder<VertexSpec> {
-            public:
-                using VertexList = typename VertexSpec::Vertex::List;
-            private:
-                VertexList m_vertices;
-            public:
-                MoveHolder(VertexList&& vertices) :
+                ByValueHolder(VertexList&& vertices) :
                 Holder<VertexSpec>(vertices.size()),
                 m_vertices(std::move(vertices)) {}
 
-                void prepare(Vbo& vbo) override {
-                    Holder<VertexSpec>::prepare(vbo);
-                    VectorUtils::clearToZero(m_vertices);
+                void prepare(VboManager& vboManager) override {
+                    Holder<VertexSpec>::prepare(vboManager);
+                    kdl::vec_clear_to_zero(m_vertices);
                 }
             private:
                 const VertexList& doGetVertices() const override {
@@ -144,13 +136,13 @@ namespace TrenchBroom {
             };
 
             template <typename VertexSpec>
-            class RefHolder : public Holder<VertexSpec> {
-            public:
-                using VertexList = typename VertexSpec::Vertex::List;
+            class ByRefHolder : public Holder<VertexSpec> {
+            private:
+                using VertexList = std::vector<typename VertexSpec::Vertex>;
             private:
                 const VertexList& m_vertices;
             public:
-                RefHolder(const VertexList& vertices) :
+                ByRefHolder(const VertexList& vertices) :
                 Holder<VertexSpec>(vertices.size()),
                 m_vertices(vertices) {}
             private:
@@ -159,7 +151,7 @@ namespace TrenchBroom {
                 }
             };
         private:
-            BaseHolder::Ptr m_holder;
+            std::shared_ptr<BaseHolder> m_holder;
             bool m_prepared;
             bool m_setup;
         public:
@@ -178,7 +170,7 @@ namespace TrenchBroom {
              */
             template <typename... Attrs>
             static VertexArray copy(const std::vector<GLVertex<Attrs...>>& vertices) {
-                return VertexArray(std::make_shared<CopyHolder<typename GLVertex<Attrs...>::Type>>(vertices));
+                return VertexArray(std::make_shared<ByValueHolder<typename GLVertex<Attrs...>::Type>>(vertices));
             }
 
             /**
@@ -190,8 +182,7 @@ namespace TrenchBroom {
              */
             template <typename... Attrs>
             static VertexArray move(std::vector<GLVertex<Attrs...>>&& vertices) {
-                auto holder = std::make_shared<MoveHolder<typename GLVertex<Attrs...>::Type>>(std::move(vertices));
-                return VertexArray(holder);
+                return VertexArray(std::make_shared<ByValueHolder<typename GLVertex<Attrs...>::Type>>(std::move(vertices)));
             }
 
             /**
@@ -207,7 +198,7 @@ namespace TrenchBroom {
              */
             template <typename... Attrs>
             static VertexArray ref(const std::vector<GLVertex<Attrs...>>& vertices) {
-                return VertexArray(std::make_shared<RefHolder<typename GLVertex<Attrs...>::Type>>(vertices));
+                return VertexArray(std::make_shared<ByRefHolder<typename GLVertex<Attrs...>::Type>>(vertices));
             }
 
             /**
@@ -242,9 +233,9 @@ namespace TrenchBroom {
             /**
              * Prepares this vertex array by uploading its contents into the given vertex buffer object.
              *
-             * @param vbo the vertex buffer object to upload the contents of this vertex array into
+             * @param vboManager the vertex buffer object to upload the contents of this vertex array into
              */
-            void prepare(Vbo& vbo);
+            void prepare(VboManager& vboManager);
 
             /**
              * Sets this vertex array up for rendering. If this vertex array is only rendered once, then there is no
@@ -298,7 +289,7 @@ namespace TrenchBroom {
             void render(PrimType primType, const GLIndices& indices, GLsizei count);
             void cleanup();
         private:
-            explicit VertexArray(BaseHolder::Ptr holder);
+            explicit VertexArray(std::shared_ptr<BaseHolder> holder);
         };
     }
 }

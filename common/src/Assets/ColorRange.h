@@ -20,7 +20,8 @@
 #ifndef TrenchBroom_ColorRange_h
 #define TrenchBroom_ColorRange_h
 
-#include "StringUtils.h"
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -32,8 +33,8 @@ namespace TrenchBroom {
             static const Type Mixed = Float | Byte;
         }
 
-        ColorRange::Type detectColorRange(const String& str);
-        ColorRange::Type detectColorRange(const StringList& components);
+        ColorRange::Type detectColorRange(const std::string& str);
+        ColorRange::Type detectColorRange(const std::vector<std::string>& components);
     }
 }
 

@@ -21,29 +21,29 @@
 #define TrenchBroom_MapViewBar
 
 #include "View/ContainerBar.h"
-#include "View/ViewTypes.h"
 
-class wxBookCtrlBase;
-class wxSearchCtrl;
-class wxStaticText;
+#include <memory>
+
+class QStackedLayout;
+class QLabel;
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
         class ViewPopupEditor;
 
         class MapViewBar : public ContainerBar {
+            Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
-            wxBookCtrlBase* m_toolBook;
+            std::weak_ptr<MapDocument> m_document;
+            QStackedLayout* m_toolBook;
             ViewPopupEditor* m_viewEditor;
         public:
-            MapViewBar(wxWindow* parent, MapDocumentWPtr document);
+            explicit MapViewBar(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
-            wxBookCtrlBase* toolBook();
-
-            void OnSearchPatternChanged(wxCommandEvent& event);
+            QStackedLayout* toolBook();
         private:
-            void createGui(MapDocumentWPtr document);
+            void createGui(std::weak_ptr<MapDocument> document);
         };
     }
 }

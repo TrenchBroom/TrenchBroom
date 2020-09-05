@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_InputState
 #define TrenchBroom_InputState
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/PickResult.h"
 #include "View/PickRequest.h"
 
@@ -53,8 +53,6 @@ namespace TrenchBroom {
             static const MouseButtonState MBMiddle    = 1 << 2;
         }
 
-        class Grid;
-
         class InputState {
         private:
             ModifierKeyState m_modifierKeys;
@@ -83,13 +81,22 @@ namespace TrenchBroom {
 
             MouseButtonState mouseButtons() const;
             bool mouseButtonsDown(MouseButtonState buttons) const;
+            /**
+             * Checks whether only the given buttons are down (and no others).
+             */
             bool mouseButtonsPressed(const MouseButtonState buttons) const;
-                       int mouseX() const;
+            int mouseX() const;
             int mouseY() const;
             int mouseDX() const;
             int mouseDY() const;
 
+            /**
+             * Number of "lines" to scroll horizontally.
+             */
             float scrollX() const;
+            /**
+             * Number of "lines" to scroll vertically.
+             */
             float scrollY() const;
 
             void setModifierKeys(const ModifierKeyState keys);
@@ -110,7 +117,7 @@ namespace TrenchBroom {
             void setPickRequest(const PickRequest& pickRequest);
 
             const Model::PickResult& pickResult() const;
-            void setPickResult(Model::PickResult& pickResult);
+            void setPickResult(Model::PickResult&& pickResult);
         };
     }
 }

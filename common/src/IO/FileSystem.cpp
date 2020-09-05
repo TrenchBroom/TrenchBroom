@@ -20,8 +20,12 @@
 #include "FileSystem.h"
 
 #include "Exceptions.h"
-#include "CollectionUtils.h"
 #include "IO/FileMatcher.h"
+
+#include <kdl/vector_utils.h>
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -90,29 +94,29 @@ namespace TrenchBroom {
             }
         }
 
-        Path::List FileSystem::findItemsWithBaseName(const Path& path, const StringList& extensions) const {
+        std::vector<Path> FileSystem::findItemsWithBaseName(const Path& path, const std::vector<std::string>& extensions) const {
             if (path.isEmpty()) {
-                return Path::List(0);
+                return std::vector<Path>(0);
             }
 
             const auto directoryPath = path.deleteLastComponent();
             if (!directoryExists(directoryPath)) {
-                return Path::List(0);
+                return std::vector<Path>(0);
             }
 
             const auto basename = path.basename();
             return findItems(directoryPath, FileBasenameMatcher(basename, extensions));
         }
 
-        Path::List FileSystem::findItems(const Path& directoryPath) const {
+        std::vector<Path> FileSystem::findItems(const Path& directoryPath) const {
             return findItems(directoryPath, FileTypeMatcher());
         }
 
-        Path::List FileSystem::findItemsRecursively(const Path& directoryPath) const {
+        std::vector<Path> FileSystem::findItemsRecursively(const Path& directoryPath) const {
             return findItemsRecursively(directoryPath, FileTypeMatcher());
         }
 
-        Path::List FileSystem::getDirectoryContents(const Path& directoryPath) const {
+        std::vector<Path> FileSystem::getDirectoryContents(const Path& directoryPath) const {
             try {
                 if (directoryPath.isAbsolute()) {
                     throw FileSystemException("Path is absolute: '" + directoryPath.asString() + "'");
@@ -161,13 +165,13 @@ namespace TrenchBroom {
             return doFileExists(path) || (m_next && m_next->_fileExists(path));
         }
 
-        Path::List FileSystem::_getDirectoryContents(const Path& directoryPath) const {
+        std::vector<Path> FileSystem::_getDirectoryContents(const Path& directoryPath) const {
             auto result = doGetDirectoryContents(directoryPath);
             if (m_next) {
-                VectorUtils::append(result, m_next->_getDirectoryContents(directoryPath));
+                kdl::vec_append(result, m_next->_getDirectoryContents(directoryPath));
             }
 
-            VectorUtils::sortAndRemoveDuplicates(result);
+            kdl::vec_sort_and_remove_duplicates(result);
             return result;
         }
 
@@ -181,7 +185,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool FileSystem::doCanMakeAbsolute(const Path& path) const {
+        bool FileSystem::doCanMakeAbsolute(const Path& /* path */) const {
             return false;
         }
 
@@ -192,7 +196,20 @@ namespace TrenchBroom {
         WritableFileSystem::WritableFileSystem() = default;
         WritableFileSystem::~WritableFileSystem() = default;
 
-        void WritableFileSystem::createFile(const Path& path, const String& contents) {
+        void WritableFileSystem::createFileAtomic(const Path& path, const std::string& contents) {
+            const auto tmpPath = path.addExtension("tmp");
+            try {
+                if (path.isAbsolute()) {
+                    throw FileSystemException("Path is absolute: '" + path.asString() + "'");
+                }
+                doCreateFile(tmpPath, contents);
+                doMoveFile(tmpPath, path, true);
+            } catch (const PathException& e) {
+                throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
+            }
+        }
+
+        void WritableFileSystem::createFile(const Path& path, const std::string& contents) {
             try {
                 if (path.isAbsolute()) {
                     throw FileSystemException("Path is absolute: '" + path.asString() + "'");

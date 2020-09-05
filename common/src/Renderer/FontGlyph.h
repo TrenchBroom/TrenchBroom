@@ -20,16 +20,13 @@
 #ifndef TrenchBroom_FontGlyph
 #define TrenchBroom_FontGlyph
 
-#include <vector>
-
 #include <vecmath/forward.h>
-#include <vecmath/vec.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
         class FontGlyph {
-        public:
-            using List = std::vector<FontGlyph>;
         private:
             float m_x;
             float m_y;

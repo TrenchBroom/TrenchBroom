@@ -33,8 +33,6 @@ namespace TrenchBroom {
             return doLoadFrame(frameIndex, model, logger);
         }
 
-        void EntityModelParser::doLoadFrame(const size_t frameIndex, Assets::EntityModel& model, Logger& logger) {
-
-        }
+        void EntityModelParser::doLoadFrame(const size_t /* frameIndex */, Assets::EntityModel& /* model */, Logger& /* logger */) {}
     }
 }

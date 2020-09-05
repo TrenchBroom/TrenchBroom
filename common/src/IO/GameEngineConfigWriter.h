@@ -20,10 +20,10 @@
 #ifndef GameEngineConfigWriter_h
 #define GameEngineConfigWriter_h
 
-#include "EL.h"
 #include "Macros.h"
+#include "EL/EL_Forward.h"
 
-#include <iostream>
+#include <iosfwd>
 
 namespace TrenchBroom {
     namespace Model {

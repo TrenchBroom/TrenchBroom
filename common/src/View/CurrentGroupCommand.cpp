@@ -25,19 +25,19 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType CurrentGroupCommand::Type = Command::freeType();
 
-        CurrentGroupCommand::Ptr CurrentGroupCommand::push(Model::Group* group) {
-            return Ptr(new CurrentGroupCommand(group));
+        std::unique_ptr<CurrentGroupCommand> CurrentGroupCommand::push(Model::GroupNode* group) {
+            return std::make_unique<CurrentGroupCommand>(group);
         }
 
-        CurrentGroupCommand::Ptr CurrentGroupCommand::pop() {
-            return Ptr(new CurrentGroupCommand(nullptr));
+        std::unique_ptr<CurrentGroupCommand> CurrentGroupCommand::pop() {
+            return std::make_unique<CurrentGroupCommand>(nullptr);
         }
 
-        CurrentGroupCommand::CurrentGroupCommand(Model::Group* group) :
+        CurrentGroupCommand::CurrentGroupCommand(Model::GroupNode* group) :
         UndoableCommand(Type, group != nullptr ? "Push Group" : "Pop Group"),
         m_group(group) {}
 
-        bool CurrentGroupCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformDo(MapDocumentCommandFacade* document) {
             if (m_group != nullptr) {
                 document->performPushGroup(m_group);
                 m_group = nullptr;
@@ -45,10 +45,10 @@ namespace TrenchBroom {
                 m_group = document->currentGroup();
                 document->performPopGroup();
             }
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool CurrentGroupCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+        std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             if (m_group == nullptr) {
                 m_group = document->currentGroup();
                 document->performPopGroup();
@@ -56,14 +56,14 @@ namespace TrenchBroom {
                 document->performPushGroup(m_group);
                 m_group = nullptr;
             }
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool CurrentGroupCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool CurrentGroupCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
 
-        bool CurrentGroupCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        bool CurrentGroupCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
             return false;
         }
     }

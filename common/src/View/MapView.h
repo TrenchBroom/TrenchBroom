@@ -20,28 +20,32 @@
 #ifndef TrenchBroom_MapView
 #define TrenchBroom_MapView
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "View/ViewEffectsService.h"
 
-#include <vecmath/scalar.h>
+#include <vecmath/forward.h>
 
 namespace TrenchBroom {
     namespace View {
-        class CameraLinkHelper;
+        class MapViewActivationTracker;
+        class MapViewBase;
+        class MapViewContainer;
 
         class MapView : public ViewEffectsService {
+        private:
+            MapViewContainer* m_container;
         public:
-            virtual ~MapView();
+            MapView();
+            ~MapView() override;
+
+            void setContainer(MapViewContainer* container);
+            void installActivationTracker(MapViewActivationTracker& activationTracker);
 
             bool isCurrent() const;
-            void setToolBoxDropTarget();
-            void clearDropTarget();
+            MapViewBase* firstMapViewBase();
 
             bool canSelectTall();
             void selectTall();
-
-            bool canFlipObjects() const;
-            void flipObjects(vm::direction direction);
 
             vm::vec3 pasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const;
 
@@ -51,17 +55,25 @@ namespace TrenchBroom {
             void moveCameraToCurrentTracePoint();
 
             bool cancelMouseDrag();
-        private:
-            virtual bool doGetIsCurrent() const = 0;
 
-            virtual void doSetToolBoxDropTarget() = 0;
-            virtual void doClearDropTarget() = 0;
+            /**
+             * If the parent of this view is a CyclingMapView, cycle to the
+             * next child, otherwise do nothing.
+             */
+            void cycleMapView();
+
+            /**
+             * Requests repaint of the managed map views. Note, this must be used instead of QWidget::update()
+             */
+            void refreshViews();
+        private:
+            virtual void doInstallActivationTracker(MapViewActivationTracker& activationTracker) = 0;
+
+            virtual bool doGetIsCurrent() const = 0;
+            virtual MapViewBase* doGetFirstMapViewBase() = 0;
 
             virtual bool doCanSelectTall() = 0;
             virtual void doSelectTall() = 0;
-
-            virtual bool doCanFlipObjects() const = 0;
-            virtual void doFlipObjects(vm::direction direction) = 0;
 
             virtual vm::vec3 doGetPasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const = 0;
 
@@ -71,6 +83,8 @@ namespace TrenchBroom {
             virtual void doMoveCameraToCurrentTracePoint() = 0;
 
             virtual bool doCancelMouseDrag() = 0;
+
+            virtual void doRefreshViews() = 0;
         };
     }
 }

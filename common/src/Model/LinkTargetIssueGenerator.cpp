@@ -19,15 +19,15 @@
 
 #include "LinkTargetIssueGenerator.h"
 
-#include "Model/Entity.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 #include "Model/PushSelection.h"
 
-#include <cassert>
 #include <map>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -35,11 +35,11 @@ namespace TrenchBroom {
         public:
             friend class LinkTargetIssueQuickFix;
         private:
-            const AttributeName m_name;
+            const std::string m_name;
         public:
             static const IssueType Type;
         public:
-            LinkTargetIssue(AttributableNode* node, const AttributeName& name) :
+            LinkTargetIssue(AttributableNode* node, const std::string& name) :
             Issue(node),
             m_name(name) {}
 
@@ -47,7 +47,7 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            std::string doGetDescription() const override {
                 const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
                 return attributableNode->classname() + " has missing target for key '" + m_name + "'";
             }
@@ -57,7 +57,7 @@ namespace TrenchBroom {
 
         class LinkTargetIssueGenerator::LinkTargetIssueQuickFix : public IssueQuickFix {
         private:
-            using AttributeNameMap = std::map<AttributeName, NodeList>;
+            using AttributeNameMap = std::map<std::string, std::vector<Node*>>;
         public:
             LinkTargetIssueQuickFix() :
             IssueQuickFix(LinkTargetIssue::Type, "Delete property") {}
@@ -66,7 +66,7 @@ namespace TrenchBroom {
                 const PushSelection push(facade);
 
                 const LinkTargetIssue* targetIssue = static_cast<const LinkTargetIssue*>(issue);
-                const AttributeName& attributeName = targetIssue->m_name;
+                const std::string& attributeName = targetIssue->m_name;
 
                 // If world node is affected, the selection will fail, but if nothing is selected,
                 // the removeAttribute call will correctly affect worldspawn either way.
@@ -87,10 +87,11 @@ namespace TrenchBroom {
             processKeys(node, node->findMissingKillTargets(), issues);
         }
 
-        void LinkTargetIssueGenerator::processKeys(AttributableNode* node, const Model::AttributeNameList& names, IssueList& issues) const {
+        void LinkTargetIssueGenerator::processKeys(AttributableNode* node, const std::vector<std::string>& names, IssueList& issues) const {
             issues.reserve(issues.size() + names.size());
-            for (const Model::AttributeName& name : names)
+            for (const std::string& name : names) {
                 issues.push_back(new LinkTargetIssue(node, name));
+            }
         }
     }
 }

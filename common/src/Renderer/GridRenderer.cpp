@@ -19,62 +19,65 @@
 
 #include "GridRenderer.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Renderer/ActiveShader.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/OrthographicCamera.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 
+#include <vecmath/bbox.h>
 #include <vecmath/vec.h>
 
 namespace TrenchBroom {
     namespace Renderer {
         GridRenderer::GridRenderer(const OrthographicCamera& camera, const vm::bbox3& worldBounds) :
-        m_vertexArray(VertexArray::copy(vertices(camera, worldBounds))) {}
+        m_vertexArray(VertexArray::move(vertices(camera, worldBounds))) {}
 
-        GridRenderer::Vertex::List GridRenderer::vertices(const OrthographicCamera& camera, const vm::bbox3& worldBounds) {
-            const Camera::Viewport& viewport = camera.zoomedViewport();
-            const float w = float(viewport.width) / 2.0f;
-            const float h = float(viewport.height) / 2.0f;
+        std::vector<GridRenderer::Vertex> GridRenderer::vertices(const OrthographicCamera& camera, const vm::bbox3& worldBounds) {
+            const auto& viewport = camera.zoomedViewport();
+            const auto w = float(viewport.width) / 2.0f;
+            const auto h = float(viewport.height) / 2.0f;
 
-            const vm::vec3f& p = camera.position();
-            switch (firstComponent(camera.direction())) {
+            const auto& p = camera.position();
+            switch (vm::find_abs_max_component(camera.direction())) {
                 case vm::axis::x:
-                    return Vertex::List({
+                    return {
                         Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() - w, p.z() - h)),
                         Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() - w, p.z() + h)),
                         Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() + w, p.z() + h)),
                         Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() + w, p.z() - h))
-                    });
+                    };
                 case vm::axis::y:
-                    return Vertex::List({
+                    return {
                         Vertex(vm::vec3f(p.x() - w, float(worldBounds.max.y()), p.z() - h)),
                         Vertex(vm::vec3f(p.x() - w, float(worldBounds.max.y()), p.z() + h)),
                         Vertex(vm::vec3f(p.x() + w, float(worldBounds.max.y()), p.z() + h)),
                         Vertex(vm::vec3f(p.x() + w, float(worldBounds.max.y()), p.z() - h))
-                    });
+                    };
                 case vm::axis::z:
-                    return Vertex::List({
+                    return {
                         Vertex(vm::vec3f(p.x() - w, p.y() - h, float(worldBounds.min.z()))),
                         Vertex(vm::vec3f(p.x() - w, p.y() + h, float(worldBounds.min.z()))),
                         Vertex(vm::vec3f(p.x() + w, p.y() + h, float(worldBounds.min.z()))),
                         Vertex(vm::vec3f(p.x() + w, p.y() - h, float(worldBounds.min.z())))
-                    });
+                    };
                 default:
                     // Should not happen.
-                    return Vertex::List();
+                    return {};
             }
         }
 
-        void GridRenderer::doPrepareVertices(Vbo& vertexVbo) {
-            m_vertexArray.prepare(vertexVbo);
+        void GridRenderer::doPrepareVertices(VboManager& vboManager) {
+            m_vertexArray.prepare(vboManager);
         }
 
         void GridRenderer::doRender(RenderContext& renderContext) {
             if (renderContext.showGrid()) {
-                const Camera& camera = renderContext.camera();
+                const auto& camera = renderContext.camera();
 
                 ActiveShader shader(renderContext.shaderManager(), Shaders::Grid2DShader);
                 shader.set("Normal", -camera.direction());
@@ -84,7 +87,7 @@ namespace TrenchBroom {
                 shader.set("GridColor", pref(Preferences::GridColor2D));
                 shader.set("CameraZoom", camera.zoom());
 
-                m_vertexArray.render(GL_QUADS);
+                m_vertexArray.render(PrimType::Quads);
             }
         }
     }

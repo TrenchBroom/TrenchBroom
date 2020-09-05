@@ -21,13 +21,20 @@
 #define TrenchBroom_TextureReader_h
 
 #include "Macros.h"
-#include "Assets/AssetTypes.h"
 
 #include <memory>
+#include <string>
 
 namespace TrenchBroom {
+    class Logger;
+    
+    namespace Assets {
+        class Texture;
+    }
+
     namespace IO {
         class File;
+        class FileSystem;
         class Path;
 
         class TextureReader {
@@ -40,10 +47,10 @@ namespace TrenchBroom {
 
                 NameStrategy* clone() const;
 
-                String textureName(const String& textureName, const Path& path) const;
+                std::string textureName(const std::string& textureName, const Path& path) const;
             private:
                 virtual NameStrategy* doClone() const = 0;
-                virtual String doGetTextureName(const String& textureName, const Path& path) const = 0;
+                virtual std::string doGetTextureName(const std::string& textureName, const Path& path) const = 0;
 
                 deleteCopyAndMove(NameStrategy)
             };
@@ -53,56 +60,77 @@ namespace TrenchBroom {
                 TextureNameStrategy();
             private:
                 NameStrategy* doClone() const override;
-                String doGetTextureName(const String& textureName, const Path& path) const override;
+                std::string doGetTextureName(const std::string& textureName, const Path& path) const override;
 
                 deleteCopyAndMove(TextureNameStrategy)
             };
 
+            /**
+             * Determines a texture name from a path removing a prefix of the path and returning the remaining
+             * suffix as a string, with the extension removed.
+             *
+             * Note that the length of a prefix refers to the number of path components and not to the number of
+             * characetrs.
+             *
+             * For example, given the path /this/that/over/here/texture.png and a prefix length of 3, this strategy
+             * will return here/texture as the texture name.
+             *
+             * Given a path with fewer than or the same number of components as the prefix length, an empty string is
+             * returned.
+             */
             class PathSuffixNameStrategy : public NameStrategy {
             private:
-                size_t m_suffixLength;
-                bool m_deleteExtension;
+                size_t m_prefixLength;
             public:
-                PathSuffixNameStrategy(size_t suffixLength, bool deleteExtension);
+                PathSuffixNameStrategy(size_t prefixLength);
             private:
                 NameStrategy* doClone() const override;
-                String doGetTextureName(const String& textureName, const Path& path) const override;
+                std::string doGetTextureName(const std::string& textureName, const Path& path) const override;
 
                 deleteCopyAndMove(PathSuffixNameStrategy)
             };
 
             class StaticNameStrategy : public NameStrategy {
             private:
-                String m_name;
+                std::string m_name;
             public:
-                explicit StaticNameStrategy(const String& name);
+                explicit StaticNameStrategy(const std::string& name);
             private:
                 NameStrategy* doClone() const override;
-                String doGetTextureName(const String& textureName, const Path& path) const override;
+                std::string doGetTextureName(const std::string& textureName, const Path& path) const override;
 
                 deleteCopyAndMove(StaticNameStrategy)
             };
         private:
             NameStrategy* m_nameStrategy;
         protected:
-            explicit TextureReader(const NameStrategy& nameStrategy);
+            const FileSystem& m_fs;
+            Logger& m_logger;
+        protected:
+            explicit TextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
         public:
             virtual ~TextureReader();
 
-            Assets::Texture* readTexture(std::shared_ptr<File> file) const;
+            /**
+             * Loads a texture from the given file and returns it. If an error occurs while loading the texture,
+             * the default texture is returned.
+             *
+             * @param file the file containing the texture
+             * @return an Assets::Texture object
+             */
+            Assets::Texture readTexture(std::shared_ptr<File> file) const;
         protected:
-            String textureName(const String& textureName, const Path& path) const;
-            String textureName(const Path& path) const;
+            std::string textureName(const std::string& textureName, const Path& path) const;
+            std::string textureName(const Path& path) const;
         private:
             /**
              * Loads a texture and returns an Assets::Texture object allocated with new. Should not throw exceptions to
-             * report errors loading textures except for unrecoverable errors (out of memory, bugs, etc.). In all other
-             * cases, an empty placeholder texture is returned.
+             * report errors loading textures except for unrecoverable errors (out of memory, bugs, etc.).
              *
              * @param file the file containing the texture
-             * @return an Assets::Texture object allocated with new
+             * @return an Assets::Texture object
              */
-            virtual Assets::Texture* doReadTexture(std::shared_ptr<File> file) const = 0;
+            virtual Assets::Texture doReadTexture(std::shared_ptr<File> file) const = 0;
         protected:
             static bool checkTextureDimensions(size_t width, size_t height);
         public:

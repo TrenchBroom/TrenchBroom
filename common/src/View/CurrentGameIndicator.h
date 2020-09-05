@@ -20,15 +20,16 @@
 #ifndef CurrentGameIndicator_h
 #define CurrentGameIndicator_h
 
-#include "StringUtils.h"
+#include <string>
 
-#include <wx/panel.h>
+#include <QWidget>
 
 namespace TrenchBroom {
     namespace View {
-        class CurrentGameIndicator : public wxPanel {
+        class CurrentGameIndicator : public QWidget {
+            Q_OBJECT
         public:
-            CurrentGameIndicator(wxWindow* parent, const String& gameName);
+            explicit CurrentGameIndicator(const std::string& gameName, QWidget* parent = nullptr);
         };
     }
 }

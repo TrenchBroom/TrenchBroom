@@ -23,54 +23,52 @@
 #include "Preferences.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
+#include "View/QtUtils.h"
 #include "View/ViewEditor.h"
-#include "View/wxUtils.h"
 
-#include <wx/dcclient.h>
-#include <wx/simplebook.h>
-#include <wx/sizer.h>
-#include <wx/srchctrl.h>
-#include <wx/statbmp.h>
-#include <wx/stattext.h>
+#include <QHBoxLayout>
+#include <QResizeEvent>
+#include <QStackedLayout>
 
 namespace TrenchBroom {
     namespace View {
-        MapViewBar::MapViewBar(wxWindow* parent, MapDocumentWPtr document) :
-        ContainerBar(parent, wxBOTTOM),
+        MapViewBar::MapViewBar(std::weak_ptr<MapDocument> document, QWidget* parent) :
+        ContainerBar(Sides::BottomSide, parent),
         m_document(document),
         m_toolBook(nullptr),
         m_viewEditor(nullptr) {
-#if defined __APPLE__
-            SetWindowVariant(wxWINDOW_VARIANT_SMALL);
-#endif
             createGui(document);
         }
 
-        wxBookCtrlBase* MapViewBar::toolBook() {
+        QStackedLayout* MapViewBar::toolBook() {
             return m_toolBook;
         }
 
-        void MapViewBar::OnSearchPatternChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-        }
+        void MapViewBar::createGui(std::weak_ptr<MapDocument> document) {
+            setAttribute(Qt::WA_MacSmallSize);
 
-        void MapViewBar::createGui(MapDocumentWPtr document) {
-            m_toolBook = new wxSimplebook(this);
-            m_viewEditor = new ViewPopupEditor(this, document);
+            m_toolBook = new QStackedLayout();
+            m_toolBook->setContentsMargins(0, 0, 0, 0);
 
-            wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
-            hSizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            hSizer->Add(m_toolBook, 1, wxEXPAND);
-            hSizer->AddSpacer(LayoutConstants::MediumHMargin);
-            hSizer->Add(m_viewEditor, 0, wxALIGN_CENTRE_VERTICAL);
-            hSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            m_viewEditor = new ViewPopupEditor(std::move(document));
 
-            wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
-            vSizer->AddSpacer(LayoutConstants::NarrowVMargin);
-            vSizer->Add(hSizer, 1, wxEXPAND);
-            vSizer->AddSpacer(LayoutConstants::NarrowVMargin);
+#ifdef __APPLE__
+            const auto vMargin = pref(Preferences::Theme) == Preferences::darkTheme() ? LayoutConstants::MediumVMargin : 0;
+#else
+            const auto vMargin = LayoutConstants::MediumVMargin;
+#endif
+            
+            auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(
+                LayoutConstants::WideHMargin,
+                vMargin,
+                LayoutConstants::WideHMargin,
+                vMargin);
+            layout->setSpacing(LayoutConstants::WideHMargin);
+            layout->addLayout(m_toolBook, 1);
+            layout->addWidget(m_viewEditor, 0, Qt::AlignVCenter);
 
-            SetSizer(vSizer);
+            setLayout(layout);
         }
     }
 }

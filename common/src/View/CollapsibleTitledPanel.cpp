@@ -21,60 +21,56 @@
 
 #include "View/BorderLine.h"
 #include "View/ViewConstants.h"
+#include "View/QtUtils.h"
 
-#include <wx/sizer.h>
-#include <wx/stattext.h>
-
-wxDEFINE_EVENT(TITLE_BAR_CLICK, wxCommandEvent);
+#include <QLabel>
+#include <QLayout>
 
 namespace TrenchBroom {
     namespace View {
-        CollapsibleTitleBar::CollapsibleTitleBar(wxWindow* parent, const wxString& title, const wxString& stateText) :
-        TitleBar(parent, title, LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin),
-        m_stateText(new wxStaticText(this, wxID_ANY, stateText)) {
-            m_stateText->SetFont(m_titleText->GetFont());
-            m_stateText->SetForegroundColour(*wxLIGHT_GREY);
+        // CollapsibleTitleBar
 
-            GetSizer()->Add(m_stateText, 0, wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            GetSizer()->AddSpacer(LayoutConstants::NarrowHMargin);
-            Layout();
+        CollapsibleTitleBar::CollapsibleTitleBar(const QString& title, const QString& stateText, QWidget* parent) :
+        TitleBar(title, parent, LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin, true),
+        m_stateText(new QLabel(stateText)) {
+            m_stateText->setFont(m_titleText->font());
+            makeInfo(m_stateText);
 
-            Bind(wxEVT_LEFT_DOWN, &CollapsibleTitleBar::OnClick, this);
-            m_titleText->Bind(wxEVT_LEFT_DOWN, &CollapsibleTitleBar::OnClick, this);
-            m_stateText->Bind(wxEVT_LEFT_DOWN, &CollapsibleTitleBar::OnClick, this);
+            layout()->addWidget(m_stateText);
         }
 
-        void CollapsibleTitleBar::setStateText(const wxString& stateText) {
-            m_stateText->SetLabel(stateText);
-            Layout();
+        void CollapsibleTitleBar::setStateText(const QString& stateText) {
+            m_stateText->setText(stateText);
         }
 
-        void CollapsibleTitleBar::OnClick(wxMouseEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            wxCommandEvent newEvent(TITLE_BAR_CLICK, GetId());
-            newEvent.SetEventObject(this);
-            wxPostEvent(this, newEvent);
+        void CollapsibleTitleBar::mousePressEvent(QMouseEvent* /* event */) {
+            emit titleBarClicked();
         }
 
-        CollapsibleTitledPanel::CollapsibleTitledPanel(wxWindow* parent, const wxString& title, const bool initiallyExpanded) :
-        wxPanel(parent),
-        m_titleBar(new CollapsibleTitleBar(this, title, "hide")),
-        m_divider(new BorderLine(this, BorderLine::Direction_Horizontal)),
-        m_panel(new wxPanel(this)),
+        // CollapsibleTitledPanel
+
+        CollapsibleTitledPanel::CollapsibleTitledPanel(const QString& title, const bool initiallyExpanded, QWidget* parent) :
+        QWidget(parent),
+        m_titleBar(new CollapsibleTitleBar(title, "hide")),
+        m_divider(new BorderLine(BorderLine::Direction::Horizontal)),
+        m_panel(new QWidget()),
         m_expanded(initiallyExpanded) {
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_titleBar, 0, wxEXPAND);
-            sizer->Add(m_divider, 0, wxEXPAND);
-            sizer->Add(m_panel, 1, wxEXPAND);
-            SetSizer(sizer);
+            auto* sizer = new QVBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->setSpacing(0);
+            sizer->addWidget(m_titleBar, 0);
+            sizer->addWidget(m_divider, 0);
+            sizer->addWidget(m_panel, 1);
+            setLayout(sizer);
 
-            m_titleBar->Bind(TITLE_BAR_CLICK, &CollapsibleTitledPanel::OnTitleBarClick, this);
+            connect(m_titleBar, &CollapsibleTitleBar::titleBarClicked, this, [=](){
+                setExpanded(!m_expanded);
+            });
 
-            update();
+            updateExpanded();
         }
 
-        wxWindow* CollapsibleTitledPanel::getPanel() const {
+        QWidget* CollapsibleTitledPanel::getPanel() const {
             return m_panel;
         }
 
@@ -91,36 +87,24 @@ namespace TrenchBroom {
         }
 
         void CollapsibleTitledPanel::setExpanded(const bool expanded) {
-            if (expanded == m_expanded)
+            if (expanded == m_expanded) {
                 return;
+            }
 
             m_expanded = expanded;
-            update();
+            updateExpanded();
         }
 
-        void CollapsibleTitledPanel::OnTitleBarClick(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            setExpanded(!m_expanded);
-        }
-
-        void CollapsibleTitledPanel::update() {
+        void CollapsibleTitledPanel::updateExpanded() {
             if (m_expanded) {
-                m_divider->Show();
-                m_panel->wxWindowBase::ShowWithEffect(wxSHOW_EFFECT_ROLL_TO_BOTTOM);
-                m_titleBar->setStateText("hide");
+                m_divider->show();
+                m_panel->show();
+                m_titleBar->setStateText(tr("hide"));
             } else {
-                m_divider->Hide();
-                m_panel->wxWindowBase::HideWithEffect(wxSHOW_EFFECT_ROLL_TO_TOP);
-                m_titleBar->setStateText("show");
+                m_divider->hide();
+                m_panel->hide();
+                m_titleBar->setStateText(tr("show"));
             }
-
-            wxWindow* window = this;
-            while (window != nullptr) {
-                window->Layout();
-                window = window->GetParent();
-            }
-
         }
     }
 }

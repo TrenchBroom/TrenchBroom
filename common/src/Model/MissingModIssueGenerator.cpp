@@ -19,6 +19,7 @@
 
 #include "MissingModIssueGenerator.h"
 
+#include "IO/Path.h"
 #include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Issue.h"
@@ -27,9 +28,13 @@
 #include "Model/MapFacade.h"
 #include "Model/PushSelection.h"
 
-#include <algorithm>
+#include <kdl/memory_utils.h>
+#include <kdl/vector_utils.h>
+
 #include <cassert>
-#include <iterator>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -37,10 +42,10 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         private:
-            String m_mod;
-            String m_message;
+            std::string m_mod;
+            std::string m_message;
         public:
-            MissingModIssue(AttributableNode* node, const String& mod, const String& message) :
+            MissingModIssue(AttributableNode* node, const std::string& mod, const std::string& message) :
             Issue(node),
             m_mod(mod),
             m_message(message) {}
@@ -49,11 +54,11 @@ namespace TrenchBroom {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            std::string doGetDescription() const override {
                 return "Mod '" + m_mod + "' could not be used: " + m_message;
             }
         public:
-            const String& mod() const {
+            const std::string& mod() const {
                 return m_mod;
             }
         };
@@ -71,26 +76,26 @@ namespace TrenchBroom {
                  // If nothing is selected, attribute changes will affect only world.
                 facade->deselectAll();
 
-                const StringList oldMods = facade->mods();
-                const StringList newMods = removeMissingMods(oldMods, issues);
+                const std::vector<std::string> oldMods = facade->mods();
+                const std::vector<std::string> newMods = removeMissingMods(oldMods, issues);
                 facade->setMods(newMods);
             }
 
-            StringList removeMissingMods(StringList mods, const IssueList& issues) const {
+            std::vector<std::string> removeMissingMods(std::vector<std::string> mods, const IssueList& issues) const {
                 for (const Issue* issue : issues) {
                     if (issue->type() == MissingModIssue::Type) {
                         const MissingModIssue* modIssue = static_cast<const MissingModIssue*>(issue);
-                        const String missingMod = modIssue->mod();
-                        VectorUtils::erase(mods, missingMod);
+                        const std::string& missingMod = modIssue->mod();
+                        kdl::vec_erase(mods, missingMod);
                     }
                 }
                 return mods;
             }
         };
 
-        MissingModIssueGenerator::MissingModIssueGenerator(GameWPtr game) :
+        MissingModIssueGenerator::MissingModIssueGenerator(std::weak_ptr<Game> game) :
         IssueGenerator(MissingModIssue::Type, "Missing mod directory"),
-        m_game(game) {
+        m_game(std::move(game)) {
             addQuickFix(new MissingModIssueQuickFix());
         }
 
@@ -101,26 +106,23 @@ namespace TrenchBroom {
                 return;
             }
 
-            if (expired(m_game)) {
+            if (kdl::mem_expired(m_game)) {
                 return;
             }
 
-            GameSPtr game = lock(m_game);
-            const StringList mods = game->extractEnabledMods(*node);
+            auto game = kdl::mem_lock(m_game);
+            const std::vector<std::string> mods = game->extractEnabledMods(*node);
 
             if (mods == m_lastMods) {
                 return;
             }
 
-            const IO::Path::List additionalSearchPaths = IO::Path::asPaths(mods);
-            const Game::PathErrors errors = game->checkAdditionalSearchPaths(additionalSearchPaths);
-            using PathError = Game::PathErrors::value_type;
+            const auto additionalSearchPaths = IO::Path::asPaths(mods);
+            const auto errors = game->checkAdditionalSearchPaths(additionalSearchPaths);
 
-            std::transform(std::begin(errors), std::end(errors), std::back_inserter(issues), [node](const PathError& error) {
-                const IO::Path& searchPath = error.first;
-                const String& message = error.second;
-                return new MissingModIssue(node, searchPath.asString(), message);
-            });
+            for (const auto& [searchPath, message] : errors) {
+                issues.push_back(new MissingModIssue(node, searchPath.asString(), message));
+            }
 
             m_lastMods = mods;
         }

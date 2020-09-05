@@ -19,15 +19,18 @@
 
 #include "PointEntityWithBrushesIssueGenerator.h"
 
-#include "StringUtils.h"
+#include "Ensure.h"
 #include "Assets/EntityDefinition.h"
-#include "Model/Brush.h"
-#include "Model/Entity.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 
-#include <cassert>
+#include <kdl/vector_utils.h>
+
+#include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -35,15 +38,15 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            PointEntityWithBrushesIssue(Entity* entity) :
+            explicit PointEntityWithBrushesIssue(EntityNode* entity) :
             Issue(entity) {}
         private:
             IssueType doGetType() const override {
                 return Type;
             }
 
-            const String doGetDescription() const override {
-                const Entity* entity = static_cast<Entity*>(node());
+            std::string doGetDescription() const override {
+                const EntityNode* entity = static_cast<EntityNode*>(node());
                 return entity->classname() + " contains brushes";
             }
         };
@@ -56,15 +59,15 @@ namespace TrenchBroom {
             IssueQuickFix(PointEntityWithBrushesIssue::Type, "Move brushes to world") {}
         private:
             void doApply(MapFacade* facade, const IssueList& issues) const override {
-                NodeList affectedNodes;
-                ParentChildrenMap nodesToReparent;
+                std::vector<Node*> affectedNodes;
+                std::map<Node*, std::vector<Node*>> nodesToReparent;
 
                 for (const Issue* issue : issues) {
                     Node* node = issue->node();
                     nodesToReparent[node->parent()] = node->children();
 
                     affectedNodes.push_back(node);
-                    VectorUtils::append(affectedNodes, node->children());
+                    kdl::vec_append(affectedNodes, node->children());
                 }
 
                 facade->deselectAll();
@@ -78,10 +81,10 @@ namespace TrenchBroom {
             addQuickFix(new PointEntityWithBrushesIssueQuickFix());
         }
 
-        void PointEntityWithBrushesIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
+        void PointEntityWithBrushesIssueGenerator::doGenerate(EntityNode* entity, IssueList& issues) const {
             ensure(entity != nullptr, "entity is null");
             const Assets::EntityDefinition* definition = entity->definition();
-            if (definition != nullptr && definition->type() == Assets::EntityDefinition::Type_PointEntity && entity->hasChildren())
+            if (definition != nullptr && definition->type() == Assets::EntityDefinitionType::PointEntity && entity->hasChildren())
                 issues.push_back(new PointEntityWithBrushesIssue(entity));
         }
     }

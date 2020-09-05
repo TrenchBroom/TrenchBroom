@@ -20,18 +20,20 @@
 #ifndef CrashDialog_h
 #define CrashDialog_h
 
-#include "IO/Path.h"
-
-#include <wx/dialog.h>
+#include <QDialog>
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+
     namespace View {
-        class CrashDialog : public wxDialog {
+        class CrashDialog : public QDialog {
+            Q_OBJECT
         public:
-            CrashDialog();
-            void Create(const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath);
-            void OnReport(wxCommandEvent& event);
-            wxDECLARE_DYNAMIC_CLASS(CrashDialog);
+            CrashDialog(const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath);
+        private:
+            void createGui(const IO::Path& reportPath, const IO::Path& mapPath, const IO::Path& logPath);
         };
     }
 }

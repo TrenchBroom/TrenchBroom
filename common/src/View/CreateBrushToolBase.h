@@ -20,12 +20,16 @@
 #ifndef TrenchBroom_CreateBrushToolBase
 #define TrenchBroom_CreateBrushToolBase
 
-#include "Polyhedron.h"
-#include "Model/ModelTypes.h"
+#include "Macros.h"
 #include "View/Tool.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 namespace TrenchBroom {
+    namespace Model {
+        class BrushNode;
+    }
+
     namespace Renderer {
         class BrushRenderer;
         class RenderBatch;
@@ -34,15 +38,16 @@ namespace TrenchBroom {
 
     namespace View {
         class Grid;
+        class MapDocument;
 
         class CreateBrushToolBase : public Tool {
         protected:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
         private:
-            Model::Brush* m_brush;
+            Model::BrushNode* m_brush;
             Renderer::BrushRenderer* m_brushRenderer;
         public:
-            CreateBrushToolBase(bool initiallyActive, MapDocumentWPtr document);
+            CreateBrushToolBase(bool initiallyActive, std::weak_ptr<MapDocument> document);
             ~CreateBrushToolBase() override;
         public:
             const Grid& grid() const;
@@ -54,9 +59,11 @@ namespace TrenchBroom {
         private:
             void renderBrush(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         protected:
-            void updateBrush(Model::Brush* brush);
+            void updateBrush(Model::BrushNode* brush);
         private:
             virtual void doBrushWasCreated();
+
+            deleteCopyAndMove(CreateBrushToolBase)
         };
     }
 }

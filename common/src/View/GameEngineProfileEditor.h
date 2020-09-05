@@ -20,10 +20,10 @@
 #ifndef GameEngineProfileEditor_h
 #define GameEngineProfileEditor_h
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxSimplebook;
-class wxTextCtrl;
+class QLineEdit;
+class QStackedWidget;
 
 namespace TrenchBroom {
     namespace Model {
@@ -31,25 +31,19 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class GameEngineProfileEditor : public wxPanel {
+        class GameEngineProfileEditor : public QWidget {
         private:
             Model::GameEngineProfile* m_profile;
-            wxSimplebook* m_book;
-            wxTextCtrl* m_nameText;
-            wxTextCtrl* m_pathText;
+            QStackedWidget* m_stackedWidget;
+            QLineEdit* m_nameEdit;
+            QLineEdit* m_pathEdit;
             bool m_ignoreNotifications;
         public:
-            GameEngineProfileEditor(wxWindow* parent);
-            ~GameEngineProfileEditor();
+            explicit GameEngineProfileEditor(QWidget* parent = nullptr);
+            ~GameEngineProfileEditor() override;
         private:
-            wxWindow* createEditorPage(wxWindow* parent);
-
-            void OnNameChanged(wxCommandEvent& event);
-            void OnPathChanged(wxCommandEvent& event);
-            void OnChangePathClicked(wxCommandEvent& event);
-            void OnUpdatePathTextUI(wxIdleEvent& event);
-
-            void updatePath(const wxString& str);
+            QWidget* createEditorPage();
+            void updatePath(const QString& str);
         public:
             void setProfile(Model::GameEngineProfile* profile);
         private:
@@ -57,7 +51,11 @@ namespace TrenchBroom {
             void profileDidChange();
             void refresh();
 
-            bool isValidEnginePath(const wxString& str) const;
+            bool isValidEnginePath(const QString& str) const;
+        private slots:
+            void nameChanged(const QString& text);
+            void pathChanged();
+            void changePathClicked();
         };
     }
 }

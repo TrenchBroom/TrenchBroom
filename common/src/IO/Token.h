@@ -20,11 +20,10 @@
 #ifndef TrenchBroom_Token
 #define TrenchBroom_Token
 
-#include "StringUtils.h"
-
 #include <cassert>
-#include <cstdlib>
-#include <cstring>
+#include <string>
+
+#include <kdl/string_utils.h>
 
 namespace TrenchBroom {
     namespace IO {
@@ -72,8 +71,8 @@ namespace TrenchBroom {
                 return m_end;
             }
 
-            const String data() const {
-                return String(m_begin, length());
+            const std::string data() const {
+                return std::string(m_begin, length());
             }
 
             size_t position() const {
@@ -94,25 +93,12 @@ namespace TrenchBroom {
 
             template <typename T>
             T toFloat() const {
-                static const size_t BufferSize = 256;
-                static char buffer[BufferSize];
-                assert(length() < BufferSize);
-
-                memcpy(buffer, m_begin, length());
-                buffer[length()] = 0;
-                const T f = static_cast<T>(std::atof(buffer));
-                return f;
+                return static_cast<T>(kdl::str_to_double(std::string(m_begin, m_end)).value_or(0.0));
             }
 
             template <typename T>
             T toInteger() const {
-                static char buffer[64];
-                assert(length() < 64);
-
-                memcpy(buffer, m_begin, length());
-                buffer[length()] = 0;
-                const T i = static_cast<T>(std::atoi(buffer));
-                return i;
+                return static_cast<T>(kdl::str_to_long(std::string(m_begin, m_end)).value_or(0l));
             }
         };
     }

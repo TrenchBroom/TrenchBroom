@@ -20,87 +20,82 @@
 #ifndef TrenchBroom_EntityAttributeGrid
 #define TrenchBroom_EntityAttributeGrid
 
-#include "Model/ModelTypes.h"
-#include "View/ViewTypes.h"
+#include <memory>
+#include <string>
+#include <vector>
 
-#include <wx/grid.h>
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxButton;
-class wxCheckBox;
-class wxWindow;
+class QTableView;
+class QCheckBox;
+class QAbstractButton;
+class QShortcut;
+class QSortFilterProxyModel;
 
 namespace TrenchBroom {
+    namespace Model {
+        class Node;
+    }
+
     namespace View {
-        class EntityAttributeGridTable;
+        class EntityAttributeModel;
+        class EntityAttributeTable;
+        class MapDocument;
         class Selection;
 
-        class EntityAttributeGrid : public wxPanel {
+        struct AttributeGridSelection {
+            std::string attributeName;
+            int column;
+        };
+
+        /**
+         * Panel with the entity attribute table, and the toolbar below it (add/remove icons,
+         * "show default properties" checkbox, etc.)
+         */
+        class EntityAttributeGrid : public QWidget {
+            Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
-            EntityAttributeGridTable* m_table;
-            wxGrid* m_grid;
-            wxGridCellCoords m_lastHoveredCell;
-
-            bool m_ignoreSelection;
-            Model::AttributeName m_lastSelectedName;
-            int m_lastSelectedCol;
+            EntityAttributeModel* m_model;
+            QSortFilterProxyModel* m_proxyModel;
+            EntityAttributeTable* m_table;
+            QAbstractButton* m_addAttributeButton;
+            QAbstractButton* m_removePropertiesButton;
+            QCheckBox* m_showDefaultPropertiesCheckBox;
+            std::vector<AttributeGridSelection> m_selectionBackup;
         public:
-            EntityAttributeGrid(wxWindow* parent, MapDocumentWPtr document);
-            ~EntityAttributeGrid();
+            explicit EntityAttributeGrid(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+            ~EntityAttributeGrid() override;
         private:
-            void OnAttributeGridSize(wxSizeEvent& event);
-            void OnAttributeGridSelectCell(wxGridEvent& event);
-            void OnAttributeGridTab(wxGridEvent& event);
-        public:
-            void tabNavigate(int row, int col, bool forward);
-            void setLastSelectedNameAndColumn(const Model::AttributeName& name, const int col);
-        private:
-            void moveCursorTo(int row, int col);
-            void fireSelectionEvent(int row, int col);
-        private:
-            void OnAttributeGridKeyDown(wxKeyEvent& event);
-            void OnAttributeGridKeyUp(wxKeyEvent& event);
-            bool isInsertRowShortcut(const wxKeyEvent& event) const;
-            bool isRemoveRowShortcut(const wxKeyEvent& event) const;
-            bool isOpenCellEditorShortcut(const wxKeyEvent& event) const;
-        private:
-            void OnAttributeGridMouseMove(wxMouseEvent& event);
-
-            void OnUpdateAttributeView(wxUpdateUIEvent& event);
-
-            void OnAddAttributeButton(wxCommandEvent& event);
-            void OnRemovePropertiesButton(wxCommandEvent& event);
+            void backupSelection();
+            void restoreSelection();
 
             void addAttribute();
             void removeSelectedAttributes();
-            void removeAttribute(const String& key);
-
-            void OnShowDefaultPropertiesCheckBox(wxCommandEvent& event);
-            void OnUpdateAddAttributeButton(wxUpdateUIEvent& event);
-            void OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event);
-            void OnUpdateShowDefaultPropertiesCheckBox(wxUpdateUIEvent& event);
 
             bool canRemoveSelectedAttributes() const;
-            std::set<int> selectedRowsAndCursorRow() const;
+            std::vector<int> selectedRowsAndCursorRow() const;
         private:
-            void createGui(MapDocumentWPtr document);
+            void createGui(std::weak_ptr<MapDocument> document);
 
             void bindObservers();
             void unbindObservers();
 
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void selectionWillChange();
             void selectionDidChange(const Selection& selection);
+            void entityDefinitionsOrModsDidChange();
         private:
+            void ensureSelectionVisible();
             void updateControls();
+            void updateControlsEnabled();
         public:
-            wxGrid* gridWindow() const;
-        public:
-            Model::AttributeName selectedRowName() const;
+            std::string selectedRowName() const;
+        signals:
+            void currentRowChanged();
         };
     }
 }

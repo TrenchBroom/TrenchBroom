@@ -20,16 +20,18 @@
 #ifdef _WIN32
 #ifdef _MSC_VER
 #include "StackWalker.h"
+#include <QMutexLocker>
 #endif
 #else
 #include <execinfo.h>
 #endif
 
 #include "TrenchBroomStackWalker.h"
-#include "StringUtils.h"
 
-#include <wx/thread.h>
 #include <cstdlib>
+#include <string>
+#include <sstream>
+#include <vector>
 
 namespace TrenchBroom {
 #ifdef _WIN32
@@ -38,12 +40,12 @@ namespace TrenchBroom {
     // use https://stackwalker.codeplex.com/
     class TBStackWalker : public StackWalker {
     public:
-        StringStream m_string;
+        std::stringstream m_string;
         TBStackWalker() : StackWalker() {}
         void clear() {
             m_string.str("");
         }
-        String asString() {
+        std::string asString() {
             return m_string.str();
         }
     protected:
@@ -52,12 +54,12 @@ namespace TrenchBroom {
       }
     };
 
-    static wxMutex s_stackWalkerMutex;
+    static QMutex s_stackWalkerMutex;
     static TBStackWalker *s_stackWalker;
 
-    static String getStackTraceInternal(CONTEXT *context) {
+    static std::string getStackTraceInternal(CONTEXT *context) {
         // StackWalker is not threadsafe so acquire a mutex
-        wxMutexLocker lock(s_stackWalkerMutex);
+        QMutexLocker lock(&s_stackWalkerMutex);
 
         if (s_stackWalker == nullptr) {
             // create a shared instance on first use
@@ -75,21 +77,21 @@ namespace TrenchBroom {
         return s_stackWalker->asString();
     }
 
-    String TrenchBroomStackWalker::getStackTrace() {
+    std::string TrenchBroomStackWalker::getStackTrace() {
         return getStackTraceInternal(nullptr);
     }
 
-    String TrenchBroomStackWalker::getStackTraceFromContext(void *context) {
+    std::string TrenchBroomStackWalker::getStackTraceFromContext(void *context) {
         return getStackTraceInternal(static_cast<CONTEXT *>(context));
     }
 #else
     // TODO: not sure what to use on mingw
-    String TrenchBroomStackWalker::getStackTrace() {
+    std::string TrenchBroomStackWalker::getStackTrace() {
         return "";
     }
 #endif
 #else
-    String TrenchBroomStackWalker::getStackTrace() {
+    std::string TrenchBroomStackWalker::getStackTrace() {
         const int MaxDepth = 256;
         void *callstack[MaxDepth];
         const int frames = backtrace(callstack, MaxDepth);
@@ -99,7 +101,7 @@ namespace TrenchBroom {
         if (framesVec.empty())
             return "";
 
-        StringStream ss;
+        std::stringstream ss;
         char **strs = backtrace_symbols(&framesVec.front(), static_cast<int>(framesVec.size()));
         for (size_t i = 0; i < framesVec.size(); i++) {
             ss << strs[i] << std::endl;

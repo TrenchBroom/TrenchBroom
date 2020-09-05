@@ -21,24 +21,28 @@
 #define TrenchBroom_ModelUtils
 
 #include "Model/CollectUniqueNodesVisitor.h"
-#include "Model/ModelTypes.h"
 #include "Model/Node.h"
+
+#include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        NodeList collectParents(const NodeList& nodes);
-        NodeList collectParents(const ParentChildrenMap& nodes);
+        class Node;
+
+        std::vector<Node*> collectParents(const std::vector<Node*>& nodes);
+        std::vector<Node*> collectParents(const std::map<Node*, std::vector<Node*>>& nodes);
 
         template <typename I>
-        NodeList collectParents(const I begin, const I end) {
+        std::vector<Node*> collectParents(const I begin, const I end) {
             CollectUniqueNodesVisitor visitor;
             Node::escalate(begin, end, visitor);
             return visitor.nodes();
         }
 
-        NodeList collectChildren(const ParentChildrenMap& nodes);
-        NodeList collectDescendants(const Model::NodeList& nodes);
-        ParentChildrenMap parentChildrenMap(const NodeList& nodes);
+        std::vector<Node*> collectChildren(const std::map<Node*, std::vector<Node*>>& nodes);
+        std::vector<Node*> collectDescendants(const std::vector<Node*>& nodes);
+        std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes);
     }
 }
 

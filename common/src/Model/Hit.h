@@ -20,62 +20,51 @@
 #ifndef TrenchBroom_Hit
 #define TrenchBroom_Hit
 
-#include "TrenchBroom.h"
-#include "Reference.h"
+#include "FloatType.h"
+#include "Macros.h"
+#include "Model/HitType.h"
 
 #include <vecmath/vec.h>
 
-#include <list>
+#include <any>
 
 namespace TrenchBroom {
     namespace Model {
         class Hit {
         public:
-            using List = std::list<Hit>;
-
-            using HitType = unsigned long;
-            static const HitType NoType;
-            static const HitType AnyType;
-            static HitType freeHitType();
             static const Hit NoHit;
         private:
-            HitType m_type;
+            HitType::Type m_type;
             FloatType m_distance;
             vm::vec3 m_hitPoint;
-            UntypedReference m_target;
+            std::any m_target;
             FloatType m_error;
         public:
             template <typename T>
-            Hit(const HitType type, const FloatType distance, const vm::vec3& hitPoint, const T& target, const FloatType error = 0.0) :
+            Hit(const HitType::Type type, const FloatType distance, const vm::vec3& hitPoint, const T& target, const FloatType error = 0.0) :
             m_type(type),
             m_distance(distance),
             m_hitPoint(hitPoint),
-            m_target(Reference::copy(target)),
+            m_target(target),
             m_error(error) {}
 
             // TODO: rename to create
             template <typename T>
-            static Hit hit(const HitType type, const FloatType distance, const vm::vec3& hitPoint, const T& target, const FloatType error = 0.0) {
+            static Hit hit(const HitType::Type type, const FloatType distance, const vm::vec3& hitPoint, const T& target, const FloatType error = 0.0) {
+                unused(error);
                 return Hit(type, distance, hitPoint, target);
             }
 
             bool isMatch() const;
-            HitType type() const;
-            bool hasType(HitType typeMask) const;
+            HitType::Type type() const;
+            bool hasType(HitType::Type typeMask) const;
             FloatType distance() const;
             const vm::vec3& hitPoint() const;
             FloatType error() const;
 
             template <typename T>
-            const T& target() const {
-                TypedReference<T> target(m_target);
-                return target.get();
-            }
-
-            template <typename T>
-            T& target() {
-                TypedReference<T> target(m_target);
-                return target.get();
+            T target() const {
+                return std::any_cast<T>(m_target);
             }
         };
 

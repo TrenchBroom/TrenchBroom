@@ -19,15 +19,13 @@
 
 #include "WorldBoundsIssueGenerator.h"
 
-#include "Model/Brush.h"
-#include "Model/Entity.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 
-#include <vecmath/bbox.h>
-
-#include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -37,14 +35,14 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            WorldBoundsIssue(Node* node) :
+            explicit WorldBoundsIssue(Node* node) :
             Issue(node) {}
 
             IssueType doGetType() const override {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            std::string doGetDescription() const override {
                 return "Object is out of world bounds";
             }
         };
@@ -54,7 +52,7 @@ namespace TrenchBroom {
             WorldBoundsIssueQuickFix() :
             IssueQuickFix(WorldBoundsIssue::Type, "Delete objects") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const override {
+            void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
                 facade->deleteObjects();
             }
         };
@@ -67,12 +65,12 @@ namespace TrenchBroom {
             addQuickFix(new WorldBoundsIssueQuickFix());
         }
 
-        void WorldBoundsIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
+        void WorldBoundsIssueGenerator::doGenerate(EntityNode* entity, IssueList& issues) const {
             if (!m_bounds.contains(entity->logicalBounds()))
                 issues.push_back(new WorldBoundsIssue(entity));
         }
 
-        void WorldBoundsIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
+        void WorldBoundsIssueGenerator::doGenerate(BrushNode* brush, IssueList& issues) const {
             if (!m_bounds.contains(brush->logicalBounds()))
                 issues.push_back(new WorldBoundsIssue(brush));
         }

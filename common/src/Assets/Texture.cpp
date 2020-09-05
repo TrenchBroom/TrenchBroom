@@ -18,50 +18,16 @@
  */
 
 #include "Texture.h"
-#include "Assets/ImageUtils.h"
+#include "Assets/TextureBuffer.h"
 #include "Assets/TextureCollection.h"
 #include "Renderer/GL.h"
 
+#include <algorithm> // for std::max
 #include <cassert>
-#include <algorithm>
 
 namespace TrenchBroom {
     namespace Assets {
-        vm::vec2s sizeAtMipLevel(const size_t width, const size_t height, const size_t level) {
-            assert(width > 0);
-            assert(height > 0);
-
-            // from Issues 6 in: https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_texture_non_power_of_two.txt
-            return vm::vec2s(std::max(size_t(1), width >> level),
-                             std::max(size_t(1), height >> level));
-        }
-
-        size_t bytesPerPixelForFormat(const GLenum format) {
-            switch (format) {
-                case GL_RGB:
-                case GL_BGR:
-                    return 3U;
-                case GL_RGBA:
-                case GL_BGRA:
-                    return 4U;
-            }
-            ensure(false, "unknown format");
-            return 0U;
-        }
-
-        void setMipBufferSize(Assets::TextureBuffer::List& buffers, const size_t mipLevels, const size_t width, const size_t height, const GLenum format) {
-            const size_t bytesPerPixel = bytesPerPixelForFormat(format);
-
-            buffers.resize(mipLevels);
-            for (size_t level = 0; level < buffers.size(); ++level) {
-                const auto mipSize = sizeAtMipLevel(width, height, level);
-                const auto numBytes = bytesPerPixel * mipSize.x() * mipSize.y();
-                buffers[level] = Assets::TextureBuffer(numBytes);
-            }
-        }
-
-        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer& buffer, const GLenum format, const TextureType type) :
-        m_collection(nullptr),
+        Texture::Texture(const std::string& name, const size_t width, const size_t height, const Color& averageColor, Buffer&& buffer, const GLenum format, const TextureType type) :
         m_name(name),
         m_width(width),
         m_height(height),
@@ -71,16 +37,15 @@ namespace TrenchBroom {
         m_format(format),
         m_type(type),
         m_culling(TextureCulling::CullDefault),
-        m_blendFunc{false, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
+        m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
         m_textureId(0) {
             assert(m_width > 0);
             assert(m_height > 0);
             assert(buffer.size() >= m_width * m_height * bytesPerPixelForFormat(format));
-            m_buffers.push_back(buffer);
+            m_buffers.push_back(std::move(buffer));
         }
 
-        Texture::Texture(const String& name, const size_t width, const size_t height, const Color& averageColor, const TextureBuffer::List& buffers, const GLenum format, const TextureType type) :
-        m_collection(nullptr),
+        Texture::Texture(const std::string& name, const size_t width, const size_t height, const Color& averageColor, BufferList&& buffers, const GLenum format, const TextureType type) :
         m_name(name),
         m_width(width),
         m_height(height),
@@ -90,9 +55,9 @@ namespace TrenchBroom {
         m_format(format),
         m_type(type),
         m_culling(TextureCulling::CullDefault),
-        m_blendFunc{false, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
+        m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
         m_textureId(0),
-        m_buffers(buffers) {
+        m_buffers(std::move(buffers)) {
             assert(m_width > 0);
             assert(m_height > 0);
 
@@ -105,8 +70,7 @@ namespace TrenchBroom {
             }
         }
 
-        Texture::Texture(const String& name, const size_t width, const size_t height, const GLenum format, const TextureType type) :
-        m_collection(nullptr),
+        Texture::Texture(const std::string& name, const size_t width, const size_t height, const GLenum format, const TextureType type) :
         m_name(name),
         m_width(width),
         m_height(height),
@@ -116,15 +80,10 @@ namespace TrenchBroom {
         m_format(format),
         m_type(type),
         m_culling(TextureCulling::CullDefault),
-        m_blendFunc{false, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
+        m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA},
         m_textureId(0) {}
 
-        Texture::~Texture() {
-            if (m_collection == nullptr && m_textureId != 0) {
-                glAssert(glDeleteTextures(1, &m_textureId));
-            }
-            m_textureId = 0;
-        }
+        Texture::~Texture() = default;
 
         TextureType Texture::selectTextureType(const bool masked) {
             if (masked) {
@@ -134,11 +93,7 @@ namespace TrenchBroom {
             }
         }
 
-        TextureCollection* Texture::collection() const {
-            return m_collection;
-        }
-
-        const String& Texture::name() const {
+        const std::string& Texture::name() const {
             return m_name;
         }
 
@@ -154,11 +109,19 @@ namespace TrenchBroom {
             return m_averageColor;
         }
 
-        const StringSet& Texture::surfaceParms() const {
+        bool Texture::masked() const {
+            return m_type == TextureType::Masked;
+        }
+    
+        void Texture::setOpaque() {
+            m_type = TextureType::Opaque;
+        }
+    
+        const std::set<std::string>& Texture::surfaceParms() const {
             return m_surfaceParms;
         }
 
-        void Texture::setSurfaceParms(const StringSet& surfaceParms) {
+        void Texture::setSurfaceParms(const std::set<std::string>& surfaceParms) {
             m_surfaceParms = surfaceParms;
         }
 
@@ -170,14 +133,14 @@ namespace TrenchBroom {
             m_culling = culling;
         }
 
-        const TextureBlendFunc& Texture::blendFunc() const {
-            return m_blendFunc;
-        }
-
         void Texture::setBlendFunc(GLenum srcFactor, GLenum destFactor) {
-            m_blendFunc.enable = true;
+            m_blendFunc.enable = TextureBlendFunc::Enable::UseFactors;
             m_blendFunc.srcFactor = srcFactor;
             m_blendFunc.destFactor = destFactor;
+        }
+    
+        void Texture::disableBlend() {
+            m_blendFunc.enable = TextureBlendFunc::Enable::DisableBlend;
         }
 
         size_t Texture::usageCount() const {
@@ -186,17 +149,11 @@ namespace TrenchBroom {
 
         void Texture::incUsageCount() {
             ++m_usageCount;
-            if (m_collection != nullptr) {
-                m_collection->incUsageCount();
-            }
         }
 
         void Texture::decUsageCount() {
             assert(m_usageCount > 0);
             --m_usageCount;
-            if (m_collection != nullptr) {
-                m_collection->decUsageCount();
-            }
         }
 
         bool Texture::overridden() const {
@@ -247,7 +204,7 @@ namespace TrenchBroom {
                 for (size_t j = 0; j < mipmapsToUpload; ++j) {
                     const auto mipSize = sizeAtMipLevel(m_width, m_height, j);
 
-                    const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[j].ptr());
+                    const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[j].data());
                     glAssert(glTexImage2D(GL_TEXTURE_2D, static_cast<GLint>(j), GL_RGBA,
                                           static_cast<GLsizei>(mipSize.x()),
                                           static_cast<GLsizei>(mipSize.y()),
@@ -293,16 +250,22 @@ namespace TrenchBroom {
                         break;
                 }
 
-                if (m_blendFunc.enable) {
+
+                if (m_blendFunc.enable != TextureBlendFunc::Enable::UseDefault) {
                     glAssert(glPushAttrib(GL_COLOR_BUFFER_BIT));
-                    glAssert(glBlendFunc(m_blendFunc.srcFactor, m_blendFunc.destFactor));
+                    if (m_blendFunc.enable == TextureBlendFunc::Enable::UseFactors) {
+                        glAssert(glBlendFunc(m_blendFunc.srcFactor, m_blendFunc.destFactor));
+                    } else {
+                        assert(m_blendFunc.enable == TextureBlendFunc::Enable::DisableBlend);
+                        glAssert(glDisable(GL_BLEND));
+                    }
                 }
             }
         }
 
         void Texture::deactivate() const {
             if (isPrepared()) {
-                if (m_blendFunc.enable) {
+                if (m_blendFunc.enable != TextureBlendFunc::Enable::UseDefault) {
                     glAssert(glPopAttrib());
                 }
 
@@ -325,7 +288,7 @@ namespace TrenchBroom {
             }
         }
 
-        const TextureBuffer::List& Texture::buffersIfUnprepared() const {
+        const Texture::BufferList& Texture::buffersIfUnprepared() const {
             return m_buffers;
         }
 
@@ -335,10 +298,6 @@ namespace TrenchBroom {
 
         TextureType Texture::type() const {
             return m_type;
-        }
-
-        void Texture::setCollection(TextureCollection* collection) {
-            m_collection = collection;
         }
     }
 }

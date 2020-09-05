@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_PerspectiveCamera
 #define TrenchBroom_PerspectiveCamera
 
-#include "TrenchBroom.h"
 #include "Renderer/Camera.h"
 
 #include <vecmath/forward.h>
@@ -45,7 +44,7 @@ namespace TrenchBroom {
             vm::ray3f doGetPickRay(const vm::vec3f& point) const override;
             void doComputeFrustumPlanes(vm::plane3f& topPlane, vm::plane3f& rightPlane, vm::plane3f& bottomPlane, vm::plane3f& leftPlane) const override;
 
-            void doRenderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const override;
+            void doRenderFrustum(RenderContext& renderContext, VboManager& vboManager, float size, const Color& color) const override;
             float doPickFrustum(float size, const vm::ray3f& ray) const override;
 
             void getFrustumVertices(float size, vm::vec3f (&verts)[4]) const;

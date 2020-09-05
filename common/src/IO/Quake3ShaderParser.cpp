@@ -19,14 +19,21 @@
 
 #include "Quake3ShaderParser.h"
 
+#include "Macros.h"
 #include "Assets/Quake3Shader.h"
+#include "IO/ParserStatus.h"
+
+#include <kdl/string_compare.h>
+#include <kdl/string_format.h>
+
+#include <string>
 
 namespace TrenchBroom {
     namespace IO {
         Quake3ShaderTokenizer::Quake3ShaderTokenizer(const char* begin, const char* end) :
         Tokenizer(begin, end, "", '\\') {}
 
-        Quake3ShaderTokenizer::Quake3ShaderTokenizer(const String &str) :
+        Quake3ShaderTokenizer::Quake3ShaderTokenizer(const std::string &str) :
         Tokenizer(str, "", '\\') {}
 
         Tokenizer<unsigned int>::Token Quake3ShaderTokenizer::emitToken() {
@@ -58,7 +65,7 @@ namespace TrenchBroom {
                     case '$': {
                         const auto* e = readUntil(Whitespace());
                         if (e == nullptr) {
-                            throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
+                            throw ParserException(startLine, startColumn, "Unexpected character: " + std::string(c, 1));
                         }
                         return Token(Quake3ShaderToken::Variable, c, e, offset(c), startLine, startColumn);
                     }
@@ -90,7 +97,7 @@ namespace TrenchBroom {
 
                         e = readUntil(Whitespace());
                         if (e == nullptr) {
-                            throw ParserException(startLine, startColumn, "Unexpected character: " + String(c, 1));
+                            throw ParserException(startLine, startColumn, "Unexpected character: " + std::string(c, 1));
                         }
                         return Token(Quake3ShaderToken::String, c, e, offset(c), startLine, startColumn);
                 }
@@ -101,50 +108,50 @@ namespace TrenchBroom {
         Quake3ShaderParser::Quake3ShaderParser(const char* begin, const char* end) :
         m_tokenizer(begin, end) {}
 
-        Quake3ShaderParser::Quake3ShaderParser(const String& str) :
+        Quake3ShaderParser::Quake3ShaderParser(const std::string& str) :
         m_tokenizer(str) {}
 
         std::vector<Assets::Quake3Shader> Quake3ShaderParser::parse(ParserStatus& status) {
             std::vector<Assets::Quake3Shader> result;
             while (!m_tokenizer.peekToken(Quake3ShaderToken::Eol).hasType(Quake3ShaderToken::Eof)) {
                 Assets::Quake3Shader shader;
-                parseTexture(status, shader);
-                parseBody(status, shader);
+                parseTexture(shader, status);
+                parseBody(shader, status);
                 result.push_back(shader);
             }
             return result;
         }
 
-        void Quake3ShaderParser::parseBody(ParserStatus& status, Assets::Quake3Shader& shader) {
+        void Quake3ShaderParser::parseBody(Assets::Quake3Shader& shader, ParserStatus& status) {
             expect(Quake3ShaderToken::OBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
             auto token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
             expect(Quake3ShaderToken::CBrace | Quake3ShaderToken::OBrace | Quake3ShaderToken::String, token);
 
             while (!token.hasType(Quake3ShaderToken::CBrace)) {
                 if (token.hasType(Quake3ShaderToken::OBrace)) {
-                    parseStage(status, shader);
+                    parseStage(shader, status);
                 } else {
-                    parseBodyEntry(status, shader);
+                    parseBodyEntry(shader, status);
                 }
                 token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
             }
             expect(Quake3ShaderToken::CBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
         }
 
-        void Quake3ShaderParser::parseStage(ParserStatus& status, Assets::Quake3Shader& shader) {
+        void Quake3ShaderParser::parseStage(Assets::Quake3Shader& shader, ParserStatus& status) {
             expect(Quake3ShaderToken::OBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
             auto token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
             expect(Quake3ShaderToken::CBrace | Quake3ShaderToken::OBrace | Quake3ShaderToken::String, token);
 
             auto& stage = shader.addStage();
             while (!token.hasType(Quake3ShaderToken::CBrace)) {
-                parseStageEntry(status, shader, stage);
+                parseStageEntry(stage, status);
                 token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
             }
             expect(Quake3ShaderToken::CBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
         }
 
-        void Quake3ShaderParser::parseTexture(ParserStatus& status, Assets::Quake3Shader& shader) {
+        void Quake3ShaderParser::parseTexture(Assets::Quake3Shader& shader, ParserStatus& /* status */) {
             const auto token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
             const auto pathStr = token.data();
             if (!pathStr.empty() && pathStr[0] == '/') {
@@ -155,7 +162,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Quake3ShaderParser::parseBodyEntry(ParserStatus& status, Assets::Quake3Shader& shader) {
+        void Quake3ShaderParser::parseBodyEntry(Assets::Quake3Shader& shader, ParserStatus& /* status */) {
             auto token = m_tokenizer.nextToken(Quake3ShaderToken::Eol);
             expect(Quake3ShaderToken::String, token);
             const auto key = token.data();
@@ -183,7 +190,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Quake3ShaderParser::parseStageEntry(ParserStatus& status, const Assets::Quake3Shader& shader, Assets::Quake3ShaderStage& stage) {
+        void Quake3ShaderParser::parseStageEntry(Assets::Quake3ShaderStage& stage, ParserStatus& status) {
             auto token = m_tokenizer.nextToken(Quake3ShaderToken::Eol);
             expect(Quake3ShaderToken::String, token);
             const auto key = token.data();
@@ -201,8 +208,8 @@ namespace TrenchBroom {
                     token = m_tokenizer.nextToken();
                     const auto param2 = token.data();
                     const auto param2Column = token.column();
-                    stage.blendFunc.srcFactor = StringUtils::toUpper(param1);
-                    stage.blendFunc.destFactor = StringUtils::toUpper(param2);
+                    stage.blendFunc.srcFactor = kdl::str_to_upper(param1);
+                    stage.blendFunc.destFactor = kdl::str_to_upper(param2);
 
                     bool valid = true;
                     if (!stage.blendFunc.validateSrcFactor()) {
@@ -217,13 +224,13 @@ namespace TrenchBroom {
                         stage.blendFunc.reset();
                     }
                 } else {
-                    if (StringUtils::caseInsensitiveEqual(param1, "add")) {
+                    if (kdl::ci::str_is_equal(param1, "add")) {
                         stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::One;
                         stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::One;
-                    } else if (StringUtils::caseInsensitiveEqual(param1, "filter")) {
+                    } else if (kdl::ci::str_is_equal(param1, "filter")) {
                         stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::DestColor;
                         stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::Zero;
-                    } else if (StringUtils::caseInsensitiveEqual(param1, "blend")) {
+                    } else if (kdl::ci::str_is_equal(param1, "blend")) {
                         stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::SrcAlpha;
                         stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha;
                     } else {

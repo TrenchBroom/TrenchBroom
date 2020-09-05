@@ -20,9 +20,7 @@
 #ifndef TRENCHBROOM_ZIPFILESYSTEM_H
 #define TRENCHBROOM_ZIPFILESYSTEM_H
 
-#include "StringUtils.h"
 #include "IO/ImageFileSystem.h"
-#include "IO/Path.h"
 
 #include <memory>
 
@@ -30,6 +28,8 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class Path;
+
         class ZipFileSystem : public ImageFileSystem {
         private:
             mz_zip_archive m_archive;

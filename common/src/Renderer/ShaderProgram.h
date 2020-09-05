@@ -20,27 +20,30 @@
 #ifndef TrenchBroom_ShaderProgram
 #define TrenchBroom_ShaderProgram
 
-#include "StringUtils.h"
 #include "Renderer/GL.h"
 
 #include <vecmath/forward.h>
 
 #include <map>
+#include <string>
 
 namespace TrenchBroom {
     namespace Renderer {
+        class ShaderManager;
         class Shader;
 
         class ShaderProgram {
         private:
-            using UniformVariableCache = std::map<String, GLint>;
-
-            String m_name;
+            using UniformVariableCache = std::map<std::string, GLint>;
+            using AttributeLocationCache = std::map<std::string, GLint>;
+            std::string m_name;
             GLuint m_programId;
             bool m_needsLinking;
             mutable UniformVariableCache m_variableCache;
+            mutable AttributeLocationCache m_attributeCache;
+            ShaderManager* m_shaderManager;
         public:
-            explicit ShaderProgram(const String& name);
+            explicit ShaderProgram(ShaderManager* shaderManager, const std::string& name);
             ~ShaderProgram();
 
             void attach(Shader& shader);
@@ -49,20 +52,22 @@ namespace TrenchBroom {
             void activate();
             void deactivate();
 
-            void set(const String& name, bool value);
-            void set(const String& name, int value);
-            void set(const String& name, size_t value);
-            void set(const String& name, float value);
-            void set(const String& name, double value);
-            void set(const String& name, const vm::vec2f& value);
-            void set(const String& name, const vm::vec3f& value);
-            void set(const String& name, const vm::vec4f& value);
-            void set(const String& name, const vm::mat2x2f& value);
-            void set(const String& name, const vm::mat3x3f& value);
-            void set(const String& name, const vm::mat4x4f& value);
+            void set(const std::string& name, bool value);
+            void set(const std::string& name, int value);
+            void set(const std::string& name, size_t value);
+            void set(const std::string& name, float value);
+            void set(const std::string& name, double value);
+            void set(const std::string& name, const vm::vec2f& value);
+            void set(const std::string& name, const vm::vec3f& value);
+            void set(const std::string& name, const vm::vec4f& value);
+            void set(const std::string& name, const vm::mat2x2f& value);
+            void set(const std::string& name, const vm::mat3x3f& value);
+            void set(const std::string& name, const vm::mat4x4f& value);
+
+            GLint findAttributeLocation(const std::string& name) const;
         private:
             void link();
-            GLint findUniformLocation(const String& name) const;
+            GLint findUniformLocation(const std::string& name) const;
             bool checkActive() const;
         };
     }

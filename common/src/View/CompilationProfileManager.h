@@ -20,9 +20,12 @@
 #ifndef CompilationProfileManager_h
 #define CompilationProfileManager_h
 
-#include "View/ViewTypes.h"
+#include <memory>
 
-#include <wx/panel.h>
+#include <QWidget>
+
+class QAbstractButton;
+class QPoint;
 
 namespace TrenchBroom {
     namespace Model {
@@ -33,23 +36,30 @@ namespace TrenchBroom {
     namespace View {
         class CompilationProfileListBox;
         class CompilationProfileEditor;
+        class MapDocument;
 
-        class CompilationProfileManager : public wxPanel {
+        class CompilationProfileManager : public QWidget {
+            Q_OBJECT
         private:
             Model::CompilationConfig& m_config;
             CompilationProfileListBox* m_profileList;
             CompilationProfileEditor* m_profileEditor;
+            QAbstractButton* m_removeProfileButton;
         public:
-            CompilationProfileManager(wxWindow* parent, MapDocumentWPtr document, Model::CompilationConfig& config);
+            CompilationProfileManager(std::weak_ptr<MapDocument> document, Model::CompilationConfig& config, QWidget* parent = nullptr);
 
             const Model::CompilationProfile* selectedProfile() const;
-        private:
-            void OnAddProfile(wxCommandEvent& event);
-            void OnRemoveProfile(wxCommandEvent& event);
-            void OnUpdateAddProfileButtonUI(wxUpdateUIEvent& event);
-            void OnUpdateRemoveProfileButtonUI(wxUpdateUIEvent& event);
-
-            void OnProfileSelectionChanged(wxCommandEvent& event);
+        private slots:
+            void addProfile();
+            void removeProfile();
+            void removeProfile(size_t index);
+            void removeProfile(Model::CompilationProfile* profile);
+            void duplicateProfile(Model::CompilationProfile* profile);
+            void profileContextMenuRequested(const QPoint& globalPos, Model::CompilationProfile* profile);
+            void profileSelectionChanged();
+        signals:
+            void selectedProfileChanged();
+            void profileChanged();
         };
     }
 }

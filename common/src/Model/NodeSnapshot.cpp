@@ -19,14 +19,14 @@
 
 #include "NodeSnapshot.h"
 
-#include <cassert>
+#include <kdl/result.h>
 
 namespace TrenchBroom {
     namespace Model {
         NodeSnapshot::~NodeSnapshot() {}
 
-        void NodeSnapshot::restore(const vm::bbox3& worldBounds) {
-            doRestore(worldBounds);
+        kdl::result<void, SnapshotErrors> NodeSnapshot::restore(const vm::bbox3& worldBounds) {
+            return doRestore(worldBounds);
         }
     }
 }

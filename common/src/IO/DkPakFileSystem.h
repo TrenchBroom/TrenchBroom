@@ -20,15 +20,14 @@
 #ifndef DkPakFileSystem_h
 #define DkPakFileSystem_h
 
-#include "StringUtils.h"
 #include "IO/ImageFileSystem.h"
-#include "IO/Path.h"
 
-#include <map>
 #include <memory>
 
 namespace TrenchBroom {
     namespace IO {
+        class Path;
+
         class DkPakFileSystem : public ImageFileSystem {
         private:
             class DkCompressedFile : public CompressedFileEntry {

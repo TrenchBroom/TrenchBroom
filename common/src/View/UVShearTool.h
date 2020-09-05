@@ -20,21 +20,23 @@
 #ifndef TrenchBroom_UVShearTool
 #define TrenchBroom_UVShearTool
 
-#include "Model/Hit.h"
+#include "Model/HitType.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
         class UVViewHelper;
 
         class UVShearTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
-            static const Model::Hit::HitType XHandleHit;
-            static const Model::Hit::HitType YHandleHit;
+            static const Model::HitType::Type XHandleHitType;
+            static const Model::HitType::Type YHandleHitType;
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             UVViewHelper& m_helper;
 
             vm::vec2b m_selector;
@@ -43,7 +45,7 @@ namespace TrenchBroom {
             vm::vec2f m_initialHit;
             vm::vec2f m_lastHit;
         public:
-            UVShearTool(MapDocumentWPtr document, UVViewHelper& helper);
+            UVShearTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;

@@ -20,11 +20,13 @@
 #ifndef TrenchBroom_ComputeNodeBoundsVisitor
 #define TrenchBroom_ComputeNodeBoundsVisitor
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/NodeVisitor.h"
 #include "Model/Node.h"
 
 #include <vecmath/bbox.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -49,15 +51,15 @@ namespace TrenchBroom {
             explicit ComputeNodeBoundsVisitor(BoundsType type, const vm::bbox3& defaultBounds = vm::bbox3());
             const vm::bbox3& bounds() const;
         private:
-            void doVisit(const World* world) override;
-            void doVisit(const Layer* layer) override;
-            void doVisit(const Group* group) override;
-            void doVisit(const Entity* entity) override;
-            void doVisit(const Brush* brush) override;
+            void doVisit(const WorldNode* world) override;
+            void doVisit(const LayerNode* layer) override;
+            void doVisit(const GroupNode* group) override;
+            void doVisit(const EntityNode* entity) override;
+            void doVisit(const BrushNode* brush) override;
             void mergeWith(const vm::bbox3& bounds);
         };
 
-        vm::bbox3 computeLogicalBounds(const Model::NodeList& nodes);
+        vm::bbox3 computeLogicalBounds(const std::vector<Node*>& nodes);
 
         template <typename I>
         vm::bbox3 computeLogicalBounds(I cur, I end) {
@@ -66,7 +68,7 @@ namespace TrenchBroom {
             return visitor.bounds();
         }
 
-        vm::bbox3 computePhysicalBounds(const Model::NodeList& nodes);
+        vm::bbox3 computePhysicalBounds(const std::vector<Node*>& nodes);
 
         template <typename I>
         vm::bbox3 computePhysicalBounds(I cur, I end) {

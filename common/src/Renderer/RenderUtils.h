@@ -20,10 +20,6 @@
 #ifndef TrenchBroom_RenderUtils_h
 #define TrenchBroom_RenderUtils_h
 
-#include "Color.h"
-#include "Renderer/GLVertex.h"
-#include "Renderer/GLVertexType.h"
-
 #include <vecmath/forward.h>
 #include <vecmath/util.h>
 
@@ -36,9 +32,7 @@ namespace TrenchBroom {
     }
 
     namespace Renderer {
-        class Vbo;
-
-        void glSetEdgeOffset(float f);
+        void glSetEdgeOffset(double f);
         void glResetEdgeOffset();
 
         void coordinateSystemVerticesX(const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end);

@@ -45,10 +45,13 @@ namespace TrenchBroom {
         void CameraTool2D::doMouseScroll(const InputState& inputState) {
             if (zoom(inputState)) {
                 if (inputState.scrollY() != 0.0f) {
-                    const auto speed = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
-                    const auto factor = 1.0f + inputState.scrollY() / 50.0f * speed;
+                    const float speed = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
+                    const float factor = 1.0f + inputState.scrollY() / 50.0f * speed;
                     const auto mousePos = vm::vec2f(float(inputState.mouseX()), float(inputState.mouseY()));
-                    zoom(inputState, mousePos, factor);
+
+                    if (factor > 0.0f) {
+                        zoom(inputState, mousePos, factor);
+                    }
                 }
             }
         }
@@ -66,7 +69,7 @@ namespace TrenchBroom {
 
         bool CameraTool2D::doMouseDrag(const InputState& inputState) {
             if (pan(inputState)) {
-                const auto currentMousePos = vm::vec2f(float(inputState.mouseX()), float(inputState.mouseY()));
+                const auto currentMousePos = vm::vec2f(inputState.mouseX(), inputState.mouseY());
                 const auto lastWorldPos = m_camera.unproject(m_lastMousePos.x(), m_lastMousePos.y(), 0.0f);
                 const auto currentWorldPos = m_camera.unproject(currentMousePos.x(), currentMousePos.y(), 0.0f);
                 const auto delta = currentWorldPos - lastWorldPos;
@@ -75,14 +78,14 @@ namespace TrenchBroom {
                 return true;
             } else if (dragZoom(inputState)) {
                 const auto speed = pref(Preferences::CameraAltMoveInvert) ? 1.0f : -1.0f;
-                const auto factor = 1.0f + inputState.mouseDY() / 100.0f * speed;
+                const auto factor = 1.0f + static_cast<float>(inputState.mouseDY()) / 100.0f * speed;
                 zoom(inputState, m_lastMousePos, factor);
                 return true;
             }
             return false;
         }
 
-        void CameraTool2D::doEndMouseDrag(const InputState& inputState) {}
+        void CameraTool2D::doEndMouseDrag(const InputState&) {}
 
         void CameraTool2D::doCancelMouseDrag() {}
 
@@ -108,7 +111,7 @@ namespace TrenchBroom {
                     inputState.modifierKeysPressed(ModifierKeys::MKAlt));
         }
 
-        void CameraTool2D::zoom(const InputState& inputState, const vm::vec2f& mousePos, const float factor) {
+        void CameraTool2D::zoom(const InputState&, const vm::vec2f& mousePos, const float factor) {
             const auto oldWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
 
             m_camera.zoom(factor);

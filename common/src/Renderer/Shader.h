@@ -20,15 +20,20 @@
 #ifndef TrenchBroom_Shader
 #define TrenchBroom_Shader
 
-#include "StringUtils.h"
 #include "Renderer/GL.h"
-#include "IO/Path.h"
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+
     namespace Renderer {
         class Shader {
         private:
-            String m_name;
+            std::string m_name;
             GLenum m_type;
             GLuint m_shaderId;
         public:
@@ -38,7 +43,7 @@ namespace TrenchBroom {
             void attach(const GLuint programId);
             void detach(const GLuint programId);
         private:
-            static StringList loadSource(const IO::Path& path);
+            static std::vector<std::string> loadSource(const IO::Path& path);
         };
     }
 }

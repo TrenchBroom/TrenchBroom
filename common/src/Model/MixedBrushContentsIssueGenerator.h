@@ -21,7 +21,8 @@
 #define TrenchBroom_MixedBrushContentsIssueGenerator
 
 #include "Model/IssueGenerator.h"
-#include "Model/ModelTypes.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -31,7 +32,7 @@ namespace TrenchBroom {
         public:
             MixedBrushContentsIssueGenerator();
         private:
-            void doGenerate(Brush* brush, IssueList& issues) const override;
+            void doGenerate(BrushNode* brushNode, IssueList& issues) const override;
         };
     }
 }

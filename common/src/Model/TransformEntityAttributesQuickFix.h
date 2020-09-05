@@ -20,26 +20,22 @@
 #ifndef TransformEntityAttributesQuickFix_h
 #define TransformEntityAttributesQuickFix_h
 
-#include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
-#include "Model/MapFacade.h"
-#include "Model/PushSelection.h"
 
 #include <functional>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
-        class MapFacade;
-
         class TransformEntityAttributesQuickFix : public IssueQuickFix {
         public:
-            using NameTransform = std::function<AttributeName(const AttributeName&)>;
-            using ValueTransform = std::function<AttributeValue(const AttributeValue&)>;
+            using NameTransform = std::function<std::string(const std::string&)>;
+            using ValueTransform = std::function<std::string(const std::string&)>;
         private:
             NameTransform m_nameTransform;
             ValueTransform m_valueTransform;
         public:
-            TransformEntityAttributesQuickFix(const IssueType issueType, const String& description, const NameTransform& nameTransform, const ValueTransform& valueTransform);
+            TransformEntityAttributesQuickFix(const IssueType issueType, const std::string& description, const NameTransform& nameTransform, const ValueTransform& valueTransform);
         private:
             void doApply(MapFacade* facade, const Issue* issue) const override;
         };

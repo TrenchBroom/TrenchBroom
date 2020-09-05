@@ -19,9 +19,11 @@
 
 #include "AllocationTracker.h"
 
-#include <exception>
-#include <cassert>
+#include <kdl/vector_set.h>
+
 #include <algorithm>
+#include <cassert>
+#include <stdexcept>
 
 //#define EXPENSIVE_CHECKS
 
@@ -152,6 +154,7 @@ namespace TrenchBroom {
             // to avoid doing a redundant binary search)
             Block* block = *it;
             assert(block != nullptr);
+            // cppcheck-suppress nullPointerRedundantCheck
             assert(block->free);
             assert(block->prevOfSameSize == nullptr);
             {
@@ -421,24 +424,24 @@ namespace TrenchBroom {
 
 // Testing / debugging
 
-        std::set<AllocationTracker::Range> AllocationTracker::freeBlocks() const {
-            std::set<Range> res;
+        std::vector<AllocationTracker::Range> AllocationTracker::freeBlocks() const {
+            kdl::vector_set<Range> res;
             for (Block* block = m_leftmostBlock; block != nullptr; block = block->right) {
                 if (block->free) {
                     res.insert(Range{block->pos, block->size});
                 }
             }
-            return res;
+            return res.release_data();
         }
 
-        std::set<AllocationTracker::Range> AllocationTracker::usedBlocks() const {
-            std::set<Range> res;
+        std::vector<AllocationTracker::Range> AllocationTracker::usedBlocks() const {
+            kdl::vector_set<Range> res;
             for (Block* block = m_leftmostBlock; block != nullptr; block = block->right) {
                 if (!block->free) {
                     res.insert(Range{block->pos, block->size});
                 }
             }
-            return res;
+            return res.release_data();
         }
 
         AllocationTracker::Index AllocationTracker::largestPossibleAllocation() const {

@@ -18,25 +18,60 @@
  */
 
 #include "RenderView.h"
-#include "Exceptions.h"
+
+#include "TrenchBroomApp.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/Transformation.h"
-#include "Renderer/VertexArray.h"
 #include "Renderer/GLVertexType.h"
+#include "Renderer/PrimType.h"
+#include "Renderer/Transformation.h"
+#include "Renderer/Vbo.h"
+#include "Renderer/VboManager.h"
+#include "Renderer/VertexArray.h"
 #include "View/GLContextManager.h"
 #include "View/InputEvent.h"
-#include "View/wxUtils.h"
-#include "TrenchBroomApp.h"
+#include "View/QtUtils.h"
 
-#include <wx/dcclient.h>
-#include <wx/settings.h>
-
-#ifdef _WIN32
-#include <GL/wglew.h>
+/*
+ * - glew requires it is included before <OpenGL/gl.h>
+ *
+ * - Qt requires that glew is included after <qopengl.h> and <QOpenGLFunctions>
+ * - QOpenGLWidget includes <qopengl.h>
+ * - qopengl.h includes OpenGL/gl.h
+ *
+ * therefore
+ * - glew wants to be included first
+ * - and so does QOpenGLWidget
+ *
+ * Since including glew before QOpenGLWidget only generates a warning and does not seem to incur any ill effects,
+ * we silence the warning here.
+ *
+ * Note that GCC does not let us silence this warning using diagnostic pragmas, so it is disabled in the CXX_FLAGS!
+ */
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcpp"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcpp"
 #endif
 
-#include <vecmath/vec.h>
+#include <QOpenGLContext>
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
+#include <QDateTime>
+#include <QPalette>
+#include <QTimer>
+#include <QWidget>
+
+#ifdef _WIN32
+#endif
+
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 
@@ -44,99 +79,102 @@
 
 namespace TrenchBroom {
     namespace View {
-        RenderView::RenderView(wxWindow* parent, GLContextManager& contextManager, wxGLAttributes attribs) :
-        wxGLCanvas(parent, attribs, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxFULL_REPAINT_ON_RESIZE),
-        m_glContext(contextManager.createContext(this)),
-        m_attribs(attribs),
-        m_initialized(false) {
-            const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
-            m_focusColor = fromWxColor(color);
+        RenderView::RenderView(GLContextManager& contextManager, QWidget* parent) :
+        QOpenGLWidget(parent),
+        m_glContext(&contextManager),
+        m_framesRendered(0),
+        m_maxFrameTimeMsecs(0),
+        m_lastFPSCounterUpdate(0) {
+            QPalette pal;
+            const QColor color = pal.color(QPalette::Highlight);
+            m_focusColor = fromQColor(color);
 
-            bindEvents();
+            // FPS counter
+            QTimer* fpsCounter = new QTimer(this);
+
+            connect(fpsCounter, &QTimer::timeout, [&](){
+                const int64_t currentTime = QDateTime::currentMSecsSinceEpoch();
+                const int framesRenderedInPeriod = m_framesRendered;
+                const int maxFrameTime = m_maxFrameTimeMsecs;
+                const int64_t fpsCounterPeriod = currentTime - m_lastFPSCounterUpdate;
+                const double avgFps = static_cast<double>(framesRenderedInPeriod) / (static_cast<double>(fpsCounterPeriod) / 1000.0);
+
+                m_framesRendered = 0;
+                m_maxFrameTimeMsecs = 0;
+                m_lastFPSCounterUpdate = currentTime;
+
+                m_currentFPS = std::string("Avg FPS: ") + std::to_string(avgFps) + " Max time between frames: " +
+                    std::to_string(maxFrameTime) + "ms. " +
+                    std::to_string(m_glContext->vboManager().currentVboCount()) + " current VBOs (" +
+                    std::to_string(m_glContext->vboManager().peakVboCount()) + " peak) totalling " +
+                    std::to_string(m_glContext->vboManager().currentVboSize() / 1024u) + " KiB";
+
+
+            });
+
+            fpsCounter->start(1000);
+
+            setMouseTracking(true); // request mouse move events even when no button is held down
+            setFocusPolicy(Qt::StrongFocus); // accept focus by clicking or tab
         }
 
-        RenderView::~RenderView() {}
+        RenderView::~RenderView() = default;
 
-        void RenderView::OnKey(wxKeyEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void RenderView::keyPressEvent(QKeyEvent* event) {
             m_eventRecorder.recordEvent(event);
-            event.Skip();
-            Refresh();
+            update();
         }
 
-        void RenderView::OnMouse(wxMouseEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            if (event.ButtonDown(wxMOUSE_BTN_ANY) && !HasCapture()) {
-                // This SetFocus() is needed so that RMB down sets focus; see: https://github.com/kduske/TrenchBroom/issues/2562
-                SetFocus();
-
-                CaptureMouse();
-            } else if (event.ButtonUp(wxMOUSE_BTN_ANY) && HasCapture()) {
-                if (!event.LeftIsDown() && !event.MiddleIsDown() && !event.RightIsDown() && !event.Aux1IsDown() && !event.Aux2IsDown()) {
-                    ReleaseMouse();
-                }
-            }
-
+        void RenderView::keyReleaseEvent(QKeyEvent* event) {
             m_eventRecorder.recordEvent(event);
-            event.Skip();
-            Refresh();
+            update();
         }
 
-        void RenderView::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void RenderView::mouseDoubleClickEvent(QMouseEvent* event) {
             m_eventRecorder.recordEvent(event);
-            event.Skip();
-            Refresh();
+            update();
         }
 
-        // to prevent flickering, see https://wiki.wxwidgets.org/Flicker-Free_Drawing
-        void RenderView::OnEraseBackground(wxEraseEvent& event) {}
+        void RenderView::mouseMoveEvent(QMouseEvent* event) {
+            m_eventRecorder.recordEvent(event);
+            update();
+        }
 
-        void RenderView::OnPaint(wxPaintEvent& event) {
-            if (IsBeingDeleted()) return;
+        void RenderView::mousePressEvent(QMouseEvent* event) {
+            m_eventRecorder.recordEvent(event);
+            update();
+        }
+
+        void RenderView::mouseReleaseEvent(QMouseEvent* event) {
+            m_eventRecorder.recordEvent(event);
+            update();
+        }
+
+        void RenderView::wheelEvent(QWheelEvent* event) {
+            m_eventRecorder.recordEvent(event);
+            update();
+        }
+
+        void RenderView::paintGL() {
             if (TrenchBroom::View::isReportingCrash()) return;
 
-            if (m_glContext->SetCurrent(this)) {
-                if (!m_initialized) {
-                    initializeGL();
-                }
+            render();
 
-                wxPaintDC paintDC(this);
-                render();
-                SwapBuffers();
+            // Update stats
+            m_framesRendered++;
+            if (m_timeSinceLastFrame.isValid()) {
+                int frameTime = static_cast<int>(m_timeSinceLastFrame.restart());
+                if (frameTime > m_maxFrameTimeMsecs) {
+                    m_maxFrameTimeMsecs = frameTime;
+                }
+            } else {
+                m_timeSinceLastFrame.start();
             }
         }
 
-        void RenderView::OnSize(wxSizeEvent& event) {
-            if (IsBeingDeleted()) return;
 
-            updateViewport();
-            event.Skip();
-        }
-
-        void RenderView::OnSetFocus(wxFocusEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            event.Skip();
-            Refresh();
-        }
-
-        void RenderView::OnKillFocus(wxFocusEvent& event) {
-            if (IsBeingDeleted()) return;
-
-           event.Skip();
-           Refresh();
-        }
-
-        Renderer::Vbo& RenderView::vertexVbo() {
-            return m_glContext->vertexVbo();
-        }
-
-        Renderer::Vbo& RenderView::indexVbo() {
-            return m_glContext->indexVbo();
+       Renderer::VboManager& RenderView::vboManager() {
+            return m_glContext->vboManager();
         }
 
         Renderer::FontManager& RenderView::fontManager() {
@@ -148,57 +186,22 @@ namespace TrenchBroom {
         }
 
         int RenderView::depthBits() const {
-            return GLAttribs::depth();
+            const auto format = this->context()->format();
+            return format.depthBufferSize();
         }
 
         bool RenderView::multisample() const {
-            return GLAttribs::multisample();
-        }
-
-        void RenderView::bindEvents() {
-            Bind(wxEVT_ERASE_BACKGROUND, &RenderView::OnEraseBackground, this);
-            Bind(wxEVT_PAINT, &RenderView::OnPaint, this);
-            Bind(wxEVT_SIZE, &RenderView::OnSize, this);
-            Bind(wxEVT_SET_FOCUS, &RenderView::OnSetFocus, this);
-            Bind(wxEVT_KILL_FOCUS, &RenderView::OnKillFocus, this);
-            Bind(wxEVT_KEY_DOWN, &RenderView::OnKey, this);
-            Bind(wxEVT_KEY_UP, &RenderView::OnKey, this);
-            Bind(wxEVT_LEFT_DOWN, &RenderView::OnMouse, this);
-            Bind(wxEVT_LEFT_UP, &RenderView::OnMouse, this);
-            Bind(wxEVT_LEFT_DCLICK, &RenderView::OnMouse, this);
-            Bind(wxEVT_RIGHT_DOWN, &RenderView::OnMouse, this);
-            Bind(wxEVT_RIGHT_UP, &RenderView::OnMouse, this);
-            Bind(wxEVT_RIGHT_DCLICK, &RenderView::OnMouse, this);
-            Bind(wxEVT_MIDDLE_DOWN, &RenderView::OnMouse, this);
-            Bind(wxEVT_MIDDLE_UP, &RenderView::OnMouse, this);
-            Bind(wxEVT_MIDDLE_DCLICK, &RenderView::OnMouse, this);
-            Bind(wxEVT_AUX1_DOWN, &RenderView::OnMouse, this);
-            Bind(wxEVT_AUX1_UP, &RenderView::OnMouse, this);
-            Bind(wxEVT_AUX1_DCLICK, &RenderView::OnMouse, this);
-            Bind(wxEVT_AUX2_DOWN, &RenderView::OnMouse, this);
-            Bind(wxEVT_AUX2_UP, &RenderView::OnMouse, this);
-            Bind(wxEVT_AUX2_DCLICK, &RenderView::OnMouse, this);
-            Bind(wxEVT_MOTION, &RenderView::OnMouse, this);
-            Bind(wxEVT_MOUSEWHEEL, &RenderView::OnMouse, this);
-            Bind(wxEVT_MOUSE_CAPTURE_LOST, &RenderView::OnMouseCaptureLost, this);
+            const auto format = this->context()->format();
+            return format.samples() != -1;
         }
 
         void RenderView::initializeGL() {
-            const bool firstInitialization = m_glContext->initialize();
-            doInitializeGL(firstInitialization);
-
-#ifdef _WIN32
-            if (wglSwapIntervalEXT) {
-                wglSwapIntervalEXT(1);
-            }
-#endif
-
-            m_initialized = true;
+            doInitializeGL();
         }
 
-        void RenderView::updateViewport() {
-            const wxSize clientSize = GetClientSize();
-            doUpdateViewport(0, 0, clientSize.x, clientSize.y);
+        void RenderView::resizeGL(int w, int h) {
+            // These are in points, not pixels
+            doUpdateViewport(0, 0, w, h);
         }
 
         void RenderView::render() {
@@ -217,63 +220,64 @@ namespace TrenchBroom {
             const Color& backgroundColor = prefs.get(Preferences::BackgroundColor);
 
             glAssert(glClearColor(backgroundColor.r(), backgroundColor.g(), backgroundColor.b(), backgroundColor.a()));
-            glAssert(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+            glAssert(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT))
         }
 
         void RenderView::renderFocusIndicator() {
-            if (!doShouldRenderFocusIndicator() || !HasFocus())
+            if (!doShouldRenderFocusIndicator() || !hasFocus())
                 return;
 
             const Color& outer = m_focusColor;
             const Color& inner = m_focusColor;
 
-            const wxSize clientSize = GetClientSize();
-            const auto w = static_cast<float>(clientSize.x);
-            const auto h = static_cast<float>(clientSize.y);
+            const qreal r = devicePixelRatioF();
+            const auto w = static_cast<float>(width() * r);
+            const auto h = static_cast<float>(height() * r);
+            glAssert(glViewport(0, 0, static_cast<int>(w), static_cast<int>(h)));
+
             const auto t = 1.0f;
 
-            glAssert(glViewport(0, 0, clientSize.x, clientSize.y));
-
-            const auto projection = vm::orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
-            Renderer::Transformation transformation(projection, vm::mat4x4f::identity);
+            const auto projection = vm::ortho_matrix(-1.0f, 1.0f, 0.0f, 0.0f, static_cast<float>(w), static_cast<float>(h));
+            Renderer::Transformation transformation(projection, vm::mat4x4f::identity());
 
             glAssert(glDisable(GL_DEPTH_TEST));
 
             using Vertex = Renderer::GLVertexTypes::P3C4::Vertex;
-            auto array = Renderer::VertexArray::move(Vertex::List {
-                // top
+            auto array = Renderer::VertexArray::move(std::vector<Vertex>({
+            // top
                 Vertex(vm::vec3f(0.0f, 0.0f, 0.0f), outer),
                 Vertex(vm::vec3f(w, 0.0f, 0.0f), outer),
                 Vertex(vm::vec3f(w-t, t, 0.0f), inner),
                 Vertex(vm::vec3f(t, t, 0.0f), inner),
 
-                // right
+            // right
                 Vertex(vm::vec3f(w, 0.0f, 0.0f), outer),
                 Vertex(vm::vec3f(w, h, 0.0f), outer),
                 Vertex(vm::vec3f(w-t, h-t, 0.0f), inner),
                 Vertex(vm::vec3f(w-t, t, 0.0f), inner),
 
-                // bottom
+            // bottom
                 Vertex(vm::vec3f(w, h, 0.0f), outer),
                 Vertex(vm::vec3f(0.0f, h, 0.0f), outer),
                 Vertex(vm::vec3f(t, h-t, 0.0f), inner),
                 Vertex(vm::vec3f(w-t, h-t, 0.0f), inner),
 
-                // left
+            // left
                 Vertex(vm::vec3f(0.0f, h, 0.0f), outer),
                 Vertex(vm::vec3f(0.0f, 0.0f, 0.0f), outer),
                 Vertex(vm::vec3f(t, t, 0.0f), inner),
                 Vertex(vm::vec3f(t, h-t, 0.0f), inner)
-            });
+            }));
 
-            Renderer::ActivateVbo activate(vertexVbo());
-            array.prepare(vertexVbo());
-            array.render(GL_QUADS);
+            array.prepare(vboManager());
+            array.render(Renderer::PrimType::Quads);
             glAssert(glEnable(GL_DEPTH_TEST));
         }
 
-        void RenderView::doInitializeGL(const bool firstInitialization) {}
+        bool RenderView::doInitializeGL() {
+            return m_glContext->initialize();
+        }
 
-        void RenderView::doUpdateViewport(const int x, const int y, const int width, const int height) {}
+        void RenderView::doUpdateViewport(const int /* x */, const int /* y */, const int /* width */, const int /* height */) {}
     }
 }

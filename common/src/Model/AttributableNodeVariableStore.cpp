@@ -19,8 +19,15 @@
 
 #include "AttributableNodeVariableStore.h"
 
-#include <cassert>
+#include "Ensure.h"
+#include "EL/ELExceptions.h"
+#include "EL/Types.h"
 #include "Model/AttributableNode.h"
+
+#include <kdl/string_utils.h>
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -37,24 +44,29 @@ namespace TrenchBroom {
             return m_node->attributes().size();
         }
 
-        EL::Value AttributableNodeVariableStore::doGetValue(const String& name) const {
-            if (!m_node->hasAttribute(name))
+        EL::Value AttributableNodeVariableStore::doGetValue(const std::string& name) const {
+            if (!m_node->hasAttribute(name)) {
                 return EL::Value::Undefined;
-            return EL::Value(m_node->attribute(name));
+            } else {
+                return EL::Value(m_node->attribute(name));
+            }
         }
 
-        StringSet AttributableNodeVariableStore::doGetNames() const {
+        std::vector<std::string> AttributableNodeVariableStore::doGetNames() const {
             return m_node->attributeNames();
         }
 
-        void AttributableNodeVariableStore::doDeclare(const String& name, const EL::Value& value) {
-            if (m_node->hasAttribute(name))
+        void AttributableNodeVariableStore::doDeclare(const std::string& name, const EL::Value& value) {
+            if (m_node->hasAttribute(name)) {
                 throw EL::EvaluationError("Variable '" + name + "' already declared");
-            doAssign(name, value);
+            } else {
+                doAssign(name, value);
+            }
         }
 
-        void AttributableNodeVariableStore::doAssign(const String& name, const EL::Value& value) {
-            m_node->addOrUpdateAttribute(name, value.convertTo(EL::Type_String));
+        void AttributableNodeVariableStore::doAssign(const std::string& name, const EL::Value& value) {
+            const EL::Value stringELValue = value.convertTo(EL::ValueType::String);
+            m_node->addOrUpdateAttribute(name, kdl::str_to_string(stringELValue));
         }
     }
 }

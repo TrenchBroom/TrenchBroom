@@ -20,29 +20,31 @@
 #ifndef TrenchBroom_RemoveBrushVerticesCommand
 #define TrenchBroom_RemoveBrushVerticesCommand
 
-#include "SharedPointer.h"
-#include "Model/ModelTypes.h"
+#include "FloatType.h"
+#include "Macros.h"
 #include "View/RemoveBrushElementsCommand.h"
 
-namespace TrenchBroom {
-    namespace Model {
-        class Snapshot;
-    }
+#include <memory>
+#include <vector>
 
+namespace TrenchBroom {
     namespace View {
+        class VertexHandleManager;
+
         class RemoveBrushVerticesCommand : public RemoveBrushElementsCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<RemoveBrushVerticesCommand>;
         private:
             std::vector<vm::vec3> m_oldVertexPositions;
         public:
-            static Ptr remove(const Model::VertexToBrushesMap& vertices);
-        private:
-            RemoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions);
-        public:
+            static std::unique_ptr<RemoveBrushVerticesCommand> remove(const VertexToBrushesMap& vertices);
+
+            RemoveBrushVerticesCommand(const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions);
+
             void selectNewHandlePositions(VertexHandleManager& manager) const;
             void selectOldHandlePositions(VertexHandleManager& manager) const;
+
+            deleteCopyAndMove(RemoveBrushVerticesCommand)
         };
     }
 }

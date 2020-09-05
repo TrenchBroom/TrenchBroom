@@ -21,19 +21,24 @@
 #define MissingModIssueGenerator_h
 
 #include "Model/IssueGenerator.h"
-#include "Model/ModelTypes.h"
+
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class Game;
+
         class MissingModIssueGenerator : public IssueGenerator {
         private:
             class MissingModIssue;
             class MissingModIssueQuickFix;
 
-            GameWPtr m_game;
-            mutable StringList m_lastMods;
+            std::weak_ptr<Game> m_game;
+            mutable std::vector<std::string> m_lastMods;
         public:
-            MissingModIssueGenerator(GameWPtr game);
+            MissingModIssueGenerator(std::weak_ptr<Game> game);
         private:
             void doGenerate(AttributableNode* node, IssueList& issues) const override;
         };

@@ -19,42 +19,55 @@
 
 #include "MoveBrushVerticesCommand.h"
 
-#include "Model/Snapshot.h"
+#include "FloatType.h"
+#include "Model/BrushNode.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "View/VertexHandleManager.h"
+
+#include <vecmath/polygon.h>
+
+#include <map>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
+        MoveBrushVerticesCommandResult::MoveBrushVerticesCommandResult(const bool success, const bool hasRemainingVertices) :
+        CommandResult(success),
+        m_hasRemainingVertices(hasRemainingVertices) {}
+
+        bool MoveBrushVerticesCommandResult::hasRemainingVertices() const {
+            return m_hasRemainingVertices;
+        }
+
         const Command::CommandType MoveBrushVerticesCommand::Type = Command::freeType();
 
-        MoveBrushVerticesCommand::Ptr MoveBrushVerticesCommand::move(const Model::VertexToBrushesMap& vertices, const vm::vec3& delta) {
-            Model::BrushList brushes;
-            Model::BrushVerticesMap brushVertices;
+        std::unique_ptr<MoveBrushVerticesCommand> MoveBrushVerticesCommand::move(const VertexToBrushesMap& vertices, const vm::vec3& delta) {
+            std::vector<Model::BrushNode*> brushes;
+            BrushVerticesMap brushVertices;
             std::vector<vm::vec3> vertexPositions;
             extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
 
-            return Ptr(new MoveBrushVerticesCommand(brushes, brushVertices, vertexPositions, delta));
+            return std::make_unique<MoveBrushVerticesCommand>(brushes, brushVertices, vertexPositions, delta);
         }
 
-        bool MoveBrushVerticesCommand::hasRemainingVertices() const {
-            return !m_newVertexPositions.empty();
-        }
-
-        MoveBrushVerticesCommand::MoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta) :
+        MoveBrushVerticesCommand::MoveBrushVerticesCommand(const std::vector<Model::BrushNode*>& brushes, const BrushVerticesMap& vertices, const std::vector<vm::vec3>& vertexPositions, const vm::vec3& delta) :
         VertexCommand(Type, "Move Brush Vertices", brushes),
         m_vertices(vertices),
         m_oldVertexPositions(vertexPositions),
         m_delta(delta) {
-            assert(!isZero(m_delta, vm::C::almostZero()));
+            assert(!vm::is_zero(m_delta, vm::C::almost_zero()));
         }
 
         bool MoveBrushVerticesCommand::doCanDoVertexOperation(const MapDocument* document) const {
             const vm::bbox3& worldBounds = document->worldBounds();
             for (const auto& entry : m_vertices) {
-                Model::Brush* brush = entry.first;
+                const Model::BrushNode* brushNode = entry.first;
+                const Model::Brush& brush = brushNode->brush();
                 const std::vector<vm::vec3>& vertices = entry.second;
-                if (!brush->canMoveVertices(worldBounds, vertices, m_delta))
+                if (!brush.canMoveVertices(worldBounds, vertices, m_delta)) {
                     return false;
+                }
             }
             return true;
         }
@@ -64,14 +77,18 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MoveBrushVerticesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            MoveBrushVerticesCommand* other = static_cast<MoveBrushVerticesCommand*>(command.get());
+        std::unique_ptr<CommandResult> MoveBrushVerticesCommand::doCreateCommandResult(const bool success) {
+            return std::make_unique<MoveBrushVerticesCommandResult>(success, !m_newVertexPositions.empty());
+        }
+
+        bool MoveBrushVerticesCommand::doCollateWith(UndoableCommand* command) {
+            MoveBrushVerticesCommand* other = static_cast<MoveBrushVerticesCommand*>(command);
 
             if (!canCollateWith(*other)) {
                 return false;
             }
 
-            if (!VectorUtils::equals(m_newVertexPositions, other->m_oldVertexPositions)) {
+            if (m_newVertexPositions != other->m_oldVertexPositions) {
                 return false;
             }
 

@@ -19,34 +19,33 @@
 
 #include "MapRenderer.h"
 
-#include "CollectionUtils.h"
-#include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Brush.h"
-#include "Model/CollectMatchingNodesVisitor.h"
+#include "Model/BrushNode.h"
+#include "Model/BrushFace.h"
 #include "Model/EditorContext.h"
-#include "Model/Entity.h"
-#include "Model/Group.h"
-#include "Model/Layer.h"
+#include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
-#include "Model/Tag.h"
-#include "Model/TagAttribute.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
 #include "Renderer/BrushRenderer.h"
-#include "Renderer/Camera.h"
 #include "Renderer/EntityLinkRenderer.h"
 #include "Renderer/ObjectRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/RenderService.h"
 #include "Renderer/RenderUtils.h"
 #include "View/Selection.h"
 #include "View/MapDocument.h"
 
+#include <kdl/memory_utils.h>
+#include <kdl/vector_set.h>
+
 #include <set>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -55,14 +54,15 @@ namespace TrenchBroom {
             SelectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
 
-            RenderSettings markFaces(const Model::Brush* brush) const override {
-                if (!(visible(brush) && editable(brush))) {
+            RenderSettings markFaces(const Model::BrushNode* brushNode) const override {
+                if (!(visible(brushNode) && editable(brushNode))) {
                     return renderNothing();
                 }
 
-                const bool brushSelected = selected(brush);
-                for (Model::BrushFace* face : brush->faces()) {
-                    face->setMarked(brushSelected || selected(face));
+                const bool brushSelected = selected(brushNode);
+                const Model::Brush& brush = brushNode->brush();
+                for (const Model::BrushFace& face : brush.faces()) {
+                    face.setMarked(brushSelected || selected(brushNode, face));
                 }
                 return std::make_tuple(FaceRenderPolicy::RenderMarked, EdgeRenderPolicy::RenderIfEitherFaceMarked);
             }
@@ -73,13 +73,14 @@ namespace TrenchBroom {
             LockedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
 
-            RenderSettings markFaces(const Model::Brush* brush) const override {
-                if (!visible(brush)) {
+            RenderSettings markFaces(const Model::BrushNode* brushNode) const override {
+                if (!visible(brushNode)) {
                     return renderNothing();
                 }
 
-                for (Model::BrushFace* face : brush->faces()) {
-                    face->setMarked(true);
+                const Model::Brush& brush = brushNode->brush();
+                for (const Model::BrushFace& face : brush.faces()) {
+                    face.setMarked(true);
                 }
 
                 return std::make_tuple(FaceRenderPolicy::RenderMarked,
@@ -92,21 +93,23 @@ namespace TrenchBroom {
             UnselectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
 
-            RenderSettings markFaces(const Model::Brush* brush) const override {
-                const bool brushVisible = visible(brush);
-                const bool brushEditable = editable(brush);
+            RenderSettings markFaces(const Model::BrushNode* brushNode) const override {
+                const bool brushVisible = visible(brushNode);
+                const bool brushEditable = editable(brushNode);
 
                 const bool renderFaces = (brushVisible && brushEditable);
-                      bool renderEdges = (brushVisible && !selected(brush));
+                      bool renderEdges = (brushVisible && !selected(brushNode));
 
                 if (!renderFaces && !renderEdges) {
                     return renderNothing();
                 }
 
+                const Model::Brush& brush = brushNode->brush();
+                
                 bool anyFaceVisible = false;
-                for (Model::BrushFace* face : brush->faces()) {
-                    const bool faceVisible = !selected(face) && visible(face);
-                    face->setMarked(faceVisible);
+                for (const Model::BrushFace& face : brush.faces()) {
+                    const bool faceVisible = !selected(brushNode, face) && visible(brushNode, face);
+                    face.setMarked(faceVisible);
                     anyFaceVisible |= faceVisible;
                 }
 
@@ -122,7 +125,7 @@ namespace TrenchBroom {
             }
         };
 
-        MapRenderer::MapRenderer(View::MapDocumentWPtr document) :
+        MapRenderer::MapRenderer(std::weak_ptr<View::MapDocument> document) :
         m_document(document),
         m_defaultRenderer(createDefaultRenderer(m_document)),
         m_selectionRenderer(createSelectionRenderer(m_document)),
@@ -137,25 +140,28 @@ namespace TrenchBroom {
             clear();
         }
 
-        std::unique_ptr<ObjectRenderer> MapRenderer::createDefaultRenderer(View::MapDocumentWPtr document) {
+        std::unique_ptr<ObjectRenderer> MapRenderer::createDefaultRenderer(std::weak_ptr<View::MapDocument> document) {
             return std::make_unique<ObjectRenderer>(
-                lock(document)->entityModelManager(),
-                lock(document)->editorContext(),
-                UnselectedBrushRendererFilter(lock(document)->editorContext()));
+                *kdl::mem_lock(document),
+                kdl::mem_lock(document)->entityModelManager(),
+                kdl::mem_lock(document)->editorContext(),
+                UnselectedBrushRendererFilter(kdl::mem_lock(document)->editorContext()));
         }
 
-        std::unique_ptr<ObjectRenderer> MapRenderer::createSelectionRenderer(View::MapDocumentWPtr document) {
+        std::unique_ptr<ObjectRenderer> MapRenderer::createSelectionRenderer(std::weak_ptr<View::MapDocument> document) {
             return std::make_unique<ObjectRenderer>(
-                lock(document)->entityModelManager(),
-                lock(document)->editorContext(),
-                SelectedBrushRendererFilter(lock(document)->editorContext()));
+                *kdl::mem_lock(document),
+                kdl::mem_lock(document)->entityModelManager(),
+                kdl::mem_lock(document)->editorContext(),
+                SelectedBrushRendererFilter(kdl::mem_lock(document)->editorContext()));
         }
 
-        std::unique_ptr<ObjectRenderer> MapRenderer::createLockRenderer(View::MapDocumentWPtr document) {
+        std::unique_ptr<ObjectRenderer> MapRenderer::createLockRenderer(std::weak_ptr<View::MapDocument> document) {
             return std::make_unique<ObjectRenderer>(
-                lock(document)->entityModelManager(),
-                lock(document)->editorContext(),
-                LockedBrushRendererFilter(lock(document)->editorContext()));
+                *kdl::mem_lock(document),
+                kdl::mem_lock(document)->entityModelManager(),
+                kdl::mem_lock(document)->editorContext(),
+                LockedBrushRendererFilter(kdl::mem_lock(document)->editorContext()));
         }
 
         void MapRenderer::clear() {
@@ -195,17 +201,17 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::commitPendingChanges() {
-            View::MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->commitPendingAssets();
         }
 
         class SetupGL : public Renderable {
         private:
-            void doRender(RenderContext& renderContext) override {
-                glAssert(glFrontFace(GL_CW));
-                glAssert(glEnable(GL_CULL_FACE));
-                glAssert(glEnable(GL_DEPTH_TEST));
-                glAssert(glDepthFunc(GL_LEQUAL));
+            void doRender(RenderContext&) override {
+                glAssert(glFrontFace(GL_CW))
+                glAssert(glEnable(GL_CULL_FACE))
+                glAssert(glEnable(GL_DEPTH_TEST))
+                glAssert(glDepthFunc(GL_LEQUAL))
                 glResetEdgeOffset();
             }
         };
@@ -329,10 +335,10 @@ namespace TrenchBroom {
             const Model::NodeCollection& selectedNodes() const { return m_selectedNodes; }
             const Model::NodeCollection& lockedNodes() const   { return m_lockedNodes;   }
         private:
-            void doVisit(Model::World* world) override   {}
-            void doVisit(Model::Layer* layer) override   {}
+            void doVisit(Model::WorldNode*) override   {}
+            void doVisit(Model::LayerNode*) override   {}
 
-            void doVisit(Model::Group* group) override   {
+            void doVisit(Model::GroupNode* group) override   {
                 if (group->locked()) {
                     if (collectLocked()) m_lockedNodes.addNode(group);
                 } else if (selected(group) || group->opened()) {
@@ -342,7 +348,7 @@ namespace TrenchBroom {
                 }
             }
 
-            void doVisit(Model::Entity* entity) override {
+            void doVisit(Model::EntityNode* entity) override {
                 if (entity->locked()) {
                     if (collectLocked()) m_lockedNodes.addNode(entity);
                 } else if (selected(entity)) {
@@ -352,10 +358,10 @@ namespace TrenchBroom {
                 }
             }
 
-            void doVisit(Model::Brush* brush) override   {
+            void doVisit(Model::BrushNode* brush) override   {
                 if (brush->locked()) {
                     if (collectLocked()) m_lockedNodes.addNode(brush);
-                } else if (selected(brush)) {
+                } else if (selected(brush) || brush->hasSelectedFaces()) {
                     if (collectSelection()) m_selectedNodes.addNode(brush);
                 }
                 if (!brush->selected() && !brush->parentSelected() && !brush->locked()) {
@@ -373,8 +379,8 @@ namespace TrenchBroom {
         };
 
         void MapRenderer::updateRenderers(const Renderer renderers) {
-            View::MapDocumentSPtr document = lock(m_document);
-            Model::World* world = document->world();
+            auto document = kdl::mem_lock(m_document);
+            Model::WorldNode* world = document->world();
 
             CollectRenderableNodes collect(renderers);
             world->acceptAndRecurse(collect);
@@ -406,7 +412,7 @@ namespace TrenchBroom {
                 m_lockedRenderer->invalidate();
         }
 
-        void MapRenderer::invalidateBrushesInRenderers(Renderer renderers, const Model::BrushList& brushes) {
+        void MapRenderer::invalidateBrushesInRenderers(Renderer renderers, const std::vector<Model::BrushNode*>& brushes) {
             if ((renderers & Renderer_Default) != 0) {
                 m_defaultRenderer->invalidateBrushes(brushes);
             }
@@ -429,8 +435,8 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::bindObservers() {
-            assert(!expired(m_document));
-            View::MapDocumentSPtr document = lock(m_document);
+            assert(!kdl::mem_expired(m_document));
+            auto document = kdl::mem_lock(m_document);
             document->documentWasClearedNotifier.addObserver(this, &MapRenderer::documentWasCleared);
             document->documentWasNewedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
@@ -454,8 +460,8 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::unbindObservers() {
-            if (!expired(m_document)) {
-                View::MapDocumentSPtr document = lock(m_document);
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
                 document->documentWasClearedNotifier.removeObserver(this, &MapRenderer::documentWasCleared);
                 document->documentWasNewedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
@@ -479,45 +485,45 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapRenderer::preferenceDidChange);
         }
 
-        void MapRenderer::documentWasCleared(View::MapDocument* document) {
+        void MapRenderer::documentWasCleared(View::MapDocument*) {
             clear();
         }
 
-        void MapRenderer::documentWasNewedOrLoaded(View::MapDocument* document) {
+        void MapRenderer::documentWasNewedOrLoaded(View::MapDocument*) {
             clear();
             updateRenderers(Renderer_All);
         }
 
-        void MapRenderer::nodesWereAdded(const Model::NodeList& nodes) {
-            updateRenderers(Renderer_Default);
+        void MapRenderer::nodesWereAdded(const std::vector<Model::Node*>&) {
+            updateRenderers(Renderer_All);
         }
 
-        void MapRenderer::nodesWereRemoved(const Model::NodeList& nodes) {
-            updateRenderers(Renderer_Default);
+        void MapRenderer::nodesWereRemoved(const std::vector<Model::Node*>&) {
+            updateRenderers(Renderer_All);
         }
 
-        void MapRenderer::nodesDidChange(const Model::NodeList& nodes) {
+        void MapRenderer::nodesDidChange(const std::vector<Model::Node*>&) {
             invalidateRenderers(Renderer_Selection);
             invalidateEntityLinkRenderer();
         }
 
-        void MapRenderer::nodeVisibilityDidChange(const Model::NodeList& nodes) {
+        void MapRenderer::nodeVisibilityDidChange(const std::vector<Model::Node*>&) {
             invalidateRenderers(Renderer_All);
         }
 
-        void MapRenderer::nodeLockingDidChange(const Model::NodeList& nodes) {
+        void MapRenderer::nodeLockingDidChange(const std::vector<Model::Node*>&) {
             updateRenderers(Renderer_Default_Locked);
         }
 
-        void MapRenderer::groupWasOpened(Model::Group* group) {
+        void MapRenderer::groupWasOpened(Model::GroupNode*) {
             updateRenderers(Renderer_Default_Selection);
         }
 
-        void MapRenderer::groupWasClosed(Model::Group* group) {
+        void MapRenderer::groupWasClosed(Model::GroupNode*) {
             updateRenderers(Renderer_Default_Selection);
         }
 
-        void MapRenderer::brushFacesDidChange(const Model::BrushFaceList& faces) {
+        void MapRenderer::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&) {
             invalidateRenderers(Renderer_Selection);
         }
 
@@ -528,29 +534,12 @@ namespace TrenchBroom {
             if (!selection.selectedBrushFaces().empty()
                 || !selection.deselectedBrushFaces().empty()) {
 
-                std::set<Model::Brush*> brushes;
-                for (auto& face : selection.selectedBrushFaces()) {
-                    brushes.insert(face->brush());
-                }
-                for (auto& face : selection.deselectedBrushFaces()) {
-                    brushes.insert(face->brush());
-                }
-
-                std::vector<Model::Brush*> brushesVec;
-                brushesVec.reserve(brushes.size());
-                for (auto& brush : brushes) {
-                    brushesVec.push_back(brush);
-                }
-
-                invalidateBrushesInRenderers(Renderer_All, brushesVec);
+                
+                const auto toBrush = [](const auto& handle) { return handle.node(); };
+                auto brushes = kdl::vec_concat(kdl::vec_transform(selection.selectedBrushFaces(), toBrush), kdl::vec_transform(selection.deselectedBrushFaces(), toBrush));
+                kdl::vec_sort_and_remove_duplicates(brushes);
+                invalidateBrushesInRenderers(Renderer_All, brushes);
             }
-        }
-
-        Model::BrushSet MapRenderer::collectBrushes(const Model::BrushFaceList& faces) {
-            Model::BrushSet result;
-            for (const Model::BrushFace* face : faces)
-                result.insert(face->brush());
-            return result;
         }
 
         void MapRenderer::textureCollectionsWillChange() {
@@ -582,7 +571,7 @@ namespace TrenchBroom {
         void MapRenderer::preferenceDidChange(const IO::Path& path) {
             setupRenderers();
 
-            View::MapDocumentSPtr document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             if (document->isGamePathPreference(path)) {
                 reloadEntityModels();
                 invalidateRenderers(Renderer_All);

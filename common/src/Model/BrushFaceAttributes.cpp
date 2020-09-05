@@ -19,16 +19,18 @@
 
 #include "BrushFaceAttributes.h"
 #include "Assets/Texture.h"
-#include "Model/BrushFace.h"
 
 #include <vecmath/vec.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
-        BrushFaceAttributes::BrushFaceAttributes(const String& textureName) :
+        const std::string BrushFaceAttributes::NoTextureName = "__TB_empty";
+
+        BrushFaceAttributes::BrushFaceAttributes(const std::string& textureName) :
         m_textureName(textureName),
-        m_texture(nullptr),
-        m_offset(vm::vec2f::zero),
+        m_offset(vm::vec2f::zero()),
         m_scale(vm::vec2f(1.0f, 1.0f)),
         m_rotation(0.0f),
         m_surfaceContents(0),
@@ -37,24 +39,23 @@ namespace TrenchBroom {
 
         BrushFaceAttributes::BrushFaceAttributes(const BrushFaceAttributes& other) :
         m_textureName(other.m_textureName),
-        m_texture(other.m_texture),
         m_offset(other.m_offset),
         m_scale(other.m_scale),
         m_rotation(other.m_rotation),
         m_surfaceContents(other.m_surfaceContents),
         m_surfaceFlags(other.m_surfaceFlags),
         m_surfaceValue(other.m_surfaceValue),
-        m_color(other.m_color) {
-            if (m_texture != nullptr) {
-                m_texture->incUsageCount();
-            }
-        }
+        m_color(other.m_color) {}
 
-        BrushFaceAttributes::~BrushFaceAttributes() {
-            if (m_texture != nullptr) {
-                m_texture->decUsageCount();
-            }
-        }
+        BrushFaceAttributes::BrushFaceAttributes(const std::string& textureName, const BrushFaceAttributes& other) :
+        m_textureName(textureName),
+        m_offset(other.m_offset),
+        m_scale(other.m_scale),
+        m_rotation(other.m_rotation),
+        m_surfaceContents(other.m_surfaceContents),
+        m_surfaceFlags(other.m_surfaceFlags),
+        m_surfaceValue(other.m_surfaceValue),
+        m_color(other.m_color) {}
 
         BrushFaceAttributes& BrushFaceAttributes::operator=(BrushFaceAttributes other) {
             using std::swap;
@@ -62,10 +63,20 @@ namespace TrenchBroom {
             return *this;
         }
 
+        bool operator==(const BrushFaceAttributes& lhs, const BrushFaceAttributes& rhs) {
+            return (lhs.m_textureName == rhs.m_textureName &&
+                    lhs.m_offset == rhs.m_offset &&
+                    lhs.m_scale == rhs.m_scale &&
+                    lhs.m_rotation == rhs.m_rotation &&
+                    lhs.m_surfaceContents == rhs.m_surfaceContents &&
+                    lhs.m_surfaceFlags == rhs.m_surfaceFlags &&
+                    lhs.m_surfaceValue == rhs.m_surfaceValue &&
+                    lhs.m_color == rhs.m_color);
+        }
+
         void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs) {
             using std::swap;
             swap(lhs.m_textureName, rhs.m_textureName);
-            swap(lhs.m_texture, rhs.m_texture);
             swap(lhs.m_offset, rhs.m_offset);
             swap(lhs.m_scale, rhs.m_scale);
             swap(lhs.m_rotation, rhs.m_rotation);
@@ -87,21 +98,8 @@ namespace TrenchBroom {
             return result;
         }
 
-        const String& BrushFaceAttributes::textureName() const {
+        const std::string& BrushFaceAttributes::textureName() const {
             return m_textureName;
-        }
-
-        Assets::Texture* BrushFaceAttributes::texture() const {
-            return m_texture;
-        }
-
-        vm::vec2f BrushFaceAttributes::textureSize() const {
-            if (m_texture == nullptr) {
-                return vm::vec2f::one;
-            }
-            const float w = m_texture->width()  == 0 ? 1.0f : static_cast<float>(m_texture->width());
-            const float h = m_texture->height() == 0 ? 1.0f : static_cast<float>(m_texture->height());
-            return vm::vec2f(w, h);
         }
 
         const vm::vec2f& BrushFaceAttributes::offset() const {
@@ -116,8 +114,8 @@ namespace TrenchBroom {
             return m_offset.y();
         }
 
-        vm::vec2f BrushFaceAttributes::modOffset(const vm::vec2f& offset) const {
-            return offset - snapDown(offset, textureSize());
+        vm::vec2f BrushFaceAttributes::modOffset(const vm::vec2f& offset, const vm::vec2f& textureSize) const {
+            return offset - snapDown(offset, textureSize);
         }
 
         const vm::vec2f& BrushFaceAttributes::scale() const {
@@ -136,6 +134,10 @@ namespace TrenchBroom {
             return m_rotation;
         }
 
+        bool BrushFaceAttributes::hasSurfaceAttributes() const {
+            return surfaceContents() != 0 || surfaceFlags() != 0 || surfaceValue() != 0.0f;
+        }
+
         int BrushFaceAttributes::surfaceContents() const {
             return m_surfaceContents;
         }
@@ -148,75 +150,124 @@ namespace TrenchBroom {
             return m_surfaceValue;
         }
 
-        void BrushFaceAttributes::setTexture(Assets::Texture* texture) {
-            if (m_texture != nullptr) {
-                m_texture->decUsageCount();
-            }
-            m_texture = texture;
-            if (m_texture != nullptr) {
-                m_texture->incUsageCount();
-                m_textureName = m_texture->name();
-            }
+        bool BrushFaceAttributes::hasColor() const {
+            return m_color.a() > 0.0f;
         }
-
-        void BrushFaceAttributes::unsetTexture() {
-            if (m_texture != nullptr) {
-                m_texture->decUsageCount();
-            }
-            m_texture = nullptr;
-            m_textureName = BrushFace::NoTextureName;
-        }
-
-        bool BrushFaceAttributes::valid() const {
-            return !vm::isZero(m_scale.x(), vm::Cf::almostZero()) && !vm::isZero(m_scale.y(), vm::Cf::almostZero());
-        }
-
-        void BrushFaceAttributes::setOffset(const vm::vec2f& offset) {
-            m_offset = offset;
-        }
-
-        void BrushFaceAttributes::setXOffset(const float xOffset) {
-            m_offset[0] = xOffset;
-        }
-
-        void BrushFaceAttributes::setYOffset(const float yOffset) {
-            m_offset[1] = yOffset;
-        }
-
-        void BrushFaceAttributes::setScale(const vm::vec2f& scale) {
-            m_scale = scale;
-        }
-
-        void BrushFaceAttributes::setXScale(const float xScale) {
-            m_scale[0] = xScale;
-        }
-
-        void BrushFaceAttributes::setYScale(const float yScale) {
-            m_scale[1] = yScale;
-        }
-
-        void BrushFaceAttributes::setRotation(const float rotation) {
-            m_rotation = rotation;
-        }
-
-        void BrushFaceAttributes::setSurfaceContents(const int surfaceContents) {
-            m_surfaceContents = surfaceContents;
-        }
-
-        void BrushFaceAttributes::setSurfaceFlags(const int surfaceFlags) {
-            m_surfaceFlags = surfaceFlags;
-        }
-
-        void BrushFaceAttributes::setSurfaceValue(const float surfaceValue) {
-            m_surfaceValue = surfaceValue;
-        }
-
+        
         const Color& BrushFaceAttributes::color() const {
             return m_color;
         }
 
-        void BrushFaceAttributes::setColor(const Color& color) {
-            m_color = color;
+        bool BrushFaceAttributes::valid() const {
+            return !vm::is_zero(m_scale.x(), vm::Cf::almost_zero()) && !vm::is_zero(m_scale.y(), vm::Cf::almost_zero());
+        }
+        
+        bool BrushFaceAttributes::setTextureName(const std::string& textureName) {
+            if (textureName == m_textureName) {
+                return false;
+            } else {
+                m_textureName = textureName;
+                return true;
+            }
+        }
+
+        bool BrushFaceAttributes::setOffset(const vm::vec2f& offset) {
+            if (offset == m_offset) {
+                return false;
+            } else {
+                m_offset = offset;
+                return true;
+            }
+        }
+
+        bool BrushFaceAttributes::setXOffset(const float xOffset) {
+            if (xOffset == m_offset.x()) {
+                return false;
+            } else {
+                m_offset[0] = xOffset;
+                return true;
+            }
+        }
+
+        bool BrushFaceAttributes::setYOffset(const float yOffset) {
+            if (yOffset == m_offset.y()) {
+                return false;
+            } else {
+                m_offset[1] = yOffset;
+                return true;
+            }
+        }
+
+        bool BrushFaceAttributes::setScale(const vm::vec2f& scale) {
+            if (scale == m_scale) {
+                return false;
+            } else {
+                m_scale = scale;
+                return true;
+            }
+        }
+
+        bool BrushFaceAttributes::setXScale(const float xScale) {
+            if (xScale == m_scale.x()) {
+                return false;
+            } else {
+                m_scale[0] = xScale;
+                return true;
+            }
+        }
+
+        bool BrushFaceAttributes::setYScale(const float yScale) {
+            if (yScale == m_scale.y()) {
+                return false;
+            } else {
+                m_scale[1] = yScale;
+                return true;
+            }
+        }
+
+        bool BrushFaceAttributes::setRotation(const float rotation) {
+            if (rotation == m_rotation) {
+                return false;
+            } else {
+                m_rotation = rotation;
+                return true;
+            }
+        }
+
+        bool BrushFaceAttributes::setSurfaceContents(const int surfaceContents) {
+            if (surfaceContents == m_surfaceContents) {
+                return false;
+            } else {
+                m_surfaceContents = surfaceContents;
+                return true;
+            }
+        }
+
+        bool BrushFaceAttributes::setSurfaceFlags(const int surfaceFlags) {
+            if (surfaceFlags == m_surfaceFlags) {
+                return false;
+            } else {
+                m_surfaceFlags = surfaceFlags;
+                return true;
+            }
+        }
+
+        bool BrushFaceAttributes::setSurfaceValue(const float surfaceValue) {
+            if (surfaceValue == m_surfaceValue) {
+                return false;
+            } else {
+                m_surfaceValue = surfaceValue;
+                return true;
+            }
+        }
+
+        bool BrushFaceAttributes::setColor(const Color& color) {
+            if (color == m_color) {
+                return false;
+            } else {
+                m_color = color;
+                return true;
+            }
         }
     }
 }

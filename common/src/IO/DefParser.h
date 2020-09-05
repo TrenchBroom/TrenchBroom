@@ -20,18 +20,20 @@
 #ifndef TrenchBroom_DefParser
 #define TrenchBroom_DefParser
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Color.h"
-#include "StringUtils.h"
-#include "Assets/AssetTypes.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/Parser.h"
-#include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/bbox.h>
+
+#include <memory>
+#include <optional>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -58,9 +60,9 @@ namespace TrenchBroom {
         class DefTokenizer : public Tokenizer<DefToken::Type> {
         public:
             DefTokenizer(const char* begin, const char* end);
-            DefTokenizer(const String& str);
+            explicit DefTokenizer(const std::string& str);
         private:
-            static const String WordDelims;
+            static const std::string WordDelims;
             Token emitToken() override;
         };
 
@@ -68,27 +70,26 @@ namespace TrenchBroom {
         private:
             using Token = DefTokenizer::Token;
 
-            Color m_defaultEntityColor;
             DefTokenizer m_tokenizer;
-            EntityDefinitionClassInfoMap m_baseClasses;
+            std::map<std::string, EntityDefinitionClassInfo> m_baseClasses;
         public:
             DefParser(const char* begin, const char* end, const Color& defaultEntityColor);
-            DefParser(const String& str, const Color& defaultEntityColor);
+            DefParser(const std::string& str, const Color& defaultEntityColor);
         private:
             TokenNameMap tokenNames() const override;
-            Assets::EntityDefinitionList doParseDefinitions(ParserStatus& status) override;
+            std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;
 
-            Assets::EntityDefinition* parseDefinition(ParserStatus& status);
-            Assets::AttributeDefinitionPtr parseSpawnflags(ParserStatus& status);
-            void parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringList& superClasses);
-            bool parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo, StringList& superClasses);
+            std::optional<EntityDefinitionClassInfo> parseClassInfo(ParserStatus& status);
+            AttributeDefinitionPtr parseSpawnflags(ParserStatus& status);
+            void parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
+            bool parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
 
             void parseDefaultAttribute(ParserStatus& status);
-            String parseBaseAttribute(ParserStatus& status);
-            Assets::AttributeDefinitionPtr parseChoiceAttribute(ParserStatus& status);
+            std::string parseBaseAttribute(ParserStatus& status);
+            AttributeDefinitionPtr parseChoiceAttribute(ParserStatus& status);
             Assets::ModelDefinition parseModel(ParserStatus& status);
 
-            String parseDescription();
+            std::string parseDescription();
 
             vm::vec3 parseVector(ParserStatus& status);
             vm::bbox3 parseBounds(ParserStatus& status);

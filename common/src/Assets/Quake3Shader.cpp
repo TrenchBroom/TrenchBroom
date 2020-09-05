@@ -19,21 +19,21 @@
 
 #include "Quake3Shader.h"
 
-#include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace Assets {
-        const String Quake3ShaderStage::BlendFunc::One = "GL_ONE";
-        const String Quake3ShaderStage::BlendFunc::Zero = "GL_ZERO";
-        const String Quake3ShaderStage::BlendFunc::SrcColor = "GL_SRC_COLOR";
-        const String Quake3ShaderStage::BlendFunc::DestColor = "GL_DST_COLOR";
-        const String Quake3ShaderStage::BlendFunc::OneMinusSrcColor = "GL_ONE_MINUS_SRC_COLOR";
-        const String Quake3ShaderStage::BlendFunc::OneMinusDestColor = "GL_ONE_MINUS_DST_COLOR";
-        const String Quake3ShaderStage::BlendFunc::SrcAlpha = "GL_SRC_ALPHA";
-        const String Quake3ShaderStage::BlendFunc::DestAlpha = "GL_DST_ALPHA";
-        const String Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha = "GL_ONE_MINUS_SRC_ALPHA";
-        const String Quake3ShaderStage::BlendFunc::OneMinusDestAlpha = "GL_ONE_MINUS_DST_ALPHA";
-        const String Quake3ShaderStage::BlendFunc::SrcAlphaSaturate = "GL_SRC_ALPHA_SATURATE";
+        const std::string Quake3ShaderStage::BlendFunc::One = "GL_ONE";
+        const std::string Quake3ShaderStage::BlendFunc::Zero = "GL_ZERO";
+        const std::string Quake3ShaderStage::BlendFunc::SrcColor = "GL_SRC_COLOR";
+        const std::string Quake3ShaderStage::BlendFunc::DestColor = "GL_DST_COLOR";
+        const std::string Quake3ShaderStage::BlendFunc::OneMinusSrcColor = "GL_ONE_MINUS_SRC_COLOR";
+        const std::string Quake3ShaderStage::BlendFunc::OneMinusDestColor = "GL_ONE_MINUS_DST_COLOR";
+        const std::string Quake3ShaderStage::BlendFunc::SrcAlpha = "GL_SRC_ALPHA";
+        const std::string Quake3ShaderStage::BlendFunc::DestAlpha = "GL_DST_ALPHA";
+        const std::string Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha = "GL_ONE_MINUS_SRC_ALPHA";
+        const std::string Quake3ShaderStage::BlendFunc::OneMinusDestAlpha = "GL_ONE_MINUS_DST_ALPHA";
+        const std::string Quake3ShaderStage::BlendFunc::SrcAlphaSaturate = "GL_SRC_ALPHA_SATURATE";
 
         bool Quake3ShaderStage::BlendFunc::enable() const {
             return srcFactor != "" && destFactor != "";

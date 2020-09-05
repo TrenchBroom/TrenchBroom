@@ -21,6 +21,7 @@
 
 uniform float Brightness;
 uniform float Alpha;
+uniform bool EnableMasked;
 uniform bool ApplyTexture;
 uniform sampler2D Texture;
 uniform bool ApplyTinting;
@@ -29,6 +30,7 @@ uniform bool GrayScale;
 uniform bool RenderGrid;
 uniform float GridSize;
 uniform float GridAlpha;
+uniform vec3 GridColor;
 uniform bool ShadeFaces;
 uniform bool ShowFog;
 
@@ -38,6 +40,7 @@ varying vec4 faceColor;
 varying vec3 viewVector;
 
 float grid(vec3 coords, vec3 normal, float gridSize, float minGridSize, float lineWidthFactor);
+vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
 
 void main() {
 	if (ApplyTexture)
@@ -47,7 +50,7 @@ void main() {
 
     // Assume alpha masked or opaque.
     // TODO: Make this optional if we gain support for translucent textures
-    if (gl_FragColor.a < 0.5) {
+    if (EnableMasked && gl_FragColor.a < 0.5) {
         discard;
     }
 
@@ -101,6 +104,8 @@ void main() {
         float minGridSize = 2.0 * maxWorldSpaceChange;
 
         float gridValue = grid(coords, modelNormal.xyz, GridSize, minGridSize, 1.0);
-        gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0), gridValue * GridAlpha);
+        gl_FragColor.rgb = mix(gl_FragColor.rgb, GridColor, gridValue * GridAlpha);
 	}
+
+    gl_FragColor.rgb = applySoftMapBoundsTint(gl_FragColor.rgb, modelCoordinates.xyz);
 }

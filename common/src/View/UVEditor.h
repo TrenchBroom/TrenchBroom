@@ -20,43 +20,56 @@
 #ifndef TrenchBroom_UVEditor
 #define TrenchBroom_UVEditor
 
-#include "View/ViewTypes.h"
+#include <memory>
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxButton;
-class wxSpinCtrl;
-class wxSpinEvent;
-class wxWindow;
+class QSpinBox;
+class QWidget;
+class QAbstractButton;
 
 namespace TrenchBroom {
     namespace View {
+        class Selection;
         class GLContextManager;
+        class MapDocument;
         class UVView;
 
-        class UVEditor : public wxPanel {
+        class UVEditor : public QWidget {
+            Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             UVView* m_uvView;
-            wxSpinCtrl* m_xSubDivisionEditor;
-            wxSpinCtrl* m_ySubDivisionEditor;
+            QSpinBox* m_xSubDivisionEditor;
+            QSpinBox* m_ySubDivisionEditor;
+
+            QAbstractButton* m_resetTextureButton;
+            QAbstractButton* m_flipTextureHButton;
+            QAbstractButton* m_flipTextureVButton;
+            QAbstractButton* m_rotateTextureCCWButton;
+            QAbstractButton* m_rotateTextureCWButton;
         public:
-            UVEditor(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            explicit UVEditor(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
+            ~UVEditor() override;
 
             bool cancelMouseDrag();
         private:
-            void OnResetTexture(wxCommandEvent& event);
-            void OnFlipTextureH(wxCommandEvent& event);
-            void OnFlipTextureV(wxCommandEvent& event);
-            void OnRotateTextureCCW(wxCommandEvent& event);
-            void OnRotateTextureCW(wxCommandEvent& event);
-
-            void OnUpdateButtonUI(wxUpdateUIEvent& event);
-
-            void OnSubDivisionChanged(wxSpinEvent& event);
+            void updateButtons();
         private:
             void createGui(GLContextManager& contextManager);
+
+            void selectionDidChange(const Selection& selection);
+
+            void bindObservers();
+            void unbindObservers();
+
+            void resetTextureClicked();
+            void flipTextureHClicked();
+            void flipTextureVClicked();
+            void rotateTextureCCWClicked();
+            void rotateTextureCWClicked();
+            void subDivisionChanged();
         };
     }
 }

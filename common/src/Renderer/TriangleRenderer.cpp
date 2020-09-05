@@ -19,11 +19,11 @@
 
 #include "TriangleRenderer.h"
 
+#include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
-#include "Renderer/ShaderProgram.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -59,8 +59,8 @@ namespace TrenchBroom {
             m_tintColor = tintColor;
         }
 
-        void TriangleRenderer::doPrepareVertices(Vbo& vertexVbo) {
-            m_vertexArray.prepare(vertexVbo);
+        void TriangleRenderer::doPrepareVertices(VboManager& vboManager) {
+            m_vertexArray.prepare(vboManager);
         }
 
         void TriangleRenderer::doRender(RenderContext& context) {

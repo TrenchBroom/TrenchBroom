@@ -19,12 +19,17 @@
 
 #include "Game.h"
 
+#include "Assets/EntityDefinitionFileSpec.h"
+#include "Model/BrushFace.h"
 #include "Model/GameFactory.h"
-#include "Model/World.h"
+#include "Model/WorldNode.h"
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        const String& Game::gameName() const {
+        const std::string& Game::gameName() const {
             return doGameName();
         }
 
@@ -41,11 +46,11 @@ namespace TrenchBroom {
             doSetGamePath(gamePath, logger);
         }
 
-        void Game::setAdditionalSearchPaths(const IO::Path::List& searchPaths, Logger& logger) {
+        void Game::setAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths, Logger& logger) {
             doSetAdditionalSearchPaths(searchPaths, logger);
         }
 
-        Game::PathErrors Game::checkAdditionalSearchPaths(const IO::Path::List& searchPaths) const {
+        Game::PathErrors Game::checkAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths) const {
             return doCheckAdditionalSearchPaths(searchPaths);
         }
 
@@ -61,35 +66,43 @@ namespace TrenchBroom {
             return doSmartTags();
         }
 
-        std::unique_ptr<World> Game::newMap(const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const {
+        std::optional<vm::bbox3> Game::softMapBounds() const {
+            return doSoftMapBounds();
+        }
+
+        Game::SoftMapBounds Game::extractSoftMapBounds(const AttributableNode& node) const {
+            return doExtractSoftMapBounds(node);
+        }
+
+        std::unique_ptr<WorldNode> Game::newMap(const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const {
             return doNewMap(format, worldBounds, logger);
         }
 
-        std::unique_ptr<World> Game::loadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const {
+        std::unique_ptr<WorldNode> Game::loadMap(const MapFormat format, const vm::bbox3& worldBounds, const IO::Path& path, Logger& logger) const {
             return doLoadMap(format, worldBounds, path, logger);
         }
 
-        void Game::writeMap(World& world, const IO::Path& path) const {
+        void Game::writeMap(WorldNode& world, const IO::Path& path) const {
             doWriteMap(world, path);
         }
 
-        void Game::exportMap(World& world, const Model::ExportFormat format, const IO::Path& path) const {
+        void Game::exportMap(WorldNode& world, const Model::ExportFormat format, const IO::Path& path) const {
             doExportMap(world, format, path);
         }
 
-        NodeList Game::parseNodes(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
+        std::vector<Node*> Game::parseNodes(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& logger) const {
             return doParseNodes(str, world, worldBounds, logger);
         }
 
-        BrushFaceList Game::parseBrushFaces(const String& str, World& world, const vm::bbox3& worldBounds, Logger& logger) const {
+        std::vector<BrushFace> Game::parseBrushFaces(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& logger) const {
             return doParseBrushFaces(str, world, worldBounds, logger);
         }
 
-        void Game::writeNodesToStream(World& world, const Model::NodeList& nodes, std::ostream& stream) const {
+        void Game::writeNodesToStream(WorldNode& world, const std::vector<Node*>& nodes, std::ostream& stream) const {
             doWriteNodesToStream(world, nodes, stream);
         }
 
-        void Game::writeBrushFacesToStream(World& world, const Model::BrushFaceList& faces, std::ostream& stream) const {
+        void Game::writeBrushFacesToStream(WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const {
             doWriteBrushFacesToStream(world, faces, stream);
         }
 
@@ -105,15 +118,19 @@ namespace TrenchBroom {
             return doIsTextureCollection(path);
         }
 
-        IO::Path::List Game::findTextureCollections() const {
+        std::vector<std::string> Game::fileTextureCollectionExtensions() const {
+            return doFileTextureCollectionExtensions();
+        }
+
+        std::vector<IO::Path> Game::findTextureCollections() const {
             return doFindTextureCollections();
         }
 
-        IO::Path::List Game::extractTextureCollections(const AttributableNode& node) const {
+        std::vector<IO::Path> Game::extractTextureCollections(const AttributableNode& node) const {
             return doExtractTextureCollections(node);
         }
 
-        void Game::updateTextureCollections(AttributableNode& node, const IO::Path::List& paths) const {
+        void Game::updateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const {
             doUpdateTextureCollections(node, paths);
         }
 
@@ -125,7 +142,7 @@ namespace TrenchBroom {
             return doIsEntityDefinitionFile(path);
         }
 
-        Assets::EntityDefinitionFileSpec::List Game::allEntityDefinitionFiles() const {
+        std::vector<Assets::EntityDefinitionFileSpec> Game::allEntityDefinitionFiles() const {
             return doAllEntityDefinitionFiles();
         }
 
@@ -133,28 +150,32 @@ namespace TrenchBroom {
             return doExtractEntityDefinitionFile(node);
         }
 
-        IO::Path Game::findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const {
+        IO::Path Game::findEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec, const std::vector<IO::Path>& searchPaths) const {
             return doFindEntityDefinitionFile(spec, searchPaths);
         }
 
-        StringList Game::availableMods() const {
+        std::vector<std::string> Game::availableMods() const {
             return doAvailableMods();
         }
 
-        StringList Game::extractEnabledMods(const AttributableNode& node) const {
+        std::vector<std::string> Game::extractEnabledMods(const AttributableNode& node) const {
             return doExtractEnabledMods(node);
         }
 
-        String Game::defaultMod() const {
+        std::string Game::defaultMod() const {
             return doDefaultMod();
         }
 
-        const GameConfig::FlagsConfig& Game::surfaceFlags() const {
+        const FlagsConfig& Game::surfaceFlags() const {
             return doSurfaceFlags();
         }
 
-        const GameConfig::FlagsConfig& Game::contentFlags() const {
+        const FlagsConfig& Game::contentFlags() const {
             return doContentFlags();
+        }
+
+        const BrushFaceAttributes& Game::defaultFaceAttribs() const {
+            return doDefaultFaceAttribs();
         }
     }
 }

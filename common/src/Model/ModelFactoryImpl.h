@@ -20,15 +20,19 @@
 #ifndef TrenchBroom_ModelFactoryImpl
 #define TrenchBroom_ModelFactoryImpl
 
-#include "TrenchBroom.h"
-#include "StringUtils.h"
+#include "FloatType.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelFactory.h"
-#include "Model/ModelTypes.h"
+
+#include <kdl/result_forward.h>
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         class BrushFaceAttributes;
+        enum class BrushError;
 
         class ModelFactoryImpl : public ModelFactory {
         private:
@@ -38,14 +42,14 @@ namespace TrenchBroom {
             ModelFactoryImpl(MapFormat format);
         private: // implement ModelFactory interface
             MapFormat doGetFormat() const override;
-            World* doCreateWorld(const vm::bbox3& worldBounds) const override;
-            Layer* doCreateLayer(const String& name, const vm::bbox3& worldBounds) const override;
-            Group* doCreateGroup(const String& name) const override;
-            Entity* doCreateEntity() const override;
-            Brush* doCreateBrush(const vm::bbox3& worldBounds, const BrushFaceList& faces) const override;
+            WorldNode* doCreateWorld() const override;
+            LayerNode* doCreateLayer(const std::string& name) const override;
+            GroupNode* doCreateGroup(const std::string& name) const override;
+            EntityNode* doCreateEntity() const override;
 
-            BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;
-            BrushFace* doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const override;
+            kdl::result<BrushFace, BrushError> doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;
+            kdl::result<BrushFace, BrushError> doCreateFaceFromStandard(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const override;
+            kdl::result<BrushFace, BrushError> doCreateFaceFromValve(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY) const override;
         };
     }
 }

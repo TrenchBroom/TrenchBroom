@@ -19,29 +19,30 @@
 
 #include "CollectAttributableNodesVisitor.h"
 
+#include "Ensure.h"
 #include "Model/AttributableNode.h"
-#include "Model/Brush.h"
-#include "Model/Entity.h"
-#include "Model/World.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
+#include "Model/WorldNode.h"
 
 namespace TrenchBroom {
     namespace Model {
-        const AttributableNodeList& CollectAttributableNodesVisitor::nodes() const {
+        const std::vector<AttributableNode*>& CollectAttributableNodesVisitor::nodes() const {
             return m_nodes;
         }
 
-        void CollectAttributableNodesVisitor::doVisit(World* world) {
+        void CollectAttributableNodesVisitor::doVisit(WorldNode* world) {
             addNode(world);
         }
 
-        void CollectAttributableNodesVisitor::doVisit(Layer* layer) {}
-        void CollectAttributableNodesVisitor::doVisit(Group* group) {}
+        void CollectAttributableNodesVisitor::doVisit(LayerNode*) {}
+        void CollectAttributableNodesVisitor::doVisit(GroupNode*) {}
 
-        void CollectAttributableNodesVisitor::doVisit(Entity* entity) {
+        void CollectAttributableNodesVisitor::doVisit(EntityNode* entity) {
             addNode(entity);
         }
 
-        void CollectAttributableNodesVisitor::doVisit(Brush* brush) {
+        void CollectAttributableNodesVisitor::doVisit(BrushNode* brush) {
             Model::AttributableNode* entity = brush->entity();
             ensure(entity != nullptr, "entity is null");
             addNode(entity);

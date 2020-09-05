@@ -20,15 +20,25 @@
 #ifndef TrenchBroom_ObjectRenderer
 #define TrenchBroom_ObjectRenderer
 
-#include "Color.h"
-#include "Model/ModelTypes.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/GroupRenderer.h"
 
+#include <vector>
+
 namespace TrenchBroom {
+    class Color;
+    class Logger;
+
     namespace Assets {
         class EntityModelManager;
+    }
+
+    namespace Model {
+        class BrushNode;
+        class EditorContext;
+        class EntityNode;
+        class GroupNode;
     }
 
     namespace Renderer {
@@ -42,14 +52,14 @@ namespace TrenchBroom {
             BrushRenderer m_brushRenderer;
         public:
             template <typename BrushFilterT>
-            ObjectRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext, const BrushFilterT& brushFilter) :
+            ObjectRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext, const BrushFilterT& brushFilter) :
             m_groupRenderer(editorContext),
-            m_entityRenderer(entityModelManager, editorContext),
+            m_entityRenderer(logger, entityModelManager, editorContext),
             m_brushRenderer(brushFilter) {}
         public: // object management
-            void setObjects(const Model::GroupList& groups, const Model::EntityList& entities, const Model::BrushList& brushes);
+            void setObjects(const std::vector<Model::GroupNode*>& groups, const std::vector<Model::EntityNode*>& entities, const std::vector<Model::BrushNode*>& brushes);
             void invalidate();
-            void invalidateBrushes(const Model::BrushList& brushes);
+            void invalidateBrushes(const std::vector<Model::BrushNode*>& brushes);
             void clear();
             void reloadModels();
         public: // configuration

@@ -19,13 +19,9 @@
 
 #include "ContainerBar.h"
 
-#include "View/ViewConstants.h"
-
 namespace TrenchBroom {
     namespace View {
-        ContainerBar::ContainerBar(wxWindow* parent, const int borders) :
-        BorderPanel(parent, borders) {}
-
-        ContainerBar::~ContainerBar() {}
+        ContainerBar::ContainerBar(const Sides borders, QWidget* parent) :
+        BorderPanel(borders, 1, parent) {}
     }
 }

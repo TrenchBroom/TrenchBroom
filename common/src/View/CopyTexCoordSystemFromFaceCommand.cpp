@@ -19,61 +19,65 @@
 
 #include "CopyTexCoordSystemFromFaceCommand.h"
 
-#include "TrenchBroom.h"
-#include "Model/BrushFace.h"
+#include "FloatType.h"
+#include "Model/BrushFaceHandle.h"
+#include "Model/BrushNode.h"
 #include "Model/Snapshot.h"
+#include "Model/TexCoordSystem.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <vecmath/plane.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType CopyTexCoordSystemFromFaceCommand::Type = Command::freeType();
 
-        CopyTexCoordSystemFromFaceCommand::Ptr CopyTexCoordSystemFromFaceCommand::command(const Model::TexCoordSystemSnapshot& coordSystemSanpshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle) {
-            return Ptr(new CopyTexCoordSystemFromFaceCommand(coordSystemSanpshot, attribs, sourceFacePlane, wrapStyle));
+        std::unique_ptr<CopyTexCoordSystemFromFaceCommand> CopyTexCoordSystemFromFaceCommand::command(const Model::TexCoordSystemSnapshot& coordSystemSanpshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle) {
+            return std::make_unique<CopyTexCoordSystemFromFaceCommand>(coordSystemSanpshot, attribs, sourceFacePlane, wrapStyle);
         }
 
         CopyTexCoordSystemFromFaceCommand::CopyTexCoordSystemFromFaceCommand(const Model::TexCoordSystemSnapshot& coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle) :
         DocumentCommand(Type, "Copy Texture Alignment"),
-        m_snapshot(nullptr),
-        m_coordSystemSanpshot(coordSystemSnapshot.clone()),
+        m_coordSystemSnapshot(coordSystemSnapshot.clone()),
         m_sourceFacePlane(sourceFacePlane),
         m_wrapStyle(wrapStyle),
         m_attribs(attribs) {}
 
-        CopyTexCoordSystemFromFaceCommand::~CopyTexCoordSystemFromFaceCommand() {
-            delete m_snapshot;
-            m_snapshot = nullptr;
-        }
+        CopyTexCoordSystemFromFaceCommand::~CopyTexCoordSystemFromFaceCommand() = default;
 
-        bool CopyTexCoordSystemFromFaceCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            const Model::BrushFaceList faces = document->allSelectedBrushFaces();
-            assert(!faces.empty());
+        std::unique_ptr<CommandResult> CopyTexCoordSystemFromFaceCommand::doPerformDo(MapDocumentCommandFacade* document) {
+            const auto faceHandles = document->allSelectedBrushFaces();
+            assert(!faceHandles.empty());
+            
+            const auto nodes = Model::toNodes(faceHandles);
 
             assert(m_snapshot == nullptr);
-            m_snapshot = new Model::Snapshot(std::begin(faces), std::end(faces));
+            m_snapshot = std::make_unique<Model::Snapshot>(std::begin(nodes), std::end(nodes));
 
-            document->performCopyTexCoordSystemFromFace(*m_coordSystemSanpshot, m_attribs, m_sourceFacePlane, m_wrapStyle);
-            return true;
+            document->performCopyTexCoordSystemFromFace(*m_coordSystemSnapshot, m_attribs, m_sourceFacePlane, m_wrapStyle);
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool CopyTexCoordSystemFromFaceCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            document->restoreSnapshot(m_snapshot);
-            delete m_snapshot;
-            m_snapshot = nullptr;
-            return true;
+        std::unique_ptr<CommandResult> CopyTexCoordSystemFromFaceCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+            assert(m_snapshot != nullptr);
+
+            document->restoreSnapshot(m_snapshot.get());
+            m_snapshot.reset();
+
+            return std::make_unique<CommandResult>(true);
         }
 
         bool CopyTexCoordSystemFromFaceCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
             return document->hasSelectedBrushFaces();
         }
 
-        UndoableCommand::Ptr CopyTexCoordSystemFromFaceCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return UndoableCommand::Ptr(new CopyTexCoordSystemFromFaceCommand(*m_coordSystemSanpshot, m_attribs, m_sourceFacePlane, m_wrapStyle));
+        std::unique_ptr<UndoableCommand> CopyTexCoordSystemFromFaceCommand::doRepeat(MapDocumentCommandFacade*) const {
+            return std::make_unique<CopyTexCoordSystemFromFaceCommand>(*m_coordSystemSnapshot, m_attribs, m_sourceFacePlane, m_wrapStyle);
         }
 
-        bool CopyTexCoordSystemFromFaceCommand::doCollateWith(UndoableCommand::Ptr command) {
+        bool CopyTexCoordSystemFromFaceCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
     }

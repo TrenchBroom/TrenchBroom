@@ -19,10 +19,9 @@
 
 #include "ImageFileSystem.h"
 
-#include "CollectionUtils.h"
+#include "Ensure.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/File.h"
-#include "IO/IOUtils.h"
 
 #include <cassert>
 #include <memory>
@@ -63,7 +62,7 @@ namespace TrenchBroom {
             const auto filename = path.lastComponent();
             if (path.length() == 1) {
                 // silently overwrite duplicates, the latest entries win
-                MapUtils::insertOrReplace(m_files, filename, std::move(file));
+                m_files[filename] = std::move(file);
             } else {
                 auto& dir = findOrCreateDirectory(path.deleteLastComponent());
                 dir.addFile(filename, std::move(file));
@@ -130,8 +129,8 @@ namespace TrenchBroom {
             }
         }
 
-        Path::List ImageFileSystemBase::Directory::contents() const {
-            Path::List contents;
+        std::vector<Path> ImageFileSystemBase::Directory::contents() const {
+            std::vector<Path> contents;
 
             for (const auto& entry : m_directories) {
                 contents.push_back(Path(entry.first));
@@ -188,7 +187,7 @@ namespace TrenchBroom {
             return m_root.fileExists(searchPath);
         }
 
-        Path::List ImageFileSystemBase::doGetDirectoryContents(const Path& path) const {
+        std::vector<Path> ImageFileSystemBase::doGetDirectoryContents(const Path& path) const {
             const auto searchPath = path.makeLowerCase().makeCanonical();
             const auto& directory = m_root.findDirectory(path);
             return directory.contents();

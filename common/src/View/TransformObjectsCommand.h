@@ -20,50 +20,49 @@
 #ifndef TrenchBroom_TransformObjectsCommand
 #define TrenchBroom_TransformObjectsCommand
 
-#include "TrenchBroom.h"
-#include "SharedPointer.h"
-#include "Model/ModelTypes.h"
+#include "FloatType.h"
+#include "Macros.h"
 #include "View/SnapshotCommand.h"
 
 #include <vecmath/mat.h>
 #include <vecmath/util.h>
 
+#include <string>
+
 namespace TrenchBroom {
     namespace View {
-        class MapDocumentCommandFacade;
-
         class TransformObjectsCommand : public SnapshotCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<TransformObjectsCommand>;
         private:
-            typedef enum {
-                Action_Translate,
-                Action_Rotate,
-                Action_Flip,
-                Action_Shear,
-                Action_Scale
-            } Action;
+            enum class Action {
+                Translate,
+                Rotate,
+                Flip,
+                Shear,
+                Scale
+            };
 
             Action m_action;
             vm::mat4x4 m_transform;
             bool m_lockTextures;
         public:
-            static Ptr translate(const vm::vec3& delta, bool lockTextures);
-            static Ptr rotate(const vm::vec3& center, const vm::vec3& axis, FloatType angle, bool lockTextures);
-            static Ptr scale(const vm::bbox3& oldBBox, const vm::bbox3& newBBox, bool lockTextures);
-            static Ptr scale(const vm::vec3& center, const vm::vec3& scaleFactors, bool lockTextures);
-            static Ptr shearBBox(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta, bool lockTextures);
-            static Ptr flip(const vm::vec3& center, vm::axis::type axis, bool lockTextures);
-        private:
-            TransformObjectsCommand(Action action, const String& name, const vm::mat4x4& transform, bool lockTextures);
+            static std::unique_ptr<TransformObjectsCommand> translate(const vm::vec3& delta, bool lockTextures);
+            static std::unique_ptr<TransformObjectsCommand> rotate(const vm::vec3& center, const vm::vec3& axis, FloatType angle, bool lockTextures);
+            static std::unique_ptr<TransformObjectsCommand> scale(const vm::bbox3& oldBBox, const vm::bbox3& newBBox, bool lockTextures);
+            static std::unique_ptr<TransformObjectsCommand> scale(const vm::vec3& center, const vm::vec3& scaleFactors, bool lockTextures);
+            static std::unique_ptr<TransformObjectsCommand> shearBBox(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta, bool lockTextures);
+            static std::unique_ptr<TransformObjectsCommand> flip(const vm::vec3& center, vm::axis::type axis, bool lockTextures);
 
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
+            TransformObjectsCommand(Action action, const std::string& name, const vm::mat4x4& transform, bool lockTextures);
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            UndoableCommand::Ptr doRepeat(MapDocumentCommandFacade* document) const override;
+            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
 
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(UndoableCommand* command) override;
+
+            deleteCopyAndMove(TransformObjectsCommand)
         };
     }
 }

@@ -20,34 +20,43 @@
 #ifndef TrenchBroom_EntityRotationPolicy
 #define TrenchBroom_EntityRotationPolicy
 
-#include "Model/ModelTypes.h"
+#include "FloatType.h"
+
+#include <vecmath/forward.h>
+
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
+        class EntityNode;
+
         class EntityRotationPolicy {
         private:
-            typedef enum {
-                RotationType_None,
-                RotationType_Angle,
-                RotationType_AngleUpDown,
-                RotationType_Euler,
-                RotationType_Euler_PositivePitchDown,
-                RotationType_Mangle
-            } RotationType;
+            enum class RotationType {
+                None,
+                Angle,
+                AngleUpDown,
+                Euler,
+                Euler_PositivePitchDown,
+                Mangle
+            };
+            enum class RotationUsage {
+                Allowed,
+                BlockRotation
+            };
 
             struct RotationInfo {
                 const RotationType type;
-                const AttributeName attribute;
-                RotationInfo(RotationType i_type, const AttributeName& i_attribute);
+                const std::string attribute;
+                const RotationUsage usage;
             };
-        protected:
-            EntityRotationPolicy();
-            static vm::mat4x4 getRotation(const Entity* entity);
-            static void applyRotation(Entity* entity, const vm::mat4x4& transformation);
-            static AttributeName getAttribute(const Entity* entity);
+        public:
+            static vm::mat4x4 getRotation(const EntityNode* entity);
+            static void applyRotation(EntityNode* entity, const vm::mat4x4& transformation);
+            static std::string getAttribute(const EntityNode* entity);
         private:
-            static RotationInfo rotationInfo(const Entity* entity);
-            static void setAngle(Entity* entity, const AttributeName& attribute, const vm::vec3& direction);
+            static RotationInfo rotationInfo(const EntityNode* entity);
+            static void setAngle(EntityNode* entity, const std::string& attribute, const vm::vec3& direction);
             static FloatType getAngle(vm::vec3 direction);
         public:
             /**

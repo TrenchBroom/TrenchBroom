@@ -20,72 +20,90 @@
 #ifndef TrenchBroom_Animation
 #define TrenchBroom_Animation
 
-#include "SharedPointer.h"
-#include "View/ExecutableEvent.h"
-
 #include <map>
+#include <memory>
 #include <vector>
 
-#include <wx/longlong.h>
-#include <wx/thread.h>
+#include <QObject>
+#include <QElapsedTimer>
+
+class QTimer;
 
 namespace TrenchBroom {
     namespace View {
-        class AnimationCurve;
+        class AnimationCurve {
+        public:
+            virtual ~AnimationCurve();
+            double apply(double progress) const;
+        private:
+            virtual double doApply(double progress) const = 0;
+        };
+
+        class FlatAnimationCurve : public AnimationCurve {
+        private:
+            double doApply(double progress) const override;
+        };
+
+        class EaseInEaseOutAnimationCurve : public AnimationCurve {
+        private:
+            double m_threshold;
+        public:
+            EaseInEaseOutAnimationCurve(double duration);
+            double doApply(double progress) const override;
+        };
 
         class Animation {
         public:
             using Type = int;
             static const Type NoType = -1;
 
-            using Ptr = std::shared_ptr<Animation>;
-            using List = std::vector<Ptr>;
-
-            typedef enum {
-                Curve_Flat,
-                Curve_EaseInEaseOut
-            } Curve;
-
+            enum class Curve {
+                Flat,
+                EaseInEaseOut
+            };
         private:
             const Type m_type;
-            const AnimationCurve* m_curve;
+            std::unique_ptr<AnimationCurve> m_curve;
 
-            const wxLongLong m_duration;
-            wxLongLong m_elapsed;
+            const double m_duration;
+            double m_elapsed;
             double m_progress;
         public:
             static Type freeType();
 
-            Animation(Type type, Curve curve, const wxLongLong& duration);
+            Animation(Type type, Curve curve, double duration);
             virtual ~Animation();
 
             Type type() const;
-            bool step(const wxLongLong& delta);
+            /**
+             * Advances the animation by the given number of milliseconds.
+             * @return true if the animation is finished.
+             */
+            bool step(double deltaMilliseconds);
             void update();
         private:
+            static std::unique_ptr<AnimationCurve> createAnimationCurve(Curve curve, double duration);
             virtual void doUpdate(double progress) = 0;
         };
 
-        class ExecutableAnimation : public ExecutableEvent::Executable {
+        class AnimationManager : public QObject {
+            Q_OBJECT
         private:
-            Animation::List m_animations;
-        public:
-            ExecutableAnimation(const Animation::List& animations);
+            static const int AnimationUpdateRateHz;
         private:
-            void execute() override;
-        };
+            /**
+             * To measure how much time to run the animation for in onTimerTick()
+             */
+            QElapsedTimer m_elapsedTimer;
+            QTimer* m_timer;
 
-        class AnimationManager : public wxThread {
-        private:
-            using AnimationMap = std::map<Animation::Type, Animation::List>;
-
-            AnimationMap m_animations;
-            wxLongLong m_lastTime;
+            std::map<Animation::Type, std::vector<std::unique_ptr<Animation>>> m_animations;
         public:
-            AnimationManager();
-            void runAnimation(Animation* animation, bool replace);
+            explicit AnimationManager(QObject* parent);
+            void runAnimation(std::unique_ptr<Animation> animation, bool replace);
+
         private:
-            ExitCode Entry() override;
+            void onTimerTick();
         };
     }
 }

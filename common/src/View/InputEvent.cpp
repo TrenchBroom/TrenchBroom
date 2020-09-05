@@ -19,19 +19,24 @@
 
 #include "InputEvent.h"
 
+#include <QApplication>
+
+#include <iostream>
+#include <string_view>
+
 namespace TrenchBroom {
     namespace View {
         InputEvent::~InputEvent() = default;
 
-        bool InputEvent::collateWith(const KeyEvent& event) {
+        bool InputEvent::collateWith(const KeyEvent& /* event */) {
             return false;
         }
 
-        bool InputEvent::collateWith(const MouseEvent& event) {
+        bool InputEvent::collateWith(const MouseEvent& /* event */) {
             return false;
         }
 
-        bool InputEvent::collateWith(const CancelEvent& event) {
+        bool InputEvent::collateWith(const CancelEvent& /* event */) {
             return false;
         }
 
@@ -42,6 +47,22 @@ namespace TrenchBroom {
             processor.processEvent(*this);
         }
 
+        bool operator==(const KeyEvent& lhs, const KeyEvent& rhs) {
+            return lhs.type == rhs.type;
+        }
+        
+        std::ostream& operator<<(std::ostream& out, const KeyEvent& event) {
+            switch (event.type) {
+                case KeyEvent::Type::Down:
+                    out << "KeyEvent { type=Down }";
+                    break;
+                case KeyEvent::Type::Up:
+                    out << "KeyEVent { type=Up }";
+                    break;
+            }
+            return out;
+        }
+        
         MouseEvent::MouseEvent(const Type i_type, const Button i_button, const WheelAxis i_wheelAxis, const int i_posX, const int i_posY, const float i_scrollDistance):
         type(i_type),
         button(i_button),
@@ -72,8 +93,104 @@ namespace TrenchBroom {
             processor.processEvent(*this);
         }
 
+        bool operator==(const MouseEvent& lhs, const MouseEvent& rhs) {
+            return lhs.type == rhs.type
+                && lhs.button == rhs.button
+                && lhs.wheelAxis == rhs.wheelAxis
+                && lhs.posX == rhs.posX
+                && lhs.posY == rhs.posY
+                && lhs.scrollDistance == rhs.scrollDistance;
+        }
+        
+        std::ostream& operator<<(std::ostream& out, const MouseEvent& event) {
+            std::string_view typeName;
+            switch (event.type) {
+                case MouseEvent::Type::Down:
+                    typeName = "Down";
+                    break;
+                case MouseEvent::Type::Up:
+                    typeName = "Up";
+                    break;
+                case MouseEvent::Type::Click:
+                    typeName = "Click";
+                    break;
+                case MouseEvent::Type::DoubleClick:
+                    typeName = "DoubleClick";
+                    break;
+                case MouseEvent::Type::Motion:
+                    typeName = "Motion";
+                    break;
+                case MouseEvent::Type::Scroll:
+                    typeName = "Scroll";
+                    break;
+                case MouseEvent::Type::DragStart:
+                    typeName = "DragStart";
+                    break;
+                case MouseEvent::Type::Drag:
+                    typeName = "Drag";
+                    break;
+                case MouseEvent::Type::DragEnd:
+                    typeName = "DragEnd";
+                    break;
+            }
+            
+            std::string_view buttonName;
+            switch (event.button) {
+                case MouseEvent::Button::None:
+                    buttonName = "None";
+                    break;
+                case MouseEvent::Button::Left:
+                    buttonName = "Left";
+                    break;
+                case MouseEvent::Button::Middle:
+                    buttonName = "Middle";
+                    break;
+                case MouseEvent::Button::Right:
+                    buttonName = "Right";
+                    break;
+                case MouseEvent::Button::Aux1:
+                    buttonName = "Aux1";
+                    break;
+                case MouseEvent::Button::Aux2:
+                    buttonName = "Aux2";
+                    break;
+            }
+            
+            std::string_view wheelAxisName;
+            switch (event.wheelAxis) {
+                case MouseEvent::WheelAxis::None:
+                    wheelAxisName = "None";
+                    break;
+                case MouseEvent::WheelAxis::Horizontal:
+                    wheelAxisName = "Horizontal";
+                    break;
+                case MouseEvent::WheelAxis::Vertical:
+                    wheelAxisName = "Vertical";
+                    break;
+            }
+            
+            out << "MouseEvent { ";
+            out << " type=" << typeName;
+            out << ", button=" << buttonName;
+            out << ", wheelAxis=" << wheelAxisName;
+            out << ", posX=" << event.posX;
+            out << ", posY=" << event.posY;
+            out << ", scrollDistance=" << event.scrollDistance;
+            out << " }";
+            
+            return out;
+        }
+
         void CancelEvent::processWith(InputEventProcessor& processor) const {
             processor.processEvent(*this);
+        }
+
+        bool operator==(const CancelEvent&, const CancelEvent&) {
+            return true;
+        }
+        
+        std::ostream& operator<<(std::ostream& out, const CancelEvent&) {
+            return out << "CancelEvent {}";
         }
 
         void InputEventQueue::processEvents(InputEventProcessor& processor) {
@@ -94,28 +211,46 @@ namespace TrenchBroom {
         m_anyMouseButtonDown(false),
         m_lastClickX(0),
         m_lastClickY(0),
-        m_lastClickTime(std::chrono::high_resolution_clock::now()) {}
+        m_lastClickTime(std::chrono::high_resolution_clock::now()),
+        m_nextMouseUpIsRMB(false),
+        m_nextMouseUpIsDblClick(false) {}
 
 
-        void InputEventRecorder::recordEvent(const wxKeyEvent& wxEvent) {
+        void InputEventRecorder::recordEvent(const QKeyEvent* wxEvent) {
             m_queue.enqueueEvent(std::make_unique<KeyEvent>(getEventType(wxEvent)));
         }
 
-        void InputEventRecorder::recordEvent(const wxMouseEvent& wxEvent) {
+        void InputEventRecorder::recordEvent(const QMouseEvent* wxEvent) {
                   auto type = getEventType(wxEvent);
-            const auto button = getButton(wxEvent);
-            const auto wheelAxis = getWheelAxis(wxEvent);
-            const auto posX = wxEvent.GetX();
-            const auto posY = wxEvent.GetY();
-            const auto scrollDistance = getScrollDistance(wxEvent);
+                  auto button = getButton(wxEvent);
+            const auto posX = wxEvent->x();
+            const auto posY = wxEvent->y();
+
+            const auto wheelAxis = MouseEvent::WheelAxis::None;
+            const float scrollDistance = 0.0f;
 
             if (type == MouseEvent::Type::Down) {
+                // macOS: apply Ctrl+click = right click emulation
+                // (Implemented ourselves rather than using Qt's implementation to work around Qt bug, see Main.cpp)
+                if (wxEvent->modifiers() & Qt::MetaModifier) {
+                    button = MouseEvent::Button::Right;
+                    m_nextMouseUpIsRMB = true;
+                }
+                
                 m_lastClickX = posX;
                 m_lastClickY = posY;
                 m_lastClickTime = std::chrono::high_resolution_clock::now();
                 m_anyMouseButtonDown = true;
                 m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Down, button, wheelAxis, posX, posY, scrollDistance));
             } else if (type == MouseEvent::Type::Up) {
+                // macOS: apply Ctrl+click = right click
+                if (m_nextMouseUpIsRMB) {
+                    m_nextMouseUpIsRMB = false;
+                    if (button == MouseEvent::Button::Left) {
+                        button = MouseEvent::Button::Right;
+                    }
+                }
+                    
                 if (m_dragging) {
                     const auto now = std::chrono::high_resolution_clock::now();
                     const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_lastClickTime);
@@ -125,7 +260,7 @@ namespace TrenchBroom {
                         m_queue.enqueueEvent(std::make_unique<CancelEvent>());
                         m_dragging = false;
 
-                        // Synthesize a click event if the drag distance was not exceeded.
+                        // Synthesize a click event
                         if (!isDrag(posX, posY)) {
                             m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Click, button, wheelAxis, m_lastClickX, m_lastClickY, scrollDistance));
                         }
@@ -133,13 +268,12 @@ namespace TrenchBroom {
                         m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::DragEnd, button, wheelAxis, posX, posY, scrollDistance));
                         m_dragging = false;
                     }
-                } else {
-                    // Synthesize a click event if the drag distance was not exceeded.
-                    if (!isDrag(posX, posY)) {
-                        m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Click, button, wheelAxis, m_lastClickX, m_lastClickY, scrollDistance));
-                    }
+                } else if (!m_nextMouseUpIsDblClick) {
+                    // Synthesize a click event
+                    m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Click, button, wheelAxis, m_lastClickX, m_lastClickY, scrollDistance));
                 }
                 m_anyMouseButtonDown = false;
+                m_nextMouseUpIsDblClick = false;
                 m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Up, button, wheelAxis, posX, posY, scrollDistance));
             } else if (type == MouseEvent::Type::Motion) {
                 if (!m_dragging && m_anyMouseButtonDown) {
@@ -153,14 +287,52 @@ namespace TrenchBroom {
                 } else {
                     m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Motion, button, wheelAxis, posX, posY, scrollDistance));
                 }
+            } else if (type == MouseEvent::Type::DoubleClick) {
+                m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Down, button, wheelAxis, posX, posY, scrollDistance));
+                m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::DoubleClick, button, wheelAxis, posX, posY, scrollDistance));
+                m_nextMouseUpIsDblClick = true;
             } else {
                 m_queue.enqueueEvent(std::make_unique<MouseEvent>(type, button, wheelAxis, posX, posY, scrollDistance));
             }
         }
+        
+        QPointF InputEventRecorder::scrollLinesForEvent(const QWheelEvent* qtEvent) {
+            // TODO: support pixel scrolling via qtEvent->pixelDelta()?
+            const int linesPerStep = QApplication::wheelScrollLines();
+            const QPointF angleDelta = QPointF(qtEvent->angleDelta()); // in eighths-of-degrees
+            constexpr float EighthsOfDegreesPerStep = 120.0f; // see: https://doc.qt.io/qt-5/qwheelevent.html#angleDelta
 
-        void InputEventRecorder::recordEvent(const wxMouseCaptureLostEvent& wxEvent) {
-            m_queue.enqueueEvent(std::make_unique<CancelEvent>());
-            m_anyMouseButtonDown = false;
+            const QPointF lines = (angleDelta / EighthsOfDegreesPerStep) * linesPerStep;
+            return lines;
+        }
+
+        void InputEventRecorder::recordEvent(const QWheelEvent* qtEvent) {
+            // These are the mouse X and Y position, not the wheel delta
+            const int posX = qtEvent->x();
+            const int posY = qtEvent->y();
+            
+            // Number of "lines" to scroll
+            QPointF scrollDistance = scrollLinesForEvent(qtEvent);
+
+            // Qt switches scroll axis when alt is pressed, but unfortunately, not consistently on all OS'es
+            // and doesn't give any way of knowing.
+            // see: https://bugreports.qt.io/browse/QTBUG-30948
+            const bool swapXY =
+#ifdef __APPLE__
+                false;
+#else
+                qtEvent->modifiers().testFlag(Qt::AltModifier);
+#endif
+            if (swapXY) {
+                scrollDistance = QPointF(scrollDistance.y(), scrollDistance.x());
+            }
+
+            if (scrollDistance.x() != 0.0f) {
+                m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Horizontal, posX, posY, static_cast<float>(scrollDistance.x())));
+            }
+            if (scrollDistance.y() != 0.0f) {
+                m_queue.enqueueEvent(std::make_unique<MouseEvent>(MouseEvent::Type::Scroll, MouseEvent::Button::None, MouseEvent::WheelAxis::Vertical,   posX, posY, static_cast<float>(scrollDistance.y())));
+            }
         }
 
         void InputEventRecorder::processEvents(InputEventProcessor& processor) {
@@ -172,61 +344,45 @@ namespace TrenchBroom {
             return std::abs(posX - m_lastClickX) > MinDragDistance || std::abs(posY - m_lastClickY) > MinDragDistance;
         }
 
-        KeyEvent::Type InputEventRecorder::getEventType(const wxKeyEvent& wxEvent) {
-            const auto wxType = wxEvent.GetEventType();
-            if (wxType == wxEVT_KEY_DOWN) {
+        KeyEvent::Type InputEventRecorder::getEventType(const QKeyEvent* wxEvent) {
+            const auto wxType = wxEvent->type();
+            if (wxType == QEvent::KeyPress) {
                 return KeyEvent::Type::Down;
-            } else if (wxType == wxEVT_KEY_UP) {
+            } else if (wxType == QEvent::KeyRelease) {
                 return KeyEvent::Type::Up;
             } else {
                 throw std::runtime_error("Unexpected wxEvent type");
             }
         }
 
-        MouseEvent::Type InputEventRecorder::getEventType(const wxMouseEvent& wxEvent) {
-            if (wxEvent.ButtonDown(wxMOUSE_BTN_ANY)) {
+        MouseEvent::Type InputEventRecorder::getEventType(const QMouseEvent* wxEvent) {
+            if (wxEvent->type() == QEvent::MouseButtonPress) {
                 return MouseEvent::Type::Down;
-            } else if (wxEvent.ButtonUp(wxMOUSE_BTN_ANY)) {
+            } else if (wxEvent->type() == QEvent::MouseButtonRelease) {
                 return MouseEvent::Type::Up;
-            } else if (wxEvent.ButtonDClick(wxMOUSE_BTN_ANY)) {
+            } else if (wxEvent->type() == QEvent::MouseButtonDblClick) {
                 return MouseEvent::Type::DoubleClick;
-            } else if (wxEvent.GetEventType() == wxEVT_MOTION) {
+            } else if (wxEvent->type() == QEvent::MouseMove) {
                 return MouseEvent::Type::Motion;
-            } else if (wxEvent.GetEventType() == wxEVT_MOUSEWHEEL) {
-                return MouseEvent::Type::Scroll;
             } else {
                 throw std::runtime_error("Unexpected wxEvent type");
             }
         }
 
-        MouseEvent::Button InputEventRecorder::getButton(const wxMouseEvent& wxEvent) {
-            if (wxEvent.Button(wxMOUSE_BTN_LEFT)) {
+        MouseEvent::Button InputEventRecorder::getButton(const QMouseEvent* wxEvent) {
+            if (wxEvent->button() == Qt::LeftButton) {
                 return MouseEvent::Button::Left;
-            } else if (wxEvent.Button(wxMOUSE_BTN_MIDDLE)) {
+            } else if (wxEvent->button() == Qt::MiddleButton) {
                 return MouseEvent::Button::Middle;
-            } else if (wxEvent.Button(wxMOUSE_BTN_RIGHT)) {
+            } else if (wxEvent->button() == Qt::RightButton) {
                 return MouseEvent::Button::Right;
-            } else if (wxEvent.Button(wxMOUSE_BTN_AUX1)) {
+            } else if (wxEvent->button() == Qt::XButton1) {
                 return MouseEvent::Button::Aux1;
-            } else if (wxEvent.Button(wxMOUSE_BTN_AUX2)) {
+            } else if (wxEvent->button() == Qt::XButton2) {
                 return MouseEvent::Button::Aux2;
             } else {
                 return MouseEvent::Button::None;
             }
-        }
-
-        MouseEvent::WheelAxis InputEventRecorder::getWheelAxis(const wxMouseEvent& wxEvent) {
-            if (wxEvent.GetWheelAxis() == wxMOUSE_WHEEL_VERTICAL) {
-                return MouseEvent::WheelAxis::Vertical;
-            } else if (wxEvent.GetWheelAxis() == wxMOUSE_WHEEL_HORIZONTAL) {
-                return MouseEvent::WheelAxis::Horizontal;
-            } else {
-                return MouseEvent::WheelAxis::None;
-            }
-        }
-
-        float InputEventRecorder::getScrollDistance(const wxMouseEvent& wxEvent) {
-            return static_cast<float>(wxEvent.GetWheelRotation()) / wxEvent.GetWheelDelta() * wxEvent.GetLinesPerAction();
         }
 
         InputEventProcessor::~InputEventProcessor() = default;

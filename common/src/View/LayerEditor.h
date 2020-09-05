@@ -20,60 +20,83 @@
 #ifndef TrenchBroom_LayerEditor
 #define TrenchBroom_LayerEditor
 
-#include "StringUtils.h"
-#include "Model/ModelTypes.h"
-#include "View/ViewTypes.h"
+#include <memory>
+#include <string>
 
-#include <wx/panel.h>
+#include <QWidget>
+
+class QAbstractButton;
 
 namespace TrenchBroom {
+    namespace Model {
+        class LayerNode;
+    }
+
     namespace View {
-        class LayerCommand;
         class LayerListBox;
+        class MapDocument;
 
-        class LayerEditor : public wxPanel {
+        class LayerEditor : public QWidget {
+            Q_OBJECT
         private:
-            static const int MoveSelectionToLayerCommandId = 1;
-            static const int SelectAllInLayerCommandId = 2;
-            static const int ToggleLayerVisibleCommandId = 3;
-            static const int ToggleLayerLockedCommandId = 4;
-            static const int RemoveLayerCommandId = 5;
-
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             LayerListBox* m_layerList;
+
+            QAbstractButton* m_addLayerButton;
+            QAbstractButton* m_removeLayerButton;
+            QAbstractButton* m_moveLayerUpButton;
+            QAbstractButton* m_moveLayerDownButton;
         public:
-            LayerEditor(wxWindow* parent, MapDocumentWPtr document);
+            explicit LayerEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+        private:            
+            void onSetCurrentLayer(Model::LayerNode* layer);
+            bool canSetCurrentLayer(Model::LayerNode* layer) const;
+
+            void onLayerRightClick(Model::LayerNode* layer);
+
+            void onMoveSelectionToLayer();
+            bool canMoveSelectionToLayer() const;
+
+            bool canToggleLayerVisible() const;
+            void toggleLayerVisible(Model::LayerNode* layer);
+
+            bool canToggleLayerLocked() const;
+            void toggleLayerLocked(Model::LayerNode* layer);
+
+            void toggleOmitLayerFromExport(Model::LayerNode* layer);
+
+            void isolateLayer(Model::LayerNode* layer);
+
+            void onSelectAllInLayer();
+
+            void onAddLayer();
+            std::string queryLayerName(const std::string& suggestion);
+
+            void onRemoveLayer();
+            bool canRemoveLayer() const;
+
+            void onRenameLayer();
+            bool canRenameLayer() const;
+
+            void onShowAllLayers();
+            bool canShowAllLayers() const;
+
+            void onHideAllLayers();
+            bool canHideAllLayers() const;
+
+            void onLockAllLayers();
+            bool canLockAllLayers() const;
+
+            void onUnlockAllLayers();
+            bool canUnlockAllLayers() const;
+
+            bool canMoveLayer(int direction) const;
+            void moveLayer(Model::LayerNode* layer, int direction);
         private:
-            void OnSetCurrentLayer(LayerCommand& event);
-            void OnLayerRightClick(LayerCommand& event);
-
-            class CollectMoveableNodes;
-            void OnMoveSelectionToLayer(wxCommandEvent& event);
-            void OnUpdateMoveSelectionToLayerUI(wxUpdateUIEvent& event);
-
-            void OnToggleLayerVisibleFromMenu(wxCommandEvent& event);
-            void OnToggleLayerVisibleFromList(LayerCommand& event);
-            void OnUpdateToggleLayerVisibleUI(wxUpdateUIEvent& event);
-            void toggleLayerVisible(Model::Layer* layer);
-
-            void OnToggleLayerLockedFromMenu(wxCommandEvent& event);
-            void OnToggleLayerLockedFromList(LayerCommand& event);
-            void OnUpdateToggleLayerLockedUI(wxUpdateUIEvent& event);
-            void toggleLayerLocked(Model::Layer* layer);
-
-            void OnSelectAllInLayer(wxCommandEvent& event);
-
-            void OnAddLayer(wxCommandEvent& event);
-            String queryLayerName();
-
-            void OnRemoveLayer(wxCommandEvent& event);
-            void OnUpdateRemoveLayerUI(wxUpdateUIEvent& event);
-
-            void OnShowAllLayers(wxCommandEvent& event);
-        private:
-            Model::Layer* findVisibleAndUnlockedLayer(const Model::Layer* except) const;
-            void moveSelectedNodesToLayer(MapDocumentSPtr document, Model::Layer* layer);
+            Model::LayerNode* findVisibleAndUnlockedLayer(const Model::LayerNode* except) const;
             void createGui();
+        private slots:
+            void updateButtons();
         };
     }
 }

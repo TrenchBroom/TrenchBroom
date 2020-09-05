@@ -19,15 +19,23 @@
 
 #include "Bsp29Parser.h"
 
-#include <Assets/EntityModel.h>
+#include "Exceptions.h"
+#include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
 #include "Assets/Palette.h"
 #include "IO/File.h"
 #include "IO/Reader.h"
 #include "IO/MipTextureReader.h"
 #include "IO/IdMipTextureReader.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
+
+#include <string>
+#include <sstream>
+#include <vector>
+
+#include "ResourceUtils.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -63,17 +71,18 @@ namespace TrenchBroom {
             // static const size_t ModelFaceCount        = 0x3c;
         }
 
-        Bsp29Parser::Bsp29Parser(const String& name, const char* begin, const char* end, const Assets::Palette& palette) :
+        Bsp29Parser::Bsp29Parser(const std::string& name, const char* begin, const char* end, const Assets::Palette& palette, const FileSystem& fs) :
         m_name(name),
         m_begin(begin),
         m_end(end),
-        m_palette(palette) {}
+        m_palette(palette),
+        m_fs(fs) {}
 
         std::unique_ptr<Assets::EntityModel> Bsp29Parser::doInitializeModel(Logger& logger) {
             auto reader = Reader::from(m_begin, m_end);
             const auto version = reader.readInt<int32_t>();
             if (version != 29) {
-                throw AssetException() << "Unsupported BSP model version: " << version;
+                throw AssetException("Unsupported BSP model version: " + std::to_string(version));
             }
 
             reader.seekFromBegin(BspLayout::DirTexturesAddress);
@@ -84,24 +93,22 @@ namespace TrenchBroom {
             const auto modelsLength = reader.readSize<int32_t>();
             const auto frameCount = modelsLength / BspLayout::ModelSize;
 
-            const auto textures = parseTextures(reader.subReaderFromBegin(textureOffset));
+            auto textures = parseTextures(reader.subReaderFromBegin(textureOffset), logger);
 
-            auto model = std::make_unique<Assets::EntityModel>(m_name);
+            auto model = std::make_unique<Assets::EntityModel>(m_name, Assets::PitchType::Normal);
             model->addFrames(frameCount);
 
             auto& surface = model->addSurface(m_name);
-            for (auto* texture : textures) {
-                surface.addSkin(texture);
-            }
+            surface.setSkins(std::move(textures));
 
             return model;
         }
 
-        void Bsp29Parser::doLoadFrame(const size_t frameIndex, Assets::EntityModel& model, Logger& logger) {
+        void Bsp29Parser::doLoadFrame(const size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */) {
             auto reader = Reader::from(m_begin, m_end);
             const auto version = reader.readInt<int32_t>();
             if (version != 29) {
-                throw AssetException() << "Unsupported BSP model version: " << version;
+                throw AssetException("Unsupported BSP model version: " + std::to_string(version));
             }
 
             reader.seekFromBegin(BspLayout::DirTexturesAddress);
@@ -145,17 +152,19 @@ namespace TrenchBroom {
             parseFrame(reader.subReaderFromBegin(modelsOffset + frameIndex * BspLayout::ModelSize, BspLayout::ModelSize), frameIndex, model, textureInfos, vertices, edgeInfos, faceInfos, faceEdges);
         }
 
-        Assets::TextureList Bsp29Parser::parseTextures(Reader reader) {
+        std::vector<Assets::Texture> Bsp29Parser::parseTextures(Reader reader, Logger& logger) {
             const TextureReader::TextureNameStrategy nameStrategy;
-            IdMipTextureReader textureReader(nameStrategy, m_palette);
+            IdMipTextureReader textureReader(nameStrategy, m_fs, logger, m_palette);
 
             const auto textureCount = reader.readSize<int32_t>();
-            Assets::TextureList result(textureCount);
+            std::vector<Assets::Texture> result;
+            result.reserve(textureCount);
 
             for (size_t i = 0; i < textureCount; ++i) {
                 const auto textureOffset = reader.readInt<int32_t>();
                 // 2153: Some BSPs contain negative texture offsets.
                 if (textureOffset < 0) {
+                    result.push_back(loadDefaultTexture(m_fs, logger, "unknown"));
                     continue;
                 }
 
@@ -171,7 +180,7 @@ namespace TrenchBroom {
                 // We can't easily tell where the texture ends without duplicating all of the parsing code (including HlMip) here.
                 // Just prevent the texture reader from reading past the end of the .bsp file.
                 auto fileView = std::make_shared<NonOwningBufferFile>(texturePath, subReader.begin(), subReader.end());
-                result[i] = textureReader.readTexture(fileView);
+                result.push_back(textureReader.readTexture(fileView));
             }
 
             return result;
@@ -228,8 +237,8 @@ namespace TrenchBroom {
         }
 
         void Bsp29Parser::parseFrame(Reader reader, const size_t frameIndex, Assets::EntityModel& model, const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices, const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos, const FaceEdgeIndexList& faceEdges) {
-            using Vertex = Assets::EntityModel::Vertex;
-            using VertexList = Vertex::List;
+            using Vertex = Assets::EntityModelVertex;
+            using VertexList = std::vector<Vertex>;
 
             auto& surface = model.surface(0);
 
@@ -245,7 +254,7 @@ namespace TrenchBroom {
                 auto* skin = surface.skin(textureInfo.textureIndex);
                 if (skin != nullptr) {
                     const auto faceVertexCount = faceInfo.edgeCount;
-                    size.inc(skin, GL_POLYGON, faceVertexCount);
+                    size.inc(skin, Renderer::PrimType::Polygon, faceVertexCount);
                     totalVertexCount += faceVertexCount;
                 }
             }
@@ -283,7 +292,7 @@ namespace TrenchBroom {
                 }
             }
 
-            StringStream frameName;
+            std::stringstream frameName;
             frameName << m_name << "_" << frameIndex;
 
             auto& frame = model.loadFrame(frameIndex, frameName.str(), bounds.bounds());
@@ -293,10 +302,10 @@ namespace TrenchBroom {
 
         vm::vec2f Bsp29Parser::textureCoords(const vm::vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture* texture) const {
             if (texture == nullptr) {
-                return vm::vec2f::zero;
+                return vm::vec2f::zero();
             } else {
-                return vm::vec2f((dot(vertex, textureInfo.sAxis) + textureInfo.sOffset) / texture->width(),
-                                 (dot(vertex, textureInfo.tAxis) + textureInfo.tOffset) / texture->height());
+                return vm::vec2f((vm::dot(vertex, textureInfo.sAxis) + textureInfo.sOffset) / static_cast<float>(texture->width()),
+                                 (vm::dot(vertex, textureInfo.tAxis) + textureInfo.tOffset) / static_cast<float>(texture->height()));
             }
         }
     }

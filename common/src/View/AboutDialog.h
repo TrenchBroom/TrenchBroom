@@ -20,32 +20,22 @@
 #ifndef TrenchBroom_AboutDialog
 #define TrenchBroom_AboutDialog
 
-#include "StringUtils.h"
-
-#include <wx/dialog.h>
-
-class wxStaticText;
-class wxWindow;
+#include <QDialog>
 
 namespace TrenchBroom {
     namespace View {
-        class AboutDialog : public wxDialog {
+        class AboutDialog : public QDialog {
+            Q_OBJECT
         private:
             static AboutDialog* instance;
         public:
             static void showAboutDialog();
             static void closeAboutDialog();
 
-            ~AboutDialog();
-
-            void OnClickUrl(wxMouseEvent& event);
+            ~AboutDialog() override;
         private:
             AboutDialog();
             void createGui();
-            wxStaticText* createURLText(wxWindow* parent, const String& text, const String& tooltip, const String& url);
-
-            void OnCancel(wxCommandEvent& event);
-            void OnClose(wxCloseEvent& event);
         };
     }
 }

@@ -19,10 +19,11 @@
 
 #include "TextRenderer.h"
 
-#include "CollectionUtils.h"
 #include "AttrString.h"
+#include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/FontManager.h"
+#include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/ShaderManager.h"
@@ -32,7 +33,6 @@
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
-#include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 
 namespace TrenchBroom {
@@ -146,16 +146,16 @@ namespace TrenchBroom {
             return round(font.measure(string));
         }
 
-        void TextRenderer::doPrepareVertices(Vbo& vertexVbo) {
-            prepare(m_entries, false, vertexVbo);
-            prepare(m_entriesOnTop, true, vertexVbo);
+        void TextRenderer::doPrepareVertices(VboManager& vboManager) {
+            prepare(m_entries, false, vboManager);
+            prepare(m_entriesOnTop, true, vboManager);
         }
 
-        void TextRenderer::prepare(EntryCollection& collection, const bool onTop, Vbo& vbo) {
-            TextVertex::List textVertices;
+        void TextRenderer::prepare(EntryCollection& collection, const bool onTop, VboManager& vboManager) {
+            std::vector<TextVertex> textVertices;
             textVertices.reserve(collection.textVertexCount);
 
-            RectVertex::List rectVertices;
+            std::vector<RectVertex> rectVertices;
             rectVertices.reserve(collection.rectVertexCount);
 
             for (const Entry& entry : collection.entries) {
@@ -165,11 +165,11 @@ namespace TrenchBroom {
             collection.textArray = VertexArray::move(std::move(textVertices));
             collection.rectArray = VertexArray::move(std::move(rectVertices));
 
-            collection.textArray.prepare(vbo);
-            collection.rectArray.prepare(vbo);
+            collection.textArray.prepare(vboManager);
+            collection.rectArray.prepare(vboManager);
         }
 
-        void TextRenderer::addEntry(const Entry& entry, const bool /* onTop */, TextVertex::List& textVertices, RectVertex::List& rectVertices) {
+        void TextRenderer::addEntry(const Entry& entry, const bool /* onTop */, std::vector<TextVertex>& textVertices, std::vector<RectVertex>& rectVertices) {
             const std::vector<vm::vec2f>& stringVertices = entry.vertices;
             const vm::vec2f& stringSize = entry.size;
 
@@ -193,12 +193,13 @@ namespace TrenchBroom {
 
         void TextRenderer::doRender(RenderContext& renderContext) {
             const Camera::Viewport& viewport = renderContext.camera().viewport();
-            const vm::mat4x4f projection = vm::orthoMatrix(0.0f, 1.0f,
-                                                           static_cast<float>(viewport.x),
-                                                           static_cast<float>(viewport.height),
-                                                           static_cast<float>(viewport.width),
-                                                           static_cast<float>(viewport.y));
-            const vm::mat4x4f view = vm::viewMatrix(vm::vec3f::neg_z, vm::vec3f::pos_y);
+            const vm::mat4x4f projection = vm::ortho_matrix(
+                0.0f, 1.0f,
+                static_cast<float>(viewport.x),
+                static_cast<float>(viewport.height),
+                static_cast<float>(viewport.width),
+                static_cast<float>(viewport.y));
+            const vm::mat4x4f view = vm::view_matrix(vm::vec3f::neg_z(), vm::vec3f::pos_y());
             ReplaceTransformation ortho(renderContext.transformation(), projection, view);
 
             render(m_entries, renderContext);
@@ -215,14 +216,14 @@ namespace TrenchBroom {
             glAssert(glDisable(GL_TEXTURE_2D));
 
             ActiveShader backgroundShader(renderContext.shaderManager(), Shaders::TextBackgroundShader);
-            collection.rectArray.render(GL_TRIANGLES);
+            collection.rectArray.render(PrimType::Triangles);
 
             glAssert(glEnable(GL_TEXTURE_2D));
 
             ActiveShader textShader(renderContext.shaderManager(), Shaders::ColoredTextShader);
             textShader.set("Texture", 0);
             font.activate();
-            collection.textArray.render(GL_QUADS);
+            collection.textArray.render(PrimType::Quads);
             font.deactivate();
         }
     }

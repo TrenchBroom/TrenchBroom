@@ -22,22 +22,16 @@
 
 namespace TrenchBroom {
     namespace View {
-        wxString getBuildVersion() {
-            wxString result;
-            result << VERSION_STR;
-            return result;
+        QString getBuildVersion() {
+            return QString(VERSION_STR);
         }
 
-        wxString getBuildIdStr() {
-            wxString result;
-            result << BUILD_ID_STR;
-            return result;
+        QString getBuildIdStr() {
+            return QString(BUILD_ID_STR);
         }
 
-        wxString getBuildType() {
-            wxString result;
-            result << BUILD_TYPE;
-            return result;
+        QString getBuildType() {
+            return QString(BUILD_TYPE);
         }
     }
 }

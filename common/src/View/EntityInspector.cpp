@@ -19,73 +19,83 @@
 
 #include "EntityInspector.h"
 
-#include "StringUtils.h"
 #include "View/BorderLine.h"
 #include "View/CollapsibleTitledPanel.h"
 #include "View/EntityBrowser.h"
 #include "View/EntityDefinitionFileChooser.h"
 #include "View/EntityAttributeEditor.h"
-#include "View/SplitterWindow2.h"
-#include "View/TitledPanel.h"
-#include "View/ViewConstants.h"
 #include "View/MapDocument.h"
+#include "View/Splitter.h"
+#include "View/TitledPanel.h"
+#include "View/QtUtils.h"
 
-#include <wx/event.h>
-#include <wx/notebook.h>
-#include <wx/persist.h>
-#include <wx/sizer.h>
+#include <QVBoxLayout>
 
 namespace TrenchBroom {
     namespace View {
-        EntityInspector::EntityInspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
-        TabBookPage(parent) {
-#if defined __APPLE__
-            SetWindowVariant(wxWINDOW_VARIANT_SMALL);
-#endif
-            createGui(document, contextManager);
+        EntityInspector::EntityInspector(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent) :
+        TabBookPage(parent),
+        m_splitter(nullptr),
+        m_attributeEditor(nullptr),
+        m_entityBrowser(nullptr),
+        m_entityDefinitionFileChooser(nullptr) {
+            createGui(std::move(document), contextManager);
         }
 
-        void EntityInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
-            SplitterWindow2* splitter = new SplitterWindow2(this);
-            splitter->setSashGravity(0.0);
-            splitter->SetName("EntityInspectorSplitter");
-
-            splitter->splitHorizontally(createAttributeEditor(splitter, document),
-                                        createEntityBrowser(splitter, document, contextManager),
-                                        wxSize(100, 150), wxSize(100, 150));
-
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(splitter, 1, wxEXPAND);
-            outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            outerSizer->Add(createEntityDefinitionFileChooser(this, document), 0, wxEXPAND);
-            SetSizer(outerSizer);
-
-            wxPersistenceManager::Get().RegisterAndRestore(splitter);
+        EntityInspector::~EntityInspector() {
+            saveWindowState(m_splitter);
         }
 
-        wxWindow* EntityInspector::createAttributeEditor(wxWindow* parent, MapDocumentWPtr document) {
-            m_attributeEditor = new EntityAttributeEditor(parent, document);
+        void EntityInspector::createGui(std::weak_ptr<MapDocument> document, GLContextManager& contextManager) {
+            m_splitter = new Splitter(Qt::Vertical);
+            m_splitter->setObjectName("EntityInspector_Splitter");
+
+            m_splitter->addWidget(createAttributeEditor(m_splitter, document));
+            m_splitter->addWidget(createEntityBrowser(m_splitter, document, contextManager));
+
+            // when the window resizes, keep the attribute editor size constant
+            m_splitter->setStretchFactor(0, 0);
+            m_splitter->setStretchFactor(1, 1);
+
+            m_attributeEditor->setMinimumSize(100, 150);
+            m_entityBrowser->setMinimumSize(100, 150);
+
+            auto* outerSizer = new QVBoxLayout();
+            outerSizer->setContentsMargins(0, 0, 0, 0);
+            outerSizer->setSpacing(0);
+            outerSizer->addWidget(m_splitter, 1);
+            outerSizer->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 0);
+            outerSizer->addWidget(createEntityDefinitionFileChooser(this, document), 0);
+            setLayout(outerSizer);
+
+            restoreWindowState(m_splitter);
+        }
+
+        QWidget* EntityInspector::createAttributeEditor(QWidget* parent, std::weak_ptr<MapDocument> document) {
+            m_attributeEditor = new EntityAttributeEditor(std::move(document), parent);
             return m_attributeEditor;
         }
 
-        wxWindow* EntityInspector::createEntityBrowser(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) {
-            TitledPanel* panel = new TitledPanel(parent, "Entity Browser");
-            m_entityBrowser = new EntityBrowser(panel->getPanel(), document, contextManager);
+        QWidget* EntityInspector::createEntityBrowser(QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager) {
+            auto* panel = new TitledPanel(tr("Entity Browser"), parent);
+            m_entityBrowser = new EntityBrowser(std::move(document), contextManager);
 
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_entityBrowser, 1, wxEXPAND);
-            panel->getPanel()->SetSizer(sizer);
+            auto* sizer = new QVBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->addWidget(m_entityBrowser, 1);
+            panel->getPanel()->setLayout(sizer);
 
             return panel;
         }
 
-        wxWindow* EntityInspector::createEntityDefinitionFileChooser(wxWindow* parent, MapDocumentWPtr document) {
-            CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(parent, "Entity Definitions", false);
-            m_entityDefinitionFileChooser = new EntityDefinitionFileChooser(panel->getPanel(), document);
+        QWidget* EntityInspector::createEntityDefinitionFileChooser(QWidget* parent, std::weak_ptr<MapDocument> document) {
+            CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(tr("Entity Definitions"), false, parent);
+            m_entityDefinitionFileChooser = new EntityDefinitionFileChooser(document);
 
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_entityDefinitionFileChooser, 1, wxEXPAND);
-            panel->getPanel()->SetSizer(sizer);
+            auto* sizer = new QVBoxLayout();
+            sizer->setContentsMargins(0, 0, 0, 0);
+            sizer->addWidget(m_entityDefinitionFileChooser, 1);
+            panel->getPanel()->setLayout(sizer);
 
             return panel;
         }

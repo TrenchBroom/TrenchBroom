@@ -20,11 +20,13 @@
 #ifndef LaunchGameEngineDialog_h
 #define LaunchGameEngineDialog_h
 
-#include "IO/Path.h"
 #include "View/CompilationVariables.h"
-#include "View/ViewTypes.h"
 
-#include <wx/dialog.h>
+#include <memory>
+
+#include <QDialog>
+
+class QPushButton;
 
 namespace TrenchBroom {
     namespace Model {
@@ -32,35 +34,26 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class AutoCompleteTextControl;
         class GameEngineProfileListBox;
+        class MultiCompletionLineEdit;
 
-        class LaunchGameEngineDialog : public wxDialog {
+        class LaunchGameEngineDialog : public QDialog {
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             GameEngineProfileListBox* m_gameEngineList;
-            AutoCompleteTextControl* m_parameterText;
+            MultiCompletionLineEdit* m_parameterText;
+            QPushButton* m_launchButton;
             Model::GameEngineProfile* m_lastProfile;
         public:
-            LaunchGameEngineDialog(wxWindow* parent, MapDocumentWPtr document);
+            explicit LaunchGameEngineDialog(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
             void createGui();
             LaunchGameEngineVariables variables() const;
-
-            void OnSelectGameEngineProfile(wxCommandEvent& event);
-
-            void OnUpdateParameterTextUI(wxUpdateUIEvent& event);
-            void OnParameterTextChanged(wxCommandEvent& event);
-
-            void OnEditGameEnginesButton(wxCommandEvent& event);
-
-            void OnCloseButton(wxCommandEvent& event);
-            void OnUpdateCloseButtonUI(wxUpdateUIEvent& event);
-
-            void OnLaunch(wxCommandEvent& event);
-            void OnUpdateLaunchButtonUI(wxUpdateUIEvent& event);
-
-            void OnClose(wxCloseEvent& event);
+        private slots:
+            void gameEngineProfileChanged();
+            void parametersChanged(const QString& text);
+            void editGameEngines();
+            void launchEngine();
         };
     }
 }

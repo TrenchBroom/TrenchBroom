@@ -19,13 +19,14 @@
 
 #include "NonIntegerVerticesIssueGenerator.h"
 
-#include "Model/Brush.h"
+#include "Polyhedron.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 
-#include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -35,14 +36,14 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            NonIntegerVerticesIssue(Brush* brush) :
+            explicit NonIntegerVerticesIssue(BrushNode* brush) :
             Issue(brush) {}
 
             IssueType doGetType() const override {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            std::string doGetDescription() const override {
                 return "Brush has non-integer vertices";
             }
         };
@@ -54,7 +55,7 @@ namespace TrenchBroom {
             NonIntegerVerticesIssueQuickFix() :
             IssueQuickFix(NonIntegerVerticesIssue::Type, "Convert vertices to integer") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const override {
+            void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
                 facade->snapVertices(1);
             }
         };
@@ -64,10 +65,11 @@ namespace TrenchBroom {
             addQuickFix(new NonIntegerVerticesIssueQuickFix());
         }
 
-        void NonIntegerVerticesIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
-            for (const BrushVertex* vertex : brush->vertices()) {
-                if (!isIntegral(vertex->position())) {
-                    issues.push_back(new NonIntegerVerticesIssue(brush));
+        void NonIntegerVerticesIssueGenerator::doGenerate(BrushNode* brushNode, IssueList& issues) const {
+            const Brush& brush = brushNode->brush();
+            for (const BrushVertex* vertex : brush.vertices()) {
+                if (!vm::is_integral(vertex->position())) {
+                    issues.push_back(new NonIntegerVerticesIssue(brushNode));
                     return;
                 }
             }

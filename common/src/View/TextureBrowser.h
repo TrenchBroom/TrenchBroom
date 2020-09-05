@@ -20,17 +20,16 @@
 #ifndef TrenchBroom_TextureBrowser
 #define TrenchBroom_TextureBrowser
 
-#include "StringUtils.h"
-#include "Assets/TextureManager.h"
-#include "View/TextureBrowserView.h"
-#include "View/ViewTypes.h"
+#include <memory>
+#include <string>
+#include <vector>
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxChoice;
-class wxToggleButton;
-class wxSearchCtrl;
-class wxScrollBar;
+class QPushButton;
+class QComboBox;
+class QLineEdit;
+class QScrollBar;
 
 namespace TrenchBroom {
     namespace Assets {
@@ -41,37 +40,41 @@ namespace TrenchBroom {
         class Path;
     }
 
+    namespace Model {
+        class BrushFaceHandle;
+        class Node;
+    }
+
     namespace View {
         class GLContextManager;
+        class MapDocument;
         class TextureBrowserView;
-        class TextureSelectedCommand;
+        enum class TextureSortOrder;
 
-        class TextureBrowser : public wxPanel {
+        class TextureBrowser : public QWidget {
+            Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
-            wxChoice* m_sortOrderChoice;
-            wxToggleButton* m_groupButton;
-            wxToggleButton* m_usedButton;
-            wxSearchCtrl* m_filterBox;
-            wxScrollBar* m_scrollBar;
+            std::weak_ptr<MapDocument> m_document;
+            QComboBox* m_sortOrderChoice;
+            QPushButton* m_groupButton;
+            QPushButton* m_usedButton;
+            QLineEdit* m_filterBox;
+            QScrollBar* m_scrollBar;
             TextureBrowserView* m_view;
         public:
-            TextureBrowser(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
-            ~TextureBrowser();
+            TextureBrowser(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
+            ~TextureBrowser() override;
 
-            Assets::Texture* selectedTexture() const;
-            void setSelectedTexture(Assets::Texture* selectedTexture);
+            const Assets::Texture* selectedTexture() const;
+            void setSelectedTexture(const Assets::Texture* selectedTexture);
+            void revealTexture(const Assets::Texture* texture);
 
-            void setSortOrder(TextureBrowserView::SortOrder sortOrder);
+            void setSortOrder(TextureSortOrder sortOrder);
             void setGroup(bool group);
             void setHideUnused(bool hideUnused);
-            void setFilterText(const String& filterText);
-
-            void OnSortOrderChanged(wxCommandEvent& event);
-            void OnGroupButtonToggled(wxCommandEvent& event);
-            void OnUsedButtonToggled(wxCommandEvent& event);
-            void OnFilterPatternChanged(wxCommandEvent& event);
-            void OnTextureSelected(TextureSelectedCommand& event);
+            void setFilterText(const std::string& filterText);
+        signals:
+            void textureSelected(const Assets::Texture* texture);
         private:
             void createGui(GLContextManager& contextManager);
             void bindEvents();
@@ -81,12 +84,12 @@ namespace TrenchBroom {
 
             void documentWasNewed(MapDocument* document);
             void documentWasLoaded(MapDocument* document);
-            void nodesWereAdded(const Model::NodeList& nodes);
-            void nodesWereRemoved(const Model::NodeList& nodes);
-            void nodesDidChange(const Model::NodeList& nodes);
-            void brushFacesDidChange(const Model::BrushFaceList& faces);
+            void nodesWereAdded(const std::vector<Model::Node*>& nodes);
+            void nodesWereRemoved(const std::vector<Model::Node*>& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
+            void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
             void textureCollectionsDidChange();
-            void currentTextureNameDidChange(const String& textureName);
+            void currentTextureNameDidChange(const std::string& textureName);
             void preferenceDidChange(const IO::Path& path);
 
             void reload();

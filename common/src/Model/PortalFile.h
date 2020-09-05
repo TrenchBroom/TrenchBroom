@@ -20,10 +20,7 @@
 #ifndef TrenchBroom_PortalFile
 #define TrenchBroom_PortalFile
 
-#include "TrenchBroom.h"
-
 #include <vecmath/forward.h>
-#include <vecmath/polygon.h>
 
 #include <vector>
 
@@ -31,13 +28,14 @@ namespace TrenchBroom {
     namespace IO {
         class Path;
     }
-
     namespace Model {
         class PortalFile {
         private:
             std::vector<vm::polygon3f> m_portals;
         public:
             PortalFile();
+            ~PortalFile();
+
             /**
              * Constructor throws an exception if portalFilePath couldn't be read.
              */

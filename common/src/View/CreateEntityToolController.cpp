@@ -19,10 +19,14 @@
 
 #include "CreateEntityToolController.h"
 
+#include "Ensure.h"
 #include "View/CreateEntityTool.h"
 #include "View/InputState.h"
 
-#include <cassert>
+#include <kdl/string_utils.h>
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
@@ -31,7 +35,7 @@ namespace TrenchBroom {
             ensure(m_tool != nullptr, "tool is null");
         }
 
-        CreateEntityToolController::~CreateEntityToolController() {}
+        CreateEntityToolController::~CreateEntityToolController() = default;
 
         Tool* CreateEntityToolController::doGetTool() {
             return m_tool;
@@ -41,8 +45,8 @@ namespace TrenchBroom {
             return m_tool;
         }
 
-        bool CreateEntityToolController::doDragEnter(const InputState& inputState, const String& payload) {
-            const StringList parts = StringUtils::split(payload, ':');
+        bool CreateEntityToolController::doDragEnter(const InputState& inputState, const std::string& payload) {
+            const std::vector<std::string> parts = kdl::str_split(payload, ":");
             if (parts.size() != 2)
                 return false;
             if (parts[0] != "entity")
@@ -60,11 +64,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        void CreateEntityToolController::doDragLeave(const InputState& inputState) {
+        void CreateEntityToolController::doDragLeave(const InputState&) {
             m_tool->removeEntity();
         }
 
-        bool CreateEntityToolController::doDragDrop(const InputState& inputState) {
+        bool CreateEntityToolController::doDragDrop(const InputState&) {
             m_tool->commitEntity();
             return true;
         }

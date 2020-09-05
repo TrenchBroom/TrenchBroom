@@ -19,13 +19,13 @@
 
 #include "CollectMatchingNodesVisitor.h"
 
-#include "CollectionUtils.h"
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
         NodeCollectionStrategy::~NodeCollectionStrategy() {}
 
-        const NodeList& NodeCollectionStrategy::nodes() const {
+        const std::vector<Node*>& NodeCollectionStrategy::nodes() const {
             return m_nodes;
         }
 
@@ -38,13 +38,14 @@ namespace TrenchBroom {
         UniqueNodeCollectionStrategy::~UniqueNodeCollectionStrategy() {}
 
         void UniqueNodeCollectionStrategy::addNode(Node* node) {
-            if (m_addedNodes.insert(node).second)
+            if (m_addedNodes.insert(node).second) {
                 m_nodes.push_back(node);
+            }
         }
 
-        bool NeverStopRecursion::operator()(const Node* node, bool matched) const { return false; }
+        bool NeverStopRecursion::operator()(const Node* /* node */, bool /* matched */) const { return false; }
 
-        bool StopRecursionIfMatched::operator()(const Node* node, bool matched) const { return matched; }
+        bool StopRecursionIfMatched::operator()(const Node* /* node */, bool matched) const { return matched; }
 
     }
 }

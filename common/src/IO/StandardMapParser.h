@@ -20,19 +20,24 @@
 #ifndef TrenchBroom_StandardMapParser
 #define TrenchBroom_StandardMapParser
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "IO/MapParser.h"
 #include "IO/Parser.h"
-#include "IO/Token.h"
 #include "IO/Tokenizer.h"
 #include "Model/MapFormat.h"
 
+#include <kdl/vector_set_forward.h>
+
 #include <vecmath/forward.h>
 
+#include <string>
 #include <tuple>
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
+        class ParserStatus;
+
         namespace QuakeMapToken {
             using Type = unsigned int;
             static const Type Integer       = 1 <<  0; // integer number
@@ -52,34 +57,32 @@ namespace TrenchBroom {
 
         class QuakeMapTokenizer : public Tokenizer<QuakeMapToken::Type> {
         private:
-            static const String& NumberDelim();
+            static const std::string& NumberDelim();
             bool m_skipEol;
         public:
             QuakeMapTokenizer(const char* begin, const char* end);
-            QuakeMapTokenizer(const String& str);
+            explicit QuakeMapTokenizer(const std::string& str);
 
             void setSkipEol(bool skipEol);
         private:
             Token emitToken() override;
         };
 
-        class ParserStatus;
-
         class StandardMapParser : public MapParser, public Parser<QuakeMapToken::Type> {
         private:
             using Token = QuakeMapTokenizer::Token;
-            using AttributeNames = std::set<Model::AttributeName>;
+            using AttributeNames = kdl::vector_set<std::string>;
 
-            static const String BrushPrimitiveId;
-            static const String PatchId;
+            static const std::string BrushPrimitiveId;
+            static const std::string PatchId;
 
             QuakeMapTokenizer m_tokenizer;
             Model::MapFormat m_format;
         public:
             StandardMapParser(const char* begin, const char* end);
-            StandardMapParser(const String& str);
+            explicit StandardMapParser(const std::string& str);
 
-            virtual ~StandardMapParser() override;
+            ~StandardMapParser() override;
         protected:
             Model::MapFormat detectFormat();
 
@@ -92,7 +95,7 @@ namespace TrenchBroom {
             void setFormat(Model::MapFormat format);
 
             void parseEntity(ParserStatus& status);
-            void parseEntityAttribute(Model::EntityAttribute::List& attributes, AttributeNames& names, ParserStatus& status);
+            void parseEntityAttribute(std::vector<Model::EntityAttribute>& attributes, AttributeNames& names, ParserStatus& status);
 
             void parseBrushOrBrushPrimitiveOrPatch(ParserStatus& status);
             void parseBrushPrimitive(ParserStatus& status, size_t startLine);
@@ -101,16 +104,16 @@ namespace TrenchBroom {
             void parseFace(ParserStatus& status, bool primitive);
             void parseQuakeFace(ParserStatus& status);
             void parseQuake2Face(ParserStatus& status);
+            void parseQuake2ValveFace(ParserStatus& status);
             void parseHexen2Face(ParserStatus& status);
             void parseDaikatanaFace(ParserStatus& status);
             void parseValveFace(ParserStatus& status);
             void parsePrimitiveFace(ParserStatus& status);
-            bool checkFacePoints(ParserStatus& status, const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3, size_t line) const;
 
             void parsePatch(ParserStatus& status, size_t startLine);
 
             std::tuple<vm::vec3, vm::vec3, vm::vec3> parseFacePoints(ParserStatus& status);
-            String parseTextureName(ParserStatus& status);
+            std::string parseTextureName(ParserStatus& status);
             std::tuple<vm::vec3, float, vm::vec3, float> parseValveTextureAxes(ParserStatus& status);
             std::tuple<vm::vec3, vm::vec3> parsePrimitiveTextureAxes(ParserStatus& status);
 

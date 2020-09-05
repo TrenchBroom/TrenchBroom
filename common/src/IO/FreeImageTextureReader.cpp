@@ -20,20 +20,20 @@
 #include "FreeImageTextureReader.h"
 
 #include "Color.h"
+#include "Ensure.h"
+#include "Exceptions.h"
 #include "FreeImage.h"
-#include "StringUtils.h"
 #include "Assets/Texture.h"
+#include "Assets/TextureBuffer.h"
 #include "IO/File.h"
-#include "IO/Reader.h"
-#include "IO/Path.h"
 #include "IO/ImageLoaderImpl.h"
 
-#include <cstring>
+#include <stdexcept>
 
 namespace TrenchBroom {
     namespace IO {
-        FreeImageTextureReader::FreeImageTextureReader(const NameStrategy& nameStrategy) :
-        TextureReader(nameStrategy) {}
+        FreeImageTextureReader::FreeImageTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger) :
+        TextureReader(nameStrategy, fs, logger) {}
 
         /**
          * The byte order of a 32bpp FIBITMAP is defined by the macros FI_RGBA_RED,
@@ -43,13 +43,13 @@ namespace TrenchBroom {
          * or GL_BGRA constant.
          */
         static constexpr GLenum freeImage32BPPFormatToGLFormat() {
-            if (FI_RGBA_RED == 0
+            if constexpr (FI_RGBA_RED == 0
                 && FI_RGBA_GREEN == 1
                 && FI_RGBA_BLUE == 2
                 && FI_RGBA_ALPHA == 3) {
 
                 return GL_RGBA;
-            } else if (FI_RGBA_BLUE == 0
+            } else if constexpr (FI_RGBA_BLUE == 0
                 && FI_RGBA_GREEN == 1
                 && FI_RGBA_RED == 2
                 && FI_RGBA_ALPHA == 3) {
@@ -60,7 +60,23 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::Texture* FreeImageTextureReader::doReadTexture(std::shared_ptr<File> file) const {
+        static Color getAverageColor(const Assets::TextureBuffer& buffer, const GLenum format) {
+            ensure(format == GL_RGBA || format == GL_BGRA, "expected RGBA or BGRA");
+
+            const unsigned char* const data = buffer.data();
+            const std::size_t bufferSize = buffer.size();
+
+            Color average;
+            for (std::size_t i = 0; i < bufferSize; i += 4) {
+                average = average + Color(data[i], data[i+1], data[i+2], data[i+3]);
+            }
+            const std::size_t numPixels = bufferSize / 4;
+            average = average / static_cast<float>(numPixels);
+
+            return average;
+        }
+
+        Assets::Texture FreeImageTextureReader::doReadTexture(std::shared_ptr<File> file) const {
             auto reader = file->reader().buffer();
 
             InitFreeImage::initialize();
@@ -76,7 +92,7 @@ namespace TrenchBroom {
 
             if (image == nullptr) {
                 FreeImage_CloseMemory(imageMemory);
-                return new Assets::Texture(textureName(path), 64, 64);
+                throw AssetException("FreeImage could not load image data");
             }
 
             const auto imageWidth      = static_cast<size_t>(FreeImage_GetWidth(image));
@@ -84,7 +100,7 @@ namespace TrenchBroom {
 
             if (!checkTextureDimensions(imageWidth, imageHeight)) {
                 FreeImage_CloseMemory(imageMemory);
-                return new Assets::Texture(textureName(path), 64, 64);
+                throw AssetException("Invalid texture dimensions");
             }
 
             const auto imageColourType = FreeImage_GetColorType(image);
@@ -94,7 +110,7 @@ namespace TrenchBroom {
 
             const size_t mipCount = 1;
             constexpr auto format = freeImage32BPPFormatToGLFormat();
-            Assets::TextureBuffer::List buffers(mipCount);
+            Assets::TextureBufferList buffers(mipCount);
             Assets::setMipBufferSize(buffers, mipCount, imageWidth, imageHeight, format);
 
             const auto inputBytesPerPixel = FreeImage_GetLine(image) / FreeImage_GetWidth(image);
@@ -104,10 +120,15 @@ namespace TrenchBroom {
                 image = tempImage;
             }
 
+            if (image == nullptr) {
+                FreeImage_CloseMemory(imageMemory);
+                throw AssetException("Unsupported pixel format");
+            }
+
             const auto bytesPerPixel = FreeImage_GetLine(image) / FreeImage_GetWidth(image);
             ensure(bytesPerPixel == 4, "expected to have converted image to 32-bit");
 
-                  auto* outBytes = buffers.at(0).ptr();
+                  auto* outBytes = buffers.at(0).data();
             const auto  outBytesPerRow = static_cast<int>(imageWidth * 4);
 
             FreeImage_ConvertToRawBits(outBytes, image, outBytesPerRow, 32, FI_RGBA_RED_MASK, FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, TRUE);
@@ -116,7 +137,9 @@ namespace TrenchBroom {
             FreeImage_CloseMemory(imageMemory);
 
             const auto textureType = Assets::Texture::selectTextureType(masked);
-            return new Assets::Texture(textureName(path), imageWidth, imageHeight, Color(), buffers, format, textureType);
+            const Color averageColor = getAverageColor(buffers.at(0), format);
+
+            return Assets::Texture(textureName(path), imageWidth, imageHeight, averageColor, std::move(buffers), format, textureType);
         }
     }
 }

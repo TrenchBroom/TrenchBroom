@@ -19,9 +19,16 @@
 
 #include "Tokenizer.h"
 
+#include "Exceptions.h"
+#include "Macros.h"
+
+#include <kdl/string_format.h>
+
+#include <string>
+
 namespace TrenchBroom {
     namespace IO {
-        TokenizerState::TokenizerState(const char* begin, const char* end, const String& escapableChars, const char escapeChar) :
+        TokenizerState::TokenizerState(const char* begin, const char* end, const std::string& escapableChars, const char escapeChar) :
         m_begin(begin),
         m_cur(m_begin),
         m_end(end),
@@ -72,11 +79,11 @@ namespace TrenchBroom {
         }
 
         bool TokenizerState::escaped() const {
-            return !eof() && m_escaped && m_escapableChars.find(curChar()) != String::npos;
+            return !eof() && m_escaped && m_escapableChars.find(curChar()) != std::string::npos;
         }
 
-        String TokenizerState::unescape(const String& str) {
-            return StringUtils::unescape(str, m_escapableChars, m_escapeChar);
+        std::string TokenizerState::unescape(const std::string& str) {
+            return kdl::str_unescape(str, m_escapableChars, m_escapeChar);
         }
 
         void TokenizerState::resetEscaped() {

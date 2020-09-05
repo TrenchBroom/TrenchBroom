@@ -19,11 +19,16 @@
 
 #include "EntityDefinition.h"
 
-#include "CollectionUtils.h"
 #include "Assets/AttributeDefinition.h"
+#include "Model/EntityAttributes.h"
+
+#include <kdl/string_compare.h>
 
 #include <algorithm>
 #include <cassert>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -37,20 +42,20 @@ namespace TrenchBroom {
             m_index = index;
         }
 
-        const String& EntityDefinition::name() const {
+        const std::string& EntityDefinition::name() const {
             return m_name;
         }
 
-        String EntityDefinition::shortName() const {
+        std::string EntityDefinition::shortName() const {
             const size_t index = m_name.find_first_of('_');
-            if (index == String::npos)
+            if (index == std::string::npos)
                 return m_name;
             return m_name.substr(index+1);
         }
 
-        String EntityDefinition::groupName() const {
+        std::string EntityDefinition::groupName() const {
             const size_t index = m_name.find_first_of('_');
-            if (index == String::npos)
+            if (index == std::string::npos)
                 return m_name;
             return m_name.substr(0, index);
         }
@@ -59,7 +64,7 @@ namespace TrenchBroom {
             return m_color;
         }
 
-        const String& EntityDefinition::description() const {
+        const std::string& EntityDefinition::description() const {
             return m_description;
         }
 
@@ -78,73 +83,78 @@ namespace TrenchBroom {
             usageCountDidChangeNotifier();
         }
 
-        struct FindSpawnflagsDefinition {
-            bool operator()(const AttributeDefinitionPtr& attributeDefinition) const {
-                return (attributeDefinition->type() == AttributeDefinition::Type_FlagsAttribute &&
-                        attributeDefinition->name() == Model::AttributeNames::Spawnflags);
-            }
-        };
-
         const FlagsAttributeDefinition* EntityDefinition::spawnflags() const {
-            return static_cast<FlagsAttributeDefinition*>(VectorUtils::findIf(m_attributeDefinitions, FindSpawnflagsDefinition()).get());
+            for (const auto& attributeDefinition : m_attributeDefinitions) {
+                if (attributeDefinition->type() == AttributeDefinitionType::FlagsAttribute &&
+                    attributeDefinition->name() == Model::AttributeNames::Spawnflags) {
+                    return static_cast<FlagsAttributeDefinition*>(attributeDefinition.get());
+                }
+            }
+            return nullptr;
         }
 
-        const AttributeDefinitionList& EntityDefinition::attributeDefinitions() const {
+        const EntityDefinition::AttributeDefinitionList& EntityDefinition::attributeDefinitions() const {
             return m_attributeDefinitions;
         }
 
-        const AttributeDefinition* EntityDefinition::attributeDefinition(const Model::AttributeName& attributeKey) const {
-            const auto it = std::find_if(std::begin(m_attributeDefinitions), std::end(m_attributeDefinitions),
-                                         [attributeKey] (const AttributeDefinitionPtr& attributeDefinition) { return attributeDefinition->name() == attributeKey; });
-            if (it == std::end(m_attributeDefinitions))
-                return nullptr;
-            return it->get();
+        const AttributeDefinition* EntityDefinition::attributeDefinition(const std::string& attributeKey) const {
+            for (const auto& attributeDefinition : m_attributeDefinitions) {
+                if (attributeDefinition->name() == attributeKey) {
+                    return attributeDefinition.get();
+                }
+            }
+            return nullptr;
         }
 
-        const AttributeDefinition* EntityDefinition::safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const Model::AttributeName& attributeName) {
+        const AttributeDefinition* EntityDefinition::safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const std::string& attributeName) {
             if (entityDefinition == nullptr)
                 return nullptr;
             return entityDefinition->attributeDefinition(attributeName);
         }
 
-        const FlagsAttributeDefinition* EntityDefinition::safeGetSpawnflagsAttributeDefinition(const EntityDefinition* entityDefinition) {
+        const FlagsAttributeDefinition* EntityDefinition::safeGetFlagsAttributeDefinition(const EntityDefinition* entityDefinition, const std::string& attributeName) {
             if (entityDefinition == nullptr)
                 return nullptr;
-            return entityDefinition->spawnflags();
-        }
-
-        const FlagsAttributeOption* EntityDefinition::safeGetSpawnflagsAttributeOption(const EntityDefinition* entityDefinition, const size_t flagIndex) {
-            const Assets::FlagsAttributeDefinition* flagDefinition = safeGetSpawnflagsAttributeDefinition(entityDefinition);
-            if (flagDefinition == nullptr)
+            const AttributeDefinition* attributeDefinition = entityDefinition->attributeDefinition(attributeName);
+            if (attributeDefinition == nullptr || attributeDefinition->type() != AttributeDefinitionType::FlagsAttribute) {
                 return nullptr;
-
-            const int flag = static_cast<int>(1 << flagIndex);
-            return flagDefinition->option(flag);
+            }
+            return static_cast<const FlagsAttributeDefinition*>(attributeDefinition);
         }
 
-        EntityDefinitionList EntityDefinition::filterAndSort(const EntityDefinitionList& definitions, const EntityDefinition::Type type, const SortOrder order) {
-            EntityDefinitionList result;
+        std::vector<EntityDefinition*> EntityDefinition::filterAndSort(const std::vector<EntityDefinition*>& definitions, const EntityDefinitionType type, const EntityDefinitionSortOrder order) {
+            std::vector<EntityDefinition*> result;
+            for (const auto& definition : definitions) {
+                if (definition->type() == type) {
+                    result.push_back(definition);
+                }
+            }
 
-            std::copy_if(std::begin(definitions), std::end(definitions), std::back_inserter(result), [type] (EntityDefinition* definition) { return definition->type() == type; });
-
-            if (order == Usage)
-                std::sort(std::begin(result), std::end(result), [] (const EntityDefinition* lhs, const EntityDefinition* rhs) {
-                    if (lhs->usageCount() == rhs->usageCount())
-                        return lhs->name() < rhs->name();
-                    return lhs->usageCount() > rhs->usageCount();
-                });
-            else
-                std::sort(std::begin(result), std::end(result), [] (const EntityDefinition* lhs, const EntityDefinition* rhs) {
-                    const int strCmp = StringUtils::caseInsensitiveCompare(lhs->name(), rhs->name());
-                    if (strCmp == 0)
-                        return lhs->usageCount() > rhs->usageCount();
-                    return strCmp < 0;
-                });
+            if (order == EntityDefinitionSortOrder::Usage) {
+                std::sort(std::begin(result), std::end(result),
+                    [](const EntityDefinition* lhs, const EntityDefinition* rhs) {
+                        if (lhs->usageCount() == rhs->usageCount()) {
+                            return lhs->name() < rhs->name();
+                        } else {
+                            return lhs->usageCount() > rhs->usageCount();
+                        }
+                    });
+            } else {
+                std::sort(std::begin(result), std::end(result),
+                    [](const EntityDefinition* lhs, const EntityDefinition* rhs) {
+                        const int strCmp = kdl::ci::str_compare(lhs->name(), rhs->name());
+                        if (strCmp == 0) {
+                            return lhs->usageCount() > rhs->usageCount();
+                        } else {
+                            return strCmp < 0;
+                        }
+                    });
+            }
 
             return result;
         }
 
-        EntityDefinition::EntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionList& attributeDefinitions) :
+        EntityDefinition::EntityDefinition(const std::string& name, const Color& color, const std::string& description, const AttributeDefinitionList& attributeDefinitions) :
         m_index(0),
         m_name(name),
         m_color(color),
@@ -152,13 +162,13 @@ namespace TrenchBroom {
         m_usageCount(0),
         m_attributeDefinitions(attributeDefinitions) {}
 
-        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const vm::bbox3& bounds, const String& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition) :
+        PointEntityDefinition::PointEntityDefinition(const std::string& name, const Color& color, const vm::bbox3& bounds, const std::string& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition) :
         EntityDefinition(name, color, description, attributeDefinitions),
         m_bounds(bounds),
         m_modelDefinition(modelDefinition) {}
 
-        EntityDefinition::Type PointEntityDefinition::type() const {
-            return Type_PointEntity;
+        EntityDefinitionType PointEntityDefinition::type() const {
+            return EntityDefinitionType::PointEntity;
         }
 
         const vm::bbox3& PointEntityDefinition::bounds() const {
@@ -177,11 +187,11 @@ namespace TrenchBroom {
             return m_modelDefinition;
         }
 
-        BrushEntityDefinition::BrushEntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionList& attributeDefinitions) :
+        BrushEntityDefinition::BrushEntityDefinition(const std::string& name, const Color& color, const std::string& description, const AttributeDefinitionList& attributeDefinitions) :
         EntityDefinition(name, color, description, attributeDefinitions) {}
 
-        EntityDefinition::Type BrushEntityDefinition::type() const {
-            return Type_BrushEntity;
+        EntityDefinitionType BrushEntityDefinition::type() const {
+            return EntityDefinitionType::BrushEntity;
         }
     }
 }

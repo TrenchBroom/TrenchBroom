@@ -21,13 +21,17 @@
 
 #include "Macros.h"
 
+#include <string>
+
 namespace TrenchBroom {
     namespace Model {
-        MapFormat mapFormat(const String& formatName) {
+        MapFormat mapFormat(const std::string& formatName) {
             if (formatName == "Standard") {
                 return MapFormat::Standard;
             } else if (formatName == "Quake2") {
                 return MapFormat::Quake2;
+            } else if (formatName == "Quake2 (Valve)") {
+                return MapFormat::Quake2_Valve;
             } else if (formatName == "Valve") {
                 return MapFormat::Valve;
             } else if (formatName == "Hexen2") {
@@ -36,6 +40,8 @@ namespace TrenchBroom {
                 return MapFormat::Daikatana;
             } else if (formatName == "Quake3 (legacy)") {
                 return MapFormat::Quake3_Legacy;
+            } else if (formatName == "Quake3 (Valve)") {
+                return MapFormat::Quake3_Valve;
             } else if (formatName == "Quake3") {
                 return MapFormat::Quake3;
             } else {
@@ -43,12 +49,14 @@ namespace TrenchBroom {
             }
         }
 
-        String formatName(const MapFormat format) {
+        std::string formatName(const MapFormat format) {
             switch (format) {
                 case MapFormat::Standard:
                     return "Standard";
                 case MapFormat::Quake2:
                     return "Quake2";
+                case MapFormat::Quake2_Valve:
+                    return "Quake2 (Valve)";
                 case MapFormat::Valve:
                     return "Valve";
                 case MapFormat::Hexen2:
@@ -57,10 +65,56 @@ namespace TrenchBroom {
                     return "Daikatana";
                 case MapFormat::Quake3_Legacy:
                     return "Quake3 (legacy)";
+                case MapFormat::Quake3_Valve:
+                    return "Quake3 (Valve)";
                 case MapFormat::Quake3:
                     return "Quake3";
                 case MapFormat::Unknown:
                     return "Unknown";
+                switchDefault()
+            }
+        }
+
+        std::vector<MapFormat> compatibleFormats(const MapFormat format) {
+            switch (format) {
+                case MapFormat::Standard:
+                    return { MapFormat::Standard, MapFormat::Valve };
+                case MapFormat::Valve:
+                    return { MapFormat::Valve, MapFormat::Standard };
+                case MapFormat::Quake2:
+                    return { MapFormat::Quake2, MapFormat::Quake2_Valve };
+                case MapFormat::Quake2_Valve:
+                    return { MapFormat::Quake2_Valve,  MapFormat::Quake2 };
+                case MapFormat::Hexen2:
+                    return { MapFormat::Hexen2 };
+                case MapFormat::Daikatana:
+                    return { MapFormat::Daikatana };
+                case MapFormat::Quake3_Legacy:
+                    return { MapFormat::Quake3_Legacy, MapFormat::Quake3_Valve, MapFormat::Quake3 };
+                case MapFormat::Quake3_Valve:
+                    return { MapFormat::Quake3_Valve, MapFormat::Quake3, MapFormat::Quake3_Legacy };
+                case MapFormat::Quake3:
+                    return { MapFormat::Quake3, MapFormat::Quake3_Valve, MapFormat::Quake3_Legacy };
+                case MapFormat::Unknown:
+                    return { MapFormat::Unknown };
+                switchDefault()
+            }
+        }
+
+        bool isParallelTexCoordSystem(const MapFormat format) {
+            switch (format) {
+                case MapFormat::Valve:
+                case MapFormat::Quake2_Valve:
+                case MapFormat::Quake3_Valve:
+                    return true;
+                case MapFormat::Standard:
+                case MapFormat::Quake2:
+                case MapFormat::Hexen2:
+                case MapFormat::Daikatana:
+                case MapFormat::Quake3_Legacy:
+                case MapFormat::Quake3:
+                case MapFormat::Unknown:
+                    return false;
                 switchDefault()
             }
         }

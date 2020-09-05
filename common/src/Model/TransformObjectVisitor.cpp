@@ -19,21 +19,39 @@
 
 #include "TransformObjectVisitor.h"
 
-#include "Model/Brush.h"
-#include "Model/Entity.h"
-#include "Model/Group.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
+
+#include <kdl/overload.h>
+#include <kdl/result.h>
 
 namespace TrenchBroom {
     namespace Model {
-        TransformObjectVisitor::TransformObjectVisitor(const vm::mat4x4& transformation, const bool lockTextures, const vm::bbox3& worldBounds) :
+        TransformObjectVisitor::TransformObjectVisitor(const vm::bbox3& worldBounds, const vm::mat4x4& transformation,  const bool lockTextures) :
+        m_worldBounds(worldBounds),
         m_transformation(transformation),
-        m_lockTextures(lockTextures),
-        m_worldBounds(worldBounds) {}
+        m_lockTextures(lockTextures) {}
 
-        void TransformObjectVisitor::doVisit(World* world)   {}
-        void TransformObjectVisitor::doVisit(Layer* layer)   {}
-        void TransformObjectVisitor::doVisit(Group* group)   {  group->transform(m_transformation, m_lockTextures, m_worldBounds); }
-        void TransformObjectVisitor::doVisit(Entity* entity) { entity->transform(m_transformation, m_lockTextures, m_worldBounds); }
-        void TransformObjectVisitor::doVisit(Brush* brush)   {  brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
+        const std::optional<TransformError>& TransformObjectVisitor::error() const {
+            return m_error;
+        }
+
+        void TransformObjectVisitor::doVisit(WorldNode*)         {}
+        void TransformObjectVisitor::doVisit(LayerNode*)         {}
+        void TransformObjectVisitor::doVisit(GroupNode* group)   { transform(group); }
+        void TransformObjectVisitor::doVisit(EntityNode* entity) { transform(entity); }
+        void TransformObjectVisitor::doVisit(BrushNode* brush)   { transform(brush); }
+
+        void TransformObjectVisitor::transform(Object* object) {
+            object->transform(m_worldBounds, m_transformation, m_lockTextures)
+                .visit(kdl::overload {
+                    []() {},
+                    [&](TransformError&& e) {
+                        m_error = std::move(e);
+                        cancel();
+                    },
+                });
+        }
     }
 }

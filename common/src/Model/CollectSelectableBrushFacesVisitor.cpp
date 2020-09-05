@@ -23,14 +23,22 @@
 
 namespace TrenchBroom {
     namespace Model {
-        MatchSelectableBrushFaces::MatchSelectableBrushFaces(const EditorContext& editorContext) :
-        m_editorContext(editorContext) {}
+        MatchSelectableBrushFaces::MatchSelectableBrushFaces(const EditorContext& editorContext, FacePredicate predicate) :
+        m_editorContext(editorContext),
+        m_predicate(predicate) {}
 
-        bool MatchSelectableBrushFaces::operator()(const BrushFace* face) const {
-            return m_editorContext.selectable(face);
+        bool MatchSelectableBrushFaces::testPredicate(const Model::BrushNode* brush, const BrushFace& face) const {
+            if (!m_predicate) {
+                return true;
+            }
+            return m_predicate(brush, face);
         }
 
-        CollectSelectableBrushFacesVisitor::CollectSelectableBrushFacesVisitor(const EditorContext& editorContext) :
-        CollectMatchingBrushFacesVisitor(MatchSelectableBrushFaces(editorContext)) {}
+        bool MatchSelectableBrushFaces::operator()(const Model::BrushNode* brush, const BrushFace& face) const {
+            return m_editorContext.selectable(brush, face) && testPredicate(brush, face);
+        }
+
+        CollectSelectableBrushFacesVisitor::CollectSelectableBrushFacesVisitor(const EditorContext& editorContext, FacePredicate predicate) :
+        CollectMatchingBrushFacesVisitor(MatchSelectableBrushFaces(editorContext, predicate)) {}
     }
 }

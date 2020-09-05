@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:export-ydpi="96"
+   inkscape:export-xdpi="96"
+   inkscape:export-filename="/media/psf/Home/Documents/Code/TrenchBroom_qt/app/resources/graphics/images/Search.png"
+   sodipodi:docname="Search.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
+   version="1.1"
+   id="svg2"
+   viewBox="0 0 16.000001 16"
+   height="16"
+   width="16">
+  <defs
+     id="defs4">
+    <inkscape:perspective
+       id="perspective4155"
+       inkscape:persp3d-origin="12.000001 : 8 : 1"
+       inkscape:vp_z="44.000003 : 28 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="-20.000001 : 28 : 1"
+       sodipodi:type="inkscape:persp3d" />
+  </defs>
+  <sodipodi:namedview
+     inkscape:document-rotation="0"
+     inkscape:snap-smooth-nodes="true"
+     inkscape:object-nodes="true"
+     objecttolerance="10000"
+     inkscape:bbox-paths="true"
+     inkscape:snap-bbox="true"
+     inkscape:window-maximized="1"
+     inkscape:window-y="30"
+     inkscape:window-x="72"
+     inkscape:window-height="1373"
+     inkscape:window-width="2488"
+     inkscape:snap-grids="true"
+     showguides="false"
+     inkscape:showpageshadow="false"
+     units="px"
+     showgrid="true"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="px"
+     inkscape:cy="10.978116"
+     inkscape:cx="-17.475842"
+     inkscape:zoom="22.627417"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     inkscape:bbox-nodes="true"
+     inkscape:snap-nodes="false"
+     inkscape:snap-others="false">
+    <inkscape:grid
+       originy="0"
+       originx="0"
+       empspacing="4"
+       id="grid3336"
+       type="xygrid" />
+    <inkscape:grid
+       dotted="true"
+       originy="-0.5"
+       originx="-0.50000002"
+       empspacing="4"
+       id="grid4272"
+       type="xygrid" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(0,-1036.3623)"
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Ebene 1">
+    <ellipse
+       ry="4.0000076"
+       rx="4"
+       cy="1042.8623"
+       cx="6.5"
+       id="path4570"
+       style="fill:#3f3f3f;fill-opacity:0.18823529;stroke:#3f3f3f;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
+       id="path4572"
+       d="m 9.2064313,1045.5701 4.5871377,4.5844"
+       style="fill:none;stroke:#3f3f3f;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+  </g>
+</svg>

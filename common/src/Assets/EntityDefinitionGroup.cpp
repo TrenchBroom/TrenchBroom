@@ -19,27 +19,33 @@
 
 #include "EntityDefinitionGroup.h"
 
+#include "Assets/EntityDefinition.h"
+
+#include <kdl/string_format.h>
+
+#include <string>
+
 namespace TrenchBroom {
     namespace Assets {
-        EntityDefinitionGroup::EntityDefinitionGroup(const String& name, const EntityDefinitionList& definitions) :
+        EntityDefinitionGroup::EntityDefinitionGroup(const std::string& name, std::vector<EntityDefinition*> definitions) :
         m_name(name),
-        m_definitions(definitions) {}
+        m_definitions(std::move(definitions)) {}
 
-        const String& EntityDefinitionGroup::name() const {
+        const std::string& EntityDefinitionGroup::name() const {
             return m_name;
         }
 
-        const String EntityDefinitionGroup::displayName() const {
+        const std::string EntityDefinitionGroup::displayName() const {
             if (m_name.empty())
                 return "Misc";
-            return StringUtils::capitalize(m_name);
+            return kdl::str_capitalize(m_name);
         }
 
-        const EntityDefinitionList& EntityDefinitionGroup::definitions() const {
+        const std::vector<EntityDefinition*>& EntityDefinitionGroup::definitions() const {
             return m_definitions;
         }
 
-        EntityDefinitionList EntityDefinitionGroup::definitions(const EntityDefinition::Type type, const EntityDefinition::SortOrder order) const {
+        std::vector<EntityDefinition*> EntityDefinitionGroup::definitions(const EntityDefinitionType type, const EntityDefinitionSortOrder order) const {
             return EntityDefinition::filterAndSort(m_definitions, type, order);
         }
     }

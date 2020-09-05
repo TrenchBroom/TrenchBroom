@@ -20,19 +20,18 @@
 #ifndef TrenchBroom_TitleBar
 #define TrenchBroom_TitleBar
 
-#include <wx/window.h>
+#include <QWidget>
 
-class wxStaticText;
+class QLabel;
 
 namespace TrenchBroom {
     namespace View {
-        class TitleBar : public wxWindow {
+        class TitleBar : public QWidget {
         protected:
-            wxStaticText* m_titleText;
+            QLabel* m_titleText;
         public:
-            TitleBar(wxWindow* parent, const wxString& title, int hMargin = 0, int vMargin = 0, bool boldTitle = true);
-
-            bool AcceptsFocus() const override;
+            TitleBar(const QString& title, QWidget* parent, int hMargin = 0, int vMargin = 0, bool boldTitle = true);
+            explicit TitleBar(const QString& title, int hMargin = 0, int vMargin = 0, bool boldTitle = true);
         };
     }
 }

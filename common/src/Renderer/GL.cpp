@@ -19,17 +19,19 @@
 
 #include "GL.h"
 
+#include "Exceptions.h"
+
+#include <string>
+
 namespace TrenchBroom {
-    void glCheckError(const String& msg) {
+    void glCheckError(const std::string& msg) {
         const GLenum error = glGetError();
         if (error != GL_NO_ERROR) {
-            RenderException e;
-            e << "OpenGL error: " << error << " (" << glGetErrorMessage(error) << ") " << msg;
-            throw e;
+            throw RenderException("OpenGL error: " + std::to_string(error) + " (" + glGetErrorMessage(error) + ") " + msg);
         }
     }
 
-    String glGetErrorMessage(const GLenum code) {
+    std::string glGetErrorMessage(const GLenum code) {
         switch (code) {
             case GL_INVALID_ENUM:
                 return "GL_INVALID_ENUM";
@@ -52,7 +54,7 @@ namespace TrenchBroom {
         }
     }
 
-    GLenum glGetEnum(const String& name) {
+    GLenum glGetEnum(const std::string& name) {
         if (name == "GL_ONE") {
             return GL_ONE;
         } else if (name == "GL_ZERO") {
@@ -76,11 +78,11 @@ namespace TrenchBroom {
         } else if (name == "GL_SRC_ALPHA_SATURATE") {
             return GL_SRC_ALPHA_SATURATE;
         } else {
-            throw RenderException() << "Unknown GL enum: " << name;
+            throw RenderException("Unknown GL enum: " + name);
         }
     }
 
-    String glGetEnumName(const GLenum _enum) {
+    std::string glGetEnumName(const GLenum _enum) {
         switch (_enum) {
             case GL_ONE:
                 return "GL_ONE";

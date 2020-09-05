@@ -20,22 +20,27 @@
 #ifndef ObjSerializer_h
 #define ObjSerializer_h
 
+#include "FloatType.h"
 #include "IO/NodeSerializer.h"
-#include "Model/ModelTypes.h"
-#include "IO/Path.h"
 #include "IO/IOUtils.h"
+#include "IO/Path.h"
 
 #include <vecmath/forward.h>
 
 #include <cstdio>
-#include <list>
 #include <map>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        class OpenFile;
+    namespace Model {
+        class BrushNode;
+        class BrushFace;
+        class EntityAttribute;
+        class Node;
+    }
 
+    namespace IO {
         class ObjFileSerializer : public NodeSerializer {
         private:
             template <typename V>
@@ -52,10 +57,11 @@ namespace TrenchBroom {
                 }
 
                 size_t index(const V& v) {
-                    typename Map::iterator indexIt = MapUtils::findOrInsert(m_map, v, m_list.size());
-                    const size_t index = indexIt->second;
-                    if (index == m_list.size())
+                    const auto it = m_map.insert({ v, m_list.size() }).first;
+                    const size_t index = it->second;
+                    if (index == m_list.size()) {
                         m_list.push_back(v);
+                    }
                     return index;
                 }
 
@@ -77,12 +83,12 @@ namespace TrenchBroom {
             };
 
             using IndexedVertexList = std::vector<IndexedVertex>;
-            
+
             struct Face {
                 IndexedVertexList verts;
-                String texture;
-                
-                Face(IndexedVertexList i_verts, String i_texture);
+                std::string texture;
+
+                Face(IndexedVertexList i_verts, std::string i_texture);
             };
 
             using FaceList = std::vector<Face>;
@@ -125,12 +131,12 @@ namespace TrenchBroom {
             void writeFaces(const FaceList& faces);
 
             void doBeginEntity(const Model::Node* node) override;
-            void doEndEntity(Model::Node* node) override;
+            void doEndEntity(const Model::Node* node) override;
             void doEntityAttribute(const Model::EntityAttribute& attribute) override;
 
-            void doBeginBrush(const Model::Brush* brush) override;
-            void doEndBrush(Model::Brush* brush) override;
-            void doBrushFace(Model::BrushFace* face) override;
+            void doBeginBrush(const Model::BrushNode* brush) override;
+            void doEndBrush(const Model::BrushNode* brush) override;
+            void doBrushFace(const Model::BrushFace& face) override;
         };
     }
 }

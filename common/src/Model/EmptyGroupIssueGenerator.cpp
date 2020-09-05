@@ -19,14 +19,14 @@
 
 #include "EmptyGroupIssueGenerator.h"
 
-#include "StringUtils.h"
+#include "Ensure.h"
 #include "Assets/EntityDefinition.h"
-#include "Model/Group.h"
+#include "Model/GroupNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 
-#include <cassert>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -34,15 +34,15 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            EmptyGroupIssue(Group* group) :
+            explicit EmptyGroupIssue(GroupNode* group) :
             Issue(group) {}
         private:
             IssueType doGetType() const override {
                 return Type;
             }
 
-            const String doGetDescription() const override {
-                const Group* group = static_cast<Group*>(node());
+            std::string doGetDescription() const override {
+                const GroupNode* group = static_cast<GroupNode*>(node());
                 return "Group '" + group->name() + "' does not contain any objects";
             }
         };
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             EmptyGroupIssueQuickFix() :
             IssueQuickFix(EmptyGroupIssue::Type, "Delete groups") {}
         private:
-            void doApply(MapFacade* facade, const IssueList& issues) const override {
+            void doApply(MapFacade* facade, const IssueList& /* issues */) const override {
                 facade->deleteObjects();
             }
         };
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             addQuickFix(new EmptyGroupIssueQuickFix());
         }
 
-        void EmptyGroupIssueGenerator::doGenerate(Group* group, IssueList& issues) const {
+        void EmptyGroupIssueGenerator::doGenerate(GroupNode* group, IssueList& issues) const {
             ensure(group != nullptr, "group is null");
             if (!group->hasChildren())
                 issues.push_back(new EmptyGroupIssue(group));

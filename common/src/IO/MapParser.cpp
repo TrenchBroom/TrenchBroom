@@ -18,11 +18,15 @@
  */
 
 #include "MapParser.h"
+
 #include "Exceptions.h"
+#include "Model/EntityAttributes.h"
+
+#include <list>
 
 namespace TrenchBroom {
     namespace IO {
-        MapParser::ExtraAttribute::ExtraAttribute(const Type type, const String& name, const String& value, const size_t line, const size_t column) :
+        MapParser::ExtraAttribute::ExtraAttribute(const Type type, const std::string& name, const std::string& value, const size_t line, const size_t column) :
         m_type(type),
         m_name(name),
         m_value(value),
@@ -33,11 +37,11 @@ namespace TrenchBroom {
             return m_type;
         }
 
-        const String& MapParser::ExtraAttribute::name() const {
+        const std::string& MapParser::ExtraAttribute::name() const {
             return m_name;
         }
 
-        const String& MapParser::ExtraAttribute::strValue() const {
+        const std::string& MapParser::ExtraAttribute::strValue() const {
             return m_value;
         }
 
@@ -46,13 +50,13 @@ namespace TrenchBroom {
                 throw ParserException(m_line, m_column, "Invalid extra property type");
         }
 
-        MapParser::~MapParser() {}
+        MapParser::~MapParser() = default;
 
         void MapParser::formatSet(const Model::MapFormat format) {
             onFormatSet(format);
         }
 
-        void MapParser::beginEntity(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+        void MapParser::beginEntity(const size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             onBeginEntity(line, attributes, extraAttributes, status);
         }
 
@@ -68,8 +72,12 @@ namespace TrenchBroom {
             onEndBrush(startLine, lineCount, extraAttributes, status);
         }
 
-        void MapParser::brushFace(const size_t line, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) {
-            onBrushFace(line, point1, point2, point3, attribs, texAxisX, texAxisY, status);
+        void MapParser::standardBrushFace(const size_t line, const Model::MapFormat format,  const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status) {
+            onStandardBrushFace(line, format, point1, point2, point3, attribs, status);
+        }
+
+        void MapParser::valveBrushFace(const size_t line, const Model::MapFormat format,  const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) {
+            onValveBrushFace(line, format, point1, point2, point3, attribs, texAxisX, texAxisY, status);
         }
     }
 }

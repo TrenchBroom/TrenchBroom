@@ -19,15 +19,17 @@
 
 #include "CreateComplexBrushToolController3D.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Model/Brush.h"
+#include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
+#include "Model/Polyhedron.h"
+#include "Model/Polyhedron3.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderService.h"
 #include "View/CreateComplexBrushTool.h"
@@ -35,10 +37,11 @@
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 
+#include <kdl/vector_utils.h>
+
 #include <vecmath/vec.h>
 #include <vecmath/vec_ext.h>
 #include <vecmath/line.h>
-#include <vecmath/plane.h>
 
 #include <cassert>
 #include <algorithm>
@@ -48,7 +51,7 @@ namespace TrenchBroom {
         class CreateComplexBrushToolController3D::Part {
         protected:
             CreateComplexBrushTool* m_tool;
-            Polyhedron3 m_oldPolyhedron;
+            Model::Polyhedron3 m_oldPolyhedron;
         protected:
             explicit Part(CreateComplexBrushTool* tool) :
             m_tool(tool),
@@ -71,34 +74,36 @@ namespace TrenchBroom {
             const Tool* doGetTool() const override { return m_tool; }
 
             DragInfo doStartDrag(const InputState& inputState) override {
-                if (inputState.modifierKeysDown(ModifierKeys::MKShift))
+                if (inputState.modifierKeysDown(ModifierKeys::MKShift)) {
                     return DragInfo();
+                }
 
                 const Model::PickResult& pickResult = inputState.pickResult();
-                const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
-                if (!hit.isMatch())
+                const Model::Hit& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+                if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                    m_oldPolyhedron = m_tool->polyhedron();
+
+                    const Model::BrushFace& face = faceHandle->face();
+                    m_plane = face.boundary();
+                    m_initialPoint = hit.hitPoint();
+                    updatePolyhedron(m_initialPoint);
+
+                    auto* restricter = new SurfaceDragRestricter();
+                    restricter->setPickable(true);
+                    restricter->setType(Model::BrushNode::BrushHitType);
+                    restricter->setOccluded(true);
+                    return DragInfo(restricter, new NoDragSnapper(), m_initialPoint);
+                } else {
                     return DragInfo();
-
-                m_oldPolyhedron = m_tool->polyhedron();
-
-                const Model::BrushFace* face = Model::hitToFace(hit);
-                m_plane = face->boundary();
-                m_initialPoint = hit.hitPoint();
-                updatePolyhedron(m_initialPoint);
-
-                auto* restricter = new SurfaceDragRestricter();
-                restricter->setPickable(true);
-                restricter->setType(Model::Brush::BrushHit);
-                restricter->setOccluded(true);
-                return DragInfo(restricter, new NoDragSnapper(), m_initialPoint);
+                }
             }
 
-            DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
+            DragResult doDrag(const InputState&, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) override {
                 updatePolyhedron(nextHandlePosition);
                 return DR_Continue;
             }
 
-            void doEndDrag(const InputState& inputState) override {
+            void doEndDrag(const InputState&) override {
             }
 
             void doCancelDrag() override {
@@ -110,7 +115,7 @@ namespace TrenchBroom {
             void updatePolyhedron(const vm::vec3& current) {
                 const auto& grid = m_tool->grid();
 
-                const auto axis = firstComponent(m_plane.normal);
+                const auto axis = vm::find_abs_max_component(m_plane.normal);
                 const vm::plane3 swizzledPlane(swizzle(m_plane.anchor(), axis), swizzle(m_plane.normal, axis));
                 const auto theMin = swizzle(grid.snapDown(min(m_initialPoint, current)), axis);
                 const auto theMax = swizzle(grid.snapUp  (max(m_initialPoint, current)), axis);
@@ -120,17 +125,14 @@ namespace TrenchBroom {
                 const vm::vec2  bottomLeft2(theMin.x(), theMax.y());
                 const vm::vec2 bottomRight2(theMax.x(), theMax.y());
 
-                const auto     topLeft3 = unswizzle(vm::vec3(topLeft2,     swizzledPlane.zAt(topLeft2)),     axis);
-                const auto    topRight3 = unswizzle(vm::vec3(topRight2,    swizzledPlane.zAt(topRight2)),    axis);
-                const auto  bottomLeft3 = unswizzle(vm::vec3(bottomLeft2,  swizzledPlane.zAt(bottomLeft2)),  axis);
-                const auto bottomRight3 = unswizzle(vm::vec3(bottomRight2, swizzledPlane.zAt(bottomRight2)), axis);
-
-                Polyhedron3 polyhedron = m_oldPolyhedron;
-                polyhedron.addPoint(topLeft3);
-                polyhedron.addPoint(bottomLeft3);
-                polyhedron.addPoint(bottomRight3);
-                polyhedron.addPoint(topRight3);
-                m_tool->update(polyhedron);
+                const std::vector<vm::vec3> newVertices({
+                    unswizzle(vm::vec3(topLeft2,     swizzledPlane.zAt(topLeft2)),     axis),
+                    unswizzle(vm::vec3(topRight2,    swizzledPlane.zAt(topRight2)),    axis),
+                    unswizzle(vm::vec3(bottomLeft2,  swizzledPlane.zAt(bottomLeft2)),  axis),
+                    unswizzle(vm::vec3(bottomRight2, swizzledPlane.zAt(bottomRight2)), axis)
+                });
+                
+                m_tool->update(Model::Polyhedron3(kdl::vec_concat(newVertices, m_oldPolyhedron.vertexPositions())));
             }
         };
 
@@ -153,11 +155,11 @@ namespace TrenchBroom {
 
                 m_oldPolyhedron = m_tool->polyhedron();
 
-                const Polyhedron3::FaceHit hit = m_oldPolyhedron.pickFace(inputState.pickRay());
+                const Model::Polyhedron3::FaceHit hit = m_oldPolyhedron.pickFace(inputState.pickRay());
                 if (!hit.isMatch())
                     return DragInfo();
 
-                const vm::vec3 origin    = inputState.pickRay().pointAtDistance(hit.distance);
+                const vm::vec3 origin    = vm::point_at_distance(inputState.pickRay(), hit.distance);
                 const vm::vec3 direction = hit.face->normal();
 
                 const vm::line3 line(origin, direction);
@@ -166,29 +168,28 @@ namespace TrenchBroom {
                 return DragInfo(new LineDragRestricter(line), new NoDragSnapper(), origin);
             }
 
-            DragResult doDrag(const InputState& inputState, const vm::vec3& lastHandlePosition, const vm::vec3& nextHandlePosition) override {
+            DragResult doDrag(const InputState&, const vm::vec3& /* lastHandlePosition */, const vm::vec3& nextHandlePosition) override {
                 auto polyhedron = m_oldPolyhedron;
                 assert(polyhedron.polygon());
 
                 const auto& grid = m_tool->grid();
 
                 const auto rayDelta        = nextHandlePosition - initialHandlePosition();
-                const auto rayAxis         = firstAxis(m_dragDir);
-                const auto axisDistance    = dot(rayDelta, rayAxis);
+                const auto rayAxis         = vm::get_abs_max_component_axis(m_dragDir);
+                const auto axisDistance    = vm::dot(rayDelta, rayAxis);
                 const auto snappedDistance = grid.snap(axisDistance);
-                const auto snappedRayDist  = dot(m_dragDir, rayAxis * snappedDistance);
+                const auto snappedRayDist  = vm::dot(m_dragDir, rayAxis * snappedDistance);
                 const auto snappedRayDelta = snappedRayDist * m_dragDir;
 
                 const auto* face = m_oldPolyhedron.faces().front();
                 const auto points = face->vertexPositions() + snappedRayDelta;
 
-                polyhedron.addPoints(points);
-                m_tool->update(polyhedron);
+                m_tool->update(Model::Polyhedron3(kdl::vec_concat(points, m_oldPolyhedron.vertexPositions())));
 
                 return DR_Continue;
             }
 
-            void doEndDrag(const InputState& inputState) override {
+            void doEndDrag(const InputState&) override {
             }
 
             void doCancelDrag() override {
@@ -220,20 +221,19 @@ namespace TrenchBroom {
                 return false;
 
             const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
-            if (!hit.isMatch())
+            const Model::Hit& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+            if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                const Grid& grid = m_tool->grid();
+
+                const Model::BrushFace& face = faceHandle->face();
+                const vm::vec3 snapped = grid.snap(hit.hitPoint(), face.boundary());
+
+                m_tool->update(Model::Polyhedron3(kdl::vec_concat(std::vector<vm::vec3>({snapped}), m_tool->polyhedron().vertexPositions())));
+
+                return true;
+            } else {
                 return false;
-
-            const Grid& grid = m_tool->grid();
-
-            const Model::BrushFace* face = Model::hitToFace(hit);
-            const vm::vec3 snapped = grid.snap(hit.hitPoint(), face->boundary());
-
-            Polyhedron3 polyhedron = m_tool->polyhedron();
-            polyhedron.addPoint(snapped);
-            m_tool->update(polyhedron);
-
-            return true;
+            }
         }
 
         bool CreateComplexBrushToolController3D::doMouseDoubleClick(const InputState& inputState) {
@@ -243,18 +243,16 @@ namespace TrenchBroom {
                 return false;
 
             const Model::PickResult& pickResult = inputState.pickResult();
-            const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
-            if (!hit.isMatch())
+            const Model::Hit& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+            if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                const Model::BrushFace& face = faceHandle->face();
+
+                m_tool->update(Model::Polyhedron3(kdl::vec_concat(face.vertexPositions(), m_tool->polyhedron().vertexPositions())));
+
+                return true;
+            } else {
                 return false;
-
-            Polyhedron3 polyhedron = m_tool->polyhedron();
-            const Model::BrushFace* face = Model::hitToFace(hit);
-
-            for (const Model::BrushVertex* vertex : face->vertices())
-                polyhedron.addPoint(vertex->position());
-            m_tool->update(polyhedron);
-
-            return true;
+            }
         }
 
         bool CreateComplexBrushToolController3D::doShouldHandleMouseDrag(const InputState& inputState) const {
@@ -270,7 +268,7 @@ namespace TrenchBroom {
         void CreateComplexBrushToolController3D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_tool->render(renderContext, renderBatch);
 
-            const Polyhedron3& polyhedron = m_tool->polyhedron();
+            const Model::Polyhedron3& polyhedron = m_tool->polyhedron();
             if (!polyhedron.empty()) {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::HandleColor));
@@ -305,11 +303,11 @@ namespace TrenchBroom {
         }
 
         bool CreateComplexBrushToolController3D::doCancel() {
-            const Polyhedron3& polyhedron = m_tool->polyhedron();
+            const Model::Polyhedron3& polyhedron = m_tool->polyhedron();
             if (polyhedron.empty()) {
                 return false;
             } else {
-                m_tool->update(Polyhedron3());
+                m_tool->update(Model::Polyhedron3());
                 return true;
             }
         }

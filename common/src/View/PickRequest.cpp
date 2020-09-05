@@ -19,11 +19,8 @@
 
 #include "PickRequest.h"
 
-#include "TrenchBroom.h"
-
-#include <vecmath/ray.h>
-
-#include <cassert>
+#include "Ensure.h"
+#include "FloatType.h"
 
 namespace TrenchBroom {
     namespace View {

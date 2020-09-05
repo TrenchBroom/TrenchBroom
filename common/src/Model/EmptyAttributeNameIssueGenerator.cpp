@@ -19,14 +19,13 @@
 
 #include "EmptyAttributeNameIssueGenerator.h"
 
-#include "Model/Entity.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
 #include "Model/PushSelection.h"
 
-#include <cassert>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -34,14 +33,14 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            EmptyAttributeNameIssue(AttributableNode* node) :
+            explicit EmptyAttributeNameIssue(AttributableNode* node) :
             Issue(node) {}
 
             IssueType doGetType() const override {
                 return Type;
             }
 
-            const String doGetDescription() const override {
+            std::string doGetDescription() const override {
                 const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
                 return attributableNode->classname() + " has a property with an empty name.";
             }

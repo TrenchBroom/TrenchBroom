@@ -19,20 +19,17 @@
 
 #include "UVViewHelper.h"
 
-#include "TrenchBroom.h"
-#include "PreferenceManager.h"
+#include "FloatType.h"
 #include "Preferences.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushGeometry.h"
 #include "Model/PickResult.h"
+#include "Model/Polyhedron.h"
 #include "Renderer/OrthographicCamera.h"
-#include "Renderer/RenderContext.h"
-#include "Renderer/ShaderManager.h"
-#include "Renderer/VertexArray.h"
-#include "Renderer/GLVertexType.h"
 #include "View/UVView.h"
 
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 #include <vecmath/vec.h>
 #include <vecmath/intersection.h>
 
@@ -41,27 +38,31 @@ namespace TrenchBroom {
         UVViewHelper::UVViewHelper(Renderer::OrthographicCamera& camera) :
         m_camera(camera),
         m_zoomValid(false),
-        m_face(nullptr),
+        m_faceHandle(),
         m_subDivisions(1, 1) {}
 
         bool UVViewHelper::valid() const {
-            return m_face != nullptr;
+            return m_faceHandle.has_value();
         }
 
-        Model::BrushFace* UVViewHelper::face() const {
-            return m_face;
+        const Model::BrushFace* UVViewHelper::face() const {
+            if (m_faceHandle.has_value()) {
+                return &m_faceHandle->face();
+            } else {
+                return nullptr;
+            }
         }
 
         const Assets::Texture* UVViewHelper::texture() const {
             if (!valid())
                 return nullptr;
-            return m_face->texture();
+            return face()->texture();
         }
 
-        void UVViewHelper::setFace(Model::BrushFace* face) {
-            if (face != m_face) {
-                m_face = face;
-                if (m_face != nullptr) {
+        void UVViewHelper::setFaceHandle(std::optional<Model::BrushFaceHandle> faceHandle) {
+            if (faceHandle != m_faceHandle) {
+                m_faceHandle = std::move(faceHandle);
+                if (m_faceHandle != std::nullopt) {
                     resetCamera();
                     resetOrigin();
                 }
@@ -83,9 +84,9 @@ namespace TrenchBroom {
         vm::vec2 UVViewHelper::stripeSize() const {
             assert(valid());
 
-            const Assets::Texture* texture = m_face->texture();
+            const Assets::Texture* texture = face()->texture();
             if (texture == nullptr)
-                return vm::vec2::zero;
+                return vm::vec2::zero();
             const FloatType width  = static_cast<FloatType>(texture->width())  / static_cast<FloatType>(m_subDivisions.x());
             const FloatType height = static_cast<FloatType>(texture->height()) / static_cast<FloatType>(m_subDivisions.y());
             return vm::vec2(width, height);
@@ -102,19 +103,19 @@ namespace TrenchBroom {
         }
 
         const vm::vec2f UVViewHelper::originInFaceCoords() const {
-            const vm::mat4x4 toFace = m_face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const vm::mat4x4 toFace = face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             return vm::vec2f(toFace * origin());
         }
 
         const vm::vec2f UVViewHelper::originInTexCoords() const {
             assert(valid());
 
-            const vm::mat4x4 toFace  = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
+            const vm::mat4x4 toFace  = face()->toTexCoordSystemMatrix(face()->attributes().offset(), face()->attributes().scale(), true);
             return vm::vec2f(toFace * origin());
         }
 
         void UVViewHelper::setOriginInFaceCoords(const vm::vec2f& originInFaceCoords) {
-            const vm::mat4x4 fromFace = m_face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const vm::mat4x4 fromFace = face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             m_origin = fromFace * vm::vec3(originInFaceCoords);
         }
 
@@ -126,25 +127,41 @@ namespace TrenchBroom {
             return m_camera.zoom();
         }
 
-        void UVViewHelper::pickTextureGrid(const vm::ray3& ray, const Model::Hit::HitType hitTypes[2], Model::PickResult& pickResult) const {
+        void UVViewHelper::pickTextureGrid(const vm::ray3& ray, const Model::HitType::Type hitTypes[2], Model::PickResult& pickResult) const {
             assert(valid());
 
-            const auto* texture = m_face->texture();
+            const auto* texture = face()->texture();
             if (texture != nullptr) {
+                const auto& boundary = face()->boundary();
+                const FloatType distance = vm::intersect_ray_plane(ray, boundary);
+                const vm::vec3  hitPointInWorldCoords = vm::point_at_distance(ray, distance);
+                const vm::vec2f hitPointInTexCoords = vm::vec2f(face()->toTexCoordSystemMatrix(face()->attributes().offset(), face()->attributes().scale(), true) * hitPointInWorldCoords);
+                const vm::vec2f hitPointInViewCoords = texToViewCoords(hitPointInTexCoords);
 
-                const auto& boundary = m_face->boundary();
-                const auto distance = vm::intersectRayAndPlane(ray, boundary);
-                const auto hitPointInWorldCoords = ray.pointAtDistance(distance);
-                const auto hitPointInTexCoords = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * hitPointInWorldCoords;
+                // X and Y distance in texels to the closest grid intersection.
+                // (i.e. so the X component is the distance to the closest vertical gridline, and the
+                // Y the distance to the closest horizontal gridline.)
+                const vm::vec2f distanceFromGridTexCoords = computeDistanceFromTextureGrid(vm::vec3(hitPointInTexCoords, 0.0f));
+                const vm::vec2f closestPointsOnGridInTexCoords[2] = {
+                    hitPointInTexCoords + vm::vec2f(distanceFromGridTexCoords.x(), 0.0f), // closest point on a vertical gridline
+                    hitPointInTexCoords + vm::vec2f(0.0f, distanceFromGridTexCoords.y()), // closest point on a horizontal gridline
+                };
 
-                const auto maxDistance = 5.0 / cameraZoom();
-                const auto stripeSize = UVViewHelper::stripeSize();
+                // FIXME: should be measured in points so the grid isn't harder to hit with high-DPI
+                const float distToClosestGridInViewCoords[2] = {
+                    vm::distance(hitPointInViewCoords, texToViewCoords(closestPointsOnGridInTexCoords[0])),
+                    vm::distance(hitPointInViewCoords, texToViewCoords(closestPointsOnGridInTexCoords[1]))
+                };
+
+                // FIXME: factor out and share with other tools
+                constexpr float maxDistance = static_cast<float>(5.0);
 
                 for (size_t i = 0; i < 2; ++i) {
-                    const auto closestStrip = vm::snap(hitPointInTexCoords[i], stripeSize[i]);
-                    const auto error = vm::abs(hitPointInTexCoords[i] - closestStrip);
+                    const float error = distToClosestGridInViewCoords[i];
+
                     if (error <= maxDistance) {
-                        const auto index = static_cast<int>(vm::round(hitPointInTexCoords[i] / stripeSize[i]));
+                        const vm::vec2 stripeSize = UVViewHelper::stripeSize();
+                        const int index = static_cast<int>(vm::round(hitPointInTexCoords[i] / stripeSize[i]));
                         pickResult.addHit(Model::Hit(hitTypes[i], distance, hitPointInWorldCoords, index, error));
                     }
                 }
@@ -175,22 +192,22 @@ namespace TrenchBroom {
         void UVViewHelper::computeOriginHandleVertices(vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const {
             assert(valid());
 
-            const auto toTex   = m_face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
-            const auto toWorld = m_face->fromTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
+            const auto toTex   = face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+            const auto toWorld = face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
             computeLineVertices(vm::vec2(originInFaceCoords()), x1, x2, y1, y2, toTex, toWorld);
         }
 
         void UVViewHelper::computeScaleHandleVertices(const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const {
             assert(valid());
 
-            const vm::mat4x4 toTex   = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
-            const vm::mat4x4 toWorld = m_face->fromTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
+            const vm::mat4x4 toTex   = face()->toTexCoordSystemMatrix(face()->attributes().offset(), face()->attributes().scale(), true);
+            const vm::mat4x4 toWorld = face()->fromTexCoordSystemMatrix(face()->attributes().offset(), face()->attributes().scale(), true);
             computeLineVertices(pos, x1, x2, y1, y2, toTex, toWorld);
         }
 
         void UVViewHelper::computeLineVertices(const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2, const vm::mat4x4& toTex, const vm::mat4x4& toWorld) const {
             const auto viewportVertices = toTex * m_camera.viewportVertices();
-            const auto viewportBounds = vm::bbox3::mergeAll(std::begin(viewportVertices), std::end(viewportVertices));
+            const auto viewportBounds = vm::bbox3::merge_all(std::begin(viewportVertices), std::end(viewportVertices));
             const auto& min = viewportBounds.min;
             const auto& max = viewportBounds.max;
 
@@ -200,14 +217,20 @@ namespace TrenchBroom {
             y2 = toWorld * vm::vec3(max.x(), pos.y(), 0.0);
         }
 
+        vm::vec2f UVViewHelper::texToViewCoords(const vm::vec2f& pos) const {
+            const vm::vec3  posInWorldCoords = face()->fromTexCoordSystemMatrix(face()->attributes().offset(), face()->attributes().scale(), true) * vm::vec3(pos, 0.0f);
+            const vm::vec2f posInViewCoords = m_camera.project(vm::vec3f(posInWorldCoords)).xy();
+            return posInViewCoords;
+        }
+
         void UVViewHelper::resetOrigin() {
             assert(valid());
 
-            const auto toTex = m_face->toTexCoordSystemMatrix(vm::vec2f::zero, vm::vec2f::one, true);
-            const auto texVertices = toTex * m_face->vertexPositions();
+            const auto toTex = face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+            const auto texVertices = toTex * face()->vertexPositions();
 
             const auto toCam = vm::mat4x4(m_camera.viewMatrix());
-            const auto camVertices = toCam * m_face->vertexPositions();
+            const auto camVertices = toCam * face()->vertexPositions();
 
             // The origin is at the "lower left" corner of the bounding box.
             auto originFace = texVertices[0];
@@ -228,13 +251,13 @@ namespace TrenchBroom {
         void UVViewHelper::resetCamera() {
             assert(valid());
 
-            const auto& normal = m_face->boundary().normal;
+            const auto& normal = face()->boundary().normal;
             vm::vec3 right;
 
-            if (vm::abs(dot(vm::vec3::pos_z, normal)) < FloatType(1.0)) {
-                right = normalize(cross(vm::vec3::pos_z, normal));
+            if (vm::abs(dot(vm::vec3::pos_z(), normal)) < FloatType(1.0)) {
+                right = normalize(cross(vm::vec3::pos_z(), normal));
             } else {
-                right = vm::vec3::pos_x;
+                right = vm::vec3::pos_x();
             }
             const auto up = normalize(cross(normal, right));
 
@@ -242,7 +265,7 @@ namespace TrenchBroom {
             m_camera.setFarPlane( +1.0f);
             m_camera.setDirection(vm::vec3f(-normal), vm::vec3f(up));
 
-            const auto position = m_face->boundsCenter();
+            const auto position = face()->boundsCenter();
             m_camera.moveTo(vm::vec3f(position));
             resetZoom();
         }
@@ -279,10 +302,10 @@ namespace TrenchBroom {
         vm::bbox3 UVViewHelper::computeFaceBoundsInCameraCoords() const {
             assert(valid());
 
-            const auto transform = vm::coordinateSystemMatrix(vm::vec3(m_camera.right()), vm::vec3(m_camera.up()), vm::vec3(-m_camera.direction()), vm::vec3(m_camera.position()));
+            const auto transform = vm::coordinate_system_matrix(vm::vec3(m_camera.right()), vm::vec3(m_camera.up()), vm::vec3(-m_camera.direction()), vm::vec3(m_camera.position()));
 
             vm::bbox3 result;
-            const auto vertices = m_face->vertices();
+            const auto vertices = face()->vertices();
             auto it = std::begin(vertices);
             auto end = std::end(vertices);
 

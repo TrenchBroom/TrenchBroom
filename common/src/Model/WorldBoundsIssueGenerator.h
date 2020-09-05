@@ -20,11 +20,12 @@
 #ifndef TrenchBroom_WorldBoundsIssueGenerator
 #define TrenchBroom_WorldBoundsIssueGenerator
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/IssueGenerator.h"
-#include "Model/ModelTypes.h"
 
 #include <vecmath/bbox.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -35,10 +36,10 @@ namespace TrenchBroom {
         private:
             const vm::bbox3 m_bounds;
         public:
-            WorldBoundsIssueGenerator(const vm::bbox3& bounds);
+            explicit WorldBoundsIssueGenerator(const vm::bbox3& bounds);
         private:
-            void doGenerate(Entity* brush, IssueList& issues) const override;
-            void doGenerate(Brush* brush, IssueList& issues) const override;
+            void doGenerate(EntityNode* brush, IssueList& issues) const override;
+            void doGenerate(BrushNode* brush, IssueList& issues) const override;
         };
     }
 }

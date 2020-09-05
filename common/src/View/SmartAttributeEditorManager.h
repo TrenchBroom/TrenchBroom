@@ -20,53 +20,58 @@
 #ifndef TrenchBroom_SmartAttributeEditorManager
 #define TrenchBroom_SmartAttributeEditorManager
 
-#include "SharedPointer.h"
-#include "Model/ModelTypes.h"
-#include "View/ViewTypes.h"
-
+#include <memory>
+#include <string>
 #include <vector>
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxWindow;
+class QStackedLayout;
 
 namespace TrenchBroom {
+    namespace Model {
+        class AttributableNode;
+        class Node;
+    }
+
     namespace View {
+        class MapDocument;
         class Selection;
         class SmartAttributeEditor;
         class SmartAttributeEditorMatcher;
 
-        class SmartAttributeEditorManager : public wxPanel {
+        class SmartAttributeEditorManager : public QWidget {
         private:
-            using EditorPtr = std::shared_ptr<SmartAttributeEditor>;
+            using EditorPtr = SmartAttributeEditor*;
             using MatcherPtr = std::shared_ptr<SmartAttributeEditorMatcher>;
             using MatcherEditorPair = std::pair<MatcherPtr, EditorPtr>;
             using EditorList = std::vector<MatcherEditorPair>;
 
-            View::MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             EditorList m_editors;
-            Model::AttributeName m_name;
-            EditorPtr m_activeEditor;
+            std::string m_name;
+            QStackedLayout* m_stackedLayout;
         public:
-            SmartAttributeEditorManager(wxWindow* parent, View::MapDocumentWPtr document);
+            explicit SmartAttributeEditorManager(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~SmartAttributeEditorManager();
 
-            void switchEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables);
+            void switchEditor(const std::string& name, const std::vector<Model::AttributableNode*>& attributables);
             bool isDefaultEditorActive() const;
         private:
+            SmartAttributeEditor* activeEditor() const;
             void createEditors();
 
             void bindObservers();
             void unbindObservers();
 
             void selectionDidChange(const Selection& selection);
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
 
-            EditorPtr selectEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const;
+            EditorPtr selectEditor(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const;
             EditorPtr defaultEditor() const;
 
-            void activateEditor(EditorPtr editor, const Model::AttributeName& name);
+            void activateEditor(EditorPtr editor, const std::string& name);
             void deactivateEditor();
             void updateEditor();
         };

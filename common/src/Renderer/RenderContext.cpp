@@ -19,7 +19,6 @@
 
 #include "RenderContext.h"
 #include "Renderer/Camera.h"
-#include "View/MapViewConfig.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -44,14 +43,14 @@ namespace TrenchBroom {
         m_gridSize(4),
         m_hideSelection(false),
         m_tintSelection(true),
-        m_showSelectionGuide(ShowSelectionGuide_Hide) {}
+        m_showSelectionGuide(ShowSelectionGuide::Hide) {}
 
         bool RenderContext::render2D() const {
-            return m_renderMode == RenderMode_2D;
+            return m_renderMode == RenderMode::Render2D;
         }
 
         bool RenderContext::render3D() const {
-            return m_renderMode == RenderMode_3D;
+            return m_renderMode == RenderMode::Render3D;
         }
 
         const Camera& RenderContext::camera() const {
@@ -79,7 +78,7 @@ namespace TrenchBroom {
         }
 
         bool RenderContext::showFaces() const {
-            return m_renderMode == RenderMode_3D && m_showFaces;
+            return m_renderMode == RenderMode::Render3D && m_showFaces;
         }
 
         void RenderContext::setShowFaces(const bool showFaces) {
@@ -87,7 +86,7 @@ namespace TrenchBroom {
         }
 
         bool RenderContext::showEdges() const {
-            return m_renderMode == RenderMode_2D || m_showEdges;
+            return m_renderMode == RenderMode::Render2D || m_showEdges;
         }
 
         void RenderContext::setShowEdges(const bool showEdges) {
@@ -174,6 +173,14 @@ namespace TrenchBroom {
             m_gridSize = gridSize;
         }
 
+        const vm::bbox3f& RenderContext::softMapBounds() const {
+            return m_sofMapBounds;
+        }
+
+        void RenderContext::setSoftMapBounds(const vm::bbox3f& softMapBounds) {
+            m_sofMapBounds = softMapBounds;
+        }
+
         bool RenderContext::hideSelection() const {
             return m_hideSelection;
         }
@@ -191,41 +198,41 @@ namespace TrenchBroom {
         }
 
         bool RenderContext::showSelectionGuide() const {
-            return m_showSelectionGuide == ShowSelectionGuide_Show || m_showSelectionGuide == ShowSelectionGuide_ForceShow;
+            return m_showSelectionGuide == ShowSelectionGuide::Show || m_showSelectionGuide == ShowSelectionGuide::ForceShow;
         }
 
         void RenderContext::setShowSelectionGuide() {
-            setShowSelectionGuide(ShowSelectionGuide_Show);
+            setShowSelectionGuide(ShowSelectionGuide::Show);
         }
 
         void RenderContext::setHideSelectionGuide() {
-            setShowSelectionGuide(ShowSelectionGuide_Hide);
+            setShowSelectionGuide(ShowSelectionGuide::Hide);
         }
 
         void RenderContext::setForceShowSelectionGuide() {
-            setShowSelectionGuide(ShowSelectionGuide_ForceShow);
+            setShowSelectionGuide(ShowSelectionGuide::ForceShow);
         }
 
         void RenderContext::setForceHideSelectionGuide() {
-            setShowSelectionGuide(ShowSelectionGuide_ForceHide);
+            setShowSelectionGuide(ShowSelectionGuide::ForceHide);
         }
 
         void RenderContext::setShowSelectionGuide(const ShowSelectionGuide showSelectionGuide) {
             switch (showSelectionGuide) {
-                case ShowSelectionGuide_Show:
-                    if (m_showSelectionGuide == ShowSelectionGuide_Hide)
-                        m_showSelectionGuide = ShowSelectionGuide_Show;
+                case ShowSelectionGuide::Show:
+                    if (m_showSelectionGuide == ShowSelectionGuide::Hide)
+                        m_showSelectionGuide = ShowSelectionGuide::Show;
                     break;
-                case ShowSelectionGuide_Hide:
-                    if (m_showSelectionGuide == ShowSelectionGuide_Show)
-                        m_showSelectionGuide = ShowSelectionGuide_Hide;
+                case ShowSelectionGuide::Hide:
+                    if (m_showSelectionGuide == ShowSelectionGuide::Show)
+                        m_showSelectionGuide = ShowSelectionGuide::Hide;
                     break;
-                case ShowSelectionGuide_ForceShow:
-                    m_showSelectionGuide = ShowSelectionGuide_ForceShow;
+                case ShowSelectionGuide::ForceShow:
+                    m_showSelectionGuide = ShowSelectionGuide::ForceShow;
                     break;
-                case ShowSelectionGuide_ForceHide:
-                    if (m_showSelectionGuide != ShowSelectionGuide_ForceShow)
-                        m_showSelectionGuide = ShowSelectionGuide_ForceHide;
+                case ShowSelectionGuide::ForceHide:
+                    if (m_showSelectionGuide != ShowSelectionGuide::ForceShow)
+                        m_showSelectionGuide = ShowSelectionGuide::ForceHide;
                     break;
             }
         }

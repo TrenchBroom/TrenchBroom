@@ -20,22 +20,28 @@
 #ifndef TrenchBroom_EntitySnapshot
 #define TrenchBroom_EntitySnapshot
 
-#include "Model/NodeSnapshot.h"
+#include "FloatType.h"
 #include "Model/EntityAttributes.h"
+#include "Model/NodeSnapshot.h"
+
+#include <kdl/result_forward.h>
+
+#include <vector>
 
 namespace TrenchBroom {
+    class SnapshotException;
+    
     namespace Model {
-        class Entity;
+        class EntityNode;
 
         class EntitySnapshot : public NodeSnapshot {
         private:
-            Entity* m_entity;
-            EntityAttribute m_origin;
-            EntityAttribute m_rotation;
+            EntityNode* m_entity;
+            std::vector<EntityAttribute> m_attributesSnapshot;
         public:
-            EntitySnapshot(Entity* entity, const EntityAttribute& origin, const EntityAttribute& rotation);
+            EntitySnapshot(EntityNode* entity);
         private:
-            void doRestore(const vm::bbox3& worldBounds) override;
+            kdl::result<void, SnapshotErrors> doRestore(const vm::bbox3& worldBounds) override;
         };
     }
 }

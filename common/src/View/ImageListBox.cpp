@@ -19,94 +19,69 @@
 
 #include "ImageListBox.h"
 
+#include "View/ElidedLabel.h"
 #include "View/ViewConstants.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
-#include <wx/panel.h>
-#include <wx/settings.h>
-#include <wx/sizer.h>
-#include <wx/stattext.h>
-#include <wx/statbmp.h>
+#include <QBoxLayout>
+#include <QLabel>
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        ImageListBox::ImageListBox(wxWindow* parent, const wxString& emptyText) :
-        ControlListBox(parent, true, emptyText) {
-            InheritAttributes();
+        ImageListBoxItemRenderer::ImageListBoxItemRenderer(const QString& title, const QString& subtitle, const QPixmap& image, QWidget* parent)  :
+        ControlListBoxItemRenderer(parent),
+        m_titleLabel(nullptr),
+        m_subtitleLabel(nullptr),
+        m_imageLabel(nullptr) {
+            m_titleLabel = new ElidedLabel(title, Qt::ElideRight);
+            makeEmphasized(m_titleLabel);
+
+            m_subtitleLabel = new ElidedLabel(subtitle, Qt::ElideMiddle);
+            makeInfo(m_subtitleLabel);
+
+            auto* imageAndTextLayout = new QHBoxLayout();
+            imageAndTextLayout->setContentsMargins(0, 0, 0, 0);
+            imageAndTextLayout->setSpacing(LayoutConstants::MediumHMargin);
+            setLayout(imageAndTextLayout);
+
+            m_imageLabel = new QLabel(this);
+            imageAndTextLayout->addWidget(m_imageLabel);
+            m_imageLabel->setPixmap(image);
+
+            auto* textLayout = new QVBoxLayout();
+            textLayout->setContentsMargins(0, 0, 0, 0);
+            textLayout->setSpacing(0);
+            textLayout->addWidget(m_titleLabel);
+            textLayout->addWidget(m_subtitleLabel);
+
+            imageAndTextLayout->addLayout(textLayout, 1);
         }
 
-        class ImageListBox::ImageListBoxItem : public Item {
-        private:
-            wxStaticText* m_titleText;
-            wxStaticText* m_subtitleText;
-            wxStaticBitmap* m_imageBmp;
-        public:
-            ImageListBoxItem(wxWindow* parent, const wxSize& margins, const wxString& title, const wxString& subtitle) :
-            Item(parent),
-            m_titleText(nullptr),
-            m_subtitleText(nullptr),
-            m_imageBmp(nullptr) {
-                InheritAttributes();
-                createGui(margins, title, subtitle, nullptr);
-            }
-
-            ImageListBoxItem(wxWindow* parent, const wxSize& margins, const wxString& title, const wxString& subtitle, const wxBitmap& image)  :
-            Item(parent),
-            m_titleText(nullptr),
-            m_subtitleText(nullptr),
-            m_imageBmp(nullptr) {
-                InheritAttributes();
-                createGui(margins, title, subtitle, &image);
-            }
-
-            void setDefaultColours(const wxColour& foreground, const wxColour& background) override {
-                Item::setDefaultColours(foreground, background);
-                m_subtitleText->SetForegroundColour(makeLighter(m_subtitleText->GetForegroundColour()));
-            }
-        private:
-            void createGui(const wxSize& margins, const wxString& title, const wxString& subtitle, const wxBitmap* image) {
-                m_titleText = new wxStaticText(this, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_END);
-                m_subtitleText = new wxStaticText(this, wxID_ANY, subtitle, wxDefaultPosition, wxDefaultSize,  wxST_ELLIPSIZE_MIDDLE);
-
-                m_titleText->SetFont(m_titleText->GetFont().Bold());
-                m_subtitleText->SetForegroundColour(makeLighter(m_subtitleText->GetForegroundColour()));
-#ifndef _WIN32
-                m_subtitleText->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
-#endif
-
-                auto* vSizer = new wxBoxSizer(wxVERTICAL);
-                vSizer->Add(m_titleText, 0);
-                vSizer->Add(m_subtitleText, 0);
-
-                auto* hSizer = new wxBoxSizer(wxHORIZONTAL);
-                hSizer->AddSpacer(margins.x);
-
-                if (image != nullptr) {
-                    m_imageBmp = new wxStaticBitmap(this, wxID_ANY, *image);
-                    hSizer->Add(m_imageBmp, 0, wxALIGN_BOTTOM | wxTOP | wxBOTTOM, margins.y);
-                    hSizer->AddSpacer(4);
-                }
-                hSizer->Add(vSizer, 0, wxTOP | wxBOTTOM, margins.y);
-                hSizer->AddSpacer(margins.x);
-
-                SetSizer(hSizer);
-            }
-        };
-
-        ControlListBox::Item* ImageListBox::createItem(wxWindow* parent, const wxSize& margins, const size_t index) {
-            wxBitmap bitmap;
-            if (image(index, bitmap)) {
-                return new ImageListBoxItem(parent, margins, title(index), subtitle(index), bitmap);
-            } else {
-                return new ImageListBoxItem(parent, margins, title(index), subtitle(index));
+        void ImageListBoxItemRenderer::updateItem() {
+            QObject* element = this->parent();
+            ImageListBox* listBox = nullptr;
+            do {
+                listBox = dynamic_cast<ImageListBox*>(element);
+                element = element->parent();
+            } while (listBox == nullptr && element != nullptr);
+            if (listBox != nullptr) {
+                m_titleLabel->setText(listBox->title(m_index));
+                m_subtitleLabel->setText(listBox->subtitle(m_index));
+                m_imageLabel->setPixmap(listBox->image(m_index));
             }
         }
 
-        bool ImageListBox::image(const size_t n, wxBitmap& result) const {
-            result = wxNullBitmap;
-            return false;
+        ImageListBox::ImageListBox(const QString& emptyText, bool showSeparator, QWidget* parent) :
+        ControlListBox(emptyText, showSeparator, parent) {}
+
+        ControlListBoxItemRenderer* ImageListBox::createItemRenderer(QWidget* parent, const size_t index) {
+            return new ImageListBoxItemRenderer(title(index), subtitle(index), image(index), parent);
+        }
+
+        QPixmap ImageListBox::image(const size_t /* index */) const {
+            return QPixmap();
         }
     }
 }

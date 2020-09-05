@@ -19,30 +19,13 @@
 
 #include "SmartDefaultAttributeEditor.h"
 
-#include "Assets/EntityDefinition.h"
 #include "Model/AttributableNode.h"
-
-#include <wx/sizer.h>
-#include <wx/panel.h>
-#include <wx/wupdlock.h>
 
 namespace TrenchBroom {
     namespace View {
-        SmartDefaultAttributeEditor::SmartDefaultAttributeEditor(View::MapDocumentWPtr document) :
-        SmartAttributeEditor(document),
-        m_panel(nullptr) {}
+        SmartDefaultAttributeEditor::SmartDefaultAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
+        SmartAttributeEditor(document, parent) {}
 
-        wxWindow* SmartDefaultAttributeEditor::doCreateVisual(wxWindow* parent) {
-            m_panel = new wxPanel(parent);
-            return m_panel;
-        }
-
-        void SmartDefaultAttributeEditor::doDestroyVisual() {
-            m_panel->Destroy();
-            m_panel = nullptr;
-        }
-
-        void SmartDefaultAttributeEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
-        }
+        void SmartDefaultAttributeEditor::doUpdateVisual(const std::vector<Model::AttributableNode*>& /* attributables */) {}
     }
 }

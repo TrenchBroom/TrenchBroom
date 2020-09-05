@@ -21,33 +21,30 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TrenchBroom_ScaleObjectsToolController
 #define TrenchBroom_ScaleObjectsToolController
 
-#include "Model/Hit.h"
-#include "Renderer/EdgeRenderer.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
+
+#include <vecmath/forward.h>
+
+#include <memory>
 
 namespace TrenchBroom {
-    namespace Model {
-        class PickResult;
-    }
-
     namespace Renderer {
+        class Camera;
         class RenderBatch;
         class RenderContext;
     }
 
     namespace View {
-        class InputState;
+        class MapDocument;
         class ScaleObjectsTool;
 
         class ScaleObjectsToolController : public ToolControllerBase<PickingPolicy, KeyPolicy, MousePolicy, RestrictedDragPolicy, RenderPolicy, NoDropPolicy> {
         protected:
             ScaleObjectsTool* m_tool;
         private:
-            MapDocumentWPtr m_document;
-
+            std::weak_ptr<MapDocument> m_document;
         public:
-            explicit ScaleObjectsToolController(ScaleObjectsTool* tool, MapDocumentWPtr document);
+            explicit ScaleObjectsToolController(ScaleObjectsTool* tool, std::weak_ptr<MapDocument> document);
             ~ScaleObjectsToolController() override;
         private:
             Tool* doGetTool() override;
@@ -71,21 +68,20 @@ namespace TrenchBroom {
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
             bool doCancel() override;
-
         protected:
             bool handleInput(const InputState& inputState) const;
         };
 
         class ScaleObjectsToolController2D : public ScaleObjectsToolController {
         public:
-            explicit ScaleObjectsToolController2D(ScaleObjectsTool* tool, MapDocumentWPtr document);
+            explicit ScaleObjectsToolController2D(ScaleObjectsTool* tool, std::weak_ptr<MapDocument> document);
         private:
             void doPick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) override;
         };
 
         class ScaleObjectsToolController3D : public ScaleObjectsToolController {
         public:
-            explicit ScaleObjectsToolController3D(ScaleObjectsTool* tool, MapDocumentWPtr document);
+            explicit ScaleObjectsToolController3D(ScaleObjectsTool* tool, std::weak_ptr<MapDocument> document);
         private:
             void doPick(const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) override;
         };

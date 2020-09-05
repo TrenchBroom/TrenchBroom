@@ -20,51 +20,55 @@
 #ifndef TrenchBroom_EntityAttributeEditor
 #define TrenchBroom_EntityAttributeEditor
 
-#include "StringUtils.h"
-#include "Model/ModelTypes.h"
-#include "View/ViewTypes.h"
+#include <memory>
+#include <string>
+#include <vector>
 
-#include <wx/panel.h>
+#include <QWidget>
 
-class wxTextCtrl;
+class QTextEdit;
+class QSplitter;
 
 namespace TrenchBroom {
     namespace Assets {
-        class EntityDefinition;
         class AttributeDefinition;
+        class EntityDefinition;
+    }
+
+    namespace Model {
+        class Node;
     }
 
     namespace View {
-        class Selection;
-        class SplitterWindow2;
         class EntityAttributeGrid;
-        class EntityAttributeSelectedCommand;
+        class MapDocument;
+        class Selection;
         class SmartAttributeEditorManager;
 
         /**
          * Panel containing the EntityAttributeGrid (the key/value editor table),
          * smart editor, and documentation text view.
          */
-        class EntityAttributeEditor : public wxPanel {
+        class EntityAttributeEditor : public QWidget {
+            Q_OBJECT
         private:
-            View::MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
+            QSplitter* m_splitter;
             EntityAttributeGrid* m_attributeGrid;
             SmartAttributeEditorManager* m_smartEditorManager;
-            SplitterWindow2* m_documentationSplitter;
-            wxTextCtrl* m_documentationText;
-            String m_lastSelectedAttributeName;
+            QTextEdit* m_documentationText;
             const Assets::EntityDefinition* m_currentDefinition;
         public:
-            EntityAttributeEditor(wxWindow* parent, MapDocumentWPtr document);
+            explicit EntityAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
             ~EntityAttributeEditor() override;
-
-            void OnIdle(wxIdleEvent& event);
         private:
+            void OnCurrentRowChanged();
+
             void bindObservers();
             void unbindObservers();
 
             void selectionDidChange(const Selection& selection);
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
 
             void updateIfSelectedEntityDefinitionChanged();
             void updateDocumentationAndSmartEditor();
@@ -73,10 +77,12 @@ namespace TrenchBroom {
              * Returns a description of the options for ChoiceAttributeOption and FlagsAttributeDefinition,
              * other subclasses return an empty string.
              */
-            static wxString optionDescriptions(const Assets::AttributeDefinition& definition);
+            static QString optionDescriptions(const Assets::AttributeDefinition& definition);
 
-            void updateDocumentation(const String &attributeName);
-            void createGui(wxWindow* parent, MapDocumentWPtr document);
+            void updateDocumentation(const std::string& attributeName);
+            void createGui(std::weak_ptr<MapDocument> document);
+
+            void updateMinimumSize();
         };
     }
 }

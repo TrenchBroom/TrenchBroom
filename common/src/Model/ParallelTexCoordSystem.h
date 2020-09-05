@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_ParallelTexCoordSystem
 #define TrenchBroom_ParallelTexCoordSystem
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Macros.h"
 #include "Model/TexCoordSystem.h"
 
@@ -28,19 +28,17 @@
 #include <vecmath/vec.h>
 
 #include <memory>
+#include <tuple>
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushFaceAttributes;
-        class ParallelTexCoordSystem;
-
         class ParallelTexCoordSystemSnapshot : public TexCoordSystemSnapshot {
         private:
             vm::vec3 m_xAxis;
             vm::vec3 m_yAxis;
         public:
             ParallelTexCoordSystemSnapshot(const vm::vec3& xAxis, const vm::vec3& yAxis);
-            ParallelTexCoordSystemSnapshot(ParallelTexCoordSystem* coordSystem);
+            ParallelTexCoordSystemSnapshot(const ParallelTexCoordSystem* coordSystem);
         private:
             std::unique_ptr<TexCoordSystemSnapshot> doClone() const override;
             void doRestore(ParallelTexCoordSystem& coordSystem) const override;
@@ -56,9 +54,11 @@ namespace TrenchBroom {
         public:
             ParallelTexCoordSystem(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs);
             ParallelTexCoordSystem(const vm::vec3& xAxis, const vm::vec3& yAxis);
+
+            static std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> fromParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs);
         private:
             std::unique_ptr<TexCoordSystem> doClone() const override;
-            std::unique_ptr<TexCoordSystemSnapshot> doTakeSnapshot() override;
+            std::unique_ptr<TexCoordSystemSnapshot> doTakeSnapshot() const override;
             void doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot) override;
 
             vm::vec3 getXAxis() const override;
@@ -71,21 +71,24 @@ namespace TrenchBroom {
             void doResetTextureAxesToParallel(const vm::vec3& normal, float angle) override;
 
             bool isRotationInverted(const vm::vec3& normal) const override;
-            vm::vec2f doGetTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs) const override;
+            vm::vec2f doGetTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs, const vm::vec2f& textureSize) const override;
 
             void doSetRotation(const vm::vec3& normal, float oldAngle, float newAngle) override;
             void applyRotation(const vm::vec3& normal, FloatType angle);
 
-            void doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant) override;
+            void doTransform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, const vm::vec2f& textureSize, bool lockTexture, const vm::vec3& invariant) override;
             float computeTextureAngle(const vm::plane3& oldBoundary, const vm::mat4x4& transformation) const;
 
-            void doUpdateNormalWithProjection(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) override;
+            void doUpdateNormalWithProjection(const vm::vec3& newNormal, const BrushFaceAttributes& attribs) override;
             void doUpdateNormalWithRotation(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs) override;
 
             void doShearTexture(const vm::vec3& normal, const vm::vec2f& factors) override;
 
             float doMeasureAngle(float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const override;
             void computeInitialAxes(const vm::vec3& normal, vm::vec3& xAxis, vm::vec3& yAxis) const;
+
+            std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> doToParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const override;
+            std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> doToParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const override;
 
             deleteCopyAndMove(ParallelTexCoordSystem)
         };

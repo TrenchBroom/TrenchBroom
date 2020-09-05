@@ -19,56 +19,59 @@
 
 #include "ChangeBrushFaceAttributesCommand.h"
 
-#include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
+#include "Model/BrushNode.h"
 #include "Model/Snapshot.h"
 #include "View/MapDocumentCommandFacade.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType ChangeBrushFaceAttributesCommand::Type = Command::freeType();
 
-        ChangeBrushFaceAttributesCommand::Ptr ChangeBrushFaceAttributesCommand::command(const Model::ChangeBrushFaceAttributesRequest& request) {
-            return Ptr(new ChangeBrushFaceAttributesCommand(request));
+        std::unique_ptr<ChangeBrushFaceAttributesCommand> ChangeBrushFaceAttributesCommand::command(const Model::ChangeBrushFaceAttributesRequest& request) {
+            return std::make_unique<ChangeBrushFaceAttributesCommand>(request);
         }
 
         ChangeBrushFaceAttributesCommand::ChangeBrushFaceAttributesCommand(const Model::ChangeBrushFaceAttributesRequest& request) :
         DocumentCommand(Type, request.name()),
-        m_request(request),
-        m_snapshot(nullptr) {}
+        m_request(request) {}
 
-        ChangeBrushFaceAttributesCommand::~ChangeBrushFaceAttributesCommand() {
-            delete m_snapshot;
-            m_snapshot = nullptr;
-        }
+        ChangeBrushFaceAttributesCommand::~ChangeBrushFaceAttributesCommand() = default;
 
-        bool ChangeBrushFaceAttributesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            const Model::BrushFaceList faces = document->allSelectedBrushFaces();
-            assert(!faces.empty());
+        std::unique_ptr<CommandResult> ChangeBrushFaceAttributesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+            const auto faceHandles = document->allSelectedBrushFaces();
+            assert(!faceHandles.empty());
+            
+            const auto nodes = Model::toNodes(faceHandles);
 
             assert(m_snapshot == nullptr);
-            m_snapshot = new Model::Snapshot(std::begin(faces), std::end(faces));
+            m_snapshot = std::make_unique<Model::Snapshot>(std::begin(nodes), std::end(nodes));
 
             document->performChangeBrushFaceAttributes(m_request);
-            return true;
+            return std::make_unique<CommandResult>(true);
         }
 
-        bool ChangeBrushFaceAttributesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            document->restoreSnapshot(m_snapshot);
-            delete m_snapshot;
-            m_snapshot = nullptr;
-            return true;
+        std::unique_ptr<CommandResult> ChangeBrushFaceAttributesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+            assert(m_snapshot != nullptr);
+
+            document->restoreSnapshot(m_snapshot.get());
+            m_snapshot.reset();
+
+            return std::make_unique<CommandResult>(true);
         }
 
         bool ChangeBrushFaceAttributesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
             return document->hasSelectedBrushFaces();
         }
 
-        UndoableCommand::Ptr ChangeBrushFaceAttributesCommand::doRepeat(MapDocumentCommandFacade* document) const {
-            return UndoableCommand::Ptr(new ChangeBrushFaceAttributesCommand(m_request));
+        std::unique_ptr<UndoableCommand> ChangeBrushFaceAttributesCommand::doRepeat(MapDocumentCommandFacade*) const {
+            return std::make_unique<ChangeBrushFaceAttributesCommand>(m_request);
         }
 
-        bool ChangeBrushFaceAttributesCommand::doCollateWith(UndoableCommand::Ptr command) {
-            ChangeBrushFaceAttributesCommand* other = static_cast<ChangeBrushFaceAttributesCommand*>(command.get());
+        bool ChangeBrushFaceAttributesCommand::doCollateWith(UndoableCommand* command) {
+            ChangeBrushFaceAttributesCommand* other = static_cast<ChangeBrushFaceAttributesCommand*>(command);
             return m_request.collateWith(other->m_request);
         }
     }

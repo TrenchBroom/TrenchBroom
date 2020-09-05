@@ -20,32 +20,45 @@
 #ifndef TrenchBroom_ReplaceTextureDialog
 #define TrenchBroom_ReplaceTextureDialog
 
-#include "Model/ModelTypes.h"
-#include "View/ViewTypes.h"
+#include <memory>
+#include <vector>
 
-#include <wx/dialog.h>
+#include <QDialog>
+
+class QPushButton;
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+
+    namespace Model {
+        class BrushFaceHandle;
+    }
+
     namespace View {
         class GLContextManager;
+        class MapDocument;
         class TextureBrowser;
 
-        class ReplaceTextureDialog : public wxDialog {
+        class ReplaceTextureDialog : public QDialog {
+            Q_OBJECT
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
 
             TextureBrowser* m_subjectBrowser;
             TextureBrowser* m_replacementBrowser;
+            QPushButton* m_replaceButton;
         public:
-            ReplaceTextureDialog(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
-
-            void OnReplace(wxCommandEvent& event);
+            ReplaceTextureDialog(std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent = nullptr);
         private:
-            Model::BrushFaceList getApplicableFaces() const;
-        public:
-            void OnUpdateReplaceButton(wxUpdateUIEvent& event);
-        private:
+            virtual void accept() override;
+            std::vector<Model::BrushFaceHandle> getApplicableFaces() const;
             void createGui(GLContextManager& contextManager);
+        private slots:
+            void subjectSelected(const Assets::Texture* subject);
+            void replacementSelected(const Assets::Texture* replacement);
+            void updateReplaceButton();
         };
     }
 }

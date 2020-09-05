@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_ToolChain
 #define TrenchBroom_ToolChain
 
-#include "StringUtils.h"
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             void mouseMove(const InputState& inputState);
 
             ToolController* startMouseDrag(const InputState& inputState);
-            ToolController* dragEnter(const InputState& inputState, const String& payload);
+            ToolController* dragEnter(const InputState& inputState, const std::string& payload);
 
             void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);

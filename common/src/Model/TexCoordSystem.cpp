@@ -20,8 +20,11 @@
 #include "TexCoordSystem.h"
 
 #include "Model/BrushFace.h"
+#include "Model/ParallelTexCoordSystem.h"
+#include "Model/ParaxialTexCoordSystem.h"
 
 #include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 
 namespace TrenchBroom {
     namespace Model {
@@ -39,11 +42,19 @@ namespace TrenchBroom {
 
         TexCoordSystem::~TexCoordSystem() = default;
 
+        bool operator==(const TexCoordSystem& lhs, const TexCoordSystem& rhs) {
+            return lhs.xAxis() == rhs.xAxis() && lhs.yAxis() == rhs.yAxis();
+        }
+        
+        bool operator!=(const TexCoordSystem& lhs, const TexCoordSystem& rhs) {
+            return !(lhs == rhs);
+        }
+
         std::unique_ptr<TexCoordSystem> TexCoordSystem::clone() const {
             return doClone();
         }
 
-        std::unique_ptr<TexCoordSystemSnapshot> TexCoordSystem::takeSnapshot() {
+        std::unique_ptr<TexCoordSystemSnapshot> TexCoordSystem::takeSnapshot() const {
             return doTakeSnapshot();
         }
 
@@ -71,16 +82,16 @@ namespace TrenchBroom {
             doResetTextureAxesToParaxial(normal, angle);
         }
 
-        vm::vec2f TexCoordSystem::getTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs) const {
-            return doGetTexCoords(point, attribs);
+        vm::vec2f TexCoordSystem::getTexCoords(const vm::vec3& point, const BrushFaceAttributes& attribs, const vm::vec2f& textureSize) const {
+            return doGetTexCoords(point, attribs, textureSize);
         }
 
         void TexCoordSystem::setRotation(const vm::vec3& normal, const float oldAngle, const float newAngle) {
             doSetRotation(normal, oldAngle, newAngle);
         }
 
-        void TexCoordSystem::transform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const vm::vec3& invariant) {
-            doTransform(oldBoundary, newBoundary, transformation, attribs, lockTexture, invariant);
+        void TexCoordSystem::transform(const vm::plane3& oldBoundary, const vm::plane3& newBoundary, const vm::mat4x4& transformation, BrushFaceAttributes& attribs, const vm::vec2f& textureSize, bool lockTexture, const vm::vec3& invariant) {
+            doTransform(oldBoundary, newBoundary, transformation, attribs, textureSize, lockTexture, invariant);
         }
 
         void TexCoordSystem::updateNormal(const vm::vec3& oldNormal, const vm::vec3& newNormal, const BrushFaceAttributes& attribs, const WrapStyle style) {
@@ -90,16 +101,16 @@ namespace TrenchBroom {
                         doUpdateNormalWithRotation(oldNormal, newNormal, attribs);
                         break;
                     case WrapStyle::Projection:
-                        doUpdateNormalWithProjection(oldNormal, newNormal, attribs);
+                        doUpdateNormalWithProjection(newNormal, attribs);
                         break;
                 }
             }
         }
 
         void TexCoordSystem::moveTexture(const vm::vec3& normal, const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset, BrushFaceAttributes& attribs) const {
-            const auto toPlane = planeProjectionMatrix(0.0, normal);
+            const auto toPlane = vm::plane_projection_matrix(0.0, normal);
             const auto [invertible, fromPlane] = invert(toPlane);
-            const auto transform = fromPlane * vm::mat4x4::zero_z * toPlane;
+            const auto transform = fromPlane * vm::mat4x4::zero_out<2>() * toPlane;
             const auto texX = normalize(transform * getXAxis());
             const auto texY = normalize(transform * getYAxis());
             assert(invertible); unused(invertible);
@@ -208,5 +219,12 @@ namespace TrenchBroom {
                          dot(point, safeScaleAxis(getYAxis(), scale.y())));
         }
 
+        std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> TexCoordSystem::toParallel(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const {
+            return doToParallel(point0, point1, point2, attribs);
+        }
+
+        std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> TexCoordSystem::toParaxial(const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2, const BrushFaceAttributes& attribs) const {
+            return doToParaxial(point0, point1, point2, attribs);
+        }
     }
 }

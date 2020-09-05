@@ -20,16 +20,40 @@
 #ifndef TrenchBroom_ResourceUtils
 #define TrenchBroom_ResourceUtils
 
-#include "StringUtils.h"
-#include <wx/bitmap.h>
-#include <wx/icon.h>
+#include <memory>
+#include <string>
+
+class QIcon;
+class QPixmap;
 
 namespace TrenchBroom {
+    class Logger;
+    
+    namespace Assets {
+        class Texture;
+    }
+    
     namespace IO {
+        class FileSystem;
         class Path;
-        wxBitmap loadImageResource(const String& name);
-        wxBitmap loadImageResource(const IO::Path& imagePath);
-        wxIcon loadIconResource(const IO::Path& imagePath);
+
+        /**
+         * Loads a default texture file from the given file system. If the default texture cannot be found
+         * or opened, an empty texture is returned.
+         *
+         * @param fs the file system used to locate the texture file
+         * @param name the name of the texture to be returned
+         * @return the default texture
+         */
+        Assets::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger, const std::string& name);
+        
+        QPixmap loadPixmapResource(const std::string& name);
+        QPixmap loadPixmapResource(const Path& imagePath);
+
+        /**
+         * Loads an SVG image into a QIcon
+         */
+        QIcon loadSVGIcon(const Path& imagePath);
     }
 }
 

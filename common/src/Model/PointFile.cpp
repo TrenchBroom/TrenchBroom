@@ -22,9 +22,11 @@
 #include "IO/Path.h"
 
 #include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 
 #include <cassert>
 #include <fstream>
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
@@ -63,7 +65,7 @@ namespace TrenchBroom {
 
         const vm::vec3f PointFile::currentDirection() const {
             if (m_points.size() <= 1) {
-                return vm::vec3f::pos_x;
+                return vm::vec3f::pos_x();
             } else if (m_current >= m_points.size() - 1) {
                 return normalize(m_points[m_points.size() - 1] - m_points[m_points.size() - 2]);
             } else {
@@ -82,28 +84,28 @@ namespace TrenchBroom {
         }
 
         void PointFile::load(const IO::Path& path) {
-            static const float Threshold = vm::toRadians(15.0f);
+            static const float Threshold = vm::to_radians(15.0f);
 
             std::fstream stream(path.asString().c_str(), std::ios::in);
             assert(stream.is_open());
 
             std::vector<vm::vec3f> points;
-            String line;
 
             if (!stream.eof()) {
+                std::string line;
                 std::getline(stream, line);
-                points.push_back(vm::vec3f::parse(line));
+                points.push_back(vm::parse<float, 3>(line));
                 vm::vec3f lastPoint = points.back();
 
                 if (!stream.eof()) {
                     std::getline(stream, line);
-                    vm::vec3f curPoint = vm::vec3f::parse(line);
+                    vm::vec3f curPoint = vm::parse<float, 3>(line);
                     vm::vec3f refDir = normalize(curPoint - lastPoint);
 
                     while (!stream.eof()) {
                         lastPoint = curPoint;
                         std::getline(stream, line);
-                        curPoint = vm::vec3f::parse(line);
+                        curPoint = vm::parse<float, 3>(line);
 
                         const vm::vec3f dir = normalize(curPoint - lastPoint);
                         if (std::acos(dot(dir, refDir)) > Threshold) {

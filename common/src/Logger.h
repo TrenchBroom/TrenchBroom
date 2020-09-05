@@ -20,25 +20,26 @@
 #ifndef TrenchBroom_Logger
 #define TrenchBroom_Logger
 
-#include "StringUtils.h"
+#include <sstream>
+#include <string>
 
-class wxString;
+class QString;
 
 namespace TrenchBroom {
+    enum class LogLevel {
+        Debug,
+        Info,
+        Warn,
+        Error
+    };
+
     class Logger {
     public:
-        typedef enum {
-            LogLevel_Debug,
-            LogLevel_Info,
-            LogLevel_Warn,
-            LogLevel_Error
-        } LogLevel;
-
         class stream {
         private:
             Logger* m_logger;
             LogLevel m_logLevel;
-            StringStream m_buf;
+            std::stringstream m_buf;
         public:
             stream(Logger* logger, LogLevel logLevel);
             ~stream();
@@ -53,38 +54,38 @@ namespace TrenchBroom {
         virtual ~Logger();
 
         stream debug();
-        void debug(const char* format, ...);
-        void debug(const String& message);
-        void debug(const wxString& message);
+        void debug(const char* message);
+        void debug(const std::string& message);
+        void debug(const QString& message);
 
         stream info();
-        void info(const char* format, ...);
-        void info(const String& message);
-        void info(const wxString& message);
+        void info(const char* message);
+        void info(const std::string& message);
+        void info(const QString& message);
 
         stream warn();
-        void warn(const char* format, ...);
-        void warn(const String& message);
-        void warn(const wxString& message);
+        void warn(const char* message);
+        void warn(const std::string& message);
+        void warn(const QString& message);
 
         stream error();
-        void error(const char* format, ...);
-        void error(const String& message);
-        void error(const wxString& message);
+        void error(const char* message);
+        void error(const std::string& message);
+        void error(const QString& message);
 
-        void log(LogLevel level, const String& message);
-        void log(LogLevel level, const wxString& message);
+        void log(LogLevel level, const std::string& message);
+        void log(LogLevel level, const QString& message);
     private:
-        virtual void doLog(LogLevel level, const String& message) = 0;
-        virtual void doLog(LogLevel level, const wxString& message) = 0;
+        virtual void doLog(LogLevel level, const std::string& message) = 0;
+        virtual void doLog(LogLevel level, const QString& message) = 0;
     };
 
 
 
     class NullLogger : public Logger {
     private:
-        void doLog(LogLevel level, const String& message) override;
-        void doLog(LogLevel level, const wxString& message) override;
+        void doLog(LogLevel level, const std::string& message) override;
+        void doLog(LogLevel level, const QString& message) override;
     };
 }
 

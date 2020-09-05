@@ -22,26 +22,22 @@
 
 #include "View/SmartAttributeEditor.h"
 
-class wxPanel;
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityDefinition;
-    }
-
     namespace View {
+        class MapDocument;
+
         /**
-         * Placeholder for when there is no smart editor. Just an empty wxPanel.
+         * Placeholder for when there is no smart editor. Just an empty QWidget.
          */
         class SmartDefaultAttributeEditor : public SmartAttributeEditor {
-        private:
-            wxPanel* m_panel;
+            Q_OBJECT
         public:
-            SmartDefaultAttributeEditor(View::MapDocumentWPtr document);
+            explicit SmartDefaultAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
-            wxWindow* doCreateVisual(wxWindow* parent) override;
-            void doDestroyVisual() override;
-            void doUpdateVisual(const Model::AttributableNodeList& attributables) override;
+            void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) override;
         };
     }
 }

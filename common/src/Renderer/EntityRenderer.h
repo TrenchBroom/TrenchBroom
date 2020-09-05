@@ -20,33 +20,30 @@
 #ifndef TrenchBroom_EntityRenderer
 #define TrenchBroom_EntityRenderer
 
-#include "AttrString.h"
 #include "Color.h"
-#include "Model/ModelTypes.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/EntityModelRenderer.h"
-#include "Renderer/FontDescriptor.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/TriangleRenderer.h"
-#include "Renderer/Vbo.h"
 
 #include <vecmath/forward.h>
-#include <vecmath/vec.h>
 
-#include <map>
+#include <vector>
 
 namespace TrenchBroom {
+    class Logger;
+
     namespace Assets {
         class EntityModelManager;
     }
 
     namespace Model {
         class EditorContext;
+        class EntityNode;
     }
 
     namespace Renderer {
-        class RenderBatch;
-        class RenderContext;
+        class AttrString;
 
         class EntityRenderer {
         private:
@@ -54,7 +51,7 @@ namespace TrenchBroom {
 
             Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;
-            Model::EntityList m_entities;
+            std::vector<Model::EntityNode*> m_entities;
 
             DirectEdgeRenderer m_pointEntityWireframeBoundsRenderer;
             DirectEdgeRenderer m_brushEntityWireframeBoundsRenderer;
@@ -77,9 +74,9 @@ namespace TrenchBroom {
             Color m_angleColor;
             bool m_showHiddenEntities;
         public:
-            EntityRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
+            EntityRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
 
-            void setEntities(const Model::EntityList& entities);
+            void setEntities(const std::vector<Model::EntityNode*>& entities);
             void invalidate();
             void clear();
             void reloadModels();
@@ -121,8 +118,8 @@ namespace TrenchBroom {
             void invalidateBounds();
             void validateBounds();
 
-            AttrString entityString(const Model::Entity* entity) const;
-            const Color& boundsColor(const Model::Entity* entity) const;
+            AttrString entityString(const Model::EntityNode* entity) const;
+            const Color& boundsColor(const Model::EntityNode* entity) const;
         };
     }
 }

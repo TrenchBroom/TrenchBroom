@@ -20,29 +20,32 @@
 #ifndef TrenchBroom_EntityDefinitionFileCommand
 #define TrenchBroom_EntityDefinitionFileCommand
 
-#include "SharedPointer.h"
-#include "View/DocumentCommand.h"
 #include "Assets/EntityDefinitionFileSpec.h"
+#include "View/DocumentCommand.h"
+
+#include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
         class EntityDefinitionFileCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            using Ptr = std::shared_ptr<EntityDefinitionFileCommand>;
         private:
             Assets::EntityDefinitionFileSpec m_oldSpec;
             Assets::EntityDefinitionFileSpec m_newSpec;
         public:
-            static Ptr set(const Assets::EntityDefinitionFileSpec& spec);
-        private:
-            EntityDefinitionFileCommand(const String& name, const Assets::EntityDefinitionFileSpec& spec);
+            static std::unique_ptr<EntityDefinitionFileCommand> set(const Assets::EntityDefinitionFileSpec& spec);
 
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            EntityDefinitionFileCommand(const std::string& name, const Assets::EntityDefinitionFileSpec& spec);
+        private:
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            bool doCollateWith(UndoableCommand::Ptr command) override;
+            bool doCollateWith(UndoableCommand* command) override;
+
+            deleteCopyAndMove(EntityDefinitionFileCommand)
         };
     }
 }

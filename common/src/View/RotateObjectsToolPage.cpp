@@ -19,7 +19,7 @@
 
 #include "RotateObjectsToolPage.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "View/BorderLine.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
@@ -27,156 +27,177 @@
 #include "View/SpinControl.h"
 #include "View/ViewConstants.h"
 
+#include <kdl/memory_utils.h>
+#include <kdl/string_utils.h>
+
 #include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 #include <vecmath/util.h>
 
-#include <wx/button.h>
-#include <wx/choice.h>
-#include <wx/sizer.h>
-#include <wx/stattext.h>
-#include <wx/combobox.h>
+#include <QtGlobal>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QComboBox>
 
 namespace TrenchBroom {
     namespace View {
-        RotateObjectsToolPage::RotateObjectsToolPage(wxWindow* parent, MapDocumentWPtr document, RotateObjectsTool* tool) :
-        wxPanel(parent),
-        m_document(document),
-        m_tool(tool) {
+        RotateObjectsToolPage::RotateObjectsToolPage(std::weak_ptr<MapDocument> document, RotateObjectsTool* tool, QWidget* parent) :
+        QWidget(parent),
+        m_document(std::move(document)),
+        m_tool(tool),
+        m_recentlyUsedCentersList(nullptr),
+        m_resetCenterButton(nullptr),
+        m_angle(nullptr),
+        m_axis(nullptr),
+        m_rotateButton(nullptr) {
             createGui();
-            m_angle->SetValue(vm::toDegrees(m_tool->angle()));
+            bindObservers();
+            m_angle->setValue(vm::to_degrees(m_tool->angle()));
+        }
+
+        RotateObjectsToolPage::~RotateObjectsToolPage() {
+            unbindObservers();
+        }
+
+        void RotateObjectsToolPage::bindObservers() {
+            auto document = kdl::mem_lock(m_document);
+            document->selectionDidChangeNotifier.addObserver(this, &RotateObjectsToolPage::selectionDidChange);
+        }
+
+        void RotateObjectsToolPage::unbindObservers() {
+            if (!kdl::mem_expired(m_document)) {
+                auto document = kdl::mem_lock(m_document);
+                document->selectionDidChangeNotifier.removeObserver(this, &RotateObjectsToolPage::selectionDidChange);
+            }
         }
 
         void RotateObjectsToolPage::setAxis(const vm::axis::type axis) {
-            m_axis->SetSelection(static_cast<int>(axis));
+            m_axis->setCurrentIndex(static_cast<int>(axis));
         }
 
         void RotateObjectsToolPage::setRecentlyUsedCenters(const std::vector<vm::vec3>& centers) {
-            m_recentlyUsedCentersList->Clear();
+            m_recentlyUsedCentersList->clear();
 
             for (auto it = centers.rbegin(), end = centers.rend(); it != end; ++it) {
                 const auto& center = *it;
-                m_recentlyUsedCentersList->Append(StringUtils::toString(center));
+                m_recentlyUsedCentersList->addItem(QString::fromStdString(kdl::str_to_string(center)));
             }
 
-            if (m_recentlyUsedCentersList->GetCount() > 0)
-                m_recentlyUsedCentersList->SetSelection(0);
+            if (m_recentlyUsedCentersList->count() > 0)
+                m_recentlyUsedCentersList->setCurrentIndex(0);
         }
 
         void RotateObjectsToolPage::setCurrentCenter(const vm::vec3& center) {
-            m_recentlyUsedCentersList->SetValue(StringUtils::toString(center));
+            m_recentlyUsedCentersList->setCurrentText(QString::fromStdString(kdl::str_to_string(center)));
         }
 
         void RotateObjectsToolPage::createGui() {
-            auto* centerText = new wxStaticText(this, wxID_ANY, "Center");
-            m_recentlyUsedCentersList = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, nullptr, wxTE_PROCESS_ENTER);
+            auto* centerText = new QLabel(tr("Center"));
+            m_recentlyUsedCentersList = new QComboBox();
+            m_recentlyUsedCentersList->setMinimumContentsLength(16);
+            m_recentlyUsedCentersList->setEditable(true);
 
-            m_resetCenterButton = new wxButton(this, wxID_ANY, "Reset", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-            m_resetCenterButton->SetToolTip("Reset the position of the rotate handle to the center of the current selection.");
+            m_resetCenterButton = new QPushButton(tr("Reset"));
+            m_resetCenterButton->setToolTip(tr("Reset the position of the rotate handle to the center of the current selection."));
 
-            auto* text1 = new wxStaticText(this, wxID_ANY, "Rotate objects");
-            auto* text2 = new wxStaticText(this, wxID_ANY, "degs about");
-            auto* text3 = new wxStaticText(this, wxID_ANY, "axis");
+            auto* text1 = new QLabel(tr("Rotate objects"));
+            auto* text2 = new QLabel(tr("degs about"));
+            auto* text3 = new QLabel(tr("axis"));
             m_angle = new SpinControl(this);
-            m_angle->SetRange(-360.0, 360.0);
-            m_angle->SetValue(vm::toDegrees(m_tool->angle()));
-            m_angle->SetDigits(0, 4);
+            m_angle->setRange(-360.0, 360.0);
+            m_angle->setValue(vm::to_degrees(m_tool->angle()));
 
-            wxString axes[] = { "X", "Y", "Z" };
-            m_axis = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 3, axes);
-            m_axis->SetSelection(2);
+            m_axis = new QComboBox();
+            m_axis->addItem("X");
+            m_axis->addItem("Y");
+            m_axis->addItem("Z");
+            m_axis->setCurrentIndex(2);
 
-            m_rotateButton = new wxButton(this, wxID_ANY, "Apply", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+            m_rotateButton = new QPushButton(tr("Apply"));
 
-            Bind(wxEVT_IDLE, &RotateObjectsToolPage::OnIdle, this);
-            m_recentlyUsedCentersList->Bind(wxEVT_TEXT_ENTER, &RotateObjectsToolPage::OnCenterChanged, this);
-            m_recentlyUsedCentersList->Bind(wxEVT_COMBOBOX, &RotateObjectsToolPage::OnCenterChanged, this);
-            m_resetCenterButton->Bind(wxEVT_BUTTON, &RotateObjectsToolPage::OnResetCenter, this);
-            m_angle->Bind(SPIN_CONTROL_EVENT, &RotateObjectsToolPage::OnAngleChanged, this);
-            m_rotateButton->Bind(wxEVT_UPDATE_UI, &RotateObjectsToolPage::OnUpdateRotateButton, this);
-            m_rotateButton->Bind(wxEVT_BUTTON, &RotateObjectsToolPage::OnRotate, this);
+            connect(m_recentlyUsedCentersList, QOverload<const QString &>::of(&QComboBox::activated), this,
+                &RotateObjectsToolPage::centerChanged);
+            connect(m_resetCenterButton, &QAbstractButton::clicked, this, &RotateObjectsToolPage::resetCenterClicked);
+            connect(m_angle, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+                &RotateObjectsToolPage::angleChanged);
+            connect(m_rotateButton, &QAbstractButton::clicked, this, &RotateObjectsToolPage::rotateClicked);
 
-            auto* separator = new BorderLine(this, BorderLine::Direction_Vertical);
-            separator->SetForegroundColour(Colors::separatorColor());
+            auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
 
-            auto* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->Add(centerText, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_recentlyUsedCentersList, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_resetCenterButton, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::MediumHMargin);
-            sizer->Add(separator, 0, wxEXPAND | wxTOP | wxBOTTOM, 2);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(text1, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_angle, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(text2, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_axis, 0, wxTOP, LayoutConstants::ChoiceTopMargin);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(text3, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_rotateButton, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->SetItemMinSize(m_angle, 80, wxDefaultCoord);
+            layout->addWidget(centerText, 0, Qt::AlignVCenter);
+            layout->addSpacing(LayoutConstants::MediumHMargin);
+            layout->addWidget(m_recentlyUsedCentersList, 0, Qt::AlignVCenter);
+            layout->addSpacing(LayoutConstants::MediumHMargin);
+            layout->addWidget(m_resetCenterButton, 0, Qt::AlignVCenter);
+            layout->addSpacing(LayoutConstants::WideHMargin);
+            layout->addWidget(new BorderLine(BorderLine::Direction::Vertical), 0);
+            layout->addSpacing(LayoutConstants::WideHMargin);
+            layout->addWidget(text1, 0, Qt::AlignVCenter);
+            layout->addSpacing(LayoutConstants::NarrowHMargin);
+            layout->addWidget(m_angle, 0, Qt::AlignVCenter);
+            layout->addSpacing(LayoutConstants::NarrowHMargin);
+            layout->addWidget(text2, 0, Qt::AlignVCenter);
+            layout->addSpacing(LayoutConstants::NarrowHMargin);
+            layout->addWidget(m_axis, 0, Qt::AlignVCenter);
+            layout->addSpacing(LayoutConstants::NarrowHMargin);
+            layout->addWidget(text3, 0, Qt::AlignVCenter);
+            layout->addSpacing(LayoutConstants::NarrowHMargin);
+            layout->addWidget(m_rotateButton, 0, Qt::AlignVCenter);
+            layout->addStretch(1);
 
-            SetSizer(sizer);
+            setLayout(layout);
+
+            updateGui();
         }
 
-        void RotateObjectsToolPage::OnIdle(wxIdleEvent& event) {
-            if (IsBeingDeleted()) return;
+        void RotateObjectsToolPage::updateGui() {
+            const auto& grid = kdl::mem_lock(m_document)->grid();
+            m_angle->setIncrements(vm::to_degrees(grid.angle()), 90.0, 1.0);
 
-            const auto& grid = lock(m_document)->grid();
-            m_angle->SetIncrements(vm::toDegrees(grid.angle()), 90.0, 1.0);
+            auto document = kdl::mem_lock(m_document);
+            m_rotateButton->setEnabled(document->hasSelectedNodes());
         }
 
-        void RotateObjectsToolPage::OnCenterChanged(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
+        void RotateObjectsToolPage::selectionDidChange(const Selection&) {
+            updateGui();
+        }
 
-            const auto center = vm::vec3::parse(m_recentlyUsedCentersList->GetValue().ToStdString());
+        void RotateObjectsToolPage::centerChanged() {
+            const auto center = vm::parse<FloatType, 3>(m_recentlyUsedCentersList->currentText().toStdString());
             m_tool->setRotationCenter(center);
         }
 
-        void RotateObjectsToolPage::OnResetCenter(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void RotateObjectsToolPage::resetCenterClicked() {
             m_tool->resetRotationCenter();
         }
 
-        void RotateObjectsToolPage::OnAngleChanged(SpinControlEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            const auto newAngleDegs = vm::correct(event.IsSpin() ? m_angle->GetValue() + event.GetValue() : event.GetValue());
-            m_angle->SetValue(newAngleDegs);
-            m_tool->setAngle(vm::toRadians(newAngleDegs));
+        void RotateObjectsToolPage::angleChanged(double value) {
+            const double newAngleDegs = vm::correct(value);
+            m_angle->setValue(newAngleDegs);
+            m_tool->setAngle(vm::to_radians(newAngleDegs));
         }
 
-        void RotateObjectsToolPage::OnUpdateRotateButton(wxUpdateUIEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            auto document = lock(m_document);
-            event.Enable(document->hasSelectedNodes());
-        }
-
-        void RotateObjectsToolPage::OnRotate(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
+        void RotateObjectsToolPage::rotateClicked() {
             const auto center = m_tool->rotationCenter();
             const auto axis = getAxis();
-            const auto angle = vm::toRadians(m_angle->GetValue());
+            const auto angle = vm::to_radians(m_angle->value());
 
-            auto document = lock(m_document);
+            auto document = kdl::mem_lock(m_document);
             document->rotateObjects(center, axis, angle);
         }
 
         vm::vec3 RotateObjectsToolPage::getAxis() const {
-            switch (m_axis->GetSelection()) {
+            switch (m_axis->currentIndex()) {
                 case 0:
-                    return vm::vec3::pos_x;
+                    return vm::vec3::pos_x();
                 case 1:
-                    return vm::vec3::pos_y;
+                    return vm::vec3::pos_y();
                 default:
-                    return vm::vec3::pos_z;
+                    return vm::vec3::pos_z();
             }
         }
     }

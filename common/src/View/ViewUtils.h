@@ -20,34 +20,28 @@
 #ifndef TrenchBroom_ViewUtils
 #define TrenchBroom_ViewUtils
 
-#include "View/ViewTypes.h"
-#include "StringUtils.h"
+#include <memory>
+#include <string>
 
-class wxString;
-class wxWindow;
-class wxArrayString;
+class QWidget;
+class QString;
+class QStringList;
 
 namespace TrenchBroom {
     class Logger;
 
-    namespace Assets {
-        class EntityModel;
-        class EntityModelManager;
-        struct ModelSpecification;
-    }
-
     namespace View {
+        class MapDocument;
+
         void combineFlags(size_t numFlags, int newFlagValue, int& setFlags, int& mixedFlags);
 
-        size_t loadDroppedFiles(MapDocumentWPtr document, wxWindow* parent, const wxArrayString& wxPaths);
+        bool loadTextureCollection(std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path);
+        size_t loadTextureCollections(std::weak_ptr<MapDocument> document, QWidget* parent, const QStringList& pathStrs);
 
-        bool loadTextureCollection(MapDocumentWPtr document, wxWindow* parent, const wxString& wxPath);
-        size_t loadTextureCollections(MapDocumentWPtr document, wxWindow* parent, const wxArrayString& wxPaths);
+        bool loadEntityDefinitionFile(std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path);
+        size_t loadEntityDefinitionFile(std::weak_ptr<MapDocument> document, QWidget* parent, const QStringList& pathStrs);
 
-        bool loadEntityDefinitionFile(MapDocumentWPtr document, wxWindow* parent, const wxString& wxPath);
-        size_t loadEntityDefinitionFile(MapDocumentWPtr document, wxWindow* parent, const wxArrayString& wxPaths);
-
-        String queryGroupName(wxWindow* parent);
+        std::string queryGroupName(QWidget* parent);
     }
 }
 

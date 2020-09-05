@@ -20,58 +20,73 @@
 #ifndef TrenchBroom_VertexCommand
 #define TrenchBroom_VertexCommand
 
-#include "Model/ModelTypes.h"
+#include "FloatType.h"
+#include "Macros.h"
+#include "Model/BrushGeometry.h"
 #include "View/DocumentCommand.h"
-#include "View/VertexHandleManager.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+
+#include <map>
 #include <memory>
+#include <set>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushNode;
         class Snapshot;
     }
 
     namespace View {
-        class VertexTool;
+        class MapDocument;
+        class VertexHandleManagerBase;
+        template <typename H> class VertexHandleManagerBaseT;
 
         class VertexCommand : public DocumentCommand {
+        protected:
+            using VertexToBrushesMap = std::map<vm::vec3, std::vector<Model::BrushNode*>>;
+            using EdgeToBrushesMap = std::map<vm::segment3, std::vector<Model::BrushNode*>>;
+            using FaceToBrushesMap = std::map<vm::polygon3, std::vector<Model::BrushNode*>>;
+            using VertexToFacesMap = std::map<vm::vec3, std::set<Model::BrushFace*>>;
+            using BrushVerticesMap = std::map<Model::BrushNode*, std::vector<vm::vec3>>;
+            using BrushEdgesMap = std::map<Model::BrushNode*, std::vector<vm::segment3>>;
+            using BrushFacesMap = std::map<Model::BrushNode*, std::vector<vm::polygon3>>;
         private:
-            Model::BrushList m_brushes;
+            std::vector<Model::BrushNode*> m_brushes;
             std::unique_ptr<Model::Snapshot> m_snapshot;
         protected:
-            VertexCommand(CommandType type, const String& name, const Model::BrushList& brushes);
+            VertexCommand(CommandType type, const std::string& name, const std::vector<Model::BrushNode*>& brushes);
         public:
             ~VertexCommand() override;
         protected:
             template <typename H, typename C>
-            static void extract(const std::map<H, Model::BrushSet, C>& handleToBrushes, Model::BrushList& brushes, std::map<Model::Brush*, std::vector<H>>& brushToHandles, std::vector<H>& handles) {
-
+            static void extract(const std::map<H, std::vector<Model::BrushNode*>, C>& handleToBrushes, std::vector<Model::BrushNode*>& brushes, std::map<Model::BrushNode*, std::vector<H>>& brushToHandles, std::vector<H>& handles) {
                 for (const auto& entry : handleToBrushes) {
                     const H& handle = entry.first;
-                    const Model::BrushSet& mappedBrushes = entry.second;
-                    for (Model::Brush* brush : mappedBrushes) {
+                    const std::vector<Model::BrushNode*>& mappedBrushes = entry.second;
+                    for (Model::BrushNode* brush : mappedBrushes) {
                         const auto result = brushToHandles.insert(std::make_pair(brush, std::vector<H>()));
-                        if (result.second)
+                        if (result.second) {
                             brushes.push_back(brush);
+                        }
                         result.first->second.push_back(handle);
                     }
                     handles.push_back(handle);
                 }
             }
 
-            static void extractVertexMap(const Model::VertexToBrushesMap& vertices, Model::BrushList& brushes, Model::BrushVerticesMap& brushVertices, std::vector<vm::vec3>& vertexPositions);
-            static void extractEdgeMap(const Model::EdgeToBrushesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions);
-            static void extractFaceMap(const Model::FaceToBrushesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions);
+            static void extractVertexMap(const VertexToBrushesMap& vertices, std::vector<Model::BrushNode*>& brushes, BrushVerticesMap& brushVertices, std::vector<vm::vec3>& vertexPositions);
+            static void extractEdgeMap(const EdgeToBrushesMap& edges, std::vector<Model::BrushNode*>& brushes, BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions);
+            static void extractFaceMap(const FaceToBrushesMap& faces, std::vector<Model::BrushNode*>& brushes, BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions);
 
-            // TODO 1720: Remove these methods if possible.
-            static void extractEdgeMap(const Model::VertexToEdgesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, std::vector<vm::segment3>& edgePositions);
-            static void extractFaceMap(const Model::VertexToFacesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, std::vector<vm::polygon3>& facePositions);
-
-            static Model::BrushVerticesMap brushVertexMap(const Model::BrushEdgesMap& edges);
-            static Model::BrushVerticesMap brushVertexMap(const Model::BrushFacesMap& faces);
+            static BrushVerticesMap brushVertexMap(const BrushEdgesMap& edges);
+            static BrushVerticesMap brushVertexMap(const BrushFacesMap& faces);
         private:
-            bool doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doPerformUndo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
             void restoreAndTakeNewSnapshot(MapDocumentCommandFacade* document);
             bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
         private:
@@ -82,6 +97,7 @@ namespace TrenchBroom {
         private:
             virtual bool doCanDoVertexOperation(const MapDocument* document) const = 0;
             virtual bool doVertexOperation(MapDocumentCommandFacade* document) = 0;
+            virtual std::unique_ptr<CommandResult> doCreateCommandResult(bool success);
         public:
             void removeHandles(VertexHandleManagerBase& manager);
             void addHandles(VertexHandleManagerBase& manager);
@@ -99,6 +115,8 @@ namespace TrenchBroom {
             virtual void doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const;
             virtual void doSelectNewHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const;
             virtual void doSelectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const;
+
+            deleteCopyAndMove(VertexCommand)
         };
     }
 }

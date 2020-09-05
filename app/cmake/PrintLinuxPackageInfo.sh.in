@@ -1,0 +1,10 @@
+#!/bin/bash
+
+echo ".deb package info:"
+dpkg --info "@CPACK_PACKAGE_FILE_NAME@.deb"
+
+echo ".rpm package info:"
+rpm -qi "@CPACK_PACKAGE_FILE_NAME@.rpm"
+
+echo ".rpm package dependencies:"
+rpm -qpR "@CPACK_PACKAGE_FILE_NAME@.rpm"

@@ -20,46 +20,49 @@
 #ifndef CompilationVariables_h
 #define CompilationVariables_h
 
-#include "EL.h"
-#include "StringUtils.h"
-#include "View/ViewTypes.h"
+#include "EL/VariableStore.h"
+
+#include <memory>
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
+        class MapDocument;
+
         namespace CompilationVariableNames {
-            extern const String WORK_DIR_PATH;
-            extern const String MAP_DIR_PATH;
-            extern const String MAP_BASE_NAME;
-            extern const String MAP_FULL_NAME;
-            extern const String CPU_COUNT;
-            extern const String GAME_DIR_PATH;
-            extern const String MODS;
-            extern const String APP_DIR_PATH;
+            extern const std::string WORK_DIR_PATH;
+            extern const std::string MAP_DIR_PATH;
+            extern const std::string MAP_BASE_NAME;
+            extern const std::string MAP_FULL_NAME;
+            extern const std::string CPU_COUNT;
+            extern const std::string GAME_DIR_PATH;
+            extern const std::string MODS;
+            extern const std::string APP_DIR_PATH;
         }
 
         class CommonVariables : public EL::VariableTable {
         protected:
-            explicit CommonVariables(MapDocumentSPtr document);
+            explicit CommonVariables(std::shared_ptr<MapDocument> document);
         };
 
         class CommonCompilationVariables : public CommonVariables {
         protected:
-            explicit CommonCompilationVariables(MapDocumentSPtr document);
+            explicit CommonCompilationVariables(std::shared_ptr<MapDocument> document);
         };
 
         class CompilationWorkDirVariables : public CommonCompilationVariables {
         public:
-            explicit CompilationWorkDirVariables(MapDocumentSPtr document);
+            explicit CompilationWorkDirVariables(std::shared_ptr<MapDocument> document);
         };
 
         class CompilationVariables : public CommonCompilationVariables {
         public:
-            CompilationVariables(MapDocumentSPtr document, const String& workDir);
+            CompilationVariables(std::shared_ptr<MapDocument> document, const std::string& workDir);
         };
 
         class LaunchGameEngineVariables : public CommonVariables {
         public:
-            explicit LaunchGameEngineVariables(MapDocumentSPtr document);
+            explicit LaunchGameEngineVariables(std::shared_ptr<MapDocument> document);
         };
     }
 }

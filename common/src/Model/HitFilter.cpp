@@ -19,45 +19,46 @@
 
 #include "HitFilter.h"
 
-#include "Model/Brush.h"
+#include "Ensure.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
+#include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
-#include "Model/Entity.h"
-#include "Model/Group.h"
+#include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
+#include "Model/Hit.h"
 #include "Model/HitAdapter.h"
-
-#include <cassert>
 
 namespace TrenchBroom {
     namespace Model {
         class HitFilter::Always : public HitFilter {
         private:
-            HitFilter* doClone() const override {
-                return new Always();
+            std::unique_ptr<HitFilter> doClone() const override {
+                return std::make_unique<Always>();
             }
 
-            bool doMatches(const Hit& hit) const override {
+            bool doMatches(const Hit&) const override {
                 return true;
             }
         };
 
         class HitFilter::Never : public HitFilter {
         private:
-            HitFilter* doClone() const override {
-                return new Never();
+            std::unique_ptr<HitFilter> doClone() const override {
+                return std::make_unique<Never>();
             }
 
-            bool doMatches(const Hit& hit) const override {
+            bool doMatches(const Hit&) const override {
                 return false;
             }
         };
 
-        HitFilter* HitFilter::always() { return new Always(); }
-        HitFilter* HitFilter::never() { return new Never(); }
+        std::unique_ptr<HitFilter> HitFilter::always() { return std::make_unique<Always>(); }
+        std::unique_ptr<HitFilter> HitFilter::never() { return std::make_unique<Never>(); }
 
-        HitFilter::~HitFilter() {}
+        HitFilter::~HitFilter() = default;
 
-        HitFilter* HitFilter::clone() const {
+        std::unique_ptr<HitFilter> HitFilter::clone() const {
             return doClone();
         }
 
@@ -65,70 +66,71 @@ namespace TrenchBroom {
             return doMatches(hit);
         }
 
-        HitFilterChain::HitFilterChain(const HitFilter* filter, const HitFilter* next) :
-        m_filter(filter),
-        m_next(next) {
+        HitFilterChain::HitFilterChain(std::unique_ptr<const HitFilter> filter, std::unique_ptr<const HitFilter> next) :
+        m_filter(std::move(filter)),
+        m_next(std::move(next)) {
             ensure(m_filter != nullptr, "filter is null");
             ensure(m_next != nullptr, "next is null");
         }
 
-        HitFilterChain::~HitFilterChain() {
-            delete m_filter;
-            delete m_next;
-        }
+        HitFilterChain::~HitFilterChain() = default;
 
-        HitFilter* HitFilterChain::doClone() const {
-            return new HitFilterChain(m_filter->clone(), m_next->clone());
+        std::unique_ptr<HitFilter> HitFilterChain::doClone() const {
+            return std::make_unique<HitFilterChain>(m_filter->clone(), m_next->clone());
         }
 
         bool HitFilterChain::doMatches(const Hit& hit) const {
-            if (!m_filter->matches(hit))
+            if (!m_filter->matches(hit)) {
                 return false;
-            return m_next->matches(hit);
+            } else {
+                return m_next->matches(hit);
+            }
         }
 
-        TypedHitFilter::TypedHitFilter(const Hit::HitType typeMask) :
+        TypedHitFilter::TypedHitFilter(const HitType::Type typeMask) :
         m_typeMask(typeMask) {}
 
-        HitFilter* TypedHitFilter::doClone() const {
-            return new TypedHitFilter(m_typeMask);
+        std::unique_ptr<HitFilter> TypedHitFilter::doClone() const {
+            return std::make_unique<TypedHitFilter>(m_typeMask);
         }
 
         bool TypedHitFilter::doMatches(const Hit& hit) const {
             return (hit.type() & m_typeMask) != 0;
         }
 
-        HitFilter* SelectionHitFilter::doClone() const {
-            return new SelectionHitFilter();
+        std::unique_ptr<HitFilter> SelectionHitFilter::doClone() const {
+            return std::make_unique<SelectionHitFilter>();
         }
 
         bool SelectionHitFilter::doMatches(const Hit& hit) const {
-            if (hit.type() == Entity::EntityHit)
+            if (hit.type() == EntityNode::EntityHitType) {
                 return hitToEntity(hit)->selected();
-            if (hit.type() == Brush::BrushHit)
-                return hitToBrush(hit)->selected() || hitToFace(hit)->selected();
-            return false;
+            } else if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                return faceHandle->node()->selected() || faceHandle->face().selected();
+            } else {
+                return false;
+            }
         }
 
-        HitFilter* TransitivelySelectedHitFilter::doClone() const {
-            return new TransitivelySelectedHitFilter();
+        std::unique_ptr<HitFilter> TransitivelySelectedHitFilter::doClone() const {
+            return std::make_unique<TransitivelySelectedHitFilter>();
         }
 
         bool TransitivelySelectedHitFilter::doMatches(const Hit& hit) const {
-            if (hit.type() == Entity::EntityHit) {
+            if (hit.type() == EntityNode::EntityHitType) {
                 return hitToEntity(hit)->transitivelySelected();
+            } else if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                return faceHandle->node()->transitivelySelected() || faceHandle->face().selected();
+            } else {
+                return false;
             }
-            if (hit.type() == Brush::BrushHit) {
-                return hitToBrush(hit)->transitivelySelected() || hitToFace(hit)->selected();
-            }
-            return false;
         }
 
         MinDistanceHitFilter::MinDistanceHitFilter(const FloatType minDistance) :
         m_minDistance(minDistance) {}
 
-        HitFilter* MinDistanceHitFilter::doClone() const {
-            return new MinDistanceHitFilter(m_minDistance);
+        std::unique_ptr<HitFilter> MinDistanceHitFilter::doClone() const {
+            return std::make_unique<MinDistanceHitFilter>(m_minDistance);
         }
 
         bool MinDistanceHitFilter::doMatches(const Hit& hit) const {
@@ -138,18 +140,18 @@ namespace TrenchBroom {
         ContextHitFilter::ContextHitFilter(const EditorContext& context) :
         m_context(context) {}
 
-        HitFilter* ContextHitFilter::doClone() const {
-            return new ContextHitFilter(m_context);
+        std::unique_ptr<HitFilter> ContextHitFilter::doClone() const {
+            return std::make_unique<ContextHitFilter>(m_context);
         }
 
         bool ContextHitFilter::doMatches(const Hit& hit) const {
-            if (hit.type() == Entity::EntityHit) {
+            if (hit.type() == EntityNode::EntityHitType) {
                 return m_context.pickable(hitToEntity(hit));
+            } else if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
+                return m_context.pickable(faceHandle->node(), faceHandle->face());
+            } else {
+                return false;
             }
-            if (hit.type() == Brush::BrushHit) {
-                return m_context.pickable(hitToFace(hit));
-            }
-            return false;
         }
     }
 }

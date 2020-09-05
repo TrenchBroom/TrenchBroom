@@ -21,33 +21,36 @@
 #define TrenchBroom_NodeReader
 
 #include "IO/MapReader.h"
-#include "Model/ModelTypes.h"
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom {
-    namespace Model {
-        class ModelFactory;
-    }
-
     namespace IO {
         class ParserStatus;
 
+        /**
+         * MapReader subclass for loading the clipboard contents, rather than an entire .map
+         */
         class NodeReader : public MapReader {
         private:
             Model::ModelFactory& m_factory;
-            Model::NodeList m_nodes;
+            std::vector<Model::Node*> m_nodes;
         public:
-            NodeReader(const String& str, Model::ModelFactory& factory);
+            NodeReader(const std::string& str, Model::ModelFactory& factory);
 
-            static Model::NodeList read(const String& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status);
-            const Model::NodeList& read(const vm::bbox3& worldBounds, ParserStatus& status);
+            static std::vector<Model::Node*> read(const std::string& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status);
+            const std::vector<Model::Node*>& read(const vm::bbox3& worldBounds, ParserStatus& status);
+        private:
+            void readAsFormat(const vm::bbox3& worldBounds, Model::MapFormat format, ParserStatus& status);
         private: // implement MapReader interface
-            Model::ModelFactory& initialize(Model::MapFormat format, const vm::bbox3& worldBounds) override;
-            Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
+            Model::ModelFactory& initialize(Model::MapFormat format) override;
+            Model::Node* onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
             void onWorldspawnFilePosition(size_t lineNumber, size_t lineCount, ParserStatus& status) override;
-            void onLayer(Model::Layer* layer, ParserStatus& status) override;
+            void onLayer(Model::LayerNode* layer, ParserStatus& status) override;
             void onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) override;
             void onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node, ParserStatus& status) override;
-            void onBrush(Model::Node* parent, Model::Brush* brush, ParserStatus& status) override;
+            void onBrush(Model::Node* parent, Model::BrushNode* brush, ParserStatus& status) override;
         };
     }
 }

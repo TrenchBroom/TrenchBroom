@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_SelectionBoundsRenderer
 #define TrenchBroom_SelectionBoundsRenderer
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 
 #include <vecmath/bbox.h>
 

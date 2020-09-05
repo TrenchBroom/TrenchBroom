@@ -5,11 +5,11 @@
 TrenchBroom is a modern cross-platform level editor for Quake-engine based games.
 
 - Trailer:   https://www.youtube.com/watch?v=shcAvnYp9ow
-- Website:   http://kristianduske.com/trenchbroom
-- Discord:   https://discord.gg/n7K8Cps
+- Website:   http://github.com/TrenchBroom/TrenchBroom
+- Discord:   https://discord.gg/WGf9uve
 - Tutorial:  https://www.youtube.com/watch?v=gONePWocbqA
 
-[![Build Status](https://travis-ci.org/kduske/TrenchBroom.svg?branch=release%2Fv2.0.0)](https://travis-ci.org/kduske/TrenchBroom) [![Build status](https://ci.appveyor.com/api/projects/status/github/kduske/trenchbroom?branch=release%2Fv2.0.0&svg=true)](https://ci.appveyor.com/project/kduske/trenchbroom/branch/release/v2.0.0)
+[![Build Status](https://travis-ci.org/TrenchBroom/TrenchBroom.svg)](https://travis-ci.org/TrenchBroom/TrenchBroom) [![Build status](https://ci.appveyor.com/api/projects/status/github/TrenchBroom/trenchbroom?svg=true)](https://ci.appveyor.com/project/TrenchBroom/trenchbroom)
 
 ## Features
 * **General**
@@ -59,17 +59,16 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 - All help is appreciated!
 
 # Credits
-- wxWidgets www.wxwidgets.org
-- FreeType www.freetype.org
-- FreeImage www.freeimage.org
-- GLEW glew.sourceforge.net
-- GoogleTest code.google.com/p/googletest/
-- GoogleMock code.google.com/p/googlemock/
-- CMake www.cmake.org
-- Pandoc www.pandoc.org
-- Quake icons by Th3 ProphetMan th3-prophetman.deviantart.com
-- Hexen 2 icon by thedoctor45 thedoctor45.deviantart.com
-- Source Sans Pro font www.google.com/fonts/specimen/Source+Sans+Pro
+- [Qt](https://www.qt.io/)
+- [FreeType](https://www.freetype.org/)
+- [FreeImage](http://freeimage.sourceforge.net/)
+- [GLEW](http://glew.sourceforge.net/)
+- [Catch2](https://github.com/catchorg/Catch2)
+- [CMake](https://cmake.org/)
+- [Pandoc](https://www.pandoc.org/)
+- Quake icons by [Th3 ProphetMan](https://www.deviantart.com/th3-prophetman)
+- Hexen 2 icon by [thedoctor45](https://www.deviantart.com/thedoctor45)
+- [Source Sans Pro](https://fonts.google.com/specimen/Source+Sans+Pro) font
 
 ## Changes
-See [releases](https://github.com/kduske/TrenchBroom/releases) for latest changes.
+See [releases](https://github.com/TrenchBroom/TrenchBroom/releases) for latest changes.

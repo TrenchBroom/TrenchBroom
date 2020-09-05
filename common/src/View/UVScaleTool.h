@@ -20,17 +20,15 @@
 #ifndef TrenchBroom_UVScaleTool
 #define TrenchBroom_UVScaleTool
 
-#include "Model/Hit.h"
+#include "Model/HitType.h"
 #include "Renderer/GLVertexType.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
+#include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-
     namespace Model {
         class PickResult;
     }
@@ -41,23 +39,24 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
         class UVViewHelper;
 
         class UVScaleTool : public ToolControllerBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         private:
-            static const Model::Hit::HitType XHandleHit;
-            static const Model::Hit::HitType YHandleHit;
+            static const Model::HitType::Type XHandleHitType;
+            static const Model::HitType::Type YHandleHitType;
         private:
             using EdgeVertex = Renderer::GLVertexTypes::P3::Vertex;
 
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             UVViewHelper& m_helper;
 
             vm::vec2i m_handle;
             vm::vec2b m_selector;
             vm::vec2f m_lastHitPoint; // in non-scaled, non-translated texture coordinates
         public:
-            UVScaleTool(MapDocumentWPtr document, UVViewHelper& helper);
+            UVScaleTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper);
         private:
             Tool* doGetTool() override;
             const Tool* doGetTool() const override;
@@ -77,7 +76,7 @@ namespace TrenchBroom {
             vm::vec2f snap(const vm::vec2f& position) const;
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
-            EdgeVertex::List getHandleVertices(const Model::PickResult& pickResult) const;
+            std::vector<EdgeVertex> getHandleVertices(const Model::PickResult& pickResult) const;
 
             bool doCancel() override;
         };

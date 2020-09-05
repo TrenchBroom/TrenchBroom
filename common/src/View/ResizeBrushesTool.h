@@ -20,19 +20,25 @@
 #ifndef TrenchBroom_ResizeBrushesTool
 #define TrenchBroom_ResizeBrushesTool
 
-#include "TrenchBroom.h"
-#include "Model/Hit.h"
-#include "Model/ModelTypes.h"
+#include "FloatType.h"
+#include "Model/HitType.h"
 #include "View/Tool.h"
-#include "View/ViewTypes.h"
 
+#include <vecmath/forward.h>
 #include <vecmath/vec.h>
-#include <vecmath/polygon.h>
 
+#include <memory>
 #include <tuple>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class Brush;
+        class BrushFace;
+        class BrushFaceHandle;
+        class BrushNode;
+        class Hit;
+        class Node;
         class PickResult;
     }
 
@@ -41,24 +47,36 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
         class Selection;
 
         class ResizeBrushesTool : public Tool {
+        public:
+            static const Model::HitType::Type Resize3DHitType;
+            static const Model::HitType::Type Resize2DHitType;
+
+            using Resize2DHitData = std::vector<Model::BrushFaceHandle>;
+            using Resize3DHitData = Model::BrushFaceHandle;
         private:
-            static const Model::Hit::HitType ResizeHit3D;
-            static const Model::Hit::HitType ResizeHit2D;
+            /**
+             * Brush and face normal pair.
+             */
+            using FaceHandle = std::tuple<Model::BrushNode*, vm::vec3>;
 
-            using FaceHandle = std::tuple<Model::Brush*, vm::vec3>;
-
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             std::vector<FaceHandle> m_dragHandles;
             vm::vec3 m_dragOrigin;
             vm::vec3 m_lastPoint;
+            /**
+             * This is temporarily set to true when a drag is started with Ctrl,
+             * to signal that new brushes need to be split off. After the split brushes have been
+             * created, it's set back to false, in `resize()`.
+             */
             bool m_splitBrushes;
             vm::vec3 m_totalDelta;
             bool m_dragging;
         public:
-            explicit ResizeBrushesTool(MapDocumentWPtr document);
+            explicit ResizeBrushesTool(std::weak_ptr<MapDocument> document);
             ~ResizeBrushesTool() override;
 
             bool applies() const;
@@ -67,17 +85,16 @@ namespace TrenchBroom {
             Model::Hit pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
         private:
             class PickProximateFace;
-            Model::Hit pickProximateFace(Model::Hit::HitType hitType, const vm::ray3& pickRay) const;
+            Model::Hit pickProximateFace(Model::HitType::Type hitType, const vm::ray3& pickRay) const;
         public:
             bool hasDragFaces() const;
-            Model::BrushFaceList dragFaces() const;
+            std::vector<Model::BrushFaceHandle> dragFaces() const;
             void updateDragFaces(const Model::PickResult& pickResult);
         private:
             std::vector<FaceHandle> getDragHandles(const Model::Hit& hit) const;
             class MatchFaceBoundary;
             std::vector<FaceHandle> collectDragHandles(const Model::Hit& hit) const;
-            Model::BrushFaceList collectDragFaces(Model::BrushFace* face) const;
-            std::vector<FaceHandle> getDragHandles(const Model::BrushFaceList& faces) const;
+            std::vector<Model::BrushFaceHandle> collectDragFaces(const Model::BrushFaceHandle& faceHandle) const;
         public:
             bool beginResize(const Model::PickResult& pickResult, bool split);
             bool resize(const vm::ray3& pickRay, const Renderer::Camera& camera);
@@ -89,13 +106,13 @@ namespace TrenchBroom {
             void commit();
             void cancel();
         private:
-            bool splitBrushes(const vm::vec3& delta);
-            Model::BrushFace* findMatchingFace(Model::Brush* brush, const Model::BrushFace* reference) const;
+            bool splitBrushesOutward(const vm::vec3& delta);
+            bool splitBrushesInward(const vm::vec3& delta);
             std::vector<vm::polygon3> dragFaceDescriptors() const;
         private:
             void bindObservers();
             void unbindObservers();
-            void nodesDidChange(const Model::NodeList& nodes);
+            void nodesDidChange(const std::vector<Model::Node*>& nodes);
             void selectionDidChange(const Selection& selection);
         };
     }

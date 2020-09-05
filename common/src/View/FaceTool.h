@@ -20,27 +20,27 @@
 #ifndef FaceTool_h
 #define FaceTool_h
 
-#include "TrenchBroom.h"
-#include "View/VertexHandleManager.h"
+#include "FloatType.h"
 #include "View/VertexToolBase.h"
 
+#include <vecmath/polygon.h>
+
+#include <memory>
+#include <string>
+#include <vector>
+
 namespace TrenchBroom {
-    namespace Model {
-        class PickResult;
-    }
-
-    namespace Renderer {
-        class Camera;
-    }
-
     namespace View {
+        class FaceHandleManager;
+
         class FaceTool : public VertexToolBase<vm::polygon3> {
         private:
-            FaceHandleManager m_faceHandles;
+            std::unique_ptr<FaceHandleManager> m_faceHandles;
         public:
-            FaceTool(MapDocumentWPtr document);
+            FaceTool(std::weak_ptr<MapDocument> document);
         public:
-            Model::BrushSet findIncidentBrushes(const vm::polygon3& handle) const;
+            // FIXME: use vector_set
+            std::vector<Model::BrushNode*> findIncidentBrushes(const vm::polygon3& handle) const;
         private:
             using VertexToolBase::findIncidentBrushes;
         public:
@@ -51,7 +51,7 @@ namespace TrenchBroom {
         public:
             MoveResult move(const vm::vec3& delta) override;
 
-            String actionName() const override;
+            std::string actionName() const override;
 
             void removeSelection();
         };

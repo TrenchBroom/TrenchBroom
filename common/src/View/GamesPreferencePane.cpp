@@ -20,118 +20,142 @@
 #include "GamesPreferencePane.h"
 
 #include "PreferenceManager.h"
-#include "Preferences.h"
 #include "IO/Path.h"
+#include "IO/PathQt.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "View/BorderLine.h"
 #include "View/GameEngineDialog.h"
 #include "View/GameListBox.h"
-#include "View/GameSelectionCommand.h"
 #include "View/ViewConstants.h"
-#include "View/wxUtils.h"
+#include "View/QtUtils.h"
 
-#include <wx/button.h>
-#include <wx/dirdlg.h>
-#include <wx/gbsizer.h>
-#include <wx/listbox.h>
-#include <wx/simplebook.h>
-#include <wx/sizer.h>
-#include <wx/settings.h>
-#include <wx/stattext.h>
-#include <wx/textctrl.h>
+#include <QAction>
+#include <QBoxLayout>
+#include <QDir>
+#include <QFileDialog>
+#include <QFormLayout>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QStackedWidget>
+#include <QWidget>
+
+#include "IO/ResourceUtils.h"
 
 namespace TrenchBroom {
     namespace View {
-        GamesPreferencePane::GamesPreferencePane(wxWindow* parent) :
+        GamesPreferencePane::GamesPreferencePane(QWidget* parent) :
         PreferencePane(parent),
         m_gameListBox(nullptr),
-        m_book(nullptr),
+        m_stackedWidget(nullptr),
         m_gamePathText(nullptr),
         m_chooseGamePathButton(nullptr) {
             createGui();
             updateControls();
-        }
-
-        void GamesPreferencePane::OnGameSelectionChanged(GameSelectionCommand& event) {
-            if (IsBeingDeleted()) return;
-
-            updateControls();
-        }
-
-        void GamesPreferencePane::OnChooseGamePathClicked(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-
-            const wxString pathStr = ::wxDirSelector("Choose game directory", wxEmptyString, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
-            if (!pathStr.empty())
-                updateGamePath(pathStr);
-        }
-
-        void GamesPreferencePane::updateGamePath(const wxString& str) {
-            const IO::Path gamePath(str.ToStdString());
-            const auto gameName = m_gameListBox->selectedGameName();
-            auto& gameFactory = Model::GameFactory::instance();
-            if (gameFactory.setGamePath(gameName, gamePath))
-                updateControls();
-        }
-
-        void GamesPreferencePane::OnConfigureenginesClicked(wxCommandEvent& event) {
-            const auto gameName = m_gameListBox->selectedGameName();
-            GameEngineDialog dialog(this, gameName);
-            dialog.ShowModal();
+            m_gameListBox->setFocus();
         }
 
         void GamesPreferencePane::createGui() {
-            m_gameListBox = new GameListBox(this);
+            m_gameListBox = new GameListBox();
             m_gameListBox->selectGame(0);
+            m_gameListBox->setMaximumWidth(220);
+            m_gameListBox->setMinimumHeight(300);
 
-            m_book = new wxSimplebook(this);
-            m_book->AddPage(createDefaultPage(m_book, "Select a game."), "Default");
-            m_book->AddPage(createGamePreferencesPage(m_book), "Game");
-            m_book->SetSelection(0);
+            connect(m_gameListBox, &GameListBox::currentGameChanged, this, &GamesPreferencePane::currentGameChanged);
 
-            auto* prefMarginSizer = new wxBoxSizer(wxVERTICAL);
-            prefMarginSizer->AddSpacer(LayoutConstants::WideVMargin);
-            prefMarginSizer->Add(m_book, wxSizerFlags().Expand());
-            prefMarginSizer->AddSpacer(LayoutConstants::WideVMargin);
+            m_stackedWidget = new QStackedWidget();
+            m_stackedWidget->addWidget(createDefaultPage("Select a game."));
+            m_stackedWidget->addWidget(createGamePreferencesPage());
 
-            auto* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->Add(m_gameListBox, wxSizerFlags().Expand());
-            sizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), wxSizerFlags().Expand());
-            sizer->AddSpacer(LayoutConstants::WideVMargin);
-            sizer->Add(prefMarginSizer, wxSizerFlags().Expand().Proportion(1));
-            sizer->AddSpacer(LayoutConstants::WideVMargin);
-            sizer->SetItemMinSize(m_gameListBox, 200, 200);
+            auto* layout = new QHBoxLayout();
+            layout->setContentsMargins(QMargins());
+            layout->setSpacing(0);
+            setLayout(layout);
 
-            SetSizer(sizer);
-            SetMinSize(wxSize(600, 300));
+            layout->addWidget(m_gameListBox);
+            layout->addWidget(new BorderLine(BorderLine::Direction::Vertical));
+            layout->addSpacing(LayoutConstants::MediumVMargin);
+            layout->addWidget(m_stackedWidget, 1, Qt::AlignTop);
+
+            setMinimumWidth(600);
         }
 
-        wxWindow* GamesPreferencePane::createGamePreferencesPage(wxWindow* parent) {
-            auto* containerPanel = new wxPanel(parent);
+        QWidget* GamesPreferencePane::createGamePreferencesPage() {
+            auto* container = new QWidget();
 
-            auto* gamePathLabel = new wxStaticText(containerPanel, wxID_ANY, "Game Path");
-            m_gamePathText = new wxTextCtrl(containerPanel, wxID_ANY, "");
-            m_gamePathText->SetEditable(false);
-            setHint(m_gamePathText, "Click on the button to choose...");
-            m_chooseGamePathButton = new wxButton(containerPanel, wxID_ANY, "...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+            m_gamePathText = new QLineEdit();
+            setHint(m_gamePathText, "Click on the button to change...");
+            connect(m_gamePathText, &QLineEdit::editingFinished, this, [this]() {
+                updateGamePath(this->m_gamePathText->text());
+            });
 
-            auto* configureEnginesButton = new wxButton(containerPanel, wxID_ANY, "Configure engines...");
+            auto* validDirectoryIcon = new QAction(m_gamePathText);
+            m_gamePathText->addAction(validDirectoryIcon, QLineEdit::TrailingPosition);
+            connect(m_gamePathText, &QLineEdit::textChanged, this, [validDirectoryIcon](const QString& text) {
+                if (text.isEmpty() || QDir(text).exists()) {
+                    validDirectoryIcon->setToolTip("");
+                    validDirectoryIcon->setIcon(QIcon());
+                } else {
+                    validDirectoryIcon->setToolTip(tr("Directory not found"));
+                    validDirectoryIcon->setIcon(IO::loadSVGIcon(IO::Path("IssueBrowser.svg")));
+                }
+            });
 
-            m_gameListBox->Bind(GAME_SELECTION_CHANGE_EVENT, &GamesPreferencePane::OnGameSelectionChanged, this);
+            m_chooseGamePathButton = new QPushButton("...");
+            connect(m_chooseGamePathButton, &QPushButton::clicked, this, &GamesPreferencePane::chooseGamePathClicked);
 
-            m_chooseGamePathButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnChooseGamePathClicked, this);
-            configureEnginesButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnConfigureenginesClicked, this);
+            auto* configureEnginesButton = new QPushButton("Configure engines...");
+            connect(configureEnginesButton, &QPushButton::clicked, this, &GamesPreferencePane::configureEnginesClicked);
 
-            auto* containerSizer = new wxGridBagSizer(LayoutConstants::WideVMargin, LayoutConstants::WideHMargin);
-            containerSizer->Add(gamePathLabel,						wxGBPosition(0,0), wxDefaultSpan, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT);
-            containerSizer->Add(m_gamePathText,						wxGBPosition(0,1), wxDefaultSpan, wxALIGN_CENTER_VERTICAL | wxEXPAND);
-            containerSizer->Add(m_chooseGamePathButton,				wxGBPosition(0,2), wxDefaultSpan, wxALIGN_CENTER_VERTICAL);
-            containerSizer->Add(configureEnginesButton,				wxGBPosition(1,1), wxGBSpan(1,2));
-            containerSizer->AddGrowableCol(1);
+            auto* gamePathLayout = new QHBoxLayout();
+            gamePathLayout->setContentsMargins(QMargins());
+            gamePathLayout->setSpacing(LayoutConstants::MediumHMargin);
+            gamePathLayout->addWidget(m_gamePathText, 1);
+            gamePathLayout->addWidget(m_chooseGamePathButton);
 
-            containerPanel->SetSizer(containerSizer);
-            return containerPanel;
+            auto* layout = new QFormLayout();
+            layout->setContentsMargins(LayoutConstants::MediumHMargin, LayoutConstants::MediumVMargin, LayoutConstants::MediumHMargin, LayoutConstants::MediumVMargin);
+            layout->setHorizontalSpacing(LayoutConstants::MediumHMargin);
+            layout->setVerticalSpacing(0);
+            layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+            container->setLayout(layout);
+
+            layout->addRow("Game Path", gamePathLayout);
+            layout->addRow("", configureEnginesButton);
+
+            return container;
+        }
+
+        void GamesPreferencePane::currentGameChanged(const QString& gameName) {
+            if (gameName == m_currentGame) {
+                return;
+            }
+            m_currentGame = gameName;
+            updateControls();
+        }
+
+        void GamesPreferencePane::chooseGamePathClicked() {
+            const QString pathStr = QFileDialog::getExistingDirectory(this, tr("Game Path"), fileDialogDefaultDirectory(FileDialogDir::GamePath));
+            if (!pathStr.isEmpty()) {
+                updateGamePath(pathStr);
+            }
+        }
+
+        void GamesPreferencePane::updateGamePath(const QString& str) {
+            updateFileDialogDefaultDirectoryWithDirectory(FileDialogDir::GamePath, str);
+
+            const auto gamePath = IO::pathFromQString(str);
+            const auto gameName = m_gameListBox->selectedGameName();
+            auto& gameFactory = Model::GameFactory::instance();
+            if (gameFactory.setGamePath(gameName, gamePath)) {
+                updateControls();
+            }
+        }
+
+        void GamesPreferencePane::configureEnginesClicked() {
+            const auto gameName = m_gameListBox->selectedGameName();
+            GameEngineDialog dialog(gameName, this);
+            dialog.exec();
         }
 
         bool GamesPreferencePane::doCanResetToDefaults() {
@@ -141,18 +165,16 @@ namespace TrenchBroom {
         void GamesPreferencePane::doResetToDefaults() {}
 
         void GamesPreferencePane::doUpdateControls() {
-            if (m_gameListBox->GetSelection() == wxNOT_FOUND) {
-                m_book->SetSelection(0);
+            if (m_gameListBox->currentRow() < 0) {
+                m_stackedWidget->setCurrentIndex(0);
             } else {
-                m_book->SetSelection(1);
+                m_stackedWidget->setCurrentIndex(1);
                 const auto gameName = m_gameListBox->selectedGameName();
-                Model::GameFactory& gameFactory = Model::GameFactory::instance();
+                auto& gameFactory = Model::GameFactory::instance();
                 const auto gamePath = gameFactory.gamePath(gameName);
-                m_gamePathText->SetValue(gamePath.asString());
-                m_gameListBox->reloadGameInfos();
+                m_gamePathText->setText(IO::pathAsQString(gamePath));
+                m_gameListBox->updateGameInfos();
             }
-            Layout();
-
         }
 
         bool GamesPreferencePane::doValidate() {

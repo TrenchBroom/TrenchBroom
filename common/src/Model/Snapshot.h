@@ -20,19 +20,26 @@
 #ifndef TrenchBroom_Snapshot
 #define TrenchBroom_Snapshot
 
-#include "TrenchBroom.h"
-#include "Model/ModelTypes.h"
+#include "FloatType.h"
+#include "Macros.h"
+
+#include <kdl/result_forward.h>
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFace;
+        class BrushFaceHandle;
+        class Node;
         class NodeSnapshot;
+
+        enum class BrushError;
+        using SnapshotErrors = std::vector<BrushError>;
 
         class Snapshot {
         private:
-            NodeSnapshotList m_nodeSnapshots;
-            BrushFaceSnapshotList m_brushFaceSnapshots;
+            std::vector<NodeSnapshot*> m_nodeSnapshots;
         public:
             template <typename I>
             Snapshot(I cur, I end) {
@@ -44,14 +51,20 @@ namespace TrenchBroom {
 
             ~Snapshot();
 
-            void restoreNodes(const vm::bbox3& worldBounds);
-            void restoreBrushFaces();
+            /**
+             * Restores the snapshotted nodes into their original states.
+             *
+             * Note that restoring should usually not fail unless there was a programming error. We do catch such
+             * potential errors and return an error in this case, anyway.
+             *
+             * @param worldBounds the world bounds
+             * @return nothing on success or an error if restore failed
+             */
+            kdl::result<void, SnapshotErrors> restoreNodes(const vm::bbox3& worldBounds);
         private:
             void takeSnapshot(Node* node);
-            void takeSnapshot(BrushFace* face);
-        private:
-            Snapshot(const Snapshot&);
-            Snapshot& operator=(const Snapshot&);
+            
+            deleteCopyAndMove(Snapshot)
         };
     }
 }

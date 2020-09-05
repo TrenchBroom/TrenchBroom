@@ -20,27 +20,20 @@
 #ifndef CompilationTask_h
 #define CompilationTask_h
 
+#include "Macros.h"
 #include "Notifier.h"
-#include "StringUtils.h"
-#include "IO/Path.h"
 
-#include <vector>
-
-class wxTimer;
-class wxTimerEvent;
+#include <string>
 
 namespace TrenchBroom {
     namespace Model {
-        class CompilationContext;
-        class CompilationTaskVisitor;
-        class ConstCompilationTaskVisitor;
         class CompilationTaskConstVisitor;
+        class CompilationTaskVisitor;
         class ConstCompilationTaskConstVisitor;
+        class ConstCompilationTaskVisitor;
 
         class CompilationTask {
         public:
-            using List = std::vector<CompilationTask*>;
-
             Notifier<> taskWillBeRemoved;
             Notifier<> taskDidChange;
         protected:
@@ -53,117 +46,111 @@ namespace TrenchBroom {
             virtual void accept(const CompilationTaskConstVisitor& visitor) = 0;
             virtual void accept(const ConstCompilationTaskConstVisitor& visitor) const = 0;
 
-            CompilationTask* clone() const;
-        private:
-            virtual CompilationTask* doClone() const = 0;
-        private:
-            CompilationTask(const CompilationTask& other);
-            CompilationTask& operator=(const CompilationTask& other);
+            virtual CompilationTask* clone() const = 0;
+
+            deleteCopyAndMove(CompilationTask)
         };
 
         class CompilationExportMap : public CompilationTask {
         private:
-            String m_targetSpec;
+            std::string m_targetSpec;
         public:
-            CompilationExportMap(const String& targetSpec);
+            explicit CompilationExportMap(const std::string& targetSpec);
 
             void accept(CompilationTaskVisitor& visitor) override;
             void accept(ConstCompilationTaskVisitor& visitor) const override;
             void accept(const CompilationTaskConstVisitor& visitor) override;
             void accept(const ConstCompilationTaskConstVisitor& visitor) const override;
 
-            const String& targetSpec() const;
+            const std::string& targetSpec() const;
 
-            void setTargetSpec(const String& targetSpec);
-        private:
-            CompilationTask* doClone() const override;
-        private:
-            CompilationExportMap(const CompilationExportMap& other);
-            CompilationExportMap& operator=(const CompilationExportMap& other);
+            void setTargetSpec(const std::string& targetSpec);
+
+            CompilationExportMap* clone() const override;
+
+            deleteCopyAndMove(CompilationExportMap)
         };
 
         class CompilationCopyFiles : public CompilationTask {
         private:
-            String m_sourceSpec;
-            String m_targetSpec;
+            std::string m_sourceSpec;
+            std::string m_targetSpec;
         public:
-            CompilationCopyFiles(const String& sourceSpec, const String& targetSpec);
+            CompilationCopyFiles(const std::string& sourceSpec, const std::string& targetSpec);
 
             void accept(CompilationTaskVisitor& visitor) override;
             void accept(ConstCompilationTaskVisitor& visitor) const override;
             void accept(const CompilationTaskConstVisitor& visitor) override;
             void accept(const ConstCompilationTaskConstVisitor& visitor) const override;
 
-            const String& sourceSpec() const;
-            const String& targetSpec() const;
+            const std::string& sourceSpec() const;
+            const std::string& targetSpec() const;
 
-            void setSourceSpec(const String& sourceSpec);
-            void setTargetSpec(const String& targetSpec);
-        private:
-            CompilationTask* doClone() const override;
-        private:
-            CompilationCopyFiles(const CompilationCopyFiles& other);
-            CompilationCopyFiles& operator=(const CompilationCopyFiles& other);
+            void setSourceSpec(const std::string& sourceSpec);
+            void setTargetSpec(const std::string& targetSpec);
+
+            CompilationCopyFiles* clone() const override;
+
+            deleteCopyAndMove(CompilationCopyFiles)
         };
 
         class CompilationRunTool : public CompilationTask {
         private:
-            String m_toolSpec;
-            String m_parameterSpec;
+            std::string m_toolSpec;
+            std::string m_parameterSpec;
         public:
-            CompilationRunTool(const String& toolSpec, const String& parameterSpec);
+            CompilationRunTool(const std::string& toolSpec, const std::string& parameterSpec);
 
             void accept(CompilationTaskVisitor& visitor) override;
             void accept(ConstCompilationTaskVisitor& visitor) const override;
             void accept(const CompilationTaskConstVisitor& visitor) override;
             void accept(const ConstCompilationTaskConstVisitor& visitor) const override;
 
-            const String& toolSpec() const;
-            const String& parameterSpec() const;
+            const std::string& toolSpec() const;
+            const std::string& parameterSpec() const;
 
-            void setToolSpec(const String& toolSpec);
-            void setParameterSpec(const String& parameterSpec);
-        private:
-            CompilationTask* doClone() const override;
-        private:
-            CompilationRunTool(const CompilationRunTool& other);
-            CompilationRunTool& operator=(const CompilationRunTool& other);
+            void setToolSpec(const std::string& toolSpec);
+            void setParameterSpec(const std::string& parameterSpec);
+
+            CompilationRunTool* clone() const override;
+
+            deleteCopyAndMove(CompilationRunTool)
         };
 
         class CompilationTaskVisitor {
         public:
             virtual ~CompilationTaskVisitor();
 
-            virtual void visit(CompilationExportMap* task) = 0;
-            virtual void visit(CompilationCopyFiles* task) = 0;
-            virtual void visit(CompilationRunTool* task) = 0;
+            virtual void visit(CompilationExportMap& task) = 0;
+            virtual void visit(CompilationCopyFiles& task) = 0;
+            virtual void visit(CompilationRunTool& task) = 0;
         };
 
         class ConstCompilationTaskVisitor {
         public:
             virtual ~ConstCompilationTaskVisitor();
 
-            virtual void visit(const CompilationExportMap* task) = 0;
-            virtual void visit(const CompilationCopyFiles* task) = 0;
-            virtual void visit(const CompilationRunTool* task) = 0;
+            virtual void visit(const CompilationExportMap& task) = 0;
+            virtual void visit(const CompilationCopyFiles& task) = 0;
+            virtual void visit(const CompilationRunTool& task) = 0;
         };
 
         class CompilationTaskConstVisitor {
         public:
             virtual ~CompilationTaskConstVisitor();
 
-            virtual void visit(CompilationExportMap* task) const = 0;
-            virtual void visit(CompilationCopyFiles* task) const = 0;
-            virtual void visit(CompilationRunTool* task) const = 0;
+            virtual void visit(CompilationExportMap& task) const = 0;
+            virtual void visit(CompilationCopyFiles& task) const = 0;
+            virtual void visit(CompilationRunTool& task) const = 0;
         };
 
         class ConstCompilationTaskConstVisitor {
         public:
             virtual ~ConstCompilationTaskConstVisitor();
 
-            virtual void visit(const CompilationExportMap* task) const = 0;
-            virtual void visit(const CompilationCopyFiles* task) const = 0;
-            virtual void visit(const CompilationRunTool* task) const = 0;
+            virtual void visit(const CompilationExportMap& task) const = 0;
+            virtual void visit(const CompilationCopyFiles& task) const = 0;
+            virtual void visit(const CompilationRunTool& task) const = 0;
         };
     }
 }

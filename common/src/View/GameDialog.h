@@ -20,14 +20,15 @@
 #ifndef TrenchBroom_GameDialog
 #define TrenchBroom_GameDialog
 
-#include "StringUtils.h"
 #include "Model/MapFormat.h"
 
-#include <wx/dialog.h>
+#include <string>
 
-class wxButton;
-class wxChoice;
-class wxWindow;
+#include <QDialog>
+
+class QComboBox;
+class QPushButton;
+class QWidget;
 
 namespace TrenchBroom {
     namespace IO {
@@ -36,42 +37,35 @@ namespace TrenchBroom {
 
     namespace View {
         class GameListBox;
-        class GameSelectionCommand;
 
-        class GameDialog : public wxDialog {
+        class GameDialog : public QDialog {
+            Q_OBJECT
         protected:
             GameListBox* m_gameListBox;
-            wxChoice* m_mapFormatChoice;
-            wxButton* m_openPreferencesButton;
+            QComboBox* m_mapFormatComboBox;
+            QPushButton* m_openPreferencesButton;
+            QPushButton* m_okButton;
         public:
-            virtual ~GameDialog();
+            ~GameDialog() override;
 
-            static bool showNewDocumentDialog(wxWindow* parent, String& gameName, Model::MapFormat& mapFormat);
-            static bool showOpenDocumentDialog(wxWindow* parent, String& gameName, Model::MapFormat& mapFormat);
+            // FIXME: return a tuple instead of taking in/out parameters
+            static bool showNewDocumentDialog(QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat);
+            static bool showOpenDocumentDialog(QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat);
 
-            String selectedGameName() const;
-            Model::MapFormat selectedMapFormat() const;
-        private:
-            void OnGameSelectionChanged(GameSelectionCommand& command);
-            void OnGameSelected(GameSelectionCommand& command);
-            void OnUpdateMapFormatChoice(wxUpdateUIEvent& event);
-
-            void OnOpenPreferencesClicked(wxCommandEvent& event);
-            void OnUpdateOkButton(wxUpdateUIEvent& event);
-
-            void OnClose(wxCloseEvent& event);
+            std::string currentGameName() const;
+            Model::MapFormat currentMapFormat() const;
+        private slots:
+            void currentGameChanged(const QString& gameName);
+            void gameSelected(const QString& gameName);
+            void openPreferencesClicked();
         protected:
-            GameDialog();
-            void createDialog(wxWindow* parent, const wxString& title, const wxString& infoText);
+            GameDialog(const QString& title, const QString& infoText, QWidget* parent = nullptr);
 
-            void createGui(const wxString& title, const wxString& infoText);
-            virtual wxWindow* createInfoPanel(wxWindow* parent, const wxString& title, const wxString& infoText);
-            virtual wxWindow* createSelectionPanel(wxWindow* parent);
+            void createGui(const QString& title, const QString& infoText);
+            QWidget* createInfoPanel(QWidget* parent, const QString& title, const QString& infoText);
+            QWidget* createSelectionPanel(QWidget* parent);
         private:
-            bool isOkEnabled() const;
-            void gameSelectionChanged(const String& gameName);
-            void updateMapFormats(const String& gameName);
-            void gameSelected(const String& gameName);
+            void updateMapFormats(const std::string& gameName);
 
             void bindObservers();
             void unbindObservers();

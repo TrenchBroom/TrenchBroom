@@ -19,34 +19,20 @@
 
 #include "EntitySnapshot.h"
 
-#include "Model/Entity.h"
+#include "Exceptions.h"
+#include "Model/EntityNode.h"
+
+#include <kdl/result.h>
 
 namespace TrenchBroom {
     namespace Model {
-        EntitySnapshot::EntitySnapshot(Entity* entity, const EntityAttribute& origin, const EntityAttribute& rotation) :
+        EntitySnapshot::EntitySnapshot(EntityNode* entity) :
         m_entity(entity),
-        m_origin(origin),
-        m_rotation(rotation) {}
+        m_attributesSnapshot(entity->attributes()) {}
 
-        static void restoreAttribute(Entity* entity, const EntityAttribute& attribute) {
-            if (attribute.name().empty())
-                return;
-
-            if (attribute.value().empty()) {
-                // If the entity has an attribute with this name, clear the value, but otherwise don't insert {"name" ""}.
-                if (entity->hasAttribute(attribute.name())) {
-                    entity->addOrUpdateAttribute(attribute.name(), "");
-                }
-                return;
-            }
-
-            // normal case
-            entity->addOrUpdateAttribute(attribute.name(), attribute.value());
-        }
-
-        void EntitySnapshot::doRestore(const vm::bbox3& worldBounds) {
-            restoreAttribute(m_entity, m_origin);
-            restoreAttribute(m_entity, m_rotation);
+        kdl::result<void, SnapshotErrors> EntitySnapshot::doRestore(const vm::bbox3& /* worldBounds */) {
+            m_entity->setAttributes(m_attributesSnapshot);
+            return kdl::result<void, SnapshotErrors>::success();
         }
     }
 }

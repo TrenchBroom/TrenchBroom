@@ -19,8 +19,9 @@
 
 #include "VertexArray.h"
 
+#include "Renderer/PrimType.h"
+
 #include <cassert>
-#include <limits>
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -46,9 +47,9 @@ namespace TrenchBroom {
             return m_prepared;
         }
 
-        void VertexArray::prepare(Vbo& vbo) {
+        void VertexArray::prepare(VboManager& vboManager) {
             if (!prepared() && !empty()) {
-                m_holder->prepare(vbo);
+                m_holder->prepare(vboManager);
             }
             m_prepared = true;
         }
@@ -81,11 +82,11 @@ namespace TrenchBroom {
             assert(prepared());
             if (!m_setup) {
                 if (setup()) {
-                    glAssert(glDrawArrays(primType, index, count));
+                    glAssert(glDrawArrays(toGL(primType), index, count));
                     cleanup();
                 }
             } else {
-                glAssert(glDrawArrays(primType, index, count));
+                glAssert(glDrawArrays(toGL(primType), index, count));
             }
         }
 
@@ -95,13 +96,13 @@ namespace TrenchBroom {
                 if (setup()) {
                     const auto* indexArray = indices.data();
                     const auto* countArray = counts.data();
-                    glAssert(glMultiDrawArrays(primType, indexArray, countArray, primCount));
+                    glAssert(glMultiDrawArrays(toGL(primType), indexArray, countArray, primCount));
                     cleanup();
                 }
             } else {
                 const auto* indexArray = indices.data();
                 const auto* countArray = counts.data();
-                glAssert(glMultiDrawArrays(primType, indexArray, countArray, primCount));
+                glAssert(glMultiDrawArrays(toGL(primType), indexArray, countArray, primCount));
             }
 
         }
@@ -111,17 +112,17 @@ namespace TrenchBroom {
             if (!m_setup) {
                 if (setup()) {
                     const auto* indexArray = indices.data();
-                    glAssert(glDrawElements(primType, count, GL_UNSIGNED_INT, indexArray));
+                    glAssert(glDrawElements(toGL(primType), count, GL_UNSIGNED_INT, indexArray));
                     cleanup();
                 }
             } else {
                 const auto* indexArray = indices.data();
-                glAssert(glDrawElements(primType, count, GL_UNSIGNED_INT, indexArray));
+                glAssert(glDrawElements(toGL(primType), count, GL_UNSIGNED_INT, indexArray));
             }
         }
 
-        VertexArray::VertexArray(BaseHolder::Ptr holder) :
-        m_holder(holder),
+        VertexArray::VertexArray(std::shared_ptr<BaseHolder> holder) :
+        m_holder(std::move(holder)),
         m_prepared(false),
         m_setup(false) {}
     }

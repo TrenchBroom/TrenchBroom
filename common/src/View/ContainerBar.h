@@ -22,12 +22,14 @@
 
 #include "View/BorderPanel.h"
 
+#include <QObject>
+
 namespace TrenchBroom {
     namespace View {
         class ContainerBar : public BorderPanel {
+            Q_OBJECT
         public:
-            ContainerBar(wxWindow* parent, int borders);
-            virtual ~ContainerBar();
+            explicit ContainerBar(Sides borders, QWidget* parent = nullptr);
         };
     }
 }

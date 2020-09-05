@@ -20,25 +20,32 @@
 #ifndef TrenchBroom_ActionContext_h
 #define TrenchBroom_ActionContext_h
 
-#include "StringUtils.h"
+#include <string>
 
 namespace TrenchBroom {
     namespace View {
-        typedef enum {
-            ActionContext_Default         = 1 << 1,
-            ActionContext_AnyVertexTool   = 1 << 2,
-            ActionContext_CreateComplexBrushTool = 1 << 3,
-            ActionContext_ClipTool        = 1 << 4,
-            ActionContext_RotateTool      = 1 << 5,
-            ActionContext_NodeSelection   = 1 << 6,
-            ActionContext_FaceSelection   = 1 << 7,
-            ActionContext_ScaleTool       = 1 << 8,
-            ActionContext_ShearTool       = 1 << 9,
-            ActionContext_AnyTool         = ActionContext_AnyVertexTool | ActionContext_ClipTool | ActionContext_RotateTool | ActionContext_ScaleTool | ActionContext_ShearTool | ActionContext_CreateComplexBrushTool,
-            ActionContext_Any             = ActionContext_Default | ActionContext_AnyTool | ActionContext_NodeSelection | ActionContext_FaceSelection
-        } ActionContext;
+        namespace ActionContext {
+            using Type = size_t;
+            static const Type View3D                    = 1u << 0u;
+            static const Type View2D                    = 1u << 1u;
+            static const Type AnyView                   = View3D | View2D;
+            static const Type CreateComplexBrushTool    = 1u << 2u;
+            static const Type ClipTool                  = 1u << 3u;
+            static const Type RotateTool                = 1u << 4u;
+            static const Type ScaleTool                 = 1u << 5u;
+            static const Type ShearTool                 = 1u << 6u;
+            static const Type AnyVertexTool             = 1u << 7u;
+            static const Type AnyTool                   = AnyVertexTool | CreateComplexBrushTool | ClipTool | RotateTool | ScaleTool | ShearTool;
+            static const Type NodeSelection             = 1u << 8u;
+            static const Type FaceSelection             = 1u << 9u;
+            static const Type AnySelection              = NodeSelection | FaceSelection;
+            static const Type Any                       = AnySelection | AnyTool | AnyView;
+        }
 
-        String actionContextName(int actionContext);
+        bool actionContextMatches(ActionContext::Type lhs, ActionContext::Type rhs);
+        bool actionContextMatches(ActionContext::Type lhs, ActionContext::Type rhs, ActionContext::Type mask);
+
+        std::string actionContextName(ActionContext::Type actionContext);
 
         typedef enum {
             ActionView_Map2D = 0,

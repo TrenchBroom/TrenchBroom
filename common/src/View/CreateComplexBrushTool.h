@@ -20,28 +20,21 @@
 #ifndef TrenchBroom_CreateComplexBrushTool
 #define TrenchBroom_CreateComplexBrushTool
 
-#include "TrenchBroom.h"
-#include "Polyhedron.h"
-#include "Model/ModelTypes.h"
+#include "Model/Polyhedron3.h"
 #include "View/CreateBrushToolBase.h"
-#include "View/ViewTypes.h"
+
+#include <memory>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class BrushRenderer;
-        class RenderBatch;
-        class RenderContext;
-    }
-
     namespace View {
         class CreateComplexBrushTool : public CreateBrushToolBase {
         private:
-            Polyhedron3 m_polyhedron;
+            std::unique_ptr<Model::Polyhedron3> m_polyhedron;
         public:
-            CreateComplexBrushTool(MapDocumentWPtr document);
+            CreateComplexBrushTool(std::weak_ptr<MapDocument> document);
 
-            const Polyhedron3& polyhedron() const;
-            void update(const Polyhedron3& polyhedron);
+            const Model::Polyhedron3& polyhedron() const;
+            void update(const Model::Polyhedron3& polyhedron);
         private:
             bool doActivate() override;
             bool doDeactivate() override;

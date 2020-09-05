@@ -20,27 +20,31 @@
 #ifndef WalTextureReader_h
 #define WalTextureReader_h
 
-#include "Color.h"
-#include "IO/TextureReader.h"
 #include "Assets/Palette.h"
-#include "Assets/Texture.h"
+#include "Assets/TextureBuffer.h"
+#include "IO/TextureReader.h"
 
 namespace TrenchBroom {
+    class Color;
+    class Logger;
+
     namespace IO {
-        class Reader;
+        class File;
+        class FileSystem;
         class Path;
+        class Reader;
 
         class WalTextureReader : public TextureReader {
         private:
             mutable Assets::Palette m_palette;
         public:
-            WalTextureReader(const NameStrategy& nameStrategy, const Assets::Palette& palette = Assets::Palette());
+            WalTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger, const Assets::Palette& palette = Assets::Palette());
         private:
-            Assets::Texture* doReadTexture(std::shared_ptr<File> file) const override;
-            Assets::Texture* readQ2Wal(Reader& reader, const Path& path) const;
-            Assets::Texture* readDkWal(Reader& reader, const Path& path) const;
+            Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;
+            Assets::Texture readQ2Wal(Reader& reader, const Path& path) const;
+            Assets::Texture readDkWal(Reader& reader, const Path& path) const;
             size_t readMipOffsets(size_t maxMipLevels, size_t offsets[], size_t width, size_t height, Reader& reader) const;
-            static bool readMips(const Assets::Palette& palette, size_t mipLevels, const size_t offsets[], size_t width, size_t height, Reader& reader, Assets::TextureBuffer::List& buffers, Color& averageColor, Assets::PaletteTransparency transparency);
+            static bool readMips(const Assets::Palette& palette, size_t mipLevels, const size_t offsets[], size_t width, size_t height, Reader& reader, Assets::TextureBufferList& buffers, Color& averageColor, Assets::PaletteTransparency transparency);
         };
     }
 }

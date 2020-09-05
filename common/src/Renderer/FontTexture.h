@@ -20,19 +20,13 @@
 #ifndef TrenchBroom_FontTexture
 #define TrenchBroom_FontTexture
 
-#include "FreeType.h"
-
 #include "Renderer/GL.h"
-
-#include <memory>
 
 namespace TrenchBroom {
     namespace Renderer {
         class FontGlyphBuilder;
 
         class FontTexture {
-        public:
-            using Ptr = std::unique_ptr<FontTexture>;
         private:
             size_t m_size;
             char* m_buffer;

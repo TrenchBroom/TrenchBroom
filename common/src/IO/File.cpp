@@ -19,6 +19,7 @@
 
 #include "File.h"
 
+#include "Exceptions.h"
 #include "IO/IOUtils.h"
 
 namespace TrenchBroom {
@@ -50,7 +51,7 @@ namespace TrenchBroom {
         m_begin(begin),
         m_end(end) {
             if (m_end < m_begin) {
-                throw FileSystemException() << "Invalid buffer";
+                throw FileSystemException("Invalid buffer");
             }
         }
 
@@ -66,7 +67,7 @@ namespace TrenchBroom {
         File(path) {
             m_file = std::fopen(path.asString().c_str(), "rb");
             if (m_file == nullptr) {
-                throw FileSystemException() << "Cannot open file " << path;
+                throw FileSystemException("Cannot open file " + path.asString());
             }
             m_size = fileSize(m_file);
         }

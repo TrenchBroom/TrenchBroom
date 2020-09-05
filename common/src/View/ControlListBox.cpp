@@ -19,318 +19,283 @@
 
 #include "ControlListBox.h"
 
-#include "Macros.h"
 #include "View/BorderLine.h"
 #include "View/ViewConstants.h"
+#include "View/QtUtils.h"
 
-#include <wx/listbox.h>
-#include <wx/settings.h>
-#include <wx/sizer.h>
-#include <wx/stattext.h>
-#include <wx/wupdlock.h>
+#include <QLabel>
+#include <QListWidget>
+#include <QMouseEvent>
+#include <QSizePolicy>
+#include <QVBoxLayout>
 
-wxDEFINE_EVENT(wxEVT_LISTBOX_RCLICK, wxCommandEvent);
+#include <iostream>
 
 namespace TrenchBroom {
     namespace View {
-        ControlListBox::Item::Item(wxWindow* parent) :
-        wxWindow(parent, wxID_ANY) {}
+        // ControlListBoxItemRenderer
 
-        ControlListBox::Item::~Item() {}
-
-        bool ControlListBox::Item::AcceptsFocus() const {
-            return false;
+        ControlListBoxItemRenderer::ControlListBoxItemRenderer(QWidget* parent) :
+        QWidget(parent),
+        m_index(0) {
+            setBaseWindowColor(this);
         }
 
-        void ControlListBox::Item::setSelectionColours(const wxColour& foreground, const wxColour& background) {
-            setColours(this, foreground, background);
+        ControlListBoxItemRenderer::~ControlListBoxItemRenderer() = default;
+
+        void ControlListBoxItemRenderer::setIndex(const size_t index) {
+            m_index = index;
         }
 
-        void ControlListBox::Item::setDefaultColours(const wxColour& foreground, const wxColour& background) {
-            setColours(this, foreground, background);
-        }
-
-        void ControlListBox::Item::setColours(wxWindow* window, const wxColour& foreground, const wxColour& background) {
-            if (!window->GetChildren().IsEmpty() || window->ShouldInheritColours()) {
-                if (window->GetForegroundColour() != foreground)
-                    window->SetForegroundColour(foreground);
-                if (window->GetBackgroundColour() != background)
-                    window->SetBackgroundColour(background);
-            }
-
-            for (wxWindow* child : window->GetChildren())
-                setColours(child, foreground, background);
-        }
-
-        class ControlListBox::Sizer : public wxBoxSizer {
-        private:
-            const bool m_restrictToClientWidth;
-        public:
-            Sizer(const int orient, const bool restrictToClientWidth) :
-            wxBoxSizer(orient),
-            m_restrictToClientWidth(restrictToClientWidth){}
-
-            wxSize CalcMin() override {
-                const wxSize originalSize = wxBoxSizer::CalcMin();
-                if (!m_restrictToClientWidth)
-                    return originalSize;
-                const wxSize containerSize = GetContainingWindow()->GetClientSize();
-                const wxSize result(containerSize.x, originalSize.y);
-                return result;
-            }
-        };
-
-        ControlListBox::ControlListBox(wxWindow* parent, const bool restrictToClientWidth, const wxString& emptyText) :
-        wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxVSCROLL),
-        m_itemMargin(LayoutConstants::MediumHMargin, LayoutConstants::WideVMargin),
-        m_restrictToClientWidth(restrictToClientWidth),
-        m_emptyText(emptyText),
-        m_emptyTextLabel(nullptr),
-        m_showLastDivider(true),
-        m_valid(true),
-        m_newItemCount(0),
-        m_selectionIndex(0) {
-            SetSizer(new Sizer(wxVERTICAL, m_restrictToClientWidth));
-            SetScrollRate(5, 5);
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
-            SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
-            Bind(wxEVT_IDLE, &ControlListBox::OnIdle, this);
-            Bind(wxEVT_LEFT_DOWN, &ControlListBox::OnLeftClickVoid, this);
-            Bind(wxEVT_SIZE, &ControlListBox::OnSize, this);
-        }
-
-        size_t ControlListBox::GetItemCount() const {
-            if (!m_valid)
-                return m_newItemCount;
-            return m_items.size();
-        }
-
-        int ControlListBox::GetSelection() const {
-            if (m_selectionIndex == GetItemCount())
-                return  wxNOT_FOUND;
-            return static_cast<int>(m_selectionIndex);
-        }
-
-        void ControlListBox::SetItemCount(const size_t itemCount) {
-            if (m_selectionIndex == GetItemCount())
-                m_selectionIndex = itemCount;
-            else
-                m_selectionIndex = wxMin(itemCount, m_selectionIndex);
-            m_newItemCount = itemCount;
-            m_valid = false;
-        }
-
-        void ControlListBox::SetSelection(const int index) {
-            wxWindowUpdateLocker lock(this);
-
-            if (index < 0 || static_cast<size_t>(index) > GetItemCount()) {
-                setSelection(GetItemCount());
-            } else {
-                setSelection(static_cast<size_t>(index));
-            }
-            Refresh();
-        }
-
-        void ControlListBox::MakeVisible(const size_t index) {
-            validate();
-            ensure(index < m_items.size(), "index out of range");
-            MakeVisible(m_items[index]);
-        }
-
-        void ControlListBox::MakeVisible(const Item* item) {
-            MakeVisible(item->GetPosition().y, item->GetSize().y);
-        }
-
-        void ControlListBox::MakeVisible(wxCoord y, const wxCoord size) {
-            wxWindowUpdateLocker lock(this);
-
-            y = CalcUnscrolledPosition(wxPoint(0, y)).y;
-            int xUnit, yUnit;
-            GetScrollPixelsPerUnit(&xUnit, &yUnit);
-            const wxCoord startY = GetViewStart().y * yUnit;
-            const wxCoord sizeY  = GetClientSize().y;
-
-            if (y >= startY && y + size <= sizeY)
-                return;
-
-            if (size >= sizeY || y < startY) {
-                Scroll(wxDefaultCoord, y / yUnit);
-            } else if (y + size > startY + sizeY) {
-                Scroll(wxDefaultCoord, (y + size - sizeY) / yUnit + 1);
+        void ControlListBoxItemRenderer::mouseDoubleClickEvent(QMouseEvent* event) {
+            QWidget::mouseDoubleClickEvent(event);
+            if (event->button() == Qt::LeftButton) {
+                emit doubleClicked(m_index);
             }
         }
 
-        void ControlListBox::SetItemMargin(const wxSize& margin) {
-            if (m_itemMargin == margin)
-                return;
-            m_itemMargin = margin;
-            m_valid = false;
-        }
+        void ControlListBoxItemRenderer::updateItem() {}
 
-        void ControlListBox::SetShowLastDivider(const bool showLastDivider) {
-            if (m_showLastDivider == showLastDivider)
-                return;
-            m_showLastDivider = showLastDivider;
-            m_valid = false;
-        }
+        void ControlListBoxItemRenderer::setSelected(const bool selected, const QListWidget* listWidget) {
+            QPalette backgroundPalette;
+            backgroundPalette.setColor(QPalette::Active,   QPalette::Highlight, listWidget->palette().color(QPalette::Active,   QPalette::Highlight));
+            backgroundPalette.setColor(QPalette::Inactive, QPalette::Highlight, listWidget->palette().color(QPalette::Inactive, QPalette::Highlight));
+            backgroundPalette.setColor(QPalette::Disabled, QPalette::Highlight, listWidget->palette().color(QPalette::Disabled, QPalette::Highlight));
 
-        void ControlListBox::SetEmptyText(const wxString& emptyText) {
-            if (m_emptyText == emptyText)
-                return;
+            backgroundPalette.setColor(QPalette::Active,   QPalette::Base,      listWidget->palette().color(QPalette::Active,   QPalette::Base));
+            backgroundPalette.setColor(QPalette::Inactive, QPalette::Base,      listWidget->palette().color(QPalette::Inactive, QPalette::Base));
+            backgroundPalette.setColor(QPalette::Disabled, QPalette::Base,      listWidget->palette().color(QPalette::Disabled, QPalette::Base));
+            setPalette(backgroundPalette);
+            // macOS: we'd prefer setPalette(listWidget->palette()); but this doesn't work, whereas the above does.
+            // FIXME: the above setPalette call should be removed once we stop using QListWidget and make ControlListBox
+            // a standalone widget.
 
-            m_emptyText = emptyText;
-            if (GetItemCount() == 0)
-                m_valid = false;
-        }
+            setBackgroundRole(selected ? QPalette::Highlight : QPalette::Base);
 
-        void ControlListBox::invalidate() {
-            m_valid = false;
-        }
-
-        void ControlListBox::validate() {
-            if (!m_valid) {
-                m_valid = true;
-
-                wxWindowUpdateLocker lock(this);
-                refresh(m_newItemCount);
-                setSelection(m_selectionIndex);
-                Refresh();
-
-            }
-        }
-
-        void ControlListBox::refresh(const size_t itemCount) {
-            wxSizer* listSizer = GetSizer();
-            listSizer->Clear(true);
-            m_emptyTextLabel = nullptr;
-
-            m_items.clear();
-            m_items.reserve(itemCount);
-
-            if (itemCount > 0) {
-                for (size_t i = 0; i < itemCount; ++i) {
-                    Item* item = createItem(this, m_itemMargin, i);
-
-                    listSizer->Add(item, wxSizerFlags().Expand());
-                    if (i < itemCount - 1 || m_showLastDivider)
-                        listSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), wxSizerFlags().Expand());
-
-                    bindEvents(item, i);
-                    m_items.push_back(item);
+            // by default, we just change the appearance of all labels
+            auto children = findChildren<QLabel*>();
+            for (auto* child : children) {
+                const auto dontUpdate = child->property(ControlListBox::LabelColorShouldNotUpdateWhenSelected);
+                if (dontUpdate.isValid() && dontUpdate.canConvert(QMetaType::Bool) && dontUpdate.toBool()) {
+                    continue;
                 }
-            } else if (!m_emptyText.empty()) {
-                m_emptyTextLabel = new wxStaticText(this, wxID_ANY, m_emptyText, wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE_HORIZONTAL);
-                m_emptyTextLabel->SetFont(m_emptyTextLabel->GetFont().Bold());
-                m_emptyTextLabel->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
-                if (m_restrictToClientWidth)
-                    m_emptyTextLabel->Wrap(GetClientSize().x - LayoutConstants::WideVMargin * 2);
 
-                wxSizer* justifySizer = new wxBoxSizer(wxHORIZONTAL);
-                justifySizer->AddStretchSpacer();
-                justifySizer->AddSpacer(LayoutConstants::WideHMargin);
-                justifySizer->Add(m_emptyTextLabel);
-                justifySizer->AddSpacer(LayoutConstants::WideHMargin);
-                justifySizer->AddStretchSpacer();
+                // The label colorRole automatically updates from QPalette::Text to QPalette::HighlightedText.
+                // However the macOS palette is different on listWidget and the app default QPalette, so
+                // we need to transfer the listWidget palette to the QLabel for good contrast.
 
-                listSizer->Add(justifySizer, wxSizerFlags().Border(wxTOP | wxBOTTOM, LayoutConstants::WideVMargin).Expand());
-                listSizer->AddStretchSpacer();
+                QPalette labelPalette;
+                labelPalette.setColor(QPalette::Active,   QPalette::HighlightedText, listWidget->palette().color(QPalette::Active,   QPalette::HighlightedText));
+                labelPalette.setColor(QPalette::Inactive, QPalette::HighlightedText, listWidget->palette().color(QPalette::Inactive, QPalette::HighlightedText));
+                labelPalette.setColor(QPalette::Disabled, QPalette::HighlightedText, listWidget->palette().color(QPalette::Disabled, QPalette::HighlightedText));
+
+                labelPalette.setColor(QPalette::Active,   QPalette::Text,            listWidget->palette().color(QPalette::Active,   QPalette::Text));
+                labelPalette.setColor(QPalette::Inactive, QPalette::Text,            listWidget->palette().color(QPalette::Inactive, QPalette::Text));
+                labelPalette.setColor(QPalette::Disabled, QPalette::Text,            listWidget->palette().color(QPalette::Disabled, QPalette::Text));
+                child->setPalette(labelPalette);
+                // macOS: we'd prefer child->setPalette(listWidget->palette()); but this doesn't work, whereas the above does.
+                // FIXME: the above setPalette call should be removed once we stop using QListWidget and make ControlListBox
+                // a standalone widget.
             }
-            if (m_restrictToClientWidth)
-                FitInside();
-            else
-                GetParent()->Fit();
-            InvalidateBestSize();
         }
 
-        void ControlListBox::bindEvents(wxWindow* window, const size_t itemIndex) {
-            if (window->IsFocusable()) {
-                window->Bind(wxEVT_SET_FOCUS, &ControlListBox::OnFocusChild, this, wxID_ANY, wxID_ANY, new wxVariant(long(itemIndex)));
+        // ControlListBoxItemRendererWrapper
+
+        ControlListBoxItemRendererWrapper::ControlListBoxItemRendererWrapper(ControlListBoxItemRenderer* renderer, const bool showSeparator, QWidget* parent) :
+        QWidget(parent),
+        m_renderer(renderer) {
+            auto* layout = new QVBoxLayout();
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+            layout->addWidget(m_renderer);
+
+            if (showSeparator) {
+                layout->addWidget(new BorderLine());
+            }
+
+            setLayout(layout);
+        }
+
+        ControlListBoxItemRenderer* ControlListBoxItemRendererWrapper::renderer() {
+            return m_renderer;
+        }
+
+        const ControlListBoxItemRenderer* ControlListBoxItemRendererWrapper::renderer() const {
+            return m_renderer;
+        }
+
+        // ControlListBox
+
+        ControlListBox::ControlListBox(const QString& emptyText, const QMargins& itemMargins, const bool showSeparator, QWidget* parent) :
+        QWidget(parent),
+        m_listWidget(new QListWidget()),
+        m_emptyTextContainer(new QWidget()),
+        m_emptyTextLabel(new QLabel(emptyText)),
+        m_itemMargins(itemMargins),
+        m_showSeparator(showSeparator) {
+            m_listWidget->setObjectName("controlListBox_listWidget");
+            m_listWidget->hide();
+            m_listWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+            // m_listWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+            connect(m_listWidget, &QListWidget::itemSelectionChanged, this, &ControlListBox::listItemSelectionChanged);
+
+            m_emptyTextLabel->setWordWrap(true);
+            m_emptyTextLabel->setDisabled(true);
+            m_emptyTextLabel->setAlignment(Qt::AlignHCenter);
+            m_emptyTextLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+
+            auto* outerLayout = new QVBoxLayout();
+            outerLayout->setContentsMargins(0, 0, 0, 0);
+            setLayout(outerLayout);
+
+            outerLayout->addWidget(m_listWidget, 1);
+            outerLayout->addWidget(m_emptyTextContainer);
+
+            auto* emptyTextLayout = new QVBoxLayout();
+            m_emptyTextContainer->setLayout(emptyTextLayout);
+            emptyTextLayout->addWidget(m_emptyTextLabel);
+        }
+
+        ControlListBox::ControlListBox(const QString& emptyText, const bool showSeparator, QWidget* parent) :
+        ControlListBox(emptyText, QMargins(LayoutConstants::MediumHMargin, LayoutConstants::NarrowVMargin, LayoutConstants::MediumHMargin, LayoutConstants::NarrowVMargin), showSeparator, parent) {}
+
+        void ControlListBox::setEmptyText(const QString& emptyText) {
+            m_emptyTextLabel->setText(emptyText);
+        }
+
+        void ControlListBox::setItemMargins(const QMargins& itemMargins) {
+            m_itemMargins = itemMargins;
+            reload();
+        }
+
+        int ControlListBox::count() const {
+            return m_listWidget->count();
+        }
+
+        int ControlListBox::currentRow() const {
+            return m_listWidget->currentRow();
+        }
+
+        void ControlListBox::setCurrentRow(const int currentRow) {
+            m_listWidget->setCurrentRow(currentRow);
+        }
+
+        void ControlListBox::reload() {
+            DisableWindowUpdates disableUpdates(this);
+
+            // WARNING: At this point, the ControlListBoxItemRenderer's might
+            // contain dangling pointers to model objects (if
+            // MapDocument::clearWorld world is called, e.g. when opening a new map).
+            //
+            // The clear() call below causes QListWidget::itemSelectionChanged
+            // to be emitted, before the widgets are cleared.
+            // This was causing a crash in LayerListBox's selectedRowChanged() override
+            // if you clicked on a layer and then opened a new map on Windows.
+            // As a workaround, unset the current row before clearing the list.
+            m_listWidget->setCurrentRow(-1);
+
+            m_listWidget->clear();
+
+            const auto count = itemCount();
+            if (count > 0) {
+                for (size_t i = 0; i < count; ++i) {
+                    addItemRenderer(createItemRenderer(m_listWidget, i));
+                }
+                m_listWidget->show();
+                m_emptyTextContainer->hide();
             } else {
-                window->Bind(wxEVT_LEFT_DOWN, &ControlListBox::OnLeftClickChild, this, wxID_ANY, wxID_ANY, new wxVariant(long(itemIndex)));
-                window->Bind(wxEVT_RIGHT_DOWN, &ControlListBox::OnRightClickChild, this, wxID_ANY, wxID_ANY, new wxVariant(long(itemIndex)));
-                window->Bind(wxEVT_LEFT_DCLICK, &ControlListBox::OnDoubleClickChild, this);
+                m_listWidget->hide();
+                m_emptyTextContainer->show();
+            }
+        }
+
+        void ControlListBox::updateItems() {
+            DisableWindowUpdates disableUpdates(this);
+            for (int i = 0; i < m_listWidget->count(); ++i) {
+                auto* renderer = this->renderer(i);
+                renderer->updateItem();
+            }
+        }
+
+        const ControlListBoxItemRenderer* ControlListBox::renderer(const int i) const {
+            auto* wrapper = this->wrapper(i);
+            if (wrapper == nullptr) {
+                return nullptr;
+            }
+            return wrapper->renderer();
+        }
+
+        ControlListBoxItemRenderer* ControlListBox::renderer(const int i) {
+            auto* wrapper = this->wrapper(i);
+            if (wrapper == nullptr) {
+                return nullptr;
+            }
+            return wrapper->renderer();
+        }
+
+        ControlListBoxItemRendererWrapper* ControlListBox::wrapper(int i) const {
+            if (i < 0 || i >= count()) {
+                return nullptr;
+            }
+            auto* widgetItem = m_listWidget->item(i);
+            return static_cast<ControlListBoxItemRendererWrapper*>(m_listWidget->itemWidget(widgetItem));
+        }
+
+        ControlListBoxItemRendererWrapper* ControlListBox::wrapper(const int i) {
+            if (i < 0 || i >= count()) {
+                return nullptr;
+            }
+            auto* widgetItem = m_listWidget->item(i);
+            return static_cast<ControlListBoxItemRendererWrapper*>(m_listWidget->itemWidget(widgetItem));
+        }
+
+        void ControlListBox::addItemRenderer(ControlListBoxItemRenderer* renderer) {
+            const auto index = count();
+            renderer->setIndex(static_cast<size_t>(index));
+            renderer->setContentsMargins(m_itemMargins);
+            connect(renderer, &ControlListBoxItemRenderer::doubleClicked, this, &ControlListBox::doubleClicked);
+
+            auto* widgetItem = new QListWidgetItem(m_listWidget);
+            m_listWidget->addItem(widgetItem);
+
+            if (m_listWidget->itemWidget(widgetItem) != nullptr) {
+                m_listWidget->removeItemWidget(widgetItem);
             }
 
-            for (wxWindow* child : window->GetChildren())
-                bindEvents(child, itemIndex);
+            auto* wrapper = new ControlListBoxItemRendererWrapper(renderer, m_showSeparator);
+
+            m_listWidget->setItemWidget(widgetItem, wrapper);
+            widgetItem->setSizeHint(renderer->minimumSizeHint());
+            renderer->updateItem();
+            renderer->setSelected(m_listWidget->currentItem() == widgetItem, m_listWidget);
         }
 
-        void ControlListBox::OnIdle(wxIdleEvent& event) {
-            validate();
-        }
+        void ControlListBox::selectedRowChanged(const int /* index */) {}
 
-        void ControlListBox::OnSize(wxSizeEvent& event) {
-            wxWindowUpdateLocker lock(this);
+        void ControlListBox::doubleClicked(const size_t /* index */) {}
 
-            if (m_emptyTextLabel != nullptr && m_restrictToClientWidth) {
-				m_emptyTextLabel->SetLabel(m_emptyText);
-                m_emptyTextLabel->Wrap(GetClientSize().x - LayoutConstants::WideVMargin * 2);
-			}
-            event.Skip();
-        }
-
-        void ControlListBox::OnFocusChild(wxFocusEvent& event) {
-            wxWindowUpdateLocker lock(this);
-            setSelection(event);
-
-            event.Skip();
-        }
-
-        void ControlListBox::OnLeftClickChild(wxMouseEvent& event) {
-            wxWindowUpdateLocker lock(this);
-            setSelection(event);
-        }
-
-        void ControlListBox::OnRightClickChild(wxMouseEvent& event) {
-            wxWindowUpdateLocker lock(this);
-            setSelection(event);
-
-            wxCommandEvent* command = new wxCommandEvent(wxEVT_LISTBOX_RCLICK, GetId());
-            command->SetInt(GetSelection());
-            command->SetEventObject(this);
-            QueueEvent(command);
-        }
-
-        void ControlListBox::OnDoubleClickChild(wxMouseEvent& event) {
-            wxCommandEvent* command = new wxCommandEvent(wxEVT_LISTBOX_DCLICK, GetId());
-            command->SetInt(GetSelection());
-            command->SetEventObject(this);
-            QueueEvent(command);
-        }
-
-        void ControlListBox::OnLeftClickVoid(wxMouseEvent& event) {
-            wxWindowUpdateLocker lock(this);
-            setSelection(GetItemCount());
-        }
-
-        void ControlListBox::setSelection(const wxEvent& event) {
-            const wxVariant* variant = static_cast<wxVariant*>(event.GetEventUserData());
-            const size_t itemIndex = static_cast<size_t>(variant->GetLong());
-            setSelection(itemIndex);
-        }
-
-        void ControlListBox::setSelection(const size_t index) {
-            validate();
-            ensure(index <= m_items.size(), "index out of range");
-            const bool changed = m_selectionIndex != index;
-            m_selectionIndex = index;
-
-            for (size_t i = 0; i < m_items.size(); ++i)
-                m_items[i]->setDefaultColours(GetForegroundColour(), GetBackgroundColour());
-
-            if (m_selectionIndex < m_items.size()) {
-                m_items[m_selectionIndex]->setSelectionColours(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXHIGHLIGHTTEXT), wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
-                MakeVisible(index);
+        void ControlListBox::listItemSelectionChanged() {
+            bool wasAnyRowSelected = false;
+            
+            for (int row = 0; row < count(); ++row) {
+                auto* listItem = m_listWidget->item(row);
+                auto* renderer = this->renderer(row);
+                // FIXME: this uses QListWidgetItem::isSelected() but addItemRenderer() is doing
+                // it based on QListWidget::currentItem() - should be consistent.
+                // (see: https://github.com/TrenchBroom/TrenchBroom/issues/3104)
+                renderer->setSelected(listItem->isSelected(), m_listWidget);
+                if (listItem->isSelected()) {
+                    selectedRowChanged(row);
+                    wasAnyRowSelected = true;
+                }
             }
 
-            Refresh();
-
-            if (changed) {
-                wxCommandEvent* command = new wxCommandEvent(wxEVT_LISTBOX, GetId());
-                command->SetInt(GetSelection());
-                command->SetEventObject(this);
-                QueueEvent(command);
+            if (!wasAnyRowSelected) {
+                selectedRowChanged(-1);
             }
+
+            emit itemSelectionChanged();
         }
     }
 }

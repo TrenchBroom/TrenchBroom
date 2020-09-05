@@ -19,46 +19,32 @@
 
 #include "Palette.h"
 
+#include "Ensure.h"
 #include "Exceptions.h"
-#include "StringUtils.h"
 #include "IO/File.h"
 #include "IO/Reader.h"
 #include "IO/FileSystem.h"
 #include "IO/ImageLoader.h"
 
-#include <algorithm>
-#include <cstring>
-#include <fstream>
+#include <kdl/string_format.h>
 
 namespace TrenchBroom {
     namespace Assets {
-        Palette::Data::Data(const size_t size, RawDataPtr&& data) :
-        m_size(size),
+        Palette::Data::Data(std::vector<unsigned char>&& data) :
         m_data(std::move(data)) {
-            ensure(m_size > 0, "size is 0");
-            ensure(m_data.get() != nullptr, "data is null");
-        }
-
-        Palette::Data::Data(const size_t size, unsigned char* data) :
-        m_size(size),
-        m_data(data) {
-            ensure(m_size > 0, "size is 0");
-            ensure(m_data.get() != nullptr, "data is null");
+            ensure(!m_data.empty(), "palette is empty");
         }
 
         Palette::Palette() {}
 
-        Palette::Palette(const size_t size, RawDataPtr&& data) :
-        m_data(std::make_shared<Data>(size, std::move(data))) {}
-
-        Palette::Palette(const size_t size, unsigned char* data) :
-        m_data(std::make_shared<Data>(size, data)) {}
+        Palette::Palette(std::vector<unsigned char> data) :
+        m_data(std::make_shared<Data>(std::move(data))) {}
 
         Palette Palette::loadFile(const IO::FileSystem& fs, const IO::Path& path) {
             try {
                 auto file = fs.openFile(path);
                 auto reader = file->reader().buffer();
-                const auto extension = StringUtils::toLower(path.extension());
+                const auto extension = kdl::str_to_lower(path.extension());
                 if (extension == "lmp") {
                     return loadLmp(reader);
                 } else if (extension == "pcx") {
@@ -74,41 +60,29 @@ namespace TrenchBroom {
         }
 
         Palette Palette::loadLmp(IO::Reader& reader) {
-            const auto size = reader.size();
-            auto data = std::make_unique<unsigned char[]>(size);
-
-            reader.read(data.get(), size);
-
-            return Palette(size, std::move(data));
+            auto data = std::vector<unsigned char>(reader.size());
+            reader.read(data.data(), data.size());
+            return Palette(std::move(data));
         }
 
         Palette Palette::loadPcx(IO::Reader& reader) {
-            const auto size = 768;
-            auto data = std::make_unique<unsigned char[]>(size);
-
-            reader.seekFromEnd(size);
-            reader.read(data.get(), size);
-
-            return Palette(size, std::move(data));
+            auto data = std::vector<unsigned char>(768);
+            reader.seekFromEnd(data.size());
+            reader.read(data.data(), data.size());
+            return Palette(std::move(data));
         }
 
         Palette Palette::loadBmp(IO::Reader& reader) {
             auto bufferedReader = reader.buffer();
             IO::ImageLoader imageLoader(IO::ImageLoader::BMP, std::begin(bufferedReader), std::end(bufferedReader));
-            const auto& pixels = imageLoader.hasPalette() ? imageLoader.palette() : imageLoader.pixels(IO::ImageLoader::RGB);
-
-            const auto size = pixels.size();
-            auto data = std::make_unique<unsigned char[]>(size);
-            std::copy(std::begin(pixels), std::end(pixels), data.get());
-
-            return Palette(size, std::move(data));
+            auto data = imageLoader.hasPalette() ? imageLoader.loadPalette() : imageLoader.loadPixels(IO::ImageLoader::RGB);
+            return Palette(std::move(data));
         }
 
         Palette Palette::fromRaw(IO::Reader& reader) {
-            const auto size = reader.size();
-            auto copy = std::make_unique<unsigned char[]>(size);
-            reader.read(copy.get(), size);
-            return Palette(size, std::move(copy));
+            auto data = std::vector<unsigned char>(reader.size());
+            reader.read(data.data(), data.size());
+            return Palette(std::move(data));
         }
 
         bool Palette::initialized() const {

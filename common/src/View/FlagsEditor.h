@@ -20,29 +20,29 @@
 #ifndef TrenchBroom_FlagsEditor
 #define TrenchBroom_FlagsEditor
 
-#include <wx/panel.h>
+#include <QWidget>
+#include <QStringList>
 
 #include <vector>
 
-class wxCheckBox;
-class wxCommandEvent;
-class wxWindow;
+class QCheckBox;
 
 namespace TrenchBroom {
     namespace View {
-        class FlagsEditor : public wxPanel {
+        class FlagsEditor : public QWidget {
+            Q_OBJECT
         private:
-            using CheckBoxList = std::vector<wxCheckBox*>;
+            using CheckBoxList = std::vector<QCheckBox*>;
             using ValueList = std::vector<int>;
 
             size_t m_numCols;
             CheckBoxList m_checkBoxes;
             ValueList m_values;
         public:
-            FlagsEditor(wxWindow* parent, size_t numCols);
+            explicit FlagsEditor(size_t numCols, QWidget* parent = nullptr);
 
-            void setFlags(const wxArrayString& labels, const wxArrayString& tooltips = wxArrayString(0));
-            void setFlags(const wxArrayInt& values, const wxArrayString& labels, const wxArrayString& tooltips = wxArrayString(0));
+            void setFlags(const QStringList& labels, const QStringList& tooltips = QStringList());
+            void setFlags(const QList<int>& values, const QStringList& labels, const QStringList& tooltips = QStringList());
             void setFlagValue(int set, int mixed = 0);
 
             size_t getNumFlags() const;
@@ -50,14 +50,20 @@ namespace TrenchBroom {
             bool isFlagMixed(size_t index) const;
             int getSetFlagValue() const;
             int getMixedFlagValue() const;
-            wxString getFlagLabel(size_t index) const;
+            QString getFlagLabel(size_t index) const;
 
             int lineHeight() const;
-
-            void OnCheckBoxClicked(wxCommandEvent& event);
-        private:
-            void setCheckBoxCount(size_t count);
-            size_t getIndexFromEvent(const wxCommandEvent& event) const;
+        signals:
+            /**
+             * Sent when a checkbox is clicked.
+             * If (value & setFlag) != 0 it means the checkbox's bit value was just set, otherwise it was unset.
+             *
+             * @param index the index of the checkbox (not the bit position)
+             * @param value the bit value represented by the checkbox
+             * @param setFlag the bitwise OR of the values of all currently checked checkboxes (same as `getSetFlagValue()`)
+             * @param mixedFlag the bitwise OR of the values of all currently mixed checkboxes (same as `getMixedFlagValue()`)
+             */
+            void flagChanged(size_t index, int value, int setFlag, int mixedFlag);
         };
     }
 }

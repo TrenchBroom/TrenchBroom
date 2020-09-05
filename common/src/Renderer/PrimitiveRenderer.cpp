@@ -19,8 +19,10 @@
 
 #include "PrimitiveRenderer.h"
 
-#include "TrenchBroom.h"
 #include "Color.h"
+#include "Renderer/ActiveShader.h"
+#include "Renderer/IndexRangeRenderer.h"
+#include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/ShaderManager.h"
@@ -33,7 +35,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        PrimitiveRenderer::LineRenderAttributes::LineRenderAttributes(const Color& color, const float lineWidth, const OcclusionPolicy occlusionPolicy) :
+        PrimitiveRenderer::LineRenderAttributes::LineRenderAttributes(const Color& color, const float lineWidth, const PrimitiveRendererOcclusionPolicy occlusionPolicy) :
         m_color(color),
         m_lineWidth(lineWidth),
         m_occlusionPolicy(occlusionPolicy) {}
@@ -66,17 +68,17 @@ namespace TrenchBroom {
         void PrimitiveRenderer::LineRenderAttributes::render(IndexRangeRenderer& renderer, ActiveShader& shader) const {
             glAssert(glLineWidth(m_lineWidth));
             switch (m_occlusionPolicy) {
-                case OP_Hide:
+                case PrimitiveRendererOcclusionPolicy::Hide:
                     shader.set("Color", m_color);
                     renderer.render();
                     break;
-                case OP_Show:
+                case PrimitiveRendererOcclusionPolicy::Show:
                     glAssert(glDisable(GL_DEPTH_TEST));
                     shader.set("Color", m_color);
                     renderer.render();
                     glAssert(glEnable(GL_DEPTH_TEST));
                     break;
-                case OP_Transparent:
+                case PrimitiveRendererOcclusionPolicy::Transparent:
                     glAssert(glDisable(GL_DEPTH_TEST));
                     shader.set("Color", Color(m_color, m_color.a() / 3.0f));
                     renderer.render();
@@ -87,7 +89,7 @@ namespace TrenchBroom {
             }
         }
 
-        PrimitiveRenderer::TriangleRenderAttributes::TriangleRenderAttributes(const Color& color, const OcclusionPolicy occlusionPolicy, CullingPolicy cullingPolicy) :
+        PrimitiveRenderer::TriangleRenderAttributes::TriangleRenderAttributes(const Color& color, const PrimitiveRendererOcclusionPolicy occlusionPolicy, const PrimitiveRendererCullingPolicy cullingPolicy) :
         m_color(color),
         m_occlusionPolicy(occlusionPolicy),
         m_cullingPolicy(cullingPolicy) {}
@@ -116,60 +118,60 @@ namespace TrenchBroom {
         }
 
         void PrimitiveRenderer::TriangleRenderAttributes::render(IndexRangeRenderer& renderer, ActiveShader& shader) const {
-            if (m_cullingPolicy == CP_ShowBackfaces) {
-                glAssert(glPushAttrib(GL_POLYGON_BIT));
-                glAssert(glDisable(GL_CULL_FACE));
-                glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+            if (m_cullingPolicy == PrimitiveRendererCullingPolicy::ShowBackfaces) {
+                glAssert(glPushAttrib(GL_POLYGON_BIT))
+                glAssert(glDisable(GL_CULL_FACE))
+                glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL))
             }
 
             // Disable depth writes if drawing something transparent
-            if (m_color.a() < 1.0) {
-                glAssert(glDepthMask(GL_FALSE));
+            if (m_color.a() < 1.0f) {
+                glAssert(glDepthMask(GL_FALSE))
             }
 
             switch (m_occlusionPolicy) {
-                case OP_Hide:
+                case PrimitiveRendererOcclusionPolicy::Hide:
                     shader.set("Color", m_color);
                     renderer.render();
                     break;
-                case OP_Show:
-                    glAssert(glDisable(GL_DEPTH_TEST));
+                case PrimitiveRendererOcclusionPolicy::Show:
+                    glAssert(glDisable(GL_DEPTH_TEST))
                     shader.set("Color", m_color);
                     renderer.render();
-                    glAssert(glEnable(GL_DEPTH_TEST));
+                    glAssert(glEnable(GL_DEPTH_TEST))
                     break;
-                case OP_Transparent:
-                    glAssert(glDisable(GL_DEPTH_TEST));
+                case PrimitiveRendererOcclusionPolicy::Transparent:
+                    glAssert(glDisable(GL_DEPTH_TEST))
                     shader.set("Color", Color(m_color, m_color.a() / 2.0f));
                     renderer.render();
-                    glAssert(glEnable(GL_DEPTH_TEST));
+                    glAssert(glEnable(GL_DEPTH_TEST))
                     shader.set("Color", m_color);
                     renderer.render();
                     break;
             }
 
-            if (m_color.a() < 1.0) {
-                glAssert(glDepthMask(GL_TRUE));
+            if (m_color.a() < 1.0f) {
+                glAssert(glDepthMask(GL_TRUE))
             }
 
-            if (m_cullingPolicy == CP_ShowBackfaces) {
-                glAssert(glPopAttrib());
+            if (m_cullingPolicy == PrimitiveRendererCullingPolicy::ShowBackfaces) {
+                glAssert(glPopAttrib())
             }
         }
 
-        void PrimitiveRenderer::renderLine(const Color& color, const float lineWidth, const OcclusionPolicy occlusionPolicy, const vm::vec3f& start, const vm::vec3f& end) {
+        void PrimitiveRenderer::renderLine(const Color& color, const float lineWidth, const PrimitiveRendererOcclusionPolicy occlusionPolicy, const vm::vec3f& start, const vm::vec3f& end) {
             m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLine(Vertex(start), Vertex(end));
         }
 
-        void PrimitiveRenderer::renderLines(const Color& color, const float lineWidth, const OcclusionPolicy occlusionPolicy, const std::vector<vm::vec3f>& positions) {
+        void PrimitiveRenderer::renderLines(const Color& color, const float lineWidth, const PrimitiveRendererOcclusionPolicy occlusionPolicy, const std::vector<vm::vec3f>& positions) {
             m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLines(Vertex::toList(positions.size(), std::begin(positions)));
         }
 
-        void PrimitiveRenderer::renderLineStrip(const Color& color, const float lineWidth, const OcclusionPolicy occlusionPolicy, const std::vector<vm::vec3f>& positions) {
+        void PrimitiveRenderer::renderLineStrip(const Color& color, const float lineWidth, const PrimitiveRendererOcclusionPolicy occlusionPolicy, const std::vector<vm::vec3f>& positions) {
             m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLineStrip(Vertex::toList(positions.size(), std::begin(positions)));
         }
 
-        void PrimitiveRenderer::renderCoordinateSystemXY(const Color& x, const Color& y, float lineWidth, const OcclusionPolicy occlusionPolicy, const vm::bbox3f& bounds) {
+        void PrimitiveRenderer::renderCoordinateSystemXY(const Color& x, const Color& y, float lineWidth, const PrimitiveRendererOcclusionPolicy occlusionPolicy, const vm::bbox3f& bounds) {
             vm::vec3f start, end;
 
             coordinateSystemVerticesX(bounds, start, end);
@@ -179,7 +181,7 @@ namespace TrenchBroom {
             renderLine(y, lineWidth, occlusionPolicy, start, end);
         }
 
-        void PrimitiveRenderer::renderCoordinateSystemXZ(const Color& x, const Color& z, float lineWidth, const OcclusionPolicy occlusionPolicy, const vm::bbox3f& bounds) {
+        void PrimitiveRenderer::renderCoordinateSystemXZ(const Color& x, const Color& z, float lineWidth, const PrimitiveRendererOcclusionPolicy occlusionPolicy, const vm::bbox3f& bounds) {
             vm::vec3f start, end;
 
             coordinateSystemVerticesX(bounds, start, end);
@@ -189,7 +191,7 @@ namespace TrenchBroom {
             renderLine(z, lineWidth, occlusionPolicy, start, end);
         }
 
-        void PrimitiveRenderer::renderCoordinateSystemYZ(const Color& y, const Color& z, float lineWidth, const OcclusionPolicy occlusionPolicy, const vm::bbox3f& bounds) {
+        void PrimitiveRenderer::renderCoordinateSystemYZ(const Color& y, const Color& z, float lineWidth, const PrimitiveRendererOcclusionPolicy occlusionPolicy, const vm::bbox3f& bounds) {
             vm::vec3f start, end;
 
             coordinateSystemVerticesY(bounds, start, end);
@@ -199,7 +201,7 @@ namespace TrenchBroom {
             renderLine(z, lineWidth, occlusionPolicy, start, end);
         }
 
-        void PrimitiveRenderer::renderCoordinateSystem3D(const Color& x, const Color& y, const Color& z, const float lineWidth, const OcclusionPolicy occlusionPolicy, const vm::bbox3f& bounds) {
+        void PrimitiveRenderer::renderCoordinateSystem3D(const Color& x, const Color& y, const Color& z, const float lineWidth, const PrimitiveRendererOcclusionPolicy occlusionPolicy, const vm::bbox3f& bounds) {
             vm::vec3f start, end;
 
             coordinateSystemVerticesX(bounds, start, end);
@@ -212,24 +214,24 @@ namespace TrenchBroom {
             renderLine(z, lineWidth, occlusionPolicy, start, end);
         }
 
-        void PrimitiveRenderer::renderPolygon(const Color& color, float lineWidth, const OcclusionPolicy occlusionPolicy, const std::vector<vm::vec3f>& positions) {
+        void PrimitiveRenderer::renderPolygon(const Color& color, float lineWidth, const PrimitiveRendererOcclusionPolicy occlusionPolicy, const std::vector<vm::vec3f>& positions) {
             m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLineLoop(Vertex::toList(positions.size(), std::begin(positions)));
         }
 
-        void PrimitiveRenderer::renderFilledPolygon(const Color& color, const OcclusionPolicy occlusionPolicy, CullingPolicy cullingPolicy, const std::vector<vm::vec3f>& positions) {
+        void PrimitiveRenderer::renderFilledPolygon(const Color& color, const PrimitiveRendererOcclusionPolicy occlusionPolicy, const PrimitiveRendererCullingPolicy cullingPolicy, const std::vector<vm::vec3f>& positions) {
             m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy, cullingPolicy)].addTriangleFan(Vertex::toList(positions.size(), std::begin(positions)));
         }
 
-        void PrimitiveRenderer::renderCylinder(const Color& color, const float radius, const size_t segments, const OcclusionPolicy occlusionPolicy, CullingPolicy cullingPolicy, const vm::vec3f& start, const vm::vec3f& end) {
-            assert(radius > 0.0);
+        void PrimitiveRenderer::renderCylinder(const Color& color, const float radius, const size_t segments, const PrimitiveRendererOcclusionPolicy occlusionPolicy, const PrimitiveRendererCullingPolicy cullingPolicy, const vm::vec3f& start, const vm::vec3f& end) {
+            assert(radius > 0.0f);
             assert(segments > 2);
 
             const vm::vec3f vec = end - start;
             const float len = vm::length(vec);
             const vm::vec3f dir = vec / len;
 
-            const vm::mat4x4f translation = vm::translationMatrix(start);
-            const vm::mat4x4f rotation    = vm::rotationMatrix(vm::vec3f::pos_z, dir);
+            const vm::mat4x4f translation = vm::translation_matrix(start);
+            const vm::mat4x4f rotation    = vm::rotation_matrix(vm::vec3f::pos_z(), dir);
             const vm::mat4x4f transform   = translation * rotation;
 
             const VertsAndNormals cylinder = cylinder3D(radius, len, segments);
@@ -238,26 +240,26 @@ namespace TrenchBroom {
             m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy, cullingPolicy)].addTriangleStrip(Vertex::toList(vertices.size(), std::begin(vertices)));
         }
 
-        void PrimitiveRenderer::doPrepareVertices(Vbo& vertexVbo) {
-            prepareLines(vertexVbo);
-            prepareTriangles(vertexVbo);
+        void PrimitiveRenderer::doPrepareVertices(VboManager& vboManager) {
+            prepareLines(vboManager);
+            prepareTriangles(vboManager);
         }
 
-        void PrimitiveRenderer::prepareLines(Vbo& vertexVbo) {
+        void PrimitiveRenderer::prepareLines(VboManager& vboManager) {
             for (auto& entry : m_lineMeshes) {
                 const LineRenderAttributes& attributes = entry.first;
                 IndexRangeMapBuilder<Vertex::Type>& mesh = entry.second;
                 IndexRangeRenderer& renderer = m_lineMeshRenderers.insert(std::make_pair(attributes, IndexRangeRenderer(mesh))).first->second;
-                renderer.prepare(vertexVbo);
+                renderer.prepare(vboManager);
             }
         }
 
-        void PrimitiveRenderer::prepareTriangles(Vbo& vertexVbo) {
+        void PrimitiveRenderer::prepareTriangles(VboManager& vboManager) {
             for (auto& entry : m_triangleMeshes) {
                 const TriangleRenderAttributes& attributes = entry.first;
                 IndexRangeMapBuilder<Vertex::Type>& mesh = entry.second;
                 IndexRangeRenderer& renderer = m_triangleMeshRenderers.insert(std::make_pair(attributes, IndexRangeRenderer(mesh))).first->second;
-                renderer.prepare(vertexVbo);
+                renderer.prepare(vboManager);
             }
         }
 
@@ -274,7 +276,7 @@ namespace TrenchBroom {
                 IndexRangeRenderer& renderer = entry.second;
                 attributes.render(renderer, shader);
             }
-            glAssert(glLineWidth(1.0f));
+            glAssert(glLineWidth(1.0f))
         }
 
         void PrimitiveRenderer::renderTriangles(RenderContext& renderContext) {

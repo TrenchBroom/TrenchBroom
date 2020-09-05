@@ -60,8 +60,8 @@ namespace TrenchBroom {
             const auto w2 = static_cast<float>(zoomedViewport().width) / 2.0f;
             const auto h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
 
-            projectionMatrix = vm::orthoMatrix(nearPlane(), farPlane(), -w2, h2, w2, -h2);
-            viewMatrix = vm::viewMatrix(direction(), up()) * vm::translationMatrix(-position());
+            projectionMatrix = vm::ortho_matrix(nearPlane(), farPlane(), -w2, h2, w2, -h2);
+            viewMatrix = vm::view_matrix(direction(), up()) * vm::translation_matrix(-position());
         }
 
         vm::ray3f OrthographicCamera::doGetPickRay(const vm::vec3f& point) const {
@@ -82,22 +82,21 @@ namespace TrenchBroom {
             leftPlane   = vm::plane3f(center - w2 * right(), -right());
         }
 
-        void OrthographicCamera::doRenderFrustum(RenderContext& renderContext, Vbo& vbo, const float size, const Color& color) const {
-        }
+        void OrthographicCamera::doRenderFrustum(RenderContext&, VboManager& /* vboManager */, const float /* size */, const Color& /* color */) const {}
 
-        float OrthographicCamera::doPickFrustum(const float size, const vm::ray3f& ray) const {
+        float OrthographicCamera::doPickFrustum(const float /* size */, const vm::ray3f& /* ray */) const {
             return vm::nan<float>();
         }
 
-        float OrthographicCamera::doGetPerspectiveScalingFactor(const vm::vec3f& position) const {
+        float OrthographicCamera::doGetPerspectiveScalingFactor(const vm::vec3f& /* position */) const {
             return 1.0f / zoom();
         }
 
         void OrthographicCamera::doUpdateZoom() {
             const auto& unzoomedViewport = viewport();
             m_zoomedViewport = Viewport(unzoomedViewport.x, unzoomedViewport.y,
-                                        static_cast<int>(vm::round(unzoomedViewport.width / zoom())),
-                                        static_cast<int>(vm::round(unzoomedViewport.height / zoom())));
+                                        static_cast<int>(vm::round(static_cast<float>(unzoomedViewport.width)  / zoom())),
+                                        static_cast<int>(vm::round(static_cast<float>(unzoomedViewport.height) / zoom())));
         }
     }
 }

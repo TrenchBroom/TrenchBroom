@@ -19,14 +19,18 @@
 
 #include "EntityModelRenderer.h"
 
-#include "TrenchBroom.h"
+#include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "CollectionUtils.h"
+#include "Assets/AssetUtils.h"
 #include "Assets/EntityModel.h"
 #include "Assets/EntityModelManager.h"
+#include "Assets/ModelDefinition.h"
+#include "EL/ELExceptions.h"
 #include "Model/EditorContext.h"
-#include "Model/Entity.h"
+#include "Model/EntityNode.h"
+#include "Renderer/ActiveShader.h"
+#include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
@@ -34,11 +38,11 @@
 #include "Renderer/Transformation.h"
 
 #include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
 
 namespace TrenchBroom {
     namespace Renderer {
-        EntityModelRenderer::EntityModelRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext) :
+        EntityModelRenderer::EntityModelRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext) :
+        m_logger(logger),
         m_entityModelManager(entityModelManager),
         m_editorContext(editorContext),
         m_applyTinting(false),
@@ -48,15 +52,22 @@ namespace TrenchBroom {
             clear();
         }
 
-        void EntityModelRenderer::addEntity(Model::Entity* entity) {
-            const auto modelSpec = entity->modelSpecification();
+        void EntityModelRenderer::addEntity(Model::EntityNode* entity) {
+            const auto modelSpec = Assets::safeGetModelSpecification(m_logger, entity->classname(), [&]() {
+                return entity->modelSpecification();
+            });
+
             auto* renderer = m_entityModelManager.renderer(modelSpec);
-            if (renderer != nullptr)
+            if (renderer != nullptr) {
                 m_entities.insert(std::make_pair(entity, renderer));
+            }
         }
 
-        void EntityModelRenderer::updateEntity(Model::Entity* entity) {
-            const auto& modelSpec = entity->modelSpecification();
+        void EntityModelRenderer::updateEntity(Model::EntityNode* entity) {
+            const auto modelSpec = Assets::safeGetModelSpecification(m_logger, entity->classname(), [&]() {
+                return entity->modelSpecification();
+            });
+
             auto* renderer = m_entityModelManager.renderer(modelSpec);
             EntityMap::iterator it = m_entities.find(entity);
 
@@ -107,8 +118,8 @@ namespace TrenchBroom {
             renderBatch.add(this);
         }
 
-        void EntityModelRenderer::doPrepareVertices(Vbo& vertexVbo) {
-            m_entityModelManager.prepare(vertexVbo);
+        void EntityModelRenderer::doPrepareVertices(VboManager& vboManager) {
+            m_entityModelManager.prepare(vboManager);
         }
 
         void EntityModelRenderer::doRender(RenderContext& renderContext) {
@@ -120,6 +131,13 @@ namespace TrenchBroom {
             shader.set("TintColor", m_tintColor);
             shader.set("GrayScale", false);
             shader.set("Texture", 0);
+            shader.set("ShowSoftMapBounds", !renderContext.softMapBounds().is_empty());
+            shader.set("SoftMapBoundsMin", renderContext.softMapBounds().min);
+            shader.set("SoftMapBoundsMax", renderContext.softMapBounds().max);
+            shader.set("SoftMapBoundsColor", vm::vec4f(prefs.get(Preferences::SoftMapBoundsColor).r(),
+                                                       prefs.get(Preferences::SoftMapBoundsColor).g(),
+                                                       prefs.get(Preferences::SoftMapBoundsColor).b(),
+                                                       0.1f));
 
             glAssert(glEnable(GL_TEXTURE_2D));
             glAssert(glActiveTexture(GL_TEXTURE0));
@@ -134,6 +152,8 @@ namespace TrenchBroom {
 
                 const auto transformation = entity->modelTransformation();
                 MultiplyModelMatrix multMatrix(renderContext.transformation(), vm::mat4x4f(transformation));
+
+                shader.set("ModelMatrix", vm::mat4x4f(transformation));
 
                 renderer->render();
             }

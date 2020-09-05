@@ -19,13 +19,14 @@
 
 #include "InputState.h"
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Macros.h"
+#include "Model/CompareHits.h"
 #include "Renderer/Camera.h"
 
 #include <vecmath/vec.h>
 
-#include <wx/utils.h>
+#include <QCursor>
 
 namespace TrenchBroom {
     namespace View {
@@ -39,9 +40,9 @@ namespace TrenchBroom {
         m_scrollX(0.0f),
         m_scrollY(0.0f),
         m_anyToolDragging(false) {
-            const wxMouseState mouseState = wxGetMouseState();
-            m_mouseX = mouseState.GetX();
-            m_mouseY = mouseState.GetY();
+            const QPoint mouseState = QCursor::pos();
+            m_mouseX = mouseState.x();
+            m_mouseY = mouseState.y();
         }
 
         InputState::InputState(const int mouseX, const int mouseY) :
@@ -200,9 +201,8 @@ namespace TrenchBroom {
             return m_pickResult;
         }
 
-        void InputState::setPickResult(Model::PickResult& pickResult) {
-            using std::swap;
-            swap(m_pickResult, pickResult);
+        void InputState::setPickResult(Model::PickResult&& pickResult) {
+            m_pickResult = std::move(pickResult);
         }
     }
 }

@@ -19,11 +19,11 @@
 
 #include "DkPakFileSystem.h"
 
-#include "CollectionUtils.h"
-#include "IO/File.h"
-#include "IO/Reader.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/IOUtils.h"
+#include "IO/File.h"
+#include "IO/Path.h"
+
+#include <kdl/string_format.h>
 
 #include <cassert>
 #include <cstring>
@@ -31,11 +31,11 @@
 
 namespace TrenchBroom {
     namespace IO {
-        namespace PakLayout {
-            static const size_t HeaderMagicLength = 0x4;
-            static const size_t EntryLength       = 0x48;
-            static const size_t EntryNameLength   = 0x38;
-            static const String HeaderMagic       = "PACK";
+        namespace DkPakLayout {
+            static const size_t      HeaderMagicLength = 0x4;
+            static const size_t      EntryLength       = 0x48;
+            static const size_t      EntryNameLength   = 0x38;
+            static const std::string HeaderMagic       = "PACK";
         }
 
         std::unique_ptr<char[]> DkPakFileSystem::DkCompressedFile::decompress(std::shared_ptr<File> file, const size_t uncompressedSize) const {
@@ -95,23 +95,23 @@ namespace TrenchBroom {
 
         void DkPakFileSystem::doReadDirectory() {
             auto reader = m_file->reader();
-            reader.seekFromBegin(PakLayout::HeaderMagicLength);
+            reader.seekFromBegin(DkPakLayout::HeaderMagicLength);
 
             const auto directoryAddress = reader.readSize<int32_t>();
             const auto directorySize = reader.readSize<int32_t>();
-            const auto entryCount = directorySize / PakLayout::EntryLength;
+            const auto entryCount = directorySize / DkPakLayout::EntryLength;
 
             reader.seekFromBegin(directoryAddress);
 
             for (size_t i = 0; i < entryCount; ++i) {
-                const auto entryName = reader.readString(PakLayout::EntryNameLength);
+                const auto entryName = reader.readString(DkPakLayout::EntryNameLength);
                 const auto entryAddress = reader.readSize<int32_t>();
                 const auto uncompressedSize = reader.readSize<int32_t>();
                 const auto compressedSize = reader.readSize<int32_t>();
                 const auto compressed = reader.readBool<int32_t>();
                 const auto entrySize = compressed ? compressedSize : uncompressedSize;
 
-                const auto entryPath = Path(StringUtils::toLower(entryName));
+                const auto entryPath = Path(kdl::str_to_lower(entryName));
                 auto entryFile = std::make_shared<FileView>(entryPath, m_file, entryAddress, entrySize);
 
                 if (compressed) {

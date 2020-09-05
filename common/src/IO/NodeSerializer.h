@@ -20,16 +20,24 @@
 #ifndef TrenchBroom_NodeSerializer
 #define TrenchBroom_NodeSerializer
 
-#include "Model/EntityAttributes.h"
-#include "Model/ModelTypes.h"
+#include "Model/IdType.h"
 
-#include <map>
-#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
+    namespace Model {
+        class BrushNode;
+        class BrushFace;
+        class EntityAttribute;
+        class GroupNode;
+        class LayerNode;
+        class Node;
+        class WorldNode;
+    }
 
+    namespace IO {
         class NodeSerializer {
         private:
             class BrushSerializer;
@@ -37,94 +45,80 @@ namespace TrenchBroom {
             static const int FloatPrecision = 17;
             using ObjectNo = unsigned int;
         private:
-            template <typename T>
             class IdManager {
             private:
-                using IdMap = std::map<T, String>;
+                using IdMap = std::unordered_map<const Model::Node*, std::string>;
                 mutable IdMap m_ids;
             public:
-                const String& getId(const T& t) const {
-                    typename IdMap::iterator it = m_ids.find(t);
-                    if (it == std::end(m_ids))
-                        it = m_ids.insert(std::make_pair(t, idToString(makeId()))).first;
-                    return it->second;
-                }
+                const std::string& getId(const Model::Node* t) const;
             private:
-                Model::IdType makeId() const {
-                    static Model::IdType currentId = 1;
-                    return currentId++;
-                }
-
-                String idToString(const Model::IdType nodeId) const {
-                    StringStream str;
-                    str << nodeId;
-                    return str.str();
-                }
+                Model::IdType makeId() const;
+                std::string idToString(const Model::IdType nodeId) const;
             };
 
-            using LayerIds = IdManager<const Model::Layer*>;
-            using GroupIds = IdManager<const Model::Group*>;
-
-            LayerIds m_layerIds;
-            GroupIds m_groupIds;
+            IdManager m_layerIds;
+            IdManager m_groupIds;
 
             ObjectNo m_entityNo;
             ObjectNo m_brushNo;
-        public:
-            using Ptr = std::unique_ptr<NodeSerializer>;
 
+            bool m_exporting;
+        public:
             NodeSerializer();
             virtual ~NodeSerializer();
         protected:
             ObjectNo entityNo() const;
             ObjectNo brushNo() const;
         public:
+            bool exporting() const;
+            void setExporting(bool exporting);
+        public:
             void beginFile();
             void endFile();
         public:
-            void defaultLayer(Model::World& world);
-            void customLayer(Model::Layer* layer);
-            void group(Model::Group* group, const Model::EntityAttribute::List& parentAttributes);
+            void defaultLayer(const Model::WorldNode& world);
+            void customLayer(const Model::LayerNode* layer);
+            void group(const Model::GroupNode* group, const std::vector<Model::EntityAttribute>& parentAttributes);
 
-            void entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, Model::Node* brushParent);
-            void entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, const Model::BrushList& entityBrushes);
+            void entity(const Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& parentAttributes, const Model::Node* brushParent);
+            void entity(const Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& parentAttributes, const std::vector<Model::BrushNode*>& entityBrushes);
         private:
-            void beginEntity(const Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& extraAttributes);
+            void beginEntity(const Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& extraAttributes);
             void beginEntity(const Model::Node* node);
-            void endEntity(Model::Node* node);
+            void endEntity(const Model::Node* node);
 
-            void entityAttributes(const Model::EntityAttribute::List& attributes);
+            void entityAttributes(const std::vector<Model::EntityAttribute>& attributes);
             void entityAttribute(const Model::EntityAttribute& attribute);
 
-            void brushes(const Model::BrushList& brushes);
-            void brush(Model::Brush* brush);
+            void brushes(const std::vector<Model::BrushNode*>& brushNodes);
+            void brush(const Model::BrushNode* brushNode);
 
-            void beginBrush(const Model::Brush* brush);
-            void endBrush(Model::Brush* brush);
+            void beginBrush(const Model::BrushNode* brushNode);
+            void endBrush(const Model::BrushNode* brushNode);
         public:
-            void brushFaces(const Model::BrushFaceList& faces);
+            void brushFaces(const std::vector<Model::BrushFace>& faces);
         private:
-            void brushFace(Model::BrushFace* face);
+            void brushFace(const Model::BrushFace& face);
         private:
             class GetParentAttributes;
         public:
-            Model::EntityAttribute::List parentAttributes(const Model::Node* node);
+            std::vector<Model::EntityAttribute> parentAttributes(const Model::Node* node);
         private:
-            Model::EntityAttribute::List layerAttributes(const Model::Layer* layer);
-            Model::EntityAttribute::List groupAttributes(const Model::Group* group);
+            std::vector<Model::EntityAttribute> layerAttributes(const Model::LayerNode* layer);
+            std::vector<Model::EntityAttribute> groupAttributes(const Model::GroupNode* group);
         protected:
-            String escapeEntityAttribute(const String& str) const;
+            std::string escapeEntityAttribute(const std::string& str) const;
         private:
             virtual void doBeginFile() = 0;
             virtual void doEndFile() = 0;
 
             virtual void doBeginEntity(const Model::Node* node) = 0;
-            virtual void doEndEntity(Model::Node* node) = 0;
+            virtual void doEndEntity(const Model::Node* node) = 0;
             virtual void doEntityAttribute(const Model::EntityAttribute& attribute) = 0;
 
-            virtual void doBeginBrush(const Model::Brush* brush) = 0;
-            virtual void doEndBrush(Model::Brush* brush) = 0;
-            virtual void doBrushFace(Model::BrushFace* face) = 0;
+            virtual void doBeginBrush(const Model::BrushNode* brushNode) = 0;
+            virtual void doEndBrush(const Model::BrushNode* brushNode) = 0;
+            virtual void doBrushFace(const Model::BrushFace& face) = 0;
         };
     }
 }

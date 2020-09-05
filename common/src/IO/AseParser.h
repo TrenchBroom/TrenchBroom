@@ -22,14 +22,13 @@
 
 #include "IO/EntityModelParser.h"
 #include "IO/Parser.h"
-#include "IO/Path.h"
-#include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
 #include <vecmath/forward.h>
 
 #include <array>
 #include <functional>
+#include <string>
 #include <vector>
 
 namespace TrenchBroom {
@@ -41,6 +40,9 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        class FileSystem;
+        class Path;
+
         namespace AseToken {
             typedef unsigned int Type;
             static const Type Directive         = 1 <<  0; // Any directive, i.e. *SCENE
@@ -55,14 +57,12 @@ namespace TrenchBroom {
             static const Type Eof               = 1 << 12; // end of file
         }
 
-        class FileSystem;
-
         class AseTokenizer : public Tokenizer<AseToken::Type> {
         private:
-            static const String WordDelims;
+            static const std::string WordDelims;
         public:
             AseTokenizer(const char* begin, const char* end);
-            explicit AseTokenizer(const String& str);
+            explicit AseTokenizer(const std::string& str);
         private:
             Token emitToken() override;
         };
@@ -72,12 +72,15 @@ namespace TrenchBroom {
             using Token = AseTokenizer::Token;
 
             struct MeshFaceVertex {
-                size_t vertexIndex;
-                size_t uvIndex;
+                size_t vertexIndex = 0u;
+                size_t uvIndex = 0u;
             };
 
-            using MeshFace = std::array<MeshFaceVertex, 3>;
-
+            struct MeshFace {
+                std::array<MeshFaceVertex, 3> vertices;
+                size_t line = 0u;
+            };
+            
             struct Mesh {
                 std::vector<vm::vec3f> vertices;
                 std::vector<vm::vec2f> uv;
@@ -85,9 +88,10 @@ namespace TrenchBroom {
             };
 
             struct GeomObject {
-                String name;
+                std::string name;
                 Mesh mesh;
-                size_t materialIndex;
+                size_t materialIndex = 0u;
+                size_t line = 0u;
             };
 
             struct Scene {
@@ -95,7 +99,7 @@ namespace TrenchBroom {
                 std::vector<GeomObject> geomObjects;
             };
 
-            String m_name;
+            std::string m_name;
             AseTokenizer m_tokenizer;
             const FileSystem& m_fs;
         public:
@@ -107,7 +111,7 @@ namespace TrenchBroom {
              * @param end the end of the text to parse
              * @param fs the file system used to load texture files
              */
-            AseParser(const String& name, const char* begin, const char* end, const FileSystem& fs);
+            AseParser(const std::string& name, const char* begin, const char* end, const FileSystem& fs);
         private:
             std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
         private: // parsing
@@ -117,13 +121,14 @@ namespace TrenchBroom {
             void parseScene(Logger& logger);
 
             // MATERIALS
-            void parseMaterialList(Logger& logger, Path::List& paths);
-            void parseMaterialListMaterialCount(Logger& logger, Path::List& paths);
-            void parseMaterialListMaterial(Logger& logger, Path::List& paths);
+            void parseMaterialList(Logger& logger, std::vector<Path>& paths);
+            void parseMaterialListMaterialCount(Logger& logger, std::vector<Path>& paths);
+            void parseMaterialListMaterial(Logger& logger, std::vector<Path>& paths);
+            void parseMaterialListMaterialName(Logger& logger, std::string& name);
             void parseMaterialListMaterialMapDiffuse(Logger& logger, Path& path);
             void parseMaterialListMaterialMapDiffuseBitmap(Logger& logger, Path& path);
 
-            void parseGeomObject(Logger& logger, GeomObject& geomObject, const Path::List& materialPaths);
+            void parseGeomObject(Logger& logger, GeomObject& geomObject, const std::vector<Path>& materialPaths);
             void parseGeomObjectNodeName(Logger& logger, GeomObject& geomObject);
             void parseGeomObjectMaterialRef(Logger& logger, GeomObject& geomObject, size_t materialCount);
             void parseGeomObjectMesh(Logger& logger, Mesh& mesh);
@@ -141,11 +146,11 @@ namespace TrenchBroom {
 
             void parseBlock(const std::map<std::string, std::function<void(void)>>& handlers);
 
-            void expectDirective(const String& name);
-            void skipDirective(const String& name);
+            void expectDirective(const std::string& name);
+            void skipDirective(const std::string& name);
             void skipDirective();
 
-            void expectArgumentName(const String& expected);
+            void expectArgumentName(const std::string& expected);
 
             void expectSizeArgument(size_t expected);
             size_t parseSizeArgument();
@@ -154,7 +159,9 @@ namespace TrenchBroom {
             TokenNameMap tokenNames() const override;
         private: // model construction
             std::unique_ptr<Assets::EntityModel> buildModel(Logger& logger, const Scene& scene) const;
-            std::unique_ptr<Assets::Texture> loadTexture(Logger& logger, const Path& path) const;
+            bool checkIndices(Logger& logger, const MeshFace& face, const Mesh& mesh) const;
+
+            Assets::Texture loadTexture(Logger& logger, const Path& path) const;
             Path fixTexturePath(Logger& logger, Path path) const;
         };
     }

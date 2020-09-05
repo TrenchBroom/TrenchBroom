@@ -18,51 +18,65 @@
  */
 
 #include "CreateComplexBrushTool.h"
-#include "Polyhedron.h"
+
+#include "Exceptions.h"
 #include "PreferenceManager.h"
-#include "Preferences.h"
-#include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
-#include "Model/Layer.h"
-#include "Model/World.h"
-#include "Renderer/BrushRenderer.h"
-#include "Renderer/RenderService.h"
-#include "Renderer/SelectionBoundsRenderer.h"
+#include "Model/BrushError.h"
+#include "Model/BrushNode.h"
+#include "Model/Polyhedron.h"
+#include "Model/WorldNode.h"
+#include "Model/Game.h"
 #include "View/MapDocument.h"
+
+#include <kdl/memory_utils.h>
+#include <kdl/overload.h>
+#include <kdl/result.h>
 
 namespace TrenchBroom {
     namespace View {
-        CreateComplexBrushTool::CreateComplexBrushTool(MapDocumentWPtr document) :
-        CreateBrushToolBase(false, document) {}
+        CreateComplexBrushTool::CreateComplexBrushTool(std::weak_ptr<MapDocument> document) :
+        CreateBrushToolBase(false, document),
+        m_polyhedron(std::make_unique<Model::Polyhedron3>()){}
 
-        const Polyhedron3& CreateComplexBrushTool::polyhedron() const {
-            return m_polyhedron;
+        const Model::Polyhedron3& CreateComplexBrushTool::polyhedron() const {
+            return *m_polyhedron;
         }
 
-        void CreateComplexBrushTool::update(const Polyhedron3& polyhedron) {
-            m_polyhedron = polyhedron;
-            if (m_polyhedron.closed()) {
-                MapDocumentSPtr document = lock(m_document);
-                const Model::BrushBuilder builder(document->world(), document->worldBounds());
-                Model::Brush* brush = builder.createBrush(m_polyhedron, document->currentTextureName());
-                updateBrush(brush);
+        void CreateComplexBrushTool::update(const Model::Polyhedron3& polyhedron) {
+            *m_polyhedron = polyhedron;
+            if (m_polyhedron->closed()) {
+                auto document = kdl::mem_lock(m_document);
+                const auto game = document->game();
+                const Model::BrushBuilder builder(document->world(), document->worldBounds(), game->defaultFaceAttribs());
+                
+                builder.createBrush(*m_polyhedron, document->currentTextureName())
+                    .visit(kdl::overload {
+                        [&](Model::Brush&& b) {
+                            updateBrush(document->world()->createBrush(std::move(b)));
+                        },
+                        [&](const Model::BrushError e) {
+                            updateBrush(nullptr);
+                            document->error() << "Could not update brush: " << e;
+                        }
+                    });
             } else {
                 updateBrush(nullptr);
             }
         }
 
         bool CreateComplexBrushTool::doActivate() {
-            update(Polyhedron3());
+            update(Model::Polyhedron3());
             return true;
         }
 
         bool CreateComplexBrushTool::doDeactivate() {
-            update(Polyhedron3());
+            update(Model::Polyhedron3());
             return true;
         }
 
         void CreateComplexBrushTool::doBrushWasCreated() {
-            update(Polyhedron3());
+            update(Model::Polyhedron3());
         }
     }
 }

@@ -20,93 +20,87 @@
 #ifndef TrenchBroom_Vbo
 #define TrenchBroom_Vbo
 
-#include "Macros.h"
-#include "SharedPointer.h"
-#include "Renderer/GL.h"
+#include "Renderer/VboManager.h"
 
 #include <cassert>
-#include <cstring>
 #include <vector>
+#include <type_traits>
 
 namespace TrenchBroom {
     namespace Renderer {
-        class VboBlock;
-
-        class CompareVboBlocksByCapacity {
-        public:
-            bool operator() (const VboBlock* lhs, const VboBlock* rhs) const;
-        };
-
-        class Vbo;
-        class ActivateVbo {
-        private:
-            Vbo& m_vbo;
-            bool m_wasActive;
-        public:
-            explicit ActivateVbo(Vbo& vbo);
-            ~ActivateVbo();
-        };
-
+        /**
+         * Wrapper around an OpenGL buffer
+         */
         class Vbo {
-        public:
-            using Ptr = std::shared_ptr<Vbo>;
         private:
-            typedef enum {
-                State_Inactive = 0,
-                State_Active = 1,
-                State_PartiallyMapped = 2,
-                State_FullyMapped = 3
-            } State;
-        private:
-            using VboBlockList = std::vector<VboBlock*>;
-            static const float GrowthFactor;
+            friend class VboManager;
 
-            size_t m_totalCapacity;
-            size_t m_freeCapacity;
-            VboBlockList m_freeBlocks;
-            VboBlock* m_firstBlock;
-            VboBlock* m_lastBlock;
-            State m_state;
-
+            /**
+             * e.g. GL_ARRAY_BUFFER or GL_ELEMENT_ARRAY_BUFFER
+             */
             GLenum m_type;
-            GLenum m_usage;
-            GLuint m_vboId;
-        public:
-            explicit Vbo(size_t initialCapacity, GLenum type = GL_ARRAY_BUFFER, GLenum usage = GL_DYNAMIC_DRAW);
+            size_t m_capacity;
+            GLuint m_bufferId;
+
+            /**
+             * Immediately creates and binds to a buffer of the given type and capacity.
+             * The contents are initially unspecified.
+             */
+            Vbo(GLenum type, size_t capacity, GLenum usage);
             ~Vbo();
 
-            deleteCopyAndMove(Vbo)
-
-            VboBlock* allocateBlock(size_t capacity);
-
-            bool active() const;
-            void activate();
-            void deactivate();
-        private:
-            friend class ActivateVbo;
-            friend class VboBlock;
-
-            GLenum type() const;
-
+            /**
+             * Deletes the underlying OpenGL buffer with glDeleteBuffers.
+             * Must be called before the destructor.
+             * Calling any other methods after free() is disallowed.
+             */
             void free();
-            void freeBlock(VboBlock* block);
 
-            void increaseCapacityToAccomodate(size_t capacity);
-            void increaseCapacity(size_t delta);
-            VboBlockList::iterator findFreeBlock(size_t minCapacity);
-            void insertFreeBlock(VboBlock* block);
-            void removeFreeBlock(VboBlock* block);
-            void removeFreeBlock(VboBlockList::iterator it);
+        public:
+            /**
+             * Deprecated, always returns 0.
+             */
+            size_t offset() const;
+            size_t capacity() const;
 
-            bool partiallyMapped() const;
-            void mapPartially();
-            void unmapPartially();
+            void bind();
+            void unbind();
 
-            bool fullyMapped() const;
-            unsigned char* map();
-            void unmap();
+            template <typename T>
+            size_t writeElements(const size_t address, const std::vector<T>& elements) {
+                return writeArray(address, elements.data(), elements.size());
+            }
 
-            bool checkBlockChain() const;
+            template <typename T>
+            size_t writeBuffer(const size_t address, const std::vector<T>& buffer) {
+                return writeArray(address, buffer.data(), buffer.size());
+            }
+
+            /**
+             * Writes a C array to the VBO block.
+             *
+             * @tparam T        element type
+             * @param address   byte offset from the start of the block to write at
+             * @param array     elements to write
+             * @param count     number of elements to write
+             * @return          number of bytes written
+             */
+            template <typename T>
+            size_t writeArray(const size_t address, const T* array, const size_t count) {
+                const size_t size = count * sizeof(T);
+                assert(address + size <= m_capacity);
+
+                static_assert(std::is_trivially_copyable<T>::value);
+                static_assert(std::is_standard_layout<T>::value);
+
+                const GLvoid* ptr = static_cast<const GLvoid*>(array);
+                const GLintptr offset = static_cast<GLintptr>(address);
+                const GLsizeiptr sizei = static_cast<GLsizeiptr>(size);
+                glAssert(glBindBuffer(m_type, m_bufferId));
+                glAssert(glBufferSubData(m_type, offset, sizei, ptr));
+
+                return size;
+            }
         };
     }
 }

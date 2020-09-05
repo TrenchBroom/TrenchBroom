@@ -19,16 +19,23 @@
 
 #include "ViewUtils.h"
 
-#include "Exceptions.h"
-#include "Logger.h"
+#include "Assets/EntityDefinitionFileSpec.h"
+#include "IO/PathQt.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
 
-#include <wx/textentry.h>
-#include <wx/msgdlg.h>
-#include <wx/textdlg.h>
+#include <kdl/memory_utils.h>
+#include <kdl/string_compare.h>
+#include <kdl/string_format.h>
+
+#include <memory>
+
+#include <QWidget>
+#include <QString>
+#include <QInputDialog>
+#include <QMessageBox>
 
 namespace TrenchBroom {
     namespace View {
@@ -44,43 +51,34 @@ namespace TrenchBroom {
             }
         }
 
-        size_t loadDroppedFiles(MapDocumentWPtr document, wxWindow* parent, const wxArrayString& wxPaths) {
-            size_t count = 0;
-            count += loadTextureCollections(document, parent, wxPaths);
-            if (loadEntityDefinitionFile(document, parent, wxPaths) < wxPaths.size())
-                ++count;
-            return count > 0;
+        bool loadTextureCollection(std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path) {
+            return loadTextureCollections(document, parent, QStringList { path }) == 1;
         }
 
-        bool loadTextureCollection(MapDocumentWPtr document, wxWindow* parent, const wxString& wxPath) {
-            wxArrayString wxPaths;
-            wxPaths.Add(wxPath);
-            return loadTextureCollections(document, parent, wxPaths) == 1;
-        }
-
-        size_t loadTextureCollections(MapDocumentWPtr i_document, wxWindow* parent, const wxArrayString& wxPaths) {
-            if (wxPaths.empty())
+        size_t loadTextureCollections(std::weak_ptr<MapDocument> i_document, QWidget* parent, const QStringList& pathStrs) {
+            if (pathStrs.empty()) {
                 return 0;
+            }
 
             size_t count = 0;
 
-            MapDocumentSPtr document = lock(i_document);
-            IO::Path::List collections = document->enabledTextureCollections();
+            auto document = kdl::mem_lock(i_document);
+            std::vector<IO::Path> collections = document->enabledTextureCollections();
 
-            Model::GameSPtr game = document->game();
+            auto game = document->game();
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const IO::Path gamePath = gameFactory.gamePath(game->gameName());
             const IO::Path docPath = document->path();
 
-            for (size_t i = 0; i < wxPaths.size(); ++i) {
-                const wxString& wxPath = wxPaths[i];
-                const IO::Path absPath(wxPath.ToStdString());
+            for (int i = 0; i < pathStrs.size(); ++i) {
+                const QString& pathStr = pathStrs[i];
+                const IO::Path absPath = IO::pathFromQString(pathStr);
                 if (game->isTextureCollection(absPath)) {
-                    ChoosePathTypeDialog pathDialog(wxGetTopLevelParent(parent), absPath, docPath, gamePath);
-                    const int result = pathDialog.ShowModal();
-                    if (result == wxID_CANCEL) {
+                    ChoosePathTypeDialog pathDialog(parent->window(), absPath, docPath, gamePath);
+                    const int result = pathDialog.exec();
+                    if (result == QDialog::Rejected) {
                         return 0;
-                    } else if (result == wxID_OK) {
+                    } else if (result == QDialog::Accepted) {
                         collections.push_back(pathDialog.path());
                         ++count;
                     }
@@ -92,32 +90,31 @@ namespace TrenchBroom {
             return count;
         }
 
-        bool loadEntityDefinitionFile(MapDocumentWPtr document, wxWindow* parent, const wxString& wxPath) {
-            wxArrayString wxPaths;
-            wxPaths.Add(wxPath);
-            return loadEntityDefinitionFile(document, parent, wxPaths) == 0;
+        bool loadEntityDefinitionFile(std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path) {
+            return loadEntityDefinitionFile(document, parent, QStringList { path }) == 0;
         }
 
-        size_t loadEntityDefinitionFile(MapDocumentWPtr i_document, wxWindow* parent, const wxArrayString& wxPaths) {
-            if (wxPaths.empty())
+        size_t loadEntityDefinitionFile(std::weak_ptr<MapDocument> i_document, QWidget* parent, const QStringList& pathStrs) {
+            if (pathStrs.empty()) {
                 return 0;
+            }
 
-            MapDocumentSPtr document = lock(i_document);
-            Model::GameSPtr game = document->game();
+            auto document = kdl::mem_lock(i_document);
+            auto game = document->game();
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const IO::Path gamePath = gameFactory.gamePath(game->gameName());
             const IO::Path docPath = document->path();
 
             try {
-                for (size_t i = 0; i < wxPaths.size(); ++i) {
-                    const wxString& wxPath = wxPaths[i];
-                    const IO::Path absPath(wxPath.ToStdString());
+                for (int i = 0; i < pathStrs.size(); ++i) {
+                    const QString& pathStr = pathStrs[i];
+                    const IO::Path absPath = IO::pathFromQString(pathStr);
                     if (game->isEntityDefinitionFile(absPath)) {
-                        ChoosePathTypeDialog pathDialog(wxGetTopLevelParent(parent), absPath, docPath, gamePath);
-                        if (pathDialog.ShowModal() == wxID_OK) {
+                        ChoosePathTypeDialog pathDialog(parent->window(), absPath, docPath, gamePath);
+                        if (pathDialog.exec() == QDialog::Accepted) {
                             const Assets::EntityDefinitionFileSpec spec = Assets::EntityDefinitionFileSpec::external(pathDialog.path());
                             document->setEntityDefinitionFile(spec);
-                            return i;
+                            return static_cast<size_t>(i);
                         }
                     }
                 }
@@ -125,22 +122,24 @@ namespace TrenchBroom {
                 throw;
             }
 
-            return wxPaths.size();
+            return static_cast<size_t>(pathStrs.size());
         }
 
-        String queryGroupName(wxWindow* parent) {
+        std::string queryGroupName(QWidget* parent) {
             while (true) {
-                wxTextEntryDialog dialog(parent, "Enter a name", "Group Name", "Unnamed");
-                dialog.CentreOnParent();
-                if (dialog.ShowModal() != wxID_OK)
-                    return "";
+                bool ok;
+                QString text = QInputDialog::getText(parent, "Enter a name", "Group Name", QLineEdit::Normal, "Unnamed", &ok);
 
-                const String name = dialog.GetValue().ToStdString();
-                if (StringUtils::isBlank(name)) {
-                    if (wxMessageBox("Group names cannot be blank.", "Error", wxOK | wxCANCEL | wxCENTRE, parent) != wxOK)
+                if (!ok) {
+                    return "";
+                }
+
+                const auto name = text.toStdString();
+                if (kdl::str_is_blank(name)) {
+                    if (QMessageBox::warning(parent, "Error", "Group names cannot be blank.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok)
                         return "";
-                } else if (StringUtils::containsCaseInsensitive(name, "\"")) {
-                    if (wxMessageBox("Group names cannot contain double quotes.", "Error", wxOK | wxCANCEL | wxCENTRE, parent) != wxOK)
+                } else if (kdl::ci::str_contains(name, "\"")) {
+                    if (QMessageBox::warning(parent, "Error", "Group names cannot contain double quotes.", QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok)
                         return "";
                 } else {
                     return name;

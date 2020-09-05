@@ -23,16 +23,21 @@
 #include <memory>
 
 namespace TrenchBroom {
+    class Logger;
+    
     namespace Assets {
         class Palette;
         class Texture;
     }
 
     namespace IO {
-        class File;
+        class FileSystem;
+        class Path;
 
-        Assets::Texture* loadSkin(std::shared_ptr<File> file);
-        Assets::Texture* loadSkin(std::shared_ptr<File> file, const Assets::Palette& palette);
+        Assets::Texture loadSkin(const Path& path, const FileSystem& fs, Logger& logger);
+        Assets::Texture loadSkin(const Path& path, const FileSystem& fs, Logger& logger, const Assets::Palette& palette);
+        
+        Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logger);
     }
 }
 

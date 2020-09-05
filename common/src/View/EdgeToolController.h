@@ -20,12 +20,10 @@
 #ifndef EdgeToolController_h
 #define EdgeToolController_h
 
-#include "TrenchBroom.h"
 #include "View/VertexToolControllerBase.h"
 
 namespace TrenchBroom {
     namespace View {
-        class Tool;
         class EdgeTool;
 
         class EdgeToolController : public VertexToolControllerBase<EdgeTool> {
@@ -33,7 +31,7 @@ namespace TrenchBroom {
             class SelectEdgePart;
             class MoveEdgePart;
         public:
-            EdgeToolController(EdgeTool* tool);
+            explicit EdgeToolController(EdgeTool* tool);
         };
     }
 }

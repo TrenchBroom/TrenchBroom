@@ -21,15 +21,16 @@
 #ifndef TrenchBroom_ScaleObjectsTool
 #define TrenchBroom_ScaleObjectsTool
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 #include "Model/Hit.h"
+#include "Model/HitType.h"
 #include "View/Tool.h"
-#include "View/ScaleObjectsToolPage.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/bbox.h>
 
 #include <bitset>
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom {
@@ -42,6 +43,9 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class MapDocument;
+        class ScaleObjectsToolPage;
+
         /**
          * Identifies the side of a bbox using a normal. The normal will be one of +/- 1.0 along X, Y, or Z.
          */
@@ -202,12 +206,12 @@ namespace TrenchBroom {
 
         class ScaleObjectsTool : public Tool {
         public:
-            static const Model::Hit::HitType ScaleToolSideHit;
-            static const Model::Hit::HitType ScaleToolEdgeHit;
-            static const Model::Hit::HitType ScaleToolCornerHit;
+            static const Model::HitType::Type ScaleToolSideHitType;
+            static const Model::HitType::Type ScaleToolEdgeHitType;
+            static const Model::HitType::Type ScaleToolCornerHitType;
 
         private:
-            MapDocumentWPtr m_document;
+            std::weak_ptr<MapDocument> m_document;
             ScaleObjectsToolPage* m_toolPage;
             bool m_resizing;
             AnchorPos m_anchorPos;
@@ -217,7 +221,7 @@ namespace TrenchBroom {
             ProportionalAxes m_proportionalAxes;
 
         public:
-            explicit ScaleObjectsTool(MapDocumentWPtr document);
+            explicit ScaleObjectsTool(std::weak_ptr<MapDocument> document);
             ~ScaleObjectsTool() override;
 
             bool doActivate() override;
@@ -268,7 +272,7 @@ namespace TrenchBroom {
             void cancelScale();
 
         private:
-            wxWindow* doCreatePage(wxWindow* parent) override;
+            QWidget* doCreatePage(QWidget* parent) override;
         };
     }
 }

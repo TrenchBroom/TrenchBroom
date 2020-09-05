@@ -21,7 +21,8 @@
 #define TrenchBroom_EmptyGroupIssueGenerator
 
 #include "Model/IssueGenerator.h"
-#include "Model/ModelTypes.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -32,7 +33,7 @@ namespace TrenchBroom {
         public:
             EmptyGroupIssueGenerator();
         private:
-            void doGenerate(Group* group, IssueList& issues) const override;
+            void doGenerate(GroupNode* group, IssueList& issues) const override;
         };
     }
 }

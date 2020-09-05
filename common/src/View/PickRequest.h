@@ -20,7 +20,7 @@
 #ifndef TrenchBroom_PickRequest
 #define TrenchBroom_PickRequest
 
-#include "TrenchBroom.h"
+#include "FloatType.h"
 
 #include <vecmath/ray.h>
 
