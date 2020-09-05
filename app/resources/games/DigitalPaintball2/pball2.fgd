@@ -147,7 +147,7 @@
     close_pcount_all(integer) : "if # or fewer players are present, the entity will reappear and close off the path."
 ]
 
-@baseclass base(Appearflags, Targetname) size(-16 -16 -24, 16 16 32) color(0 255 0) = PlayerClass []
+@baseclass base(AppearFlags, TargetName) size(-16 -16 -24, 16 16 32) color(0 255 0) = PlayerClass []
 
 @PointClass base(PlayerClass) = info_player_deathmatch : "Player deathmatch start"
 [
