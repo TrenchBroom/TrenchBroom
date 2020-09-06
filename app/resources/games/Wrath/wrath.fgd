@@ -1,13 +1,11 @@
-//  Name     : wrath_wtf.fgd
-//  Version  : 202009041600
+//  Name     : wrath.fgd
+//  Version  : 202009050500
 //  Edited by: xaGe
 
-//  Found the orginal version of this named wrath_auto on a discord channel made by a Wrath player.
-//  I am sure the Wrath team has a very awesome fgd they use to make the game and will release at some point.
-//  Knowing that I didn't put more than a few hours into this to work with and be included in a custom game support
-//  add on I have made for recent TrenchBroom builds from recent commits. I haven't tested this to much with running
-//  maps made and compiled with it in game.
-//
+// This is very basic but includes all weapons, pickups, and enemies. I am sure the Wrath team has a very awesome game definition
+// file they use to make the game that will be released after the game is finalized. Until then I will try to add any new entities
+// introduced to the game until then.
+
 
 @SolidClass = worldspawn : "World entity"
 [
@@ -67,7 +65,7 @@
     _tb_group(integer) : "Description" : 118
 ]
 
-@PointClass size(-8 -8 -8, 8 8 8) color(200 228 255) = light : "Non-displayed light. Lights pointed at a target will be spotlights."
+@PointClass size(-8 -8 -8, 8 8 8) color(180 220 228) = light : "Non-displayed light. Lights pointed at a target will be spotlights."
 [
 	light(integer) : "Brightness" : 300
 	_color(color1) : "RGB Color" : "1 1 0.5"
