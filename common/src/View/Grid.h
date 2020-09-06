@@ -60,6 +60,9 @@ namespace TrenchBroom {
             void incSize();
             void decSize();
             FloatType actualSize() const;
+            /**
+             * Snap increment in radians for angle snapping
+             */
             FloatType angle() const;
 
             bool visible() const;
@@ -73,6 +76,9 @@ namespace TrenchBroom {
                 return snapAngle(a, angle());
             }
 
+            /**
+             * Snaps the given angle `a` to the nearest multiple of `snapAngle`, if grid snapping is enabled.
+             */
             template <typename T>
             T snapAngle(const T a, const T snapAngle) const {
                 if (!snap()) {
@@ -107,11 +113,32 @@ namespace TrenchBroom {
             }
         private:
             typedef enum {
+                /**
+                 * Snap to nearest grid increment (rounding away from 0 if the input is half way between two
+                 * multiples of the grid size).
+                 */
                 SnapDir_None,
+                /**
+                 * If off-grid, snap to the next larger grid increment.
+                 */
                 SnapDir_Up,
+                /**
+                 * If off-grid, snap to the next smaller grid increment.
+                 */
                 SnapDir_Down
             } SnapDir;
 
+            /**
+             * Snaps a scalar to the grid.
+             *
+             * @tparam T scalar type
+             * @param f scalar to snap
+             * @param snapDir snap direction, see SnapDir
+             * @param skip If true, SnapDir_Up/SnapDir_Down snap to the next larger/smaller grid increment even if
+             *             the input is already on-grid (within almost_zero()).
+             *             If false, on-grid inputs stay at the same grid increment.
+             * @return snapped scalar
+             */
             template <typename T>
             T snap(const T f, const SnapDir snapDir, const bool skip = false) const {
                 if (!snap()) {
@@ -134,6 +161,9 @@ namespace TrenchBroom {
                 }
             }
         public: // Snap vectors.
+            /**
+             * Snap each component to the nearest grid increment.
+             */
             template <typename T, size_t S>
             vm::vec<T,S> snap(const vm::vec<T,S>& p) const {
                 return snap(p, SnapDir_None);
@@ -187,7 +217,7 @@ namespace TrenchBroom {
                 }
                 return result;
             }
-        public: // Snapping on a plane! Surprise, motherfucker!
+        public: // Snapping on a plane.
             template <typename T>
             vm::vec<T,3> snap(const vm::vec<T,3>& p, const vm::plane<T,3>& onPlane) const {
                 return snap(p, onPlane, SnapDir_None, false);
@@ -224,6 +254,11 @@ namespace TrenchBroom {
                 return snap(p, onPlane, snapDirs, skip);
             }
 
+            /**
+             * Snaps p to grid on the two axes that aren't onPlane's major axis, then projects
+             * these two coordinates onto the plane to get the third axis. The resulting point will be on the plane
+             * and have two axes snapped to grid.
+             */
             template <typename T, size_t S>
             vm::vec<T,S> snap(const vm::vec<T,S>& p, const vm::plane<T,3>& onPlane, const SnapDir snapDirs[], const bool skip = false) const {
 
