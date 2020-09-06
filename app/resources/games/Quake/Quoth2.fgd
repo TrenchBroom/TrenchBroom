@@ -756,7 +756,7 @@ monster_vermis: "Vermis"
 // misc
 //
 
-@PointClass base(Appearflags, Name) = air_bubbles : "Air bubbles" []
+@PointClass base(Appearflags) = air_bubbles : "Air bubbles" []
 @PointClass base(Appearflags, Targetname) =
 	event_lightning : "Chthon's lightning" []
 @PointClass base(Appearflags) = misc_fireball : "Small fireball"
@@ -1444,7 +1444,7 @@ monster_vermis: "Vermis"
 
 // Rotating entities
 
-@PointClass base(targetname) = info_rotate : "Info rotate" 
+@PointClass base(Targetname) = info_rotate : "Info rotate"
 []
 
 @SolidClass = rotate_object : "Visible rotating object"

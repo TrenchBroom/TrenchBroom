@@ -18,7 +18,19 @@
 	gravity(integer) : "Gravity" : 800
 	message(string) : "Level name"
 ]
+//xaGe: added missing superclasses Appearflags, Targetname, Target and then fixed all the case issues.
+@baseclass = Appearflags [
+	spawnflags(Flags) =
+	[
+		256 : "Not in Easy" : 0
+		512 : "Not in Normal" : 0
+		1024 : "Not in Hard" : 0
+		2048 : "Not in Deathmatch" : 0
+	]
+]
 
+@baseclass = Targetname [ targetname(target_source) : "Name" ]
+@baseclass = Target [ target(target_destination) : "Target" ]
 
 @baseclass base(Appearflags, Targetname) size(-16 -16 -24, 16 16 32) color(0 255 0) = PlayerClass []
 
@@ -118,8 +130,8 @@
 	speed(integer) : "How fast the P51 should fly"
 
 ]
-
-@PointClass base(Appearflags, Targetname) color(255 128 0) size(-16 -16 0, 16 16 32) = misc_md2 : "General purpose entity for adding an .md2 map model."
+//xaGe: added "path": model to entity so it renders md2s defined by model(string) in TB.
+@PointClass base(Appearflags, Targetname) color(255 128 0) size(-16 -16 0, 16 16 32) model({ "path" : model }) = misc_md2 : "General purpose entity for adding an .md2 map model."
 [
 	model(string) : "Path to the model, example: models/mapmodels/tree/tris.md2"
 	angle(integer) : "Direction the model will face"
@@ -159,7 +171,7 @@
 
 // OBJECTIVES
 
-@SolidClass base(AppearFlag, TargetName, Target) color(0 0 255) = objective_touch : "Player touches this and is awarded points"
+@SolidClass base(Appearflags, Targetname, Target) color(0 0 255) = objective_touch : "Player touches this and is awarded points"
 [
 	obj_owner(integer) : "Assign a value (0, 1, 99); 0=Allies 1=Axis 99=Neutral (Anyone can claim it first)"
 	message(string) : "Name of the region the entity touches (Center Pill, Right Pill, Donut Room, etc.)"
@@ -168,7 +180,7 @@
 ]
 
 
-@SolidClass base(AppearFlag, TargetName, Target) color(0 0 255) = func_explosive_objective : "Gives points when blown up"
+@SolidClass base(Appearflags, Targetname, Target) color(0 0 255) = func_explosive_objective : "Gives points when blown up"
 [
 	obj_owner(integer) : "Assign a value (0, 1, 99); 0=Allies 1=Axis 99=Neutral (Anyone can claim it first)"
 	obj_name(string) : "Name of the object to be displayed when destroyed"
@@ -185,7 +197,7 @@
 // More info: http://ddaydev.com/forum/viewtopic.php?f=2&t=235
 
 
-@SolidClass base (AppearFlags, TargetName, Target) color (128 0 128) = turret_range : "Turret Range. Use this to define the area the player must occupy to use the turret."
+@SolidClass base (Appearflags, Targetname, Target) color (128 0 128) = turret_range : "Turret Range. Use this to define the area the player must occupy to use the turret."
 [
 	team(string) : "Team"
 ]
