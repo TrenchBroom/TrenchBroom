@@ -231,5 +231,57 @@ namespace TrenchBroom {
             ASSERT_EQ(vm::vec3(0,0,2), grid05.moveDelta(topFace, vm::vec3(0, 0, 2)));
             ASSERT_EQ(vm::vec3(0,0,2), grid05.moveDelta(topFace, vm::vec3(0, 0, 2.1)));
         }
+
+        static vm::ray3 make_ray_from_to(const vm::vec3& from, const vm::vec3& to) {
+            return vm::ray3(from, vm::normalize(to - from));
+        }
+
+        TEST_CASE("GridTest.moveDeltaForBounds", "[GridTest]") {
+            const auto grid16 = Grid(4);
+
+            const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(95, 100, 105));
+            SECTION("drop to floor") {
+                const auto floor = vm::plane3(vm::vec3::zero(), vm::vec3::pos_z());
+
+                SECTION("camera looking towards +x +y") {
+                    const auto pickRay = make_ray_from_to(vm::vec3(512, 512, 200), vm::vec3(1024 - 8, 1024 - 8, 0));
+
+                    // Snaps towards the camera
+                    CHECK(grid16.moveDeltaForBounds(floor, box, worldBounds, pickRay) == vm::vec3(1024 - 16, 1024 - 16, 0));
+                }
+
+                SECTION("camera looking towards -x -y") {
+                    const auto pickRay = make_ray_from_to(vm::vec3(512, 512, 200), vm::vec3(8, 8, 0));
+
+                    // Note, the box corner is rounded towards the camera (vm::vec3(8, 8, 0) -> vm::vec3(16, 16, 0))
+                    const auto snappedBoxCorner = vm::vec3(16, 16, 0);
+                    // But the box orientation is pushed away from the camera so the snapped box mins are:
+                    const auto newBoxMin = snappedBoxCorner - vm::vec3(box.size().x(), box.size().y(), 0.0);
+
+                    CHECK(grid16.moveDeltaForBounds(floor, box, worldBounds, pickRay) == newBoxMin);
+                }
+            }
+
+            SECTION("drop to ceiling") {
+                const FloatType ceilHeight = 512.0;
+
+                const auto ceil = vm::plane3(vm::vec3(0, 0, ceilHeight), vm::vec3::neg_z());
+                const auto pickRay = make_ray_from_to(vm::vec3(50, 50, 200), vm::vec3(1024 - 8, 1024 - 8, ceilHeight));
+
+                // Snaps towards the camera
+                const auto snappedBoxCorner = vm::vec3(1024 - 16, 1024 - 16, ceilHeight);
+                const auto newBoxMin = snappedBoxCorner - vm::vec3(0.0, 0.0, box.size().z());
+
+                CHECK(grid16.moveDeltaForBounds(ceil, box, worldBounds, pickRay) == newBoxMin);
+            }
+
+            SECTION("drop onto a sub-grid platform") {
+                const auto subGridPlatform = vm::plane3(vm::vec3(0, 0, 4), vm::vec3::pos_z());
+                const auto pickRay = make_ray_from_to(vm::vec3(0, 0, 200), vm::vec3(17, 17, 4));
+
+                // We allow a sub-grid result here because it's a flat plane
+                CHECK(grid16.moveDeltaForBounds(subGridPlatform, box, worldBounds, pickRay) == vm::vec3(16, 16, 4));
+            }
+        }
     }
 }
