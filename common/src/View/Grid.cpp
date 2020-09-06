@@ -138,6 +138,7 @@ namespace TrenchBroom {
          * Intended to be used for placing objects (e.g. when pasting, or dragging from the entity browser)
          *
          * - One of the box corners is placed at the ray/targetPlane intersection, grid snapped
+         *   (snapping towards the ray origin)
          * - Exception to the previous point: if the targetPlane is axial plane,
          *   we'll treat the plane's normal axis as "on grid" even if it's not. This allows, e.g. pasting on
          *   top of 1 unit thick floor detail on grid 8.
@@ -160,7 +161,7 @@ namespace TrenchBroom {
             const size_t localX = vm::find_abs_max_component(targetPlane.normal, 1);
             const size_t localY = vm::find_abs_max_component(targetPlane.normal, 2);
 
-            vm::vec3 firstCorner = snap(hitPoint);
+            vm::vec3 firstCorner = snapTowards(hitPoint, -ray.direction);
             if (vm::is_equal(targetPlane.normal,
                              vm::get_abs_max_component_axis(targetPlane.normal),
                              vm::C::almost_zero())) {
