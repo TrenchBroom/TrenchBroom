@@ -1752,7 +1752,7 @@ Do not have teleport points, or start spots of any kind inside or inbetween this
 		2 : "High"
 		3 : "Max"
 	]
-	volume(string) : "Volume" : "0.5"
+	volume(float) : "Volume" : "0.5"
 	wait(integer) : "Wait" : 10
 ]
 
