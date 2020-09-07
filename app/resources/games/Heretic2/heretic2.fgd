@@ -51,7 +51,7 @@
 		16 : "Meteor Barrier"
 	]
 	light(integer)	: "Light"
-	
+
 	cooptimeout(integer) : "Seconds to wait for all clients to have joined a map in coop"
 	skinnum(integer) : "Plague level for Corvus (0-2)"
 ]
@@ -115,7 +115,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 	delay(integer)	: "Time monster waits after using pathtarget"
 	height(integer)	: "Height of jump" : 400
-	jumptarget(target_destination)	: "JumpTarget" : 0 : "used with JUMP - this buoy will only make monsters jump at the buoy whose 'targetname' is the same as 'jumpbuoy'- without this, the buoy WILL NOT MAKE MONSTERS JUMP!"
+	jumptarget(target_destination)	: "JumpTarget" : "used with JUMP - this buoy will only make monsters jump at the buoy whose 'targetname' is the same as 'jumpbuoy'- without this, the buoy WILL NOT MAKE MONSTERS JUMP!"
 	pathtarget(target_destination)	: "Target to use when monster reaches buoy. Requires 'Activate' spawnflag"
 	speed(integer)	: "Speed of jump" : 400
 	target(target_destination) : "Next buoy"
@@ -631,9 +631,9 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		16 : "No halo"
 	]
 ]
-@PointClass base(light) size(-36 -36 -43, 34 34 43) = light_chandelier1 : "Chandelier (gold)" []
-@PointClass base(light) size(-18 -18 -40, 18 18 40) = light_chandelier2 : "Chandelier (blue)" []
-@PointClass base(light) size(-34 -34 -80, 34 34 0) = light_chandelier2 : "Chandelier (gold, thin)" []
+@PointClass base(light) size(-36 -36 -43, 34 34 43) = light_chandelier1 : "Chandelier (dirty gold) A tarnished gold chandelier hung from chains." []
+@PointClass base(light) size(-18 -18 -40, 18 18 40) = light_chandelier2 : "Chandelier (dirty metal) A tarnished metal chandelier hung from chains." []
+@PointClass base(light) size(-34 -34 -80, 34 34 0) = light_chandelier3 : "Chandelier (gold & large) A golden chandelier." []
 @PointClass base(light) size(-14 -14 -17, 14 14 17) = light_floortorch : "Floor torch stand" []
 @PointClass base(light) size(-1 -6 -8, 4 6 8) = light_gem2 : "Gem light"
 [
@@ -812,7 +812,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 [
 	health(integer) : "Health" : 50
 ]
-@PointClass base(Monsters) size(-20 -20 -0, 20 20 32) = monster_gkrokon : "Gkrokon" 
+@PointClass base(Monsters) size(-20 -20 -0, 20 20 32) = monster_gkrokon : "Gkrokon"
 [
 	spawnflags(flags) =
 	[
@@ -1282,7 +1282,7 @@ Do not have teleport points, or start spots of any kind inside or inbetween this
 //	Characters
 //
 
-@BaseClass base(Appearflags, Targetname) color(76 76 255) size(-16 -16 -24, 16 16 32) = Character
+@BaseClass base(Appearflags, Targetname) color(76 76 255) size(-16 -16 -24, 16 16 32) = character
 [
 	spawnflags(flags) =
 	[
@@ -1707,7 +1707,7 @@ Do not have teleport points, or start spots of any kind inside or inbetween this
 @PointClass base(object) size(-22 -46 -19, 22 46 19) = obj_torture_rack : "Torture rack" []
 @PointClass base(object) size(-46 -14 -14, 46 14 14) = obj_torture_table : "Torture table"
 [
-	style(choices) = 
+	style(choices) =
 	[
 		0 : "Down"
 		1 : "Upright"
@@ -1745,14 +1745,14 @@ Do not have teleport points, or start spots of any kind inside or inbetween this
 		2 : "Start off" : 0
 	]
 	style(integer) : "Style"
-	attenuation(choices) : "Attenuation" : 0 = 
+	attenuation(choices) : "Attenuation" : 0 =
 	[
 		0 : "No attenuation"
 		1 : "Normal"
 		2 : "High"
 		3 : "Max"
 	]
-	volume(integer) : "Volume" : 0.5
+	volume(float) : "Volume" : "0.5"
 	wait(integer) : "Wait" : 10
 ]
 
