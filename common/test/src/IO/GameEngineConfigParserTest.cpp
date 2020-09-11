@@ -17,14 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
 #include "Exceptions.h"
 #include "IO/GameEngineConfigParser.h"
 #include "Model/GameEngineConfig.h"
 #include "Model/GameEngineProfile.h"
 
 #include <string>
+
+#include <catch2/catch.hpp>
 
 namespace TrenchBroom {
     namespace IO {
