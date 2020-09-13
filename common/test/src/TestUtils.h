@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_TestUtils_h
 #define TrenchBroom_TestUtils_h
 
-#include <catch2/catch.hpp>
 
 #include "GTestCompat.h"
 
@@ -30,10 +29,14 @@
 
 #include <vecmath/forward.h>
 #include <vecmath/mat.h>
+#include <vecmath/mat_io.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h> // enable Catch2 to print vm::vec on test failures
 
 #include <string>
+
+// catch must be included after the stream insertion operators are included (vec_io, mat_io)
+#include <catch2/catch.hpp>
 
 namespace TrenchBroom {
     namespace Assets {
