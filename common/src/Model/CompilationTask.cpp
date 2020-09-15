@@ -27,6 +27,8 @@ namespace TrenchBroom {
 
         CompilationTask::~CompilationTask() = default;
 
+        // CompilationExportMap
+
         CompilationExportMap::CompilationExportMap(const std::string& targetSpec) :
         m_targetSpec(targetSpec) {}
 
@@ -52,12 +54,24 @@ namespace TrenchBroom {
 
         void CompilationExportMap::setTargetSpec(const std::string& targetSpec) {
             m_targetSpec = targetSpec;
-            taskDidChange();
         }
 
         CompilationExportMap* CompilationExportMap::clone() const {
             return new CompilationExportMap(m_targetSpec);
         }
+
+        bool CompilationExportMap::operator==(const CompilationTask& other) const {
+            auto* otherCasted = dynamic_cast<const CompilationExportMap*>(&other);
+            if (otherCasted == nullptr) {
+                return false;
+            }
+            if (m_targetSpec != otherCasted->m_targetSpec) {
+                return false;
+            }
+            return true;
+        }
+
+        // CompilationCopyFiles
 
         CompilationCopyFiles::CompilationCopyFiles(const std::string& sourceSpec, const std::string& targetSpec) :
         CompilationTask(),
@@ -90,17 +104,31 @@ namespace TrenchBroom {
 
         void CompilationCopyFiles::setSourceSpec(const std::string& sourceSpec) {
             m_sourceSpec = sourceSpec;
-            taskDidChange();
         }
 
         void CompilationCopyFiles::setTargetSpec(const std::string& targetSpec) {
             m_targetSpec = targetSpec;
-            taskDidChange();
         }
 
         CompilationCopyFiles* CompilationCopyFiles::clone() const {
             return new CompilationCopyFiles(m_sourceSpec, m_targetSpec);
         }
+
+        bool CompilationCopyFiles::operator==(const CompilationTask& other) const {
+            auto* otherCasted = dynamic_cast<const CompilationCopyFiles*>(&other);
+            if (otherCasted == nullptr) {
+                return false;
+            }
+            if (m_sourceSpec != otherCasted->m_sourceSpec) {
+                return false;
+            }
+            if (m_targetSpec != otherCasted->m_targetSpec) {
+                return false;
+            }
+            return true;
+        }
+
+        // CompilationRunTool
 
         CompilationRunTool::CompilationRunTool(const std::string& toolSpec, const std::string& parameterSpec) :
         CompilationTask(),
@@ -133,16 +161,28 @@ namespace TrenchBroom {
 
         void CompilationRunTool::setToolSpec(const std::string& toolSpec) {
             m_toolSpec = toolSpec;
-            taskDidChange();
         }
 
         void CompilationRunTool::setParameterSpec(const std::string& parameterSpec) {
             m_parameterSpec = parameterSpec;
-            taskDidChange();
         }
 
         CompilationRunTool* CompilationRunTool::clone() const {
             return new CompilationRunTool(m_toolSpec, m_parameterSpec);
+        }
+
+        bool CompilationRunTool::operator==(const CompilationTask& other) const {
+            auto* otherCasted = dynamic_cast<const CompilationRunTool*>(&other);
+            if (otherCasted == nullptr) {
+                return false;
+            }
+            if (m_toolSpec != otherCasted->m_toolSpec) {
+                return false;
+            }
+            if (m_parameterSpec != otherCasted->m_parameterSpec) {
+                return false;
+            }
+            return true;
         }
 
         CompilationTaskVisitor::~CompilationTaskVisitor() = default;

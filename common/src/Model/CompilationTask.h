@@ -21,7 +21,6 @@
 #define CompilationTask_h
 
 #include "Macros.h"
-#include "Notifier.h"
 
 #include <string>
 
@@ -33,9 +32,6 @@ namespace TrenchBroom {
         class ConstCompilationTaskVisitor;
 
         class CompilationTask {
-        public:
-            Notifier<> taskWillBeRemoved;
-            Notifier<> taskDidChange;
         protected:
             CompilationTask();
         public:
@@ -47,6 +43,7 @@ namespace TrenchBroom {
             virtual void accept(const ConstCompilationTaskConstVisitor& visitor) const = 0;
 
             virtual CompilationTask* clone() const = 0;
+            virtual bool operator==(const CompilationTask& other) const = 0;
 
             deleteCopyAndMove(CompilationTask)
         };
@@ -67,6 +64,7 @@ namespace TrenchBroom {
             void setTargetSpec(const std::string& targetSpec);
 
             CompilationExportMap* clone() const override;
+            bool operator==(const CompilationTask& other) const override;
 
             deleteCopyAndMove(CompilationExportMap)
         };
@@ -90,6 +88,7 @@ namespace TrenchBroom {
             void setTargetSpec(const std::string& targetSpec);
 
             CompilationCopyFiles* clone() const override;
+            bool operator==(const CompilationTask& other) const override;
 
             deleteCopyAndMove(CompilationCopyFiles)
         };
@@ -113,6 +112,7 @@ namespace TrenchBroom {
             void setParameterSpec(const std::string& parameterSpec);
 
             CompilationRunTool* clone() const override;
+            bool operator==(const CompilationTask& other) const override;
 
             deleteCopyAndMove(CompilationRunTool)
         };

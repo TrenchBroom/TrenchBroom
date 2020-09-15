@@ -21,7 +21,6 @@
 #define CompilationProfile_h
 
 #include "Macros.h"
-#include "Notifier.h"
 
 #include <memory>
 #include <string>
@@ -36,9 +35,6 @@ namespace TrenchBroom {
         class ConstCompilationTaskConstVisitor;
 
         class CompilationProfile {
-        public:
-            Notifier<> profileWillBeRemoved;
-            Notifier<> profileDidChange;
         private:
             std::string m_name;
             std::string m_workDirSpec;
@@ -49,6 +45,7 @@ namespace TrenchBroom {
             ~CompilationProfile();
 
             std::unique_ptr<CompilationProfile> clone() const;
+            bool operator==(const CompilationProfile& other) const;
 
             const std::string& name() const;
             void setName(const std::string& name);

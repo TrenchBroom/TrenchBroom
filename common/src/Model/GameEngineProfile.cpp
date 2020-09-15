@@ -33,6 +33,19 @@ namespace TrenchBroom {
             return std::make_unique<GameEngineProfile>(m_name, m_path, m_parameterSpec);
         }
 
+        bool GameEngineProfile::operator==(const GameEngineProfile& other) const {
+            if (m_name != other.m_name) {
+                return false;
+            }
+            if (m_path != other.m_path) {
+                return false;
+            }
+            if (m_parameterSpec != other.m_parameterSpec) {
+                return false;
+            }
+            return true;
+        }
+
         const std::string& GameEngineProfile::name() const {
             return m_name;
         }
@@ -47,17 +60,14 @@ namespace TrenchBroom {
 
         void GameEngineProfile::setName(const std::string& name) {
             m_name = name;
-            profileDidChange();
         }
 
         void GameEngineProfile::setPath(const IO::Path& path) {
             m_path = path;
-            profileDidChange();
         }
 
         void GameEngineProfile::setParameterSpec(const std::string& parameterSpec) {
             m_parameterSpec = parameterSpec;
-            profileDidChange();
         }
     }
 }

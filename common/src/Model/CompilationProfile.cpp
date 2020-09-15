@@ -50,13 +50,30 @@ namespace TrenchBroom {
             return std::make_unique<CompilationProfile>(m_name, m_workDirSpec, std::move(clones));
         }
 
+        bool CompilationProfile::operator==(const CompilationProfile& other) const {
+            if (m_name != other.m_name) {
+                return false;
+            }
+            if (m_workDirSpec != other.m_workDirSpec) {
+                return false;
+            }
+            if (m_tasks.size() != other.m_tasks.size()) {
+                return false;
+            }
+            for (size_t i = 0; i < m_tasks.size(); ++i) {
+                if (!(*m_tasks[i] == *other.m_tasks[i])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         const std::string& CompilationProfile::name() const  {
             return m_name;
         }
 
         void CompilationProfile::setName(const std::string& name) {
             m_name = name;
-            profileDidChange();
         }
 
         const std::string& CompilationProfile::workDirSpec() const {
@@ -65,7 +82,6 @@ namespace TrenchBroom {
 
         void CompilationProfile::setWorkDirSpec(const std::string& workDirSpec) {
             m_workDirSpec = workDirSpec;
-            profileDidChange();
         }
 
 
@@ -94,14 +110,11 @@ namespace TrenchBroom {
                 m_tasks.insert(it, std::move(task));
 
             }
-            profileDidChange();
         }
 
         void CompilationProfile::removeTask(const size_t index) {
             assert(index < taskCount());
-            m_tasks[index]->taskWillBeRemoved();
             kdl::vec_erase_at(m_tasks, index);
-            profileDidChange();
         }
 
         void CompilationProfile::moveTaskUp(const size_t index) {
@@ -115,7 +128,6 @@ namespace TrenchBroom {
             std::advance(pr, static_cast<int>(index) - 1);
 
             std::iter_swap(it, pr);
-            profileDidChange();
         }
 
         void CompilationProfile::moveTaskDown(const size_t index) {
@@ -128,7 +140,6 @@ namespace TrenchBroom {
             std::advance(nx, static_cast<int>(index) + 1);
 
             std::iter_swap(it, nx);
-            profileDidChange();
         }
 
         void CompilationProfile::accept(CompilationTaskVisitor& visitor) {
