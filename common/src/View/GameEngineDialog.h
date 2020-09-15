@@ -38,12 +38,8 @@ namespace TrenchBroom {
             GameEngineProfileManager* m_profileManager;
         public:
             explicit GameEngineDialog(const std::string& gameName, QWidget* parent = nullptr);
-            ~GameEngineDialog() override;
         private:
             void createGui();
-            void bindObservers();
-            void unbindObservers();
-            void configDidChange();
             void saveConfig();
         };
     }

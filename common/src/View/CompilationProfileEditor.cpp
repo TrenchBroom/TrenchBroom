@@ -117,8 +117,8 @@ namespace TrenchBroom {
 
             containerPanel->setLayout(layout);
 
-            connect(m_nameTxt, &QLineEdit::editingFinished, this, &CompilationProfileEditor::nameChanged);
-            connect(m_workDirTxt, &QLineEdit::editingFinished, this, &CompilationProfileEditor::workDirChanged);
+            connect(m_nameTxt, &QLineEdit::textChanged, this, &CompilationProfileEditor::nameChanged);
+            connect(m_workDirTxt, &QLineEdit::textChanged, this, &CompilationProfileEditor::workDirChanged);
             connect(m_taskList, &ControlListBox::itemSelectionChanged, this, &CompilationProfileEditor::taskSelectionChanged);
             connect(m_addTaskButton, &QAbstractButton::clicked, this, &CompilationProfileEditor::addTask);
             connect(m_removeTaskButton, &QAbstractButton::clicked, this, &CompilationProfileEditor::removeTask);
@@ -128,17 +128,17 @@ namespace TrenchBroom {
             return containerPanel;
         }
 
-        void CompilationProfileEditor::nameChanged() {
+        void CompilationProfileEditor::nameChanged(const QString& text) {
             ensure(m_profile != nullptr, "profile is null");
-            const auto name = m_nameTxt->text().toStdString();
+            const auto name = text.toStdString();
             if (m_profile->name() != name) {
                 m_profile->setName(name);
             }
         }
 
-        void CompilationProfileEditor::workDirChanged() {
+        void CompilationProfileEditor::workDirChanged(const QString& text) {
             ensure(m_profile != nullptr, "profile is null");
-            const auto workDirSpec = m_workDirTxt->text().toStdString();
+            const auto workDirSpec = text.toStdString();
             if (m_profile->workDirSpec() != workDirSpec) {
                 m_profile->setWorkDirSpec(workDirSpec);
             }

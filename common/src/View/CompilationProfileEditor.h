@@ -61,8 +61,8 @@ namespace TrenchBroom {
             QWidget* createEditorPage(QWidget* parent);
 
         private slots:
-            void nameChanged();
-            void workDirChanged();
+            void nameChanged(const QString& text);
+            void workDirChanged(const QString& text);
 
             void addTask();
             void removeTask();

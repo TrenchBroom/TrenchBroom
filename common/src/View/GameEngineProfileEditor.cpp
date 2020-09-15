@@ -73,7 +73,7 @@ namespace TrenchBroom {
 
             auto* button = new QPushButton("...");
 
-            connect(m_nameEdit, &QLineEdit::editingFinished, this, &GameEngineProfileEditor::nameChanged);
+            connect(m_nameEdit, &QLineEdit::textEdited, this, &GameEngineProfileEditor::nameChanged);
             connect(m_pathEdit, &QLineEdit::editingFinished, this, &GameEngineProfileEditor::pathChanged);
             connect(button, &QPushButton::clicked, this, &GameEngineProfileEditor::changePathClicked);
 
@@ -155,11 +155,11 @@ namespace TrenchBroom {
             }
         }
 
-        void GameEngineProfileEditor::nameChanged() {
+        void GameEngineProfileEditor::nameChanged(const QString& text) {
             ensure(m_profile != nullptr, "profile is null");
 
             const kdl::set_temp ignore(m_ignoreNotifications);
-            m_profile->setName(m_nameEdit->text().toStdString());
+            m_profile->setName(text.toStdString());
         }
 
         void GameEngineProfileEditor::pathChanged() {

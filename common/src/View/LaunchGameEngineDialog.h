@@ -49,19 +49,15 @@ namespace TrenchBroom {
             Model::GameEngineProfile* m_lastProfile;
         public:
             explicit LaunchGameEngineDialog(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~LaunchGameEngineDialog() override;
         private:
             void createGui();
             LaunchGameEngineVariables variables() const;
         private slots:
             void gameEngineProfileChanged();
-            void parametersChanged();
+            void parametersChanged(const QString& text);
             void editGameEngines();
             void launchEngine();
         private:
-            void bindObservers();
-            void unbindObservers();
-            void configDidChange();
             void saveConfig();
         };
     }

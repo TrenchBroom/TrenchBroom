@@ -43,8 +43,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        // CompilationTaskEditorBase
-
         CompilationTaskEditorBase::CompilationTaskEditorBase(const QString& title, std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationTask& task, QWidget* parent) :
         ControlListBoxItemRenderer(parent),
         m_title(title),
@@ -135,8 +133,6 @@ namespace TrenchBroom {
             }
         }
 
-        // CompilationExportMapTaskEditor
-
         CompilationExportMapTaskEditor::CompilationExportMapTaskEditor(std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationExportMap& task, QWidget* parent) :
         CompilationTaskEditorBase("Export Map", std::move(document), profile, task, parent),
         m_targetEditor(nullptr) {
@@ -150,7 +146,7 @@ namespace TrenchBroom {
             setupCompleter(m_targetEditor);
             formLayout->addRow("Target", m_targetEditor);
 
-            connect(m_targetEditor, &QLineEdit::editingFinished, this, &CompilationExportMapTaskEditor::targetSpecChanged);
+            connect(m_targetEditor, &QLineEdit::textChanged, this, &CompilationExportMapTaskEditor::targetSpecChanged);
         }
 
         void CompilationExportMapTaskEditor::updateItem() {
@@ -166,14 +162,12 @@ namespace TrenchBroom {
             return static_cast<Model::CompilationExportMap&>(*m_task);
         }
 
-        void CompilationExportMapTaskEditor::targetSpecChanged() {
-            const auto targetSpec = m_targetEditor->text().toStdString();
+        void CompilationExportMapTaskEditor::targetSpecChanged(const QString& text) {
+            const auto targetSpec = text.toStdString();
             if (task().targetSpec() != targetSpec) {
                 task().setTargetSpec(targetSpec);
             }
         }
-
-        // CompilationCopyFilesTaskEditor
 
         CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationCopyFiles& task, QWidget* parent) :
         CompilationTaskEditorBase("Copy Files", std::move(document), profile, task, parent),
@@ -193,8 +187,8 @@ namespace TrenchBroom {
             setupCompleter(m_targetEditor);
             formLayout->addRow("Target", m_targetEditor);
 
-            connect(m_sourceEditor, &QLineEdit::editingFinished, this, &CompilationCopyFilesTaskEditor::sourceSpecChanged);
-            connect(m_targetEditor, &QLineEdit::editingFinished, this, &CompilationCopyFilesTaskEditor::targetSpecChanged);
+            connect(m_sourceEditor, &QLineEdit::textChanged, this, &CompilationCopyFilesTaskEditor::sourceSpecChanged);
+            connect(m_targetEditor, &QLineEdit::textChanged, this, &CompilationCopyFilesTaskEditor::targetSpecChanged);
         }
 
         void CompilationCopyFilesTaskEditor::updateItem() {
@@ -215,21 +209,19 @@ namespace TrenchBroom {
             return static_cast<Model::CompilationCopyFiles&>(*m_task);
         }
 
-        void CompilationCopyFilesTaskEditor::sourceSpecChanged() {
-            const auto sourceSpec = m_sourceEditor->text().toStdString();
+        void CompilationCopyFilesTaskEditor::sourceSpecChanged(const QString& text) {
+            const auto sourceSpec = text.toStdString();
             if (task().sourceSpec() != sourceSpec) {
                 task().setSourceSpec(sourceSpec);
             }
         }
 
-        void CompilationCopyFilesTaskEditor::targetSpecChanged() {
-            const auto targetSpec = m_targetEditor->text().toStdString();
+        void CompilationCopyFilesTaskEditor::targetSpecChanged(const QString& text) {
+            const auto targetSpec = text.toStdString();
             if (task().targetSpec() != targetSpec) {
                 task().setTargetSpec(targetSpec);
             }
         }
-
-        // CompilationRunToolTaskEditor
 
         CompilationRunToolTaskEditor::CompilationRunToolTaskEditor(std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationRunTool& task, QWidget* parent) :
         CompilationTaskEditorBase("Run Tool", std::move(document), profile, task, parent),
@@ -259,9 +251,9 @@ namespace TrenchBroom {
             setupCompleter(m_parametersEditor);
             formLayout->addRow("Parameters", m_parametersEditor);
 
-            connect(m_toolEditor, &QLineEdit::editingFinished, this, &CompilationRunToolTaskEditor::toolSpecChanged);
+            connect(m_toolEditor, &QLineEdit::textChanged, this, &CompilationRunToolTaskEditor::toolSpecChanged);
             connect(browseToolButton, &QPushButton::clicked, this, &CompilationRunToolTaskEditor::browseTool);
-            connect(m_parametersEditor, &QLineEdit::editingFinished, this, &CompilationRunToolTaskEditor::parameterSpecChanged);
+            connect(m_parametersEditor, &QLineEdit::textChanged, this, &CompilationRunToolTaskEditor::parameterSpecChanged);
         }
 
         void CompilationRunToolTaskEditor::updateItem() {
@@ -288,25 +280,24 @@ namespace TrenchBroom {
             if (!toolSpec.isEmpty()) {
                 updateFileDialogDefaultDirectoryWithFilename(FileDialogDir::CompileTool, toolSpec);
 
-                task().setToolSpec(toolSpec.toStdString());
+                // will call toolSpecChanged and update the model there
+                m_toolEditor->setText(toolSpec);
             }
         }
 
-        void CompilationRunToolTaskEditor::toolSpecChanged() {
-            const auto toolSpec = m_toolEditor->text().toStdString();
+        void CompilationRunToolTaskEditor::toolSpecChanged(const QString& text) {
+            const auto toolSpec = text.toStdString();
             if (task().toolSpec() != toolSpec) {
                 task().setToolSpec(toolSpec);
             }
         }
 
-        void CompilationRunToolTaskEditor::parameterSpecChanged() {
-            const auto parameterSpec = m_parametersEditor->text().toStdString();
+        void CompilationRunToolTaskEditor::parameterSpecChanged(const QString& text) {
+            const auto parameterSpec = text.toStdString();
             if (task().parameterSpec() != parameterSpec) {
                 task().setParameterSpec(parameterSpec);
             }
         }
-
-        // CompilationTaskListBox
 
         CompilationTaskListBox::CompilationTaskListBox(std::weak_ptr<MapDocument> document, QWidget* parent) :
         ControlListBox("Click the '+' button to create a task.", QMargins(), false, parent),

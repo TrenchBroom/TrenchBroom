@@ -85,7 +85,7 @@ namespace TrenchBroom {
             void updateItem() override;
             Model::CompilationExportMap& task();
         private slots:
-            void targetSpecChanged();
+            void targetSpecChanged(const QString& text);
         };
 
         class CompilationCopyFilesTaskEditor : public CompilationTaskEditorBase {
@@ -99,8 +99,8 @@ namespace TrenchBroom {
             void updateItem() override;
             Model::CompilationCopyFiles& task();
         private slots:
-            void sourceSpecChanged();
-            void targetSpecChanged();
+            void sourceSpecChanged(const QString& text);
+            void targetSpecChanged(const QString& text);
         };
 
         class CompilationRunToolTaskEditor : public CompilationTaskEditorBase {
@@ -115,8 +115,8 @@ namespace TrenchBroom {
             Model::CompilationRunTool& task();
         private slots:
             void browseTool();
-            void toolSpecChanged();
-            void parameterSpecChanged();
+            void toolSpecChanged(const QString& text);
+            void parameterSpecChanged(const QString& text);
         };
 
         class CompilationTaskListBox : public ControlListBox {

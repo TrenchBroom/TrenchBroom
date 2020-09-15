@@ -53,7 +53,7 @@ namespace TrenchBroom {
 
             bool isValidEnginePath(const QString& str) const;
         private slots:
-            void nameChanged();
+            void nameChanged(const QString& text);
             void pathChanged();
             void changePathClicked();
         };
