@@ -29,14 +29,11 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class GameEngineConfig;
-
         class GameEngineProfile {
         private:
             std::string m_name;
             IO::Path m_path;
             std::string m_parameterSpec;
-            GameEngineConfig* m_parent;
         public:
             Notifier<> profileWillBeRemoved;
             Notifier<> profileDidChange;
@@ -45,9 +42,6 @@ namespace TrenchBroom {
 
             std::unique_ptr<GameEngineProfile> clone() const;
 
-            GameEngineConfig* parent() const;
-            void setParent(GameEngineConfig* parent);
-
             const std::string& name() const;
             const IO::Path& path() const;
             const std::string& parameterSpec() const;
@@ -55,9 +49,7 @@ namespace TrenchBroom {
             void setName(const std::string& name);
             void setPath(const IO::Path& path);
             void setParameterSpec(const std::string& parameterSpec);
-        private:
-            void sendDidChangeNotifications();
-        public:
+
             deleteCopyAndMove(GameEngineProfile)
         };
     }

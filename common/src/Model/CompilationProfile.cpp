@@ -20,7 +20,6 @@
 #include "CompilationProfile.h"
 
 #include "Ensure.h"
-#include "Model/CompilationConfig.h"
 #include "Model/CompilationTask.h"
 
 #include <kdl/vector_utils.h>
@@ -30,18 +29,13 @@
 namespace TrenchBroom {
     namespace Model {
         CompilationProfile::CompilationProfile(const std::string& name, const std::string& workDirSpec) :
-        CompilationProfile(name, workDirSpec, {}) {}
+        m_name(name),
+        m_workDirSpec(workDirSpec) {}
 
         CompilationProfile::CompilationProfile(const std::string& name, const std::string& workDirSpec, std::vector<std::unique_ptr<CompilationTask>> tasks) :
         m_name(name),
         m_workDirSpec(workDirSpec),
-        m_tasks(std::move(tasks)),
-        m_parent(nullptr) {
-            for (auto& task : m_tasks) {
-                ensure(task->parent() == nullptr, "task already had a parent");
-                task->setParent(this);
-            }
-        }
+        m_tasks(std::move(tasks)) {}
 
         CompilationProfile::~CompilationProfile() = default;
 
@@ -56,23 +50,13 @@ namespace TrenchBroom {
             return std::make_unique<CompilationProfile>(m_name, m_workDirSpec, std::move(clones));
         }
 
-        CompilationConfig* CompilationProfile::parent() const {
-            return m_parent;
-        }
-
-        void CompilationProfile::setParent(CompilationConfig* parent) {
-            m_parent = parent;
-        }
-
         const std::string& CompilationProfile::name() const  {
             return m_name;
         }
 
         void CompilationProfile::setName(const std::string& name) {
-            if (m_name != name) {
-                m_name = name;
-                sendDidChangeNotifications();
-            }
+            m_name = name;
+            profileDidChange();
         }
 
         const std::string& CompilationProfile::workDirSpec() const {
@@ -80,10 +64,8 @@ namespace TrenchBroom {
         }
 
         void CompilationProfile::setWorkDirSpec(const std::string& workDirSpec) {
-            if (m_workDirSpec != workDirSpec) {
-                m_workDirSpec = workDirSpec;
-                sendDidChangeNotifications();
-            }
+            m_workDirSpec = workDirSpec;
+            profileDidChange();
         }
 
 
@@ -103,18 +85,23 @@ namespace TrenchBroom {
         void CompilationProfile::insertTask(const size_t index, std::unique_ptr<CompilationTask> task) {
             assert(index <= m_tasks.size());
             ensure(task != nullptr, "task is null");
-            ensure(task->parent() == nullptr, "task already had a parent");
 
-            task->setParent(this);
-            m_tasks.insert(std::begin(m_tasks) + static_cast<int>(index), std::move(task));
-            sendDidChangeNotifications();
+            if (index == m_tasks.size()) {
+                m_tasks.push_back(std::move(task));
+            } else {
+                auto it = std::begin(m_tasks);
+                std::advance(it, static_cast<int>(index));
+                m_tasks.insert(it, std::move(task));
+
+            }
+            profileDidChange();
         }
 
         void CompilationProfile::removeTask(const size_t index) {
             assert(index < taskCount());
             m_tasks[index]->taskWillBeRemoved();
             kdl::vec_erase_at(m_tasks, index);
-            sendDidChangeNotifications();
+            profileDidChange();
         }
 
         void CompilationProfile::moveTaskUp(const size_t index) {
@@ -128,7 +115,7 @@ namespace TrenchBroom {
             std::advance(pr, static_cast<int>(index) - 1);
 
             std::iter_swap(it, pr);
-            sendDidChangeNotifications();
+            profileDidChange();
         }
 
         void CompilationProfile::moveTaskDown(const size_t index) {
@@ -141,7 +128,7 @@ namespace TrenchBroom {
             std::advance(nx, static_cast<int>(index) + 1);
 
             std::iter_swap(it, nx);
-            sendDidChangeNotifications();
+            profileDidChange();
         }
 
         void CompilationProfile::accept(CompilationTaskVisitor& visitor) {
@@ -165,22 +152,6 @@ namespace TrenchBroom {
         void CompilationProfile::accept(const ConstCompilationTaskConstVisitor& visitor) const {
             for (auto& task : m_tasks) {
                 task->accept(visitor);
-            }
-        }
-
-        void CompilationProfile::sendDidChangeNotifications() {
-            profileDidChange();
-            if (m_parent != nullptr) {
-                m_parent->configDidChange();
-            }
-        }
-
-        /**
-         * Called by CompilationTask only
-         */
-        void CompilationProfile::taskDidChange(CompilationTask*) {
-            if (m_parent != nullptr) {
-                m_parent->configDidChange();
             }
         }
     }

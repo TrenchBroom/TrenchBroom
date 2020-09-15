@@ -19,35 +19,13 @@
 
 #include "CompilationTask.h"
 
-#include "CompilationProfile.h"
-
 #include <string>
 
 namespace TrenchBroom {
     namespace Model {
-        // CompilationTask
-
-        CompilationTask::CompilationTask()
-        : m_parent(nullptr) {}
+        CompilationTask::CompilationTask() = default;
 
         CompilationTask::~CompilationTask() = default;
-
-        CompilationProfile* CompilationTask::parent() const {
-            return m_parent;
-        }
-
-        void CompilationTask::setParent(CompilationProfile* parent) {
-            m_parent = parent;
-        }
-
-        void CompilationTask::sendDidChangeNotifications() {
-            taskDidChange();
-            if (m_parent != nullptr) {
-                m_parent->taskDidChange(this);
-            }
-        }
-
-        // CompilationExportMap
 
         CompilationExportMap::CompilationExportMap(const std::string& targetSpec) :
         m_targetSpec(targetSpec) {}
@@ -73,17 +51,13 @@ namespace TrenchBroom {
         }
 
         void CompilationExportMap::setTargetSpec(const std::string& targetSpec) {
-            if (m_targetSpec != targetSpec) {
-                m_targetSpec = targetSpec;
-                sendDidChangeNotifications();
-            }
+            m_targetSpec = targetSpec;
+            taskDidChange();
         }
 
         CompilationExportMap* CompilationExportMap::clone() const {
             return new CompilationExportMap(m_targetSpec);
         }
-
-        // CompilationCopyFiles
 
         CompilationCopyFiles::CompilationCopyFiles(const std::string& sourceSpec, const std::string& targetSpec) :
         CompilationTask(),
@@ -115,24 +89,18 @@ namespace TrenchBroom {
         }
 
         void CompilationCopyFiles::setSourceSpec(const std::string& sourceSpec) {
-            if (m_sourceSpec != sourceSpec) {
-                m_sourceSpec = sourceSpec;
-                sendDidChangeNotifications();
-            }
+            m_sourceSpec = sourceSpec;
+            taskDidChange();
         }
 
         void CompilationCopyFiles::setTargetSpec(const std::string& targetSpec) {
-            if (m_targetSpec != targetSpec) {
-                m_targetSpec = targetSpec;
-                sendDidChangeNotifications();
-            }
+            m_targetSpec = targetSpec;
+            taskDidChange();
         }
 
         CompilationCopyFiles* CompilationCopyFiles::clone() const {
             return new CompilationCopyFiles(m_sourceSpec, m_targetSpec);
         }
-
-        // CompilationRunTool
 
         CompilationRunTool::CompilationRunTool(const std::string& toolSpec, const std::string& parameterSpec) :
         CompilationTask(),
@@ -164,17 +132,13 @@ namespace TrenchBroom {
         }
 
         void CompilationRunTool::setToolSpec(const std::string& toolSpec) {
-            if (m_toolSpec != toolSpec) {
-                m_toolSpec = toolSpec;
-                sendDidChangeNotifications();
-            }
+            m_toolSpec = toolSpec;
+            taskDidChange();
         }
 
         void CompilationRunTool::setParameterSpec(const std::string& parameterSpec) {
-            if (m_parameterSpec != parameterSpec) {
-                m_parameterSpec = parameterSpec;
-                sendDidChangeNotifications();
-            }
+            m_parameterSpec = parameterSpec;
+            taskDidChange();
         }
 
         CompilationRunTool* CompilationRunTool::clone() const {

@@ -33,14 +33,7 @@ namespace TrenchBroom {
         private:
             std::vector<std::unique_ptr<CompilationProfile>> m_profiles;
         public:
-            /**
-             * The profiles list changed.
-             */
             mutable Notifier<> profilesDidChange;
-            /**
-             * Anything in the config changed.
-             */
-            mutable Notifier<> configDidChange;
         public:
             CompilationConfig();
             explicit CompilationConfig(std::vector<std::unique_ptr<CompilationProfile>> profiles);
