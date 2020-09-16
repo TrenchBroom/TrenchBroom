@@ -64,6 +64,8 @@ namespace TrenchBroom {
             void parametersChanged(const QString& text);
             void editGameEngines();
             void launchEngine();
+        public slots: // QDialog overrides
+            void done(int r) override;
         private:
             void saveConfig();
         };

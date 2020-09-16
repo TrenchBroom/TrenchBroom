@@ -193,6 +193,8 @@ namespace TrenchBroom {
         }
 
         void LaunchGameEngineDialog::editGameEngines() {
+            saveConfig();
+
             const bool wasEmpty = m_gameEngineList->count() == 0;
 
             GameEngineDialog dialog(kdl::mem_lock(m_document)->game()->gameName(), this);
@@ -249,6 +251,12 @@ namespace TrenchBroom {
                 const auto message = kdl::str_to_string("Could not launch game engine: ", e.what());
                 QMessageBox::critical(this, "TrenchBroom", QString::fromStdString(message), QMessageBox::Ok);
             }
+        }
+
+        void LaunchGameEngineDialog::done(int r) {
+            saveConfig();
+
+            QDialog::done(r);
         }
 
         void LaunchGameEngineDialog::saveConfig() {
