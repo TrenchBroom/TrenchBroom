@@ -85,18 +85,23 @@ namespace TrenchBroom {
 
         // GameEngineProfileListBox
 
-        GameEngineProfileListBox::GameEngineProfileListBox(const Model::GameEngineConfig& config, QWidget* parent)  :
+        GameEngineProfileListBox::GameEngineProfileListBox(const Model::GameEngineConfig* config, QWidget* parent)  :
         ControlListBox("Click the '+' button to create a game engine profile.", true, parent),
         m_config(config) {
             reload();
         }
 
         Model::GameEngineProfile* GameEngineProfileListBox::selectedProfile() const {
-            if (currentRow() >= 0 && static_cast<size_t>(currentRow()) < m_config.profileCount()) {
-                return m_config.profile(static_cast<size_t>(currentRow()));
+            if (currentRow() >= 0 && static_cast<size_t>(currentRow()) < m_config->profileCount()) {
+                return m_config->profile(static_cast<size_t>(currentRow()));
             } else {
                 return nullptr;
             }
+        }
+
+        void GameEngineProfileListBox::setConfig(const Model::GameEngineConfig* config) {
+            m_config = config;
+            reload();
         }
 
         void GameEngineProfileListBox::reloadProfiles() {
@@ -108,17 +113,17 @@ namespace TrenchBroom {
         }
 
         size_t GameEngineProfileListBox::itemCount() const {
-            return m_config.profileCount();
+            return m_config->profileCount();
         }
 
         ControlListBoxItemRenderer* GameEngineProfileListBox::createItemRenderer(QWidget* parent, const size_t index) {
-            auto* profile = m_config.profile(index);
+            auto* profile = m_config->profile(index);
             return new GameEngineProfileItemRenderer(profile, parent);
         }
 
         void GameEngineProfileListBox::selectedRowChanged(const int index) {
             if (index >= 0 && index < count()) {
-                emit currentProfileChanged(m_config.profile(static_cast<size_t>(index)));
+                emit currentProfileChanged(m_config->profile(static_cast<size_t>(index)));
             } else {
                 emit currentProfileChanged(nullptr);
             }
@@ -126,7 +131,7 @@ namespace TrenchBroom {
 
         void GameEngineProfileListBox::doubleClicked(const size_t index) {
             if (index < static_cast<size_t>(count())) {
-                emit profileSelected(m_config.profile(index));
+                emit profileSelected(m_config->profile(index));
             }
         }
     }

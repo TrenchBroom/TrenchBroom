@@ -51,12 +51,13 @@ namespace TrenchBroom {
         class GameEngineProfileListBox : public ControlListBox {
             Q_OBJECT
         private:
-            const Model::GameEngineConfig& m_config;
+            const Model::GameEngineConfig* m_config;
         public:
-            explicit GameEngineProfileListBox(const Model::GameEngineConfig& config, QWidget* parent = nullptr);
+            explicit GameEngineProfileListBox(const Model::GameEngineConfig* config, QWidget* parent = nullptr);
 
             Model::GameEngineProfile* selectedProfile() const;
         public:
+            void setConfig(const Model::GameEngineConfig* config);
             void reloadProfiles();
             void updateProfiles();
         private:
@@ -65,7 +66,13 @@ namespace TrenchBroom {
             void selectedRowChanged(int index) override;
             void doubleClicked(size_t index) override;
         signals:
+            /**
+             * Emitted when the selection changes.
+             */
             void currentProfileChanged(Model::GameEngineProfile* profile);
+            /**
+             * Emitted when a profile is double-clicked.
+             */
             void profileSelected(Model::GameEngineProfile* profile);
         };
     }

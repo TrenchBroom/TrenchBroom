@@ -57,6 +57,7 @@ namespace TrenchBroom {
             explicit LaunchGameEngineDialog(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
             void createGui();
+            void reloadConfig();
             LaunchGameEngineVariables variables() const;
         private slots:
             void gameEngineProfileChanged();

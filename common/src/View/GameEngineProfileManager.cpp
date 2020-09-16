@@ -42,7 +42,7 @@ namespace TrenchBroom {
             auto* listPanel = new TitledPanel("Profiles");
             auto* editorPanel = new TitledPanel("Details");
 
-            m_profileList = new GameEngineProfileListBox(m_config, listPanel->getPanel());
+            m_profileList = new GameEngineProfileListBox(&m_config, listPanel->getPanel());
             m_profileEditor = new GameEngineProfileEditor(editorPanel->getPanel());
 
             auto* addProfileButton = createBitmapButton("Add.svg", "Add profile");
