@@ -74,8 +74,8 @@ namespace TrenchBroom {
 
             auto& gameFactory = Model::GameFactory::instance();
             const auto& gameConfig = gameFactory.gameConfig(gameName);
-            const auto& gameEngineConfig = gameConfig.gameEngineConfig();
-            m_gameEngineList = new GameEngineProfileListBox(gameEngineConfig);
+            m_config = gameConfig.gameEngineConfig();
+            m_gameEngineList = new GameEngineProfileListBox(m_config);
             m_gameEngineList->setEmptyText("Click the 'Configure engines...' button to create a game engine profile.");
             m_gameEngineList->setMinimumSize(250, 280);
 
@@ -236,11 +236,12 @@ namespace TrenchBroom {
                 QMessageBox::critical(this, "TrenchBroom", QString::fromStdString(message), QMessageBox::Ok);
             }
         }
+
         void LaunchGameEngineDialog::saveConfig() {
             auto document = kdl::mem_lock(m_document);
             const auto& gameName = document->game()->gameName();
             auto& gameFactory = Model::GameFactory::instance();
-            gameFactory.saveGameEngineConfigs(gameName);
+            gameFactory.saveGameEngineConfig(gameName, m_config);
         }
     }
 }

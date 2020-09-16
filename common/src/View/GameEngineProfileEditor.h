@@ -31,6 +31,9 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        /**
+         * Editor widget for a single game engine profile.
+         */
         class GameEngineProfileEditor : public QWidget {
         private:
             Model::GameEngineProfile* m_profile;
@@ -40,7 +43,6 @@ namespace TrenchBroom {
             bool m_ignoreNotifications;
         public:
             explicit GameEngineProfileEditor(QWidget* parent = nullptr);
-            ~GameEngineProfileEditor() override;
         private:
             QWidget* createEditorPage();
             void updatePath(const QString& str);

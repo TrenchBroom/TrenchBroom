@@ -43,12 +43,6 @@ namespace TrenchBroom {
             explicit CompilationProfileItemRenderer(Model::CompilationProfile& profile, QWidget* parent = nullptr);
             ~CompilationProfileItemRenderer() override;
         private:
-            void addObservers();
-            void removeObservers();
-
-            void profileWillBeRemoved();
-            void profileDidChange();
-        private:
             void updateItem() override;
         };
 
@@ -58,9 +52,8 @@ namespace TrenchBroom {
             const Model::CompilationConfig& m_config;
         public:
             explicit CompilationProfileListBox(const Model::CompilationConfig& config, QWidget* parent = nullptr);
-            ~CompilationProfileListBox() override;
-        private:
-            void profilesDidChange();
+        public:
+            void reloadProfileList();
         private:
             size_t itemCount() const override;
             ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;

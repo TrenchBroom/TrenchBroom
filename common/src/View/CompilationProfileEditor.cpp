@@ -65,18 +65,10 @@ namespace TrenchBroom {
             setLayout(layout);
         }
 
-        CompilationProfileEditor::~CompilationProfileEditor() {
-            if (m_profile != nullptr) {
-                m_profile->profileWillBeRemoved.removeObserver(this, &CompilationProfileEditor::profileWillBeRemoved);
-                m_profile->profileDidChange.removeObserver(this, &CompilationProfileEditor::profileDidChange);
-            }
-        }
-
         QWidget* CompilationProfileEditor::createEditorPage(QWidget* parent) {
             auto* containerPanel = new QWidget(parent);
             auto* upperPanel = new QWidget(containerPanel);
             setDefaultWindowColor(upperPanel);
-
 
             m_nameTxt = new QLineEdit();
             m_workDirTxt = new MultiCompletionLineEdit();
@@ -209,15 +201,9 @@ namespace TrenchBroom {
         }
 
         void CompilationProfileEditor::setProfile(Model::CompilationProfile* profile) {
-            if (m_profile != nullptr) {
-                m_profile->profileWillBeRemoved.removeObserver(this, &CompilationProfileEditor::profileWillBeRemoved);
-                m_profile->profileDidChange.removeObserver(this, &CompilationProfileEditor::profileDidChange);
-            }
             m_profile = profile;
             m_taskList->setProfile(profile);
             if (m_profile != nullptr) {
-                m_profile->profileWillBeRemoved.addObserver(this, &CompilationProfileEditor::profileWillBeRemoved);
-                m_profile->profileDidChange.addObserver(this, &CompilationProfileEditor::profileDidChange);
                 m_stackedWidget->setCurrentIndex(1);
             } else {
                 m_stackedWidget->setCurrentIndex(0);

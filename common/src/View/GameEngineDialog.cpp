@@ -29,6 +29,7 @@
 #include <string>
 
 #include <QBoxLayout>
+#include <QCloseEvent>
 #include <QDialogButtonBox>
 
 namespace TrenchBroom {
@@ -66,9 +67,24 @@ namespace TrenchBroom {
             connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
             connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::accept);
         }
+
+        void GameEngineDialog::keyPressEvent(QKeyEvent* event) {
+            // Dismissing the dialog with Escape doesn't invoke closeEvent()
+            if (event->key() == Qt::Key_Escape) {
+                saveConfig();
+            }
+
+            QDialog::keyPressEvent(event);
+        }
+
+        void GameEngineDialog::closeEvent(QCloseEvent* event) {
+            saveConfig();
+            QDialog::closeEvent(event);
+        }
+
         void GameEngineDialog::saveConfig() {
             auto& gameFactory = Model::GameFactory::instance();
-            gameFactory.saveGameEngineConfigs(m_gameName);
+            gameFactory.saveGameEngineConfig(m_gameName, m_profileManager->config());
         }
     }
 }

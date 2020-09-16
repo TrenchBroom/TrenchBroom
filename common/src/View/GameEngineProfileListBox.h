@@ -39,14 +39,11 @@ namespace TrenchBroom {
             ElidedLabel* m_pathLabel;
         public:
             explicit GameEngineProfileItemRenderer(Model::GameEngineProfile* profile, QWidget* parent = nullptr);
-            ~GameEngineProfileItemRenderer() override;
 
             void updateItem() override;
         private:
             void createGui();
             void refresh();
-            void addObservers();
-            void removeObservers();
             void profileWillBeRemoved();
             void profileDidChange();
         };
@@ -57,7 +54,6 @@ namespace TrenchBroom {
             const Model::GameEngineConfig& m_config;
         public:
             explicit GameEngineProfileListBox(const Model::GameEngineConfig& config, QWidget* parent = nullptr);
-            ~GameEngineProfileListBox() override;
 
             Model::GameEngineProfile* selectedProfile() const;
         private:

@@ -20,6 +20,7 @@
 #include "CompilationDialog.h"
 
 #include "Model/Game.h"
+#include "Model/GameFactory.h"
 #include "Model/CompilationProfile.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationProfileManager.h"
@@ -118,7 +119,6 @@ namespace TrenchBroom {
             connect(&m_run, &CompilationRun::compilationStarted, this, &CompilationDialog::compilationStarted);
             connect(&m_run, &CompilationRun::compilationEnded, this, &CompilationDialog::compilationEnded);
             connect(m_profileManager, &CompilationProfileManager::selectedProfileChanged, this, &CompilationDialog::selectedProfileChanged);
-            connect(m_profileManager, &CompilationProfileManager::profileChanged, this, &CompilationDialog::profileChanged);
 
             connect(m_compileButton, &QPushButton::clicked, this, [&]() { startCompilation(false); });
             connect(m_testCompileButton, &QPushButton::clicked, this, [&]() { startCompilation(true); });
@@ -157,6 +157,7 @@ namespace TrenchBroom {
         }
 
         void CompilationDialog::startCompilation(const bool test) {
+            saveProfile();
             if (m_run.running()) {
                 m_run.terminate();
             } else {
@@ -191,6 +192,7 @@ namespace TrenchBroom {
                 
                 stopCompilation();
             }
+            saveProfile();
             event->accept();
         }
 
@@ -213,14 +215,11 @@ namespace TrenchBroom {
             updateCompileButtons();
         }
 
-        void CompilationDialog::profileChanged() {
-            updateCompileButtons();
-
         void CompilationDialog::saveProfile() {
             auto document = m_mapFrame->document();
             const auto& gameName = document->game()->gameName();
             auto& gameFactory = Model::GameFactory::instance();
-            gameFactory.saveCompilationConfigs(gameName, m_mapFrame->logger());
+            gameFactory.saveCompilationConfig(gameName, m_profileManager->config(), m_mapFrame->logger());
         }
     }
 }

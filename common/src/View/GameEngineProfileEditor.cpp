@@ -54,13 +54,6 @@ namespace TrenchBroom {
             layout->addWidget(m_stackedWidget);
         }
 
-        GameEngineProfileEditor::~GameEngineProfileEditor() {
-            if (m_profile != nullptr) {
-                m_profile->profileWillBeRemoved.removeObserver(this, &GameEngineProfileEditor::profileWillBeRemoved);
-                m_profile->profileDidChange.removeObserver(this, &GameEngineProfileEditor::profileDidChange);
-            }
-        }
-
         QWidget* GameEngineProfileEditor::createEditorPage() {
             auto* container = new QWidget();
             setBaseWindowColor(container);
@@ -112,14 +105,8 @@ namespace TrenchBroom {
         }
 
         void GameEngineProfileEditor::setProfile(Model::GameEngineProfile* profile) {
-            if (m_profile != nullptr) {
-                m_profile->profileWillBeRemoved.removeObserver(this, &GameEngineProfileEditor::profileWillBeRemoved);
-                m_profile->profileDidChange.removeObserver(this, &GameEngineProfileEditor::profileDidChange);
-            }
             m_profile = profile;
             if (m_profile != nullptr) {
-                m_profile->profileWillBeRemoved.addObserver(this, &GameEngineProfileEditor::profileWillBeRemoved);
-                m_profile->profileDidChange.addObserver(this, &GameEngineProfileEditor::profileDidChange);
                 m_stackedWidget->setCurrentIndex(1);
             } else {
                 m_stackedWidget->setCurrentIndex(0);

@@ -56,7 +56,6 @@ namespace TrenchBroom {
             QAbstractButton* m_moveTaskDownButton;
         public:
             explicit CompilationProfileEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~CompilationProfileEditor() override;
         private:
             QWidget* createEditorPage(QWidget* parent);
 

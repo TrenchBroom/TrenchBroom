@@ -33,9 +33,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        GameEngineProfileManager::GameEngineProfileManager(Model::GameEngineConfig& config, QWidget* parent) :
+        GameEngineProfileManager::GameEngineProfileManager(Model::GameEngineConfig config, QWidget* parent) :
         QWidget(parent),
-        m_config(config),
+        m_config(std::move(config)),
         m_profileList(nullptr),
         m_profileEditor(nullptr),
         m_removeProfileButton(nullptr) {
@@ -78,6 +78,10 @@ namespace TrenchBroom {
             connect(addProfileButton, &QAbstractButton::clicked, this, &GameEngineProfileManager::addProfile);
             connect(m_removeProfileButton, &QAbstractButton::clicked, this, &GameEngineProfileManager::removeProfile);
             connect(m_profileList, &GameEngineProfileListBox::currentProfileChanged, this, &GameEngineProfileManager::currentProfileChanged);
+        }
+
+        const Model::GameEngineConfig& GameEngineProfileManager::config() const {
+            return m_config;
         }
 
         void GameEngineProfileManager::addProfile() {

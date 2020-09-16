@@ -29,6 +29,8 @@
 
 namespace TrenchBroom {
     namespace View {
+        // GameEngineProfileItemRenderer
+
         GameEngineProfileItemRenderer::GameEngineProfileItemRenderer(Model::GameEngineProfile* profile, QWidget* parent) :
         ControlListBoxItemRenderer(parent),
         m_profile(profile),
@@ -37,13 +39,6 @@ namespace TrenchBroom {
             ensure(m_profile != nullptr, "profile is null");
             createGui();
             refresh();
-            addObservers();
-        }
-
-        GameEngineProfileItemRenderer::~GameEngineProfileItemRenderer() {
-            if (m_profile != nullptr) {
-                removeObservers();
-            }
         }
 
         void GameEngineProfileItemRenderer::updateItem() {
@@ -78,19 +73,8 @@ namespace TrenchBroom {
             }
         }
 
-        void GameEngineProfileItemRenderer::addObservers() {
-            m_profile->profileWillBeRemoved.addObserver(this, &GameEngineProfileItemRenderer::profileWillBeRemoved);
-            m_profile->profileDidChange.addObserver(this, &GameEngineProfileItemRenderer::profileDidChange);
-        }
-
-        void GameEngineProfileItemRenderer::removeObservers() {
-            m_profile->profileWillBeRemoved.removeObserver(this, &GameEngineProfileItemRenderer::profileWillBeRemoved);
-            m_profile->profileDidChange.removeObserver(this, &GameEngineProfileItemRenderer::profileDidChange);
-        }
-
         void GameEngineProfileItemRenderer::profileWillBeRemoved() {
             if (m_profile != nullptr) {
-                removeObservers();
                 m_profile = nullptr;
             }
         }
@@ -99,15 +83,12 @@ namespace TrenchBroom {
             refresh();
         }
 
+        // GameEngineProfileListBox
+
         GameEngineProfileListBox::GameEngineProfileListBox(const Model::GameEngineConfig& config, QWidget* parent)  :
         ControlListBox("Click the '+' button to create a game engine profile.", true, parent),
         m_config(config) {
-            m_config.profilesDidChange.addObserver(this, &GameEngineProfileListBox::profilesDidChange);
             reload();
-        }
-
-        GameEngineProfileListBox::~GameEngineProfileListBox() {
-            m_config.profilesDidChange.removeObserver(this, &GameEngineProfileListBox::profilesDidChange);
         }
 
         Model::GameEngineProfile* GameEngineProfileListBox::selectedProfile() const {

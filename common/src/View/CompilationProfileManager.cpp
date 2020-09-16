@@ -32,9 +32,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        CompilationProfileManager::CompilationProfileManager(std::weak_ptr<MapDocument> document, Model::CompilationConfig& config, QWidget* parent) :
+        CompilationProfileManager::CompilationProfileManager(std::weak_ptr<MapDocument> document, Model::CompilationConfig config, QWidget* parent) :
         QWidget(parent),
-        m_config(config),
+        m_config(std::move(config)),
         m_profileList(nullptr),
         m_profileEditor() {
             setBaseWindowColor(this);
@@ -84,6 +84,10 @@ namespace TrenchBroom {
             }
         }
 
+        void CompilationProfileManager::updateGui() {
+            m_profileList->reloadProfileList();
+        }
+
         const Model::CompilationProfile* CompilationProfileManager::selectedProfile() const {
             const auto index = m_profileList->currentRow();
             if (index < 0) {
@@ -93,8 +97,13 @@ namespace TrenchBroom {
             }
         }
 
+        const Model::CompilationConfig& CompilationProfileManager::config() const {
+            return m_config;
+        }
+
         void CompilationProfileManager::addProfile() {
             m_config.addProfile(std::make_unique<Model::CompilationProfile>("unnamed", "${MAP_DIR_PATH}"));
+            updateGui();
             m_profileList->setCurrentRow(static_cast<int>(m_config.profileCount() - 1));
         }
 
@@ -108,12 +117,15 @@ namespace TrenchBroom {
             if (m_config.profileCount() == 1) {
                 m_profileList->setCurrentRow(-1);
                 m_config.removeProfile(index);
+                updateGui();
             } else if (index > 0) {
                 m_profileList->setCurrentRow(static_cast<int>(index - 1));
                 m_config.removeProfile(index);
+                updateGui();
             } else {
                 m_profileList->setCurrentRow(1);
                 m_config.removeProfile(index);
+                updateGui();
                 m_profileList->setCurrentRow(0);
             }
         }

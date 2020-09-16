@@ -24,6 +24,9 @@
 
 #include <QDialog>
 
+class QKeyEvent;
+class QCloseEvent;
+
 namespace TrenchBroom {
     namespace View {
         class GameEngineProfileManager;
@@ -38,6 +41,9 @@ namespace TrenchBroom {
             GameEngineProfileManager* m_profileManager;
         public:
             explicit GameEngineDialog(const std::string& gameName, QWidget* parent = nullptr);
+        protected: // QDialog overrides
+            void keyPressEvent(QKeyEvent* event) override;
+            void closeEvent(QCloseEvent* event) override;
         private:
             void createGui();
             void saveConfig();
