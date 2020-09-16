@@ -118,7 +118,7 @@ namespace TrenchBroom {
             m_profileList->reloadProfiles();
 
             if (m_profileList->count() > 0) {
-                if (index >= m_profileList->count()) {
+                if (static_cast<int>(index) >= m_profileList->count()) {
                     m_profileList->setCurrentRow(static_cast<int>(index - 1));
                 } else {
                     m_profileList->setCurrentRow(static_cast<int>(index));
