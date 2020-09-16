@@ -42,8 +42,7 @@ namespace TrenchBroom {
         m_profile(nullptr),
         m_stackedWidget(nullptr),
         m_nameEdit(nullptr),
-        m_pathEdit(nullptr),
-        m_ignoreNotifications(false) {
+        m_pathEdit(nullptr) {
             m_stackedWidget = new QStackedWidget();
             m_stackedWidget->addWidget(createDefaultPage("Select a game engine profile"));
             m_stackedWidget->addWidget(createEditorPage());
@@ -94,6 +93,7 @@ namespace TrenchBroom {
                 if (m_profile->name().empty()) {
                     m_profile->setName(path.lastComponent().deleteExtension().asString());
                 }
+                emit profileChanged();
                 refresh();
             }
 
@@ -114,18 +114,13 @@ namespace TrenchBroom {
             refresh();
         }
 
-        void GameEngineProfileEditor::profileWillBeRemoved() {
-            setProfile(nullptr);
-        }
-
-        void GameEngineProfileEditor::profileDidChange() {
-            refresh();
-        }
-
         void GameEngineProfileEditor::refresh() {
-            if (m_profile != nullptr && !m_ignoreNotifications) {
+            if (m_profile != nullptr) {
                 m_nameEdit->setText(QString::fromStdString(m_profile->name()));
                 m_pathEdit->setText(IO::pathAsQString(m_profile->path()));
+            } else {
+                m_nameEdit->setText("");
+                m_pathEdit->setText("");
             }
         }
 
@@ -145,14 +140,13 @@ namespace TrenchBroom {
         void GameEngineProfileEditor::nameChanged(const QString& text) {
             ensure(m_profile != nullptr, "profile is null");
 
-            const kdl::set_temp ignore(m_ignoreNotifications);
             m_profile->setName(text.toStdString());
+            emit profileChanged();
         }
 
         void GameEngineProfileEditor::pathChanged() {
             ensure(m_profile != nullptr, "profile is null");
 
-            const kdl::set_temp ignore(m_ignoreNotifications);
             updatePath(m_pathEdit->text());
         }
 

@@ -99,8 +99,12 @@ namespace TrenchBroom {
             }
         }
 
-        void GameEngineProfileListBox::profilesDidChange() {
+        void GameEngineProfileListBox::reloadProfiles() {
             reload();
+        }
+
+        void GameEngineProfileListBox::updateProfiles() {
+            updateItems();
         }
 
         size_t GameEngineProfileListBox::itemCount() const {

@@ -78,6 +78,10 @@ namespace TrenchBroom {
             connect(addProfileButton, &QAbstractButton::clicked, this, &GameEngineProfileManager::addProfile);
             connect(m_removeProfileButton, &QAbstractButton::clicked, this, &GameEngineProfileManager::removeProfile);
             connect(m_profileList, &GameEngineProfileListBox::currentProfileChanged, this, &GameEngineProfileManager::currentProfileChanged);
+            connect(m_profileEditor, &GameEngineProfileEditor::profileChanged, this, [&](){
+                // update the names in the list box (but don't refresh() the list) when a profile is edited
+                m_profileList->updateProfiles();
+            });
         }
 
         const Model::GameEngineConfig& GameEngineProfileManager::config() const {
@@ -86,22 +90,24 @@ namespace TrenchBroom {
 
         void GameEngineProfileManager::addProfile() {
             m_config.addProfile(std::make_unique<Model::GameEngineProfile>("", IO::Path(), ""));
+            m_profileList->reloadProfiles();
             m_profileList->setCurrentRow(static_cast<int>(m_config.profileCount() - 1));
         }
 
         void GameEngineProfileManager::removeProfile() {
             const int index = m_profileList->currentRow();
 
-            if (m_config.profileCount() == 1) {
-                m_profileList->setCurrentRow(-1);
-                m_config.removeProfile(static_cast<size_t>(index));
-            } else if (index > 0) {
+            if (index < 0) {
+                return;
+            }
+
+            m_config.removeProfile(static_cast<size_t>(index));
+            m_profileList->reloadProfiles();
+
+            if (index >= m_profileList->count()) {
                 m_profileList->setCurrentRow(index - 1);
-                m_config.removeProfile(static_cast<size_t>(index));
             } else {
-                m_profileList->setCurrentRow(1);
-                m_config.removeProfile(static_cast<size_t>(index));
-                m_profileList->setCurrentRow(0);
+                m_profileList->setCurrentRow(index);
             }
         }
 

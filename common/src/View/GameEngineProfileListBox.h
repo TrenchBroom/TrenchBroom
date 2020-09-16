@@ -56,8 +56,9 @@ namespace TrenchBroom {
             explicit GameEngineProfileListBox(const Model::GameEngineConfig& config, QWidget* parent = nullptr);
 
             Model::GameEngineProfile* selectedProfile() const;
-        private:
-            void profilesDidChange();
+        public:
+            void reloadProfiles();
+            void updateProfiles();
         private:
             size_t itemCount() const override;
             ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
