@@ -60,12 +60,6 @@ namespace TrenchBroom {
             void setupCompleter(MultiCompletionLineEdit* lineEdit);
         private:
             void updateCompleter(QCompleter* completer);
-        private:
-            void profileWillBeRemoved();
-            void profileDidChange();
-
-            void taskWillBeRemoved();
-            void taskDidChange();
         };
 
         class CompilationExportMapTaskEditor : public CompilationTaskEditorBase {

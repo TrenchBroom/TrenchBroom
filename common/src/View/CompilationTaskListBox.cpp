@@ -79,30 +79,6 @@ namespace TrenchBroom {
             completer->setModel(new VariableStoreModel(variables));
         }
 
-        void CompilationTaskEditorBase::profileWillBeRemoved() {
-//            removeProfileObservers();
-//            removeTaskObservers();
-            m_task = nullptr;
-            m_profile = nullptr;
-        }
-
-        void CompilationTaskEditorBase::profileDidChange() {
-            for (auto* completer : m_completers) {
-                updateCompleter(completer);
-            }
-        }
-
-        void CompilationTaskEditorBase::taskWillBeRemoved() {
-//            removeTaskObservers();
-            m_task = nullptr;
-        }
-
-        void CompilationTaskEditorBase::taskDidChange() {
-            if (m_task != nullptr) {
-                updateItem();
-            }
-        }
-
         // CompilationExportMapTaskEditor
 
         CompilationExportMapTaskEditor::CompilationExportMapTaskEditor(std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationExportMap& task, QWidget* parent) :
