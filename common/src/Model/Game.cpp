@@ -54,7 +54,7 @@ namespace TrenchBroom {
             return doCheckAdditionalSearchPaths(searchPaths);
         }
 
-        CompilationConfig& Game::compilationConfig() {
+        const CompilationConfig& Game::compilationConfig() {
             return doCompilationConfig();
         }
 

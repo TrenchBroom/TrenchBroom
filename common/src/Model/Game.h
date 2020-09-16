@@ -71,7 +71,7 @@ namespace TrenchBroom {
             using PathErrors = std::map<IO::Path, std::string>;
             PathErrors checkAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths) const;
 
-            CompilationConfig& compilationConfig();
+            const CompilationConfig& compilationConfig();
 
             size_t maxPropertyLength() const;
 
@@ -134,7 +134,7 @@ namespace TrenchBroom {
             virtual void doSetAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths, Logger& logger) = 0;
             virtual PathErrors doCheckAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths) const = 0;
 
-            virtual CompilationConfig& doCompilationConfig() = 0;
+            virtual const CompilationConfig& doCompilationConfig() = 0;
             virtual size_t doMaxPropertyLength() const = 0;
             virtual std::optional<vm::bbox3> doSoftMapBounds() const = 0;
             virtual SoftMapBounds doExtractSoftMapBounds(const AttributableNode& node) const = 0;

@@ -60,14 +60,14 @@ namespace TrenchBroom {
             loadGameConfigs();
         }
 
-        void GameFactory::saveGameEngineConfigs(const std::string& gameName) {
+        void GameFactory::saveGameEngineConfig(const std::string& gameName, const GameEngineConfig& gameEngineConfig) {
             const auto& config = gameConfig(gameName);
-            writeGameEngineConfig(config);
+            writeGameEngineConfig(config, gameEngineConfig);
         }
 
-        void GameFactory::saveCompilationConfigs(const std::string& gameName, Logger& logger) {
+        void GameFactory::saveCompilationConfig(const std::string& gameName, const CompilationConfig& compilationConfig, Logger& logger) {
             const auto& config = gameConfig(gameName);
-            writeCompilationConfig(config, logger);
+            writeCompilationConfig(config, compilationConfig, logger);
         }
 
         const std::vector<std::string>& GameFactory::gameList() const {
@@ -268,7 +268,12 @@ namespace TrenchBroom {
             return backupPath;
         }
 
-        void GameFactory::writeCompilationConfig(const GameConfig& gameConfig, Logger& logger) {
+        void GameFactory::writeCompilationConfig(const GameConfig& gameConfig, const CompilationConfig& compilationConfig, Logger& logger) {
+            if (!gameConfig.compilationConfigParseFailed()
+                && gameConfig.compilationConfig() == compilationConfig) {
+                return;
+            }
+
             std::stringstream stream;
             IO::CompilationConfigWriter writer(gameConfig.compilationConfig(), stream);
             writer.writeConfig();
@@ -286,7 +291,12 @@ namespace TrenchBroom {
             logger.debug() << "Wrote compilation config to " << m_configFS->makeAbsolute(profilesPath).asString();
         }
 
-        void GameFactory::writeGameEngineConfig(const GameConfig& gameConfig) {
+        void GameFactory::writeGameEngineConfig(const GameConfig& gameConfig, const GameEngineConfig& gameEngineConfig) {
+            if (!gameConfig.gameEngineConfigParseFailed()
+                && gameConfig.gameEngineConfig() == gameEngineConfig) {
+                return;
+            }
+
             std::stringstream stream;
             IO::GameEngineConfigWriter writer(gameConfig.gameEngineConfig(), stream);
             writer.writeConfig();

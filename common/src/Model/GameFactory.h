@@ -38,8 +38,10 @@ namespace TrenchBroom {
     }
 
     namespace Model {
+        class CompilationConfig;
         class Game;
         class GameConfig;
+        class GameEngineConfig;
 
         class GameFactory {
         private:
@@ -77,7 +79,7 @@ namespace TrenchBroom {
              *
              * @throw GameException if no config with the given name exists
              */
-            void saveGameEngineConfigs(const std::string& gameName);
+            void saveGameEngineConfig(const std::string& gameName, const GameEngineConfig& gameEngineConfig);
             /**
              * Saves the compilation configurations for the game with the given name.
              *
@@ -86,7 +88,7 @@ namespace TrenchBroom {
              *
              * @throw GameException if no config with the given name exists
              */
-            void saveCompilationConfigs(const std::string& gameName, Logger& logger);
+            void saveCompilationConfig(const std::string& gameName, const CompilationConfig& compilationConfig, Logger& logger);
 
             const std::vector<std::string>& gameList() const;
             size_t gameCount() const;
@@ -119,8 +121,8 @@ namespace TrenchBroom {
             void loadCompilationConfig(GameConfig& gameConfig);
             void loadGameEngineConfig(GameConfig& gameConfig);
 
-            void writeCompilationConfig(const GameConfig& gameConfig, Logger& logger);
-            void writeGameEngineConfig(const GameConfig& gameConfig);
+            void writeCompilationConfig(const GameConfig& gameConfig, const CompilationConfig& compilationConfig, Logger& logger);
+            void writeGameEngineConfig(const GameConfig& gameConfig, const GameEngineConfig& gameEngineConfig);
         };
     }
 }

@@ -193,13 +193,11 @@ namespace TrenchBroom {
             const std::vector<SmartTag>& smartTags() const;
             const std::optional<vm::bbox3>& softMapBounds() const;
 
-            CompilationConfig& compilationConfig();
             const CompilationConfig& compilationConfig() const;
             void setCompilationConfig(const CompilationConfig& compilationConfig);
             bool compilationConfigParseFailed() const;
             void setCompilationConfigParseFailed(bool failed) const;
 
-            GameEngineConfig& gameEngineConfig();
             const GameEngineConfig& gameEngineConfig() const;
             void setGameEngineConfig(const GameEngineConfig& gameEngineConfig);
             bool gameEngineConfigParseFailed() const;

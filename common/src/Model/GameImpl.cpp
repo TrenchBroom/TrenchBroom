@@ -117,7 +117,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        CompilationConfig& GameImpl::doCompilationConfig() {
+        const CompilationConfig& GameImpl::doCompilationConfig() {
             return m_config.compilationConfig();
         }
 
