@@ -75,7 +75,11 @@ namespace TrenchBroom {
 
             connect(m_profileList, &ControlListBox::itemSelectionChanged, this, &CompilationProfileManager::profileSelectionChanged);
             connect(m_profileList, &CompilationProfileListBox::profileContextMenuRequested, this, &CompilationProfileManager::profileContextMenuRequested);
-            connect(m_profileEditor, &CompilationProfileEditor::profileChanged, this, &CompilationProfileManager::profileChanged);
+            connect(m_profileEditor, &CompilationProfileEditor::profileChanged, this, [&](){
+                // update the list box item labels
+                m_profileList->updateProfiles();
+                emit profileChanged();
+            });
             connect(addProfileButton, &QAbstractButton::clicked, this, &CompilationProfileManager::addProfile);
             connect(m_removeProfileButton, &QAbstractButton::clicked, this, qOverload<>(&CompilationProfileManager::removeProfile));
 

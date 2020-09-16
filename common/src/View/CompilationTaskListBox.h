@@ -121,8 +121,8 @@ namespace TrenchBroom {
             explicit CompilationTaskListBox(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
             void setProfile(Model::CompilationProfile* profile);
-        private:
-            void profileDidChange();
+        public:
+            void reloadTasks();
         private:
             class CompilationTaskEditorFactory;
             size_t itemCount() const override;

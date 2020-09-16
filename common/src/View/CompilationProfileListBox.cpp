@@ -77,6 +77,10 @@ namespace TrenchBroom {
             reload();
         }
 
+        void CompilationProfileListBox::updateProfiles() {
+            updateItems();
+        }
+
         size_t CompilationProfileListBox::itemCount() const {
             return m_config.profileCount();
         }

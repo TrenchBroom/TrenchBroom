@@ -285,7 +285,7 @@ namespace TrenchBroom {
             reload();
         }
 
-        void CompilationTaskListBox::profileDidChange() {
+        void CompilationTaskListBox::reloadTasks() {
             reload();
         }
 

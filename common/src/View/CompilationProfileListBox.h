@@ -54,6 +54,7 @@ namespace TrenchBroom {
             explicit CompilationProfileListBox(const Model::CompilationConfig& config, QWidget* parent = nullptr);
         public:
             void reloadProfiles();
+            void updateProfiles();
         private:
             size_t itemCount() const override;
             ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;

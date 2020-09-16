@@ -39,9 +39,7 @@ namespace TrenchBroom {
         class MultiCompletionLineEdit;
 
         /**
-         * Editor UI for a single compilation profile
-         *
-         *
+         * Editor UI for a single compilation profile.
          */
         class CompilationProfileEditor : public QWidget {
             Q_OBJECT
@@ -74,10 +72,11 @@ namespace TrenchBroom {
         public:
             void setProfile(Model::CompilationProfile* profile);
         private:
-            void profileWillBeRemoved();
-            void profileDidChange();
             void refresh();
         signals:
+            /**
+             * Emitted when the profile name/working directory change.
+             */
             void profileChanged();
         };
     }
