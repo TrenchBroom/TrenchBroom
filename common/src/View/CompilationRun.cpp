@@ -85,7 +85,12 @@ namespace TrenchBroom {
         }
 
         std::string CompilationRun::buildWorkDir(const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document) {
-            return EL::interpolate(profile->workDirSpec(), EL::EvaluationContext(CompilationWorkDirVariables(document)));
+            try {
+                return EL::interpolate(profile->workDirSpec(),
+                                       EL::EvaluationContext(CompilationWorkDirVariables(document)));
+            } catch (const Exception&) {
+                return "";
+            }
         }
 
         void CompilationRun::cleanup() {

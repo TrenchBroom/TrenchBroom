@@ -132,7 +132,7 @@
 ]
 
 
-@baseclass base(Appearflags, Targetname, Target, Killtarget, Angle) size(-16 -16 -16, 16 16 16) offset(0 0 16) color(77 77 255) = AmmoClass []
+@baseclass base(Appearflags, Targetname, Target, Killtarget, Angle) size(-16 -16 -16, 16 16 16) color(77 77 255) = AmmoClass []
 @PointClass base(AmmoClass) studio("models/pu_icon/hmgclip/tris.md2") = ammo_308 : "Bullets clip for the heavy submachine gun (weapon_heavymachinegun), 30 bullets per clip (max: 90)." []
 @PointClass base(AmmoClass) studio("models/pu_icon/pclip/tris.md2") = ammo_bullets : "Bullets clip for the pistol (weapon_pistol, weapon_spistol) and Thompson submachine gun (weapon_tommygun), 20 bullets per clip (max: 200)." []
 @PointClass base(AmmoClass) studio("models/pu_icon/tgclip/tris.md2") = ammo_cylinder : "Bullets for the Thompson submachine gun (weapon_tommygun) or pistol (weapon_pistol, weapon_spistol), 50 bullets per drum (max: 200)." []
@@ -590,7 +590,7 @@
 ]
 
 
-@PointClass size(-16 -16 -16, 16 16 16) color(128 0 255) flags(Angle) = dm_cashspawn : "Spawn location for cash in Grab da Loot games."
+@PointClass size(-16 -16 -16, 16 16 16) color(128 0 255) = dm_cashspawn : "Spawn location for cash in Grab da Loot games."
 [
     angle(string) : "Direction to project cash upon spawning"
     speed(integer) : "Projection's speed"
@@ -861,7 +861,7 @@
     ]
     dmg(integer) : "Damages inflicted to crushed entities" : 100
 ]
-@SolidClass base(Appearflags, Target) size(-8 -8 -8, 8 8 8) color(255 128 0) = func_object_repair : "Object to be repaired."
+@SolidClass base(Appearflags, Target) color(255 128 0) = func_object_repair : "Object to be repaired."
 [
     delay(integer) : "Time in seconds for sparks to occur" : 1
 ]
@@ -901,11 +901,10 @@
     [
         1 : "Start On" : 0
     ]
-    wait(integer) : "Base wait time" : 1
+    wait(integer) : "Base time between triggering all targets, in seconds" : 1
     random(integer) : "Wait variance (+/-), in seconds" : 0
     delay(integer) : "Delay before first firing when activated" : 0
     pausetime(integer) : "Additional delay used only the very first time, if START_ON is set"
-    wait(integer) : "Base time between triggering all targets, in seconds" : 1
 ]
 @SolidClass base(Appearflags, Targetname, Target, Killtarget) = func_train : "Moving platform: Trains are moving platforms that players can ride. The targets origin specifies the min point of the train at each corner. The train spawns at the first target it is pointing at. If the train is the target of a button or trigger, it will not begin moving until activated."
 [
@@ -996,7 +995,7 @@
 ]
 
 
-@baseclass base(Appearflags, Targetname, Target, Killtarget, Angle) size(-16 -16 -16, 16 16 16) offset(0 0 16) color(77 77 255) = ItemClass []
+@baseclass base(Appearflags, Targetname, Target, Killtarget, Angle) size(-16 -16 -16, 16 16 16) color(77 77 255) = ItemClass []
 @PointClass base(ItemClass) studio("models/pu_icon/armor_head/armor_head.md2") = item_armor_helmet : "Armor: Helmet armor, light." []
 @PointClass base(ItemClass) studio("models/pu_icon/armor_head/armor_head_hd.md2") = item_armor_helmet_heavy : "Armor: Helmet armor, heavy." []
 @PointClass base(ItemClass) studio("models/pu_icon/armor/tris.md2") = item_armor_jacket : "Armor: Jacket armor, light." []
@@ -2473,7 +2472,7 @@
 @SolidClass base(Appearflags, Targetname, Target) = trigger_unlock : "Player will unlock a targeted door when this brush is touched, can also be triggered (door's 'key' must be '-1')" []
 
 
-@baseclass base(Appearflags, Targetname, Target, Killtarget, Angle) size(-16 -16 -16, 16 16 16) offset(0 0 16) color(77 77 255) = WeaponClass []
+@baseclass base(Appearflags, Targetname, Target, Killtarget, Angle) size(-16 -16 -16, 16 16 16) color(77 77 255) = WeaponClass []
 @PointClass base(WeaponClass) studio("models/weapons/g_rocket_launcher/tris.md2") = weapon_bazooka : "Rocket launcher (clip size: 3) -- Requires ammo_rockets." []
 @PointClass base(WeaponClass) studio("models/weapons/g_crowbar/tris.md2") = weapon_crowbar : "Crowbar (no clip) -- Melee weapon." []
 @PointClass base(WeaponClass) studio("models/pu_icon/flame_shell/tris.md2") = weapon_flamethrower : "Flame thrower (no clip) -- Requires ammo_flametank." []
@@ -2487,7 +2486,7 @@
 
 
 
-@PointClass base(Appearflags, Targetname, Target, Killtarget, Angle) size(-16 -16 -16, 16 16 16) offset(0 0 16) color(77 77 255) = item_jetpack : "Pickup item: jetpack ('Jetpack'). No model and broken code." []
+@PointClass base(Appearflags, Targetname, Target, Killtarget, Angle) size(-16 -16 -16, 16 16 16) color(77 77 255) = item_jetpack : "Pickup item: jetpack ('Jetpack'). No model and broken code." []
 @PointClass base(Appearflags, Targetname, Angle) size(-2 -2 -12, 2 2 12) color(0 255 0) studio("models\objects\minelite\light1\tris.md2") = light_mine1 : "Dusty fluorescent light fixture"
 [
     light(integer) : "Brightness" : 300

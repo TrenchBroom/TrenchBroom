@@ -31,6 +31,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/mat.h>
 #include <vecmath/vec.h>
+#include <vecmath/vec_io.h> // enable Catch2 to print vm::vec on test failures
 
 #include <string>
 
