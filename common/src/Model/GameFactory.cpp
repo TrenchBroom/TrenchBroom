@@ -271,6 +271,10 @@ namespace TrenchBroom {
         void GameFactory::writeCompilationConfig(const GameConfig& gameConfig, const CompilationConfig& compilationConfig, Logger& logger) {
             if (!gameConfig.compilationConfigParseFailed()
                 && gameConfig.compilationConfig() == compilationConfig) {
+                // NOTE: this is not just an optimization, but important for ensuring that
+                // we don't clobber data saved by a newer version of TB, unless we actually make changes
+                // to the config in this version of TB (see: https://github.com/TrenchBroom/TrenchBroom/issues/3424)
+                logger.debug() << "Skipping writing unchanged compilation config for " << gameConfig.name();
                 return;
             }
 
@@ -294,6 +298,7 @@ namespace TrenchBroom {
         void GameFactory::writeGameEngineConfig(const GameConfig& gameConfig, const GameEngineConfig& gameEngineConfig) {
             if (!gameConfig.gameEngineConfigParseFailed()
                 && gameConfig.gameEngineConfig() == gameEngineConfig) {
+                std::cout << "Skipping writing unchanged game engine config for " << gameConfig.name();
                 return;
             }
 

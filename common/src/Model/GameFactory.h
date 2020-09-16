@@ -76,14 +76,16 @@ namespace TrenchBroom {
              * Saves the game engine configurations for the game with the given name.
              *
              * @param gameName the game for which the configurations should be saved
+             * @param gameEngineConfig new config to save
              *
-             * @throw GameException if no config with the given name exists
+             * @throw GameException if no game with the given name exists
              */
             void saveGameEngineConfig(const std::string& gameName, const GameEngineConfig& gameEngineConfig);
             /**
              * Saves the compilation configurations for the game with the given name.
              *
              * @param gameName the game for which the configurations should be saved
+             * @param compilationConfig new config to save
              * @param logger the logger
              *
              * @throw GameException if no config with the given name exists
