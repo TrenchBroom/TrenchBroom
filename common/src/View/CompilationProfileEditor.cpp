@@ -166,6 +166,7 @@ namespace TrenchBroom {
                 m_taskList->reloadTasks();
                 m_taskList->setCurrentRow(index + 1);
             }
+            emit profileChanged();
         }
 
         void CompilationProfileEditor::removeTask() {
@@ -186,6 +187,7 @@ namespace TrenchBroom {
                 m_taskList->reloadTasks();
                 m_taskList->setCurrentRow(0);
             }
+            emit profileChanged();
         }
 
 
@@ -195,6 +197,7 @@ namespace TrenchBroom {
             m_profile->moveTaskUp(static_cast<size_t>(index));
             m_taskList->reloadTasks();
             m_taskList->setCurrentRow(index - 1);
+            emit profileChanged();
         }
 
         void CompilationProfileEditor::moveTaskDown() {
@@ -203,6 +206,7 @@ namespace TrenchBroom {
             m_profile->moveTaskDown(static_cast<size_t>(index));
             m_taskList->reloadTasks();
             m_taskList->setCurrentRow(index + 1);
+            emit profileChanged();
         }
 
         void CompilationProfileEditor::taskSelectionChanged() {

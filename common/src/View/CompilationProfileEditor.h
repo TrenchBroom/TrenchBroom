@@ -75,7 +75,7 @@ namespace TrenchBroom {
             void refresh();
         signals:
             /**
-             * Emitted when the profile name/working directory change.
+             * Emitted when the profile name/working directory change, or tasks are added/removed/reordered.
              */
             void profileChanged();
         };
