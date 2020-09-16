@@ -84,10 +84,6 @@ namespace TrenchBroom {
             }
         }
 
-        void CompilationProfileManager::updateGui() {
-            m_profileList->reloadProfileList();
-        }
-
         const Model::CompilationProfile* CompilationProfileManager::selectedProfile() const {
             const auto index = m_profileList->currentRow();
             if (index < 0) {
@@ -103,7 +99,7 @@ namespace TrenchBroom {
 
         void CompilationProfileManager::addProfile() {
             m_config.addProfile(std::make_unique<Model::CompilationProfile>("unnamed", "${MAP_DIR_PATH}"));
-            updateGui();
+            m_profileList->reloadProfiles();
             m_profileList->setCurrentRow(static_cast<int>(m_config.profileCount() - 1));
         }
 
@@ -114,19 +110,15 @@ namespace TrenchBroom {
         }
 
         void CompilationProfileManager::removeProfile(const size_t index) {
-            if (m_config.profileCount() == 1) {
-                m_profileList->setCurrentRow(-1);
-                m_config.removeProfile(index);
-                updateGui();
-            } else if (index > 0) {
-                m_profileList->setCurrentRow(static_cast<int>(index - 1));
-                m_config.removeProfile(index);
-                updateGui();
-            } else {
-                m_profileList->setCurrentRow(1);
-                m_config.removeProfile(index);
-                updateGui();
-                m_profileList->setCurrentRow(0);
+            m_config.removeProfile(index);
+            m_profileList->reloadProfiles();
+
+            if (m_profileList->count() > 0) {
+                if (index >= m_profileList->count()) {
+                    m_profileList->setCurrentRow(static_cast<int>(index - 1));
+                } else {
+                    m_profileList->setCurrentRow(static_cast<int>(index));
+                }
             }
         }
 
@@ -136,6 +128,7 @@ namespace TrenchBroom {
 
         void CompilationProfileManager::duplicateProfile(Model::CompilationProfile* profile) {
             m_config.addProfile(profile->clone());
+            m_profileList->reloadProfiles();
             m_profileList->setCurrentRow(static_cast<int>(m_config.profileCount() - 1));
         }
 

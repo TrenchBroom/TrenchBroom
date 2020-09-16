@@ -73,7 +73,7 @@ namespace TrenchBroom {
             reload();
         }
 
-        void CompilationProfileListBox::reloadProfileList() {
+        void CompilationProfileListBox::reloadProfiles() {
             reload();
         }
 

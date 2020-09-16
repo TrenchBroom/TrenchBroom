@@ -279,7 +279,7 @@ namespace TrenchBroom {
             }
 
             std::stringstream stream;
-            IO::CompilationConfigWriter writer(gameConfig.compilationConfig(), stream);
+            IO::CompilationConfigWriter writer(compilationConfig, stream);
             writer.writeConfig();
 
             const auto profilesPath = IO::Path(gameConfig.name()) + IO::Path("CompilationProfiles.cfg");
