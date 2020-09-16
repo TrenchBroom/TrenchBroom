@@ -68,7 +68,7 @@ namespace TrenchBroom {
             connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::accept);
         }
 
-        void GameEngineDialog::done(int r) {
+        void GameEngineDialog::done(const int r) {
             saveConfig();
 
             QDialog::done(r);

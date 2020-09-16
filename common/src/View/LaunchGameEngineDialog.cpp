@@ -253,7 +253,7 @@ namespace TrenchBroom {
             }
         }
 
-        void LaunchGameEngineDialog::done(int r) {
+        void LaunchGameEngineDialog::done(const int r) {
             saveConfig();
 
             QDialog::done(r);
