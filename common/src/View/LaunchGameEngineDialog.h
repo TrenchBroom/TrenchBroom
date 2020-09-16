@@ -20,6 +20,7 @@
 #ifndef LaunchGameEngineDialog_h
 #define LaunchGameEngineDialog_h
 
+#include "Model/GameEngineConfig.h"
 #include "View/CompilationVariables.h"
 
 #include <memory>
@@ -38,7 +39,11 @@ namespace TrenchBroom {
         class MultiCompletionLineEdit;
 
         /**
-         * Dialog for launching engine; lets you edit the parameters of a GameEngineProfile.
+         * Dialog for launching engine (Run -> Launch Engine); only lets you edit the
+         * parameters of a GameEngineProfile, not edit the profile list/name/path.
+         *
+         * A "Configure Engines..." button opens GameEngineDialog for editing the
+         * name/path of engines.
          */
         class LaunchGameEngineDialog : public QDialog {
         private:
@@ -47,21 +52,21 @@ namespace TrenchBroom {
             MultiCompletionLineEdit* m_parameterText;
             QPushButton* m_launchButton;
             Model::GameEngineProfile* m_lastProfile;
+            Model::GameEngineConfig m_config;
         public:
             explicit LaunchGameEngineDialog(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~LaunchGameEngineDialog() override;
         private:
             void createGui();
+            void reloadConfig();
             LaunchGameEngineVariables variables() const;
         private slots:
             void gameEngineProfileChanged();
-            void parametersChanged();
+            void parametersChanged(const QString& text);
             void editGameEngines();
             void launchEngine();
+        public slots: // QDialog overrides
+            void done(int r) override;
         private:
-            void bindObservers();
-            void unbindObservers();
-            void configDidChange();
             void saveConfig();
         };
     }

@@ -60,14 +60,14 @@ namespace TrenchBroom {
             loadGameConfigs();
         }
 
-        void GameFactory::saveGameEngineConfigs(const std::string& gameName) {
-            const auto& config = gameConfig(gameName);
-            writeGameEngineConfig(config);
+        void GameFactory::saveGameEngineConfig(const std::string& gameName, const GameEngineConfig& gameEngineConfig) {
+            auto& config = gameConfig(gameName);
+            writeGameEngineConfig(config, gameEngineConfig);
         }
 
-        void GameFactory::saveCompilationConfigs(const std::string& gameName, Logger& logger) {
-            const auto& config = gameConfig(gameName);
-            writeCompilationConfig(config, logger);
+        void GameFactory::saveCompilationConfig(const std::string& gameName, const CompilationConfig& compilationConfig, Logger& logger) {
+            auto& config = gameConfig(gameName);
+            writeCompilationConfig(config, compilationConfig, logger);
         }
 
         const std::vector<std::string>& GameFactory::gameList() const {
@@ -268,9 +268,18 @@ namespace TrenchBroom {
             return backupPath;
         }
 
-        void GameFactory::writeCompilationConfig(const GameConfig& gameConfig, Logger& logger) {
+        void GameFactory::writeCompilationConfig(GameConfig& gameConfig, const CompilationConfig& compilationConfig, Logger& logger) {
+            if (!gameConfig.compilationConfigParseFailed()
+                && gameConfig.compilationConfig() == compilationConfig) {
+                // NOTE: this is not just an optimization, but important for ensuring that
+                // we don't clobber data saved by a newer version of TB, unless we actually make changes
+                // to the config in this version of TB (see: https://github.com/TrenchBroom/TrenchBroom/issues/3424)
+                logger.debug() << "Skipping writing unchanged compilation config for " << gameConfig.name();
+                return;
+            }
+
             std::stringstream stream;
-            IO::CompilationConfigWriter writer(gameConfig.compilationConfig(), stream);
+            IO::CompilationConfigWriter writer(compilationConfig, stream);
             writer.writeConfig();
 
             const auto profilesPath = IO::Path(gameConfig.name()) + IO::Path("CompilationProfiles.cfg");
@@ -283,12 +292,19 @@ namespace TrenchBroom {
                 gameConfig.setCompilationConfigParseFailed(false);
             }
             m_configFS->createFileAtomic(profilesPath, stream.str());
+            gameConfig.setCompilationConfig(compilationConfig);
             logger.debug() << "Wrote compilation config to " << m_configFS->makeAbsolute(profilesPath).asString();
         }
 
-        void GameFactory::writeGameEngineConfig(const GameConfig& gameConfig) {
+        void GameFactory::writeGameEngineConfig(GameConfig& gameConfig, const GameEngineConfig& gameEngineConfig) {
+            if (!gameConfig.gameEngineConfigParseFailed()
+                && gameConfig.gameEngineConfig() == gameEngineConfig) {
+                std::cout << "Skipping writing unchanged game engine config for " << gameConfig.name();
+                return;
+            }
+
             std::stringstream stream;
-            IO::GameEngineConfigWriter writer(gameConfig.gameEngineConfig(), stream);
+            IO::GameEngineConfigWriter writer(gameEngineConfig, stream);
             writer.writeConfig();
 
             const auto profilesPath = IO::Path(gameConfig.name()) + IO::Path("GameEngineProfiles.cfg");
@@ -301,6 +317,7 @@ namespace TrenchBroom {
                 gameConfig.setGameEngineConfigParseFailed(false);
             }
             m_configFS->createFileAtomic(profilesPath, stream.str());
+            gameConfig.setGameEngineConfig(gameEngineConfig);
             std::cout << "Wrote game engine config to " << m_configFS->makeAbsolute(profilesPath).asString() << std::endl;
         }
     }

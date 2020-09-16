@@ -32,9 +32,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        CompilationProfileManager::CompilationProfileManager(std::weak_ptr<MapDocument> document, Model::CompilationConfig& config, QWidget* parent) :
+        CompilationProfileManager::CompilationProfileManager(std::weak_ptr<MapDocument> document, Model::CompilationConfig config, QWidget* parent) :
         QWidget(parent),
-        m_config(config),
+        m_config(std::move(config)),
         m_profileList(nullptr),
         m_profileEditor() {
             setBaseWindowColor(this);
@@ -75,7 +75,11 @@ namespace TrenchBroom {
 
             connect(m_profileList, &ControlListBox::itemSelectionChanged, this, &CompilationProfileManager::profileSelectionChanged);
             connect(m_profileList, &CompilationProfileListBox::profileContextMenuRequested, this, &CompilationProfileManager::profileContextMenuRequested);
-            connect(m_profileEditor, &CompilationProfileEditor::profileChanged, this, &CompilationProfileManager::profileChanged);
+            connect(m_profileEditor, &CompilationProfileEditor::profileChanged, this, [&](){
+                // update the list box item labels
+                m_profileList->updateProfiles();
+                emit profileChanged();
+            });
             connect(addProfileButton, &QAbstractButton::clicked, this, &CompilationProfileManager::addProfile);
             connect(m_removeProfileButton, &QAbstractButton::clicked, this, qOverload<>(&CompilationProfileManager::removeProfile));
 
@@ -93,8 +97,13 @@ namespace TrenchBroom {
             }
         }
 
+        const Model::CompilationConfig& CompilationProfileManager::config() const {
+            return m_config;
+        }
+
         void CompilationProfileManager::addProfile() {
             m_config.addProfile(std::make_unique<Model::CompilationProfile>("unnamed", "${MAP_DIR_PATH}"));
+            m_profileList->reloadProfiles();
             m_profileList->setCurrentRow(static_cast<int>(m_config.profileCount() - 1));
         }
 
@@ -105,16 +114,15 @@ namespace TrenchBroom {
         }
 
         void CompilationProfileManager::removeProfile(const size_t index) {
-            if (m_config.profileCount() == 1) {
-                m_profileList->setCurrentRow(-1);
-                m_config.removeProfile(index);
-            } else if (index > 0) {
-                m_profileList->setCurrentRow(static_cast<int>(index - 1));
-                m_config.removeProfile(index);
-            } else {
-                m_profileList->setCurrentRow(1);
-                m_config.removeProfile(index);
-                m_profileList->setCurrentRow(0);
+            m_config.removeProfile(index);
+            m_profileList->reloadProfiles();
+
+            if (m_profileList->count() > 0) {
+                if (index >= m_profileList->count()) {
+                    m_profileList->setCurrentRow(static_cast<int>(index - 1));
+                } else {
+                    m_profileList->setCurrentRow(static_cast<int>(index));
+                }
             }
         }
 
@@ -124,6 +132,7 @@ namespace TrenchBroom {
 
         void CompilationProfileManager::duplicateProfile(Model::CompilationProfile* profile) {
             m_config.addProfile(profile->clone());
+            m_profileList->reloadProfiles();
             m_profileList->setCurrentRow(static_cast<int>(m_config.profileCount() - 1));
         }
 

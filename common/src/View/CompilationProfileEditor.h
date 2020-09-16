@@ -39,7 +39,7 @@ namespace TrenchBroom {
         class MultiCompletionLineEdit;
 
         /**
-         * Editor UI for a single compilation profile
+         * Editor UI for a single compilation profile.
          */
         class CompilationProfileEditor : public QWidget {
             Q_OBJECT
@@ -56,13 +56,12 @@ namespace TrenchBroom {
             QAbstractButton* m_moveTaskDownButton;
         public:
             explicit CompilationProfileEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~CompilationProfileEditor() override;
         private:
             QWidget* createEditorPage(QWidget* parent);
 
         private slots:
-            void nameChanged();
-            void workDirChanged();
+            void nameChanged(const QString& text);
+            void workDirChanged(const QString& text);
 
             void addTask();
             void removeTask();
@@ -73,10 +72,11 @@ namespace TrenchBroom {
         public:
             void setProfile(Model::CompilationProfile* profile);
         private:
-            void profileWillBeRemoved();
-            void profileDidChange();
             void refresh();
         signals:
+            /**
+             * Emitted when the profile name/working directory change, or tasks are added/removed/reordered.
+             */
             void profileChanged();
         };
     }

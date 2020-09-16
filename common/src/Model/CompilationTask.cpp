@@ -19,8 +19,6 @@
 
 #include "CompilationTask.h"
 
-#include "CompilationProfile.h"
-
 #include <string>
 
 namespace TrenchBroom {
@@ -28,35 +26,16 @@ namespace TrenchBroom {
         // CompilationTask
 
         CompilationTask::CompilationTask(const bool enabled)
-        : m_parent(nullptr),
-        m_enabled(enabled) {}
+        : m_enabled(enabled) {}
 
         CompilationTask::~CompilationTask() = default;
-
-        CompilationProfile* CompilationTask::parent() const {
-            return m_parent;
-        }
-        
-        void CompilationTask::setParent(CompilationProfile* parent) {
-            m_parent = parent;
-        }
-
-        void CompilationTask::sendDidChangeNotifications() {
-            taskDidChange();
-            if (m_parent != nullptr) {
-                m_parent->taskDidChange(this);
-            }
-        }
 
         bool CompilationTask::enabled() const {
             return m_enabled;
         }
 
         void CompilationTask::setEnabled(const bool enabled) {
-            if (m_enabled != enabled) {
-                m_enabled = enabled;
-                sendDidChangeNotifications();
-            }
+            m_enabled = enabled;
         }
 
         // CompilationExportMap
@@ -86,14 +65,22 @@ namespace TrenchBroom {
         }
 
         void CompilationExportMap::setTargetSpec(const std::string& targetSpec) {
-            if (m_targetSpec != targetSpec) {
-                m_targetSpec = targetSpec;
-                sendDidChangeNotifications();
-            }
+            m_targetSpec = targetSpec;
         }
 
         CompilationExportMap* CompilationExportMap::clone() const {
             return new CompilationExportMap(enabled(), m_targetSpec);
+        }
+
+        bool CompilationExportMap::operator==(const CompilationTask& other) const {
+            auto* otherCasted = dynamic_cast<const CompilationExportMap*>(&other);
+            if (otherCasted == nullptr) {
+                return false;
+            }
+            if (m_targetSpec != otherCasted->m_targetSpec) {
+                return false;
+            }
+            return true;
         }
 
         // CompilationCopyFiles
@@ -128,21 +115,29 @@ namespace TrenchBroom {
         }
 
         void CompilationCopyFiles::setSourceSpec(const std::string& sourceSpec) {
-            if (m_sourceSpec != sourceSpec) {
-                m_sourceSpec = sourceSpec;
-                sendDidChangeNotifications();
-            }
+            m_sourceSpec = sourceSpec;
         }
 
         void CompilationCopyFiles::setTargetSpec(const std::string& targetSpec) {
-            if (m_targetSpec != targetSpec) {
-                m_targetSpec = targetSpec;
-                sendDidChangeNotifications();
-            }
+            m_targetSpec = targetSpec;
         }
 
         CompilationCopyFiles* CompilationCopyFiles::clone() const {
             return new CompilationCopyFiles(enabled(), m_sourceSpec, m_targetSpec);
+        }
+
+        bool CompilationCopyFiles::operator==(const CompilationTask& other) const {
+            auto* otherCasted = dynamic_cast<const CompilationCopyFiles*>(&other);
+            if (otherCasted == nullptr) {
+                return false;
+            }
+            if (m_sourceSpec != otherCasted->m_sourceSpec) {
+                return false;
+            }
+            if (m_targetSpec != otherCasted->m_targetSpec) {
+                return false;
+            }
+            return true;
         }
 
         // CompilationRunTool
@@ -177,21 +172,29 @@ namespace TrenchBroom {
         }
 
         void CompilationRunTool::setToolSpec(const std::string& toolSpec) {
-            if (m_toolSpec != toolSpec) {
-                m_toolSpec = toolSpec;
-                sendDidChangeNotifications();
-            }
+            m_toolSpec = toolSpec;
         }
 
         void CompilationRunTool::setParameterSpec(const std::string& parameterSpec) {
-            if (m_parameterSpec != parameterSpec) {
-                m_parameterSpec = parameterSpec;
-                sendDidChangeNotifications();
-            }
+            m_parameterSpec = parameterSpec;
         }
 
         CompilationRunTool* CompilationRunTool::clone() const {
             return new CompilationRunTool(enabled(), m_toolSpec, m_parameterSpec);
+        }
+
+        bool CompilationRunTool::operator==(const CompilationTask& other) const {
+            auto* otherCasted = dynamic_cast<const CompilationRunTool*>(&other);
+            if (otherCasted == nullptr) {
+                return false;
+            }
+            if (m_toolSpec != otherCasted->m_toolSpec) {
+                return false;
+            }
+            if (m_parameterSpec != otherCasted->m_parameterSpec) {
+                return false;
+            }
+            return true;
         }
 
         CompilationTaskVisitor::~CompilationTaskVisitor() = default;

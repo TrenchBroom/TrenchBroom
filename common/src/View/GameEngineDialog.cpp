@@ -29,6 +29,7 @@
 #include <string>
 
 #include <QBoxLayout>
+#include <QCloseEvent>
 #include <QDialogButtonBox>
 
 namespace TrenchBroom {
@@ -40,11 +41,6 @@ namespace TrenchBroom {
             setWindowTitle("Game Engines");
             setWindowIconTB(this);
             createGui();
-            bindObservers();
-        }
-
-        GameEngineDialog::~GameEngineDialog() {
-            unbindObservers();
         }
 
         void GameEngineDialog::createGui() {
@@ -72,29 +68,15 @@ namespace TrenchBroom {
             connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::accept);
         }
 
-        void GameEngineDialog::bindObservers() {
-            auto& gameFactory = Model::GameFactory::instance();
-            auto& gameConfig = gameFactory.gameConfig(m_gameName);
-            auto& gameEngineConfig = gameConfig.gameEngineConfig();
-
-            gameEngineConfig.configDidChange.addObserver(this, &GameEngineDialog::configDidChange);
-        }
-
-        void GameEngineDialog::unbindObservers() {
-            auto& gameFactory = Model::GameFactory::instance();
-            auto& gameConfig = gameFactory.gameConfig(m_gameName);
-            auto& gameEngineConfig = gameConfig.gameEngineConfig();
-
-            gameEngineConfig.configDidChange.removeObserver(this, &GameEngineDialog::configDidChange);
-        }
-
-        void GameEngineDialog::configDidChange() {
+        void GameEngineDialog::done(const int r) {
             saveConfig();
+
+            QDialog::done(r);
         }
 
         void GameEngineDialog::saveConfig() {
             auto& gameFactory = Model::GameFactory::instance();
-            gameFactory.saveGameEngineConfigs(m_gameName);
+            gameFactory.saveGameEngineConfig(m_gameName, m_profileManager->config());
         }
     }
 }

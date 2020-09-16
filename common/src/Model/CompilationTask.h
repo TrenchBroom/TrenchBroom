@@ -21,13 +21,11 @@
 #define CompilationTask_h
 
 #include "Macros.h"
-#include "Notifier.h"
 
 #include <string>
 
 namespace TrenchBroom {
     namespace Model {
-        class CompilationProfile;
         class CompilationTaskConstVisitor;
         class CompilationTaskVisitor;
         class ConstCompilationTaskConstVisitor;
@@ -36,18 +34,10 @@ namespace TrenchBroom {
         class CompilationTask {
         private:
             bool m_enabled;
-        public:
-            Notifier<> taskWillBeRemoved;
-            Notifier<> taskDidChange;
-        private:
-            CompilationProfile* m_parent;
         protected:
             explicit CompilationTask(bool enabled);
         public:
             virtual ~CompilationTask();
-
-            CompilationProfile* parent() const;
-            void setParent(CompilationProfile* parent);
 
             virtual void accept(CompilationTaskVisitor& visitor) = 0;
             virtual void accept(ConstCompilationTaskVisitor& visitor) const = 0;
@@ -58,10 +48,9 @@ namespace TrenchBroom {
             void setEnabled(bool enabled);
 
             virtual CompilationTask* clone() const = 0;
+            virtual bool operator==(const CompilationTask& other) const = 0;
 
             deleteCopyAndMove(CompilationTask)
-        protected:
-            void sendDidChangeNotifications();
         };
 
         class CompilationExportMap : public CompilationTask {
@@ -80,6 +69,7 @@ namespace TrenchBroom {
             void setTargetSpec(const std::string& targetSpec);
 
             CompilationExportMap* clone() const override;
+            bool operator==(const CompilationTask& other) const override;
 
             deleteCopyAndMove(CompilationExportMap)
         };
@@ -103,6 +93,7 @@ namespace TrenchBroom {
             void setTargetSpec(const std::string& targetSpec);
 
             CompilationCopyFiles* clone() const override;
+            bool operator==(const CompilationTask& other) const override;
 
             deleteCopyAndMove(CompilationCopyFiles)
         };
@@ -126,6 +117,7 @@ namespace TrenchBroom {
             void setParameterSpec(const std::string& parameterSpec);
 
             CompilationRunTool* clone() const override;
+            bool operator==(const CompilationTask& other) const override;
 
             deleteCopyAndMove(CompilationRunTool)
         };

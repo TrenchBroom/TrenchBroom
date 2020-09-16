@@ -19,8 +19,6 @@
 
 #include "GameEngineProfile.h"
 
-#include "Model/GameEngineConfig.h"
-
 #include <memory>
 #include <string>
 
@@ -29,19 +27,23 @@ namespace TrenchBroom {
         GameEngineProfile::GameEngineProfile(const std::string& name, const IO::Path& path, const std::string& parameterSpec) :
         m_name(name),
         m_path(path),
-        m_parameterSpec(parameterSpec),
-        m_parent(nullptr) {}
+        m_parameterSpec(parameterSpec) {}
 
         std::unique_ptr<GameEngineProfile> GameEngineProfile::clone() const {
             return std::make_unique<GameEngineProfile>(m_name, m_path, m_parameterSpec);
         }
 
-        GameEngineConfig* GameEngineProfile::parent() const {
-            return m_parent;
-        }
-
-        void GameEngineProfile::setParent(GameEngineConfig* parent) {
-            m_parent = parent;
+        bool GameEngineProfile::operator==(const GameEngineProfile& other) const {
+            if (m_name != other.m_name) {
+                return false;
+            }
+            if (m_path != other.m_path) {
+                return false;
+            }
+            if (m_parameterSpec != other.m_parameterSpec) {
+                return false;
+            }
+            return true;
         }
 
         const std::string& GameEngineProfile::name() const {
@@ -57,31 +59,15 @@ namespace TrenchBroom {
         }
 
         void GameEngineProfile::setName(const std::string& name) {
-            if (m_name != name) {
-                m_name = name;
-                sendDidChangeNotifications();
-            }
+            m_name = name;
         }
 
         void GameEngineProfile::setPath(const IO::Path& path) {
-            if (m_path != path) {
-                m_path = path;
-                sendDidChangeNotifications();
-            }
+            m_path = path;
         }
 
         void GameEngineProfile::setParameterSpec(const std::string& parameterSpec) {
-            if (m_parameterSpec != parameterSpec) {
-                m_parameterSpec = parameterSpec;
-                sendDidChangeNotifications();
-            }
-        }
-
-        void GameEngineProfile::sendDidChangeNotifications() {
-            profileDidChange();
-            if (m_parent != nullptr) {
-                m_parent->profileDidChange(this);
-            }
+            m_parameterSpec = parameterSpec;
         }
     }
 }

@@ -29,21 +29,13 @@ namespace TrenchBroom {
         CompilationConfig::CompilationConfig() {}
 
         CompilationConfig::CompilationConfig(std::vector<std::unique_ptr<CompilationProfile>> profiles) :
-        m_profiles(std::move(profiles)) {
-            for (auto& profile : m_profiles) {
-                ensure(profile->parent() == nullptr, "profile already has a parent");
-                profile->setParent(this);
-            }
-        }
+        m_profiles(std::move(profiles)) {}
 
         CompilationConfig::CompilationConfig(const CompilationConfig& other) {
             m_profiles.reserve(other.m_profiles.size());
 
             for (const auto& original : other.m_profiles) {
-                std::unique_ptr<CompilationProfile> clone = original->clone();
-                ensure(clone->parent() == nullptr, "profile already has a parent");
-                clone->setParent(this);
-                m_profiles.push_back(std::move(clone));
+                m_profiles.push_back(original->clone());
             }
         }
 
@@ -58,8 +50,18 @@ namespace TrenchBroom {
         void swap(CompilationConfig& lhs, CompilationConfig& rhs) {
             using std::swap;
             swap(lhs.m_profiles, rhs.m_profiles);
-            swap(lhs.profilesDidChange, rhs.profilesDidChange);
-            swap(lhs.configDidChange, rhs.configDidChange);
+        }
+
+        bool CompilationConfig::operator==(const CompilationConfig& other) const {
+            if (m_profiles.size() != other.m_profiles.size()) {
+                return false;
+            }
+            for (size_t i = 0; i < m_profiles.size(); ++i) {
+                if (!(*m_profiles[i] == *other.m_profiles[i])) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         size_t CompilationConfig::profileCount() const {
@@ -81,19 +83,12 @@ namespace TrenchBroom {
 
         void CompilationConfig::addProfile(std::unique_ptr<CompilationProfile> profile) {
             ensure(profile != nullptr, "profile is null");
-            ensure(profile->parent() == nullptr, "profile already has a parent");
-            profile->setParent(this);
             m_profiles.push_back(std::move(profile));
-            profilesDidChange();
-            configDidChange();
         }
 
         void CompilationConfig::removeProfile(const size_t index) {
             assert(index < profileCount());
-            m_profiles[index]->profileWillBeRemoved();
             kdl::vec_erase_at(m_profiles, index);
-            profilesDidChange();
-            configDidChange();
         }
     }
 }

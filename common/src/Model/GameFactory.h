@@ -38,8 +38,10 @@ namespace TrenchBroom {
     }
 
     namespace Model {
+        class CompilationConfig;
         class Game;
         class GameConfig;
+        class GameEngineConfig;
 
         class GameFactory {
         private:
@@ -74,19 +76,21 @@ namespace TrenchBroom {
              * Saves the game engine configurations for the game with the given name.
              *
              * @param gameName the game for which the configurations should be saved
+             * @param gameEngineConfig new config to save
              *
-             * @throw GameException if no config with the given name exists
+             * @throw GameException if no game with the given name exists
              */
-            void saveGameEngineConfigs(const std::string& gameName);
+            void saveGameEngineConfig(const std::string& gameName, const GameEngineConfig& gameEngineConfig);
             /**
              * Saves the compilation configurations for the game with the given name.
              *
              * @param gameName the game for which the configurations should be saved
+             * @param compilationConfig new config to save
              * @param logger the logger
              *
              * @throw GameException if no config with the given name exists
              */
-            void saveCompilationConfigs(const std::string& gameName, Logger& logger);
+            void saveCompilationConfig(const std::string& gameName, const CompilationConfig& compilationConfig, Logger& logger);
 
             const std::vector<std::string>& gameList() const;
             size_t gameCount() const;
@@ -119,8 +123,8 @@ namespace TrenchBroom {
             void loadCompilationConfig(GameConfig& gameConfig);
             void loadGameEngineConfig(GameConfig& gameConfig);
 
-            void writeCompilationConfig(const GameConfig& gameConfig, Logger& logger);
-            void writeGameEngineConfig(const GameConfig& gameConfig);
+            void writeCompilationConfig(GameConfig& gameConfig, const CompilationConfig& compilationConfig, Logger& logger);
+            void writeGameEngineConfig(GameConfig& gameConfig, const GameEngineConfig& gameEngineConfig);
         };
     }
 }

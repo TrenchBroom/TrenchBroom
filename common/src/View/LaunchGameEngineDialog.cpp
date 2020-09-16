@@ -60,11 +60,6 @@ namespace TrenchBroom {
         m_launchButton(nullptr),
         m_lastProfile(nullptr) {
             createGui();
-            bindObservers();
-        }
-
-        LaunchGameEngineDialog::~LaunchGameEngineDialog() {
-            unbindObservers();
         }
 
         void LaunchGameEngineDialog::createGui() {
@@ -79,8 +74,8 @@ namespace TrenchBroom {
 
             auto& gameFactory = Model::GameFactory::instance();
             const auto& gameConfig = gameFactory.gameConfig(gameName);
-            const auto& gameEngineConfig = gameConfig.gameEngineConfig();
-            m_gameEngineList = new GameEngineProfileListBox(gameEngineConfig);
+            m_config = gameConfig.gameEngineConfig();
+            m_gameEngineList = new GameEngineProfileListBox(&m_config);
             m_gameEngineList->setEmptyText("Click the 'Configure engines...' button to create a game engine profile.");
             m_gameEngineList->setMinimumSize(250, 280);
 
@@ -143,7 +138,7 @@ namespace TrenchBroom {
 
             connect(openPreferencesButton, &QPushButton::clicked, this, &LaunchGameEngineDialog::editGameEngines);
 
-            connect(m_parameterText, &QLineEdit::editingFinished, this, &LaunchGameEngineDialog::parametersChanged);
+            connect(m_parameterText, &QLineEdit::textChanged, this, &LaunchGameEngineDialog::parametersChanged);
             connect(m_parameterText, &QLineEdit::returnPressed, this, &LaunchGameEngineDialog::launchEngine);
 
             connect(m_launchButton, &QPushButton::clicked, this, &LaunchGameEngineDialog::launchEngine);
@@ -157,6 +152,17 @@ namespace TrenchBroom {
             if (m_gameEngineList->count() > 0) {
                 m_gameEngineList->setCurrentRow(0);
             }
+        }
+
+        void LaunchGameEngineDialog::reloadConfig() {
+            auto document = kdl::mem_lock(m_document);
+            const auto& gameName = document->game()->gameName();
+
+            auto& gameFactory = Model::GameFactory::instance();
+            const auto& gameConfig = gameFactory.gameConfig(gameName);
+            m_config = gameConfig.gameEngineConfig();
+
+            m_gameEngineList->setConfig(&m_config);
         }
 
         LaunchGameEngineVariables LaunchGameEngineDialog::variables() const {
@@ -176,10 +182,10 @@ namespace TrenchBroom {
             }
         }
 
-        void LaunchGameEngineDialog::parametersChanged() {
+        void LaunchGameEngineDialog::parametersChanged(const QString& text) {
             Model::GameEngineProfile* profile = m_gameEngineList->selectedProfile();
             if (profile != nullptr) {
-                const auto parameterSpec = m_parameterText->text().toStdString();
+                const auto parameterSpec = text.toStdString();
                 if (profile->parameterSpec() != parameterSpec) {
                     profile->setParameterSpec(parameterSpec);
                 }
@@ -187,10 +193,15 @@ namespace TrenchBroom {
         }
 
         void LaunchGameEngineDialog::editGameEngines() {
+            saveConfig();
+
             const bool wasEmpty = m_gameEngineList->count() == 0;
 
             GameEngineDialog dialog(kdl::mem_lock(m_document)->game()->gameName(), this);
             dialog.exec();
+
+            // reload m_config as it may have been changed by the GameEngineDialog
+            reloadConfig();
 
             if (wasEmpty && m_gameEngineList->count() > 0) {
                 m_gameEngineList->setCurrentRow(0);
@@ -242,39 +253,17 @@ namespace TrenchBroom {
             }
         }
 
-        void LaunchGameEngineDialog::bindObservers() {
-            auto document = kdl::mem_lock(m_document);
-
-            const auto& gameName =  document->game()->gameName();
-            auto& gameFactory = Model::GameFactory::instance();
-            auto& gameConfig = gameFactory.gameConfig(gameName);
-            auto& gameEngineConfig = gameConfig.gameEngineConfig();
-
-            gameEngineConfig.configDidChange.addObserver(this, &LaunchGameEngineDialog::configDidChange);
-        }
-
-        void LaunchGameEngineDialog::unbindObservers() {
-            if (!kdl::mem_expired(m_document)) {
-                auto document = kdl::mem_lock(m_document);
-
-                const auto& gameName =  document->game()->gameName();
-                auto& gameFactory = Model::GameFactory::instance();
-                auto& gameConfig = gameFactory.gameConfig(gameName);
-                auto& gameEngineConfig = gameConfig.gameEngineConfig();
-
-                gameEngineConfig.configDidChange.removeObserver(this, &LaunchGameEngineDialog::configDidChange);
-            }
-        }
-
-        void LaunchGameEngineDialog::configDidChange() {
+        void LaunchGameEngineDialog::done(const int r) {
             saveConfig();
+
+            QDialog::done(r);
         }
 
         void LaunchGameEngineDialog::saveConfig() {
             auto document = kdl::mem_lock(m_document);
             const auto& gameName = document->game()->gameName();
             auto& gameFactory = Model::GameFactory::instance();
-            gameFactory.saveGameEngineConfigs(gameName);
+            gameFactory.saveGameEngineConfig(gameName, m_config);
         }
     }
 }

@@ -21,7 +21,6 @@
 #define GameEngineProfile_h
 
 #include "Macros.h"
-#include "Notifier.h"
 #include "IO/Path.h"
 
 #include <memory>
@@ -29,24 +28,16 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class GameEngineConfig;
-
         class GameEngineProfile {
         private:
             std::string m_name;
             IO::Path m_path;
             std::string m_parameterSpec;
-            GameEngineConfig* m_parent;
-        public:
-            Notifier<> profileWillBeRemoved;
-            Notifier<> profileDidChange;
         public:
             GameEngineProfile(const std::string& name, const IO::Path& path, const std::string& parameterSpec);
 
             std::unique_ptr<GameEngineProfile> clone() const;
-
-            GameEngineConfig* parent() const;
-            void setParent(GameEngineConfig* parent);
+            bool operator==(const GameEngineProfile& other) const;
 
             const std::string& name() const;
             const IO::Path& path() const;
@@ -55,9 +46,7 @@ namespace TrenchBroom {
             void setName(const std::string& name);
             void setPath(const IO::Path& path);
             void setParameterSpec(const std::string& parameterSpec);
-        private:
-            void sendDidChangeNotifications();
-        public:
+
             deleteCopyAndMove(GameEngineProfile)
         };
     }

@@ -274,10 +274,6 @@ namespace TrenchBroom {
             return m_compilationToolDescriptions;
         }
 
-        CompilationConfig& GameConfig::compilationConfig() {
-            return m_compilationConfig;
-        }
-
         const CompilationConfig& GameConfig::compilationConfig() const {
             return m_compilationConfig;
         }
@@ -292,10 +288,6 @@ namespace TrenchBroom {
 
         void GameConfig::setCompilationConfigParseFailed(const bool failed) const {
             m_compilationConfigParseFailed = failed;
-        }
-
-        GameEngineConfig& GameConfig::gameEngineConfig() {
-            return m_gameEngineConfig;
         }
 
         const GameEngineConfig& GameConfig::gameEngineConfig() const {

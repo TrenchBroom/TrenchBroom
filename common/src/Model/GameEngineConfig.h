@@ -20,8 +20,6 @@
 #ifndef GameEngineConfig_h
 #define GameEngineConfig_h
 
-#include "Notifier.h"
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -34,15 +32,6 @@ namespace TrenchBroom {
         private:
             std::vector<std::unique_ptr<GameEngineProfile>> m_profiles;
         public:
-            /**
-             * The profiles list changed.
-             */
-            mutable Notifier<> profilesDidChange;
-            /**
-             * Anything in the config changed.
-             */
-            mutable Notifier<> configDidChange;
-        public:
             GameEngineConfig();
             GameEngineConfig(std::vector<std::unique_ptr<GameEngineProfile>> profiles);
             GameEngineConfig(const GameEngineConfig& other);
@@ -50,6 +39,7 @@ namespace TrenchBroom {
 
             GameEngineConfig& operator=(GameEngineConfig other);
             friend void swap(GameEngineConfig& lhs, GameEngineConfig& rhs);
+            bool operator==(const GameEngineConfig& other) const;
 
             size_t profileCount() const;
             bool hasProfile(const std::string& name) const;
@@ -57,8 +47,6 @@ namespace TrenchBroom {
 
             void addProfile(std::unique_ptr<GameEngineProfile> profile);
             void removeProfile(size_t index);
-
-            void profileDidChange(GameEngineProfile* profile);
         };
     }
 }

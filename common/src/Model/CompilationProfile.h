@@ -21,7 +21,6 @@
 #define CompilationProfile_h
 
 #include "Macros.h"
-#include "Notifier.h"
 
 #include <memory>
 #include <string>
@@ -29,7 +28,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class CompilationConfig;
         class CompilationTask;
         class CompilationTaskConstVisitor;
         class CompilationTaskVisitor;
@@ -37,27 +35,17 @@ namespace TrenchBroom {
         class ConstCompilationTaskConstVisitor;
 
         class CompilationProfile {
-        public:
-            Notifier<> profileWillBeRemoved;
-            /**
-             * Called when name or workDirSpec changed, or tasks are added/removed
-             * (not when tasks are changed).
-             */
-            Notifier<> profileDidChange;
         private:
             std::string m_name;
             std::string m_workDirSpec;
             std::vector<std::unique_ptr<CompilationTask>> m_tasks;
-            CompilationConfig* m_parent;
         public:
             CompilationProfile(const std::string& name, const std::string& workDirSpec);
             CompilationProfile(const std::string& name, const std::string& workDirSpec, std::vector<std::unique_ptr<CompilationTask>> tasks);
             ~CompilationProfile();
 
             std::unique_ptr<CompilationProfile> clone() const;
-
-            CompilationConfig* parent() const;
-            void setParent(CompilationConfig* parent);
+            bool operator==(const CompilationProfile& other) const;
 
             const std::string& name() const;
             void setName(const std::string& name);
@@ -79,10 +67,6 @@ namespace TrenchBroom {
             void accept(ConstCompilationTaskVisitor& visitor) const;
             void accept(const CompilationTaskConstVisitor& visitor);
             void accept(const ConstCompilationTaskConstVisitor& visitor) const;
-        private:
-            void sendDidChangeNotifications();
-        public:
-            void taskDidChange(CompilationTask* task);
 
             deleteCopyAndMove(CompilationProfile)
         };
