@@ -41,9 +41,8 @@ namespace TrenchBroom {
             GameEngineProfileManager* m_profileManager;
         public:
             explicit GameEngineDialog(const std::string& gameName, QWidget* parent = nullptr);
-        protected: // QDialog overrides
-            void keyPressEvent(QKeyEvent* event) override;
-            void closeEvent(QCloseEvent* event) override;
+        public slots: // QDialog overrides
+            void done(int r) override;
         private:
             void createGui();
             void saveConfig();

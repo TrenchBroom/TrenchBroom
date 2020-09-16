@@ -40,6 +40,8 @@ namespace TrenchBroom {
 
         /**
          * Editor UI for a single compilation profile
+         *
+         *
          */
         class CompilationProfileEditor : public QWidget {
             Q_OBJECT

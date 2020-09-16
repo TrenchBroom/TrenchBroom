@@ -68,18 +68,10 @@ namespace TrenchBroom {
             connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::accept);
         }
 
-        void GameEngineDialog::keyPressEvent(QKeyEvent* event) {
-            // Dismissing the dialog with Escape doesn't invoke closeEvent()
-            if (event->key() == Qt::Key_Escape) {
-                saveConfig();
-            }
-
-            QDialog::keyPressEvent(event);
-        }
-
-        void GameEngineDialog::closeEvent(QCloseEvent* event) {
+        void GameEngineDialog::done(int r) {
             saveConfig();
-            QDialog::closeEvent(event);
+
+            QDialog::done(r);
         }
 
         void GameEngineDialog::saveConfig() {

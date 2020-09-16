@@ -123,8 +123,8 @@ namespace TrenchBroom {
             void loadCompilationConfig(GameConfig& gameConfig);
             void loadGameEngineConfig(GameConfig& gameConfig);
 
-            void writeCompilationConfig(const GameConfig& gameConfig, const CompilationConfig& compilationConfig, Logger& logger);
-            void writeGameEngineConfig(const GameConfig& gameConfig, const GameEngineConfig& gameEngineConfig);
+            void writeCompilationConfig(GameConfig& gameConfig, const CompilationConfig& compilationConfig, Logger& logger);
+            void writeGameEngineConfig(GameConfig& gameConfig, const GameEngineConfig& gameEngineConfig);
         };
     }
 }
