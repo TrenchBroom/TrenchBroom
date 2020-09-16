@@ -77,6 +77,9 @@ namespace TrenchBroom {
             if (otherCasted == nullptr) {
                 return false;
             }
+            if (m_enabled != otherCasted->m_enabled) {
+                return false;
+            }
             if (m_targetSpec != otherCasted->m_targetSpec) {
                 return false;
             }
@@ -129,6 +132,9 @@ namespace TrenchBroom {
         bool CompilationCopyFiles::operator==(const CompilationTask& other) const {
             auto* otherCasted = dynamic_cast<const CompilationCopyFiles*>(&other);
             if (otherCasted == nullptr) {
+                return false;
+            }
+            if (m_enabled != otherCasted->m_enabled) {
                 return false;
             }
             if (m_sourceSpec != otherCasted->m_sourceSpec) {
@@ -186,6 +192,9 @@ namespace TrenchBroom {
         bool CompilationRunTool::operator==(const CompilationTask& other) const {
             auto* otherCasted = dynamic_cast<const CompilationRunTool*>(&other);
             if (otherCasted == nullptr) {
+                return false;
+            }
+            if (m_enabled != otherCasted->m_enabled) {
                 return false;
             }
             if (m_toolSpec != otherCasted->m_toolSpec) {

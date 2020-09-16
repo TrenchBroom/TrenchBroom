@@ -32,7 +32,7 @@ namespace TrenchBroom {
         class ConstCompilationTaskVisitor;
 
         class CompilationTask {
-        private:
+        protected:
             bool m_enabled;
         protected:
             explicit CompilationTask(bool enabled);
