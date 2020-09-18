@@ -61,11 +61,15 @@ namespace TrenchBroom {
                 return false;
             }
             for (size_t i = 0; i < m_tasks.size(); ++i) {
-                if (!(*m_tasks[i] == *other.m_tasks[i])) {
+                if (*m_tasks[i] != *other.m_tasks[i]) {
                     return false;
                 }
             }
             return true;
+        }
+
+        bool CompilationProfile::operator!=(const CompilationProfile& other) const {
+            return !(*this == other);
         }
 
         const std::string& CompilationProfile::name() const  {

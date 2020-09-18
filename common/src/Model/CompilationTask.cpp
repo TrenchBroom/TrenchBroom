@@ -27,6 +27,10 @@ namespace TrenchBroom {
 
         CompilationTask::~CompilationTask() = default;
 
+        bool CompilationTask::operator!=(const CompilationTask& other) const {
+            return !(*this == other);
+        }
+
         // CompilationExportMap
 
         CompilationExportMap::CompilationExportMap(const std::string& targetSpec) :

@@ -46,6 +46,7 @@ namespace TrenchBroom {
 
             std::unique_ptr<CompilationProfile> clone() const;
             bool operator==(const CompilationProfile& other) const;
+            bool operator!=(const CompilationProfile& other) const;
 
             const std::string& name() const;
             void setName(const std::string& name);
