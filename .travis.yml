@@ -37,7 +37,7 @@ deploy:
   file_glob: true
   skip_cleanup: true
   api_key:
-    secure: "FWiUzgYVvFQXtNbvZLOHkRo4SRCXIWlVSun9qvixbqUZQF4q6oXIHv871uQZWD57t/1routgKhXiTRhKF3DokPDW3QhTq3j0vvn/SvrCpgfw6AEPbmgIYZ7caFy8szhel4zlVm/rX3Oi2vJZCQqF6F50Ws1kn8D4hsspa6lYdu0="
+    secure: SFSGWPwCBlv7w+fdgXXkq4as7ZM25GXXvTLv5+yaEY39kAWoV9YGpRHNEZjPPKpXBuykcYoNRx+fNigwd2M2lxW2duXM5o1+0AFWcr629ETkrdJGQGNQAZw0EhNFHg/+M3YT+5LvdsSAVQ36Q4m2MQ3RPx+fbL2SzouGFa2HkUI=
   file:
     - "build/*.deb"
     - "build/*.rpm"
