@@ -113,8 +113,8 @@ namespace TrenchBroom {
             if (!m_groups.empty()) {
                 if (renderContext.showGroupBounds()) {
                     renderBounds(renderContext, renderBatch);
+                    renderNames(renderContext, renderBatch);
                 }
-                renderNames(renderContext, renderBatch);
             }
         }
 

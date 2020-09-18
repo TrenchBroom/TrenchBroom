@@ -120,6 +120,11 @@ namespace TrenchBroom {
                 image = tempImage;
             }
 
+            if (image == nullptr) {
+                FreeImage_CloseMemory(imageMemory);
+                throw AssetException("Unsupported pixel format");
+            }
+
             const auto bytesPerPixel = FreeImage_GetLine(image) / FreeImage_GetWidth(image);
             ensure(bytesPerPixel == 4, "expected to have converted image to 32-bit");
 

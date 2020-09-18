@@ -370,7 +370,7 @@ namespace TrenchBroom {
 
         Camera::Camera() :
         m_nearPlane(1.0f),
-        m_farPlane(8000.0f),
+        m_farPlane(65536.0f),
         m_viewport(Viewport(0, 0, 1024, 768)),
         m_zoom(1.0f),
         m_position(vm::vec3f::zero()),

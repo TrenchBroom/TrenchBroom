@@ -218,12 +218,11 @@ namespace TrenchBroom {
                 const auto& hit = pickResult.query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
                 if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
                     const auto& face = faceHandle->face();
-                    const auto dragPlane = vm::aligned_orthogonal_plane(hit.hitPoint(), face.boundary().normal);
-                    return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay);
+                    return grid.moveDeltaForBounds(face.boundary(), bounds, document->worldBounds(), pickRay);
                 } else {
                     const auto point = vm::vec3(grid.snap(m_camera->defaultPoint(pickRay)));
-                    const auto dragPlane = vm::aligned_orthogonal_plane(point, -vm::vec3(vm::get_abs_max_component_axis(m_camera->direction())));
-                    return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay);
+                    const auto targetPlane = vm::plane3(point, -vm::vec3(m_camera->direction()));
+                    return grid.moveDeltaForBounds(targetPlane, bounds, document->worldBounds(), pickRay);
                 }
             } else {
                 const auto oldMin = bounds.min;

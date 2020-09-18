@@ -51,7 +51,7 @@
 		16 : "Meteor Barrier"
 	]
 	light(integer)	: "Light"
-	
+
 	cooptimeout(integer) : "Seconds to wait for all clients to have joined a map in coop"
 	skinnum(integer) : "Plague level for Corvus (0-2)"
 ]
@@ -115,7 +115,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	]
 	delay(integer)	: "Time monster waits after using pathtarget"
 	height(integer)	: "Height of jump" : 400
-	jumptarget(target_destination)	: "JumpTarget" : 0 : "used with JUMP - this buoy will only make monsters jump at the buoy whose 'targetname' is the same as 'jumpbuoy'- without this, the buoy WILL NOT MAKE MONSTERS JUMP!"
+	jumptarget(target_destination)	: "JumpTarget" : "used with JUMP - this buoy will only make monsters jump at the buoy whose 'targetname' is the same as 'jumpbuoy'- without this, the buoy WILL NOT MAKE MONSTERS JUMP!"
 	pathtarget(target_destination)	: "Target to use when monster reaches buoy. Requires 'Activate' spawnflag"
 	speed(integer)	: "Speed of jump" : 400
 	target(target_destination) : "Next buoy"
@@ -143,6 +143,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 
 @SolidClass base(Appearflags, Target, Targetname) color(0 128 204) = func_button : "Button"
 [
+	angle(integer) : "Angle"
 	killtarget(string) : "Kill Target"
 	pathtarget(string) : "Elevator level target"
 	speed(integer) : "Speed" : 40
@@ -160,7 +161,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		3 : "Steam button"
 	]
 	message(string) : "Activation message"
-	_minlight(integer) : "Minimum light (optional)"
+	_minlight(integer) : "Minimum light (0-1)"
 ]
 
 // H2
@@ -260,13 +261,14 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		32 : "Toggle" : 0
 		64 : "Animated Fast" : 0
 	]
+	angle(integer) : "Angle" : 0
 	height(integer) : "Absolute move distance (optional)"
 	killtarget(string) : "Kill Target"
-	team(string) : "Team"
+	team(integer) : "Linked door group" : 0 : "Doors with matching team numbers will open together"
 	message(string) : "Message for targetted door"
 	speed(integer) : "Speed" : 100
 	lip(integer) : "Lip remaining after move" : 8
-	_minlight(integer) : "Minimum light (optional)"
+	_minlight(integer) : "Minimum light (0-1)"
 ]
 
 @SolidClass base(Door) color(0 128 204) = func_door_rotating : "Rotating Door"
@@ -293,7 +295,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		-1 : "Stay open"
 		-2 : "Never stop"
 	]
-	_minlight(integer) : "Minimum light (optional)"
+	_minlight(integer) : "Minimum light (0-1)"
 ]
 
 
@@ -306,7 +308,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		4 : "1st Down" : 0
 	]
 	message(string) : "Message"
-	_minlight(integer) : "Minimum light (optional)"
+	_minlight(integer) : "Minimum light (0-1)"
 ]
 
 // h2
@@ -341,7 +343,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	mass(integer) : "Mass (debris)" : 75
 	dmg(integer) : "Damage" : 0
 
-	_minlight(integer) : "Minimum light (optional)"
+	_minlight(integer) : "Minimum light (0-1)"
 ]
 
 @SolidClass base(Appearflags, Targetname) color (0 128 204) = func_object : "Solid bmodel, will fall if its support is removed"
@@ -353,7 +355,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		4 : "Animated Fast" : 0
 	]
 	dmg(integer) : "Damage" : 100
-	_minlight(integer) : "Minimum light (optional)"
+	_minlight(integer) : "Minimum light (0-1)"
 ]
 
 @SolidClass base(Appearflags, Targetname) color(0 128 204) = func_plat : "Platform"
@@ -392,7 +394,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		20 : "Going underwater"
 		21 : "Bam"
 	]
-	_minlight(integer) : "Minimum light (optional)"
+	_minlight(integer) : "Minimum light (0-1)"
 ]
 
 
@@ -420,7 +422,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	team(string) : "Team"
 	speed(integer) : "Speed" : 100
 	dmg(integer) : "Damage when blocked" : 2
-	_minlight(integer) : "Minimum light (optional)"
+	_minlight(integer) : "Minimum light (0-1)"
 ]
 
 @PointClass base(Appearflags, Targetname, Target) color(76 25 153) size(-8 -8 -8, 8 8 8) = func_timer : "Timer"
@@ -469,7 +471,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	file(string) : "Model (path/file.fm)"
 	noise(string) : "Sound (path/file.wav)"
 	rotate(integer) : "Speed of rotation"
-	_minlight(integer) : "Minimum light (optional)"
+	_minlight(integer) : "Minimum light (0-1)"
 ]
 
 
@@ -483,7 +485,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		8 : "Animated" : 0
 		16 : "Animated Fast" : 0
 	]
-	_minlight(integer) : "Minimum light (optional)"
+	_minlight(integer) : "Minimum light (0-1)"
 ]
 
 @SolidClass base(Appearflags, Targetname) color(0 128 204) = func_water : "Moveable water"
@@ -510,7 +512,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		2 : "Lava"
 	]
 	team(string) : "Team"
-	_minlight(integer) : "Minimum light (optional)"
+	_minlight(integer) : "Minimum light (0-1)"
 ]
 
 @PointClass base(Appearflags, Targetname) color(0 128 0) size(-4 -4 -4, 4 4 4) = info_null : "Spotlight target" []
@@ -559,6 +561,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 @PointClass base(Items) = item_defense_teleport : "Teleport Spell" []
 @PointClass base(Items) = item_defense_ringofrepulsion : "Ring of Repulsion" []
 @PointClass base(Items) = item_defense_powerup : "Tome Powerup - non-functional in single-player" []
+@PointClass base(Items) = item_defense_tornado : "Whirlwind spell (Enhancement patch)" []
 
 @PointClass base(Items) = item_puzzle_canyonkey : "Canyon key" []
 @PointClass base(Items) = item_puzzle_cog : "Cog" []
@@ -631,9 +634,9 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 		16 : "No halo"
 	]
 ]
-@PointClass base(light) size(-36 -36 -43, 34 34 43) = light_chandelier1 : "Chandelier (gold)" []
-@PointClass base(light) size(-18 -18 -40, 18 18 40) = light_chandelier2 : "Chandelier (blue)" []
-@PointClass base(light) size(-34 -34 -80, 34 34 0) = light_chandelier2 : "Chandelier (gold, thin)" []
+@PointClass base(light) size(-36 -36 -43, 34 34 43) = light_chandelier1 : "Chandelier (dirty gold) A tarnished gold chandelier hung from chains." []
+@PointClass base(light) size(-18 -18 -40, 18 18 40) = light_chandelier2 : "Chandelier (dirty metal) A tarnished metal chandelier hung from chains." []
+@PointClass base(light) size(-34 -34 -80, 34 34 0) = light_chandelier3 : "Chandelier (gold & large) A golden chandelier." []
 @PointClass base(light) size(-14 -14 -17, 14 14 17) = light_floortorch : "Floor torch stand" []
 @PointClass base(light) size(-1 -6 -8, 4 6 8) = light_gem2 : "Gem light"
 [
@@ -812,7 +815,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 [
 	health(integer) : "Health" : 50
 ]
-@PointClass base(Monsters) size(-20 -20 -0, 20 20 32) = monster_gkrokon : "Gkrokon" 
+@PointClass base(Monsters) size(-20 -20 -0, 20 20 32) = monster_gkrokon : "Gkrokon"
 [
 	spawnflags(flags) =
 	[
@@ -981,9 +984,9 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 // that a playername is not required if the corresponding info_player_start
 // doesn't have a targetname.  If you want this to be designated as the last
 // level of a unit, place an asterix (*) before the map name.
-@PointClass base(Appearflags, Targetname, Target) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_changelevel : "Change level"
+@PointClass base(Appearflags, Targetname, Target) color(0 255 0) size(-8 -8 -8, 8 8 8) = target_changelevel : "Change level"
 [
-	map(string) : "Next map"
+	map(string) : "'Next map'$'Player start targetname' - use * before map name to end unit"
 ]
 
 @PointClass base(Appearflags, Targetname, Target) color(128 128 128) size(-8 -8 -8, 8 8 8) = target_crosslevel_trigger : "Cross-level trigger"
@@ -1021,13 +1024,13 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 	delay(integer) : "Trigger delay (if activated)" : 1
 ]
 
-@PointClass base(Appearflags, Targetname) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_earthquake : "Level wide earthquake"
+@PointClass base(Appearflags, Targetname) color(0 255 0) size(-8 -8 -8, 8 8 8) = target_earthquake : "Level wide earthquake"
 [
 	speed(integer) : "Severity of quake" : 200
 	count(integer) : "Duration" : 5
 ]
 
-@PointClass base(Appearflags, Targetname) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_explosion : "Explosion"
+@PointClass base(Appearflags, Targetname) color(0 255 0) size(-8 -8 -8, 8 8 8) = target_explosion : "Explosion"
 [
 	delay(integer) : "Delay before explosion"
 	dmg(integer) : "Radius damage" : 0
@@ -1059,7 +1062,7 @@ Keep in mind that when choosing a buoy, monsters need to be able to find a buoy 
 ]
 
 // eye candy... Particles #2 (style 22) is quite cool
-@PointClass base(Appearflags, Targetname) color(255 0 0) size(-8 -8 -8, 8 8 8) = target_temp_entity : "Triggered temp entity"
+@PointClass base(Appearflags, Targetname) color(0 255 0) size(-8 -8 -8, 8 8 8) = target_temp_entity : "Triggered temp entity"
 [
 	style(choices) : "Style" : 22 =
 	[
@@ -1229,7 +1232,7 @@ Do not have teleport points, or start spots of any kind inside or inbetween this
 	wait(integer) : "Wait" : 10
 ]
 @SolidClass base(Appearflags, Targetname, Target) = trigger_quit_to_menu : "Quit to menu" []
-@SolidClass base(Appearflags) color(128 128 128) = trigger_monsterjump : "Makes monsters jump"
+@SolidClass base(Appearflags) color(128 128 128) = trigger_MonsterJump : "Makes monsters jump"
 [
 	speed(integer) : "Speed thrown forward" : 200
 	height(integer) : "Height thrown upward" : 200
@@ -1282,7 +1285,7 @@ Do not have teleport points, or start spots of any kind inside or inbetween this
 //	Characters
 //
 
-@BaseClass base(Appearflags, Targetname) color(76 76 255) size(-16 -16 -24, 16 16 32) = Character
+@BaseClass base(Appearflags, Targetname) color(76 76 255) size(-16 -16 -24, 16 16 32) = character
 [
 	spawnflags(flags) =
 	[
@@ -1707,7 +1710,7 @@ Do not have teleport points, or start spots of any kind inside or inbetween this
 @PointClass base(object) size(-22 -46 -19, 22 46 19) = obj_torture_rack : "Torture rack" []
 @PointClass base(object) size(-46 -14 -14, 46 14 14) = obj_torture_table : "Torture table"
 [
-	style(choices) = 
+	style(choices) =
 	[
 		0 : "Down"
 		1 : "Upright"
@@ -1717,7 +1720,7 @@ Do not have teleport points, or start spots of any kind inside or inbetween this
 @PointClass base(object) size(-100 -100 -120, 100 100 120) = obj_tree : "Tree" []
 @PointClass base(object) size(-50 -50 -286, 50 50 286) = obj_tree2 : "Tree (swamp)" []
 @PointClass base(object) size(-50 -50 -286, 50 50 286) = obj_tree3 : "Tree with roots" []
-@PointClass base(object) size(-46 -46 -340, 46 46 340) = obj_tree4 : "Tree (tall)" []
+@PointClass base(object) size(-46 -46 -340, 46 46 340) = obj_treetall : "Tree (tall)" []
 @PointClass base(object) size(-176 -176 -125, 176 176 125) = obj_treetop : "Tree canopy" []
 @PointClass base(object) size(-24 -62 -35, 24 62 35) = obj_treefallen : "Fallen tree" []
 @PointClass base(object) size(-18 -18 -16, 18 18 16) = obj_treestump : "Short tree stump" []
@@ -1726,15 +1729,12 @@ Do not have teleport points, or start spots of any kind inside or inbetween this
 @PointClass base(object) size(-3 -20 -55, 3 20 55) = obj_wallringplaque : "Wall ring plaque" []
 @PointClass base(object) size(-2 -18 -20, 2 18 20) = obj_web : "Cobweb" []
 @PointClass base(object) size(-37 -20 -21, 37 20 21) = obj_wheelbarrow : "Wheebarrow" []
-@PointClass base(object) size(-38 -26 -20, 38 26 20) = obj_wheelbarrowdamaged : "Wheebarrow on side"
-[
-	angles(integer) : "Angles"
-]
+@PointClass base(object) size(-38 -26 -20, 38 26 20) = obj_wheelbarrowdamaged : "Wheebarrow on side" []
 @PointClass base(object) size(-12 -20 -7, 12 20 7) = obj_woodpile : "Wood Pile" []
 
 @PointClass base(Targetname) = script_runner : "Script Runner"
 [
-	script(string) : "String"
+	script(string) : "Script filename (including subfolder, not including extension)"
 ]
 
 @BaseClass base(Appearflags) color(76 76 255) size(-8 -8 -8, 8 8 8) = Sound
@@ -1745,14 +1745,14 @@ Do not have teleport points, or start spots of any kind inside or inbetween this
 		2 : "Start off" : 0
 	]
 	style(integer) : "Style"
-	attenuation(choices) : "Attenuation" : 0 = 
+	attenuation(choices) : "Attenuation" : 0 =
 	[
 		0 : "No attenuation"
 		1 : "Normal"
 		2 : "High"
 		3 : "Max"
 	]
-	volume(integer) : "Volume" : 0.5
+	volume(float) : "Volume" : "0.5"
 	wait(integer) : "Wait" : 10
 ]
 

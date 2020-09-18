@@ -148,7 +148,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const vm::bbox3 MapDocument::DefaultWorldBounds(-16384.0, 16384.0);
+        const vm::bbox3 MapDocument::DefaultWorldBounds(-32768.0, 32768.0);
         const std::string MapDocument::DefaultDocumentName("unnamed.map");
 
         MapDocument::MapDocument() :
