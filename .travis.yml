@@ -1,4 +1,8 @@
 language: cpp
+branches:
+  only:
+    - master
+    - /v.*/
 matrix:
   include:
     - os: linux
