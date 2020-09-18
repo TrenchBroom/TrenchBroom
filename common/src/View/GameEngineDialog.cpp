@@ -29,6 +29,7 @@
 #include <string>
 
 #include <QBoxLayout>
+#include <QCloseEvent>
 #include <QDialogButtonBox>
 
 namespace TrenchBroom {
@@ -65,6 +66,17 @@ namespace TrenchBroom {
 
             connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
             connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::accept);
+        }
+
+        void GameEngineDialog::done(const int r) {
+            saveConfig();
+
+            QDialog::done(r);
+        }
+
+        void GameEngineDialog::saveConfig() {
+            auto& gameFactory = Model::GameFactory::instance();
+            gameFactory.saveGameEngineConfig(m_gameName, m_profileManager->config());
         }
     }
 }

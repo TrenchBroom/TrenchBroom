@@ -20,6 +20,7 @@
 #include "GameFactory.h"
 
 #include "Exceptions.h"
+#include "Logger.h"
 #include "PreferenceManager.h"
 #include "RecoverableExceptions.h"
 #include "IO/CompilationConfigParser.h"
@@ -41,6 +42,7 @@
 #include <kdl/string_compare.h>
 #include <kdl/string_utils.h>
 
+#include <iostream>
 #include <fstream>
 #include <memory>
 #include <string>
@@ -58,15 +60,14 @@ namespace TrenchBroom {
             loadGameConfigs();
         }
 
-        void GameFactory::saveAllConfigs() {
-            writeCompilationConfigs();
-            writeGameEngineConfigs();
+        void GameFactory::saveGameEngineConfig(const std::string& gameName, const GameEngineConfig& gameEngineConfig) {
+            auto& config = gameConfig(gameName);
+            writeGameEngineConfig(config, gameEngineConfig);
         }
 
-        void GameFactory::saveConfigs(const std::string& gameName) {
-            const auto& config = gameConfig(gameName);
-            writeCompilationConfig(config);
-            writeGameEngineConfig(config);
+        void GameFactory::saveCompilationConfig(const std::string& gameName, const CompilationConfig& compilationConfig, Logger& logger) {
+            auto& config = gameConfig(gameName);
+            writeCompilationConfig(config, compilationConfig, logger);
         }
 
         const std::vector<std::string>& GameFactory::gameList() const {
@@ -241,7 +242,8 @@ namespace TrenchBroom {
                     gameConfig.setCompilationConfig(parser.parse());
                 }
             } catch (const Exception& e) {
-                throw FileDeletingException("Could not load compilation configuration '" + path.asString() + "': " + std::string(e.what()), m_configFS->makeAbsolute(path));
+                std::cerr << "Could not load compilation configuration '" + path.asString() + "': " + std::string(e.what()) << "\n";
+                gameConfig.setCompilationConfigParseFailed(true);
             }
         }
 
@@ -255,40 +257,68 @@ namespace TrenchBroom {
                     gameConfig.setGameEngineConfig(parser.parse());
                 }
             } catch (const Exception& e) {
-                throw FileDeletingException("Could not load game engine configuration '" + path.asString() + "': " + std::string(e.what()), m_configFS->makeAbsolute(path));
+                std::cerr << "Could not load game engine configuration '" + path.asString() + "': " + std::string(e.what()) << "\n";
+                gameConfig.setGameEngineConfigParseFailed(true);
             }
         }
 
-        void GameFactory::writeCompilationConfigs() {
-            for (const auto& entry : m_configs) {
-                const auto& gameConfig = entry.second;
-                writeCompilationConfig(gameConfig);
-            }
+        static IO::Path backupFile(IO::WritableDiskFileSystem& fs, const IO::Path& path) {
+            const IO::Path backupPath = path.addExtension("bak");
+            fs.copyFile(path, backupPath, true);
+            return backupPath;
         }
 
-        void GameFactory::writeCompilationConfig(const GameConfig& gameConfig) {
+        void GameFactory::writeCompilationConfig(GameConfig& gameConfig, const CompilationConfig& compilationConfig, Logger& logger) {
+            if (!gameConfig.compilationConfigParseFailed()
+                && gameConfig.compilationConfig() == compilationConfig) {
+                // NOTE: this is not just an optimization, but important for ensuring that
+                // we don't clobber data saved by a newer version of TB, unless we actually make changes
+                // to the config in this version of TB (see: https://github.com/TrenchBroom/TrenchBroom/issues/3424)
+                logger.debug() << "Skipping writing unchanged compilation config for " << gameConfig.name();
+                return;
+            }
+
             std::stringstream stream;
-            IO::CompilationConfigWriter writer(gameConfig.compilationConfig(), stream);
+            IO::CompilationConfigWriter writer(compilationConfig, stream);
             writer.writeConfig();
 
             const auto profilesPath = IO::Path(gameConfig.name()) + IO::Path("CompilationProfiles.cfg");
-            m_configFS->createFileAtomic(profilesPath, stream.str());
-        }
+            if (gameConfig.compilationConfigParseFailed()) {
+                const IO::Path backupPath = backupFile(*m_configFS, profilesPath);
 
-        void GameFactory::writeGameEngineConfigs() {
-            for (const auto& entry : m_configs) {
-                const auto& gameConfig = entry.second;
-                writeGameEngineConfig(gameConfig);
+                logger.warn() << "Backed up malformed compilation config " << m_configFS->makeAbsolute(profilesPath).asString()
+                              << " to " << m_configFS->makeAbsolute(backupPath).asString();
+
+                gameConfig.setCompilationConfigParseFailed(false);
             }
+            m_configFS->createFileAtomic(profilesPath, stream.str());
+            gameConfig.setCompilationConfig(compilationConfig);
+            logger.debug() << "Wrote compilation config to " << m_configFS->makeAbsolute(profilesPath).asString();
         }
 
-        void GameFactory::writeGameEngineConfig(const GameConfig& gameConfig) {
+        void GameFactory::writeGameEngineConfig(GameConfig& gameConfig, const GameEngineConfig& gameEngineConfig) {
+            if (!gameConfig.gameEngineConfigParseFailed()
+                && gameConfig.gameEngineConfig() == gameEngineConfig) {
+                std::cout << "Skipping writing unchanged game engine config for " << gameConfig.name();
+                return;
+            }
+
             std::stringstream stream;
-            IO::GameEngineConfigWriter writer(gameConfig.gameEngineConfig(), stream);
+            IO::GameEngineConfigWriter writer(gameEngineConfig, stream);
             writer.writeConfig();
 
             const auto profilesPath = IO::Path(gameConfig.name()) + IO::Path("GameEngineProfiles.cfg");
+            if (gameConfig.gameEngineConfigParseFailed()) {
+                const IO::Path backupPath = backupFile(*m_configFS, profilesPath);
+
+                std::cerr << "Backed up malformed game engine config " << m_configFS->makeAbsolute(profilesPath).asString()
+                          << " to " << m_configFS->makeAbsolute(backupPath).asString() << std::endl;
+
+                gameConfig.setGameEngineConfigParseFailed(false);
+            }
             m_configFS->createFileAtomic(profilesPath, stream.str());
+            gameConfig.setGameEngineConfig(gameEngineConfig);
+            std::cout << "Wrote game engine config to " << m_configFS->makeAbsolute(profilesPath).asString() << std::endl;
         }
     }
 }

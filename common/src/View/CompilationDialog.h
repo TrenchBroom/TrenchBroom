@@ -63,6 +63,8 @@ namespace TrenchBroom {
 
             void selectedProfileChanged();
             void profileChanged();
+        private:
+            void saveProfile();
         };
     }
 }

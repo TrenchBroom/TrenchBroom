@@ -65,18 +65,10 @@ namespace TrenchBroom {
             setLayout(layout);
         }
 
-        CompilationProfileEditor::~CompilationProfileEditor() {
-            if (m_profile != nullptr) {
-                m_profile->profileWillBeRemoved.removeObserver(this, &CompilationProfileEditor::profileWillBeRemoved);
-                m_profile->profileDidChange.removeObserver(this, &CompilationProfileEditor::profileDidChange);
-            }
-        }
-
         QWidget* CompilationProfileEditor::createEditorPage(QWidget* parent) {
             auto* containerPanel = new QWidget(parent);
             auto* upperPanel = new QWidget(containerPanel);
             setDefaultWindowColor(upperPanel);
-
 
             m_nameTxt = new QLineEdit();
             m_workDirTxt = new MultiCompletionLineEdit();
@@ -133,6 +125,7 @@ namespace TrenchBroom {
             const auto name = text.toStdString();
             if (m_profile->name() != name) {
                 m_profile->setName(name);
+                emit profileChanged();
             }
         }
 
@@ -141,6 +134,7 @@ namespace TrenchBroom {
             const auto workDirSpec = text.toStdString();
             if (m_profile->workDirSpec() != workDirSpec) {
                 m_profile->setWorkDirSpec(workDirSpec);
+                emit profileChanged();
             }
         }
 
@@ -165,11 +159,14 @@ namespace TrenchBroom {
             const int index = m_taskList->currentRow();
             if (index < 0) {
                 m_profile->addTask(std::move(task));
+                m_taskList->reloadTasks();
                 m_taskList->setCurrentRow(static_cast<int>(m_profile->taskCount()) - 1);
             } else {
                 m_profile->insertTask(static_cast<size_t>(index + 1), std::move(task));
+                m_taskList->reloadTasks();
                 m_taskList->setCurrentRow(index + 1);
             }
+            emit profileChanged();
         }
 
         void CompilationProfileEditor::removeTask() {
@@ -179,14 +176,18 @@ namespace TrenchBroom {
             if (m_profile->taskCount() == 1) {
                 m_taskList->setCurrentRow(-1);
                 m_profile->removeTask(static_cast<size_t>(index));
+                m_taskList->reloadTasks();
             } else if (index > 0) {
                 m_taskList->setCurrentRow(index - 1);
                 m_profile->removeTask(static_cast<size_t>(index));
+                m_taskList->reloadTasks();
             } else {
                 m_taskList->setCurrentRow(1);
                 m_profile->removeTask(static_cast<size_t>(index));
+                m_taskList->reloadTasks();
                 m_taskList->setCurrentRow(0);
             }
+            emit profileChanged();
         }
 
 
@@ -194,14 +195,18 @@ namespace TrenchBroom {
             const int index = m_taskList->currentRow();
             assert(index > 0);
             m_profile->moveTaskUp(static_cast<size_t>(index));
+            m_taskList->reloadTasks();
             m_taskList->setCurrentRow(index - 1);
+            emit profileChanged();
         }
 
         void CompilationProfileEditor::moveTaskDown() {
             const int index = m_taskList->currentRow();
             assert(index >= 0 && index < static_cast<int>(m_profile->taskCount()) - 1);
             m_profile->moveTaskDown(static_cast<size_t>(index));
+            m_taskList->reloadTasks();
             m_taskList->setCurrentRow(index + 1);
+            emit profileChanged();
         }
 
         void CompilationProfileEditor::taskSelectionChanged() {
@@ -209,29 +214,14 @@ namespace TrenchBroom {
         }
 
         void CompilationProfileEditor::setProfile(Model::CompilationProfile* profile) {
-            if (m_profile != nullptr) {
-                m_profile->profileWillBeRemoved.removeObserver(this, &CompilationProfileEditor::profileWillBeRemoved);
-                m_profile->profileDidChange.removeObserver(this, &CompilationProfileEditor::profileDidChange);
-            }
             m_profile = profile;
             m_taskList->setProfile(profile);
             if (m_profile != nullptr) {
-                m_profile->profileWillBeRemoved.addObserver(this, &CompilationProfileEditor::profileWillBeRemoved);
-                m_profile->profileDidChange.addObserver(this, &CompilationProfileEditor::profileDidChange);
                 m_stackedWidget->setCurrentIndex(1);
             } else {
                 m_stackedWidget->setCurrentIndex(0);
             }
             refresh();
-        }
-
-        void CompilationProfileEditor::profileWillBeRemoved() {
-            setProfile(nullptr);
-        }
-
-        void CompilationProfileEditor::profileDidChange() {
-            refresh();
-            emit profileChanged();
         }
 
         void CompilationProfileEditor::refresh() {

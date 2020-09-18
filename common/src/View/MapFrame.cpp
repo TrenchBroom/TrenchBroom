@@ -1587,20 +1587,9 @@ namespace TrenchBroom {
             showModelessDialog(m_compilationDialog);
         }
 
-        void MapFrame::compilationDialogWillClose() {
-            // Save the compilation and engine configurations just in case:
-            const auto& gameName = m_document->game()->gameName();
-            auto& gameFactory = Model::GameFactory::instance();
-            gameFactory.saveConfigs(gameName);
-        }
-
         void MapFrame::showLaunchEngineDialog() {
             LaunchGameEngineDialog dialog(m_document, this);
             dialog.exec();
-
-            const auto& gameName = m_document->game()->gameName();
-            auto& gameFactory = Model::GameFactory::instance();
-            gameFactory.saveConfigs(gameName);
         }
 
         static const Assets::Texture* textureToReveal(std::shared_ptr<MapDocument> document) {

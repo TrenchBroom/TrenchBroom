@@ -20,6 +20,7 @@
 #include "CompilationDialog.h"
 
 #include "Model/Game.h"
+#include "Model/GameFactory.h"
 #include "Model/CompilationProfile.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationProfileManager.h"
@@ -157,6 +158,7 @@ namespace TrenchBroom {
         }
 
         void CompilationDialog::startCompilation(const bool test) {
+            saveProfile();
             if (m_run.running()) {
                 m_run.terminate();
             } else {
@@ -190,8 +192,8 @@ namespace TrenchBroom {
                 }
                 
                 stopCompilation();
-                m_mapFrame->compilationDialogWillClose();
             }
+            saveProfile();
             event->accept();
         }
 
@@ -216,6 +218,13 @@ namespace TrenchBroom {
 
         void CompilationDialog::profileChanged() {
             updateCompileButtons();
+        }
+
+        void CompilationDialog::saveProfile() {
+            auto document = m_mapFrame->document();
+            const auto& gameName = document->game()->gameName();
+            auto& gameFactory = Model::GameFactory::instance();
+            gameFactory.saveCompilationConfig(gameName, m_profileManager->config(), m_mapFrame->logger());
         }
     }
 }

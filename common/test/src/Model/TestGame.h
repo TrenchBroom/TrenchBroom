@@ -53,7 +53,7 @@ namespace TrenchBroom {
             void doSetAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths, Logger& logger) override;
             PathErrors doCheckAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths) const override;
 
-            CompilationConfig& doCompilationConfig() override;
+            const CompilationConfig& doCompilationConfig() override;
             size_t doMaxPropertyLength() const override;
 
             const std::vector<SmartTag>& doSmartTags() const override;

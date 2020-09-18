@@ -28,6 +28,8 @@
 
 namespace TrenchBroom {
     namespace View {
+        // CompilationProfileItemRenderer
+
         CompilationProfileItemRenderer::CompilationProfileItemRenderer(Model::CompilationProfile& profile, QWidget* parent) :
         ControlListBoxItemRenderer(parent),
         m_profile(&profile),
@@ -48,35 +50,9 @@ namespace TrenchBroom {
             layout->addWidget(m_taskCountText);
 
             setLayout(layout);
-
-            addObservers();
         }
 
         CompilationProfileItemRenderer::~CompilationProfileItemRenderer() {
-            if (m_profile != nullptr) {
-                removeObservers();
-            }
-        }
-
-        void CompilationProfileItemRenderer::addObservers() {
-            m_profile->profileWillBeRemoved.addObserver(this, &CompilationProfileItemRenderer::profileWillBeRemoved);
-            m_profile->profileDidChange.addObserver(this, &CompilationProfileItemRenderer::profileDidChange);
-        }
-
-        void CompilationProfileItemRenderer::removeObservers() {
-            m_profile->profileWillBeRemoved.removeObserver(this, &CompilationProfileItemRenderer::profileWillBeRemoved);
-            m_profile->profileDidChange.removeObserver(this, &CompilationProfileItemRenderer::profileDidChange);
-        }
-
-        void CompilationProfileItemRenderer::profileWillBeRemoved() {
-            if (m_profile != nullptr) {
-                removeObservers();
-                m_profile = nullptr;
-            }
-        }
-
-        void CompilationProfileItemRenderer::profileDidChange() {
-            updateItem();
         }
 
         void CompilationProfileItemRenderer::updateItem() {
@@ -89,19 +65,20 @@ namespace TrenchBroom {
             }
         }
 
+        // CompilationProfileListBox
+
         CompilationProfileListBox::CompilationProfileListBox(const Model::CompilationConfig& config, QWidget* parent) :
         ControlListBox("Click the '+' button to create a compilation profile.", true, parent),
         m_config(config) {
-            m_config.profilesDidChange.addObserver(this, &CompilationProfileListBox::profilesDidChange);
             reload();
         }
 
-        CompilationProfileListBox::~CompilationProfileListBox() {
-            m_config.profilesDidChange.removeObserver(this, &CompilationProfileListBox::profilesDidChange);
+        void CompilationProfileListBox::reloadProfiles() {
+            reload();
         }
 
-        void CompilationProfileListBox::profilesDidChange() {
-            reload();
+        void CompilationProfileListBox::updateProfiles() {
+            updateItems();
         }
 
         size_t CompilationProfileListBox::itemCount() const {

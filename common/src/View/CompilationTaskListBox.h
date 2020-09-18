@@ -56,23 +56,10 @@ namespace TrenchBroom {
             Completers m_completers;
         protected:
             CompilationTaskEditorBase(const QString& title, std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationTask& task, QWidget* parent);
-        public:
-            ~CompilationTaskEditorBase() override;
         protected:
             void setupCompleter(MultiCompletionLineEdit* lineEdit);
         private:
             void updateCompleter(QCompleter* completer);
-        private:
-            void addProfileObservers();
-            void removeProfileObservers();
-            void addTaskObservers();
-            void removeTaskObservers();
-
-            void profileWillBeRemoved();
-            void profileDidChange();
-
-            void taskWillBeRemoved();
-            void taskDidChange();
         };
 
         class CompilationExportMapTaskEditor : public CompilationTaskEditorBase {
@@ -126,11 +113,10 @@ namespace TrenchBroom {
             Model::CompilationProfile* m_profile;
         public:
             explicit CompilationTaskListBox(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-            ~CompilationTaskListBox() override;
 
             void setProfile(Model::CompilationProfile* profile);
-        private:
-            void profileDidChange();
+        public:
+            void reloadTasks();
         private:
             class CompilationTaskEditorFactory;
             size_t itemCount() const override;

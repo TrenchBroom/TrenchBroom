@@ -43,6 +43,8 @@
 
 namespace TrenchBroom {
     namespace View {
+        // CompilationTaskEditorBase
+
         CompilationTaskEditorBase::CompilationTaskEditorBase(const QString& title, std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationTask& task, QWidget* parent) :
         ControlListBoxItemRenderer(parent),
         m_title(title),
@@ -58,14 +60,6 @@ namespace TrenchBroom {
             layout->addWidget(m_panel);
             layout->addWidget(new BorderLine());
             setLayout(layout);
-
-            addProfileObservers();
-            addTaskObservers();
-        }
-
-        CompilationTaskEditorBase::~CompilationTaskEditorBase() {
-            removeProfileObservers();
-            removeTaskObservers();
         }
 
         void CompilationTaskEditorBase::setupCompleter(MultiCompletionLineEdit* lineEdit) {
@@ -90,53 +84,7 @@ namespace TrenchBroom {
             completer->setModel(new VariableStoreModel(variables));
         }
 
-        void CompilationTaskEditorBase::addProfileObservers() {
-            m_profile->profileWillBeRemoved.addObserver(this, &CompilationTaskEditorBase::profileWillBeRemoved);
-            m_profile->profileDidChange.addObserver(this, &CompilationTaskEditorBase::profileDidChange);
-        }
-
-        void CompilationTaskEditorBase::removeProfileObservers() {
-            if (m_profile != nullptr) {
-                m_profile->profileWillBeRemoved.removeObserver(this, &CompilationTaskEditorBase::profileWillBeRemoved);
-                m_profile->profileDidChange.removeObserver(this, &CompilationTaskEditorBase::profileDidChange);
-            }
-        }
-
-        void CompilationTaskEditorBase::addTaskObservers() {
-            m_task->taskWillBeRemoved.addObserver(this, &CompilationTaskEditorBase::taskWillBeRemoved);
-            m_task->taskDidChange.addObserver(this, &CompilationTaskEditorBase::taskDidChange);
-        }
-
-        void CompilationTaskEditorBase::removeTaskObservers() {
-            if (m_task != nullptr) {
-                m_task->taskWillBeRemoved.removeObserver(this, &CompilationTaskEditorBase::taskWillBeRemoved);
-                m_task->taskDidChange.removeObserver(this, &CompilationTaskEditorBase::taskDidChange);
-            }
-        }
-
-        void CompilationTaskEditorBase::profileWillBeRemoved() {
-            removeProfileObservers();
-            removeTaskObservers();
-            m_task = nullptr;
-            m_profile = nullptr;
-        }
-
-        void CompilationTaskEditorBase::profileDidChange() {
-            for (auto* completer : m_completers) {
-                updateCompleter(completer);
-            }
-        }
-
-        void CompilationTaskEditorBase::taskWillBeRemoved() {
-            removeTaskObservers();
-            m_task = nullptr;
-        }
-
-        void CompilationTaskEditorBase::taskDidChange() {
-            if (m_task != nullptr) {
-                updateItem();
-            }
-        }
+        // CompilationExportMapTaskEditor
 
         CompilationExportMapTaskEditor::CompilationExportMapTaskEditor(std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationExportMap& task, QWidget* parent) :
         CompilationTaskEditorBase("Export Map", std::move(document), profile, task, parent),
@@ -228,6 +176,8 @@ namespace TrenchBroom {
             }
         }
 
+        // CompilationRunToolTaskEditor
+
         CompilationRunToolTaskEditor::CompilationRunToolTaskEditor(std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile, Model::CompilationRunTool& task, QWidget* parent) :
         CompilationTaskEditorBase("Run Tool", std::move(document), profile, task, parent),
         m_toolEditor(nullptr),
@@ -304,29 +254,19 @@ namespace TrenchBroom {
             }
         }
 
+        // CompilationTaskListBox
+
         CompilationTaskListBox::CompilationTaskListBox(std::weak_ptr<MapDocument> document, QWidget* parent) :
         ControlListBox("Click the '+' button to create a task.", QMargins(), false, parent),
         m_document(std::move(document)),
         m_profile(nullptr) {}
 
-        CompilationTaskListBox::~CompilationTaskListBox() {
-            if (m_profile != nullptr) {
-                m_profile->profileDidChange.removeObserver(this, &CompilationTaskListBox::profileDidChange);
-            }
-        }
-
         void CompilationTaskListBox::setProfile(Model::CompilationProfile* profile) {
-            if (m_profile != nullptr) {
-                m_profile->profileDidChange.removeObserver(this, &CompilationTaskListBox::profileDidChange);
-            }
             m_profile = profile;
-            if (m_profile != nullptr) {
-                m_profile->profileDidChange.addObserver(this, &CompilationTaskListBox::profileDidChange);
-            }
             reload();
         }
 
-        void CompilationTaskListBox::profileDidChange() {
+        void CompilationTaskListBox::reloadTasks() {
             reload();
         }
 

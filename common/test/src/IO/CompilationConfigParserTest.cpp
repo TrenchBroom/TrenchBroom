@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
 #include "GTestCompat.h"
 
 #include "Exceptions.h"
@@ -28,6 +26,8 @@
 #include "Model/CompilationTask.h"
 
 #include <string>
+
+#include <catch2/catch.hpp>
 
 namespace TrenchBroom {
     namespace IO {
@@ -323,13 +323,16 @@ namespace TrenchBroom {
         TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneToolTask", "[CompilationConfigParserTest]") {
             const std::string config("{\n"
                                 "    'version': 1,\n"
+                                "    'unexpectedKey': '',\n"
                                 "    'profiles': [\n"
                                 "        {\n"
                                 "             'name': 'A profile',\n"
+                                "             'unexpectedKey': '',\n"
                                 "             'workdir': '',\n"
                                 "             'tasks': [\n"
                                 "                 {\n"
                                 "                      'type':'tool',\n"
+                                "                      'unexpectedKey': '',\n"
                                 "                      'tool': 'tyrbsp.exe',\n"
                                 "                      'parameters': 'this and that'\n"
                                 "                 }\n"

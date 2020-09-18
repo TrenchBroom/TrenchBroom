@@ -74,8 +74,8 @@ namespace TrenchBroom {
 
             auto& gameFactory = Model::GameFactory::instance();
             const auto& gameConfig = gameFactory.gameConfig(gameName);
-            const auto& gameEngineConfig = gameConfig.gameEngineConfig();
-            m_gameEngineList = new GameEngineProfileListBox(gameEngineConfig);
+            m_config = gameConfig.gameEngineConfig();
+            m_gameEngineList = new GameEngineProfileListBox(&m_config);
             m_gameEngineList->setEmptyText("Click the 'Configure engines...' button to create a game engine profile.");
             m_gameEngineList->setMinimumSize(250, 280);
 
@@ -154,6 +154,17 @@ namespace TrenchBroom {
             }
         }
 
+        void LaunchGameEngineDialog::reloadConfig() {
+            auto document = kdl::mem_lock(m_document);
+            const auto& gameName = document->game()->gameName();
+
+            auto& gameFactory = Model::GameFactory::instance();
+            const auto& gameConfig = gameFactory.gameConfig(gameName);
+            m_config = gameConfig.gameEngineConfig();
+
+            m_gameEngineList->setConfig(&m_config);
+        }
+
         LaunchGameEngineVariables LaunchGameEngineDialog::variables() const {
             return LaunchGameEngineVariables(kdl::mem_lock(m_document));
         }
@@ -182,10 +193,15 @@ namespace TrenchBroom {
         }
 
         void LaunchGameEngineDialog::editGameEngines() {
+            saveConfig();
+
             const bool wasEmpty = m_gameEngineList->count() == 0;
 
             GameEngineDialog dialog(kdl::mem_lock(m_document)->game()->gameName(), this);
             dialog.exec();
+
+            // reload m_config as it may have been changed by the GameEngineDialog
+            reloadConfig();
 
             if (wasEmpty && m_gameEngineList->count() > 0) {
                 m_gameEngineList->setCurrentRow(0);
@@ -235,6 +251,19 @@ namespace TrenchBroom {
                 const auto message = kdl::str_to_string("Could not launch game engine: ", e.what());
                 QMessageBox::critical(this, "TrenchBroom", QString::fromStdString(message), QMessageBox::Ok);
             }
+        }
+
+        void LaunchGameEngineDialog::done(const int r) {
+            saveConfig();
+
+            QDialog::done(r);
+        }
+
+        void LaunchGameEngineDialog::saveConfig() {
+            auto document = kdl::mem_lock(m_document);
+            const auto& gameName = document->game()->gameName();
+            auto& gameFactory = Model::GameFactory::instance();
+            gameFactory.saveGameEngineConfig(gameName, m_config);
         }
     }
 }
