@@ -37,13 +37,13 @@ deploy:
   file_glob: true
   skip_cleanup: true
   api_key:
-    secure: "W2j2h2gKveogAS9u8zxavzjCPHtPBXpbDVw9Swyvn9idyeqTbeOM+uzww7MkqakIbjGrMhQdfJiCoVC3qQCw5QLybvtBWYjdHGtkq4m9F9WFmGQ4/tSOZEzvz6VNkQmGPOuRzyHWFFZQtbAn9OmJrPgjI8LrWUUubmlQ5304jnQ="
+    secure: "FWiUzgYVvFQXtNbvZLOHkRo4SRCXIWlVSun9qvixbqUZQF4q6oXIHv871uQZWD57t/1routgKhXiTRhKF3DokPDW3QhTq3j0vvn/SvrCpgfw6AEPbmgIYZ7caFy8szhel4zlVm/rX3Oi2vJZCQqF6F50Ws1kn8D4hsspa6lYdu0="
   file:
     - "build/*.deb"
     - "build/*.rpm"
     - "build/*.dmg"
     - "build/*.md5"
   on:
-    repo: kduske/TrenchBroom
+    repo: TrenchBroom/TrenchBroom
     tags: true
     condition: $TB_DEBUG_BUILD != 'true' && $TB_GCC8 != 'true'
