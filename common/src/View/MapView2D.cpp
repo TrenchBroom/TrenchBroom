@@ -118,7 +118,7 @@ namespace TrenchBroom {
             m_camera->setNearPlane(1.0f);
             // NOTE: GridRenderer draws at the far side of the map bounds, so add some extra margin so it's
             // not fighting the far plane.
-            m_camera->setFarPlane(static_cast<float>(worldBounds.size().x()) + 16.0f);
+            m_camera->setFarPlane(worldBounds.size().x() + 16.0f);
         }
 
         void MapView2D::initializeToolChain(MapViewToolBox& toolBox) {
