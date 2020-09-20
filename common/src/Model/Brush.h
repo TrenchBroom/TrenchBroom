@@ -262,6 +262,9 @@ namespace TrenchBroom {
         private:
             bool checkFaceLinks() const;
         };
+
+        bool operator==(const Brush& lhs, const Brush& rhs);
+        bool operator!=(const Brush& lhs, const Brush& rhs);
     }
 }
 

@@ -393,5 +393,13 @@ namespace TrenchBroom {
         void BrushNode::doAcceptTagVisitor(ConstTagVisitor& visitor) const {
             visitor.visit(*this);
         }
+
+        bool operator==(const BrushNode& lhs, const BrushNode& rhs) {
+            return lhs.brush() == rhs.brush();
+        }
+
+        bool operator!=(const BrushNode& lhs, const BrushNode& rhs) {
+            return !(lhs == rhs);
+        }
     }
 }

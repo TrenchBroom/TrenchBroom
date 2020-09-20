@@ -1025,5 +1025,13 @@ namespace TrenchBroom {
             
             return true;
         }
+
+        bool operator==(const Brush& lhs, const Brush& rhs) {
+            return lhs.faces() == rhs.faces();
+        }
+
+        bool operator!=(const Brush& lhs, const Brush& rhs) {
+            return !(lhs == rhs);
+        }
     }
 }
