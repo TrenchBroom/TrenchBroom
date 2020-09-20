@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_EntityProperties
 #define TrenchBroom_EntityProperties
 
+#include <iosfwd>
 #include <string>
 #include <vector>
 
@@ -87,7 +88,7 @@ namespace TrenchBroom {
         public:
             EntityAttribute();
             EntityAttribute(const std::string& name, const std::string& value, const Assets::AttributeDefinition* definition = nullptr);
-            bool operator<(const EntityAttribute& rhs) const;
+            
             int compare(const EntityAttribute& rhs) const;
 
             const std::string& name() const;
@@ -105,6 +106,14 @@ namespace TrenchBroom {
             void setName(const std::string& name, const Assets::AttributeDefinition* definition);
             void setValue(const std::string& value);
         };
+
+        bool operator<(const EntityAttribute& lhs, const EntityAttribute& rhs);
+        bool operator<=(const EntityAttribute& lhs, const EntityAttribute& rhs);
+        bool operator>(const EntityAttribute& lhs, const EntityAttribute& rhs);
+        bool operator>=(const EntityAttribute& lhs, const EntityAttribute& rhs);
+        bool operator==(const EntityAttribute& lhs, const EntityAttribute& rhs);
+        bool operator!=(const EntityAttribute& lhs, const EntityAttribute& rhs);
+        std::ostream& operator<<(std::ostream& str, const EntityAttribute& attr);
 
         bool isLayer(const std::string& classname, const std::vector<EntityAttribute>& attributes);
         bool isGroup(const std::string& classname, const std::vector<EntityAttribute>& attributes);

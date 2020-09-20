@@ -25,6 +25,7 @@
 #include <kdl/string_compare.h>
 #include <kdl/vector_set.h>
 
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -89,10 +90,6 @@ namespace TrenchBroom {
         m_value(value),
         m_definition(definition) {}
 
-        bool EntityAttribute::operator<(const EntityAttribute& rhs) const {
-            return compare(rhs) < 0;
-        }
-
         int EntityAttribute::compare(const EntityAttribute& rhs) const {
             const int nameCmp = m_name.compare(rhs.m_name);
             if (nameCmp != 0)
@@ -147,6 +144,35 @@ namespace TrenchBroom {
 
         void EntityAttribute::setValue(const std::string& value) {
             m_value = value;
+        }
+
+        bool operator<(const EntityAttribute& lhs, const EntityAttribute& rhs) {
+            return lhs.compare(rhs) < 0;
+        }
+
+        bool operator<=(const EntityAttribute& lhs, const EntityAttribute& rhs) {
+            return lhs.compare(rhs) <= 0;
+        }
+
+        bool operator>(const EntityAttribute& lhs, const EntityAttribute& rhs) {
+            return lhs.compare(rhs) > 0;
+        }
+
+        bool operator>=(const EntityAttribute& lhs, const EntityAttribute& rhs) {
+            return lhs.compare(rhs) >= 0;
+        }
+
+        bool operator==(const EntityAttribute& lhs, const EntityAttribute& rhs) {
+            return lhs.compare(rhs) == 0;
+        }
+
+        bool operator!=(const EntityAttribute& lhs, const EntityAttribute& rhs) {
+            return lhs.compare(rhs) != 0;
+        }
+
+        std::ostream& operator<<(std::ostream& str, const EntityAttribute& attr) {
+            str << "{ name: " << attr.name() << ", value: " << attr.value() << " }";
+            return str;
         }
 
         bool isLayer(const std::string& classname, const std::vector<EntityAttribute>& attributes) {

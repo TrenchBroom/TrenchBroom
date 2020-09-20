@@ -162,6 +162,9 @@ namespace TrenchBroom {
         private:
             deleteCopyAndMove(BrushNode)
         };
+
+        bool operator==(const BrushNode& lhs, const BrushNode& rhs);
+        bool operator!=(const BrushNode& lhs, const BrushNode& rhs);
     }
 }
 

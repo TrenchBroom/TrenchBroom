@@ -672,5 +672,13 @@ namespace TrenchBroom {
             ensure(attributable != nullptr, "attributable is null");
             kdl::vec_erase(m_killTargets, attributable);
         }
+
+        bool operator==(const AttributableNode& lhs, const AttributableNode& rhs) {
+            return lhs.attributes() == rhs.attributes();
+        }
+
+        bool operator!=(const AttributableNode& lhs, const AttributableNode& rhs) {
+            return !(lhs == rhs);
+        }
     }
 }
