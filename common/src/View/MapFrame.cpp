@@ -1609,9 +1609,13 @@ namespace TrenchBroom {
 
         void MapFrame::revealTexture() {
             if (const auto texture = textureToReveal(m_document)) {
-                m_inspector->switchToPage(InspectorPage::Face);
-                m_inspector->faceInspector()->revealTexture(texture);
+                revealTexture(texture);
             }
+        }
+
+        void MapFrame::revealTexture(const Assets::Texture* texture) {
+            m_inspector->switchToPage(InspectorPage::Face);
+            m_inspector->faceInspector()->revealTexture(texture);
         }
 
         void MapFrame::debugPrintVertices() {
