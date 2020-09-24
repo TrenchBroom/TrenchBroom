@@ -62,12 +62,8 @@ namespace TrenchBroom {
             return std::make_unique<CommandResult>(true);
         }
 
-        bool ChangeBrushFaceAttributesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
-            return document->hasSelectedBrushFaces();
-        }
-
-        std::unique_ptr<UndoableCommand> ChangeBrushFaceAttributesCommand::doRepeat(MapDocumentCommandFacade*) const {
-            return std::make_unique<ChangeBrushFaceAttributesCommand>(m_request);
+        bool ChangeBrushFaceAttributesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
+            return false;
         }
 
         bool ChangeBrushFaceAttributesCommand::doCollateWith(UndoableCommand* command) {
