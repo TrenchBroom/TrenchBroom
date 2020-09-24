@@ -47,12 +47,8 @@ namespace TrenchBroom {
             return std::make_unique<CommandResult>(true);
         }
 
-        bool RotateTexturesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
-            return document->hasSelectedBrushFaces();
-        }
-
-        std::unique_ptr<UndoableCommand> RotateTexturesCommand::doRepeat(MapDocumentCommandFacade*) const {
-            return std::make_unique<RotateTexturesCommand>(m_angle);
+        bool RotateTexturesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
+            return false;
         }
 
         bool RotateTexturesCommand::doCollateWith(UndoableCommand* command) {

@@ -52,12 +52,8 @@ namespace TrenchBroom {
             document->performMoveTextures(m_cameraUp, m_cameraRight, delta);
         }
 
-        bool MoveTexturesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
-            return document->hasSelectedBrushFaces();
-        }
-
-        std::unique_ptr<UndoableCommand> MoveTexturesCommand::doRepeat(MapDocumentCommandFacade*) const {
-            return std::make_unique<MoveTexturesCommand>(m_cameraUp, m_cameraRight, m_delta);
+        bool MoveTexturesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
+            return false;
         }
 
         bool MoveTexturesCommand::doCollateWith(UndoableCommand* command) {
