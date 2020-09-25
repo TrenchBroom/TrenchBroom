@@ -30,7 +30,6 @@
 #include "Preferences.h"
 #include "View/BorderPanel.h"
 #include "View/MapDocument.h"
-#include "View/MapViewConfig.h"
 #include "View/PopupButton.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
@@ -230,8 +229,10 @@ namespace TrenchBroom {
             document->documentWasNewedNotifier.addObserver(this, &ViewEditor::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &ViewEditor::documentWasNewedOrLoaded);
             document->editorContextDidChangeNotifier.addObserver(this, &ViewEditor::editorContextDidChange);
-            document->mapViewConfigDidChangeNotifier.addObserver(this, &ViewEditor::mapViewConfigDidChange);
             document->entityDefinitionsDidChangeNotifier.addObserver(this, &ViewEditor::entityDefinitionsDidChange);
+
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &ViewEditor::preferenceDidChange);
         }
 
         void ViewEditor::unbindObservers() {
@@ -240,9 +241,11 @@ namespace TrenchBroom {
                 document->documentWasNewedNotifier.removeObserver(this, &ViewEditor::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.removeObserver(this, &ViewEditor::documentWasNewedOrLoaded);
                 document->editorContextDidChangeNotifier.removeObserver(this, &ViewEditor::editorContextDidChange);
-                document->mapViewConfigDidChangeNotifier.removeObserver(this, &ViewEditor::mapViewConfigDidChange);
                 document->entityDefinitionsDidChangeNotifier.removeObserver(this, &ViewEditor::entityDefinitionsDidChange);
             }
+
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &ViewEditor::preferenceDidChange);
         }
 
         void ViewEditor::documentWasNewedOrLoaded(MapDocument*) {
@@ -254,12 +257,12 @@ namespace TrenchBroom {
             refreshGui();
         }
 
-        void ViewEditor::mapViewConfigDidChange() {
+        void ViewEditor::entityDefinitionsDidChange() {
+            createGui();
             refreshGui();
         }
 
-        void ViewEditor::entityDefinitionsDidChange() {
-            createGui();
+        void ViewEditor::preferenceDidChange(const IO::Path&) {
             refreshGui();
         }
 
@@ -404,11 +407,15 @@ namespace TrenchBroom {
             QWidget* inner = panel->getPanel();
 
             const QList<QString> FaceRenderModes = { "Show textures", "Hide textures", "Hide faces" };
+            const QList<QString> FaceRenderModesPrefValues = { Preferences::faceRenderModeTextured(), Preferences::faceRenderModeFlat(), Preferences::faceRenderModeSkip() };
+
             m_renderModeRadioGroup = new QButtonGroup(this);
             for (int i = 0; i < FaceRenderModes.length(); ++i) {
                 const QString& label = FaceRenderModes.at(i);
+                const QString& prefValue = FaceRenderModesPrefValues.at(i);
 
                 auto* radio = new QRadioButton(label);
+                radio->setObjectName(prefValue);
                 m_renderModeRadioGroup->addButton(radio, i);
             }
 
@@ -417,15 +424,21 @@ namespace TrenchBroom {
             m_showEdgesCheckBox = new QCheckBox(tr("Show edges"));
 
             const QList<QString> EntityLinkModes = { "Show all entity links", "Show transitively selected entity links", "Show directly selected entity links", "Hide entity links" };
+            const QList<QString> EntityLinkModesPrefValues = { Preferences::entityLinkModeAll(), Preferences::entityLinkModeTransitive(), Preferences::entityLinkModeDirect(), Preferences::entityLinkModeNone() };
             m_entityLinkRadioGroup = new QButtonGroup(this);
             for (int i = 0; i < EntityLinkModes.length(); ++i) {
                 const QString& label = EntityLinkModes.at(i);
+                const QString& prefValue = EntityLinkModesPrefValues.at(i);
 
                 auto* radio = new QRadioButton(label);
+                radio->setObjectName(prefValue);
                 m_entityLinkRadioGroup->addButton(radio, i);
             }
 
             m_showSoftBoundsCheckBox = new QCheckBox(tr("Show soft bounds"));
+
+            auto* restoreDefualtsButton = new QPushButton(tr("Restore Defaults"));
+            makeEmphasized(restoreDefualtsButton);
 
             connect(m_shadeFacesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::shadeFacesChanged);
             connect(m_showFogCheckBox, &QAbstractButton::clicked, this, &ViewEditor::showFogChanged);
@@ -437,6 +450,7 @@ namespace TrenchBroom {
                 &ViewEditor::entityLinkModeChanged);
 
             connect(m_showSoftBoundsCheckBox, &QAbstractButton::clicked, this, &ViewEditor::showSoftMapBoundsChanged);
+            connect(restoreDefualtsButton, &QAbstractButton::clicked, this, &ViewEditor::restoreDefaultsClicked);
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
@@ -455,6 +469,8 @@ namespace TrenchBroom {
             }
             
             layout->addWidget(m_showSoftBoundsCheckBox);
+            layout->addSpacing(LayoutConstants::MediumVMargin);
+            layout->addWidget(restoreDefualtsButton, 0, Qt::AlignHCenter);
 
             inner->setLayout(layout);
             return panel;
@@ -473,21 +489,19 @@ namespace TrenchBroom {
 
         void ViewEditor::refreshEntitiesPanel() {
             auto document = kdl::mem_lock(m_document);
-            const MapViewConfig& config = document->mapViewConfig();
 
-            m_showEntityClassnamesCheckBox->setChecked(config.showEntityClassnames());
-            m_showGroupBoundsCheckBox->setChecked(config.showGroupBounds());
-            m_showBrushEntityBoundsCheckBox->setChecked(config.showBrushEntityBounds());
-            m_showPointEntityBoundsCheckBox->setChecked(config.showPointEntityBounds());
-            m_showPointEntitiesCheckBox->setChecked(config.showPointEntities());
-            m_showPointEntityModelsCheckBox->setChecked(config.showPointEntityModels());
+            m_showEntityClassnamesCheckBox->setChecked(pref(Preferences::ShowEntityClassnames));
+            m_showGroupBoundsCheckBox->setChecked(pref(Preferences::ShowGroupBounds));
+            m_showBrushEntityBoundsCheckBox->setChecked(pref(Preferences::ShowBrushEntityBounds));
+            m_showPointEntityBoundsCheckBox->setChecked(pref(Preferences::ShowPointEntityBounds));
+            m_showPointEntitiesCheckBox->setChecked(pref(Preferences::ShowPointEntities));
+            m_showPointEntityModelsCheckBox->setChecked(pref(Preferences::ShowPointEntityModels));
         }
 
         void ViewEditor::refreshBrushesPanel() {
             auto document = kdl::mem_lock(m_document);
 
-            const MapViewConfig& config = document->mapViewConfig();
-            m_showBrushesCheckBox->setChecked(config.showBrushes());
+            m_showBrushesCheckBox->setChecked(pref(Preferences::ShowBrushes));
 
             Model::EditorContext& editorContext = document->editorContext();
             const Model::TagType::Type hiddenTags = editorContext.hiddenTags();
@@ -498,58 +512,40 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::refreshRendererPanel() {
-            auto document = kdl::mem_lock(m_document);
-            const MapViewConfig& config = document->mapViewConfig();
-            Model::EditorContext& editorContext = document->editorContext();
-
-            checkButtonInGroup(m_renderModeRadioGroup, static_cast<int>(config.faceRenderMode()), true);
-            m_shadeFacesCheckBox->setChecked(config.shadeFaces());
-            m_showFogCheckBox->setChecked(config.showFog());
-            m_showEdgesCheckBox->setChecked(config.showEdges());
-            checkButtonInGroup(m_entityLinkRadioGroup, static_cast<int>(editorContext.entityLinkMode()), true);
-            m_showSoftBoundsCheckBox->setChecked(config.showSoftMapBounds());
+            checkButtonInGroup(m_renderModeRadioGroup, pref(Preferences::FaceRenderMode), true);
+            m_shadeFacesCheckBox->setChecked(pref(Preferences::ShadeFaces));
+            m_showFogCheckBox->setChecked(pref(Preferences::ShowFog));
+            m_showEdgesCheckBox->setChecked(pref(Preferences::ShowEdges));
+            checkButtonInGroup(m_entityLinkRadioGroup, pref(Preferences::EntityLinkMode), true);
+            m_showSoftBoundsCheckBox->setChecked(pref(Preferences::ShowSoftMapBounds));
         }
 
         void ViewEditor::showEntityClassnamesChanged(const bool checked) {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowEntityClassnames(checked);
+            setPref(Preferences::ShowEntityClassnames, checked);
         }
 
         void ViewEditor::showGroupBoundsChanged(const bool checked) {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowGroupBounds(checked);
+            setPref(Preferences::ShowGroupBounds, checked);
         }
 
         void ViewEditor::showBrushEntityBoundsChanged(const bool checked) {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowBrushEntityBounds(checked);
+            setPref(Preferences::ShowBrushEntityBounds, checked);
         }
 
         void ViewEditor::showPointEntityBoundsChanged(const bool checked) {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowPointEntityBounds(checked);
+            setPref(Preferences::ShowPointEntityBounds, checked);
         }
 
         void ViewEditor::showPointEntitiesChanged(const bool checked) {
-            auto document = kdl::mem_lock(m_document);
-            Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setShowPointEntities(checked);
+            setPref(Preferences::ShowPointEntities, checked);
         }
 
         void ViewEditor::showPointEntityModelsChanged(const bool checked) {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowPointEntityModels(checked);
+            setPref(Preferences::ShowPointEntityModels, checked);
         }
 
         void ViewEditor::showBrushesChanged(const bool checked) {
-            auto document = kdl::mem_lock(m_document);
-            Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setShowBrushes(checked);
+            setPref(Preferences::ShowBrushes, checked);
         }
 
         void ViewEditor::showTagChanged(const bool checked, const Model::TagType::Type tagType) {
@@ -569,64 +565,68 @@ namespace TrenchBroom {
         }
 
         void ViewEditor::faceRenderModeChanged(const int id) {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-
             switch (id) {
                 case 1:
-                    config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Flat);
+                    setPref(Preferences::FaceRenderMode, Preferences::faceRenderModeFlat());
                     break;
                 case 2:
-                    config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Skip);
+                    setPref(Preferences::FaceRenderMode, Preferences::faceRenderModeSkip());
                     break;
                 default:
-                    config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Textured);
+                    setPref(Preferences::FaceRenderMode, Preferences::faceRenderModeTextured());
                     break;
             }
         }
 
         void ViewEditor::shadeFacesChanged(const bool checked) {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShadeFaces(checked);
+            setPref(Preferences::ShadeFaces, checked);
         }
 
         void ViewEditor::showFogChanged(const bool checked) {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowFog(checked);
+            setPref(Preferences::ShowFog, checked);
         }
 
         void ViewEditor::showEdgesChanged(const bool checked) {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowEdges(checked);
+            setPref(Preferences::ShowEdges, checked);
         }
 
         void ViewEditor::entityLinkModeChanged(const int id) {
-            auto document = kdl::mem_lock(m_document);
-            Model::EditorContext& editorContext = document->editorContext();
-
             switch (id) {
                 case 0:
-                    editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_All);
+                    setPref(Preferences::EntityLinkMode, Preferences::entityLinkModeAll());
                     break;
                 case 1:
-                    editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Transitive);
+                    setPref(Preferences::EntityLinkMode, Preferences::entityLinkModeTransitive());
                     break;
                 case 2:
-                    editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Direct);
+                    setPref(Preferences::EntityLinkMode, Preferences::entityLinkModeDirect());
                     break;
                 default:
-                    editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_None);
+                    setPref(Preferences::EntityLinkMode, Preferences::entityLinkModeNone());
                     break;
             }
         }
-        
+
         void ViewEditor::showSoftMapBoundsChanged(const bool checked) {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowSoftMapBounds(checked);
+            setPref(Preferences::ShowSoftMapBounds, checked);
+        }
+
+        void ViewEditor::restoreDefaultsClicked() {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.resetToDefault(Preferences::ShowEntityClassnames);
+            prefs.resetToDefault(Preferences::ShowGroupBounds);
+            prefs.resetToDefault(Preferences::ShowBrushEntityBounds);
+            prefs.resetToDefault(Preferences::ShowPointEntityBounds);
+            prefs.resetToDefault(Preferences::ShowPointEntityModels);
+            prefs.resetToDefault(Preferences::FaceRenderMode);
+            prefs.resetToDefault(Preferences::ShadeFaces);
+            prefs.resetToDefault(Preferences::ShowFog);
+            prefs.resetToDefault(Preferences::ShowEdges);
+            prefs.resetToDefault(Preferences::ShowSoftMapBounds);
+            prefs.resetToDefault(Preferences::ShowPointEntities);
+            prefs.resetToDefault(Preferences::ShowBrushes);
+            prefs.resetToDefault(Preferences::EntityLinkMode);
+            prefs.saveChanges();
         }
 
         ViewPopupEditor::ViewPopupEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :

@@ -133,7 +133,6 @@ namespace TrenchBroom {
             void entityDefinitionsDidChange();
             void modsDidChange();
             void editorContextDidChange();
-            void mapViewConfigDidChange();
             void gridDidChange();
             void pointFileDidChange();
             void portalFileDidChange();

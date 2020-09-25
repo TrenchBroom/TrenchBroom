@@ -450,6 +450,14 @@ namespace TrenchBroom {
         m_cache[pref->path()] = jsonValue;
     }
 
+    // helpers
+
+    void togglePref(Preference<bool>& preference) {
+        PreferenceManager& prefs = PreferenceManager::instance();
+        prefs.set(preference, !prefs.get(preference));
+        prefs.saveChanges();
+    }
+
     // V1 settings
 
     std::map<IO::Path, QJsonValue> parseINI(QTextStream* iniStream) {

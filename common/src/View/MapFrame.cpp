@@ -1439,13 +1439,11 @@ namespace TrenchBroom {
         }
 
         void MapFrame::toggleTextureLock() {
-            PreferenceManager::instance().set(Preferences::TextureLock, !pref(Preferences::TextureLock));
-            PreferenceManager::instance().saveChanges();
+            togglePref(Preferences::TextureLock);
         }
 
         void MapFrame::toggleUVLock() {
-            PreferenceManager::instance().set(Preferences::UVLock, !pref(Preferences::UVLock));
-            PreferenceManager::instance().saveChanges();
+            togglePref(Preferences::UVLock);
         }
 
         void MapFrame::toggleShowGrid() {

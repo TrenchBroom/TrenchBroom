@@ -42,19 +42,9 @@ namespace TrenchBroom {
         class WorldNode;
 
         class EditorContext {
-        public:
-            typedef enum {
-                EntityLinkMode_All,
-                EntityLinkMode_Transitive,
-                EntityLinkMode_Direct,
-                EntityLinkMode_None
-            } EntityLinkMode;
         private:
-            bool m_showPointEntities;
-            bool m_showBrushes;
             TagType::Type m_hiddenTags;
             kdl::bitset m_hiddenEntityDefinitions;
-            EntityLinkMode m_entityLinkMode;
 
             bool m_blockSelection;
 
@@ -66,21 +56,12 @@ namespace TrenchBroom {
 
             void reset();
 
-            bool showPointEntities() const;
-            void setShowPointEntities(bool showPointEntities);
-
-            bool showBrushes() const;
-            void setShowBrushes(bool showBrushes);
-
             TagType::Type hiddenTags() const;
             void setHiddenTags(TagType::Type hiddenTags);
 
             bool entityDefinitionHidden(const Model::AttributableNode* entity) const;
             bool entityDefinitionHidden(const Assets::EntityDefinition* definition) const;
             void setEntityDefinitionHidden(const Assets::EntityDefinition* definition, bool hidden);
-
-            EntityLinkMode entityLinkMode() const;
-            void setEntityLinkMode(EntityLinkMode entityLinkMode);
 
             bool blockSelection() const;
             void setBlockSelection(bool blockSelection);
