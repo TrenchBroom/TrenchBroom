@@ -213,6 +213,16 @@ namespace TrenchBroom {
      */
     void togglePref(Preference<bool>& preference);
 
+    /**
+     * Resets a preference to its default value, and saves the change immediately.
+     */
+    template <typename T>
+    void resetPref(Preference<T>& preference) {
+        PreferenceManager& prefs = PreferenceManager::instance();
+        prefs.resetToDefault(preference);
+        prefs.saveChanges();
+    }
+
     namespace PreferenceErrors {
         struct NoFilePresent  {};
         struct JsonParseError { QJsonParseError jsonError; };

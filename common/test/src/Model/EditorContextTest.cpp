@@ -22,6 +22,8 @@
 #include "GTestCompat.h"
 
 #include "Exceptions.h"
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Model/BrushBuilder.h"
 #include "Model/EditorContext.h"
 #include "Model/LockState.h"
@@ -296,9 +298,11 @@ namespace TrenchBroom {
             assertVisible(true, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
             entity->deselect();
 
-            context.setShowPointEntities(false);
+            setPref(Preferences::ShowPointEntities, false);
             assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
             assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+
+            resetPref(Preferences::ShowPointEntities);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelPointEntityEditable") {
@@ -598,7 +602,7 @@ namespace TrenchBroom {
             assertVisible(true, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
             entity->deselect();
 
-            context.setShowPointEntities(false);
+            setPref(Preferences::ShowPointEntities, false);
             assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
             assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
 
@@ -606,6 +610,8 @@ namespace TrenchBroom {
 
             assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
             assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+
+            resetPref(Preferences::ShowPointEntities);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedPointEntityEditable") {
