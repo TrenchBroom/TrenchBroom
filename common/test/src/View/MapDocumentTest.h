@@ -20,16 +20,15 @@
 #ifndef MapDocumentTest_h
 #define MapDocumentTest_h
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "Model/MapFormat.h"
 #include "View/MapDocument.h"
 
 #include <functional>
 #include <memory>
 #include <string>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Assets {

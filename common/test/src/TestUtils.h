@@ -20,9 +20,6 @@
 #ifndef TrenchBroom_TestUtils_h
 #define TrenchBroom_TestUtils_h
 
-
-#include "GTestCompat.h"
-
 #include "FloatType.h"
 
 #include <kdl/vector_set.h>
@@ -35,8 +32,8 @@
 
 #include <string>
 
-// catch must be included after the stream insertion operators are included (vec_io, mat_io)
-#include <catch2/catch.hpp>
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Assets {

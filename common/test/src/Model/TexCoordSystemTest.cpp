@@ -17,18 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "FloatType.h"
+#include "Assets/Texture.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/ParallelTexCoordSystem.h"
 
 #include <vecmath/vec.h>
 
-#include "Assets/Texture.h"
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Model {

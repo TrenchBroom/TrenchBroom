@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
 #include "TestLogger.h"
 #include "TestUtils.h"
 
@@ -30,6 +28,9 @@
 #include "IO/M8TextureReader.h"
 
 #include <memory>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {

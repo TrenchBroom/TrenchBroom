@@ -17,12 +17,6 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
-#include "View/MapDocumentTest.h"
-
 #include "EL/VariableStore.h"
 #include "Model/CompilationTask.h"
 #include "View/CompilationContext.h"
@@ -33,6 +27,11 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include <QTextEdit>
 #include <QTimer>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
+
+#include "MapDocumentTest.h"
 
 namespace TrenchBroom {
     namespace View {

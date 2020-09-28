@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GTestCompat.h"
-
 #include "Exceptions.h"
 #include "IO/CompilationConfigParser.h"
 #include "Model/CompilationConfig.h"
@@ -27,7 +25,8 @@
 
 #include <string>
 
-#include <catch2/catch.hpp>
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {

@@ -19,14 +19,12 @@
 
 #define CATCH_CONFIG_RUNNER
 
-#include "GTestCompat.h"
-
 #include "TrenchBroomApp.h"
 #include "Ensure.h"
 
 #include <clocale>
 
-#include <catch2/catch.hpp>
+#include "Catch2.h"
 
 int main(int argc, char **argv) {
     TrenchBroom::View::TrenchBroomApp app(argc, argv);

@@ -17,12 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
-#include "TestUtils.h"
-
 #include "Exceptions.h"
 #include "Assets/Texture.h"
 #include "IO/NodeReader.h"
@@ -50,6 +44,10 @@
 #include <memory>
 #include <string>
 #include <vector>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
+#include "TestUtils.h"
 
 namespace TrenchBroom {
     namespace Model {

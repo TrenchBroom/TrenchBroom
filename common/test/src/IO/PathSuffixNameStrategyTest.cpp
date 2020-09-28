@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
 #include "IO/Path.h"
 #include "IO/TextureReader.h"
+
+#include "Catch2.h"
 
 namespace TrenchBroom {
     namespace IO {

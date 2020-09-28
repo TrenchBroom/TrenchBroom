@@ -17,10 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "Model/AttributableNode.h"
 #include "Model/EntityNode.h"
 #include "Model/LayerNode.h"
@@ -30,6 +26,9 @@
 #include <kdl/vector_utils.h>
 
 #include <vector>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Model {
