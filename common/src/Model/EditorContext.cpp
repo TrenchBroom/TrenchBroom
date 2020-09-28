@@ -172,7 +172,9 @@ namespace TrenchBroom {
             if (group->selected()) {
                 return true;
             }
-
+            if (!anyChildVisible(group)) {
+                return false;
+            }
             return group->visible();
         }
 
