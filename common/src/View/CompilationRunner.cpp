@@ -167,14 +167,7 @@ namespace TrenchBroom {
                     connect(m_process, &QProcess::readyReadStandardOutput, this, &CompilationRunToolTaskRunner::processReadyReadStandardOutput);
 
                     m_process->setWorkingDirectory(QString::fromStdString(workDir));
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#endif
                     m_process->start(QString::fromStdString(cmd));
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
                     if (!m_process->waitForStarted()) {
                         emit error();
                     }
