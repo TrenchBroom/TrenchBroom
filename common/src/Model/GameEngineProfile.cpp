@@ -46,6 +46,10 @@ namespace TrenchBroom {
             return true;
         }
 
+        bool GameEngineProfile::operator!=(const GameEngineProfile& other) const {
+            return !(*this == other);
+        }
+
         const std::string& GameEngineProfile::name() const {
             return m_name;
         }

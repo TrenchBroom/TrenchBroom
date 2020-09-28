@@ -38,6 +38,10 @@ namespace TrenchBroom {
             m_enabled = enabled;
         }
 
+        bool CompilationTask::operator!=(const CompilationTask& other) const {
+            return !(*this == other);
+        }
+
         // CompilationExportMap
 
         CompilationExportMap::CompilationExportMap(const bool enabled, const std::string& targetSpec) :

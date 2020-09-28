@@ -45,6 +45,10 @@ class QToolBar;
 namespace TrenchBroom {
     class Logger;
 
+    namespace Assets {
+        class Texture;
+    }
+
     namespace IO {
         class Path;
     }
@@ -345,6 +349,8 @@ namespace TrenchBroom {
 
             bool canRevealTexture() const;
             void revealTexture();
+
+            void revealTexture(const Assets::Texture* texture);
 
             void debugPrintVertices();
             void debugCreateBrush();

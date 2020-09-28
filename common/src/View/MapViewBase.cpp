@@ -1115,8 +1115,13 @@ namespace TrenchBroom {
 
             menu.addSeparator();
 
-            if (mapFrame->canRevealTexture()) {
-                menu.addAction(tr("Reveal in Texture Browser"), mapFrame, &MapFrame::revealTexture);
+            const Model::Hit& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
+            const auto faceHandle = Model::hitToFaceHandle(hit);
+            if (faceHandle) {
+                const Assets::Texture* texture = faceHandle->face().texture();
+                menu.addAction(tr("Reveal %1 in Texture Browser").arg(QString::fromStdString(faceHandle->face().attributes().textureName())), mapFrame, [=](){
+                    mapFrame->revealTexture(texture);
+                });
 
                 menu.addSeparator();
             }

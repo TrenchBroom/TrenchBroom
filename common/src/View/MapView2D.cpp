@@ -98,23 +98,27 @@ namespace TrenchBroom {
         }
 
         void MapView2D::initializeCamera(const ViewPlane viewPlane) {
+            auto document = kdl::mem_lock(m_document);
+            const auto worldBounds = vm::bbox3f(document->worldBounds());
+
             switch (viewPlane) {
                 case MapView2D::ViewPlane_XY:
                     m_camera->setDirection(vm::vec3f::neg_z(), vm::vec3f::pos_y());
-                    m_camera->moveTo(vm::vec3f(0.0f, 0.0f, 16384.0f));
+                    m_camera->moveTo(vm::vec3f(0.0f, 0.0f, worldBounds.max.z()));
                     break;
                 case MapView2D::ViewPlane_XZ:
                     m_camera->setDirection(vm::vec3f::pos_y(), vm::vec3f::pos_z());
-                    m_camera->moveTo(vm::vec3f(0.0f, -16384.0f, 0.0f));
+                    m_camera->moveTo(vm::vec3f(0.0f, worldBounds.min.y(), 0.0f));
                     break;
                 case MapView2D::ViewPlane_YZ:
                     m_camera->setDirection(vm::vec3f::neg_x(), vm::vec3f::pos_z());
-                    m_camera->moveTo(vm::vec3f(16384.0f, 0.0f, 0.0f));
+                    m_camera->moveTo(vm::vec3f(worldBounds.max.x(), 0.0f, 0.0f));
                     break;
             }
             m_camera->setNearPlane(1.0f);
-            m_camera->setFarPlane(32768.0f);
-
+            // NOTE: GridRenderer draws at the far side of the map bounds, so add some extra margin so it's
+            // not fighting the far plane.
+            m_camera->setFarPlane(worldBounds.size().x() + 16.0f);
         }
 
         void MapView2D::initializeToolChain(MapViewToolBox& toolBox) {

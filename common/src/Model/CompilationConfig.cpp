@@ -57,11 +57,15 @@ namespace TrenchBroom {
                 return false;
             }
             for (size_t i = 0; i < m_profiles.size(); ++i) {
-                if (!(*m_profiles[i] == *other.m_profiles[i])) {
+                if (*m_profiles[i] != *other.m_profiles[i]) {
                     return false;
                 }
             }
             return true;
+        }
+
+        bool CompilationConfig::operator!=(const CompilationConfig& other) const {
+            return !(*this == other);
         }
 
         size_t CompilationConfig::profileCount() const {

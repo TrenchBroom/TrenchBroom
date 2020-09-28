@@ -55,7 +55,12 @@ int main(int argc, char *argv[])
     // it should produce RMB down/move events.
     // This environment variable disables Qt's emulation so we can implement it ourselves in InputEventRecorder::recordEvent
     qputenv("QT_MAC_DONT_OVERRIDE_CTRL_LMB", "1");
-    
+
+    // Disable Qt OpenGL buglist; since we require desktop OpenGL 2.1 there's no point in
+    // having Qt disable it (also we've had reports of some Intel drivers being blocked that
+    // actually work with TB.)
+    qputenv("QT_OPENGL_BUGLIST", ":/opengl_buglist.json");
+
     TrenchBroom::View::TrenchBroomApp app(argc, argv);
     app.parseCommandLineAndShowFrame();
     return app.exec();

@@ -3,7 +3,9 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateManual.cmake)
 set(APP_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(APP_RESOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/resources")
 
-set(APP_SOURCE "${APP_SOURCE_DIR}/Main.cpp")
+set(APP_SOURCE
+    "${APP_SOURCE_DIR}/Main.cpp"
+    "${APP_RESOURCE_DIR}/qrc/resources.qrc")
 
 # OS X app bundle configuration, must happen before the executable is added
 if(APPLE)
@@ -106,6 +108,8 @@ get_build_platform(APP_PLATFORM_NAME)
 macro(configure_app_target APP_TARGET_NAME SHOULD_BUILD_MANUAL)
     target_link_libraries(${APP_TARGET_NAME} common) # common already comes with all its dependencies, no need to repeat them here
     set_compiler_config(${APP_TARGET_NAME})
+
+    set_target_properties(${APP_TARGET_NAME} PROPERTIES AUTORCC TRUE)
 
     if(APPLE)
         # Configure variables that are substituted into the plist

@@ -49,6 +49,7 @@ namespace TrenchBroom {
 
             virtual CompilationTask* clone() const = 0;
             virtual bool operator==(const CompilationTask& other) const = 0;
+            bool operator!=(const CompilationTask& other) const;
 
             deleteCopyAndMove(CompilationTask)
         };

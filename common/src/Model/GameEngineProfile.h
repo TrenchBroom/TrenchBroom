@@ -38,6 +38,7 @@ namespace TrenchBroom {
 
             std::unique_ptr<GameEngineProfile> clone() const;
             bool operator==(const GameEngineProfile& other) const;
+            bool operator!=(const GameEngineProfile& other) const;
 
             const std::string& name() const;
             const IO::Path& path() const;
