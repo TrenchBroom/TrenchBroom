@@ -308,13 +308,8 @@ namespace TrenchBroom {
 
         void InputEventRecorder::recordEvent(const QWheelEvent* qtEvent) {
             // These are the mouse X and Y position, not the wheel delta
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
-            const int posX = qtEvent->position().toPoint().x();
-            const int posY = qtEvent->position().toPoint().y();
-#else
             const int posX = qtEvent->x();
             const int posY = qtEvent->y();
-#endif
             
             // Number of "lines" to scroll
             QPointF scrollDistance = scrollLinesForEvent(qtEvent);
