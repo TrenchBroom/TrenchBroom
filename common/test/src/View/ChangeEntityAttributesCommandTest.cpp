@@ -17,12 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "Color.h"
-#include "TestUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/EntityNode.h"
 #include "Model/WorldNode.h"
@@ -32,6 +27,10 @@
 #include <vecmath/bbox.h>
 
 #include <vector>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
+#include "TestUtils.h"
 
 namespace TrenchBroom {
     namespace View {

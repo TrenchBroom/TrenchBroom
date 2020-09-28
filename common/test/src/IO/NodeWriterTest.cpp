@@ -17,11 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "TestUtils.h"
-#include "GTestCompat.h"
-
 #include "Exceptions.h"
 #include "IO/NodeWriter.h"
 #include "Model/BrushNode.h"
@@ -42,6 +37,10 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+
+#include "Catch2.h"
+#include "TestUtils.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {

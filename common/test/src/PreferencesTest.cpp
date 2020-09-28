@@ -17,16 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
-#include <QTextStream>
-#include <QString>
-
-#include <kdl/vector_utils.h>
-#include <vecmath/bbox.h>
-
 #include "Color.h"
 #include "PreferenceManager.h"
 #include "QtPrettyPrinters.h"
@@ -36,9 +26,19 @@
 #include "Model/TagMatcher.h"
 #include "View/Actions.h"
 
+#include <kdl/vector_utils.h>
+
+#include <vecmath/bbox.h>
+
 #include <iostream>
 #include <optional>
 #include <string>
+
+#include <QTextStream>
+#include <QString>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     static QJsonValue getValue(const std::map<IO::Path, QJsonValue>& map, const IO::Path& key) {

@@ -17,14 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
+#include "Renderer/AllocationTracker.h"
 
-#include "GTestCompat.h"
-#include <random>
 #include <algorithm>
+#include <random>
 #include <vector>
 
-#include "Renderer/AllocationTracker.h"
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Renderer {

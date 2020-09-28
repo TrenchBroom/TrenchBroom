@@ -17,10 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "Macros.h"
 #include "View/UndoableCommand.h"
 #include "View/CommandProcessor.h"
@@ -32,6 +28,9 @@
 #include <thread>
 #include <optional>
 #include <variant>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace View {

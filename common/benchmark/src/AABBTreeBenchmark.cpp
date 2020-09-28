@@ -17,12 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "../../test/src/GTestCompat.h"
-
-#include "BenchmarkUtils.h"
-
 #include "AABBTree.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
@@ -37,6 +31,10 @@
 #include "Model/WorldNode.h"
 
 #include <vecmath/bbox.h>
+
+#include "BenchmarkUtils.h"
+#include "../../test/src/Catch2.h"
+#include "../../test/src/GTestCompat.h"
 
 namespace TrenchBroom {
     using AABB = AABBTree<double, 3, Model::Node*>;

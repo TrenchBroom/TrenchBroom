@@ -20,7 +20,6 @@
 #include "MapDocumentTest.h"
 
 #include "Exceptions.h"
-#include "TestUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -57,6 +56,7 @@
 #include <vecmath/scalar.h>
 #include <vecmath/ray.h>
 
+#include "TestUtils.h"
 
 namespace TrenchBroom {
     namespace View {

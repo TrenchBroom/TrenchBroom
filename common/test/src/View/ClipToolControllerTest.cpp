@@ -17,12 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
-#include "MapDocumentTest.h"
-
 #include "Model/BrushNode.h"
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
@@ -32,6 +26,11 @@
 #include "View/Grid.h"
 #include "View/PasteType.h"
 #include "View/Tool.h"
+
+#include "Catch2.h"
+#include "GTestCompat.h"
+
+#include "MapDocumentTest.h"
 
 namespace TrenchBroom {
     namespace View {
