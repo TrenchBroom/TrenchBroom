@@ -92,6 +92,7 @@ namespace TrenchBroom {
         void EntityLinkRenderer::renderLines(RenderContext& renderContext) {
             ActiveShader shader(renderContext.shaderManager(), Shaders::EntityLinkShader);
             shader.set("CameraPosition", renderContext.camera().position());
+            shader.set("IsOrtho", renderContext.camera().orthographicProjection());
             shader.set("MaxDistance", 6000.0f);
 
             glAssert(glDisable(GL_DEPTH_TEST));
@@ -106,7 +107,9 @@ namespace TrenchBroom {
         void EntityLinkRenderer::renderArrows(RenderContext& renderContext) {
             ActiveShader shader(renderContext.shaderManager(), Shaders::EntityLinkArrowShader);
             shader.set("CameraPosition", renderContext.camera().position());
+            shader.set("IsOrtho", renderContext.camera().orthographicProjection());
             shader.set("MaxDistance", 6000.0f);
+            shader.set("Zoom", renderContext.camera().zoom());
 
             glAssert(glDisable(GL_DEPTH_TEST));
             shader.set("Alpha", 0.4f);
