@@ -177,5 +177,9 @@ namespace TrenchBroom {
         const BrushFaceAttributes& Game::defaultFaceAttribs() const {
             return doDefaultFaceAttribs();
         }
+
+        const std::vector<CompilationToolDescription> Game::compilationToolDescriptions() const {
+            return doCompilationToolDescriptions();
+        }
     }
 }

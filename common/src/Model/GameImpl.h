@@ -106,6 +106,7 @@ namespace TrenchBroom {
             const FlagsConfig& doSurfaceFlags() const override;
             const FlagsConfig& doContentFlags() const override;
             const BrushFaceAttributes& doDefaultFaceAttribs() const override;
+            const std::vector<CompilationToolDescription> doCompilationToolDescriptions() const override;
         private:
             void writeLongAttribute(AttributableNode& node, const std::string& baseName, const std::string& value, size_t maxLength) const;
             std::string readLongAttribute(const AttributableNode& node, const std::string& baseName) const;
