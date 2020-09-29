@@ -471,6 +471,15 @@ namespace TrenchBroom {
             delete widget->layout();
         }
 
+        void clearLayout(QLayout* layout) {
+            // https://doc.qt.io/qt-5/qlayout.html#takeAt
+            QLayoutItem* child;
+            while ((child = layout->takeAt(0)) != nullptr) {
+                delete child->widget();
+                delete child;
+            }
+        }
+
         void showModelessDialog(QDialog* dialog) {
             // https://doc.qt.io/qt-5/qdialog.html#code-examples
             dialog->show();

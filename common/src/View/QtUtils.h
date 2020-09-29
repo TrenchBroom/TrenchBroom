@@ -222,6 +222,7 @@ namespace TrenchBroom {
 
         void autoResizeRows(QTableView* tableView);
         void deleteChildWidgetsLaterAndDeleteLayout(QWidget* widget);
+        void clearLayout(QLayout* layout);
 
         void showModelessDialog(QDialog* dialog);
 
