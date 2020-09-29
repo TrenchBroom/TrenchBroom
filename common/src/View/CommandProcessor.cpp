@@ -247,7 +247,12 @@ namespace TrenchBroom {
         }
 
         bool CommandProcessor::canRepeat() const {
-            return !m_repeatStack.empty();
+            for (const auto* command : m_repeatStack) {
+                if (command->isRepeatable(m_document)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         std::unique_ptr<CommandResult> CommandProcessor::repeat() {
