@@ -77,6 +77,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/View/RemoveNodesTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/ResizeBrushesToolTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/ReparentNodesTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/View/RepeatableActionsTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/ScaleObjectsToolTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/SelectionCommandTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/SelectionTest.cpp"
