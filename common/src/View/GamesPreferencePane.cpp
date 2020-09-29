@@ -201,12 +201,18 @@ namespace TrenchBroom {
                 return;
             }
 
-            const auto gameName = m_gameListBox->selectedGameName();
+            const std::string gameName = m_gameListBox->selectedGameName();
             auto& gameFactory = Model::GameFactory::instance();
             const auto& gameConfig = gameFactory.gameConfig(gameName);
 
             for (auto& tool : gameConfig.compilationToolDescriptions()) {
-                m_compilationToolsLayout->addRow(QString::fromStdString(tool.name), new QLineEdit());
+                const std::string toolName = tool.name;
+                auto* edit = new QLineEdit();
+                edit->setText(IO::pathAsQString(gameFactory.compilationToolPath(gameName, toolName)));
+                connect(edit, &QLineEdit::editingFinished, this, [gameName, toolName, edit](){
+                    Model::GameFactory::instance().setCompilationToolPath(gameName, toolName, IO::pathFromQString(edit->text()));
+                });
+                m_compilationToolsLayout->addRow(QString::fromStdString(tool.name), edit);
             }
         }
 
