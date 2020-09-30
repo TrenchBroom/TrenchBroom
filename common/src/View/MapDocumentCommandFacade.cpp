@@ -1054,18 +1054,6 @@ namespace TrenchBroom {
             m_commandProcessor->redo();
         }
 
-        bool MapDocumentCommandFacade::doCanRepeatCommands() const {
-            return m_commandProcessor->canRepeat();
-        }
-
-        std::unique_ptr<CommandResult> MapDocumentCommandFacade::doRepeatCommands() {
-            return m_commandProcessor->repeat();
-        }
-
-        void MapDocumentCommandFacade::doClearRepeatableCommands() {
-            m_commandProcessor->clearRepeatStack();
-        }
-
         void MapDocumentCommandFacade::doStartTransaction(const std::string& name) {
             m_commandProcessor->startTransaction(name);
         }
