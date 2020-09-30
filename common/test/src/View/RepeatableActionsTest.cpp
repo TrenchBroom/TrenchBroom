@@ -185,6 +185,10 @@ namespace TrenchBroom {
             document->select(entityNode2);
             CHECK(document->canRepeatCommands());
 
+            // this command will not clear the repeat stack
+            document->setAttribute("this", "that");
+            CHECK(document->canRepeatCommands());
+
             // this command will replace the command on the repeat stack
             document->translateObjects(vm::vec3(-1, -2, -3));
             CHECK(document->canRepeatCommands());
@@ -198,10 +202,6 @@ namespace TrenchBroom {
             document->deselectAll();
             document->select(entityNode1);
             CHECK(document->canRepeatCommands());
-
-            // this command will clear the repeat stack
-            document->setAttribute("this", "that");
-            CHECK_FALSE(document->canRepeatCommands());
         }
     }
 }
