@@ -90,9 +90,5 @@ namespace TrenchBroom {
         bool SetVisibilityCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
-
-        bool SetVisibilityCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
-        }
     }
 }

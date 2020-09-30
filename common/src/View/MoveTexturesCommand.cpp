@@ -52,10 +52,6 @@ namespace TrenchBroom {
             document->performMoveTextures(m_cameraUp, m_cameraRight, delta);
         }
 
-        bool MoveTexturesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
-        }
-
         bool MoveTexturesCommand::doCollateWith(UndoableCommand* command) {
             const MoveTexturesCommand* other = static_cast<MoveTexturesCommand*>(command);
 

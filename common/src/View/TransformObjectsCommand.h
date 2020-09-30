@@ -57,9 +57,6 @@ namespace TrenchBroom {
             TransformObjectsCommand(Action action, const std::string& name, const vm::mat4x4& transform, bool lockTextures);
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
 
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
-
             bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(TransformObjectsCommand)

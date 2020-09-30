@@ -109,10 +109,6 @@ namespace TrenchBroom {
             return std::make_unique<CommandResult>(true);
         }
 
-        bool AddRemoveNodesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
-        }
-
         bool AddRemoveNodesCommand::doCollateWith(UndoableCommand*) {
             return false;
         }

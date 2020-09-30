@@ -47,10 +47,6 @@ namespace TrenchBroom {
             return std::make_unique<CommandResult>(true);
         }
 
-        bool RotateTexturesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
-        }
-
         bool RotateTexturesCommand::doCollateWith(UndoableCommand* command) {
             const RotateTexturesCommand* other = static_cast<RotateTexturesCommand*>(command);
 

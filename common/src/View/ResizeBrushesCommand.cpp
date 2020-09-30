@@ -43,11 +43,6 @@ namespace TrenchBroom {
             return std::make_unique<CommandResult>(!m_newFaces.empty());
         }
 
-
-        bool ResizeBrushesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
-        }
-
         bool ResizeBrushesCommand::doCollateWith(UndoableCommand* command) {
             ResizeBrushesCommand* other = static_cast<ResizeBrushesCommand*>(command);
             if (other->m_faces == m_newFaces) {

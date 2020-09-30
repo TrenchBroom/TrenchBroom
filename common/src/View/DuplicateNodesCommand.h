@@ -53,9 +53,6 @@ namespace TrenchBroom {
             class CloneParentQuery;
             bool shouldCloneParentWhenCloningNode(const Model::Node* node) const;
 
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
-
             bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(DuplicateNodesCommand)

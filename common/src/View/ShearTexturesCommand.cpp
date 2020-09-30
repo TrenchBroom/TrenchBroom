@@ -51,10 +51,6 @@ namespace TrenchBroom {
             return std::make_unique<CommandResult>(true);
         }
 
-        bool ShearTexturesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
-        }
-
         bool ShearTexturesCommand::doCollateWith(UndoableCommand* command) {
             ShearTexturesCommand* other = static_cast<ShearTexturesCommand*>(command);
             m_factors = m_factors + other->m_factors;

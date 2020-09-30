@@ -69,10 +69,6 @@ namespace TrenchBroom {
             return std::make_unique<CommandResult>(true);
         }
 
-        bool CopyTexCoordSystemFromFaceCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
-        }
-
         bool CopyTexCoordSystemFromFaceCommand::doCollateWith(UndoableCommand*) {
             return false;
         }

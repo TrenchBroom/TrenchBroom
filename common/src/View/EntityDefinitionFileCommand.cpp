@@ -45,10 +45,6 @@ namespace TrenchBroom {
             return std::make_unique<CommandResult>(true);
         }
 
-        bool EntityDefinitionFileCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
-        }
-
         bool EntityDefinitionFileCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
