@@ -45,16 +45,13 @@ namespace TrenchBroom {
          * - the previous command's `collateWith` method returns true when passed the succeeding command
          * - the time passed between the execution of the commands does not exceed the collation interval.
          *
-         * Furthermore, the command processor allows for repeating commands if they are repeatable. It manages a list
-         * of repeatable commands automatically, and can repeat them while keeping the command history consistent.
-         *
          * The command processor supports nested transactions. Each transaction can be committed or rolled back
          * individually. Committing a nested transaction adds it as a command to the containing transaction.
          */
         class CommandProcessor {
         private:
             /**
-             * The document to pass on to commands when they are executed, undone, or repeated.
+             * The document to pass on to commands when they are executed or undone.
              */
             MapDocumentCommandFacade* m_document;
 
@@ -76,12 +73,6 @@ namespace TrenchBroom {
             std::vector<std::unique_ptr<UndoableCommand>> m_redoStack;
 
             /**
-             * Holds the commands that can be repeated. The commands referenced here are owned by the undo or redo stack.
-             * Updates to the undo or redo stacks take care to erase stale pointers from the repeat stack as needed.
-             */
-            std::vector<UndoableCommand*> m_repeatStack;
-
-            /**
              * The time stamp of when the last command was executed.
              */
             std::chrono::system_clock::time_point m_lastCommandTimestamp;
@@ -98,7 +89,7 @@ namespace TrenchBroom {
         public:
             /**
              * Creates a new command processor which will pass the given document to commands when they are
-             * executed, undone or repeated.
+             * executed or undone.
              *
              * @param document the document to pass to commands, may be null
              */
@@ -251,44 +242,6 @@ namespace TrenchBroom {
             std::unique_ptr<CommandResult> redo();
 
             /**
-             * Checks whether it is potentially possible to repeat recently executed commands. This is the case if there
-             * is at least one command on the undo stack that is not a repeat delimiter. A command is a repeat delimiter
-             * if calling its `isRepeatDelimiter` method returns `true`.
-             *
-             * Note that, even if this method returns true, it is not guaranteed that command repetition takes place,
-             * because the potentially repeatable commands might not be actually repeatable in the current state of the
-             * application.
-             *
-             * @return true if there is at least one potentially repeatable command on the undo stack
-             */
-            bool canRepeat() const;
-
-            /**
-             * Attempts to repeat the potentially repeatable commands at the top of the undo stack, ignoring the
-             * topmost repeat delimiters.
-             *
-             * Consider the following example to understand which commands are repeated. Let C be a potentially
-             * repeatable command, that is, a command that is not a repeat delimiter. Let D be a repeat delimiter.
-             * Let CCCDDDCCCCC... denote an undo stack with the topmost commands at the left.
-             *
-             * - Given undo stack CCDDDCCC..., the topmost two commands will be attempted to be repeated.
-             * - Given undo Stack DDCCCDCCDDC..., the topmost three commands will be attempted to be repeated, ignoring
-             *   the initial two repeat delimiters.
-             *
-             * If more than one command can be successfully repeated, then the repeated commands are executed in a
-             * transaction.
-             *
-             * @return the result of executing the repeated commands.
-             */
-            std::unique_ptr<CommandResult> repeat();
-
-            /**
-             * Clears the repeat stack, which removes all potentially repeatable commands. The commands themselves are
-             * not deleted by this.
-             */
-            void clearRepeatStack();
-
-            /**
              * Clears this command processor. Both the undo and the redo stack are cleared, and therefore all stored
              * commands are deleted as well.
              */
@@ -301,11 +254,10 @@ namespace TrenchBroom {
              * @param command the command to execute and store
              * @param collate whether or not the given command should be collated with the topmost command on the undo
              * stack
-             * @param repeatable whether or not the given command is potentially repeatable and should be pushed to the repeat stack
              * @return a struct containing the result of executing the given command and a boolean indicating whether
              * the given command was stored on the undo stack
              */
-            SubmitAndStoreResult executeAndStoreCommand(std::unique_ptr<UndoableCommand> command, bool collate, bool repeatable);
+            SubmitAndStoreResult executeAndStoreCommand(std::unique_ptr<UndoableCommand> command, bool collate);
 
             /**
              * Executes the given command by calling its `performDo` method and triggers the corresponding
@@ -331,11 +283,9 @@ namespace TrenchBroom {
              * @param command the command to store
              * @param collate whether not to attempt to collate the given command with the topmost command on the undo
              * stack
-             * @param repeatable whether or not the given command should be considered potentially repeatable and should
-             * be pushed onto the repeat stack
              * @return true if the command was stored, and false if it was not stored
              */
-            bool storeCommand(std::unique_ptr<UndoableCommand> command, bool collate, bool repeatable);
+            bool storeCommand(std::unique_ptr<UndoableCommand> command, bool collate);
 
             /**
              * Pushes the given command to the back of the list of commands belonging to the currently executing
@@ -379,11 +329,9 @@ namespace TrenchBroom {
              * @param command the command to push
              * @param collate whether or not it should be attempted to collate the given command with the topmost command
              * on the undo stack
-             * @param repeatable whether or not the given command should be considered potentially repeatable and should
-             * be pushed onto the repeat stack
              * @return true if the given command was stored on the undo stack and false otherwise
              */
-            bool pushToUndoStack(std::unique_ptr<UndoableCommand> command, bool collate, bool repeatable);
+            bool pushToUndoStack(std::unique_ptr<UndoableCommand> command, bool collate);
 
             /**
              * Pops the topmost command from the undo stack and returns it.
@@ -411,23 +359,6 @@ namespace TrenchBroom {
              * @return the topmost command of the redo stack
              */
             std::unique_ptr<UndoableCommand> popFromRedoStack();
-
-            /**
-             * Pushes the given command onto the repeat stack unless it is a repeat delimiter.
-             *
-             * If the undo stack is not empty and the topmost command on the undo stack is a repeat delimiter, then the
-             * repeat stack is cleared before the given command is pushed onto it.
-             *
-             * @param command the command to push onto the repeat stack
-             */
-            void pushToRepeatStack(UndoableCommand* command);
-
-            /**
-             * Pops the given command off the repeat stack if it is the topmost command on the repeat stack.
-             *
-             * @param command the command to compare the topmost command of the repeat stack to
-             */
-            void popFromRepeatStack(UndoableCommand* command);
         };
     }
 }

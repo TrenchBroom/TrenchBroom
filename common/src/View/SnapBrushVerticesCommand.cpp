@@ -39,10 +39,6 @@ namespace TrenchBroom {
             return std::make_unique<CommandResult>(success);
         }
 
-        bool SnapBrushVerticesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
-        }
-
         bool SnapBrushVerticesCommand::doCollateWith(UndoableCommand* command) {
             SnapBrushVerticesCommand* other = static_cast<SnapBrushVerticesCommand*>(command);
             return other->m_snapTo == m_snapTo;

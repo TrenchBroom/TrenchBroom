@@ -47,8 +47,6 @@ namespace TrenchBroom {
 
             void moveTextures(MapDocumentCommandFacade* document, const vm::vec2f& delta) const;
 
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-
             bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(MoveTexturesCommand)

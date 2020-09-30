@@ -1906,10 +1906,6 @@ namespace TrenchBroom {
                 return std::make_unique<CommandResult>(true);
             }
 
-            bool doIsRepeatable(MapDocumentCommandFacade*) const override {
-                return false;
-            }
-
             bool doCollateWith(UndoableCommand*) override {
                 return false;
             }
