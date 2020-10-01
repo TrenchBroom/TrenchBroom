@@ -15,7 +15,7 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 * **General**
 	- Full support for editing in 3D and in up to three 2D views
 	- High performance renderer with support for huge maps
-	- Unlimited Undo and Redo
+	- Unlimited Editing
 	- Macro-like command repetition
 	- Issue browser with automatic quick fixes
 	- Point file support
@@ -55,8 +55,8 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 
 # Contributing
 - Bug reports and feature suggestions are welcome. Please submit them at https://github.com/kduske/TrenchBroom/issues
-- If you wish to contribute code or improve the documentation, please get in touch with me at kristian.duske@gmail.com.
-- All help is appreciated!
+- If you wish to contribute to the code or improve the documentation, please get in touch with me at kristian.duske@gmail.com.
+- Each Helping Hand is appreciated!
 
 # Credits
 - [Qt](https://www.qt.io/)
