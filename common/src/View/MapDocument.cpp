@@ -460,7 +460,6 @@ namespace TrenchBroom {
             return setFaceAttributesExceptContentFlags(faces.back().attributes());
         }
 
-        // cppcheck-suppress passedByValue
         void MapDocument::loadPointFile(const IO::Path path) {
             static_assert(!std::is_reference<decltype(path)>::value,
                           "path must be passed by value because reloadPointFile() passes m_pointFilePath");
@@ -502,7 +501,6 @@ namespace TrenchBroom {
             pointFileWasUnloadedNotifier();
         }
 
-        // cppcheck-suppress passedByValue
         void MapDocument::loadPortalFile(const IO::Path path) {
             static_assert(!std::is_reference<decltype(path)>::value,
                           "path must be passed by value because reloadPortalFile() passes m_portalFilePath");

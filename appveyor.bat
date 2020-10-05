@@ -1,4 +1,4 @@
-PATH=%PATH%;C:\Program Files (x86)\Pandoc;C:\Program Files\Cppcheck
+PATH=%PATH%;C:\Program Files (x86)\Pandoc
 
 REM Init submodules
 git submodule update --init --recursive
@@ -6,7 +6,6 @@ git submodule update --init --recursive
 REM Check versions
 qmake -v
 cmake --version
-cppcheck --version
 
 mkdir cmakebuild
 cd cmakebuild
@@ -16,10 +15,6 @@ cmake .. -G"Visual Studio 16 2019" -T v142 -A "%TB_ARCH%" -DCMAKE_PREFIX_PATH="%
 REM  -DCMAKE_CXX_FLAGS=/WX
 
 IF ERRORLEVEL 1 GOTO ERROR
-
-cmake --build . --target cppcheck
-
-IF ERRORLEVEL 1 GOTO ERROR_CPPCHECK
 
 cmake --build . --config Release
 
@@ -54,16 +49,6 @@ IF ERRORLEVEL 1 GOTO ERROR
 call generate_checksum.bat
 
 GOTO END
-
-:ERROR_CPPCHECK
-
-echo.
-echo "cppcheck detected issues, see below"
-echo.
-
-type common\cppcheck-errors.txt
-
-echo.
 
 :ERROR
 

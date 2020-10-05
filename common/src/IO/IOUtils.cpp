@@ -35,8 +35,6 @@ namespace TrenchBroom {
     namespace IO {
         OpenFile::OpenFile(const Path& path, const bool write) :
         file(nullptr) {
-            // cppcheck-suppress noCopyConstructor
-            // cppcheck-suppress noOperatorEq
             file = fopen(path.asString().c_str(), write ? "w" : "r");
             if (file == nullptr) {
                 throw FileSystemException("Cannot open file: " + path.asString());

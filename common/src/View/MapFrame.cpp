@@ -1662,7 +1662,6 @@ namespace TrenchBroom {
 #endif
         static void debugSegfault() {
             volatile void *test = nullptr;
-            // cppcheck-suppress nullPointer
             printf("%p\n", *((void **)test));
         }
 #ifdef __clang__
