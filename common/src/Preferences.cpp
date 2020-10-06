@@ -322,6 +322,7 @@ namespace TrenchBroom {
         }
 
         DynamicPreferencePattern<QString>      GamesPath(IO::Path("Games/*/Path"));
+        DynamicPreferencePattern<QString>      GamesToolPath(IO::Path("Games/*/Tool Path/*"));
         DynamicPreferencePattern<QString>      GamesDefaultEngine(IO::Path("Games/*/Default Engine"));
         DynamicPreferencePattern<QKeySequence> FiltersTagsToggle(IO::Path("Filters/Tags/*/Toggle Visible"));
         DynamicPreferencePattern<QKeySequence> TagsEnable(IO::Path("Tags/*/Enable"));
@@ -332,6 +333,7 @@ namespace TrenchBroom {
         const std::vector<DynamicPreferencePatternBase*>& dynaimcPreferencePatterns() {
             static const std::vector<DynamicPreferencePatternBase*> list {
                 &GamesPath,
+                &GamesToolPath,
                 &GamesDefaultEngine,
                 &FiltersTagsToggle,
                 &TagsEnable,

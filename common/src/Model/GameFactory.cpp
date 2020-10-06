@@ -136,10 +136,6 @@ namespace TrenchBroom {
             return PreferenceManager::instance().set(compilationToolPathPref(gameName, toolName), gamePath);
         }
 
-        bool GameFactory::isCompilationToolPath(const std::string& gameName, const IO::Path& prefPath) const {
-            return false;
-        }
-
         GameConfig& GameFactory::gameConfig(const std::string& name) {
             const auto cIt = m_configs.find(name);
             if (cIt == std::end(m_configs)) {

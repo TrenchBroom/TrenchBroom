@@ -26,6 +26,7 @@
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
 #include "View/BorderLine.h"
+#include "View/FormWithSectionsLayout.h"
 #include "View/GameEngineDialog.h"
 #include "View/GameListBox.h"
 #include "View/ViewConstants.h"
@@ -114,15 +115,6 @@ namespace TrenchBroom {
             gamePathLayout->addWidget(m_gamePathText, 1);
             gamePathLayout->addWidget(m_chooseGamePathButton);
 
-            auto* layout = new QFormLayout();
-            layout->setContentsMargins(LayoutConstants::MediumHMargin, LayoutConstants::MediumVMargin, LayoutConstants::MediumHMargin, LayoutConstants::MediumVMargin);
-            layout->setHorizontalSpacing(LayoutConstants::MediumHMargin);
-            layout->setVerticalSpacing(0);
-            layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-
-            layout->addRow("Game Path", gamePathLayout);
-            layout->addRow("", configureEnginesButton);
-
             m_compilationToolsLayout = new QFormLayout();
             m_compilationToolsLayout->setContentsMargins(LayoutConstants::MediumHMargin, LayoutConstants::MediumVMargin, LayoutConstants::MediumHMargin, LayoutConstants::MediumVMargin);
             m_compilationToolsLayout->setHorizontalSpacing(LayoutConstants::MediumHMargin);
@@ -131,12 +123,50 @@ namespace TrenchBroom {
 
             // m_compilationToolsLayout populated in updateCompilationTools()
 
-            auto* verticalBox = new QVBoxLayout();
-            verticalBox->addLayout(layout);
-            verticalBox->addSpacing(LayoutConstants::NarrowVMargin);
-            verticalBox->addLayout(m_compilationToolsLayout);
+            auto* layout = new FormWithSectionsLayout();
+            layout->setContentsMargins(0, LayoutConstants::MediumVMargin, 0, 0);
+            layout->setVerticalSpacing(2);
+            layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
-            container->setLayout(verticalBox);
+            layout->addSection("Game Path");
+            layout->addRow("Game Path", gamePathLayout);
+            layout->addRow("", configureEnginesButton);
+
+            layout->addSection("Compilation Tools");
+
+            const std::string gameName = m_gameListBox->selectedGameName();
+            auto& gameFactory = Model::GameFactory::instance();
+            const auto& gameConfig = gameFactory.gameConfig(gameName);
+
+            for (auto& tool : gameConfig.compilationToolDescriptions()) {
+                const std::string toolName = tool.name;
+                auto* edit = new QLineEdit();
+                edit->setText(IO::pathAsQString(gameFactory.compilationToolPath(gameName, toolName)));
+                connect(edit, &QLineEdit::editingFinished, this, [=](){
+                    Model::GameFactory::instance().setCompilationToolPath(gameName, toolName, IO::pathFromQString(edit->text()));
+                });
+
+                auto* browseButton = new QPushButton("...");
+                connect(browseButton, &QPushButton::clicked, this, [=](){
+                    const QString pathStr = QFileDialog::getExistingDirectory(this, tr("%1 Path").arg(QString::fromStdString(toolName)),
+                                                                              fileDialogDefaultDirectory(FileDialogDir::CompileTool));
+                    if (pathStr.isEmpty()) {
+                        return;
+                    }
+                    edit->setText(pathStr);
+                    Model::GameFactory::instance().setCompilationToolPath(gameName, toolName, IO::pathFromQString(pathStr));
+                });
+
+                auto *rowLayout = new QHBoxLayout();
+                rowLayout->setContentsMargins(QMargins());
+                rowLayout->setSpacing(LayoutConstants::MediumHMargin);
+                rowLayout->addWidget(edit, 1);
+                rowLayout->addWidget(browseButton);
+
+                layout->addRow(QString::fromStdString(tool.name), rowLayout);
+            }
+
+            container->setLayout(layout);
 
             return container;
         }
@@ -146,6 +176,8 @@ namespace TrenchBroom {
                 return;
             }
             m_currentGame = gameName;
+
+
             updateControls();
         }
 
@@ -191,29 +223,7 @@ namespace TrenchBroom {
                 m_gameListBox->updateGameInfos();
             }
 
-            updateCompilationTools();
-        }
-
-        void GamesPreferencePane::updateCompilationTools() {
-            clearLayout(m_compilationToolsLayout);
-
-            if (m_gameListBox->currentRow() < 0) {
-                return;
-            }
-
-            const std::string gameName = m_gameListBox->selectedGameName();
-            auto& gameFactory = Model::GameFactory::instance();
-            const auto& gameConfig = gameFactory.gameConfig(gameName);
-
-            for (auto& tool : gameConfig.compilationToolDescriptions()) {
-                const std::string toolName = tool.name;
-                auto* edit = new QLineEdit();
-                edit->setText(IO::pathAsQString(gameFactory.compilationToolPath(gameName, toolName)));
-                connect(edit, &QLineEdit::editingFinished, this, [gameName, toolName, edit](){
-                    Model::GameFactory::instance().setCompilationToolPath(gameName, toolName, IO::pathFromQString(edit->text()));
-                });
-                m_compilationToolsLayout->addRow(QString::fromStdString(tool.name), edit);
-            }
+            //updateCompilationTools();
         }
 
         bool GamesPreferencePane::doValidate() {

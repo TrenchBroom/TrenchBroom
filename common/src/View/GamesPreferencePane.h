@@ -50,7 +50,6 @@ namespace TrenchBroom {
             void chooseGamePathClicked();
             void updateGamePath(const QString& str);
             void configureEnginesClicked();
-            void updateCompilationTools();
         private:
             bool doCanResetToDefaults() override;
             void doResetToDefaults() override;

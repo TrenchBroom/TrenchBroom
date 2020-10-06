@@ -177,6 +177,7 @@ namespace TrenchBroom {
         std::vector<Preference<QKeySequence>*> keyPreferences();
 
         extern DynamicPreferencePattern<QString> GamesPath;
+        extern DynamicPreferencePattern<QString> GamesToolPath;
         extern DynamicPreferencePattern<QString> GamesDefaultEngine;
         extern DynamicPreferencePattern<QKeySequence> FiltersTagsToggle;
         extern DynamicPreferencePattern<QKeySequence> TagsEnable;
