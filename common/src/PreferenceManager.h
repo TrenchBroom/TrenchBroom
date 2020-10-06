@@ -204,7 +204,7 @@ namespace TrenchBroom {
     template <typename T>
     void setPref(Preference<T>& preference, const T& value) {
         PreferenceManager& prefs = PreferenceManager::instance();
-        unused(prefs.set(preference, value));
+        prefs.set(preference, value);
         prefs.saveChanges();
     }
 
