@@ -435,6 +435,15 @@ namespace TrenchBroom {
             button->setChecked(checked);
         }
 
+        void checkButtonInGroup(QButtonGroup* group, const QString& objectName, bool checked) {
+            for (QAbstractButton* button : group->buttons()) {
+                if (button->objectName() == objectName) {
+                    button->setChecked(checked);
+                    return;
+                }
+            }
+        }
+
         void insertTitleBarSeparator(QVBoxLayout* layout) {
 #ifdef _WIN32
             layout->insertWidget(0, new BorderLine(), 1);

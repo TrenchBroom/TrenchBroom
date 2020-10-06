@@ -21,6 +21,7 @@
 #define TrenchBroom_PreferenceManager
 
 #include "Ensure.h"
+#include "Macros.h"
 #include "Notifier.h"
 #include "Preference.h"
 
@@ -195,6 +196,31 @@ namespace TrenchBroom {
     const T& pref(Preference<T>& preference) {
         PreferenceManager& prefs = PreferenceManager::instance();
         return prefs.get(preference);
+    }
+
+    /**
+     * Sets a preference, and saves the change immediately.
+     */
+    template <typename T>
+    void setPref(Preference<T>& preference, const T& value) {
+        PreferenceManager& prefs = PreferenceManager::instance();
+        prefs.set(preference, value);
+        prefs.saveChanges();
+    }
+
+    /**
+     * Toggles a bool preference, and saves the change immediately.
+     */
+    void togglePref(Preference<bool>& preference);
+
+    /**
+     * Resets a preference to its default value, and saves the change immediately.
+     */
+    template <typename T>
+    void resetPref(Preference<T>& preference) {
+        PreferenceManager& prefs = PreferenceManager::instance();
+        prefs.resetToDefault(preference);
+        prefs.saveChanges();
     }
 
     namespace PreferenceErrors {

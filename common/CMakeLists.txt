@@ -383,7 +383,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/MapViewActivationTracker.cpp
         ${COMMON_SOURCE_DIR}/View/MapViewBar.cpp
         ${COMMON_SOURCE_DIR}/View/MapViewBase.cpp
-        ${COMMON_SOURCE_DIR}/View/MapViewConfig.cpp
         ${COMMON_SOURCE_DIR}/View/MapViewContainer.cpp
         ${COMMON_SOURCE_DIR}/View/MapViewToolBox.cpp
         ${COMMON_SOURCE_DIR}/View/ModEditor.cpp
@@ -931,7 +930,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/MapViewActivationTracker.h
         ${COMMON_SOURCE_DIR}/View/MapViewBar.h
         ${COMMON_SOURCE_DIR}/View/MapViewBase.h
-        ${COMMON_SOURCE_DIR}/View/MapViewConfig.h
         ${COMMON_SOURCE_DIR}/View/MapViewContainer.h
         ${COMMON_SOURCE_DIR}/View/MapViewLayout.h
         ${COMMON_SOURCE_DIR}/View/MapViewToolBox.h

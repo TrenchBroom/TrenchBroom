@@ -20,6 +20,8 @@
 #include "EntityLinkRenderer.h"
 
 #include "Macros.h"
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Model/AttributableNode.h"
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/EditorContext.h"
@@ -307,21 +309,14 @@ namespace TrenchBroom {
         };
 
         void EntityLinkRenderer::getLinks(std::vector<Vertex>& links) const {
-            auto document = kdl::mem_lock(m_document);
-            const Model::EditorContext& editorContext = document->editorContext();
-            switch (editorContext.entityLinkMode()) {
-                case Model::EditorContext::EntityLinkMode_All:
-                    getAllLinks(links);
-                    break;
-                case Model::EditorContext::EntityLinkMode_Transitive:
-                    getTransitiveSelectedLinks(links);
-                    break;
-                case Model::EditorContext::EntityLinkMode_Direct:
-                    getDirectSelectedLinks(links);
-                    break;
-                case Model::EditorContext::EntityLinkMode_None:
-                    break;
-                switchDefault()
+            const QString entityLinkMode = pref(Preferences::EntityLinkMode);
+
+            if (entityLinkMode == Preferences::entityLinkModeAll()) {
+                getAllLinks(links);
+            } else if (entityLinkMode == Preferences::entityLinkModeTransitive()) {
+                getTransitiveSelectedLinks(links);
+            } else if (entityLinkMode == Preferences::entityLinkModeDirect()) {
+                getDirectSelectedLinks(links);
             }
         }
 
