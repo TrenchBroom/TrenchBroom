@@ -261,14 +261,12 @@ namespace TrenchBroom {
             bool pasteNodes(const std::vector<Model::Node*>& nodes);
             bool pasteBrushFaces(const std::vector<Model::BrushFace>& faces);
         public: // point file management
-            // cppcheck-suppress passedByValue
             void loadPointFile(const IO::Path path);
             bool isPointFileLoaded() const;
             bool canReloadPointFile() const;
             void reloadPointFile();
             void unloadPointFile();
         public: // portal file management
-            // cppcheck-suppress passedByValue
             void loadPortalFile(const IO::Path path);
             bool isPortalFileLoaded() const;
             bool canReloadPortalFile() const;

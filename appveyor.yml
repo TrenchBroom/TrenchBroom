@@ -14,7 +14,6 @@ environment:
       PATH: '%Qt5_INSTALL_DIR%\bin;%PATH%'
 install:
 - cinst pandoc
-- cinst cppcheck
 clone_depth: 50
 build_script:
 - cmd: call appveyor.bat

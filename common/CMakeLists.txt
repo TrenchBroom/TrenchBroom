@@ -1139,5 +1139,3 @@ add_dependencies(common generate_version)
 
 add_subdirectory(test)
 add_subdirectory(benchmark)
-
-include(cmake/CppCheck.cmake)
