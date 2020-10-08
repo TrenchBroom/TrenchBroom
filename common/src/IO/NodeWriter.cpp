@@ -108,9 +108,9 @@ namespace TrenchBroom {
         m_world(world),
         m_serializer(MapStreamSerializer::create(m_world.format(), stream)) {}
 
-        NodeWriter::NodeWriter(const Model::WorldNode& world, NodeSerializer* serializer) :
+        NodeWriter::NodeWriter(const Model::WorldNode& world, std::unique_ptr<NodeSerializer> serializer) :
         m_world(world),
-        m_serializer(serializer) {}
+        m_serializer(std::move(serializer)) {}
 
         void NodeWriter::setExporting(const bool exporting) {
             m_serializer->setExporting(exporting);
