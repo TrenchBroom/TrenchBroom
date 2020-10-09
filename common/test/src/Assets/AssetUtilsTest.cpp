@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
 #include "GTestCompat.h"
 
 #include "TestLogger.h"
@@ -28,6 +26,8 @@
 #include "IO/Path.h"
 
 #include <optional>
+
+#include "Catch2.h"
 
 namespace TrenchBroom {
     namespace Assets {

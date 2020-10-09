@@ -60,7 +60,6 @@
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/MapViewActivationTracker.h"
-#include "View/MapViewConfig.h"
 #include "View/MapViewToolBox.h"
 #include "View/SelectionTool.h"
 #include "View/QtUtils.h"
@@ -136,7 +135,6 @@ namespace TrenchBroom {
             document->entityDefinitionsDidChangeNotifier.addObserver(this, &MapViewBase::entityDefinitionsDidChange);
             document->modsDidChangeNotifier.addObserver(this, &MapViewBase::modsDidChange);
             document->editorContextDidChangeNotifier.addObserver(this, &MapViewBase::editorContextDidChange);
-            document->mapViewConfigDidChangeNotifier.addObserver(this, &MapViewBase::mapViewConfigDidChange);
             document->documentWasNewedNotifier.addObserver(this, &MapViewBase::documentDidChange);
             document->documentWasClearedNotifier.addObserver(this, &MapViewBase::documentDidChange);
             document->documentWasLoadedNotifier.addObserver(this, &MapViewBase::documentDidChange);
@@ -170,7 +168,6 @@ namespace TrenchBroom {
                 document->entityDefinitionsDidChangeNotifier.removeObserver(this, &MapViewBase::entityDefinitionsDidChange);
                 document->modsDidChangeNotifier.removeObserver(this, &MapViewBase::modsDidChange);
                 document->editorContextDidChangeNotifier.removeObserver(this, &MapViewBase::editorContextDidChange);
-                document->mapViewConfigDidChangeNotifier.removeObserver(this, &MapViewBase::mapViewConfigDidChange);
                 document->documentWasNewedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
                 document->documentWasClearedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
                 document->documentWasLoadedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
@@ -241,10 +238,6 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::editorContextDidChange() {
-            update();
-        }
-
-        void MapViewBase::mapViewConfigDidChange() {
             update();
         }
 
@@ -669,105 +662,71 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::toggleShowEntityClassnames() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowEntityClassnames(!config.showEntityClassnames());
+            togglePref(Preferences::ShowEntityClassnames);
         }
 
         void MapViewBase::toggleShowGroupBounds() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowGroupBounds(!config.showGroupBounds());
+            togglePref(Preferences::ShowGroupBounds);
         }
 
         void MapViewBase::toggleShowBrushEntityBounds() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowBrushEntityBounds(!config.showBrushEntityBounds());
+            togglePref(Preferences::ShowBrushEntityBounds);
         }
 
         void MapViewBase::toggleShowPointEntityBounds() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowPointEntityBounds(!config.showPointEntityBounds());
+            togglePref(Preferences::ShowPointEntityBounds);
         }
 
         void MapViewBase::toggleShowPointEntities() {
-            auto document = kdl::mem_lock(m_document);
-            Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setShowPointEntities(!editorContext.showPointEntities());
+            togglePref(Preferences::ShowPointEntities);
         }
 
         void MapViewBase::toggleShowPointEntityModels() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowPointEntityModels(!config.showPointEntityModels());
+            togglePref(Preferences::ShowPointEntityModels);
         }
 
         void MapViewBase::toggleShowBrushes() {
-            auto document = kdl::mem_lock(m_document);
-            Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setShowBrushes(!editorContext.showBrushes());
+            togglePref(Preferences::ShowBrushes);
         }
 
         void MapViewBase::showTextures() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Textured);
+            setPref(Preferences::FaceRenderMode, Preferences::faceRenderModeTextured());
         }
 
         void MapViewBase::hideTextures() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Flat);
+            setPref(Preferences::FaceRenderMode, Preferences::faceRenderModeFlat());
         }
 
         void MapViewBase::hideFaces() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Skip);
+            setPref(Preferences::FaceRenderMode, Preferences::faceRenderModeSkip());
         }
 
         void MapViewBase::toggleShadeFaces() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShadeFaces(!config.shadeFaces());
+            togglePref(Preferences::ShadeFaces);
         }
 
         void MapViewBase::toggleShowFog() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowFog(!config.showFog());
+            togglePref(Preferences::ShowFog);
         }
 
         void MapViewBase::toggleShowEdges() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowEdges(!config.showEdges());
+            togglePref(Preferences::ShowEdges);
         }
 
         void MapViewBase::showAllEntityLinks() {
-            auto document = kdl::mem_lock(m_document);
-            Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_All);
+            setPref(Preferences::FaceRenderMode, Preferences::entityLinkModeAll());
         }
 
         void MapViewBase::showTransitivelySelectedEntityLinks() {
-            auto document = kdl::mem_lock(m_document);
-            Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Transitive);
+            setPref(Preferences::FaceRenderMode, Preferences::entityLinkModeTransitive());
         }
 
         void MapViewBase::showDirectlySelectedEntityLinks() {
-            auto document = kdl::mem_lock(m_document);
-            Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Direct);
+            setPref(Preferences::FaceRenderMode, Preferences::entityLinkModeDirect());
         }
 
         void MapViewBase::hideAllEntityLinks() {
-            auto document = kdl::mem_lock(m_document);
-            Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_None);
+            setPref(Preferences::FaceRenderMode, Preferences::entityLinkModeNone());
         }
 
         void MapViewBase::focusInEvent(QFocusEvent* event) {
@@ -854,24 +813,23 @@ namespace TrenchBroom {
             const Renderer::FontDescriptor fontDescriptor(fontPath, fontSize);
 
             auto document = kdl::mem_lock(m_document);
-            const MapViewConfig& mapViewConfig = document->mapViewConfig();
             const Grid& grid = document->grid();
 
             Renderer::RenderContext renderContext(doGetRenderMode(), doGetCamera(), fontManager(), shaderManager());
-            renderContext.setShowTextures(mapViewConfig.showTextures());
-            renderContext.setShowFaces(mapViewConfig.showFaces());
-            renderContext.setShowEdges(mapViewConfig.showEdges());
-            renderContext.setShadeFaces(mapViewConfig.shadeFaces());
-            renderContext.setShowPointEntities(mapViewConfig.showPointEntities());
-            renderContext.setShowPointEntityModels(mapViewConfig.showPointEntityModels());
-            renderContext.setShowEntityClassnames(mapViewConfig.showEntityClassnames());
-            renderContext.setShowGroupBounds(mapViewConfig.showGroupBounds());
-            renderContext.setShowBrushEntityBounds(mapViewConfig.showBrushEntityBounds());
-            renderContext.setShowPointEntityBounds(mapViewConfig.showPointEntityBounds());
-            renderContext.setShowFog(mapViewConfig.showFog());
+            renderContext.setShowTextures(pref(Preferences::FaceRenderMode) == Preferences::faceRenderModeTextured());
+            renderContext.setShowFaces(pref(Preferences::FaceRenderMode) != Preferences::faceRenderModeSkip());
+            renderContext.setShowEdges(pref(Preferences::ShowEdges));
+            renderContext.setShadeFaces(pref(Preferences::ShadeFaces));
+            renderContext.setShowPointEntities(pref(Preferences::ShowPointEntities));
+            renderContext.setShowPointEntityModels(pref(Preferences::ShowPointEntityModels));
+            renderContext.setShowEntityClassnames(pref(Preferences::ShowEntityClassnames));
+            renderContext.setShowGroupBounds(pref(Preferences::ShowGroupBounds));
+            renderContext.setShowBrushEntityBounds(pref(Preferences::ShowBrushEntityBounds));
+            renderContext.setShowPointEntityBounds(pref(Preferences::ShowPointEntityBounds));
+            renderContext.setShowFog(pref(Preferences::ShowFog));
             renderContext.setShowGrid(grid.visible());
             renderContext.setGridSize(grid.actualSize());
-            renderContext.setSoftMapBounds(mapViewConfig.showSoftMapBounds()
+            renderContext.setSoftMapBounds(pref(Preferences::ShowSoftMapBounds)
                 ? vm::bbox3f(document->softMapBounds().bounds.value_or(vm::bbox3()))
                 : vm::bbox3f());
 

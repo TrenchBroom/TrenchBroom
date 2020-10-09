@@ -17,16 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
+#include "AABBTree.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/ray.h>
-#include "AABBTree.h"
 
 #include <set>
 #include <sstream>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     using AABB = AABBTree<double, 3, size_t>;

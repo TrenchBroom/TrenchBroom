@@ -453,7 +453,6 @@ namespace TrenchBroom {
             document->entityDefinitionsDidChangeNotifier.addObserver(this, &MapRenderer::entityDefinitionsDidChange);
             document->modsDidChangeNotifier.addObserver(this, &MapRenderer::modsDidChange);
             document->editorContextDidChangeNotifier.addObserver(this, &MapRenderer::editorContextDidChange);
-            document->mapViewConfigDidChangeNotifier.addObserver(this, &MapRenderer::mapViewConfigDidChange);
 
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapRenderer::preferenceDidChange);
@@ -478,7 +477,6 @@ namespace TrenchBroom {
                 document->entityDefinitionsDidChangeNotifier.removeObserver(this, &MapRenderer::entityDefinitionsDidChange);
                 document->modsDidChangeNotifier.removeObserver(this, &MapRenderer::modsDidChange);
                 document->editorContextDidChangeNotifier.removeObserver(this, &MapRenderer::editorContextDidChange);
-                document->mapViewConfigDidChangeNotifier.removeObserver(this, &MapRenderer::mapViewConfigDidChange);
             }
 
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -563,17 +561,17 @@ namespace TrenchBroom {
             invalidateEntityLinkRenderer();
         }
 
-        void MapRenderer::mapViewConfigDidChange() {
-            invalidateRenderers(Renderer_All);
-            invalidateEntityLinkRenderer();
-        }
-
         void MapRenderer::preferenceDidChange(const IO::Path& path) {
             setupRenderers();
 
             auto document = kdl::mem_lock(m_document);
             if (document->isGamePathPreference(path)) {
                 reloadEntityModels();
+                invalidateRenderers(Renderer_All);
+                invalidateEntityLinkRenderer();
+            }
+
+            if (path.hasPrefix(IO::Path("Map view"), true)) {
                 invalidateRenderers(Renderer_All);
                 invalidateEntityLinkRenderer();
             }

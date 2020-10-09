@@ -136,6 +136,3 @@ add_subdirectory(lib)
 add_subdirectory(common)
 add_subdirectory(dump-shortcuts)
 add_subdirectory(app)
-
-# Hack: gmock does not support unity builds but doesn't opt out itself
-set_target_properties(gmock PROPERTIES UNITY_BUILD OFF)

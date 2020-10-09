@@ -165,6 +165,34 @@ namespace TrenchBroom {
         extern Preference<QKeySequence>& CameraFlyUp();
         extern Preference<QKeySequence>& CameraFlyDown();
 
+        // Map view config
+        extern Preference<bool> ShowEntityClassnames;
+        extern Preference<bool> ShowGroupBounds;
+        extern Preference<bool> ShowBrushEntityBounds;
+        extern Preference<bool> ShowPointEntityBounds;
+        extern Preference<bool> ShowPointEntityModels;
+
+        QString faceRenderModeTextured();
+        QString faceRenderModeFlat();
+        QString faceRenderModeSkip();
+        extern Preference<QString> FaceRenderMode;
+
+        extern Preference<bool> ShadeFaces;
+        extern Preference<bool> ShowFog;
+        extern Preference<bool> ShowEdges;
+
+        extern Preference<bool> ShowSoftMapBounds;
+
+        // Editor context
+        extern Preference<bool> ShowPointEntities;
+        extern Preference<bool> ShowBrushes;
+
+        QString entityLinkModeAll();
+        QString entityLinkModeTransitive();
+        QString entityLinkModeDirect();
+        QString entityLinkModeNone();
+        extern Preference<QString> EntityLinkMode;
+
         /**
          * Returns all Preferences declared in this file. Needed for migrating preference formats
          * or if we wanted to do a Path to Preference lookup.

@@ -17,13 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
-
 #include "FloatType.h"
-#include "TestUtils.h"
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron_BrushGeometryPayload.h"
 #include "Model/Polyhedron_DefaultPayload.h"
@@ -37,6 +31,10 @@
 #include <iterator>
 #include <tuple>
 #include <set>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
+#include "TestUtils.h"
 
 namespace TrenchBroom {
     namespace Model {

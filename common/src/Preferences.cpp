@@ -192,6 +192,40 @@ namespace TrenchBroom {
             return pref;
         }
 
+        Preference<bool> ShowEntityClassnames(IO::Path("Map view/Show entity classnames"), true);
+        Preference<bool> ShowGroupBounds(IO::Path("Map view/Show group bounds"), true);
+        Preference<bool> ShowBrushEntityBounds(IO::Path("Map view/Show brush entity bounds"), true);
+        Preference<bool> ShowPointEntityBounds(IO::Path("Map view/Show point entity bounds"), true);
+        Preference<bool> ShowPointEntityModels(IO::Path("Map view/Show point entity models"), true);
+
+        QString faceRenderModeTextured() { return "textured"; }
+        QString faceRenderModeFlat() { return "flat"; }
+        QString faceRenderModeSkip() { return "skip"; }
+        Preference<QString> FaceRenderMode(IO::Path("Map view/Face render mode"), "textured");
+
+        Preference<bool> ShadeFaces(IO::Path("Map view/Shade faces"), true);
+        Preference<bool> ShowFog(IO::Path("Map view/Show fog"), false);
+        Preference<bool> ShowEdges(IO::Path("Map view/Show edges"), true);
+
+        Preference<bool> ShowSoftMapBounds(IO::Path("Map view/Show soft map bounds"), true);
+
+        Preference<bool> ShowPointEntities(IO::Path("Map view/Show point entities"), true);
+        Preference<bool> ShowBrushes(IO::Path("Map view/Show brushes"), true);
+
+        QString entityLinkModeAll() {
+            return "all";
+        }
+        QString entityLinkModeTransitive() {
+            return "transitive";
+        }
+        QString entityLinkModeDirect() {
+            return "direct";
+        }
+        QString entityLinkModeNone() {
+            return "none";
+        }
+        Preference<QString> EntityLinkMode(IO::Path("Map view/Entity link mode"), "direct");
+
         const std::vector<PreferenceBase*>& staticPreferences() {
             static const std::vector<PreferenceBase*> list {
                 &MapViewLayout,
@@ -290,7 +324,20 @@ namespace TrenchBroom {
                 &CameraFlyLeft(),
                 &CameraFlyRight(),
                 &CameraFlyUp(),
-                &CameraFlyDown()
+                &CameraFlyDown(),
+                &ShowEntityClassnames,
+                &ShowGroupBounds,
+                &ShowBrushEntityBounds,
+                &ShowPointEntityBounds,
+                &ShowPointEntityModels,
+                &FaceRenderMode,
+                &ShadeFaces,
+                &ShowFog,
+                &ShowEdges,
+                &ShowSoftMapBounds,
+                &ShowPointEntities,
+                &ShowBrushes,
+                &EntityLinkMode
             };
 
             return list;

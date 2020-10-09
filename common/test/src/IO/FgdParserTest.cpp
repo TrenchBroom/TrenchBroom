@@ -17,10 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "TestUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
@@ -37,6 +33,9 @@
 
 #include <algorithm>
 #include <string>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {

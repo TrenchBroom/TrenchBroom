@@ -101,7 +101,6 @@
 #include "View/EntityDefinitionFileCommand.h"
 #include "View/Grid.h"
 #include "View/MapTextEncoding.h"
-#include "View/MapViewConfig.h"
 #include "View/MoveBrushEdgesCommand.h"
 #include "View/MoveBrushFacesCommand.h"
 #include "View/MoveBrushVerticesCommand.h"
@@ -166,7 +165,6 @@ namespace TrenchBroom {
             pref(Preferences::TextureMinFilter), logger())),
         m_tagManager(std::make_unique<Model::TagManager>()),
         m_editorContext(std::make_unique<Model::EditorContext>()),
-        m_mapViewConfig(std::make_unique<MapViewConfig>(*m_editorContext)),
         m_grid(std::make_unique<Grid>(4)),
         m_path(DefaultDocumentName),
         m_lastSaveModificationCount(0),
@@ -297,10 +295,6 @@ namespace TrenchBroom {
 
         Assets::TextureManager& MapDocument::textureManager() {
             return *m_textureManager;
-        }
-
-        View::MapViewConfig& MapDocument::mapViewConfig() const {
-            return *m_mapViewConfig;
         }
 
         Grid& MapDocument::grid() const {
@@ -460,7 +454,6 @@ namespace TrenchBroom {
             return setFaceAttributesExceptContentFlags(faces.back().attributes());
         }
 
-        // cppcheck-suppress passedByValue
         void MapDocument::loadPointFile(const IO::Path path) {
             static_assert(!std::is_reference<decltype(path)>::value,
                           "path must be passed by value because reloadPointFile() passes m_pointFilePath");
@@ -502,7 +495,6 @@ namespace TrenchBroom {
             pointFileWasUnloadedNotifier();
         }
 
-        // cppcheck-suppress passedByValue
         void MapDocument::loadPortalFile(const IO::Path path) {
             static_assert(!std::is_reference<decltype(path)>::value,
                           "path must be passed by value because reloadPortalFile() passes m_portalFilePath");
@@ -2531,7 +2523,6 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapDocument::preferenceDidChange);
             m_editorContext->editorContextDidChangeNotifier.addObserver(editorContextDidChangeNotifier);
-            m_mapViewConfig->mapViewConfigDidChangeNotifier.addObserver(mapViewConfigDidChangeNotifier);
             commandDoneNotifier.addObserver(this, &MapDocument::commandDone);
             commandUndoneNotifier.addObserver(this, &MapDocument::commandUndone);
 
@@ -2550,7 +2541,6 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapDocument::preferenceDidChange);
             m_editorContext->editorContextDidChangeNotifier.removeObserver(editorContextDidChangeNotifier);
-            m_mapViewConfig->mapViewConfigDidChangeNotifier.removeObserver(mapViewConfigDidChangeNotifier);
             commandDoneNotifier.removeObserver(this, &MapDocument::commandDone);
             commandUndoneNotifier.removeObserver(this, &MapDocument::commandUndone);
 

@@ -17,10 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
@@ -29,6 +25,9 @@
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
 #include "View/MapDocumentTest.h"
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace View {

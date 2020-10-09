@@ -75,7 +75,6 @@ namespace TrenchBroom {
         class Command;
         class CommandResult;
         class Grid;
-        class MapViewConfig;
         enum class PasteType;
         class Selection;
         class UndoableCommand;
@@ -102,7 +101,6 @@ namespace TrenchBroom {
             std::unique_ptr<Model::TagManager> m_tagManager;
 
             std::unique_ptr<Model::EditorContext> m_editorContext;
-            std::unique_ptr<MapViewConfig> m_mapViewConfig;
             std::unique_ptr<Grid> m_grid;
 
             using ActionList = std::vector<std::unique_ptr<Action>>;
@@ -141,7 +139,6 @@ namespace TrenchBroom {
             Notifier<> documentModificationStateDidChangeNotifier;
 
             Notifier<> editorContextDidChangeNotifier;
-            Notifier<> mapViewConfigDidChangeNotifier;
             Notifier<const Model::LayerNode*> currentLayerDidChangeNotifier;
             Notifier<const std::string&> currentTextureNameDidChangeNotifier;
 
@@ -216,7 +213,6 @@ namespace TrenchBroom {
             Assets::EntityModelManager& entityModelManager() override;
             Assets::TextureManager& textureManager() override;
 
-            MapViewConfig& mapViewConfig() const;
             Grid& grid() const;
 
             Model::PointFile* pointFile() const;
@@ -265,14 +261,12 @@ namespace TrenchBroom {
             bool pasteNodes(const std::vector<Model::Node*>& nodes);
             bool pasteBrushFaces(const std::vector<Model::BrushFace>& faces);
         public: // point file management
-            // cppcheck-suppress passedByValue
             void loadPointFile(const IO::Path path);
             bool isPointFileLoaded() const;
             bool canReloadPointFile() const;
             void reloadPointFile();
             void unloadPointFile();
         public: // portal file management
-            // cppcheck-suppress passedByValue
             void loadPortalFile(const IO::Path path);
             bool isPortalFileLoaded() const;
             bool canReloadPortalFile() const;

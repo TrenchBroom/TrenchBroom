@@ -20,6 +20,8 @@
 #include "EditorContext.h"
 
 #include "Ensure.h"
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/Brush.h"
 #include "Model/BrushNode.h"
@@ -38,35 +40,10 @@ namespace TrenchBroom {
         }
 
         void EditorContext::reset() {
-            m_showPointEntities = true;
-            m_showBrushes = true;
             m_hiddenTags = 0;
             m_hiddenEntityDefinitions.reset();
-            m_entityLinkMode = EntityLinkMode_Direct;
             m_blockSelection = false;
             m_currentGroup = nullptr;
-        }
-
-        bool EditorContext::showPointEntities() const {
-            return m_showPointEntities;
-        }
-
-        void EditorContext::setShowPointEntities(const bool showPointEntities) {
-            if (showPointEntities != m_showPointEntities) {
-                m_showPointEntities = showPointEntities;
-                editorContextDidChangeNotifier();
-            }
-        }
-
-        bool EditorContext::showBrushes() const {
-            return m_showBrushes;
-        }
-
-        void EditorContext::setShowBrushes(const bool showBrushes) {
-            if (showBrushes != m_showBrushes) {
-                m_showBrushes = showBrushes;
-                editorContextDidChangeNotifier();
-            }
         }
 
         TagType::Type EditorContext::hiddenTags() const {
@@ -91,17 +68,6 @@ namespace TrenchBroom {
         void EditorContext::setEntityDefinitionHidden(const Assets::EntityDefinition* definition, const bool hidden) {
             if (definition != nullptr && entityDefinitionHidden(definition) != hidden) {
                 m_hiddenEntityDefinitions[definition->index()] = hidden;
-                editorContextDidChangeNotifier();
-            }
-        }
-
-        EditorContext::EntityLinkMode EditorContext::entityLinkMode() const {
-            return m_entityLinkMode;
-        }
-
-        void EditorContext::setEntityLinkMode(const EntityLinkMode entityLinkMode) {
-            if (entityLinkMode != m_entityLinkMode) {
-                m_entityLinkMode = entityLinkMode;
                 editorContextDidChangeNotifier();
             }
         }
@@ -194,7 +160,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            if (entity->pointEntity() && !m_showPointEntities) {
+            if (entity->pointEntity() && !pref(Preferences::ShowPointEntities)) {
                 return false;
             }
 
@@ -210,7 +176,7 @@ namespace TrenchBroom {
                 return true;
             }
 
-            if (!m_showBrushes) {
+            if (!pref(Preferences::ShowBrushes)) {
                 return false;
             }
 

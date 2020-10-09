@@ -184,6 +184,9 @@ namespace TrenchBroom {
             AttributableNode(const AttributableNode&);
             AttributableNode& operator=(const AttributableNode&);
         };
+
+        bool operator==(const AttributableNode& lhs, const AttributableNode& rhs);
+        bool operator!=(const AttributableNode& lhs, const AttributableNode& rhs);
     }
 }
 

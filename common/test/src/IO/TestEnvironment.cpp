@@ -29,6 +29,8 @@
 #include <QFile>
 #include <QTextStream>
 
+#include "Catch2.h"
+
 namespace TrenchBroom {
     namespace IO {
         TestEnvironment::TestEnvironment(const std::string& dir) :

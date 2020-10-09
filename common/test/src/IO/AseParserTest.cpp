@@ -17,10 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "Logger.h"
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
@@ -31,6 +27,9 @@
 #include "IO/Quake3ShaderFileSystem.h"
 #include "IO/Reader.h"
 #include "IO/TextureReader.h"
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {

@@ -1439,13 +1439,11 @@ namespace TrenchBroom {
         }
 
         void MapFrame::toggleTextureLock() {
-            PreferenceManager::instance().set(Preferences::TextureLock, !pref(Preferences::TextureLock));
-            PreferenceManager::instance().saveChanges();
+            togglePref(Preferences::TextureLock);
         }
 
         void MapFrame::toggleUVLock() {
-            PreferenceManager::instance().set(Preferences::UVLock, !pref(Preferences::UVLock));
-            PreferenceManager::instance().saveChanges();
+            togglePref(Preferences::UVLock);
         }
 
         void MapFrame::toggleShowGrid() {
@@ -1662,7 +1660,6 @@ namespace TrenchBroom {
 #endif
         static void debugSegfault() {
             volatile void *test = nullptr;
-            // cppcheck-suppress nullPointer
             printf("%p\n", *((void **)test));
         }
 #ifdef __clang__

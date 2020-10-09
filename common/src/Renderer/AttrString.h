@@ -54,7 +54,6 @@ namespace TrenchBroom {
         public:
             AttrString();
 
-            // cppcheck-suppress noExplicitConstructor
             AttrString(const std::string& string);
 
             bool operator<(const AttrString& other) const;

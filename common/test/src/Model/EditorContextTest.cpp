@@ -17,11 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "Exceptions.h"
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Model/BrushBuilder.h"
 #include "Model/EditorContext.h"
 #include "Model/LockState.h"
@@ -33,6 +31,9 @@
 #include "Model/BrushNode.h"
 
 #include <kdl/result.h>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -296,9 +297,11 @@ namespace TrenchBroom {
             assertVisible(true, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
             entity->deselect();
 
-            context.setShowPointEntities(false);
+            setPref(Preferences::ShowPointEntities, false);
             assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
             assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+
+            resetPref(Preferences::ShowPointEntities);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelPointEntityEditable") {
@@ -598,7 +601,7 @@ namespace TrenchBroom {
             assertVisible(true, entity, VisibilityState::Visibility_Hidden, LockState::Lock_Unlocked);
             entity->deselect();
 
-            context.setShowPointEntities(false);
+            setPref(Preferences::ShowPointEntities, false);
             assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
             assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
 
@@ -606,6 +609,8 @@ namespace TrenchBroom {
 
             assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Unlocked);
             assertVisible(false, entity, VisibilityState::Visibility_Shown, LockState::Lock_Locked);
+
+            resetPref(Preferences::ShowPointEntities);
         }
 
         TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedPointEntityEditable") {
