@@ -103,6 +103,7 @@ namespace TrenchBroom {
 
             Path m_objPath;
             Path m_mtlPath;
+			Path m_gamePath;
 
             IO::OpenFile m_objFile;
             IO::OpenFile m_mtlFile;
@@ -117,7 +118,7 @@ namespace TrenchBroom {
             Object m_currentObject;
             ObjectList m_objects;
         public:
-            explicit ObjFileSerializer(const Path& path);
+            explicit ObjFileSerializer(const Path& path, const Path& gamepath);
         private:
             void doBeginFile() override;
             void doEndFile() override;

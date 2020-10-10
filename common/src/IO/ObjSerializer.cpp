@@ -39,9 +39,10 @@ namespace TrenchBroom {
         verts(std::move(i_verts)),
         texture(std::move(i_texture)) {}
 
-        ObjFileSerializer::ObjFileSerializer(const Path& path) :
+        ObjFileSerializer::ObjFileSerializer(const Path& path, const Path& gamepath) :
         m_objPath(path),
         m_mtlPath(path.replaceExtension("mtl")),
+		m_gamePath(gamepath),
         m_objFile(m_objPath, true),
         m_mtlFile(m_mtlPath, true),
         m_stream(m_objFile.file),
@@ -76,7 +77,9 @@ namespace TrenchBroom {
             }
 
             for (const std::string& texture : textureNames) {
-                std::fprintf(m_mtlStream, "newmtl %s\n", texture.c_str());
+				std::fprintf(m_mtlStream, "newmtl %s\n", texture.c_str());
+				std::fprintf(m_mtlStream, "map_Kd %s%s%s\n\n", m_gamePath.asString().c_str(), "\\textures\\", texture.c_str());
+
             }
         }
 

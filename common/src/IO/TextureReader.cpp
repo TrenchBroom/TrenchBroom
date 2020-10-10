@@ -61,7 +61,15 @@ namespace TrenchBroom {
 
         std::string TextureReader::PathSuffixNameStrategy::doGetTextureName(const std::string& /* textureName */, const Path& path) const {
             if (m_prefixLength < path.length()) {
-                return path.suffix(path.length() - m_prefixLength).deleteExtension().asString("/");
+				if (path.asString().find(".D") != std::string::npos) { //we have a mip texture, probably, so remove extension
+					return path.suffix(path.length() - m_prefixLength).deleteExtension().asString();
+				} else {//normal texture (png, tga, etc). Return path with correct separator based on OS
+#ifdef WIN32
+					return path.suffix(path.length() - m_prefixLength).asString("\\");
+#else
+					return path.suffix(path.length() - m_prefixLength).asString("/");
+#endif
+				}
             } else {
                 return "";
             }
@@ -78,7 +86,7 @@ namespace TrenchBroom {
             return m_name;
         }
 
-        TextureReader::TextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger) :
+        TextureReader::TextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger):
         m_nameStrategy(nameStrategy.clone()),
         m_fs(fs),
         m_logger(logger) {}
