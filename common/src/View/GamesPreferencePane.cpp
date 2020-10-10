@@ -49,9 +49,7 @@ namespace TrenchBroom {
         GamesPreferencePane::GamesPreferencePane(QWidget* parent) :
         PreferencePane(parent),
         m_gameListBox(nullptr),
-        m_stackedWidget(nullptr),
-        m_gamePathText(nullptr),
-        m_chooseGamePathButton(nullptr) {
+        m_stackedWidget(nullptr) {
             createGui();
             updateControls();
             m_gameListBox->setFocus();
@@ -67,7 +65,7 @@ namespace TrenchBroom {
 
             m_stackedWidget = new QStackedWidget();
             m_stackedWidget->addWidget(createDefaultPage("Select a game."));
-            m_stackedWidget->addWidget(createGamePreferencesPage());
+            //m_stackedWidget->addWidget(createGamePreferencesPage());
 
             auto* layout = new QHBoxLayout();
             layout->setContentsMargins(QMargins());
@@ -82,18 +80,18 @@ namespace TrenchBroom {
             setMinimumWidth(600);
         }
 
-        QWidget* GamesPreferencePane::createGamePreferencesPage() {
+        QWidget* GamesPreferencePane::createGamePreferencesPage(const std::string& gameName) {
             auto* container = new QWidget();
 
-            m_gamePathText = new QLineEdit();
-            setHint(m_gamePathText, "Click on the button to change...");
-            connect(m_gamePathText, &QLineEdit::editingFinished, this, [this]() {
-                updateGamePath(this->m_gamePathText->text());
+            auto* gamePathText = new QLineEdit();
+            setHint(gamePathText, "Click on the button to change...");
+            connect(gamePathText, &QLineEdit::editingFinished, this, [=]() {
+                updateGamePath(gamePathText->text());
             });
 
-            auto* validDirectoryIcon = new QAction(m_gamePathText);
-            m_gamePathText->addAction(validDirectoryIcon, QLineEdit::TrailingPosition);
-            connect(m_gamePathText, &QLineEdit::textChanged, this, [validDirectoryIcon](const QString& text) {
+            auto* validDirectoryIcon = new QAction(gamePathText);
+            gamePathText->addAction(validDirectoryIcon, QLineEdit::TrailingPosition);
+            connect(gamePathText, &QLineEdit::textChanged, this, [validDirectoryIcon](const QString& text) {
                 if (text.isEmpty() || QDir(text).exists()) {
                     validDirectoryIcon->setToolTip("");
                     validDirectoryIcon->setIcon(QIcon());
@@ -103,8 +101,8 @@ namespace TrenchBroom {
                 }
             });
 
-            m_chooseGamePathButton = new QPushButton("...");
-            connect(m_chooseGamePathButton, &QPushButton::clicked, this, &GamesPreferencePane::chooseGamePathClicked);
+            auto* chooseGamePathButton = new QPushButton("...");
+            connect(chooseGamePathButton, &QPushButton::clicked, this, &GamesPreferencePane::chooseGamePathClicked);
 
             auto* configureEnginesButton = new QPushButton("Configure engines...");
             connect(configureEnginesButton, &QPushButton::clicked, this, &GamesPreferencePane::configureEnginesClicked);
@@ -112,14 +110,14 @@ namespace TrenchBroom {
             auto* gamePathLayout = new QHBoxLayout();
             gamePathLayout->setContentsMargins(QMargins());
             gamePathLayout->setSpacing(LayoutConstants::MediumHMargin);
-            gamePathLayout->addWidget(m_gamePathText, 1);
-            gamePathLayout->addWidget(m_chooseGamePathButton);
+            gamePathLayout->addWidget(gamePathText, 1);
+            gamePathLayout->addWidget(chooseGamePathButton);
 
-            m_compilationToolsLayout = new QFormLayout();
-            m_compilationToolsLayout->setContentsMargins(LayoutConstants::MediumHMargin, LayoutConstants::MediumVMargin, LayoutConstants::MediumHMargin, LayoutConstants::MediumVMargin);
-            m_compilationToolsLayout->setHorizontalSpacing(LayoutConstants::MediumHMargin);
-            m_compilationToolsLayout->setVerticalSpacing(0);
-            m_compilationToolsLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+            //auto* compilationToolsLayout = new QFormLayout();
+            //compilationToolsLayout->setContentsMargins(LayoutConstants::MediumHMargin, LayoutConstants::MediumVMargin, LayoutConstants::MediumHMargin, LayoutConstants::MediumVMargin);
+            //compilationToolsLayout->setHorizontalSpacing(LayoutConstants::MediumHMargin);
+            //compilationToolsLayout->setVerticalSpacing(0);
+            //compilationToolsLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
             // m_compilationToolsLayout populated in updateCompilationTools()
 
@@ -134,7 +132,7 @@ namespace TrenchBroom {
 
             layout->addSection("Compilation Tools");
 
-            const std::string gameName = m_gameListBox->selectedGameName();
+            //const std::string gameName = m_gameListBox->selectedGameName();
             auto& gameFactory = Model::GameFactory::instance();
             const auto& gameConfig = gameFactory.gameConfig(gameName);
 
@@ -177,8 +175,13 @@ namespace TrenchBroom {
             }
             m_currentGame = gameName;
 
+            // Delete previous game preference page
+            if (m_stackedWidget->count() == 2) {
+                delete m_stackedWidget->widget(1);
+            }
 
-            updateControls();
+            m_stackedWidget->addWidget(createGamePreferencesPage(gameName.toStdString()));
+            m_stackedWidget->setCurrentIndex(1);
         }
 
         void GamesPreferencePane::chooseGamePathClicked() {
@@ -212,16 +215,16 @@ namespace TrenchBroom {
         void GamesPreferencePane::doResetToDefaults() {}
 
         void GamesPreferencePane::doUpdateControls() {
-            if (m_gameListBox->currentRow() < 0) {
-                m_stackedWidget->setCurrentIndex(0);
-            } else {
-                m_stackedWidget->setCurrentIndex(1);
-                const auto gameName = m_gameListBox->selectedGameName();
-                auto& gameFactory = Model::GameFactory::instance();
-                const auto gamePath = gameFactory.gamePath(gameName);
-                m_gamePathText->setText(IO::pathAsQString(gamePath));
-                m_gameListBox->updateGameInfos();
-            }
+            //if (m_gameListBox->currentRow() < 0) {
+            //    m_stackedWidget->setCurrentIndex(0);
+            //} else {
+            //    m_stackedWidget->setCurrentIndex(1);
+            //    const auto gameName = m_gameListBox->selectedGameName();
+            //    auto& gameFactory = Model::GameFactory::instance();
+            //    const auto gamePath = gameFactory.gamePath(gameName);
+            //    m_gamePathText->setText(IO::pathAsQString(gamePath));
+            //    m_gameListBox->updateGameInfos();
+            //}
 
             //updateCompilationTools();
         }

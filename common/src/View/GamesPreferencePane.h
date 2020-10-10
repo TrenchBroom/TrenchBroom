@@ -36,15 +36,12 @@ namespace TrenchBroom {
         private:
             GameListBox* m_gameListBox;
             QStackedWidget* m_stackedWidget;
-            QLineEdit* m_gamePathText;
-            QPushButton* m_chooseGamePathButton;
             QString m_currentGame;
-            QFormLayout* m_compilationToolsLayout;
         public:
             explicit GamesPreferencePane(QWidget* parent = nullptr);
         private:
             void createGui();
-            QWidget* createGamePreferencesPage();
+            QWidget* createGamePreferencesPage(const std::string& gameName);
         private:
             void currentGameChanged(const QString& gameName);
             void chooseGamePathClicked();
