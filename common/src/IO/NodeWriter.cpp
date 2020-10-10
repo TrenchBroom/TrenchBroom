@@ -113,6 +113,8 @@ namespace TrenchBroom {
         m_world(world),
         m_serializer(std::move(serializer)) {}
 
+        NodeWriter::~NodeWriter() = default;
+
         void NodeWriter::setExporting(const bool exporting) {
             m_serializer->setExporting(exporting);
         }

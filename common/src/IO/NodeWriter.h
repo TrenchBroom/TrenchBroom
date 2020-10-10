@@ -50,6 +50,7 @@ namespace TrenchBroom {
             NodeWriter(const Model::WorldNode& world, FILE* stream);
             NodeWriter(const Model::WorldNode& world, std::ostream& stream);
             NodeWriter(const Model::WorldNode& world, std::unique_ptr<NodeSerializer> serializer);
+            ~NodeWriter();
 
             void setExporting(bool exporting);
             void writeMap();
