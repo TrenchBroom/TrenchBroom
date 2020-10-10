@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_NodeWriter
 #define TrenchBroom_NodeWriter
 
-#include "IO/NodeSerializer.h"
-
 #include <cstdio> // FILE*
 #include <map>
 #include <memory>
@@ -38,6 +36,8 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        class NodeSerializer;
+
         class NodeWriter {
         private:
             using EntityBrushesMap = std::map<Model::EntityNode*, std::vector<Model::BrushNode*>>;

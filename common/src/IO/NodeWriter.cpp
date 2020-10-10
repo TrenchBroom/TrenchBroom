@@ -21,6 +21,7 @@
 
 #include "IO/MapFileSerializer.h"
 #include "IO/MapStreamSerializer.h"
+#include "IO/NodeSerializer.h"
 #include "Model/AssortNodesVisitor.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
