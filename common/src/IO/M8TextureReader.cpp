@@ -95,8 +95,7 @@ namespace TrenchBroom {
 
                     reader.seekFromBegin(offsets[mipLevel]);
 
-                    Assets::TextureBuffer rgbaImage;
-                    rgbaImage.resize(4 * w * h);
+                    Assets::TextureBuffer rgbaImage(4 * w * h);
 
                     Color averageColor;
                     palette.indexedToRgba(reader, w * h, rgbaImage, Assets::PaletteTransparency::Opaque, averageColor);
