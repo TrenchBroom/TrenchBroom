@@ -21,6 +21,7 @@
 #define TrenchBroom_Texture
 
 #include "Color.h"
+#include "IO/Path.h"
 #include "Renderer/GL.h"
 
 #include <vecmath/forward.h>
@@ -76,6 +77,7 @@ namespace TrenchBroom {
             using BufferList = std::vector<Buffer>;
         private:
             std::string m_name;
+            IO::Path m_absolutePath;
 
             size_t m_width;
             size_t m_height;
@@ -114,6 +116,9 @@ namespace TrenchBroom {
             static TextureType selectTextureType(bool masked);
 
             const std::string& name() const;
+
+            const IO::Path& absolutePath() const;
+            void setAbsolutePath(const IO::Path& absolutePath);
 
             size_t width() const;
             size_t height() const;

@@ -33,6 +33,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class Texture;
+    }
+
     namespace Model {
         class BrushNode;
         class BrushFace;
@@ -86,9 +90,10 @@ namespace TrenchBroom {
 
             struct Face {
                 IndexedVertexList verts;
-                std::string texture;
+                std::string textureName;
+                const Assets::Texture* texture;
 
-                Face(IndexedVertexList i_verts, std::string i_texture);
+                Face(IndexedVertexList i_verts, std::string i_textureName, const Assets::Texture* i_texture);
             };
 
             using FaceList = std::vector<Face>;

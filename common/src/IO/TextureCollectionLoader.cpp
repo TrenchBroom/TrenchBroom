@@ -88,11 +88,22 @@ namespace TrenchBroom {
             for (const auto& texturePath : texturePaths) {
                 try {
                     auto file = m_gameFS.openFile(texturePath);
+
+                    // Store the absolute path to the original file (used by .obj export)
+                    IO::Path absolutePath;
+                    try {
+                        absolutePath = m_gameFS.makeAbsolute(texturePath);
+                    } catch (const FileSystemException& e) {
+                        m_logger.debug() << e.what();
+                    }
+
                     const auto name = file->path().lastComponent().deleteExtension().asString();
                     if (shouldExclude(name)) {
                         continue;
                     }
-                    textures.push_back(textureReader.readTexture(file));
+                    auto texture = textureReader.readTexture(file);
+                    texture.setAbsolutePath(absolutePath);
+                    textures.push_back(std::move(texture));
                 } catch (const std::exception& e) {
                     m_logger.warn() << e.what();
                 }
