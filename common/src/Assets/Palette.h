@@ -21,6 +21,7 @@
 #define TrenchBroom_Palette
 
 #include "Color.h"
+#include "Assets/TextureBuffer.h"
 #include "IO/Reader.h"
 
 #include <cassert>
@@ -50,7 +51,6 @@ namespace TrenchBroom {
                  * Converts the given index buffer to an RGBA image.
                  *
                  * @tparam IndexT the index type
-                 * @tparam ColorT the pixel type
                  * @param indexedImage the index buffer
                  * @param pixelCount the number of pixels
                  * @param rgbaImage the pixel buffer
@@ -59,8 +59,8 @@ namespace TrenchBroom {
                  * @return true if the given index buffer did contain a transparent index, unless the transparency parameter
                  *     indicates that the image is opaque
                  */
-                template <typename IndexT, typename ColorT>
-                bool indexedToRgba(const std::vector<IndexT>& indexedImage, const size_t pixelCount, std::vector<ColorT>& rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
+                template <typename IndexT>
+                bool indexedToRgba(const std::vector<IndexT>& indexedImage, const size_t pixelCount, unsigned char* rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
                     auto reader = IO::Reader::from(&indexedImage[0], &indexedImage[0] + pixelCount);
                     return indexedToRgba(reader, pixelCount, rgbaImage, transparency, averageColor);
                 }
@@ -68,7 +68,6 @@ namespace TrenchBroom {
                 /**
                  * Converts the given index buffer to an RGBA image.
                  *
-                 * @tparam ColorT the pixel type
                  * @param reader the index buffer reader
                  * @param pixelCount the number of pixels
                  * @param rgbaImage the pixel buffer
@@ -77,8 +76,7 @@ namespace TrenchBroom {
                  * @return true if the given index buffer did contain a transparent index, unless the transparency parameter
                  *     indicates that the image is opaque
                  */
-                template <typename ColorT>
-                bool indexedToRgba(IO::Reader& reader, const size_t pixelCount, std::vector<ColorT>& rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
+                inline bool indexedToRgba(IO::Reader& reader, const size_t pixelCount, unsigned char* rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
                     double avg[3];
                     avg[0] = avg[1] = avg[2] = 0.0;
                     bool hasTransparency = false;
@@ -95,7 +93,7 @@ namespace TrenchBroom {
                                 rgbaImage[i * 4 + 3] = 0xFF;
                                 break;
                             case PaletteTransparency::Index255Transparent:
-                                rgbaImage[i * 4 + 3] = static_cast<ColorT>((index == 255) ? 0x00 : 0xFF);
+                                rgbaImage[i * 4 + 3] = static_cast<unsigned char>((index == 255) ? 0x00 : 0xFF);
                                 hasTransparency |= (index == 255);
                                 break;
                         }
@@ -128,7 +126,6 @@ namespace TrenchBroom {
              * Converts the given index buffer to an RGBA image.
              *
              * @tparam IndexT the index type
-             * @tparam ColorT the pixel type
              * @param indexedImage the index buffer
              * @param pixelCount the number of pixels
              * @param rgbaImage the pixel buffer
@@ -137,15 +134,14 @@ namespace TrenchBroom {
              * @return true if the given index buffer did contain a transparent index, unless the transparency parameter
              *     indicates that the image is opaque
              */
-            template <typename IndexT, typename ColorT>
-            bool indexedToRgba(const std::vector<IndexT>& indexedImage, const size_t pixelCount, std::vector<ColorT>& rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
-                return m_data->indexedToRgba(indexedImage, pixelCount, rgbaImage, transparency, averageColor);
+            template <typename IndexT>
+            bool indexedToRgba(const std::vector<IndexT>& indexedImage, const size_t pixelCount, TextureBuffer& rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
+                return m_data->indexedToRgba(indexedImage, pixelCount, rgbaImage.data(), transparency, averageColor);
             }
 
             /**
              * Converts the given index buffer to an RGBA image.
              *
-             * @tparam ColorT the pixel type
              * @param reader the index buffer
              * @param pixelCount the number of pixels
              * @param rgbaImage the pixel buffer
@@ -154,9 +150,8 @@ namespace TrenchBroom {
              * @return true if the given index buffer did contain a transparent index, unless the transparency parameter
              *     indicates that the image is opaque
              */
-            template <typename ColorT>
-            bool indexedToRgba(IO::Reader& reader, const size_t pixelCount, std::vector<ColorT>& rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
-                return m_data->indexedToRgba(reader, pixelCount, rgbaImage, transparency, averageColor);
+            inline bool indexedToRgba(IO::Reader& reader, const size_t pixelCount, TextureBuffer& rgbaImage, const PaletteTransparency transparency, Color& averageColor) const {
+                return m_data->indexedToRgba(reader, pixelCount, rgbaImage.data(), transparency, averageColor);
             }
         };
     }
