@@ -224,7 +224,7 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<Assets::EntityModel> MdlParser::doInitializeModel(Logger& /* logger */) {
-            auto reader = Reader::from(m_begin, m_end);
+            auto reader = Reader::from(m_begin, m_end).buffer();
 
             const auto ident = reader.readInt<int32_t>();
             const auto version = reader.readInt<int32_t>();
@@ -260,7 +260,7 @@ namespace TrenchBroom {
         }
 
         void MdlParser::doLoadFrame(const size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */) {
-            auto reader = Reader::from(m_begin, m_end);
+            auto reader = Reader::from(m_begin, m_end).buffer();
 
             const auto ident = reader.readInt<int32_t>();
             const auto version = reader.readInt<int32_t>();
@@ -296,7 +296,7 @@ namespace TrenchBroom {
             parseFrame(reader, model, frameIndex, surface, triangles, vertices, skinWidth, skinHeight, origin, scale);
         }
 
-        void MdlParser::parseSkins(Reader& reader, Assets::EntityModelSurface& surface, const size_t count, const size_t width, const size_t height, const int flags) {
+        void MdlParser::parseSkins(BufferedReader& reader, Assets::EntityModelSurface& surface, const size_t count, const size_t width, const size_t height, const int flags) {
             const auto size = width * height;
             const auto transparency = (flags & MF_HOLEY)
                     ? Assets::PaletteTransparency::Index255Transparent
