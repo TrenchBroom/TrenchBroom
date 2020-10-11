@@ -35,6 +35,7 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        class BufferedReader;
         class Reader;
 
         class MdlParser : public EntityModelParser {
@@ -67,7 +68,7 @@ namespace TrenchBroom {
             std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
             void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
 
-            void parseSkins(Reader& reader, Assets::EntityModelSurface& surface, size_t count, size_t width, size_t height, int flags);
+            void parseSkins(BufferedReader& reader, Assets::EntityModelSurface& surface, size_t count, size_t width, size_t height, int flags);
             void skipSkins(Reader& reader, size_t count, size_t width, size_t height, int flags);
 
             MdlSkinVertexList parseVertices(Reader& reader, size_t count);
