@@ -746,5 +746,19 @@ namespace TrenchBroom {
             Brush brush = brushNode->brush();
             CHECK(dynamic_cast<const ParaxialTexCoordSystem*>(&brush.face(0).texCoordSystem()) != nullptr);
         }
+
+        TEST_CASE("BrushFaceTest.parseFaceAsNode", "[BrushFaceTest]") {
+            const std::string data(R"(
+( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) __TB_empty [ 0 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1
+)");
+
+            const vm::bbox3 worldBounds(4096.0);
+            WorldNode world(MapFormat::Valve);
+
+            IO::TestParserStatus status;
+            IO::NodeReader reader(data, world);
+
+            CHECK(reader.read(worldBounds, status).empty());
+        }
     }
 }
