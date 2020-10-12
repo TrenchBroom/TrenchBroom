@@ -103,8 +103,23 @@ namespace TrenchBroom {
             MapReader(const char* begin, const char* end);
             explicit MapReader(const std::string& str);
 
+            /**
+             * Attempts to parse as one or more entities, in the given format.
+             *
+             * @throws ParserException if parsing fails
+             */
             void readEntities(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
+            /**
+             * Attempts to parse as one or more brushes (in the given format) without any enclosing entity.
+             *
+             * @throws ParserException if parsing fails
+             */
             void readBrushes(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
+            /**
+             * Attempts to parse as one or more brush faces (in the given format).
+             *
+             * @throws ParserException if parsing fails
+             */
             void readBrushFaces(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
         private: // implement MapParser interface
             void onFormatSet(Model::MapFormat format) override;

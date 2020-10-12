@@ -45,37 +45,50 @@ namespace TrenchBroom {
         }
 
         const std::vector<Model::Node*>& NodeReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
-            // try preferred format first
+            // Try preferred format first
             const Model::MapFormat preferredFormat = m_factory.format();
             for (const auto format : Model::compatibleFormats(preferredFormat)) {
-                try {
-                    readAsFormat(worldBounds, format, status);
+                if (readAsFormat(worldBounds, format, status)) {
                     return m_nodes;
-                } catch (const ParserException&) {
                 }
             }
 
+            // All formats failed
             assert(m_nodes.empty());
             return m_nodes;
         }
 
-        void NodeReader::readAsFormat(const vm::bbox3& worldBounds, Model::MapFormat format, ParserStatus& status) {
+        /**
+         * Attempts to parse the string as one or more entities (in the given format), and if that fails,
+         * as one or more brushes.
+         *
+         * If parsing succeeds, the nodes are stored in m_nodes.
+         *
+         * Does not throw upon parsing failure, but instead logs the failure to `status`.
+         *
+         * @returns whether parsing succeeded (either as entities or brushes)
+         */
+        bool NodeReader::readAsFormat(const vm::bbox3& worldBounds, Model::MapFormat format, ParserStatus& status) {
             try {
                 reset();
                 readEntities(format, worldBounds, status);
-                return;
-            } catch (const ParserException&) {
+                status.info("Parsed successfully as " + Model::formatName(format) + " entities");
+                return true;
+            } catch (const ParserException& e) {
+                status.info("Couldn't parse as " + Model::formatName(format) + " entities: " + e.what());
                 kdl::vec_clear_and_delete(m_nodes);
             }
 
             try {
                 reset();
                 readBrushes(format, worldBounds, status);
-                return;
-            } catch (const ParserException&) {
+                status.info("Parsed successfully as " + Model::formatName(format) + " brushes");
+                return true;
+            } catch (const ParserException& e) {
+                status.info("Couldn't parse as " + Model::formatName(format) + " brushes: " + e.what());
                 kdl::vec_clear_and_delete(m_nodes);
-                throw;
             }
+            return false;
         }
 
         Model::ModelFactory& NodeReader::initialize(const Model::MapFormat) {
