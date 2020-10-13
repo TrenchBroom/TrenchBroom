@@ -107,10 +107,10 @@
 #include "View/SetLockStateCommand.h"
 #include "View/SetCurrentLayerCommand.h"
 #include "View/SetModsCommand.h"
+#include "View/SetTextureCollectionsCommand.h"
 #include "View/SetVisibilityCommand.h"
 #include "View/ShearTexturesCommand.h"
 #include "View/SnapBrushVerticesCommand.h"
-#include "View/SetTextureCollectionsCommand.h"
 #include "View/TransformObjectsCommand.h"
 #include "View/ViewEffectsService.h"
 
