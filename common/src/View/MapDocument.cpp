@@ -112,6 +112,7 @@
 #include "View/ReparentNodesCommand.h"
 #include "View/ResizeBrushesCommand.h"
 #include "View/CopyTexCoordSystemFromFaceCommand.h"
+#include "View/RepeatStack.h"
 #include "View/RotateTexturesCommand.h"
 #include "View/SelectionCommand.h"
 #include "View/SetLockStateCommand.h"
@@ -173,7 +174,8 @@ namespace TrenchBroom {
         m_currentTextureName(Model::BrushFaceAttributes::NoTextureName),
         m_lastSelectionBounds(0.0, 32.0),
         m_selectionBoundsValid(true),
-        m_viewEffectsService(nullptr) {
+        m_viewEffectsService(nullptr),
+        m_repeatStack(std::make_unique<RepeatStack>()) {
                 bindObservers();
         }
 
@@ -330,6 +332,7 @@ namespace TrenchBroom {
         void MapDocument::newDocument(const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game) {
             info("Creating new document");
 
+            clearRepeatableCommands();
             clearDocument();
             createWorld(mapFormat, worldBounds, game);
 
@@ -346,6 +349,7 @@ namespace TrenchBroom {
         void MapDocument::loadDocument(const Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game, const IO::Path& path) {
             info("Loading document from " + path.asString());
 
+            clearRepeatableCommands();
             clearDocument();
             loadWorld(mapFormat, worldBounds, game, path);
 
@@ -611,6 +615,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::selectAllNodes() {
+            m_repeatStack->clearOnNextPush();
             executeAndStore(SelectionCommand::selectAllNodes());
         }
 
@@ -696,23 +701,28 @@ namespace TrenchBroom {
         }
 
         void MapDocument::select(const std::vector<Model::Node*>& nodes) {
+            m_repeatStack->clearOnNextPush();
             executeAndStore(SelectionCommand::select(nodes));
         }
 
         void MapDocument::select(Model::Node* node) {
+            m_repeatStack->clearOnNextPush();
             executeAndStore(SelectionCommand::select(std::vector<Model::Node*>(1, node)));
         }
 
         void MapDocument::select(const std::vector<Model::BrushFaceHandle>& handles) {
+            m_repeatStack->clearOnNextPush();
             executeAndStore(SelectionCommand::select(handles));
         }
 
         void MapDocument::select(const Model::BrushFaceHandle& handle) {
+            m_repeatStack->clearOnNextPush();
             executeAndStore(SelectionCommand::select({ handle }));
             setCurrentTextureName(handle.face().attributes().textureName());
         }
 
         void MapDocument::convertToFaceSelection() {
+            m_repeatStack->clearOnNextPush();
             executeAndStore(SelectionCommand::convertToFaces());
         }
 
@@ -732,8 +742,10 @@ namespace TrenchBroom {
         }
 
         void MapDocument::deselectAll() {
-            if (hasSelection())
+            if (hasSelection()) {
+                m_repeatStack->clearOnNextPush();
                 executeAndStore(SelectionCommand::deselectAll());
+            }
         }
 
         void MapDocument::deselect(Model::Node* node) {
@@ -741,10 +753,12 @@ namespace TrenchBroom {
         }
 
         void MapDocument::deselect(const std::vector<Model::Node*>& nodes) {
+            m_repeatStack->clearOnNextPush();
             executeAndStore(SelectionCommand::deselect(nodes));
         }
 
         void MapDocument::deselect(const Model::BrushFaceHandle& handle) {
+            m_repeatStack->clearOnNextPush();
             executeAndStore(SelectionCommand::deselect({ handle }));
         }
 
@@ -947,6 +961,7 @@ namespace TrenchBroom {
                 if (m_viewEffectsService) {
                     m_viewEffectsService->flashSelection();
                 }
+                m_repeatStack->push([=]() { this->duplicateObjects(); });
                 return true;
             }
             return false;
@@ -1443,32 +1458,56 @@ namespace TrenchBroom {
 
         bool MapDocument::translateObjects(const vm::vec3& delta) {
             const auto result = executeAndStore(TransformObjectsCommand::translate(delta, pref(Preferences::TextureLock)));
-            return result->success();
+            if (result->success()) {
+                m_repeatStack->push([=]() { this->translateObjects(delta); });
+                return true;
+            }
+            return false;
         }
 
         bool MapDocument::rotateObjects(const vm::vec3& center, const vm::vec3& axis, const FloatType angle) {
             const auto result = executeAndStore(TransformObjectsCommand::rotate(center, axis, angle, pref(Preferences::TextureLock)));
-            return result->success();
+            if (result->success()) {
+                m_repeatStack->push([=]() { this->rotateObjects(center, axis, angle); });
+                return true;
+            }
+            return false;
         }
 
         bool MapDocument::scaleObjects(const vm::bbox3& oldBBox, const vm::bbox3& newBBox) {
             const auto result = executeAndStore(TransformObjectsCommand::scale(oldBBox, newBBox, pref(Preferences::TextureLock)));
-            return result->success();
+            if (result->success()) {
+                m_repeatStack->push([=]() { this->scaleObjects(oldBBox, newBBox); });
+                return true;
+            }
+            return false;
         }
 
         bool MapDocument::scaleObjects(const vm::vec3& center, const vm::vec3& scaleFactors) {
             const auto result = executeAndStore(TransformObjectsCommand::scale(center, scaleFactors, pref(Preferences::TextureLock)));
-            return result->success();
+            if (result->success()) {
+                m_repeatStack->push([=]() { this->scaleObjects(center, scaleFactors); });
+                return true;
+            }
+            return false;
         }
 
         bool MapDocument::shearObjects(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta) {
             const auto result = executeAndStore(TransformObjectsCommand::shearBBox(box, sideToShear, delta,  pref(Preferences::TextureLock)));
-            return result->success();
+            if (result->success()) {
+                m_repeatStack->push([=]() { this->shearObjects(box, sideToShear, delta); });
+                return true;
+            }
+            return false;
         }
 
         bool MapDocument::flipObjects(const vm::vec3& center, const vm::axis::type axis) {
             const auto result = executeAndStore(TransformObjectsCommand::flip(center, axis, pref(Preferences::TextureLock)));
-            return result->success();
+            if (result->success()) {
+                m_repeatStack->push([=]() { this->flipObjects(center, axis); });
+                return true;
+            }
+            return false;
         }
 
         bool MapDocument::createBrush(const std::vector<vm::vec3>& points) {
@@ -1867,10 +1906,6 @@ namespace TrenchBroom {
                 return std::make_unique<CommandResult>(true);
             }
 
-            bool doIsRepeatable(MapDocumentCommandFacade*) const override {
-                return false;
-            }
-
             bool doCollateWith(UndoableCommand*) override {
                 return false;
             }
@@ -1908,15 +1943,15 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::canRepeatCommands() const {
-            return doCanRepeatCommands();
+            return m_repeatStack->size() > 0u;
         }
 
-        std::unique_ptr<CommandResult> MapDocument::repeatCommands() {
-            return doRepeatCommands();
+        void MapDocument::repeatCommands() {
+            m_repeatStack->repeat();
         }
 
         void MapDocument::clearRepeatableCommands() {
-            doClearRepeatableCommands();
+            m_repeatStack->clear();
         }
 
         void MapDocument::startTransaction(const std::string& name) {

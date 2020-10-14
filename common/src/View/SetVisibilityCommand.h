@@ -63,7 +63,6 @@ namespace TrenchBroom {
             std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doCollateWith(UndoableCommand* command) override;
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
             deleteCopyAndMove(SetVisibilityCommand)
         };

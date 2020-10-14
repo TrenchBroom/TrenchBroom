@@ -111,10 +111,6 @@ namespace TrenchBroom {
             document->restoreSnapshot(snapshot.get());
         }
 
-        bool VertexCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
-        }
-
         void VertexCommand::takeSnapshot() {
             assert(m_snapshot == nullptr);
             m_snapshot = std::make_unique<Model::Snapshot>(std::begin(m_brushes), std::end(m_brushes));

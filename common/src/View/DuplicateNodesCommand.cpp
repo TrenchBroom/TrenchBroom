@@ -119,14 +119,6 @@ namespace TrenchBroom {
             return query.result();
         }
 
-        bool DuplicateNodesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
-            return document->hasSelectedNodes();
-        }
-
-        std::unique_ptr<UndoableCommand> DuplicateNodesCommand::doRepeat(MapDocumentCommandFacade*) const {
-            return std::make_unique<DuplicateNodesCommand>();
-        }
-
         bool DuplicateNodesCommand::doCollateWith(UndoableCommand*) {
             return false;
         }

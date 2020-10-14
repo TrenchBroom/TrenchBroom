@@ -62,9 +62,5 @@ namespace TrenchBroom {
         bool CurrentGroupCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
-
-        bool CurrentGroupCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
-        }
     }
 }

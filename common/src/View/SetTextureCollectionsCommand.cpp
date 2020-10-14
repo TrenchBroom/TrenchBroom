@@ -44,10 +44,6 @@ namespace TrenchBroom {
             return std::make_unique<CommandResult>(true);
         }
 
-        bool SetTextureCollectionsCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
-        }
-
         bool SetTextureCollectionsCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
