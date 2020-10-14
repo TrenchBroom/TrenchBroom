@@ -79,8 +79,8 @@ namespace TrenchBroom {
 
             for (const auto& [textureName, texture] : usedTextures) {
                 std::fprintf(m_mtlStream, "newmtl %s\n", textureName.c_str());
-                if (texture != nullptr && !texture->absolutePath().isEmpty()) {
-                    std::fprintf(m_mtlStream, "map_Kd %s\n\n", texture->absolutePath().asString().c_str());
+                if (texture != nullptr && !texture->relativePath().isEmpty()) {
+                    std::fprintf(m_mtlStream, "map_Kd %s\n\n", texture->relativePath().asString().c_str());
                 }
             }
         }

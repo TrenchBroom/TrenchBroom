@@ -105,6 +105,14 @@ namespace TrenchBroom {
             m_absolutePath = absolutePath;
         }
 
+        const IO::Path& Texture::relativePath() const {
+            return m_relativePath;
+        }
+
+        void Texture::setRelativePath(const IO::Path& relativePath) {
+            m_relativePath = relativePath;
+        }
+
         size_t Texture::width() const {
             return m_width;
         }

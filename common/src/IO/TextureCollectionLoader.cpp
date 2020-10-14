@@ -89,7 +89,7 @@ namespace TrenchBroom {
                 try {
                     auto file = m_gameFS.openFile(texturePath);
 
-                    // Store the absolute path to the original file (used by .obj export)
+                    // Store the absolute path to the original file (may be used by .obj export)
                     IO::Path absolutePath;
                     try {
                         absolutePath = m_gameFS.makeAbsolute(texturePath);
@@ -103,6 +103,7 @@ namespace TrenchBroom {
                     }
                     auto texture = textureReader.readTexture(file);
                     texture.setAbsolutePath(absolutePath);
+                    texture.setRelativePath(texturePath);
                     textures.push_back(std::move(texture));
                 } catch (const std::exception& e) {
                     m_logger.warn() << e.what();

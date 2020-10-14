@@ -79,6 +79,7 @@ namespace TrenchBroom {
         private:
             std::string m_name;
             IO::Path m_absolutePath;
+            IO::Path m_relativePath;
 
             size_t m_width;
             size_t m_height;
@@ -120,6 +121,9 @@ namespace TrenchBroom {
 
             const IO::Path& absolutePath() const;
             void setAbsolutePath(const IO::Path& absolutePath);
+
+            const IO::Path& relativePath() const;
+            void setRelativePath(const IO::Path& relativePath);
 
             size_t width() const;
             size_t height() const;
