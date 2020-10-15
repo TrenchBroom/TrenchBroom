@@ -52,7 +52,7 @@ namespace TrenchBroom {
 
         std::vector<Node*> collectDescendants(const std::vector<Node*>& nodes) {
             CollectNodesVisitor visitor;
-            for (const auto* node : nodes) {
+            for (auto* node : nodes) {
                 node->recurse(visitor);
             }
             return visitor.nodes();

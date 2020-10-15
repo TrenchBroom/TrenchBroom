@@ -234,7 +234,7 @@ namespace TrenchBroom {
 
         ControlListBoxItemRenderer* LayerListBox::createItemRenderer(QWidget* parent, const size_t index) {
             auto document = kdl::mem_lock(m_document);
-            const auto* world = document->world();
+            auto* world = document->world();
 
             Model::LayerNode* layer;
             if (index == 0) {

@@ -137,7 +137,7 @@ namespace TrenchBroom {
         }
 
         void NodeWriter::writeCustomLayers() {
-            const std::vector<Model::LayerNode*> customLayers = m_world.customLayers();
+            const std::vector<const Model::LayerNode*> customLayers = m_world.customLayers();
             for (auto* layer : customLayers) {
                 writeCustomLayer(layer);
             }
