@@ -336,19 +336,19 @@ namespace TrenchBroom {
             return logicalBounds().center();
         }
 
-        Node* EntityNode::doGetContainer() const {
+        Node* EntityNode::doGetContainer() {
             FindContainerVisitor visitor;
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
-        LayerNode* EntityNode::doGetLayer() const {
+        LayerNode* EntityNode::doGetLayer() {
             FindLayerVisitor visitor;
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
-        GroupNode* EntityNode::doGetGroup() const {
+        GroupNode* EntityNode::doGetGroup() {
             FindGroupVisitor visitor;
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;

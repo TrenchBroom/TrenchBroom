@@ -230,19 +230,19 @@ namespace TrenchBroom {
             return vm::vec3::zero();
         }
 
-        Node* GroupNode::doGetContainer() const {
+        Node* GroupNode::doGetContainer() {
             FindContainerVisitor visitor;
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
-        LayerNode* GroupNode::doGetLayer() const {
+        LayerNode* GroupNode::doGetLayer() {
             FindLayerVisitor visitor;
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
-        GroupNode* GroupNode::doGetGroup() const {
+        GroupNode* GroupNode::doGetGroup() {
             FindGroupVisitor visitor;
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;

@@ -58,34 +58,55 @@ namespace TrenchBroom {
 
         WorldNode::~WorldNode() = default;
 
-        LayerNode* WorldNode::defaultLayer() const {
+        LayerNode* WorldNode::defaultLayer() {
             ensure(m_defaultLayer != nullptr, "defaultLayer is null");
             return m_defaultLayer;
         }
 
-        std::vector<LayerNode*> WorldNode::allLayers() const {
+        const LayerNode* WorldNode::defaultLayer() const {
+            ensure(m_defaultLayer != nullptr, "defaultLayer is null");
+            return m_defaultLayer;
+        }
+
+        std::vector<LayerNode*> WorldNode::allLayers() {
             CollectLayersVisitor visitor;
             iterate(visitor);
             return visitor.layers();
         }
 
-        std::vector<LayerNode*> WorldNode::customLayers() const {
+        std::vector<const LayerNode*> WorldNode::allLayers() const {
+            return kdl::vec_transform(const_cast<WorldNode*>(this)->allLayers(), [](const auto* l) { return l; });
+        }
+
+        std::vector<LayerNode*> WorldNode::customLayers() {
             const std::vector<Node*>& children = Node::children();
             CollectLayersVisitor visitor;
             accept(std::next(std::begin(children)), std::end(children), visitor);
             return visitor.layers();
         }
 
-        std::vector<LayerNode*> WorldNode::allLayersUserSorted() const {
+        std::vector<const LayerNode*> WorldNode::customLayers() const {
+            return kdl::vec_transform(const_cast<WorldNode*>(this)->customLayers(), [](const auto* l) { return l; });
+        }
+
+        std::vector<LayerNode*> WorldNode::allLayersUserSorted() {
             std::vector<LayerNode*> result = allLayers();
             LayerNode::sortLayers(result);
             return result;
         }
 
-        std::vector<LayerNode*> WorldNode::customLayersUserSorted() const {
+        std::vector<const LayerNode*> WorldNode::allLayersUserSorted() const {
+            return kdl::vec_transform(const_cast<WorldNode*>(this)->allLayersUserSorted(), [](const auto* l) { return l; });
+        }
+
+        std::vector<LayerNode*> WorldNode::customLayersUserSorted() {
             std::vector<LayerNode*> result = customLayers();
             LayerNode::sortLayers(result);
             return result;
+        }
+
+        std::vector<const LayerNode*> WorldNode::customLayersUserSorted() const {
+            return kdl::vec_transform(const_cast<WorldNode*>(this)->customLayersUserSorted(), [](const auto* l) { return l; });
         }
 
         void WorldNode::createDefaultLayer() {

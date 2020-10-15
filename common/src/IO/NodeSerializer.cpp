@@ -105,7 +105,7 @@ namespace TrenchBroom {
             auto worldAttribs = Model::EntityAttributes(world.attributes());
 
             // Transfer the color, locked state, and hidden state from the default layer Layer object to worldspawn
-            Model::LayerNode* defaultLayer = world.defaultLayer();
+            const Model::LayerNode* defaultLayer = world.defaultLayer();
             if (defaultLayer->hasAttribute(Model::AttributeNames::LayerColor)) {
                 worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerColor, defaultLayer->attribute(Model::AttributeNames::LayerColor), nullptr);
             } else {

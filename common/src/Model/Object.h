@@ -45,9 +45,14 @@ namespace TrenchBroom {
         public:
             virtual ~Object();
 
-            Node* container() const;
-            LayerNode* layer() const;
-            GroupNode* group() const;
+            Node* container();
+            const Node* container() const;
+
+            LayerNode* layer();
+            const LayerNode* layer() const;
+
+            GroupNode* group();
+            const GroupNode* group() const;
 
             bool grouped() const;
             bool groupOpened() const;
@@ -67,9 +72,9 @@ namespace TrenchBroom {
             bool contains(const Node* object) const;
             bool intersects(const Node* object) const;
         private: // subclassing interface
-            virtual Node* doGetContainer() const = 0;
-            virtual LayerNode* doGetLayer() const = 0;
-            virtual GroupNode* doGetGroup() const = 0;
+            virtual Node* doGetContainer() = 0;
+            virtual LayerNode* doGetLayer() = 0;
+            virtual GroupNode* doGetGroup() = 0;
 
             virtual kdl::result<void, TransformError> doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) = 0;
             virtual bool doContains(const Node* node) const = 0;

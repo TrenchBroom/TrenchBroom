@@ -111,9 +111,9 @@ namespace TrenchBroom {
 
             std::optional<std::tuple<FloatType, size_t>> findFaceHit(const vm::ray3& ray) const;
 
-            Node* doGetContainer() const override;
-            LayerNode* doGetLayer() const override;
-            GroupNode* doGetGroup() const override;
+            Node* doGetContainer() override;
+            LayerNode* doGetLayer() override;
+            GroupNode* doGetGroup() override;
 
             kdl::result<void, TransformError> doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) override;
 

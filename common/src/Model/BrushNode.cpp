@@ -232,19 +232,19 @@ namespace TrenchBroom {
             return std::nullopt;
         }
 
-        Node* BrushNode::doGetContainer() const {
+        Node* BrushNode::doGetContainer() {
             FindContainerVisitor visitor;
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
-        LayerNode* BrushNode::doGetLayer() const {
+        LayerNode* BrushNode::doGetLayer() {
             FindLayerVisitor visitor;
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
-        GroupNode* BrushNode::doGetGroup() const {
+        GroupNode* BrushNode::doGetGroup() {
             FindGroupVisitor visitor;
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : nullptr;
