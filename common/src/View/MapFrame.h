@@ -168,11 +168,13 @@ namespace TrenchBroom {
             bool openDocument(std::shared_ptr<Model::Game> game, Model::MapFormat mapFormat, const IO::Path& path);
             bool saveDocument();
             bool saveDocumentAs();
+            bool revertDocument();
             bool exportDocumentAsObj();
             bool exportDocumentAsMap();
             bool exportDocument(Model::ExportFormat format, const IO::Path& path);
         private:
             bool confirmOrDiscardChanges();
+            bool confirmRevert();
         public:
             void loadPointFile();
             void reloadPointFile();

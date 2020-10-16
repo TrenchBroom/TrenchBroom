@@ -91,6 +91,7 @@
 #include <QMessageBox>
 #include <QMimeData>
 #include <QFileDialog>
+#include <QPushButton>
 #include <QStatusBar>
 #include <QStringList>
 #include <QToolBar>
@@ -810,6 +811,20 @@ namespace TrenchBroom {
             }
         }
 
+        bool MapFrame::revertDocument() {
+            if (!m_document->persistent()) {
+                return false;
+            }
+            if (!confirmRevert()) {
+                return false;
+            }
+            const auto mapFormat = m_document->world()->format();
+            const auto game = m_document->game();
+            const auto path = m_document->path();
+            m_document->loadDocument(mapFormat, MapDocument::DefaultWorldBounds, game, path);
+            return true;
+        }
+
         bool MapFrame::exportDocumentAsObj() {
             const IO::Path& originalPath = m_document->path();
             const IO::Path objPath = originalPath.replaceExtension("obj");
@@ -873,6 +888,30 @@ namespace TrenchBroom {
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
+        }
+
+        /**
+         * Returns whether the document should be reverted.
+         */
+        bool MapFrame::confirmRevert() {
+            if (!m_document->modified()) {
+                return true;
+            }
+
+            QMessageBox messageBox(this);
+            messageBox.setWindowTitle("TrenchBroom");
+            messageBox.setIcon(QMessageBox::Question);
+            messageBox.setText(tr("Revert %1 to %2?")
+                .arg(QString::fromStdString(m_document->filename()))
+                .arg(IO::pathAsQString(m_document->path())));
+            messageBox.setInformativeText(tr("This will discard all unsaved changes and reload the document from disk."));
+
+            auto* revertButton = messageBox.addButton(tr("Revert"), QMessageBox::DestructiveRole);
+            messageBox.addButton(QMessageBox::Cancel);
+
+            messageBox.exec();
+
+            return (messageBox.clickedButton() == revertButton);
         }
 
         void MapFrame::loadPointFile() {
