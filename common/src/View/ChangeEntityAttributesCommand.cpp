@@ -137,10 +137,6 @@ namespace TrenchBroom {
             return std::make_unique<CommandResult>(true);
         }
 
-        bool ChangeEntityAttributesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
-        }
-
         bool ChangeEntityAttributesCommand::doCollateWith(UndoableCommand* command) {
             ChangeEntityAttributesCommand* other = static_cast<ChangeEntityAttributesCommand*>(command);
             if (other->m_action != m_action) {

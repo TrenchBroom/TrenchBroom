@@ -47,10 +47,6 @@ namespace TrenchBroom {
             return std::make_unique<CommandResult>(true);
         }
 
-        bool ReparentNodesCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
-        }
-
         bool ReparentNodesCommand::doCollateWith(UndoableCommand*) {
             return false;
         }

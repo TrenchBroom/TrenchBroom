@@ -21,6 +21,7 @@
 #define TrenchBroom_Texture
 
 #include "Color.h"
+#include "Assets/TextureBuffer.h"
 #include "Renderer/GL.h"
 
 #include <vecmath/forward.h>
@@ -72,7 +73,7 @@ namespace TrenchBroom {
 
         class Texture {
         private:
-            using Buffer = std::vector<unsigned char>;
+            using Buffer = TextureBuffer;
             using BufferList = std::vector<Buffer>;
         private:
             std::string m_name;

@@ -20,8 +20,6 @@
 #ifndef TrenchBroom_NodeWriter
 #define TrenchBroom_NodeWriter
 
-#include "IO/NodeSerializer.h"
-
 #include <cstdio> // FILE*
 #include <map>
 #include <memory>
@@ -38,6 +36,8 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        class NodeSerializer;
+
         class NodeWriter {
         private:
             using EntityBrushesMap = std::map<Model::EntityNode*, std::vector<Model::BrushNode*>>;
@@ -49,7 +49,8 @@ namespace TrenchBroom {
         public:
             NodeWriter(const Model::WorldNode& world, FILE* stream);
             NodeWriter(const Model::WorldNode& world, std::ostream& stream);
-            NodeWriter(const Model::WorldNode& world, NodeSerializer* serializer);
+            NodeWriter(const Model::WorldNode& world, std::unique_ptr<NodeSerializer> serializer);
+            ~NodeWriter();
 
             void setExporting(bool exporting);
             void writeMap();

@@ -198,9 +198,12 @@ namespace TrenchBroom {
 
         void GameImpl::doExportMap(WorldNode& world, const Model::ExportFormat format, const IO::Path& path) const {
             switch (format) {
-                case Model::ExportFormat::WavefrontObj:
-                    IO::NodeWriter(world, new IO::ObjFileSerializer(path)).writeMap();
+                case Model::ExportFormat::WavefrontObj: {
+                    IO::NodeWriter writer(world, std::make_unique<IO::ObjFileSerializer>(path));
+                    writer.setExporting(true);
+                    writer.writeMap();
                     break;
+                }
                 case Model::ExportFormat::Map:
                     doWriteMap(world, path, true);
                     break;

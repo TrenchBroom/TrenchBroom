@@ -29,6 +29,26 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        TextureBuffer::TextureBuffer() : m_buffer(), m_size(0) {}
+
+        /**
+         * Note, buffer is created defult-initialized (i.e., uninitialized) on purpose.
+         */
+        TextureBuffer::TextureBuffer(const size_t size) :
+        m_buffer(new unsigned char[size]),
+        m_size(size) {}
+
+        const unsigned char* TextureBuffer::data() const {
+            return m_buffer.get();
+        }
+
+        unsigned char* TextureBuffer::data() {
+            return m_buffer.get();
+        }
+
+        size_t TextureBuffer::size() const {
+            return m_size;
+        }
 
         vm::vec2s sizeAtMipLevel(const size_t width, const size_t height, const size_t level) {
             assert(width > 0);
@@ -59,7 +79,7 @@ namespace TrenchBroom {
             for (size_t level = 0u; level < buffers.size(); ++level) {
                 const auto mipSize = sizeAtMipLevel(width, height, level);
                 const auto numBytes = bytesPerPixel * mipSize.x() * mipSize.y();
-                buffers[level].resize(numBytes);
+                buffers[level] = TextureBuffer(numBytes);
             }
         }
 
@@ -83,7 +103,7 @@ namespace TrenchBroom {
                 auto* newBitmap = FreeImage_Rescale(oldBitmap, newWidth, newHeight, FILTER_BICUBIC);
                 ensure(newBitmap != nullptr, "newBitmap is null");
 
-                buffers[i] = std::vector<unsigned char>(3 * newSize.x() * newSize.y());
+                buffers[i] = TextureBuffer(3 * newSize.x() * newSize.y());
                 auto* newPtr = buffers[i].data();
 
                 FreeImage_ConvertToRawBits(newPtr, newBitmap, newPitch, 24, 0xFF0000, 0x00FF00, 0x0000FF, true);

@@ -158,9 +158,6 @@ namespace TrenchBroom {
             const std::string& doGetRedoCommandName() const override;
             void doUndoCommand() override;
             void doRedoCommand() override;
-            bool doCanRepeatCommands() const override;
-            std::unique_ptr<CommandResult> doRepeatCommands() override;
-            void doClearRepeatableCommands() override;
 
             void doStartTransaction(const std::string& name) override;
             void doCommitTransaction() override;

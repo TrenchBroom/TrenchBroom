@@ -21,6 +21,7 @@
 
 #include "IO/MapFileSerializer.h"
 #include "IO/MapStreamSerializer.h"
+#include "IO/NodeSerializer.h"
 #include "Model/AssortNodesVisitor.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
@@ -108,9 +109,11 @@ namespace TrenchBroom {
         m_world(world),
         m_serializer(MapStreamSerializer::create(m_world.format(), stream)) {}
 
-        NodeWriter::NodeWriter(const Model::WorldNode& world, NodeSerializer* serializer) :
+        NodeWriter::NodeWriter(const Model::WorldNode& world, std::unique_ptr<NodeSerializer> serializer) :
         m_world(world),
-        m_serializer(serializer) {}
+        m_serializer(std::move(serializer)) {}
+
+        NodeWriter::~NodeWriter() = default;
 
         void NodeWriter::setExporting(const bool exporting) {
             m_serializer->setExporting(exporting);

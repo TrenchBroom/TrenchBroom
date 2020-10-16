@@ -43,9 +43,6 @@ namespace TrenchBroom {
 
             std::unique_ptr<CommandResult> shearTextures(MapDocumentCommandFacade* document, const vm::vec2f& factors);
 
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
-            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override;
-
             bool doCollateWith(UndoableCommand* command) override;
 
             deleteCopyAndMove(ShearTexturesCommand)
