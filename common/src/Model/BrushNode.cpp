@@ -269,62 +269,24 @@ namespace TrenchBroom {
                 ));
         }
 
-        class BrushNode::Contains : public ConstNodeVisitor, public NodeQuery<bool> {
-        private:
-            const Brush& m_brush;
-        public:
-            Contains(const Brush& brush) :
-            m_brush(brush) {}
-        private:
-            void doVisit(const WorldNode* /* world */) override { setResult(false); }
-            void doVisit(const LayerNode* /* layer */) override { setResult(false); }
-            void doVisit(const GroupNode* group) override       { setResult(contains(group->logicalBounds())); }
-            void doVisit(const EntityNode* entity) override     { setResult(contains(entity->logicalBounds())); }
-            void doVisit(const BrushNode* brush) override       { setResult(contains(brush)); }
-
-            bool contains(const vm::bbox3& bounds) const {
-                return m_brush.contains(bounds);
-            }
-
-            bool contains(const BrushNode* brush) const {
-                return m_brush.contains(brush->m_brush);
-            }
-        };
-
         bool BrushNode::doContains(const Node* node) const {
-            Contains contains(m_brush);
-            node->accept(contains);
-            assert(contains.hasResult());
-            return contains.result();
+            return node->acceptLambda(kdl::overload(
+                [](const WorldNode*)          { return false; },
+                [](const LayerNode*)          { return false; },
+                [&](const GroupNode* group)   { return m_brush.contains(group->logicalBounds()); },
+                [&](const EntityNode* entity) { return m_brush.contains(entity->logicalBounds()); },
+                [&](const BrushNode* brush)   { return m_brush.contains(brush->brush()); }
+            ));
         }
 
-        class BrushNode::Intersects : public ConstNodeVisitor, public NodeQuery<bool> {
-        private:
-            const Brush& m_brush;
-        public:
-            Intersects(const Brush& brush) :
-            m_brush(brush) {}
-        private:
-            void doVisit(const WorldNode* /* world */) override { setResult(false); }
-            void doVisit(const LayerNode* /* layer */) override { setResult(false); }
-            void doVisit(const GroupNode* group) override       { setResult(intersects(group->logicalBounds())); }
-            void doVisit(const EntityNode* entity) override     { setResult(intersects(entity->logicalBounds())); }
-            void doVisit(const BrushNode* brush) override       { setResult(intersects(brush)); }
-
-            bool intersects(const vm::bbox3& bounds) const {
-                return m_brush.intersects(bounds);
-            }
-
-            bool intersects(const BrushNode* brush) {
-                return m_brush.intersects(brush->m_brush);
-            }
-        };
-
         bool BrushNode::doIntersects(const Node* node) const {
-            Intersects intersects(m_brush);
-            node->accept(intersects);
-            assert(intersects.hasResult());
-            return intersects.result();
+            return node->acceptLambda(kdl::overload(
+                [](const WorldNode*)          { return false; },
+                [](const LayerNode*)          { return false; },
+                [&](const GroupNode* group)   { return m_brush.intersects(group->logicalBounds()); },
+                [&](const EntityNode* entity) { return m_brush.intersects(entity->logicalBounds()); },
+                [&](const BrushNode* brush)   { return m_brush.intersects(brush->brush()); }
+            ));
         }
 
         void BrushNode::invalidateVertexCache() {
