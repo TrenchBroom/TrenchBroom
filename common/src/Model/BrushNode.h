@@ -117,10 +117,7 @@ namespace TrenchBroom {
 
             kdl::result<void, TransformError> doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) override;
 
-            class Contains;
             bool doContains(const Node* node) const override;
-
-            class Intersects;
             bool doIntersects(const Node* node) const override;
         public: // renderer cache
             /**
