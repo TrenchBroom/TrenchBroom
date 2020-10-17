@@ -21,11 +21,11 @@
 
 #include "Ensure.h"
 #include "Model/BrushNode.h"
-#include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/GroupNode.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/IssueGenerator.h"
+#include "Model/ModelUtils.h"
 #include "Model/NodeVisitor.h"
 #include "Model/TagVisitor.h"
 #include "Model/WorldNode.h"
