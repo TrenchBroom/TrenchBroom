@@ -23,56 +23,32 @@
 #include "Model/GroupNode.h"
 #include "Model/EntityNode.h"
 
-#include <vector>
+#include <kdl/overload.h>
 
 namespace TrenchBroom {
     namespace Model {
-        ComputeNodeBoundsVisitor::ComputeNodeBoundsVisitor(const BoundsType type, const vm::bbox3& defaultBounds) :
-        m_initialized(false),
-        m_boundsType(type),
-        m_defaultBounds(defaultBounds) {}
-
-        const vm::bbox3& ComputeNodeBoundsVisitor::bounds() const {
-            if (m_builder.initialized()) {
-                return m_builder.bounds();
-            } else {
-                return m_defaultBounds;
-            }
-        }
-
-        void ComputeNodeBoundsVisitor::doVisit(const WorldNode*) {}
-        void ComputeNodeBoundsVisitor::doVisit(const LayerNode*) {}
-
-        void ComputeNodeBoundsVisitor::doVisit(const GroupNode* group) {
-            if (m_boundsType == BoundsType::Physical) {
-                m_builder.add(group->physicalBounds());
-            } else {
-                m_builder.add(group->logicalBounds());
-            }
-        }
-
-        void ComputeNodeBoundsVisitor::doVisit(const EntityNode* entity) {
-            if (m_boundsType == BoundsType::Physical) {
-                m_builder.add(entity->physicalBounds());
-            } else {
-                m_builder.add(entity->logicalBounds());
-            }
-        }
-
-        void ComputeNodeBoundsVisitor::doVisit(const BrushNode* brush) {
-            if (m_boundsType == BoundsType::Physical) {
-                m_builder.add(brush->physicalBounds());
-            } else {
-                m_builder.add(brush->logicalBounds());
-            }
-        }
-
         vm::bbox3 computeLogicalBounds(const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds) {
-            return computeLogicalBounds(std::begin(nodes), std::end(nodes), defaultBounds);
+            vm::bbox3::builder builder;
+            Node::visitAll(nodes, kdl::overload(
+                [] (const WorldNode*)         {},
+                [] (const LayerNode*)         {},
+                [&](const GroupNode* group)   { builder.add(group->logicalBounds()); },
+                [&](const EntityNode* entity) { builder.add(entity->logicalBounds()); },
+                [&](const BrushNode* brush)   { builder.add(brush->logicalBounds()); }
+            ));
+            return builder.initialized() ? builder.bounds() : defaultBounds;
         }
 
         vm::bbox3 computePhysicalBounds(const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds) {
-            return computePhysicalBounds(std::begin(nodes), std::end(nodes), defaultBounds);
+            vm::bbox3::builder builder;
+            Node::visitAll(nodes, kdl::overload(
+                [] (const WorldNode*)         {},
+                [] (const LayerNode*)         {},
+                [&](const GroupNode* group)   { builder.add(group->physicalBounds()); },
+                [&](const EntityNode* entity) { builder.add(entity->physicalBounds()); },
+                [&](const BrushNode* brush)   { builder.add(brush->physicalBounds()); }
+            ));
+            return builder.initialized() ? builder.bounds() : defaultBounds;
         }
     }
 }
