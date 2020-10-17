@@ -21,8 +21,6 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityModel.h"
-#include "Model/BoundsContainsNodeVisitor.h"
-#include "Model/BoundsIntersectsNodeVisitor.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityRotationPolicy.h"
 #include "Model/EntitySnapshot.h"
@@ -413,17 +411,11 @@ namespace TrenchBroom {
         }
 
         bool EntityNode::doContains(const Node* node) const {
-            BoundsContainsNodeVisitor contains(logicalBounds());
-            node->accept(contains);
-            assert(contains.hasResult());
-            return contains.result();
+            return boundsContainNode(logicalBounds(), node);
         }
 
         bool EntityNode::doIntersects(const Node* node) const {
-            BoundsIntersectsNodeVisitor intersects(logicalBounds());
-            node->accept(intersects);
-            assert(intersects.hasResult());
-            return intersects.result();
+            return boundsIntersectNode(logicalBounds(), node);
         }
 
         void EntityNode::invalidateBounds() {
