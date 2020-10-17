@@ -815,7 +815,7 @@ namespace TrenchBroom {
             if (!m_document->persistent()) {
                 return false;
             }
-            if (!confirmRevert()) {
+            if (!confirmRevertDocument()) {
                 return false;
             }
             const auto mapFormat = m_document->world()->format();
@@ -893,7 +893,7 @@ namespace TrenchBroom {
         /**
          * Returns whether the document should be reverted.
          */
-        bool MapFrame::confirmRevert() {
+        bool MapFrame::confirmRevertDocument() {
             if (!m_document->modified()) {
                 return true;
             }

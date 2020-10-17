@@ -174,7 +174,7 @@ namespace TrenchBroom {
             bool exportDocument(Model::ExportFormat format, const IO::Path& path);
         private:
             bool confirmOrDiscardChanges();
-            bool confirmRevert();
+            bool confirmRevertDocument();
         public:
             void loadPointFile();
             void reloadPointFile();
