@@ -59,20 +59,20 @@ namespace TrenchBroom {
             void mergeWith(const vm::bbox3& bounds);
         };
 
-        vm::bbox3 computeLogicalBounds(const std::vector<Node*>& nodes);
+        vm::bbox3 computeLogicalBounds(const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds = vm::bbox3());
 
         template <typename I>
-        vm::bbox3 computeLogicalBounds(I cur, I end) {
-            auto visitor = ComputeNodeBoundsVisitor(BoundsType::Logical);
+        vm::bbox3 computeLogicalBounds(I cur, I end, const vm::bbox3& defaultBounds = vm::bbox3()) {
+            auto visitor = ComputeNodeBoundsVisitor(BoundsType::Logical, defaultBounds);
             Node::accept(cur, end, visitor);
             return visitor.bounds();
         }
 
-        vm::bbox3 computePhysicalBounds(const std::vector<Node*>& nodes);
+        vm::bbox3 computePhysicalBounds(const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds = vm::bbox3());
 
         template <typename I>
-        vm::bbox3 computePhysicalBounds(I cur, I end) {
-            auto visitor = ComputeNodeBoundsVisitor(BoundsType::Physical);
+        vm::bbox3 computePhysicalBounds(I cur, I end, const vm::bbox3& defaultBounds = vm::bbox3()) {
+            auto visitor = ComputeNodeBoundsVisitor(BoundsType::Physical, defaultBounds);
             Node::accept(cur, end, visitor);
             return visitor.bounds();
         }
