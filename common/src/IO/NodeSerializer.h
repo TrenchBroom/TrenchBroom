@@ -99,8 +99,6 @@ namespace TrenchBroom {
             void brushFaces(const std::vector<Model::BrushFace>& faces);
         private:
             void brushFace(const Model::BrushFace& face);
-        private:
-            class GetParentAttributes;
         public:
             std::vector<Model::EntityAttribute> parentAttributes(const Model::Node* node);
         private:
