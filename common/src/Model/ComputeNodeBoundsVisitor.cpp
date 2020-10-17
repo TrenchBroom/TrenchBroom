@@ -67,12 +67,12 @@ namespace TrenchBroom {
             }
         }
 
-        vm::bbox3 computeLogicalBounds(const std::vector<Node*>& nodes) {
-            return computeLogicalBounds(std::begin(nodes), std::end(nodes));
+        vm::bbox3 computeLogicalBounds(const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds) {
+            return computeLogicalBounds(std::begin(nodes), std::end(nodes), defaultBounds);
         }
 
-        vm::bbox3 computePhysicalBounds(const std::vector<Node*>& nodes) {
-            return computePhysicalBounds(std::begin(nodes), std::end(nodes));
+        vm::bbox3 computePhysicalBounds(const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds) {
+            return computePhysicalBounds(std::begin(nodes), std::end(nodes), defaultBounds);
         }
     }
 }
