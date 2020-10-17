@@ -219,14 +219,8 @@ namespace TrenchBroom {
         }
 
         void LayerNode::validateBounds() const {
-            ComputeNodeBoundsVisitor visitor(BoundsType::Logical, vm::bbox3(0.0));
-            iterate(visitor);
-            m_logicalBounds = visitor.bounds();
-
-            ComputeNodeBoundsVisitor physicalBoundsVisitor(BoundsType::Physical, vm::bbox3(0.0));
-            iterate(physicalBoundsVisitor);
-            m_physicalBounds = physicalBoundsVisitor.bounds();
-
+            m_logicalBounds = computeLogicalBounds(children(), vm::bbox3(0.0));
+            m_physicalBounds = computePhysicalBounds(children(), vm::bbox3(0.0));
             m_boundsValid = true;
         }
 
