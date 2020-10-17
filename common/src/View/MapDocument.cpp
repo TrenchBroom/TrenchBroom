@@ -52,7 +52,6 @@
 #include "Model/CollectSelectableNodesWithFilePositionVisitor.h"
 #include "Model/CollectSelectedNodesVisitor.h"
 #include "Model/CollectTouchingNodesVisitor.h"
-#include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/EmptyAttributeNameIssueGenerator.h"
 #include "Model/EmptyAttributeValueIssueGenerator.h"

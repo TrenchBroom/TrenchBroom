@@ -119,7 +119,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/CompilationConfig.cpp
         ${COMMON_SOURCE_DIR}/Model/CompilationProfile.cpp
         ${COMMON_SOURCE_DIR}/Model/CompilationTask.cpp
-        ${COMMON_SOURCE_DIR}/Model/ComputeNodeBoundsVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/EditorContext.cpp
         ${COMMON_SOURCE_DIR}/Model/EmptyAttributeNameIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/EmptyAttributeValueIssueGenerator.cpp
@@ -635,7 +634,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/CompilationConfig.h
         ${COMMON_SOURCE_DIR}/Model/CompilationProfile.h
         ${COMMON_SOURCE_DIR}/Model/CompilationTask.h
-        ${COMMON_SOURCE_DIR}/Model/ComputeNodeBoundsVisitor.h
         ${COMMON_SOURCE_DIR}/Model/EditorContext.h
         ${COMMON_SOURCE_DIR}/Model/EmptyAttributeNameIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/EmptyAttributeValueIssueGenerator.h

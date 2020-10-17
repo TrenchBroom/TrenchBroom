@@ -20,8 +20,11 @@
 #ifndef TrenchBroom_ModelUtils
 #define TrenchBroom_ModelUtils
 
+#include "FloatType.h"
 #include "Model/CollectUniqueNodesVisitor.h"
 #include "Model/Node.h"
+
+#include <vecmath/bbox.h>
 
 #include <map>
 #include <vector>
@@ -43,6 +46,9 @@ namespace TrenchBroom {
         std::vector<Node*> collectChildren(const std::map<Node*, std::vector<Node*>>& nodes);
         std::vector<Node*> collectDescendants(const std::vector<Node*>& nodes);
         std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes);
+
+        vm::bbox3 computeLogicalBounds(const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds = vm::bbox3());
+        vm::bbox3 computePhysicalBounds(const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds = vm::bbox3());
     }
 }
 
