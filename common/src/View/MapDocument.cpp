@@ -1244,74 +1244,57 @@ namespace TrenchBroom {
             return (newIndex >= 0 && newIndex < static_cast<int>(sorted.size()));
         }
 
-        class CollectMoveableNodes : public Model::NodeVisitor {
-        private:
-            Model::WorldNode* m_world;
-            std::set<Model::Node*> m_selectNodes;
-            std::set<Model::Node*> m_moveNodes;
-        public:
-            explicit CollectMoveableNodes(Model::WorldNode* world) : m_world(world) {}
-
-            const std::vector<Model::Node*> selectNodes() const {
-                return std::vector<Model::Node*>(std::begin(m_selectNodes), std::end(m_selectNodes));
-            }
-
-            const std::vector<Model::Node*> moveNodes() const {
-                return std::vector<Model::Node*>(std::begin(m_moveNodes), std::end(m_moveNodes));
-            }
-        private:
-            void doVisit(Model::WorldNode*) override   {}
-            void doVisit(Model::LayerNode*) override   {}
-
-            void doVisit(Model::GroupNode* group) override   {
-                assert(group->selected());
-
-                if (!group->grouped()) {
-                    m_moveNodes.insert(group);
-                    m_selectNodes.insert(group);
-                }
-            }
-
-            void doVisit(Model::EntityNode* entity) override {
-                assert(entity->selected());
-
-                if (!entity->grouped()) {
-                    m_moveNodes.insert(entity);
-                    m_selectNodes.insert(entity);
-                }
-            }
-
-            void doVisit(Model::BrushNode* brush) override   {
-                assert(brush->selected());
-                if (!brush->grouped()) {
-                    auto* entity = brush->entity();
-                    if (entity == m_world) {
-                        m_moveNodes.insert(brush);
-                        m_selectNodes.insert(brush);
-                    } else {
-                        if (m_moveNodes.insert(entity).second) {
-                            const std::vector<Model::Node*>& siblings = entity->children();
-                            m_selectNodes.insert(std::begin(siblings), std::end(siblings));
-                        }
-                    }
-                }
-            }
-        };
-
         void MapDocument::moveSelectionToLayer(Model::LayerNode* layer) {
             Transaction transaction(this, "Move Nodes to " + layer->name());
 
             const auto& selectedNodes = this->selectedNodes().nodes();
+            
+            auto nodesToMove = std::vector<Model::Node*>{};
+            auto nodesToSelect = std::vector<Model::Node*>{};
 
-            CollectMoveableNodes visitor(world());
-            Model::Node::accept(std::begin(selectedNodes), std::end(selectedNodes), visitor);
+            for (auto* node : selectedNodes) {
+                node->acceptLambda(kdl::overload(
+                    [] (Model::WorldNode*) {},
+                    [] (Model::LayerNode*) {},
+                    [&](Model::GroupNode* group) {
+                        assert(group->selected());
 
-            const auto moveNodes = visitor.moveNodes();
-            if (!moveNodes.empty()) {
+                        if (!group->grouped()) {
+                            nodesToMove.push_back(group);
+                            nodesToSelect.push_back(group);
+                        }
+                    },
+                    [&](Model::EntityNode* entity) {
+                        assert(entity->selected());
+                        if (!entity->grouped()) {
+                            nodesToMove.push_back(entity);
+                            nodesToSelect.push_back(entity);
+                        }
+                    },
+                    [&](Model::BrushNode* brush) {
+                        assert(brush->selected());
+
+                        if (!brush->grouped()) {
+                            auto* entity = brush->entity();
+                            if (entity == m_world.get()) {
+                                nodesToMove.push_back(brush);
+                                nodesToSelect.push_back(brush);
+                            } else {
+                                if (!kdl::vec_contains(nodesToMove, entity)) {
+                                    nodesToMove.push_back(entity);
+                                    kdl::vec_append(nodesToSelect, entity->children());
+                                }
+                            }
+                        }
+                    }
+                ));
+            }
+
+            if (!nodesToMove.empty()) {
                 deselectAll();
-                reparentNodes(layer, visitor.moveNodes());
+                reparentNodes(layer, nodesToMove);
                 if (!layer->hidden() && !layer->locked()) {
-                    select(visitor.selectNodes());
+                    select(nodesToSelect);
                 }
             }
         }
