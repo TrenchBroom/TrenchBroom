@@ -147,56 +147,6 @@ namespace TrenchBroom {
             invalidateAllIssues();
         }
 
-        class WorldNode::AddNodeToNodeTree : public NodeVisitor {
-        private:
-            NodeTree& m_nodeTree;
-        public:
-            explicit AddNodeToNodeTree(NodeTree& nodeTree) :
-            m_nodeTree(nodeTree) {}
-        private:
-            void doVisit(WorldNode*) override         {}
-            void doVisit(LayerNode*) override         {}
-            void doVisit(GroupNode*) override         {}
-            void doVisit(EntityNode* entity) override { m_nodeTree.insert(entity->physicalBounds(), entity); }
-            void doVisit(BrushNode* brush) override   { m_nodeTree.insert(brush->physicalBounds(), brush); }
-        };
-
-        class WorldNode::RemoveNodeFromNodeTree : public NodeVisitor {
-        private:
-            NodeTree& m_nodeTree;
-        public:
-            explicit RemoveNodeFromNodeTree(NodeTree& nodeTree) :
-            m_nodeTree(nodeTree) {}
-        private:
-            void doVisit(WorldNode*) override         {}
-            void doVisit(LayerNode*) override         {}
-            void doVisit(GroupNode*) override         {}
-            void doVisit(EntityNode* entity) override { doRemove(entity, entity->physicalBounds()); }
-            void doVisit(BrushNode* brush) override   { doRemove(brush, brush->physicalBounds()); }
-
-            void doRemove(Node* node, const vm::bbox3& bounds) {
-                if (!m_nodeTree.remove(node)) {
-                    auto str = std::stringstream();
-                    str << "Node not found with bounds " << bounds << ": " << node;
-                    throw NodeTreeException(str.str());
-                }
-            }
-        };
-
-        class WorldNode::UpdateNodeInNodeTree : public NodeVisitor {
-        private:
-            NodeTree& m_nodeTree;
-        public:
-            explicit UpdateNodeInNodeTree(NodeTree& nodeTree) :
-            m_nodeTree(nodeTree) {}
-        private:
-            void doVisit(WorldNode*) override         {}
-            void doVisit(LayerNode*) override         {}
-            void doVisit(GroupNode*) override         {}
-            void doVisit(EntityNode* entity) override { m_nodeTree.update(entity->physicalBounds(), entity); }
-            void doVisit(BrushNode* brush) override   { m_nodeTree.update(brush->physicalBounds(), brush); }
-        };
-
         class WorldNode::MatchTreeNodes {
         public:
             bool operator()(const Model::Node* node) const   { return node->shouldAddToSpacialIndex(); }
@@ -296,22 +246,45 @@ namespace TrenchBroom {
             // In some cases, (e.g. if `node` is a Group), `node` will not be added to the spatial index, but some of its descendants may be.
             // We need to recursively search the `node` being connected and add it or any descendants that need to be added.
             if (m_updateNodeTree) {
-                AddNodeToNodeTree visitor(*m_nodeTree);
-                node->acceptAndRecurse(visitor);
+                node->acceptLambda(kdl::overload(
+                    [&](auto&& thisLambda, WorldNode* world)   { world->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, LayerNode* layer)   { layer->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, GroupNode* group)   { group->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, EntityNode* entity) { m_nodeTree->insert(entity->physicalBounds(), entity); entity->visitChildren(thisLambda); },
+                    [&](BrushNode* brush)                      { m_nodeTree->insert(brush->physicalBounds(), brush); }
+                ));
             }
         }
 
         void WorldNode::doDescendantWillBeRemoved(Node* node, const size_t /* depth */) {
             if (m_updateNodeTree) {
-                RemoveNodeFromNodeTree visitor(*m_nodeTree);
-                node->acceptAndRecurse(visitor);
+                const auto doRemove = [&](auto* nodeToRemove) {
+                if (!m_nodeTree->remove(nodeToRemove)) {
+                    auto str = std::stringstream();
+                    str << "Node not found with bounds " << nodeToRemove->physicalBounds() << ": " << nodeToRemove;
+                    throw NodeTreeException(str.str());
+                }
+                };
+
+                node->acceptLambda(kdl::overload(
+                    [&](auto&& thisLambda, WorldNode* world)   { world->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, LayerNode* layer)   { layer->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, GroupNode* group)   { group->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, EntityNode* entity) { doRemove(entity); entity->visitChildren(thisLambda); },
+                    [&](BrushNode* brush)                      { doRemove(brush); }
+                ));
             }
         }
 
         void WorldNode::doDescendantPhysicalBoundsDidChange(Node* node) {
             if (m_updateNodeTree) {
-                UpdateNodeInNodeTree visitor(*m_nodeTree);
-                node->accept(visitor);
+                node->acceptLambda(kdl::overload(
+                    [] (WorldNode*) {},
+                    [] (LayerNode*) {},
+                    [] (GroupNode*) {},
+                    [&](EntityNode* entity) { m_nodeTree->update(entity->physicalBounds(), entity); },
+                    [&](BrushNode* brush)   { m_nodeTree->update(brush->physicalBounds(), brush); }
+                ));
             }
         }
 
