@@ -411,23 +411,23 @@ namespace TrenchBroom {
         }
 
         bool MapDocumentCommandFacade::performTransform(const vm::mat4x4 &transform, const bool lockTextures) {
-          const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
-          const std::vector<Model::Node*> parents = collectParents(nodes);
+            const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
+            const std::vector<Model::Node*> parents = collectParents(nodes);
 
-          Notifier<const std::vector<Model::Node*> &>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-          Notifier<const std::vector<Model::Node*> &>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            Notifier<const std::vector<Model::Node*> &>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            Notifier<const std::vector<Model::Node*> &>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
 
-          Model::TransformObjectVisitor visitor(m_worldBounds, transform, lockTextures);
-          Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
+            Model::TransformObjectVisitor visitor(m_worldBounds, transform, lockTextures);
+            Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
 
-          invalidateSelectionBounds();
+            invalidateSelectionBounds();
 
-          if (visitor.error()) {
-              error() << "Could not transform objects: " << *visitor.error();
-              return false;
-          } else {
-              return true;
-          }
+            if (visitor.error()) {
+                error() << "Could not transform objects: " << *visitor.error();
+                return false;
+            } else {
+                return true;
+            }
         }
 
         MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performSetAttribute(const std::string& name, const std::string& value) {
