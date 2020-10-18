@@ -15,8 +15,8 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef result_h
-#define result_h
+#ifndef result_io_h
+#define result_io_h
 
 #include "kdl/overload.h"
 #include "kdl/result.h"
@@ -40,4 +40,4 @@ namespace kdl {
     }
 }
 
-#endif /* result_h */
+#endif /* result_io_h */
