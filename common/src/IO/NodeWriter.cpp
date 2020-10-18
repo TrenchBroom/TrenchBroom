@@ -35,32 +35,31 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class NodeWriter::WriteNode : public Model::ConstNodeVisitor {
-        private:
-            NodeSerializer& m_serializer;
-            const std::vector<Model::EntityAttribute> m_parentAttributes;
-        public:
-            explicit WriteNode(NodeSerializer& serializer, const Model::Node* parent = nullptr) :
-            m_serializer(serializer),
-            m_parentAttributes(m_serializer.parentAttributes(parent)) {}
+        static void doWriteNodes(NodeSerializer& serializer, const std::vector<Model::Node*>& nodes, const Model::Node* parent = nullptr) {
+            auto parentStack = std::vector<const Model::Node*>{ parent };
+            const auto parentAttributes = [&]() {
+                assert(!parentStack.empty());
+                return serializer.parentAttributes(parentStack.back());
+            };
 
-            void doVisit(const Model::WorldNode* /* world */) override   { stopRecursion(); }
-            void doVisit(const Model::LayerNode* /* layer */) override   { stopRecursion(); }
+            for (const auto* node : nodes) {
+                node->acceptLambda(kdl::overload(
+                    [] (const Model::WorldNode*) {},
+                    [] (const Model::LayerNode*) {},
+                    [&](auto&& thisLambda, const Model::GroupNode* group) {
+                        serializer.group(group, parentAttributes());
 
-            void doVisit(const Model::GroupNode* group) override   {
-                m_serializer.group(group, m_parentAttributes);
-                WriteNode visitor(m_serializer, group);
-                group->iterate(visitor);
-                stopRecursion();
+                        parentStack.push_back(group);
+                        group->visitChildren(thisLambda);
+                        parentStack.pop_back();
+                    },
+                    [&](const Model::EntityNode* entity) {
+                        serializer.entity(entity, entity->attributes(), parentAttributes(), entity);
+                    },
+                    [] (const Model::BrushNode*) {}
+                ));
             }
-
-            void doVisit(const Model::EntityNode* entity) override {
-                m_serializer.entity(entity, entity->attributes(), m_parentAttributes, entity);
-                stopRecursion();
-            }
-
-            void doVisit(const Model::BrushNode* /* brush */) override   { stopRecursion();  }
-        };
+        }
 
         NodeWriter::NodeWriter(const Model::WorldNode& world, FILE* stream) :
         m_world(world),
@@ -91,9 +90,7 @@ namespace TrenchBroom {
             m_serializer->defaultLayer(m_world);
 
             if (!(m_serializer->exporting() && m_world.defaultLayer()->omitFromExport())) {
-                const std::vector<Model::Node *> &children = m_world.defaultLayer()->children();
-                WriteNode visitor(*m_serializer);
-                Model::Node::accept(std::begin(children), std::end(children), visitor);
+                doWriteNodes(*m_serializer, m_world.defaultLayer()->children());
             }
         }
 
@@ -107,10 +104,7 @@ namespace TrenchBroom {
         void NodeWriter::writeCustomLayer(const Model::LayerNode* layer) {
             if (!(m_serializer->exporting() && layer->omitFromExport())) {
                 m_serializer->customLayer(layer);
-
-                const std::vector<Model::Node *> &children = layer->children();
-                WriteNode visitor(*m_serializer, layer);
-                Model::Node::accept(std::begin(children), std::end(children), visitor);
+                doWriteNodes(*m_serializer, layer->children(), layer);
             }
         }
 
@@ -118,8 +112,8 @@ namespace TrenchBroom {
             m_serializer->beginFile();
 
             // Assort nodes according to their type and, in case of brushes, whether they are entity or world brushes.
-            std::vector<Model::GroupNode*> groups;
-            std::vector<Model::EntityNode*> entities;
+            std::vector<Model::Node*> groups;
+            std::vector<Model::Node*> entities;
             std::vector<Model::BrushNode*> worldBrushes;
             EntityBrushesMap entityBrushes;
 
@@ -142,9 +136,8 @@ namespace TrenchBroom {
             writeWorldBrushes(worldBrushes);
             writeEntityBrushes(entityBrushes);
             
-            WriteNode visitor(*m_serializer);
-            Model::Node::accept(std::begin(groups), std::end(groups), visitor);
-            Model::Node::accept(std::begin(entities), std::end(entities), visitor);
+            doWriteNodes(*m_serializer, groups);
+            doWriteNodes(*m_serializer, entities);
 
             m_serializer->endFile();
         }
