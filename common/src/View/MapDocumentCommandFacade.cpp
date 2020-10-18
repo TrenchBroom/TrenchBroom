@@ -359,41 +359,6 @@ namespace TrenchBroom {
             nodeLockingDidChangeNotifier(changedNodes);
         }
 
-        class MapDocumentCommandFacade::RenameGroupsVisitor : public Model::NodeVisitor {
-        private:
-            const std::string& m_newName;
-            std::map<Model::GroupNode*, std::string> m_oldNames;
-        public:
-            explicit RenameGroupsVisitor(const std::string& newName) : m_newName(newName) {}
-            const std::map<Model::GroupNode*, std::string>& oldNames() const { return m_oldNames; }
-        private:
-            void doVisit(Model::WorldNode*) override  {}
-            void doVisit(Model::LayerNode*) override  {}
-            void doVisit(Model::GroupNode* group) override {
-                m_oldNames[group] = group->name();
-                group->setName(m_newName);
-            }
-            void doVisit(Model::EntityNode*) override {}
-            void doVisit(Model::BrushNode*) override  {}
-        };
-
-        class MapDocumentCommandFacade::UndoRenameGroupsVisitor : public Model::NodeVisitor {
-        private:
-            const std::map<Model::GroupNode*, std::string>& m_newNames;
-        public:
-            explicit UndoRenameGroupsVisitor(const std::map<Model::GroupNode*, std::string>& newNames) : m_newNames(newNames) {}
-        private:
-            void doVisit(Model::WorldNode*) override  {}
-            void doVisit(Model::LayerNode*) override  {}
-            void doVisit(Model::GroupNode* group) override {
-                assert(m_newNames.count(group) == 1);
-                const std::string& newName = kdl::map_find_or_default(m_newNames, group, group->name());
-                group->setName(newName);
-            }
-            void doVisit(Model::EntityNode*) override {}
-            void doVisit(Model::BrushNode*) override  {}
-        };
-
         std::map<Model::GroupNode*, std::string> MapDocumentCommandFacade::performRenameGroups(const std::string& newName) {
             const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
             const std::vector<Model::Node*> parents = collectParents(nodes);
@@ -401,9 +366,18 @@ namespace TrenchBroom {
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
 
-            RenameGroupsVisitor visitor(newName);
-            Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
-            return visitor.oldNames();
+            std::map<Model::GroupNode*, std::string> oldNames;
+            for (auto* node : nodes) {
+                node->acceptLambda(kdl::overload(
+                    [&](Model::GroupNode* group) {
+                        oldNames[group] = group->name();
+                        group->setName(newName);
+                    },
+                    [](const auto*) {}
+                ));
+            }
+
+            return oldNames;
         }
 
         void MapDocumentCommandFacade::performUndoRenameGroups(const std::map<Model::GroupNode*, std::string>& newNames) {
@@ -413,8 +387,16 @@ namespace TrenchBroom {
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
 
-            UndoRenameGroupsVisitor visitor(newNames);
-            Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
+            for (auto* node : nodes) {
+                node->acceptLambda(kdl::overload(
+                    [&](Model::GroupNode* group) {
+                        assert(newNames.count(group) == 1);
+                        const std::string& newName = kdl::map_find_or_default(newNames, group, group->name());
+                        group->setName(newName);
+                    },
+                    [](const auto*) {}
+                ));
+            }
         }
 
         void MapDocumentCommandFacade::performPushGroup(Model::GroupNode* group) {
