@@ -219,20 +219,13 @@ namespace TrenchBroom {
             m_nodeTree->clearAndBuild(collect.nodes(), [](const auto* node){ return node->physicalBounds(); });
         }
 
-        class WorldNode::InvalidateAllIssuesVisitor : public NodeVisitor {
-        private:
-            void doVisit(WorldNode* world) override   { invalidateIssues(world);  }
-            void doVisit(LayerNode* layer) override   { invalidateIssues(layer);  }
-            void doVisit(GroupNode* group) override   { invalidateIssues(group);  }
-            void doVisit(EntityNode* entity) override { invalidateIssues(entity); }
-            void doVisit(BrushNode* brush) override   { invalidateIssues(brush);  }
-
-            void invalidateIssues(Node* node) { node->invalidateIssues(); }
-        };
-
         void WorldNode::invalidateAllIssues() {
-            InvalidateAllIssuesVisitor visitor;
-            acceptAndRecurse(visitor);
+            acceptLambda(kdl::overload(
+                [](auto&& thisLambda, Node* node) -> void {
+                    node->invalidateIssues();
+                    node->visitChildren(thisLambda);
+                }
+            ));
         }
 
         const vm::bbox3& WorldNode::doGetLogicalBounds() const {
