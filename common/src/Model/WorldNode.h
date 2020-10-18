@@ -111,10 +111,6 @@ namespace TrenchBroom {
             std::vector<IssueQuickFix*> quickFixes(IssueType issueTypes) const;
             void registerIssueGenerator(IssueGenerator* issueGenerator);
             void unregisterAllIssueGenerators();
-        private:
-            class AddNodeToNodeTree;
-            class RemoveNodeFromNodeTree;
-            class UpdateNodeInNodeTree;
         public: // node tree bulk updating
             class MatchTreeNodes;
             void disableNodeTreeUpdates();
