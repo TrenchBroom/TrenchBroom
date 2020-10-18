@@ -69,7 +69,6 @@
 #include "Model/InvalidTextureScaleIssueGenerator.h"
 #include "Model/LongAttributeNameIssueGenerator.h"
 #include "Model/LongAttributeValueIssueGenerator.h"
-#include "Model/MergeNodesIntoWorldVisitor.h"
 #include "Model/MissingClassnameIssueGenerator.h"
 #include "Model/MissingDefinitionIssueGenerator.h"
 #include "Model/MissingModIssueGenerator.h"
@@ -440,10 +439,52 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes) {
-            Model::MergeNodesIntoWorldVisitor mergeNodes(m_world.get(), parentForNodes());
-            Model::Node::accept(std::begin(nodes), std::end(nodes), mergeNodes);
+            auto nodesToDetach = std::vector<Model::Node*>{};
+            auto nodesToDelete = std::vector<Model::Node*>{};
+            auto nodesToAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
 
-            const std::vector<Model::Node*> addedNodes = addNodes(mergeNodes.result());
+            auto* parent = parentForNodes();
+            for (auto* node : nodes) {
+                node->acceptLambda(kdl::overload(
+                    [&](auto&& thisLambda, Model::WorldNode* world) {
+                        world->visitChildren(thisLambda);
+                        nodesToDelete.push_back(world);
+                    },
+                    [&](auto&& thisLambda, Model::LayerNode* layer) {
+                        layer->visitChildren(thisLambda);
+                        nodesToDetach.push_back(layer);
+                        nodesToDelete.push_back(layer);
+                    },
+                    [&](Model::GroupNode* group) {
+                        nodesToDetach.push_back(group);
+                        nodesToAdd[parent].push_back(group);
+                    },
+                    [&](auto&& thisLambda, Model::EntityNode* entity) {
+                        if (Model::isWorldspawn(entity->classname(), entity->attributes())) {
+                            entity->visitChildren(thisLambda);
+                            nodesToDetach.push_back(entity);
+                            nodesToDelete.push_back(entity);
+                        } else {
+                            nodesToDetach.push_back(entity);
+                            nodesToAdd[parent].push_back(entity);
+                        }
+                    },
+                    [&](Model::BrushNode* brush) {
+                        nodesToDetach.push_back(brush);
+                        nodesToAdd[parent].push_back(brush);
+                    }
+                ));
+            }
+
+            for (auto* node : nodesToDetach) {
+                auto* nodeParent = node->parent();
+                if (nodeParent != nullptr) {
+                    nodeParent->removeChild(node);
+                }
+            }
+            kdl::vec_clear_and_delete(nodesToDelete);
+
+            const std::vector<Model::Node*> addedNodes = addNodes(nodesToAdd);
             if (addedNodes.empty())
                 return false;
 

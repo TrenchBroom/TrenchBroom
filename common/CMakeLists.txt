@@ -160,7 +160,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/MapFormat.cpp
         ${COMMON_SOURCE_DIR}/Model/MatchNodesByVisibility.cpp
         ${COMMON_SOURCE_DIR}/Model/MatchSelectableNodes.cpp
-        ${COMMON_SOURCE_DIR}/Model/MergeNodesIntoWorldVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/MissingClassnameIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/MissingDefinitionIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/MissingModIssueGenerator.cpp
@@ -679,7 +678,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/MatchNodesByVisibility.h
         ${COMMON_SOURCE_DIR}/Model/MatchSelectableNodes.h
         ${COMMON_SOURCE_DIR}/Model/MatchSelectedNodes.h
-        ${COMMON_SOURCE_DIR}/Model/MergeNodesIntoWorldVisitor.h
         ${COMMON_SOURCE_DIR}/Model/MissingClassnameIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/MissingDefinitionIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/MissingModIssueGenerator.h
