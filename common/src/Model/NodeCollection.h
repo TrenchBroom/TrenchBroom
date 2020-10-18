@@ -32,11 +32,6 @@ namespace TrenchBroom {
 
         class NodeCollection {
         private:
-            class AddNode;
-            class RemoveNode;
-            class FindBrushes;
-            class HasBrush;
-        private:
             std::vector<Node*> m_nodes;
             std::vector<LayerNode*> m_layers;
             std::vector<GroupNode*> m_groups;
