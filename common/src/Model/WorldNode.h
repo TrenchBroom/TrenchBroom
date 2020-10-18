@@ -121,7 +121,6 @@ namespace TrenchBroom {
             void enableNodeTreeUpdates();
             void rebuildNodeTree();
         private:
-            class InvalidateAllIssuesVisitor;
             void invalidateAllIssues();
         private: // implement Node interface
             const vm::bbox3& doGetLogicalBounds() const override;
