@@ -263,39 +263,24 @@ namespace TrenchBroom {
             return world;
         }
 
-        class CanAddChildToWorld : public ConstNodeVisitor, public NodeQuery<bool> {
-        private:
-            void doVisit(const WorldNode*) override  { setResult(false); }
-            void doVisit(const LayerNode*) override  { setResult(true); }
-            void doVisit(const GroupNode*) override  { setResult(false); }
-            void doVisit(const EntityNode*) override { setResult(false); }
-            void doVisit(const BrushNode*) override  { setResult(false); }
-        };
-
         bool WorldNode::doCanAddChild(const Node* child) const {
-            CanAddChildToWorld visitor;
-            child->accept(visitor);
-            return visitor.result();
+            return child->acceptLambda(kdl::overload(
+                [](const WorldNode*)  { return false; },
+                [](const LayerNode*)  { return true;  },
+                [](const GroupNode*)  { return false; },
+                [](const EntityNode*) { return false; },
+                [](const BrushNode*)  { return false; }
+            ));
         }
 
-        class CanRemoveChildFromWorld : public ConstNodeVisitor, public NodeQuery<bool> {
-        private:
-            const WorldNode* m_this;
-        public:
-            explicit CanRemoveChildFromWorld(const WorldNode* i_this) :
-            m_this(i_this) {}
-        private:
-            void doVisit(const WorldNode*) override        { setResult(false); }
-            void doVisit(const LayerNode* layer) override  { setResult(layer != m_this->defaultLayer()); }
-            void doVisit(const GroupNode*) override        { setResult(false); }
-            void doVisit(const EntityNode*) override       { setResult(false); }
-            void doVisit(const BrushNode*) override        { setResult(false); }
-        };
-
         bool WorldNode::doCanRemoveChild(const Node* child) const {
-            CanRemoveChildFromWorld visitor(this);
-            child->accept(visitor);
-            return visitor.result();
+            return child->acceptLambda(kdl::overload(
+                [] (const WorldNode*)        { return false; },
+                [&](const LayerNode* layer)  { return (layer != defaultLayer()); },
+                [] (const GroupNode*)        { return false; },
+                [] (const EntityNode*)       { return false; },
+                [] (const BrushNode*)        { return false; }
+            ));
         }
 
         bool WorldNode::doRemoveIfEmpty() const {
