@@ -39,7 +39,6 @@
 #include "Model/Issue.h"
 #include "Model/ModelUtils.h"
 #include "Model/Snapshot.h"
-#include "Model/TransformObjectVisitor.h"
 #include "Model/WorldNode.h"
 #include "Model/NodeVisitor.h"
 #include "View/CommandProcessor.h"
@@ -417,17 +416,32 @@ namespace TrenchBroom {
             Notifier<const std::vector<Model::Node*> &>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier<const std::vector<Model::Node*> &>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
 
-            Model::TransformObjectVisitor visitor(m_worldBounds, transform, lockTextures);
-            Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
+            bool success = true;
+            for (auto nodeIt = std::begin(nodes); nodeIt != std::end(nodes) && success; ++nodeIt) {
+                success = (*nodeIt)->acceptLambda(kdl::overload(
+                    [](Model::WorldNode*) {
+                        return kdl::result<void, Model::TransformError>::success();
+                    },
+                    [](Model::LayerNode*) {
+                        return kdl::result<void, Model::TransformError>::success();
+                    },
+                    [&](Model::GroupNode* group) {
+                        return group->transform(m_worldBounds, transform, lockTextures);
+                    },
+                    [&](Model::EntityNode* entity) {
+                        return entity->transform(m_worldBounds, transform, lockTextures);
+                    },
+                    [&](Model::BrushNode* brush) {
+                        return brush->transform(m_worldBounds, transform, lockTextures);
+                    }
+                )).handle_errors(
+                    [&](Model::TransformError&& e) {
+                        error() << "Could not transform objects: " << e;
+                    });
+            }
 
             invalidateSelectionBounds();
-
-            if (visitor.error()) {
-                error() << "Could not transform objects: " << *visitor.error();
-                return false;
-            } else {
-                return true;
-            }
+            return success;
         }
 
         MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performSetAttribute(const std::string& name, const std::string& value) {
