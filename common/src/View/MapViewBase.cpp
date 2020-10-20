@@ -952,21 +952,6 @@ namespace TrenchBroom {
             ToolBoxConnector::processEvent(event);
         }
 
-        static bool isEntity(const Model::Node* node) {
-            class IsEntity : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
-            private:
-                void doVisit(const Model::WorldNode*) override  { setResult(false); }
-                void doVisit(const Model::LayerNode*) override  { setResult(false); }
-                void doVisit(const Model::GroupNode*) override  { setResult(false); }
-                void doVisit(const Model::EntityNode*) override { setResult(true); }
-                void doVisit(const Model::BrushNode*) override  { setResult(false); }
-            };
-
-            IsEntity visitor;
-            node->accept(visitor);
-            return visitor.result();
-        }
-
         void MapViewBase::doShowPopupMenu() {
             // We process input events during paint event processing, but we cannot show a popup menu
             // during paint processing, so we enqueue an event for later.
@@ -1065,7 +1050,12 @@ namespace TrenchBroom {
                 QAction* moveToWorldAction = menu.addAction(tr("Make Structural"), this, &MapViewBase::makeStructural);
                 moveToWorldAction->setEnabled(canMakeStructural());
 
-                if (isEntity(newBrushParent)) {
+                const auto isEntity = newBrushParent->acceptLambda(kdl::overload(
+                    [](const Model::EntityNode*) { return true; },
+                    [](const auto*)              { return false; }
+                ));
+
+                if (isEntity) {
                     menu.addAction(tr("Move Brushes to Entity %1").arg(QString::fromStdString(newBrushParent->name())), this,
                         &MapViewBase::moveSelectedBrushesToEntity);
                 }
