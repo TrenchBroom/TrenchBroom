@@ -41,9 +41,9 @@ namespace TrenchBroom {
         class RenderContext;
 
         class EntityLinkRenderer : public DirectRenderable {
-        private:
+        public:
             using Vertex = GLVertexTypes::P3C4::Vertex;
-
+        private:
             struct ArrowPositionName {
                 static inline const std::string name{"arrowPosition"};
             };
@@ -85,19 +85,10 @@ namespace TrenchBroom {
             static void getArrows(std::vector<ArrowVertex>& arrows, const std::vector<Vertex>& links);
             static void addArrow(std::vector<ArrowVertex>& arrows, const vm::vec4f& color, const vm::vec3f& arrowPosition, const vm::vec3f& lineDir);
 
-            class MatchEntities;
-            class CollectEntitiesVisitor;
-
-            class CollectLinksVisitor;
-            class CollectAllLinksVisitor;
-            class CollectTransitiveSelectedLinksVisitor;
-            class CollectDirectSelectedLinksVisitor;
-
             void getLinks(std::vector<Vertex>& links) const;
             void getAllLinks(std::vector<Vertex>& links) const;
             void getTransitiveSelectedLinks(std::vector<Vertex>& links) const;
             void getDirectSelectedLinks(std::vector<Vertex>& links) const;
-            void collectSelectedLinks(CollectLinksVisitor& collectLinks) const;
 
             EntityLinkRenderer(const EntityLinkRenderer& other);
             EntityLinkRenderer& operator=(const EntityLinkRenderer& other);
