@@ -100,82 +100,66 @@ namespace TrenchBroom {
             }
         }
 
-        class ResizeBrushesTool::PickProximateFace : public Model::NodeVisitor, public Model::NodeQuery<Model::Hit> {
-        private:
-            const Model::HitType::Type m_hitType;
-            const vm::ray3& m_pickRay;
-            FloatType m_closest;
-        public:
-            PickProximateFace(const Model::HitType::Type hitType, const vm::ray3& pickRay) :
-            NodeQuery(Model::Hit::NoHit),
-            m_hitType(hitType),
-            m_pickRay(pickRay),
-            m_closest(std::numeric_limits<FloatType>::max()) {}
-        private:
-            void doVisit(Model::WorldNode*) override  {}
-            void doVisit(Model::LayerNode*) override  {}
-            void doVisit(Model::GroupNode*) override  {}
-            void doVisit(Model::EntityNode*) override {}
-            void doVisit(Model::BrushNode* brushNode) override   {
-                const Model::Brush& brush = brushNode->brush();
-                for (const auto* edge : brush.edges())
-                    visitEdge(brushNode, edge);
-            }
-
-            void visitEdge(Model::BrushNode* node, const Model::BrushEdge* edge) {
-                const auto leftFaceIndex = edge->firstFace()->payload();
-                const auto rightFaceIndex = edge->secondFace()->payload();
-                assert(leftFaceIndex && rightFaceIndex);
-                
-                const auto& leftFace = node->brush().face(*leftFaceIndex);
-                const auto& rightFace = node->brush().face(*rightFaceIndex);
-                const auto leftDot  = dot(leftFace.boundary().normal,  m_pickRay.direction);
-                const auto rightDot = dot(rightFace.boundary().normal, m_pickRay.direction);
-
-                const auto leftFaceHandle = Model::BrushFaceHandle(node, *leftFaceIndex);
-                const auto rightFaceHandle = Model::BrushFaceHandle(node, *rightFaceIndex);
-                
-                if ((leftDot > 0.0) != (rightDot > 0.0)) {
-                    const auto result = vm::distance(m_pickRay, vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
-                    if (!vm::is_nan(result.distance) && result.distance < m_closest) {
-                        m_closest = result.distance;
-                        const auto hitPoint = vm::point_at_distance(m_pickRay, result.position1);
-                        if (m_hitType == ResizeBrushesTool::Resize2DHitType) {
-                            Resize2DHitData data;
-                            if (vm::is_zero(leftDot, vm::C::almost_zero())) {
-                                data.push_back(leftFaceHandle);
-                            } else if (vm::is_zero(rightDot, vm::C::almost_zero())) {
-                                data.push_back(rightFaceHandle);
-                            } else {
-                                if (vm::abs(leftDot) < 1.0) {
-                                    data.push_back(leftFaceHandle);
-                                }
-                                if (vm::abs(rightDot) < 1.0) {
-                                    data.push_back(rightFaceHandle);
-                                }
-                            }
-                            setResult(Model::Hit(m_hitType, result.position1, hitPoint, data));
-                        } else {
-                            const auto faceHandle = leftDot > rightDot ? leftFaceHandle : rightFaceHandle;
-                            setResult(Model::Hit(m_hitType, result.position1, hitPoint, faceHandle));
-                        }
-                    }
-                }
-            }
-        };
-
         Model::Hit ResizeBrushesTool::pickProximateFace(const Model::HitType::Type hitType, const vm::ray3& pickRay) const {
-            PickProximateFace visitor(hitType, pickRay);
-
             auto document = kdl::mem_lock(m_document);
             const auto& nodes = document->selectedNodes().nodes();
-            Model::Node::accept(std::begin(nodes), std::end(nodes), visitor);
 
-            if (!visitor.hasResult()) {
-                return Model::Hit::NoHit;
-            } else {
-                return visitor.result();
+            auto closestDistance = std::numeric_limits<FloatType>::max();
+            auto hit = Model::Hit::NoHit;
+
+            for (auto* node : nodes) {
+                node->acceptLambda(kdl::overload(
+                    [] (Model::WorldNode*) {},
+                    [] (Model::LayerNode*) {},
+                    [] (Model::GroupNode*) {},
+                    [] (Model::EntityNode*){},
+                    [&](Model::BrushNode* brushNode) {
+                        const auto& brush = brushNode->brush();
+                        for (const auto* edge : brush.edges()) {
+                            const auto leftFaceIndex = edge->firstFace()->payload();
+                            const auto rightFaceIndex = edge->secondFace()->payload();
+                            assert(leftFaceIndex && rightFaceIndex);
+                            
+                            const auto& leftFace = brush.face(*leftFaceIndex);
+                            const auto& rightFace = brush.face(*rightFaceIndex);
+                            const auto leftDot  = dot(leftFace.boundary().normal,  pickRay.direction);
+                            const auto rightDot = dot(rightFace.boundary().normal, pickRay.direction);
+
+                            const auto leftFaceHandle = Model::BrushFaceHandle(brushNode, *leftFaceIndex);
+                            const auto rightFaceHandle = Model::BrushFaceHandle(brushNode, *rightFaceIndex);
+                            
+                            if ((leftDot > 0.0) != (rightDot > 0.0)) {
+                                const auto result = vm::distance(pickRay, vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
+                                if (!vm::is_nan(result.distance) && result.distance < closestDistance) {
+                                    closestDistance = result.distance;
+                                    const auto hitPoint = vm::point_at_distance(pickRay, result.position1);
+                                    if (hitType == ResizeBrushesTool::Resize2DHitType) {
+                                        Resize2DHitData data;
+                                        if (vm::is_zero(leftDot, vm::C::almost_zero())) {
+                                            data.push_back(leftFaceHandle);
+                                        } else if (vm::is_zero(rightDot, vm::C::almost_zero())) {
+                                            data.push_back(rightFaceHandle);
+                                        } else {
+                                            if (vm::abs(leftDot) < 1.0) {
+                                                data.push_back(leftFaceHandle);
+                                            }
+                                            if (vm::abs(rightDot) < 1.0) {
+                                                data.push_back(rightFaceHandle);
+                                            }
+                                        }
+                                        hit = Model::Hit(hitType, result.position1, hitPoint, data);
+                                    } else {
+                                        const auto faceHandle = leftDot > rightDot ? leftFaceHandle : rightFaceHandle;
+                                        hit = Model::Hit(hitType, result.position1, hitPoint, faceHandle);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ));
             }
+
+            return hit;
         }
 
         bool ResizeBrushesTool::hasDragFaces() const {
