@@ -20,12 +20,12 @@
 #include "LayerEditor.h"
 
 #include "Model/BrushNode.h"
-#include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EntityNode.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
+#include "Model/ModelUtils.h"
 #include "Model/WorldNode.h"
 #include "View/BorderLine.h"
 #include "View/LayerListBox.h"
@@ -190,11 +190,8 @@ namespace TrenchBroom {
             ensure(layer != nullptr, "layer is null");
 
             auto document = kdl::mem_lock(m_document);
+            const auto nodes = Model::collectSelectableNodes(layer->children(), document->editorContext());
 
-            Model::CollectSelectableNodesVisitor visitor(document->editorContext());
-            layer->recurse(visitor);
-
-            const auto& nodes = visitor.nodes();
             document->deselectAll();
             document->select(nodes);
         }

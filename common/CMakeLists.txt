@@ -619,7 +619,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/CollectNodesByVisibilityVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectNodesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectSelectableBrushFacesVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/CollectSelectableNodesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectSelectableNodesWithFilePositionVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectSelectedNodesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectTouchingNodesVisitor.h
