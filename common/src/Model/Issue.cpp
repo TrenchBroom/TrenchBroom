@@ -22,7 +22,7 @@
 #include "Ensure.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Model/CollectSelectableNodesVisitor.h"
+#include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Node.h"
 

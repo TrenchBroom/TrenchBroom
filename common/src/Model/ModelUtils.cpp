@@ -25,6 +25,7 @@
 #include "Model/BrushNode.h"
 #include "Model/CollectNodesVisitor.h"
 #include "Model/GroupNode.h"
+#include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
 
 #include <kdl/overload.h>
@@ -73,6 +74,39 @@ namespace TrenchBroom {
                 result[parent].push_back(node);
             }
 
+            return result;
+        }
+
+        std::vector<Node*> collectSelectableNodes(const std::vector<Node*>& nodes, const EditorContext& editorContext) {
+            auto result = std::vector<Node*>{};
+
+            for (auto* node : nodes) {
+                node->acceptLambda(kdl::overload(
+                    [&](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, GroupNode* group) {
+                        if (editorContext.selectable(group)) {
+                            // implies that any containing group is opened and that group itself is closed
+                            // therefore we don't need to visit the group's children
+                            result.push_back(group);
+                        } else {
+                            group->visitChildren(thisLambda);
+                        }
+                    },
+                    [&](auto&& thisLambda, EntityNode* entity) {
+                        if (editorContext.selectable(entity)) {
+                            result.push_back(entity);
+                        }
+                        entity->visitChildren(thisLambda);
+                    },
+                    [&](BrushNode* brush) {
+                        if (editorContext.selectable(brush)) {
+                            result.push_back(brush);
+                        }
+                    }
+                ));
+            }
+            
             return result;
         }
 

@@ -47,7 +47,6 @@
 #include "Model/CollectContainedNodesVisitor.h"
 #include "Model/CollectMatchingBrushFacesVisitor.h"
 #include "Model/CollectNodesVisitor.h"
-#include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/CollectSelectableBrushFacesVisitor.h"
 #include "Model/CollectSelectableNodesWithFilePositionVisitor.h"
 #include "Model/CollectSelectedNodesVisitor.h"
@@ -490,9 +489,8 @@ namespace TrenchBroom {
 
             deselectAll();
 
-            Model::CollectSelectableNodesVisitor collectSelectables(editorContext());
-            Model::Node::acceptAndRecurse(std::begin(addedNodes), std::end(addedNodes), collectSelectables);
-            select(collectSelectables.nodes());
+            const auto nodesToSelect = Model::collectSelectableNodes(addedNodes, editorContext());
+            select(nodesToSelect);
 
             return true;
         }
@@ -665,18 +663,23 @@ namespace TrenchBroom {
 
         void MapDocument::selectSiblings() {
             const std::vector<Model::Node*>& nodes = selectedNodes().nodes();
-            if (nodes.empty())
+            if (nodes.empty()) {
                 return;
+            }
 
-            Model::CollectSelectableUniqueNodesVisitor visitor(*m_editorContext);
-            for (Model::Node* node : nodes) {
-                Model::Node* parent = node->parent();
-                parent->iterate(visitor);
+            auto visited = std::unordered_set<Model::Node*>{};
+            auto nodesToSelect = std::vector<Model::Node*>{};
+
+            for (auto* node : nodes) {
+                auto* parent = node->parent();
+                if (!visited.insert(parent).second) {
+                    kdl::vec_append(nodesToSelect, Model::collectSelectableNodes(parent->children(), editorContext()));
+                }
             }
 
             Transaction transaction(this, "Select Siblings");
             deselectAll();
-            select(visitor.nodes());
+            select(nodesToSelect);
         }
 
         void MapDocument::selectTouching(const bool del) {

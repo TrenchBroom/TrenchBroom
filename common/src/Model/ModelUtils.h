@@ -31,6 +31,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class EditorContext;
         class Node;
 
         std::vector<Node*> collectParents(const std::vector<Node*>& nodes);
@@ -47,11 +48,14 @@ namespace TrenchBroom {
         std::vector<Node*> collectDescendants(const std::vector<Node*>& nodes);
         std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes);
 
+        std::vector<Node*> collectSelectableNodes(const std::vector<Node*>& nodes, const EditorContext& editorContext);
+
         vm::bbox3 computeLogicalBounds(const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds = vm::bbox3());
         vm::bbox3 computePhysicalBounds(const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds = vm::bbox3());
 
         bool boundsContainNode(const vm::bbox3& bounds, const Node* node);
         bool boundsIntersectNode(const vm::bbox3& bounds, const Node* node);
+
     }
 }
 

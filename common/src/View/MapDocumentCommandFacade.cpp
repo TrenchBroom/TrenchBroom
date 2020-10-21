@@ -30,7 +30,6 @@
 #include "Model/BrushNode.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectSelectableBrushFacesVisitor.h"
-#include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityAttributeSnapshot.h"
@@ -128,11 +127,9 @@ namespace TrenchBroom {
         void MapDocumentCommandFacade::performSelectAllNodes() {
             performDeselectAll();
 
-            Model::CollectSelectableNodesVisitor visitor(*m_editorContext);
-
-            Model::Node* target = currentGroupOrWorld();
-            target->recurse(visitor);
-            performSelect(visitor.nodes());
+            auto* target = currentGroupOrWorld();
+            const auto nodesToSelect = Model::collectSelectableNodes(target->children(), *m_editorContext);
+            performSelect(nodesToSelect);
         }
 
         void MapDocumentCommandFacade::performSelectAllBrushFaces() {
