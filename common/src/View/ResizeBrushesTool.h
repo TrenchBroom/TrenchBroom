@@ -84,7 +84,6 @@ namespace TrenchBroom {
             Model::Hit pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
             Model::Hit pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
         private:
-            class PickProximateFace;
             Model::Hit pickProximateFace(Model::HitType::Type hitType, const vm::ray3& pickRay) const;
         public:
             bool hasDragFaces() const;
