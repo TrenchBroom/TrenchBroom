@@ -22,9 +22,6 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
 #include "Model/AttributableNode.h"
-#include "Model/EntityNode.h"
-#include "Model/NodeVisitor.h"
-#include "Model/WorldNode.h"
 #include "View/FlagsEditor.h"
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
@@ -41,26 +38,6 @@
 namespace TrenchBroom {
     namespace View {
         class MapDocument;
-
-        class SmartFlagsEditor::UpdateSpawnflag : public Model::NodeVisitor {
-        private:
-            std::shared_ptr<MapDocument> m_document;
-            const std::string& m_name;
-            size_t m_flagIndex;
-            bool m_setFlag;
-        public:
-            UpdateSpawnflag(std::shared_ptr<MapDocument> document, const std::string& name, const size_t flagIndex, const bool setFlag) :
-            m_document(document),
-            m_name(name),
-            m_flagIndex(flagIndex),
-            m_setFlag(setFlag) {}
-
-            void doVisit(Model::WorldNode*) override  { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
-            void doVisit(Model::LayerNode*) override  {}
-            void doVisit(Model::GroupNode*) override  {}
-            void doVisit(Model::EntityNode*) override { m_document->updateSpawnflag(m_name, m_flagIndex, m_setFlag); }
-            void doVisit(Model::BrushNode*) override  {}
-        };
 
         SmartFlagsEditor::SmartFlagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         SmartAttributeEditor(document, parent),
@@ -175,12 +152,8 @@ namespace TrenchBroom {
                 return;
 
             const bool set = m_flagsEditor->isFlagSet(index);
-
             const kdl::set_temp ignoreUpdates(m_ignoreUpdates);
-
-            const Transaction transaction(document(), "Set Spawnflags");
-            UpdateSpawnflag visitor(document(), name(), index, set);
-            Model::Node::accept(std::begin(toUpdate), std::end(toUpdate), visitor);
+            document()->updateSpawnflag(name(), index, set);
         }
     }
 }
