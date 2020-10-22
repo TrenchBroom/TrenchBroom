@@ -29,7 +29,6 @@
 #include "Model/BrushBuilder.h"
 #include "Model/Game.h"
 #include "Model/Hit.h"
-#include "Model/NodeVisitor.h"
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron3.h"
 #include "Model/WorldNode.h"
@@ -526,47 +525,35 @@ namespace TrenchBroom {
             }
 
             template <typename HT>
-            class AddHandles : public Model::NodeVisitor {
-            private:
-                VertexHandleManagerBaseT<HT>& m_handles;
-            public:
-                explicit AddHandles(VertexHandleManagerBaseT<HT>& handles) :
-                m_handles(handles) {}
-            private:
-                void doVisit(Model::WorldNode*) override  {}
-                void doVisit(Model::LayerNode*) override  {}
-                void doVisit(Model::GroupNode*) override  {}
-                void doVisit(Model::EntityNode*) override {}
-                void doVisit(Model::BrushNode* brush) override   {
-                    m_handles.addHandles(brush);
+            void addHandles(const std::vector<Model::Node*>& nodes, VertexHandleManagerBaseT<HT>& handleManager) {
+                for (const auto* node : nodes) {
+                    node->acceptLambda(kdl::overload(
+                        [&](const Model::BrushNode* brush) {
+                            handleManager.addHandles(brush);
+                        },
+                        [](const auto*) {}
+                    ));
                 }
-            };
+            }
 
             template <typename HT>
-            class RemoveHandles : public Model::NodeVisitor {
-            private:
-                VertexHandleManagerBaseT<HT>& m_handles;
-            public:
-                explicit RemoveHandles(VertexHandleManagerBaseT<HT>& handles) :
-                m_handles(handles) {}
-            private:
-                void doVisit(Model::WorldNode*) override  {}
-                void doVisit(Model::LayerNode*) override  {}
-                void doVisit(Model::GroupNode*) override  {}
-                void doVisit(Model::EntityNode*) override {}
-                void doVisit(Model::BrushNode* brush) override   {
-                    m_handles.removeHandles(brush);
+            void removeHandles(const std::vector<Model::Node*>& nodes, VertexHandleManagerBaseT<HT>& handleManager) {
+                for (const auto* node : nodes) {
+                    node->acceptLambda(kdl::overload(
+                        [&](const Model::BrushNode* brush) {
+                            handleManager.removeHandles(brush);
+                        },
+                        [](const auto*) {}
+                    ));
                 }
-            };
+            }
 
             virtual void addHandles(const std::vector<Model::Node*>& nodes) {
-                AddHandles<H> addVisitor(handleManager());
-                Model::Node::accept(std::begin(nodes), std::end(nodes), addVisitor);
+                addHandles(nodes, handleManager());
             }
 
             virtual void removeHandles(const std::vector<Model::Node*>& nodes) {
-                RemoveHandles<H> removeVisitor(handleManager());
-                Model::Node::accept(std::begin(nodes), std::end(nodes), removeVisitor);
+                removeHandles(nodes, handleManager());
             }
         };
     }
