@@ -180,6 +180,13 @@ namespace TrenchBroom {
                 actualOffset[yIndex] = +offset.y();
             }
 
+            // Flip offset direction when texture scale is negative
+            if (std::signbit(attribs.scale().x()) == 1) {
+                actualOffset[0] *= -1;
+            }
+            if (std::signbit(attribs.scale().y()) == 1) {
+                actualOffset[1] *= -1;
+            }
 
             attribs.setOffset(attribs.offset() + actualOffset);
         }
