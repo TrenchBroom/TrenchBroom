@@ -30,7 +30,6 @@
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/Node.h"
-#include "Model/NodeVisitor.h"
 #include "Model/WorldNode.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/EntityLinkRenderer.h"
@@ -322,62 +321,6 @@ namespace TrenchBroom {
 
         void MapRenderer::setupEntityLinkRenderer() {
         }
-
-        class MapRenderer::CollectRenderableNodes : public Model::NodeVisitor {
-        private:
-            Renderer m_renderers;
-            Model::NodeCollection m_defaultNodes;
-            Model::NodeCollection m_selectedNodes;
-            Model::NodeCollection m_lockedNodes;
-        public:
-            CollectRenderableNodes(const Renderer renderers) : m_renderers(renderers) {}
-
-            const Model::NodeCollection& defaultNodes() const  { return m_defaultNodes;  }
-            const Model::NodeCollection& selectedNodes() const { return m_selectedNodes; }
-            const Model::NodeCollection& lockedNodes() const   { return m_lockedNodes;   }
-        private:
-            void doVisit(Model::WorldNode*) override   {}
-            void doVisit(Model::LayerNode*) override   {}
-
-            void doVisit(Model::GroupNode* group) override   {
-                if (group->locked()) {
-                    if (collectLocked()) m_lockedNodes.addNode(group);
-                } else if (selected(group) || group->opened()) {
-                    if (collectSelection()) m_selectedNodes.addNode(group);
-                } else {
-                    if (collectDefault()) m_defaultNodes.addNode(group);
-                }
-            }
-
-            void doVisit(Model::EntityNode* entity) override {
-                if (entity->locked()) {
-                    if (collectLocked()) m_lockedNodes.addNode(entity);
-                } else if (selected(entity)) {
-                    if (collectSelection()) m_selectedNodes.addNode(entity);
-                } else {
-                    if (collectDefault()) m_defaultNodes.addNode(entity);
-                }
-            }
-
-            void doVisit(Model::BrushNode* brush) override   {
-                if (brush->locked()) {
-                    if (collectLocked()) m_lockedNodes.addNode(brush);
-                } else if (selected(brush) || brush->hasSelectedFaces()) {
-                    if (collectSelection()) m_selectedNodes.addNode(brush);
-                }
-                if (!brush->selected() && !brush->parentSelected() && !brush->locked()) {
-                    if (collectDefault()) m_defaultNodes.addNode(brush);
-                }
-            }
-
-            bool collectLocked() const    { return (m_renderers & Renderer_Locked)    != 0; }
-            bool collectSelection() const { return (m_renderers & Renderer_Selection) != 0; }
-            bool collectDefault() const   { return (m_renderers & Renderer_Default)   != 0; }
-
-            bool selected(const Model::Node* node) const {
-                return node->selected() || node->descendantSelected() || node->parentSelected();
-            }
-        };
 
         void MapRenderer::updateRenderers(const Renderer renderers) {
             const auto renderDefault   = (renderers & Renderer_Default) != 0;
