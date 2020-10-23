@@ -42,6 +42,7 @@
 #include "View/MapDocument.h"
 
 #include <kdl/memory_utils.h>
+#include <kdl/overload.h>
 #include <kdl/vector_set.h>
 
 #include <set>
@@ -379,26 +380,74 @@ namespace TrenchBroom {
         };
 
         void MapRenderer::updateRenderers(const Renderer renderers) {
+            const auto renderDefault   = (renderers & Renderer_Default) != 0;
+            const auto renderSelection = (renderers & Renderer_Selection) != 0;
+            const auto renderLocked    = (renderers & Renderer_Locked) != 0;
+
+            struct RenderableNodes {
+                std::vector<Model::GroupNode*> groups;
+                std::vector<Model::EntityNode*> entities;
+                std::vector<Model::BrushNode*> brushes;
+            };
+
+            RenderableNodes defaultNodes;
+            RenderableNodes selectedNodes;
+            RenderableNodes lockedNodes;
+
+            const auto selected = [](const auto* node) {
+                return node->selected() || node->descendantSelected() || node->parentSelected();
+            };
+
             auto document = kdl::mem_lock(m_document);
-            Model::WorldNode* world = document->world();
+            document->world()->acceptLambda(kdl::overload(
+                [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::GroupNode* group) {
+                    if (group->locked()) {
+                        if (renderLocked) lockedNodes.groups.push_back(group);
+                    } else if (selected(group) || group->opened()) {
+                        if (renderSelection) selectedNodes.groups.push_back(group);
+                    } else {
+                        if (renderDefault) defaultNodes.groups.push_back(group);
+                    }
+                    group->visitChildren(thisLambda);
+                },
+                [&](auto&& thisLambda, Model::EntityNode* entity) {
+                    if (entity->locked()) {
+                        if (renderLocked) lockedNodes.entities.push_back(entity);
+                    } else if (selected(entity)) {
+                        if (renderSelection) selectedNodes.entities.push_back(entity);
+                    } else {
+                        if (renderDefault) defaultNodes.entities.push_back(entity);
+                    }
+                    entity->visitChildren(thisLambda);
+                },
+                [&](Model::BrushNode* brush) {
+                    if (brush->locked()) {
+                        if (renderLocked) lockedNodes.brushes.push_back(brush);
+                    } else if (selected(brush) || brush->hasSelectedFaces()) {
+                        if (renderSelection) selectedNodes.brushes.push_back(brush);
+                    }
+                    if (!brush->selected() && !brush->parentSelected() && !brush->locked()) {
+                        if (renderDefault) defaultNodes.brushes.push_back(brush);
+                    }
+                }
+            ));
 
-            CollectRenderableNodes collect(renderers);
-            world->acceptAndRecurse(collect);
-
-            if ((renderers & Renderer_Default) != 0) {
-                m_defaultRenderer->setObjects(collect.defaultNodes().groups(),
-                                              collect.defaultNodes().entities(),
-                                              collect.defaultNodes().brushes());
+            if (renderDefault) {
+                m_defaultRenderer->setObjects(defaultNodes.groups,
+                                              defaultNodes.entities,
+                                              defaultNodes.brushes);
             }
-            if ((renderers & Renderer_Selection) != 0) {
-                m_selectionRenderer->setObjects(collect.selectedNodes().groups(),
-                                                collect.selectedNodes().entities(),
-                                                collect.selectedNodes().brushes());
+            if (renderSelection) {
+                m_selectionRenderer->setObjects(selectedNodes.groups,
+                                                selectedNodes.entities,
+                                                selectedNodes.brushes);
             }
-            if ((renderers& Renderer_Locked) != 0) {
-                m_lockedRenderer->setObjects(collect.lockedNodes().groups(),
-                                             collect.lockedNodes().entities(),
-                                             collect.lockedNodes().brushes());
+            if (renderLocked) {
+                m_lockedRenderer->setObjects(lockedNodes.groups,
+                                             lockedNodes.entities,
+                                             lockedNodes.brushes);
             }
             invalidateEntityLinkRenderer();
         }
