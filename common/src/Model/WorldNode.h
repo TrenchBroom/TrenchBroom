@@ -112,7 +112,6 @@ namespace TrenchBroom {
             void registerIssueGenerator(IssueGenerator* issueGenerator);
             void unregisterAllIssueGenerators();
         public: // node tree bulk updating
-            class MatchTreeNodes;
             void disableNodeTreeUpdates();
             void enableNodeTreeUpdates();
             void rebuildNodeTree();
