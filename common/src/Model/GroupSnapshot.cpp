@@ -22,7 +22,6 @@
 #include "Exceptions.h"
 #include "Model/GroupNode.h"
 #include "Model/Node.h"
-#include "Model/TakeSnapshotVisitor.h"
 
 #include <kdl/overload.h>
 #include <kdl/result.h>
@@ -30,20 +29,21 @@
 
 namespace TrenchBroom {
     namespace Model {
+        static void takeSnapshotsOfChildren(Node* node, std::vector<NodeSnapshot*>& snapshots) {
+            for (auto* child : node->children()) {
+                if (auto* snapshot = child->takeSnapshot()) {
+                    snapshots.push_back(snapshot);
+                }
+                takeSnapshotsOfChildren(child, snapshots);
+            }
+        }
+
         GroupSnapshot::GroupSnapshot(GroupNode* group) {
-            takeSnapshot(group);
+            takeSnapshotsOfChildren(group, m_snapshots);
         }
 
         GroupSnapshot::~GroupSnapshot() {
             kdl::vec_clear_and_delete(m_snapshots);
-        }
-
-        void GroupSnapshot::takeSnapshot(GroupNode* group) {
-            const auto& children = group->children();
-
-            TakeSnapshotVisitor visitor;
-            Node::acceptAndRecurse(std::begin(children), std::end(children), visitor);
-            m_snapshots = visitor.result();
         }
 
         kdl::result<void, SnapshotErrors> GroupSnapshot::doRestore(const vm::bbox3& worldBounds) {

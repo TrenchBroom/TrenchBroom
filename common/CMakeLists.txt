@@ -190,7 +190,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/TagManager.cpp
         ${COMMON_SOURCE_DIR}/Model/TagMatcher.cpp
         ${COMMON_SOURCE_DIR}/Model/TagVisitor.cpp
-        ${COMMON_SOURCE_DIR}/Model/TakeSnapshotVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/TransformEntityAttributesQuickFix.cpp
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.cpp
@@ -724,7 +723,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/TagMatcher.h
         ${COMMON_SOURCE_DIR}/Model/TagType.h
         ${COMMON_SOURCE_DIR}/Model/TagVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/TakeSnapshotVisitor.h
         ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.h
         ${COMMON_SOURCE_DIR}/Model/TransformEntityAttributesQuickFix.h
         ${COMMON_SOURCE_DIR}/Model/VisibilityState.h
