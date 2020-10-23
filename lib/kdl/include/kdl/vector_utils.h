@@ -126,6 +126,33 @@ namespace kdl {
             return result;
         }
     }
+
+    /**
+     * Returns a vector containing elements of type O, each of which is constructed by passing the corresponding
+     * element of v to the constructor of o, e.g. result.push_back(O(e)), where result is the resulting vector, and e
+     * is an element from v. The elements from the given vector will be moved into the result vector.
+     *
+     * Precondition: O must be constructible with an argument of type T
+     *
+     * @tparam O the type of the result vector elements
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @param v the vector to cast
+     * @return a vector containing the elements of a, but with O as the element type
+     */
+    template<typename O, typename T, typename A>
+    std::vector<O> vec_element_cast(std::vector<T, A>&& v) {
+        if constexpr (std::is_same_v<T, O>) {
+            return v;
+        } else {
+            std::vector<O> result;
+            result.reserve(v.size());
+            for (auto&& e : v) {
+                result.push_back(O(std::move(e)));
+            }
+            return result;
+        }
+    }
     
     /**
      * Finds the smallest index at which the given predicate is satisified in the given vector. If the given vector does
@@ -295,10 +322,6 @@ namespace kdl {
     /**
      * Returns a slice of the given vector starting at offset and with count elements.
      *
-     * If the given offset is not less than the number of elements of v, then an empty vector is returned. The returned
-     * vector contains at most count elements from the given vector. If the given count is too large, i.e. it indicates
-     * to include elements beyond the end of the given vector, then count is adjusted accordingly.
-     *
      * The elements are copied into the returned vector.
      *
      * Precondition: offset + count does not exceed the number of elements in the given vector
@@ -325,6 +348,34 @@ namespace kdl {
     }
 
     /**
+     * Returns a slice of the given vector starting at offset and with count elements.
+     *
+     * The elements are moved into the returned vector.
+     *
+     * Precondition: offset + count does not exceed the number of elements in the given vector
+     *
+     * @tparam T the element type
+     * @tparam A the allocator type
+     * @param v the vector to return a slice of
+     * @param offset the offset of the first element to return
+     * @param count the number of elements to return
+     * @return a vector containing the slice of the given vector
+     */
+    template <typename T, typename A>
+    std::vector<T, A> vec_slice(std::vector<T, A>&& v, const std::size_t offset, const std::size_t count) {
+        assert(offset + count <= v.size());
+
+        std::vector<T, A> result;
+        result.reserve(count);
+
+        for (std::size_t i = 0u; i < count; ++i) {
+            result.push_back(std::move(v[i + offset]));
+        }
+
+        return result;
+    }
+
+    /**
      * Returns a prefix of the given vector with count elements.
      *
      * The elements are copied into the returned vector.
@@ -341,6 +392,25 @@ namespace kdl {
     std::vector<T, A> vec_slice_prefix(const std::vector<T, A>& v, const std::size_t count) {
         assert(count <= v.size());
         return vec_slice(v, 0u, count);
+    }
+
+    /**
+     * Returns a prefix of the given vector with count elements.
+     *
+     * The elements are moved into the returned vector.
+     *
+     * Precondition: count does not exceed the number of elements in the given vector
+     *
+     * @tparam T the element type
+     * @tparam A the allocator type
+     * @param v the vector to return a prefix of
+     * @param count the number of elements to return
+     * @return a vector containing the prefix of the given vector
+     */
+    template <typename T, typename A>
+    std::vector<T, A> vec_slice_prefix(std::vector<T, A>&& v, const std::size_t count) {
+        assert(count <= v.size());
+        return vec_slice(std::move(v), 0u, count);
     }
 
     /**
@@ -362,6 +432,24 @@ namespace kdl {
         return vec_slice(v, v.size() - count, count);
     }
 
+    /**
+     * Returns a suffix of the given vector with count elements.
+     *
+     * The elements are moved into the returned vector.
+     *
+     * Precondition: count does not exceed the number of elements in the given vector
+     *
+     * @tparam T the element type
+     * @tparam A the allocator type
+     * @param v the vector to return a prefix of
+     * @param count the number of elements to return
+     * @return a vector containing the prefix of the given vector
+     */
+    template <typename T, typename A>
+    std::vector<T, A> vec_slice_suffix(std::vector<T, A>&& v, const std::size_t count) {
+        assert(count <= v.size());
+        return vec_slice(std::move(v), v.size() - count, count);
+    }
 
     /**
      * Erases every element from the given vector which is equal to the given value using the erase-remove idiom.
@@ -436,8 +524,26 @@ namespace kdl {
      * @param cmp the comparator to use for comparisons
      */
     template<typename T, typename A, typename Compare = std::less<T>>
-    void vec_sort(std::vector<T, A>& v, const Compare& cmp = Compare()) {
+    std::vector<T, A>& vec_sort(std::vector<T, A>& v, const Compare& cmp = Compare()) {
         std::sort(std::begin(v), std::end(v), cmp);
+        return v;
+    }
+
+    /**
+     * Sorts the elements of the given vector according to the given comparator.
+     * 
+     * Returns the given vector.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @tparam Compare the type of the comparator to use
+     * @param v the vector to sort
+     * @param cmp the comparator to use for comparisons
+     */
+    template<typename T, typename A, typename Compare = std::less<T>>
+    std::vector<T, A> vec_sort(std::vector<T, A>&& v, const Compare& cmp = Compare()) {
+        std::sort(std::begin(v), std::end(v), cmp);
+        return std::move(v);
     }
 
     /**
@@ -451,9 +557,27 @@ namespace kdl {
      * @param cmp the comparator to use for sorting and for determining equivalence
      */
     template<typename T, typename A, typename Compare = std::less<T>>
-    void vec_sort_and_remove_duplicates(std::vector<T, A>& v, const Compare& cmp = Compare()) {
+    std::vector<T, A>& vec_sort_and_remove_duplicates(std::vector<T, A>& v, const Compare& cmp = Compare()) {
         std::sort(std::begin(v), std::end(v), cmp);
         v.erase(std::unique(std::begin(v), std::end(v), kdl::equivalence<T, Compare>(cmp)), std::end(v));
+        return v;
+    }
+
+    /**
+     * Sorts the elements of the given vector and removes all duplicate values. A value is a duplicate if it is
+     * equivalent to its predecessor in the vector. Returns the given vector.
+     *
+     * @tparam T the type of the vector elements
+     * @tparam A the vector's allocator type
+     * @tparam Compare the type of the comparator to use
+     * @param v the vector to sort and remove duplicates from
+     * @param cmp the comparator to use for sorting and for determining equivalence
+     */
+    template<typename T, typename A, typename Compare = std::less<T>>
+    std::vector<T, A> vec_sort_and_remove_duplicates(std::vector<T, A>&& v, const Compare& cmp = Compare()) {
+        std::sort(std::begin(v), std::end(v), cmp);
+        v.erase(std::unique(std::begin(v), std::end(v), kdl::equivalence<T, Compare>(cmp)), std::end(v));
+        return std::move(v);
     }
 
     /**

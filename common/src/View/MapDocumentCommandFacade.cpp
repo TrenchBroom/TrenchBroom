@@ -777,8 +777,7 @@ namespace TrenchBroom {
 
             invalidateSelectionBounds();
 
-            kdl::vec_sort_and_remove_duplicates(newVertexPositions);
-            return newVertexPositions;
+            return kdl::vec_sort_and_remove_duplicates(std::move(newVertexPositions));
         }
 
         std::vector<vm::segment3> MapDocumentCommandFacade::performMoveEdges(const std::map<Model::BrushNode*, std::vector<vm::segment3>>& edges, const vm::vec3& delta) {
@@ -809,8 +808,7 @@ namespace TrenchBroom {
 
             invalidateSelectionBounds();
 
-            kdl::vec_sort_and_remove_duplicates(newEdgePositions);
-            return newEdgePositions;
+            return kdl::vec_sort_and_remove_duplicates(std::move(newEdgePositions));
         }
 
         std::vector<vm::polygon3> MapDocumentCommandFacade::performMoveFaces(const std::map<Model::BrushNode*, std::vector<vm::polygon3>>& faces, const vm::vec3& delta) {
@@ -842,8 +840,7 @@ namespace TrenchBroom {
 
             invalidateSelectionBounds();
 
-            kdl::vec_sort_and_remove_duplicates(newFacePositions);
-            return newFacePositions;
+            return kdl::vec_sort_and_remove_duplicates(std::move(newFacePositions));
         }
 
         void MapDocumentCommandFacade::performAddVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices) {
