@@ -48,7 +48,7 @@ namespace TrenchBroom {
                 auto reader = file->reader().buffer();
 
                 const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-                EntParser parser(std::begin(reader), std::end(reader), defaultColor);
+                EntParser parser(reader.stringView(), defaultColor);
 
                 TestParserStatus status;
                 UNSCOPED_INFO("Parsing ENT file " << path.asString() << " failed");

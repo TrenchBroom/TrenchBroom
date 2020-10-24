@@ -23,6 +23,7 @@
 #include "IO/MapReader.h"
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace TrenchBroom {
@@ -37,7 +38,7 @@ namespace TrenchBroom {
             Model::ModelFactory& m_factory;
             std::vector<Model::Node*> m_nodes;
         public:
-            NodeReader(const std::string& str, Model::ModelFactory& factory);
+            NodeReader(std::string_view str, Model::ModelFactory& factory);
 
             static std::vector<Model::Node*> read(const std::string& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status);
             const std::vector<Model::Node*>& read(const vm::bbox3& worldBounds, ParserStatus& status);

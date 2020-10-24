@@ -25,6 +25,7 @@
 #include <cstdio>
 #include <memory>
 #include <string>
+#include <string_view>
 
 namespace TrenchBroom {
     namespace IO {
@@ -551,6 +552,7 @@ namespace TrenchBroom {
              * Returns the end of the underlying buffer memory region.
              */
             const char* end() const;
+            std::string_view stringView() const;
         };
     }
 }

@@ -35,7 +35,7 @@
 
 namespace TrenchBroom {
     namespace IO {
-        NodeReader::NodeReader(const std::string& str, Model::ModelFactory& factory) :
+        NodeReader::NodeReader(std::string_view str, Model::ModelFactory& factory) :
         MapReader(str),
         m_factory(factory) {}
 

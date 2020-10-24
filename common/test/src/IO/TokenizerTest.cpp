@@ -82,8 +82,8 @@ namespace TrenchBroom {
                 return Token(SimpleToken::Eof, nullptr, nullptr, length(), line(), column());
             }
         public:
-            SimpleTokenizer(const std::string& str) :
-            Tokenizer<SimpleToken::Type>(str, "", 0) {}
+            SimpleTokenizer(std::string_view str) :
+            Tokenizer<SimpleToken::Type>(std::move(str), "", 0) {}
         };
 
         TEST_CASE("TokenizerTest.simpleLanguageEmptyString", "[TokenizerTest]") {

@@ -39,12 +39,8 @@ namespace TrenchBroom {
             return numberDelim;
         }
 
-        QuakeMapTokenizer::QuakeMapTokenizer(const char* begin, const char* end) :
-        Tokenizer(begin, end, "\"", '\\'),
-        m_skipEol(true) {}
-
-        QuakeMapTokenizer::QuakeMapTokenizer(const std::string& str) :
-        Tokenizer(str, "\"", '\\'),
+        QuakeMapTokenizer::QuakeMapTokenizer(std::string_view str) :
+        Tokenizer(std::move(str), "\"", '\\'),
         m_skipEol(true) {}
 
         void QuakeMapTokenizer::setSkipEol(bool skipEol) {
@@ -141,12 +137,8 @@ namespace TrenchBroom {
         const std::string StandardMapParser::BrushPrimitiveId = "brushDef";
         const std::string StandardMapParser::PatchId = "patchDef2";
 
-        StandardMapParser::StandardMapParser(const char* begin, const char* end) :
-        m_tokenizer(QuakeMapTokenizer(begin, end)),
-        m_format(Model::MapFormat::Unknown) {}
-
-        StandardMapParser::StandardMapParser(const std::string& str) :
-        m_tokenizer(QuakeMapTokenizer(str)),
+        StandardMapParser::StandardMapParser(std::string_view str) :
+        m_tokenizer(QuakeMapTokenizer(std::move(str))),
         m_format(Model::MapFormat::Unknown) {}
 
         StandardMapParser::~StandardMapParser() = default;

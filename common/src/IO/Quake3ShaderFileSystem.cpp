@@ -59,7 +59,7 @@ namespace TrenchBroom {
                     auto bufferedReader = file->reader().buffer();
 
                     try {
-                        Quake3ShaderParser parser(std::begin(bufferedReader), std::end(bufferedReader));
+                        Quake3ShaderParser parser(bufferedReader.stringView());
                         SimpleParserStatus status(m_logger, file->path().asString());
                         kdl::vec_append(result, parser.parse(status));
                     } catch (const ParserException& e) {

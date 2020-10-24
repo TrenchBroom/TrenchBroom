@@ -177,7 +177,7 @@ namespace TrenchBroom {
             IO::SimpleParserStatus parserStatus(logger);
             auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
             auto fileReader = file->reader().buffer();
-            IO::WorldReader worldReader(std::begin(fileReader), std::end(fileReader));
+            IO::WorldReader worldReader(fileReader.stringView());
             return worldReader.read(format, worldBounds, parserStatus);
         }
 
@@ -344,17 +344,17 @@ namespace TrenchBroom {
             if (kdl::ci::str_is_equal("fgd", extension)) {
                 auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 auto reader = file->reader().buffer();
-                IO::FgdParser parser(std::begin(reader), std::end(reader), defaultColor, file->path());
+                IO::FgdParser parser(reader.stringView(), defaultColor, file->path());
                 return parser.parseDefinitions(status);
             } else if (kdl::ci::str_is_equal("def", extension)) {
                 auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 auto reader = file->reader().buffer();
-                IO::DefParser parser(std::begin(reader), std::end(reader), defaultColor);
+                IO::DefParser parser(reader.stringView(), defaultColor);
                 return parser.parseDefinitions(status);
             } else if (kdl::ci::str_is_equal("ent", extension)) {
                 auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 auto reader = file->reader().buffer();
-                IO::EntParser parser(std::begin(reader), std::end(reader), defaultColor);
+                IO::EntParser parser(reader.stringView(), defaultColor);
                 return parser.parseDefinitions(status);
             } else {
                 throw GameException("Unknown entity definition format: '" + path.asString() + "'");
@@ -448,7 +448,7 @@ namespace TrenchBroom {
                     return parser.initializeModel(logger);
                 } else if (extension == "ase" && kdl::vec_contains(supported, "ase")) {
                     auto reader = file->reader().buffer();
-                    IO::AseParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
+                    IO::AseParser parser(modelName, reader.stringView(), m_fs);
                     return parser.initializeModel(logger);
                 } else if (extension == "obj" && kdl::vec_contains(supported, "obj_neverball")) {
                     auto reader = file->reader().buffer();
@@ -508,7 +508,7 @@ namespace TrenchBroom {
                     parser.loadFrame(frameIndex, model, logger);
                 } else if (extension == "ase" && kdl::vec_contains(supported, "ase")) {
                     auto reader = file->reader().buffer();
-                    IO::AseParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
+                    IO::AseParser parser(modelName, reader.stringView(), m_fs);
                     parser.loadFrame(frameIndex, model, logger);
                 } else if (extension == "obj" && kdl::vec_contains(supported, "obj_neverball")) {
                     auto reader = file->reader().buffer();

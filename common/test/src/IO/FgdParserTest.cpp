@@ -48,7 +48,7 @@ namespace TrenchBroom {
                 auto reader = file->reader().buffer();
 
                 const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-                FgdParser parser(std::begin(reader), std::end(reader), defaultColor, path);
+                FgdParser parser(reader.stringView(), defaultColor, path);
 
                 TestParserStatus status;
                 UNSCOPED_INFO("Parsing FGD file " << path.asString() << " failed");
@@ -842,7 +842,7 @@ decor_goddess_statue : "Goddess Statue" [])";
             auto reader = file->reader().buffer();
 
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-            FgdParser parser(std::begin(reader), std::end(reader), defaultColor, file->path());
+            FgdParser parser(reader.stringView(), defaultColor, file->path());
 
             TestParserStatus status;
             auto defs = parser.parseDefinitions(status);
@@ -859,7 +859,7 @@ decor_goddess_statue : "Goddess Statue" [])";
             auto reader = file->reader().buffer();
 
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-            FgdParser parser(std::begin(reader), std::end(reader), defaultColor, file->path());
+            FgdParser parser(reader.stringView(), defaultColor, file->path());
 
             TestParserStatus status;
             auto defs = parser.parseDefinitions(status);
@@ -877,7 +877,7 @@ decor_goddess_statue : "Goddess Statue" [])";
             auto reader = file->reader().buffer();
 
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-            FgdParser parser(std::begin(reader), std::end(reader), defaultColor, file->path());
+            FgdParser parser(reader.stringView(), defaultColor, file->path());
 
             TestParserStatus status;
             auto defs = parser.parseDefinitions(status);

@@ -29,7 +29,7 @@
 #include <vecmath/bbox.h>
 
 #include <map>
-#include <string>
+#include <string_view>
 #include <vector>
 
 namespace TrenchBroom {
@@ -100,8 +100,7 @@ namespace TrenchBroom {
             GroupMap m_groups;
             NodeParentList m_unresolvedNodes;
         protected:
-            MapReader(const char* begin, const char* end);
-            explicit MapReader(const std::string& str);
+            explicit MapReader(std::string_view str);
 
             /**
              * Attempts to parse as one or more entities, in the given format.

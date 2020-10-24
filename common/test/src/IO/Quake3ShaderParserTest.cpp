@@ -509,7 +509,7 @@ waterBubble
             auto testFile = fs.openFile(Path("am_cf_models.shader"));
             auto reader = testFile->reader().buffer();
 
-            Quake3ShaderParser parser(std::begin(reader), std::end(reader));
+            Quake3ShaderParser parser(reader.stringView());
             TestParserStatus status;
             ASSERT_NO_THROW(parser.parse(status));
         }

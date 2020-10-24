@@ -40,8 +40,7 @@ namespace TrenchBroom {
         class WorldReader : public MapReader {
             std::unique_ptr<Model::WorldNode> m_world;
         public:
-            WorldReader(const char* begin, const char* end);
-            explicit WorldReader(const std::string& str);
+            explicit WorldReader(std::string_view str);
 
             std::unique_ptr<Model::WorldNode> read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
         private:            

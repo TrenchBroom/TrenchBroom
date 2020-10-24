@@ -38,11 +38,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        AseTokenizer::AseTokenizer(const char* begin, const char* end) :
-        Tokenizer(begin, end, "", 0){ }
-
-        AseTokenizer::AseTokenizer(const std::string& str) :
-        Tokenizer(str, "", 0) {}
+        AseTokenizer::AseTokenizer(std::string_view str) :
+        Tokenizer(std::move(str), "", 0) {}
 
         const std::string AseTokenizer::WordDelims = " \t\n\r:";
 
@@ -110,9 +107,9 @@ namespace TrenchBroom {
             return Token(AseToken::Eof, nullptr, nullptr, length(), line(), column());
         }
 
-        AseParser::AseParser(const std::string& name, const char* begin, const char* end, const FileSystem& fs) :
+        AseParser::AseParser(const std::string& name, std::string_view str, const FileSystem& fs) :
         m_name(name),
-        m_tokenizer(begin, end),
+        m_tokenizer(std::move(str)),
         m_fs(fs) {}
 
         std::unique_ptr<Assets::EntityModel> AseParser::doInitializeModel(Logger& logger) {

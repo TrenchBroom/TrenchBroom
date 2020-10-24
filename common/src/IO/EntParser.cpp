@@ -42,15 +42,10 @@
 
 namespace TrenchBroom {
     namespace IO {
-        EntParser::EntParser(const char* begin, const char* end, const Color& defaultEntityColor) :
+        EntParser::EntParser(std::string_view str, const Color& defaultEntityColor) :
         EntityDefinitionParser(defaultEntityColor),
-        m_begin(begin),
-        m_end(end) {}
-
-        EntParser::EntParser(const std::string& str, const Color& defaultEntityColor) :
-        EntityDefinitionParser(defaultEntityColor),
-        m_begin(str.c_str()),
-        m_end(str.c_str() + str.size()) {}
+        m_begin(str.data()),
+        m_end(str.data() + str.size()) {}
 
         std::vector<EntityDefinitionClassInfo> EntParser::parseClassInfos(ParserStatus& status) {
             tinyxml2::XMLDocument doc;
