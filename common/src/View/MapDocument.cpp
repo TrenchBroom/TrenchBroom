@@ -605,8 +605,9 @@ namespace TrenchBroom {
         }
 
         std::vector<Model::AttributableNode*> MapDocument::allSelectedAttributableNodes() const {
-            if (!hasSelection())
+            if (!hasSelection()) {
                 return std::vector<Model::AttributableNode*>({ m_world.get() });
+            }
 
             Model::CollectAttributableNodesVisitor visitor;
             Model::Node::acceptAndRecurse(std::begin(m_selectedNodes), std::end(m_selectedNodes), visitor);
