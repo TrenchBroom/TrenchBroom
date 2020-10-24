@@ -25,7 +25,6 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
-#include "Model/CollectMatchingIssuesVisitor.h"
 #include "Model/EmptyAttributeNameIssueGenerator.h"
 #include "Model/EmptyAttributeValueIssueGenerator.h"
 #include "Model/EntityNode.h"
@@ -50,7 +49,8 @@
 #include "View/SelectionTool.h"
 
 #include <kdl/result.h>
-#include "kdl/vector_utils.h"
+#include <kdl/overload.h>
+#include <kdl/vector_utils.h>
 
 #include <vecmath/bbox.h>
 #include <vecmath/scalar.h>
@@ -1092,10 +1092,15 @@ namespace TrenchBroom {
                 }
             };
 
-            auto visitor = Model::CollectMatchingIssuesVisitor<AcceptAllIssues>(issueGenerators, AcceptAllIssues());
-            document->world()->acceptAndRecurse(visitor);
+            auto issues = std::vector<Model::Issue*>{};
+            document->world()->acceptLambda(kdl::overload(
+                [&](auto&& thisLambda, Model::WorldNode* w)  { kdl::vec_append(issues, w->issues(issueGenerators)); w->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::LayerNode* l)  { kdl::vec_append(issues, l->issues(issueGenerators)); l->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::GroupNode* g)  { kdl::vec_append(issues, g->issues(issueGenerators)); g->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::EntityNode* e) { kdl::vec_append(issues, e->issues(issueGenerators)); e->visitChildren(thisLambda); },
+                [&](Model::BrushNode* b)                     { kdl::vec_append(issues, b->issues(issueGenerators)); }
+            ));
 
-            std::vector<Model::Issue*> issues = visitor.issues();
             REQUIRE(2 == issues.size());
 
             Model::Issue* issue0 = issues.at(0);

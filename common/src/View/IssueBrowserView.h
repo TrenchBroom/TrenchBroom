@@ -64,9 +64,6 @@ namespace TrenchBroom {
             void reload();
             void deselectAll();
         private:
-            class IssueVisible;
-            class IssueCmp;
-
             void updateIssues();
 
             std::vector<Model::Issue*> collectIssues(const QList<QModelIndex>& indices) const;
