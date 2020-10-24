@@ -43,7 +43,6 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/CollectAttributableNodesVisitor.h"
 #include "Model/CollectContainedNodesVisitor.h"
 #include "Model/CollectMatchingBrushFacesVisitor.h"
 #include "Model/CollectNodesVisitor.h"
@@ -609,9 +608,23 @@ namespace TrenchBroom {
                 return std::vector<Model::AttributableNode*>({ m_world.get() });
             }
 
-            Model::CollectAttributableNodesVisitor visitor;
-            Model::Node::acceptAndRecurse(std::begin(m_selectedNodes), std::end(m_selectedNodes), visitor);
-            return visitor.nodes();
+            std::vector<Model::AttributableNode*> nodes;
+            for (auto* node : m_selectedNodes) {
+                node->acceptLambda(kdl::overload(
+                    [&](auto&& thisLambda, Model::WorldNode* world) { nodes.push_back(world); world->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
+                    [&](Model::EntityNode* entity)                  { nodes.push_back(entity); },
+                    [&](Model::BrushNode* brush) {
+                        auto* entity = brush->entity();
+                        ensure(entity != nullptr, "entity is null");
+                        nodes.push_back(entity);
+                    }
+                ));
+            }
+
+            kdl::vec_sort_and_remove_duplicates(nodes);
+            return nodes;
         }
 
         const Model::NodeCollection& MapDocument::selectedNodes() const {
