@@ -20,13 +20,17 @@
 #include "IssueBrowserView.h"
 
 #include "Ensure.h"
-#include "Model/CollectMatchingIssuesVisitor.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 
 #include <kdl/memory_utils.h>
+#include <kdl/overload.h>
 #include <kdl/vector_utils.h>
 #include <kdl/vector_set.h>
 
@@ -91,26 +95,6 @@ namespace TrenchBroom {
             m_tableView->clearSelection();
         }
 
-        class IssueBrowserView::IssueVisible {
-            int m_hiddenTypes;
-            bool m_showHiddenIssues;
-        public:
-            IssueVisible(const int hiddenTypes, const bool showHiddenIssues) :
-            m_hiddenTypes(hiddenTypes),
-            m_showHiddenIssues(showHiddenIssues) {}
-
-            bool operator()(const Model::Issue* issue) const {
-                return m_showHiddenIssues || (!issue->hidden() && (issue->type() & m_hiddenTypes) == 0);
-            }
-        };
-
-        class IssueBrowserView::IssueCmp {
-        public:
-            bool operator()(const Model::Issue* lhs, const Model::Issue* rhs) const {
-                return lhs->seqId() > rhs->seqId();
-            }
-        };
-
         /**
          * Updates the MapDocument selection to match the table view
          */
@@ -131,14 +115,27 @@ namespace TrenchBroom {
 
         void IssueBrowserView::updateIssues() {
             auto document = kdl::mem_lock(m_document);
-            Model::WorldNode* world = document->world();
-            if (world != nullptr) {
-                const std::vector<Model::IssueGenerator*>& issueGenerators = world->registeredIssueGenerators();
-                Model::CollectMatchingIssuesVisitor<IssueVisible> visitor(issueGenerators, IssueVisible(m_hiddenGenerators, m_showHiddenIssues));
-                world->acceptAndRecurse(visitor);
+            if (document->world() != nullptr) {
+                const auto& issueGenerators = document->world()->registeredIssueGenerators();
+                
+                auto issues = std::vector<Model::Issue*>{};
+                const auto collectIssues = [&](auto* node) {
+                    for (auto* issue : node->issues(issueGenerators)) {
+                        if (m_showHiddenIssues || (!issue->hidden() && (issue->type() & m_hiddenGenerators) == 0)) {
+                            issues.push_back(issue);
+                        }
+                    }
+                };
 
-                std::vector<Model::Issue*> issues = visitor.issues();
-                kdl::vec_sort(issues, IssueCmp());
+                document->world()->acceptLambda(kdl::overload(
+                    [&](auto&& thisLambda, Model::WorldNode* world)   { collectIssues(world); world->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, Model::LayerNode* layer)   { collectIssues(layer); layer->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, Model::GroupNode* group)   { collectIssues(group); group->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, Model::EntityNode* entity) { collectIssues(entity); entity->visitChildren(thisLambda); },
+                    [&](Model::BrushNode* brush)                      { collectIssues(brush); }
+                ));
+
+                kdl::vec_sort(issues, [](const auto* lhs, const auto* rhs) { return lhs->seqId() > rhs->seqId(); });
                 m_tableModel->setIssues(std::move(issues));
             }
         }
