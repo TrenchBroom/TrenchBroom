@@ -31,6 +31,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFaceHandle;
         class EditorContext;
         class Node;
 
@@ -49,6 +50,8 @@ namespace TrenchBroom {
         std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes);
 
         std::vector<Node*> collectSelectableNodes(const std::vector<Node*>& nodes, const EditorContext& editorContext);
+        
+        std::vector<BrushFaceHandle> collectSelectableBrushFaces(const std::vector<Node*>& nodes, const EditorContext& editorContext);
 
         vm::bbox3 computeLogicalBounds(const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds = vm::bbox3());
         vm::bbox3 computePhysicalBounds(const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds = vm::bbox3());

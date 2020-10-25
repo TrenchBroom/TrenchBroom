@@ -29,7 +29,6 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/CollectSelectableBrushFacesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityAttributeSnapshot.h"
@@ -134,18 +133,12 @@ namespace TrenchBroom {
 
         void MapDocumentCommandFacade::performSelectAllBrushFaces() {
             performDeselectAll();
-
-            Model::CollectSelectableBrushFacesVisitor visitor(*m_editorContext);
-            m_world->acceptAndRecurse(visitor);
-            performSelect(visitor.faces());
+            performSelect(Model::collectSelectableBrushFaces(std::vector<Model::Node*>{m_world.get()}, *m_editorContext));
         }
 
         void MapDocumentCommandFacade::performConvertToBrushFaceSelection() {
-            Model::CollectSelectableBrushFacesVisitor visitor(*m_editorContext);
-            Model::Node::acceptAndRecurse(std::begin(m_selectedNodes), std::end(m_selectedNodes), visitor);
-
             performDeselectAll();
-            performSelect(visitor.faces());
+            performSelect(Model::collectSelectableBrushFaces(m_selectedNodes.nodes(), *m_editorContext));
         }
 
         void MapDocumentCommandFacade::performDeselect(const std::vector<Model::Node*>& nodes) {

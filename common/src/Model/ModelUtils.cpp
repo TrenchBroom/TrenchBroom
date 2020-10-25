@@ -22,6 +22,8 @@
 #include "Ensure.h"
 #include "Polyhedron.h"
 #include "Model/Brush.h"
+#include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
 #include "Model/CollectNodesVisitor.h"
 #include "Model/GroupNode.h"
@@ -108,6 +110,28 @@ namespace TrenchBroom {
             }
             
             return result;
+        }
+
+        std::vector<BrushFaceHandle> collectSelectableBrushFaces(const std::vector<Node*>& nodes, const EditorContext& editorContext) {
+            auto faces = std::vector<BrushFaceHandle>{};
+            for (auto* node : nodes) {
+                node->acceptLambda(kdl::overload(
+                    [] (auto&& thisLambda, WorldNode* world)   { world->visitChildren(thisLambda); },
+                    [] (auto&& thisLambda, LayerNode* layer)   { layer->visitChildren(thisLambda); },
+                    [] (auto&& thisLambda, GroupNode* group)   { group->visitChildren(thisLambda); },
+                    [] (auto&& thisLambda, EntityNode* entity) { entity->visitChildren(thisLambda); },
+                    [&](BrushNode* brushNode) {
+                        const auto& brush = brushNode->brush();
+                        for (size_t i = 0; i < brush.faceCount(); ++i) {
+                            const auto& face = brush.face(i);
+                            if (editorContext.selectable(brushNode, face)) {
+                                faces.emplace_back(brushNode, i);
+                            }
+                        }
+                    }
+                ));
+            }
+            return faces;
         }
 
         vm::bbox3 computeLogicalBounds(const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds) {
