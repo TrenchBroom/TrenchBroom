@@ -195,11 +195,11 @@ namespace TrenchBroom {
 
         class CanAddChildToEntity : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            void doVisit(const WorldNode*)  override   { setResult(false); }
-            void doVisit(const LayerNode*)  override   { setResult(false); }
-            void doVisit(const GroupNode*)  override   { setResult(true); }
-            void doVisit(const EntityNode*) override { setResult(true); }
-            void doVisit(const BrushNode*)  override   { setResult(true); }
+            void doVisit(const WorldNode*)  override { setResult(false); }
+            void doVisit(const LayerNode*)  override { setResult(false); }
+            void doVisit(const GroupNode*)  override { setResult(false); }
+            void doVisit(const EntityNode*) override { setResult(false); }
+            void doVisit(const BrushNode*)  override { setResult(true); }
         };
 
         bool EntityNode::doCanAddChild(const Node* child) const {
