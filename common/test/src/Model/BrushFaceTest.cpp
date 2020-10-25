@@ -749,6 +749,7 @@ namespace TrenchBroom {
             CHECK(dynamic_cast<const ParaxialTexCoordSystem*>(&brush.face(0).texCoordSystem()) != nullptr);
         }
 
+#if 0
         TEST_CASE("BrushFaceTest.nodeReaderGroupConversion", "[BrushFaceTest]") {
             // Data comes from copying a Group in 2020.2
             const std::string data(R"(// entity 0
@@ -786,6 +787,7 @@ namespace TrenchBroom {
             const Brush brush = brushNode->brush();
             CHECK(dynamic_cast<const ParaxialTexCoordSystem*>(&brush.face(0).texCoordSystem()) != nullptr);
         }
+#endif
 
         TEST_CASE("BrushFaceTest.parseFaceAsNode", "[BrushFaceTest]") {
             const std::string data(R"(
