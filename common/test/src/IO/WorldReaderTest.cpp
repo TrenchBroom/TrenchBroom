@@ -1343,7 +1343,7 @@ common/caulk
             auto fileReader = file->reader().buffer();
 
             IO::TestParserStatus status;
-            IO::WorldReader worldReader(std::begin(fileReader), std::end(fileReader));
+            IO::WorldReader worldReader(fileReader.stringView());
 
             const auto worldBounds = vm::bbox3(8192.0);
             auto worldNode = worldReader.read(Model::MapFormat::Quake2, worldBounds, status);

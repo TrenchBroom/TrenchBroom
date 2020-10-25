@@ -62,8 +62,7 @@ namespace TrenchBroom {
 
         class FgdTokenizer : public Tokenizer<FgdToken::Type> {
         public:
-            FgdTokenizer(const char* begin, const char* end);
-            explicit FgdTokenizer(const std::string& str);
+            explicit FgdTokenizer(std::string_view str);
         private:
             static const std::string WordDelims;
             Token emitToken() override;
@@ -78,9 +77,8 @@ namespace TrenchBroom {
 
             FgdTokenizer m_tokenizer;
         public:
-            FgdParser(const char* begin, const char* end, const Color& defaultEntityColor, const Path& path);
-            FgdParser(const std::string& str, const Color& defaultEntityColor, const Path& path);
-            FgdParser(const std::string& str, const Color& defaultEntityColor);
+            FgdParser(std::string_view str, const Color& defaultEntityColor, const Path& path);
+            FgdParser(std::string_view str, const Color& defaultEntityColor);
         private:
             class PushIncludePath;
             void pushIncludePath(const Path& path);

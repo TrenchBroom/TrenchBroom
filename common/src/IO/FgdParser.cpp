@@ -38,11 +38,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        FgdTokenizer::FgdTokenizer(const char* begin, const char* end) :
-        Tokenizer(begin, end, "", 0) {}
-
-        FgdTokenizer::FgdTokenizer(const std::string& str) :
-        Tokenizer(str, "", 0) {}
+        FgdTokenizer::FgdTokenizer(std::string_view str) :
+        Tokenizer(std::move(str), "", 0) {}
 
         const std::string FgdTokenizer::WordDelims = " \t\n\r()[]?;:,=";
 
@@ -130,20 +127,17 @@ namespace TrenchBroom {
             return Token(FgdToken::Eof, nullptr, nullptr, length(), line(), column());
         }
 
-        FgdParser::FgdParser(const char* begin, const char* end, const Color& defaultEntityColor, const Path& path) :
+        FgdParser::FgdParser(std::string_view str, const Color& defaultEntityColor, const Path& path) :
         EntityDefinitionParser(defaultEntityColor),
-        m_tokenizer(FgdTokenizer(begin, end)) {
+        m_tokenizer(FgdTokenizer(std::move(str))) {
             if (!path.isEmpty() && path.isAbsolute()) {
                 m_fs = std::make_shared<DiskFileSystem>(path.deleteLastComponent());
                 pushIncludePath(path.lastComponent());
             }
         }
 
-        FgdParser::FgdParser(const std::string& str, const Color& defaultEntityColor, const Path& path) :
-        FgdParser(str.c_str(), str.c_str() + str.size(), defaultEntityColor, path) {}
-
-        FgdParser::FgdParser(const std::string& str, const Color& defaultEntityColor) :
-        FgdParser(str, defaultEntityColor, Path()) {}
+        FgdParser::FgdParser(std::string_view str, const Color& defaultEntityColor) :
+        FgdParser(std::move(str), defaultEntityColor, Path()) {}
 
         FgdParser::TokenNameMap FgdParser::tokenNames() const {
             using namespace FgdToken;
@@ -726,7 +720,7 @@ namespace TrenchBroom {
                 if (!isRecursiveInclude(filePath)) {
                     const PushIncludePath pushIncludePath(this, filePath);
                     auto reader = file->reader().buffer();
-                    m_tokenizer.replaceState(std::begin(reader), std::end(reader));
+                    m_tokenizer.replaceState(reader.stringView());
                     result = parseClassInfos(status);
                 } else {
                     status.error(m_tokenizer.line(), kdl::str_to_string("Skipping recursively included file: ", path.asString(), " (", filePath, ")"));

@@ -30,6 +30,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace tinyxml2 {
@@ -53,8 +54,7 @@ namespace TrenchBroom {
             const char* m_begin;
             const char* m_end;
         public:
-            EntParser(const char* begin, const char* end, const Color& defaultEntityColor);
-            EntParser(const std::string& str, const Color& defaultEntityColor);
+            EntParser(std::string_view str, const Color& defaultEntityColor);
         private:
             std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;
             

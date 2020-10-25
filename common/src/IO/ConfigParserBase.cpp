@@ -28,12 +28,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        ConfigParserBase::ConfigParserBase(const char* begin, const char* end, const Path& path) :
-        m_parser(ELParser::Mode::Strict, begin, end),
-        m_path(path) {}
-
-        ConfigParserBase::ConfigParserBase(const std::string& str, const Path& path) :
-        m_parser(ELParser::Mode::Strict, str),
+        ConfigParserBase::ConfigParserBase(std::string_view str, const Path& path) :
+        m_parser(ELParser::Mode::Strict, std::move(str)),
         m_path(path) {}
 
         ConfigParserBase::~ConfigParserBase() {}
