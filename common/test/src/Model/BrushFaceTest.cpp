@@ -27,6 +27,8 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
 #include "Model/NodeSnapshot.h"
 #include "Model/ParaxialTexCoordSystem.h"
@@ -744,6 +746,44 @@ namespace TrenchBroom {
             REQUIRE(brushNode != nullptr);
 
             Brush brush = brushNode->brush();
+            CHECK(dynamic_cast<const ParaxialTexCoordSystem*>(&brush.face(0).texCoordSystem()) != nullptr);
+        }
+
+        TEST_CASE("BrushFaceTest.nodeReaderGroupConversion", "[BrushFaceTest]") {
+            // Data comes from copying a Group in 2020.2
+            const std::string data(R"(// entity 0
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Unnamed"
+"_tb_id" "3"
+// brush 0
+{
+( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) __TB_empty [ 0 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( -64 -64 -16 ) ( -64 -64 -15 ) ( -63 -64 -16 ) __TB_empty [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( -64 -64 -16 ) ( -63 -64 -16 ) ( -64 -63 -16 ) __TB_empty [ -1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+( 64 64 16 ) ( 64 65 16 ) ( 65 64 16 ) __TB_empty [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+( 64 64 16 ) ( 65 64 16 ) ( 64 64 17 ) __TB_empty [ -1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( 64 64 16 ) ( 64 64 17 ) ( 64 65 16 ) __TB_empty [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
+}
+}
+)");
+
+            const vm::bbox3 worldBounds(4096.0);
+            WorldNode world(MapFormat::Standard);
+
+            IO::TestParserStatus status;
+            IO::NodeReader reader(data, world);
+
+            std::vector<Node*> nodes = reader.read(worldBounds, status);
+
+            auto* groupNode = dynamic_cast<GroupNode*>(nodes.at(0));
+            REQUIRE(groupNode != nullptr);
+
+            auto* brushNode = dynamic_cast<BrushNode*>(groupNode->children().at(0));
+            REQUIRE(brushNode != nullptr);
+
+            const Brush brush = brushNode->brush();
             CHECK(dynamic_cast<const ParaxialTexCoordSystem*>(&brush.face(0).texCoordSystem()) != nullptr);
         }
 
