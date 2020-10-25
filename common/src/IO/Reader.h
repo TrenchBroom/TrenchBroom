@@ -552,6 +552,11 @@ namespace TrenchBroom {
              * Returns the end of the underlying buffer memory region.
              */
             const char* end() const;
+            /**
+             * Returns a std::string_view view of the buffer.
+             *
+             * Caller's responsibility to ensure that the BufferedReader outlives the returned std::string_view.
+             */
             std::string_view stringView() const;
         };
     }
