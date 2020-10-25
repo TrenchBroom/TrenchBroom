@@ -303,10 +303,7 @@ R"(// entity 0
 }
 }
 )";
-
-            const auto actual = str.str();
-
-            ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
+            CHECK_THAT(str.str(), MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.writeWorldspawnWithCustomLayerWithSortIndex", "[NodeWriterTest]") {
@@ -341,9 +338,7 @@ R"(// entity 0
 "_tb_layer_omit_from_export" "1"
 }
 )";
-
-            const auto actual = str.str();
-            ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
+            CHECK_THAT(str.str(), MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.writeMapWithGroupInDefaultLayer", "[NodeWriterTest]") {
@@ -385,8 +380,7 @@ R"(// entity 0
 }
 }
 )";
-            const std::string actual = str.str();
-            ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
+            CHECK_THAT(str.str(), MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.writeMapWithGroupInCustomLayer", "[NodeWriterTest]") {
@@ -439,8 +433,7 @@ R"(// entity 0
 }
 }
 )";
-            const std::string actual = str.str();
-            ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
+            CHECK_THAT(str.str(), MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.writeMapWithNestedGroupInCustomLayer", "[NodeWriterTest]") {
@@ -504,9 +497,7 @@ R"(// entity 0
 }
 }
 )";
-
-            const std::string actual = str.str();
-            ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
+            CHECK_THAT(str.str(), MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers", "[NodeWriterTest]") {
@@ -676,9 +667,7 @@ R"(// entity 0
 }
 }
 )";
-
-            const std::string actual = str.str();
-            ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
+            CHECK_THAT(str.str(), MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.writeFaces", "[NodeWriterTest]") {
