@@ -40,55 +40,51 @@ namespace TrenchBroom {
         m_factory(factory) {}
 
         std::vector<Model::Node*> NodeReader::read(const std::string& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status) {
-            NodeReader reader(str, factory);
-            return reader.read(worldBounds, status);
-        }
-
-        const std::vector<Model::Node*>& NodeReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
             // Try preferred format first
-            const Model::MapFormat preferredFormat = m_factory.format();
+            const Model::MapFormat preferredFormat = factory.format();
             for (const auto format : Model::compatibleFormats(preferredFormat)) {
-                if (readAsFormat(worldBounds, format, status)) {
-                    return m_nodes;
+                if (auto result = readAsFormat(format, str, factory, worldBounds, status); !result.empty()) {
+                    return result;
                 }
             }
 
             // All formats failed
-            assert(m_nodes.empty());
-            return m_nodes;
+            return {};
         }
 
         /**
          * Attempts to parse the string as one or more entities (in the given format), and if that fails,
          * as one or more brushes.
          *
-         * If parsing succeeds, the nodes are stored in m_nodes.
+         * Does not throw upon parsing failure, but instead logs the failure to `status` and returns {}.
          *
-         * Does not throw upon parsing failure, but instead logs the failure to `status`.
-         *
-         * @returns whether parsing succeeded (either as entities or brushes)
+         * @returns the parsed nodes; caller is responsible for freeing them.
          */
-        bool NodeReader::readAsFormat(const vm::bbox3& worldBounds, Model::MapFormat format, ParserStatus& status) {
-            try {
-                reset();
-                readEntities(format, worldBounds, status);
-                status.info("Parsed successfully as " + Model::formatName(format) + " entities");
-                return true;
-            } catch (const ParserException& e) {
-                status.info("Couldn't parse as " + Model::formatName(format) + " entities: " + e.what());
-                kdl::vec_clear_and_delete(m_nodes);
+        std::vector<Model::Node*> NodeReader::readAsFormat(Model::MapFormat format, const std::string& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status) {
+            {
+                NodeReader reader(str, factory);
+                try {
+                    reader.readEntities(format, worldBounds, status);
+                    status.info("Parsed successfully as " + Model::formatName(format) + " entities");
+                    return reader.m_nodes;
+                } catch (const ParserException& e) {
+                    status.info("Couldn't parse as " + Model::formatName(format) + " entities: " + e.what());
+                    kdl::vec_clear_and_delete(reader.m_nodes);
+                }
             }
 
-            try {
-                reset();
-                readBrushes(format, worldBounds, status);
-                status.info("Parsed successfully as " + Model::formatName(format) + " brushes");
-                return true;
-            } catch (const ParserException& e) {
-                status.info("Couldn't parse as " + Model::formatName(format) + " brushes: " + e.what());
-                kdl::vec_clear_and_delete(m_nodes);
+            {
+                NodeReader reader(str, factory);
+                try {
+                    reader.readBrushes(format, worldBounds, status);
+                    status.info("Parsed successfully as " + Model::formatName(format) + " brushes");
+                    return reader.m_nodes;
+                } catch (const ParserException& e) {
+                    status.info("Couldn't parse as " + Model::formatName(format) + " brushes: " + e.what());
+                    kdl::vec_clear_and_delete(reader.m_nodes);
+                }
             }
-            return false;
+            return {};
         }
 
         Model::ModelFactory& NodeReader::initialize(const Model::MapFormat) {

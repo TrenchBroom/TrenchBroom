@@ -112,8 +112,7 @@ namespace TrenchBroom {
 
         std::vector<Node*> TestGame::doParseNodes(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {
             IO::TestParserStatus status;
-            IO::NodeReader reader(str, world);
-            return reader.read(worldBounds, status);
+            return IO::NodeReader::read(str, world, worldBounds, status);
         }
 
         std::vector<BrushFace> TestGame::doParseBrushFaces(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {
