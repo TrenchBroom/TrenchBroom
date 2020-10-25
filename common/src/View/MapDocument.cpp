@@ -45,7 +45,6 @@
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectContainedNodesVisitor.h"
-#include "Model/CollectMatchingBrushFacesVisitor.h"
 #include "Model/CollectNodesVisitor.h"
 #include "Model/CollectSelectableNodesWithFilePositionVisitor.h"
 #include "Model/CollectSelectedNodesVisitor.h"
@@ -634,9 +633,7 @@ namespace TrenchBroom {
         std::vector<Model::BrushFaceHandle> MapDocument::allSelectedBrushFaces() const {
             if (hasSelectedBrushFaces())
                 return selectedBrushFaces();
-            Model::CollectBrushFacesVisitor visitor;
-            Model::Node::acceptAndRecurse(std::begin(m_selectedNodes), std::end(m_selectedNodes), visitor);
-            return visitor.faces();
+            return Model::collectBrushFaces(m_selectedNodes.nodes());
         }
 
         std::vector<Model::BrushFaceHandle> MapDocument::selectedBrushFaces() const {
