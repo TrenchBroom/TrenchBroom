@@ -541,9 +541,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Valve);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
-
-            std::vector<Node*> nodes = reader.read(worldBounds, status);
+            std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
             BrushNode* pyramidLight = static_cast<BrushNode*>(nodes.at(0)->children().at(0));
             REQUIRE(pyramidLight != nullptr);
             
@@ -599,9 +597,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Valve);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            std::vector<Node*> nodes = reader.read(worldBounds, status);
+            std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
             BrushNode* pyramidLight = static_cast<BrushNode*>(nodes.at(0)->children().at(0));
             REQUIRE(pyramidLight != nullptr);
             
@@ -661,9 +658,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Valve);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            std::vector<Node*> nodes = reader.read(worldBounds, status);
+            std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
             BrushNode* brushNode = static_cast<BrushNode*>(nodes.at(0)->children().at(0));
             EXPECT_NE(nullptr, brushNode);
             
@@ -739,9 +735,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            std::vector<Node*> nodes = reader.read(worldBounds, status);
+            std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
             auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
             REQUIRE(brushNode != nullptr);
 
@@ -774,9 +769,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            std::vector<Node*> nodes = reader.read(worldBounds, status);
+            std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
 
             auto* groupNode = dynamic_cast<GroupNode*>(nodes.at(0));
             REQUIRE(groupNode != nullptr);
@@ -798,9 +792,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Valve);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            CHECK(reader.read(worldBounds, status).empty());
+            CHECK(IO::NodeReader::read(data, world, worldBounds, status).empty());
         }
     }
 }
