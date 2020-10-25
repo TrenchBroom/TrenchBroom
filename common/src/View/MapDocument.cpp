@@ -46,7 +46,6 @@
 #include "Model/CollectContainedNodesVisitor.h"
 #include "Model/CollectMatchingBrushFacesVisitor.h"
 #include "Model/CollectNodesVisitor.h"
-#include "Model/CollectSelectableBrushFacesVisitor.h"
 #include "Model/CollectSelectableNodesWithFilePositionVisitor.h"
 #include "Model/CollectSelectedNodesVisitor.h"
 #include "Model/CollectTouchingNodesVisitor.h"
@@ -788,14 +787,13 @@ namespace TrenchBroom {
         }
 
         void MapDocument::selectFacesWithTexture(const Assets::Texture* texture) {
-            Model::CollectSelectableBrushFacesVisitor visitor(*m_editorContext, [=](const Model::BrushNode*, const Model::BrushFace& face) {
-                return face.texture() == texture;
-            });
-            m_world->acceptAndRecurse(visitor);
+            const auto faces = kdl::vec_filter(
+                Model::collectSelectableBrushFaces(std::vector<Model::Node*>{m_world.get()}, *m_editorContext), 
+                [&](const auto& faceHandle) { return faceHandle.face().texture() == texture; });
 
             Transaction transaction(this, "Select Faces with Texture");
             deselectAll();
-            select(visitor.faces());
+            select(faces);
         }
 
         void MapDocument::deselectAll() {
