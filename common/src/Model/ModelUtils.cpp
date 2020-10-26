@@ -79,6 +79,48 @@ namespace TrenchBroom {
             return result;
         }
 
+        std::vector<Node*> collectTouchingNodes(const std::vector<Node*>& nodes, const std::vector<BrushNode*>& brushes) {
+            auto result = std::vector<Model::Node*>{};
+
+            const auto collectIfTouching = [&](auto* node) {
+                for (const auto* brush : brushes) {
+                    if (brush->intersects(node)) {
+                        result.push_back(node);
+                        return;
+                    }
+                }
+            };
+
+            for (auto* node : nodes) {
+                node->acceptLambda(kdl::overload(
+                    [] (auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+                    [] (auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, Model::GroupNode* group) { 
+                        if (group->opened()) {
+                            group->visitChildren(thisLambda);
+                        } else {
+                            collectIfTouching(group);
+                        }
+                    },
+                    [&](auto&& thisLambda, Model::EntityNode* entity) { 
+                        if (entity->hasChildren()) {
+                            entity->visitChildren(thisLambda);
+                        } else {
+                            collectIfTouching(entity);
+                        }
+                    },
+                    [&](Model::BrushNode* brush)  { 
+                        // if `brush` is one of the search query nodes, don't count it as touching
+                        if (!kdl::vec_contains(brushes, brush)) {
+                            collectIfTouching(brush);
+                        }
+                    }
+                ));
+            }
+
+            return result;
+        }
+
         std::vector<Node*> collectSelectableNodes(const std::vector<Node*>& nodes, const EditorContext& editorContext) {
             auto result = std::vector<Node*>{};
 

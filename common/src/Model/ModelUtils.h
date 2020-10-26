@@ -49,6 +49,8 @@ namespace TrenchBroom {
         std::vector<Node*> collectDescendants(const std::vector<Node*>& nodes);
         std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes);
 
+        std::vector<Node*> collectTouchingNodes(const std::vector<Node*>& nodes, const std::vector<BrushNode*>& brushes);
+
         std::vector<Node*> collectSelectableNodes(const std::vector<Node*>& nodes, const EditorContext& editorContext);
         
         std::vector<BrushFaceHandle> collectBrushFaces(const std::vector<Node*>& nodes);

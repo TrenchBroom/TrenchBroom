@@ -48,7 +48,6 @@
 #include "Model/CollectNodesVisitor.h"
 #include "Model/CollectSelectableNodesWithFilePositionVisitor.h"
 #include "Model/CollectSelectedNodesVisitor.h"
-#include "Model/CollectTouchingNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/EmptyAttributeNameIssueGenerator.h"
 #include "Model/EmptyAttributeValueIssueGenerator.h"
@@ -694,12 +693,9 @@ namespace TrenchBroom {
         }
 
         void MapDocument::selectTouching(const bool del) {
-            const std::vector<Model::BrushNode*>& brushes = m_selectedNodes.brushes();
-
-            Model::CollectTouchingNodesVisitor<std::vector<Model::BrushNode*>::const_iterator> visitor(std::begin(brushes), std::end(brushes), editorContext());
-            m_world->acceptAndRecurse(visitor);
-
-            const std::vector<Model::Node*> nodes = visitor.nodes();
+            const auto nodes = kdl::vec_filter(
+                Model::collectTouchingNodes(std::vector<Model::Node*>{m_world.get()}, m_selectedNodes.brushes()),
+                [&](Model::Node* node) { return m_editorContext->selectable(node); });
 
             Transaction transaction(this, "Select Touching");
             if (del)
