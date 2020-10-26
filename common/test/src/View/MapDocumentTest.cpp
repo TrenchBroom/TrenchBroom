@@ -53,8 +53,13 @@
 #include <kdl/vector_utils.h>
 
 #include <vecmath/bbox.h>
-#include <vecmath/scalar.h>
+#include <vecmath/bbox_io.h>
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
+#include <vecmath/mat_io.h>
 #include <vecmath/ray.h>
+#include <vecmath/ray_io.h>
+#include <vecmath/scalar.h>
 
 #include "TestUtils.h"
 
@@ -924,8 +929,34 @@ namespace TrenchBroom {
             ASSERT_THROW(document->throwExceptionDuringCommand(), CommandProcessorException);
         }
 
-        // https://github.com/TrenchBroom/TrenchBroom/issues/2476
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.selectTouching") {
+            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::BrushNode* brush1 = document->world()->createBrush(builder.createCube(64.0, "none").value());
+            Model::BrushNode* brush2 = document->world()->createBrush(builder.createCube(64.0, "none").value());
+            Model::BrushNode* brush3 = document->world()->createBrush(builder.createCube(64.0, "none").value());
+
+            REQUIRE(brush2->transform(document->worldBounds(), vm::translation_matrix(vm::vec3(10.0, 0.0, 0.0)), false));
+            REQUIRE(brush3->transform(document->worldBounds(), vm::translation_matrix(vm::vec3(100.0, 0.0, 0.0)), false));
+
+            document->addNode(brush1, document->parentForNodes());
+            document->addNode(brush2, document->parentForNodes());
+            document->addNode(brush3, document->parentForNodes());
+
+            REQUIRE(brush1->intersects(brush2));
+            REQUIRE(brush2->intersects(brush1));
+
+            REQUIRE(!brush1->intersects(brush3));
+            REQUIRE(!brush3->intersects(brush1));
+
+            document->select(brush1);
+            document->selectTouching(false);
+
+            using Catch::Matchers::UnorderedEquals;
+            CHECK_THAT(document->selectedNodes().brushes(), UnorderedEquals(std::vector<Model::BrushNode*>{brush2}));
+        }
+
+        // https://github.com/TrenchBroom/TrenchBroom/issues/2476
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.selectTouching_2476") {
             // delete default brush
             document->selectAllNodes();
             document->deleteObjects();
