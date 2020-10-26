@@ -59,7 +59,7 @@ namespace TrenchBroom {
             const auto& factory = Model::GameFactory::instance();
             for (const Model::CompilationToolDescription& description : document->game()->compilationToolDescriptions()) {
                 const IO::Path toolPath = factory.compilationToolPath(document->game()->gameName(), description.name);
-                // e.g. "qbsp", and the path to the user's local copy
+                // e.g. variable name might be "qbsp", and the value is the path to the user's local qbsp executable
                 declare(description.name, EL::Value(toolPath.asString()));
             }
         }

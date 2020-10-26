@@ -480,6 +480,9 @@ namespace TrenchBroom {
             delete widget->layout();
         }
 
+        /**
+         * Deletes all of the widgets in the given layout, as well as the corresponding layout items.
+         */
         void clearLayout(QLayout* layout) {
             // https://doc.qt.io/qt-5/qlayout.html#takeAt
             QLayoutItem* child;
