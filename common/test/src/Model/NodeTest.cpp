@@ -23,7 +23,6 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
-#include "Model/CollectTouchingNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
@@ -636,40 +635,6 @@ namespace TrenchBroom {
                 entity1->visitChildren([&](auto* node) { visited.push_back(node); });
                 CHECK_THAT(visited, Catch::Equals(std::vector<Node*>{}));
             }
-        }
-
-        // Visitors
-
-        TEST_CASE("CollectTouchingNodesVisitor", "[NodeVisitorTest]") {
-            const vm::bbox3 worldBounds(8192.0);
-            EditorContext context;
-
-            WorldNode map(Model::MapFormat::Standard);
-            map.addOrUpdateAttribute("classname", "worldspawn");
-
-            BrushBuilder builder(&map, worldBounds);
-            BrushNode* brush1 = map.createBrush(builder.createCube(64.0, "none").value());
-            BrushNode* brush2 = map.createBrush(builder.createCube(64.0, "none").value());
-            BrushNode* brush3 = map.createBrush(builder.createCube(64.0, "none").value());
-
-            REQUIRE(brush2->transform(worldBounds, vm::translation_matrix(vm::vec3(10.0, 0.0, 0.0)), false));
-            REQUIRE(brush3->transform(worldBounds, vm::translation_matrix(vm::vec3(100.0, 0.0, 0.0)), false));
-
-            map.defaultLayer()->addChild(brush1);
-            map.defaultLayer()->addChild(brush2);
-            map.defaultLayer()->addChild(brush3);
-
-            CHECK(brush1->intersects(brush2));
-            CHECK(brush2->intersects(brush1));
-
-            CHECK(!brush1->intersects(brush3));
-            CHECK(!brush3->intersects(brush1));
-
-            const auto query = std::vector<BrushNode*>{brush1};
-            auto visitor = CollectTouchingNodesVisitor(std::begin(query), std::end(query), context);
-            map.acceptAndRecurse(visitor);
-
-            CHECK(std::vector<Node*>{brush2} == visitor.nodes());
         }
     }
 }
