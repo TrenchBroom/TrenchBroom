@@ -59,8 +59,7 @@ namespace TrenchBroom {
 
         class DefTokenizer : public Tokenizer<DefToken::Type> {
         public:
-            DefTokenizer(const char* begin, const char* end);
-            explicit DefTokenizer(const std::string& str);
+            explicit DefTokenizer(std::string_view str);
         private:
             static const std::string WordDelims;
             Token emitToken() override;
@@ -73,8 +72,7 @@ namespace TrenchBroom {
             DefTokenizer m_tokenizer;
             std::map<std::string, EntityDefinitionClassInfo> m_baseClasses;
         public:
-            DefParser(const char* begin, const char* end, const Color& defaultEntityColor);
-            DefParser(const std::string& str, const Color& defaultEntityColor);
+            DefParser(std::string_view str, const Color& defaultEntityColor);
         private:
             TokenNameMap tokenNames() const override;
             std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;

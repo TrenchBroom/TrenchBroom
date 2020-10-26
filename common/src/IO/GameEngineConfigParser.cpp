@@ -34,11 +34,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        GameEngineConfigParser::GameEngineConfigParser(const char* begin, const char* end, const Path& path) :
-        ConfigParserBase(begin, end, path) {}
-
-        GameEngineConfigParser::GameEngineConfigParser(const std::string& str, const Path& path) :
-        ConfigParserBase(str, path) {}
+        GameEngineConfigParser::GameEngineConfigParser(std::string_view str, const Path& path) :
+        ConfigParserBase(std::move(str), path) {}
 
         Model::GameEngineConfig GameEngineConfigParser::parse() {
             const EL::Value root = parseConfigFile().evaluate(EL::EvaluationContext());

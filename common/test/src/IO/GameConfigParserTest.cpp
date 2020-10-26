@@ -41,7 +41,7 @@ namespace TrenchBroom {
                 auto file = Disk::openFile(path);
                 auto reader = file->reader().buffer();
 
-                GameConfigParser parser(std::begin(reader), std::end(reader), path);
+                GameConfigParser parser(reader.stringView(), path);
                 try {
                     parser.parse();
                 } catch (const std::exception& e) {

@@ -30,11 +30,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        Quake3ShaderTokenizer::Quake3ShaderTokenizer(const char* begin, const char* end) :
-        Tokenizer(begin, end, "", '\\') {}
-
-        Quake3ShaderTokenizer::Quake3ShaderTokenizer(const std::string &str) :
-        Tokenizer(str, "", '\\') {}
+        Quake3ShaderTokenizer::Quake3ShaderTokenizer(std::string_view str) :
+        Tokenizer(std::move(str), "", '\\') {}
 
         Tokenizer<unsigned int>::Token Quake3ShaderTokenizer::emitToken() {
             while (!eof()) {
@@ -105,11 +102,8 @@ namespace TrenchBroom {
             return Token(Quake3ShaderToken::Eof, nullptr, nullptr, length(), line(), column());
         }
 
-        Quake3ShaderParser::Quake3ShaderParser(const char* begin, const char* end) :
-        m_tokenizer(begin, end) {}
-
-        Quake3ShaderParser::Quake3ShaderParser(const std::string& str) :
-        m_tokenizer(str) {}
+        Quake3ShaderParser::Quake3ShaderParser(std::string_view str) :
+        m_tokenizer(std::move(str)) {}
 
         std::vector<Assets::Quake3Shader> Quake3ShaderParser::parse(ParserStatus& status) {
             std::vector<Assets::Quake3Shader> result;

@@ -229,7 +229,7 @@ namespace TrenchBroom {
             const auto configFile = m_configFS->openFile(path);
             const auto absolutePath = m_configFS->makeAbsolute(path);
             auto reader = configFile->reader().buffer();
-            IO::GameConfigParser parser(std::begin(reader), std::end(reader), absolutePath);
+            IO::GameConfigParser parser(reader.stringView(), absolutePath);
             GameConfig config = parser.parse();
 
             loadCompilationConfig(config);
@@ -252,7 +252,7 @@ namespace TrenchBroom {
                 if (m_configFS->fileExists(path)) {
                     const auto profilesFile = m_configFS->openFile(path);
                     auto reader = profilesFile->reader().buffer();
-                    IO::CompilationConfigParser parser(std::begin(reader), std::end(reader), m_configFS->makeAbsolute(path));
+                    IO::CompilationConfigParser parser(reader.stringView(), m_configFS->makeAbsolute(path));
                     gameConfig.setCompilationConfig(parser.parse());
                 }
             } catch (const Exception& e) {
@@ -267,7 +267,7 @@ namespace TrenchBroom {
                 if (m_configFS->fileExists(path)) {
                     const auto profilesFile = m_configFS->openFile(path);
                     auto reader = profilesFile->reader().buffer();
-                    IO::GameEngineConfigParser parser(std::begin(reader), std::end(reader), m_configFS->makeAbsolute(path));
+                    IO::GameEngineConfigParser parser(reader.stringView(), m_configFS->makeAbsolute(path));
                     gameConfig.setGameEngineConfig(parser.parse());
                 }
             } catch (const Exception& e) {
