@@ -44,7 +44,6 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/CollectContainedNodesVisitor.h"
 #include "Model/CollectNodesVisitor.h"
 #include "Model/CollectSelectableNodesWithFilePositionVisitor.h"
 #include "Model/CollectSelectedNodesVisitor.h"
@@ -706,12 +705,9 @@ namespace TrenchBroom {
         }
 
         void MapDocument::selectInside(const bool del) {
-            const std::vector<Model::BrushNode*>& brushes = m_selectedNodes.brushes();
-
-            Model::CollectContainedNodesVisitor<std::vector<Model::BrushNode*>::const_iterator> visitor(std::begin(brushes), std::end(brushes), editorContext());
-            m_world->acceptAndRecurse(visitor);
-
-            const std::vector<Model::Node*> nodes = visitor.nodes();
+            const auto nodes = kdl::vec_filter(
+                Model::collectContainedNodes(std::vector<Model::Node*>{m_world.get()}, m_selectedNodes.brushes()),
+                [&](Model::Node* node) { return m_editorContext->selectable(node); });
 
             Transaction transaction(this, "Select Inside");
             if (del)
