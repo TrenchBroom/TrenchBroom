@@ -614,7 +614,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/CollectNodesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectSelectableNodesWithFilePositionVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectSelectedNodesVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/CollectTouchingNodesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectUniqueNodesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CompareHits.h
         ${COMMON_SOURCE_DIR}/Model/CompilationConfig.h
