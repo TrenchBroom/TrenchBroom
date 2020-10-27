@@ -45,7 +45,6 @@
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectMatchingNodesVisitor.h"
-#include "Model/CollectNodesVisitor.h"
 #include "Model/CollectSelectedNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/EmptyAttributeNameIssueGenerator.h"
@@ -233,10 +232,9 @@ namespace TrenchBroom {
                 closeGroup();
             }
 
-            Model::CollectNodesVisitor collect;
-            m_currentLayer->recurse(collect);
-            downgradeShownToInherit(collect.nodes());                
-            downgradeUnlockedToInherit(collect.nodes());
+            const auto descendants = Model::collectDescendants({m_currentLayer});
+            downgradeShownToInherit(descendants);                
+            downgradeUnlockedToInherit(descendants);
 
             executeAndStore(SetCurrentLayerCommand::set(currentLayer));
         }
@@ -1386,11 +1384,7 @@ namespace TrenchBroom {
             }
 
             // Reset visibility of any forced shown children of `nodes`
-            {
-                Model::CollectNodesVisitor collect;
-                Model::Node::recurse(std::begin(nodes), std::end(nodes), collect);
-                downgradeShownToInherit(collect.nodes()); 
-            }
+            downgradeShownToInherit(Model::collectDescendants(nodes));
 
             executeAndStore(SetVisibilityCommand::hide(nodes));
         }
@@ -1404,10 +1398,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::showAll() {
-            const std::vector<Model::LayerNode*>& layers = m_world->allLayers();
-            Model::CollectNodesVisitor collect;
-            Model::Node::recurse(std::begin(layers), std::end(layers), collect);
-            resetVisibility(collect.nodes());
+            resetVisibility(Model::collectDescendants(kdl::vec_element_cast<Model::Node*>(m_world->allLayers())));
         }
 
         void MapDocument::ensureVisible(const std::vector<Model::Node*>& nodes) {
@@ -1429,11 +1420,7 @@ namespace TrenchBroom {
             }
 
             // Reset lock state of any forced unlocked children of `nodes`
-            {
-                Model::CollectNodesVisitor collect;
-                Model::Node::recurse(std::begin(nodes), std::end(nodes), collect);
-                downgradeUnlockedToInherit(collect.nodes()); 
-            }
+            downgradeUnlockedToInherit(Model::collectDescendants(nodes));
 
             executeAndStore(SetLockStateCommand::lock(nodes));
         }
