@@ -201,8 +201,8 @@ namespace TrenchBroom {
             const auto document = kdl::mem_lock(m_document);
             const vm::bbox3 tallBounds = document->worldBounds().expand(-1.0); // we can't make a brush that is exactly as large as worldBounds
 
-            const FloatType min = dot(tallBounds.min, vm::vec3(m_camera->direction()));
-            const FloatType max = dot(tallBounds.max, vm::vec3(m_camera->direction()));
+            const FloatType min = vm::dot(tallBounds.min, vm::vec3(m_camera->direction()));
+            const FloatType max = vm::dot(tallBounds.max, vm::vec3(m_camera->direction()));
 
             const vm::plane3 minPlane(min, vm::vec3(m_camera->direction()));
             const vm::plane3 maxPlane(max, vm::vec3(m_camera->direction()));
