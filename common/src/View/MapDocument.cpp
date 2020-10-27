@@ -46,7 +46,6 @@
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/CollectNodesVisitor.h"
-#include "Model/CollectSelectableNodesWithFilePositionVisitor.h"
 #include "Model/CollectSelectedNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/EmptyAttributeNameIssueGenerator.h"
@@ -744,12 +743,20 @@ namespace TrenchBroom {
         }
 
         void MapDocument::selectNodesWithFilePosition(const std::vector<size_t>& positions) {
-            Model::CollectSelectableNodesWithFilePositionVisitor visitor(*m_editorContext, positions);
-            m_world->acceptAndRecurse(visitor);
+            const auto nodes = kdl::vec_filter(
+                Model::collectSelectableNodes(std::vector<Model::Node*>{m_world.get()}, *m_editorContext),
+                [&](const auto* node) {
+                    for (const size_t position : positions) {
+                        if (node->containsLine(position)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
 
             Transaction transaction(this, "Select by Line Number");
             deselectAll();
-            select(visitor.nodes());
+            select(nodes);
         }
 
         void MapDocument::select(const std::vector<Model::Node*>& nodes) {
