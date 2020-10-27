@@ -49,7 +49,9 @@ namespace TrenchBroom {
         GamesPreferencePane::GamesPreferencePane(QWidget* parent) :
         PreferencePane(parent),
         m_gameListBox(nullptr),
-        m_stackedWidget(nullptr) {
+        m_stackedWidget(nullptr),
+        m_defaultPage(nullptr),
+        m_curraentGamePage(nullptr) {
             createGui();
             updateControls();
             m_gameListBox->setFocus();
@@ -61,11 +63,10 @@ namespace TrenchBroom {
             m_gameListBox->setMaximumWidth(220);
             m_gameListBox->setMinimumHeight(300);
 
-            connect(m_gameListBox, &GameListBox::currentGameChanged, this, &GamesPreferencePane::currentGameChanged);
+            m_defaultPage = createDefaultPage("Select a game.");
 
             m_stackedWidget = new QStackedWidget();
-            m_stackedWidget->addWidget(createDefaultPage("Select a game."));
-            //m_stackedWidget->addWidget(createGamePreferencesPage());
+            m_stackedWidget->addWidget(m_defaultPage);
 
             auto* layout = new QHBoxLayout();
             layout->setContentsMargins(QMargins());
@@ -78,20 +79,59 @@ namespace TrenchBroom {
             layout->addWidget(m_stackedWidget, 1, Qt::AlignTop);
 
             setMinimumWidth(600);
+
+            connect(m_gameListBox, &GameListBox::currentGameChanged, this, [=](const QString& gameName) {
+                if (gameName == m_currentGame) {
+                    return;
+                }
+                m_currentGame = gameName;
+
+                delete m_curraentGamePage;
+                m_curraentGamePage = new GamePreferencePane(gameName.toStdString());
+
+                m_stackedWidget->addWidget(m_curraentGamePage);
+                m_stackedWidget->setCurrentWidget(m_curraentGamePage);
+            });
         }
 
-        QWidget* GamesPreferencePane::createGamePreferencesPage(const std::string& gameName) {
-            auto* container = new QWidget();
+        bool GamesPreferencePane::doCanResetToDefaults() {
+            return false;
+        }
 
-            auto* gamePathText = new QLineEdit();
-            setHint(gamePathText, "Click on the button to change...");
-            connect(gamePathText, &QLineEdit::editingFinished, this, [=]() {
-                updateGamePath(gamePathText->text());
+        void GamesPreferencePane::doResetToDefaults() {}
+
+        void GamesPreferencePane::doUpdateControls() {
+            m_gameListBox->updateGameInfos();
+
+            if (m_curraentGamePage != nullptr) {
+                m_curraentGamePage->updateControls();
+            }
+        }
+
+        bool GamesPreferencePane::doValidate() {
+            return true;
+        }
+
+        // GamePreferencePane
+
+        GamePreferencePane::GamePreferencePane(const std::string& gameName, QWidget* parent) :
+        QWidget(parent),
+        m_gameName(gameName),
+        m_gamePathText(nullptr),
+        m_chooseGamePathButton(nullptr) {
+            createGui();
+        }
+
+        void GamePreferencePane::createGui() {
+            m_gamePathText = new QLineEdit();
+            setHint(m_gamePathText, "Click on the button to change...");
+            connect(m_gamePathText, &QLineEdit::editingFinished, this, [=]() {
+                updateGamePath(m_gamePathText->text());
             });
 
-            auto* validDirectoryIcon = new QAction(gamePathText);
-            gamePathText->addAction(validDirectoryIcon, QLineEdit::TrailingPosition);
-            connect(gamePathText, &QLineEdit::textChanged, this, [validDirectoryIcon](const QString& text) {
+            auto* validDirectoryIcon = new QAction(m_gamePathText);
+            m_gamePathText->addAction(validDirectoryIcon, QLineEdit::TrailingPosition);
+            connect(m_gamePathText, &QLineEdit::textChanged, this, [validDirectoryIcon](const QString& text) {
                 if (text.isEmpty() || QDir(text).exists()) {
                     validDirectoryIcon->setToolTip("");
                     validDirectoryIcon->setIcon(QIcon());
@@ -102,24 +142,16 @@ namespace TrenchBroom {
             });
 
             auto* chooseGamePathButton = new QPushButton("...");
-            connect(chooseGamePathButton, &QPushButton::clicked, this, &GamesPreferencePane::chooseGamePathClicked);
+            connect(chooseGamePathButton, &QPushButton::clicked, this, &GamePreferencePane::chooseGamePathClicked);
 
             auto* configureEnginesButton = new QPushButton("Configure engines...");
-            connect(configureEnginesButton, &QPushButton::clicked, this, &GamesPreferencePane::configureEnginesClicked);
+            connect(configureEnginesButton, &QPushButton::clicked, this, &GamePreferencePane::configureEnginesClicked);
 
             auto* gamePathLayout = new QHBoxLayout();
             gamePathLayout->setContentsMargins(QMargins());
             gamePathLayout->setSpacing(LayoutConstants::MediumHMargin);
-            gamePathLayout->addWidget(gamePathText, 1);
+            gamePathLayout->addWidget(m_gamePathText, 1);
             gamePathLayout->addWidget(chooseGamePathButton);
-
-            //auto* compilationToolsLayout = new QFormLayout();
-            //compilationToolsLayout->setContentsMargins(LayoutConstants::MediumHMargin, LayoutConstants::MediumVMargin, LayoutConstants::MediumHMargin, LayoutConstants::MediumVMargin);
-            //compilationToolsLayout->setHorizontalSpacing(LayoutConstants::MediumHMargin);
-            //compilationToolsLayout->setVerticalSpacing(0);
-            //compilationToolsLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-
-            // m_compilationToolsLayout populated in updateCompilationTools()
 
             auto* layout = new FormWithSectionsLayout();
             layout->setContentsMargins(0, LayoutConstants::MediumVMargin, 0, 0);
@@ -132,16 +164,15 @@ namespace TrenchBroom {
 
             layout->addSection("Compilation Tools");
 
-            //const std::string gameName = m_gameListBox->selectedGameName();
             auto& gameFactory = Model::GameFactory::instance();
-            const auto& gameConfig = gameFactory.gameConfig(gameName);
+            const auto& gameConfig = gameFactory.gameConfig(m_gameName);
 
             for (auto& tool : gameConfig.compilationToolDescriptions()) {
                 const std::string toolName = tool.name;
                 auto* edit = new QLineEdit();
-                edit->setText(IO::pathAsQString(gameFactory.compilationToolPath(gameName, toolName)));
+                edit->setText(IO::pathAsQString(gameFactory.compilationToolPath(m_gameName, toolName)));
                 connect(edit, &QLineEdit::editingFinished, this, [=](){
-                    Model::GameFactory::instance().setCompilationToolPath(gameName, toolName, IO::pathFromQString(edit->text()));
+                    Model::GameFactory::instance().setCompilationToolPath(m_gameName, toolName, IO::pathFromQString(edit->text()));
                 });
 
                 auto* browseButton = new QPushButton("...");
@@ -152,7 +183,7 @@ namespace TrenchBroom {
                         return;
                     }
                     edit->setText(pathStr);
-                    Model::GameFactory::instance().setCompilationToolPath(gameName, toolName, IO::pathFromQString(pathStr));
+                    Model::GameFactory::instance().setCompilationToolPath(m_gameName, toolName, IO::pathFromQString(pathStr));
                 });
 
                 auto *rowLayout = new QHBoxLayout();
@@ -164,73 +195,42 @@ namespace TrenchBroom {
                 layout->addRow(QString::fromStdString(tool.name), rowLayout);
             }
 
-            container->setLayout(layout);
-
-            return container;
+            setLayout(layout);
         }
 
-        void GamesPreferencePane::currentGameChanged(const QString& gameName) {
-            if (gameName == m_currentGame) {
-                return;
-            }
-            m_currentGame = gameName;
-
-            // Delete previous game preference page
-            if (m_stackedWidget->count() == 2) {
-                delete m_stackedWidget->widget(1);
-            }
-
-            m_stackedWidget->addWidget(createGamePreferencesPage(gameName.toStdString()));
-            m_stackedWidget->setCurrentIndex(1);
-        }
-
-        void GamesPreferencePane::chooseGamePathClicked() {
+        void GamePreferencePane::chooseGamePathClicked() {
             const QString pathStr = QFileDialog::getExistingDirectory(this, tr("Game Path"), fileDialogDefaultDirectory(FileDialogDir::GamePath));
             if (!pathStr.isEmpty()) {
                 updateGamePath(pathStr);
             }
         }
 
-        void GamesPreferencePane::updateGamePath(const QString& str) {
+        void GamePreferencePane::updateGamePath(const QString& str) {
             updateFileDialogDefaultDirectoryWithDirectory(FileDialogDir::GamePath, str);
 
             const auto gamePath = IO::pathFromQString(str);
-            const auto gameName = m_gameListBox->selectedGameName();
             auto& gameFactory = Model::GameFactory::instance();
-            if (gameFactory.setGamePath(gameName, gamePath)) {
+            if (gameFactory.setGamePath(m_gameName, gamePath)) {
                 updateControls();
             }
         }
 
-        void GamesPreferencePane::configureEnginesClicked() {
-            const auto gameName = m_gameListBox->selectedGameName();
-            GameEngineDialog dialog(gameName, this);
+        void GamePreferencePane::configureEnginesClicked() {
+            GameEngineDialog dialog(m_gameName, this);
             dialog.exec();
         }
 
-        bool GamesPreferencePane::doCanResetToDefaults() {
-            return false;
-        }
+        void GamePreferencePane::updateControls() {
+            auto& gameFactory = Model::GameFactory::instance();
 
-        void GamesPreferencePane::doResetToDefaults() {}
+            // Refresh tool paths from preferences
+            for (auto& [toolName, toolPathEditor] : m_toolPathEditors) {
+                toolPathEditor->setText(IO::pathAsQString(gameFactory.compilationToolPath(m_gameName, toolName)));
+            }
 
-        void GamesPreferencePane::doUpdateControls() {
-            //if (m_gameListBox->currentRow() < 0) {
-            //    m_stackedWidget->setCurrentIndex(0);
-            //} else {
-            //    m_stackedWidget->setCurrentIndex(1);
-            //    const auto gameName = m_gameListBox->selectedGameName();
-            //    auto& gameFactory = Model::GameFactory::instance();
-            //    const auto gamePath = gameFactory.gamePath(gameName);
-            //    m_gamePathText->setText(IO::pathAsQString(gamePath));
-            //    m_gameListBox->updateGameInfos();
-            //}
-
-            //updateCompilationTools();
-        }
-
-        bool GamesPreferencePane::doValidate() {
-            return true;
+            // Refresh game path
+            const auto gamePath = gameFactory.gamePath(m_gameName);
+            m_gamePathText->setText(IO::pathAsQString(gamePath));
         }
     }
 }

@@ -30,28 +30,51 @@ class QFormLayout;
 namespace TrenchBroom {
     namespace View {
         class GameListBox;
+        class GamePreferencePane;
 
         class GamesPreferencePane : public PreferencePane {
             Q_OBJECT
         private:
             GameListBox* m_gameListBox;
             QStackedWidget* m_stackedWidget;
+            QWidget* m_defaultPage;
+            /**
+             * Regenerated on every selection change
+             */
+            GamePreferencePane* m_curraentGamePage;
             QString m_currentGame;
         public:
             explicit GamesPreferencePane(QWidget* parent = nullptr);
         private:
             void createGui();
-            QWidget* createGamePreferencesPage(const std::string& gameName);
-        private:
-            void currentGameChanged(const QString& gameName);
-            void chooseGamePathClicked();
-            void updateGamePath(const QString& str);
-            void configureEnginesClicked();
         private:
             bool doCanResetToDefaults() override;
             void doResetToDefaults() override;
             void doUpdateControls() override;
             bool doValidate() override;
+        };
+
+        /**
+         * Widget for configuring a single game.
+         */
+        class GamePreferencePane : public QWidget {
+            Q_OBJECT
+        private:
+            std::string m_gameName;
+            QLineEdit* m_gamePathText;
+            QPushButton* m_chooseGamePathButton;
+            std::vector<std::tuple<std::string, QLineEdit*>> m_toolPathEditors;
+        public:
+            explicit GamePreferencePane(const std::string& gameName, QWidget* parent = nullptr);
+        private:
+            void createGui();
+        private:
+            void currentGameChanged(const QString& gameName);
+            void chooseGamePathClicked();
+            void updateGamePath(const QString& str);
+            void configureEnginesClicked();
+        public:
+            void updateControls();
         };
     }
 }
