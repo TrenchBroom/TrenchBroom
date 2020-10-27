@@ -963,15 +963,10 @@ namespace TrenchBroom {
             for (auto& [newParent, nodes] : nodesToAdd) {
                 Model::LayerNode* newParentLayer = Model::findLayer(newParent);
 
-                Model::CollectNodesVisitor collect;
-                Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), collect);
+                const auto nodesToDowngrade = kdl::vec_filter(
+                    Model::collectNodes(nodes), 
+                    [&](auto* node) { return Model::findLayer(node) != newParentLayer; });
 
-                std::vector<Model::Node*> nodesToDowngrade;
-                for (auto* node : collect.nodes()) {
-                    if (Model::findLayer(node) != newParentLayer) {
-                        nodesToDowngrade.push_back(node);
-                    }
-                }
                 downgradeUnlockedToInherit(nodesToDowngrade);
                 downgradeShownToInherit(nodesToDowngrade);
             }
