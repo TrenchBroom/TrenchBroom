@@ -79,12 +79,22 @@ namespace TrenchBroom {
             return result;
         }
 
-        std::vector<Node*> collectTouchingNodes(const std::vector<Node*>& nodes, const std::vector<BrushNode*>& brushes) {
+        /**
+         * Recursively collect brushes and entities from the given vector of node trees such that
+         * the returned nodes match the given predicate. A matching brush is only returned if it
+         * isn't in the given vector brushes. A node matches the given predicate if there is a brush
+         * in the given vector of brushes such that the predicate evaluates to true for that pair of
+         * node and brush.
+         *
+         * The given predicate must be a function that maps a node and a brush to true or false.
+         */
+        template <typename P>
+        static std::vector<Node*> collectMatchingNodes(const std::vector<Node*>& nodes, const std::vector<BrushNode*>& brushes, const P& predicate) {
             auto result = std::vector<Model::Node*>{};
 
-            const auto collectIfTouching = [&](auto* node) {
+            const auto collectIfMatching = [&](auto* node) {
                 for (const auto* brush : brushes) {
-                    if (brush->intersects(node)) {
+                    if (predicate(node, brush)) {
                         result.push_back(node);
                         return;
                     }
@@ -99,26 +109,32 @@ namespace TrenchBroom {
                         if (group->opened()) {
                             group->visitChildren(thisLambda);
                         } else {
-                            collectIfTouching(group);
+                            collectIfMatching(group);
                         }
                     },
                     [&](auto&& thisLambda, Model::EntityNode* entity) { 
                         if (entity->hasChildren()) {
                             entity->visitChildren(thisLambda);
                         } else {
-                            collectIfTouching(entity);
+                            collectIfMatching(entity);
                         }
                     },
                     [&](Model::BrushNode* brush)  { 
                         // if `brush` is one of the search query nodes, don't count it as touching
                         if (!kdl::vec_contains(brushes, brush)) {
-                            collectIfTouching(brush);
+                            collectIfMatching(brush);
                         }
                     }
                 ));
             }
 
             return result;
+        }
+
+        std::vector<Node*> collectTouchingNodes(const std::vector<Node*>& nodes, const std::vector<BrushNode*>& brushes) {
+            return collectMatchingNodes(nodes, brushes, [](const auto* node, const auto* brush) {
+                return brush->intersects(node);
+            });
         }
 
         std::vector<Node*> collectSelectableNodes(const std::vector<Node*>& nodes, const EditorContext& editorContext) {
