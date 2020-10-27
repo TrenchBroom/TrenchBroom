@@ -608,7 +608,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/BrushNode.h
         ${COMMON_SOURCE_DIR}/Model/BrushSnapshot.h
         ${COMMON_SOURCE_DIR}/Model/ChangeBrushFaceAttributesRequest.h
-        ${COMMON_SOURCE_DIR}/Model/CollectContainedNodesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectMatchingNodesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectNodesByVisibilityVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CollectNodesVisitor.h
