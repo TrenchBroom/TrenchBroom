@@ -25,7 +25,6 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
-#include "Model/CollectNodesVisitor.h"
 #include "Model/GroupNode.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
@@ -60,11 +59,11 @@ namespace TrenchBroom {
         }
 
         std::vector<Node*> collectDescendants(const std::vector<Node*>& nodes) {
-            CollectNodesVisitor visitor;
+            auto result = std::vector<Node*>{};
             for (auto* node : nodes) {
-                node->recurse(visitor);
+                kdl::vec_append(result, collectNodes(node->children()));
             }
-            return visitor.nodes();
+            return result;
         }
 
         std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes) {
