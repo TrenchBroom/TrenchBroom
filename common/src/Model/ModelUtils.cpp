@@ -79,6 +79,18 @@ namespace TrenchBroom {
             return result;
         }
 
+        std::vector<Node*> collectNodes(const std::vector<Node*>& nodes) {
+            auto allNodes = std::vector<Model::Node*>{};
+
+            for (auto* node : nodes) {
+                node->acceptLambda(
+                    [&](auto&& thisLambda, auto* n) { allNodes.push_back(n); n->visitChildren(thisLambda); }
+                );
+            }
+
+            return allNodes;
+        }
+
         /**
          * Recursively collect brushes and entities from the given vector of node trees such that
          * the returned nodes match the given predicate. A matching brush is only returned if it
