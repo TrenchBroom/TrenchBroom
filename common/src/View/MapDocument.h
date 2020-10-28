@@ -506,8 +506,6 @@ namespace TrenchBroom {
             void loadTextures();
             void unloadTextures();
 
-            class SetTextures;
-            class UnsetTextures;
             void setTextures();
             void setTextures(const std::vector<Model::Node*>& nodes);
             void setTextures(const std::vector<Model::BrushFaceHandle>& faceHandles);
