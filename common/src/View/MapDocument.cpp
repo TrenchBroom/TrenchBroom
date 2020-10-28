@@ -1350,17 +1350,28 @@ namespace TrenchBroom {
         }
 
         void MapDocument::isolate() {
-            const std::vector<Model::LayerNode*>& layers = m_world->allLayers();
+            auto selectedNodes = std::vector<Model::Node*>{};
+            auto unselectedNodes = std::vector<Model::Node*>{};
 
-            Model::CollectNotTransitivelySelectedOrDescendantSelectedNodesVisitor collectUnselected;
-            Model::Node::recurse(std::begin(layers), std::end(layers), collectUnselected);
+            const auto collectNode = [&](auto* node) {
+                if (node->transitivelySelected() || node->descendantSelected()) {
+                    selectedNodes.push_back(node);
+                } else {
+                    unselectedNodes.push_back(node);
+                }
+            };
 
-            Model::CollectTransitivelySelectedOrDescendantSelectedNodesVisitor collectSelected;
-            Model::Node::recurse(std::begin(layers), std::end(layers), collectSelected);
+            m_world->acceptLambda(kdl::overload(
+                [] (auto&& thisLambda, Model::WorldNode* world)   { world->visitChildren(thisLambda); },
+                [] (auto&& thisLambda, Model::LayerNode* layer)   { layer->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::GroupNode* group)   { collectNode(group); group->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::EntityNode* entity) { collectNode(entity); entity->visitChildren(thisLambda); },
+                [&](Model::BrushNode* brush) { collectNode(brush); }
+            ));
 
             Transaction transaction(this, "Isolate Objects");
-            executeAndStore(SetVisibilityCommand::hide(collectUnselected.nodes()));
-            executeAndStore(SetVisibilityCommand::show(collectSelected.nodes()));
+            executeAndStore(SetVisibilityCommand::hide(unselectedNodes));
+            executeAndStore(SetVisibilityCommand::show(selectedNodes));
         }
 
         void MapDocument::setOmitLayerFromExport(Model::LayerNode* layer, const bool omitFromExport) {
