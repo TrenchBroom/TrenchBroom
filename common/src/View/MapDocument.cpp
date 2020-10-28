@@ -45,7 +45,6 @@
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectMatchingNodesVisitor.h"
-#include "Model/CollectSelectedNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/EmptyAttributeNameIssueGenerator.h"
 #include "Model/EmptyAttributeValueIssueGenerator.h"
@@ -721,23 +720,25 @@ namespace TrenchBroom {
             // This is because if a brush entity only 1 selected child and 1 unselected,
             // we treat it as partially selected and don't want to try to select the entity if the
             // selection is inverted, which would reselect both children.
-            class CollectUnselectedSelectableNodesVisitor :
-            public Model::CollectMatchingNodesVisitor<Model::NodePredicates::And<Model::MatchSelectableNodes, Model::MatchTransitivelySelectedOrDescendantSelectedNodes<false>>, Model::UniqueNodeCollectionStrategy> {
-            public:
-                CollectUnselectedSelectableNodesVisitor(const Model::EditorContext& editorContext) :
-                CollectMatchingNodesVisitor(Model::NodePredicates::And<Model::MatchSelectableNodes, Model::MatchTransitivelySelectedOrDescendantSelectedNodes<false>>(
-                    Model::MatchSelectableNodes(editorContext), 
-                    Model::MatchTransitivelySelectedOrDescendantSelectedNodes<false>())) {}
+
+            auto nodesToSelect = std::vector<Model::Node*>{};
+            const auto collectNode = [&](auto* node) {
+                if (!node->transitivelySelected() && !node->descendantSelected() && m_editorContext->selectable(node)) {
+                    nodesToSelect.push_back(node);
+                }
             };
 
-            CollectUnselectedSelectableNodesVisitor visitor(*m_editorContext);
-
-            Model::Node* target = currentGroupOrWorld();
-            target->recurse(visitor);
+            currentGroupOrWorld()->acceptLambda(kdl::overload(
+                [] (auto&& thisLambda, Model::WorldNode* world)   { world->visitChildren(thisLambda); },
+                [] (auto&& thisLambda, Model::LayerNode* layer)   { layer->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::GroupNode* group)   { collectNode(group); group->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::EntityNode* entity) { collectNode(entity); entity->visitChildren(thisLambda); },
+                [&](Model::BrushNode* brush)                      { collectNode(brush); }
+            ));
 
             Transaction transaction(this, "Select Inverse");
             deselectAll();
-            select(visitor.nodes());
+            select(nodesToSelect);
         }
 
         void MapDocument::selectNodesWithFilePosition(const std::vector<size_t>& positions) {
