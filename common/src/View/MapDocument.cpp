@@ -2162,50 +2162,45 @@ namespace TrenchBroom {
             m_textureManager->clear();
         }
 
-        class MapDocument::SetTextures : public Model::NodeVisitor {
-        private:
-            Assets::TextureManager& m_manager;
-        public:
-            explicit SetTextures(Assets::TextureManager& manager) :
-                m_manager(manager) {}
-        private:
-            void doVisit(Model::WorldNode*) override   {}
-            void doVisit(Model::LayerNode*) override   {}
-            void doVisit(Model::GroupNode*) override   {}
-            void doVisit(Model::EntityNode*) override {}
-            void doVisit(Model::BrushNode* brushNode) override   {
-                const Model::Brush& brush = brushNode->brush();
-                for (size_t i = 0u; i < brush.faceCount(); ++i) {
-                    const Model::BrushFace& face = brush.face(i);
-                    Assets::Texture* texture = m_manager.texture(face.attributes().textureName());
-                    brushNode->setFaceTexture(i, texture);
+        static auto makeSetTexturesVisitor(Assets::TextureManager& manager) {
+            return kdl::overload(
+                [] (auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+                [] (auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+                [] (auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
+                [] (auto&& thisLambda, Model::EntityNode* entity) { entity->visitChildren(thisLambda); },
+                [&](Model::BrushNode* brushNode) { 
+                    const Model::Brush& brush = brushNode->brush();
+                    for (size_t i = 0u; i < brush.faceCount(); ++i) {
+                        const Model::BrushFace& face = brush.face(i);
+                        Assets::Texture* texture = manager.texture(face.attributes().textureName());
+                        brushNode->setFaceTexture(i, texture);
+                    }
                 }
-            }
-        };
+            );
+        }
 
-        class MapDocument::UnsetTextures : public Model::NodeVisitor {
-        private:
-            void doVisit(Model::WorldNode*) override   {}
-            void doVisit(Model::LayerNode*) override   {}
-            void doVisit(Model::GroupNode*) override   {}
-            void doVisit(Model::EntityNode*) override {}
-            void doVisit(Model::BrushNode* brushNode) override   {
-                const Model::Brush& brush = brushNode->brush();
-                for (size_t i = 0u; i < brush.faceCount(); ++i) {
-                    brushNode->setFaceTexture(i, nullptr);
+        static auto makeUnsetTexturesVisitor() {
+            return kdl::overload (
+                [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::EntityNode* entity) { entity->visitChildren(thisLambda); },
+                [](Model::BrushNode* brushNode) { 
+                    const Model::Brush& brush = brushNode->brush();
+                    for (size_t i = 0u; i < brush.faceCount(); ++i) {
+                        brushNode->setFaceTexture(i, nullptr);
+                    }
                 }
-            }
-        };
+            );
+        }
 
         void MapDocument::setTextures() {
-            SetTextures visitor(*m_textureManager);
-            m_world->acceptAndRecurse(visitor);
+            m_world->acceptLambda(makeSetTexturesVisitor(*m_textureManager));
             textureUsageCountsDidChangeNotifier();
         }
 
         void MapDocument::setTextures(const std::vector<Model::Node*>& nodes) {
-            SetTextures visitor(*m_textureManager);
-            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
+            Model::Node::visitAll(nodes, makeSetTexturesVisitor(*m_textureManager));
             textureUsageCountsDidChangeNotifier();
         }
 
@@ -2220,13 +2215,12 @@ namespace TrenchBroom {
         }
 
         void MapDocument::unsetTextures() {
-            UnsetTextures visitor;
-            m_world->acceptAndRecurse(visitor);
+            m_world->acceptLambda(makeUnsetTexturesVisitor());
+            textureUsageCountsDidChangeNotifier();
         }
 
         void MapDocument::unsetTextures(const std::vector<Model::Node*>& nodes) {
-            UnsetTextures visitor;
-            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
+            Model::Node::visitAll(nodes, makeUnsetTexturesVisitor());
             textureUsageCountsDidChangeNotifier();
         }
 
