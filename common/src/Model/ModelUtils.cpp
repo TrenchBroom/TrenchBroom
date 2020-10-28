@@ -154,6 +154,28 @@ namespace TrenchBroom {
             });
         }
 
+        std::vector<Node*> collectSelectedNodes(const std::vector<Node*>& nodes) {
+            auto selectedNodes = std::vector<Model::Node*>{};
+            
+            const auto collectIfSelected = [&](auto* node) {
+                if (node->selected()) {
+                    selectedNodes.push_back(node);
+                }
+            };
+
+            for (auto* node : nodes) {
+                node->acceptLambda(kdl::overload(
+                    [] (auto&& thisLambda, Model::WorldNode* world)   { world->visitChildren(thisLambda); },
+                    [] (auto&& thisLambda, Model::LayerNode* layer)   { layer->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, Model::GroupNode* group)   { collectIfSelected(group); group->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, Model::EntityNode* entity) { collectIfSelected(entity); entity->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, Model::BrushNode* brush)   { collectIfSelected(brush); brush->visitChildren(thisLambda); }
+                ));
+            }
+            return selectedNodes;
+        }
+
+
         std::vector<Node*> collectSelectableNodes(const std::vector<Node*>& nodes, const EditorContext& editorContext) {
             auto result = std::vector<Node*>{};
 

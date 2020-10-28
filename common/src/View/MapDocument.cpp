@@ -1377,11 +1377,7 @@ namespace TrenchBroom {
             const Transaction transaction(this, "Hide Objects");
 
             // Deselect any selected nodes inside `nodes`
-            {
-                Model::CollectSelectedNodesVisitor collect;
-                Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), collect);
-                deselect(collect.nodes());
-            }
+            deselect(Model::collectSelectedNodes(nodes));
 
             // Reset visibility of any forced shown children of `nodes`
             downgradeShownToInherit(Model::collectDescendants(nodes));
@@ -1413,11 +1409,7 @@ namespace TrenchBroom {
             const Transaction transaction(this, "Lock Objects");
 
             // Deselect any selected nodes inside `nodes`
-            {
-                Model::CollectSelectedNodesVisitor collect;
-                Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), collect);
-                deselect(collect.nodes());
-            }
+            deselect(Model::collectSelectedNodes(nodes));
 
             // Reset lock state of any forced unlocked children of `nodes`
             downgradeUnlockedToInherit(Model::collectDescendants(nodes));
