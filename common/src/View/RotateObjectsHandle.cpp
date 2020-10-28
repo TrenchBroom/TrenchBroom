@@ -143,6 +143,29 @@ namespace TrenchBroom {
             }
         }
 
+        Model::Hit RotateObjectsHandle::Handle2D::pickRotateHandle(const vm::ray3& pickRay, const Renderer::Camera& camera, const HitArea area) const {
+            // Work around imprecision caused by 2D cameras being positioned at map bounds...
+            // Fixes erratic handle selection behaviour at high zoom
+            auto ray(pickRay);
+            switch (area) {
+                case HitArea::XAxis:
+                    ray.origin[0] = m_position[0];
+                    break;
+
+                case HitArea::YAxis:
+                    ray.origin[1] = m_position[1];
+                    break;
+
+                case HitArea::ZAxis:
+                    ray.origin[2] = m_position[2];
+                    break;
+
+                switchDefault();
+            }
+
+            return Handle::pickRotateHandle(ray, camera, area);
+        }
+
         void RotateObjectsHandle::Handle2D::renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const {
             const auto& camera = renderContext.camera();
             const auto radius = static_cast<float>(majorRadius() * scalingFactor(renderContext.camera()));
