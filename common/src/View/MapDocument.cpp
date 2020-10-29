@@ -2224,51 +2224,46 @@ namespace TrenchBroom {
             textureUsageCountsDidChangeNotifier();
         }
 
-        class MapDocument::SetEntityDefinitions : public Model::NodeVisitor {
-        private:
-            Assets::EntityDefinitionManager& m_manager;
-        public:
-            explicit SetEntityDefinitions(Assets::EntityDefinitionManager& manager) :
-            m_manager(manager) {}
-        private:
-            void doVisit(Model::WorldNode* world) override   { handle(world); }
-            void doVisit(Model::LayerNode*) override         {}
-            void doVisit(Model::GroupNode*) override         {}
-            void doVisit(Model::EntityNode* entity) override { handle(entity); }
-            void doVisit(Model::BrushNode*) override         {}
-            void handle(Model::AttributableNode* attributable) {
-                Assets::EntityDefinition* definition = m_manager.definition(attributable);
+        static auto makeSetEntityDefinitionsVisitor(Assets::EntityDefinitionManager& manager) {
+            // this helper lambda must be captured by value
+            const auto setEntityDefinition = [&](auto* attributable) {
+                auto* definition = manager.definition(attributable);
                 attributable->setDefinition(definition);
-            }
-        };
+            };
 
-        class MapDocument::UnsetEntityDefinitions : public Model::NodeVisitor {
-        private:
-            void doVisit(Model::WorldNode* world) override   { world->setDefinition(nullptr); }
-            void doVisit(Model::LayerNode*) override         {}
-            void doVisit(Model::GroupNode*) override         {}
-            void doVisit(Model::EntityNode* entity) override { entity->setDefinition(nullptr); }
-            void doVisit(Model::BrushNode*) override         {}
-        };
+            return kdl::overload(
+                [=](auto&& thisLambda, Model::WorldNode* world) { setEntityDefinition(world); world->visitChildren(thisLambda); },
+                [] (auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+                [] (auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
+                [=](Model::EntityNode* entity)                  { setEntityDefinition(entity); },
+                [] (Model::BrushNode*) {}
+            );
+        }
+
+        static auto makeUnsetEntityDefinitionsVisitor() {
+            return kdl::overload(
+                [](auto&& thisLambda, Model::WorldNode* world) { world->setDefinition(nullptr); world->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
+                [](Model::EntityNode* entity)                  { entity->setDefinition(nullptr); },
+                [](Model::BrushNode*) {}
+            );
+        }
 
         void MapDocument::setEntityDefinitions() {
-            SetEntityDefinitions visitor(*m_entityDefinitionManager);
-            m_world->acceptAndRecurse(visitor);
+            m_world->acceptLambda(makeSetEntityDefinitionsVisitor(*m_entityDefinitionManager));
         }
 
         void MapDocument::setEntityDefinitions(const std::vector<Model::Node*>& nodes) {
-            SetEntityDefinitions visitor(*m_entityDefinitionManager);
-            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
+            Model::Node::visitAll(nodes, makeSetEntityDefinitionsVisitor(*m_entityDefinitionManager));
         }
 
         void MapDocument::unsetEntityDefinitions() {
-            UnsetEntityDefinitions visitor;
-            m_world->acceptAndRecurse(visitor);
+            m_world->acceptLambda(makeUnsetEntityDefinitionsVisitor());
         }
 
         void MapDocument::unsetEntityDefinitions(const std::vector<Model::Node*>& nodes) {
-            UnsetEntityDefinitions visitor;
-            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
+            Model::Node::visitAll(nodes, makeUnsetEntityDefinitionsVisitor());
         }
 
         void MapDocument::reloadEntityDefinitionsInternal() {
