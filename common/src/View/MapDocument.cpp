@@ -2279,55 +2279,46 @@ namespace TrenchBroom {
             m_entityModelManager->clear();
         }
 
-        class MapDocument::SetEntityModels : public Model::NodeVisitor {
-        private:
-            Logger& m_logger;
-            Assets::EntityModelManager& m_manager;
-        public:
-            explicit SetEntityModels(Logger& logger, Assets::EntityModelManager& manager) :
-            m_logger(logger),
-            m_manager(manager) {}
-        private:
-            void doVisit(Model::WorldNode*) override         {}
-            void doVisit(Model::LayerNode*) override         {}
-            void doVisit(Model::GroupNode*) override         {}
-            void doVisit(Model::EntityNode* entity) override {
-                const auto modelSpec = Assets::safeGetModelSpecification(m_logger, entity->classname(), [&]() {
-                    return entity->modelSpecification();
-                });
-                const auto* frame = m_manager.frame(modelSpec);
-                entity->setModelFrame(frame);
-            }
-            void doVisit(Model::BrushNode*) override         {}
-        };
+        static auto makeSetEntityModelsVisitor(Logger& logger, Assets::EntityModelManager& manager) {
+            return kdl::overload(
+                [] (auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+                [] (auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+                [] (auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
+                [&](Model::EntityNode* entity)                  {
+                    const auto modelSpec = Assets::safeGetModelSpecification(logger, entity->classname(), [&]() {
+                        return entity->modelSpecification();
+                    });
+                    const auto* frame = manager.frame(modelSpec);
+                    entity->setModelFrame(frame);
+                },
+                [] (Model::BrushNode*) {}
+            );
+        }
 
-        class MapDocument::UnsetEntityModels : public Model::NodeVisitor {
-        private:
-            void doVisit(Model::WorldNode*) override         {}
-            void doVisit(Model::LayerNode*) override         {}
-            void doVisit(Model::GroupNode*) override         {}
-            void doVisit(Model::EntityNode* entity) override { entity->setModelFrame(nullptr); }
-            void doVisit(Model::BrushNode*) override         {}
-        };
+        static auto makeUnsetEntityModelsVisitor() {
+            return kdl::overload(
+                [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
+                [](Model::EntityNode* entity)                  { entity->setModelFrame(nullptr); },
+                [](Model::BrushNode*) {}
+            );
+        }
 
         void MapDocument::setEntityModels() {
-            SetEntityModels visitor(*this, *m_entityModelManager);
-            m_world->acceptAndRecurse(visitor);
+            m_world->acceptLambda(makeSetEntityModelsVisitor(*this, *m_entityModelManager));
         }
 
         void MapDocument::setEntityModels(const std::vector<Model::Node*>& nodes) {
-            SetEntityModels visitor(*this, *m_entityModelManager);
-            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
+            Model::Node::visitAll(nodes, makeSetEntityModelsVisitor(*this, *m_entityModelManager));
         }
 
         void MapDocument::unsetEntityModels() {
-            UnsetEntityModels visitor;
-            m_world->acceptAndRecurse(visitor);
+            m_world->acceptLambda(makeUnsetEntityModelsVisitor());
         }
 
         void MapDocument::unsetEntityModels(const std::vector<Model::Node*>& nodes) {
-            UnsetEntityModels visitor;
-            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
+            Model::Node::visitAll(nodes, makeUnsetEntityModelsVisitor());
         }
 
         std::vector<IO::Path> MapDocument::externalSearchPaths() const {
