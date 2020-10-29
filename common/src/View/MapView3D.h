@@ -82,8 +82,6 @@ namespace TrenchBroom {
 
             void doFocusCameraOnSelection(bool animate) override;
 
-            class ComputeCameraCenterPositionVisitor;
-            class ComputeCameraCenterOffsetVisitor;
             vm::vec3 focusCameraOnObjectsPosition(const std::vector<Model::Node*>& nodes);
 
             void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
