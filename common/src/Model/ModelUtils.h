@@ -51,13 +51,6 @@ namespace TrenchBroom {
         std::vector<Node*> collectParents(const std::vector<Node*>& nodes);
         std::vector<Node*> collectParents(const std::map<Node*, std::vector<Node*>>& nodes);
 
-        template <typename I>
-        std::vector<Node*> collectParents(const I begin, const I end) {
-            CollectUniqueNodesVisitor visitor;
-            Node::escalate(begin, end, visitor);
-            return visitor.nodes();
-        }
-
         std::vector<Node*> collectChildren(const std::map<Node*, std::vector<Node*>>& nodes);
         std::vector<Node*> collectDescendants(const std::vector<Node*>& nodes);
         std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes);
