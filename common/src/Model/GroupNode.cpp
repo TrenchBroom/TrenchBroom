@@ -22,7 +22,6 @@
 #include "FloatType.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
-#include "Model/FindContainerVisitor.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
 #include "Model/GroupSnapshot.h"
@@ -223,9 +222,7 @@ namespace TrenchBroom {
         }
 
         Node* GroupNode::doGetContainer() {
-            FindContainerVisitor visitor;
-            escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : nullptr;
+            return parent();
         }
 
         LayerNode* GroupNode::doGetLayer() {

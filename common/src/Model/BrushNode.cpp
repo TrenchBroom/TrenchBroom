@@ -30,7 +30,6 @@
 #include "Model/BrushGeometry.h"
 #include "Model/BrushSnapshot.h"
 #include "Model/EntityNode.h"
-#include "Model/FindContainerVisitor.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
 #include "Model/GroupNode.h"
@@ -233,9 +232,7 @@ namespace TrenchBroom {
         }
 
         Node* BrushNode::doGetContainer() {
-            FindContainerVisitor visitor;
-            escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : nullptr;
+            return parent();
         }
 
         LayerNode* BrushNode::doGetLayer() {
