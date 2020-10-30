@@ -31,12 +31,12 @@
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
 #include "Model/ExportFormat.h"
-#include "Model/FindLayerVisitor.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
+#include "Model/ModelUtils.h"
 #include "Model/Node.h"
 #include "Model/WorldNode.h"
 #include "View/Actions.h"
@@ -530,7 +530,7 @@ namespace TrenchBroom {
             }
 
             // get the layers of the selected nodes
-            const std::vector<Model::LayerNode*> selectedObjectLayers = Model::findLayersUserSorted(selectedNodes.nodes());
+            const std::vector<Model::LayerNode*> selectedObjectLayers = Model::findContainingLayersUserSorted(selectedNodes.nodes());
             QString layersDescription;
             if (selectedObjectLayers.size() == 1) {
                 Model::LayerNode* layer = selectedObjectLayers[0];

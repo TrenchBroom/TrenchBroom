@@ -22,7 +22,6 @@
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/FindGroupVisitor.h"
-#include "Model/FindLayerVisitor.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/ModelUtils.h"

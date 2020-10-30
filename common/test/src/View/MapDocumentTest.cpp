@@ -28,7 +28,6 @@
 #include "Model/EmptyAttributeNameIssueGenerator.h"
 #include "Model/EmptyAttributeValueIssueGenerator.h"
 #include "Model/EntityNode.h"
-#include "Model/FindLayerVisitor.h"
 #include "Model/GroupNode.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
@@ -37,6 +36,7 @@
 #include "Model/LayerNode.h"
 #include "Model/LockState.h"
 #include "Model/MapFormat.h"
+#include "Model/ModelUtils.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
@@ -1222,8 +1222,8 @@ namespace TrenchBroom {
             Model::GroupNode* newGroup = document->groupSelection("Group in Layer 1"); // the new group should stay in layer1
 
             CHECK(entity->parent() == newGroup);
-            CHECK(Model::findLayer(entity) == layer1);
-            CHECK(Model::findLayer(newGroup) == layer1);
+            CHECK(Model::findContainingLayer(entity) == layer1);
+            CHECK(Model::findContainingLayer(newGroup) == layer1);
             CHECK(document->currentLayer() == layer2);
         }
 

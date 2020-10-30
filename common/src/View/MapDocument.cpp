@@ -52,7 +52,6 @@
 #include "Model/EmptyGroupIssueGenerator.h"
 #include "Model/EntityNode.h"
 #include "Model/FindGroupVisitor.h"
-#include "Model/FindLayerVisitor.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/GroupNode.h"
@@ -269,7 +268,7 @@ namespace TrenchBroom {
                 return parentGroup;
             }
 
-            Model::LayerNode* parentLayer = Model::findLayer(nodes.at(0));
+            Model::LayerNode* parentLayer = Model::findContainingLayer(nodes.at(0));
             ensure(parentLayer != nullptr, "no parent layer");
             return parentLayer;
         }
@@ -960,11 +959,11 @@ namespace TrenchBroom {
             // - creating brushes in a hidden layer, then moving them to a hidden layer, should downgrade them
             //   to inherited and hide them
             for (auto& [newParent, nodes] : nodesToAdd) {
-                Model::LayerNode* newParentLayer = Model::findLayer(newParent);
+                Model::LayerNode* newParentLayer = Model::findContainingLayer(newParent);
 
                 const auto nodesToDowngrade = kdl::vec_filter(
                     Model::collectNodes(nodes), 
-                    [&](auto* node) { return Model::findLayer(node) != newParentLayer; });
+                    [&](auto* node) { return Model::findContainingLayer(node) != newParentLayer; });
 
                 downgradeUnlockedToInherit(nodesToDowngrade);
                 downgradeShownToInherit(nodesToDowngrade);
@@ -1308,7 +1307,7 @@ namespace TrenchBroom {
             const auto& nodes = selectedNodes().nodes();
 
             const bool isAnyNodeInGroup = std::any_of(std::begin(nodes), std::end(nodes), [&](auto* node) { return Model::findGroup(node) != nullptr; });
-            const bool isAnyNodeInOtherLayer = std::any_of(std::begin(nodes), std::end(nodes), [&](auto* node) { return Model::findLayer(node) != layer; });
+            const bool isAnyNodeInOtherLayer = std::any_of(std::begin(nodes), std::end(nodes), [&](auto* node) { return Model::findContainingLayer(node) != layer; });
 
             return !nodes.empty() && !isAnyNodeInGroup && isAnyNodeInOtherLayer;
         }

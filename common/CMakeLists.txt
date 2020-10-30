@@ -127,7 +127,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/EntityRotationPolicy.cpp
         ${COMMON_SOURCE_DIR}/Model/EntitySnapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/FindGroupVisitor.cpp
-        ${COMMON_SOURCE_DIR}/Model/FindLayerVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/Game.cpp
         ${COMMON_SOURCE_DIR}/Model/GameConfig.cpp
         ${COMMON_SOURCE_DIR}/Model/GameEngineConfig.cpp
@@ -627,7 +626,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/EntitySnapshot.h
         ${COMMON_SOURCE_DIR}/Model/ExportFormat.h
         ${COMMON_SOURCE_DIR}/Model/FindGroupVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/FindLayerVisitor.h
         ${COMMON_SOURCE_DIR}/Model/FindMatchingBrushFaceVisitor.h
         ${COMMON_SOURCE_DIR}/Model/Game.h
         ${COMMON_SOURCE_DIR}/Model/GameConfig.h
