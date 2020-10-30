@@ -57,8 +57,8 @@ namespace TrenchBroom {
             void close();
         private:
             void setEditState(EditState editState);
+            void setAncestorEditState(EditState editState);
 
-            class SetEditStateVisitor;
             void openAncestors();
             void closeAncestors();
         private: // implement methods inherited from Node
