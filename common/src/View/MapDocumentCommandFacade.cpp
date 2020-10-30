@@ -441,7 +441,7 @@ namespace TrenchBroom {
 
         MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performSetAttributeForNodes(const std::vector<Model::AttributableNode*>& attributableNodes, const std::string& name, const std::string& value) {            
             const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
-            const std::vector<Model::Node*> parents = collectParents(std::begin(nodes), std::end(nodes));
+            const std::vector<Model::Node*> parents = collectParents(nodes);
             const std::vector<Model::Node*> descendants = collectDescendants(nodes);
 
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
@@ -469,7 +469,7 @@ namespace TrenchBroom {
 
         MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performRemoveAttributeForNodes(const std::vector<Model::AttributableNode*>& attributableNodes, const std::string& name) {            
             const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
-            const std::vector<Model::Node*> parents = collectParents(std::begin(nodes), std::end(nodes));
+            const std::vector<Model::Node*> parents = collectParents(nodes);
             const std::vector<Model::Node*> descendants = collectDescendants(nodes);
 
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
@@ -493,7 +493,7 @@ namespace TrenchBroom {
         MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performUpdateSpawnflag(const std::string& name, const size_t flagIndex, const bool setFlag) {
             const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
             const std::vector<Model::Node*> nodes(attributableNodes.begin(), attributableNodes.end());
-            const std::vector<Model::Node*> parents = collectParents(nodes.begin(), nodes.end());
+            const std::vector<Model::Node*> parents = collectParents(nodes);
             const std::vector<Model::Node*> descendants = collectDescendants(nodes);
 
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
@@ -527,7 +527,7 @@ namespace TrenchBroom {
         MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performConvertColorRange(const std::string& name, Assets::ColorRange::Type colorRange) {
             const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
             const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
-            const std::vector<Model::Node*> parents = collectParents(std::begin(nodes), std::end(nodes));
+            const std::vector<Model::Node*> parents = collectParents(nodes);
             const std::vector<Model::Node*> descendants = collectDescendants(nodes);
 
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
@@ -555,7 +555,7 @@ namespace TrenchBroom {
 
         MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performRenameAttributeForNodes(const std::vector<Model::AttributableNode*>& attributableNodes, const std::string& oldName, const std::string& newName) {
             const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
-            const std::vector<Model::Node*> parents = collectParents(std::begin(nodes), std::end(nodes));
+            const std::vector<Model::Node*> parents = collectParents(nodes);
             const std::vector<Model::Node*> descendants = collectDescendants(nodes);
 
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
@@ -579,7 +579,7 @@ namespace TrenchBroom {
         void MapDocumentCommandFacade::restoreAttributes(const MapDocumentCommandFacade::EntityAttributeSnapshotMap& attributes) {
             const std::vector<Model::AttributableNode*> attributableNodes = kdl::map_keys(attributes);
             const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
-            const std::vector<Model::Node*> parents = collectParents(std::begin(nodes), std::end(nodes));
+            const std::vector<Model::Node*> parents = collectParents(nodes);
             const std::vector<Model::Node*> descendants = collectDescendants(nodes);
 
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
@@ -638,7 +638,7 @@ namespace TrenchBroom {
                 }
             }
 
-            const auto parents = collectParents(std::begin(changedNodes), std::end(changedNodes));
+            const auto parents = collectParents(changedNodes);
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, changedNodes);
 

@@ -77,17 +77,31 @@ namespace TrenchBroom {
             )).value_or(nullptr);
         }
 
+        static void collectWithParents(Node* node, std::vector<Node*>& result) {
+            if (node != nullptr) {
+                node->acceptLambda(
+                    [&](auto&& thisLambda, auto* n) -> void { result.push_back(n); n->visitParent(thisLambda); }
+                );
+            }
+        }
+
         std::vector<Node*> collectParents(const std::vector<Node*>& nodes) {
-            return collectParents(std::begin(nodes), std::end(nodes));
+            std::vector<Node*> result;
+            for (auto* node : nodes) {
+                collectWithParents(node->parent(), result);
+            }
+            kdl::vec_sort_and_remove_duplicates(result);
+            return result;
         }
 
         std::vector<Node*> collectParents(const std::map<Node*, std::vector<Node*>>& nodes) {
-            CollectUniqueNodesVisitor visitor;
+            std::vector<Node*> result;
             for (const auto& entry : nodes) {
                 Node* parent = entry.first;
-                parent->acceptAndEscalate(visitor);
+                collectWithParents(parent, result);
             }
-            return visitor.nodes();
+            kdl::vec_sort_and_remove_duplicates(result);
+            return result;
         }
 
         std::vector<Node*> collectChildren(const std::map<Node*, std::vector<Node*>>& nodes) {
