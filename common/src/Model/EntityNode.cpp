@@ -24,7 +24,6 @@
 #include "Model/BrushNode.h"
 #include "Model/EntityRotationPolicy.h"
 #include "Model/EntitySnapshot.h"
-#include "Model/FindContainerVisitor.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
 #include "Model/IssueGenerator.h"
@@ -330,9 +329,7 @@ namespace TrenchBroom {
         }
 
         Node* EntityNode::doGetContainer() {
-            FindContainerVisitor visitor;
-            escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : nullptr;
+            return parent();
         }
 
         LayerNode* EntityNode::doGetLayer() {
