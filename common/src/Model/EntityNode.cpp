@@ -347,45 +347,23 @@ namespace TrenchBroom {
             return visitor.hasResult() ? visitor.result() : nullptr;
         }
 
-        class TransformEntity : public NodeVisitor {
-        private:
-            const vm::bbox3& m_worldBounds;
-            const vm::mat4x4& m_transformation;
-            bool m_lockTextures;
-            std::optional<TransformError> m_error;
-        public:
-            TransformEntity(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, const bool lockTextures) :
-            m_worldBounds(worldBounds),
-            m_transformation(transformation),
-            m_lockTextures(lockTextures) {}
-
-            const std::optional<TransformError>& error() const {
-                return m_error;
-            }
-        private:
-            void doVisit(WorldNode*) override  {}
-            void doVisit(LayerNode*) override  {}
-            void doVisit(GroupNode*) override  {}
-            void doVisit(EntityNode*) override {}
-            void doVisit(BrushNode* brush) override {
-                brush->transform(m_worldBounds, m_transformation, m_lockTextures)
-                    .visit(kdl::overload(
-                        []() {},
-                        [&](TransformError&& e) {
-                            m_error = std::move(e);
-                            cancel();
-                        }
-                    ));
-            }
-        };
-
         kdl::result<void, TransformError> EntityNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
             if (hasChildren()) {
                 const NotifyNodeChange nodeChange(this);
-                TransformEntity visitor(worldBounds, transformation, lockTextures);
-                iterate(visitor);
-                if (visitor.error()) {
-                    return kdl::result<void, TransformError>::error(*visitor.error());
+
+                for (auto* child : children()) {
+                    const auto result = child->acceptLambda(kdl::overload(
+                        [] (WorldNode*)  { return kdl::result<void, TransformError>::success(); },
+                        [] (LayerNode*)  { return kdl::result<void, TransformError>::success(); },
+                        [] (GroupNode*)  { return kdl::result<void, TransformError>::success(); },
+                        [] (EntityNode*) { return kdl::result<void, TransformError>::success(); },
+                        [&](BrushNode* brush) {
+                            return brush->transform(worldBounds, transformation, lockTextures);
+                        }
+                    ));
+                    if (!result.is_success()) {
+                        return result;
+                    }
                 }
             } else {
                 // node change is called by setOrigin already
