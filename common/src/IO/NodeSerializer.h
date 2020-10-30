@@ -39,8 +39,6 @@ namespace TrenchBroom {
 
     namespace IO {
         class NodeSerializer {
-        private:
-            class BrushSerializer;
         protected:
             static const int FloatPrecision = 17;
             using ObjectNo = unsigned int;
