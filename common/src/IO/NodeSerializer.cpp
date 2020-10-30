@@ -25,7 +25,6 @@
 #include "Model/EntityAttributes.h"
 #include "Model/LayerNode.h"
 #include "Model/LockState.h"
-#include "Model/NodeVisitor.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/overload.h>
@@ -36,19 +35,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class NodeSerializer::BrushSerializer : public Model::ConstNodeVisitor {
-        private:
-            NodeSerializer& m_serializer;
-        public:
-            explicit BrushSerializer(NodeSerializer& serializer) : m_serializer(serializer) {}
-
-            void doVisit(const Model::WorldNode* /* world */) override   {}
-            void doVisit(const Model::LayerNode* /* layer */) override   {}
-            void doVisit(const Model::GroupNode* /* group */) override   {}
-            void doVisit(const Model::EntityNode* /* entity */) override {}
-            void doVisit(const Model::BrushNode* brush) override   { m_serializer.brush(brush); }
-        };
-
         const std::string& NodeSerializer::IdManager::getId(const Model::Node* t) const {
             auto it = m_ids.find(t);
             if (it == std::end(m_ids)) {
@@ -152,8 +138,12 @@ namespace TrenchBroom {
         void NodeSerializer::entity(const Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& parentAttributes, const Model::Node* brushParent) {
             beginEntity(node, attributes, parentAttributes);
 
-            BrushSerializer brushSerializer(*this);
-            brushParent->iterate(brushSerializer);
+            brushParent->visitChildren(kdl::overload(
+                [](const auto*) {},
+                [&](const Model::BrushNode* b) {
+                    brush(b);
+                }
+            ));
 
             endEntity(node);
         }
