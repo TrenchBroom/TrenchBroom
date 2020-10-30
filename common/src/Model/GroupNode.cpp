@@ -68,27 +68,19 @@ namespace TrenchBroom {
             m_editState = editState;
         }
 
-        class GroupNode::SetEditStateVisitor : public NodeVisitor {
-        private:
-            EditState m_editState;
-        public:
-            SetEditStateVisitor(const EditState editState) : m_editState(editState) {}
-        private:
-            void doVisit(WorldNode*) override       {}
-            void doVisit(LayerNode*) override       {}
-            void doVisit(GroupNode* group) override { group->setEditState(m_editState); }
-            void doVisit(EntityNode*) override      {}
-            void doVisit(BrushNode*) override       {}
-        };
+        void GroupNode::setAncestorEditState(const EditState editState) {
+            visitParent(kdl::overload(
+                [=](auto&& thisLambda, GroupNode* group) -> void { group->setEditState(editState); group->visitParent(thisLambda); },
+                [=](auto&& thisLambda, auto* node)       -> void { node->visitParent(thisLambda); }
+            ));
+        }
 
         void GroupNode::openAncestors() {
-            SetEditStateVisitor visitor(Edit_DescendantOpen);
-            escalate(visitor);
+            setAncestorEditState(Edit_DescendantOpen);
         }
 
         void GroupNode::closeAncestors() {
-            SetEditStateVisitor visitor(Edit_Closed);
-            escalate(visitor);
+            setAncestorEditState(Edit_Closed);
         }
 
         bool GroupNode::hasOpenedDescendant() const {
