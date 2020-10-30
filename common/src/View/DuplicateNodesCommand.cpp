@@ -19,7 +19,6 @@
 
 #include "DuplicateNodesCommand.h"
 
-#include "Model/FindLayerVisitor.h"
 #include "Model/Node.h"
 #include "Model/LayerNode.h"
 #include "View/MapDocumentCommandFacade.h"

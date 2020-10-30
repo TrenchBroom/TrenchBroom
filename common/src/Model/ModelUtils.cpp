@@ -36,6 +36,27 @@
 
 namespace TrenchBroom {
     namespace Model {
+        LayerNode* findContainingLayer(Node* node) {
+            return node->acceptLambda(kdl::overload(
+                [](WorldNode*)                            -> LayerNode* { return nullptr; },
+                [](LayerNode* layer)                      -> LayerNode* { return layer; },
+                [](auto&& thisLambda, GroupNode* group)   -> LayerNode* { return group->visitParent(thisLambda).value_or(nullptr); },
+                [](auto&& thisLambda, EntityNode* entity) -> LayerNode* { return entity->visitParent(thisLambda).value_or(nullptr); },
+                [](auto&& thisLambda, BrushNode* brush)   -> LayerNode* { return brush->visitParent(thisLambda).value_or(nullptr); }
+            ));
+        }
+
+        std::vector<LayerNode*> findContainingLayersUserSorted(const std::vector<Node*>& nodes) {
+            std::vector<LayerNode*> layers;
+            for (auto* node : nodes) {
+                if (auto* layer = findContainingLayer(node)) {
+                    layers.push_back(layer);
+                }
+            }
+            kdl::vec_sort_and_remove_duplicates(layers);
+            return layers;
+        }
+
         std::vector<Node*> collectParents(const std::vector<Node*>& nodes) {
             return collectParents(std::begin(nodes), std::end(nodes));
         }

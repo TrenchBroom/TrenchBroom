@@ -33,12 +33,12 @@
 #include "Model/EntityNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/FindGroupVisitor.h"
-#include "Model/FindLayerVisitor.h"
 #include "Model/GroupNode.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/LayerNode.h"
+#include "Model/ModelUtils.h"
 #include "Model/PointFile.h"
 #include "Model/PortalFile.h"
 #include "Model/WorldNode.h"
@@ -1003,7 +1003,7 @@ namespace TrenchBroom {
 
             // Layer operations
 
-            const std::vector<Model::LayerNode*> selectedObjectLayers = Model::findLayersUserSorted(nodes);
+            const std::vector<Model::LayerNode*> selectedObjectLayers = Model::findContainingLayersUserSorted(nodes);
 
             QMenu* moveSelectionTo = menu.addMenu(tr("Move to Layer"));
             for (Model::LayerNode* layer : document->world()->allLayersUserSorted()) {
@@ -1287,7 +1287,7 @@ namespace TrenchBroom {
                     return group;
                 }
 
-                Model::LayerNode* layer = Model::findLayer(lastNode);
+                Model::LayerNode* layer = Model::findContainingLayer(lastNode);
                 if (layer != nullptr) {
                     return layer;
             }

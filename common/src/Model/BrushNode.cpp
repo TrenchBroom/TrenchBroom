@@ -31,9 +31,9 @@
 #include "Model/BrushSnapshot.h"
 #include "Model/EntityNode.h"
 #include "Model/FindGroupVisitor.h"
-#include "Model/FindLayerVisitor.h"
 #include "Model/GroupNode.h"
 #include "Model/IssueGenerator.h"
+#include "Model/ModelUtils.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
@@ -236,9 +236,7 @@ namespace TrenchBroom {
         }
 
         LayerNode* BrushNode::doGetLayer() {
-            FindLayerVisitor visitor;
-            escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : nullptr;
+            return findContainingLayer(this);
         }
 
         GroupNode* BrushNode::doGetGroup() {

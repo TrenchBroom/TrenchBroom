@@ -33,7 +33,12 @@ namespace TrenchBroom {
     namespace Model {
         class BrushFaceHandle;
         class EditorContext;
+        class LayerNode;
         class Node;
+
+        LayerNode* findContainingLayer(Node* node);
+
+        std::vector<LayerNode*> findContainingLayersUserSorted(const std::vector<Node*>& nodes);
 
         std::vector<Node*> collectParents(const std::vector<Node*>& nodes);
         std::vector<Node*> collectParents(const std::map<Node*, std::vector<Node*>>& nodes);
