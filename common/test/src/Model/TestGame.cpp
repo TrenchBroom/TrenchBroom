@@ -225,6 +225,10 @@ namespace TrenchBroom {
             return m_defaultFaceAttributes;
         }
 
+        const std::vector<CompilationToolDescription> TestGame::doCompilationToolDescriptions() const {
+            return {};
+        }
+
         std::vector<Assets::EntityDefinition*> TestGame::doLoadEntityDefinitions(IO::ParserStatus& /* status */, const IO::Path& /* path */) const {
             return {};
         }
