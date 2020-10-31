@@ -51,7 +51,6 @@
 #include "Model/EmptyBrushEntityIssueGenerator.h"
 #include "Model/EmptyGroupIssueGenerator.h"
 #include "Model/EntityNode.h"
-#include "Model/FindGroupVisitor.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/GroupNode.h"
@@ -263,7 +262,7 @@ namespace TrenchBroom {
                 return result;
             }
 
-            Model::GroupNode* parentGroup = Model::findGroup(nodes.at(0));
+            Model::GroupNode* parentGroup = Model::findContainingGroup(nodes.at(0));
             if (parentGroup != nullptr) {
                 return parentGroup;
             }
@@ -1306,7 +1305,7 @@ namespace TrenchBroom {
             ensure(layer != nullptr, "null layer");
             const auto& nodes = selectedNodes().nodes();
 
-            const bool isAnyNodeInGroup = std::any_of(std::begin(nodes), std::end(nodes), [&](auto* node) { return Model::findGroup(node) != nullptr; });
+            const bool isAnyNodeInGroup = std::any_of(std::begin(nodes), std::end(nodes), [&](auto* node) { return Model::findContainingGroup(node) != nullptr; });
             const bool isAnyNodeInOtherLayer = std::any_of(std::begin(nodes), std::end(nodes), [&](auto* node) { return Model::findContainingLayer(node) != layer; });
 
             return !nodes.empty() && !isAnyNodeInGroup && isAnyNodeInOtherLayer;

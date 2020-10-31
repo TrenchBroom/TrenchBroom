@@ -27,7 +27,6 @@
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
-#include "Model/FindGroupVisitor.h"
 #include "Model/GroupNode.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"

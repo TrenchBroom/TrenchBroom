@@ -32,7 +32,6 @@
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityAttributes.h"
-#include "Model/FindGroupVisitor.h"
 #include "Model/GroupNode.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
@@ -1201,7 +1200,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().first();
             if (hit.isMatch())
-                newGroup = findOutermostClosedGroup(Model::hitToNode(hit));
+                newGroup = Model::findOutermostClosedGroup(Model::hitToNode(hit));
 
             if (newGroup != nullptr && canReparentNodes(nodes, newGroup))
                 return newGroup;
@@ -1282,7 +1281,7 @@ namespace TrenchBroom {
             if (!nodes.empty()) {
                 Model::Node* lastNode = nodes.back();
 
-                Model::GroupNode* group = Model::findGroup(lastNode);
+                Model::GroupNode* group = Model::findContainingGroup(lastNode);
                 if (group != nullptr) {
                     return group;
                 }

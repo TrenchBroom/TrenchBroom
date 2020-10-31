@@ -40,6 +40,14 @@ namespace TrenchBroom {
 
         std::vector<LayerNode*> findContainingLayersUserSorted(const std::vector<Node*>& nodes);
 
+        GroupNode* findContainingGroup(Node* node);
+
+        /**
+         * Searches the ancestor chain of `node` for the outermost closed group and returns
+         * it if one is found, otherwise returns nullptr.
+         */
+        GroupNode* findOutermostClosedGroup(Node* node);
+
         std::vector<Node*> collectParents(const std::vector<Node*>& nodes);
         std::vector<Node*> collectParents(const std::map<Node*, std::vector<Node*>>& nodes);
 
