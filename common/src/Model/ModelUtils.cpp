@@ -25,9 +25,11 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
-#include "Model/GroupNode.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
+#include "Model/WorldNode.h"
 
 #include <kdl/overload.h>
 #include <kdl/vector_utils.h>
