@@ -62,6 +62,7 @@
 #include "View/MapViewToolBox.h"
 #include "View/SelectionTool.h"
 #include "View/QtUtils.h"
+#include "kdl/vector_utils.h"
 
 #include <kdl/memory_utils.h>
 #include <kdl/string_compare.h>
@@ -1304,25 +1305,26 @@ namespace TrenchBroom {
             return false;
         }
 
-        class BrushesToEntities {
-        private:
-            const Model::WorldNode* m_world;
-        public:
-            explicit BrushesToEntities(const Model::WorldNode* world) : m_world(world) {}
-        public:
-            bool operator()(const Model::WorldNode*) const       { return false; }
-            bool operator()(const Model::LayerNode*) const       { return false; }
-            bool operator()(const Model::GroupNode*) const       { return true;  }
-            bool operator()(const Model::EntityNode*) const      { return true; }
-            bool operator()(const Model::BrushNode* brush) const { return brush->entity() == m_world; }
-        };
-
+        /**
+         * Return the given nodes, but replace all entity brushes with the parent entity (with duplicates removed).
+         */
         static std::vector<Model::Node*> collectEntitiesForBrushes(const std::vector<Model::Node*>& selectedNodes, const Model::WorldNode* world) {
-            using BrushesToEntitiesVisitor = Model::CollectMatchingNodesVisitor<BrushesToEntities, Model::UniqueNodeCollectionStrategy, Model::StopRecursionIfMatched>;
-
-            BrushesToEntitiesVisitor collect((BrushesToEntities(world)));
-            Model::Node::acceptAndEscalate(std::begin(selectedNodes), std::end(selectedNodes), collect);
-            return collect.nodes();
+            std::vector<Model::Node*> result;
+            Model::Node::visitAll(selectedNodes, kdl::overload(
+                [] (Model::WorldNode*)         {},
+                [] (Model::LayerNode*)         {},
+                [&](Model::GroupNode* group)   { result.push_back(group); },
+                [&](Model::EntityNode* entity) { result.push_back(entity); },
+                [&](auto&& thisLambda, Model::BrushNode* brush) {
+                    if (brush->entity() == world) {
+                        result.push_back(brush);
+                    } else {
+                        brush->visitParent(thisLambda);
+                    }
+                }
+            ));
+            kdl::vec_sort_and_remove_duplicates(result);
+            return result;
         }
 
         void MapViewBase::reparentNodes(const std::vector<Model::Node*>& nodes, Model::Node* newParent, const bool preserveEntities) {
