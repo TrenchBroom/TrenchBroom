@@ -60,7 +60,6 @@
 #include "Model/LockState.h"
 #include "Model/LongAttributeNameIssueGenerator.h"
 #include "Model/LongAttributeValueIssueGenerator.h"
-#include "Model/MatchSelectableNodes.h"
 #include "Model/MissingClassnameIssueGenerator.h"
 #include "Model/MissingDefinitionIssueGenerator.h"
 #include "Model/MissingModIssueGenerator.h"

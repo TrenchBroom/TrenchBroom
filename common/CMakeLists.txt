@@ -151,8 +151,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/LongAttributeValueIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/MapFacade.cpp
         ${COMMON_SOURCE_DIR}/Model/MapFormat.cpp
-        ${COMMON_SOURCE_DIR}/Model/MatchNodesByVisibility.cpp
-        ${COMMON_SOURCE_DIR}/Model/MatchSelectableNodes.cpp
         ${COMMON_SOURCE_DIR}/Model/MissingClassnameIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/MissingDefinitionIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/MissingModIssueGenerator.cpp
@@ -649,9 +647,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/LongAttributeValueIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/MapFacade.h
         ${COMMON_SOURCE_DIR}/Model/MapFormat.h
-        ${COMMON_SOURCE_DIR}/Model/MatchNodesByVisibility.h
-        ${COMMON_SOURCE_DIR}/Model/MatchSelectableNodes.h
-        ${COMMON_SOURCE_DIR}/Model/MatchSelectedNodes.h
         ${COMMON_SOURCE_DIR}/Model/MissingClassnameIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/MissingDefinitionIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/MissingModIssueGenerator.h
