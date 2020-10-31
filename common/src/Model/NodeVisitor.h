@@ -20,7 +20,6 @@
 #ifndef TrenchBroom_NodeVisitor
 #define TrenchBroom_NodeVisitor
 
-#include <cassert>
 #include <optional>
 
 namespace TrenchBroom {
@@ -38,17 +37,11 @@ namespace TrenchBroom {
         public:
             virtual ~NodeVisitor();
 
-            virtual void visit(WorldNode* world);
-            virtual void visit(LayerNode* layer);
-            virtual void visit(GroupNode* group);
-            virtual void visit(EntityNode* entity);
-            virtual void visit(BrushNode* brush);
-        private:
-            virtual void doVisit(WorldNode* world)   = 0;
-            virtual void doVisit(LayerNode* layer)   = 0;
-            virtual void doVisit(GroupNode* group)   = 0;
-            virtual void doVisit(EntityNode* entity) = 0;
-            virtual void doVisit(BrushNode* brush)   = 0;
+            virtual void visit(WorldNode* world)   = 0;
+            virtual void visit(LayerNode* layer)   = 0;
+            virtual void visit(GroupNode* group)   = 0;
+            virtual void visit(EntityNode* entity) = 0;
+            virtual void visit(BrushNode* brush)   = 0;
         };
 
         class ConstNodeVisitor {
@@ -57,17 +50,11 @@ namespace TrenchBroom {
         public:
             virtual ~ConstNodeVisitor();
 
-            virtual void visit(const WorldNode* world);
-            virtual void visit(const LayerNode* layer);
-            virtual void visit(const GroupNode* group);
-            virtual void visit(const EntityNode* entity);
-            virtual void visit(const BrushNode* brush);
-        private:
-            virtual void doVisit(const WorldNode* world)   = 0;
-            virtual void doVisit(const LayerNode* layer)   = 0;
-            virtual void doVisit(const GroupNode* group)   = 0;
-            virtual void doVisit(const EntityNode* entity) = 0;
-            virtual void doVisit(const BrushNode* brush)   = 0;
+            virtual void visit(const WorldNode* world)   = 0;
+            virtual void visit(const LayerNode* layer)   = 0;
+            virtual void visit(const GroupNode* group)   = 0;
+            virtual void visit(const EntityNode* entity) = 0;
+            virtual void visit(const BrushNode* brush)   = 0;
         };
 
         template <typename L, typename N, typename Enable = void>
@@ -119,14 +106,14 @@ namespace TrenchBroom {
         public:
             NodeLambdaVisitor(const L& lambda) : m_lambda(lambda) {}
         private:
-            void doVisit(WorldNode* world) override   { _doVisit(world);  }
-            void doVisit(LayerNode* layer) override   { _doVisit(layer);  }
-            void doVisit(GroupNode* group) override   { _doVisit(group);  }
-            void doVisit(EntityNode* entity) override { _doVisit(entity); }
-            void doVisit(BrushNode* brush) override   { _doVisit(brush);  }
+            void visit(WorldNode* world) override   { doVisit(world);  }
+            void visit(LayerNode* layer) override   { doVisit(layer);  }
+            void visit(GroupNode* group) override   { doVisit(group);  }
+            void visit(EntityNode* entity) override { doVisit(entity); }
+            void visit(BrushNode* brush) override   { doVisit(brush);  }
 
             template <typename N>
-            void _doVisit(N* node) {
+            void doVisit(N* node) {
                 if constexpr(std::is_invocable_v<L, const L&, N*>) {
                     if constexpr(NodeLambdaHasResult_v<L>) {
                         NodeLambdaVisitorResult<L>::setResult(m_lambda(m_lambda, node));
@@ -150,14 +137,14 @@ namespace TrenchBroom {
         public:
             ConstNodeLambdaVisitor(const L& lambda) : m_lambda(lambda) {}
         private:
-            void doVisit(const WorldNode* world) override   { _doVisit(world);  }
-            void doVisit(const LayerNode* layer) override   { _doVisit(layer);  }
-            void doVisit(const GroupNode* group) override   { _doVisit(group);  }
-            void doVisit(const EntityNode* entity) override { _doVisit(entity); }
-            void doVisit(const BrushNode* brush) override   { _doVisit(brush);  }
+            void visit(const WorldNode* world) override   { doVisit(world);  }
+            void visit(const LayerNode* layer) override   { doVisit(layer);  }
+            void visit(const GroupNode* group) override   { doVisit(group);  }
+            void visit(const EntityNode* entity) override { doVisit(entity); }
+            void visit(const BrushNode* brush) override   { doVisit(brush);  }
 
             template <typename N>
-            void _doVisit(const N* node) {
+            void doVisit(const N* node) {
                 if constexpr(std::is_invocable_v<L, const L&, const N*>) {
                     if constexpr(NodeLambdaHasResult_v<L>) {
                         NodeLambdaVisitorResult<L>::setResult(m_lambda(m_lambda, node));
