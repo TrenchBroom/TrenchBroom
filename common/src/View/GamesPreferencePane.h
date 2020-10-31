@@ -25,7 +25,6 @@
 class QLineEdit;
 class QPushButton;
 class QStackedWidget;
-class QFormLayout;
 
 namespace TrenchBroom {
     namespace View {

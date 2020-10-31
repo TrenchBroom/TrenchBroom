@@ -125,8 +125,8 @@ namespace TrenchBroom {
         void GamePreferencePane::createGui() {
             m_gamePathText = new QLineEdit();
             setHint(m_gamePathText, "Click on the button to change...");
-            connect(m_gamePathText, &QLineEdit::editingFinished, this, [=]() {
-                updateGamePath(m_gamePathText->text());
+            connect(m_gamePathText, &QLineEdit::editingFinished, this, [this]() {
+                updateGamePath(this->m_gamePathText->text());
             });
 
             auto* validDirectoryIcon = new QAction(m_gamePathText);
