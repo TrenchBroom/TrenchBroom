@@ -32,6 +32,9 @@ namespace TrenchBroom {
         class GameListBox;
         class GamePreferencePane;
 
+        /**
+         * List of all games with the ability to edit game path, compile tools for each game.
+         */
         class GamesPreferencePane : public PreferencePane {
             Q_OBJECT
         private:
@@ -39,9 +42,9 @@ namespace TrenchBroom {
             QStackedWidget* m_stackedWidget;
             QWidget* m_defaultPage;
             /**
-             * Regenerated on every selection change
+             * nullptr if no game is selected.
              */
-            GamePreferencePane* m_curraentGamePage;
+            GamePreferencePane* m_currentGamePage;
             QString m_currentGame;
         public:
             explicit GamesPreferencePane(QWidget* parent = nullptr);
@@ -74,6 +77,9 @@ namespace TrenchBroom {
             void updateGamePath(const QString& str);
             void configureEnginesClicked();
         public:
+            /**
+             * Refresh controls from GameFactory
+             */
             void updateControls();
         };
     }

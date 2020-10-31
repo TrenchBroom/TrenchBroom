@@ -51,7 +51,7 @@ namespace TrenchBroom {
         m_gameListBox(nullptr),
         m_stackedWidget(nullptr),
         m_defaultPage(nullptr),
-        m_curraentGamePage(nullptr) {
+        m_currentGamePage(nullptr) {
             createGui();
             updateControls();
             m_gameListBox->setFocus();
@@ -86,11 +86,11 @@ namespace TrenchBroom {
                 }
                 m_currentGame = gameName;
 
-                delete m_curraentGamePage;
-                m_curraentGamePage = new GamePreferencePane(gameName.toStdString());
+                delete m_currentGamePage;
+                m_currentGamePage = new GamePreferencePane(gameName.toStdString());
 
-                m_stackedWidget->addWidget(m_curraentGamePage);
-                m_stackedWidget->setCurrentWidget(m_curraentGamePage);
+                m_stackedWidget->addWidget(m_currentGamePage);
+                m_stackedWidget->setCurrentWidget(m_currentGamePage);
             });
         }
 
@@ -103,8 +103,8 @@ namespace TrenchBroom {
         void GamesPreferencePane::doUpdateControls() {
             m_gameListBox->updateGameInfos();
 
-            if (m_curraentGamePage != nullptr) {
-                m_curraentGamePage->updateControls();
+            if (m_currentGamePage != nullptr) {
+                m_currentGamePage->updateControls();
             }
         }
 
@@ -158,7 +158,7 @@ namespace TrenchBroom {
             layout->setVerticalSpacing(2);
             layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
-            layout->addSection("Game Path");
+            layout->addSection("Game");
             layout->addRow("Game Path", gamePathLayout);
             layout->addRow("", configureEnginesButton);
 
@@ -177,8 +177,8 @@ namespace TrenchBroom {
 
                 auto* browseButton = new QPushButton("...");
                 connect(browseButton, &QPushButton::clicked, this, [=](){
-                    const QString pathStr = QFileDialog::getExistingDirectory(this, tr("%1 Path").arg(QString::fromStdString(toolName)),
-                                                                              fileDialogDefaultDirectory(FileDialogDir::CompileTool));
+                    const QString pathStr = QFileDialog::getOpenFileName(this, tr("%1 Path").arg(QString::fromStdString(toolName)),
+                                                                         fileDialogDefaultDirectory(FileDialogDir::CompileTool));
                     if (pathStr.isEmpty()) {
                         return;
                     }
@@ -196,6 +196,8 @@ namespace TrenchBroom {
             }
 
             setLayout(layout);
+
+            updateControls();
         }
 
         void GamePreferencePane::chooseGamePathClicked() {
