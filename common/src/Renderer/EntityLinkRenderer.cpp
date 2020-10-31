@@ -28,7 +28,6 @@
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
-#include "Model/NodeVisitor.h"
 #include "Model/WorldNode.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"

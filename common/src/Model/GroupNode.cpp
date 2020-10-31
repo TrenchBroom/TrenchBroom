@@ -26,7 +26,6 @@
 #include "Model/IssueGenerator.h"
 #include "Model/LayerNode.h"
 #include "Model/ModelUtils.h"
-#include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
 #include "Model/WorldNode.h"

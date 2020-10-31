@@ -23,7 +23,6 @@
 #include "Model/AttributableNode.h"
 #include "Assets/ColorRange.h"
 #include "Model/EntityNode.h"
-#include "Model/NodeVisitor.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/overload.h>

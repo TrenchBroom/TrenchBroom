@@ -66,7 +66,6 @@
 #include "Model/MixedBrushContentsIssueGenerator.h"
 #include "Model/ModelUtils.h"
 #include "Model/Node.h"
-#include "Model/NodeVisitor.h"
 #include "Model/NonIntegerVerticesIssueGenerator.h"
 #include "Model/WorldBoundsIssueGenerator.h"
 #include "Model/PointEntityWithBrushesIssueGenerator.h"

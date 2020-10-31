@@ -26,7 +26,6 @@
 #include "Model/EntityAttributes.h"
 #include "Model/IssueGenerator.h"
 #include "Model/ModelUtils.h"
-#include "Model/NodeVisitor.h"
 #include "Model/TagVisitor.h"
 #include "Model/WorldNode.h"
 
