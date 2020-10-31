@@ -28,7 +28,6 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityAttributes.h"
