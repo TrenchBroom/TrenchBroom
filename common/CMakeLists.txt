@@ -109,7 +109,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/BrushNode.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushSnapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/ChangeBrushFaceAttributesRequest.cpp
-        ${COMMON_SOURCE_DIR}/Model/CollectMatchingNodesVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/CompareHits.cpp
         ${COMMON_SOURCE_DIR}/Model/CompilationConfig.cpp
         ${COMMON_SOURCE_DIR}/Model/CompilationProfile.cpp
@@ -604,7 +603,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/BrushNode.h
         ${COMMON_SOURCE_DIR}/Model/BrushSnapshot.h
         ${COMMON_SOURCE_DIR}/Model/ChangeBrushFaceAttributesRequest.h
-        ${COMMON_SOURCE_DIR}/Model/CollectMatchingNodesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CompareHits.h
         ${COMMON_SOURCE_DIR}/Model/CompilationConfig.h
         ${COMMON_SOURCE_DIR}/Model/CompilationProfile.h
