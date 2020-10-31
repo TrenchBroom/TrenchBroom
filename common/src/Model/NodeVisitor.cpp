@@ -22,51 +22,9 @@
 namespace TrenchBroom {
     namespace Model {
         NodeVisitor::NodeVisitor() {}
-
         NodeVisitor::~NodeVisitor() {}
 
-        void NodeVisitor::visit(WorldNode* world) {
-            doVisit(world);
-        }
-
-        void NodeVisitor::visit(LayerNode* layer) {
-            doVisit(layer);
-        }
-
-        void NodeVisitor::visit(GroupNode* group) {
-            doVisit(group);
-        }
-
-        void NodeVisitor::visit(EntityNode* entity) {
-            doVisit(entity);
-        }
-
-        void NodeVisitor::visit(BrushNode* brush) {
-            doVisit(brush);
-        }
-
         ConstNodeVisitor::ConstNodeVisitor() {}
-
         ConstNodeVisitor::~ConstNodeVisitor() {}
-
-        void ConstNodeVisitor::visit(const WorldNode* world) {
-            doVisit(world);
-        }
-
-        void ConstNodeVisitor::visit(const LayerNode* layer) {
-            doVisit(layer);
-        }
-
-        void ConstNodeVisitor::visit(const GroupNode* group) {
-            doVisit(group);
-        }
-
-        void ConstNodeVisitor::visit(const EntityNode* entity) {
-            doVisit(entity);
-        }
-
-        void ConstNodeVisitor::visit(const BrushNode* brush) {
-            doVisit(brush);
-        }
     }
 }
