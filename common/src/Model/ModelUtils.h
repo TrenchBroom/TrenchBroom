@@ -21,7 +21,6 @@
 #define TrenchBroom_ModelUtils
 
 #include "FloatType.h"
-#include "Model/CollectUniqueNodesVisitor.h"
 #include "Model/Node.h"
 
 #include <vecmath/bbox.h>
