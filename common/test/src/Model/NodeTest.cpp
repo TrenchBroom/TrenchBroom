@@ -29,7 +29,6 @@
 #include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
 #include "Model/Node.h"
-#include "Model/NodeVisitor.h"
 #include "Model/Object.h"
 #include "Model/PickResult.h"
 #include "Model/WorldNode.h"

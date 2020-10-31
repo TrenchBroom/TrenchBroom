@@ -38,7 +38,6 @@
 #include "Model/ModelUtils.h"
 #include "Model/Snapshot.h"
 #include "Model/WorldNode.h"
-#include "Model/NodeVisitor.h"
 #include "View/CommandProcessor.h"
 #include "View/UndoableCommand.h"
 #include "View/Selection.h"
