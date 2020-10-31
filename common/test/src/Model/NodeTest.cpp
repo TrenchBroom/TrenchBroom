@@ -25,6 +25,7 @@
 #include "Model/BrushFaceAttributes.h"
 #include "Model/CollectTouchingNodesVisitor.h"
 #include "Model/EditorContext.h"
+#include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
@@ -34,11 +35,16 @@
 #include "Model/PickResult.h"
 #include "Model/WorldNode.h"
 
+#include <kdl/overload.h>
 #include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/bbox.h>
+#include <vecmath/bbox_io.h>
 #include <vecmath/ray.h>
+#include <vecmath/ray_io.h>
+#include <vecmath/mat.h>
+#include <vecmath/mat_io.h>
 #include <vecmath/mat_ext.h>
 
 #include <vector>
@@ -46,6 +52,7 @@
 
 #include "Catch2.h"
 #include "GTestCompat.h"
+#include "catch2/catch.hpp"
 
 namespace TrenchBroom {
     namespace Model {
@@ -475,6 +482,160 @@ namespace TrenchBroom {
             ASSERT_TRUE(child2->isDescendantOf(std::vector<Node*>{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
             ASSERT_TRUE(grandChild1_1->isDescendantOf(std::vector<Node*>{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
             ASSERT_TRUE(grandChild1_1->isDescendantOf(std::vector<Node*>{ &root, child1, child2, grandChild1_1, grandChild1_2 }));
+        }
+
+        enum class Visited {
+            World,
+            Layer,
+            Group,
+            Entity,
+            Brush
+        };
+
+        std::ostream& operator<<(std::ostream& str, const Visited visited) {
+            switch (visited) {
+                case Visited::World:
+                    return str << "World";
+                case Visited::Layer:
+                    return str << "Layer";
+                case Visited::Group:
+                    return str << "Group";
+                case Visited::Entity:
+                    return str << "Entity";
+                case Visited::Brush:
+                    return str << "Brush";
+                switchDefault()
+            }
+        }
+
+        const auto nodeTestVisitor = kdl::overload(
+            [](WorldNode*)  { return Visited::World; },
+            [](LayerNode*)  { return Visited::Layer; },
+            [](GroupNode*)  { return Visited::Group; },
+            [](EntityNode*) { return Visited::Entity; },
+            [](BrushNode*)  { return Visited::Brush; }
+        );
+
+        const auto constNodeTestVisitor = kdl::overload(
+            [](const WorldNode*)  { return Visited::World; },
+            [](const LayerNode*)  { return Visited::Layer; },
+            [](const GroupNode*)  { return Visited::Group; },
+            [](const EntityNode*) { return Visited::Entity; },
+            [](const BrushNode*)  { return Visited::Brush; }
+        );
+
+        TEST_CASE("NodeTest.accept", "[NodeTest]") {
+            const auto worldBounds = vm::bbox3(8192.0);
+
+            WorldNode world(MapFormat::Standard);
+            LayerNode layer("name");
+            GroupNode group("name");
+            EntityNode entity;
+            BrushNode brush(BrushBuilder(&world, worldBounds).createCube(32.0, "texture").value());
+
+            SECTION("Non const nodes accept non const visitor") {
+                CHECK(world.acceptLambda(nodeTestVisitor) == Visited::World);
+                CHECK(layer.acceptLambda(nodeTestVisitor) == Visited::Layer);
+                CHECK(group.acceptLambda(nodeTestVisitor) == Visited::Group);
+                CHECK(entity.acceptLambda(nodeTestVisitor) == Visited::Entity);
+                CHECK(brush.acceptLambda(nodeTestVisitor) == Visited::Brush);
+            }
+
+            SECTION("Non const nodes accept const visitor") {
+                CHECK(world.acceptLambda(constNodeTestVisitor) == Visited::World);
+                CHECK(layer.acceptLambda(constNodeTestVisitor) == Visited::Layer);
+                CHECK(group.acceptLambda(constNodeTestVisitor) == Visited::Group);
+                CHECK(entity.acceptLambda(constNodeTestVisitor) == Visited::Entity);
+                CHECK(brush.acceptLambda(constNodeTestVisitor) == Visited::Brush);
+            }
+
+            SECTION("Const nodes accept const visitor") {
+                CHECK(const_cast<const WorldNode&> (world).acceptLambda(constNodeTestVisitor) == Visited::World);
+                CHECK(const_cast<const LayerNode&> (layer).acceptLambda(constNodeTestVisitor) == Visited::Layer);
+                CHECK(const_cast<const GroupNode&> (group).acceptLambda(constNodeTestVisitor) == Visited::Group);
+                CHECK(const_cast<const EntityNode&>(entity).acceptLambda(constNodeTestVisitor) == Visited::Entity);
+                CHECK(const_cast<const BrushNode&> (brush).acceptLambda(constNodeTestVisitor) == Visited::Brush);
+            }
+        }
+
+        TEST_CASE("NodeTest.acceptAndVisitChildren", "[NodeTest]") {
+            WorldNode world(MapFormat::Standard);
+            auto* layer = world.defaultLayer();
+
+            auto* entity1 = world.createEntity();
+            auto* entity2 = world.createEntity();
+            auto* group = world.createGroup("name");
+            auto* groupEntity = world.createEntity();
+
+            layer->addChild(entity1);
+            layer->addChild(entity2);
+            layer->addChild(group);
+            group->addChild(groupEntity);
+
+            const auto collectRecursively = [](auto& node) {
+                auto result = std::vector<Node*>{};
+                node.acceptLambda([&](auto&& thisLambda, auto* n) { result.push_back(n); n->visitChildren(thisLambda); });
+                return result;
+            };
+
+            CHECK_THAT(collectRecursively(world), Catch::Equals(std::vector<Node*>{&world, layer, entity1, entity2, group, groupEntity}));
+            CHECK_THAT(collectRecursively(*group), Catch::Equals(std::vector<Node*>{group, groupEntity}));
+            CHECK_THAT(collectRecursively(*entity1), Catch::Equals(std::vector<Node*>{entity1}));
+        }
+
+        TEST_CASE("NodeTest.visitParent", "[NodeTest]") {
+            WorldNode world(MapFormat::Standard);
+            auto* layer = world.defaultLayer();
+
+            CHECK(world.visitParent(nodeTestVisitor) == std::nullopt);
+            CHECK(world.visitParent(constNodeTestVisitor) == std::nullopt);
+
+            CHECK(layer->visitParent(nodeTestVisitor) == Visited::World);
+            CHECK(layer->visitParent(constNodeTestVisitor) == Visited::World);
+
+            CHECK(EntityNode().visitParent(nodeTestVisitor) == std::nullopt);
+            CHECK(EntityNode().visitParent(constNodeTestVisitor) == std::nullopt);
+        }
+
+        TEST_CASE("NodeTest.visitAll", "[NodeTest]") {
+            WorldNode world(MapFormat::Standard);
+            LayerNode layer("name");
+            GroupNode group("name");
+            EntityNode entity;
+
+            const auto toVisit = std::vector<Node*>{&world, &layer, &group, &entity};
+            auto visited = std::vector<Node*>{};
+            Node::visitAll(toVisit, [&](auto* node) { visited.push_back(node); });
+
+            CHECK_THAT(visited, Catch::Equals(toVisit));
+        }
+
+        TEST_CASE("NodeTest.visitChildren", "[NodeTest]") {
+            WorldNode world(MapFormat::Standard);
+            auto* layer = world.defaultLayer();
+            
+            auto* entity1 = world.createEntity();
+            auto* entity2 = world.createEntity();
+            layer->addChild(entity1);
+            layer->addChild(entity2);
+
+            SECTION("Visit children of world node") {
+                auto visited = std::vector<Node*>{};
+                world.visitChildren([&](auto* node) { visited.push_back(node); });
+                CHECK_THAT(visited, Catch::Equals(std::vector<Node*>{layer}));
+            }
+
+            SECTION("Visit children of layer node") {
+                auto visited = std::vector<Node*>{};
+                layer->visitChildren([&](auto* node) { visited.push_back(node); });
+                CHECK_THAT(visited, Catch::Equals(std::vector<Node*>{entity1, entity2}));
+            }
+
+            SECTION("Visit children of entity node") {
+                auto visited = std::vector<Node*>{};
+                entity1->visitChildren([&](auto* node) { visited.push_back(node); });
+                CHECK_THAT(visited, Catch::Equals(std::vector<Node*>{}));
+            }
         }
 
         // Visitors

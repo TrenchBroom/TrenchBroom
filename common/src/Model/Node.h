@@ -22,6 +22,7 @@
 
 #include "FloatType.h"
 #include "Model/IssueType.h"
+#include "Model/NodeVisitor.h"
 #include "Model/Tag.h"
 
 #include <vecmath/forward.h>
@@ -395,6 +396,109 @@ namespace TrenchBroom {
                     (*cur)->accept(visitor);
                     ++cur;
                 }
+            }
+
+            /**
+             * Visit this node with the given lambda and return the lambda's return value or nothing
+             * if the lambda doesn't return anything.
+             *
+             * Passes a non-const pointer to this node to the lambda.
+             */
+            template <typename L>
+            auto acceptLambda(const L& lambda) {
+                NodeLambdaVisitor<L> visitor(lambda);
+                doAccept(visitor);
+                return visitor.result();
+            }
+
+            /**
+             * Visit this node with the given lambda and return the lambda's return value or nothing
+             * if the lambda doesn't return anything.
+             *
+             * Passes a const pointer to this node to the lambda.
+             */
+            template <typename L>
+            auto acceptLambda(const L& lambda) const {
+                ConstNodeLambdaVisitor<L> visitor(lambda);
+                doAccept(visitor);
+                return visitor.result();
+            }
+
+            /**
+             * Visit this node's parent with the given lambda and return the lambda's return value or
+             * nothing if the lambda doesn't return anything.
+             *
+             * If the lambda returns a value and not void, the value is wrapped in std::optional. If
+             * this node does not have a parent, then an empty optional is returned.
+             *
+             * Passes a non-const pointer to this node's parent to the lambda.
+             */
+            template <typename L>
+            auto visitParent(const L& lambda) {
+                if constexpr(NodeLambdaHasResult_v<L>) {
+                    using R = typename NodeLambdaVisitorResult<L>::R;
+                    if (auto* parent = this->parent()) {
+                        return std::optional<R>{parent->acceptLambda(lambda)};
+                    } else {
+                        return std::optional<R>{};
+                    }
+                } else {
+                    if (auto* parent = this->parent()) {
+                        parent->acceptLambda(lambda);
+                    }
+                }
+            }
+
+
+            /**
+             * Visit this node's parent with the given lambda and return the lambda's return value or
+             * nothing if the lambda doesn't return anything.
+             *
+             * If the lambda returns a value and not void, the value is wrapped in std::optional. If
+             * this node does not have a parent, then an empty optional is returned.
+             *
+             * Passes a const pointer to this node's parent to the lambda.
+             */
+            template <typename L>
+            auto visitParent(const L& lambda) const {
+                if constexpr(NodeLambdaHasResult_v<L>) {
+                    using R = typename NodeLambdaVisitorResult<L>::R;
+                    if (const auto* parent = this->parent()) {
+                        return std::optional<R>{parent->acceptLambda(lambda)};
+                    } else {
+                        return std::optional<R>{};
+                    }
+                } else {
+                    if (const auto* parent = this->parent()) {
+                        parent->acceptLambda(lambda);
+                    }
+                }
+            }
+
+            /**
+             * Visit every node in the given vector with the given lambda.
+             */
+            template <typename N, typename L>
+            static void visitAll(const std::vector<N*>& nodes, const L& lambda) {
+                for (auto* node : nodes) {
+                    node->acceptLambda(lambda);
+                }
+            }
+
+            /**
+             * Visit all children of this node with the given lambda.
+             */
+            template <typename L>
+            void visitChildren(const L& lambda) {
+                visitAll(m_children, lambda);
+            }
+
+            /**
+             * Visit all children of this node with the given lambda.
+             */
+            template <typename L>
+            void visitChildren(const L& lambda) const {
+                visitAll(m_children, lambda);
             }
 
             /**
