@@ -24,7 +24,7 @@
 #include "IO/Tokenizer.h"
 #include "IO/Parser.h"
 
-#include <string>
+#include <string_view>
 
 namespace TrenchBroom {
     namespace IO {
@@ -43,8 +43,7 @@ namespace TrenchBroom {
 
         class LegacyModelDefinitionTokenizer : public Tokenizer<MdlToken::Type> {
         public:
-            LegacyModelDefinitionTokenizer(const char* begin, const char* end);
-            explicit LegacyModelDefinitionTokenizer(const std::string& str);
+            explicit LegacyModelDefinitionTokenizer(std::string_view str);
 
             template <typename OtherToken>
             explicit LegacyModelDefinitionTokenizer(Tokenizer<OtherToken>& nestedTokenizer) :
@@ -59,8 +58,7 @@ namespace TrenchBroom {
             using Token = LegacyModelDefinitionTokenizer::Token;
             LegacyModelDefinitionTokenizer m_tokenizer;
         public:
-            LegacyModelDefinitionParser(const char* begin, const char* end);
-            explicit LegacyModelDefinitionParser(const std::string& str);
+            explicit LegacyModelDefinitionParser(std::string_view str);
 
             template <typename OtherToken>
             explicit LegacyModelDefinitionParser(Tokenizer<OtherToken>& nestedTokenizer) :

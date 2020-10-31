@@ -40,8 +40,7 @@ namespace TrenchBroom {
 
         class CompilationConfigParser : public ConfigParserBase {
         public:
-            CompilationConfigParser(const char* begin, const char* end, const Path& path);
-            explicit CompilationConfigParser(const std::string& str, const Path& path = Path(""));
+            explicit CompilationConfigParser(std::string_view str, const Path& path = Path(""));
 
             Model::CompilationConfig parse();
         private:

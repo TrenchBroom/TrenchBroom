@@ -27,6 +27,7 @@
 #include "IO/ConfigParserBase.h"
 
 #include <string>
+#include <string_view>
 #include <optional>
 #include <vector>
 
@@ -53,8 +54,7 @@ namespace TrenchBroom {
         private:
             EL::IntegerType m_version;
         public:
-            GameConfigParser(const char* begin, const char* end, const Path& path);
-            explicit GameConfigParser(const std::string& str, const Path& path = Path(""));
+            explicit GameConfigParser(std::string_view str, const Path& path = Path(""));
 
             Model::GameConfig parse();
         private:

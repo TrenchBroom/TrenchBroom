@@ -67,7 +67,7 @@ namespace TrenchBroom {
         auto fileReader = file->reader().buffer();
 
         IO::TestParserStatus status;
-        IO::WorldReader worldReader(std::begin(fileReader), std::end(fileReader));
+        IO::WorldReader worldReader(fileReader.stringView());
 
         const vm::bbox3 worldBounds(8192.0);
         auto world = worldReader.read(Model::MapFormat::Standard, worldBounds, status);

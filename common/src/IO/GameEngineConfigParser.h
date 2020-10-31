@@ -39,8 +39,7 @@ namespace TrenchBroom {
 
         class GameEngineConfigParser : public ConfigParserBase {
         public:
-            GameEngineConfigParser(const char* begin, const char* end, const Path& path);
-            GameEngineConfigParser(const std::string& str, const Path& path);
+            GameEngineConfigParser(std::string_view str, const Path& path);
 
             Model::GameEngineConfig parse();
         private:

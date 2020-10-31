@@ -29,8 +29,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        static GameEngineConfigParser makeParser(const std::string& config) {
-            return GameEngineConfigParser(config.data(), config.data() + config.size(), Path());
+        static GameEngineConfigParser makeParser(std::string_view config) {
+            return GameEngineConfigParser(config, Path());
         }
 
         TEST_CASE("GameEngineConfigParserTest.parseBlankConfig", "[GameEngineConfigParserTest]") {

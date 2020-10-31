@@ -69,14 +69,8 @@ namespace TrenchBroom {
             return m_id;
         }
 
-        MapReader::MapReader(const char* begin, const char* end) :
-        StandardMapParser(begin, end),
-        m_factory(nullptr),
-        m_brushParent(nullptr),
-        m_currentNode(nullptr) {}
-
-        MapReader::MapReader(const std::string& str) :
-        StandardMapParser(str),
+        MapReader::MapReader(std::string_view str) :
+        StandardMapParser(std::move(str)),
         m_factory(nullptr),
         m_brushParent(nullptr),
         m_currentNode(nullptr) {}

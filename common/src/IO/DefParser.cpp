@@ -37,11 +37,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        DefTokenizer::DefTokenizer(const char* begin, const char* end) :
-        Tokenizer(begin, end, "", 0) {}
-
-        DefTokenizer::DefTokenizer(const std::string& str) :
-        Tokenizer(str, "", 0) {}
+        DefTokenizer::DefTokenizer(std::string_view str) :
+        Tokenizer(std::move(str), "", 0) {}
 
         const std::string DefTokenizer::WordDelims = " \t\n\r()[]{};,=";
 
@@ -136,13 +133,9 @@ namespace TrenchBroom {
             return Token(DefToken::Eof, nullptr, nullptr, length(), line(), column());
         }
 
-        DefParser::DefParser(const char* begin, const char* end, const Color& defaultEntityColor) :
+        DefParser::DefParser(std::string_view str, const Color& defaultEntityColor) :
         EntityDefinitionParser(defaultEntityColor),
-        m_tokenizer(DefTokenizer(begin, end)) {}
-
-        DefParser::DefParser(const std::string& str, const Color& defaultEntityColor) :
-        EntityDefinitionParser(defaultEntityColor),
-        m_tokenizer(DefTokenizer(str)) {}
+        m_tokenizer(DefTokenizer(std::move(str))) {}
 
         DefParser::TokenNameMap DefParser::tokenNames() const {
             using namespace DefToken;

@@ -35,11 +35,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        WorldReader::WorldReader(const char* begin, const char* end) :
-        MapReader(begin, end) {}
-
-        WorldReader::WorldReader(const std::string& str) :
-        MapReader(str) {}
+        WorldReader::WorldReader(std::string_view str) :
+        MapReader(std::move(str)) {}
 
         std::unique_ptr<Model::WorldNode> WorldReader::read(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             readEntities(format, worldBounds, status);

@@ -45,7 +45,7 @@ namespace TrenchBroom {
                 auto file = Disk::openFile(path);
                 auto reader = file->reader().buffer();
                 const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-                DefParser parser(std::begin(reader), std::end(reader), defaultColor);
+                DefParser parser(reader.stringView(), defaultColor);
 
                 TestParserStatus status;
                 UNSCOPED_INFO("Parsing DEF file " << path.asString() << " failed");
@@ -81,7 +81,7 @@ namespace TrenchBroom {
                 auto file = Disk::openFile(path);
                 auto reader = file->reader().buffer();
                 const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-                DefParser parser(std::begin(reader), std::end(reader), defaultColor);
+                DefParser parser(reader.stringView(), defaultColor);
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status));

@@ -24,6 +24,7 @@
 #include "Model/GroupNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/LayerNode.h"
+#include "Model/LockState.h"
 #include "Model/NodeVisitor.h"
 #include "Model/WorldNode.h"
 
@@ -111,7 +112,7 @@ namespace TrenchBroom {
                 worldAttribs.removeAttribute(Model::AttributeNames::LayerColor);
             }
 
-            if (defaultLayer->locked()) {
+            if (defaultLayer->lockState() == Model::LockState::Lock_Locked) {
                 worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerLocked, Model::AttributeValues::LayerLockedValue, nullptr);
             } else {
                 worldAttribs.removeAttribute(Model::AttributeNames::LayerLocked);
@@ -260,7 +261,7 @@ namespace TrenchBroom {
             if (layer->hasAttribute(Model::AttributeNames::LayerSortIndex)) {
                 result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerSortIndex, layer->attribute(Model::AttributeNames::LayerSortIndex)));
             }
-            if (layer->locked()) {
+            if (layer->lockState() == Model::LockState::Lock_Locked) {
                 result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerLocked, Model::AttributeValues::LayerLockedValue));
             }
             if (layer->hidden()) {

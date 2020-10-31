@@ -24,6 +24,7 @@
 
 #include <memory>
 #include <string>
+#include <string_view>
 
 namespace TrenchBroom {
     namespace IO {
@@ -103,11 +104,8 @@ namespace TrenchBroom {
                 return whitespace;
             }
         public:
-            Tokenizer(const char* begin, const char* end, const std::string& escapableChars, const char escapeChar) :
-            m_state(std::make_shared<TokenizerState>(begin, end, escapableChars, escapeChar)) {}
-
-            Tokenizer(const std::string& str, const std::string& escapableChars, const char escapeChar) :
-            m_state(std::make_shared<TokenizerState>(str.c_str(), str.c_str() + str.size(), escapableChars, escapeChar)) {}
+            Tokenizer(std::string_view str, const std::string& escapableChars, const char escapeChar) :
+            m_state(std::make_shared<TokenizerState>(str.data(), str.data() + str.size(), escapableChars, escapeChar)) {}
 
             template <typename OtherType>
             explicit Tokenizer(Tokenizer<OtherType>& nestedTokenizer) :
@@ -204,8 +202,8 @@ namespace TrenchBroom {
                 return m_state->snapshot();
             }
 
-            void replaceState(const char* begin, const char* end) {
-                m_state.reset(m_state->clone(begin, end));
+            void replaceState(std::string_view str) {
+                m_state.reset(m_state->clone(str.data(), str.data() + str.size()));
             }
 
             void restore(const TokenizerState& snapshot) {
