@@ -118,7 +118,7 @@ namespace TrenchBroom {
         }
 
         bool GroupNode::doCanAddChild(const Node* child) const {
-            return child->acceptLambda(kdl::overload(
+            return child->accept(kdl::overload(
                 [](const WorldNode*)  { return false; },
                 [](const LayerNode*)  { return false; },
                 [](const GroupNode*)  { return true;  },
@@ -227,7 +227,7 @@ namespace TrenchBroom {
 
         kdl::result<void, TransformError> GroupNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, const bool lockTextures) {
             for (auto* child : children()) {
-                auto result = child->acceptLambda(kdl::overload(
+                auto result = child->accept(kdl::overload(
                     [](Model::WorldNode*) {
                         return kdl::result<void, Model::TransformError>::success();
                     },

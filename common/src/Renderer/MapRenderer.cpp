@@ -342,7 +342,7 @@ namespace TrenchBroom {
             };
 
             auto document = kdl::mem_lock(m_document);
-            document->world()->acceptLambda(kdl::overload(
+            document->world()->accept(kdl::overload(
                 [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
                 [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
                 [&](auto&& thisLambda, Model::GroupNode* group) {

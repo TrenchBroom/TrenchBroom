@@ -107,7 +107,7 @@ namespace TrenchBroom {
         }
 
         bool EditorContext::visible(const Model::Node* node) const {
-            return node->acceptLambda([&](const auto* concreteNode) { return visible(concreteNode); });
+            return node->accept([&](const auto* concreteNode) { return visible(concreteNode); });
         }
 
         bool EditorContext::visible(const Model::WorldNode* world) const {
@@ -197,7 +197,7 @@ namespace TrenchBroom {
         }
 
         bool EditorContext::pickable(const Model::Node* node) const {
-            return node->acceptLambda([&](const auto* concreteNode) { return pickable(concreteNode); });
+            return node->accept([&](const auto* concreteNode) { return pickable(concreteNode); });
         }
 
         bool EditorContext::pickable(const Model::WorldNode* /* world */) const {
@@ -229,7 +229,7 @@ namespace TrenchBroom {
         }
 
         bool EditorContext::selectable(const Model::Node* node) const {
-            return node->acceptLambda([&](const auto* concreteNode) { return selectable(concreteNode); });
+            return node->accept([&](const auto* concreteNode) { return selectable(concreteNode); });
         }
 
         bool EditorContext::selectable(const Model::WorldNode*) const {

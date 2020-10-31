@@ -163,7 +163,7 @@ namespace TrenchBroom {
             };
 
             for (const auto* node : nodes) {
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [&](auto&& thisLambda, const Model::WorldNode* world)   { world->visitChildren(thisLambda); visitAttributableNode(world); },
                     [] (auto&& thisLambda, const Model::LayerNode* layer)   { layer->visitChildren(thisLambda); },
                     [] (auto&& thisLambda, const Model::GroupNode* group)   { group->visitChildren(thisLambda); },

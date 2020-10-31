@@ -21,32 +21,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        BaseNodeVisitor::BaseNodeVisitor() :
-        m_cancelled(false),
-        m_recursionStopped(false) {}
-
-        BaseNodeVisitor::~BaseNodeVisitor() {}
-
-        bool BaseNodeVisitor::cancelled() const {
-            return m_cancelled;
-        }
-
-        bool BaseNodeVisitor::recursionStopped() {
-            const bool result = m_recursionStopped;
-            m_recursionStopped = false;
-            return result;
-        }
-
-        void BaseNodeVisitor::cancel() {
-            m_cancelled = true;
-        }
-
-        void BaseNodeVisitor::stopRecursion() {
-            m_recursionStopped = true;
-        }
-
-        NodeVisitor::NodeVisitor() :
-        BaseNodeVisitor() {}
+        NodeVisitor::NodeVisitor() {}
 
         NodeVisitor::~NodeVisitor() {}
 
@@ -70,8 +45,7 @@ namespace TrenchBroom {
             doVisit(brush);
         }
 
-        ConstNodeVisitor::ConstNodeVisitor() :
-        BaseNodeVisitor() {}
+        ConstNodeVisitor::ConstNodeVisitor() {}
 
         ConstNodeVisitor::~ConstNodeVisitor() {}
 
@@ -94,42 +68,5 @@ namespace TrenchBroom {
         void ConstNodeVisitor::visit(const BrushNode* brush) {
             doVisit(brush);
         }
-
-        class _NodeVisitorPrototype : public NodeVisitor {
-        private:
-            void doVisit(WorldNode*) override  {}
-            void doVisit(LayerNode*) override  {}
-            void doVisit(GroupNode*) override  {}
-            void doVisit(EntityNode*) override {}
-            void doVisit(BrushNode*) override  {}
-        };
-
-        class _ConstNodeVisitorPrototype : public ConstNodeVisitor {
-        private:
-            void doVisit(const WorldNode*) override  {}
-            void doVisit(const LayerNode*) override  {}
-            void doVisit(const GroupNode*) override  {}
-            void doVisit(const EntityNode*) override {}
-            void doVisit(const BrushNode*) override  {}
-        };
     }
-
-
-    class _NodeVisitorPrototype : public Model::NodeVisitor {
-    private:
-        void doVisit(Model::WorldNode*) override  {}
-        void doVisit(Model::LayerNode*) override  {}
-        void doVisit(Model::GroupNode*) override  {}
-        void doVisit(Model::EntityNode*) override {}
-        void doVisit(Model::BrushNode* ) override  {}
-    };
-
-    class _ConstNodeVisitorPrototype : public Model::ConstNodeVisitor {
-    private:
-        void doVisit(const Model::WorldNode*) override  {}
-        void doVisit(const Model::LayerNode*) override  {}
-        void doVisit(const Model::GroupNode*) override  {}
-        void doVisit(const Model::EntityNode*) override {}
-        void doVisit(const Model::BrushNode*) override  {}
-    };
 }

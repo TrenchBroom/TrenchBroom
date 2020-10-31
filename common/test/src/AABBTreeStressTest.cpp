@@ -98,7 +98,7 @@ namespace TrenchBroom {
 
             AABB tree;
             vm::bbox3::builder totalBounds;
-            world->acceptLambda(makeTreeBuilder(tree, totalBounds));
+            world->accept(makeTreeBuilder(tree, totalBounds));
         }
     }
 }

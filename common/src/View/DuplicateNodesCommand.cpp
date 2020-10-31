@@ -102,7 +102,7 @@ namespace TrenchBroom {
          * Applies when duplicating a brush inside a brush entity.
          */
         bool DuplicateNodesCommand::shouldCloneParentWhenCloningNode(const Model::Node* node) const {
-            return node->parent()->acceptLambda(kdl::overload(
+            return node->parent()->accept(kdl::overload(
                 [&](const Model::EntityNode*) { return true; },
                 [] (const auto*)              { return false; }
             ));

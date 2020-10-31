@@ -1049,7 +1049,7 @@ namespace TrenchBroom {
                 QAction* moveToWorldAction = menu.addAction(tr("Make Structural"), this, &MapViewBase::makeStructural);
                 moveToWorldAction->setEnabled(canMakeStructural());
 
-                const auto isEntity = newBrushParent->acceptLambda(kdl::overload(
+                const auto isEntity = newBrushParent->accept(kdl::overload(
                     [](const Model::EntityNode*) { return true; },
                     [](const auto*)              { return false; }
                 ));

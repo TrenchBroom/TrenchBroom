@@ -85,7 +85,7 @@ namespace TrenchBroom {
 
             const std::vector<Node*>& children = Node::children();
             for (auto it = std::next(std::begin(children)), end = std::end(children); it != end; ++it) {
-                (*it)->acceptLambda(kdl::overload(
+                (*it)->accept(kdl::overload(
                     [&](LayerNode* layer) { layers.push_back(layer); },
                     [](auto*) {}
                 ));
@@ -156,7 +156,7 @@ namespace TrenchBroom {
 
         void WorldNode::rebuildNodeTree() {
             auto nodes = std::vector<Model::Node*>{};
-            acceptLambda([&](auto&& thisLambda, auto* node) { 
+            accept([&](auto&& thisLambda, auto* node) { 
                 if (node->shouldAddToSpacialIndex()) { 
                     nodes.push_back(node); 
                 }
@@ -167,7 +167,7 @@ namespace TrenchBroom {
         }
 
         void WorldNode::invalidateAllIssues() {
-            acceptLambda([](auto&& thisLambda, Node* node) {
+            accept([](auto&& thisLambda, Node* node) {
                 node->invalidateIssues();
                 node->visitChildren(thisLambda);
             });
@@ -209,7 +209,7 @@ namespace TrenchBroom {
         }
 
         bool WorldNode::doCanAddChild(const Node* child) const {
-            return child->acceptLambda(kdl::overload(
+            return child->accept(kdl::overload(
                 [](const WorldNode*)  { return false; },
                 [](const LayerNode*)  { return true;  },
                 [](const GroupNode*)  { return false; },
@@ -219,7 +219,7 @@ namespace TrenchBroom {
         }
 
         bool WorldNode::doCanRemoveChild(const Node* child) const {
-            return child->acceptLambda(kdl::overload(
+            return child->accept(kdl::overload(
                 [] (const WorldNode*)        { return false; },
                 [&](const LayerNode* layer)  { return (layer != defaultLayer()); },
                 [] (const GroupNode*)        { return false; },
@@ -241,7 +241,7 @@ namespace TrenchBroom {
             // In some cases, (e.g. if `node` is a Group), `node` will not be added to the spatial index, but some of its descendants may be.
             // We need to recursively search the `node` being connected and add it or any descendants that need to be added.
             if (m_updateNodeTree) {
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [&](auto&& thisLambda, WorldNode* world)   { world->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, LayerNode* layer)   { layer->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, GroupNode* group)   { group->visitChildren(thisLambda); },
@@ -261,7 +261,7 @@ namespace TrenchBroom {
                 }
                 };
 
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [&](auto&& thisLambda, WorldNode* world)   { world->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, LayerNode* layer)   { layer->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, GroupNode* group)   { group->visitChildren(thisLambda); },
@@ -273,7 +273,7 @@ namespace TrenchBroom {
 
         void WorldNode::doDescendantPhysicalBoundsDidChange(Node* node) {
             if (m_updateNodeTree) {
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [] (WorldNode*) {},
                     [] (LayerNode*) {},
                     [] (GroupNode*) {},

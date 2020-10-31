@@ -435,7 +435,7 @@ namespace TrenchBroom {
 
             auto* parent = parentForNodes();
             for (auto* node : nodes) {
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [&](auto&& thisLambda, Model::WorldNode* world) {
                         world->visitChildren(thisLambda);
                         nodesToDelete.push_back(world);
@@ -602,7 +602,7 @@ namespace TrenchBroom {
 
             std::vector<Model::AttributableNode*> nodes;
             for (auto* node : m_selectedNodes) {
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [&](auto&& thisLambda, Model::WorldNode* world) { nodes.push_back(world); world->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
@@ -725,7 +725,7 @@ namespace TrenchBroom {
                 }
             };
 
-            currentGroupOrWorld()->acceptLambda(kdl::overload(
+            currentGroupOrWorld()->accept(kdl::overload(
                 [] (auto&& thisLambda, Model::WorldNode* world)   { world->visitChildren(thisLambda); },
                 [] (auto&& thisLambda, Model::LayerNode* layer)   { layer->visitChildren(thisLambda); },
                 [&](auto&& thisLambda, Model::GroupNode* group)   { collectNode(group); group->visitChildren(thisLambda); },
@@ -1252,7 +1252,7 @@ namespace TrenchBroom {
             auto nodesToSelect = std::vector<Model::Node*>{};
 
             for (auto* node : selectedNodes) {
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [] (Model::WorldNode*) {},
                     [] (Model::LayerNode*) {},
                     [&](Model::GroupNode* group) {
@@ -1357,7 +1357,7 @@ namespace TrenchBroom {
                 }
             };
 
-            m_world->acceptLambda(kdl::overload(
+            m_world->accept(kdl::overload(
                 [] (auto&& thisLambda, Model::WorldNode* world)   { world->visitChildren(thisLambda); },
                 [] (auto&& thisLambda, Model::LayerNode* layer)   { layer->visitChildren(thisLambda); },
                 [&](auto&& thisLambda, Model::GroupNode* group)   { collectNode(group); group->visitChildren(thisLambda); },
@@ -2190,7 +2190,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::setTextures() {
-            m_world->acceptLambda(makeSetTexturesVisitor(*m_textureManager));
+            m_world->accept(makeSetTexturesVisitor(*m_textureManager));
             textureUsageCountsDidChangeNotifier();
         }
 
@@ -2210,7 +2210,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::unsetTextures() {
-            m_world->acceptLambda(makeUnsetTexturesVisitor());
+            m_world->accept(makeUnsetTexturesVisitor());
             textureUsageCountsDidChangeNotifier();
         }
 
@@ -2246,7 +2246,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::setEntityDefinitions() {
-            m_world->acceptLambda(makeSetEntityDefinitionsVisitor(*m_entityDefinitionManager));
+            m_world->accept(makeSetEntityDefinitionsVisitor(*m_entityDefinitionManager));
         }
 
         void MapDocument::setEntityDefinitions(const std::vector<Model::Node*>& nodes) {
@@ -2254,7 +2254,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::unsetEntityDefinitions() {
-            m_world->acceptLambda(makeUnsetEntityDefinitionsVisitor());
+            m_world->accept(makeUnsetEntityDefinitionsVisitor());
         }
 
         void MapDocument::unsetEntityDefinitions(const std::vector<Model::Node*>& nodes) {
@@ -2301,7 +2301,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::setEntityModels() {
-            m_world->acceptLambda(makeSetEntityModelsVisitor(*this, *m_entityModelManager));
+            m_world->accept(makeSetEntityModelsVisitor(*this, *m_entityModelManager));
         }
 
         void MapDocument::setEntityModels(const std::vector<Model::Node*>& nodes) {
@@ -2309,7 +2309,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::unsetEntityModels() {
-            m_world->acceptLambda(makeUnsetEntityModelsVisitor());
+            m_world->accept(makeUnsetEntityModelsVisitor());
         }
 
         void MapDocument::unsetEntityModels(const std::vector<Model::Node*>& nodes) {
@@ -2444,7 +2444,7 @@ namespace TrenchBroom {
         void MapDocument::initializeNodeTags(MapDocument* document) {
             assert(document == this);
             unused(document);
-            m_world->acceptLambda(makeInitializeNodeTagsVisitor(*m_tagManager));
+            m_world->accept(makeInitializeNodeTagsVisitor(*m_tagManager));
         }
 
         void MapDocument::initializeNodeTags(const std::vector<Model::Node*>& nodes) {
@@ -2469,7 +2469,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::updateAllFaceTags() {
-            m_world->acceptLambda(kdl::overload(
+            m_world->accept(kdl::overload(
                 [] (auto&& thisLambda, Model::WorldNode* world)   { world->visitChildren(thisLambda); },
                 [] (auto&& thisLambda, Model::LayerNode* layer)   { layer->visitChildren(thisLambda); },
                 [] (auto&& thisLambda, Model::GroupNode* group)   { group->visitChildren(thisLambda); },

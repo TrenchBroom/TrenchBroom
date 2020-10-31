@@ -39,7 +39,7 @@ namespace TrenchBroom {
         Assets::ColorRange::Type detectColorRange(const std::string& name, const std::vector<AttributableNode*>& attributables) {
             auto result = Assets::ColorRange::Unset;
             for (auto* attributable : attributables) {
-                attributable->acceptLambda(kdl::overload(
+                attributable->accept(kdl::overload(
                     [&](const AttributableNode* node) {
                         static const auto NullValue = "";
                         const auto& value = node->attribute(name, NullValue);

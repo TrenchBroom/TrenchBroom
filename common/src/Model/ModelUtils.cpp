@@ -39,7 +39,7 @@
 namespace TrenchBroom {
     namespace Model {
         LayerNode* findContainingLayer(Node* node) {
-            return node->acceptLambda(kdl::overload(
+            return node->accept(kdl::overload(
                 [](WorldNode*)                            -> LayerNode* { return nullptr; },
                 [](LayerNode* layer)                      -> LayerNode* { return layer; },
                 [](auto&& thisLambda, GroupNode* group)   -> LayerNode* { return group->visitParent(thisLambda).value_or(nullptr); },
@@ -81,7 +81,7 @@ namespace TrenchBroom {
 
         static void collectWithParents(Node* node, std::vector<Node*>& result) {
             if (node != nullptr) {
-                node->acceptLambda(
+                node->accept(
                     [&](auto&& thisLambda, auto* n) -> void { result.push_back(n); n->visitParent(thisLambda); }
                 );
             }
@@ -139,7 +139,7 @@ namespace TrenchBroom {
             auto allNodes = std::vector<Model::Node*>{};
 
             for (auto* node : nodes) {
-                node->acceptLambda(
+                node->accept(
                     [&](auto&& thisLambda, auto* n) { allNodes.push_back(n); n->visitChildren(thisLambda); }
                 );
             }
@@ -170,7 +170,7 @@ namespace TrenchBroom {
             };
 
             for (auto* node : nodes) {
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [] (auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
                     [] (auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, Model::GroupNode* group) { 
@@ -221,7 +221,7 @@ namespace TrenchBroom {
             };
 
             for (auto* node : nodes) {
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [] (auto&& thisLambda, Model::WorldNode* world)   { world->visitChildren(thisLambda); },
                     [] (auto&& thisLambda, Model::LayerNode* layer)   { layer->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, Model::GroupNode* group)   { collectIfSelected(group); group->visitChildren(thisLambda); },
@@ -237,7 +237,7 @@ namespace TrenchBroom {
             auto result = std::vector<Node*>{};
 
             for (auto* node : nodes) {
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [&](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, GroupNode* group) {
@@ -269,7 +269,7 @@ namespace TrenchBroom {
         std::vector<BrushFaceHandle> collectBrushFaces(const std::vector<Node*>& nodes) {
             auto faces = std::vector<BrushFaceHandle>{};
             for (auto* node : nodes) {
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [] (auto&& thisLambda, WorldNode* world)   { world->visitChildren(thisLambda); },
                     [] (auto&& thisLambda, LayerNode* layer)   { layer->visitChildren(thisLambda); },
                     [] (auto&& thisLambda, GroupNode* group)   { group->visitChildren(thisLambda); },
@@ -288,7 +288,7 @@ namespace TrenchBroom {
         std::vector<BrushFaceHandle> collectSelectableBrushFaces(const std::vector<Node*>& nodes, const EditorContext& editorContext) {
             auto faces = std::vector<BrushFaceHandle>{};
             for (auto* node : nodes) {
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [] (auto&& thisLambda, WorldNode* world)   { world->visitChildren(thisLambda); },
                     [] (auto&& thisLambda, LayerNode* layer)   { layer->visitChildren(thisLambda); },
                     [] (auto&& thisLambda, GroupNode* group)   { group->visitChildren(thisLambda); },
@@ -332,7 +332,7 @@ namespace TrenchBroom {
         }
 
         bool boundsContainNode(const vm::bbox3& bounds, const Node* node) {
-            return node->acceptLambda(kdl::overload(
+            return node->accept(kdl::overload(
                 [] (const WorldNode*)         { return false; },
                 [] (const LayerNode*)         { return false; },
                 [&](const GroupNode* group)   { return bounds.contains(group->logicalBounds()); },
@@ -342,7 +342,7 @@ namespace TrenchBroom {
         }
 
         bool boundsIntersectNode(const vm::bbox3& bounds, const Node* node) {
-            return node->acceptLambda(kdl::overload(
+            return node->accept(kdl::overload(
                 [] (const WorldNode*)         { return false; },
                 [] (const LayerNode*)         { return false; },
                 [&](const GroupNode* group)   { return bounds.contains(group->logicalBounds()); },

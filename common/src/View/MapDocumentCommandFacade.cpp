@@ -357,7 +357,7 @@ namespace TrenchBroom {
 
             std::map<Model::GroupNode*, std::string> oldNames;
             for (auto* node : nodes) {
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [&](Model::GroupNode* group) {
                         oldNames[group] = group->name();
                         group->setName(newName);
@@ -377,7 +377,7 @@ namespace TrenchBroom {
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
 
             for (auto* node : nodes) {
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [&](Model::GroupNode* group) {
                         assert(newNames.count(group) == 1);
                         const std::string& newName = kdl::map_find_or_default(newNames, group, group->name());
@@ -408,7 +408,7 @@ namespace TrenchBroom {
 
             bool success = true;
             for (auto nodeIt = std::begin(nodes); nodeIt != std::end(nodes) && success; ++nodeIt) {
-                success = (*nodeIt)->acceptLambda(kdl::overload(
+                success = (*nodeIt)->accept(kdl::overload(
                     [](Model::WorldNode*) {
                         return kdl::result<void, Model::TransformError>::success();
                     },

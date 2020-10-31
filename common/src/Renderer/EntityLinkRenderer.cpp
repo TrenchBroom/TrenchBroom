@@ -313,7 +313,7 @@ namespace TrenchBroom {
             CollectAllLinksVisitor collectLinks(editorContext, m_defaultColor, m_selectedColor, links);
 
             if (document->world() != nullptr) {
-                document->world()->acceptLambda(kdl::overload(
+                document->world()->accept(kdl::overload(
                     [](auto&& thisLambda, Model::WorldNode* world) {
                         world->visitChildren(thisLambda);
                     },
@@ -333,7 +333,7 @@ namespace TrenchBroom {
 
         static void collectSelectedLinks(const Model::NodeCollection& selectedNodes, CollectLinksVisitor& collectLinks) {
             for (auto* node : selectedNodes) {
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [](Model::WorldNode*) {},
                     [](Model::LayerNode*) {},
                     [](Model::GroupNode*) {},
@@ -341,7 +341,7 @@ namespace TrenchBroom {
                         collectLinks.visit(entity);
                     },
                     [](auto&& thisLambda, Model::BrushNode* brush) {
-                        brush->parent()->acceptLambda(thisLambda);
+                        brush->parent()->accept(thisLambda);
                     }
                 ));
             }

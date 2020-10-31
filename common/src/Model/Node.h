@@ -307,105 +307,13 @@ namespace TrenchBroom {
             void clearIssues() const;
         public: // visitors
             /**
-             * Visit this node, and recursively visit its children
-             */
-            template <class V>
-            void acceptAndRecurse(V& visitor) {
-                accept(visitor);
-                if (!visitor.recursionStopped() && !visitor.cancelled())
-                    recurse(visitor);
-            }
-
-            /**
-             * Visit this node, and recursively visit its children
-             */
-            template <class V>
-            void acceptAndRecurse(V& visitor) const {
-                accept(visitor);
-                if (!visitor.recursionStopped() && !visitor.cancelled())
-                    recurse(visitor);
-            }
-
-            /**
-             * For each node in the given range, visit it, and then recursively visit its children,
-             * until the visitor gets cancelled
-             */
-            template <typename I, typename V>
-            static void acceptAndRecurse(I cur, I end, V& visitor) {
-                while (cur != end && !visitor.cancelled()) {
-                    (*cur)->acceptAndRecurse(visitor);
-                    ++cur;
-                }
-            }
-
-            /**
-             * Visit this node, and recursively visit its parents
-             */
-            template <class V>
-            void acceptAndEscalate(V& visitor) {
-                accept(visitor);
-                if (!visitor.recursionStopped() && !visitor.cancelled())
-                    escalate(visitor);
-            }
-
-            /**
-             * Visit this node, and recursively visit its parents
-             */
-            template <class V>
-            void acceptAndEscalate(V& visitor) const {
-                accept(visitor);
-                if (!visitor.recursionStopped() && !visitor.cancelled())
-                    escalate(visitor);
-            }
-
-            /**
-             * For each node in the given range, visit it, and then recursively visit its parents,
-             * until the visitor gets cancelled
-             */
-            template <typename I, typename V>
-            static void acceptAndEscalate(I cur, I end, V& visitor) {
-                while (cur != end && !visitor.cancelled()) {
-                    (*cur)->acceptAndEscalate(visitor);
-                    ++cur;
-                }
-            }
-
-            /**
-             * Visit this node (not visiting parents or children)
-             */
-            template <class V>
-            void accept(V& visitor) {
-                doAccept(visitor);
-            }
-
-            /**
-             * Visit this node (not visiting parents or children)
-             */
-            template <class V>
-            void accept(V& visitor) const {
-                doAccept(visitor);
-            }
-
-            /**
-             * For each node in the given range, visit it (not visiting parents or children),
-             * until the visitor gets cancelled
-             */
-            template <typename I, typename V>
-            static void accept(I cur, I end, V& visitor) {
-                while (cur != end && !visitor.cancelled()) {
-                    (*cur)->accept(visitor);
-                    ++cur;
-                }
-            }
-
-            /**
              * Visit this node with the given lambda and return the lambda's return value or nothing
              * if the lambda doesn't return anything.
              *
              * Passes a non-const pointer to this node to the lambda.
              */
             template <typename L>
-            auto acceptLambda(const L& lambda) {
+            auto accept(const L& lambda) {
                 NodeLambdaVisitor<L> visitor(lambda);
                 doAccept(visitor);
                 return visitor.result();
@@ -418,7 +326,7 @@ namespace TrenchBroom {
              * Passes a const pointer to this node to the lambda.
              */
             template <typename L>
-            auto acceptLambda(const L& lambda) const {
+            auto accept(const L& lambda) const {
                 ConstNodeLambdaVisitor<L> visitor(lambda);
                 doAccept(visitor);
                 return visitor.result();
@@ -438,13 +346,13 @@ namespace TrenchBroom {
                 if constexpr(NodeLambdaHasResult_v<L>) {
                     using R = typename NodeLambdaVisitorResult<L>::R;
                     if (auto* parent = this->parent()) {
-                        return std::optional<R>{parent->acceptLambda(lambda)};
+                        return std::optional<R>{parent->accept(lambda)};
                     } else {
                         return std::optional<R>{};
                     }
                 } else {
                     if (auto* parent = this->parent()) {
-                        parent->acceptLambda(lambda);
+                        parent->accept(lambda);
                     }
                 }
             }
@@ -464,13 +372,13 @@ namespace TrenchBroom {
                 if constexpr(NodeLambdaHasResult_v<L>) {
                     using R = typename NodeLambdaVisitorResult<L>::R;
                     if (const auto* parent = this->parent()) {
-                        return std::optional<R>{parent->acceptLambda(lambda)};
+                        return std::optional<R>{parent->accept(lambda)};
                     } else {
                         return std::optional<R>{};
                     }
                 } else {
                     if (const auto* parent = this->parent()) {
-                        parent->acceptLambda(lambda);
+                        parent->accept(lambda);
                     }
                 }
             }
@@ -481,7 +389,7 @@ namespace TrenchBroom {
             template <typename N, typename L>
             static void visitAll(const std::vector<N*>& nodes, const L& lambda) {
                 for (auto* node : nodes) {
-                    node->acceptLambda(lambda);
+                    node->accept(lambda);
                 }
             }
 
@@ -499,104 +407,6 @@ namespace TrenchBroom {
             template <typename L>
             void visitChildren(const L& lambda) const {
                 visitAll(m_children, lambda);
-            }
-
-            /**
-             * Recursively visit this node's children (but not visiting this)
-             */
-            template <class V>
-            void recurse(V& visitor) {
-                for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
-                    Node* node = *it;
-                    node->acceptAndRecurse(visitor);
-                }
-            }
-
-            /**
-             * Recursively visit this node's children (but not visiting this)
-             */
-            template <class V>
-            void recurse(V& visitor) const {
-                for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
-                    Node* node = *it;
-                    node->acceptAndRecurse(visitor);
-                }
-            }
-
-            /**
-             * For each node in the given range, recursively visit its children,
-             * until the visitor gets cancelled
-             */
-            template <typename I, typename V>
-            static void recurse(I cur, I end, V& visitor) {
-                while (cur != end) {
-                    (*cur)->recurse(visitor);
-                    ++cur;
-                }
-            }
-
-            /**
-             * Visit this node's children only
-             */
-            template <class V>
-            void iterate(V& visitor) {
-                for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
-                    Node* node = *it;
-                    node->accept(visitor);
-                }
-            }
-
-            /**
-             * Visit this node's children only
-             */
-            template <class V>
-            void iterate(V& visitor) const {
-                for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
-                    Node* node = *it;
-                    node->accept(visitor);
-                }
-            }
-
-            /**
-             * For each node in the given range, visit its children (not visiting the node itself),
-             * until the visitor gets cancelled
-             */
-            template <typename I, typename V>
-            static void iterate(I cur, I end, V& visitor) {
-                while (cur != end && !visitor.cancelled()) {
-                    (*cur)->iterate(visitor);
-                    ++cur;
-                }
-            }
-
-            /**
-             * Recursively visit this node's parents (not visiting the node itself)
-             */
-            template <class V>
-            void escalate(V& visitor) {
-                if (parent() != nullptr && !visitor.cancelled())
-                    parent()->acceptAndEscalate(visitor);
-            }
-
-            /**
-             * Recursively visit this node's parents (not visiting the node itself)
-             */
-            template <class V>
-            void escalate(V& visitor) const {
-                if (parent() != nullptr && !visitor.cancelled())
-                    parent()->acceptAndEscalate(visitor);
-            }
-
-            /**
-             * For each node in the given range, recursively visit its parents (not visiting the node itself),
-             * until the visitor gets cancelled
-             */
-            template <typename I, typename V>
-            static void escalate(I cur, I end, V& visitor) {
-                while (cur != end && !visitor.cancelled()) {
-                    (*cur)->escalate(visitor);
-                    ++cur;
-                }
             }
         protected: // index management
             void findAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<AttributableNode*>& result) const;
