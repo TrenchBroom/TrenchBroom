@@ -1105,25 +1105,23 @@ namespace TrenchBroom {
             select(group);
         }
 
-        class MapDocument::MatchGroupableNodes {
-        private:
-            const Model::WorldNode* m_world;
-        public:
-            explicit MatchGroupableNodes(const Model::WorldNode* world) : m_world(world) {}
-        public:
-            bool operator()(const Model::WorldNode*) const  { return false; }
-            bool operator()(const Model::LayerNode*) const  { return false; }
-            bool operator()(const Model::GroupNode*) const  { return true;  }
-            bool operator()(const Model::EntityNode*) const { return true; }
-            bool operator()(const Model::BrushNode* brush) const   { return brush->entity() == m_world; }
-        };
-
         std::vector<Model::Node*> MapDocument::collectGroupableNodes(const std::vector<Model::Node*>& selectedNodes) const {
-            using CollectGroupableNodesVisitor = Model::CollectMatchingNodesVisitor<MatchGroupableNodes, Model::UniqueNodeCollectionStrategy, Model::StopRecursionIfMatched>;
-
-            CollectGroupableNodesVisitor collect((MatchGroupableNodes(world())));
-            Model::Node::acceptAndEscalate(std::begin(selectedNodes), std::end(selectedNodes), collect);
-            return collect.nodes();
+            std::vector<Model::Node*> result;
+            Model::Node::visitAll(selectedNodes, kdl::overload(
+                [] (Model::WorldNode*)         {},
+                [] (Model::LayerNode*)         {},
+                [&](Model::GroupNode* group)   { result.push_back(group); },
+                [&](Model::EntityNode* entity) { result.push_back(entity); },
+                [&](auto&& thisLambda, Model::BrushNode* brush) {
+                    if (brush->entity() == world()) {
+                        result.push_back(brush);
+                    } else {
+                        brush->visitParent(thisLambda);
+                    }
+                }
+            ));
+            kdl::vec_sort_and_remove_duplicates(result);
+            return result;
         }
 
         void MapDocument::ungroupSelection() {
