@@ -22,7 +22,6 @@
 #include "FloatType.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
-#include "Model/FindGroupVisitor.h"
 #include "Model/GroupSnapshot.h"
 #include "Model/IssueGenerator.h"
 #include "Model/ModelUtils.h"
@@ -229,9 +228,7 @@ namespace TrenchBroom {
         }
 
         GroupNode* GroupNode::doGetGroup() {
-            FindGroupVisitor visitor;
-            escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : nullptr;
+            return findContainingGroup(this);
         }
 
         kdl::result<void, TransformError> GroupNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, const bool lockTextures) {

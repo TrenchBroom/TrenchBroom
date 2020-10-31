@@ -57,6 +57,26 @@ namespace TrenchBroom {
             return layers;
         }
 
+        GroupNode* findContainingGroup(Node* node) {
+            return node->visitParent(kdl::overload(
+                [](WorldNode*)                            -> GroupNode* { return nullptr; },
+                [](LayerNode*)                            -> GroupNode* { return nullptr; },
+                [](GroupNode* group)                      -> GroupNode* { return group; },
+                [](auto&& thisLambda, EntityNode* entity) -> GroupNode* { return entity->visitParent(thisLambda).value_or(nullptr); },
+                [](auto&& thisLambda, BrushNode* brush)   -> GroupNode* { return brush->visitParent(thisLambda).value_or(nullptr); }
+            )).value_or(nullptr);
+        }
+
+        GroupNode* findOutermostClosedGroup(Node* node) {
+            return node->visitParent(kdl::overload(
+                [](WorldNode*)                            -> GroupNode* { return nullptr; },
+                [](LayerNode*)                            -> GroupNode* { return nullptr; },
+                [](auto&& thisLambda, GroupNode* group)   -> GroupNode* { return !(group->opened() || group->hasOpenedDescendant()) ? group : group->visitParent(thisLambda).value_or(nullptr); },
+                [](auto&& thisLambda, EntityNode* entity) -> GroupNode* { return entity->visitParent(thisLambda).value_or(nullptr); },
+                [](auto&& thisLambda, BrushNode* brush)   -> GroupNode* { return brush->visitParent(thisLambda).value_or(nullptr); }
+            )).value_or(nullptr);
+        }
+
         std::vector<Node*> collectParents(const std::vector<Node*>& nodes) {
             return collectParents(std::begin(nodes), std::end(nodes));
         }

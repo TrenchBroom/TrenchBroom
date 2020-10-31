@@ -24,7 +24,6 @@
 #include "Model/BrushNode.h"
 #include "Model/EntityRotationPolicy.h"
 #include "Model/EntitySnapshot.h"
-#include "Model/FindGroupVisitor.h"
 #include "Model/IssueGenerator.h"
 #include "Model/ModelUtils.h"
 #include "Model/NodeVisitor.h"
@@ -336,9 +335,7 @@ namespace TrenchBroom {
         }
 
         GroupNode* EntityNode::doGetGroup() {
-            FindGroupVisitor visitor;
-            escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : nullptr;
+            return findContainingGroup(this);
         }
 
         kdl::result<void, TransformError> EntityNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {

@@ -30,7 +30,6 @@
 #include "Model/BrushGeometry.h"
 #include "Model/BrushSnapshot.h"
 #include "Model/EntityNode.h"
-#include "Model/FindGroupVisitor.h"
 #include "Model/GroupNode.h"
 #include "Model/IssueGenerator.h"
 #include "Model/ModelUtils.h"
@@ -240,9 +239,7 @@ namespace TrenchBroom {
         }
 
         GroupNode* BrushNode::doGetGroup() {
-            FindGroupVisitor visitor;
-            escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : nullptr;
+            return findContainingGroup(this);
         }
 
         kdl::result<void, TransformError> BrushNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
