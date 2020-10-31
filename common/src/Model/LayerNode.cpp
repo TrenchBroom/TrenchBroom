@@ -143,7 +143,7 @@ namespace TrenchBroom {
         }
 
         bool LayerNode::doCanAddChild(const Node* child) const {
-            return child->acceptLambda(kdl::overload(
+            return child->accept(kdl::overload(
                 [](const WorldNode*)  { return false; },
                 [](const LayerNode*)  { return false; },
                 [](const GroupNode*)  { return true; },

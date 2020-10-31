@@ -191,7 +191,7 @@ namespace TrenchBroom {
         }
 
         bool EntityNode::doCanAddChild(const Node* child) const {
-            return child->acceptLambda(kdl::overload(
+            return child->accept(kdl::overload(
                 [](const WorldNode*)  { return false; },
                 [](const LayerNode*)  { return false; },
                 [](const GroupNode*)  { return false; },
@@ -343,7 +343,7 @@ namespace TrenchBroom {
                 const NotifyNodeChange nodeChange(this);
 
                 for (auto* child : children()) {
-                    const auto result = child->acceptLambda(kdl::overload(
+                    const auto result = child->accept(kdl::overload(
                         [] (WorldNode*)  { return kdl::result<void, TransformError>::success(); },
                         [] (LayerNode*)  { return kdl::result<void, TransformError>::success(); },
                         [] (GroupNode*)  { return kdl::result<void, TransformError>::success(); },

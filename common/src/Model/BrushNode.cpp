@@ -254,7 +254,7 @@ namespace TrenchBroom {
         }
 
         bool BrushNode::doContains(const Node* node) const {
-            return node->acceptLambda(kdl::overload(
+            return node->accept(kdl::overload(
                 [](const WorldNode*)          { return false; },
                 [](const LayerNode*)          { return false; },
                 [&](const GroupNode* group)   { return m_brush.contains(group->logicalBounds()); },
@@ -264,7 +264,7 @@ namespace TrenchBroom {
         }
 
         bool BrushNode::doIntersects(const Node* node) const {
-            return node->acceptLambda(kdl::overload(
+            return node->accept(kdl::overload(
                 [](const WorldNode*)          { return false; },
                 [](const LayerNode*)          { return false; },
                 [&](const GroupNode* group)   { return m_brush.intersects(group->logicalBounds()); },

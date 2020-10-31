@@ -62,7 +62,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            m_node->acceptLambda(kdl::overload(
+            m_node->accept(kdl::overload(
                 [](WorldNode*) {},
                 [](LayerNode*) {},
                 [&](GroupNode* group) { nodes.push_back(group); },

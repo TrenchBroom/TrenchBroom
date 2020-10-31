@@ -1124,7 +1124,7 @@ namespace TrenchBroom {
             };
 
             auto issues = std::vector<Model::Issue*>{};
-            document->world()->acceptLambda(kdl::overload(
+            document->world()->accept(kdl::overload(
                 [&](auto&& thisLambda, Model::WorldNode* w)  { kdl::vec_append(issues, w->issues(issueGenerators)); w->visitChildren(thisLambda); },
                 [&](auto&& thisLambda, Model::LayerNode* l)  { kdl::vec_append(issues, l->issues(issueGenerators)); l->visitChildren(thisLambda); },
                 [&](auto&& thisLambda, Model::GroupNode* g)  { kdl::vec_append(issues, g->issues(issueGenerators)); g->visitChildren(thisLambda); },

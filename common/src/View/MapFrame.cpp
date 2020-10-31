@@ -552,7 +552,7 @@ namespace TrenchBroom {
             size_t hiddenBrushes = 0u;
 
             const auto& editorContext = document->editorContext();
-            document->world()->acceptLambda(kdl::overload(
+            document->world()->accept(kdl::overload(
                 [](auto&& thisLambda, const Model::WorldNode* world) { world->visitChildren(thisLambda); },
                 [](auto&& thisLambda, const Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
                 [&](auto&& thisLambda, const Model::GroupNode* group) { 

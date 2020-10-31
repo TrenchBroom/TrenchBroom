@@ -57,7 +57,7 @@ namespace TrenchBroom {
         std::vector<AABB> trees(100);
         timeLambda([&world, &trees]() {
             for (auto& tree : trees) {
-                world->acceptLambda(kdl::overload(
+                world->accept(kdl::overload(
                     [] (auto&& thisLambda, Model::WorldNode* world_)  { world_->visitChildren(thisLambda); },
                     [] (auto&& thisLambda, Model::LayerNode* layer)   { layer->visitChildren(thisLambda); },
                     [] (auto&& thisLambda, Model::GroupNode* group)   { group->visitChildren(thisLambda); },

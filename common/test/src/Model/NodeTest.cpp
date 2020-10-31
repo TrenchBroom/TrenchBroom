@@ -533,27 +533,27 @@ namespace TrenchBroom {
             BrushNode brush(BrushBuilder(&world, worldBounds).createCube(32.0, "texture").value());
 
             SECTION("Non const nodes accept non const visitor") {
-                CHECK(world.acceptLambda(nodeTestVisitor) == Visited::World);
-                CHECK(layer.acceptLambda(nodeTestVisitor) == Visited::Layer);
-                CHECK(group.acceptLambda(nodeTestVisitor) == Visited::Group);
-                CHECK(entity.acceptLambda(nodeTestVisitor) == Visited::Entity);
-                CHECK(brush.acceptLambda(nodeTestVisitor) == Visited::Brush);
+                CHECK(world.accept(nodeTestVisitor) == Visited::World);
+                CHECK(layer.accept(nodeTestVisitor) == Visited::Layer);
+                CHECK(group.accept(nodeTestVisitor) == Visited::Group);
+                CHECK(entity.accept(nodeTestVisitor) == Visited::Entity);
+                CHECK(brush.accept(nodeTestVisitor) == Visited::Brush);
             }
 
             SECTION("Non const nodes accept const visitor") {
-                CHECK(world.acceptLambda(constNodeTestVisitor) == Visited::World);
-                CHECK(layer.acceptLambda(constNodeTestVisitor) == Visited::Layer);
-                CHECK(group.acceptLambda(constNodeTestVisitor) == Visited::Group);
-                CHECK(entity.acceptLambda(constNodeTestVisitor) == Visited::Entity);
-                CHECK(brush.acceptLambda(constNodeTestVisitor) == Visited::Brush);
+                CHECK(world.accept(constNodeTestVisitor) == Visited::World);
+                CHECK(layer.accept(constNodeTestVisitor) == Visited::Layer);
+                CHECK(group.accept(constNodeTestVisitor) == Visited::Group);
+                CHECK(entity.accept(constNodeTestVisitor) == Visited::Entity);
+                CHECK(brush.accept(constNodeTestVisitor) == Visited::Brush);
             }
 
             SECTION("Const nodes accept const visitor") {
-                CHECK(const_cast<const WorldNode&> (world).acceptLambda(constNodeTestVisitor) == Visited::World);
-                CHECK(const_cast<const LayerNode&> (layer).acceptLambda(constNodeTestVisitor) == Visited::Layer);
-                CHECK(const_cast<const GroupNode&> (group).acceptLambda(constNodeTestVisitor) == Visited::Group);
-                CHECK(const_cast<const EntityNode&>(entity).acceptLambda(constNodeTestVisitor) == Visited::Entity);
-                CHECK(const_cast<const BrushNode&> (brush).acceptLambda(constNodeTestVisitor) == Visited::Brush);
+                CHECK(const_cast<const WorldNode&> (world).accept(constNodeTestVisitor) == Visited::World);
+                CHECK(const_cast<const LayerNode&> (layer).accept(constNodeTestVisitor) == Visited::Layer);
+                CHECK(const_cast<const GroupNode&> (group).accept(constNodeTestVisitor) == Visited::Group);
+                CHECK(const_cast<const EntityNode&>(entity).accept(constNodeTestVisitor) == Visited::Entity);
+                CHECK(const_cast<const BrushNode&> (brush).accept(constNodeTestVisitor) == Visited::Brush);
             }
         }
 
@@ -573,7 +573,7 @@ namespace TrenchBroom {
 
             const auto collectRecursively = [](auto& node) {
                 auto result = std::vector<Node*>{};
-                node.acceptLambda([&](auto&& thisLambda, auto* n) { result.push_back(n); n->visitChildren(thisLambda); });
+                node.accept([&](auto&& thisLambda, auto* n) { result.push_back(n); n->visitChildren(thisLambda); });
                 return result;
             };
 

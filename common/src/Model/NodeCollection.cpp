@@ -94,11 +94,11 @@ namespace TrenchBroom {
             // This is just an optimization of `!brushesRecursively().empty()`
             // that stops after finding the first brush
             for (const auto* node : m_nodes) {
-                const auto hasBrush = node->acceptLambda(kdl::overload(
+                const auto hasBrush = node->accept(kdl::overload(
                     [](BrushNode*) -> bool { return true; },
                     [](auto&& thisLambda, auto* other) -> bool {
                         for (const auto* child : other->children()) {
-                            if (child->acceptLambda(thisLambda)) {
+                            if (child->accept(thisLambda)) {
                                 return true;
                             }
                         }
@@ -152,11 +152,11 @@ namespace TrenchBroom {
         std::vector<BrushNode*> NodeCollection::brushesRecursively() const {
             auto brushes = std::vector<BrushNode*>{};
             for (auto* node : m_nodes) {
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [&](BrushNode* brush) -> void { brushes.push_back(brush); },
                     [] (auto&& thisLambda, auto* other) -> void {
                         for (auto* child : other->children()) {
-                            child->acceptLambda(thisLambda);
+                            child->accept(thisLambda);
                         }
                     }
                 ));
@@ -172,7 +172,7 @@ namespace TrenchBroom {
 
         void NodeCollection::addNode(Node* node) {
             ensure(node != nullptr, "node is null");
-            node->acceptLambda(kdl::overload(
+            node->accept(kdl::overload(
                 [] (WorldNode*)         {},
                 [&](LayerNode* layer)   { m_nodes.push_back(layer); m_layers.push_back(layer); },
                 [&](GroupNode* group)   { m_nodes.push_back(group); m_groups.push_back(group); },
@@ -189,7 +189,7 @@ namespace TrenchBroom {
             auto brushEnd = std::end(brushes);
 
             while (cur != end) {
-                (*cur)->acceptLambda(kdl::overload(
+                (*cur)->accept(kdl::overload(
                     [] (WorldNode*)         {},
                     [&](LayerNode* layer)   { 
                         nodeEnd = std::remove(std::begin(nodes), nodeEnd, layer);

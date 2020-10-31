@@ -527,7 +527,7 @@ namespace TrenchBroom {
             template <typename HT>
             void addHandles(const std::vector<Model::Node*>& nodes, VertexHandleManagerBaseT<HT>& handleManager) {
                 for (const auto* node : nodes) {
-                    node->acceptLambda(kdl::overload(
+                    node->accept(kdl::overload(
                         [&](const Model::BrushNode* brush) {
                             handleManager.addHandles(brush);
                         },
@@ -539,7 +539,7 @@ namespace TrenchBroom {
             template <typename HT>
             void removeHandles(const std::vector<Model::Node*>& nodes, VertexHandleManagerBaseT<HT>& handleManager) {
                 for (const auto* node : nodes) {
-                    node->acceptLambda(kdl::overload(
+                    node->accept(kdl::overload(
                         [&](const Model::BrushNode* brush) {
                             handleManager.removeHandles(brush);
                         },

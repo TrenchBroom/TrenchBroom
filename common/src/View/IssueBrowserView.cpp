@@ -127,7 +127,7 @@ namespace TrenchBroom {
                     }
                 };
 
-                document->world()->acceptLambda(kdl::overload(
+                document->world()->accept(kdl::overload(
                     [&](auto&& thisLambda, Model::WorldNode* world)   { collectIssues(world); world->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, Model::LayerNode* layer)   { collectIssues(layer); layer->visitChildren(thisLambda); },
                     [&](auto&& thisLambda, Model::GroupNode* group)   { collectIssues(group); group->visitChildren(thisLambda); },

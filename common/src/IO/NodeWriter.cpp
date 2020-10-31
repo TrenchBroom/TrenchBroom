@@ -43,7 +43,7 @@ namespace TrenchBroom {
             };
 
             for (const auto* node : nodes) {
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [] (const Model::WorldNode*) {},
                     [] (const Model::LayerNode*) {},
                     [&](auto&& thisLambda, const Model::GroupNode* group) {
@@ -118,7 +118,7 @@ namespace TrenchBroom {
             EntityBrushesMap entityBrushes;
 
             for (auto* node : nodes) {
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [] (Model::WorldNode*) {},
                     [] (Model::LayerNode*) {},
                     [&](Model::GroupNode* group)   { groups.push_back(group); },

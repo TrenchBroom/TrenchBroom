@@ -837,7 +837,7 @@ namespace TrenchBroom {
             for (const auto& entry : map) {
                 const auto& nodes = entry.second;
                 for (auto* node : nodes) {
-                    node->acceptLambda(kdl::overload(
+                    node->accept(kdl::overload(
                         [&](Model::BrushNode* brush) { brushes.push_back(brush); },
                         [](auto*) {}
                     ));

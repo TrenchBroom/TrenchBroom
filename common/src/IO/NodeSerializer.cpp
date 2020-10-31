@@ -217,7 +217,7 @@ namespace TrenchBroom {
             }
 
             auto attributes = std::vector<Model::EntityAttribute>{};
-            node->acceptLambda(kdl::overload(
+            node->accept(kdl::overload(
                 [](const Model::WorldNode*) {},
                 [&](const Model::LayerNode* layer) { attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Layer, m_layerIds.getId(layer))); },
                 [&](const Model::GroupNode* group) { attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Group, m_groupIds.getId(group))); },

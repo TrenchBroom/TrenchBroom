@@ -105,7 +105,7 @@ namespace TrenchBroom {
             auto hit = Model::Hit::NoHit;
 
             for (auto* node : nodes) {
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [] (Model::WorldNode*) {},
                     [] (Model::LayerNode*) {},
                     [] (Model::GroupNode*) {},
@@ -225,7 +225,7 @@ namespace TrenchBroom {
 
             const auto& referenceFace = faceHandle.face();
             for (auto* node : nodes) {
-                node->acceptLambda(kdl::overload(
+                node->accept(kdl::overload(
                     [] (Model::WorldNode*) {},
                     [] (Model::LayerNode*) {},
                     [] (Model::GroupNode*) {},
