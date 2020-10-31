@@ -119,9 +119,19 @@ namespace TrenchBroom {
 
             const std::string& name() const;
 
+            /**
+             * Absolute path of the texture
+             *
+             * Currently, only set for textures loaded by DirectoryTextureCollectionLoader
+             */
             const IO::Path& absolutePath() const;
             void setAbsolutePath(const IO::Path& absolutePath);
 
+            /**
+             * Relative path of the texture in the game filesystem
+             *
+             * Currently, only set for textures loaded by DirectoryTextureCollectionLoader
+             */
             const IO::Path& relativePath() const;
             void setRelativePath(const IO::Path& relativePath);
 
