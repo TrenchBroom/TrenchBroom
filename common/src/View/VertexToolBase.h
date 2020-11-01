@@ -194,6 +194,7 @@ namespace TrenchBroom {
                     handleManager().deselectAll();
                 }
                 handleManager().toggle(std::begin(selectedHandles), std::end(selectedHandles));
+                refreshViews();
                 notifyToolHandleSelectionChanged();
             }
 

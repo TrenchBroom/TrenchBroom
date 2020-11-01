@@ -21,6 +21,7 @@
 #define TrenchBroom_Texture
 
 #include "Color.h"
+#include "IO/Path.h"
 #include "Assets/TextureBuffer.h"
 #include "Renderer/GL.h"
 
@@ -77,6 +78,8 @@ namespace TrenchBroom {
             using BufferList = std::vector<Buffer>;
         private:
             std::string m_name;
+            IO::Path m_absolutePath;
+            IO::Path m_relativePath;
 
             size_t m_width;
             size_t m_height;
@@ -115,6 +118,22 @@ namespace TrenchBroom {
             static TextureType selectTextureType(bool masked);
 
             const std::string& name() const;
+
+            /**
+             * Absolute path of the texture
+             *
+             * Currently, only set for textures loaded by DirectoryTextureCollectionLoader
+             */
+            const IO::Path& absolutePath() const;
+            void setAbsolutePath(const IO::Path& absolutePath);
+
+            /**
+             * Relative path of the texture in the game filesystem
+             *
+             * Currently, only set for textures loaded by DirectoryTextureCollectionLoader
+             */
+            const IO::Path& relativePath() const;
+            void setRelativePath(const IO::Path& relativePath);
 
             size_t width() const;
             size_t height() const;
