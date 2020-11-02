@@ -530,19 +530,19 @@ namespace kdl {
             
             if constexpr (std::is_same_v<Fn_Value, void>) {
                 return visit(kdl::overload {
-                [&]() {
-                    return f().visit(kdl::overload {
-                        []() {
-                            return Cm_Result::success();
-                        },
-                        [](auto&& fn_e) {
-                            return Cm_Result::error(std::move(fn_e));
-                        }
-                    });
-                },
-                [] (const auto& e) { return Cm_Result::error(e); }
-            });
-        } else {
+                    [&]() {
+                        return f().visit(kdl::overload {
+                            []() {
+                                return Cm_Result::success();
+                            },
+                            [](auto&& fn_e) {
+                                return Cm_Result::error(std::move(fn_e));
+                            }
+                        });
+                    },
+                    [] (const auto& e) { return Cm_Result::error(e); }
+                });
+            } else {
                 return visit(kdl::overload {
                     [&]() {
                         return f().visit(kdl::overload {
