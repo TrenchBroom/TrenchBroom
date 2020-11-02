@@ -376,13 +376,13 @@ namespace TrenchBroom {
             void doVisit(EntityNode*) override {}
             void doVisit(BrushNode* brush) override {
                 brush->transform(m_worldBounds, m_transformation, m_lockTextures)
-                    .visit(kdl::overload {
+                    .visit(kdl::overload(
                         []() {},
                         [&](TransformError&& e) {
                             m_error = std::move(e);
                             cancel();
-                        },
-                    });
+                        }
+                    ));
             }
         };
 

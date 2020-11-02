@@ -226,14 +226,14 @@ namespace TrenchBroom {
                 }
 
                 brushBuilder.createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName)
-                    .visit(kdl::overload {
+                    .visit(kdl::overload(
                         [&](Model::Brush&& b) {
                             tallBrushes.push_back(document->world()->createBrush(std::move(b)));
                         },
                         [&](const Model::BrushError e) {
                             m_logger->error() << "Could not create selection brush: " << e;
                         }
-                    });
+                    ));
             }
 
             Transaction transaction(document, "Select Tall");

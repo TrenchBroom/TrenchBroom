@@ -42,7 +42,7 @@ namespace TrenchBroom {
 
         kdl::result<void, SnapshotErrors> BrushSnapshot::doRestore(const vm::bbox3& worldBounds) {
             return Brush::create(worldBounds, std::move(m_faces))
-                .visit(kdl::overload {
+                .visit(kdl::overload(
                     [&](Brush&& b) {
                         m_brushNode->setBrush(std::move(b));
                         return kdl::result<void, SnapshotErrors>::success();
@@ -50,7 +50,7 @@ namespace TrenchBroom {
                     [](const BrushError e) {
                         return kdl::result<void, SnapshotErrors>::error(SnapshotErrors{e});
                     }
-                });
+                ));
         }
     }
 }

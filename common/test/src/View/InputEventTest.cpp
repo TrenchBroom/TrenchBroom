@@ -136,16 +136,16 @@ namespace TrenchBroom {
             
             void processEvent(const KeyEvent& act) override {
                 ASSERT_FALSE(m_expectedEvents.empty());
-                std::visit(kdl::overload{
+                std::visit(kdl::overload(
                     [&](const KeyEvent& exp) { ASSERT_EQ(exp, act); },
                     [&](const auto&)       { ASSERT_TRUE(false); }
-                }, m_expectedEvents.front());
+                ), m_expectedEvents.front());
                 m_expectedEvents.pop_front();
             }
             
             void processEvent(const MouseEvent& act) override {
                 ASSERT_FALSE(m_expectedEvents.empty());
-                std::visit(kdl::overload{
+                std::visit(kdl::overload(
                     [&](const MouseEvent& exp) {
                         CHECK(exp.type == act.type);
                         CHECK(exp.button == act.button);
@@ -155,16 +155,16 @@ namespace TrenchBroom {
                         CHECK(exp.scrollDistance == Approx(act.scrollDistance));
                     },
                     [&](const auto&) { ASSERT_TRUE(false); }
-                }, m_expectedEvents.front());
+                ), m_expectedEvents.front());
                 m_expectedEvents.pop_front();
             }
             
             void processEvent(const CancelEvent& act) override {
                 ASSERT_FALSE(m_expectedEvents.empty());
-                std::visit(kdl::overload{
+                std::visit(kdl::overload(
                     [&](const CancelEvent& exp) { ASSERT_EQ(exp, act); },
                     [&](const auto&)        { ASSERT_TRUE(false); }
-                }, m_expectedEvents.front());
+                ), m_expectedEvents.front());
                 m_expectedEvents.pop_front();
             }
             

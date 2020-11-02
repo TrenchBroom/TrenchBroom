@@ -120,11 +120,11 @@ namespace kdl {
     void test_visit_success_const_lvalue_ref(V&& v) {
         auto result = ResultType::success(std::forward<V>(v));
 
-        ASSERT_TRUE(result.visit(overload {
+        ASSERT_TRUE(result.visit(overload(
             [&] (const auto& x) { return x == v; },
             []  (const Error1&) { return false; },
             []  (const Error2&) { return false; }
-        }));
+        )));
     }
     
     /**
@@ -134,18 +134,18 @@ namespace kdl {
     void test_visit_success_rvalue_ref(V&& v) {
         auto result = ResultType::success(std::forward<V>(v));
 
-        ASSERT_TRUE(std::move(result).visit(overload {
+        ASSERT_TRUE(std::move(result).visit(overload(
             [&] (auto&&)   { return true; },
             []  (Error1&&) { return false; },
             []  (Error2&&) { return false; }
-        }));
+        )));
         
         typename ResultType::value_type y;
-        std::move(result).visit(overload {
+        std::move(result).visit(overload(
             [&] (auto&& x) { y = std::move(x); },
             []  (Error1&&) {},
             []  (Error2&&) {}
-        });
+        ));
         
         ASSERT_EQ(0u, y.copies);
     }
@@ -157,11 +157,11 @@ namespace kdl {
     void test_visit_error_const_lvalue_ref(E&& e) {
         auto result = ResultType::error(std::forward<E>(e));
 
-        ASSERT_TRUE(result.visit(overload {
+        ASSERT_TRUE(result.visit(overload(
             []  (const auto&)   { return false; },
             [&] (const E& x)    { return x == e; },
             []  (const Error2&) { return false; }
-        }));
+        )));
     }
     
     /**
@@ -171,18 +171,18 @@ namespace kdl {
     void test_visit_error_rvalue_ref(E&& e) {
         auto result = ResultType::error(std::forward<E>(e));
 
-        ASSERT_TRUE(std::move(result).visit(overload {
+        ASSERT_TRUE(std::move(result).visit(overload(
             []  (auto&&)   { return false; },
             [&] (E&&)      { return true; },
             []  (Error2&&) { return false; }
-        }));
+        )));
         
         E y;
-        std::move(result).visit(overload {
+        std::move(result).visit(overload(
             []  (auto&&)   {},
             [&] (E&& x)    { y = std::move(x); },
             []  (Error2&&) {}
-        });
+        ));
         
         ASSERT_EQ(0u, y.copies);
     }
@@ -201,10 +201,10 @@ namespace kdl {
         ASSERT_FALSE(to.is_error());
         ASSERT_EQ(to.is_success(), to);
 
-        ASSERT_TRUE(to.visit(overload {
+        ASSERT_TRUE(to.visit(overload(
             [](const ToValueType&) { return true; },
             [](const auto&) { return false; }
-        }));
+        )));
     }
     
     /**
@@ -220,16 +220,16 @@ namespace kdl {
         ASSERT_FALSE(to.is_error());
         ASSERT_EQ(to.is_success(), to);
 
-        ASSERT_TRUE(to.visit(overload {
+        ASSERT_TRUE(to.visit(overload(
             [](const ToValueType&) { return true; },
             [](const auto&) { return false; }
-        }));
+        )));
 
         ToValueType y;
-        std::move(to).visit(overload {
+        std::move(to).visit(overload(
             [&] (ToValueType&& x) { y = x; },
             [] (auto&&) {}
-        });
+        ));
         
         ASSERT_EQ(0u, y.copies);
     }
@@ -241,10 +241,10 @@ namespace kdl {
     void test_visit_success_with_opt_value() {
         auto result = ResultType::success();
         
-        ASSERT_TRUE(result.visit(overload {
+        ASSERT_TRUE(result.visit(overload(
             []()            { return true; },
             [](const auto&) { return false; }
-        }));
+        )));
     }
 
     /**
@@ -255,12 +255,12 @@ namespace kdl {
     void test_visit_success_const_lvalue_ref_with_opt_value(V&& v) {
         auto result = ResultType::success(std::forward<V>(v));
         
-        ASSERT_TRUE(result.visit(overload {
+        ASSERT_TRUE(result.visit(overload(
             []  ()              { return false; },
             [&] (const auto& x) { return x == v; },
             []  (const Error1&) { return false; },
             []  (const Error2&) { return false; }
-        }));
+        )));
     }
 
     /**
@@ -271,20 +271,20 @@ namespace kdl {
     void test_visit_success_rvalue_ref_with_opt_value(V&& v) {
         auto result = ResultType::success(std::forward<V>(v));
 
-        ASSERT_TRUE(std::move(result).visit(overload {
+        ASSERT_TRUE(std::move(result).visit(overload(
             []  ()         { return false; },
             [&] (auto&&)   { return true; },
             []  (Error1&&) { return false; },
             []  (Error2&&) { return false; }
-        }));
+        )));
         
         typename ResultType::value_type y;
-        std::move(result).visit(overload {
+        std::move(result).visit(overload(
             [] ()         {},
             [&] (auto&& x) { y = std::move(x); },
             []  (Error1&&) {},
             []  (Error2&&) {}
-        });
+        ));
         
         ASSERT_EQ(0u, y.copies);
     }
@@ -297,11 +297,11 @@ namespace kdl {
     void test_visit_error_const_lvalue_ref_with_opt_value(E&& e) {
         auto result = ResultType::error(std::forward<E>(e));
         
-        ASSERT_TRUE(result.visit(overload {
+        ASSERT_TRUE(result.visit(overload(
             []  ()            { return false; },
             []  (const auto&) { return false; },
             [&] (const E& x)  { return x == e; }
-        }));
+        )));
     }
     
     /**
@@ -312,18 +312,18 @@ namespace kdl {
     void test_visit_error_rvalue_ref_with_opt_value(E&& e) {
         auto result = ResultType::error(std::forward<E>(e));
 
-        ASSERT_TRUE(std::move(result).visit(overload {
+        ASSERT_TRUE(std::move(result).visit(overload(
             [] ()       { return false; },
             []  (auto&&) { return false; },
             [&] (E&&)    { return true; }
-        }));
+        )));
 
         E y;
-        std::move(result).visit(overload {
+        std::move(result).visit(overload(
             []  ()       {},
             []  (auto&&) {},
             [&] (E&& x)  { y = std::move(x); }
-        });
+        ));
         
         ASSERT_EQ(0u, y.copies);
     }
@@ -428,7 +428,7 @@ namespace kdl {
         auto r3 = R2::error(Error2{});
         
         CHECK(combine_results(r1, r2).is_success());
-        CHECK(combine_results(r1, r2).visit(kdl::overload {
+        CHECK(combine_results(r1, r2).visit(kdl::overload(
             [](const std::tuple<int, double>& t) {
                 CHECK(t == std::make_tuple(1, 2.0));
                 return true;
@@ -436,10 +436,10 @@ namespace kdl {
             [](const auto&) {
                 return false;
             }
-        }));
+        )));
         
         CHECK(combine_results(r1, r3).is_error());
-        CHECK(combine_results(r1, r3).visit(kdl::overload {
+        CHECK(combine_results(r1, r3).visit(kdl::overload(
             [](const std::tuple<int, double>&) {
                 return false;
             },
@@ -449,10 +449,10 @@ namespace kdl {
             [](const auto&) {
                 return false;
             }
-        }));
+        )));
 
         CHECK(combine_results(r1, R2::success(2.0)).is_success());
-        CHECK(combine_results(r1, R2::success(2.0)).visit(kdl::overload {
+        CHECK(combine_results(r1, R2::success(2.0)).visit(kdl::overload(
             [](const std::tuple<int, double>& t) {
                 CHECK(t == std::make_tuple(1, 2.0));
                 return true;
@@ -460,10 +460,10 @@ namespace kdl {
             [](const auto&) {
                 return false;
             }
-        }));
+        )));
         
         CHECK(combine_results(r1, R2::error(Error2{})).is_error());
-        CHECK(combine_results(r1, R2::error(Error2{})).visit(kdl::overload {
+        CHECK(combine_results(r1, R2::error(Error2{})).visit(kdl::overload(
             [](const std::tuple<int, double>&) {
                 return false;
             },
@@ -473,6 +473,6 @@ namespace kdl {
             [](const auto&) {
                 return false;
             }
-        }));
+        )));
     }
 }

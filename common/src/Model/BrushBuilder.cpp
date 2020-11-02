@@ -85,14 +85,14 @@ namespace TrenchBroom {
             for (const auto& [p1, p2, p3, attrs] : specs) {
                 std::optional<BrushError> error;
                 m_factory->createFace(p1, p2, p3, attrs)
-                    .visit(kdl::overload {
+                    .visit(kdl::overload(
                         [&](BrushFace&& face) {
                             faces.push_back(std::move(face));
                         },
                         [&](const BrushError e) {
                             error = e;
-                        },
-                    });
+                        }
+                    ));
 
                 if (error) {
                     return kdl::result<Brush, BrushError>::error(*error);
@@ -128,14 +128,14 @@ namespace TrenchBroom {
 
                 std::optional<BrushError> error;
                 m_factory->createFace(p1, p3, p2, textureName)
-                    .visit(kdl::overload {
+                    .visit(kdl::overload(
                         [&](BrushFace&& f) {
                             brushFaces.push_back(std::move(f));
                         },
                         [&](const BrushError e) {
                             error = e;
-                        },
-                    });
+                        }
+                    ));
 
                 if (error) {
                     return kdl::result<Brush, BrushError>::error(*error);

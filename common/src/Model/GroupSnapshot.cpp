@@ -50,10 +50,10 @@ namespace TrenchBroom {
             SnapshotErrors errors;
             for (NodeSnapshot* snapshot : m_snapshots) {
                 snapshot->restore(worldBounds)
-                    .visit(kdl::overload {
+                    .visit(kdl::overload(
                         []() {},
                         [&](const SnapshotErrors& e) { kdl::vec_append(errors, e); }
-                    });
+                    ));
             }
             return errors.empty()
                 ? kdl::result<void, SnapshotErrors>::success()

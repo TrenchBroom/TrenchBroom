@@ -28,14 +28,18 @@ namespace kdl {
      * @tparam Ts the lambdas to inherit from
      */
     template<typename... Ts>
-    struct overload : Ts... {
+    struct overload_impl : Ts... {
         using Ts::operator()...;
+        overload_impl(Ts&&... ts) : Ts(std::forward<Ts>(ts))... {}
     };
 
     /**
-     * Deduction guide.
+     * Factory function to create an overload.
      */
-    template<typename... Ts> overload(Ts...) -> overload<Ts...>;
+    template <typename... Ts>
+    auto overload(Ts&&... ts) {
+        return overload_impl<Ts...>{std::forward<Ts>(ts)...};
+    }
 }
 
 #endif //TRENCHBROOM_OVERLOAD_H

@@ -53,14 +53,14 @@ namespace TrenchBroom {
     namespace Model {
         static bool canMoveBoundary(const Brush& brush, const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta) {
             return brush.moveBoundary(worldBounds, faceIndex, delta, false)
-                .visit(kdl::overload {
+                .visit(kdl::overload(
                     [&](const Brush& b) {
                         return worldBounds.contains(b.bounds());
                     },
                     [](const BrushError) {
                         return false;
-                    },
-                });
+                    }
+                ));
         }
 
         TEST_CASE("BrushTest.constructBrushWithFaces", "[BrushTest]") {

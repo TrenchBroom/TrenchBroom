@@ -117,7 +117,7 @@ namespace TrenchBroom {
         m_column(column) {}
         
         ValueType Value::type() const {
-            return std::visit(kdl::overload{
+            return std::visit(kdl::overload(
                 [](const BooleanType&)   { return ValueType::Boolean; },
                 [](const StringType&)    { return ValueType::String; },
                 [](const NumberType&)    { return ValueType::Number; },
@@ -125,8 +125,8 @@ namespace TrenchBroom {
                 [](const MapType&)       { return ValueType::Map; },
                 [](const RangeType&)     { return ValueType::Range; },
                 [](const NullType&)      { return ValueType::Null; },
-                [](const UndefinedType&) { return ValueType::Undefined; },
-            }, m_value);
+                [](const UndefinedType&) { return ValueType::Undefined; }
+            ), m_value);
         }
         
         std::string Value::typeName() const {
@@ -146,7 +146,7 @@ namespace TrenchBroom {
         }
 
         const BooleanType& Value::booleanValue() const {
-            return std::visit(kdl::overload {
+            return std::visit(kdl::overload(
                 [&](const BooleanType& b) -> const BooleanType& { return b; },
                 [&](const StringType&)    -> const BooleanType& { throw DereferenceError(describe(), type(), ValueType::String); },
                 [&](const NumberType&)    -> const BooleanType& { throw DereferenceError(describe(), type(), ValueType::Number); },
@@ -154,12 +154,12 @@ namespace TrenchBroom {
                 [&](const MapType&)       -> const BooleanType& { throw DereferenceError(describe(), type(), ValueType::Map); },
                 [&](const RangeType&)     -> const BooleanType& { throw DereferenceError(describe(), type(), ValueType::Range); },
                 [&](const NullType&)      -> const BooleanType& { static const BooleanType b = false; return b; },
-                [&](const UndefinedType&) -> const BooleanType& { throw DereferenceError(describe(), type(), ValueType::Undefined); },
-            }, m_value);
+                [&](const UndefinedType&) -> const BooleanType& { throw DereferenceError(describe(), type(), ValueType::Undefined); }
+            ), m_value);
         }
         
         const StringType& Value::stringValue() const {
-            return std::visit(kdl::overload {
+            return std::visit(kdl::overload(
                 [&](const BooleanType&)   -> const StringType& { throw DereferenceError(describe(), type(), ValueType::Boolean); },
                 [&](const StringType& s)  -> const StringType& { return s; },
                 [&](const NumberType&)    -> const StringType& { throw DereferenceError(describe(), type(), ValueType::Number); },
@@ -167,12 +167,12 @@ namespace TrenchBroom {
                 [&](const MapType&)       -> const StringType& { throw DereferenceError(describe(), type(), ValueType::Map); },
                 [&](const RangeType&)     -> const StringType& { throw DereferenceError(describe(), type(), ValueType::Range); },
                 [&](const NullType&)      -> const StringType& { static const StringType s; return s; },
-                [&](const UndefinedType&) -> const StringType& { throw DereferenceError(describe(), type(), ValueType::Undefined); },
-            }, m_value);
+                [&](const UndefinedType&) -> const StringType& { throw DereferenceError(describe(), type(), ValueType::Undefined); }
+            ), m_value);
         }
         
         const NumberType& Value::numberValue() const {
-            return std::visit(kdl::overload {
+            return std::visit(kdl::overload(
                 [&](const BooleanType&)   -> const NumberType& { throw DereferenceError(describe(), type(), ValueType::Boolean); },
                 [&](const StringType&)    -> const NumberType& { throw DereferenceError(describe(), type(), ValueType::String); },
                 [&](const NumberType& n)  -> const NumberType& { return n; },
@@ -180,8 +180,8 @@ namespace TrenchBroom {
                 [&](const MapType&)       -> const NumberType& { throw DereferenceError(describe(), type(), ValueType::Map); },
                 [&](const RangeType&)     -> const NumberType& { throw DereferenceError(describe(), type(), ValueType::Range); },
                 [&](const NullType&)      -> const NumberType& { static const NumberType n = 0.0; return n; },
-                [&](const UndefinedType&) -> const NumberType& { throw DereferenceError(describe(), type(), ValueType::Undefined); },
-            }, m_value);
+                [&](const UndefinedType&) -> const NumberType& { throw DereferenceError(describe(), type(), ValueType::Undefined); }
+            ), m_value);
         }
         
         IntegerType Value::integerValue() const {
@@ -189,7 +189,7 @@ namespace TrenchBroom {
         }
         
         const ArrayType& Value::arrayValue() const {
-            return std::visit(kdl::overload {
+            return std::visit(kdl::overload(
                 [&](const BooleanType&)   -> const ArrayType& { throw DereferenceError(describe(), type(), ValueType::Boolean); },
                 [&](const StringType&)    -> const ArrayType& { throw DereferenceError(describe(), type(), ValueType::String); },
                 [&](const NumberType&)    -> const ArrayType& { throw DereferenceError(describe(), type(), ValueType::Number); },
@@ -197,12 +197,12 @@ namespace TrenchBroom {
                 [&](const MapType&)       -> const ArrayType& { throw DereferenceError(describe(), type(), ValueType::Map); },
                 [&](const RangeType&)     -> const ArrayType& { throw DereferenceError(describe(), type(), ValueType::Range); },
                 [&](const NullType&)      -> const ArrayType& { static const ArrayType a(0); return a; },
-                [&](const UndefinedType&) -> const ArrayType& { throw DereferenceError(describe(), type(), ValueType::Undefined); },
-            }, m_value);
+                [&](const UndefinedType&) -> const ArrayType& { throw DereferenceError(describe(), type(), ValueType::Undefined); }
+            ), m_value);
         }
         
         const MapType& Value::mapValue() const {
-            return std::visit(kdl::overload {
+            return std::visit(kdl::overload(
                 [&](const BooleanType&)   -> const MapType& { throw DereferenceError(describe(), type(), ValueType::Boolean); },
                 [&](const StringType&)    -> const MapType& { throw DereferenceError(describe(), type(), ValueType::String); },
                 [&](const NumberType&)    -> const MapType& { throw DereferenceError(describe(), type(), ValueType::Number); },
@@ -210,12 +210,12 @@ namespace TrenchBroom {
                 [&](const MapType& m)     -> const MapType& { return m; },
                 [&](const RangeType&)     -> const MapType& { throw DereferenceError(describe(), type(), ValueType::Range); },
                 [&](const NullType&)      -> const MapType& { static const MapType m; return m; },
-                [&](const UndefinedType&) -> const MapType& { throw DereferenceError(describe(), type(), ValueType::Undefined); },
-            }, m_value);
+                [&](const UndefinedType&) -> const MapType& { throw DereferenceError(describe(), type(), ValueType::Undefined); }
+            ), m_value);
         }
         
         const RangeType& Value::rangeValue() const {
-            return std::visit(kdl::overload {
+            return std::visit(kdl::overload(
                 [&](const BooleanType&)   -> const RangeType& { throw DereferenceError(describe(), type(), ValueType::Boolean); },
                 [&](const StringType&)    -> const RangeType& { throw DereferenceError(describe(), type(), ValueType::String); },
                 [&](const NumberType&)    -> const RangeType& { throw DereferenceError(describe(), type(), ValueType::Number); },
@@ -223,8 +223,8 @@ namespace TrenchBroom {
                 [&](const MapType&)       -> const RangeType& { throw DereferenceError(describe(), type(), ValueType::Map); },
                 [&](const RangeType& r)   -> const RangeType& { return r; },
                 [&](const NullType&)      -> const RangeType& { throw DereferenceError(describe(), type(), ValueType::Null); },
-                [&](const UndefinedType&) -> const RangeType& { throw DereferenceError(describe(), type(), ValueType::Undefined); },
-            }, m_value);
+                [&](const UndefinedType&) -> const RangeType& { throw DereferenceError(describe(), type(), ValueType::Undefined); }
+            ), m_value);
         }
         
         bool Value::null() const {
@@ -259,7 +259,7 @@ namespace TrenchBroom {
         }
 
         size_t Value::length() const {
-            return std::visit(kdl::overload{
+            return std::visit(kdl::overload(
                 [](const BooleanType&)   -> size_t { return 1u; },
                 [](const StringType& s)  -> size_t { return s.length(); },
                 [](const NumberType&)    -> size_t { return 1u; },
@@ -267,12 +267,12 @@ namespace TrenchBroom {
                 [](const MapType& m)     -> size_t { return m.size(); },
                 [](const RangeType& r)   -> size_t { return r.size(); },
                 [](const NullType&)      -> size_t { return 0u; },
-                [](const UndefinedType&) -> size_t { return 0u; },
-            }, m_value);
+                [](const UndefinedType&) -> size_t { return 0u; }
+            ), m_value);
         }
         
         bool Value::convertibleTo(const ValueType toType) const {
-            return std::visit(kdl::overload{
+            return std::visit(kdl::overload(
                 [&](const BooleanType&) {
                     switch (toType) {
                         case ValueType::Boolean:
@@ -411,12 +411,12 @@ namespace TrenchBroom {
                     }
 
                     return false;
-                },
-            }, m_value);
+                }
+            ), m_value);
         }
         
         Value Value::convertTo(const ValueType toType) const {
-            return std::visit(kdl::overload{
+            return std::visit(kdl::overload(
                 [&](const BooleanType& b) -> Value {
                     switch (toType) {
                         case ValueType::Boolean:
@@ -565,8 +565,8 @@ namespace TrenchBroom {
                     }
 
                     throw ConversionError(describe(), type(), toType);
-                },
-            }, m_value);
+                }
+            ), m_value);
         }
 
         std::string Value::asString(const bool multiline) const {
@@ -576,7 +576,7 @@ namespace TrenchBroom {
         }
         
         void Value::appendToStream(std::ostream& str, const bool multiline, const std::string& indent) const {
-            std::visit(kdl::overload{
+            std::visit(kdl::overload(
                 [&](const BooleanType& b) {
                     str << (b ? "true" : "false");
                 },
@@ -676,8 +676,8 @@ namespace TrenchBroom {
                 },
                 [&](const UndefinedType&) {
                     str << "undefined";
-                },
-            }, m_value);
+                }
+            ), m_value);
         }
 
         static  size_t computeIndex(const long index, const size_t indexableSize) {

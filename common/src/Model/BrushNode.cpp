@@ -255,7 +255,7 @@ namespace TrenchBroom {
             const NotifyPhysicalBoundsChange boundsChange(this);
 
             return m_brush.transform(worldBounds, transformation, lockTextures)
-                .visit(kdl::overload {
+                .visit(kdl::overload(
                     [&](Brush&& brush) {
                         m_brush = std::move(brush);
                         invalidateIssues();
@@ -265,8 +265,8 @@ namespace TrenchBroom {
                     },
                     [](const BrushError e) {
                         return kdl::result<void, TransformError>::error(TransformError{kdl::str_to_string(e)});
-                    },
-                });
+                    }
+                ));
         }
 
         class BrushNode::Contains : public ConstNodeVisitor, public NodeQuery<bool> {
