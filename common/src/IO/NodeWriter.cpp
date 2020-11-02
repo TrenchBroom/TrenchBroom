@@ -22,7 +22,6 @@
 #include "IO/MapFileSerializer.h"
 #include "IO/MapStreamSerializer.h"
 #include "IO/NodeSerializer.h"
-#include "Model/AssortNodesVisitor.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
@@ -30,50 +29,12 @@
 #include "Model/Node.h"
 #include "Model/WorldNode.h"
 
+#include <kdl/overload.h>
+
 #include <vector>
 
 namespace TrenchBroom {
     namespace IO {
-        class NodeWriter::CollectEntityBrushesStrategy {
-        public:
-            using AssortNodesVisitor = Model::AssortNodesVisitorT<Model::SkipLayersStrategy, Model::CollectGroupsStrategy, Model::CollectEntitiesStrategy, CollectEntityBrushesStrategy>;
-        private:
-            EntityBrushesMap m_entityBrushes;
-            std::vector<Model::BrushNode*> m_worldBrushes;
-
-            class VisitParent : public Model::NodeVisitor {
-            private:
-                Model::BrushNode* m_brush;
-                EntityBrushesMap& m_entityBrushes;
-                std::vector<Model::BrushNode*>& m_worldBrushes;
-            public:
-                VisitParent(Model::BrushNode* brush, EntityBrushesMap& entityBrushes, std::vector<Model::BrushNode*>& worldBrushes) :
-                m_brush(brush),
-                m_entityBrushes(entityBrushes),
-                m_worldBrushes(worldBrushes) {}
-            private:
-                void doVisit(Model::WorldNode* /* world */) override { m_worldBrushes.push_back(m_brush);  }
-                void doVisit(Model::LayerNode* /* layer */) override { m_worldBrushes.push_back(m_brush);  }
-                void doVisit(Model::GroupNode* /* group */) override { m_worldBrushes.push_back(m_brush);  }
-                void doVisit(Model::EntityNode* entity )    override { m_entityBrushes[entity].push_back(m_brush); }
-                void doVisit(Model::BrushNode* /* brush */) override {}
-            };
-        public:
-            const EntityBrushesMap& entityBrushes() const {
-                return m_entityBrushes;
-            }
-
-            const std::vector<Model::BrushNode*>& worldBrushes() const {
-                return m_worldBrushes;
-            }
-
-            void addBrush(Model::BrushNode* brush) {
-                VisitParent visitParent(brush, m_entityBrushes, m_worldBrushes);
-                Model::Node* parent = brush->parent();
-                parent->accept(visitParent);
-            }
-        };
-
         class NodeWriter::WriteNode : public Model::ConstNodeVisitor {
         private:
             NodeSerializer& m_serializer;
@@ -154,19 +115,33 @@ namespace TrenchBroom {
         }
 
         void NodeWriter::writeNodes(const std::vector<Model::Node*>& nodes) {
-            using CollectNodes = Model::AssortNodesVisitorT<Model::SkipLayersStrategy, Model::CollectGroupsStrategy, Model::CollectEntitiesStrategy, CollectEntityBrushesStrategy>;
-
             m_serializer->beginFile();
 
-            CollectNodes collect;
-            Model::Node::accept(std::begin(nodes), std::end(nodes), collect);
+            // Assort nodes according to their type and, in case of brushes, whether they are entity or world brushes.
+            std::vector<Model::GroupNode*> groups;
+            std::vector<Model::EntityNode*> entities;
+            std::vector<Model::BrushNode*> worldBrushes;
+            EntityBrushesMap entityBrushes;
 
-            writeWorldBrushes(collect.worldBrushes());
-            writeEntityBrushes(collect.entityBrushes());
+            for (auto* node : nodes) {
+                node->acceptLambda(kdl::overload(
+                    [] (Model::WorldNode*) {},
+                    [] (Model::LayerNode*) {},
+                    [&](Model::GroupNode* group)   { groups.push_back(group); },
+                    [&](Model::EntityNode* entity) { entities.push_back(entity); },
+                    [&](Model::BrushNode* brush)   {
+                        if (auto* entity = dynamic_cast<Model::EntityNode*>(brush->parent())) {
+                            entityBrushes[entity].push_back(brush);
+                        } else {
+                            worldBrushes.push_back(brush);
+                        }
+                    }
+                ));
+            }
 
-            const std::vector<Model::GroupNode*>& groups = collect.groups();
-            const std::vector<Model::EntityNode*>& entities = collect.entities();
-
+            writeWorldBrushes(worldBrushes);
+            writeEntityBrushes(entityBrushes);
+            
             WriteNode visitor(*m_serializer);
             Model::Node::accept(std::begin(groups), std::end(groups), visitor);
             Model::Node::accept(std::begin(entities), std::end(entities), visitor);
