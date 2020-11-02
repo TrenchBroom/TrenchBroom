@@ -229,33 +229,33 @@ namespace kdl {
             using Fn_Value  = typename Fn_Result::value_type;
             
             if constexpr (std::is_same_v<Fn_Value, void>) {
-                return visit(kdl::overload {
+                return visit(kdl::overload(
                     [&](const value_type& v) {
-                        return f(v).visit(kdl::overload {
+                        return f(v).visit(kdl::overload(
                             []() {
                                 return Cm_Result::success();
                             },
                             [](auto&& fn_e) {
                                 return Cm_Result::error(std::move(fn_e));
                             }
-                        });
+                        ));
                     },
                     [] (const auto& e) { return Cm_Result::error(e); }
-                });
+                ));
             } else {
-                return visit(kdl::overload {
+                return visit(kdl::overload(
                     [&](const value_type& v) {
-                        return f(v).visit(kdl::overload {
+                        return f(v).visit(kdl::overload(
                             [](Fn_Value&& fn_v) {
                                 return Cm_Result::success(std::move(fn_v));
                             },
                             [](auto&& fn_e) {
                                 return Cm_Result::error(std::move(fn_e));
                             }
-                        });
+                        ));
                     },
                     [] (const auto& e) { return Cm_Result::error(e); }
-                });
+                ));
             }
         }
         
@@ -273,33 +273,33 @@ namespace kdl {
             using Fn_Value  = typename Fn_Result::value_type;
             
             if constexpr (std::is_same_v<Fn_Value, void>) {
-                return std::move(*this).visit(kdl::overload {
+                return std::move(*this).visit(kdl::overload(
                     [&](value_type&& v) {
-                        return f(std::move(v)).visit(kdl::overload {
+                        return f(std::move(v)).visit(kdl::overload(
                             []() {
                                 return Cm_Result::success();
                             },
                             [](auto&& fn_e) {
                                 return Cm_Result::error(std::move(fn_e));
                             }
-                        });
+                        ));
                     },
                     [] (auto&& e) { return Cm_Result::error(e); }
-                });
+                ));
             } else {
-                return std::move(*this).visit(kdl::overload {
+                return std::move(*this).visit(kdl::overload(
                     [&](value_type&& v) {
-                        return f(std::move(v)).visit(kdl::overload {
+                        return f(std::move(v)).visit(kdl::overload(
                             [](Fn_Value&& fn_v) {
                                 return Cm_Result::success(std::move(fn_v));
                             },
                             [](auto&& fn_e) {
                                 return Cm_Result::error(std::move(fn_e));
                             }
-                        });
+                        ));
                     },
                     [] (auto&& e) { return Cm_Result::error(e); }
-                });
+                ));
             }
         }
 
@@ -316,7 +316,7 @@ namespace kdl {
          */
         template <typename F>
         bool handle_errors(F&& f) && {
-            return std::move(*this).visit(kdl::overload {
+            return std::move(*this).visit(kdl::overload(
                 [](const value_type&) {
                     return true;
                 },
@@ -324,7 +324,7 @@ namespace kdl {
                     f(std::move(error));
                     return false;
                 }
-            });
+            ));
         }
 
         /**
@@ -340,7 +340,7 @@ namespace kdl {
          */
         template <typename F>
         bool handle_errors(F&& f) const & {
-            return visit(kdl::overload {
+            return visit(kdl::overload(
                 [](const value_type&) {
                     return true;
                 },
@@ -348,7 +348,7 @@ namespace kdl {
                     f(error);
                     return false;
                 }
-            });
+            ));
         }
 
         /**
@@ -359,10 +359,10 @@ namespace kdl {
          * @throw bad_result_access if this result is an error
          */
         auto value() const & {
-            return visit(kdl::overload {
+            return visit(kdl::overload(
                 [](const value_type& v) -> value_type { return v; },
                 [](const auto&)         -> value_type { throw bad_result_access(); }
-            });
+            ));
         }
 
         /**
@@ -373,10 +373,10 @@ namespace kdl {
          * @throw bad_result_access if this result is an error
          */
         auto value() && {
-            return std::move(*this).visit(kdl::overload {
+            return std::move(*this).visit(kdl::overload(
                 [](value_type&& v) -> value_type { return std::move(v); },
                 [](const auto&)    -> value_type { throw bad_result_access(); }
-            });
+            ));
         }
 
         /**
@@ -484,14 +484,14 @@ namespace kdl {
          */
         template <typename Visitor>
         auto visit(Visitor&& visitor) const & {
-            return std::visit(kdl::overload {
+            return std::visit(kdl::overload(
                 [&](const success_value_type&) {
                     return visitor();
                 },
                 [&](const auto& e) {
                     return visitor(e);
                 }
-            }, m_value);
+            ), m_value);
         }
         
         /**
@@ -506,14 +506,14 @@ namespace kdl {
          */
         template <typename Visitor>
         auto visit(Visitor&& visitor) && {
-            return std::visit(kdl::overload {
+            return std::visit(kdl::overload(
                 [&](success_value_type&&) {
                     return visitor();
                 },
                 [&](auto&& e) {
                     return visitor(std::move(e));
                 }
-            }, std::move(m_value));
+            ), std::move(m_value));
         }
         
         /**
@@ -529,33 +529,33 @@ namespace kdl {
             using Fn_Value  = typename Fn_Result::value_type;
             
             if constexpr (std::is_same_v<Fn_Value, void>) {
-                return visit(kdl::overload {
+                return visit(kdl::overload(
                     [&]() {
-                        return f().visit(kdl::overload {
+                        return f().visit(kdl::overload(
                             []() {
                                 return Cm_Result::success();
                             },
                             [](auto&& fn_e) {
                                 return Cm_Result::error(std::move(fn_e));
                             }
-                        });
+                        ));
                     },
                     [] (const auto& e) { return Cm_Result::error(e); }
-                });
+                ));
             } else {
-                return visit(kdl::overload {
+                return visit(kdl::overload(
                     [&]() {
-                        return f().visit(kdl::overload {
+                        return f().visit(kdl::overload(
                             [](Fn_Value&& fn_v) {
                                 return Cm_Result::success(std::move(fn_v));
                             },
                             [](auto&& fn_e) {
                                 return Cm_Result::error(std::move(fn_e));
                             }
-                        });
+                        ));
                     },
                     [] (const auto& e) { return Cm_Result::error(e); }
-                });
+                ));
             }
         }
         
@@ -572,33 +572,33 @@ namespace kdl {
             using Fn_Value  = typename Fn_Result::value_type;
             
             if constexpr (std::is_same_v<Fn_Value, void>) {
-                return std::move(*this).visit(kdl::overload {
+                return std::move(*this).visit(kdl::overload(
                     [&]() {
-                        return f().visit(kdl::overload {
+                        return f().visit(kdl::overload(
                             []() {
                                 return Cm_Result::success();
                             },
                             [](auto&& fn_e) {
                                 return Cm_Result::error(std::move(fn_e));
                             }
-                        });
+                        ));
                     },
                     [] (auto&& e) { return Cm_Result::error(e); }
-                });
+                ));
             } else {
-                return std::move(*this).visit(kdl::overload {
+                return std::move(*this).visit(kdl::overload(
                     [&]() {
-                        return f().visit(kdl::overload {
+                        return f().visit(kdl::overload(
                             [](Fn_Value&& fn_v) {
                                 return Cm_Result::success(std::move(fn_v));
                             },
                             [](auto&& fn_e) {
                                 return Cm_Result::error(std::move(fn_e));
                             }
-                        });
+                        ));
                     },
                     [] (auto&& e) { return Cm_Result::error(e); }
-                });
+                ));
             }
         }
 
@@ -607,7 +607,7 @@ namespace kdl {
          */
         template <typename F>
         bool handle_errors(F&& f) && {
-            return std::move(*this).visit(kdl::overload {
+            return std::move(*this).visit(kdl::overload(
                 []() {
                     return true;
                 },
@@ -615,7 +615,7 @@ namespace kdl {
                     f(std::move(error));
                     return false;
                 }
-            });
+            ));
         }
 
         /**
@@ -623,7 +623,7 @@ namespace kdl {
          */
         template <typename F>
         bool handle_errors(F&& f) const & {
-            return visit(kdl::overload {
+            return visit(kdl::overload(
                 []() {
                     return true;
                 },
@@ -631,7 +631,7 @@ namespace kdl {
                     f(error);
                     return false;
                 }
-            });
+            ));
         }
 
         /**

@@ -781,7 +781,7 @@ namespace TrenchBroom {
             // FP error) to `rightFace`.
             BrushFace leftClone = leftFace;
             leftClone.transform(M, true)
-                .visit(kdl::overload {
+                .visit(kdl::overload(
                     [&]() {
                         auto snapshot = std::unique_ptr<TexCoordSystemSnapshot>(leftClone.takeTexCoordSystemSnapshot());
                         rightFace.setAttributes(leftClone.attributes());
@@ -794,8 +794,8 @@ namespace TrenchBroom {
                     },
                     [](const BrushError) {
                         // do nothing
-                    },
-                });
+                    }
+                ));
         }
 
         kdl::result<Brush, BrushError> Brush::createBrushWithNewGeometry(const vm::bbox3& worldBounds, const PolyhedronMatcher<BrushGeometry>& matcher, const BrushGeometry& newGeometry, const bool uvLock) const {
@@ -810,7 +810,7 @@ namespace TrenchBroom {
 
                     rightFace.setGeometry(right);
                     rightFace.updatePointsFromVertices()
-                        .visit(kdl::overload {
+                        .visit(kdl::overload(
                             [&]() {
                                 if (uvLock) {
                                     applyUVLock(matcher, leftFace, rightFace);
@@ -820,8 +820,8 @@ namespace TrenchBroom {
                                 if (!error) {
                                     error = e;
                                 }
-                            },
-                        });
+                            }
+                        ));
                 }
             });
 
@@ -856,14 +856,14 @@ namespace TrenchBroom {
             for (const auto& geometry : result) {
                 std::optional<BrushError> error;
                 createBrush(factory, worldBounds, defaultTextureName, geometry, subtrahends)
-                    .visit(kdl::overload {
+                    .visit(kdl::overload(
                         [&](Brush&& brush) {
                             brushes.push_back(std::move(brush));
                         },
                         [&](const BrushError e) {
                             error = e;
-                        },
-                    });
+                        }
+                    ));
 
                 if (error) {
                     return kdl::result<std::vector<Brush>, BrushError>::error(*error);
@@ -933,14 +933,14 @@ namespace TrenchBroom {
 
                 std::optional<BrushError> error;
                 factory.createFace(p0, p1, p2, BrushFaceAttributes(defaultTextureName))
-                    .visit(kdl::overload {
+                    .visit(kdl::overload(
                         [&](BrushFace&& f) {
                             faces.push_back(std::move(f));
                         },
                         [&](const BrushError e) {
                             error = e;
                         }
-                    });
+                    ));
                 
                 if (error) {
                     return kdl::result<Brush, BrushError>::error(*error);

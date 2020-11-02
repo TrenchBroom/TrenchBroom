@@ -156,14 +156,14 @@ namespace TrenchBroom {
 
                 const Model::BrushBuilder builder(world.get(), worldBounds, defaultFaceAttribs());
                 builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName).
-                    visit(kdl::overload {
+                    visit(kdl::overload(
                         [&](Brush&& b) {
                             world->defaultLayer()->addChild(world->createBrush(std::move(b)));
                         },
                         [&](const Model::BrushError e) {
                             logger.error() << "Could not create default brush: " << e;
                         }
-                    });
+                    ));
 
                 if (format == MapFormat::Valve || format == MapFormat::Quake2_Valve || format == MapFormat::Quake3_Valve) {
                     world->addOrUpdateAttribute(AttributeNames::ValveVersion, "220");

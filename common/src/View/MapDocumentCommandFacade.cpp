@@ -630,7 +630,7 @@ namespace TrenchBroom {
                 }
 
                 const bool success = original.moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
-                    .visit(kdl::overload {
+                    .visit(kdl::overload(
                         [&](Model::Brush&& copy) -> bool {
                             if (m_worldBounds.contains(copy.bounds())) {
                                 result.push_back(copy.face(*faceIndex).polygon());
@@ -645,7 +645,7 @@ namespace TrenchBroom {
                             error() << "Could not resize brush: " << e;
                             return false;
                         }
-                    });
+                    ));
 
                 if (!success) {
                     return std::nullopt;
@@ -730,7 +730,7 @@ namespace TrenchBroom {
             for (Model::BrushNode* brushNode : brushNodes) {
                 if (brushNode->brush().canSnapVertices(m_worldBounds, snapTo)) {
                     brushNode->brush().snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock))
-                        .visit(kdl::overload {
+                        .visit(kdl::overload(
                             [&](Model::Brush&& brush) {
                                 brushNode->setBrush(std::move(brush));
                                 succeededBrushCount += 1;
@@ -738,8 +738,8 @@ namespace TrenchBroom {
                             [&](const Model::BrushError e) {
                                 error() << "Could not snap vertices: " << e;
                                 failedBrushCount += 1;
-                            },
-                        });
+                            }
+                        ));
                 } else {
                     failedBrushCount += 1;
                 }
@@ -770,7 +770,7 @@ namespace TrenchBroom {
                 const std::vector<vm::vec3>& oldPositions = entry.second;
                 
                 brushNode->brush().moveVertices(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock))
-                    .visit(kdl::overload{
+                    .visit(kdl::overload(
                         [&](Model::Brush&& brush) {
                             const auto newPositions = brush.findClosestVertexPositions(oldPositions + delta);
                             kdl::vec_append(newVertexPositions, newPositions);
@@ -778,8 +778,8 @@ namespace TrenchBroom {
                         },
                         [&](const Model::BrushError e) {
                             error() << "Could not move vertices: " << e;
-                        },
-                    });
+                        }
+                    ));
             }
 
             invalidateSelectionBounds();
@@ -800,7 +800,7 @@ namespace TrenchBroom {
                 Model::BrushNode* brushNode = entry.first;
                 const std::vector<vm::segment3>& oldPositions = entry.second;
                 brushNode->brush().moveEdges(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock))
-                    .visit(kdl::overload {
+                    .visit(kdl::overload(
                         [&](Model::Brush&& brush) {
                             const auto newPositions = brush.findClosestEdgePositions(kdl::vec_transform(oldPositions, [&](const auto& s) {
                                 return s.translate(delta);
@@ -810,8 +810,8 @@ namespace TrenchBroom {
                         },
                         [&](const Model::BrushError e) {
                             error() << "Couild not move edges: " << e;
-                        },
-                    });
+                        }
+                    ));
             }
 
             invalidateSelectionBounds();
@@ -833,7 +833,7 @@ namespace TrenchBroom {
                 const std::vector<vm::polygon3>& oldPositions = entry.second;
                 
                 brushNode->brush().moveFaces(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock))
-                    .visit(kdl::overload {
+                    .visit(kdl::overload(
                         [&](Model::Brush&& brush) {
                             const auto newPositions = brush.findClosestFacePositions(kdl::vec_transform(oldPositions, [&](const auto& f) {
                                 return f.translate(delta);
@@ -843,8 +843,8 @@ namespace TrenchBroom {
                         },
                         [&](const Model::BrushError e) {
                             error() << "Could not move faces: " << e;
-                        },
-                    });
+                        }
+                    ));
             }
 
             invalidateSelectionBounds();
@@ -865,14 +865,14 @@ namespace TrenchBroom {
                 const std::vector<Model::BrushNode*>& brushNodes = entry.second;
                 for (Model::BrushNode* brushNode : brushNodes) {
                     brushNode->brush().addVertex(m_worldBounds, position)
-                        .visit(kdl::overload{
+                        .visit(kdl::overload(
                             [&](Model::Brush&& brush) {
                                 brushNode->setBrush(std::move(brush));
                             },
                             [&](const Model::BrushError e) {
                                 error() << "Could not add vertex: " << e;
-                            },
-                        });
+                            }
+                        ));
                 }
             }
 
@@ -891,14 +891,14 @@ namespace TrenchBroom {
                 const std::vector<vm::vec3>& positions = entry.second;
                 
                 brushNode->brush().removeVertices(m_worldBounds, positions)
-                    .visit(kdl::overload {
+                    .visit(kdl::overload(
                         [&](Model::Brush&& brush) {
                             brushNode->setBrush(std::move(brush));
                         },
                         [&](const Model::BrushError e) {
                             error() << "Could not remove vertex: " << e;
-                        },
-                    });
+                        }
+                    ));
             }
 
             invalidateSelectionBounds();
@@ -907,14 +907,14 @@ namespace TrenchBroom {
         void MapDocumentCommandFacade::restoreSnapshot(Model::Snapshot* snapshot) {
             const auto restoreNodesAndLogErrors = [&]() {
                 snapshot->restoreNodes(m_worldBounds).
-                    visit(kdl::overload {
+                    visit(kdl::overload(
                         []() {},
                         [&](const Model::SnapshotErrors& errors) {
                             for (const auto& e : errors) {
                                 error() << kdl::str_to_string(e);
                             }
                         }
-                    });
+                    ));
             };
         
             if (!m_selectedNodes.empty()) {

@@ -282,7 +282,7 @@ namespace TrenchBroom {
                 
                 const Model::BrushBuilder builder(document->world(), document->worldBounds(), game->defaultFaceAttribs());
                 builder.createBrush(polyhedron, document->currentTextureName())
-                    .visit(kdl::overload {
+                    .visit(kdl::overload(
                         [&](Model::Brush&& b) {
                             for (const Model::BrushNode* selectedBrushNode : document->selectedNodes().brushes()) {
                                 b.cloneFaceAttributesFrom(selectedBrushNode->brush());
@@ -295,8 +295,8 @@ namespace TrenchBroom {
                         },
                         [&](const Model::BrushError e) {
                             document->error() << "Could not create brush: " << e;
-                        },
-                    });
+                        }
+                    ));
             }
 
             virtual H getHandlePosition(const Model::Hit& hit) const {

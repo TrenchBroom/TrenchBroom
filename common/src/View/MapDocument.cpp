@@ -1517,7 +1517,7 @@ namespace TrenchBroom {
         bool MapDocument::createBrush(const std::vector<vm::vec3>& points) {
             Model::BrushBuilder builder(m_world.get(), m_worldBounds, m_game->defaultFaceAttribs());
             return builder.createBrush(points, currentTextureName())
-                .visit(kdl::overload {
+                .visit(kdl::overload(
                     [&](Model::Brush&& b) {
                         Model::BrushNode* brushNode = m_world->createBrush(std::move(b));
                         
@@ -1531,7 +1531,7 @@ namespace TrenchBroom {
                         error() << "Could not create brush: " << e;
                         return false;
                     }
-                });
+                ));
         }
 
         bool MapDocument::csgConvexMerge() {
@@ -1563,7 +1563,7 @@ namespace TrenchBroom {
 
             const Model::BrushBuilder builder(m_world.get(), m_worldBounds, m_game->defaultFaceAttribs());
             return builder.createBrush(polyhedron, currentTextureName())
-                .visit(kdl::overload {
+                .visit(kdl::overload(
                     [&](Model::Brush&& b) {
                         for (const Model::BrushNode* selectedBrushNode : selectedNodes().brushes()) {
                             b.cloneFaceAttributesFrom(selectedBrushNode->brush());
@@ -1594,8 +1594,8 @@ namespace TrenchBroom {
                     [&](const Model::BrushError e) {
                         error() << "Could not create brush: " << e;
                         return false;
-                    },
-                });
+                    }
+                ));
         }
 
         bool MapDocument::csgSubtract() {
@@ -1617,7 +1617,7 @@ namespace TrenchBroom {
             for (Model::BrushNode* minuendNode : minuendNodes) {
                 const Model::Brush& minuend = minuendNode->brush();
                 minuend.subtract(*m_world, m_worldBounds, currentTextureName(), subtrahends)
-                    .visit(kdl::overload {
+                    .visit(kdl::overload(
                         [&](const std::vector<Model::Brush>& brushes) {
                             if (!brushes.empty()) {
                                 const std::vector<Model::BrushNode*> resultNodes = kdl::vec_transform(std::move(brushes), [&](auto b) { return m_world->createBrush(std::move(b)); });
@@ -1626,8 +1626,8 @@ namespace TrenchBroom {
                         },
                         [&](const Model::BrushError e) {
                             error() << "Could not create brush: " << e;
-                        },
-                    });
+                        }
+                    ));
                 toRemove.push_back(minuendNode);
             }
 
@@ -1652,7 +1652,7 @@ namespace TrenchBroom {
                 Model::BrushNode* brushNode = *it;
                 const Model::Brush& brush = brushNode->brush();
                 valid = intersection.intersect(m_worldBounds, brush)
-                    .visit(kdl::overload {
+                    .visit(kdl::overload(
                         [&](Model::Brush&& b) {
                             intersection = std::move(b);
                             return true;
@@ -1660,8 +1660,8 @@ namespace TrenchBroom {
                         [&](const Model::BrushError e) {
                             error() << "Could not intersect brushes: " << e;
                             return false;
-                        },
-                    });
+                        }
+                    ));
             }
 
             const std::vector<Model::Node*> toRemove(std::begin(brushes), std::end(brushes));
@@ -1699,7 +1699,7 @@ namespace TrenchBroom {
                         [&](const Model::Brush& shrunken) {
                             return brush.subtract(*m_world, m_worldBounds, currentTextureName(), shrunken);
                         }
-                    ).visit(kdl::overload {
+                    ).visit(kdl::overload(
                         [&](const std::vector<Model::Brush>& fragments) {
                             auto fragmentNodes = kdl::vec_transform(std::move(fragments), [](auto&& b) {
                                 return new Model::BrushNode(std::move(b));
@@ -1710,8 +1710,8 @@ namespace TrenchBroom {
                         },
                         [&](const Model::BrushError e) {
                             error() << "Could not hollow brush: " << e;
-                        },
-                    });
+                        }
+                    ));
                 
             }
 
