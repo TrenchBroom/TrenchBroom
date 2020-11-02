@@ -93,7 +93,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/WalTextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/WorldReader.cpp
         ${COMMON_SOURCE_DIR}/IO/ZipFileSystem.cpp
-        ${COMMON_SOURCE_DIR}/Model/AssortNodesVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/AttributableNode.cpp
         ${COMMON_SOURCE_DIR}/Model/AttributableNodeIndex.cpp
         ${COMMON_SOURCE_DIR}/Model/AttributableNodeVariableStore.cpp
@@ -600,7 +599,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/WalTextureReader.h
         ${COMMON_SOURCE_DIR}/IO/WorldReader.h
         ${COMMON_SOURCE_DIR}/IO/ZipFileSystem.h
-        ${COMMON_SOURCE_DIR}/Model/AssortNodesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/AttributableNode.h
         ${COMMON_SOURCE_DIR}/Model/AttributableNodeIndex.h
         ${COMMON_SOURCE_DIR}/Model/AttributableNodeVariableStore.h

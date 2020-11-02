@@ -21,7 +21,6 @@
 
 #include "AABBTree.h"
 #include "Ensure.h"
-#include "Model/AssortNodesVisitor.h"
 #include "Model/AttributableNodeIndex.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
@@ -34,6 +33,7 @@
 #include "Model/ModelFactoryImpl.h"
 #include "Model/TagVisitor.h"
 
+#include <kdl/overload.h>
 #include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
@@ -69,9 +69,12 @@ namespace TrenchBroom {
         }
 
         std::vector<LayerNode*> WorldNode::allLayers() {
-            CollectLayersVisitor visitor;
-            iterate(visitor);
-            return visitor.layers();
+            std::vector<LayerNode*> layers;
+            visitChildren(kdl::overload(
+                [&](LayerNode* layer) { layers.push_back(layer); },
+                [](auto*) {}
+            ));
+            return layers;
         }
 
         std::vector<const LayerNode*> WorldNode::allLayers() const {
@@ -79,10 +82,17 @@ namespace TrenchBroom {
         }
 
         std::vector<LayerNode*> WorldNode::customLayers() {
+            std::vector<LayerNode*> layers;
+
             const std::vector<Node*>& children = Node::children();
-            CollectLayersVisitor visitor;
-            accept(std::next(std::begin(children)), std::end(children), visitor);
-            return visitor.layers();
+            for (auto it = std::next(std::begin(children)), end = std::end(children); it != end; ++it) {
+                (*it)->acceptLambda(kdl::overload(
+                    [&](LayerNode* layer) { layers.push_back(layer); },
+                    [](auto*) {}
+                ));
+            }
+
+            return layers;
         }
 
         std::vector<const LayerNode*> WorldNode::customLayers() const {

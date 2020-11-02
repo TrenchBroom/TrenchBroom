@@ -23,7 +23,6 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "FloatType.h"
-#include "Model/AssortNodesVisitor.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushError.h"
 #include "Model/BrushFace.h"
@@ -40,6 +39,7 @@
 
 #include <kdl/map_utils.h>
 #include <kdl/memory_utils.h>
+#include <kdl/overload.h>
 #include <kdl/set_temp.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
@@ -832,14 +832,19 @@ namespace TrenchBroom {
         }
 
         void ClipTool::addBrushesToRenderer(const std::map<Model::Node*, std::vector<Model::Node*>>& map, Renderer::BrushRenderer& renderer) {
-            Model::CollectBrushesVisitor collect;
+            std::vector<Model::BrushNode*> brushes;
 
             for (const auto& entry : map) {
-                const auto& brushes = entry.second;
-                Model::Node::accept(std::begin(brushes), std::end(brushes), collect);
+                const auto& nodes = entry.second;
+                for (auto* node : nodes) {
+                    node->acceptLambda(kdl::overload(
+                        [&](Model::BrushNode* brush) { brushes.push_back(brush); },
+                        [](auto*) {}
+                    ));
+                }
             }
-
-            renderer.addBrushes(collect.brushes());
+            
+            renderer.addBrushes(brushes);
         }
 
         bool ClipTool::keepFrontBrushes() const {
