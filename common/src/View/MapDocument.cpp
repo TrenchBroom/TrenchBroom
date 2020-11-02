@@ -2438,51 +2438,26 @@ namespace TrenchBroom {
             return m_tagManager->smartTag(index);
         }
 
-        class MapDocument::ClearNodeTagsVisitor : public Model::NodeVisitor {
-        private:
-            void doVisit(Model::WorldNode* world)   override { initializeNodeTags(world); }
-            void doVisit(Model::LayerNode* layer)   override { initializeNodeTags(layer); }
-            void doVisit(Model::GroupNode* group)   override { initializeNodeTags(group); }
-            void doVisit(Model::EntityNode* entity) override { initializeNodeTags(entity); }
-            void doVisit(Model::BrushNode* brush)   override { initializeNodeTags(brush); }
+        static auto makeInitializeNodeTagsVisitor(Model::TagManager& tagManager) {
+            return [&](auto&& thisLambda, auto* node) { node->initializeTags(tagManager); node->visitChildren(thisLambda); };
+        }
 
-            void initializeNodeTags(Model::Node* node) {
-                node->clearTags();
-            }
-        };
-
-        class MapDocument::InitializeNodeTagsVisitor : public Model::NodeVisitor {
-        private:
-            Model::TagManager& m_tagManager;
-        public:
-            explicit InitializeNodeTagsVisitor(Model::TagManager& tagManager) :
-            m_tagManager(tagManager) {}
-        private:
-            void doVisit(Model::WorldNode* world)   override { initializeNodeTags(world); }
-            void doVisit(Model::LayerNode* layer)   override { initializeNodeTags(layer); }
-            void doVisit(Model::GroupNode* group)   override { initializeNodeTags(group); }
-            void doVisit(Model::EntityNode* entity) override { initializeNodeTags(entity); }
-            void doVisit(Model::BrushNode* brush)   override { initializeNodeTags(brush); }
-
-            void initializeNodeTags(Model::Node* node) {
-                node->initializeTags(m_tagManager);
-            }
-        };
+        static auto makeClearNodeTagsVisitor() {
+            return [](auto&& thisLambda, auto* node) { node->clearTags(); node->visitChildren(thisLambda); };
+        }
 
         void MapDocument::initializeNodeTags(MapDocument* document) {
-            InitializeNodeTagsVisitor visitor(*m_tagManager);
-            auto* world = document->world();
-            world->acceptAndRecurse(visitor);
+            assert(document == this);
+            unused(document);
+            m_world->acceptLambda(makeInitializeNodeTagsVisitor(*m_tagManager));
         }
 
         void MapDocument::initializeNodeTags(const std::vector<Model::Node*>& nodes) {
-            InitializeNodeTagsVisitor visitor(*m_tagManager);
-            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
+            Model::Node::visitAll(nodes, makeInitializeNodeTagsVisitor(*m_tagManager));
         }
 
         void MapDocument::clearNodeTags(const std::vector<Model::Node*>& nodes) {
-            ClearNodeTagsVisitor visitor;
-            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
+            Model::Node::visitAll(nodes, makeClearNodeTagsVisitor());
         }
 
         void MapDocument::updateNodeTags(const std::vector<Model::Node*>& nodes) {
@@ -2498,24 +2473,14 @@ namespace TrenchBroom {
             }
         }
 
-
-        class MapDocument::InitializeFaceTagsVisitor : public Model::NodeVisitor {
-        private:
-            Model::TagManager& m_tagManager;
-        public:
-            explicit InitializeFaceTagsVisitor(Model::TagManager& tagManager) :
-                m_tagManager(tagManager) {}
-        private:
-            void doVisit(Model::WorldNode*) override         {}
-            void doVisit(Model::LayerNode*) override         {}
-            void doVisit(Model::GroupNode*) override         {}
-            void doVisit(Model::EntityNode*) override        {}
-            void doVisit(Model::BrushNode* brush)   override { brush->initializeTags(m_tagManager); }
-        };
-
         void MapDocument::updateAllFaceTags() {
-            InitializeFaceTagsVisitor visitor(*m_tagManager);
-            m_world->acceptAndRecurse(visitor);
+            m_world->acceptLambda(kdl::overload(
+                [] (auto&& thisLambda, Model::WorldNode* world)   { world->visitChildren(thisLambda); },
+                [] (auto&& thisLambda, Model::LayerNode* layer)   { layer->visitChildren(thisLambda); },
+                [] (auto&& thisLambda, Model::GroupNode* group)   { group->visitChildren(thisLambda); },
+                [] (auto&& thisLambda, Model::EntityNode* entity) { entity->visitChildren(thisLambda); },
+                [&](Model::BrushNode* brush)                      { brush->initializeTags(*m_tagManager); }
+            ));
         }
 
         bool MapDocument::persistent() const {
