@@ -550,14 +550,11 @@ namespace TrenchBroom {
             bool isRegisteredSmartTag(size_t index) const;
             const Model::SmartTag& smartTag(size_t index) const;
         private:
-            class InitializeNodeTagsVisitor;
-            class ClearNodeTagsVisitor;
             void initializeNodeTags(MapDocument* document);
             void initializeNodeTags(const std::vector<Model::Node*>& nodes);
             void clearNodeTags(const std::vector<Model::Node*>& nodes);
             void updateNodeTags(const std::vector<Model::Node*>& nodes);
 
-            class InitializeFaceTagsVisitor;
             void updateFaceTags(const std::vector<Model::BrushFaceHandle>& faces);
             void updateAllFaceTags();
         public: // document path
