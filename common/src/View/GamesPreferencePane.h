@@ -32,7 +32,7 @@ namespace TrenchBroom {
         class GamePreferencePane;
 
         /**
-         * List of all games with the ability to edit game path, compile tools for each game.
+         * List of all games with the ability to edit game path, compile tools for each game
          */
         class GamesPreferencePane : public PreferencePane {
             Q_OBJECT
@@ -40,11 +40,7 @@ namespace TrenchBroom {
             GameListBox* m_gameListBox;
             QStackedWidget* m_stackedWidget;
             QWidget* m_defaultPage;
-            /**
-             * nullptr if no game is selected.
-             */
             GamePreferencePane* m_currentGamePage;
-            QString m_currentGame;
         public:
             explicit GamesPreferencePane(QWidget* parent = nullptr);
         private:
@@ -57,7 +53,7 @@ namespace TrenchBroom {
         };
 
         /**
-         * Widget for configuring a single game.
+         * Widget for configuring a single game
          */
         class GamePreferencePane : public QWidget {
             Q_OBJECT
@@ -76,10 +72,16 @@ namespace TrenchBroom {
             void updateGamePath(const QString& str);
             void configureEnginesClicked();
         public:
+            const std::string& gameName() const;
             /**
              * Refresh controls from GameFactory
              */
             void updateControls();
+        signals:
+            /**
+             * Emitted by GamePreferencePane after changing a preference
+             */
+            void requestUpdate();
         };
     }
 }

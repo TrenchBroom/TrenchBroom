@@ -63,7 +63,7 @@ namespace TrenchBroom {
             m_gameListBox->setMaximumWidth(220);
             m_gameListBox->setMinimumHeight(300);
 
-            m_defaultPage = createDefaultPage("Select a game.");
+            m_defaultPage = createDefaultPage(tr("Select a game."));
 
             m_stackedWidget = new QStackedWidget();
             m_stackedWidget->addWidget(m_defaultPage);
@@ -80,17 +80,8 @@ namespace TrenchBroom {
 
             setMinimumWidth(600);
 
-            connect(m_gameListBox, &GameListBox::currentGameChanged, this, [=](const QString& gameName) {
-                if (gameName == m_currentGame) {
-                    return;
-                }
-                m_currentGame = gameName;
-
-                delete m_currentGamePage;
-                m_currentGamePage = new GamePreferencePane(gameName.toStdString());
-
-                m_stackedWidget->addWidget(m_currentGamePage);
-                m_stackedWidget->setCurrentWidget(m_currentGamePage);
+            connect(m_gameListBox, &GameListBox::currentGameChanged, this, [&]() {
+                updateControls();
             });
         }
 
@@ -103,8 +94,21 @@ namespace TrenchBroom {
         void GamesPreferencePane::doUpdateControls() {
             m_gameListBox->updateGameInfos();
 
-            if (m_currentGamePage != nullptr) {
+            const std::string desiredGame = m_gameListBox->selectedGameName();
+            if (desiredGame.empty()) {
+                m_stackedWidget->setCurrentWidget(m_defaultPage);
+            } else if (m_currentGamePage != nullptr && m_currentGamePage->gameName() == desiredGame) {
+                // refresh the current page
                 m_currentGamePage->updateControls();
+            } else {
+                // build a new current page
+                delete m_currentGamePage;
+                m_currentGamePage = new GamePreferencePane(desiredGame);
+
+                m_stackedWidget->addWidget(m_currentGamePage);
+                m_stackedWidget->setCurrentWidget(m_currentGamePage);
+
+                connect(m_currentGamePage, &GamePreferencePane::requestUpdate, this, &GamesPreferencePane::updateControls);
             }
         }
 
@@ -124,7 +128,7 @@ namespace TrenchBroom {
 
         void GamePreferencePane::createGui() {
             m_gamePathText = new QLineEdit();
-            setHint(m_gamePathText, "Click on the button to change...");
+            m_gamePathText->setPlaceholderText(tr("Click on the button to change..."));
             connect(m_gamePathText, &QLineEdit::editingFinished, this, [this]() {
                 updateGamePath(this->m_gamePathText->text());
             });
@@ -141,10 +145,10 @@ namespace TrenchBroom {
                 }
             });
 
-            auto* chooseGamePathButton = new QPushButton("...");
+            auto* chooseGamePathButton = new QPushButton(tr("..."));
             connect(chooseGamePathButton, &QPushButton::clicked, this, &GamePreferencePane::chooseGamePathClicked);
 
-            auto* configureEnginesButton = new QPushButton("Configure engines...");
+            auto* configureEnginesButton = new QPushButton(tr("Configure engines..."));
             connect(configureEnginesButton, &QPushButton::clicked, this, &GamePreferencePane::configureEnginesClicked);
 
             auto* gamePathLayout = new QHBoxLayout();
@@ -158,11 +162,11 @@ namespace TrenchBroom {
             layout->setVerticalSpacing(2);
             layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
-            layout->addSection("Game");
-            layout->addRow("Game Path", gamePathLayout);
+            layout->addSection(QString::fromStdString(m_gameName));
+            layout->addRow(tr("Game Path"), gamePathLayout);
             layout->addRow("", configureEnginesButton);
 
-            layout->addSection("Compilation Tools");
+            layout->addSection(tr("Compilation Tools"));
 
             auto& gameFactory = Model::GameFactory::instance();
             const auto& gameConfig = gameFactory.gameConfig(m_gameName);
@@ -183,10 +187,12 @@ namespace TrenchBroom {
                         return;
                     }
                     edit->setText(pathStr);
-                    Model::GameFactory::instance().setCompilationToolPath(m_gameName, toolName, IO::pathFromQString(pathStr));
+                    if (Model::GameFactory::instance().setCompilationToolPath(m_gameName, toolName, IO::pathFromQString(pathStr))) {
+                        emit requestUpdate();
+                    }
                 });
 
-                auto *rowLayout = new QHBoxLayout();
+                auto* rowLayout = new QHBoxLayout();
                 rowLayout->setContentsMargins(QMargins());
                 rowLayout->setSpacing(LayoutConstants::MediumHMargin);
                 rowLayout->addWidget(edit, 1);
@@ -213,13 +219,17 @@ namespace TrenchBroom {
             const auto gamePath = IO::pathFromQString(str);
             auto& gameFactory = Model::GameFactory::instance();
             if (gameFactory.setGamePath(m_gameName, gamePath)) {
-                updateControls();
+                emit requestUpdate();
             }
         }
 
         void GamePreferencePane::configureEnginesClicked() {
             GameEngineDialog dialog(m_gameName, this);
             dialog.exec();
+        }
+
+        const std::string& GamePreferencePane::gameName() const {
+            return m_gameName;
         }
 
         void GamePreferencePane::updateControls() {
