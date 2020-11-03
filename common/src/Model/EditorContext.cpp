@@ -179,8 +179,8 @@ namespace TrenchBroom {
             return brush->visible();
         }
 
-        bool EditorContext::visible(const Model::BrushNode*, const Model::BrushFace& face) const {
-            return !face.hasTag(m_hiddenTags);
+        bool EditorContext::visible(const Model::BrushNode* brush, const Model::BrushFace& face) const {
+            return visible(brush) && !face.hasTag(m_hiddenTags);
         }
 
         bool EditorContext::anyChildVisible(const Model::Node* node) const {
