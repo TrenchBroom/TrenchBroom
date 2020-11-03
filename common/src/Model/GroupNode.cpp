@@ -127,19 +127,14 @@ namespace TrenchBroom {
             return new GroupSnapshot(this);
         }
 
-        class CanAddChildToGroup : public ConstNodeVisitor, public NodeQuery<bool> {
-        private:
-            void doVisit(const WorldNode*) override  { setResult(false); }
-            void doVisit(const LayerNode*) override  { setResult(false); }
-            void doVisit(const GroupNode*) override  { setResult(true); }
-            void doVisit(const EntityNode*) override { setResult(true); }
-            void doVisit(const BrushNode*) override  { setResult(true); }
-        };
-
         bool GroupNode::doCanAddChild(const Node* child) const {
-            CanAddChildToGroup visitor;
-            child->accept(visitor);
-            return visitor.result();
+            return child->acceptLambda(kdl::overload(
+                [](const WorldNode*)  { return false; },
+                [](const LayerNode*)  { return false; },
+                [](const GroupNode*)  { return true;  },
+                [](const EntityNode*) { return true;  },
+                [](const BrushNode*)  { return true;  }
+            ));
         }
 
         bool GroupNode::doCanRemoveChild(const Node* /* child */) const {
