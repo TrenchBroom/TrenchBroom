@@ -168,12 +168,10 @@ namespace TrenchBroom {
         }
 
         void WorldNode::invalidateAllIssues() {
-            acceptLambda(kdl::overload(
-                [](auto&& thisLambda, Node* node) -> void {
-                    node->invalidateIssues();
-                    node->visitChildren(thisLambda);
-                }
-            ));
+            acceptLambda([](auto&& thisLambda, Node* node) {
+                node->invalidateIssues();
+                node->visitChildren(thisLambda);
+            });
         }
 
         const vm::bbox3& WorldNode::doGetLogicalBounds() const {
