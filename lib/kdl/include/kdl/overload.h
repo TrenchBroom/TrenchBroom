@@ -18,6 +18,8 @@
 #ifndef TRENCHBROOM_OVERLOAD_H
 #define TRENCHBROOM_OVERLOAD_H
 
+#include <utility>
+
 namespace kdl {
     /**
      * Creates a type that inherits from all of its type parameters and `operator()` from each supertype. Can be used
