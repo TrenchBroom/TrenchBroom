@@ -89,13 +89,6 @@ namespace TrenchBroom {
 
             void performPushGroup(Model::GroupNode* group);
             void performPopGroup();
-        public: // transformation
-            /**
-             * @return true if the transform was applied, false if can't be applied
-             * to everything in the selection, in which case it's the caller's responsibility to restore the modified
-             * nodes.
-             */
-            bool performTransform(const vm::mat4x4& transform, bool lockTextures);
         public: // entity attributes
             using EntityAttributeSnapshotMap = std::map<Model::AttributableNode*, std::vector<Model::EntityAttributeSnapshot>>;
             EntityAttributeSnapshotMap performSetAttribute(const std::string& name, const std::string& value);
