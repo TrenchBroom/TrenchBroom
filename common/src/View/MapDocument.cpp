@@ -113,7 +113,6 @@
 #include "View/ShearTexturesCommand.h"
 #include "View/SnapBrushVerticesCommand.h"
 #include "View/SwapNodeContentsCommand.h"
-#include "View/TransformObjectsCommand.h"
 #include "View/ViewEffectsService.h"
 
 #include <kdl/collection_utils.h>

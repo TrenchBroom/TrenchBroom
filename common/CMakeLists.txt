@@ -446,7 +446,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/ToolBoxConnector.cpp
         ${COMMON_SOURCE_DIR}/View/ToolChain.cpp
         ${COMMON_SOURCE_DIR}/View/ToolController.cpp
-        ${COMMON_SOURCE_DIR}/View/TransformObjectsCommand.cpp
         ${COMMON_SOURCE_DIR}/View/TwoPaneMapView.cpp
         ${COMMON_SOURCE_DIR}/View/UndoableCommand.cpp
         ${COMMON_SOURCE_DIR}/View/UpdateEntitySpawnflagCommand.cpp
@@ -970,7 +969,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/ToolBoxConnector.h
         ${COMMON_SOURCE_DIR}/View/ToolChain.h
         ${COMMON_SOURCE_DIR}/View/ToolController.h
-        ${COMMON_SOURCE_DIR}/View/TransformObjectsCommand.h
         ${COMMON_SOURCE_DIR}/View/TwoPaneMapView.h
         ${COMMON_SOURCE_DIR}/View/UndoableCommand.h
         ${COMMON_SOURCE_DIR}/View/UpdateEntitySpawnflagCommand.h

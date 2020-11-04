@@ -435,41 +435,6 @@ namespace TrenchBroom {
             groupWasClosedNotifier(previousGroup);
         }
 
-        bool MapDocumentCommandFacade::performTransform(const vm::mat4x4 &transform, const bool lockTextures) {
-            const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*> &>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*> &>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            bool success = true;
-            for (auto nodeIt = std::begin(nodes); nodeIt != std::end(nodes) && success; ++nodeIt) {
-                success = (*nodeIt)->accept(kdl::overload(
-                    [](Model::WorldNode*) {
-                        return kdl::result<void, Model::TransformError>::success();
-                    },
-                    [](Model::LayerNode*) {
-                        return kdl::result<void, Model::TransformError>::success();
-                    },
-                    [&](Model::GroupNode* group) {
-                        return group->transform(m_worldBounds, transform, lockTextures);
-                    },
-                    [&](Model::EntityNode* entity) {
-                        return entity->transform(m_worldBounds, transform, lockTextures);
-                    },
-                    [&](Model::BrushNode* brush) {
-                        return brush->transform(m_worldBounds, transform, lockTextures);
-                    }
-                )).handle_errors(
-                    [&](Model::TransformError&& e) {
-                        error() << "Could not transform objects: " << e;
-                    });
-            }
-
-            invalidateSelectionBounds();
-            return success;
-        }
-
         MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performSetAttribute(const std::string& name, const std::string& value) {
             const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
             return performSetAttributeForNodes(attributableNodes, name, value);
