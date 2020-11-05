@@ -165,7 +165,7 @@ namespace kdl {
 
         template <typename C>
         C sorted(C c) {
-            kdl::sort(c, string_less());
+            kdl::col_sort(c, string_less());
             return c;
         }
 
@@ -308,7 +308,7 @@ namespace kdl {
 
         template <typename C>
         C sorted(C c) {
-            kdl::sort(c, string_less());
+            kdl::col_sort(c, string_less());
             return c;
         }
 

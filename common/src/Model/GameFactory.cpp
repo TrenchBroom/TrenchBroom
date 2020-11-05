@@ -195,7 +195,7 @@ namespace TrenchBroom {
                 }
             }
 
-            kdl::sort(m_names, kdl::cs::string_less());
+            kdl::col_sort(m_names, kdl::cs::string_less());
 
             if (!errors.empty()) {
                 throw errors;

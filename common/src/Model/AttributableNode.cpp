@@ -299,8 +299,8 @@ namespace TrenchBroom {
             auto oldSorted = m_attributes.attributes();
             auto newSorted = newAttributes;
 
-            kdl::sort(oldSorted);
-            kdl::sort(newSorted);
+            kdl::col_sort(oldSorted);
+            kdl::col_sort(newSorted);
 
             auto oldIt = std::begin(oldSorted);
             auto oldEnd = std::end(oldSorted);

@@ -248,7 +248,7 @@ namespace kdl {
      * @param cmp the comparator to use for comparisons
      */
     template<typename C, typename Compare = std::less<typename C::value_type>>
-    void sort(C& c, const Compare& cmp = Compare()) {
+    void col_sort(C& c, const Compare& cmp = Compare()) {
         std::sort(std::begin(c), std::end(c), cmp);
     }
 }
