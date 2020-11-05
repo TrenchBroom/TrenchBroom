@@ -246,7 +246,7 @@ namespace TrenchBroom {
             std::vector<std::string> mods = document->mods();
             for (QListWidgetItem* item : selections) {
                 const std::string mod = item->text().toStdString();
-                kdl::vec_erase(mods, mod);
+                mods = kdl::vec_erase(std::move(mods), mod);
             }
             document->setMods(mods);
         }

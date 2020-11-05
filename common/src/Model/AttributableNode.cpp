@@ -643,19 +643,19 @@ namespace TrenchBroom {
 
         void AttributableNode::removeLinkSource(AttributableNode* attributable) {
             ensure(attributable != nullptr, "attributable is null");
-            kdl::vec_erase(m_linkSources, attributable);
+            m_linkSources = kdl::vec_erase(std::move(m_linkSources), attributable);
             invalidateIssues();
         }
 
         void AttributableNode::removeLinkTarget(AttributableNode* attributable) {
             ensure(attributable != nullptr, "attributable is null");
-            kdl::vec_erase(m_linkTargets, attributable);
+            m_linkTargets = kdl::vec_erase(std::move(m_linkTargets), attributable);
             invalidateIssues();
         }
 
         void AttributableNode::removeKillSource(AttributableNode* attributable) {
             ensure(attributable != nullptr, "attributable is null");
-            kdl::vec_erase(m_killSources, attributable);
+            m_killSources = kdl::vec_erase(std::move(m_killSources), attributable);
             invalidateIssues();
         }
 
@@ -670,7 +670,7 @@ namespace TrenchBroom {
 
         void AttributableNode::removeKillTarget(AttributableNode* attributable) {
             ensure(attributable != nullptr, "attributable is null");
-            kdl::vec_erase(m_killTargets, attributable);
+            m_killTargets = kdl::vec_erase(std::move(m_killTargets), attributable);
         }
 
         bool operator==(const AttributableNode& lhs, const AttributableNode& rhs) {

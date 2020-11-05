@@ -83,7 +83,7 @@ namespace TrenchBroom {
             // erase back to front
             for (auto sIt = std::rbegin(selections), sEnd = std::rend(selections); sIt != sEnd; ++sIt) {
                 const auto index = static_cast<size_t>(*sIt);
-                kdl::vec_erase_at(enabledCollections, index);
+                enabledCollections = kdl::vec_erase_at(std::move(enabledCollections), index);
             }
 
             auto document = kdl::mem_lock(m_document);
@@ -255,7 +255,7 @@ namespace TrenchBroom {
         std::vector<IO::Path> DirectoryTextureCollectionEditor::availableTextureCollections() const {
             auto document = kdl::mem_lock(m_document);
             auto availableCollections = document->availableTextureCollections();
-            kdl::vec_erase_all(availableCollections, document->enabledTextureCollections());
+            availableCollections = kdl::vec_erase_all(std::move(availableCollections), document->enabledTextureCollections());
             return availableCollections;
         }
 

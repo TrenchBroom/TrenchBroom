@@ -118,7 +118,7 @@ namespace TrenchBroom {
 
         void CompilationProfile::removeTask(const size_t index) {
             assert(index < taskCount());
-            kdl::vec_erase_at(m_tasks, index);
+            m_tasks = kdl::vec_erase_at(std::move(m_tasks), index);
         }
 
         void CompilationProfile::moveTaskUp(const size_t index) {
