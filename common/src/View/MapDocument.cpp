@@ -905,7 +905,7 @@ namespace TrenchBroom {
             if (nodes.empty())
                 return nodes;
 
-            kdl::vec_sort(nodes, CompareByAncestry());
+            nodes = kdl::vec_sort(std::move(nodes), CompareByAncestry());
 
             std::vector<Model::Node*> result;
             result.reserve(nodes.size());

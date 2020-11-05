@@ -272,10 +272,10 @@ namespace TrenchBroom {
         void TextureBrowserView::sortTextures(std::vector<const Assets::Texture*>& textures) const {
             switch (m_sortOrder) {
                 case TextureSortOrder::Name:
-                    kdl::vec_sort(textures, CompareByName());
+                    textures = kdl::vec_sort(std::move(textures), CompareByName());
                     break;
                 case TextureSortOrder::Usage:
-                    kdl::vec_sort(textures, CompareByUsageCount());
+                    textures = kdl::vec_sort(std::move(textures), CompareByUsageCount());
                     break;
             }
         }
