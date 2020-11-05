@@ -192,11 +192,9 @@ namespace kdl {
 
         std::vector<std::string> actual;
         index.get_keys(std::back_inserter(actual));
-        kdl::col_sort(actual);
+        actual = kdl::col_sort(std::move(actual));
 
-        std::vector<std::string> expected({ "key", "key2", "key22", "key22bs", "k1" });
-        kdl::col_sort(expected);
-
+        const auto expected = kdl::col_sort(std::vector<std::string>{ "key", "key2", "key22", "key22bs", "k1" });
         ASSERT_EQ(expected, actual);
     }
 }
