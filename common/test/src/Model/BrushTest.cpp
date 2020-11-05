@@ -1518,10 +1518,10 @@ namespace TrenchBroom {
             const Brush newBrush = brush.moveVertices(worldBounds, vertexPositions, delta).value();
 
             auto movedVertexPositions = newBrush.findClosestVertexPositions(vertexPositions + delta);
-            kdl::vec_sort_and_remove_duplicates(movedVertexPositions);
+            movedVertexPositions = kdl::vec_sort_and_remove_duplicates(std::move(movedVertexPositions));
 
             auto expectedVertexPositions = vertexPositions + delta;
-            kdl::vec_sort_and_remove_duplicates(expectedVertexPositions);
+            expectedVertexPositions = kdl::vec_sort_and_remove_duplicates(std::move(expectedVertexPositions));
 
             ASSERT_EQ(expectedVertexPositions, movedVertexPositions);
         }

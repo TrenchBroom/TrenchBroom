@@ -1322,8 +1322,7 @@ namespace TrenchBroom {
                     }
                 }
             ));
-            kdl::vec_sort_and_remove_duplicates(result);
-            return result;
+            return kdl::vec_sort_and_remove_duplicates(std::move(result));
         }
 
         void MapViewBase::reparentNodes(const std::vector<Model::Node*>& nodes, Model::Node* newParent, const bool preserveEntities) {

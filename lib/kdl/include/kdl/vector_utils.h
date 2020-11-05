@@ -477,36 +477,20 @@ namespace kdl {
     /**
      * Sorts the elements of the given vector and removes all duplicate values. A value is a duplicate if it is
      * equivalent to its predecessor in the vector.
-     * Returns a vector with the remaining elements.
+     * Returns a vector with the remaining sorted elements.
      *
      * @tparam T the type of the vector elements
      * @tparam A the vector's allocator type
      * @tparam Compare the type of the comparator to use
      * @param v the vector to sort and remove duplicates from
      * @param cmp the comparator to use for sorting and for determining equivalence
+     * @return a vector with the remaining sorted elements
      */
     template<typename T, typename A, typename Compare = std::less<T>>
-    std::vector<T, A>& vec_sort_and_remove_duplicates(std::vector<T, A>& v, const Compare& cmp = Compare()) {
+    std::vector<T, A> vec_sort_and_remove_duplicates(std::vector<T, A> v, const Compare& cmp = Compare()) {
         std::sort(std::begin(v), std::end(v), cmp);
         v.erase(std::unique(std::begin(v), std::end(v), kdl::equivalence<T, Compare>(cmp)), std::end(v));
         return v;
-    }
-
-    /**
-     * Sorts the elements of the given vector and removes all duplicate values. A value is a duplicate if it is
-     * equivalent to its predecessor in the vector. Returns the given vector.
-     *
-     * @tparam T the type of the vector elements
-     * @tparam A the vector's allocator type
-     * @tparam Compare the type of the comparator to use
-     * @param v the vector to sort and remove duplicates from
-     * @param cmp the comparator to use for sorting and for determining equivalence
-     */
-    template<typename T, typename A, typename Compare = std::less<T>>
-    std::vector<T, A> vec_sort_and_remove_duplicates(std::vector<T, A>&& v, const Compare& cmp = Compare()) {
-        std::sort(std::begin(v), std::end(v), cmp);
-        v.erase(std::unique(std::begin(v), std::end(v), kdl::equivalence<T, Compare>(cmp)), std::end(v));
-        return std::move(v);
     }
 
     /**

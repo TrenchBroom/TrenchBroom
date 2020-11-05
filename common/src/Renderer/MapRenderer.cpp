@@ -527,7 +527,7 @@ namespace TrenchBroom {
                 
                 const auto toBrush = [](const auto& handle) { return handle.node(); };
                 auto brushes = kdl::vec_concat(kdl::vec_transform(selection.selectedBrushFaces(), toBrush), kdl::vec_transform(selection.deselectedBrushFaces(), toBrush));
-                kdl::vec_sort_and_remove_duplicates(brushes);
+                brushes = kdl::vec_sort_and_remove_duplicates(std::move(brushes));
                 invalidateBrushesInRenderers(Renderer_All, brushes);
             }
         }

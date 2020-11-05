@@ -614,8 +614,7 @@ namespace TrenchBroom {
                 ));
             }
 
-            kdl::vec_sort_and_remove_duplicates(nodes);
-            return nodes;
+            return kdl::vec_sort_and_remove_duplicates(std::move(nodes));
         }
 
         const Model::NodeCollection& MapDocument::selectedNodes() const {
@@ -1118,8 +1117,7 @@ namespace TrenchBroom {
                     }
                 }
             ));
-            kdl::vec_sort_and_remove_duplicates(result);
-            return result;
+            return kdl::vec_sort_and_remove_duplicates(std::move(result));
         }
 
         void MapDocument::ungroupSelection() {
