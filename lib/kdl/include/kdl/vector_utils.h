@@ -495,7 +495,7 @@ namespace kdl {
 
     /**
      * Returns a vector containing every element of the given vector that passes the given filter.
-     * The elements are copied into the returned vector in the same order as they are in the given vector.
+     * The elements are moved into the returned vector in the same order as they are in the given vector.
      *
      * @tparam T the type of the vector elements
      * @tparam A the vector's allocator type
@@ -508,69 +508,11 @@ namespace kdl {
         typename std::enable_if_t<
             std::is_invocable_v<F, const T&>
         >* = nullptr>
-    std::vector<T, A> vec_filter(const std::vector<T, A>& v, F&& filter) {
+    std::vector<T, A> vec_filter(std::vector<T, A> v, F&& filter) {
         std::vector<T, A> result;
         result.reserve(v.size());
 
-        for (const auto& x : v) {
-            if (filter(x)) {
-                result.push_back(x);
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Returns a vector containing every element of the given vector that passes the given filter.
-     * The elements are copied into the returned vector in the same order as they are in the given vector.
-     *
-     * This version passes the vector element indices to the filter function.
-     *
-     * @tparam T the type of the vector elements
-     * @tparam A the vector's allocator type
-     * @tparam F the type of the filter to apply, must be of type `bool(const T&, std::size_t)`
-     * @param v the vector
-     * @param filter the filter to apply
-     * @return a vector containing the elements that passed the filter
-     */
-    template<typename T, typename A, typename F,
-        typename std::enable_if_t<
-            std::is_invocable_v<F, const T&, std::size_t>
-        >* = nullptr>
-    std::vector<T, A> vec_filter(const std::vector<T, A>& v, F&& filter) {
-        std::vector<T, A> result;
-        result.reserve(v.size());
-
-        for (std::size_t i = 0u; i < v.size(); ++i) {
-            if (filter(v[i], i)) {
-                result.push_back(v[i]);
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Returns a vector containing every element of the given vector that passes the given filter.
-     * The elements are moved into the returned vector in the same order as they are in the given vector.
-     *
-     * @tparam T the type of the vector elements
-     * @tparam A the vector's allocator type
-     * @tparam F the type of the filter to apply, must be of type `bool(const T&)`
-     * @param v the vector
-     * @param filter the filter to apply
-     * @return a vector containing the elements that passed the filter
-     */
-    template<typename T, typename A, typename F,
-        typename std::enable_if_t<
-            std::is_invocable_r_v<bool, F, const T&>
-        >* = nullptr>
-    std::vector<T, A> vec_filter(std::vector<T, A>&& v, F&& filter) {
-        std::vector<T, A> result;
-        result.reserve(v.size());
-
-        for (auto&& x : v) {
+        for (auto& x : v) {
             if (filter(x)) {
                 result.push_back(std::move(x));
             }
@@ -594,9 +536,9 @@ namespace kdl {
      */
     template<typename T, typename A, typename F,
         typename std::enable_if_t<
-            std::is_invocable_r_v<bool, F, const T&, std::size_t>
+            std::is_invocable_v<F, const T&, std::size_t>
         >* = nullptr>
-    std::vector<T, A> vec_filter(std::vector<T, A>&& v, F&& filter) {
+    std::vector<T, A> vec_filter(std::vector<T, A> v, F&& filter) {
         std::vector<T, A> result;
         result.reserve(v.size());
 
