@@ -18,6 +18,8 @@
 #ifndef KDL_INVOKE_H
 #define KDL_INVOKE_H
 
+#include <utility>
+
 namespace kdl {
     /**
      * Invokes a lambda when going out of scope.
