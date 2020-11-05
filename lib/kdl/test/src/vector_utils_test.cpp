@@ -258,9 +258,7 @@ namespace kdl {
 
     TEST_CASE("vector_utils_test.vec_sort_and_remove_duplicates", "[vector_utils_test]") {
         // just a smoke test since we're just forwarding to std::sort and std::unique
-        auto v = std::vector<int>({ 2, 3, 2, 1 });
-        vec_sort_and_remove_duplicates(v);
-        ASSERT_EQ(std::vector<int>({ 1, 2, 3 }), v);
+        ASSERT_EQ(std::vector<int>({ 1, 2, 3 }), vec_sort_and_remove_duplicates(std::vector<int>({ 2, 3, 2, 1 })));
     }
 
     TEST_CASE("vector_utils_test.vec_filter", "[vector_utils_test]") {

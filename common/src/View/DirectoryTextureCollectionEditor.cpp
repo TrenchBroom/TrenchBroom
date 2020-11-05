@@ -66,7 +66,7 @@ namespace TrenchBroom {
                 enabledCollections.push_back(availableCollections[index]);
             }
 
-            kdl::vec_sort_and_remove_duplicates(enabledCollections);
+            enabledCollections = kdl::vec_sort_and_remove_duplicates(std::move(enabledCollections));
 
             auto document = kdl::mem_lock(m_document);
             document->setEnabledTextureCollections(enabledCollections);

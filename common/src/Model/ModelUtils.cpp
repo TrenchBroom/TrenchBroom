@@ -55,8 +55,7 @@ namespace TrenchBroom {
                     layers.push_back(layer);
                 }
             }
-            kdl::vec_sort_and_remove_duplicates(layers);
-            return layers;
+            return kdl::vec_sort_and_remove_duplicates(std::move(layers));
         }
 
         GroupNode* findContainingGroup(Node* node) {
@@ -92,8 +91,7 @@ namespace TrenchBroom {
             for (auto* node : nodes) {
                 collectWithParents(node->parent(), result);
             }
-            kdl::vec_sort_and_remove_duplicates(result);
-            return result;
+            return kdl::vec_sort_and_remove_duplicates(std::move(result));
         }
 
         std::vector<Node*> collectParents(const std::map<Node*, std::vector<Node*>>& nodes) {
@@ -102,8 +100,7 @@ namespace TrenchBroom {
                 Node* parent = entry.first;
                 collectWithParents(parent, result);
             }
-            kdl::vec_sort_and_remove_duplicates(result);
-            return result;
+            return kdl::vec_sort_and_remove_duplicates(std::move(result));
         }
 
         std::vector<Node*> collectChildren(const std::map<Node*, std::vector<Node*>>& nodes) {

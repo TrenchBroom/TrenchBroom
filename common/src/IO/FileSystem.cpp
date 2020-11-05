@@ -171,8 +171,7 @@ namespace TrenchBroom {
                 result = kdl::vec_concat(std::move(result), m_next->_getDirectoryContents(directoryPath));
             }
 
-            kdl::vec_sort_and_remove_duplicates(result);
-            return result;
+            return kdl::vec_sort_and_remove_duplicates(std::move(result));
         }
 
         std::shared_ptr<File> FileSystem::_openFile(const Path& path) const {
