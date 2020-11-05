@@ -281,12 +281,15 @@ namespace kdl {
     };
 
     TEST_CASE("vector_utils_test.vec_filter_rvalue", "[vector_utils_test]") {
-        auto vec = std::vector<MoveOnly>{};
-        vec.emplace_back();
-        vec.emplace_back();
-        ASSERT_EQ(2u, vec_filter(std::move(vec), [](const auto&) { return true; }).size());
+        const auto makeVec = []() {
+            auto vec = std::vector<MoveOnly>{};
+            vec.emplace_back();
+            vec.emplace_back();
+            return vec;
+        };
 
-        ASSERT_EQ(1u, vec_filter(std::move(vec), [](const auto&, auto i) { return i % 2u == 1u; }).size());
+        ASSERT_EQ(2u, vec_filter(makeVec(), [](const auto&) { return true; }).size());
+        ASSERT_EQ(1u, vec_filter(makeVec(), [](const auto&, auto i) { return i % 2u == 1u; }).size());
     }
 
     TEST_CASE("vector_utils_test.vec_transform", "[vector_utils_test]") {
