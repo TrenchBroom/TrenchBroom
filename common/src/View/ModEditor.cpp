@@ -186,7 +186,7 @@ namespace TrenchBroom {
         void ModEditor::updateAvailableMods() {
             auto document = kdl::mem_lock(m_document);
             std::vector<std::string> availableMods = document->game()->availableMods();
-            kdl::sort(availableMods, kdl::ci::string_less());
+            kdl::col_sort(availableMods, kdl::ci::string_less());
 
             m_availableMods.clear();
             m_availableMods.reserve(availableMods.size());
