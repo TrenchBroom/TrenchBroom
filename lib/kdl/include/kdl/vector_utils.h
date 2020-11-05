@@ -234,62 +234,20 @@ namespace kdl {
     }
 
     /**
-     * Appends the elements from the vectors in argument pack args to the end of v. Each element of function argument
-     * pack args must be a vector with value_type T and allocator A. If a vector is passed by rvalue reference, its
-     * elements will be moved into v, otherwise they will be copied.
-     *
-     * For each of the elements of args, the elements are copied into v in the order in which the appear.
+     * Concatenates the given vectors. Each element of function argument pack args must be a vector with value_type T and allocator A. 
+     * If a vector is passed by rvalue reference, its elements will be moved into the result, otherwise they will be copied.
      *
      * @tparam T the element type
      * @tparam A the allocator type
      * @tparam Args parameter pack containing the vectors to append to v
-     * @param v the vector to append to
-     * @param args the vectors to append to v
+     * @param v the first vector to concatenate
+     * @param args the remaining vectors to concatenate
      */
     template<typename T, typename A, typename... Args>
-    void vec_append(std::vector<T, A>& v, Args&&... args) {
+    std::vector<T,A> vec_concat(std::vector<T, A> v, Args... args) {
         v.reserve(kdl::col_total_size(v, args...));
-        detail::vec_append(v, std::forward<Args>(args)...);
-    }
-
-    /**
-     * Returns a vector that contains all elements from the given vectors first and the elements of rest in the order in
-     * which they appear. If a vector is passed by rvalue reference, its elements will be moved into the resulting
-     * vector, otherwise they will be copied.
-     *
-     * @tparam First the type of the first vector to concatenate, this will be the type of the returned vector
-     * @tparam Rest the types of the further vectors to concatenate
-     * @param first the first vector to concatenate
-     * @param rest further vectors to concatenate
-     * @return a vector containing the elements from the given vectors
-     */
-    template<typename First, typename... Rest>
-    auto vec_concat(const First& first, Rest&& ... rest) {
-        using T = typename First::value_type;
-        using A = typename First::allocator_type;
-        std::vector<T, A> result;
-        vec_append(result, first, std::forward<Rest>(rest)...);
-        return result;
-    }
-
-    /**
-     * Returns a vector that contains all elements from the given vectors first and the elements of rest in the order in
-     * which they appear. If a vector is passed by rvalue reference, its elements will be moved into the resulting
-     * vector, otherwise they will be copied.
-     *
-     * @tparam First the type of the first vector to concatenate, this will be the type of the returned vector
-     * @tparam Rest the types of the further vectors to concatenate
-     * @param first the first vector to concatenate
-     * @param rest further vectors to concatenate
-     * @return a vector containing the elements from the given vectors
-     */
-    template<typename First, typename... Rest>
-    auto vec_concat(First&& first, Rest&& ... rest) {
-        using T = typename First::value_type;
-        using A = typename First::allocator_type;
-        std::vector<T, A> result;
-        vec_append(result, std::move(first), std::forward<Rest>(rest)...);
-        return result;
+        detail::vec_append(v, std::move(args)...);
+        return v;
     }
 
     /**

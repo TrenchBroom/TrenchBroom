@@ -202,14 +202,14 @@ namespace TrenchBroom {
             if (hit.type() == Resize2DHitType) {
                 const Resize2DHitData& data = hit.target<const Resize2DHitData&>();
                 assert(!data.empty());
-                kdl::vec_append(result, data, collectDragFaces(data[0]));
+                result = kdl::vec_concat(std::move(result), data, collectDragFaces(data[0]));
                 if (data.size() > 1) {
-                    kdl::vec_append(result, collectDragFaces(data[1]));
+                    result = kdl::vec_concat(std::move(result), collectDragFaces(data[1]));
                 }
             } else {
                 const Resize3DHitData& data = hit.target<const Resize3DHitData&>();
                 result.push_back(data);
-                kdl::vec_append(result, collectDragFaces(data));
+                result = kdl::vec_concat(std::move(result), collectDragFaces(data));
             }
 
             return kdl::vec_transform(result, [](const auto& handle) {

@@ -40,7 +40,7 @@ namespace TrenchBroom {
             std::vector<IssueQuickFix*> result;
             for (const IssueGenerator* generator : m_generators) {
                 if ((generator->type() & issueTypes) != 0)
-                    kdl::vec_append(result, generator->quickFixes());
+                    result = kdl::vec_concat(std::move(result), generator->quickFixes());
             }
             return result;
         }

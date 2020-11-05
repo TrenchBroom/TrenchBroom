@@ -94,7 +94,7 @@ namespace TrenchBroom {
             }
 
             updateTextures();
-            kdl::vec_append(m_toRemove, std::move(collections));
+            m_toRemove = kdl::vec_concat(std::move(m_toRemove), std::move(collections));
         }
 
         void TextureManager::setTextureCollections(std::vector<TextureCollection> collections) {

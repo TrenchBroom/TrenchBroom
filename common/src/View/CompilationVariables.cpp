@@ -48,7 +48,7 @@ namespace TrenchBroom {
 
             std::vector<std::string> mods;
             mods.push_back(document->defaultMod());
-            kdl::vec_append(mods, document->mods());
+            mods = kdl::vec_concat(std::move(mods), document->mods());
 
             using namespace CompilationVariableNames;
             declare(MAP_BASE_NAME, EL::Value(filename.deleteExtension().asString()));

@@ -109,8 +109,7 @@ namespace TrenchBroom {
         std::vector<Node*> collectChildren(const std::map<Node*, std::vector<Node*>>& nodes) {
             std::vector<Node*> result;
             for (const auto& entry : nodes) {
-                const std::vector<Node*>& children = entry.second;
-                kdl::vec_append(result, children);
+                result = kdl::vec_concat(std::move(result), entry.second);
             }
             return result;
         }
@@ -118,7 +117,7 @@ namespace TrenchBroom {
         std::vector<Node*> collectDescendants(const std::vector<Node*>& nodes) {
             auto result = std::vector<Node*>{};
             for (auto* node : nodes) {
-                kdl::vec_append(result, collectNodes(node->children()));
+                result = kdl::vec_concat(std::move(result), collectNodes(node->children()));
             }
             return result;
         }

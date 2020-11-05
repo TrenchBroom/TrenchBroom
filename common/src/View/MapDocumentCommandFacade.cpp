@@ -114,7 +114,7 @@ namespace TrenchBroom {
                 }
             }
 
-            kdl::vec_append(m_selectedBrushFaces, selected);
+            m_selectedBrushFaces = kdl::vec_concat(std::move(m_selectedBrushFaces), selected);
 
             Selection selection;
             selection.addSelectedBrushFaces(selected);
@@ -235,7 +235,7 @@ namespace TrenchBroom {
                 Model::Node* parent = entry.first;
                 const std::vector<Model::Node*>& children = entry.second;
                 parent->addChildren(children);
-                kdl::vec_append(addedNodes, children);
+                addedNodes = kdl::vec_concat(std::move(addedNodes), children);
             }
 
             setEntityDefinitions(addedNodes);
@@ -757,8 +757,8 @@ namespace TrenchBroom {
                 brushNode->brush().moveVertices(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock))
                     .visit(kdl::overload(
                         [&](Model::Brush&& brush) {
-                            const auto newPositions = brush.findClosestVertexPositions(oldPositions + delta);
-                            kdl::vec_append(newVertexPositions, newPositions);
+                            auto newPositions = brush.findClosestVertexPositions(oldPositions + delta);
+                            newVertexPositions = kdl::vec_concat(std::move(newVertexPositions), std::move(newPositions));
                             brushNode->setBrush(std::move(brush));
                         },
                         [&](const Model::BrushError e) {
@@ -786,10 +786,10 @@ namespace TrenchBroom {
                 brushNode->brush().moveEdges(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock))
                     .visit(kdl::overload(
                         [&](Model::Brush&& brush) {
-                            const auto newPositions = brush.findClosestEdgePositions(kdl::vec_transform(oldPositions, [&](const auto& s) {
+                            auto newPositions = brush.findClosestEdgePositions(kdl::vec_transform(oldPositions, [&](const auto& s) {
                                 return s.translate(delta);
                             }));
-                            kdl::vec_append(newEdgePositions, newPositions);
+                            newEdgePositions = kdl::vec_concat(std::move(newEdgePositions), std::move(newPositions));
                             brushNode->setBrush(std::move(brush));
                         },
                         [&](const Model::BrushError e) {
@@ -818,10 +818,10 @@ namespace TrenchBroom {
                 brushNode->brush().moveFaces(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock))
                     .visit(kdl::overload(
                         [&](Model::Brush&& brush) {
-                            const auto newPositions = brush.findClosestFacePositions(kdl::vec_transform(oldPositions, [&](const auto& f) {
+                            auto newPositions = brush.findClosestFacePositions(kdl::vec_transform(oldPositions, [&](const auto& f) {
                                 return f.translate(delta);
                             }));
-                            kdl::vec_append(newFacePositions, newPositions);
+                            newFacePositions = kdl::vec_concat(std::move(newFacePositions), std::move(newPositions));
                             brushNode->setBrush(std::move(brush));
                         },
                         [&](const Model::BrushError e) {

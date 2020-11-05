@@ -1125,11 +1125,11 @@ namespace TrenchBroom {
 
             auto issues = std::vector<Model::Issue*>{};
             document->world()->accept(kdl::overload(
-                [&](auto&& thisLambda, Model::WorldNode* w)  { kdl::vec_append(issues, w->issues(issueGenerators)); w->visitChildren(thisLambda); },
-                [&](auto&& thisLambda, Model::LayerNode* l)  { kdl::vec_append(issues, l->issues(issueGenerators)); l->visitChildren(thisLambda); },
-                [&](auto&& thisLambda, Model::GroupNode* g)  { kdl::vec_append(issues, g->issues(issueGenerators)); g->visitChildren(thisLambda); },
-                [&](auto&& thisLambda, Model::EntityNode* e) { kdl::vec_append(issues, e->issues(issueGenerators)); e->visitChildren(thisLambda); },
-                [&](Model::BrushNode* b)                     { kdl::vec_append(issues, b->issues(issueGenerators)); }
+                [&](auto&& thisLambda, Model::WorldNode* w)  { issues = kdl::vec_concat(std::move(issues), w->issues(issueGenerators)); w->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::LayerNode* l)  { issues = kdl::vec_concat(std::move(issues), l->issues(issueGenerators)); l->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::GroupNode* g)  { issues = kdl::vec_concat(std::move(issues), g->issues(issueGenerators)); g->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::EntityNode* e) { issues = kdl::vec_concat(std::move(issues), e->issues(issueGenerators)); e->visitChildren(thisLambda); },
+                [&](Model::BrushNode* b)                     { issues = kdl::vec_concat(std::move(issues), b->issues(issueGenerators)); }
             ));
 
             REQUIRE(2 == issues.size());
