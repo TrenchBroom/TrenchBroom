@@ -264,9 +264,9 @@ namespace TrenchBroom {
 
         void TextureBrowserView::filterTextures(std::vector<const Assets::Texture*>& textures) const {
             if (m_hideUnused)
-                kdl::vec_erase_if(textures, MatchUsageCount());
+                textures = kdl::vec_erase_if(std::move(textures), MatchUsageCount());
             if (!m_filterText.empty())
-                kdl::vec_erase_if(textures, MatchName(m_filterText));
+                textures = kdl::vec_erase_if(std::move(textures), MatchName(m_filterText));
         }
 
         void TextureBrowserView::sortTextures(std::vector<const Assets::Texture*>& textures) const {

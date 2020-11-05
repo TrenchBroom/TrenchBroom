@@ -384,36 +384,43 @@ namespace kdl {
 
     /**
      * Erases every element from the given vector which is equal to the given value using the erase-remove idiom.
+     * Returns a vector with the remaining elements.
      *
      * @tparam T the type of the vector elements
      * @tparam A the vector's allocator type
      * @tparam X the value type
      * @param v the vector
      * @param x the value to erase
+     * @return a vector with the remaining elements
      */
     template<typename T, typename A, typename X>
-    void vec_erase(std::vector<T, A>& v, const X& x) {
+    std::vector<T, A> vec_erase(std::vector<T, A> v, const X& x) {
         v.erase(std::remove(std::begin(v), std::end(v), x), std::end(v));
+        return v;
     }
 
     /**
      * Erases every element from the given vector for which the given predicate evaluates to true using the erase-remove
      * idiom.
+     * Returns a vector with the remaining elements.
      *
      * @tparam T the type of the vector elements
      * @tparam A the vector's allocator type
      * @tparam P the predicate type
      * @param v the vector
      * @param predicate the predicate
+     * @return a vector with the remaining elements
      */
     template<typename T, typename A, typename P>
-    void vec_erase_if(std::vector<T, A>& v, const P& predicate) {
+    std::vector<T, A> vec_erase_if(std::vector<T, A> v, const P& predicate) {
         v.erase(std::remove_if(std::begin(v), std::end(v), predicate), std::end(v));
+        return v;
     }
 
     /**
      * Erases the element at the given index from the given vector. The element is swapped with the last element of the
      * vector, and then the last element is erased.
+     * Returns a vector with the remaining elements.
      *
      * Precondition: i < v.size()
      *
@@ -421,28 +428,33 @@ namespace kdl {
      * @tparam A the vector's allocator type
      * @param v the vector
      * @param i the index of the element to erase, which must be less than the given vector's size
+     * @return a vector with the remaining elements
      */
     template<typename T, typename A>
-    void vec_erase_at(std::vector<T, A>& v, const typename std::vector<T, A>::size_type i) {
+    std::vector<T, A> vec_erase_at(std::vector<T, A> v, const typename std::vector<T, A>::size_type i) {
         assert(i < v.size());
         auto it = std::next(std::begin(v), static_cast<typename std::vector<T, A>::difference_type>(i));
         v.erase(it);
+        return v;
     }
 
     /**
      * Erases every value from the given vector which is equal to any value in the given collection.
+     * Returns a vector with the remaining elements.
      *
      * @tparam T the type of the vector elements
      * @tparam A the vector's allocator type
      * @tparam C the collection type
      * @param v the vector to erase elements from
      * @param c the collection of values to erase
+     * @return a vector with the remaining elements
      */
     template<typename T, typename A, typename C>
-    void vec_erase_all(std::vector<T, A>& v, const C& c) {
+    std::vector<T, A> vec_erase_all(std::vector<T, A> v, const C& c) {
         for (const auto& x : c) {
-            vec_erase(v, x);
+            v = vec_erase(std::move(v), x);
         }
+        return v;
     }
 
     /**

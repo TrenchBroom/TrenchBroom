@@ -189,8 +189,10 @@ namespace kdl {
 
     template <typename T>
     void test_erase(const std::vector<T>& exp, std::vector<T> from, const T& x) {
-        vec_erase(from, x);
-        ASSERT_EQ(exp, from);
+        const auto originalFrom = from;
+        ASSERT_EQ(exp, vec_erase(from, x));
+        ASSERT_EQ(originalFrom, from);
+        ASSERT_EQ(exp, vec_erase(std::move(from), x));
     }
 
     TEST_CASE("vector_utils_test.vec_erase", "[vector_utils_test]") {
@@ -203,8 +205,10 @@ namespace kdl {
 
     template <typename T, typename P>
     void test_erase_if(const std::vector<T>& exp, std::vector<T> from, const P& pred) {
-        vec_erase_if(from, pred);
-        ASSERT_EQ(exp, from);
+        const auto originalFrom = from;
+        ASSERT_EQ(exp, vec_erase_if(from, pred));
+        ASSERT_EQ(originalFrom, from);
+        ASSERT_EQ(exp, vec_erase_if(std::move(from), pred));
     }
 
     TEST_CASE("vector_utils_test.vec_erase_if", "[vector_utils_test]") {
@@ -218,8 +222,10 @@ namespace kdl {
 
     template <typename T>
     void test_erase_at(const std::vector<T>& exp, std::vector<T> from, const std::size_t i) {
-        vec_erase_at(from, i);
-        ASSERT_EQ(exp, from);
+        const auto originalFrom = from;
+        ASSERT_EQ(exp, vec_erase_at(from, i));
+        ASSERT_EQ(originalFrom, from);
+        ASSERT_EQ(exp, vec_erase_at(std::move(from), i));
     }
 
     TEST_CASE("vector_utils_test.vec_erase_at", "[vector_utils_test]") {
@@ -230,8 +236,10 @@ namespace kdl {
 
     template <typename T>
     void test_erase_all(const std::vector<T>& exp, std::vector<T> from, const std::vector<T>& which) {
-        vec_erase_all(from, which);
-        ASSERT_EQ(exp, from);
+        const auto originalFrom = from;
+        ASSERT_EQ(exp, vec_erase_all(from, which));
+        ASSERT_EQ(originalFrom, from);
+        ASSERT_EQ(exp, vec_erase_all(std::move(from), which));
     }
 
     TEST_CASE("vector_utils_test.vec_erase_all", "[vector_utils_test]") {

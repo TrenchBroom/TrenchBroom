@@ -218,7 +218,7 @@ namespace TrenchBroom {
             childWillBeRemoved(child);
             // nodeWillChange();
             child->setParent(nullptr);
-            kdl::vec_erase(m_children, child);
+            m_children = kdl::vec_erase(std::move(m_children), child);
             childWasRemoved(child);
             // nodeDidChange();
         }

@@ -178,7 +178,7 @@ namespace TrenchBroom {
                 }
             }
 
-            kdl::vec_erase_all(m_selectedBrushFaces, deselected);
+            m_selectedBrushFaces = kdl::vec_erase_all(std::move(m_selectedBrushFaces), deselected);
 
             Selection selection;
             selection.addDeselectedBrushFaces(deselected);
