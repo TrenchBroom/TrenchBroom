@@ -114,7 +114,7 @@ namespace kdl {
      * @return a vector containing the elements of a, but with O as the element type
      */
     template<typename O, typename T, typename A>
-    std::vector<O> vec_element_cast(const std::vector<T, A>& v) {
+    std::vector<O> vec_element_cast(std::vector<T, A> v) {
         if constexpr (std::is_same_v<T, O>) {
             return v;
         } else {
@@ -122,33 +122,6 @@ namespace kdl {
             result.reserve(v.size());
             for (const auto& e : v) {
                 result.push_back(O(e));
-            }
-            return result;
-        }
-    }
-
-    /**
-     * Returns a vector containing elements of type O, each of which is constructed by passing the corresponding
-     * element of v to the constructor of o, e.g. result.push_back(O(e)), where result is the resulting vector, and e
-     * is an element from v. The elements from the given vector will be moved into the result vector.
-     *
-     * Precondition: O must be constructible with an argument of type T
-     *
-     * @tparam O the type of the result vector elements
-     * @tparam T the type of the vector elements
-     * @tparam A the vector's allocator type
-     * @param v the vector to cast
-     * @return a vector containing the elements of a, but with O as the element type
-     */
-    template<typename O, typename T, typename A>
-    std::vector<O> vec_element_cast(std::vector<T, A>&& v) {
-        if constexpr (std::is_same_v<T, O>) {
-            return v;
-        } else {
-            std::vector<O> result;
-            result.reserve(v.size());
-            for (auto&& e : v) {
-                result.push_back(O(std::move(e)));
             }
             return result;
         }
