@@ -459,39 +459,25 @@ namespace kdl {
 
     /**
      * Sorts the elements of the given vector according to the given comparator.
+     * Returns a vector with the sorted elements.
      *
      * @tparam T the type of the vector elements
      * @tparam A the vector's allocator type
      * @tparam Compare the type of the comparator to use
      * @param v the vector to sort
      * @param cmp the comparator to use for comparisons
+     * @return a vector with the sorted elements
      */
     template<typename T, typename A, typename Compare = std::less<T>>
-    std::vector<T, A>& vec_sort(std::vector<T, A>& v, const Compare& cmp = Compare()) {
+    std::vector<T, A> vec_sort(std::vector<T, A> v, const Compare& cmp = Compare()) {
         std::sort(std::begin(v), std::end(v), cmp);
         return v;
     }
 
     /**
-     * Sorts the elements of the given vector according to the given comparator.
-     * 
-     * Returns the given vector.
-     *
-     * @tparam T the type of the vector elements
-     * @tparam A the vector's allocator type
-     * @tparam Compare the type of the comparator to use
-     * @param v the vector to sort
-     * @param cmp the comparator to use for comparisons
-     */
-    template<typename T, typename A, typename Compare = std::less<T>>
-    std::vector<T, A> vec_sort(std::vector<T, A>&& v, const Compare& cmp = Compare()) {
-        std::sort(std::begin(v), std::end(v), cmp);
-        return std::move(v);
-    }
-
-    /**
      * Sorts the elements of the given vector and removes all duplicate values. A value is a duplicate if it is
      * equivalent to its predecessor in the vector.
+     * Returns a vector with the remaining elements.
      *
      * @tparam T the type of the vector elements
      * @tparam A the vector's allocator type

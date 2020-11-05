@@ -166,7 +166,7 @@ namespace TrenchBroom {
 
             auto document = kdl::mem_lock(m_document);
             auto specs = document->allEntityDefinitionFiles();
-            kdl::vec_sort(specs);
+            specs = kdl::vec_sort(std::move(specs));
 
             for (const auto& spec : specs) {
                 const auto& path = spec.path();

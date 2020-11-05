@@ -135,7 +135,7 @@ namespace TrenchBroom {
                     [&](Model::BrushNode* brush)                      { collectIssues(brush); }
                 ));
 
-                kdl::vec_sort(issues, [](const auto* lhs, const auto* rhs) { return lhs->seqId() > rhs->seqId(); });
+                issues = kdl::vec_sort(std::move(issues), [](const auto* lhs, const auto* rhs) { return lhs->seqId() > rhs->seqId(); });
                 m_tableModel->setIssues(std::move(issues));
             }
         }

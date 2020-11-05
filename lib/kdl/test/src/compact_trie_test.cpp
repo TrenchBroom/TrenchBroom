@@ -31,8 +31,8 @@ namespace kdl {
     std::vector<std::string> exp(exp_);\
     std::vector<std::string> act;\
     index.find_matches(pattern, std::back_inserter(act));\
-    vec_sort(exp);\
-    vec_sort(act);\
+    exp = vec_sort(std::move(exp));\
+    act = vec_sort(std::move(act));\
     ASSERT_EQ(exp, act);\
 }
 
