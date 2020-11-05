@@ -245,7 +245,7 @@ namespace TrenchBroom {
         kdl::result<Brush, BrushError> Brush::clip(const vm::bbox3& worldBounds, BrushFace face) const {
             std::vector<BrushFace> faces;
             faces.reserve(faceCount() + 1u);
-            kdl::vec_append(faces, m_faces);
+            faces = kdl::vec_concat(std::move(faces), m_faces);
             faces.push_back(std::move(face));
             return Brush::create(worldBounds, std::move(faces));
         }
@@ -749,7 +749,7 @@ namespace TrenchBroom {
             // TODO: When there are multiple choices of moving verts (unmovedVerts.size() + movedVerts.size() > 3)
             // we should sort them somehow. This can be seen if you select and move 3/5 verts of a pentagon;
             // which of the 3 moving verts currently gets UV lock is arbitrary.
-            kdl::vec_append(referenceVerts, movedVerts);
+            referenceVerts = kdl::vec_concat(std::move(referenceVerts), movedVerts);
 
             if (referenceVerts.size() < 3) {
                 // Can't create a transform as there are not enough verts

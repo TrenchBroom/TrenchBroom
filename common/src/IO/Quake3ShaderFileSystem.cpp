@@ -61,7 +61,7 @@ namespace TrenchBroom {
                     try {
                         Quake3ShaderParser parser(bufferedReader.stringView());
                         SimpleParserStatus status(m_logger, file->path().asString());
-                        kdl::vec_append(result, parser.parse(status));
+                        result = kdl::vec_concat(std::move(result), parser.parse(status));
                     } catch (const ParserException& e) {
                         m_logger.warn() << "Skipping malformed shader file " << path << ": " << e.what();
                     }
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             auto allImages = std::vector<Path>();
             for (const auto& path : m_textureSearchPaths) {
                 if (next().directoryExists(path)) {
-                    kdl::vec_append(allImages, next().findItemsRecursively(path, FileExtensionMatcher(extensions)));
+                    allImages = kdl::vec_concat(std::move(allImages), next().findItemsRecursively(path, FileExtensionMatcher(extensions)));
                 }
             }
 

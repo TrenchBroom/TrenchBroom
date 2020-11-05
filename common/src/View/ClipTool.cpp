@@ -221,7 +221,7 @@ namespace TrenchBroom {
                 std::vector<vm::vec3> result;
                 for (size_t i = 0; i < m_numPoints; ++i) {
                     const std::vector<vm::vec3>& helpVectors = m_points[i].helpVectors;
-                    kdl::vec_append(result, helpVectors);
+                    result = kdl::vec_concat(std::move(result), helpVectors);
                 }
 
                 return result;

@@ -42,7 +42,7 @@ namespace TrenchBroom {
                 snapshot->restore(worldBounds)
                     .visit(kdl::overload(
                         []() {},
-                        [&](const SnapshotErrors& e) { kdl::vec_append(errors, e); }
+                        [&](const SnapshotErrors& e) { errors = kdl::vec_concat(std::move(errors), e); }
                     ));
             }
             return errors.empty()

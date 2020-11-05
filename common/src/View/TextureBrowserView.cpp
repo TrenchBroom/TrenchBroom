@@ -505,8 +505,11 @@ namespace TrenchBroom {
                                     kdl::skip_iterator(std::begin(groupNameQuads), std::end(groupNameQuads), 1, 2),
                                     kdl::skip_iterator(std::begin(subTextColor), std::end(subTextColor), 0, 0));
 
-                                kdl::vec_append(stringVertices[cellData(cell).mainTitleFont], textureNameVertices);
-                                kdl::vec_append(stringVertices[cellData(cell).subTitleFont], groupNameVertices);
+                                auto& mainTitleVertices = stringVertices[cellData(cell).mainTitleFont];
+                                mainTitleVertices = kdl::vec_concat(std::move(mainTitleVertices), textureNameVertices);
+
+                                auto& subTitleVertices = stringVertices[cellData(cell).subTitleFont];
+                                subTitleVertices = kdl::vec_concat(std::move(subTitleVertices), groupNameVertices);
                             }
                         }
                     }
