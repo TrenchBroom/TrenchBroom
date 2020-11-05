@@ -296,11 +296,8 @@ namespace TrenchBroom {
         }
 
         void AttributableNode::updateAttributeIndex(const std::vector<EntityAttribute>& newAttributes) {
-            auto oldSorted = m_attributes.attributes();
-            auto newSorted = newAttributes;
-
-            kdl::col_sort(oldSorted);
-            kdl::col_sort(newSorted);
+            const auto oldSorted = kdl::col_sort(m_attributes.attributes());
+            const auto newSorted = kdl::col_sort(newAttributes);
 
             auto oldIt = std::begin(oldSorted);
             auto oldEnd = std::end(oldSorted);
