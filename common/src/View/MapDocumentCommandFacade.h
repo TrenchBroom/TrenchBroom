@@ -100,19 +100,6 @@ namespace TrenchBroom {
             EntityAttributeSnapshotMap performRenameAttribute(const std::string& oldName, const std::string& newName);
             EntityAttributeSnapshotMap performRenameAttributeForNodes(const std::vector<Model::AttributableNode*>& nodes, const std::string& oldName, const std::string& newName);
             void restoreAttributes(const EntityAttributeSnapshotMap& attributes);
-        public: // brush resizing
-            /**
-             * Resize the currently selected brushes by translating faces that match the given polygons by the given
-             * delta.
-             *
-             * Returns the new polygons of the translated faces or an empty optional if the operation fails for any of
-             * the selected faces. If the operation fails, no brushes will be modified.
-             *
-             * @param polygons the polygons describing the faces to be translated
-             * @param delta the delta vector by which the faces should be translated
-             * @return the new polygons or an empty optional if the operation fails
-             */
-            std::optional<std::vector<vm::polygon3>> performResizeBrushes(const std::vector<vm::polygon3>& polygons, const vm::vec3& delta);
         public: // brush face attributes
             void performMoveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
             void performRotateTextures(float angle);

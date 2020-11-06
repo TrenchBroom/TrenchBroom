@@ -613,56 +613,6 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
         }
 
-        std::optional<std::vector<vm::polygon3>> MapDocumentCommandFacade::performResizeBrushes(const std::vector<vm::polygon3>& polygons, const vm::vec3& delta) {
-            const std::vector<Model::BrushNode*>& selectedBrushes = m_selectedNodes.brushes();
-
-            std::vector<vm::polygon3> result;
-            std::vector<Model::Node*> changedNodes;
-            std::map<Model::BrushNode*, Model::Brush> changes;
-
-            for (Model::BrushNode* brushNode : selectedBrushes) {
-                const Model::Brush& original = brushNode->brush();
-                const auto faceIndex = original.findFace(polygons);
-                if (!faceIndex) {
-                    // We allow resizing only some of the brushes
-                    continue;
-                }
-
-                const bool success = original.moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
-                    .visit(kdl::overload(
-                        [&](Model::Brush&& copy) -> bool {
-                            if (m_worldBounds.contains(copy.bounds())) {
-                                result.push_back(copy.face(*faceIndex).polygon());
-                                changedNodes.push_back(brushNode);
-                                changes.emplace(brushNode, std::move(copy));
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        },
-                        [&](const Model::BrushError e) -> bool {
-                            error() << "Could not resize brush: " << e;
-                            return false;
-                        }
-                    ));
-
-                if (!success) {
-                    return std::nullopt;
-                }
-            }
-
-            const auto parents = collectParents(changedNodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, changedNodes);
-
-            for (auto& [brushNode, brush] : changes) {
-                brushNode->setBrush(std::move(brush));
-            }
-            invalidateSelectionBounds();
-
-            return { result };
-        }
-
         void MapDocumentCommandFacade::performMoveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) {
             for (const auto& faceHandle : m_selectedBrushFaces) {
                 Model::BrushNode* node = faceHandle.node();
