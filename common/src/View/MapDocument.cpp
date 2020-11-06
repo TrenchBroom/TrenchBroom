@@ -100,7 +100,6 @@
 #include "View/RemoveBrushFacesCommand.h"
 #include "View/RemoveBrushVerticesCommand.h"
 #include "View/ReparentNodesCommand.h"
-#include "View/ResizeBrushesCommand.h"
 #include "View/CopyTexCoordSystemFromFaceCommand.h"
 #include "View/RepeatStack.h"
 #include "View/RotateTexturesCommand.h"
