@@ -1961,8 +1961,32 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
-            const auto result = executeAndStore(ResizeBrushesCommand::resize(faces, delta));
-            return result->success();
+            return applyAndSwap(*this, "Resize Brushes", m_selectedNodes.nodes(), kdl::overload(
+                [] (Model::Entity&)      { return true; },
+                [&](Model::Brush& originalBrush) {
+                    const auto faceIndex = originalBrush.findFace(faces);
+                    if (!faceIndex) {
+                        // we allow resizing only some of the brushes
+                        return true;
+                    }
+
+                    return originalBrush.moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
+                        .visit(kdl::overload(
+                            [&](Model::Brush&& newBrush) -> bool {
+                                if (m_worldBounds.contains(newBrush.bounds())) {
+                                    originalBrush = std::move(newBrush);
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            },
+                            [&](const Model::BrushError e) -> bool {
+                                error() << "Could not resize brush: " << e;
+                                return false;
+                            }
+                        ));
+                }
+            ));
         }
 
         bool MapDocument::setFaceAttributes(const Model::BrushFaceAttributes& attributes) {
