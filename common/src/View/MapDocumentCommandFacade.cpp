@@ -613,17 +613,6 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
         }
 
-        void MapDocumentCommandFacade::performMoveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) {
-            for (const auto& faceHandle : m_selectedBrushFaces) {
-                Model::BrushNode* node = faceHandle.node();
-                Model::Brush brush = node->brush();
-                Model::BrushFace& face = brush.face(faceHandle.faceIndex());
-                face.moveTexture(vm::vec3(cameraUp), vm::vec3(cameraRight), delta);
-                node->setBrush(brush);
-            }
-            brushFacesDidChangeNotifier(m_selectedBrushFaces);
-        }
-
         void MapDocumentCommandFacade::performRotateTextures(const float angle) {
             for (const auto& faceHandle : m_selectedBrushFaces) {
                 Model::BrushNode* node = faceHandle.node();
