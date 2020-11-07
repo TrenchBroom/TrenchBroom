@@ -1931,8 +1931,10 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::setAttribute(const std::string& name, const std::string& value) {
-            const auto result = executeAndStore(ChangeEntityAttributesCommand::set(name, value));
-            return result->success();
+            return applyAndSwap(*this, "Set Property", allSelectedAttributableNodes(), kdl::overload(
+                [&](Model::Entity& entity) { entity.addOrUpdateAttribute(name, value); return true; },
+                [] (Model::Brush&)         { return true; }
+            ));
         }
 
         bool MapDocument::renameAttribute(const std::string& oldName, const std::string& newName) {
