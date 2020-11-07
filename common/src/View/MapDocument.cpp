@@ -94,7 +94,6 @@
 #include "View/MoveBrushEdgesCommand.h"
 #include "View/MoveBrushFacesCommand.h"
 #include "View/MoveBrushVerticesCommand.h"
-#include "View/MoveTexturesCommand.h"
 #include "View/PasteType.h"
 #include "View/RemoveBrushEdgesCommand.h"
 #include "View/RemoveBrushFacesCommand.h"
@@ -2011,8 +2010,10 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::moveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) {
-            const auto result = executeAndStore(MoveTexturesCommand::move(cameraUp, cameraRight, delta));
-            return result->success();
+            return applyAndSwap(*this, "Move Textures", m_selectedBrushFaces, [&](Model::BrushFace& face) {
+                face.moveTexture(vm::vec3(cameraUp), vm::vec3(cameraRight), delta);
+                return true;
+            });
         }
 
         bool MapDocument::rotateTextures(const float angle) {
