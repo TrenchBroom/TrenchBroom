@@ -1938,8 +1938,10 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::renameAttribute(const std::string& oldName, const std::string& newName) {
-            const auto result = executeAndStore(ChangeEntityAttributesCommand::rename(oldName, newName));
-            return result->success();
+            return applyAndSwap(*this, "Rename Property", allSelectedAttributableNodes(), kdl::overload(
+                [&](Model::Entity& entity) { entity.renameAttribute(oldName, newName); return true; },
+                [] (Model::Brush&)         { return true; }
+            ));
         }
 
         bool MapDocument::removeAttribute(const std::string& name) {
