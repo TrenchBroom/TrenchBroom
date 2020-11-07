@@ -1945,8 +1945,10 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::removeAttribute(const std::string& name) {
-            const auto result = executeAndStore(ChangeEntityAttributesCommand::remove(name));
-            return result->success();
+            return applyAndSwap(*this, "Remove Property", allSelectedAttributableNodes(), kdl::overload(
+                [&](Model::Entity& entity) { entity.removeAttribute(name); return true; },
+                [] (Model::Brush&)         { return true; }
+            ));
         }
 
         bool MapDocument::convertEntityColorRange(const std::string& name, Assets::ColorRange::Type range) {
