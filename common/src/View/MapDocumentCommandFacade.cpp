@@ -613,17 +613,6 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
         }
 
-        void MapDocumentCommandFacade::performRotateTextures(const float angle) {
-            for (const auto& faceHandle : m_selectedBrushFaces) {
-                Model::BrushNode* node = faceHandle.node();
-                Model::Brush brush = node->brush();
-                Model::BrushFace& face = brush.face(faceHandle.faceIndex());
-                face.rotateTexture(angle);
-                node->setBrush(brush);
-            }
-            brushFacesDidChangeNotifier(m_selectedBrushFaces);
-        }
-
         void MapDocumentCommandFacade::performShearTextures(const vm::vec2f& factors) {
             for (const auto& faceHandle : m_selectedBrushFaces) {
                 Model::BrushNode* node = faceHandle.node();

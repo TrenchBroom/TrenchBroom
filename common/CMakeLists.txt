@@ -399,7 +399,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/RotateObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolController.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolPage.cpp
-        ${COMMON_SOURCE_DIR}/View/RotateTexturesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/ScaleObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/View/ScaleObjectsToolController.cpp
         ${COMMON_SOURCE_DIR}/View/ScaleObjectsToolPage.cpp
@@ -920,7 +919,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/RotateObjectsTool.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolController.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolPage.h
-        ${COMMON_SOURCE_DIR}/View/RotateTexturesCommand.h
         ${COMMON_SOURCE_DIR}/View/ScaleObjectsTool.h
         ${COMMON_SOURCE_DIR}/View/ScaleObjectsToolController.h
         ${COMMON_SOURCE_DIR}/View/ScaleObjectsToolPage.h
