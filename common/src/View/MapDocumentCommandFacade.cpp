@@ -613,17 +613,6 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
         }
 
-        void MapDocumentCommandFacade::performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot& coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle) {
-            for (const auto& faceHandle : m_selectedBrushFaces) {
-                Model::BrushNode* node = faceHandle.node();
-                Model::Brush brush = node->brush();
-                Model::BrushFace& face = brush.face(faceHandle.faceIndex());
-                face.copyTexCoordSystemFromFace(coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle);
-                node->setBrush(brush);
-            }
-            brushFacesDidChangeNotifier(m_selectedBrushFaces);
-        }
-
         void MapDocumentCommandFacade::performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) {
             if (request.evaluate(allSelectedBrushFaces())) {
                 setTextures(allSelectedBrushFaces());

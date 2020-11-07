@@ -99,7 +99,6 @@
 #include "View/RemoveBrushFacesCommand.h"
 #include "View/RemoveBrushVerticesCommand.h"
 #include "View/ReparentNodesCommand.h"
-#include "View/CopyTexCoordSystemFromFaceCommand.h"
 #include "View/RepeatStack.h"
 #include "View/SelectionCommand.h"
 #include "View/SetLockStateCommand.h"
@@ -2003,8 +2002,10 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::copyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot& coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle) {
-            const auto result = executeAndStore(CopyTexCoordSystemFromFaceCommand::command(coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle));
-            return result->success();
+            return applyAndSwap(*this, "Copy Texture Alignment", m_selectedBrushFaces, [&](Model::BrushFace& face) {
+                face.copyTexCoordSystemFromFace(coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle);
+                return true;
+            });
         }
 
         bool MapDocument::moveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) {
