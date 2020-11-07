@@ -413,7 +413,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/SetVisibilityCommand.cpp
         ${COMMON_SOURCE_DIR}/View/ShearObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.cpp
-        ${COMMON_SOURCE_DIR}/View/ShearTexturesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SliderWithLabel.cpp
         ${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.cpp
@@ -933,7 +932,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/SetVisibilityCommand.h
         ${COMMON_SOURCE_DIR}/View/ShearObjectsTool.h
         ${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.h
-        ${COMMON_SOURCE_DIR}/View/ShearTexturesCommand.h
         ${COMMON_SOURCE_DIR}/View/SliderWithLabel.h
         ${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.h
