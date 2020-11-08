@@ -84,9 +84,6 @@ namespace TrenchBroom {
         public: // layers
             using MapDocument::performSetCurrentLayer;
         public:
-            std::map<Model::GroupNode*, std::string> performRenameGroups(const std::string& newName);
-            void performUndoRenameGroups(const std::map<Model::GroupNode*, std::string>& newNames);
-
             void performPushGroup(Model::GroupNode* group);
             void performPopGroup();
         public: // entity attributes

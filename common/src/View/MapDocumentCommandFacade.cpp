@@ -378,52 +378,6 @@ namespace TrenchBroom {
             nodeLockingDidChangeNotifier(changedNodes);
         }
 
-        std::map<Model::GroupNode*, std::string> MapDocumentCommandFacade::performRenameGroups(const std::string& newName) {
-            const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            std::map<Model::GroupNode*, std::string> oldNames;
-            for (auto* node : nodes) {
-                node->accept(kdl::overload(
-                    [] (Model::WorldNode*) {},
-                    [] (Model::LayerNode*) {},
-                    [&](Model::GroupNode* group) {
-                        oldNames[group] = group->name();
-                        group->setName(newName);
-                    },
-                    [] (Model::EntityNode*) {},
-                    [] (Model::BrushNode*) {}
-                ));
-            }
-
-            return oldNames;
-        }
-
-        void MapDocumentCommandFacade::performUndoRenameGroups(const std::map<Model::GroupNode*, std::string>& newNames) {
-            const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            for (auto* node : nodes) {
-                node->accept(kdl::overload(
-                    [] (Model::WorldNode*) {},
-                    [] (Model::LayerNode*) {},
-                    [&](Model::GroupNode* group) {
-                        assert(newNames.count(group) == 1);
-                        const std::string& newName = kdl::map_find_or_default(newNames, group, group->name());
-                        group->setName(newName);
-                    },
-                    [] (Model::EntityNode*) {},
-                    [] (Model::BrushNode*) {}
-                ));
-            }
-        }
-
         void MapDocumentCommandFacade::performPushGroup(Model::GroupNode* group) {
             m_editorContext->pushGroup(group);
             groupWasOpenedNotifier(group);
