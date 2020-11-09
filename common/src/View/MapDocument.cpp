@@ -67,6 +67,7 @@
 #include "Model/MixedBrushContentsIssueGenerator.h"
 #include "Model/ModelUtils.h"
 #include "Model/Node.h"
+#include "Model/NodeContents.h"
 #include "Model/NonIntegerVerticesIssueGenerator.h"
 #include "Model/WorldBoundsIssueGenerator.h"
 #include "Model/PointEntityWithBrushesIssueGenerator.h"
@@ -134,10 +135,93 @@
 #include <sstream>
 #include <string>
 #include <type_traits>
+#include <unordered_map>
 #include <vector>
 
 namespace TrenchBroom {
     namespace View {
+        /**
+         * Applies the given lambda to a copy of the contents of each of the given nodes and swaps the node contents if the given lambda succeeds for all node contents.
+         *
+         * The lambda L needs two overloads:
+         * - bool operator()(Model::Entity&);
+         * - bool operator()(Model::Brush&);
+         *
+         * The given node contents should be modified in place and the lambda should return true if it was applied successfully and false otherwise.
+         *
+         * Returns true if the given lambda could be applied successfully to all node contents and false otherwise. If the lambda fails, then no
+         * node contents will be swapped, and the original nodes remain unmodified.
+         */
+        template <typename N, typename L>
+        static bool applyAndSwap(MapDocument& document, const std::string& commandName, const std::vector<N*>& nodes, L lambda) {
+            auto newNodes = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
+            newNodes.reserve(nodes.size());
+
+            bool success = true;
+            std::transform(std::begin(nodes), std::end(nodes), std::back_inserter(newNodes), [&](auto* node) {
+                std::variant<Model::Entity, Model::Brush> nodeContents = node->accept(kdl::overload(
+                    [](const Model::WorldNode* worldNode)   -> std::variant<Model::Entity, Model::Brush> { return worldNode->entity(); },
+                    [](const Model::LayerNode* layerNode)   -> std::variant<Model::Entity, Model::Brush> { return layerNode->entity(); },
+                    [](const Model::GroupNode* groupNode)   -> std::variant<Model::Entity, Model::Brush> { return groupNode->entity(); },
+                    [](const Model::EntityNode* entityNode) -> std::variant<Model::Entity, Model::Brush> { return entityNode->entity(); },
+                    [](const Model::BrushNode* brushNode)   -> std::variant<Model::Entity, Model::Brush> { return brushNode->brush(); }
+                ));
+
+                success = success && std::visit(lambda, nodeContents);
+                return std::make_pair(node, Model::NodeContents(std::move(nodeContents)));
+            });
+
+            if (success) {
+                document.swapNodeContents(commandName, std::move(newNodes));
+            }
+
+            return success;
+        }
+
+        /**
+         * Applies the given lambda to a copy of each of the given faces.
+         *
+         * Specifically, each brush node of the given faces has its contents copied and the lambda applied to the copied faces. If the lambda succeeds for each
+         * face, the node contents are subsequently swapped.
+         *
+         * The lambda L needs to accept brush faces:
+         * - bool operator()(Model::BrushFace&);
+         *
+         * The given node contents should be modified in place and the lambda should return true if it was applied successfully and false otherwise.
+         *
+         * Returns true if the given lambda could be applied successfully to each face and false otherwise. If the lambda fails, then no
+         * node contents will be swapped, and the original nodes remain unmodified.
+         */
+        template <typename L>
+        static bool applyAndSwap(MapDocument& document, const std::string& commandName, const std::vector<Model::BrushFaceHandle>& faces, L lambda) {
+            auto brushes = std::unordered_map<Model::BrushNode*, Model::Brush>{};
+
+            bool success = true;
+            std::for_each(std::begin(faces), std::end(faces), [&](const auto& faceHandle) {
+                auto* brushNode = faceHandle.node();
+                auto it = brushes.find(brushNode);
+                if (it == std::end(brushes)) {
+                    it = brushes.emplace(brushNode, brushNode->brush()).first;
+                }
+
+                auto& brush = it->second;
+                success = success && lambda(brush.face(faceHandle.faceIndex()));
+            });
+
+            if (success) {
+                auto newNodes = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
+                newNodes.reserve(brushes.size());
+
+                for (auto& [brushNode, brush] : brushes) {
+                    newNodes.emplace_back(brushNode, Model::NodeContents(std::move(brush)));
+                }
+
+                document.swapNodeContents(commandName, std::move(newNodes));
+            }
+
+            return success;
+        }
+
         const vm::bbox3 MapDocument::DefaultWorldBounds(-32768.0, 32768.0);
         const std::string MapDocument::DefaultDocumentName("unnamed.map");
 
