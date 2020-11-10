@@ -225,43 +225,43 @@ namespace TrenchBroom {
         }
 
         MapFileSerializer::~MapFileSerializer() {
-            std::fwrite(m_buf.data(), 1, m_buf.size(), m_stream);
+            ;//std::fwrite(m_buf.data(), 1, m_buf.size(), m_stream);
         }
 
         void MapFileSerializer::doBeginFile() {}
         void MapFileSerializer::doEndFile() {}
 
         void MapFileSerializer::doBeginEntity(const Model::Node* /* node */) {
-            std::fprintf(m_stream, "// entity %u\n", entityNo());
+            fmt::format_to(std::back_inserter(m_buf), "// entity {}\n", entityNo());
             ++m_line;
             m_startLineStack.push_back(m_line);
-            std::fprintf(m_stream, "{\n");
+            fmt::format_to(std::back_inserter(m_buf), "{{\n");
             ++m_line;
         }
 
         void MapFileSerializer::doEndEntity(const Model::Node* node) {
-            std::fprintf(m_stream, "}\n");
+            fmt::format_to(std::back_inserter(m_buf), "}}\n");
             ++m_line;
             setFilePosition(node);
         }
 
         void MapFileSerializer::doEntityAttribute(const Model::EntityAttribute& attribute) {
-            std::fprintf(m_stream, "\"%s\" \"%s\"\n",
+            fmt::format_to(std::back_inserter(m_buf), "\"{}\" \"{}\"\n",
                          escapeEntityAttribute( attribute.name()).c_str(),
                          escapeEntityAttribute(attribute.value()).c_str());
             ++m_line;
         }
 
         void MapFileSerializer::doBeginBrush(const Model::BrushNode* /* brush */) {
-            std::fprintf(m_stream, "// brush %u\n", brushNo());
+            fmt::format_to(std::back_inserter(m_buf), "// brush {}\n", brushNo());
             ++m_line;
             m_startLineStack.push_back(m_line);
-            std::fprintf(m_stream, "{\n");
+            fmt::format_to(std::back_inserter(m_buf), "{{\n");
             ++m_line;
         }
 
         void MapFileSerializer::doEndBrush(const Model::BrushNode* brush) {
-            std::fprintf(m_stream, "}\n");
+            fmt::format_to(std::back_inserter(m_buf), "}}\n");
             ++m_line;
             setFilePosition(brush);
         }
