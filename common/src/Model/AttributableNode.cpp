@@ -109,7 +109,6 @@ namespace TrenchBroom {
             if (m_definition != nullptr)
                 m_definition->decUsageCount();
             m_definition = definition;
-            m_attributes.updateDefinitions(m_definition);
             if (m_definition != nullptr)
                 m_definition->incUsageCount();
         }
@@ -126,7 +125,6 @@ namespace TrenchBroom {
             const NotifyAttributeChange notifyChange(this);
             updateAttributeIndex(attributes);
             m_attributes.setAttributes(attributes);
-            m_attributes.updateDefinitions(m_definition);
         }
 
         std::vector<std::string> AttributableNode::attributeNames() const {
@@ -183,14 +181,13 @@ namespace TrenchBroom {
         bool AttributableNode::addOrUpdateAttribute(const std::string& name, const std::string& value) {
             const NotifyAttributeChange notifyChange(this);
 
-            const Assets::AttributeDefinition* definition = Assets::EntityDefinition::safeGetAttributeDefinition(m_definition, name);
             const std::string* oldValue = m_attributes.attribute(name);
             if (oldValue != nullptr) {
                 removeAttributeFromIndex(name, *oldValue);
                 removeLinks(name, *oldValue);
             }
 
-            m_attributes.addOrUpdateAttribute(name, value, definition);
+            m_attributes.addOrUpdateAttribute(name, value);
             addAttributeToIndex(name, value);
             addLinks(name, value);
 
@@ -212,9 +209,7 @@ namespace TrenchBroom {
             const std::string value = *valuePtr;
 			const NotifyAttributeChange notifyChange(this);
 
-            const Assets::AttributeDefinition* newDefinition = Assets::EntityDefinition::safeGetAttributeDefinition(m_definition, newName);
-
-            m_attributes.renameAttribute(name, newName, newDefinition);
+            m_attributes.renameAttribute(name, newName);
 
             updateAttributeIndex(name, value, newName, value);
             updateLinks(name, value, newName, value);

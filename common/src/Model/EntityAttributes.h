@@ -25,11 +25,6 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class AttributeDefinition;
-        class EntityDefinition;
-    }
-
     namespace Model {
         namespace AttributeNames {
             extern const std::string Classname;
@@ -84,16 +79,14 @@ namespace TrenchBroom {
         private:
             std::string m_name;
             std::string m_value;
-            const Assets::AttributeDefinition* m_definition;
         public:
             EntityAttribute();
-            EntityAttribute(const std::string& name, const std::string& value, const Assets::AttributeDefinition* definition = nullptr);
+            EntityAttribute(const std::string& name, const std::string& value);
             
             int compare(const EntityAttribute& rhs) const;
 
             const std::string& name() const;
             const std::string& value() const;
-            const Assets::AttributeDefinition* definition() const;
 
             bool hasName(std::string_view name) const;
             bool hasValue(std::string_view value) const;
@@ -103,7 +96,7 @@ namespace TrenchBroom {
             bool hasNumberedPrefix(std::string_view prefix) const;
             bool hasNumberedPrefixAndValue(std::string_view prefix, std::string_view value) const;
 
-            void setName(const std::string& name, const Assets::AttributeDefinition* definition);
+            void setName(const std::string& name);
             void setValue(const std::string& value);
         };
 
@@ -131,10 +124,9 @@ namespace TrenchBroom {
             const std::vector<EntityAttribute>& attributes() const;
             void setAttributes(const std::vector<EntityAttribute>& attributes);
 
-            const EntityAttribute& addOrUpdateAttribute(const std::string& name, const std::string& value, const Assets::AttributeDefinition* definition);
-            void renameAttribute(const std::string& name, const std::string& newName, const Assets::AttributeDefinition* newDefinition);
+            const EntityAttribute& addOrUpdateAttribute(const std::string& name, const std::string& value);
+            void renameAttribute(const std::string& name, const std::string& newName);
             void removeAttribute(const std::string& name);
-            void updateDefinitions(const Assets::EntityDefinition* entityDefinition);
 
             bool hasAttribute(const std::string& name) const;
             bool hasAttribute(const std::string& name, const std::string& value) const;

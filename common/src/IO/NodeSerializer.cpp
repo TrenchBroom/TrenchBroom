@@ -94,25 +94,25 @@ namespace TrenchBroom {
             // Transfer the color, locked state, and hidden state from the default layer Layer object to worldspawn
             const Model::LayerNode* defaultLayer = world.defaultLayer();
             if (defaultLayer->hasAttribute(Model::AttributeNames::LayerColor)) {
-                worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerColor, defaultLayer->attribute(Model::AttributeNames::LayerColor), nullptr);
+                worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerColor, defaultLayer->attribute(Model::AttributeNames::LayerColor));
             } else {
                 worldAttribs.removeAttribute(Model::AttributeNames::LayerColor);
             }
 
             if (defaultLayer->lockState() == Model::LockState::Lock_Locked) {
-                worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerLocked, Model::AttributeValues::LayerLockedValue, nullptr);
+                worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerLocked, Model::AttributeValues::LayerLockedValue);
             } else {
                 worldAttribs.removeAttribute(Model::AttributeNames::LayerLocked);
             }
 
             if (defaultLayer->hidden()) {
-                worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerHidden, Model::AttributeValues::LayerHiddenValue, nullptr);
+                worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerHidden, Model::AttributeValues::LayerHiddenValue);
             } else {
                 worldAttribs.removeAttribute(Model::AttributeNames::LayerHidden);
             }
 
             if (defaultLayer->omitFromExport()) {
-                worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue, nullptr);
+                worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue);
             } else {
                 worldAttribs.removeAttribute(Model::AttributeNames::LayerOmitFromExport);
             }
