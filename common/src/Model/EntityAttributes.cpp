@@ -82,13 +82,11 @@ namespace TrenchBroom {
             return kdl::cs::str_matches_glob(name, pattern);
         }
 
-        EntityAttribute::EntityAttribute() :
-        m_definition(nullptr) {}
+        EntityAttribute::EntityAttribute() = default;
 
-        EntityAttribute::EntityAttribute(const std::string& name, const std::string& value, const Assets::AttributeDefinition* definition) :
+        EntityAttribute::EntityAttribute(const std::string& name, const std::string& value) :
         m_name(name),
-        m_value(value),
-        m_definition(definition) {}
+        m_value(value) {}
 
         int EntityAttribute::compare(const EntityAttribute& rhs) const {
             const int nameCmp = m_name.compare(rhs.m_name);
@@ -103,10 +101,6 @@ namespace TrenchBroom {
 
         const std::string& EntityAttribute::value() const {
             return m_value;
-        }
-
-        const Assets::AttributeDefinition* EntityAttribute::definition() const {
-            return m_definition;
         }
 
         bool EntityAttribute::hasName(const std::string_view name) const {
@@ -137,9 +131,8 @@ namespace TrenchBroom {
             return hasNumberedPrefix(prefix) && hasValue(value);
         }
 
-        void EntityAttribute::setName(const std::string& name, const Assets::AttributeDefinition* definition) {
+        void EntityAttribute::setName(const std::string& name) {
             m_name = name;
-            m_definition = definition;
         }
 
         void EntityAttribute::setValue(const std::string& value) {
@@ -232,40 +225,31 @@ namespace TrenchBroom {
             }
         }
 
-        const EntityAttribute& EntityAttributes::addOrUpdateAttribute(const std::string& name, const std::string& value, const Assets::AttributeDefinition* definition) {
+        const EntityAttribute& EntityAttributes::addOrUpdateAttribute(const std::string& name, const std::string& value) {
             auto it = findAttribute(name);
             if (it != std::end(m_attributes)) {
-                assert(it->definition() == definition);
                 it->setValue(value);
                 return *it;
             } else {
-                m_attributes.push_back(EntityAttribute(name, value, definition));
+                m_attributes.push_back(EntityAttribute(name, value));
                 return m_attributes.back();
             }
         }
 
-        void EntityAttributes::renameAttribute(const std::string& name, const std::string& newName, const Assets::AttributeDefinition* newDefinition) {
+        void EntityAttributes::renameAttribute(const std::string& name, const std::string& newName) {
             if (!hasAttribute(name)) {
                 return;
             }
 
             const std::string value = *attribute(name);
             removeAttribute(name);
-            addOrUpdateAttribute(newName, value, newDefinition);
+            addOrUpdateAttribute(newName, value);
         }
 
         void EntityAttributes::removeAttribute(const std::string& name) {
             auto it = findAttribute(name);
             if (it != std::end(m_attributes)) {
                 m_attributes.erase(it);
-            }
-        }
-
-        void EntityAttributes::updateDefinitions(const Assets::EntityDefinition* entityDefinition) {
-            for (EntityAttribute& attribute : m_attributes) {
-                const std::string& name = attribute.name();
-                const Assets::AttributeDefinition* attributeDefinition = Assets::EntityDefinition::safeGetAttributeDefinition(entityDefinition, name);
-                attribute.setName(name, attributeDefinition);
             }
         }
 

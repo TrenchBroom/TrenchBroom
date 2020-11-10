@@ -301,7 +301,7 @@ namespace TrenchBroom {
             const auto value = token.data();
 
             if (names.count(name) == 0) {
-                attributes.push_back(Model::EntityAttribute(name, value, nullptr));
+                attributes.push_back(Model::EntityAttribute(name, value));
                 names.insert(name);
             } else {
                 status.warn(line, column, "Ignoring duplicate entity property '" + name + "'");

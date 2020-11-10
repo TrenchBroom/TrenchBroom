@@ -66,7 +66,7 @@ namespace TrenchBroom {
             for (const auto& entry : entityPropertiesMap) {
                 const std::string& key = entry.first;
                 const EL::Value& value = entry.second;
-                attributes.addOrUpdateAttribute(key, value.convertTo(EL::ValueType::String).stringValue(), nullptr);
+                attributes.addOrUpdateAttribute(key, value.convertTo(EL::ValueType::String).stringValue());
             }
 
             ASSERT_EQ(expected, actual.modelSpecification(attributes));
