@@ -142,7 +142,7 @@ namespace TrenchBroom {
                 return std::make_shared<CFile>(fixedPath);
             }
 
-            std::string readFile(const Path& path) {
+            std::string readTextFile(const Path& path) {
                 const Path fixedPath = fixPath(path);
 
                 std::fstream stream = openPathAsFstream(fixedPath, std::ios::in);

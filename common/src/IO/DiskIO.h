@@ -39,7 +39,7 @@ namespace TrenchBroom {
 
             std::vector<Path> getDirectoryContents(const Path& path);
             std::shared_ptr<File> openFile(const Path& path);
-            std::string readFile(const Path& path);
+            std::string readTextFile(const Path& path);
             Path getCurrentWorkingDir();
 
             template <class M>

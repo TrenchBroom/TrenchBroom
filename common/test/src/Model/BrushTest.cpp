@@ -2952,7 +2952,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Valve);
 
             const auto path = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Brush/curvetut-crash.map");
-            const std::string data = IO::Disk::readFile(path);
+            const std::string data = IO::Disk::readTextFile(path);
             REQUIRE(!data.empty());
 
             IO::TestParserStatus status;
@@ -3038,7 +3038,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Valve);
 
             const auto path = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Brush/weirdcurvemerge.map");
-            const std::string data = IO::Disk::readFile(path);
+            const std::string data = IO::Disk::readTextFile(path);
             REQUIRE(!data.empty());
 
             IO::TestParserStatus status;
