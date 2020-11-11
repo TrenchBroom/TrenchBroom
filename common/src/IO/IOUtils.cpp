@@ -22,6 +22,7 @@
 #include "Ensure.h"
 #include "Exceptions.h"
 #include "IO/Path.h"
+#include "IO/PathQt.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
@@ -33,9 +34,35 @@
 
 namespace TrenchBroom {
     namespace IO {
+        FILE* openPathAsFILE(const IO::Path& path, const std::string& mode) {
+            // Windows: fopen() doesn't handle UTF-8. We have to use the nonstandard _wfopen
+            // to open a Unicode path. We will use Qt to help convert the IO::Path to a UTF-16 encoded
+            // wchar array.
+            //
+            // - IO::Path contains UTF-8 (stored in std::string)
+            // - pathAsQString() converts UTF-8 to UTF-16 (stored in QString)
+            // - QString::toStdWString() returns a UTF-16 std::wstring on Windows
+            //
+            // All other platforms, just assume fopen() can handle UTF-8
+#ifdef _WIN32
+            return _wfopen(pathAsQString(path).toStdWString().c_str(),
+                           QString::fromStdString(mode).toStdWString().c_str());
+#else
+            return fopen(path.asString().c_str(), mode.c_str());
+#endif
+        }
+
+        std::fstream openPathAsFstream(const IO::Path& path, const std::ios_base::openmode mode) {
+#ifdef _WIN32
+            return std::fstream(pathAsQString(path).toStdWString().c_str(), mode);
+#else
+            return std::fstream(path.asString().c_str(), mode);
+#endif
+        }
+
         OpenFile::OpenFile(const Path& path, const bool write) :
         file(nullptr) {
-            file = fopen(path.asString().c_str(), write ? "w" : "r");
+            file = openPathAsFILE(path, write ? "w" : "r");
             if (file == nullptr) {
                 throw FileSystemException("Cannot open file: " + path.asString());
             }

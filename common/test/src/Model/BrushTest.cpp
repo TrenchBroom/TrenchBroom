@@ -20,6 +20,7 @@
 #include "Exceptions.h"
 #include "FloatType.h"
 #include "Assets/Texture.h"
+#include "IO/IOUtils.h"
 #include "IO/DiskIO.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
@@ -3327,7 +3328,7 @@ namespace TrenchBroom {
 
 
             const auto subtrahendPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Brush/subtrahend.map");
-            std::ifstream stream(subtrahendPath.asString());
+            std::fstream stream = openPathAsFstream(subtrahendPath, std::ios::in);
             std::stringstream subtrahendStr;
             subtrahendStr << stream.rdbuf();
 

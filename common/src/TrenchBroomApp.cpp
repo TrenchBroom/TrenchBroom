@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "RecoverableExceptions.h"
 #include "TrenchBroomStackWalker.h"
+#include "IO/IOUtils.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "IO/DiskIO.h"
@@ -485,7 +486,7 @@ namespace TrenchBroom {
             IO::Path mapPath = basePath.addExtension("map");
             IO::Path logPath = basePath.addExtension("log");
 
-            std::ofstream reportStream(reportPath.asString().c_str());
+            std::fstream reportStream = openPathAsFstream(reportPath, std::ios::out);
             reportStream << report;
             reportStream.close();
             std::cerr << "wrote crash log to " << reportPath.asString() << std::endl;

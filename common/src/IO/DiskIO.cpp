@@ -20,6 +20,7 @@
 #include "DiskIO.h"
 
 #include "Exceptions.h"
+#include "IO/IOUtils.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
 #include "IO/PathQt.h"
@@ -144,7 +145,7 @@ namespace TrenchBroom {
             std::string readFile(const Path& path) {
                 const Path fixedPath = fixPath(path);
 
-                std::fstream stream(fixedPath.asString().c_str(), std::ios::in);
+                std::fstream stream = openPathAsFstream(fixedPath, std::ios::in);
                 if (!stream.is_open()) {
                     throw FileSystemException("Cannot open file: " + fixedPath.asString());
                 }
@@ -174,8 +175,7 @@ namespace TrenchBroom {
                         createDirectory(directory);
                 }
 
-                const std::string fixedPathStr = fixedPath.asString();
-                std::ofstream stream(fixedPathStr.c_str());
+                std::fstream stream = openPathAsFstream(fixedPath, std::ios_base::out);
                 stream  << contents;
             }
 

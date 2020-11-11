@@ -20,6 +20,7 @@
 #include "Shader.h"
 
 #include "Exceptions.h"
+#include "IO/IOUtils.h"
 #include "IO/Path.h"
 
 #include <cassert>
@@ -89,7 +90,7 @@ namespace TrenchBroom {
         }
 
         std::vector<std::string> Shader::loadSource(const IO::Path& path) {
-            std::fstream stream(path.asString().c_str(), std::ios::in);
+            std::fstream stream = openPathAsFstream(path, std::ios::in);
             if (!stream.is_open()) {
                 throw RenderException("Could not load shader source from " + path.asString());
             }

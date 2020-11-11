@@ -24,11 +24,15 @@
 
 #include <cstdio> // for FILE
 #include <iosfwd>
+#include <fstream>
 #include <string>
 
 namespace TrenchBroom {
     namespace IO {
         class Path;
+
+        FILE* openPathAsFILE(const IO::Path& path, const std::string& mode);
+        std::fstream openPathAsFstream(const IO::Path& path, std::ios_base::openmode mode);
 
         class OpenFile {
         public:

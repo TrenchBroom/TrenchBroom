@@ -19,6 +19,7 @@
 
 #include "PointFile.h"
 
+#include "IO/IOUtils.h"
 #include "IO/Path.h"
 
 #include <vecmath/vec.h>
@@ -39,7 +40,7 @@ namespace TrenchBroom {
         }
 
         bool PointFile::canLoad(const IO::Path& path) {
-            std::fstream stream(path.asString().c_str(), std::ios::in);
+            std::fstream stream = openPathAsFstream(path, std::ios::in);
             return stream.is_open() && stream.good();
         }
 
@@ -86,7 +87,7 @@ namespace TrenchBroom {
         void PointFile::load(const IO::Path& path) {
             static const float Threshold = vm::to_radians(15.0f);
 
-            std::fstream stream(path.asString().c_str(), std::ios::in);
+            std::fstream stream = openPathAsFstream(path, std::ios::in);
             assert(stream.is_open());
 
             std::vector<vm::vec3f> points;
