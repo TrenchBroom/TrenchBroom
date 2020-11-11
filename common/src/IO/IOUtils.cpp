@@ -52,7 +52,7 @@ namespace TrenchBroom {
 #endif
         }
 
-        std::fstream openPathAsFstream(const IO::Path& path, const std::ios_base::openmode mode) {
+        std::fstream openPathAsFstream(const IO::Path& path, const std::ios::openmode mode) {
 #ifdef _WIN32
             return std::fstream(pathAsQString(path).toStdWString().c_str(), mode);
 #else

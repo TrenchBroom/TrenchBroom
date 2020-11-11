@@ -175,7 +175,7 @@ namespace TrenchBroom {
                         createDirectory(directory);
                 }
 
-                std::fstream stream = openPathAsFstream(fixedPath, std::ios_base::out);
+                std::fstream stream = openPathAsFstream(fixedPath, std::ios::out);
                 stream  << contents;
             }
 

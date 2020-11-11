@@ -32,7 +32,7 @@ namespace TrenchBroom {
         class Path;
 
         FILE* openPathAsFILE(const IO::Path& path, const std::string& mode);
-        std::fstream openPathAsFstream(const IO::Path& path, std::ios_base::openmode mode);
+        std::fstream openPathAsFstream(const IO::Path& path, std::ios::openmode mode);
 
         class OpenFile {
         public:
