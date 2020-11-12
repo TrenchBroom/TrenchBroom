@@ -23,6 +23,7 @@
 #include "IO/DiskIO.h"
 #include "IO/FileMatcher.h"
 #include "IO/Path.h"
+#include "IO/PathQt.h"
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
 #include "Model/ExportFormat.h"
@@ -54,7 +55,7 @@ namespace TrenchBroom {
             try {
                 return m_context.interpolate(spec);
             } catch (const Exception& e) {
-                m_context << "#### Could not interpolate expression '" << spec << "': " << e.what() << "\n";
+                m_context << "#### Could not interpolate expression '" << QString::fromStdString(spec) << "': " << e.what() << "\n";
                 throw;
             }
         }
@@ -71,7 +72,7 @@ namespace TrenchBroom {
             try {
                 const IO::Path targetPath(interpolate(m_task->targetSpec()));
                 try {
-                    m_context << "#### Exporting map file '" << targetPath.asString() << "'\n";
+                    m_context << "#### Exporting map file '" << IO::pathAsQString(targetPath) << "'\n";
 
                     if (!m_context.test()) {
                         const IO::Path directoryPath = targetPath.deleteLastComponent();
@@ -84,7 +85,7 @@ namespace TrenchBroom {
                     }
                     emit end();
                 } catch (const Exception& e) {
-                    m_context << "#### Could not export map file '" << targetPath.asString() << "': " << e.what() << "\n";
+                    m_context << "#### Could not export map file '" << IO::pathAsQString(targetPath) << "': " << e.what() << "\n";
                     throw;
                 }
             } catch (const Exception&) {
@@ -112,13 +113,13 @@ namespace TrenchBroom {
                 const std::string sourcePattern = sourcePath.lastComponent().asString();
 
                 try {
-                    m_context << "#### Copying '" << sourcePath.asString() << "' to '" << targetPath.asString() << "'\n";
+                    m_context << "#### Copying '" << IO::pathAsQString(sourcePath) << "' to '" << IO::pathAsQString(targetPath) << "'\n";
                     if (!m_context.test()) {
                         IO::Disk::copyFiles(sourceDirPath, IO::FileNameMatcher(sourcePattern), targetPath, true);
                     }
                     emit end();
                 } catch (const Exception& e) {
-                    m_context << "#### Could not copy '" << sourcePath.asString() << "' to '" << targetPath.asString() << "': " << e.what() << "\n";
+                    m_context << "#### Could not copy '" << IO::pathAsQString(sourcePath) << "' to '" << IO::pathAsQString(targetPath) << "': " << e.what() << "\n";
                     throw;
                 }
             } catch (const Exception&) {
@@ -157,7 +158,7 @@ namespace TrenchBroom {
                 const auto workDir = m_context.variableValue(CompilationVariableNames::WORK_DIR_PATH);
                 const auto cmd = this->cmd();
 
-                m_context << "#### Executing '" << cmd << "'\n";
+                m_context << "#### Executing '" << QString::fromStdString(cmd) << "'\n";
 
                 if (!m_context.test()) {
                     m_process = new QProcess(this);
@@ -204,14 +205,14 @@ namespace TrenchBroom {
         void CompilationRunToolTaskRunner::processReadyReadStandardError() {
             if (m_process != nullptr) {
                 const QByteArray bytes = m_process->readAllStandardError();
-                m_context << bytes.toStdString();
+                m_context << QString::fromLocal8Bit(bytes);
             }
         }
 
         void CompilationRunToolTaskRunner::processReadyReadStandardOutput() {
             if (m_process != nullptr) {
                 const QByteArray bytes = m_process->readAllStandardOutput();
-                m_context << bytes.toStdString();
+                m_context << QString::fromLocal8Bit(bytes);
             }
         }
 
