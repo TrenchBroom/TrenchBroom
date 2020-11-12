@@ -206,7 +206,7 @@ namespace TrenchBroom {
 
                         // if the origin of the definition's bounding box is not in its center, don't apply the rotation
                         const auto offset = entity->origin() - entity->definitionBounds().center();
-                        if (!(offset.x() == 0.0 && offset.y() == 0.0)) {
+                        if (!vm::is_zero(offset.xy(), vm::C::almost_zero())) {
                             // TODO: this only makes sense for Quake
                             usage = RotationUsage::BlockRotation;
                         }

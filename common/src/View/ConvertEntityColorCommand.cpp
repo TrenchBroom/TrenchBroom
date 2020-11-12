@@ -47,10 +47,6 @@ namespace TrenchBroom {
             return std::make_unique<CommandResult>(true);
         }
 
-        bool ConvertEntityColorCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
-        }
-
         bool ConvertEntityColorCommand::doCollateWith(UndoableCommand*) {
             return false;
         }

@@ -68,8 +68,6 @@ namespace TrenchBroom {
             Notifier<Command*>& m_commandDoneNotifier;
             Notifier<UndoableCommand*>& m_commandUndoNotifier;
             Notifier<UndoableCommand*>& m_commandUndoneNotifier;
-
-            bool m_isRepeatDelimiter;
         public:
             TransactionCommand(
                 const std::string& name, std::vector<std::unique_ptr<UndoableCommand>>&& commands,
@@ -82,15 +80,7 @@ namespace TrenchBroom {
                 m_commandDoNotifier(i_commandDoNotifier),
                 m_commandDoneNotifier(i_commandDoneNotifier),
                 m_commandUndoNotifier(i_commandUndoNotifier),
-                m_commandUndoneNotifier(i_commandUndoneNotifier),
-                m_isRepeatDelimiter(false) {
-                for (const auto& command : m_commands) {
-                    if (command->isRepeatDelimiter()) {
-                        m_isRepeatDelimiter = true;
-                        break;
-                    }
-                }
-            }
+                m_commandUndoneNotifier(i_commandUndoneNotifier) {}
         private:
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override {
                 for (auto& command : m_commands) {
@@ -113,30 +103,6 @@ namespace TrenchBroom {
                     notifyCommandIfNotType(m_commandUndoneNotifier, TransactionCommand::Type, command.get());
                 }
                 return std::make_unique<CommandResult>(true);
-            }
-
-            bool doIsRepeatDelimiter() const override {
-                return m_isRepeatDelimiter;
-            }
-
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const override {
-                for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
-                    auto& command = *it;
-                    if (!command->isRepeatable(document)) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade* document) const override {
-                std::vector<std::unique_ptr<UndoableCommand>> clones;
-                for (auto it = std::begin(m_commands), end = std::end(m_commands); it != end; ++it) {
-                    auto& command = *it;
-                    assert(command->isRepeatable(document));
-                    clones.push_back(command->repeat(document));
-                }
-                return std::make_unique<TransactionCommand>(name(), std::move(clones), m_commandDoNotifier, m_commandDoneNotifier, m_commandUndoNotifier, m_commandUndoneNotifier);
             }
 
             bool doCollateWith(UndoableCommand*) override {
@@ -211,7 +177,7 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<CommandResult> CommandProcessor::executeAndStore(std::unique_ptr<UndoableCommand> command) {
-            return executeAndStoreCommand(std::move(command), true, true).commandResult;
+            return executeAndStoreCommand(std::move(command), true).commandResult;
         }
 
         std::unique_ptr<CommandResult> CommandProcessor::undo() {
@@ -240,57 +206,27 @@ namespace TrenchBroom {
                 auto command = popFromRedoStack();
                 auto result = executeCommand(command.get());
                 if (result->success()) {
-                    assertResult(pushToUndoStack(std::move(command), false, true))
+                    assertResult(pushToUndoStack(std::move(command), false))
                 }
                 return result;
             }
         }
 
-        bool CommandProcessor::canRepeat() const {
-            return !m_repeatStack.empty();
-        }
-
-        std::unique_ptr<CommandResult> CommandProcessor::repeat() {
-            std::vector<std::unique_ptr<UndoableCommand>> commands;
-
-            for (auto* command : m_repeatStack) {
-                if (command->isRepeatable(m_document)) {
-                    commands.push_back(command->repeat(m_document));
-                }
-            }
-
-            if (commands.empty()) {
-                return std::make_unique<CommandResult>(false);
-            } else if (commands.size() == 1u) {
-                auto command = std::move(commands.front()); commands.clear();
-                return executeAndStoreCommand(std::move(command), false, false).commandResult;
-            } else {
-                const auto name = kdl::str_to_string("Repeat ", commands.size(), " Commands");
-                auto repeatableCommand = createTransaction(name, std::move(commands));
-                return executeAndStoreCommand(std::move(repeatableCommand), false, false).commandResult;
-            }
-        }
-
-        void CommandProcessor::clearRepeatStack() {
-            m_repeatStack.clear();
-        }
-
         void CommandProcessor::clear() {
             assert(m_transactionStack.empty());
 
-            clearRepeatStack();
             m_undoStack.clear();
             m_redoStack.clear();
             m_lastCommandTimestamp = std::chrono::time_point<std::chrono::system_clock>();
         }
 
-        CommandProcessor::SubmitAndStoreResult CommandProcessor::executeAndStoreCommand(std::unique_ptr<UndoableCommand> command, const bool collate, const bool repeatable) {
+        CommandProcessor::SubmitAndStoreResult CommandProcessor::executeAndStoreCommand(std::unique_ptr<UndoableCommand> command, const bool collate) {
             auto commandResult = executeCommand(command.get());
             if (!commandResult->success()) {
                 return SubmitAndStoreResult(std::move(commandResult), false);
             }
 
-            const auto commandStored = storeCommand(std::move(command), collate, repeatable);
+            const auto commandStored = storeCommand(std::move(command), collate);
             m_redoStack.clear();
             return SubmitAndStoreResult(std::move(commandResult), commandStored);
         }
@@ -320,9 +256,9 @@ namespace TrenchBroom {
             return result;
         }
 
-        bool CommandProcessor::storeCommand(std::unique_ptr<UndoableCommand> command, const bool collate, const bool repeatable) {
+        bool CommandProcessor::storeCommand(std::unique_ptr<UndoableCommand> command, const bool collate) {
             if (m_transactionStack.empty()) {
-                return pushToUndoStack(std::move(command), collate, repeatable);
+                return pushToUndoStack(std::move(command), collate);
             } else {
                 return pushTransactionCommand(std::move(command), collate);
             }
@@ -353,7 +289,7 @@ namespace TrenchBroom {
                 auto command = createTransaction(transaction.name, std::move(transaction.commands));
 
                 if (m_transactionStack.empty()) {
-                    pushToUndoStack(std::move(command), false, true);
+                    pushToUndoStack(std::move(command), false);
                 } else {
                     pushTransactionCommand(std::move(command), false);
                 }
@@ -370,7 +306,7 @@ namespace TrenchBroom {
                 commandUndoneNotifier);
         }
 
-        bool CommandProcessor::pushToUndoStack(std::unique_ptr<UndoableCommand> command, const bool collate, const bool repeatable) {
+        bool CommandProcessor::pushToUndoStack(std::unique_ptr<UndoableCommand> command, const bool collate) {
             assert(m_transactionStack.empty());
 
             const auto timestamp = std::chrono::system_clock::now();
@@ -383,10 +319,6 @@ namespace TrenchBroom {
                 }
             }
 
-            if (repeatable) {
-                pushToRepeatStack(command.get());
-            }
-
             m_undoStack.push_back(std::move(command));
             return true;
         }
@@ -395,9 +327,7 @@ namespace TrenchBroom {
             assert(m_transactionStack.empty());
             assert(!m_undoStack.empty());
 
-            auto lastCommand = kdl::vec_pop_back(m_undoStack);
-            popFromRepeatStack(lastCommand.get());
-            return lastCommand;
+            return kdl::vec_pop_back(m_undoStack);
         }
 
         bool CommandProcessor::collatable(const bool collate, const std::chrono::system_clock::time_point timestamp) const {
@@ -414,24 +344,6 @@ namespace TrenchBroom {
             assert(!m_redoStack.empty());
 
             return kdl::vec_pop_back(m_redoStack);
-        }
-
-        void CommandProcessor::pushToRepeatStack(UndoableCommand* command) {
-            if (command->isRepeatDelimiter()) {
-                return;
-            }
-
-            if (!m_undoStack.empty() && m_undoStack.back()->isRepeatDelimiter()) {
-                clearRepeatStack();
-            }
-
-            m_repeatStack.push_back(command);
-        }
-
-        void CommandProcessor::popFromRepeatStack(UndoableCommand* command) {
-            if (!m_repeatStack.empty() && m_repeatStack.back() == command) {
-                m_repeatStack.pop_back();
-            }
         }
     }
 }

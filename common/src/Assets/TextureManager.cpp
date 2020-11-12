@@ -30,6 +30,7 @@
 #include <kdl/vector_utils.h>
 
 #include <algorithm>
+#include <chrono>
 #include <iterator>
 #include <string>
 #include <vector>
@@ -71,8 +72,12 @@ namespace TrenchBroom {
                 const auto it = std::find_if(std::begin(collections), std::end(collections), [&](const auto& c) { return c.path() == path; });
                 if (it == std::end(collections) || !it->loaded()) {
                     try {
+                        const auto startTime = std::chrono::high_resolution_clock::now();
                         auto collection = loader.loadTextureCollection(path);
-                        m_logger.info() << "Loaded texture collection '" << path << "'";
+                        const auto endTime = std::chrono::high_resolution_clock::now();
+
+                        m_logger.info() << "Loaded texture collection '" << path << "' in "
+                                        << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << "ms";
                         addTextureCollection(std::move(collection));
                     } catch (const Exception& e) {
                         addTextureCollection(Assets::TextureCollection(path));
@@ -89,7 +94,7 @@ namespace TrenchBroom {
             }
 
             updateTextures();
-            kdl::vec_append(m_toRemove, std::move(collections));
+            m_toRemove = kdl::vec_concat(std::move(m_toRemove), std::move(collections));
         }
 
         void TextureManager::setTextureCollections(std::vector<TextureCollection> collections) {

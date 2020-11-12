@@ -30,7 +30,7 @@
 
 #include <vecmath/forward.h>
 
-#include <string>
+#include <string_view>
 #include <tuple>
 #include <vector>
 
@@ -60,8 +60,7 @@ namespace TrenchBroom {
             static const std::string& NumberDelim();
             bool m_skipEol;
         public:
-            QuakeMapTokenizer(const char* begin, const char* end);
-            explicit QuakeMapTokenizer(const std::string& str);
+            explicit QuakeMapTokenizer(std::string_view str);
 
             void setSkipEol(bool skipEol);
         private:
@@ -79,8 +78,7 @@ namespace TrenchBroom {
             QuakeMapTokenizer m_tokenizer;
             Model::MapFormat m_format;
         public:
-            StandardMapParser(const char* begin, const char* end);
-            explicit StandardMapParser(const std::string& str);
+            explicit StandardMapParser(std::string_view str);
 
             ~StandardMapParser() override;
         protected:

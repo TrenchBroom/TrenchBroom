@@ -32,11 +32,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        CompilationConfigParser::CompilationConfigParser(const char* begin, const char* end, const Path& path) :
-        ConfigParserBase(begin, end, path) {}
-
-        CompilationConfigParser::CompilationConfigParser(const std::string& str, const Path& path) :
-        ConfigParserBase(str, path) {}
+        CompilationConfigParser::CompilationConfigParser(std::string_view str, const Path& path) :
+        ConfigParserBase(std::move(str), path) {}
 
         Model::CompilationConfig CompilationConfigParser::parse() {
             const EL::Value root = parseConfigFile().evaluate(EL::EvaluationContext());

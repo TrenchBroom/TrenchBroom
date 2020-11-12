@@ -24,9 +24,10 @@
 #include "Model/GroupNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/LayerNode.h"
-#include "Model/NodeVisitor.h"
+#include "Model/LockState.h"
 #include "Model/WorldNode.h"
 
+#include <kdl/overload.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
 
@@ -34,19 +35,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class NodeSerializer::BrushSerializer : public Model::ConstNodeVisitor {
-        private:
-            NodeSerializer& m_serializer;
-        public:
-            explicit BrushSerializer(NodeSerializer& serializer) : m_serializer(serializer) {}
-
-            void doVisit(const Model::WorldNode* /* world */) override   {}
-            void doVisit(const Model::LayerNode* /* layer */) override   {}
-            void doVisit(const Model::GroupNode* /* group */) override   {}
-            void doVisit(const Model::EntityNode* /* entity */) override {}
-            void doVisit(const Model::BrushNode* brush) override   { m_serializer.brush(brush); }
-        };
-
         const std::string& NodeSerializer::IdManager::getId(const Model::Node* t) const {
             auto it = m_ids.find(t);
             if (it == std::end(m_ids)) {
@@ -104,14 +92,14 @@ namespace TrenchBroom {
             auto worldAttribs = Model::EntityAttributes(world.attributes());
 
             // Transfer the color, locked state, and hidden state from the default layer Layer object to worldspawn
-            Model::LayerNode* defaultLayer = world.defaultLayer();
+            const Model::LayerNode* defaultLayer = world.defaultLayer();
             if (defaultLayer->hasAttribute(Model::AttributeNames::LayerColor)) {
                 worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerColor, defaultLayer->attribute(Model::AttributeNames::LayerColor), nullptr);
             } else {
                 worldAttribs.removeAttribute(Model::AttributeNames::LayerColor);
             }
 
-            if (defaultLayer->locked()) {
+            if (defaultLayer->lockState() == Model::LockState::Lock_Locked) {
                 worldAttribs.addOrUpdateAttribute(Model::AttributeNames::LayerLocked, Model::AttributeValues::LayerLockedValue, nullptr);
             } else {
                 worldAttribs.removeAttribute(Model::AttributeNames::LayerLocked);
@@ -150,8 +138,12 @@ namespace TrenchBroom {
         void NodeSerializer::entity(const Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& parentAttributes, const Model::Node* brushParent) {
             beginEntity(node, attributes, parentAttributes);
 
-            BrushSerializer brushSerializer(*this);
-            brushParent->iterate(brushSerializer);
+            brushParent->visitChildren(kdl::overload(
+                [](const auto*) {},
+                [&](const Model::BrushNode* b) {
+                    brush(b);
+                }
+            ));
 
             endEntity(node);
         }
@@ -219,35 +211,21 @@ namespace TrenchBroom {
             doBrushFace(face);
         }
 
-        class NodeSerializer::GetParentAttributes : public Model::ConstNodeVisitor {
-        private:
-            const IdManager& m_layerIds;
-            const IdManager& m_groupIds;
-            std::vector<Model::EntityAttribute> m_attributes;
-        public:
-            GetParentAttributes(const IdManager& layerIds, const IdManager& groupIds) :
-            m_layerIds(layerIds),
-            m_groupIds(groupIds) {}
-
-            const std::vector<Model::EntityAttribute>& attributes() const {
-                return m_attributes;
-            }
-        private:
-            void doVisit(const Model::WorldNode* /* world */) override   {}
-            void doVisit(const Model::LayerNode* layer) override   { m_attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Layer, m_layerIds.getId(layer)));}
-            void doVisit(const Model::GroupNode* group) override   { m_attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Group, m_groupIds.getId(group))); }
-            void doVisit(const Model::EntityNode* /* entity */) override {}
-            void doVisit(const Model::BrushNode* /* brush */) override   {}
-        };
-
         std::vector<Model::EntityAttribute> NodeSerializer::parentAttributes(const Model::Node* node) {
             if (node == nullptr) {
-                return std::vector<Model::EntityAttribute>(0);
+                return std::vector<Model::EntityAttribute>{};
             }
 
-            GetParentAttributes visitor(m_layerIds, m_groupIds);
-            node->accept(visitor);
-            return visitor.attributes();
+            auto attributes = std::vector<Model::EntityAttribute>{};
+            node->accept(kdl::overload(
+                [](const Model::WorldNode*) {},
+                [&](const Model::LayerNode* layer) { attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Layer, m_layerIds.getId(layer))); },
+                [&](const Model::GroupNode* group) { attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Group, m_groupIds.getId(group))); },
+                [](const Model::EntityNode*) {},
+                [](const Model::BrushNode*) {}
+            ));
+
+            return attributes;
         }
 
         std::vector<Model::EntityAttribute> NodeSerializer::layerAttributes(const Model::LayerNode* layer) {
@@ -260,7 +238,7 @@ namespace TrenchBroom {
             if (layer->hasAttribute(Model::AttributeNames::LayerSortIndex)) {
                 result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerSortIndex, layer->attribute(Model::AttributeNames::LayerSortIndex)));
             }
-            if (layer->locked()) {
+            if (layer->lockState() == Model::LockState::Lock_Locked) {
                 result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerLocked, Model::AttributeValues::LayerLockedValue));
             }
             if (layer->hidden()) {

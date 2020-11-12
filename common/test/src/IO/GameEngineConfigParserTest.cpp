@@ -24,12 +24,13 @@
 
 #include <string>
 
-#include <catch2/catch.hpp>
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
-        static GameEngineConfigParser makeParser(const std::string& config) {
-            return GameEngineConfigParser(config.data(), config.data() + config.size(), Path());
+        static GameEngineConfigParser makeParser(std::string_view config) {
+            return GameEngineConfigParser(config, Path());
         }
 
         TEST_CASE("GameEngineConfigParserTest.parseBlankConfig", "[GameEngineConfigParserTest]") {

@@ -17,12 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "../../test/src/GTestCompat.h"
-
-#include "BenchmarkUtils.h"
-
 #include "Exceptions.h"
 #include "Assets/Texture.h"
 #include "Model/BrushNode.h"
@@ -39,6 +33,10 @@
 #include <string>
 #include <tuple>
 #include <algorithm>
+
+#include "BenchmarkUtils.h"
+#include "../../test/src/Catch2.h"
+#include "../../test/src/GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Renderer {

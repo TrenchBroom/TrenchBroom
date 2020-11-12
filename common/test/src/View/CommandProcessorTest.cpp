@@ -17,10 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "Macros.h"
 #include "View/UndoableCommand.h"
 #include "View/CommandProcessor.h"
@@ -32,6 +28,9 @@
 #include <thread>
 #include <optional>
 #include <variant>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -101,26 +100,22 @@ namespace TrenchBroom {
 
         struct DoPerformDo   { bool returnSuccess; };
         struct DoPerformUndo { bool returnSuccess; };
-        struct DoRepeat      { std::unique_ptr<UndoableCommand> repeatCommandToReturn; };
         struct DoCollateWith { bool returnCanCollate; UndoableCommand* expectedOtherCommand; };
 
-        using TestCommandCall = std::variant<DoPerformDo, DoPerformUndo, DoRepeat, DoCollateWith>;
+        using TestCommandCall = std::variant<DoPerformDo, DoPerformUndo, DoCollateWith>;
 
         class TestCommand : public UndoableCommand {
         private:
-            bool m_isRepeatDelimiter;
-
             mutable std::vector<TestCommandCall> m_expectedCalls;
         public:
             static const CommandType Type;
 
-            static std::unique_ptr<TestCommand> create(const std::string& name, const bool isRepeatDelimiter) {
-                return std::make_unique<TestCommand>(name, isRepeatDelimiter);
+            static std::unique_ptr<TestCommand> create(const std::string& name) {
+                return std::make_unique<TestCommand>(name);
             }
 
-            explicit TestCommand(const std::string& name, const bool isRepeatDelimiter) :
-            UndoableCommand(Type, name),
-            m_isRepeatDelimiter(isRepeatDelimiter) {}
+            explicit TestCommand(const std::string& name) :
+            UndoableCommand(Type, name) {}
 
             ~TestCommand() {
                 ASSERT_TRUE(m_expectedCalls.empty());
@@ -142,25 +137,6 @@ namespace TrenchBroom {
             std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade*) override {
                 const auto expectedCall = popCall<DoPerformUndo>();
                 return std::make_unique<CommandResult>(expectedCall.returnSuccess);
-            }
-
-            bool doIsRepeatDelimiter() const override {
-                return m_isRepeatDelimiter;
-            }
-
-            std::unique_ptr<UndoableCommand> doRepeat(MapDocumentCommandFacade*) const override {
-                auto expectedCall = popCall<DoRepeat>();
-                return std::move(expectedCall.repeatCommandToReturn);
-            }
-
-            bool doIsRepeatable(MapDocumentCommandFacade*) const override {
-                if (m_expectedCalls.empty()) {
-                    return false;
-                }
-                if (DoRepeat* expectedCall = std::get_if<DoRepeat>(&m_expectedCalls.back()); expectedCall != nullptr) {
-                    return expectedCall->repeatCommandToReturn != nullptr;
-                }
-                return false;
             }
 
             bool doCollateWith(UndoableCommand* otherCommand) override {
@@ -196,25 +172,6 @@ namespace TrenchBroom {
                 m_expectedCalls.emplace_back(DoCollateWith{returnCanCollate, expectedOtherCommand});
             }
 
-            /**
-             * Sets an expectation that doRepeat() should be called.
-             * If repeatable is true, this creates a TestCommand that doRepeat() will return.
-             * Otherwise, when doRepeat() is called, doRepeat() will return a null std::unique_ptr.
-             *
-             * Returns a non-owning pointer to the TestCommand that was created
-             * if `repeatable` is true, or nullptr otherwise.
-             */
-            TestCommand* expectRepeat(const bool repeatable, const std::string& repeatCommandName = "") {
-                if (repeatable) {
-                    auto* repeatCommand = new TestCommand(repeatCommandName, false);
-                    m_expectedCalls.emplace_back(DoRepeat{std::unique_ptr<UndoableCommand>(repeatCommand)});
-                    return repeatCommand;
-                } else {
-                    m_expectedCalls.emplace_back(DoRepeat{std::unique_ptr<UndoableCommand>(nullptr)});
-                    return nullptr;
-                }
-            }
-
             deleteCopyAndMove(TestCommand)
         };
 
@@ -229,7 +186,7 @@ namespace TrenchBroom {
             TestObserver observer(commandProcessor);
 
             const auto commandName = "test command";
-            auto command = TestCommand::create(commandName, false);
+            auto command = TestCommand::create(commandName);
 
             command->expectDo(true);
             command->expectUndo(true);
@@ -238,7 +195,6 @@ namespace TrenchBroom {
             ASSERT_TRUE(doResult->success());
             ASSERT_TRUE(commandProcessor.canUndo());
             ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.canRepeat());
             ASSERT_EQ(commandName, commandProcessor.undoCommandName());
 
             ASSERT_EQ((std::vector<NotificationTuple>{
@@ -251,7 +207,6 @@ namespace TrenchBroom {
             ASSERT_TRUE(undoResult->success());
             ASSERT_FALSE(commandProcessor.canUndo());
             ASSERT_TRUE(commandProcessor.canRedo());
-            ASSERT_FALSE(commandProcessor.canRepeat());
 
             ASSERT_EQ(commandName, commandProcessor.redoCommandName());
 
@@ -271,7 +226,7 @@ namespace TrenchBroom {
             TestObserver observer(commandProcessor);
 
             const auto commandName = "test command";
-            auto command = TestCommand::create(commandName, false);
+            auto command = TestCommand::create(commandName);
             command->expectDo(true);
             command->expectUndo(false);
 
@@ -279,7 +234,6 @@ namespace TrenchBroom {
             ASSERT_TRUE(doResult->success());
             ASSERT_TRUE(commandProcessor.canUndo());
             ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.canRepeat());
             ASSERT_EQ(commandName, commandProcessor.undoCommandName());
 
             ASSERT_EQ((std::vector<NotificationTuple>{
@@ -292,7 +246,6 @@ namespace TrenchBroom {
             ASSERT_FALSE(undoResult->success());
             ASSERT_FALSE(commandProcessor.canUndo());
             ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_FALSE(commandProcessor.canRepeat());
 
             ASSERT_EQ((std::vector<NotificationTuple>{
                 {CommandNotif::CommandUndo, commandName},
@@ -309,7 +262,7 @@ namespace TrenchBroom {
             TestObserver observer(commandProcessor);
 
             const auto commandName = "test command";
-            auto command = TestCommand::create(commandName, false);
+            auto command = TestCommand::create(commandName);
             command->expectDo(false);
 
             const auto doResult = commandProcessor.executeAndStore(std::move(command));
@@ -317,202 +270,10 @@ namespace TrenchBroom {
 
             ASSERT_FALSE(commandProcessor.canUndo());
             ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_FALSE(commandProcessor.canRepeat());
 
             ASSERT_EQ((std::vector<NotificationTuple>{
                 {CommandNotif::CommandDo, commandName},
                 {CommandNotif::CommandDoFailed, commandName}
-            }), observer.popNotifications());
-        }
-
-        TEST_CASE("CommandProcessorTest.repeatAndUndoSingleCommand", "[CommandProcessorTest]") {
-            /*
-             * Execute a successful command, then repeat it successfully, and undo the repeated command
-             * successfully, too.
-             */
-
-            CommandProcessor commandProcessor(nullptr);
-            TestObserver observer(commandProcessor);
-
-            const auto commandName = "test command";
-            auto command = TestCommand::create(commandName, false);
-            command->expectDo(true);
-
-            const auto repeatCommandName = "repeated command";
-            auto* repeatCommand = command->expectRepeat(true, repeatCommandName);
-            repeatCommand->expectDo(true);
-            repeatCommand->expectUndo(true);
-
-            commandProcessor.executeAndStore(std::move(command));
-            ASSERT_TRUE(commandProcessor.canRepeat());
-
-            ASSERT_EQ((std::vector<NotificationTuple>{
-                {CommandNotif::CommandDo, commandName},
-                {CommandNotif::CommandDone, commandName},
-                {CommandNotif::TransactionDone, commandName}
-            }), observer.popNotifications());
-
-            const auto repeatResult = commandProcessor.repeat();
-            ASSERT_TRUE(repeatResult->success());
-
-            ASSERT_TRUE(commandProcessor.canUndo());
-            ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.canRepeat());
-
-            ASSERT_EQ(repeatCommandName, commandProcessor.undoCommandName());
-
-            ASSERT_EQ((std::vector<NotificationTuple>{
-                {CommandNotif::CommandDo, repeatCommandName},
-                {CommandNotif::CommandDone, repeatCommandName},
-                {CommandNotif::TransactionDone, repeatCommandName}
-            }), observer.popNotifications());
-
-            const auto undoResult = commandProcessor.undo();
-            ASSERT_TRUE(undoResult->success());
-
-            ASSERT_TRUE(commandProcessor.canUndo());
-            ASSERT_TRUE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.canRepeat());
-
-            ASSERT_EQ(commandName, commandProcessor.undoCommandName());
-            ASSERT_EQ(repeatCommandName, commandProcessor.redoCommandName());
-
-            ASSERT_EQ((std::vector<NotificationTuple>{
-                {CommandNotif::CommandUndo, repeatCommandName},
-                {CommandNotif::CommandUndone, repeatCommandName},
-                {CommandNotif::TransactionUndone, repeatCommandName}
-            }), observer.popNotifications());
-        }
-
-        TEST_CASE("CommandProcessorTest.repeatSingleCommandTwice", "[CommandProcessorTest]") {
-            /*
-             * Execute a successful command, then repeat it successfully two times
-             */
-
-            CommandProcessor commandProcessor(nullptr);
-            TestObserver observer(commandProcessor);
-
-            const auto commandName = "test command";
-            auto command = TestCommand::create(commandName, false);
-            command->expectDo(true);
-
-            const auto repeatCommandName1 = "repeated command 1";
-            auto* repeatCommand1 = command->expectRepeat(true, repeatCommandName1);
-            repeatCommand1->expectDo(true);
-
-            const auto repeatCommandName2 = "repeated command 2";
-            auto* repeatCommand2 = command->expectRepeat(true, repeatCommandName2);
-            repeatCommand2->expectDo(true);
-
-            commandProcessor.executeAndStore(std::move(command));
-            ASSERT_TRUE(commandProcessor.canRepeat());
-
-            ASSERT_EQ((std::vector<NotificationTuple>{
-                {CommandNotif::CommandDo, commandName},
-                {CommandNotif::CommandDone, commandName},
-                {CommandNotif::TransactionDone, commandName}
-            }), observer.popNotifications());
-
-            const auto repeatResult1 = commandProcessor.repeat();
-            ASSERT_TRUE(repeatResult1->success());
-
-            ASSERT_TRUE(commandProcessor.canUndo());
-            ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.canRepeat());
-
-            ASSERT_EQ((std::vector<NotificationTuple>{
-                {CommandNotif::CommandDo, repeatCommandName1},
-                {CommandNotif::CommandDone, repeatCommandName1},
-                {CommandNotif::TransactionDone, repeatCommandName1}
-            }), observer.popNotifications());
-
-            const auto repeatResult2 = commandProcessor.repeat();
-            ASSERT_TRUE(repeatResult2->success());
-
-            ASSERT_TRUE(commandProcessor.canUndo());
-            ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.canRepeat());
-
-            ASSERT_EQ((std::vector<NotificationTuple>{
-                {CommandNotif::CommandDo, repeatCommandName2},
-                {CommandNotif::CommandDone, repeatCommandName2},
-                {CommandNotif::TransactionDone, repeatCommandName2}
-            }), observer.popNotifications());
-        }
-
-        TEST_CASE("CommandProcessorTest.repeatAndUndoMultipleCommands", "[CommandProcessorTest]") {
-            /*
-             * Execute two successful commands, then repeat them successfully, and undo the repeated commands
-             * successfully, too.
-             */
-
-            CommandProcessor commandProcessor(nullptr);
-            TestObserver observer(commandProcessor);
-
-            const auto commandName1 = "test command 1";
-            auto command1 = TestCommand::create(commandName1, false);
-            command1->expectDo(true);
-
-            const auto commandName2 = "test command 2";
-            auto command2 = TestCommand::create(commandName2, false);
-            command2->expectDo(true);
-            command1->expectCollate(command2.get(), false);
-
-            const auto repeatCommandName1 = "repeated command 1";
-            const auto repeatCommandName2 = "repeated command 2";
-            auto* repeatCommand1 = command1->expectRepeat(true, repeatCommandName1);
-            auto* repeatCommand2 = command2->expectRepeat(true, repeatCommandName2);
-
-            repeatCommand1->expectDo(true);
-            repeatCommand2->expectDo(true);
-
-            commandProcessor.executeAndStore(std::move(command1));
-            ASSERT_EQ((std::vector<NotificationTuple>{
-                {CommandNotif::CommandDo, commandName1},
-                {CommandNotif::CommandDone, commandName1},
-                {CommandNotif::TransactionDone, commandName1}
-            }), observer.popNotifications());
-
-            commandProcessor.executeAndStore(std::move(command2));
-            ASSERT_EQ((std::vector<NotificationTuple>{
-                {CommandNotif::CommandDo, commandName2},
-                {CommandNotif::CommandDone, commandName2},
-                {CommandNotif::TransactionDone, commandName2}
-            }), observer.popNotifications());
-
-            const auto repeatResult = commandProcessor.repeat();
-            ASSERT_TRUE(repeatResult->success());
-
-            ASSERT_TRUE(commandProcessor.canUndo());
-            ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.canRepeat());
-
-            ASSERT_EQ((std::vector<NotificationTuple>{
-                {CommandNotif::CommandDo, repeatCommandName1},
-                {CommandNotif::CommandDone, repeatCommandName1},
-                {CommandNotif::CommandDo, repeatCommandName2},
-                {CommandNotif::CommandDone, repeatCommandName2},
-                {CommandNotif::TransactionDone, "Repeat 2 Commands"}
-            }), observer.popNotifications());
-
-            repeatCommand2->expectUndo(true);
-            repeatCommand1->expectUndo(true);
-
-            const auto undoResult = commandProcessor.undo();
-            ASSERT_TRUE(undoResult->success());
-
-            ASSERT_TRUE(commandProcessor.canUndo());
-            ASSERT_TRUE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.canRepeat());
-
-            ASSERT_EQ(commandName2, commandProcessor.undoCommandName());
-
-            ASSERT_EQ((std::vector<NotificationTuple>{
-                {CommandNotif::CommandUndo, repeatCommandName2},
-                {CommandNotif::CommandUndone, repeatCommandName2},
-                {CommandNotif::CommandUndo, repeatCommandName1},
-                {CommandNotif::CommandUndone, repeatCommandName1},
-                {CommandNotif::TransactionUndone, "Repeat 2 Commands"}
             }), observer.popNotifications());
         }
 
@@ -526,10 +287,10 @@ namespace TrenchBroom {
             TestObserver observer(commandProcessor);
 
             const auto commandName1 = "test command 1";
-            auto command1 = TestCommand::create(commandName1, false);
+            auto command1 = TestCommand::create(commandName1);
 
             const auto commandName2 = "test command 2";
-            auto command2 = TestCommand::create(commandName2, false);
+            auto command2 = TestCommand::create(commandName2);
 
             command1->expectDo(true);
             command2->expectDo(true);
@@ -560,14 +321,12 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(commandProcessor.canUndo());
             ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.canRepeat());
             ASSERT_EQ(transactionName, commandProcessor.undoCommandName());
 
             ASSERT_TRUE(commandProcessor.undo()->success());
 
             ASSERT_FALSE(commandProcessor.canUndo());
             ASSERT_TRUE(commandProcessor.canRedo());
-            ASSERT_FALSE(commandProcessor.canRepeat());
             ASSERT_EQ(transactionName, commandProcessor.redoCommandName());
 
             ASSERT_EQ((std::vector<NotificationTuple>{
@@ -582,7 +341,6 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(commandProcessor.canUndo());
             ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.canRepeat());
             ASSERT_EQ(transactionName, commandProcessor.undoCommandName());
 
             ASSERT_EQ((std::vector<NotificationTuple>{
@@ -603,10 +361,10 @@ namespace TrenchBroom {
             TestObserver observer(commandProcessor);
 
             const auto commandName1 = "test command 1";
-            auto command1 = TestCommand::create(commandName1, false);
+            auto command1 = TestCommand::create(commandName1);
 
             const auto commandName2 = "test command 2";
-            auto command2 = TestCommand::create(commandName2, false);
+            auto command2 = TestCommand::create(commandName2);
 
             command1->expectDo(true);
             command2->expectDo(true);
@@ -640,14 +398,12 @@ namespace TrenchBroom {
 
             ASSERT_FALSE(commandProcessor.canUndo());
             ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_FALSE(commandProcessor.canRepeat());
 
             // does nothing, but closes the transaction
             commandProcessor.commitTransaction();
 
             ASSERT_FALSE(commandProcessor.canUndo());
             ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_FALSE(commandProcessor.canRepeat());
 
             ASSERT_EQ((std::vector<NotificationTuple>{}), observer.popNotifications());
         }
@@ -662,10 +418,10 @@ namespace TrenchBroom {
             TestObserver observer(commandProcessor);
 
             const auto outerCommandName = "outer command";
-            auto outerCommand = TestCommand::create(outerCommandName, false);
+            auto outerCommand = TestCommand::create(outerCommandName);
 
             const auto innerCommandName = "inner command";
-            auto innerCommand = TestCommand::create(innerCommandName, false);
+            auto innerCommand = TestCommand::create(innerCommandName);
 
             outerCommand->expectDo(true);
             innerCommand->expectDo(true);
@@ -704,14 +460,12 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(commandProcessor.canUndo());
             ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.canRepeat());
             ASSERT_EQ(outerTransactionName, commandProcessor.undoCommandName());
 
             ASSERT_TRUE(commandProcessor.undo()->success());
 
             ASSERT_FALSE(commandProcessor.canUndo());
             ASSERT_TRUE(commandProcessor.canRedo());
-            ASSERT_FALSE(commandProcessor.canRepeat());
             ASSERT_EQ(outerTransactionName, commandProcessor.redoCommandName());
 
             ASSERT_EQ((std::vector<NotificationTuple>{
@@ -732,10 +486,10 @@ namespace TrenchBroom {
             TestObserver observer(commandProcessor);
 
             const auto commandName1 = "test command 1";
-            auto command1 = TestCommand::create(commandName1, false);
+            auto command1 = TestCommand::create(commandName1);
 
             const auto commandName2 = "test command 2";
-            auto command2 = TestCommand::create(commandName2, false);
+            auto command2 = TestCommand::create(commandName2);
 
             command1->expectDo(true);
             command2->expectDo(true);
@@ -758,14 +512,12 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(commandProcessor.canUndo());
             ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.canRepeat());
             ASSERT_EQ(commandName1, commandProcessor.undoCommandName());
 
             ASSERT_TRUE(commandProcessor.undo()->success());
 
             ASSERT_FALSE(commandProcessor.canUndo());
             ASSERT_TRUE(commandProcessor.canRedo());
-            ASSERT_FALSE(commandProcessor.canRepeat());
             ASSERT_EQ(commandName1, commandProcessor.redoCommandName());
 
             // NOTE: commandName2 is gone because it was coalesced into commandName1
@@ -786,10 +538,10 @@ namespace TrenchBroom {
             TestObserver observer(commandProcessor);
 
             const auto commandName1 = "test command 1";
-            auto command1 = TestCommand::create(commandName1, false);
+            auto command1 = TestCommand::create(commandName1);
 
             const auto commandName2 = "test command 2";
-            auto command2 = TestCommand::create(commandName2, false);
+            auto command2 = TestCommand::create(commandName2);
 
             command1->expectDo(true);
             command2->expectDo(true);
@@ -816,7 +568,6 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(commandProcessor.canUndo());
             ASSERT_FALSE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.canRepeat());
             ASSERT_EQ(commandName2, commandProcessor.undoCommandName());
 
             ASSERT_TRUE(commandProcessor.undo()->success());
@@ -829,7 +580,6 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(commandProcessor.canUndo());
             ASSERT_TRUE(commandProcessor.canRedo());
-            ASSERT_TRUE(commandProcessor.canRepeat());
             ASSERT_EQ(commandName1, commandProcessor.undoCommandName());
             ASSERT_EQ(commandName2, commandProcessor.redoCommandName());
         }

@@ -18,10 +18,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-#include "GTestCompat.h"
-#include "MapDocumentTest.h"
-
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -38,6 +34,11 @@
 #include <vecmath/scalar.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
+
+#include "MapDocumentTest.h"
 
 namespace TrenchBroom {
     namespace View {

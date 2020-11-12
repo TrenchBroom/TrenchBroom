@@ -52,10 +52,6 @@ namespace TrenchBroom {
             return std::make_unique<CommandResult>(true);
         }
 
-        bool UpdateEntitySpawnflagCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
-        }
-
         bool UpdateEntitySpawnflagCommand::doCollateWith(UndoableCommand*) {
             return false;
         }

@@ -154,14 +154,6 @@ namespace TrenchBroom {
             return std::make_unique<CommandResult>(true);
         }
 
-        bool SelectionCommand::doIsRepeatDelimiter() const {
-            return true;
-        }
-
-        bool SelectionCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
-        }
-
         bool SelectionCommand::doCollateWith(UndoableCommand*) {
             return false;
         }

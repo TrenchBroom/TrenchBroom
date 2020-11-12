@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TestGame.h"
 
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/EntityModel.h"
@@ -37,6 +36,11 @@
 
 #include <memory>
 #include <vector>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
+
+#include "TestGame.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -108,8 +112,7 @@ namespace TrenchBroom {
 
         std::vector<Node*> TestGame::doParseNodes(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {
             IO::TestParserStatus status;
-            IO::NodeReader reader(str, world);
-            return reader.read(worldBounds, status);
+            return IO::NodeReader::read(str, world, worldBounds, status);
         }
 
         std::vector<BrushFace> TestGame::doParseBrushFaces(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& /* logger */) const {

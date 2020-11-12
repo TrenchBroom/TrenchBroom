@@ -75,8 +75,8 @@ namespace TrenchBroom {
         class Command;
         class CommandResult;
         class Grid;
-        class MapViewConfig;
         enum class PasteType;
+        class RepeatStack;
         class Selection;
         class UndoableCommand;
         class ViewEffectsService;
@@ -102,7 +102,6 @@ namespace TrenchBroom {
             std::unique_ptr<Model::TagManager> m_tagManager;
 
             std::unique_ptr<Model::EditorContext> m_editorContext;
-            std::unique_ptr<MapViewConfig> m_mapViewConfig;
             std::unique_ptr<Grid> m_grid;
 
             using ActionList = std::vector<std::unique_ptr<Action>>;
@@ -123,6 +122,15 @@ namespace TrenchBroom {
             mutable bool m_selectionBoundsValid;
 
             ViewEffectsService* m_viewEffectsService;
+
+            /*
+             * All actions pushed to this stack can be repeated later. The stack must be
+             * primed to be cleared whenever the selection changes. The effect is that
+             * changing the selection automatically begins a new "macro", but at the same
+             * time the current repeat stack can still be repeated after the selection
+             * was changed.
+             */
+            std::unique_ptr<RepeatStack> m_repeatStack;
         public: // notification
             Notifier<Command*> commandDoNotifier;
             Notifier<Command*> commandDoneNotifier;
@@ -141,7 +149,6 @@ namespace TrenchBroom {
             Notifier<> documentModificationStateDidChangeNotifier;
 
             Notifier<> editorContextDidChangeNotifier;
-            Notifier<> mapViewConfigDidChangeNotifier;
             Notifier<const Model::LayerNode*> currentLayerDidChangeNotifier;
             Notifier<const std::string&> currentTextureNameDidChangeNotifier;
 
@@ -216,7 +223,6 @@ namespace TrenchBroom {
             Assets::EntityModelManager& entityModelManager() override;
             Assets::TextureManager& textureManager() override;
 
-            MapViewConfig& mapViewConfig() const;
             Grid& grid() const;
 
             Model::PointFile* pointFile() const;
@@ -265,14 +271,12 @@ namespace TrenchBroom {
             bool pasteNodes(const std::vector<Model::Node*>& nodes);
             bool pasteBrushFaces(const std::vector<Model::BrushFace>& faces);
         public: // point file management
-            // cppcheck-suppress passedByValue
             void loadPointFile(const IO::Path path);
             bool isPointFileLoaded() const;
             bool canReloadPointFile() const;
             void reloadPointFile();
             void unloadPointFile();
         public: // portal file management
-            // cppcheck-suppress passedByValue
             void loadPortalFile(const IO::Path path);
             bool isPortalFileLoaded() const;
             bool canReloadPortalFile() const;
@@ -348,7 +352,6 @@ namespace TrenchBroom {
             Model::GroupNode* groupSelection(const std::string& name);
             void mergeSelectedGroupsWithGroup(Model::GroupNode* group);
         private:
-            class MatchGroupableNodes;
             std::vector<Model::Node*> collectGroupableNodes(const std::vector<Model::Node*>& selectedNodes) const;
         public:
             void ungroupSelection();
@@ -441,7 +444,7 @@ namespace TrenchBroom {
             void undoCommand();
             void redoCommand();
             bool canRepeatCommands() const;
-            std::unique_ptr<CommandResult> repeatCommands();
+            void repeatCommands();
             void clearRepeatableCommands();
         public: // transactions
             void startTransaction(const std::string& name = "");
@@ -458,9 +461,6 @@ namespace TrenchBroom {
             virtual const std::string& doGetRedoCommandName() const = 0;
             virtual void doUndoCommand() = 0;
             virtual void doRedoCommand() = 0;
-            virtual bool doCanRepeatCommands() const = 0;
-            virtual std::unique_ptr<CommandResult> doRepeatCommands() = 0;
-            virtual void doClearRepeatableCommands() = 0;
 
             virtual void doStartTransaction(const std::string& name) = 0;
             virtual void doCommitTransaction() = 0;
@@ -505,16 +505,12 @@ namespace TrenchBroom {
             void loadTextures();
             void unloadTextures();
 
-            class SetTextures;
-            class UnsetTextures;
             void setTextures();
             void setTextures(const std::vector<Model::Node*>& nodes);
             void setTextures(const std::vector<Model::BrushFaceHandle>& faceHandles);
             void unsetTextures();
             void unsetTextures(const std::vector<Model::Node*>& nodes);
 
-            class SetEntityDefinitions;
-            class UnsetEntityDefinitions;
             void setEntityDefinitions();
             void setEntityDefinitions(const std::vector<Model::Node*>& nodes);
             void unsetEntityDefinitions();
@@ -553,14 +549,11 @@ namespace TrenchBroom {
             bool isRegisteredSmartTag(size_t index) const;
             const Model::SmartTag& smartTag(size_t index) const;
         private:
-            class InitializeNodeTagsVisitor;
-            class ClearNodeTagsVisitor;
             void initializeNodeTags(MapDocument* document);
             void initializeNodeTags(const std::vector<Model::Node*>& nodes);
             void clearNodeTags(const std::vector<Model::Node*>& nodes);
             void updateNodeTags(const std::vector<Model::Node*>& nodes);
 
-            class InitializeFaceTagsVisitor;
             void updateFaceTags(const std::vector<Model::BrushFaceHandle>& faces);
             void updateAllFaceTags();
         public: // document path

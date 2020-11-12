@@ -309,8 +309,7 @@ namespace TrenchBroom {
                 result.push_back(vm::get_abs_max_component_axis(normal));
             }
 
-            kdl::vec_sort_and_remove_duplicates(result);
-            return result;
+            return kdl::vec_sort_and_remove_duplicates(std::move(result));
         }
 
         std::vector<const Model::BrushFace*> ClipToolController3D::selectIncidentFaces(const Model::BrushNode* brushNode, const Model::BrushFace& face, const vm::vec3& hitPoint) {

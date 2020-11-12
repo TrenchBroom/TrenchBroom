@@ -17,10 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "Logger.h"
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
@@ -31,6 +27,9 @@
 #include "IO/Quake3ShaderFileSystem.h"
 #include "IO/Reader.h"
 #include "IO/TextureReader.h"
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -49,7 +48,7 @@ namespace TrenchBroom {
 
             const auto aseFile = fs->openFile(Path("models/mapobjects/wedges/wedge_45.ase"));
             auto reader = aseFile->reader().buffer();
-            AseParser parser("wedge", std::begin(reader), std::end(reader), *fs);
+            AseParser parser("wedge", reader.stringView(), *fs);
 
             auto model = parser.initializeModel(logger);
             ASSERT_NE(nullptr, model);
@@ -73,7 +72,7 @@ namespace TrenchBroom {
 
             const auto aseFile = fs->openFile(Path("models/wedge_45.ase"));
             auto reader = aseFile->reader().buffer();
-            AseParser parser("wedge", std::begin(reader), std::end(reader), *fs);
+            AseParser parser("wedge", reader.stringView(), *fs);
 
             auto model = parser.initializeModel(logger);
             ASSERT_NE(nullptr, model);
@@ -101,7 +100,7 @@ namespace TrenchBroom {
 
             const auto aseFile = fs->openFile(Path("models/wedge_45.ase"));
             auto reader = aseFile->reader().buffer();
-            AseParser parser("wedge", std::begin(reader), std::end(reader), *fs);
+            AseParser parser("wedge", reader.stringView(), *fs);
 
             auto model = parser.initializeModel(logger);
             ASSERT_NE(nullptr, model);
@@ -134,7 +133,7 @@ namespace TrenchBroom {
 
             const auto aseFile = fs->openFile(Path("player.ase"));
             auto reader = aseFile->reader().buffer();
-            AseParser parser("player", std::begin(reader), std::end(reader), *fs);
+            AseParser parser("player", reader.stringView(), *fs);
 
             auto model = parser.initializeModel(logger);
             ASSERT_NE(nullptr, model);
@@ -158,7 +157,7 @@ namespace TrenchBroom {
 
             const auto aseFile = fs->openFile(Path("wedge_45.ase"));
             auto reader = aseFile->reader().buffer();
-            AseParser parser("wedge", std::begin(reader), std::end(reader), *fs);
+            AseParser parser("wedge", reader.stringView(), *fs);
 
             auto model = parser.initializeModel(logger);
             ASSERT_NE(nullptr, model);
@@ -182,7 +181,7 @@ namespace TrenchBroom {
 
             const auto aseFile = fs->openFile(Path("wedge_45.ase"));
             auto reader = aseFile->reader().buffer();
-            AseParser parser("wedge", std::begin(reader), std::end(reader), *fs);
+            AseParser parser("wedge", reader.stringView(), *fs);
 
             auto model = parser.initializeModel(logger);
             ASSERT_NE(nullptr, model);
@@ -206,7 +205,7 @@ namespace TrenchBroom {
 
             const auto aseFile = fs->openFile(Path("wedge_45_no_uv.ase"));
             auto reader = aseFile->reader().buffer();
-            AseParser parser("wedge", std::begin(reader), std::end(reader), *fs);
+            AseParser parser("wedge", reader.stringView(), *fs);
 
             auto model = parser.initializeModel(logger);
             ASSERT_NE(nullptr, model);

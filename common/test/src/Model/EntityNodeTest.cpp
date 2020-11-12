@@ -17,10 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "Model/BrushError.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityRotationPolicy.h"
@@ -36,6 +32,9 @@
 
 #include <memory>
 #include <string>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Model {

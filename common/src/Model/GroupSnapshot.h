@@ -40,8 +40,6 @@ namespace TrenchBroom {
             GroupSnapshot(GroupNode* group);
             ~GroupSnapshot() override;
         private:
-            void takeSnapshot(GroupNode* group);
-            
             kdl::result<void, SnapshotErrors> doRestore(const vm::bbox3& worldBounds) override;
         };
     }

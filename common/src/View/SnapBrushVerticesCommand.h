@@ -37,7 +37,6 @@ namespace TrenchBroom {
             explicit SnapBrushVerticesCommand(FloatType snapTo);
         private:
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
 
             bool doCollateWith(UndoableCommand* command) override;
 

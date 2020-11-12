@@ -84,7 +84,6 @@ namespace TrenchBroom {
             Model::Hit pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
             Model::Hit pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult);
         private:
-            class PickProximateFace;
             Model::Hit pickProximateFace(Model::HitType::Type hitType, const vm::ray3& pickRay) const;
         public:
             bool hasDragFaces() const;
@@ -92,7 +91,6 @@ namespace TrenchBroom {
             void updateDragFaces(const Model::PickResult& pickResult);
         private:
             std::vector<FaceHandle> getDragHandles(const Model::Hit& hit) const;
-            class MatchFaceBoundary;
             std::vector<FaceHandle> collectDragHandles(const Model::Hit& hit) const;
             std::vector<Model::BrushFaceHandle> collectDragFaces(const Model::BrushFaceHandle& faceHandle) const;
         public:

@@ -34,8 +34,7 @@ namespace TrenchBroom {
         protected:
             Path m_path;
         protected:
-            ConfigParserBase(const char* begin, const char* end, const Path& path);
-            ConfigParserBase(const std::string& str, const Path& path = Path(""));
+            explicit ConfigParserBase(std::string_view str, const Path& path = Path(""));
         public:
             virtual ~ConfigParserBase();
         protected:

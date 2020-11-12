@@ -74,14 +74,6 @@ namespace TrenchBroom {
             return std::make_unique<CommandResult>(success);
         }
 
-        bool TransformObjectsCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
-            return document->hasSelectedNodes();
-        }
-
-        std::unique_ptr<UndoableCommand> TransformObjectsCommand::doRepeat(MapDocumentCommandFacade*) const {
-            return std::make_unique<TransformObjectsCommand>(m_action, m_name, m_transform, m_lockTextures);
-        }
-
         bool TransformObjectsCommand::doCollateWith(UndoableCommand* command) {
             auto* other = static_cast<TransformObjectsCommand*>(command);
             if (other->m_lockTextures != m_lockTextures) {

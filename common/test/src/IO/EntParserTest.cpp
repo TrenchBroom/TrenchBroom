@@ -17,10 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "Exceptions.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
@@ -36,6 +32,9 @@
 #include <algorithm>
 #include <string>
 
+#include "Catch2.h"
+#include "GTestCompat.h"
+
 namespace TrenchBroom {
     namespace IO {
         void assertAttributeDefinition(const std::string& name, const Assets::AttributeDefinitionType expectedType, const Assets::EntityDefinition* entityDefinition);
@@ -49,7 +48,7 @@ namespace TrenchBroom {
                 auto reader = file->reader().buffer();
 
                 const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-                EntParser parser(std::begin(reader), std::end(reader), defaultColor);
+                EntParser parser(reader.stringView(), defaultColor);
 
                 TestParserStatus status;
                 UNSCOPED_INFO("Parsing ENT file " << path.asString() << " failed");

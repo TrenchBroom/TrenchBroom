@@ -35,47 +35,56 @@
 
 namespace TrenchBroom {
     namespace IO {
-        NodeReader::NodeReader(const std::string& str, Model::ModelFactory& factory) :
+        NodeReader::NodeReader(std::string_view str, Model::ModelFactory& factory) :
         MapReader(str),
         m_factory(factory) {}
 
         std::vector<Model::Node*> NodeReader::read(const std::string& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status) {
-            NodeReader reader(str, factory);
-            return reader.read(worldBounds, status);
-        }
-
-        const std::vector<Model::Node*>& NodeReader::read(const vm::bbox3& worldBounds, ParserStatus& status) {
-            // try preferred format first
-            const Model::MapFormat preferredFormat = m_factory.format();
+            // Try preferred format first
+            const Model::MapFormat preferredFormat = factory.format();
             for (const auto format : Model::compatibleFormats(preferredFormat)) {
-                try {
-                    readAsFormat(worldBounds, format, status);
-                    return m_nodes;
-                } catch (const ParserException&) {
+                if (auto result = readAsFormat(format, str, factory, worldBounds, status); !result.empty()) {
+                    return result;
                 }
             }
 
-            assert(m_nodes.empty());
-            return m_nodes;
+            // All formats failed
+            return {};
         }
 
-        void NodeReader::readAsFormat(const vm::bbox3& worldBounds, Model::MapFormat format, ParserStatus& status) {
-            try {
-                reset();
-                readEntities(format, worldBounds, status);
-                return;
-            } catch (const ParserException&) {
-                kdl::vec_clear_and_delete(m_nodes);
+        /**
+         * Attempts to parse the string as one or more entities (in the given format), and if that fails,
+         * as one or more brushes.
+         *
+         * Does not throw upon parsing failure, but instead logs the failure to `status` and returns {}.
+         *
+         * @returns the parsed nodes; caller is responsible for freeing them.
+         */
+        std::vector<Model::Node*> NodeReader::readAsFormat(Model::MapFormat format, const std::string& str, Model::ModelFactory& factory, const vm::bbox3& worldBounds, ParserStatus& status) {
+            {
+                NodeReader reader(str, factory);
+                try {
+                    reader.readEntities(format, worldBounds, status);
+                    status.info("Parsed successfully as " + Model::formatName(format) + " entities");
+                    return reader.m_nodes;
+                } catch (const ParserException& e) {
+                    status.info("Couldn't parse as " + Model::formatName(format) + " entities: " + e.what());
+                    kdl::vec_clear_and_delete(reader.m_nodes);
+                }
             }
 
-            try {
-                reset();
-                readBrushes(format, worldBounds, status);
-                return;
-            } catch (const ParserException&) {
-                kdl::vec_clear_and_delete(m_nodes);
-                throw;
+            {
+                NodeReader reader(str, factory);
+                try {
+                    reader.readBrushes(format, worldBounds, status);
+                    status.info("Parsed successfully as " + Model::formatName(format) + " brushes");
+                    return reader.m_nodes;
+                } catch (const ParserException& e) {
+                    status.info("Couldn't parse as " + Model::formatName(format) + " brushes: " + e.what());
+                    kdl::vec_clear_and_delete(reader.m_nodes);
+                }
             }
+            return {};
         }
 
         Model::ModelFactory& NodeReader::initialize(const Model::MapFormat) {

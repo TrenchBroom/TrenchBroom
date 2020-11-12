@@ -17,10 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "Assets/Quake3Shader.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
@@ -30,6 +26,9 @@
 #include "IO/TestParserStatus.h"
 
 #include <string>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -510,7 +509,7 @@ waterBubble
             auto testFile = fs.openFile(Path("am_cf_models.shader"));
             auto reader = testFile->reader().buffer();
 
-            Quake3ShaderParser parser(std::begin(reader), std::end(reader));
+            Quake3ShaderParser parser(reader.stringView());
             TestParserStatus status;
             ASSERT_NO_THROW(parser.parse(status));
         }

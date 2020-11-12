@@ -70,9 +70,5 @@ namespace TrenchBroom {
         bool SetLockStateCommand::doCollateWith(UndoableCommand*) {
             return false;
         }
-
-        bool SetLockStateCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
-        }
     }
 }

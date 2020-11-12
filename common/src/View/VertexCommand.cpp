@@ -63,8 +63,8 @@ namespace TrenchBroom {
                 std::vector<vm::vec3> vertices;
                 vertices.reserve(2 * edgeList.size());
                 vm::segment3::get_vertices(std::begin(edgeList), std::end(edgeList), std::back_inserter(vertices));
-                kdl::vec_sort_and_remove_duplicates(vertices);
-                result.insert(std::make_pair(brush, vertices));
+                vertices = kdl::vec_sort_and_remove_duplicates(std::move(vertices));
+                result.insert(std::make_pair(brush, std::move(vertices)));
             }
             return result;
         }
@@ -77,8 +77,8 @@ namespace TrenchBroom {
 
                 std::vector<vm::vec3> vertices;
                 vm::polygon3::get_vertices(std::begin(faceList), std::end(faceList), std::back_inserter(vertices));
-                kdl::vec_sort_and_remove_duplicates(vertices);
-                result.insert(std::make_pair(brush, vertices));
+                vertices = kdl::vec_sort_and_remove_duplicates(std::move(vertices));
+                result.insert(std::make_pair(brush, std::move(vertices)));
             }
             return result;
         }
@@ -109,10 +109,6 @@ namespace TrenchBroom {
             auto snapshot = std::move(m_snapshot);
             takeSnapshot();
             document->restoreSnapshot(snapshot.get());
-        }
-
-        bool VertexCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
         }
 
         void VertexCommand::takeSnapshot() {

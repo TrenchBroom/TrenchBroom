@@ -17,10 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "TestLogger.h"
 
 #include "Exceptions.h"
@@ -39,6 +35,9 @@
 #include <vecmath/bbox.h>
 #include <vecmath/intersection.h>
 #include <vecmath/ray.h>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {

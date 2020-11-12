@@ -148,8 +148,7 @@ namespace TrenchBroom {
 
                     std::vector<Path> result;
                     _findItems(searchPath, matcher, recurse, result);
-                    kdl::vec_sort_and_remove_duplicates(result);
-                    return result;
+                    return kdl::vec_sort_and_remove_duplicates(std::move(result));
                 } catch (const PathException& e) {
                     throw FileSystemException("Invalid path: '" + searchPath.asString() + "'", e);
                 }

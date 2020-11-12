@@ -17,18 +17,17 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
-#include <memory>
-
 #include "Model/PortalFile.h"
 #include "IO/DiskIO.h"
 #include "IO/Path.h"
 #include "TestUtils.h"
 
 #include <vecmath/polygon.h>
+
+#include <memory>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Model {

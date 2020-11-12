@@ -37,6 +37,10 @@ namespace TrenchBroom {
         class EntityDefinitionManager;
     }
 
+    namespace IO {
+        class Path;
+    }
+
     namespace Model {
         class EditorContext;
         class SmartTag;
@@ -108,8 +112,8 @@ namespace TrenchBroom {
 
             void documentWasNewedOrLoaded(MapDocument* document);
             void editorContextDidChange();
-            void mapViewConfigDidChange();
             void entityDefinitionsDidChange();
+            void preferenceDidChange(const IO::Path& path);
 
             void createGui();
 
@@ -142,6 +146,7 @@ namespace TrenchBroom {
             void showEdgesChanged(bool checked);
             void entityLinkModeChanged(int id);
             void showSoftMapBoundsChanged(bool checked);
+            void restoreDefaultsClicked();
         };
 
         class ViewPopupEditor : public QWidget {

@@ -17,11 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "TestUtils.h"
-#include "GTestCompat.h"
-
 #include "Exceptions.h"
 #include "IO/NodeWriter.h"
 #include "Model/BrushNode.h"
@@ -42,6 +37,10 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+
+#include "Catch2.h"
+#include "TestUtils.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -304,10 +303,7 @@ R"(// entity 0
 }
 }
 )";
-
-            const auto actual = str.str();
-
-            ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
+            CHECK_THAT(str.str(), MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.writeWorldspawnWithCustomLayerWithSortIndex", "[NodeWriterTest]") {
@@ -342,9 +338,7 @@ R"(// entity 0
 "_tb_layer_omit_from_export" "1"
 }
 )";
-
-            const auto actual = str.str();
-            ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
+            CHECK_THAT(str.str(), MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.writeMapWithGroupInDefaultLayer", "[NodeWriterTest]") {
@@ -386,8 +380,7 @@ R"(// entity 0
 }
 }
 )";
-            const std::string actual = str.str();
-            ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
+            CHECK_THAT(str.str(), MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.writeMapWithGroupInCustomLayer", "[NodeWriterTest]") {
@@ -440,8 +433,7 @@ R"(// entity 0
 }
 }
 )";
-            const std::string actual = str.str();
-            ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
+            CHECK_THAT(str.str(), MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.writeMapWithNestedGroupInCustomLayer", "[NodeWriterTest]") {
@@ -505,9 +497,7 @@ R"(// entity 0
 }
 }
 )";
-
-            const std::string actual = str.str();
-            ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
+            CHECK_THAT(str.str(), MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers", "[NodeWriterTest]") {
@@ -585,6 +575,41 @@ R"(// entity 0
             CHECK_THAT(str.str(), MatchesGlob(expected));
         }
 
+        TEST_CASE("NodeWriterTest.writeMapWithInheritedLock", "[NodeWriterTest]") {
+            Model::WorldNode map(Model::MapFormat::Standard);
+            map.addOrUpdateAttribute("classname", "worldspawn");
+
+            Model::LayerNode* layer = map.createLayer("Custom Layer");
+            map.addChild(layer);
+
+            // WorldNode's lock state is not persisted.
+            // TB uses it e.g. for locking everything when opening a group.
+            // So this should result in both the default layer and custom layer being written unlocked.
+
+            map.setLockState(Model::LockState::Lock_Locked);
+            map.defaultLayer()->setLockState(Model::LockState::Lock_Inherited);
+            layer->setLockState(Model::LockState::Lock_Inherited);
+
+            std::stringstream str;
+            NodeWriter writer(map, str);
+            writer.writeMap();
+
+            const std::string expected =
+R"(// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"classname" "func_group"
+"_tb_type" "_tb_layer"
+"_tb_name" "Custom Layer"
+"_tb_id" "*"
+}
+)";
+            CHECK_THAT(str.str(), MatchesGlob(expected));
+        }
+
         TEST_CASE("NodeWriterTest.writeNodesWithNestedGroup", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
@@ -642,9 +667,7 @@ R"(// entity 0
 }
 }
 )";
-
-            const std::string actual = str.str();
-            ASSERT_TRUE(kdl::cs::str_matches_glob(actual, expected));
+            CHECK_THAT(str.str(), MatchesGlob(expected));
         }
 
         TEST_CASE("NodeWriterTest.writeFaces", "[NodeWriterTest]") {

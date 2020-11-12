@@ -88,7 +88,6 @@ namespace TrenchBroom {
             std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
             std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
             void restoreAndTakeNewSnapshot(MapDocumentCommandFacade* document);
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const override;
         private:
             void takeSnapshot();
             void deleteSnapshot();

@@ -45,13 +45,13 @@ namespace TrenchBroom {
 
         void TransformObjectVisitor::transform(Object* object) {
             object->transform(m_worldBounds, m_transformation, m_lockTextures)
-                .visit(kdl::overload {
+                .visit(kdl::overload(
                     []() {},
                     [&](TransformError&& e) {
                         m_error = std::move(e);
                         cancel();
-                    },
-                });
+                    }
+                ));
         }
     }
 }

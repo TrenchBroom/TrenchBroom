@@ -193,6 +193,7 @@ namespace TrenchBroom {
         QLineEdit* createSearchBox();
 
         void checkButtonInGroup(QButtonGroup* group, int id, bool checked);
+        void checkButtonInGroup(QButtonGroup* group, const QString& objectName, bool checked);
 
         /**
          * Insert a separating line as the first item in the given layout on platforms where

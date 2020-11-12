@@ -284,5 +284,9 @@ namespace TrenchBroom {
             const auto* bufferSource = static_cast<const BufferSource*>(m_source.get());
             return bufferSource->end();
         }
+
+        std::string_view BufferedReader::stringView() const {
+            return std::string_view(begin(), size());
+        }
     }
 }

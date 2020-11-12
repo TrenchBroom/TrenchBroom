@@ -17,12 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "../../test/src/GTestCompat.h"
-
-#include "BenchmarkUtils.h"
-
 #include "AABBTree.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
@@ -33,35 +27,21 @@
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityNode.h"
-#include "Model/NodeVisitor.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
 
+#include <kdl/overload.h>
+
 #include <vecmath/bbox.h>
+
+#include "BenchmarkUtils.h"
+#include "../../test/src/Catch2.h"
+#include "../../test/src/GTestCompat.h"
 
 namespace TrenchBroom {
     using AABB = AABBTree<double, 3, Model::Node*>;
     using BOX = AABB::Box;
-
-    class TreeBuilder : public Model::NodeVisitor {
-    private:
-        AABB& m_tree;
-    public:
-        explicit TreeBuilder(AABB& tree) : m_tree(tree) {}
-    private:
-        void doVisit(Model::WorldNode*) override {}
-        void doVisit(Model::LayerNode*) override {}
-        void doVisit(Model::GroupNode*) override {}
-        void doVisit(Model::EntityNode* entity) override {
-            doInsert(entity);
-        }
-        void doVisit(Model::BrushNode* brush) override {
-            doInsert(brush);
-        }
-
-        void doInsert(Model::Node* node) {
-            m_tree.insert(node->physicalBounds(), node);
-        }
-    };
 
     TEST_CASE("AABBTreeBenchmark.benchBuildTree", "[AABBTreeBenchmark]") {
         const auto mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/benchmark/AABBTree/ne_ruins.map");
@@ -69,7 +49,7 @@ namespace TrenchBroom {
         auto fileReader = file->reader().buffer();
 
         IO::TestParserStatus status;
-        IO::WorldReader worldReader(std::begin(fileReader), std::end(fileReader));
+        IO::WorldReader worldReader(fileReader.stringView());
 
         const vm::bbox3 worldBounds(8192.0);
         auto world = worldReader.read(Model::MapFormat::Standard, worldBounds, status);
@@ -77,8 +57,13 @@ namespace TrenchBroom {
         std::vector<AABB> trees(100);
         timeLambda([&world, &trees]() {
             for (auto& tree : trees) {
-                TreeBuilder builder(tree);
-                world->acceptAndRecurse(builder);
+                world->accept(kdl::overload(
+                    [] (auto&& thisLambda, Model::WorldNode* world_)  { world_->visitChildren(thisLambda); },
+                    [] (auto&& thisLambda, Model::LayerNode* layer)   { layer->visitChildren(thisLambda); },
+                    [] (auto&& thisLambda, Model::GroupNode* group)   { group->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, Model::EntityNode* entity) { entity->visitChildren(thisLambda); tree.insert(entity->physicalBounds(), entity); },
+                    [&](Model::BrushNode* brush)                      { tree.insert(brush->physicalBounds(), brush); }
+                ));
             }
         }, "Add objects to AABB tree");
     }

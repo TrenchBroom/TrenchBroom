@@ -17,10 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "TestUtils.h"
-
 #include "Exceptions.h"
 #include "FloatType.h"
 #include "Assets/Texture.h"
@@ -50,18 +46,21 @@
 #include <string>
 #include <vector>
 
+#include "Catch2.h"
+#include "TestUtils.h"
+
 namespace TrenchBroom {
     namespace Model {
         static bool canMoveBoundary(const Brush& brush, const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta) {
             return brush.moveBoundary(worldBounds, faceIndex, delta, false)
-                .visit(kdl::overload {
+                .visit(kdl::overload(
                     [&](const Brush& b) {
                         return worldBounds.contains(b.bounds());
                     },
                     [](const BrushError) {
                         return false;
-                    },
-                });
+                    }
+                ));
         }
 
         TEST_CASE("BrushTest.constructBrushWithFaces", "[BrushTest]") {
@@ -1519,10 +1518,10 @@ namespace TrenchBroom {
             const Brush newBrush = brush.moveVertices(worldBounds, vertexPositions, delta).value();
 
             auto movedVertexPositions = newBrush.findClosestVertexPositions(vertexPositions + delta);
-            kdl::vec_sort_and_remove_duplicates(movedVertexPositions);
+            movedVertexPositions = kdl::vec_sort_and_remove_duplicates(std::move(movedVertexPositions));
 
             auto expectedVertexPositions = vertexPositions + delta;
-            kdl::vec_sort_and_remove_duplicates(expectedVertexPositions);
+            expectedVertexPositions = kdl::vec_sort_and_remove_duplicates(std::move(expectedVertexPositions));
 
             ASSERT_EQ(expectedVertexPositions, movedVertexPositions);
         }
@@ -1753,9 +1752,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            const std::vector<Node*> nodes = reader.read(worldBounds, status);
+            const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
             EXPECT_EQ(1u, nodes.size());
 
             Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -1773,9 +1771,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            const std::vector<Node*> nodes = reader.read(worldBounds, status);
+            const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
             EXPECT_EQ(1u, nodes.size());
 
             const Brush& brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -2435,9 +2432,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            const std::vector<Node*> nodes = reader.read(worldBounds, status);
+            const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
             EXPECT_EQ(1u, nodes.size());
 
             Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -2502,9 +2498,8 @@ namespace TrenchBroom {
 )";
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            auto nodes = reader.read(worldBounds, status);
+            auto nodes = IO::NodeReader::read(data, world, worldBounds, status);
             EXPECT_EQ(1u, nodes.size());
 
             Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -2545,9 +2540,8 @@ namespace TrenchBroom {
 )";
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            std::vector<Node*> nodes = reader.read(worldBounds, status);
+            std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
 
             Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -2881,9 +2875,8 @@ namespace TrenchBroom {
 )";
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            auto nodes = reader.read(worldBounds, status);
+            auto nodes = IO::NodeReader::read(data, world, worldBounds, status);
             REQUIRE(nodes.size() == 1u);
 
             Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -2962,9 +2955,8 @@ namespace TrenchBroom {
             REQUIRE(!data.empty());
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            auto nodes = reader.read(worldBounds, status);
+            auto nodes = IO::NodeReader::read(data, world, worldBounds, status);
             REQUIRE(!nodes.empty());
 
             std::vector<vm::vec3> points;
@@ -3049,9 +3041,8 @@ namespace TrenchBroom {
             REQUIRE(!data.empty());
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            const std::vector<Node*> nodes = reader.read(worldBounds, status);
+            const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
             REQUIRE(nodes.size() == 28);
 
             std::vector<vm::vec3> points;

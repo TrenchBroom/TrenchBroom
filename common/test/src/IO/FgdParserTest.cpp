@@ -17,10 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "TestUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
@@ -38,6 +34,9 @@
 #include <algorithm>
 #include <string>
 
+#include "Catch2.h"
+#include "GTestCompat.h"
+
 namespace TrenchBroom {
     namespace IO {
         TEST_CASE("FgdParserTest.parseIncludedFgdFiles", "[FgdParserTest]") {
@@ -49,7 +48,7 @@ namespace TrenchBroom {
                 auto reader = file->reader().buffer();
 
                 const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-                FgdParser parser(std::begin(reader), std::end(reader), defaultColor, path);
+                FgdParser parser(reader.stringView(), defaultColor, path);
 
                 TestParserStatus status;
                 UNSCOPED_INFO("Parsing FGD file " << path.asString() << " failed");
@@ -843,7 +842,7 @@ decor_goddess_statue : "Goddess Statue" [])";
             auto reader = file->reader().buffer();
 
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-            FgdParser parser(std::begin(reader), std::end(reader), defaultColor, file->path());
+            FgdParser parser(reader.stringView(), defaultColor, file->path());
 
             TestParserStatus status;
             auto defs = parser.parseDefinitions(status);
@@ -860,7 +859,7 @@ decor_goddess_statue : "Goddess Statue" [])";
             auto reader = file->reader().buffer();
 
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-            FgdParser parser(std::begin(reader), std::end(reader), defaultColor, file->path());
+            FgdParser parser(reader.stringView(), defaultColor, file->path());
 
             TestParserStatus status;
             auto defs = parser.parseDefinitions(status);
@@ -878,7 +877,7 @@ decor_goddess_statue : "Goddess Statue" [])";
             auto reader = file->reader().buffer();
 
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-            FgdParser parser(std::begin(reader), std::end(reader), defaultColor, file->path());
+            FgdParser parser(reader.stringView(), defaultColor, file->path());
 
             TestParserStatus status;
             auto defs = parser.parseDefinitions(status);

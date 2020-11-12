@@ -20,6 +20,8 @@
 #include "EditorContext.h"
 
 #include "Ensure.h"
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/Brush.h"
 #include "Model/BrushNode.h"
@@ -28,7 +30,6 @@
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/Node.h"
-#include "Model/NodeVisitor.h"
 #include "Model/WorldNode.h"
 
 namespace TrenchBroom {
@@ -38,35 +39,10 @@ namespace TrenchBroom {
         }
 
         void EditorContext::reset() {
-            m_showPointEntities = true;
-            m_showBrushes = true;
             m_hiddenTags = 0;
             m_hiddenEntityDefinitions.reset();
-            m_entityLinkMode = EntityLinkMode_Direct;
             m_blockSelection = false;
             m_currentGroup = nullptr;
-        }
-
-        bool EditorContext::showPointEntities() const {
-            return m_showPointEntities;
-        }
-
-        void EditorContext::setShowPointEntities(const bool showPointEntities) {
-            if (showPointEntities != m_showPointEntities) {
-                m_showPointEntities = showPointEntities;
-                editorContextDidChangeNotifier();
-            }
-        }
-
-        bool EditorContext::showBrushes() const {
-            return m_showBrushes;
-        }
-
-        void EditorContext::setShowBrushes(const bool showBrushes) {
-            if (showBrushes != m_showBrushes) {
-                m_showBrushes = showBrushes;
-                editorContextDidChangeNotifier();
-            }
         }
 
         TagType::Type EditorContext::hiddenTags() const {
@@ -91,17 +67,6 @@ namespace TrenchBroom {
         void EditorContext::setEntityDefinitionHidden(const Assets::EntityDefinition* definition, const bool hidden) {
             if (definition != nullptr && entityDefinitionHidden(definition) != hidden) {
                 m_hiddenEntityDefinitions[definition->index()] = hidden;
-                editorContextDidChangeNotifier();
-            }
-        }
-
-        EditorContext::EntityLinkMode EditorContext::entityLinkMode() const {
-            return m_entityLinkMode;
-        }
-
-        void EditorContext::setEntityLinkMode(const EntityLinkMode entityLinkMode) {
-            if (entityLinkMode != m_entityLinkMode) {
-                m_entityLinkMode = entityLinkMode;
                 editorContextDidChangeNotifier();
             }
         }
@@ -141,23 +106,8 @@ namespace TrenchBroom {
             }
         }
 
-        class NodeVisible : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
-        private:
-            const EditorContext& m_this;
-        public:
-            explicit NodeVisible(const EditorContext& i_this) : m_this(i_this) {}
-        private:
-            void doVisit(const Model::WorldNode* world) override   { setResult(m_this.visible(world)); }
-            void doVisit(const Model::LayerNode* layer) override   { setResult(m_this.visible(layer)); }
-            void doVisit(const Model::GroupNode* group) override   { setResult(m_this.visible(group)); }
-            void doVisit(const Model::EntityNode* entity) override { setResult(m_this.visible(entity)); }
-            void doVisit(const Model::BrushNode* brush) override   { setResult(m_this.visible(brush)); }
-        };
-
         bool EditorContext::visible(const Model::Node* node) const {
-            NodeVisible visitor(*this);
-            node->accept(visitor);
-            return visitor.result();
+            return node->accept([&](const auto* concreteNode) { return visible(concreteNode); });
         }
 
         bool EditorContext::visible(const Model::WorldNode* world) const {
@@ -172,7 +122,9 @@ namespace TrenchBroom {
             if (group->selected()) {
                 return true;
             }
-
+            if (!anyChildVisible(group)) {
+                return false;
+            }
             return group->visible();
         }
 
@@ -192,7 +144,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            if (entity->pointEntity() && !m_showPointEntities) {
+            if (entity->pointEntity() && !pref(Preferences::ShowPointEntities)) {
                 return false;
             }
 
@@ -208,7 +160,7 @@ namespace TrenchBroom {
                 return true;
             }
 
-            if (!m_showBrushes) {
+            if (!pref(Preferences::ShowBrushes)) {
                 return false;
             }
 
@@ -227,8 +179,8 @@ namespace TrenchBroom {
             return brush->visible();
         }
 
-        bool EditorContext::visible(const Model::BrushNode*, const Model::BrushFace& face) const {
-            return !face.hasTag(m_hiddenTags);
+        bool EditorContext::visible(const Model::BrushNode* brush, const Model::BrushFace& face) const {
+            return visible(brush) && !face.hasTag(m_hiddenTags);
         }
 
         bool EditorContext::anyChildVisible(const Model::Node* node) const {
@@ -244,23 +196,8 @@ namespace TrenchBroom {
             return editable(brush);
         }
 
-        class EditorContext::NodePickable : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
-        private:
-            const EditorContext& m_this;
-        public:
-            explicit NodePickable(const EditorContext& i_this) : m_this(i_this) {}
-        private:
-            void doVisit(const Model::WorldNode* world) override   { setResult(m_this.pickable(world)); }
-            void doVisit(const Model::LayerNode* layer) override   { setResult(m_this.pickable(layer)); }
-            void doVisit(const Model::GroupNode* group) override   { setResult(m_this.pickable(group)); }
-            void doVisit(const Model::EntityNode* entity) override { setResult(m_this.pickable(entity)); }
-            void doVisit(const Model::BrushNode* brush) override   { setResult(m_this.pickable(brush)); }
-        };
-
         bool EditorContext::pickable(const Model::Node* node) const {
-            NodePickable visitor(*this);
-            node->accept(visitor);
-            return visitor.result();
+            return node->accept([&](const auto* concreteNode) { return pickable(concreteNode); });
         }
 
         bool EditorContext::pickable(const Model::WorldNode* /* world */) const {
@@ -291,23 +228,8 @@ namespace TrenchBroom {
             return brush->selected() || visible(brush, face);
         }
 
-        class NodeSelectable : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
-        private:
-            const EditorContext& m_this;
-        public:
-            explicit NodeSelectable(const EditorContext& i_this) : m_this(i_this) {}
-        private:
-            void doVisit(const Model::WorldNode* world) override   { setResult(m_this.selectable(world)); }
-            void doVisit(const Model::LayerNode* layer) override   { setResult(m_this.selectable(layer)); }
-            void doVisit(const Model::GroupNode* group) override   { setResult(m_this.selectable(group)); }
-            void doVisit(const Model::EntityNode* entity) override { setResult(m_this.selectable(entity)); }
-            void doVisit(const Model::BrushNode* brush) override   { setResult(m_this.selectable(brush)); }
-        };
-
         bool EditorContext::selectable(const Model::Node* node) const {
-            NodeSelectable visitor(*this);
-            node->accept(visitor);
-            return visitor.result();
+            return node->accept([&](const auto* concreteNode) { return selectable(concreteNode); });
         }
 
         bool EditorContext::selectable(const Model::WorldNode*) const {

@@ -17,12 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
-#include "TestUtils.h"
-
 #include "Exceptions.h"
 #include "Assets/Texture.h"
 #include "IO/NodeReader.h"
@@ -51,6 +45,10 @@
 #include <string>
 #include <vector>
 
+#include "Catch2.h"
+#include "GTestCompat.h"
+#include "TestUtils.h"
+
 namespace TrenchBroom {
     namespace Model {
         TEST_CASE("BrushNodeTest.buildBrushFail", "[BrushNodeTest]") {
@@ -71,9 +69,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            const std::vector<Node*> nodes = reader.read(worldBounds, status);
+            const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
         }
 
@@ -96,9 +93,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            const std::vector<Node*> nodes = reader.read(worldBounds, status);
+            const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
         }
 
@@ -203,9 +199,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Valve);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            const std::vector<Node*> nodes = reader.read(worldBounds, status);
+            const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
         }
 
@@ -226,9 +221,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            const std::vector<Node*> nodes = reader.read(worldBounds, status);
+            const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
             ASSERT_TRUE(nodes.empty());
         }
 
@@ -453,9 +447,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            const std::vector<Node*> nodes = reader.read(worldBounds, status);
+            const std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
             ASSERT_EQ(0u, nodes.size());
         }
 
@@ -485,9 +478,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            std::vector<Node*> nodes = reader.read(worldBounds, status); // assertion failure
+            std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status); // assertion failure
             kdl::vec_clear_and_delete(nodes);
         }
 
@@ -536,9 +528,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            std::vector<Node*> nodes = reader.read(worldBounds, status); // assertion failure
+            std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status); // assertion failure
             kdl::vec_clear_and_delete(nodes);
         }
 
@@ -563,9 +554,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            std::vector<Node*> nodes = reader.read(worldBounds, status); // assertion failure
+            std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status); // assertion failure
             kdl::vec_clear_and_delete(nodes);
         }
 
@@ -658,9 +648,8 @@ namespace TrenchBroom {
             WorldNode world(Model::MapFormat::Valve);
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            std::vector<Node*> nodes = reader.read(worldBounds, status);
+            std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
             ASSERT_EQ(1u, nodes.size());
             ASSERT_TRUE(nodes.at(0)->hasChildren());
             ASSERT_EQ(2u, nodes.at(0)->children().size());
@@ -757,9 +746,8 @@ namespace TrenchBroom {
 )";
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            ASSERT_NO_THROW(reader.read(worldBounds, status));
+            ASSERT_NO_THROW(IO::NodeReader::read(data, world, worldBounds, status));
         }
 
         TEST_CASE("BrushNodeTest.loadBrushFail_2491", "[BrushNodeTest]") {
@@ -780,9 +768,8 @@ namespace TrenchBroom {
             )";
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            ASSERT_NO_THROW(reader.read(worldBounds, status));
+            ASSERT_NO_THROW(IO::NodeReader::read(data, world, worldBounds, status));
         }
 
         TEST_CASE("BrushNodeTest.loadBrushFail_2686", "[BrushNodeTest]") {
@@ -821,9 +808,8 @@ namespace TrenchBroom {
             )";
 
             IO::TestParserStatus status;
-            IO::NodeReader reader(data, world);
 
-            ASSERT_NO_THROW(reader.read(worldBounds, status));
+            ASSERT_NO_THROW(IO::NodeReader::read(data, world, worldBounds, status));
         }
     }
 }

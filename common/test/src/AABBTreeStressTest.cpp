@@ -17,10 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "AABBTree.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
@@ -30,66 +26,64 @@
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityNode.h"
-#include "Model/NodeVisitor.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
 
+#include <kdl/overload.h>
+
 #include <vecmath/bbox.h>
+#include <vecmath/bbox_io.h>
 
 #include <iostream>
+
+#include "Catch2.h"
 
 namespace TrenchBroom {
     namespace Model {
         using AABB = AABBTree<double, 3, Node*>;
         using BOX = AABB::Box;
 
-        class TreeBuilder : public NodeVisitor {
-        private:
-            AABB& m_tree;
-            vm::bbox3 m_bounds;
-        public:
-            explicit TreeBuilder(AABB& tree) : m_tree(tree) {}
-        private:
-            void doVisit(WorldNode* /* world */) override {}
-            void doVisit(LayerNode* /* layer */) override {}
-            void doVisit(GroupNode* /* group */) override {}
-            void doVisit(EntityNode* entity) override {
-                doInsert(entity);
-            }
-            void doVisit(BrushNode* brush) override {
-                doInsert(brush);
-            }
+        static auto makeTreeBuilder(AABB& tree, vm::bbox3::builder& totalBounds) {
+            const auto insert = [&](auto* node) {
+                if (!tree.empty()) {
+                    const auto oldBounds = tree.bounds();
 
-            void doInsert(Node* node) {
-                if (!m_tree.empty()) {
-                    const auto oldBounds = m_tree.bounds();
+                    tree.insert(node->physicalBounds(), node);
+                    totalBounds.add(node->physicalBounds());
 
-                    m_tree.insert(node->physicalBounds(), node);
-                    m_bounds = merge(m_bounds, node->physicalBounds());
-
-                    if (!m_tree.bounds().contains(oldBounds)) {
-                        cancel();
-                        UNSCOPED_INFO("Node at line " << node->lineNumber() << " decreased tree bounds: " << oldBounds << " -> " << m_tree.bounds());
-                        ASSERT_TRUE(m_tree.bounds().contains(oldBounds));
+                    if (!tree.bounds().contains(oldBounds)) {
+                        UNSCOPED_INFO("Node at line " << node->lineNumber() << " decreased tree bounds: " << oldBounds << " -> " << tree.bounds());
+                        REQUIRE(tree.bounds().contains(oldBounds));
                     }
                 } else {
-                    m_tree.insert(node->physicalBounds(), node);
-                    m_bounds = node->physicalBounds();
+                    tree.insert(node->physicalBounds(), node);
+                    totalBounds.add(node->physicalBounds());
                 }
 
-                if (!m_tree.contains(node)) {
-                    cancel();
-                    m_tree.print(std::cout);
+                if (!tree.contains(node)) {
+                    tree.print(std::cout);
                     UNSCOPED_INFO("Node " << node << " with bounds " << node->physicalBounds() << " at line " << node->lineNumber() << " not found in tree after insertion");
-                    ASSERT_TRUE(m_tree.contains(node));
+                    REQUIRE(tree.contains(node));
                 }
 
-                if (m_bounds != m_tree.bounds()) {
-                    cancel();
-                    UNSCOPED_INFO("Node at line " << node->lineNumber() << " mangled tree bounds");
-                    ASSERT_TRUE(m_bounds == m_tree.bounds());
+                UNSCOPED_INFO("Node at line " << node->lineNumber() << " mangled tree bounds");
+                REQUIRE(totalBounds.bounds() == tree.bounds());
+            };
+
+            return kdl::overload(
+                [] (auto&& thisLambda, WorldNode* world)   { world->visitChildren(thisLambda); },
+                [] (auto&& thisLambda, LayerNode* layer)   { layer->visitChildren(thisLambda); },
+                [] (auto&& thisLambda, GroupNode* group)   { group->visitChildren(thisLambda); },
+                [=](auto&& thisLambda, EntityNode* entity) { // capture insert helper lambda by value!
+                    insert(entity);
+                    entity->visitChildren(thisLambda);
+                },
+                [=](BrushNode* brush) {
+                    insert(brush);
                 }
-            }
-        };
+            );
+        }
 
         TEST_CASE("AABBTreeStressTest.parseMapTest", "[AABBTreeStressTest]") {
             const auto mapPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Map/rtz_q1.map");
@@ -97,14 +91,14 @@ namespace TrenchBroom {
             auto fileReader = file->reader().buffer();
 
             IO::TestParserStatus status;
-            IO::WorldReader worldReader(std::begin(fileReader), std::end(fileReader));
+            IO::WorldReader worldReader(fileReader.stringView());
 
             const auto worldBounds = vm::bbox3(8192.0);
             auto world = worldReader.read(Model::MapFormat::Standard, worldBounds, status);
 
             AABB tree;
-            TreeBuilder builder(tree);
-            world->acceptAndRecurse(builder);
+            vm::bbox3::builder totalBounds;
+            world->accept(makeTreeBuilder(tree, totalBounds));
         }
     }
 }

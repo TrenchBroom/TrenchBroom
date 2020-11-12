@@ -165,8 +165,7 @@ namespace kdl {
 
         template <typename C>
         C sorted(C c) {
-            kdl::sort(c, string_less());
-            return c;
+            return kdl::col_sort(std::move(c), string_less());
         }
 
         TEST_CASE("string_utils_cs_test.sort", "[string_utils_cs_test]") {
@@ -308,8 +307,7 @@ namespace kdl {
 
         template <typename C>
         C sorted(C c) {
-            kdl::sort(c, string_less());
-            return c;
+            return kdl::col_sort(std::move(c), string_less());
         }
 
         TEST_CASE("string_utils_ci_test.sort", "[string_utils_ci_test]") {

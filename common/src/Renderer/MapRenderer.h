@@ -108,8 +108,6 @@ namespace TrenchBroom {
                 Renderer_All                = Renderer_Default | Renderer_Selection | Renderer_Locked
             } Renderer;
 
-            class CollectRenderableNodes;
-
             /**
              * This moves nodes between default / selection / locked renderers as needed,
              * but doesn't otherwise invalidate them.
@@ -147,7 +145,6 @@ namespace TrenchBroom {
             void modsDidChange();
 
             void editorContextDidChange();
-            void mapViewConfigDidChange();
 
             void preferenceDidChange(const IO::Path& path);
         };

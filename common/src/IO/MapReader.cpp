@@ -69,14 +69,8 @@ namespace TrenchBroom {
             return m_id;
         }
 
-        MapReader::MapReader(const char* begin, const char* end) :
-        StandardMapParser(begin, end),
-        m_factory(nullptr),
-        m_brushParent(nullptr),
-        m_currentNode(nullptr) {}
-
-        MapReader::MapReader(const std::string& str) :
-        StandardMapParser(str),
+        MapReader::MapReader(std::string_view str) :
+        StandardMapParser(std::move(str)),
         m_factory(nullptr),
         m_brushParent(nullptr),
         m_currentNode(nullptr) {}
@@ -139,29 +133,29 @@ namespace TrenchBroom {
         void MapReader::onStandardBrushFace(const size_t line, const Model::MapFormat /* format */, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status) {
             // NOTE: format is the format we're reading from the .map as which may not be this->format().
             // ModelFactory::createFaceFromStandard() will convert it to this->format().
-            m_factory->createFaceFromStandard(point1, point2, point3, attribs).visit(kdl::overload {
+            m_factory->createFaceFromStandard(point1, point2, point3, attribs).visit(kdl::overload(
                     [&](Model::BrushFace&& face) {
                         face.setFilePosition(line, 1u);
                         onBrushFace(std::move(face), status);
                     },
                     [&](const Model::BrushError e) {
                         status.error(line, kdl::str_to_string("Skipping face: ", e));
-                    },
-            });
+                    }
+            ));
         }
 
         void MapReader::onValveBrushFace(const size_t line, const Model::MapFormat /* format */, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) {
             // NOTE: format is the format we're reading from the .map as which may not be this->format().
             // ModelFactory::createFaceFromValve() will convert it to this->format().
-            m_factory->createFaceFromValve(point1, point2, point3, attribs, texAxisX, texAxisY).visit(kdl::overload {
+            m_factory->createFaceFromValve(point1, point2, point3, attribs, texAxisX, texAxisY).visit(kdl::overload(
                     [&](Model::BrushFace&& face) {
                         face.setFilePosition(line, 1u);
                         onBrushFace(std::move(face), status);
                     },
                     [&](const Model::BrushError e) {
                         status.error(line, kdl::str_to_string("Skipping face: ", e));
-                    },
-                });
+                    }
+                ));
         }
 
         void MapReader::createLayer(const size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {

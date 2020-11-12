@@ -20,6 +20,7 @@ target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/transform_range_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/vector_set_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/vector_utils_test.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/zip_iterator_test.cpp"
         )
 
 set_property(SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/run_all.cpp" PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)

@@ -20,6 +20,8 @@
  */
 
 uniform vec3 CameraPosition;
+uniform bool IsOrtho;
+uniform float Zoom;
 
 attribute vec3 arrowPosition;
 attribute vec3 lineDir;
@@ -140,7 +142,12 @@ void main(void) {
     distanceFromCamera = length(CameraPosition - arrowPosition);
 
     // scale up as you get further away, to a maximum of 4x at 2048 units away
-    float scaleFactor = mix(1.0, 4.0, smoothstep(0.0, 2048.0, distanceFromCamera));
+    float scaleFactor = 1.0;
+    if (IsOrtho) {
+        scaleFactor = clamp(1.0 / Zoom, 1.0, 4.0);
+    } else {
+        scaleFactor = mix(1.0, 4.0, smoothstep(0.0, 2048.0, distanceFromCamera));
+    }
 
     // now apply the scale, rotations, and translation to gl_Vertex
     vec3 worldVert = arrowPosition + quatMult(quatMult(fixUp, rotateFromPosXToLineDir), gl_Vertex.xyz * scaleFactor);

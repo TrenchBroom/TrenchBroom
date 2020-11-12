@@ -236,25 +236,15 @@ namespace TrenchBroom {
         }
 
         void VertexTool::addHandles(const std::vector<Model::Node*>& nodes) {
-            AddHandles<vm::vec3> addVertexHandles(*m_vertexHandles);
-            Model::Node::accept(std::begin(nodes), std::end(nodes), addVertexHandles);
-
-            AddHandles<vm::segment3> addEdgeHandles(*m_edgeHandles);
-            Model::Node::accept(std::begin(nodes), std::end(nodes), addEdgeHandles);
-
-            AddHandles<vm::polygon3> addFaceHandles(*m_faceHandles);
-            Model::Node::accept(std::begin(nodes), std::end(nodes), addFaceHandles);
+            VertexToolBase::addHandles(nodes, *m_vertexHandles);
+            VertexToolBase::addHandles(nodes, *m_edgeHandles);
+            VertexToolBase::addHandles(nodes, *m_faceHandles);
         }
 
         void VertexTool::removeHandles(const std::vector<Model::Node*>& nodes) {
-            RemoveHandles<vm::vec3> removeVertexHandles(*m_vertexHandles);
-            Model::Node::accept(std::begin(nodes), std::end(nodes), removeVertexHandles);
-
-            RemoveHandles<vm::segment3> removeEdgeHandles(*m_edgeHandles);
-            Model::Node::accept(std::begin(nodes), std::end(nodes), removeEdgeHandles);
-
-            RemoveHandles<vm::polygon3> removeFaceHandles(*m_faceHandles);
-            Model::Node::accept(std::begin(nodes), std::end(nodes), removeFaceHandles);
+            VertexToolBase::removeHandles(nodes, *m_vertexHandles);
+            VertexToolBase::removeHandles(nodes, *m_edgeHandles);
+            VertexToolBase::removeHandles(nodes, *m_faceHandles);
         }
 
         void VertexTool::addHandles(VertexCommand* command) {

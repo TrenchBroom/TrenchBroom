@@ -19,10 +19,6 @@
 
 #include "EntityDefinitionTestUtils.h"
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "Assets/EntityDefinition.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Value.h"
@@ -36,6 +32,9 @@
 
 #include <string>
 #include <vector>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace Assets {

@@ -174,7 +174,7 @@ namespace TrenchBroom {
                 toRemove.push_back(collections[index]);
             }
 
-            kdl::vec_erase_all(collections, toRemove);
+            collections = kdl::vec_erase_all(std::move(collections), toRemove);
             document->setEnabledTextureCollections(collections);
         }
 

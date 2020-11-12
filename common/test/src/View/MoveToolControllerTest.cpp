@@ -17,10 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "Renderer/PerspectiveCamera.h"
 #include "View/Grid.h"
 #include "View/MoveToolController.h"
@@ -29,6 +25,9 @@
 #include <kdl/vector_utils.h>
 
 #include <variant>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace View {

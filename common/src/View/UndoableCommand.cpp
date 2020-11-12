@@ -41,31 +41,11 @@ namespace TrenchBroom {
             return result;
         }
 
-        bool UndoableCommand::isRepeatDelimiter() const {
-            return doIsRepeatDelimiter();
-        }
-
-        bool UndoableCommand::isRepeatable(MapDocumentCommandFacade* document) const {
-            return doIsRepeatable(document);
-        }
-
-        std::unique_ptr<UndoableCommand> UndoableCommand::repeat(MapDocumentCommandFacade* document) const {
-            return doRepeat(document);
-        }
-
         bool UndoableCommand::collateWith(UndoableCommand* command) {
             assert(command != this);
             if (command->type() != m_type)
                 return false;
             return doCollateWith(command);
-        }
-
-        bool UndoableCommand::doIsRepeatDelimiter() const {
-            return false;
-        }
-
-        std::unique_ptr<UndoableCommand> UndoableCommand::doRepeat(MapDocumentCommandFacade*) const {
-            throw CommandProcessorException("Command is not repeatable");
         }
 
         size_t UndoableCommand::documentModificationCount() const {

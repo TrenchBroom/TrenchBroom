@@ -17,10 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
@@ -32,6 +28,9 @@
 
 #include <string>
 
+#include "Catch2.h"
+#include "GTestCompat.h"
+
 namespace TrenchBroom {
     namespace IO {
         TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs", "[GameConfigParserTest]") {
@@ -42,7 +41,7 @@ namespace TrenchBroom {
                 auto file = Disk::openFile(path);
                 auto reader = file->reader().buffer();
 
-                GameConfigParser parser(std::begin(reader), std::end(reader), path);
+                GameConfigParser parser(reader.stringView(), path);
                 try {
                     parser.parse();
                 } catch (const std::exception& e) {

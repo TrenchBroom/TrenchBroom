@@ -48,9 +48,5 @@ namespace TrenchBroom {
             m_currentLayer = other->m_currentLayer;
             return true;
         }
-
-        bool SetCurrentLayerCommand::doIsRepeatable(MapDocumentCommandFacade*) const {
-            return false;
-        }
     }
 }

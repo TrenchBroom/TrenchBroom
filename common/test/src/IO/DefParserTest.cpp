@@ -17,10 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "TestUtils.h"
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
@@ -36,6 +32,9 @@
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
+#include "Catch2.h"
+#include "GTestCompat.h"
+
 namespace TrenchBroom {
     namespace IO {
         TEST_CASE("DefParserTest.parseIncludedDefFiles", "[DefParserTest]") {
@@ -46,7 +45,7 @@ namespace TrenchBroom {
                 auto file = Disk::openFile(path);
                 auto reader = file->reader().buffer();
                 const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-                DefParser parser(std::begin(reader), std::end(reader), defaultColor);
+                DefParser parser(reader.stringView(), defaultColor);
 
                 TestParserStatus status;
                 UNSCOPED_INFO("Parsing DEF file " << path.asString() << " failed");
@@ -82,7 +81,7 @@ namespace TrenchBroom {
                 auto file = Disk::openFile(path);
                 auto reader = file->reader().buffer();
                 const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-                DefParser parser(std::begin(reader), std::end(reader), defaultColor);
+                DefParser parser(reader.stringView(), defaultColor);
 
                 TestParserStatus status;
                 ASSERT_NO_THROW(parser.parseDefinitions(status));

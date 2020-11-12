@@ -28,17 +28,15 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityAttributes.h"
-#include "Model/FindGroupVisitor.h"
-#include "Model/FindLayerVisitor.h"
 #include "Model/GroupNode.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/LayerNode.h"
+#include "Model/ModelUtils.h"
 #include "Model/PointFile.h"
 #include "Model/PortalFile.h"
 #include "Model/WorldNode.h"
@@ -60,10 +58,10 @@
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/MapViewActivationTracker.h"
-#include "View/MapViewConfig.h"
 #include "View/MapViewToolBox.h"
 #include "View/SelectionTool.h"
 #include "View/QtUtils.h"
+#include "kdl/vector_utils.h"
 
 #include <kdl/memory_utils.h>
 #include <kdl/string_compare.h>
@@ -136,7 +134,6 @@ namespace TrenchBroom {
             document->entityDefinitionsDidChangeNotifier.addObserver(this, &MapViewBase::entityDefinitionsDidChange);
             document->modsDidChangeNotifier.addObserver(this, &MapViewBase::modsDidChange);
             document->editorContextDidChangeNotifier.addObserver(this, &MapViewBase::editorContextDidChange);
-            document->mapViewConfigDidChangeNotifier.addObserver(this, &MapViewBase::mapViewConfigDidChange);
             document->documentWasNewedNotifier.addObserver(this, &MapViewBase::documentDidChange);
             document->documentWasClearedNotifier.addObserver(this, &MapViewBase::documentDidChange);
             document->documentWasLoadedNotifier.addObserver(this, &MapViewBase::documentDidChange);
@@ -170,7 +167,6 @@ namespace TrenchBroom {
                 document->entityDefinitionsDidChangeNotifier.removeObserver(this, &MapViewBase::entityDefinitionsDidChange);
                 document->modsDidChangeNotifier.removeObserver(this, &MapViewBase::modsDidChange);
                 document->editorContextDidChangeNotifier.removeObserver(this, &MapViewBase::editorContextDidChange);
-                document->mapViewConfigDidChangeNotifier.removeObserver(this, &MapViewBase::mapViewConfigDidChange);
                 document->documentWasNewedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
                 document->documentWasClearedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
                 document->documentWasLoadedNotifier.removeObserver(this, &MapViewBase::documentDidChange);
@@ -241,10 +237,6 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::editorContextDidChange() {
-            update();
-        }
-
-        void MapViewBase::mapViewConfigDidChange() {
             update();
         }
 
@@ -669,105 +661,71 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::toggleShowEntityClassnames() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowEntityClassnames(!config.showEntityClassnames());
+            togglePref(Preferences::ShowEntityClassnames);
         }
 
         void MapViewBase::toggleShowGroupBounds() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowGroupBounds(!config.showGroupBounds());
+            togglePref(Preferences::ShowGroupBounds);
         }
 
         void MapViewBase::toggleShowBrushEntityBounds() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowBrushEntityBounds(!config.showBrushEntityBounds());
+            togglePref(Preferences::ShowBrushEntityBounds);
         }
 
         void MapViewBase::toggleShowPointEntityBounds() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowPointEntityBounds(!config.showPointEntityBounds());
+            togglePref(Preferences::ShowPointEntityBounds);
         }
 
         void MapViewBase::toggleShowPointEntities() {
-            auto document = kdl::mem_lock(m_document);
-            Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setShowPointEntities(!editorContext.showPointEntities());
+            togglePref(Preferences::ShowPointEntities);
         }
 
         void MapViewBase::toggleShowPointEntityModels() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowPointEntityModels(!config.showPointEntityModels());
+            togglePref(Preferences::ShowPointEntityModels);
         }
 
         void MapViewBase::toggleShowBrushes() {
-            auto document = kdl::mem_lock(m_document);
-            Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setShowBrushes(!editorContext.showBrushes());
+            togglePref(Preferences::ShowBrushes);
         }
 
         void MapViewBase::showTextures() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Textured);
+            setPref(Preferences::FaceRenderMode, Preferences::faceRenderModeTextured());
         }
 
         void MapViewBase::hideTextures() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Flat);
+            setPref(Preferences::FaceRenderMode, Preferences::faceRenderModeFlat());
         }
 
         void MapViewBase::hideFaces() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setFaceRenderMode(MapViewConfig::FaceRenderMode_Skip);
+            setPref(Preferences::FaceRenderMode, Preferences::faceRenderModeSkip());
         }
 
         void MapViewBase::toggleShadeFaces() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShadeFaces(!config.shadeFaces());
+            togglePref(Preferences::ShadeFaces);
         }
 
         void MapViewBase::toggleShowFog() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowFog(!config.showFog());
+            togglePref(Preferences::ShowFog);
         }
 
         void MapViewBase::toggleShowEdges() {
-            auto document = kdl::mem_lock(m_document);
-            MapViewConfig& config = document->mapViewConfig();
-            config.setShowEdges(!config.showEdges());
+            togglePref(Preferences::ShowEdges);
         }
 
         void MapViewBase::showAllEntityLinks() {
-            auto document = kdl::mem_lock(m_document);
-            Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_All);
+            setPref(Preferences::FaceRenderMode, Preferences::entityLinkModeAll());
         }
 
         void MapViewBase::showTransitivelySelectedEntityLinks() {
-            auto document = kdl::mem_lock(m_document);
-            Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Transitive);
+            setPref(Preferences::FaceRenderMode, Preferences::entityLinkModeTransitive());
         }
 
         void MapViewBase::showDirectlySelectedEntityLinks() {
-            auto document = kdl::mem_lock(m_document);
-            Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_Direct);
+            setPref(Preferences::FaceRenderMode, Preferences::entityLinkModeDirect());
         }
 
         void MapViewBase::hideAllEntityLinks() {
-            auto document = kdl::mem_lock(m_document);
-            Model::EditorContext& editorContext = document->editorContext();
-            editorContext.setEntityLinkMode(Model::EditorContext::EntityLinkMode_None);
+            setPref(Preferences::FaceRenderMode, Preferences::entityLinkModeNone());
         }
 
         void MapViewBase::focusInEvent(QFocusEvent* event) {
@@ -854,24 +812,23 @@ namespace TrenchBroom {
             const Renderer::FontDescriptor fontDescriptor(fontPath, fontSize);
 
             auto document = kdl::mem_lock(m_document);
-            const MapViewConfig& mapViewConfig = document->mapViewConfig();
             const Grid& grid = document->grid();
 
             Renderer::RenderContext renderContext(doGetRenderMode(), doGetCamera(), fontManager(), shaderManager());
-            renderContext.setShowTextures(mapViewConfig.showTextures());
-            renderContext.setShowFaces(mapViewConfig.showFaces());
-            renderContext.setShowEdges(mapViewConfig.showEdges());
-            renderContext.setShadeFaces(mapViewConfig.shadeFaces());
-            renderContext.setShowPointEntities(mapViewConfig.showPointEntities());
-            renderContext.setShowPointEntityModels(mapViewConfig.showPointEntityModels());
-            renderContext.setShowEntityClassnames(mapViewConfig.showEntityClassnames());
-            renderContext.setShowGroupBounds(mapViewConfig.showGroupBounds());
-            renderContext.setShowBrushEntityBounds(mapViewConfig.showBrushEntityBounds());
-            renderContext.setShowPointEntityBounds(mapViewConfig.showPointEntityBounds());
-            renderContext.setShowFog(mapViewConfig.showFog());
+            renderContext.setShowTextures(pref(Preferences::FaceRenderMode) == Preferences::faceRenderModeTextured());
+            renderContext.setShowFaces(pref(Preferences::FaceRenderMode) != Preferences::faceRenderModeSkip());
+            renderContext.setShowEdges(pref(Preferences::ShowEdges));
+            renderContext.setShadeFaces(pref(Preferences::ShadeFaces));
+            renderContext.setShowPointEntities(pref(Preferences::ShowPointEntities));
+            renderContext.setShowPointEntityModels(pref(Preferences::ShowPointEntityModels));
+            renderContext.setShowEntityClassnames(pref(Preferences::ShowEntityClassnames));
+            renderContext.setShowGroupBounds(pref(Preferences::ShowGroupBounds));
+            renderContext.setShowBrushEntityBounds(pref(Preferences::ShowBrushEntityBounds));
+            renderContext.setShowPointEntityBounds(pref(Preferences::ShowPointEntityBounds));
+            renderContext.setShowFog(pref(Preferences::ShowFog));
             renderContext.setShowGrid(grid.visible());
             renderContext.setGridSize(grid.actualSize());
-            renderContext.setSoftMapBounds(mapViewConfig.showSoftMapBounds()
+            renderContext.setSoftMapBounds(pref(Preferences::ShowSoftMapBounds)
                 ? vm::bbox3f(document->softMapBounds().bounds.value_or(vm::bbox3()))
                 : vm::bbox3f());
 
@@ -994,21 +951,6 @@ namespace TrenchBroom {
             ToolBoxConnector::processEvent(event);
         }
 
-        static bool isEntity(const Model::Node* node) {
-            class IsEntity : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
-            private:
-                void doVisit(const Model::WorldNode*) override  { setResult(false); }
-                void doVisit(const Model::LayerNode*) override  { setResult(false); }
-                void doVisit(const Model::GroupNode*) override  { setResult(false); }
-                void doVisit(const Model::EntityNode*) override { setResult(true); }
-                void doVisit(const Model::BrushNode*) override  { setResult(false); }
-            };
-
-            IsEntity visitor;
-            node->accept(visitor);
-            return visitor.result();
-        }
-
         void MapViewBase::doShowPopupMenu() {
             // We process input events during paint event processing, but we cannot show a popup menu
             // during paint processing, so we enqueue an event for later.
@@ -1060,7 +1002,7 @@ namespace TrenchBroom {
 
             // Layer operations
 
-            const std::vector<Model::LayerNode*> selectedObjectLayers = Model::findLayersUserSorted(nodes);
+            const std::vector<Model::LayerNode*> selectedObjectLayers = Model::findContainingLayersUserSorted(nodes);
 
             QMenu* moveSelectionTo = menu.addMenu(tr("Move to Layer"));
             for (Model::LayerNode* layer : document->world()->allLayersUserSorted()) {
@@ -1107,7 +1049,12 @@ namespace TrenchBroom {
                 QAction* moveToWorldAction = menu.addAction(tr("Make Structural"), this, &MapViewBase::makeStructural);
                 moveToWorldAction->setEnabled(canMakeStructural());
 
-                if (isEntity(newBrushParent)) {
+                const auto isEntity = newBrushParent->accept(kdl::overload(
+                    [](const Model::EntityNode*) { return true; },
+                    [](const auto*)              { return false; }
+                ));
+
+                if (isEntity) {
                     menu.addAction(tr("Move Brushes to Entity %1").arg(QString::fromStdString(newBrushParent->name())), this,
                         &MapViewBase::moveSelectedBrushesToEntity);
                 }
@@ -1253,7 +1200,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().first();
             if (hit.isMatch())
-                newGroup = findOutermostClosedGroup(Model::hitToNode(hit));
+                newGroup = Model::findOutermostClosedGroup(Model::hitToNode(hit));
 
             if (newGroup != nullptr && canReparentNodes(nodes, newGroup))
                 return newGroup;
@@ -1323,7 +1270,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
             const Model::Hit& hit = pickResult().query().pickable().type(Model::BrushNode::BrushHitType).occluded().first();
             if (const auto faceHandle = Model::hitToFaceHandle(hit)) {
-                const Model::BrushNode* brush = faceHandle->node();
+                Model::BrushNode* brush = faceHandle->node();
                 newParent = brush->entity();
             }
 
@@ -1334,12 +1281,12 @@ namespace TrenchBroom {
             if (!nodes.empty()) {
                 Model::Node* lastNode = nodes.back();
 
-                Model::GroupNode* group = Model::findGroup(lastNode);
+                Model::GroupNode* group = Model::findContainingGroup(lastNode);
                 if (group != nullptr) {
                     return group;
                 }
 
-                Model::LayerNode* layer = Model::findLayer(lastNode);
+                Model::LayerNode* layer = Model::findContainingLayer(lastNode);
                 if (layer != nullptr) {
                     return layer;
             }
@@ -1357,25 +1304,25 @@ namespace TrenchBroom {
             return false;
         }
 
-        class BrushesToEntities {
-        private:
-            const Model::WorldNode* m_world;
-        public:
-            explicit BrushesToEntities(const Model::WorldNode* world) : m_world(world) {}
-        public:
-            bool operator()(const Model::WorldNode*) const       { return false; }
-            bool operator()(const Model::LayerNode*) const       { return false; }
-            bool operator()(const Model::GroupNode*) const       { return true;  }
-            bool operator()(const Model::EntityNode*) const      { return true; }
-            bool operator()(const Model::BrushNode* brush) const { return brush->entity() == m_world; }
-        };
-
+        /**
+         * Return the given nodes, but replace all entity brushes with the parent entity (with duplicates removed).
+         */
         static std::vector<Model::Node*> collectEntitiesForBrushes(const std::vector<Model::Node*>& selectedNodes, const Model::WorldNode* world) {
-            using BrushesToEntitiesVisitor = Model::CollectMatchingNodesVisitor<BrushesToEntities, Model::UniqueNodeCollectionStrategy, Model::StopRecursionIfMatched>;
-
-            BrushesToEntitiesVisitor collect((BrushesToEntities(world)));
-            Model::Node::acceptAndEscalate(std::begin(selectedNodes), std::end(selectedNodes), collect);
-            return collect.nodes();
+            std::vector<Model::Node*> result;
+            Model::Node::visitAll(selectedNodes, kdl::overload(
+                [] (Model::WorldNode*)         {},
+                [] (Model::LayerNode*)         {},
+                [&](Model::GroupNode* group)   { result.push_back(group); },
+                [&](Model::EntityNode* entity) { result.push_back(entity); },
+                [&](auto&& thisLambda, Model::BrushNode* brush) {
+                    if (brush->entity() == world) {
+                        result.push_back(brush);
+                    } else {
+                        brush->visitParent(thisLambda);
+                    }
+                }
+            ));
+            return kdl::vec_sort_and_remove_duplicates(std::move(result));
         }
 
         void MapViewBase::reparentNodes(const std::vector<Model::Node*>& nodes, Model::Node* newParent, const bool preserveEntities) {

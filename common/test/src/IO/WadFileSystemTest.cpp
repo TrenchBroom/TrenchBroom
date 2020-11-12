@@ -17,15 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "Logger.h"
 #include "IO/DiskIO.h"
 #include "IO/WadFileSystem.h"
 
 #include <kdl/vector_utils.h>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {

@@ -47,8 +47,6 @@ namespace TrenchBroom {
             IssueType type() const;
             Node* node() const;
 
-
-            class MatchSelectableIssueNodes;
             bool addSelectableNodes(const EditorContext& editorContext, std::vector<Model::Node*>& nodes) const;
 
             bool hidden() const;

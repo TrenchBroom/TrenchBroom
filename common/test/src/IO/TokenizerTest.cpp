@@ -17,14 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
 #include <string>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -83,8 +82,8 @@ namespace TrenchBroom {
                 return Token(SimpleToken::Eof, nullptr, nullptr, length(), line(), column());
             }
         public:
-            SimpleTokenizer(const std::string& str) :
-            Tokenizer<SimpleToken::Type>(str, "", 0) {}
+            SimpleTokenizer(std::string_view str) :
+            Tokenizer<SimpleToken::Type>(std::move(str), "", 0) {}
         };
 
         TEST_CASE("TokenizerTest.simpleLanguageEmptyString", "[TokenizerTest]") {

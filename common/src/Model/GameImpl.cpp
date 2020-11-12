@@ -156,14 +156,14 @@ namespace TrenchBroom {
 
                 const Model::BrushBuilder builder(world.get(), worldBounds, defaultFaceAttribs());
                 builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName).
-                    visit(kdl::overload {
+                    visit(kdl::overload(
                         [&](Brush&& b) {
                             world->defaultLayer()->addChild(world->createBrush(std::move(b)));
                         },
                         [&](const Model::BrushError e) {
                             logger.error() << "Could not create default brush: " << e;
                         }
-                    });
+                    ));
 
                 if (format == MapFormat::Valve || format == MapFormat::Quake2_Valve || format == MapFormat::Quake3_Valve) {
                     world->addOrUpdateAttribute(AttributeNames::ValveVersion, "220");
@@ -177,7 +177,7 @@ namespace TrenchBroom {
             IO::SimpleParserStatus parserStatus(logger);
             auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
             auto fileReader = file->reader().buffer();
-            IO::WorldReader worldReader(std::begin(fileReader), std::end(fileReader));
+            IO::WorldReader worldReader(fileReader.stringView());
             return worldReader.read(format, worldBounds, parserStatus);
         }
 
@@ -198,9 +198,12 @@ namespace TrenchBroom {
 
         void GameImpl::doExportMap(WorldNode& world, const Model::ExportFormat format, const IO::Path& path) const {
             switch (format) {
-                case Model::ExportFormat::WavefrontObj:
-                    IO::NodeWriter(world, new IO::ObjFileSerializer(path)).writeMap();
+                case Model::ExportFormat::WavefrontObj: {
+                    IO::NodeWriter writer(world, std::make_unique<IO::ObjFileSerializer>(path));
+                    writer.setExporting(true);
+                    writer.writeMap();
                     break;
+                }
                 case Model::ExportFormat::Map:
                     doWriteMap(world, path, true);
                     break;
@@ -209,8 +212,7 @@ namespace TrenchBroom {
 
         std::vector<Node*> GameImpl::doParseNodes(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& logger) const {
             IO::SimpleParserStatus parserStatus(logger);
-            IO::NodeReader reader(str, world);
-            return reader.read(worldBounds, parserStatus);
+            return IO::NodeReader::read(str, world, worldBounds, parserStatus);
         }
 
         std::vector<BrushFace> GameImpl::doParseBrushFaces(const std::string& str, WorldNode& world, const vm::bbox3& worldBounds, Logger& logger) const {
@@ -341,17 +343,17 @@ namespace TrenchBroom {
             if (kdl::ci::str_is_equal("fgd", extension)) {
                 auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 auto reader = file->reader().buffer();
-                IO::FgdParser parser(std::begin(reader), std::end(reader), defaultColor, file->path());
+                IO::FgdParser parser(reader.stringView(), defaultColor, file->path());
                 return parser.parseDefinitions(status);
             } else if (kdl::ci::str_is_equal("def", extension)) {
                 auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 auto reader = file->reader().buffer();
-                IO::DefParser parser(std::begin(reader), std::end(reader), defaultColor);
+                IO::DefParser parser(reader.stringView(), defaultColor);
                 return parser.parseDefinitions(status);
             } else if (kdl::ci::str_is_equal("ent", extension)) {
                 auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 auto reader = file->reader().buffer();
-                IO::EntParser parser(std::begin(reader), std::end(reader), defaultColor);
+                IO::EntParser parser(reader.stringView(), defaultColor);
                 return parser.parseDefinitions(status);
             } else {
                 throw GameException("Unknown entity definition format: '" + path.asString() + "'");
@@ -445,7 +447,7 @@ namespace TrenchBroom {
                     return parser.initializeModel(logger);
                 } else if (extension == "ase" && kdl::vec_contains(supported, "ase")) {
                     auto reader = file->reader().buffer();
-                    IO::AseParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
+                    IO::AseParser parser(modelName, reader.stringView(), m_fs);
                     return parser.initializeModel(logger);
                 } else if (extension == "obj" && kdl::vec_contains(supported, "obj_neverball")) {
                     auto reader = file->reader().buffer();
@@ -505,7 +507,7 @@ namespace TrenchBroom {
                     parser.loadFrame(frameIndex, model, logger);
                 } else if (extension == "ase" && kdl::vec_contains(supported, "ase")) {
                     auto reader = file->reader().buffer();
-                    IO::AseParser parser(modelName, std::begin(reader), std::end(reader), m_fs);
+                    IO::AseParser parser(modelName, reader.stringView(), m_fs);
                     parser.loadFrame(frameIndex, model, logger);
                 } else if (extension == "obj" && kdl::vec_contains(supported, "obj_neverball")) {
                     auto reader = file->reader().buffer();

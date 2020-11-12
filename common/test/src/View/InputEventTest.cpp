@@ -17,10 +17,6 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <catch2/catch.hpp>
-
-#include "GTestCompat.h"
-
 #include "View/InputEvent.h"
 
 #include <kdl/overload.h>
@@ -33,6 +29,9 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include <QtGlobal>
 #include <QKeyEvent>
+
+#include "Catch2.h"
+#include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -137,16 +136,16 @@ namespace TrenchBroom {
             
             void processEvent(const KeyEvent& act) override {
                 ASSERT_FALSE(m_expectedEvents.empty());
-                std::visit(kdl::overload{
+                std::visit(kdl::overload(
                     [&](const KeyEvent& exp) { ASSERT_EQ(exp, act); },
                     [&](const auto&)       { ASSERT_TRUE(false); }
-                }, m_expectedEvents.front());
+                ), m_expectedEvents.front());
                 m_expectedEvents.pop_front();
             }
             
             void processEvent(const MouseEvent& act) override {
                 ASSERT_FALSE(m_expectedEvents.empty());
-                std::visit(kdl::overload{
+                std::visit(kdl::overload(
                     [&](const MouseEvent& exp) {
                         CHECK(exp.type == act.type);
                         CHECK(exp.button == act.button);
@@ -156,16 +155,16 @@ namespace TrenchBroom {
                         CHECK(exp.scrollDistance == Approx(act.scrollDistance));
                     },
                     [&](const auto&) { ASSERT_TRUE(false); }
-                }, m_expectedEvents.front());
+                ), m_expectedEvents.front());
                 m_expectedEvents.pop_front();
             }
             
             void processEvent(const CancelEvent& act) override {
                 ASSERT_FALSE(m_expectedEvents.empty());
-                std::visit(kdl::overload{
+                std::visit(kdl::overload(
                     [&](const CancelEvent& exp) { ASSERT_EQ(exp, act); },
                     [&](const auto&)        { ASSERT_TRUE(false); }
-                }, m_expectedEvents.front());
+                ), m_expectedEvents.front());
                 m_expectedEvents.pop_front();
             }
             

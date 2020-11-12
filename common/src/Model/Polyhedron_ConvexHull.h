@@ -52,7 +52,7 @@ namespace TrenchBroom {
         template <typename T, typename FP, typename VP>
         void Polyhedron<T,FP,VP>::addPoints(std::vector<vm::vec<T,3>> points) {
             if (!points.empty()) {
-                kdl::vec_sort_and_remove_duplicates(points);
+                points = kdl::vec_sort_and_remove_duplicates(std::move(points));
                 
                 const auto planeEpsilon = computePlaneEpsilon(points);
                 for (const auto& point : points) {

@@ -31,8 +31,8 @@ namespace kdl {
     std::vector<std::string> exp(exp_);\
     std::vector<std::string> act;\
     index.find_matches(pattern, std::back_inserter(act));\
-    vec_sort(exp);\
-    vec_sort(act);\
+    exp = vec_sort(std::move(exp));\
+    act = vec_sort(std::move(act));\
     ASSERT_EQ(exp, act);\
 }
 
@@ -192,11 +192,9 @@ namespace kdl {
 
         std::vector<std::string> actual;
         index.get_keys(std::back_inserter(actual));
-        kdl::sort(actual);
+        actual = kdl::col_sort(std::move(actual));
 
-        std::vector<std::string> expected({ "key", "key2", "key22", "key22bs", "k1" });
-        kdl::sort(expected);
-
+        const auto expected = kdl::col_sort(std::vector<std::string>{ "key", "key2", "key22", "key22bs", "k1" });
         ASSERT_EQ(expected, actual);
     }
 }

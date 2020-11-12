@@ -25,89 +25,15 @@
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/Node.h"
-#include "Model/NodeVisitor.h"
+#include "Model/WorldNode.h"
+
+#include <kdl/overload.h>
 
 #include <algorithm>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class NodeCollection::AddNode : public NodeVisitor {
-        private:
-            NodeCollection& m_collection;
-        public:
-            AddNode(NodeCollection& collection) :
-            m_collection(collection) {}
-        private:
-            void doVisit(WorldNode*) override         {}
-            void doVisit(LayerNode* layer) override   { m_collection.m_nodes.push_back(layer);  m_collection.m_layers.push_back(layer); }
-            void doVisit(GroupNode* group) override   { m_collection.m_nodes.push_back(group);  m_collection.m_groups.push_back(group); }
-            void doVisit(EntityNode* entity) override { m_collection.m_nodes.push_back(entity); m_collection.m_entities.push_back(entity); }
-            void doVisit(BrushNode* brush) override   { m_collection.m_nodes.push_back(brush);  m_collection.m_brushes.push_back(brush); }
-        };
-
-        class NodeCollection::RemoveNode : public NodeVisitor {
-        private:
-            NodeCollection& m_collection;
-            std::vector<Node*>::iterator m_nodeRem;
-            std::vector<LayerNode*>::iterator m_layerRem;
-            std::vector<Model::GroupNode*>::iterator m_groupRem;
-            std::vector<EntityNode*>::iterator m_entityRem;
-            std::vector<BrushNode*>::iterator m_brushRem;
-        public:
-            RemoveNode(NodeCollection& collection) :
-            m_collection(collection),
-            m_nodeRem(std::end(m_collection.m_nodes)),
-            m_layerRem(std::end(m_collection.m_layers)),
-            m_groupRem(std::end(m_collection.m_groups)),
-            m_entityRem(std::end(m_collection.m_entities)),
-            m_brushRem(std::end(m_collection.m_brushes)) {}
-
-            ~RemoveNode() override {
-                m_collection.m_nodes.erase(m_nodeRem, std::end(m_collection.m_nodes));
-                m_collection.m_layers.erase(m_layerRem, std::end(m_collection.m_layers));
-                m_collection.m_groups.erase(m_groupRem, std::end(m_collection.m_groups));
-                m_collection.m_entities.erase(m_entityRem, std::end(m_collection.m_entities));
-                m_collection.m_brushes.erase(m_brushRem, std::end(m_collection.m_brushes));
-            }
-        private:
-            void doVisit(WorldNode*) override         {}
-            void doVisit(LayerNode* layer) override   { remove(m_collection.m_nodes, m_nodeRem, layer);  remove(m_collection.m_layers, m_layerRem, layer); }
-            void doVisit(GroupNode* group) override   { remove(m_collection.m_nodes, m_nodeRem, group);  remove(m_collection.m_groups, m_groupRem, group); }
-            void doVisit(EntityNode* entity) override { remove(m_collection.m_nodes, m_nodeRem, entity); remove(m_collection.m_entities, m_entityRem, entity); }
-            void doVisit(BrushNode* brush) override   { remove(m_collection.m_nodes, m_nodeRem, brush);  remove(m_collection.m_brushes, m_brushRem, brush); }
-
-            template <typename V, typename E>
-            void remove(V& collection, typename V::iterator& rem, E& elem) {
-                rem = std::remove(std::begin(collection), rem, elem);
-            }
-        };
-
-        class NodeCollection::FindBrushes : public NodeVisitor {
-        private:
-            std::vector<Model::BrushNode*>& m_brushNodes;
-        public:
-            explicit FindBrushes(std::vector<Model::BrushNode*>& brushNodes) :
-            m_brushNodes(brushNodes) {}
-        private:
-            void doVisit(WorldNode*) override       {}
-            void doVisit(LayerNode*) override       {}
-            void doVisit(GroupNode*) override       {}
-            void doVisit(EntityNode*) override      {}
-            void doVisit(BrushNode* brush) override { m_brushNodes.push_back(brush); }
-        };
-
-        class NodeCollection::HasBrush : public NodeVisitor {
-        public:
-            bool hasBrush = false;
-        private:
-            void doVisit(WorldNode*) override  {}
-            void doVisit(LayerNode*) override  {}
-            void doVisit(GroupNode*) override  {}
-            void doVisit(EntityNode*) override {}
-            void doVisit(BrushNode*) override  { hasBrush = true; cancel(); }
-        };
-
         bool NodeCollection::empty() const {
             return m_nodes.empty();
         }
@@ -167,9 +93,24 @@ namespace TrenchBroom {
         bool NodeCollection::hasBrushesRecursively() const {
             // This is just an optimization of `!brushesRecursively().empty()`
             // that stops after finding the first brush
-            HasBrush visitor;
-            Node::acceptAndRecurse(std::begin(*this), std::end(*this), visitor);
-            return visitor.hasBrush;
+            for (const auto* node : m_nodes) {
+                const auto hasBrush = node->accept(kdl::overload(
+                    [](BrushNode*) -> bool { return true; },
+                    [](auto&& thisLambda, auto* other) -> bool {
+                        for (const auto* child : other->children()) {
+                            if (child->accept(thisLambda)) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                ));
+                if (hasBrush) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         std::vector<Node*>::iterator NodeCollection::begin() {
@@ -209,32 +150,81 @@ namespace TrenchBroom {
         }
 
         std::vector<BrushNode*> NodeCollection::brushesRecursively() const {
-            std::vector<Model::BrushNode*> result;
-            FindBrushes visitor(result);
-            Node::acceptAndRecurse(std::begin(*this), std::end(*this), visitor);
-            return result;
+            auto brushes = std::vector<BrushNode*>{};
+            for (auto* node : m_nodes) {
+                node->accept(kdl::overload(
+                    [&](BrushNode* brush) -> void { brushes.push_back(brush); },
+                    [] (auto&& thisLambda, auto* other) -> void {
+                        for (auto* child : other->children()) {
+                            child->accept(thisLambda);
+                        }
+                    }
+                ));
+            }
+            return brushes;
         }
 
         void NodeCollection::addNodes(const std::vector<Node*>& nodes) {
-            AddNode visitor(*this);
-            Node::accept(std::begin(nodes), std::end(nodes), visitor);
+            for (auto* node : nodes) {
+                addNode(node);
+            }
         }
 
         void NodeCollection::addNode(Node* node) {
             ensure(node != nullptr, "node is null");
-            AddNode visitor(*this);
-            node->accept(visitor);
+            node->accept(kdl::overload(
+                [] (WorldNode*)         {},
+                [&](LayerNode* layer)   { m_nodes.push_back(layer); m_layers.push_back(layer); },
+                [&](GroupNode* group)   { m_nodes.push_back(group); m_groups.push_back(group); },
+                [&](EntityNode* entity) { m_nodes.push_back(entity); m_entities.push_back(entity); },
+                [&](BrushNode* brush)   { m_nodes.push_back(brush); m_brushes.push_back(brush); }
+            ));
         }
 
+        static const auto doRemoveNodes = [](auto& nodes, auto& layers, auto& groups, auto& entities, auto& brushes, auto cur, auto end) {
+            auto nodeEnd = std::end(nodes);
+            auto layerEnd = std::end(layers);
+            auto groupEnd = std::end(groups);
+            auto entityEnd = std::end(entities);
+            auto brushEnd = std::end(brushes);
+
+            while (cur != end) {
+                (*cur)->accept(kdl::overload(
+                    [] (WorldNode*)         {},
+                    [&](LayerNode* layer)   { 
+                        nodeEnd = std::remove(std::begin(nodes), nodeEnd, layer);
+                        layerEnd = std::remove(std::begin(layers), layerEnd, layer);
+                    },
+                    [&](GroupNode* group)   {
+                        nodeEnd = std::remove(std::begin(nodes), nodeEnd, group);
+                        groupEnd = std::remove(std::begin(groups), groupEnd, group);
+                    },
+                    [&](EntityNode* entity) {
+                        nodeEnd = std::remove(std::begin(nodes), nodeEnd, entity);
+                        entityEnd = std::remove(std::begin(entities), entityEnd, entity);
+                    },
+                    [&](BrushNode* brush)   {
+                        nodeEnd = std::remove(std::begin(nodes), nodeEnd, brush);
+                        brushEnd = std::remove(std::begin(brushes), brushEnd, brush);
+                    }
+                ));
+                ++cur;
+            }
+
+            nodes.erase(nodeEnd, std::end(nodes));
+            layers.erase(layerEnd, std::end(layers));
+            groups.erase(groupEnd, std::end(groups));
+            entities.erase(entityEnd, std::end(entities));
+            brushes.erase(brushEnd, std::end(brushes));
+        };
+
         void NodeCollection::removeNodes(const std::vector<Node*>& nodes) {
-            RemoveNode visitor(*this);
-            Node::accept(std::begin(nodes), std::end(nodes), visitor);
+            doRemoveNodes(m_nodes, m_layers, m_groups, m_entities, m_brushes, std::begin(nodes), std::end(nodes));
         }
 
         void NodeCollection::removeNode(Node* node) {
             ensure(node != nullptr, "node is null");
-            RemoveNode visitor(*this);
-            node->accept(visitor);
+            doRemoveNodes(m_nodes, m_layers, m_groups, m_entities, m_brushes, &node, std::next(&node));
         }
 
         void NodeCollection::clear() {

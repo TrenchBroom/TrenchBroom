@@ -20,6 +20,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <utility>
 
 namespace kdl {
     /**
