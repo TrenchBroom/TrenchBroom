@@ -62,14 +62,14 @@ namespace TrenchBroom {
             }
         };
 
-        TEST_CASE_METHOD(EntityNodeTest, "EntityTest.defaults") {
+        TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.defaults") {
             EXPECT_EQ(vm::vec3::zero(), m_entity->origin());
             EXPECT_EQ(vm::mat4x4::identity(), m_entity->rotation());
             EXPECT_TRUE(m_entity->pointEntity());
             EXPECT_EQ(EntityNode::DefaultBounds, m_entity->logicalBounds());
         }
 
-        TEST_CASE_METHOD(EntityNodeTest, "EntityTest.originUpdateWithSetAttributes") {
+        TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithSetAttributes") {
             const vm::vec3 newOrigin(10, 20, 30);
             const vm::bbox3 newBounds(newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
                                       newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             EXPECT_EQ(newBounds, m_entity->logicalBounds());
         }
 
-        TEST_CASE_METHOD(EntityNodeTest, "EntityTest.originUpdateWithAddOrUpdateAttributes") {
+        TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithAddOrUpdateAttributes") {
             const vm::vec3 newOrigin(10, 20, 30);
             const vm::bbox3 newBounds(newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
                                       newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
@@ -90,7 +90,7 @@ namespace TrenchBroom {
         }
 
         // Same as above, but add the entity to a world
-        TEST_CASE_METHOD(EntityNodeTest, "EntityTest.originUpdateInWorld") {
+        TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateInWorld") {
             m_world->defaultLayer()->addChild(m_entity);
 
             const vm::vec3 newOrigin(10, 20, 30);
@@ -102,7 +102,7 @@ namespace TrenchBroom {
             EXPECT_EQ(newBounds, m_entity->logicalBounds());
         }
 
-        TEST_CASE_METHOD(EntityNodeTest, "EntityTest.requiresClassnameForRotation") {
+        TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.requiresClassnameForRotation") {
             m_world->defaultLayer()->addChild(m_entity);
             m_entity->removeAttribute(AttributeNames::Classname);
 
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             EXPECT_EQ(vm::mat4x4::identity(), m_entity->rotation());
         }
 
-        TEST_CASE_METHOD(EntityNodeTest, "EntityTest.rotateAndTranslate") {
+        TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.rotateAndTranslate") {
             m_world->defaultLayer()->addChild(m_entity);
 
             const auto rotMat = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
@@ -128,7 +128,7 @@ namespace TrenchBroom {
             EXPECT_EQ(rotMat, m_entity->rotation());
         }
 
-        TEST_CASE_METHOD(EntityNodeTest, "EntityTest.rotationMatrixToEulerAngles") {
+        TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.rotationMatrixToEulerAngles") {
             const auto roll  = vm::to_radians(12.0);
             const auto pitch = vm::to_radians(13.0);
             const auto yaw   = vm::to_radians(14.0);
@@ -142,7 +142,7 @@ namespace TrenchBroom {
             EXPECT_DOUBLE_EQ(14.0, yawPitchRoll.x());
         }
 
-        TEST_CASE_METHOD(EntityNodeTest, "EntityTest.rotationMatrixToEulerAngles_uniformScale") {
+        TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.rotationMatrixToEulerAngles_uniformScale") {
             const auto roll = vm::to_radians(12.0);
             const auto pitch = vm::to_radians(13.0);
             const auto yaw = vm::to_radians(14.0);
@@ -158,7 +158,7 @@ namespace TrenchBroom {
             EXPECT_DOUBLE_EQ(14.0, yawPitchRoll.x());
         }
 
-        TEST_CASE_METHOD(EntityNodeTest, "EntityTest.rotationMatrixToEulerAngles_nonUniformScale") {
+        TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.rotationMatrixToEulerAngles_nonUniformScale") {
             const auto roll = vm::to_radians(0.0);
             const auto pitch = vm::to_radians(45.0);
             const auto yaw = vm::to_radians(0.0);
@@ -175,7 +175,7 @@ namespace TrenchBroom {
             EXPECT_DOUBLE_EQ(0.0, yawPitchRoll.x());
         }
 
-        TEST_CASE_METHOD(EntityNodeTest, "EntityTest.rotationMatrixToEulerAngles_flip") {
+        TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.rotationMatrixToEulerAngles_flip") {
             const auto roll = vm::to_radians(10.0);
             const auto pitch = vm::to_radians(45.0);
             const auto yaw = vm::to_radians(0.0);
