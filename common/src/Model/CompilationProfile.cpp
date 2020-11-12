@@ -98,6 +98,14 @@ namespace TrenchBroom {
             return m_tasks[index].get();
         }
 
+        size_t CompilationProfile::indexOfTask(CompilationTask* task) const {
+            auto result = kdl::vec_index_of(m_tasks, [=](const auto& ptr){
+                return ptr.get() == task;
+            });
+            assert(result.has_value());
+            return result.value();
+        }
+
         void CompilationProfile::addTask(std::unique_ptr<CompilationTask> task) {
             insertTask(m_tasks.size(), std::move(task));
         }

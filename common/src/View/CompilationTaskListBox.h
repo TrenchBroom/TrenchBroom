@@ -121,6 +121,8 @@ namespace TrenchBroom {
             class CompilationTaskEditorFactory;
             size_t itemCount() const override;
             ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
+        signals:
+            void taskContextMenuRequested(const QPoint& globalPos, Model::CompilationTask* task);
         };
     }
 }
