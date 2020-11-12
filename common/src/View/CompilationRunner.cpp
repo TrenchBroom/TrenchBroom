@@ -266,6 +266,7 @@ namespace TrenchBroom {
             bindEvents(m_currentTask->get());
 
             emit compilationStarted();
+            *m_context << "#### Using working directory '" << m_context->variableValue(CompilationVariableNames::WORK_DIR_PATH) << "'\n";
             m_currentTask->get()->execute();
         }
 
