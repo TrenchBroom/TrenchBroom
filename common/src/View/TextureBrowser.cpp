@@ -70,6 +70,7 @@ namespace TrenchBroom {
         }
 
         void TextureBrowser::revealTexture(const Assets::Texture* texture) {
+            setFilterText("");
             m_view->revealTexture(texture);
         }
 
