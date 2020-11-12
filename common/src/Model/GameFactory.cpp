@@ -140,7 +140,7 @@ namespace TrenchBroom {
         }
 
         std::pair<std::string, MapFormat> GameFactory::detectGame(const IO::Path& path) const {
-            std::fstream stream = openPathAsFstream(path, std::ios::in);
+            std::ifstream stream = openPathAsInputStream(path);
             if (!stream.is_open()) {
                 throw FileSystemException("Cannot open file: " + path.asString());
             }

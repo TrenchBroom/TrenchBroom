@@ -145,7 +145,7 @@ namespace TrenchBroom {
             std::string readTextFile(const Path& path) {
                 const Path fixedPath = fixPath(path);
 
-                std::fstream stream = openPathAsFstream(fixedPath, std::ios::in);
+                std::ifstream stream = openPathAsInputStream(fixedPath);
                 if (!stream.is_open()) {
                     throw FileSystemException("Cannot open file: " + fixedPath.asString());
                 }
@@ -175,7 +175,7 @@ namespace TrenchBroom {
                         createDirectory(directory);
                 }
 
-                std::fstream stream = openPathAsFstream(fixedPath, std::ios::out);
+                std::ofstream stream = openPathAsOutputStream(fixedPath);
                 stream  << contents;
             }
 

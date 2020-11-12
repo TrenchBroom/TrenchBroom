@@ -40,7 +40,7 @@ namespace TrenchBroom {
         }
 
         bool PointFile::canLoad(const IO::Path& path) {
-            std::fstream stream = openPathAsFstream(path, std::ios::in);
+            std::ifstream stream = openPathAsInputStream(path);
             return stream.is_open() && stream.good();
         }
 
@@ -87,7 +87,7 @@ namespace TrenchBroom {
         void PointFile::load(const IO::Path& path) {
             static const float Threshold = vm::to_radians(15.0f);
 
-            std::fstream stream = openPathAsFstream(path, std::ios::in);
+            std::ifstream stream = openPathAsInputStream(path);
             assert(stream.is_open());
 
             std::vector<vm::vec3f> points;

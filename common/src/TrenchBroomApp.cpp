@@ -486,7 +486,7 @@ namespace TrenchBroom {
             IO::Path mapPath = basePath.addExtension("map");
             IO::Path logPath = basePath.addExtension("log");
 
-            std::fstream reportStream = openPathAsFstream(reportPath, std::ios::out);
+            std::ofstream reportStream = openPathAsOutputStream(reportPath);
             reportStream << report;
             reportStream.close();
             std::cerr << "wrote crash log to " << reportPath.asString() << std::endl;

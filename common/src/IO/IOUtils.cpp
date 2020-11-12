@@ -52,11 +52,19 @@ namespace TrenchBroom {
 #endif
         }
 
-        std::fstream openPathAsFstream(const IO::Path& path, const std::ios::openmode mode) {
+        std::ofstream openPathAsOutputStream(const IO::Path& path, const std::ios::openmode mode) {
 #ifdef _WIN32
-            return std::fstream(pathAsQString(path).toStdWString().c_str(), mode);
+            return std::ofstream(pathAsQString(path).toStdWString().c_str(), mode);
 #else
-            return std::fstream(path.asString().c_str(), mode);
+            return std::ofstream(path.asString().c_str(), mode);
+#endif
+        }
+
+        std::ifstream openPathAsInputStream(const IO::Path& path, const std::ios::openmode mode) {
+#ifdef _WIN32
+            return std::ifstream(pathAsQString(path).toStdWString().c_str(), mode);
+#else
+            return std::ifstream(path.asString().c_str(), mode);
 #endif
         }
 

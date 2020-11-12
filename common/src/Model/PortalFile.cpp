@@ -43,7 +43,7 @@ namespace TrenchBroom {
         }
 
         bool PortalFile::canLoad(const IO::Path& path) {
-            std::fstream stream = openPathAsFstream(path, std::ios::in);
+            std::ifstream stream = openPathAsInputStream(path);
             return stream.is_open() && stream.good();
         }
 
@@ -52,7 +52,7 @@ namespace TrenchBroom {
         }
 
         void PortalFile::load(const IO::Path& path) {
-            std::fstream stream = openPathAsFstream(path, std::ios::in);
+            std::ifstream stream = openPathAsInputStream(path);
             if (!stream.good()) {
                 throw FileFormatException("Couldn't open file");
             }

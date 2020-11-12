@@ -3328,7 +3328,7 @@ namespace TrenchBroom {
 
 
             const auto subtrahendPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Brush/subtrahend.map");
-            std::fstream stream = openPathAsFstream(subtrahendPath, std::ios::in);
+            std::ifstream stream = openPathAsInputStream(subtrahendPath);
             std::stringstream subtrahendStr;
             subtrahendStr << stream.rdbuf();
 

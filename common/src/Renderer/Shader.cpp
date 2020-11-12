@@ -90,7 +90,7 @@ namespace TrenchBroom {
         }
 
         std::vector<std::string> Shader::loadSource(const IO::Path& path) {
-            std::fstream stream = openPathAsFstream(path, std::ios::in);
+            std::ifstream stream = openPathAsInputStream(path);
             if (!stream.is_open()) {
                 throw RenderException("Could not load shader source from " + path.asString());
             }
