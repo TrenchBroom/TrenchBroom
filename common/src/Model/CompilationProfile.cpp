@@ -102,7 +102,6 @@ namespace TrenchBroom {
             auto result = kdl::vec_index_of(m_tasks, [=](const auto& ptr){
                 return ptr.get() == task;
             });
-            assert(result.has_value());
             return result.value();
         }
 
