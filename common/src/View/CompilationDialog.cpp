@@ -159,6 +159,13 @@ namespace TrenchBroom {
 
         void CompilationDialog::startCompilation(const bool test) {
             saveProfile();
+            auto document = m_mapFrame->document();
+            const bool needsSave = !test && (document->modified() || !document->persistent());
+            if (needsSave) {
+                if (!m_mapFrame->saveDocument()) {
+                    return;
+                }
+            }
             if (m_run.running()) {
                 m_run.terminate();
             } else {
