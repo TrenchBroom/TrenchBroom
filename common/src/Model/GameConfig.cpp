@@ -268,10 +268,6 @@ namespace TrenchBroom {
             return m_softMapBounds;
         }
 
-        CompilationConfig& GameConfig::compilationConfig() {
-            return m_compilationConfig;
-        }
-
         const CompilationConfig& GameConfig::compilationConfig() const {
             return m_compilationConfig;
         }
