@@ -273,7 +273,7 @@ namespace TrenchBroom {
 
             const std::string workDir = m_context->variableValue(CompilationVariableNames::WORK_DIR_PATH);
             if (!QDir(QString::fromStdString(workDir)).exists()) {
-                *m_context << "#### Non-existent working directory '" << workDir << "'\n";
+                *m_context << "#### Error: working directory '" << workDir << "' does not exist\n";
             } else {
                 *m_context << "#### Using working directory '" << workDir << "'\n";
             }
