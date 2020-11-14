@@ -33,6 +33,8 @@
 #include <string>
 
 #include <QtGlobal>
+#include <QDir>
+#include <QMetaEnum>
 #include <QProcess>
 
 namespace TrenchBroom {
@@ -192,7 +194,9 @@ namespace TrenchBroom {
         }
 
         void CompilationRunToolTaskRunner::processErrorOccurred(const QProcess::ProcessError processError) {
-            m_context << "#### Error " << processError << " occurred when communicating with process\n\n";
+            m_context << "#### Error '"
+                      << QMetaEnum::fromType<QProcess::ProcessError>().valueToKey(processError)
+                      << "' occurred when communicating with process\n\n";
             emit error();
         }
 
@@ -266,7 +270,13 @@ namespace TrenchBroom {
             bindEvents(m_currentTask->get());
 
             emit compilationStarted();
-            *m_context << "#### Using working directory '" << m_context->variableValue(CompilationVariableNames::WORK_DIR_PATH) << "'\n";
+
+            const std::string workDir = m_context->variableValue(CompilationVariableNames::WORK_DIR_PATH);
+            if (!QDir(QString::fromStdString(workDir)).exists()) {
+                *m_context << "#### Error: working directory '" << workDir << "' does not exist\n";
+            } else {
+                *m_context << "#### Using working directory '" << workDir << "'\n";
+            }
             m_currentTask->get()->execute();
         }
 
