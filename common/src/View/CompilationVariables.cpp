@@ -21,7 +21,6 @@
 
 #include "IO/SystemPaths.h"
 #include "Model/Game.h"
-#include "Model/GameFactory.h"
 #include "View/MapDocument.h"
 
 #include <kdl/vector_utils.h>
@@ -55,13 +54,6 @@ namespace TrenchBroom {
             declare(MAP_BASE_NAME, EL::Value(filename.deleteExtension().asString()));
             declare(GAME_DIR_PATH, EL::Value(gamePath.asString()));
             declare(MODS, EL::Value(mods));
-
-            const auto& factory = Model::GameFactory::instance();
-            for (const Model::CompilationToolDescription& description : document->game()->compilationToolDescriptions()) {
-                const IO::Path toolPath = factory.compilationToolPath(document->game()->gameName(), description.name);
-                // e.g. "qbsp", and the path to the user's local copy
-                declare(description.name, EL::Value(toolPath.asString()));
-            }
         }
 
         CommonCompilationVariables::CommonCompilationVariables(std::shared_ptr<MapDocument> document) :

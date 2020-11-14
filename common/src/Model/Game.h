@@ -23,7 +23,6 @@
 #include "FloatType.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "IO/EntityModelLoader.h"
-#include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
 
 #include <vecmath/forward.h>
@@ -128,8 +127,6 @@ namespace TrenchBroom {
             const FlagsConfig& surfaceFlags() const;
             const FlagsConfig& contentFlags() const;
             const BrushFaceAttributes& defaultFaceAttribs() const;
-        public: // compilation tool descriptions
-            const std::vector<CompilationToolDescription> compilationToolDescriptions() const;
         private: // subclassing interface
             virtual const std::string& doGameName() const = 0;
             virtual IO::Path doGamePath() const = 0;
@@ -175,8 +172,6 @@ namespace TrenchBroom {
             virtual const FlagsConfig& doSurfaceFlags() const = 0;
             virtual const FlagsConfig& doContentFlags() const = 0;
             virtual const BrushFaceAttributes& doDefaultFaceAttribs() const = 0;
-
-            virtual const std::vector<CompilationToolDescription> doCompilationToolDescriptions() const = 0;
         };
     }
 }

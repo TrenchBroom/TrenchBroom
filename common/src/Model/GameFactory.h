@@ -102,10 +102,6 @@ namespace TrenchBroom {
             bool setGamePath(const std::string& gameName, const IO::Path& gamePath);
             bool isGamePathPreference(const std::string& gameName, const IO::Path& prefPath) const;
 
-            IO::Path compilationToolPath(const std::string& gameName, const std::string& toolName) const;
-            bool setCompilationToolPath(const std::string& gameName, const std::string& toolName, const IO::Path& gamePath);
-            bool isCompilationToolPath(const std::string& gameName, const IO::Path& prefPath) const;
-
             GameConfig& gameConfig(const std::string& gameName);
             const GameConfig& gameConfig(const std::string& gameName) const;
 
