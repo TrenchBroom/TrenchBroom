@@ -225,7 +225,7 @@ namespace TrenchBroom {
         }
 
         MapFileSerializer::~MapFileSerializer() {
-            ;//std::fwrite(m_buf.data(), 1, m_buf.size(), m_stream);
+            std::fwrite(m_buf.data(), 1, m_buf.size(), m_stream);
         }
 
         void MapFileSerializer::doBeginFile() {}
