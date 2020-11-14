@@ -55,6 +55,8 @@ namespace TrenchBroom {
         m_task(&task),
         m_enabledCheckbox(nullptr),
         m_taskLayout(nullptr) {
+            setContextMenuPolicy(Qt::CustomContextMenu); // request customContextMenuRequested() to be emitted
+
             auto* panel = new TitledPanel(m_title);
 
             auto* layout = new QVBoxLayout();
@@ -345,7 +347,13 @@ namespace TrenchBroom {
             CompilationTaskEditorFactory factory(m_document, *m_profile, parent);
             auto* task = m_profile->task(index);
             task->accept(factory);
-            return factory.result();
+            auto* renderer = factory.result();
+
+            connect(renderer, &QWidget::customContextMenuRequested, this, [=](const QPoint& pos){
+                emit this->taskContextMenuRequested(renderer->mapToGlobal(pos), task);
+            });
+
+            return renderer;
         }
     }
 }
