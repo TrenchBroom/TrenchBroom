@@ -23,7 +23,6 @@
 #include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
-#include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
 #include "View/BorderLine.h"
 #include "View/GameEngineDialog.h"
@@ -119,24 +118,10 @@ namespace TrenchBroom {
             layout->setHorizontalSpacing(LayoutConstants::MediumHMargin);
             layout->setVerticalSpacing(0);
             layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+            container->setLayout(layout);
 
             layout->addRow("Game Path", gamePathLayout);
             layout->addRow("", configureEnginesButton);
-
-            m_compilationToolsLayout = new QFormLayout();
-            m_compilationToolsLayout->setContentsMargins(LayoutConstants::MediumHMargin, LayoutConstants::MediumVMargin, LayoutConstants::MediumHMargin, LayoutConstants::MediumVMargin);
-            m_compilationToolsLayout->setHorizontalSpacing(LayoutConstants::MediumHMargin);
-            m_compilationToolsLayout->setVerticalSpacing(0);
-            m_compilationToolsLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-
-            // m_compilationToolsLayout populated in updateCompilationTools()
-
-            auto* verticalBox = new QVBoxLayout();
-            verticalBox->addLayout(layout);
-            verticalBox->addSpacing(LayoutConstants::NarrowVMargin);
-            verticalBox->addLayout(m_compilationToolsLayout);
-
-            container->setLayout(verticalBox);
 
             return container;
         }
@@ -189,24 +174,6 @@ namespace TrenchBroom {
                 const auto gamePath = gameFactory.gamePath(gameName);
                 m_gamePathText->setText(IO::pathAsQString(gamePath));
                 m_gameListBox->updateGameInfos();
-            }
-
-            updateCompilationTools();
-        }
-
-        void GamesPreferencePane::updateCompilationTools() {
-            clearLayout(m_compilationToolsLayout);
-
-            if (m_gameListBox->currentRow() < 0) {
-                return;
-            }
-
-            const auto gameName = m_gameListBox->selectedGameName();
-            auto& gameFactory = Model::GameFactory::instance();
-            const auto& gameConfig = gameFactory.gameConfig(gameName);
-
-            for (auto& tool : gameConfig.compilationToolDescriptions()) {
-                m_compilationToolsLayout->addRow(QString::fromStdString(tool.name), new QLineEdit());
             }
         }
 

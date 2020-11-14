@@ -205,8 +205,7 @@ namespace TrenchBroom {
                                EntityConfig entityConfig,
                                FaceAttribsConfig faceAttribsConfig,
                                std::vector<SmartTag> smartTags,
-                               std::optional<vm::bbox3> softMapBounds,
-                               std::vector<CompilationToolDescription> compilationToolDescriptions) :
+                               std::optional<vm::bbox3> softMapBounds) :
         m_name(std::move(name)),
         m_path(std::move(path)),
         m_icon(std::move(icon)),
@@ -220,8 +219,7 @@ namespace TrenchBroom {
         m_maxPropertyLength(1023),
         m_softMapBounds(std::move(softMapBounds)),
         m_compilationConfigParseFailed(false),
-        m_gameEngineConfigParseFailed(false),
-        m_compilationToolDescriptions(std::move(compilationToolDescriptions)) {
+        m_gameEngineConfigParseFailed(false) {
             assert(!kdl::str_trim(m_name).empty());
             assert(m_path.isEmpty() || m_path.isAbsolute());
         }
@@ -270,8 +268,8 @@ namespace TrenchBroom {
             return m_softMapBounds;
         }
 
-        const std::vector<CompilationToolDescription>& GameConfig::compilationToolDescriptions() const {
-            return m_compilationToolDescriptions;
+        CompilationConfig& GameConfig::compilationConfig() {
+            return m_compilationConfig;
         }
 
         const CompilationConfig& GameConfig::compilationConfig() const {

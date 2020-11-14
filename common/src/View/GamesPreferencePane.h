@@ -25,7 +25,6 @@
 class QLineEdit;
 class QPushButton;
 class QStackedWidget;
-class QFormLayout;
 
 namespace TrenchBroom {
     namespace View {
@@ -39,7 +38,6 @@ namespace TrenchBroom {
             QLineEdit* m_gamePathText;
             QPushButton* m_chooseGamePathButton;
             QString m_currentGame;
-            QFormLayout* m_compilationToolsLayout;
         public:
             explicit GamesPreferencePane(QWidget* parent = nullptr);
         private:
@@ -50,7 +48,6 @@ namespace TrenchBroom {
             void chooseGamePathClicked();
             void updateGamePath(const QString& str);
             void configureEnginesClicked();
-            void updateCompilationTools();
         private:
             bool doCanResetToDefaults() override;
             void doResetToDefaults() override;
