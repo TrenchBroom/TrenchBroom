@@ -122,10 +122,6 @@ namespace TrenchBroom {
             return definition == nullptr ? nullptr : definition->attributeDefinition(name);
         }
 
-        std::vector<std::string> AttributableNode::attributeNames() const {
-            return m_entity.attributeNames();
-        }
-
         bool AttributableNode::hasAttribute(const std::string& name) const {
             return m_entity.hasAttribute(name);
         }
