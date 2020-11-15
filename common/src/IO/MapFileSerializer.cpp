@@ -223,11 +223,12 @@ namespace TrenchBroom {
         m_stream(stream) {}
 
         MapFileSerializer::~MapFileSerializer() {
-            m_stream.write(m_buf.data(), m_buf.size());
         }
 
         void MapFileSerializer::doBeginFile() {}
-        void MapFileSerializer::doEndFile() {}
+        void MapFileSerializer::doEndFile() {
+            m_stream.write(m_buf.data(), m_buf.size());
+        }
 
         void MapFileSerializer::doBeginEntity(const Model::Node* /* node */) {
             fmt::format_to(std::back_inserter(m_buf), "// entity {}\n", entityNo());
