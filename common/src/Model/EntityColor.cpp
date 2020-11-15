@@ -40,10 +40,8 @@ namespace TrenchBroom {
             for (auto* attributable : attributables) {
                 attributable->accept(kdl::overload(
                     [&](const AttributableNode* node) {
-                        static const auto NullValue = "";
-                        const auto& value = node->attribute(name, NullValue);
-                        if (value != NullValue) {
-                            const auto range = Assets::detectColorRange(value);
+                        if (const auto* value = node->entity().attribute(name)) {
+                            const auto range = Assets::detectColorRange(*value);
                             if (result == Assets::ColorRange::Unset) {
                                 result = range;
                             } else if (result != range) {

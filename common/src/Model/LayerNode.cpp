@@ -71,20 +71,19 @@ namespace TrenchBroom {
                 return defaultLayerSortIndex();
             }
 
-            const std::string& indexString = attribute(AttributeNames::LayerSortIndex);
-            if (indexString.empty()) {
+            if (const auto* indexString = entity().attribute(AttributeNames::LayerSortIndex)) {
+                return kdl::str_to_int(*indexString).value_or(invalidSortIndex());
+            } else {
                 return invalidSortIndex();
             }
-
-            return kdl::str_to_int(indexString).value_or(invalidSortIndex());
         }
 
         std::optional<Color> LayerNode::layerColor() const {
-            const std::string& string = attribute(AttributeNames::LayerColor);
-            if (string.empty() || !Color::canParse(string)) {
+            if (const auto* string = entity().attribute(AttributeNames::LayerColor); string && Color::canParse(*string)) {
+                return { Color::parse(*string) };
+            } else {
                 return std::nullopt;
             }
-            return { Color::parse(string) };
         }
 
         void LayerNode::setLayerColor(const Color& color) {
@@ -117,7 +116,9 @@ namespace TrenchBroom {
         }
 
         const std::string& LayerNode::doGetName() const {
-            return attribute(AttributeNames::LayerName);
+            static const auto NoName = std::string("");
+            const auto* value = entity().attribute(AttributeNames::LayerName);
+            return value ? *value : NoName;
         }
 
         const vm::bbox3& LayerNode::doGetLogicalBounds() const {
