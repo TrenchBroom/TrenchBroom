@@ -19,6 +19,7 @@
 
 #include "EmptyAttributeNameIssueGenerator.h"
 
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -71,7 +72,7 @@ namespace TrenchBroom {
         }
 
         void EmptyAttributeNameIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
-            if (node->hasAttribute(""))
+            if (node->entity().hasAttribute(""))
                 issues.push_back(new EmptyAttributeNameIssue(node));
         }
     }

@@ -77,13 +77,13 @@ namespace TrenchBroom {
                 return "";
 
             const AttributableNode* attributable = *it;
-            if (!attributable->hasAttribute(name))
+            if (!attributable->entity().hasAttribute(name))
                 return "";
 
             const std::string& value = attributable->attribute(name);
             while (++it != end) {
                 attributable = *it;
-                if (!attributable->hasAttribute(name))
+                if (!attributable->entity().hasAttribute(name))
                     return "";
                 if (value != attributable->attribute(name))
                     return "";
@@ -120,14 +120,6 @@ namespace TrenchBroom {
         const Assets::AttributeDefinition* AttributableNode::attributeDefinition(const std::string& name) const {
             const auto* definition = m_entity.definition();
             return definition == nullptr ? nullptr : definition->attributeDefinition(name);
-        }
-
-        bool AttributableNode::hasAttribute(const std::string& name) const {
-            return m_entity.hasAttribute(name);
-        }
-
-        bool AttributableNode::hasAttribute(const std::string& name, const std::string& value) const {
-            return m_entity.hasAttribute(name, value);
         }
 
         bool AttributableNode::hasAttributeWithPrefix(const std::string& prefix, const std::string& value) const {
@@ -395,7 +387,7 @@ namespace TrenchBroom {
         bool AttributableNode::hasMissingSources() const {
             return (m_linkSources.empty() &&
                     m_killSources.empty() &&
-                    hasAttribute(AttributeNames::Targetname));
+                    m_entity.hasAttribute(AttributeNames::Targetname));
         }
 
         std::vector<std::string> AttributableNode::findMissingLinkTargets() const {

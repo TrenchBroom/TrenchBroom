@@ -140,7 +140,7 @@ namespace TrenchBroom {
         }
 
         int SmartFlagsEditor::getFlagValue(const Model::AttributableNode* attributable) const {
-            if (!attributable->hasAttribute(name()))
+            if (!attributable->entity().hasAttribute(name()))
                 return 0;
 
             const std::string& value = attributable->attribute(name());

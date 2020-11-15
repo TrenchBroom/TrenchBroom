@@ -21,6 +21,7 @@
 
 #include "Macros.h"
 #include "Model/AttributableNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 
 #include <kdl/compact_trie.h>
@@ -70,7 +71,7 @@ namespace TrenchBroom {
         bool AttributableNodeIndexQuery::execute(const AttributableNode* node, const std::string& value) const {
             switch (m_type) {
                 case Type_Exact:
-                    return node->hasAttribute(m_pattern, value);
+                    return node->entity().hasAttribute(m_pattern, value);
                 case Type_Prefix:
                     return node->hasAttributeWithPrefix(m_pattern, value);
                 case Type_Numbered:

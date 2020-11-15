@@ -20,6 +20,7 @@
 #include "MissingClassnameIssueGenerator.h"
 
 #include "Model/BrushNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -64,7 +65,7 @@ namespace TrenchBroom {
         }
 
         void MissingClassnameIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
-            if (!node->hasAttribute(AttributeNames::Classname))
+            if (!node->entity().hasAttribute(AttributeNames::Classname))
                 issues.push_back(new MissingClassnameIssue(node));
         }
     }

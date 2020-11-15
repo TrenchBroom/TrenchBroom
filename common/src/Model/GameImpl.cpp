@@ -54,6 +54,7 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushError.h"
 #include "Model/BrushNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 #include "Model/ExportFormat.h"
 #include "Model/GameConfig.h"
@@ -131,7 +132,7 @@ namespace TrenchBroom {
         }
 
         Game::SoftMapBounds GameImpl::doExtractSoftMapBounds(const AttributableNode& node) const {
-            if (!node.hasAttribute(AttributeNames::SoftMapBounds)) {
+            if (!node.entity().hasAttribute(AttributeNames::SoftMapBounds)) {
                 // Not set in map -> use Game value
                 return {SoftMapBoundsType::Game, doSoftMapBounds()};
             }
@@ -597,7 +598,7 @@ namespace TrenchBroom {
             std::stringstream nameStr;
             std::stringstream valueStr;
             nameStr << baseName << index;
-            while (node.hasAttribute(nameStr.str())) {
+            while (node.entity().hasAttribute(nameStr.str())) {
                 valueStr << node.attribute(nameStr.str());
                 nameStr.str("");
                 nameStr << baseName << ++index;
