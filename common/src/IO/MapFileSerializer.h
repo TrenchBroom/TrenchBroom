@@ -25,6 +25,7 @@
 
 #include <iosfwd>
 #include <memory>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -41,9 +42,8 @@ namespace TrenchBroom {
             LineStack m_startLineStack;
             size_t m_line;
             std::ostream& m_stream;
-            std::vector<char> m_buffer;
         protected:
-            std::back_insert_iterator<std::vector<char>> m_outputIterator;
+            std::vector<char> m_buffer;
         public:
             static std::unique_ptr<NodeSerializer> create(Model::MapFormat format, std::ostream& stream);
         protected:
