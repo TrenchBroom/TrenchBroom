@@ -22,6 +22,7 @@
 #include "IO/MapFileSerializer.h"
 #include "IO/NodeSerializer.h"
 #include "Model/BrushNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
@@ -52,8 +53,8 @@ namespace TrenchBroom {
                         group->visitChildren(thisLambda);
                         parentStack.pop_back();
                     },
-                    [&](const Model::EntityNode* entity) {
-                        serializer.entity(entity, entity->attributes(), parentAttributes(), entity);
+                    [&](const Model::EntityNode* entityNode) {
+                        serializer.entity(entityNode, entityNode->entity().attributes(), parentAttributes(), entityNode);
                     },
                     [] (const Model::BrushNode*) {}
                 ));
@@ -139,13 +140,13 @@ namespace TrenchBroom {
 
         void NodeWriter::writeWorldBrushes(const std::vector<Model::BrushNode*>& brushes) {
             if (!brushes.empty()) {
-                m_serializer->entity(&m_world, m_world.attributes(), {}, brushes);
+                m_serializer->entity(&m_world, m_world.entity().attributes(), {}, brushes);
             }
         }
 
         void NodeWriter::writeEntityBrushes(const EntityBrushesMap& entityBrushes) {
-            for (const auto& [entity, brushes] : entityBrushes) {
-                m_serializer->entity(entity, entity->attributes(), {}, brushes);
+            for (const auto& [entityNode, brushes] : entityBrushes) {
+                m_serializer->entity(entityNode, entityNode->entity().attributes(), {}, brushes);
             }
         }
 

@@ -26,6 +26,7 @@
 #include "IO/ResourceUtils.h"
 #include "Model/AttributableNode.h"
 #include "Model/AttributableNodeIndex.h"
+#include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 #include "Model/WorldNode.h"
 #include "View/MapDocument.h"
@@ -208,7 +209,7 @@ namespace TrenchBroom {
                 }
 
                 // Add explicitly set attributes
-                for (const Model::EntityAttribute& attribute : node->attributes()) {
+                for (const Model::EntityAttribute& attribute : node->entity().attributes()) {
                     result.insert(attribute.name());
                 }
 
