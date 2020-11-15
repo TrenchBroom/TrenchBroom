@@ -62,7 +62,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/MapFileSerializer.cpp
         ${COMMON_SOURCE_DIR}/IO/MapParser.cpp
         ${COMMON_SOURCE_DIR}/IO/MapReader.cpp
-        ${COMMON_SOURCE_DIR}/IO/MapStreamSerializer.cpp
         ${COMMON_SOURCE_DIR}/IO/Md2Parser.cpp
         ${COMMON_SOURCE_DIR}/IO/Md3Parser.cpp
         ${COMMON_SOURCE_DIR}/IO/MdlParser.cpp
@@ -549,7 +548,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/MapFileSerializer.h
         ${COMMON_SOURCE_DIR}/IO/MapParser.h
         ${COMMON_SOURCE_DIR}/IO/MapReader.h
-        ${COMMON_SOURCE_DIR}/IO/MapStreamSerializer.h
         ${COMMON_SOURCE_DIR}/IO/Md2Parser.h
         ${COMMON_SOURCE_DIR}/IO/Md3Parser.h
         ${COMMON_SOURCE_DIR}/IO/MdlParser.h
