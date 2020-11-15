@@ -19,6 +19,7 @@
 
 #include "LinkTargetIssueGenerator.h"
 
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -49,7 +50,7 @@ namespace TrenchBroom {
 
             std::string doGetDescription() const override {
                 const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
-                return attributableNode->classname() + " has missing target for key '" + m_name + "'";
+                return attributableNode->name() + " has missing target for key '" + m_name + "'";
             }
         };
 

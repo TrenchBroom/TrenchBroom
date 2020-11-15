@@ -118,7 +118,7 @@ namespace TrenchBroom {
             void invalidateBounds();
             void validateBounds();
 
-            AttrString entityString(const Model::EntityNode* entity) const;
+            AttrString entityString(const Model::EntityNode* entityNode) const;
             const Color& boundsColor(const Model::EntityNode* entityNode) const;
         };
     }

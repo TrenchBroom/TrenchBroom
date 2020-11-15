@@ -47,7 +47,7 @@ namespace TrenchBroom {
 
             std::string doGetDescription() const override {
                 const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
-                return "Attribute '" + m_attributeName + "' of " + attributableNode->classname() + " has an empty value.";
+                return "Attribute '" + m_attributeName + "' of " + attributableNode->name() + " has an empty value.";
             }
 
             const std::string& attributeName() const {

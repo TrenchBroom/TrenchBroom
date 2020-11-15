@@ -26,6 +26,7 @@
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "Model/Entity.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
 #include "Model/GroupNode.h"
@@ -285,12 +286,11 @@ namespace TrenchBroom {
 
         bool EntityClassNameTagMatcher::matches(const Taggable& taggable) const {
             BrushMatchVisitor visitor([this](const BrushNode& brush) {
-                const auto* entity = brush.entity();
-                if (entity == nullptr) {
+                if (const auto* entityNode = brush.entity()) {
+                    return matchesClassname(entityNode->entity().classname());
+                } else {
                     return false;
                 }
-
-                return matchesClassname(entity->classname());
             });
 
             taggable.accept(visitor);

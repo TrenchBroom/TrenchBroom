@@ -45,7 +45,7 @@ namespace TrenchBroom {
 
             std::string doGetDescription() const override {
                 const EntityNode* entity = static_cast<EntityNode*>(node());
-                return "Entity '" + entity->classname() + "' does not contain any brushes";
+                return "Entity '" + entity->name() + "' does not contain any brushes";
             }
         };
 
