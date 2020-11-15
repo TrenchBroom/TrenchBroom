@@ -93,7 +93,8 @@ namespace TrenchBroom {
 
             // Transfer the color, locked state, and hidden state from the default layer Layer object to worldspawn
             const Model::LayerNode* defaultLayer = world.defaultLayer();
-            if (defaultLayer->hasAttribute(Model::AttributeNames::LayerColor)) {
+            const Model::Entity& defaultLayerEntity = defaultLayer->entity();
+            if (defaultLayerEntity.hasAttribute(Model::AttributeNames::LayerColor)) {
                 worldEntity.addOrUpdateAttribute(Model::AttributeNames::LayerColor, defaultLayer->attribute(Model::AttributeNames::LayerColor));
             } else {
                 worldEntity.removeAttribute(Model::AttributeNames::LayerColor);
@@ -238,7 +239,9 @@ namespace TrenchBroom {
                 Model::EntityAttribute(Model::AttributeNames::LayerName, layer->name()),
                 Model::EntityAttribute(Model::AttributeNames::LayerId, m_layerIds.getId(layer)),
             };
-            if (layer->hasAttribute(Model::AttributeNames::LayerSortIndex)) {
+
+            const auto& layerEntity = layer->entity();
+            if (layerEntity.hasAttribute(Model::AttributeNames::LayerSortIndex)) {
                 result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerSortIndex, layer->attribute(Model::AttributeNames::LayerSortIndex)));
             }
             if (layer->lockState() == Model::LockState::Lock_Locked) {
