@@ -56,16 +56,16 @@ namespace TrenchBroom {
                 const RotationUsage usage;
             };
         public:
-            static vm::mat4x4 getRotation(const EntityNode* entity);
-            static void applyRotation(EntityNode* entity, const vm::mat4x4& transformation);
-            static std::string getAttribute(const EntityNode* entity);
+            static vm::mat4x4 getRotation(const EntityNode* entityNode);
+            static void applyRotation(EntityNode* entityNode, const vm::mat4x4& transformation);
+            static std::string getAttribute(const EntityNode* entityNode);
 
             static vm::mat4x4 getRotation(const Entity& entity);
             static void applyRotation(Entity& entity, const vm::mat4x4& transformation);
             static std::string getAttribute(const Entity& entity);
         private:
-            static RotationInfo rotationInfo(const EntityNode* entity);
-            static void setAngle(EntityNode* entity, const std::string& attribute, const vm::vec3& direction);
+            static RotationInfo rotationInfo(const EntityNode* entityNode);
+            static void setAngle(EntityNode* entityNode, const std::string& attribute, const vm::vec3& direction);
 
             static RotationInfo rotationInfo(const Entity& entity);
             static void setAngle(Entity& entity, const std::string& attribute, const vm::vec3& direction);
