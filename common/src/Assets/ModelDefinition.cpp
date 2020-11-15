@@ -22,7 +22,7 @@
 #include "EL/EvaluationContext.h"
 #include "EL/Types.h"
 #include "EL/Value.h"
-#include "Model/EntityAttributesVariableStore.h"
+#include "EL/VariableStore.h"
 
 #include <kdl/string_compare.h>
 
@@ -114,16 +114,13 @@ namespace TrenchBroom {
             m_expression = EL::Expression(EL::SwitchExpression(std::move(cases)), line, column);
         }
 
-        ModelSpecification ModelDefinition::modelSpecification(const Model::EntityAttributes& attributes) const {
-            const Model::EntityAttributesVariableStore store(attributes);
-            const EL::EvaluationContext context(store);
+        ModelSpecification ModelDefinition::modelSpecification(const EL::VariableStore& variableStore) const {
+            const EL::EvaluationContext context(variableStore);
             return convertToModel(m_expression.evaluate(context));
         }
 
         ModelSpecification ModelDefinition::defaultModelSpecification() const {
-            const EL::NullVariableStore store;
-            const EL::EvaluationContext context(store);
-            return convertToModel(m_expression.evaluate(context));
+            return modelSpecification(EL::NullVariableStore());
         }
 
         ModelSpecification ModelDefinition::convertToModel(const EL::Value& value) const {

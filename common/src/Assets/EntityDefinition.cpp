@@ -175,8 +175,8 @@ namespace TrenchBroom {
             return m_bounds;
         }
 
-        ModelSpecification PointEntityDefinition::model(const Model::EntityAttributes& attributes) const {
-            return m_modelDefinition.modelSpecification(attributes);
+        ModelSpecification PointEntityDefinition::model(const EL::VariableStore& variableStore) const {
+            return m_modelDefinition.modelSpecification(variableStore);
         }
 
         ModelSpecification PointEntityDefinition::defaultModel() const {
