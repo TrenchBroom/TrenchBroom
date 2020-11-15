@@ -22,11 +22,11 @@
 #include "Assets/EntityDefinition.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Value.h"
+#include "EL/VariableStore.h"
 #include "EL/Types.h"
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/TestParserStatus.h"
-#include "Model/EntityAttributes.h"
 
 #include <kdl/vector_utils.h>
 
@@ -60,16 +60,9 @@ namespace TrenchBroom {
         }
 
         void assertModelDefinition(const ModelSpecification& expected, const ModelDefinition& actual, const std::string& entityPropertiesStr) {
-            const EL::MapType entityPropertiesMap = IO::ELParser::parseStrict(entityPropertiesStr).evaluate(EL::EvaluationContext()).mapValue();
-
-            Model::EntityAttributes attributes;
-            for (const auto& entry : entityPropertiesMap) {
-                const std::string& key = entry.first;
-                const EL::Value& value = entry.second;
-                attributes.addOrUpdateAttribute(key, value.convertTo(EL::ValueType::String).stringValue());
-            }
-
-            ASSERT_EQ(expected, actual.modelSpecification(attributes));
+            const auto entityPropertiesMap = IO::ELParser::parseStrict(entityPropertiesStr).evaluate(EL::EvaluationContext()).mapValue();
+            const auto variableStore = EL::VariableTable(entityPropertiesMap);
+            ASSERT_EQ(expected, actual.modelSpecification(variableStore));
         }
     }
 }
