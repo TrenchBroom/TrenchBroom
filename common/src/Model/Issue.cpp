@@ -24,6 +24,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/Node.h"
@@ -132,8 +133,10 @@ namespace TrenchBroom {
         AttributeIssue::~AttributeIssue() = default;
 
         const std::string& AttributeIssue::attributeValue() const {
+            static const auto NoValue = std::string("");
             const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
-            return attributableNode->attribute(attributeName());
+            const auto* value = attributableNode->entity().attribute(attributeName());
+            return value ? *value : NoValue;
         }
     }
 }

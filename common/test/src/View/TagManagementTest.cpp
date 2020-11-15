@@ -438,8 +438,8 @@ namespace TrenchBroom {
             ASSERT_NE(oldEntity, newEntityNode);
 
             ASSERT_NE(nullptr, newEntityNode);
-            ASSERT_TRUE(newEntityNode->entity().hasAttribute("some_attr"));
-            ASSERT_EQ("some_value", newEntityNode->attribute("some_attr", ""));
+            CHECK(newEntityNode->entity().hasAttribute("some_attr"));
+            CHECK(*newEntityNode->entity().attribute("some_attr") == "some_value");
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableEntityClassnameTag") {

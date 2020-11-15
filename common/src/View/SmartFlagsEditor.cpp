@@ -28,6 +28,7 @@
 #include "View/ViewUtils.h"
 
 #include <kdl/set_temp.h>
+#include <kdl/string_utils.h>
 
 #include <cassert>
 #include <memory>
@@ -140,11 +141,11 @@ namespace TrenchBroom {
         }
 
         int SmartFlagsEditor::getFlagValue(const Model::AttributableNode* attributable) const {
-            if (!attributable->entity().hasAttribute(name()))
+            if (const auto* value = attributable->entity().attribute(name())) {
+                return kdl::str_to_int(*value).value_or(0);
+            } else {
                 return 0;
-
-            const std::string& value = attributable->attribute(name());
-            return std::atoi(value.c_str());
+            }
         }
 
         void SmartFlagsEditor::flagChanged(const size_t index, const int /* value */, const int /* setFlag */, const int /* mixedFlag */) {

@@ -24,6 +24,7 @@
 #include "Assets/EntityDefinitionGroup.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "Model/AttributableNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 
 #include <kdl/vector_utils.h>
@@ -60,7 +61,7 @@ namespace TrenchBroom {
 
         EntityDefinition* EntityDefinitionManager::definition(const Model::AttributableNode* attributable) const {
             ensure(attributable != nullptr, "attributable is null");
-            return definition(attributable->attribute(Model::AttributeNames::Classname));
+            return definition(attributable->entity().classname());
         }
 
         EntityDefinition* EntityDefinitionManager::definition(const std::string& classname) const {

@@ -42,8 +42,6 @@ namespace TrenchBroom {
             static const Assets::AttributeDefinition* selectAttributeDefinition(const std::string& name, const std::vector<AttributableNode*>& attributables);
             static std::string selectAttributeValue(const std::string& name, const std::vector<AttributableNode*>& attributables);
         protected:
-            static const std::string DefaultAttributeValue;
-
             AttributableNode(Entity entity);
 
             Entity m_entity;
@@ -62,7 +60,6 @@ namespace TrenchBroom {
         public: // attribute management
             const Assets::AttributeDefinition* attributeDefinition(const std::string& name) const;
 
-            const std::string& attribute(const std::string& name, const std::string& defaultValue = DefaultAttributeValue) const;
             const std::string& classname() const;
 
             EntityAttributeSnapshot attributeSnapshot(const std::string& name) const;

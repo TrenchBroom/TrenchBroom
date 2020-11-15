@@ -29,6 +29,7 @@
 #include "IO/TestParserStatus.h"
 #include "IO/TextureLoader.h"
 #include "Model/BrushFace.h"
+#include "Model/Entity.h"
 #include "Model/GameConfig.h"
 #include "Model/WorldNode.h"
 
@@ -172,12 +173,11 @@ namespace TrenchBroom {
         }
 
         std::vector<IO::Path> TestGame::doExtractTextureCollections(const AttributableNode& node) const {
-            const auto& pathsValue = node.attribute("wad");
-            if (pathsValue.empty()) {
-                return std::vector<IO::Path>(0);
+            if (const auto* pathsValue = node.entity().attribute("wad")) {
+                return IO::Path::asPaths(kdl::str_split(*pathsValue, ";"));
+            } else {
+                return {};
             }
-
-            return IO::Path::asPaths(kdl::str_split(pathsValue, ";"));
         }
 
         void TestGame::doUpdateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const {

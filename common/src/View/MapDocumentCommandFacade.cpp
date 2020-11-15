@@ -507,7 +507,8 @@ namespace TrenchBroom {
                 Model::AttributableNode* node = *it;
                 snapshot[node].push_back(node->attributeSnapshot(name));
 
-                int intValue = node->entity().hasAttribute(name) ? std::atoi(node->attribute(name).c_str()) : 0;
+                const auto* strValue = node->entity().attribute(name);
+                int intValue = strValue ? kdl::str_to_int(*strValue).value_or(0) : 0;
                 const int flagValue = (1 << flagIndex);
 
                 if (setFlag)
@@ -534,14 +535,12 @@ namespace TrenchBroom {
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
 
-            static const std::string DefaultValue = "";
             MapDocumentCommandFacade::EntityAttributeSnapshotMap snapshot;
 
             for (Model::AttributableNode* node : attributableNodes) {
-                const std::string& oldValue = node->attribute(name, DefaultValue);
-                if (oldValue != DefaultValue) {
+                if (const auto* oldValue = node->entity().attribute(name)) {
                     snapshot[node].push_back(node->attributeSnapshot(name));
-                    node->addOrUpdateAttribute(name, Model::convertEntityColor(oldValue, colorRange));
+                    node->addOrUpdateAttribute(name, Model::convertEntityColor(*oldValue, colorRange));
                 }
             }
 

@@ -137,12 +137,11 @@ namespace TrenchBroom {
                 return {SoftMapBoundsType::Game, doSoftMapBounds()};
             }
 
-            const std::string& mapValue = node.attribute(AttributeNames::SoftMapBounds);
-            if (mapValue == AttributeValues::NoSoftMapBounds) {
+            if (const auto* mapValue = node.entity().attribute(AttributeNames::SoftMapBounds); mapValue && *mapValue != AttributeValues::NoSoftMapBounds) {
+                return {SoftMapBoundsType::Map, IO::parseSoftMapBoundsString(*mapValue)};
+            } else {
                 return {SoftMapBoundsType::Map, std::nullopt};
             }
-            const std::optional<vm::bbox3> mapBounds = IO::parseSoftMapBoundsString(mapValue);
-            return {SoftMapBoundsType::Map, mapBounds};
         }
 
         const std::vector<SmartTag>& GameImpl::doSmartTags() const {
@@ -303,15 +302,14 @@ namespace TrenchBroom {
         std::vector<IO::Path> GameImpl::doExtractTextureCollections(const AttributableNode& node) const {
             const auto& property = m_config.textureConfig().attribute;
             if (property.empty()) {
-                return std::vector<IO::Path>(0);
+                return {};
             }
 
-            const auto& pathsValue = node.attribute(property);
-            if (pathsValue.empty()) {
-                return std::vector<IO::Path>(0);
+            if (const auto* pathsValue = node.entity().attribute(property)) {
+                return IO::Path::asPaths(kdl::str_split(*pathsValue, ";"));
+            } else {
+                return {};
             }
-
-            return IO::Path::asPaths(kdl::str_split(pathsValue, ";"));
         }
 
         void GameImpl::doUpdateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const {
@@ -380,11 +378,11 @@ namespace TrenchBroom {
         }
 
         Assets::EntityDefinitionFileSpec GameImpl::doExtractEntityDefinitionFile(const AttributableNode& node) const {
-            const auto& defValue = node.attribute(AttributeNames::EntityDefinitions);
-            if (defValue.empty()) {
+            if (const auto* defValue = node.entity().attribute(AttributeNames::EntityDefinitions)) {
+                return Assets::EntityDefinitionFileSpec::parse(*defValue);
+            } else {
                 return defaultEntityDefinitionFile();
             }
-            return Assets::EntityDefinitionFileSpec::parse(defValue);
         }
 
         Assets::EntityDefinitionFileSpec GameImpl::defaultEntityDefinitionFile() const {
@@ -553,13 +551,11 @@ namespace TrenchBroom {
         }
 
         std::vector<std::string> GameImpl::doExtractEnabledMods(const AttributableNode& node) const {
-            std::vector<std::string> result;
-            const auto& modStr = node.attribute(AttributeNames::Mods);
-            if (modStr.empty()) {
-                return result;
+            if (const auto* modStr = node.entity().attribute(AttributeNames::Mods)) {
+                return kdl::str_split(*modStr, ";");
+            } else {
+                return {};
             }
-
-            return kdl::str_split(modStr, ";");
         }
 
         std::string GameImpl::doDefaultMod() const {
@@ -594,8 +590,12 @@ namespace TrenchBroom {
             std::stringstream nameStr;
             std::stringstream valueStr;
             nameStr << baseName << index;
-            while (node.entity().hasAttribute(nameStr.str())) {
-                valueStr << node.attribute(nameStr.str());
+
+            const auto& entity = node.entity();
+            while (entity.hasAttribute(nameStr.str())) {
+                if (const auto* value = entity.attribute(nameStr.str())) {
+                    valueStr << *value;
+                }
                 nameStr.str("");
                 nameStr << baseName << ++index;
             }

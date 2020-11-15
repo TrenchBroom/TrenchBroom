@@ -93,7 +93,9 @@ namespace TrenchBroom {
         }
 
         const std::string& GroupNode::doGetName() const {
-            return attribute(AttributeNames::GroupName);
+            static const auto NoName = std::string("");
+            const auto* value = entity().attribute(AttributeNames::GroupName);
+            return value ? *value : NoName;
         }
 
         const vm::bbox3& GroupNode::doGetLogicalBounds() const {

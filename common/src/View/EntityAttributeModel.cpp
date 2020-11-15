@@ -99,8 +99,8 @@ namespace TrenchBroom {
         m_name(name) {
             const Assets::AttributeDefinition* definition = node->attributeDefinition(name);
 
-            if (node->entity().hasAttribute(name)) {
-                m_value = node->attribute(name);
+            if (const auto* value = node->entity().attribute(name)) {
+                m_value = *value;
                 m_valueType = ValueType::SingleValue;
             } else if (definition != nullptr) {
                 m_value = Assets::AttributeDefinition::defaultValue(*definition);
@@ -119,23 +119,22 @@ namespace TrenchBroom {
         }
 
         void AttributeRow::merge(const Model::AttributableNode* other) {
-            const bool otherHasAttribute = other->entity().hasAttribute(m_name);
-            const std::string otherValue = other->attribute(m_name);
+            const auto* otherValue = other->entity().attribute(m_name);
 
             // State transitions
             if (m_valueType == ValueType::Unset) {
-                if (otherHasAttribute) {
+                if (otherValue) {
                      m_valueType = ValueType::SingleValueAndUnset;
-                     m_value = otherValue;
+                     m_value = *otherValue;
                 }
             } else if (m_valueType == ValueType::SingleValue) {
-                if (!otherHasAttribute) {
+                if (!otherValue) {
                     m_valueType = ValueType::SingleValueAndUnset;
-                } else if (otherValue != m_value) {
+                } else if (*otherValue != m_value) {
                     m_valueType = ValueType::MultipleValues;
                 }
             } else if (m_valueType == ValueType::SingleValueAndUnset) {
-                if (otherHasAttribute && otherValue != m_value) {
+                if (otherValue && *otherValue != m_value) {
                     m_valueType = ValueType::MultipleValues;
                 }
             }
@@ -741,9 +740,9 @@ namespace TrenchBroom {
             bool hasChange = false;
             const std::string name = m_rows.at(rowIndex).name();
             for (const Model::AttributableNode* attributable : attributables) {
-                if (attributable->entity().hasAttribute(name)) {
+                if (const auto* oldValue = attributable->entity().attribute(name)) {
                     ensure(attributable->canAddOrUpdateAttribute(name, newValue), "tried to modify immutable attribute value"); // this should be guaranteed by the AttributeRow constructor
-                    if (attributable->attribute(name) != newValue) {
+                    if (*oldValue != newValue) {
                         hasChange = true;
                     }
                 } else {
