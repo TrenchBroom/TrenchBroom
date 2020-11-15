@@ -450,7 +450,7 @@ namespace TrenchBroom {
                         nodesToAdd[parent].push_back(group);
                     },
                     [&](auto&& thisLambda, Model::EntityNode* entityNode) {
-                        if (Model::isWorldspawn(entityNode->classname(), entityNode->entity().attributes())) {
+                        if (Model::isWorldspawn(entityNode->entity().classname(), entityNode->entity().attributes())) {
                             entityNode->visitChildren(thisLambda);
                             nodesToDetach.push_back(entityNode);
                             nodesToDelete.push_back(entityNode);
@@ -2279,12 +2279,12 @@ namespace TrenchBroom {
                 [] (auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
                 [] (auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
                 [] (auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
-                [&](Model::EntityNode* entity)                  {
-                    const auto modelSpec = Assets::safeGetModelSpecification(logger, entity->classname(), [&]() {
-                        return entity->modelSpecification();
+                [&](Model::EntityNode* entityNode)                  {
+                    const auto modelSpec = Assets::safeGetModelSpecification(logger, entityNode->entity().classname(), [&]() {
+                        return entityNode->modelSpecification();
                     });
                     const auto* frame = manager.frame(modelSpec);
-                    entity->setModelFrame(frame);
+                    entityNode->setModelFrame(frame);
                 },
                 [] (Model::BrushNode*) {}
             );

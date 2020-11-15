@@ -401,8 +401,8 @@ namespace TrenchBroom {
             m_boundsValid = true;
         }
 
-        AttrString EntityRenderer::entityString(const Model::EntityNode* entity) const {
-            const auto& classname = entity->classname();
+        AttrString EntityRenderer::entityString(const Model::EntityNode* entityNode) const {
+            const auto& classname = entityNode->entity().classname();
             // const Model::AttributeValue& targetname = entity->attribute(Model::AttributeNames::Targetname);
 
             AttrString str;

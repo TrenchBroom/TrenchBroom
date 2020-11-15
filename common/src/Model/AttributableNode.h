@@ -60,8 +60,6 @@ namespace TrenchBroom {
         public: // attribute management
             const Assets::AttributeDefinition* attributeDefinition(const std::string& name) const;
 
-            const std::string& classname() const;
-
             EntityAttributeSnapshot attributeSnapshot(const std::string& name) const;
 
             bool canAddOrUpdateAttribute(const std::string& name, const std::string& value) const;

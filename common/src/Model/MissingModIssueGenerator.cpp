@@ -21,6 +21,7 @@
 
 #include "IO/Path.h"
 #include "Model/AttributableNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -102,7 +103,7 @@ namespace TrenchBroom {
         void MissingModIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
             assert(node != nullptr);
 
-            if (node->classname() != AttributeValues::WorldspawnClassname) {
+            if (node->entity().classname() != AttributeValues::WorldspawnClassname) {
                 return;
             }
 

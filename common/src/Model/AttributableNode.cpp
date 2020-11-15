@@ -122,10 +122,6 @@ namespace TrenchBroom {
             return definition == nullptr ? nullptr : definition->attributeDefinition(name);
         }
 
-        const std::string& AttributableNode::classname() const {
-            return m_entity.classname();
-        }
-
         EntityAttributeSnapshot AttributableNode::attributeSnapshot(const std::string& name) const {
             const auto* value = m_entity.attribute(name);
             return value ? EntityAttributeSnapshot(name, *value) : EntityAttributeSnapshot(name);
@@ -648,7 +644,7 @@ namespace TrenchBroom {
         Node() {}
 
         const std::string& AttributableNode::doGetName() const {
-            return classname();
+            return m_entity.classname();
         }
 
         void AttributableNode::removeKillTarget(AttributableNode* attributable) {
