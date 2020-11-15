@@ -129,12 +129,6 @@ namespace TrenchBroom {
             return m_entity.attributes();
         }
 
-        void AttributableNode::setAttributes(const std::vector<EntityAttribute>& attributes) {
-            const NotifyAttributeChange notifyChange(this);
-            updateIndexAndLinks(attributes);
-            m_entity.setAttributes(attributes);
-        }
-
         std::vector<std::string> AttributableNode::attributeNames() const {
             return m_entity.attributeNames();
         }

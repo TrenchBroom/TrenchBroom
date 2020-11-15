@@ -49,6 +49,7 @@
 #include "Model/EmptyAttributeValueIssueGenerator.h"
 #include "Model/EmptyBrushEntityIssueGenerator.h"
 #include "Model/EmptyGroupIssueGenerator.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
@@ -1096,7 +1097,7 @@ namespace TrenchBroom {
                 }
 
                 if (entityTemplate != nullptr) {
-                    entity->setAttributes(entityTemplate->attributes());
+                    entity->setEntity(entityTemplate->entity());
                 }
             }
 

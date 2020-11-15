@@ -21,6 +21,7 @@
 
 #include "IO/ParserStatus.h"
 #include "Model/BrushNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 #include "Model/LayerNode.h"
 #include "Model/LockState.h"
@@ -94,7 +95,7 @@ namespace TrenchBroom {
         }
 
         Model::Node* WorldReader::onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
-            m_world->setAttributes(attributes);
+            m_world->setEntity(Model::Entity(attributes));
             setExtraAttributes(m_world.get(), extraAttributes);
 
             // handle default layer attributes, which are stored in worldspawn
