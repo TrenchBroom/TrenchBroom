@@ -434,12 +434,12 @@ namespace TrenchBroom {
             tag.enable(callback, *document);
             ASSERT_TRUE(tag.matches(*brushNode));
 
-            auto* newEntity = brushNode->entity();
-            ASSERT_NE(oldEntity, newEntity);
+            auto* newEntityNode = brushNode->entity();
+            ASSERT_NE(oldEntity, newEntityNode);
 
-            ASSERT_NE(nullptr, newEntity);
-            ASSERT_TRUE(newEntity->hasAttribute("some_attr"));
-            ASSERT_EQ("some_value", newEntity->attribute("some_attr", ""));
+            ASSERT_NE(nullptr, newEntityNode);
+            ASSERT_TRUE(newEntityNode->entity().hasAttribute("some_attr"));
+            ASSERT_EQ("some_value", newEntityNode->attribute("some_attr", ""));
         }
 
         TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableEntityClassnameTag") {

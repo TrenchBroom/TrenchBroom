@@ -30,6 +30,7 @@
 #include "Model/BrushNode.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/EditorContext.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityAttributeSnapshot.h"
 #include "Model/Game.h"
@@ -506,7 +507,7 @@ namespace TrenchBroom {
                 Model::AttributableNode* node = *it;
                 snapshot[node].push_back(node->attributeSnapshot(name));
 
-                int intValue = node->hasAttribute(name) ? std::atoi(node->attribute(name).c_str()) : 0;
+                int intValue = node->entity().hasAttribute(name) ? std::atoi(node->attribute(name).c_str()) : 0;
                 const int flagValue = (1 << flagIndex);
 
                 if (setFlag)

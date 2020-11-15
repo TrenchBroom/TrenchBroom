@@ -92,7 +92,7 @@ namespace TrenchBroom {
         }
 
         bool LayerNode::omitFromExport() const {
-            return hasAttribute(AttributeNames::LayerOmitFromExport, AttributeValues::LayerOmitFromExportValue);
+            return entity().hasAttribute(AttributeNames::LayerOmitFromExport, AttributeValues::LayerOmitFromExportValue);
         }
 
         void LayerNode::setOmitFromExport(const bool omitFromExport) {

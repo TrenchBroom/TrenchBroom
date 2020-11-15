@@ -183,22 +183,22 @@ namespace TrenchBroom {
             Model::BrushNode* brush1 = createBrushNode();
             document->addNode(brush1, document->parentForNodes());
 
-            Model::EntityNode* entity = new Model::EntityNode();
-            document->addNode(entity, document->parentForNodes());
-            document->reparentNodes(entity, { brush1 });
+            Model::EntityNode* entityNode = new Model::EntityNode();
+            document->addNode(entityNode, document->parentForNodes());
+            document->reparentNodes(entityNode, { brush1 });
 
             document->select(brush1);
 
             Model::GroupNode* group = document->groupSelection("test");
             ASSERT_TRUE(group->selected());
 
-            EXPECT_FALSE(entity->hasAttribute("origin"));
+            EXPECT_FALSE(entityNode->entity().hasAttribute("origin"));
             ASSERT_TRUE(document->rotateObjects(vm::vec3::zero(), vm::vec3::pos_z(), static_cast<FloatType>(10.0)));
-            EXPECT_FALSE(entity->hasAttribute("origin"));
+            EXPECT_FALSE(entityNode->entity().hasAttribute("origin"));
 
             document->undoCommand();
 
-            EXPECT_FALSE(entity->hasAttribute("origin"));
+            EXPECT_FALSE(entityNode->entity().hasAttribute("origin"));
         }
 
         TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.renameGroup", "[GroupNodesTest]") {

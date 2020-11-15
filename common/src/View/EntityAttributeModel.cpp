@@ -99,7 +99,7 @@ namespace TrenchBroom {
         m_name(name) {
             const Assets::AttributeDefinition* definition = node->attributeDefinition(name);
 
-            if (node->hasAttribute(name)) {
+            if (node->entity().hasAttribute(name)) {
                 m_value = node->attribute(name);
                 m_valueType = ValueType::SingleValue;
             } else if (definition != nullptr) {
@@ -119,7 +119,7 @@ namespace TrenchBroom {
         }
 
         void AttributeRow::merge(const Model::AttributableNode* other) {
-            const bool otherHasAttribute = other->hasAttribute(m_name);
+            const bool otherHasAttribute = other->entity().hasAttribute(m_name);
             const std::string otherValue = other->attribute(m_name);
 
             // State transitions
@@ -741,7 +741,7 @@ namespace TrenchBroom {
             bool hasChange = false;
             const std::string name = m_rows.at(rowIndex).name();
             for (const Model::AttributableNode* attributable : attributables) {
-                if (attributable->hasAttribute(name)) {
+                if (attributable->entity().hasAttribute(name)) {
                     ensure(attributable->canAddOrUpdateAttribute(name, newValue), "tried to modify immutable attribute value"); // this should be guaranteed by the AttributeRow constructor
                     if (attributable->attribute(name) != newValue) {
                         hasChange = true;

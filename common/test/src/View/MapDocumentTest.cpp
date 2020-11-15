@@ -27,6 +27,7 @@
 #include "Model/BrushNode.h"
 #include "Model/EmptyAttributeNameIssueGenerator.h"
 #include "Model/EmptyAttributeValueIssueGenerator.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/HitAdapter.h"
@@ -1121,9 +1122,9 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(MapDocumentTest, "IssueGenerator.emptyAttribute") {
-            Model::EntityNode* entity = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
-            entity->addOrUpdateAttribute("", "");
-            CHECK(entity->hasAttribute(""));
+            Model::EntityNode* entityNode = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+            entityNode->addOrUpdateAttribute("", "");
+            CHECK(entityNode->entity().hasAttribute(""));
 
             auto issueGenerators = std::vector<Model::IssueGenerator*>{
                 new Model::EmptyAttributeNameIssueGenerator(),
@@ -1162,7 +1163,7 @@ namespace TrenchBroom {
             quickFix->apply(document.get(), std::vector<Model::Issue*>{issue0});
 
             // The fix should have deleted the attribute
-            CHECK(!entity->hasAttribute(""));
+            CHECK(!entityNode->entity().hasAttribute(""));
 
             kdl::vec_clear_and_delete(issueGenerators);
         }
