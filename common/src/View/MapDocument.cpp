@@ -449,14 +449,14 @@ namespace TrenchBroom {
                         nodesToDetach.push_back(group);
                         nodesToAdd[parent].push_back(group);
                     },
-                    [&](auto&& thisLambda, Model::EntityNode* entity) {
-                        if (Model::isWorldspawn(entity->classname(), entity->attributes())) {
-                            entity->visitChildren(thisLambda);
-                            nodesToDetach.push_back(entity);
-                            nodesToDelete.push_back(entity);
+                    [&](auto&& thisLambda, Model::EntityNode* entityNode) {
+                        if (Model::isWorldspawn(entityNode->classname(), entityNode->entity().attributes())) {
+                            entityNode->visitChildren(thisLambda);
+                            nodesToDetach.push_back(entityNode);
+                            nodesToDelete.push_back(entityNode);
                         } else {
-                            nodesToDetach.push_back(entity);
-                            nodesToAdd[parent].push_back(entity);
+                            nodesToDetach.push_back(entityNode);
+                            nodesToAdd[parent].push_back(entityNode);
                         }
                     },
                     [&](Model::BrushNode* brush) {

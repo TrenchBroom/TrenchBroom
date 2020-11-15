@@ -21,6 +21,7 @@
 
 #include "Model/BrushNode.h"
 #include "Model/RemoveEntityAttributesQuickFix.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/MapFacade.h"
@@ -62,7 +63,7 @@ namespace TrenchBroom {
         }
 
         void LongAttributeNameIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
-            for (const EntityAttribute& attribute : node->attributes()) {
+            for (const EntityAttribute& attribute : node->entity().attributes()) {
                 const std::string& attributeName = attribute.name();
                 if (attributeName.size() >= m_maxLength) {
                     issues.push_back(new LongAttributeNameIssue(node, attributeName));
