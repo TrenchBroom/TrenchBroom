@@ -350,7 +350,7 @@ namespace TrenchBroom {
                     if (m_editorContext.visible(entity)) {
                         const bool pointEntity = !entity->hasChildren();
                         if (pointEntity) {
-                            entity->definitionBounds().for_each_edge(pointEntityWireframeBoundsBuilder);
+                            entity->logicalBounds().for_each_edge(pointEntityWireframeBoundsBuilder);
                         } else {
                             entity->logicalBounds().for_each_edge(brushEntityWireframeBoundsBuilder);
                         }
@@ -378,13 +378,13 @@ namespace TrenchBroom {
 
                         if (pointEntity && !entity->hasPointEntityModel()) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
-                            entity->definitionBounds().for_each_face(solidBoundsBuilder);
+                            entity->logicalBounds().for_each_face(solidBoundsBuilder);
                         } else {
                             BuildColoredWireframeBoundsVertices pointEntityWireframeBoundsBuilder(pointEntityWireframeVertices, boundsColor(entity));
                             BuildColoredWireframeBoundsVertices brushEntityWireframeBoundsBuilder(brushEntityWireframeVertices, boundsColor(entity));
 
                             if (pointEntity) {
-                                entity->definitionBounds().for_each_edge(pointEntityWireframeBoundsBuilder);
+                                entity->logicalBounds().for_each_edge(pointEntityWireframeBoundsBuilder);
                             } else {
                                 entity->logicalBounds().for_each_edge(brushEntityWireframeBoundsBuilder);
                             }
