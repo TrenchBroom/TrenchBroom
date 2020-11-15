@@ -75,7 +75,7 @@ namespace TrenchBroom {
                 case Type_Prefix:
                     return node->entity().hasAttributeWithPrefix(m_pattern, value);
                 case Type_Numbered:
-                    return node->hasNumberedAttribute(m_pattern, value);
+                    return node->entity().hasNumberedAttribute(m_pattern, value);
                 case Type_Any:
                     return true;
                 switchDefault()
