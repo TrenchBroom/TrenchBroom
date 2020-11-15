@@ -93,7 +93,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/ZipFileSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/AttributableNode.cpp
         ${COMMON_SOURCE_DIR}/Model/AttributableNodeIndex.cpp
-        ${COMMON_SOURCE_DIR}/Model/AttributableNodeVariableStore.cpp
         ${COMMON_SOURCE_DIR}/Model/AttributeNameWithDoubleQuotationMarksIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/AttributeValueWithDoubleQuotationMarksIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/Brush.cpp
@@ -583,7 +582,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/ZipFileSystem.h
         ${COMMON_SOURCE_DIR}/Model/AttributableNode.h
         ${COMMON_SOURCE_DIR}/Model/AttributableNodeIndex.h
-        ${COMMON_SOURCE_DIR}/Model/AttributableNodeVariableStore.h
         ${COMMON_SOURCE_DIR}/Model/AttributeNameWithDoubleQuotationMarksIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/AttributeValueWithDoubleQuotationMarksIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/Brush.h
