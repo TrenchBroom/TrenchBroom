@@ -53,7 +53,6 @@ namespace TrenchBroom {
         EntityNode::EntityNode() :
         AttributableNode(),
         Object(),
-        m_boundsValid(false),
         m_modelFrame(nullptr) {
             cacheAttributes();
         }
@@ -82,11 +81,14 @@ namespace TrenchBroom {
             return hasPointEntityDefinition() && m_modelFrame != nullptr;
         }
 
-        const vm::bbox3& EntityNode::definitionBounds() const {
-            if (!m_boundsValid) {
-                validateBounds();
+        vm::bbox3 EntityNode::definitionBounds() const {
+            if (hasPointEntityDefinition()) {
+                const Assets::EntityDefinition* def = definition();
+                const auto definitionBounds = static_cast<const Assets::PointEntityDefinition*>(def)->bounds();
+                return definitionBounds.translate(origin());
+            } else {
+                return DefaultBounds.translate(origin());
             }
-            return m_definitionBounds;
         }
 
         const vm::vec3& EntityNode::origin() const {
@@ -145,10 +147,8 @@ namespace TrenchBroom {
         }
 
         const vm::bbox3& EntityNode::modelBounds() const {
-            if (!m_boundsValid) {
-                validateBounds();
-            }
-            return m_modelBounds;
+            validateBounds();
+            return m_cachedBounds->modelBounds;
         }
 
         const Assets::EntityModelFrame* EntityNode::modelFrame() const {
@@ -163,17 +163,13 @@ namespace TrenchBroom {
         }
 
         const vm::bbox3& EntityNode::doGetLogicalBounds() const {
-            if (!m_boundsValid) {
-                validateBounds();
-            }
-            return m_logicalBounds;
+            validateBounds();
+            return m_cachedBounds->logicalBounds;
         }
 
         const vm::bbox3& EntityNode::doGetPhysicalBounds() const {
-            if (!m_boundsValid) {
-                validateBounds();
-            }
-            return m_physicalBounds;
+            validateBounds();
+            return m_cachedBounds->physicalBounds;
         }
 
         Node* EntityNode::doClone(const vm::bbox3& /* worldBounds */) const {
@@ -382,36 +378,33 @@ namespace TrenchBroom {
         }
 
         void EntityNode::invalidateBounds() {
-            m_boundsValid = false;
+            m_cachedBounds = std::nullopt;
         }
 
         void EntityNode::validateBounds() const {
-            if (hasPointEntityDefinition()) {
-                const Assets::EntityDefinition* def = definition();
-                m_definitionBounds = static_cast<const Assets::PointEntityDefinition*>(def)->bounds();
-                m_definitionBounds = m_definitionBounds.translate(origin());
-            } else {
-                m_definitionBounds = DefaultBounds.translate(origin());
+            if (m_cachedBounds.has_value()) {
+                return;
             }
+
+            m_cachedBounds = CachedBounds{};
+
             if (hasPointEntityModel()) {
-                m_modelBounds = vm::bbox3(m_modelFrame->bounds()).transform(modelTransformation());
+                m_cachedBounds->modelBounds = vm::bbox3(m_modelFrame->bounds()).transform(modelTransformation());
             } else {
-                m_modelBounds = DefaultBounds.transform(modelTransformation());
+                m_cachedBounds->modelBounds = DefaultBounds.transform(modelTransformation());
             }
 
             if (hasChildren()) {
-                m_logicalBounds = computeLogicalBounds(children(), vm::bbox3(0.0));
-                m_physicalBounds = computePhysicalBounds(children(), vm::bbox3(0.0));
+                m_cachedBounds->logicalBounds = computeLogicalBounds(children(), vm::bbox3(0.0));
+                m_cachedBounds->physicalBounds = computePhysicalBounds(children(), vm::bbox3(0.0));
             } else {
-                m_logicalBounds = m_definitionBounds;
+                m_cachedBounds->logicalBounds = definitionBounds();
                 if (hasPointEntityModel()) {
-                    m_physicalBounds = vm::merge(m_definitionBounds, m_modelBounds);
+                    m_cachedBounds->physicalBounds = vm::merge(definitionBounds(), m_cachedBounds->modelBounds);
                 } else {
-                    m_physicalBounds = m_definitionBounds;
+                    m_cachedBounds->physicalBounds = definitionBounds();
                 }
             }
-
-            m_boundsValid = true;
         }
 
         void EntityNode::doAcceptTagVisitor(TagVisitor& visitor) {
