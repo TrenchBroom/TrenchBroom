@@ -22,6 +22,7 @@
 #include "Color.h"
 #include "Assets/ColorRange.h"
 #include "Model/AttributableNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityColor.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
@@ -155,10 +156,8 @@ namespace TrenchBroom {
             kdl::vector_set<QColor, ColorCmp> colors;
 
             const auto visitAttributableNode = [&](const auto* node) {
-                static const auto NullValue("");
-                const auto& value = node->attribute(attributeName, NullValue);
-                if (value != NullValue) {
-                    colors.insert(toQColor(Model::parseEntityColor(value)));
+                if (const auto* value = node->entity().attribute(attributeName)) {
+                    colors.insert(toQColor(Model::parseEntityColor(*value)));
                 }
             };
 

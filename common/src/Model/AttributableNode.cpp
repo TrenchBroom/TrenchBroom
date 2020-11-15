@@ -77,21 +77,21 @@ namespace TrenchBroom {
                 return "";
 
             const AttributableNode* attributable = *it;
-            if (!attributable->entity().hasAttribute(name))
+            const auto* value = attributable->entity().attribute(name);
+            if (!value)
                 return "";
 
-            const std::string& value = attributable->attribute(name);
             while (++it != end) {
                 attributable = *it;
-                if (!attributable->entity().hasAttribute(name))
+                const auto* itValue = attributable->entity().attribute(name);
+                if (!itValue) {
                     return "";
-                if (value != attributable->attribute(name))
+                }
+                if (*value != *itValue)
                     return "";
             }
-            return value;
+            return *value;
         }
-
-        const std::string AttributableNode::DefaultAttributeValue("");
 
         AttributableNode::AttributableNode(Entity entity) :
         m_entity(std::move(entity)) {}
@@ -120,11 +120,6 @@ namespace TrenchBroom {
         const Assets::AttributeDefinition* AttributableNode::attributeDefinition(const std::string& name) const {
             const auto* definition = m_entity.definition();
             return definition == nullptr ? nullptr : definition->attributeDefinition(name);
-        }
-
-        const std::string& AttributableNode::attribute(const std::string& name, const std::string& defaultValue) const {
-            const auto* value = m_entity.attribute(name);
-            return value ? *value : defaultValue;
         }
 
         const std::string& AttributableNode::classname() const {
@@ -445,8 +440,8 @@ namespace TrenchBroom {
                 std::vector<AttributableNode*>::iterator it = std::begin(m_linkTargets);
                 while (it != rem) {
                     AttributableNode* target = *it;
-                    const std::string& targetTargetname = target->attribute(AttributeNames::Targetname);
-                    if (targetTargetname == targetname) {
+                    const auto* targetTargetname = target->entity().attribute(AttributeNames::Targetname);
+                    if (targetTargetname && *targetTargetname == targetname) {
                         target->removeLinkSource(this);
                         --rem;
                         std::iter_swap(it, rem);
@@ -464,8 +459,8 @@ namespace TrenchBroom {
                 std::vector<AttributableNode*>::iterator it = std::begin(m_killTargets);
                 while (it != rem) {
                     AttributableNode* target = *it;
-                    const std::string& targetTargetname = target->attribute(AttributeNames::Targetname);
-                    if (targetTargetname == targetname) {
+                    const auto* targetTargetname = target->entity().attribute(AttributeNames::Targetname);
+                    if (targetTargetname && *targetTargetname == targetname) {
                         target->removeKillSource(this);
                         --rem;
                         std::iter_swap(it, rem);

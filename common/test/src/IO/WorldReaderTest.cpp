@@ -140,8 +140,9 @@ namespace TrenchBroom {
             REQUIRE(defaultLayer != nullptr);
             REQUIRE(!defaultLayer->hasChildren());
 
-            ASSERT_TRUE(worldNode->entity().hasAttribute(Model::AttributeNames::Classname));
-            ASSERT_STREQ("yay", worldNode->attribute("message").c_str());
+            CHECK(worldNode->entity().hasAttribute(Model::AttributeNames::Classname));
+            CHECK(worldNode->entity().hasAttribute("message"));
+            CHECK(*worldNode->entity().attribute("message") == "yay");
 
             CHECK(!defaultLayer->layerColor().has_value());
             CHECK(!defaultLayer->locked());
@@ -199,9 +200,10 @@ namespace TrenchBroom {
 
             auto worldNode = reader.read(Model::MapFormat::Standard, worldBounds, status);
 
-            ASSERT_TRUE(worldNode != nullptr);
-            ASSERT_TRUE(worldNode->entity().hasAttribute(Model::AttributeNames::Classname));
-            ASSERT_STREQ("yay", worldNode->attribute("message").c_str());
+            CHECK(worldNode != nullptr);
+            CHECK(worldNode->entity().hasAttribute(Model::AttributeNames::Classname));
+            CHECK(worldNode->entity().hasAttribute("message"));
+            CHECK(*worldNode->entity().attribute("message") == "yay");
 
             ASSERT_EQ(1u, worldNode->childCount());
             Model::LayerNode* defaultLayer = dynamic_cast<Model::LayerNode*>(worldNode->children().front());
@@ -210,12 +212,12 @@ namespace TrenchBroom {
             ASSERT_EQ(Model::LayerNode::defaultLayerSortIndex(), defaultLayer->sortIndex());
 
             Model::EntityNode* entityNode = static_cast<Model::EntityNode*>(defaultLayer->children().front());
-            ASSERT_TRUE(entityNode->entity().hasAttribute("classname"));
-            ASSERT_STREQ("info_player_deathmatch", entityNode->attribute("classname").c_str());
-            ASSERT_TRUE(entityNode->entity().hasAttribute("origin"));
-            ASSERT_STREQ("1 22 -3", entityNode->attribute("origin").c_str());
-            ASSERT_TRUE(entityNode->entity().hasAttribute("angle"));
-            ASSERT_STREQ(" -1 ", entityNode->attribute("angle").c_str());
+            CHECK(entityNode->entity().hasAttribute("classname"));
+            CHECK(*entityNode->entity().attribute("classname") == "info_player_deathmatch");
+            CHECK(entityNode->entity().hasAttribute("origin"));
+            CHECK(*entityNode->entity().attribute("origin") == "1 22 -3");
+            CHECK(entityNode->entity().hasAttribute("angle"));
+            CHECK(*entityNode->entity().attribute("angle") == " -1 ");
         }
 
         TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneBrush", "[WorldReaderTest]") {
@@ -1202,8 +1204,9 @@ common/caulk
             ASSERT_EQ(1u, worldNode->childCount());
             ASSERT_FALSE(worldNode->children().front()->hasChildren());
 
-            ASSERT_TRUE(worldNode->entity().hasAttribute(Model::AttributeNames::Classname));
-            ASSERT_STREQ("yay \\\"Mr. Robot!\\\"", worldNode->attribute("message").c_str());
+            CHECK(worldNode->entity().hasAttribute(Model::AttributeNames::Classname));
+            CHECK(worldNode->entity().hasAttribute("message"));
+            CHECK(*worldNode->entity().attribute("message") == "yay \\\"Mr. Robot!\\\"");
         }
 
         TEST_CASE("WorldReaderTest.parseAttributeWithUnescapedPathAndTrailingBackslash", "[WorldReaderTest]") {
@@ -1223,8 +1226,9 @@ common/caulk
             ASSERT_EQ(1u, worldNode->childCount());
             ASSERT_FALSE(worldNode->children().front()->hasChildren());
 
-            ASSERT_TRUE(worldNode->entity().hasAttribute(Model::AttributeNames::Classname));
-            ASSERT_STREQ("c:\\a\\b\\c\\", worldNode->attribute("path").c_str());
+            CHECK(worldNode->entity().hasAttribute(Model::AttributeNames::Classname));
+            CHECK(worldNode->entity().hasAttribute("path"));
+            CHECK(*worldNode->entity().attribute("path") == "c:\\a\\b\\c\\");
         }
 
         TEST_CASE("WorldReaderTest.parseAttributeWithEscapedPathAndTrailingBackslash", "[WorldReaderTest]") {
@@ -1244,8 +1248,9 @@ common/caulk
             ASSERT_EQ(1u, worldNode->childCount());
             ASSERT_FALSE(worldNode->children().front()->hasChildren());
 
-            ASSERT_TRUE(worldNode->entity().hasAttribute(Model::AttributeNames::Classname));
-            ASSERT_STREQ("c:\\\\a\\\\b\\\\c\\\\", worldNode->attribute("path").c_str());
+            CHECK(worldNode->entity().hasAttribute(Model::AttributeNames::Classname));
+            CHECK(worldNode->entity().hasAttribute("path"));
+            CHECK(*worldNode->entity().attribute("path") == "c:\\\\a\\\\b\\\\c\\\\");
         }
 
         TEST_CASE("WorldReaderTest.parseAttributeTrailingEscapedBackslash", "[WorldReaderTest]") {
@@ -1266,8 +1271,9 @@ common/caulk
             ASSERT_EQ(1u, worldNode->childCount());
             ASSERT_FALSE(worldNode->children().front()->hasChildren());
 
-            ASSERT_TRUE(worldNode->entity().hasAttribute(Model::AttributeNames::Classname));
-            ASSERT_STREQ("test\\\\", worldNode->attribute("message").c_str());
+            CHECK(worldNode->entity().hasAttribute(Model::AttributeNames::Classname));
+            CHECK(worldNode->entity().hasAttribute("message"));
+            CHECK(*worldNode->entity().attribute("message") == "test\\\\");
         }
 
         // https://github.com/TrenchBroom/TrenchBroom/issues/1739
@@ -1288,8 +1294,9 @@ common/caulk
             ASSERT_EQ(1u, worldNode->childCount());
             ASSERT_FALSE(worldNode->children().front()->hasChildren());
 
-            ASSERT_TRUE(worldNode->entity().hasAttribute(Model::AttributeNames::Classname));
-            ASSERT_STREQ("vm::line1\\nvm::line2", worldNode->attribute("message").c_str());
+            CHECK(worldNode->entity().hasAttribute(Model::AttributeNames::Classname));
+            CHECK(worldNode->entity().hasAttribute("message"));
+            CHECK(*worldNode->entity().attribute("message") == "vm::line1\\nvm::line2");
         }
 
         /*

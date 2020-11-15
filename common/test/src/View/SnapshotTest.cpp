@@ -23,6 +23,7 @@
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
@@ -94,7 +95,8 @@ namespace TrenchBroom {
 
             document->select(entityNode);
             document->rotateObjects(vm::vec3::zero(), vm::vec3::pos_z(), vm::to_radians(15.0));
-            CHECK(entityNode->attribute("angle") == std::string("15"));
+            CHECK(entityNode->entity().hasAttribute("angle"));
+            CHECK(*entityNode->entity().attribute("angle") == "15");
 
             document->undoCommand();
             CHECK(!entityNode->entity().hasAttribute("angle"));
