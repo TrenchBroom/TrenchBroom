@@ -26,12 +26,12 @@
 
 namespace TrenchBroom {
     namespace Model {
-        EntitySnapshot::EntitySnapshot(EntityNode* entity) :
-        m_entity(entity),
-        m_attributesSnapshot(entity->attributes()) {}
+        EntitySnapshot::EntitySnapshot(EntityNode* entityNode) :
+        m_entityNode(entityNode),
+        m_entitySnapshot(m_entityNode->entity()) {}
 
         kdl::result<void, SnapshotErrors> EntitySnapshot::doRestore(const vm::bbox3& /* worldBounds */) {
-            m_entity->setAttributes(m_attributesSnapshot);
+            m_entityNode->setEntity(std::move(m_entitySnapshot));
             return kdl::result<void, SnapshotErrors>::success();
         }
     }

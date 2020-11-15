@@ -23,6 +23,7 @@
 #include "Model/BrushError.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/MapFormat.h"
@@ -246,7 +247,7 @@ namespace TrenchBroom {
 
         void MapReader::createEntity(const size_t /* line */, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             Model::EntityNode* entity = m_factory->createEntity();
-            entity->setAttributes(attributes);
+            entity->setEntity(Model::Entity(attributes));
             setExtraAttributes(entity, extraAttributes);
 
             const ParentInfo::Type parentType = storeNode(entity, attributes, status);

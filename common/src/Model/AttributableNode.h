@@ -64,7 +64,6 @@ namespace TrenchBroom {
             const Assets::AttributeDefinition* attributeDefinition(const std::string& name) const;
 
             const std::vector<EntityAttribute>& attributes() const;
-            void setAttributes(const std::vector<EntityAttribute>& attributes);
 
             std::vector<std::string> attributeNames() const;
 
