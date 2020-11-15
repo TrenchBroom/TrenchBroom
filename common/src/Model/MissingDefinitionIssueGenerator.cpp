@@ -44,7 +44,7 @@ namespace TrenchBroom {
 
             std::string doGetDescription() const override {
                 const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
-                return attributableNode->classname() + " not found in entity definitions";
+                return attributableNode->name() + " not found in entity definitions";
             }
         };
 

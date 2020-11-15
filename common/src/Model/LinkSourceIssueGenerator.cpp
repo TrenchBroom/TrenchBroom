@@ -19,6 +19,7 @@
 
 #include "LinkSourceIssueGenerator.h"
 
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Issue.h"
@@ -43,7 +44,7 @@ namespace TrenchBroom {
 
             std::string doGetDescription() const override {
                 const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
-                return attributableNode->classname() + " has unused targetname key";
+                return attributableNode->name() + " has unused targetname key";
             }
         };
 

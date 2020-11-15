@@ -29,6 +29,7 @@
 #include "Model/AttributableNode.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/ExportFormat.h"
 #include "Model/Game.h"
@@ -440,11 +441,11 @@ namespace TrenchBroom {
             if (list.empty())
                 return "";
 
-            const std::string firstClassname = list.front()->classname();
+            const std::string firstClassname = list.front()->entity().classname();
             bool multipleClassnames = false;
 
-            for (const Model::EntityNode* entity : list) {
-                if (entity->classname() != firstClassname) {
+            for (const Model::EntityNode* entityNode : list) {
+                if (entityNode->entity().classname() != firstClassname) {
                     multipleClassnames = true;
                 }
             }
@@ -494,12 +495,12 @@ namespace TrenchBroom {
 
             // selected brushes
             if (!selectedNodes.brushes().empty()) {
-                Model::AttributableNode *commonEntity = commonEntityForBrushList(selectedNodes.brushes());
+                Model::AttributableNode* commonEntityNode = commonEntityForBrushList(selectedNodes.brushes());
 
                 // if all selected brushes are from the same entity, print the entity name
                 std::string token = numberWithSuffix(selectedNodes.brushes().size(), "brush", "brushes");
-                if (commonEntity) {
-                    token += " (" + commonEntity->classname() + ")";
+                if (commonEntityNode) {
+                    token += " (" + commonEntityNode->entity().classname() + ")";
                 } else {
                     token += " (multiple entities)";
                 }

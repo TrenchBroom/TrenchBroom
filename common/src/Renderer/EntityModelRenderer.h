@@ -82,8 +82,8 @@ namespace TrenchBroom {
                 }
             }
 
-            void addEntity(Model::EntityNode* entity);
-            void updateEntity(Model::EntityNode* entity);
+            void addEntity(Model::EntityNode* entityNode);
+            void updateEntity(Model::EntityNode* entityNode);
             void clear();
 
             bool applyTinting() const;
