@@ -62,8 +62,6 @@ namespace TrenchBroom {
         public: // attribute management
             const Assets::AttributeDefinition* attributeDefinition(const std::string& name) const;
 
-            bool hasNumberedAttribute(const std::string& prefix, const std::string& value) const;
-
             std::vector<EntityAttribute> attributeWithName(const std::string& name) const;
             std::vector<EntityAttribute> attributesWithPrefix(const std::string& prefix) const;
             std::vector<EntityAttribute> numberedAttributes(const std::string& prefix) const;
