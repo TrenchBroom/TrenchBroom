@@ -67,7 +67,7 @@ namespace TrenchBroom {
             const vm::bbox3 newBounds(newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
                                       newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
 
-            m_entity->setAttributes({EntityAttribute("origin", "10 20 30")});
+            m_entity->setEntity(Entity({EntityAttribute("origin", "10 20 30")}));
             EXPECT_EQ(newOrigin, m_entity->origin());
             EXPECT_EQ(newBounds, m_entity->logicalBounds());
         }

@@ -21,7 +21,7 @@
 #define TrenchBroom_EntitySnapshot
 
 #include "FloatType.h"
-#include "Model/EntityAttributes.h"
+#include "Model/Entity.h"
 #include "Model/NodeSnapshot.h"
 
 #include <kdl/result_forward.h>
@@ -36,10 +36,10 @@ namespace TrenchBroom {
 
         class EntitySnapshot : public NodeSnapshot {
         private:
-            EntityNode* m_entity;
-            std::vector<EntityAttribute> m_attributesSnapshot;
+            EntityNode* m_entityNode;
+            Entity m_entitySnapshot;
         public:
-            EntitySnapshot(EntityNode* entity);
+            EntitySnapshot(EntityNode* entityNode);
         private:
             kdl::result<void, SnapshotErrors> doRestore(const vm::bbox3& worldBounds) override;
         };
