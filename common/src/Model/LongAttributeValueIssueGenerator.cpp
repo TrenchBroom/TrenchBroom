@@ -21,6 +21,7 @@
 
 #include "Model/BrushNode.h"
 #include "Model/RemoveEntityAttributesQuickFix.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -89,7 +90,7 @@ namespace TrenchBroom {
         }
 
         void LongAttributeValueIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
-            for (const EntityAttribute& attribute : node->attributes()) {
+            for (const EntityAttribute& attribute : node->entity().attributes()) {
                 const auto& attributeName = attribute.name();
                 const auto& attributeValue = attribute.value();
                 if (attributeValue.size() >= m_maxLength) {

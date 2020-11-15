@@ -82,15 +82,16 @@ namespace TrenchBroom {
         }
 
         std::vector<Model::EntityAttribute> AttributableNodeIndexQuery::execute(const AttributableNode* node) const {
+            const auto& entity = node->entity();
             switch (m_type) {
                 case Type_Exact:
-                    return node->attributeWithName(m_pattern);
+                    return entity.attributeWithName(m_pattern);
                 case Type_Prefix:
-                    return node->attributesWithPrefix(m_pattern);
+                    return entity.attributesWithPrefix(m_pattern);
                 case Type_Numbered:
-                    return node->numberedAttributes(m_pattern);
+                    return entity.numberedAttributes(m_pattern);
                 case Type_Any:
-                    return node->attributes();
+                    return entity.attributes();
                 switchDefault()
             }
         }
@@ -106,12 +107,12 @@ namespace TrenchBroom {
         AttributableNodeIndex::~AttributableNodeIndex() = default;
 
         void AttributableNodeIndex::addAttributableNode(AttributableNode* attributable) {
-            for (const EntityAttribute& attribute : attributable->attributes())
+            for (const EntityAttribute& attribute : attributable->entity().attributes())
                 addAttribute(attributable, attribute.name(), attribute.value());
         }
 
         void AttributableNodeIndex::removeAttributableNode(AttributableNode* attributable) {
-            for (const EntityAttribute& attribute : attributable->attributes())
+            for (const EntityAttribute& attribute : attributable->entity().attributes())
                 removeAttribute(attributable, attribute.name(), attribute.value());
         }
 

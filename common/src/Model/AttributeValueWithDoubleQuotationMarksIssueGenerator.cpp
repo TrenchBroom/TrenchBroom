@@ -20,6 +20,7 @@
 #include "AttributeValueWithDoubleQuotationMarksIssueGenerator.h"
 
 #include "Model/BrushNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/RemoveEntityAttributesQuickFix.h"
@@ -67,7 +68,7 @@ namespace TrenchBroom {
         }
 
         void AttributeValueWithDoubleQuotationMarksIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
-            for (const EntityAttribute& attribute : node->attributes()) {
+            for (const EntityAttribute& attribute : node->entity().attributes()) {
                 const std::string& attributeName = attribute.name();
                 const std::string& attributeValue = attribute.value();
                 if (attributeValue.find('"') != std::string::npos) {
