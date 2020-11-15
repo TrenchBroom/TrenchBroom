@@ -62,8 +62,6 @@ namespace TrenchBroom {
         public: // attribute management
             const Assets::AttributeDefinition* attributeDefinition(const std::string& name) const;
 
-            std::vector<std::string> attributeNames() const;
-
             bool hasAttribute(const std::string& name) const;
             bool hasAttribute(const std::string& name, const std::string& value) const;
             bool hasAttributeWithPrefix(const std::string& prefix, const std::string& value) const;

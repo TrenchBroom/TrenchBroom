@@ -18,6 +18,7 @@
  */
 
 #include "Model/BrushNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
@@ -158,9 +159,9 @@ namespace TrenchBroom {
             Model::BrushNode* brush1 = createBrushNode();
             document->addNode(brush1, document->parentForNodes());
 
-            Model::EntityNode* entity = new Model::EntityNode();
-            document->addNode(entity, document->parentForNodes());
-            document->reparentNodes(entity, { brush1 });
+            Model::EntityNode* entityNode = new Model::EntityNode();
+            document->addNode(entityNode, document->parentForNodes());
+            document->reparentNodes(entityNode, { brush1 });
 
             document->select(brush1);
 
@@ -169,11 +170,11 @@ namespace TrenchBroom {
 
             ASSERT_TRUE(document->translateObjects(vm::vec3(16,0,0)));
 
-            ASSERT_FALSE(hasEmptyName(entity->attributeNames()));
+            ASSERT_FALSE(hasEmptyName(entityNode->entity().attributeNames()));
 
             document->undoCommand();
 
-            ASSERT_FALSE(hasEmptyName(entity->attributeNames()));
+            ASSERT_FALSE(hasEmptyName(entityNode->entity().attributeNames()));
         }
 
         TEST_CASE_METHOD(GroupNodesTest, "GroupNodesTest.rotateGroupContainingBrushEntity", "[GroupNodesTest]") {
