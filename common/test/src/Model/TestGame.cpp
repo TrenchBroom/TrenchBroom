@@ -34,6 +34,7 @@
 
 #include <kdl/string_utils.h>
 
+#include <fstream>
 #include <memory>
 #include <vector>
 
@@ -101,10 +102,10 @@ namespace TrenchBroom {
         void TestGame::doWriteMap(WorldNode& world, const IO::Path& path) const {
             const auto mapFormatName = formatName(world.format());
 
-            IO::OpenFile open(path, true);
-            IO::writeGameComment(open.file, gameName(), mapFormatName);
+            std::ofstream file(path.asString());
+            IO::writeGameComment(file, gameName(), mapFormatName);
 
-            IO::NodeWriter writer(world, open.file);
+            IO::NodeWriter writer(world, file);
             writer.writeMap();
         }
 

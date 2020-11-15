@@ -23,7 +23,7 @@
 #include "IO/NodeSerializer.h"
 #include "Model/MapFormat.h"
 
-#include <cstdio> // for FILE*
+#include <iosfwd>
 #include <memory>
 #include <vector>
 
@@ -41,13 +41,13 @@ namespace TrenchBroom {
             using LineStack = std::vector<size_t>;
             LineStack m_startLineStack;
             size_t m_line;
-            FILE* m_stream;
+            std::ostream& m_stream;
 
             std::vector<char> m_buf;
         public:
-            static std::unique_ptr<NodeSerializer> create(Model::MapFormat format, FILE* stream);
+            static std::unique_ptr<NodeSerializer> create(Model::MapFormat format, std::ostream& stream);
         protected:
-            explicit MapFileSerializer(FILE* file);
+            explicit MapFileSerializer(std::ostream& stream);
             ~MapFileSerializer() override;
         private:
             void doBeginFile() override;

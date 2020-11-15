@@ -36,7 +36,7 @@ namespace TrenchBroom {
     namespace IO {
         class QuakeFileSerializer : public MapFileSerializer {
         public:
-            explicit QuakeFileSerializer(FILE* stream) :
+            explicit QuakeFileSerializer(std::ostream& stream) :
             MapFileSerializer(stream) {}
         private:
             size_t doWriteBrushFace(std::vector<char>& out, const Model::BrushFace& face) override {
@@ -99,7 +99,7 @@ namespace TrenchBroom {
 
         class Quake2FileSerializer : public QuakeFileSerializer {
         public:
-            explicit Quake2FileSerializer(FILE* stream) :
+            explicit Quake2FileSerializer(std::ostream& stream) :
             QuakeFileSerializer(stream) {}
         private:
             size_t doWriteBrushFace(std::vector<char>& out, const Model::BrushFace& face) override {
@@ -124,7 +124,7 @@ namespace TrenchBroom {
 
         class Quake2ValveFileSerializer : public Quake2FileSerializer {
         public:
-            explicit Quake2ValveFileSerializer(FILE* stream) :
+            explicit Quake2ValveFileSerializer(std::ostream& stream) :
             Quake2FileSerializer(stream) {}
         private:
             size_t doWriteBrushFace(std::vector<char>& out, const Model::BrushFace& face) override {
@@ -141,7 +141,7 @@ namespace TrenchBroom {
         private:
             std::string SurfaceColorFormat;
         public:
-            explicit DaikatanaFileSerializer(FILE* stream) :
+            explicit DaikatanaFileSerializer(std::ostream& stream) :
             Quake2FileSerializer(stream),
             SurfaceColorFormat(" %d %d %d") {}
         private:
@@ -170,7 +170,7 @@ namespace TrenchBroom {
 
         class Hexen2FileSerializer : public QuakeFileSerializer {
         public:
-            explicit Hexen2FileSerializer(FILE* stream):
+            explicit Hexen2FileSerializer(std::ostream& stream):
             QuakeFileSerializer(stream) {}
         private:
             size_t doWriteBrushFace(std::vector<char>& out, const Model::BrushFace& face) override {
@@ -183,7 +183,7 @@ namespace TrenchBroom {
 
         class ValveFileSerializer : public QuakeFileSerializer {
         public:
-            explicit ValveFileSerializer(FILE* stream) :
+            explicit ValveFileSerializer(std::ostream& stream) :
             QuakeFileSerializer(stream) {}
         private:
             size_t doWriteBrushFace(std::vector<char>& out, const Model::BrushFace& face) override {
@@ -194,7 +194,7 @@ namespace TrenchBroom {
             }
         };
 
-        std::unique_ptr<NodeSerializer> MapFileSerializer::create(const Model::MapFormat format, FILE* stream) {
+        std::unique_ptr<NodeSerializer> MapFileSerializer::create(const Model::MapFormat format, std::ostream& stream) {
             switch (format) {
                 case Model::MapFormat::Standard:
                     return std::make_unique<QuakeFileSerializer>(stream);
@@ -218,14 +218,12 @@ namespace TrenchBroom {
             }
         }
 
-        MapFileSerializer::MapFileSerializer(FILE* stream) :
+        MapFileSerializer::MapFileSerializer(std::ostream& stream) :
         m_line(1),
-        m_stream(stream) {
-            ensure(m_stream != nullptr, "stream is null");
-        }
+        m_stream(stream) {}
 
         MapFileSerializer::~MapFileSerializer() {
-            std::fwrite(m_buf.data(), 1, m_buf.size(), m_stream);
+            m_stream.write(m_buf.data(), m_buf.size());
         }
 
         void MapFileSerializer::doBeginFile() {}
