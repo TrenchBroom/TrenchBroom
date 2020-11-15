@@ -22,6 +22,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityModel.h"
 #include "Model/BrushNode.h"
+#include "Model/EntityAttributesVariableStore.h"
 #include "Model/EntityRotationPolicy.h"
 #include "Model/EntitySnapshot.h"
 #include "Model/IssueGenerator.h"
@@ -142,7 +143,8 @@ namespace TrenchBroom {
                 return Assets::ModelSpecification();
             } else {
                 auto* pointDefinition = static_cast<Assets::PointEntityDefinition*>(m_definition);
-                return pointDefinition->model(m_attributes);
+                const auto variableStore = EntityAttributesVariableStore(m_attributes);
+                return pointDefinition->model(variableStore);
             }
         }
 
