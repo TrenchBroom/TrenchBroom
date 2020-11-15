@@ -122,10 +122,6 @@ namespace TrenchBroom {
             return definition == nullptr ? nullptr : definition->attributeDefinition(name);
         }
 
-        std::vector<EntityAttribute> AttributableNode::numberedAttributes(const std::string& prefix) const {
-            return m_entity.numberedAttributes(prefix);
-        }
-
         const std::string& AttributableNode::attribute(const std::string& name, const std::string& defaultValue) const {
             const auto* value = m_entity.attribute(name);
             return value ? *value : defaultValue;
