@@ -221,8 +221,7 @@ namespace TrenchBroom {
 
         MapFileSerializer::MapFileSerializer(std::ostream& stream) :
         m_line(1),
-        m_stream(stream),
-        std::back_inserter(m_buffer)(m_buffer) {}
+        m_stream(stream) {}
 
         MapFileSerializer::~MapFileSerializer() = default;
 
