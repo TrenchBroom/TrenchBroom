@@ -25,6 +25,7 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
@@ -57,8 +58,9 @@ namespace TrenchBroom {
                 return false;
 
             const Model::WorldNode* world = document->world();
-            m_entity = world->createEntity();
-            m_entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
+            m_entity = world->createEntity(Model::Entity({
+                {Model::AttributeNames::Classname, definition->name()}
+            }));
 
             m_referenceBounds = document->referenceBounds();
 

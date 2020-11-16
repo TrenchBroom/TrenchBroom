@@ -23,6 +23,7 @@
 #include "Model/BrushNode.h"
 #include "Model/BrushError.h"
 #include "Model/BrushFace.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
@@ -65,9 +66,9 @@ namespace TrenchBroom {
             return new GroupNode(name);
         }
 
-        EntityNode* ModelFactoryImpl::doCreateEntity() const {
+        EntityNode* ModelFactoryImpl::doCreateEntity(Entity entity) const {
             assert(m_format != MapFormat::Unknown);
-            return new EntityNode();
+            return new EntityNode(std::move(entity));
         }
 
         kdl::result<BrushFace, BrushError> ModelFactoryImpl::doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const {

@@ -23,6 +23,7 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
@@ -509,8 +510,9 @@ R"(// entity 0
             // default layer (omit from export)
             map.defaultLayer()->setOmitFromExport(true);
 
-            auto* defaultLayerPointEntity = map.createEntity();
-            defaultLayerPointEntity->addOrUpdateAttribute("classname", "defaultLayerPointEntity");
+            auto* defaultLayerPointEntity = map.createEntity(Model::Entity({
+                {"classname", "defaultLayerPointEntity"}
+            }));
 
             auto* defaultLayerBrush = map.createBrush(builder.createCube(64.0, "defaultTexture").value());
             map.defaultLayer()->addChild(defaultLayerPointEntity);
@@ -521,8 +523,9 @@ R"(// entity 0
             map.addChild(layer1);
             layer1->setOmitFromExport(true);
 
-            auto* layer1PointEntity = map.createEntity();
-            layer1PointEntity->addOrUpdateAttribute("classname", "layer1PointEntity");
+            auto* layer1PointEntity = map.createEntity(Model::Entity({
+                {"classname", "layer1PointEntity"}
+            }));
             layer1->addChild(layer1PointEntity);
 
             auto* layer1Brush = map.createBrush(builder.createCube(64.0, "layer1Texture").value());
@@ -532,8 +535,9 @@ R"(// entity 0
             auto* layer2 = map.createLayer("Custom Layer 2");
             map.addChild(layer2);
 
-            auto* layer2PointEntity = map.createEntity();
-            layer2PointEntity->addOrUpdateAttribute("classname", "layer2PointEntity");
+            auto* layer2PointEntity = map.createEntity(Model::Entity({
+                {"classname", "layer2PointEntity"}
+            }));
             layer2->addChild(layer2PointEntity);
 
             auto* layer2Brush = map.createBrush(builder.createCube(64.0, "layer2Texture").value());
