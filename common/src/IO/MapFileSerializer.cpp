@@ -26,7 +26,7 @@
 #include "Model/BrushFace.h"
 #include "Model/EntityAttributes.h"
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 #include <iterator> // for std::back_inserter
 #include <memory>
