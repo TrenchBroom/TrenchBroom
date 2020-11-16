@@ -26,8 +26,7 @@
 #include "Model/BrushFace.h"
 #include "Model/EntityAttributes.h"
 
-#include <fmt/format.h>
-#include <fmt/compile.h>
+#include <fmt/core.h>
 
 #include <iterator> // for std::back_inserter
 #include <memory>
@@ -35,6 +34,8 @@
 
 namespace TrenchBroom {
     namespace IO {
+        static constexpr size_t FlushBufferSize = 256u * 1024u;
+
         class QuakeFileSerializer : public MapFileSerializer {
         public:
             explicit QuakeFileSerializer(std::ostream& stream) :
@@ -221,7 +222,12 @@ namespace TrenchBroom {
 
         MapFileSerializer::MapFileSerializer(std::ostream& stream) :
         m_line(1),
-        m_stream(stream) {}
+        m_stream(stream) {
+            // reserve double the FlushBufferSize, because we flush to the
+            // output stream once we've collected _more than_ FlushBufferSize bytes
+            // in m_buffer
+            m_buffer.reserve(FlushBufferSize * 2u);
+        }
 
         MapFileSerializer::~MapFileSerializer() = default;
 
@@ -286,7 +292,6 @@ namespace TrenchBroom {
         }
 
         void MapFileSerializer::flushBufferIfNeeded() {
-            static constexpr size_t FlushBufferSize = 256u * 1024u;
             if (m_buffer.size() >= FlushBufferSize) {
                 flushBuffer();
             }
