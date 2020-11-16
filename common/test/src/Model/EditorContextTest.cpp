@@ -61,7 +61,7 @@ namespace TrenchBroom {
             }
 
             EntityNode* createTopLevelPointEntity() {
-                auto* entity = world->createEntity();
+                auto* entity = world->createEntity(Model::Entity());
                 world->defaultLayer()->addChild(entity);
                 return entity;
             }
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             std::tuple<EntityNode*, BrushNode*> createTopLevelBrushEntity() {
                 BrushBuilder builder(world, worldBounds);
                 auto* brush = world->createBrush(builder.createCube(32.0, "sometex").value());
-                auto* entity = world->createEntity();
+                auto* entity = world->createEntity(Model::Entity());
                 entity->addChild(brush);
                 world->defaultLayer()->addChild(entity);
                 return std::make_tuple(entity, brush);
@@ -103,7 +103,7 @@ namespace TrenchBroom {
 
             std::tuple<GroupNode*, EntityNode*> createGroupedPointEntity() {
                 BrushBuilder builder(world, worldBounds);
-                auto* entity = world->createEntity();
+                auto* entity = world->createEntity(Model::Entity());
                 auto* group = world->createGroup("somegroup");
 
                 group->addChild(entity);
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             std::tuple<GroupNode*, EntityNode*, BrushNode*> createGroupedBrushEntity() {
                 BrushBuilder builder(world, worldBounds);
                 auto* brush = world->createBrush(builder.createCube(32.0, "sometex").value());
-                auto* entity = world->createEntity();
+                auto* entity = world->createEntity(Model::Entity());
                 auto* group = world->createGroup("somegroup");
 
                 entity->addChild(brush);

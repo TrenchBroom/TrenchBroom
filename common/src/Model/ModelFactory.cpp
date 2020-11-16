@@ -22,6 +22,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
+#include "Model/Entity.h"
 
 #include <kdl/result.h>
 
@@ -45,8 +46,8 @@ namespace TrenchBroom {
             return doCreateGroup(name);
         }
 
-        EntityNode* ModelFactory::createEntity() const {
-            return doCreateEntity();
+        EntityNode* ModelFactory::createEntity(Entity entity) const {
+            return doCreateEntity(std::move(entity));
         }
 
         BrushNode* ModelFactory::createBrush(Brush brush) const {
