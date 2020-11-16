@@ -186,6 +186,9 @@ namespace TrenchBroom {
             const auto mapFormatName = formatName(world.format());
 
             std::ofstream file(path.asString());
+            if (!file) {
+                throw FileSystemException("Cannot open file: " + path.asString());
+            }
             IO::writeGameComment(file, gameName(), mapFormatName);
 
             IO::NodeWriter writer(world, file);
