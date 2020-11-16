@@ -67,7 +67,7 @@ namespace TrenchBroom {
                 const std::string& textureName = face.attributes().textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face.attributes().textureName();
 
                 fmt::format_to(std::back_inserter(m_buffer), " {} {} {} {} {} {}",
-                               textureName.c_str(),
+                               textureName,
                                face.attributes().xOffset(),
                                face.attributes().yOffset(),
                                face.attributes().rotation(),
@@ -81,7 +81,7 @@ namespace TrenchBroom {
                 const vm::vec3 yAxis = face.textureYAxis();
 
                 fmt::format_to(std::back_inserter(m_buffer), " {} [ {} {} {} {} ] [ {} {} {} {} ] {} {} {}",
-                               textureName.c_str(),
+                               textureName,
 
                                xAxis.x(),
                                xAxis.y(),
@@ -228,8 +228,6 @@ namespace TrenchBroom {
             // in m_buffer
             m_buffer.reserve(FlushBufferSize * 2u);
         }
-
-        MapFileSerializer::~MapFileSerializer() = default;
 
         void MapFileSerializer::doBeginFile() {}
         void MapFileSerializer::doEndFile() {

@@ -43,12 +43,16 @@ namespace TrenchBroom {
             size_t m_line;
             std::ostream& m_stream;
         protected:
+            /**
+             * Buffering strategy: to avoid the cost of writing every character (or every line)
+             * to the std::ostream, we write to this vector instead, and then transfer it in large
+             * blocks to m_stream (see flushBufferIfNeeded).
+             */
             std::vector<char> m_buffer;
         public:
             static std::unique_ptr<NodeSerializer> create(Model::MapFormat format, std::ostream& stream);
         protected:
             explicit MapFileSerializer(std::ostream& stream);
-            ~MapFileSerializer() override;
         private:
             void doBeginFile() override;
             void doEndFile() override;
