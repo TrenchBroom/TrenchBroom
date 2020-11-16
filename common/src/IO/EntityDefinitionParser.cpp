@@ -110,6 +110,12 @@ namespace TrenchBroom {
             } else if (superClass.modelDefinition) {
                 inheritingClass.modelDefinition->append(*superClass.modelDefinition);
             }
+
+            if (!inheritingClass.spriteDefinition) {
+                inheritingClass.spriteDefinition = superClass.spriteDefinition;
+            } else if (superClass.spriteDefinition) {
+                inheritingClass.spriteDefinition->append(*superClass.spriteDefinition);
+            }
         }
         
         /**
@@ -314,10 +320,11 @@ namespace TrenchBroom {
             auto description = classInfo.description.value_or("");
             auto& attributes = classInfo.attributes;
             auto modelDefinition = classInfo.modelDefinition.value_or(Assets::ModelDefinition());
+            auto spriteDefinition = classInfo.spriteDefinition.value_or(Assets::SpriteDefinition());
             
             switch (classInfo.type) {
                 case EntityDefinitionClassType::PointClass:
-                    return std::make_unique<Assets::PointEntityDefinition>(name, color, size, std::move(description), std::move(attributes), std::move(modelDefinition));
+                    return std::make_unique<Assets::PointEntityDefinition>(name, color, size, std::move(description), std::move(attributes), std::move(modelDefinition), std::move(spriteDefinition));
                 case EntityDefinitionClassType::BrushClass:
                     return std::make_unique<Assets::BrushEntityDefinition>(name, color, std::move(description), std::move(attributes));
                 case EntityDefinitionClassType::BaseClass:

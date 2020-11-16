@@ -34,6 +34,7 @@
 namespace TrenchBroom {
     namespace Assets {
         class ModelDefinition;
+        class SpriteDefinition;
     }
 
     namespace IO {
@@ -102,6 +103,7 @@ namespace TrenchBroom {
 
             std::vector<std::string> parseSuperClasses(ParserStatus& status);
             Assets::ModelDefinition parseModel(ParserStatus& status);
+            Assets::SpriteDefinition parseSprite(ParserStatus& status);
             std::string parseNamedValue(ParserStatus& status, const std::string& name);
             void skipClassAttribute(ParserStatus& status);
 

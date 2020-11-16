@@ -1,0 +1,48 @@
+#version 120
+
+/*
+ Copyright (C) 2020 MaxED
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+uniform lowp float Brightness;
+uniform sampler2D Texture;
+uniform bool ApplyTinting;
+uniform lowp vec4 TintColor;
+
+varying vec4 worldCoordinates;
+
+vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
+
+void main() {
+    vec4 texel = texture2D(Texture, gl_TexCoord[0].st);
+
+    // Assume alpha masked or opaque.
+    // TODO: Make this optional if we gain support for translucent textures
+    if (texel.a < 0.5) {
+        discard;
+    }
+
+    gl_FragColor = vec4(vec3(Brightness / 2.0 * texel), texel.a);
+    gl_FragColor = clamp(2 * gl_FragColor, 0.0, 1.0);
+    
+    if (ApplyTinting) {
+        gl_FragColor = vec4(gl_FragColor.rgb * TintColor.rgb, gl_FragColor.a);
+    }
+
+    gl_FragColor.rgb = applySoftMapBoundsTint(gl_FragColor.rgb, worldCoordinates.xyz);
+}

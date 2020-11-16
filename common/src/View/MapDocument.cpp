@@ -27,6 +27,7 @@
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModelManager.h"
+#include "Assets/EntitySpriteManager.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "EL/ELExceptions.h"
@@ -158,6 +159,10 @@ namespace TrenchBroom {
         m_portalFile(nullptr),
         m_entityDefinitionManager(std::make_unique<Assets::EntityDefinitionManager>()),
         m_entityModelManager(std::make_unique<Assets::EntityModelManager>(
+            pref(Preferences::TextureMagFilter),
+            pref(Preferences::TextureMinFilter),
+            logger())),
+        m_entitySpriteManager(std::make_unique<Assets::EntitySpriteManager>(
             pref(Preferences::TextureMagFilter),
             pref(Preferences::TextureMinFilter),
             logger())),
@@ -293,6 +298,10 @@ namespace TrenchBroom {
 
         Assets::EntityModelManager& MapDocument::entityModelManager() {
             return *m_entityModelManager;
+        }
+
+        Assets::EntitySpriteManager& MapDocument::entitySpriteManager() {
+            return *m_entitySpriteManager;
         }
 
         Assets::TextureManager& MapDocument::textureManager() {
@@ -1989,6 +1998,7 @@ namespace TrenchBroom {
 
         void MapDocument::commitPendingAssets() {
             m_textureManager->commitChanges();
+            m_entitySpriteManager->commitChanges();
         }
 
         void MapDocument::pick(const vm::ray3& pickRay, Model::PickResult& pickResult) const {
@@ -2081,6 +2091,7 @@ namespace TrenchBroom {
             loadEntityDefinitions();
             setEntityDefinitions();
             loadEntityModels();
+            loadEntitySprites();
             loadTextures();
             setTextures();
         }
@@ -2088,6 +2099,7 @@ namespace TrenchBroom {
         void MapDocument::unloadAssets() {
             unloadEntityDefinitions();
             unloadEntityModels();
+            unloadEntitySprites();
             unloadTextures();
         }
 
@@ -2123,6 +2135,19 @@ namespace TrenchBroom {
         void MapDocument::unloadEntityModels() {
             clearEntityModels();
             m_entityModelManager->setLoader(nullptr);
+        }
+
+        void MapDocument::loadEntitySprites() {
+            m_entitySpriteManager->load();
+            setEntitySprites();
+        }
+
+        void MapDocument::unloadEntitySprites() {
+            clearEntitySprites();
+        }
+
+        void MapDocument::clearEntitySprites() {
+            unsetEntitySprites();
         }
 
         void MapDocument::reloadTextures() {
@@ -2263,9 +2288,11 @@ namespace TrenchBroom {
         void MapDocument::reloadEntityDefinitionsInternal() {
             unloadEntityDefinitions();
             clearEntityModels();
+            clearEntitySprites();
             loadEntityDefinitions();
             setEntityDefinitions();
             setEntityModels();
+            setEntitySprites();
         }
 
         void MapDocument::clearEntityModels() {
@@ -2321,6 +2348,57 @@ namespace TrenchBroom {
 
         void MapDocument::unsetEntityModels(const std::vector<Model::Node*>& nodes) {
             UnsetEntityModels visitor;
+            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
+        }
+
+        class MapDocument::SetEntitySprites : public Model::NodeVisitor {
+        private:
+            Assets::EntitySpriteManager& m_manager;
+        public:
+            explicit SetEntitySprites(Assets::EntitySpriteManager& manager) :
+                m_manager(manager) {}
+        private:
+            void doVisit(Model::WorldNode*) override {}
+            void doVisit(Model::LayerNode*) override {}
+            void doVisit(Model::GroupNode*) override {}
+            void doVisit(Model::EntityNode* entity) override {
+                const auto spritePath = entity->spritePath();
+                if (!spritePath.empty()) {
+                    const auto* sprite = m_manager.sprite(spritePath);
+                    entity->setSprite(sprite);
+                } else {
+                    entity->setSprite(nullptr);
+                }
+            }
+            void doVisit(Model::BrushNode*) override {}
+        };
+
+        class MapDocument::UnsetEntitySprites : public Model::NodeVisitor {
+        private:
+            void doVisit(Model::WorldNode*) override {}
+            void doVisit(Model::LayerNode*) override {}
+            void doVisit(Model::GroupNode*) override {}
+            void doVisit(Model::EntityNode* entity) override { entity->setSprite(nullptr); }
+            void doVisit(Model::BrushNode*) override {}
+        };
+
+        void MapDocument::setEntitySprites() {
+            SetEntitySprites visitor(*m_entitySpriteManager);
+            m_world->acceptAndRecurse(visitor);
+        }
+
+        void MapDocument::setEntitySprites(const std::vector<Model::Node*>& nodes) {
+            SetEntitySprites visitor(*m_entitySpriteManager);
+            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
+        }
+
+        void MapDocument::unsetEntitySprites() {
+            UnsetEntitySprites visitor;
+            m_world->acceptAndRecurse(visitor);
+        }
+
+        void MapDocument::unsetEntitySprites(const std::vector<Model::Node*>& nodes) {
+            UnsetEntitySprites visitor;
             Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
         }
 
@@ -2603,12 +2681,16 @@ namespace TrenchBroom {
                 clearEntityModels();
                 setEntityModels();
 
+                clearEntitySprites();
+                setEntitySprites();
+
                 reloadTextures();
                 setTextures();
             } else if (path == Preferences::TextureMinFilter.path() ||
                        path == Preferences::TextureMagFilter.path()) {
                 m_entityModelManager->setTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
                 m_textureManager->setTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
+                m_entitySpriteManager->setTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
             }
         }
 

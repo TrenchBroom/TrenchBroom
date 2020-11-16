@@ -29,6 +29,7 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModel.h"
 #include "Assets/EntityModelManager.h"
+#include "Assets/EntitySpriteManager.h"
 #include "Renderer/GL.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontManager.h"
@@ -63,9 +64,10 @@ Q_DECLARE_METATYPE(std::shared_ptr<TrenchBroom::View::EntityCellData>)
 
 namespace TrenchBroom {
     namespace View {
-        EntityCellData::EntityCellData(const Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const vm::bbox3f& i_bounds) :
+        EntityCellData::EntityCellData(const Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Assets::Texture* i_sprite, const Renderer::FontDescriptor& i_fontDescriptor, const vm::bbox3f& i_bounds) :
         entityDefinition(i_entityDefinition),
         modelRenderer(i_modelRenderer),
+        sprite(i_sprite),
         fontDescriptor(i_fontDescriptor),
         bounds(i_bounds) {}
 
@@ -73,10 +75,12 @@ namespace TrenchBroom {
                                              GLContextManager& contextManager,
                                              Assets::EntityDefinitionManager& entityDefinitionManager,
                                              Assets::EntityModelManager& entityModelManager,
+                                             Assets::EntitySpriteManager& entitySpriteManager,
                                              Logger& logger) :
         CellView(contextManager, scrollBar),
         m_entityDefinitionManager(entityDefinitionManager),
         m_entityModelManager(entityModelManager),
+        m_entitySpriteManager(entitySpriteManager),
         m_logger(logger),
         m_group(false),
         m_hideUnused(false),
@@ -196,6 +200,7 @@ namespace TrenchBroom {
 
                 const auto* frame = m_entityModelManager.frame(spec);
                 Renderer::TexturedRenderer* modelRenderer = nullptr;
+                const Assets::Texture* sprite = nullptr;
 
                 vm::bbox3f rotatedBounds;
                 if (frame != nullptr) {
@@ -207,12 +212,13 @@ namespace TrenchBroom {
                 } else {
                     rotatedBounds = vm::bbox3f(definition->bounds());
                     const auto center = rotatedBounds.center();
-                    const auto transform =vm::translation_matrix(-center) * vm::rotation_matrix(m_rotation) *vm::translation_matrix(center);
+                    const auto transform = vm::translation_matrix(-center) * vm::rotation_matrix(m_rotation) * vm::translation_matrix(center);
                     rotatedBounds = rotatedBounds.transform(transform);
+                    sprite = m_entitySpriteManager.sprite(definition->spriteDefinition().defaultSpritePath());
                 }
 
                 const auto boundsSize = rotatedBounds.size();
-                layout.addItem(QVariant::fromValue(std::make_shared<EntityCellData>(definition, modelRenderer, actualFont, rotatedBounds)),
+                layout.addItem(QVariant::fromValue(std::make_shared<EntityCellData>(definition, modelRenderer, sprite, actualFont, rotatedBounds)),
                                boundsSize.y(),
                                boundsSize.z(),
                                actualSize.x(),
@@ -234,6 +240,7 @@ namespace TrenchBroom {
 
             renderBounds(layout, y, height);
             renderModels(layout, y, height, transformation);
+            renderSprites(layout, y, height, projection);
             renderNames(layout, y, height, projection);
         }
 
@@ -270,10 +277,12 @@ namespace TrenchBroom {
                         if (row.intersectsY(y, height)) {
                             for (size_t k = 0; k < row.size(); ++k) {
                                 const auto& cell = row[k];
-                                const auto* definition = cellData(cell).entityDefinition;
-                                auto* modelRenderer = cellData(cell).modelRenderer;
+                                const auto& celldata = cellData(cell);
+                                const auto* definition = celldata.entityDefinition;
+                                auto* modelRenderer = celldata.modelRenderer;
+                                const auto* sprite = celldata.sprite;
 
-                                if (modelRenderer == nullptr) {
+                                if (modelRenderer == nullptr && sprite == nullptr) {
                                     const auto itemTrans = itemTransformation(cell, y, height);
                                     const auto& color = definition->color();
                                     CollectBoundsVertices<BoundsVertex> collect(itemTrans, color, vertices);
@@ -322,6 +331,57 @@ namespace TrenchBroom {
                     }
                 }
             }
+        }
+
+        // Adapted from TextureBrowserView.renderTextures()
+        void EntityBrowserView::renderSprites(Layout& layout, const float y, const float height, const vm::mat4x4f& projection) {
+            using SpriteVertex = Renderer::GLVertexTypes::P2T2::Vertex;
+
+            Renderer::Transformation transformation(projection, vm::view_matrix(vm::vec3f::neg_z(), vm::vec3f::pos_y()) * vm::translation_matrix(vm::vec3f(0.0f, 0.0f, -1.0f)));
+
+            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::TextureBrowserShader);
+            shader.set("ApplyTinting", false);
+            shader.set("Texture", 0);
+            shader.set("Brightness", pref(Preferences::Brightness));
+            shader.set("GrayScale", false);
+
+            glAssert(glDisable(GL_DEPTH_TEST));
+            glAssert(glFrontFace(GL_CCW));
+
+            for (size_t i = 0; i < layout.size(); ++i) {
+                const auto& group = layout[i];
+                if (group.intersectsY(y, height)) {
+                    for (size_t j = 0; j < group.size(); ++j) {
+                        const auto& row = group[j];
+                        if (row.intersectsY(y, height)) {
+                            for (size_t k = 0; k < row.size(); ++k) {
+                                const auto& cell = row[k];
+                                const auto* sprite = cellData(cell).sprite;
+
+                                if (sprite != nullptr) {
+                                    const auto& bounds = cell.itemBounds();
+
+                                    auto vertexArray = Renderer::VertexArray::move(std::vector<SpriteVertex>({
+                                        SpriteVertex(vm::vec2f(bounds.left(),  height - (bounds.top() - y)),    vm::vec2f(0.0f, 0.0f)),
+                                        SpriteVertex(vm::vec2f(bounds.left(),  height - (bounds.bottom() - y)), vm::vec2f(0.0f, 1.0f)),
+                                        SpriteVertex(vm::vec2f(bounds.right(), height - (bounds.bottom() - y)), vm::vec2f(1.0f, 1.0f)),
+                                        SpriteVertex(vm::vec2f(bounds.right(), height - (bounds.top() - y)),    vm::vec2f(1.0f, 0.0f))
+                                    }));
+
+                                    sprite->activate();
+
+                                    vertexArray.prepare(vboManager());
+                                    vertexArray.render(Renderer::PrimType::Quads);
+
+                                    sprite->deactivate();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            glAssert(glFrontFace(GL_CW));
         }
 
         void EntityBrowserView::renderNames(Layout& layout, const float y, const float height, const vm::mat4x4f& projection) {

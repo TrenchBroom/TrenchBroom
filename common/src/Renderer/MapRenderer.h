@@ -121,6 +121,7 @@ namespace TrenchBroom {
             void invalidateBrushesInRenderers(Renderer renderers, const std::vector<Model::BrushNode*>& brushes);
             void invalidateEntityLinkRenderer();
             void reloadEntityModels();
+            void reloadEntitySprites();
         private: // notification
             void bindObservers();
             void unbindObservers();

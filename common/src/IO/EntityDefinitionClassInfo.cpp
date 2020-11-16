@@ -70,6 +70,7 @@ namespace TrenchBroom {
                 && lhs.color == rhs.color
                 && lhs.size == rhs.size
                 && lhs.modelDefinition == rhs.modelDefinition
+                && lhs.spriteDefinition == rhs.spriteDefinition
                 && lhs.attributes == rhs.attributes
                 && lhs.superClasses == rhs.superClasses;
         }
@@ -88,6 +89,7 @@ namespace TrenchBroom {
                 << "color: " << kdl::opt_to_string(classInfo.color) << ", "
                 << "size: " << kdl::opt_to_string(classInfo.size) << ", "
                 << "modelDefinition: " << kdl::opt_to_string(classInfo.modelDefinition) << ", "
+                << "spriteDefinition: " << kdl::opt_to_string(classInfo.spriteDefinition) << ", "
                 << "attributes: {";
             for (const auto& attribute : classInfo.attributes) {
                 str << "'" << attribute->name() << "', ";

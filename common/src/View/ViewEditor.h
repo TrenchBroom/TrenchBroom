@@ -89,6 +89,7 @@ namespace TrenchBroom {
 
             QCheckBox* m_showPointEntitiesCheckBox;
             QCheckBox* m_showPointEntityModelsCheckBox;
+            QCheckBox* m_showPointEntitySpritesCheckBox;
 
             EntityDefinitionCheckBoxList* m_entityDefinitionCheckBoxList;
 
@@ -138,6 +139,7 @@ namespace TrenchBroom {
             void showPointEntityBoundsChanged(bool checked);
             void showPointEntitiesChanged(bool checked);
             void showPointEntityModelsChanged(bool checked);
+            void showPointEntitySpritesChanged(bool checked);
             void showBrushesChanged(bool checked);
             void showTagChanged(bool checked, Model::TagType::Type tagType);
             void faceRenderModeChanged(int id);

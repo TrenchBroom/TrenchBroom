@@ -69,7 +69,7 @@ namespace TrenchBroom {
             Texture* textureByName(const std::string& name);
 
             bool prepared() const;
-            void prepare(int minFilter, int magFilter);
+            void prepare(int minFilter, int magFilter, TextureWrap wrapMode = TextureWrap::Repeat);
             void setTextureMode(int minFilter, int magFilter);
         };
     }

@@ -23,6 +23,7 @@
 #include "FloatType.h"
 #include "Color.h"
 #include "Assets/ModelDefinition.h"
+#include "Assets/SpriteDefinition.h"
 
 #include <vecmath/bbox.h>
 
@@ -56,6 +57,7 @@ namespace TrenchBroom {
             std::optional<Color> color;
             std::optional<vm::bbox3> size;
             std::optional<Assets::ModelDefinition> modelDefinition;
+            std::optional<Assets::SpriteDefinition> spriteDefinition;
 
             std::vector<std::shared_ptr<Assets::AttributeDefinition>> attributes;
             std::vector<std::string> superClasses;

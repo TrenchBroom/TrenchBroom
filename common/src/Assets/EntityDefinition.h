@@ -24,6 +24,7 @@
 #include "FloatType.h"
 #include "Notifier.h"
 #include "Assets/ModelDefinition.h"
+#include "Assets/SpriteDefinition.h"
 
 #include <vecmath/bbox.h>
 
@@ -92,14 +93,16 @@ namespace TrenchBroom {
         private:
             vm::bbox3 m_bounds;
             ModelDefinition m_modelDefinition;
+            SpriteDefinition m_spriteDefinition;
         public:
-            PointEntityDefinition(const std::string& name, const Color& color, const vm::bbox3& bounds, const std::string& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition);
+            PointEntityDefinition(const std::string& name, const Color& color, const vm::bbox3& bounds, const std::string& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition, const SpriteDefinition& spriteDefinition);
 
             EntityDefinitionType type() const override;
             const vm::bbox3& bounds() const;
             ModelSpecification model(const Model::EntityAttributes& attributes) const;
             ModelSpecification defaultModel() const;
             const ModelDefinition& modelDefinition() const;
+            const SpriteDefinition& spriteDefinition() const;
         };
 
         class BrushEntityDefinition : public EntityDefinition {

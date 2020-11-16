@@ -1,0 +1,50 @@
+#version 120
+
+/*
+ Copyright (C) 2020 MaxED
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+uniform mat4 ModelMatrix;
+uniform float Scale;
+
+varying vec4 worldCoordinates;
+
+void main(void) {
+    // Remove all rotations by setting the scale matrix 
+	// https://www.geeks3d.com/20140807/billboarding-vertex-shader-glsl/
+    mat4 modelView = gl_ModelViewMatrix;
+	
+	// Column 0:
+	modelView[0][0] = Scale;
+	modelView[0][1] = 0;
+	modelView[0][2] = 0;
+
+	// Column 1:
+	modelView[1][0] = 0;
+	modelView[1][1] = Scale;
+	modelView[1][2] = 0;
+
+	// Column 2:
+	modelView[2][0] = 0;
+	modelView[2][1] = 0;
+	modelView[2][2] = Scale;
+
+    gl_Position = gl_ProjectionMatrix * modelView * gl_Vertex;
+    worldCoordinates = ModelMatrix * gl_Vertex;
+    gl_TexCoord[0] = gl_MultiTexCoord0;
+}

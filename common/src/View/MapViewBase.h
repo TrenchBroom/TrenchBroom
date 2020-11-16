@@ -238,6 +238,7 @@ namespace TrenchBroom {
             void toggleShowPointEntityBounds();
             void toggleShowPointEntities();
             void toggleShowPointEntityModels();
+            void toggleShowPointEntitySprites();
             void toggleShowBrushes();
             void showTextures();
             void hideTextures();

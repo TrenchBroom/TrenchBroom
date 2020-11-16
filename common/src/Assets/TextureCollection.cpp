@@ -107,7 +107,7 @@ namespace TrenchBroom {
             return !m_textureIds.empty();
         }
 
-        void TextureCollection::prepare(const int minFilter, const int magFilter) {
+        void TextureCollection::prepare(const int minFilter, const int magFilter, const TextureWrap wrapMode) {
             assert(!prepared());
 
             m_textureIds.resize(textureCount());
@@ -117,7 +117,7 @@ namespace TrenchBroom {
 
                 for (size_t i = 0; i < textureCount(); ++i) {
                     Texture& texture = m_textures[i];
-                    texture.prepare(m_textureIds[i], minFilter, magFilter);
+                    texture.prepare(m_textureIds[i], minFilter, magFilter, wrapMode);
                 }
             }
         }

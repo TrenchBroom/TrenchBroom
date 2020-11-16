@@ -86,6 +86,7 @@ namespace TrenchBroom {
             std::string parseBaseAttribute(ParserStatus& status);
             AttributeDefinitionPtr parseChoiceAttribute(ParserStatus& status);
             Assets::ModelDefinition parseModel(ParserStatus& status);
+            Assets::SpriteDefinition parseSprite(ParserStatus& status);
 
             std::string parseDescription();
 

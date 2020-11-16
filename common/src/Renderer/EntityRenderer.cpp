@@ -64,10 +64,11 @@ namespace TrenchBroom {
             }
         };
 
-        EntityRenderer::EntityRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext) :
+        EntityRenderer::EntityRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, Assets::EntitySpriteManager& entitySpriteManager, const Model::EditorContext& editorContext) :
         m_entityModelManager(entityModelManager),
         m_editorContext(editorContext),
         m_modelRenderer(logger, m_entityModelManager, m_editorContext),
+        m_spriteRenderer(logger, entitySpriteManager, m_editorContext),
         m_boundsValid(false),
         m_showOverlays(true),
         m_showOccludedOverlays(false),
@@ -80,12 +81,14 @@ namespace TrenchBroom {
         void EntityRenderer::setEntities(const std::vector<Model::EntityNode*>& entities) {
             m_entities = entities;
             m_modelRenderer.setEntities(std::begin(m_entities), std::end(m_entities));
+            m_spriteRenderer.setEntities(std::begin(m_entities), std::end(m_entities));
             invalidate();
         }
 
         void EntityRenderer::invalidate() {
             invalidateBounds();
             reloadModels();
+            reloadSprites();
         }
 
         void EntityRenderer::clear() {
@@ -94,10 +97,15 @@ namespace TrenchBroom {
             m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer();
             m_solidBoundsRenderer = TriangleRenderer();
             m_modelRenderer.clear();
+            m_spriteRenderer.clear();
         }
 
         void EntityRenderer::reloadModels() {
             m_modelRenderer.updateEntities(std::begin(m_entities), std::end(m_entities));
+        }
+
+        void EntityRenderer::reloadSprites() {
+            m_spriteRenderer.updateEntities(std::begin(m_entities), std::end(m_entities));
         }
 
         void EntityRenderer::setShowOverlays(const bool showOverlays) {
@@ -156,6 +164,7 @@ namespace TrenchBroom {
             if (!m_entities.empty()) {
                 renderBounds(renderContext, renderBatch);
                 renderModels(renderContext, renderBatch);
+                renderSprites(renderContext, renderBatch);
                 renderClassnames(renderContext, renderBatch);
                 renderAngles(renderContext, renderBatch);
             }
@@ -203,6 +212,16 @@ namespace TrenchBroom {
                 m_modelRenderer.setTintColor(m_tintColor);
                 m_modelRenderer.setShowHiddenEntities(m_showHiddenEntities);
                 m_modelRenderer.render(renderBatch);
+            }
+        }
+
+        void EntityRenderer::renderSprites(RenderContext& renderContext, RenderBatch& renderBatch) {
+            if (m_showHiddenEntities || (renderContext.showPointEntities() &&
+                                         renderContext.showPointEntitySprites())) {
+                m_spriteRenderer.setApplyTinting(m_tint);
+                m_spriteRenderer.setTintColor(m_tintColor);
+                m_spriteRenderer.setShowHiddenEntities(m_showHiddenEntities);
+                m_spriteRenderer.render(renderBatch);
             }
         }
 
@@ -355,7 +374,7 @@ namespace TrenchBroom {
                             entity->logicalBounds().for_each_edge(brushEntityWireframeBoundsBuilder);
                         }
 
-                        if (pointEntity && !entity->hasPointEntityModel()) {
+                        if (pointEntity && !entity->hasPointEntityModel() && !entity->hasPointEntitySprite()) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
                             entity->logicalBounds().for_each_face(solidBoundsBuilder);
                         }
@@ -376,7 +395,7 @@ namespace TrenchBroom {
                     if (m_editorContext.visible(entity)) {
                         const bool pointEntity = !entity->hasChildren();
 
-                        if (pointEntity && !entity->hasPointEntityModel()) {
+                        if (pointEntity && !entity->hasPointEntityModel() && !entity->hasPointEntitySprite()) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
                             entity->definitionBounds().for_each_face(solidBoundsBuilder);
                         } else {

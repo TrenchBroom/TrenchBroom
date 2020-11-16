@@ -23,6 +23,7 @@
 #include "Color.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/EntityModelRenderer.h"
+#include "Renderer/EntitySpriteRenderer.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/TriangleRenderer.h"
 
@@ -35,6 +36,7 @@ namespace TrenchBroom {
 
     namespace Assets {
         class EntityModelManager;
+        class EntitySpriteManager;
     }
 
     namespace Model {
@@ -58,6 +60,7 @@ namespace TrenchBroom {
 
             TriangleRenderer m_solidBoundsRenderer;
             EntityModelRenderer m_modelRenderer;
+            EntitySpriteRenderer m_spriteRenderer;
             bool m_boundsValid;
 
             bool m_showOverlays;
@@ -74,12 +77,13 @@ namespace TrenchBroom {
             Color m_angleColor;
             bool m_showHiddenEntities;
         public:
-            EntityRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
+            EntityRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, Assets::EntitySpriteManager& entitySpriteManager, const Model::EditorContext& editorContext);
 
             void setEntities(const std::vector<Model::EntityNode*>& entities);
             void invalidate();
             void clear();
             void reloadModels();
+            void reloadSprites();
 
             void setShowOverlays(bool showOverlays);
             void setOverlayTextColor(const Color& overlayTextColor);
@@ -107,6 +111,7 @@ namespace TrenchBroom {
             void renderBrushEntityWireframeBounds(RenderBatch& renderBatch);
             void renderSolidBounds(RenderBatch& renderBatch);
             void renderModels(RenderContext& renderContext, RenderBatch& renderBatch);
+            void renderSprites(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderClassnames(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderAngles(RenderContext& renderContext, RenderBatch& renderBatch);
             std::vector<vm::vec3f> arrowHead(float length, float width) const;

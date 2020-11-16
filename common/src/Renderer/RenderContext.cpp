@@ -117,6 +117,14 @@ namespace TrenchBroom {
             m_showPointEntityModels = showPointEntityModels;
         }
 
+        bool RenderContext::showPointEntitySprites() const {
+            return m_showPointEntitySprites;
+        }
+
+        void RenderContext::setShowPointEntitySprites(const bool showPointEntitySprites) {
+            m_showPointEntitySprites = showPointEntitySprites;
+        }
+
         bool RenderContext::showEntityClassnames() const {
             return m_showEntityClassnames;
         }

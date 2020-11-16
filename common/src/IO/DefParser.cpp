@@ -269,6 +269,8 @@ namespace TrenchBroom {
                 }
             } else if (typeName == "model") {
                 classInfo.modelDefinition = parseModel(status);
+            } else if (typeName == "sprite") {
+                classInfo.spriteDefinition = parseSprite(status);
             }
 
             expect(status, DefToken::Semicolon, nextTokenIgnoringNewlines());
@@ -349,6 +351,25 @@ namespace TrenchBroom {
                     m_tokenizer.restore(snapshot);
                     throw e;
                 }
+            }
+        }
+
+        Assets::SpriteDefinition DefParser::parseSprite(ParserStatus& status) {
+            expect(status, DefToken::OParenthesis, m_tokenizer.nextToken());
+
+            const auto line = m_tokenizer.line();
+            const auto column = m_tokenizer.column();
+
+            try {
+                ELParser parser(m_tokenizer);
+                auto expression = parser.parse();
+                expect(status, DefToken::CParenthesis, m_tokenizer.nextToken());
+
+                expression.optimize();
+                return Assets::SpriteDefinition(expression);
+            } catch (const ParserException& e) {
+                status.warn(line, column, kdl::str_to_string("Failed to parse sprite definition ", e.what()));
+                return Assets::SpriteDefinition();
             }
         }
 

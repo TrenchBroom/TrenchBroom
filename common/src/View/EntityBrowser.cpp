@@ -76,6 +76,7 @@ namespace TrenchBroom {
                 contextManager,
                 document->entityDefinitionManager(),
                 document->entityModelManager(),
+                document->entitySpriteManager(),
                 *document);
 
             auto* browserPanelSizer = new QHBoxLayout();

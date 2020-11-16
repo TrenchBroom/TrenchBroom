@@ -9,9 +9,11 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionManager.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityModel.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityModelManager.cpp
+        ${COMMON_SOURCE_DIR}/Assets/EntitySpriteManager.cpp
         ${COMMON_SOURCE_DIR}/Assets/ModelDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/Palette.cpp
         ${COMMON_SOURCE_DIR}/Assets/Quake3Shader.cpp
+        ${COMMON_SOURCE_DIR}/Assets/SpriteDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/Texture.cpp
         ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.cpp
         ${COMMON_SOURCE_DIR}/Assets/TextureCollection.cpp
@@ -218,6 +220,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/EntityLinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EntityModelRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EntityRenderer.cpp
+		${COMMON_SOURCE_DIR}/Renderer/EntitySpriteRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/FaceRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/FontDescriptor.cpp
         ${COMMON_SOURCE_DIR}/Renderer/FontFactory.cpp
@@ -512,9 +515,11 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Assets/EntityModel.h
         ${COMMON_SOURCE_DIR}/Assets/EntityModel_Forward.h
         ${COMMON_SOURCE_DIR}/Assets/EntityModelManager.h
+        ${COMMON_SOURCE_DIR}/Assets/EntitySpriteManager.h
         ${COMMON_SOURCE_DIR}/Assets/ModelDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/Palette.h
         ${COMMON_SOURCE_DIR}/Assets/Quake3Shader.h
+        ${COMMON_SOURCE_DIR}/Assets/SpriteDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/Texture.h
         ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.h
         ${COMMON_SOURCE_DIR}/Assets/TextureCollection.h
@@ -759,6 +764,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/EntityLinkRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/EntityModelRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/EntityRenderer.h
+		${COMMON_SOURCE_DIR}/Renderer/EntitySpriteRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/FaceRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/FontDescriptor.h
         ${COMMON_SOURCE_DIR}/Renderer/FontFactory.h

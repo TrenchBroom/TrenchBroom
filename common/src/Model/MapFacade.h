@@ -37,6 +37,7 @@ namespace TrenchBroom {
         class BrushEntityDefinition;
         class EntityDefinitionManager;
         class EntityModelManager;
+        class EntitySpriteManager;
         class PointEntityDefinition;
         class Texture;
         class TextureManager;
@@ -71,6 +72,7 @@ namespace TrenchBroom {
 
             virtual Assets::EntityDefinitionManager& entityDefinitionManager() = 0;
             virtual Assets::EntityModelManager& entityModelManager() = 0;
+            virtual Assets::EntitySpriteManager& entitySpriteManager() = 0;
             virtual Assets::TextureManager& textureManager() = 0;
         public: // selection
             virtual bool hasSelection() const = 0;

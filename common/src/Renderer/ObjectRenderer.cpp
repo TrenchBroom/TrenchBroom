@@ -49,6 +49,10 @@ namespace TrenchBroom {
             m_entityRenderer.reloadModels();
         }
 
+        void ObjectRenderer::reloadSprites() {
+            m_entityRenderer.reloadSprites();
+        }
+
         void ObjectRenderer::setShowOverlays(const bool showOverlays) {
             m_groupRenderer.setShowOverlays(showOverlays);
             m_entityRenderer.setShowOverlays(showOverlays);

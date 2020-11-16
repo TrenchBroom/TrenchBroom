@@ -60,7 +60,8 @@ namespace TrenchBroom {
         AttributableNode(),
         Object(),
         m_boundsValid(false),
-        m_modelFrame(nullptr) {
+        m_modelFrame(nullptr),
+        m_sprite(nullptr) {
             cacheAttributes();
         }
 
@@ -86,6 +87,10 @@ namespace TrenchBroom {
 
         bool EntityNode::hasPointEntityModel() const {
             return hasPointEntityDefinition() && m_modelFrame != nullptr;
+        }
+
+        bool EntityNode::hasPointEntitySprite() const {
+            return hasPointEntityDefinition() && m_sprite != nullptr;
         }
 
         const vm::bbox3& EntityNode::definitionBounds() const {
@@ -161,6 +166,23 @@ namespace TrenchBroom {
             return m_modelFrame;
         }
 
+        std::string EntityNode::spritePath() const {
+            if (!hasPointEntityDefinition()) {
+                return std::string();
+            } else {
+                auto* pointDefinition = static_cast<Assets::PointEntityDefinition*>(m_definition);
+                return pointDefinition->spriteDefinition().spritePath(m_attributes);
+            }
+        }
+
+        const Assets::Texture* EntityNode::sprite() const {
+            return m_sprite;
+        }
+
+        void EntityNode::setSprite(const Assets::Texture* sprite) {
+            m_sprite = sprite;
+        }
+
         void EntityNode::setModelFrame(const Assets::EntityModelFrame* modelFrame) {
             const auto oldBounds = physicalBounds();
             m_modelFrame = modelFrame;
@@ -188,6 +210,7 @@ namespace TrenchBroom {
             entity->setDefinition(definition());
             entity->setAttributes(attributes());
             entity->setModelFrame(m_modelFrame);
+            entity->setSprite(m_sprite);
             return entity;
         }
 

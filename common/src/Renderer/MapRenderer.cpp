@@ -144,6 +144,7 @@ namespace TrenchBroom {
             return std::make_unique<ObjectRenderer>(
                 *kdl::mem_lock(document),
                 kdl::mem_lock(document)->entityModelManager(),
+                kdl::mem_lock(document)->entitySpriteManager(),
                 kdl::mem_lock(document)->editorContext(),
                 UnselectedBrushRendererFilter(kdl::mem_lock(document)->editorContext()));
         }
@@ -152,6 +153,7 @@ namespace TrenchBroom {
             return std::make_unique<ObjectRenderer>(
                 *kdl::mem_lock(document),
                 kdl::mem_lock(document)->entityModelManager(),
+                kdl::mem_lock(document)->entitySpriteManager(),
                 kdl::mem_lock(document)->editorContext(),
                 SelectedBrushRendererFilter(kdl::mem_lock(document)->editorContext()));
         }
@@ -160,6 +162,7 @@ namespace TrenchBroom {
             return std::make_unique<ObjectRenderer>(
                 *kdl::mem_lock(document),
                 kdl::mem_lock(document)->entityModelManager(),
+                kdl::mem_lock(document)->entitySpriteManager(),
                 kdl::mem_lock(document)->editorContext(),
                 LockedBrushRendererFilter(kdl::mem_lock(document)->editorContext()));
         }
@@ -434,6 +437,12 @@ namespace TrenchBroom {
             m_lockedRenderer->reloadModels();
         }
 
+        void MapRenderer::reloadEntitySprites() {
+            m_defaultRenderer->reloadSprites();
+            m_selectionRenderer->reloadSprites();
+            m_lockedRenderer->reloadSprites();
+        }
+
         void MapRenderer::bindObservers() {
             assert(!kdl::mem_expired(m_document));
             auto document = kdl::mem_lock(m_document);
@@ -546,6 +555,7 @@ namespace TrenchBroom {
 
         void MapRenderer::entityDefinitionsDidChange() {
             reloadEntityModels();
+            reloadEntitySprites();
             invalidateRenderers(Renderer_All);
             invalidateEntityLinkRenderer();
         }

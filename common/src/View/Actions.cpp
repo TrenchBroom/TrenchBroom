@@ -657,6 +657,9 @@ namespace TrenchBroom {
             createAction(IO::Path("Controls/Map view/View Filter > Toggle show point entity models"), QObject::tr("Toggle Show Point Entity Models"), ActionContext::Any, QKeySequence(),
                 [](ActionExecutionContext& context) { context.view()->toggleShowPointEntityModels(); },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });
+            createAction(IO::Path("Controls/Map view/View Filter > Toggle show point entity sprites"), QObject::tr("Toggle Show Point Entity Sprites"), ActionContext::Any, QKeySequence(),
+                [](ActionExecutionContext& context) { context.view()->toggleShowPointEntitySprites(); },
+                [](ActionExecutionContext& context) { return context.hasDocument(); });
             createAction(IO::Path("Controls/Map view/View Filter > Toggle show brushes"), QObject::tr("Toggle Show Brushes"), ActionContext::Any, QKeySequence(),
                 [](ActionExecutionContext& context) { context.view()->toggleShowBrushes(); },
                 [](ActionExecutionContext& context) { return context.hasDocument(); });

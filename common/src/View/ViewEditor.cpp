@@ -209,6 +209,7 @@ namespace TrenchBroom {
         m_showPointEntityBoundsCheckBox(nullptr),
         m_showPointEntitiesCheckBox(nullptr),
         m_showPointEntityModelsCheckBox(nullptr),
+        m_showPointEntitySpritesCheckBox(nullptr),
         m_entityDefinitionCheckBoxList(nullptr),
         m_showBrushesCheckBox(nullptr),
         m_renderModeRadioGroup(nullptr),
@@ -314,6 +315,7 @@ namespace TrenchBroom {
 
             m_showPointEntitiesCheckBox = new QCheckBox(tr("Show point entities"));
             m_showPointEntityModelsCheckBox = new QCheckBox(tr("Show point entity models"));
+            m_showPointEntitySpritesCheckBox = new QCheckBox(tr("Show point entity sprites"));
 
             connect(m_showEntityClassnamesCheckBox, &QAbstractButton::clicked, this,
                 &ViewEditor::showEntityClassnamesChanged);
@@ -325,6 +327,8 @@ namespace TrenchBroom {
             connect(m_showPointEntitiesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::showPointEntitiesChanged);
             connect(m_showPointEntityModelsCheckBox, &QAbstractButton::clicked, this,
                 &ViewEditor::showPointEntityModelsChanged);
+            connect(m_showPointEntitySpritesCheckBox, &QAbstractButton::clicked, this,
+                &ViewEditor::showPointEntitySpritesChanged);
 
             auto* layout = new QVBoxLayout();
             layout->setContentsMargins(0, 0, 0, 0);
@@ -335,6 +339,7 @@ namespace TrenchBroom {
             layout->addWidget(m_showPointEntityBoundsCheckBox);
             layout->addWidget(m_showPointEntitiesCheckBox);
             layout->addWidget(m_showPointEntityModelsCheckBox);
+            layout->addWidget(m_showPointEntitySpritesCheckBox);
 
             panel->getPanel()->setLayout(layout);
             return panel;
@@ -496,6 +501,7 @@ namespace TrenchBroom {
             m_showPointEntityBoundsCheckBox->setChecked(pref(Preferences::ShowPointEntityBounds));
             m_showPointEntitiesCheckBox->setChecked(pref(Preferences::ShowPointEntities));
             m_showPointEntityModelsCheckBox->setChecked(pref(Preferences::ShowPointEntityModels));
+            m_showPointEntitySpritesCheckBox->setChecked(pref(Preferences::ShowPointEntitySprites));
         }
 
         void ViewEditor::refreshBrushesPanel() {
@@ -542,6 +548,10 @@ namespace TrenchBroom {
 
         void ViewEditor::showPointEntityModelsChanged(const bool checked) {
             setPref(Preferences::ShowPointEntityModels, checked);
+        }
+
+        void ViewEditor::showPointEntitySpritesChanged(const bool checked) {
+            setPref(Preferences::ShowPointEntitySprites, checked);
         }
 
         void ViewEditor::showBrushesChanged(const bool checked) {

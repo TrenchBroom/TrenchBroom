@@ -197,6 +197,7 @@ namespace TrenchBroom {
         Preference<bool> ShowBrushEntityBounds(IO::Path("Map view/Show brush entity bounds"), true);
         Preference<bool> ShowPointEntityBounds(IO::Path("Map view/Show point entity bounds"), true);
         Preference<bool> ShowPointEntityModels(IO::Path("Map view/Show point entity models"), true);
+        Preference<bool> ShowPointEntitySprites(IO::Path("Map view/Show point entity sprites"), true);
 
         QString faceRenderModeTextured() { return "textured"; }
         QString faceRenderModeFlat() { return "flat"; }
@@ -330,6 +331,7 @@ namespace TrenchBroom {
                 &ShowBrushEntityBounds,
                 &ShowPointEntityBounds,
                 &ShowPointEntityModels,
+                &ShowPointEntitySprites,
                 &FaceRenderMode,
                 &ShadeFaces,
                 &ShowFog,

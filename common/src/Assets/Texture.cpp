@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Exceptions.h"
 #include "Texture.h"
 #include "Assets/TextureBuffer.h"
 #include "Assets/TextureCollection.h"
@@ -168,7 +169,7 @@ namespace TrenchBroom {
             return m_textureId != 0;
         }
 
-        void Texture::prepare(const GLuint textureId, const int minFilter, const int magFilter) {
+        void Texture::prepare(const GLuint textureId, const int minFilter, const int magFilter, const TextureWrap wrapMode) {
             assert(textureId > 0);
             assert(m_textureId == 0);
 
@@ -183,8 +184,24 @@ namespace TrenchBroom {
                 glAssert(glBindTexture(GL_TEXTURE_2D, textureId));
                 glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
                 glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
-                glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-                glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+
+                GLint wm;
+                switch (wrapMode) {
+                    case TextureWrap::Repeat:
+                        wm = GL_REPEAT;
+                        break;
+
+                    case TextureWrap::Clamp:
+                        wm = GL_CLAMP;
+                        break;
+
+                    default:
+                        assert(false);
+                        throw AssetException("Unexpected TextureWrap mode!");
+                }
+
+                glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wm));
+                glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wm));
 
                 if (m_type == TextureType::Masked) {
                     // masked textures don't work well with automatic mipmaps, so we force GL_NEAREST filtering and don't generate any

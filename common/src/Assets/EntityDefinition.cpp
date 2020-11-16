@@ -162,10 +162,11 @@ namespace TrenchBroom {
         m_usageCount(0),
         m_attributeDefinitions(attributeDefinitions) {}
 
-        PointEntityDefinition::PointEntityDefinition(const std::string& name, const Color& color, const vm::bbox3& bounds, const std::string& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition) :
+        PointEntityDefinition::PointEntityDefinition(const std::string& name, const Color& color, const vm::bbox3& bounds, const std::string& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition, const SpriteDefinition& spriteDefinition) :
         EntityDefinition(name, color, description, attributeDefinitions),
         m_bounds(bounds),
-        m_modelDefinition(modelDefinition) {}
+        m_modelDefinition(modelDefinition),
+        m_spriteDefinition(spriteDefinition) {}
 
         EntityDefinitionType PointEntityDefinition::type() const {
             return EntityDefinitionType::PointEntity;
@@ -185,6 +186,10 @@ namespace TrenchBroom {
 
         const ModelDefinition& PointEntityDefinition::modelDefinition() const {
             return m_modelDefinition;
+        }
+
+        const SpriteDefinition& PointEntityDefinition::spriteDefinition() const {
+            return m_spriteDefinition;
         }
 
         BrushEntityDefinition::BrushEntityDefinition(const std::string& name, const Color& color, const std::string& description, const AttributeDefinitionList& attributeDefinitions) :

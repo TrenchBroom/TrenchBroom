@@ -47,6 +47,7 @@ namespace TrenchBroom {
         class EntityDefinitionFileSpec;
         class EntityDefinitionManager;
         class EntityModelManager;
+        class EntitySpriteManager;
         class Texture;
         class TextureManager;
     }
@@ -98,6 +99,7 @@ namespace TrenchBroom {
 
             std::unique_ptr<Assets::EntityDefinitionManager> m_entityDefinitionManager;
             std::unique_ptr<Assets::EntityModelManager> m_entityModelManager;
+            std::unique_ptr<Assets::EntitySpriteManager> m_entitySpriteManager;
             std::unique_ptr<Assets::TextureManager> m_textureManager;
             std::unique_ptr<Model::TagManager> m_tagManager;
 
@@ -221,6 +223,7 @@ namespace TrenchBroom {
 
             Assets::EntityDefinitionManager& entityDefinitionManager() override;
             Assets::EntityModelManager& entityModelManager() override;
+            Assets::EntitySpriteManager& entitySpriteManager() override;
             Assets::TextureManager& textureManager() override;
 
             Grid& grid() const;
@@ -501,6 +504,9 @@ namespace TrenchBroom {
 
             void loadEntityModels();
             void unloadEntityModels();
+
+            void loadEntitySprites();
+            void unloadEntitySprites();
         protected:
             void reloadTextures();
             void loadTextures();
@@ -530,6 +536,15 @@ namespace TrenchBroom {
             void setEntityModels(const std::vector<Model::Node*>& nodes);
             void unsetEntityModels();
             void unsetEntityModels(const std::vector<Model::Node*>& nodes);
+
+            void clearEntitySprites();
+
+            class SetEntitySprites;
+            class UnsetEntitySprites;
+            void setEntitySprites();
+            void setEntitySprites(const std::vector<Model::Node*>& nodes);
+            void unsetEntitySprites();
+            void unsetEntitySprites(const std::vector<Model::Node*>& nodes);
         protected: // search paths and mods
             std::vector<IO::Path> externalSearchPaths() const;
             void updateGameSearchPaths();

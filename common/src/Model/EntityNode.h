@@ -22,6 +22,7 @@
 
 #include "FloatType.h"
 #include "Macros.h"
+#include "Assets/Texture.h"
 #include "Model/AttributableNode.h"
 #include "Model/HitType.h"
 #include "Model/Object.h"
@@ -57,6 +58,7 @@ namespace TrenchBroom {
             mutable vm::mat4x4 m_cachedRotation;
 
             const Assets::EntityModelFrame* m_modelFrame;
+            const Assets::Texture* m_sprite;
         public:
             EntityNode();
 
@@ -66,6 +68,7 @@ namespace TrenchBroom {
             bool hasBrushEntityDefinition() const;
             bool hasPointEntityDefinition() const;
             bool hasPointEntityModel() const;
+            bool hasPointEntitySprite() const;
 
             const vm::bbox3& definitionBounds() const;
 
@@ -83,6 +86,10 @@ namespace TrenchBroom {
             const vm::bbox3& modelBounds() const;
             const Assets::EntityModelFrame* modelFrame() const;
             void setModelFrame(const Assets::EntityModelFrame* modelFrame);
+        public: // entity sprite
+            std::string spritePath() const;
+            const Assets::Texture* sprite() const;
+            void setSprite(const Assets::Texture* sprite);
         private: // implement Node interface
             const vm::bbox3& doGetLogicalBounds() const override;
             const vm::bbox3& doGetPhysicalBounds() const override;

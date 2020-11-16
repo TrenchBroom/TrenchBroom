@@ -71,6 +71,11 @@ namespace TrenchBroom {
             GLenum destFactor;
         };
 
+        enum class TextureWrap {
+            Repeat, // GL_REPEAT
+            Clamp   // GL_CLAMP
+        };
+
         class Texture {
         private:
             using Buffer = TextureBuffer;
@@ -139,7 +144,7 @@ namespace TrenchBroom {
             void setOverridden(bool overridden);
 
             bool isPrepared() const;
-            void prepare(GLuint textureId, int minFilter, int magFilter);
+            void prepare(GLuint textureId, int minFilter, int magFilter, TextureWrap wrapMode = TextureWrap::Repeat);
             void setMode(int minFilter, int magFilter);
 
             void activate() const;

@@ -252,6 +252,7 @@ namespace TrenchBroom {
 
             setEntityDefinitions(addedNodes);
             setEntityModels(addedNodes);
+            setEntitySprites(addedNodes);
             setTextures(addedNodes);
             invalidateSelectionBounds();
 
@@ -269,6 +270,7 @@ namespace TrenchBroom {
                 Model::Node* parent = entry.first;
                 const std::vector<Model::Node*>& children = entry.second;
                 unsetEntityModels(children);
+                unsetEntitySprites(children);
                 unsetEntityDefinitions(children);
                 unsetTextures(children);
                 parent->removeChildren(std::begin(children), std::end(children));
@@ -471,6 +473,7 @@ namespace TrenchBroom {
 
             setEntityDefinitions(nodes);
             setEntityModels(nodes);
+            setEntitySprites(nodes);
             invalidateSelectionBounds();
 
             return snapshot;
@@ -534,6 +537,7 @@ namespace TrenchBroom {
 
             setEntityDefinitions(nodes);
             setEntityModels(nodes);
+            setEntitySprites(nodes);
 
             return snapshot;
         }
@@ -585,6 +589,7 @@ namespace TrenchBroom {
 
             setEntityDefinitions(nodes);
             setEntityModels(nodes);
+            setEntitySprites(nodes);
             invalidateSelectionBounds();
 
             return snapshot;
@@ -611,6 +616,7 @@ namespace TrenchBroom {
 
             setEntityDefinitions(nodes);
             setEntityModels(nodes);
+            setEntitySprites(nodes);
             invalidateSelectionBounds();
         }
 

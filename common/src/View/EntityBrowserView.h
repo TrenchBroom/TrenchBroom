@@ -38,7 +38,9 @@ namespace TrenchBroom {
         class EntityDefinitionManager;
         enum class EntityDefinitionSortOrder;
         class EntityModelManager;
+        class EntitySpriteManager;
         class PointEntityDefinition;
+        class Texture;
     }
 
     namespace Renderer {
@@ -56,10 +58,11 @@ namespace TrenchBroom {
         public:
             const Assets::PointEntityDefinition* entityDefinition;
             EntityRenderer* modelRenderer;
+            const Assets::Texture* sprite;
             Renderer::FontDescriptor fontDescriptor;
             vm::bbox3f bounds;
 
-            EntityCellData(const Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const vm::bbox3f& i_bounds);
+            EntityCellData(const Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Assets::Texture* i_sprite, const Renderer::FontDescriptor& i_fontDescriptor, const vm::bbox3f& i_bounds);
         };
 
         class EntityBrowserView : public CellView {
@@ -72,6 +75,7 @@ namespace TrenchBroom {
 
             Assets::EntityDefinitionManager& m_entityDefinitionManager;
             Assets::EntityModelManager& m_entityModelManager;
+            Assets::EntitySpriteManager& m_entitySpriteManager;
             Logger& m_logger;
             vm::quatf m_rotation;
 
@@ -84,6 +88,7 @@ namespace TrenchBroom {
                               GLContextManager& contextManager,
                               Assets::EntityDefinitionManager& entityDefinitionManager,
                               Assets::EntityModelManager& entityModelManager,
+                              Assets::EntitySpriteManager& entitySpriteManager,
                               Logger& logger);
             ~EntityBrowserView() override;
         public:
@@ -110,6 +115,8 @@ namespace TrenchBroom {
 
             class MeshFunc;
             void renderModels(Layout& layout, float y, float height, Renderer::Transformation& transformation);
+
+            void renderSprites(Layout& layout, float y, float height, const vm::mat4x4f& projection);
 
             void renderNames(Layout& layout, float y, float height, const vm::mat4x4f& projection);
             void renderGroupTitleBackgrounds(Layout& layout, float y, float height);

@@ -685,6 +685,10 @@ namespace TrenchBroom {
             togglePref(Preferences::ShowPointEntityModels);
         }
 
+        void MapViewBase::toggleShowPointEntitySprites() {
+            togglePref(Preferences::ShowPointEntitySprites);
+        }
+
         void MapViewBase::toggleShowBrushes() {
             togglePref(Preferences::ShowBrushes);
         }
@@ -822,6 +826,7 @@ namespace TrenchBroom {
             renderContext.setShadeFaces(pref(Preferences::ShadeFaces));
             renderContext.setShowPointEntities(pref(Preferences::ShowPointEntities));
             renderContext.setShowPointEntityModels(pref(Preferences::ShowPointEntityModels));
+            renderContext.setShowPointEntitySprites(pref(Preferences::ShowPointEntitySprites));
             renderContext.setShowEntityClassnames(pref(Preferences::ShowEntityClassnames));
             renderContext.setShowGroupBounds(pref(Preferences::ShowGroupBounds));
             renderContext.setShowBrushEntityBounds(pref(Preferences::ShowBrushEntityBounds));

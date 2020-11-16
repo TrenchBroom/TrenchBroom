@@ -67,6 +67,16 @@ namespace TrenchBroom {
             }
         }
 
+        TextureReader::SpriteNameStrategy::SpriteNameStrategy() = default;
+
+        TextureReader::NameStrategy* TextureReader::SpriteNameStrategy::doClone() const {
+            return new SpriteNameStrategy();
+        }
+
+        std::string TextureReader::SpriteNameStrategy::doGetTextureName(const std::string& /* textureName */, const Path& path) const {
+            return path.asString("/");
+        }
+
         TextureReader::StaticNameStrategy::StaticNameStrategy(const std::string& name) :
         m_name(name) {}
 

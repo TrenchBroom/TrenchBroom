@@ -299,6 +299,11 @@ namespace TrenchBroom {
                         status.warn(token.line(), token.column(), "Found multiple model attributes");
                     }
                     classInfo.modelDefinition = parseModel(status);
+                } else if (kdl::ci::str_is_equal(typeName, "sprite")) {
+                    if (classInfo.spriteDefinition) {
+                        status.warn(token.line(), token.column(), "Found multiple sprite attributes");
+                    }
+                    classInfo.spriteDefinition = parseSprite(status);
                 } else {
                     status.warn(token.line(), token.column(), "Unknown entity definition header attribute '" + typeName + "'");
                     skipClassAttribute(status);
@@ -378,6 +383,25 @@ namespace TrenchBroom {
                     m_tokenizer.restore(snapshot);
                     throw e;
                 }
+            }
+        }
+
+        Assets::SpriteDefinition FgdParser::parseSprite(ParserStatus& status) {
+            expect(status, FgdToken::OParenthesis, m_tokenizer.nextToken());
+
+            const auto line = m_tokenizer.line();
+            const auto column = m_tokenizer.column();
+
+            try {
+                ELParser parser(m_tokenizer);
+                auto expression = parser.parse();
+                expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
+
+                expression.optimize();
+                return Assets::SpriteDefinition(expression);
+            } catch (const ParserException& e) {
+                status.warn(line, column, kdl::str_to_string("Failed to parse sprite definition ", e.what()));
+                return Assets::SpriteDefinition();
             }
         }
 
