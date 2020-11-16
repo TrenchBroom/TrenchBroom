@@ -560,10 +560,10 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
             auto* layer = world.defaultLayer();
 
-            auto* entity1 = world.createEntity();
-            auto* entity2 = world.createEntity();
+            auto* entity1 = world.createEntity(Entity());
+            auto* entity2 = world.createEntity(Entity());
             auto* group = world.createGroup("name");
-            auto* groupEntity = world.createEntity();
+            auto* groupEntity = world.createEntity(Entity());
 
             layer->addChild(entity1);
             layer->addChild(entity2);
@@ -612,8 +612,8 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Standard);
             auto* layer = world.defaultLayer();
             
-            auto* entity1 = world.createEntity();
-            auto* entity2 = world.createEntity();
+            auto* entity1 = world.createEntity(Entity());
+            auto* entity2 = world.createEntity(Entity());
             layer->addChild(entity1);
             layer->addChild(entity2);
 

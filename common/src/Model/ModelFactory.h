@@ -37,6 +37,7 @@ namespace TrenchBroom {
         class BrushFace;
         class BrushNode;
         class BrushFaceAttributes;
+        class Entity;
         class EntityNode;
         class GroupNode;
         class LayerNode;
@@ -51,7 +52,7 @@ namespace TrenchBroom {
             WorldNode* createWorld() const;
             LayerNode* createLayer(const std::string& name) const;
             GroupNode* createGroup(const std::string& name) const;
-            EntityNode* createEntity() const;
+            EntityNode* createEntity(Entity entity) const;
             BrushNode* createBrush(Brush brush) const;
 
             /**
@@ -86,7 +87,7 @@ namespace TrenchBroom {
             virtual WorldNode* doCreateWorld() const = 0;
             virtual LayerNode* doCreateLayer(const std::string& name) const = 0;
             virtual GroupNode* doCreateGroup(const std::string& name) const = 0;
-            virtual EntityNode* doCreateEntity() const = 0;
+            virtual EntityNode* doCreateEntity(Entity entity) const = 0;
             virtual BrushNode* doCreateBrush(Brush brush) const;
             virtual kdl::result<BrushFace, BrushError> doCreateFace(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const = 0;
             virtual kdl::result<BrushFace, BrushError> doCreateFaceFromStandard(const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const BrushFaceAttributes& attribs) const = 0;

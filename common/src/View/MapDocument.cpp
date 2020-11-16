@@ -1012,8 +1012,9 @@ namespace TrenchBroom {
         Model::EntityNode* MapDocument::createPointEntity(const Assets::PointEntityDefinition* definition, const vm::vec3& delta) {
             ensure(definition != nullptr, "definition is null");
 
-            auto* entity = m_world->createEntity();
-            entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
+            auto* entity = m_world->createEntity(Model::Entity({
+                {Model::AttributeNames::Classname, definition->name()}
+            }));
 
             std::stringstream name;
             name << "Create " << definition->name();
@@ -1033,7 +1034,7 @@ namespace TrenchBroom {
             const auto brushes = selectedNodes().brushes();
             assert(!brushes.empty());
 
-            auto* entity = m_world->createEntity();
+            auto entity = Model::Entity();
 
             // if all brushes belong to the same entity, and that entity is not worldspawn, copy its properties
             auto* entityTemplate = brushes.front()->entity();
@@ -1046,11 +1047,12 @@ namespace TrenchBroom {
                 }
 
                 if (entityTemplate != nullptr) {
-                    entity->setEntity(entityTemplate->entity());
+                    entity = entityTemplate->entity();
                 }
             }
 
-            entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
+            entity.addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
+            auto* entityNode = m_world->createEntity(std::move(entity));
 
             std::stringstream name;
             name << "Create " << definition->name();
@@ -1059,11 +1061,11 @@ namespace TrenchBroom {
 
             const Transaction transaction(this, name.str());
             deselectAll();
-            addNode(entity, parentForNodes(nodes));
-            reparentNodes(entity, nodes);
+            addNode(entityNode, parentForNodes(nodes));
+            reparentNodes(entityNode, nodes);
             select(nodes);
 
-            return entity;
+            return entityNode;
         }
 
         Model::GroupNode* MapDocument::groupSelection(const std::string& name) {
