@@ -525,8 +525,6 @@ namespace TrenchBroom {
 
             void clearEntityModels();
 
-            class SetEntityModels;
-            class UnsetEntityModels;
             void setEntityModels();
             void setEntityModels(const std::vector<Model::Node*>& nodes);
             void unsetEntityModels();
@@ -534,12 +532,10 @@ namespace TrenchBroom {
 
             void clearEntitySprites();
 
-            class SetEntitySprites;
-            class UnsetEntitySprites;
-            void setEntitySprites();
-            void setEntitySprites(const std::vector<Model::Node*>& nodes);
-            void unsetEntitySprites();
-            void unsetEntitySprites(const std::vector<Model::Node*>& nodes);
+            void setEntitySprites() const;
+            void setEntitySprites(const std::vector<Model::Node*>& nodes) const;
+            void unsetEntitySprites() const;
+            void unsetEntitySprites(const std::vector<Model::Node*>& nodes) const;
         protected: // search paths and mods
             std::vector<IO::Path> externalSearchPaths() const;
             void updateGameSearchPaths();

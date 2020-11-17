@@ -2342,55 +2342,48 @@ namespace TrenchBroom {
             Model::Node::visitAll(nodes, makeUnsetEntityModelsVisitor());
         }
 
-        class MapDocument::SetEntitySprites : public Model::NodeVisitor {
-        private:
-            Assets::EntitySpriteManager& m_manager;
-        public:
-            explicit SetEntitySprites(Assets::EntitySpriteManager& manager) :
-                m_manager(manager) {}
-        private:
-            void doVisit(Model::WorldNode*) override {}
-            void doVisit(Model::LayerNode*) override {}
-            void doVisit(Model::GroupNode*) override {}
-            void doVisit(Model::EntityNode* entity) override {
-                const auto spritePath = entity->spritePath();
-                if (!spritePath.empty()) {
-                    const auto* sprite = m_manager.sprite(spritePath);
-                    entity->setSprite(sprite);
-                } else {
-                    entity->setSprite(nullptr);
-                }
-            }
-            void doVisit(Model::BrushNode*) override {}
-        };
-
-        class MapDocument::UnsetEntitySprites : public Model::NodeVisitor {
-        private:
-            void doVisit(Model::WorldNode*) override {}
-            void doVisit(Model::LayerNode*) override {}
-            void doVisit(Model::GroupNode*) override {}
-            void doVisit(Model::EntityNode* entity) override { entity->setSprite(nullptr); }
-            void doVisit(Model::BrushNode*) override {}
-        };
-
-        void MapDocument::setEntitySprites() {
-            SetEntitySprites visitor(*m_entitySpriteManager);
-            m_world->acceptAndRecurse(visitor);
+        static auto makeSetEntitySpritesVisitor(Assets::EntitySpriteManager& manager) {
+            return kdl::overload(
+                [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
+                [&](Model::EntityNode* entity) {
+                    const auto spritePath = entity->spritePath();
+                    if (!spritePath.empty()) {
+                        const auto* sprite = manager.sprite(spritePath);
+                        entity->setSprite(sprite);
+                    } else {
+                        entity->setSprite(nullptr);
+                    }
+                },
+                [](Model::BrushNode*) {}
+            );
         }
 
-        void MapDocument::setEntitySprites(const std::vector<Model::Node*>& nodes) {
-            SetEntitySprites visitor(*m_entitySpriteManager);
-            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
+        static auto makeUnsetEntitySpritesVisitor() {
+            return kdl::overload(
+                [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
+                [](Model::EntityNode* entity) { entity->setSprite(nullptr); },
+                [](Model::BrushNode*) {}
+            );
         }
 
-        void MapDocument::unsetEntitySprites() {
-            UnsetEntitySprites visitor;
-            m_world->acceptAndRecurse(visitor);
+        void MapDocument::setEntitySprites() const {
+            m_world->accept(makeSetEntitySpritesVisitor(*m_entitySpriteManager));
         }
 
-        void MapDocument::unsetEntitySprites(const std::vector<Model::Node*>& nodes) {
-            UnsetEntitySprites visitor;
-            Model::Node::acceptAndRecurse(std::begin(nodes), std::end(nodes), visitor);
+        void MapDocument::setEntitySprites(const std::vector<Model::Node*>& nodes) const {
+            Model::Node::visitAll(nodes, makeSetEntitySpritesVisitor(*m_entitySpriteManager));
+        }
+
+        void MapDocument::unsetEntitySprites() const {
+            m_world->accept(makeUnsetEntitySpritesVisitor());
+        }
+
+        void MapDocument::unsetEntitySprites(const std::vector<Model::Node*>& nodes) const {
+            Model::Node::visitAll(nodes, makeUnsetEntitySpritesVisitor());
         }
 
         std::vector<IO::Path> MapDocument::externalSearchPaths() const {
