@@ -20,6 +20,7 @@
 #include "MissingDefinitionIssueGenerator.h"
 
 #include "Model/BrushNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -65,7 +66,7 @@ namespace TrenchBroom {
         }
 
         void MissingDefinitionIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
-            if (node->definition() == nullptr)
+            if (node->entity().definition() == nullptr)
                 issues.push_back(new MissingDefinitionIssue(node));
         }
     }

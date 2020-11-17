@@ -22,6 +22,7 @@
 #include "Ensure.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/BrushNode.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -81,11 +82,11 @@ namespace TrenchBroom {
             addQuickFix(new PointEntityWithBrushesIssueQuickFix());
         }
 
-        void PointEntityWithBrushesIssueGenerator::doGenerate(EntityNode* entity, IssueList& issues) const {
-            ensure(entity != nullptr, "entity is null");
-            const Assets::EntityDefinition* definition = entity->definition();
-            if (definition != nullptr && definition->type() == Assets::EntityDefinitionType::PointEntity && entity->hasChildren())
-                issues.push_back(new PointEntityWithBrushesIssue(entity));
+        void PointEntityWithBrushesIssueGenerator::doGenerate(EntityNode* entityNode, IssueList& issues) const {
+            ensure(entityNode != nullptr, "entity is null");
+            const Assets::EntityDefinition* definition = entityNode->entity().definition();
+            if (definition != nullptr && definition->type() == Assets::EntityDefinitionType::PointEntity && entityNode->hasChildren())
+                issues.push_back(new PointEntityWithBrushesIssue(entityNode));
         }
     }
 }

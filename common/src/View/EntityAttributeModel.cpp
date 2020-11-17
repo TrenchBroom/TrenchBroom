@@ -215,7 +215,7 @@ namespace TrenchBroom {
 
                 // Add default attributes from the entity definition
                 if (showDefaultRows) {
-                    const Assets::EntityDefinition* entityDefinition = node->definition();
+                    const Assets::EntityDefinition* entityDefinition = node->entity().definition();
                     if (entityDefinition != nullptr) {
                        for (auto attributeDefinition : entityDefinition->attributeDefinitions()) {
                            result.insert(attributeDefinition->name());
