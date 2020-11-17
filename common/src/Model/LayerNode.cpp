@@ -103,7 +103,7 @@ namespace TrenchBroom {
             if (omitFromExport) {
                 entity.addOrUpdateAttribute(AttributeNames::LayerOmitFromExport, AttributeValues::LayerOmitFromExportValue);
             } else {
-                removeAttribute(AttributeNames::LayerOmitFromExport);
+                entity.removeAttribute(AttributeNames::LayerOmitFromExport);
             }
             setEntity(std::move(entity));
         }
