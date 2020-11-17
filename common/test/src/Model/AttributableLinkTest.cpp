@@ -40,8 +40,13 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(source);
             world.defaultLayer()->addChild(target);
 
-            source->addOrUpdateAttribute(AttributeNames::Target, "target_name");
-            target->addOrUpdateAttribute(AttributeNames::Targetname, "target_name");
+            source->setEntity(Entity({
+                {AttributeNames::Target, "target_name"}
+            }));
+
+            target->setEntity(Entity({
+                {AttributeNames::Targetname, "target_name"}
+            }));
 
             const std::vector<AttributableNode*>& targets = source->linkTargets();
             ASSERT_EQ(1u, targets.size());
@@ -61,9 +66,17 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(source2);
             world.defaultLayer()->addChild(target);
 
-            source1->addOrUpdateAttribute(AttributeNames::Target, "target_name");
-            source2->addOrUpdateAttribute(AttributeNames::Target, "target_name");
-            target->addOrUpdateAttribute(AttributeNames::Targetname, "target_name");
+            source1->setEntity(Entity({
+                {AttributeNames::Target, "target_name"}
+            }));
+
+            source2->setEntity(Entity({
+                {AttributeNames::Target, "target_name"}
+            }));
+
+            target->setEntity(Entity({
+                {AttributeNames::Targetname, "target_name"}
+            }));
 
             const std::vector<AttributableNode*>& targets1 = source1->linkTargets();
             ASSERT_EQ(1u, targets1.size());
@@ -89,13 +102,20 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(target1);
             world.defaultLayer()->addChild(target2);
 
-            source->addOrUpdateAttribute(AttributeNames::Target + "1", "target_name1");
-            source->addOrUpdateAttribute(AttributeNames::Target + "2", "target_name2");
+            source->setEntity(Entity({
+                {AttributeNames::Target + "1", "target_name1"},
+                {AttributeNames::Target + "2", "target_name2"}
+            }));
 
             // here we need to query for all entities having a numbered "target" property,
             // not just those having a "target" property
-            target1->addOrUpdateAttribute(AttributeNames::Targetname, "target_name1");
-            target2->addOrUpdateAttribute(AttributeNames::Targetname, "target_name2");
+            target1->setEntity(Entity({
+                {AttributeNames::Targetname, "target_name1"}
+            }));
+
+            target2->setEntity(Entity({
+                {AttributeNames::Targetname, "target_name2"}
+            }));
 
             const std::vector<AttributableNode*>& targets = source->linkTargets();
             ASSERT_EQ(2u, targets.size());
@@ -144,7 +164,9 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(source);
             world.defaultLayer()->addChild(target);
 
-            source->addOrUpdateAttribute(AttributeNames::Target, "other_name");
+            source->setEntity(Entity({
+                {AttributeNames::Target, "other_name"}
+            }));
 
             const std::vector<AttributableNode*>& targets = source->linkTargets();
             ASSERT_TRUE(targets.empty());
@@ -165,7 +187,9 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(source);
             world.defaultLayer()->addChild(target);
 
-            target->addOrUpdateAttribute(AttributeNames::Targetname, "other_name");
+            target->setEntity(Entity({
+                {AttributeNames::Targetname, "other_name"}
+            }));
 
             const std::vector<AttributableNode*>& targets = source->linkTargets();
             ASSERT_TRUE(targets.empty());
@@ -227,8 +251,13 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(source);
             world.defaultLayer()->addChild(target);
 
-            source->addOrUpdateAttribute(AttributeNames::Killtarget, "target_name");
-            target->addOrUpdateAttribute(AttributeNames::Targetname, "target_name");
+            source->setEntity(Entity({
+                {AttributeNames::Killtarget, "target_name"}
+            }));
+
+            target->setEntity(Entity({
+                {AttributeNames::Targetname, "target_name"}
+            }));
 
             const std::vector<AttributableNode*>& targets = source->killTargets();
             ASSERT_EQ(1u, targets.size());
@@ -272,7 +301,9 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(source);
             world.defaultLayer()->addChild(target);
 
-            source->addOrUpdateAttribute(AttributeNames::Killtarget, "other_name");
+            source->setEntity(Entity({
+                {AttributeNames::Killtarget, "other_name"}
+            }));
 
             const std::vector<AttributableNode*>& targets = source->killTargets();
             ASSERT_TRUE(targets.empty());
@@ -293,7 +324,9 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(source);
             world.defaultLayer()->addChild(target);
 
-            target->addOrUpdateAttribute(AttributeNames::Targetname, "other_name");
+            target->setEntity(Entity({
+                {AttributeNames::Targetname, "other_name"}
+            }));
 
             const std::vector<AttributableNode*>& targets = source->killTargets();
             ASSERT_TRUE(targets.empty());

@@ -45,7 +45,9 @@ namespace TrenchBroom {
         }
 
         void LayerNode::setName(const std::string& name) {
-            addOrUpdateAttribute(AttributeNames::LayerName, name);
+            auto entity = m_entity;
+            entity.addOrUpdateAttribute(AttributeNames::LayerName, name);
+            setEntity(std::move(entity));
         }
 
         bool LayerNode::isDefaultLayer() const {
@@ -87,7 +89,9 @@ namespace TrenchBroom {
         }
 
         void LayerNode::setLayerColor(const Color& color) {
-            addOrUpdateAttribute(AttributeNames::LayerColor, color.toString());
+            auto entity = m_entity;
+            entity.addOrUpdateAttribute(AttributeNames::LayerColor, color.toString());
+            setEntity(std::move(entity));
         }
 
         bool LayerNode::omitFromExport() const {
@@ -95,18 +99,23 @@ namespace TrenchBroom {
         }
 
         void LayerNode::setOmitFromExport(const bool omitFromExport) {
+            auto entity = m_entity;
             if (omitFromExport) {
-                addOrUpdateAttribute(AttributeNames::LayerOmitFromExport, AttributeValues::LayerOmitFromExportValue);
+                entity.addOrUpdateAttribute(AttributeNames::LayerOmitFromExport, AttributeValues::LayerOmitFromExportValue);
             } else {
                 removeAttribute(AttributeNames::LayerOmitFromExport);
             }
+            setEntity(std::move(entity));
         }
 
         void LayerNode::setSortIndex(int index) {
             if (isDefaultLayer()) {
                 return;
             }
-            addOrUpdateAttribute(AttributeNames::LayerSortIndex, std::to_string(index));
+            
+            auto entity = m_entity;
+            entity.addOrUpdateAttribute(AttributeNames::LayerSortIndex, std::to_string(index));
+            setEntity(std::move(entity));
         }
 
         void LayerNode::sortLayers(std::vector<LayerNode*>& layers)  {

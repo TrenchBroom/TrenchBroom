@@ -87,8 +87,9 @@ namespace TrenchBroom {
         }
 
         TEST_CASE_METHOD(SnapshotTest, "SnapshotTest.undoRotation", "[SnapshotTest]") {
-            auto* entityNode = new Model::EntityNode();
-            entityNode->addOrUpdateAttribute(Model::AttributeNames::Classname, "test");
+            auto* entityNode = new Model::EntityNode(Model::Entity({
+                {Model::AttributeNames::Classname, "test"}
+            }));
 
             document->addNode(entityNode, document->parentForNodes());            
             CHECK(!entityNode->entity().hasAttribute("angle"));

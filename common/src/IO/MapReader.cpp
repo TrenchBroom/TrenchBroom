@@ -184,30 +184,33 @@ namespace TrenchBroom {
                 return;
             }
 
-            Model::LayerNode* layer = m_factory->createLayer(name);
+            Model::LayerNode* layerNode = m_factory->createLayer(name);
+            Model::Entity layerEntity = layerNode->entity();
 
             const std::string& layerSortIndex = findAttribute(attributes, Model::AttributeNames::LayerSortIndex);
             if (!kdl::str_is_blank(layerSortIndex)) {
                 // This is optional (not present on maps saved in TB 2020.1 and earlier)
-                layer->addOrUpdateAttribute(Model::AttributeNames::LayerSortIndex, layerSortIndex);
+                layerEntity.addOrUpdateAttribute(Model::AttributeNames::LayerSortIndex, layerSortIndex);
             }
             if (findAttribute(attributes, Model::AttributeNames::LayerLocked) == Model::AttributeValues::LayerLockedValue) {
-                layer->setLockState(Model::LockState::Lock_Locked);
+                layerNode->setLockState(Model::LockState::Lock_Locked);
             }
             if (findAttribute(attributes, Model::AttributeNames::LayerHidden) == Model::AttributeValues::LayerHiddenValue) {
-                layer->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
+                layerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
             }
             if (findAttribute(attributes, Model::AttributeNames::LayerOmitFromExport) == Model::AttributeValues::LayerOmitFromExportValue) {
-                layer->addOrUpdateAttribute(Model::AttributeNames::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue);
+                layerEntity.addOrUpdateAttribute(Model::AttributeNames::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue);
             }
 
-            setExtraAttributes(layer, extraAttributes);
-            m_layers.insert(std::make_pair(layerId, layer));
+            layerNode->setEntity(std::move(layerEntity));
 
-            onLayer(layer, status);
+            setExtraAttributes(layerNode, extraAttributes);
+            m_layers.insert(std::make_pair(layerId, layerNode));
 
-            m_currentNode = layer;
-            m_brushParent = layer;
+            onLayer(layerNode, status);
+
+            m_currentNode = layerNode;
+            m_brushParent = layerNode;
         }
 
         void MapReader::createGroup(const size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
