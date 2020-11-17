@@ -106,6 +106,7 @@ namespace TrenchBroom {
             classInfo.color = parseColor(element, "color", status);
             classInfo.size = parseBounds(element, "box", status);
             classInfo.modelDefinition = parseModel(element, status);
+            classInfo.spriteDefinition = parseSprite(element, status);
 
             parseSpawnflags(element, classInfo.attributes, status);
             parseAttributes(element, attributeDeclarations, classInfo.attributes, status);
@@ -144,6 +145,25 @@ namespace TrenchBroom {
                 const auto lineNum = static_cast<size_t>(element.GetLineNum());
                 auto expression = EL::Expression(EL::LiteralExpression(EL::Value(EL::MapType({{ "path", EL::Value{model}} }))), lineNum, 0);
                 return Assets::ModelDefinition(expression);
+            }
+        }
+
+        Assets::SpriteDefinition EntParser::parseSprite(const tinyxml2::XMLElement& element, ParserStatus& status) {
+            if (!hasAttribute(element, "sprite")) {
+                return Assets::SpriteDefinition();
+            }
+
+            const auto sprite = parseString(element, "sprite", status);
+
+            try {
+                ELParser parser(ELParser::Mode::Lenient, sprite);
+                auto expression = parser.parse();
+                expression.optimize();
+                return Assets::SpriteDefinition(expression);
+            } catch (const ParserException&) {
+                const auto lineNum = static_cast<size_t>(element.GetLineNum());
+                const auto expression = EL::Expression(EL::LiteralExpression(EL::Value(EL::MapType({ { "path", EL::Value{sprite}} }))), lineNum, 0);
+                return Assets::SpriteDefinition(expression);
             }
         }
 

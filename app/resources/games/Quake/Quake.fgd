@@ -65,12 +65,12 @@
 @PointClass base(PlayerClass) = info_player_deathmatch : "Deathmatch start" []
 @PointClass base(PlayerClass) = testplayerstart : "Testing player start" []
 @PointClass size(-32 -32 0, 32 32 64) base(PlayerClass, Targetname) = info_teleport_destination : "Teleporter destination" []
-@PointClass color(200 150 150) sprite("info_null.png") = info_null : "info_null (spotlight target)"
+@PointClass color(200 150 150) iconsprite("info_null.png") = info_null : "info_null (spotlight target)"
 [
 	targetname(target_source) : "Name"
 ]
 
-@PointClass base(Appearflags, Target, Targetname) color(200 150 150) sprite("info_notnull.png") = info_notnull : "Wildcard entity" // I love you
+@PointClass base(Appearflags, Target, Targetname) color(200 150 150) iconsprite("info_notnull.png") = info_notnull : "Wildcard entity" // I love you
 [
 	use(string) : "self.use"
 	think(string) : "self.think"
@@ -78,7 +78,7 @@
 	noise(string) : "noise"
 	touch(string) : "self.touch"
 ]
-@PointClass base(Appearflags) sprite("camera.png") = info_intermission : "Intermission camera"
+@PointClass base(Appearflags) iconsprite("camera.png") = info_intermission : "Intermission camera"
 [
 	mangle(string) : "Camera angle (Pitch Yaw Roll)"
 ]
@@ -272,22 +272,22 @@
 	]
 ]
 
-@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname) sprite({{ spawnflags & 1 -> "light_off.png", "light.png" }}) =
+@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname) iconsprite({{ spawnflags & 1 -> "light_off.png", "light.png" }}) =
 	light : "Invisible light source"
 	[
 		spawnflags(Flags) = [ 1 : "Start off" : 0 ]
 	]
-@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname) sprite({{ spawnflags & 1 -> "light_off.png", "light.png" }}) =
+@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname) iconsprite({{ spawnflags & 1 -> "light_off.png", "light.png" }}) =
 	light_fluoro : "Fluorescent light"
 	[
 		spawnflags(Flags) = [ 1 : "Start off" : 0 ]
 	]
-@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname) sprite({{ spawnflags & 1 -> "light_off.png", "light.png" }}) =
+@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname) iconsprite({{ spawnflags & 1 -> "light_off.png", "light.png" }}) =
 	light_fluorospark : "Sparking fluorescent light"
 	[
 		spawnflags(Flags) = [ 1 : "Start off" : 0 ]
 	]
-@PointClass size(-8 -8 -8, 8 8 8) base(Appearflags, Light, Target, Targetname) sprite("light_globe.png") =
+@PointClass size(-8 -8 -8, 8 8 8) base(Appearflags, Light, Target, Targetname) iconsprite("light_globe.png") =
 	light_globe : "Globe light"
 	[
 		spawnflags(Flags) = [ 1 : "Start off" : 0 ]
@@ -316,8 +316,8 @@
 
 @SolidClass base(Appearflags) = func_illusionary : "Static nonsolid model"  []
 
-@PointClass base(Appearflags) color(0 150 220) sprite("air_bubbles.png") = air_bubbles : "Air bubbles" []
-@PointClass base(Appearflags, Targetname) sprite("lightning.png") = event_lightning : "Chthon's lightning" []
+@PointClass base(Appearflags) color(0 150 220) iconsprite("air_bubbles.png") = air_bubbles : "Air bubbles" []
+@PointClass base(Appearflags, Targetname) iconsprite("lightning.png") = event_lightning : "Chthon's lightning" []
 @PointClass base(Appearflags) model({ "path": ":progs/lavaball.mdl" }) = misc_fireball : "Small fireball"
 	[ speed(integer) : "Speed" : 40 ]
 @PointClass base(Appearflags) size(0 0 0, 32 32 64) model({ "path": ":maps/b_explob.bsp" }) = misc_explobox : "Large exploding container" []
@@ -327,7 +327,7 @@
 	target(string) : "First stop target"
 	targetname(target_source) : "Name"
 ]
-@PointClass base(Appearflags, Targetname) color(220 150 150) sprite("spike.png") = trap_spikeshooter : "Triggered shooter"
+@PointClass base(Appearflags, Targetname) color(220 150 150) iconsprite("spike.png") = trap_spikeshooter : "Triggered shooter"
 [
 	spawnflags(Flags) =
 	[
@@ -335,7 +335,7 @@
 		2 : "Laser" : 0
 	]
 ]
-@PointClass base(Appearflags) color(220 150 150) sprite("spike.png") = trap_shooter : "Continuous shooter"
+@PointClass base(Appearflags) color(220 150 150) iconsprite("spike.png") = trap_shooter : "Continuous shooter"
 [
 	nextthink(integer) : "Delay before first spike"
 	wait(integer) : "Delay between spikes"
@@ -355,15 +355,15 @@
 // ambient sounds
 //
 
-@PointClass base(Appearflags) color(150 0 150) sprite("speaker.png") = ambient_drip : "Dripping sound" []
-@PointClass base(Appearflags) color(150 0 150) sprite("speaker.png") = ambient_drone : "Engine/machinery sound" []
-@PointClass base(Appearflags) color(150 0 150) sprite("speaker.png") = ambient_comp_hum : "Computer background sounds" []
-@PointClass base(Appearflags) color(150 0 150) sprite("speaker.png") = ambient_flouro_buzz : "Fluorescent buzzing sound" []
-@PointClass base(Appearflags) color(150 0 150) sprite("speaker.png") = ambient_light_buzz : "Buzzing sound from light" []
-@PointClass base(Appearflags) color(150 0 150) sprite("speaker.png") = ambient_suck_wind : "Wind sound" []
-@PointClass base(Appearflags) color(150 0 150) sprite("speaker.png") = ambient_swamp1 : "Frogs croaking" []
-@PointClass base(Appearflags) color(150 0 150) sprite("speaker.png") = ambient_swamp2 : "Frogs croaking B" []
-@PointClass base(Appearflags) color(150 0 150) sprite("speaker.png") = ambient_thunder : "Thunder sound" []
+@PointClass base(Appearflags) color(150 0 150) iconsprite("speaker.png") = ambient_drip : "Dripping sound" []
+@PointClass base(Appearflags) color(150 0 150) iconsprite("speaker.png") = ambient_drone : "Engine/machinery sound" []
+@PointClass base(Appearflags) color(150 0 150) iconsprite("speaker.png") = ambient_comp_hum : "Computer background sounds" []
+@PointClass base(Appearflags) color(150 0 150) iconsprite("speaker.png") = ambient_flouro_buzz : "Fluorescent buzzing sound" []
+@PointClass base(Appearflags) color(150 0 150) iconsprite("speaker.png") = ambient_light_buzz : "Buzzing sound from light" []
+@PointClass base(Appearflags) color(150 0 150) iconsprite("speaker.png") = ambient_suck_wind : "Wind sound" []
+@PointClass base(Appearflags) color(150 0 150) iconsprite("speaker.png") = ambient_swamp1 : "Frogs croaking" []
+@PointClass base(Appearflags) color(150 0 150) iconsprite("speaker.png") = ambient_swamp2 : "Frogs croaking B" []
+@PointClass base(Appearflags) color(150 0 150) iconsprite("speaker.png") = ambient_thunder : "Thunder sound" []
 
 //
 // moving things
@@ -453,7 +453,7 @@
 	dmg(integer) : "Damage on block" : 2
 ]
 
-@PointClass base(Appearflags, Targetname) size(16 16 16) color(0 255 255) sprite("waypoint.png") =
+@PointClass base(Appearflags, Targetname) size(16 16 16) color(0 255 255) iconsprite("waypoint.png") =
 	path_corner : "Waypoint for platforms and monsters"
 [
 	target(target_source) : "Next target"

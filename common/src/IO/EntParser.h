@@ -41,6 +41,7 @@ namespace tinyxml2 {
 namespace TrenchBroom {
     namespace Assets {
         class ModelDefinition;
+        class SpriteDefinition;
     }
 
     namespace IO {
@@ -64,6 +65,7 @@ namespace TrenchBroom {
             EntityDefinitionClassInfo parseBrushClassInfo(const tinyxml2::XMLElement& element, const AttributeDefinitionList& attributeDeclarations, ParserStatus& status);
 
             Assets::ModelDefinition parseModel(const tinyxml2::XMLElement& element, ParserStatus& status);
+            Assets::SpriteDefinition parseSprite(const tinyxml2::XMLElement& element, ParserStatus& status);
 
             void parseSpawnflags(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
 
