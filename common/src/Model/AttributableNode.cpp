@@ -139,22 +139,6 @@ namespace TrenchBroom {
             return isAttributeNameMutable(name) && isAttributeValueMutable(name);
         }
 
-        void AttributableNode::removeNumberedAttribute(const std::string& prefix) {
-            const auto attributes = m_entity.numberedAttributes(prefix);
-            if (!attributes.empty()) {
-                const NotifyAttributeChange notifyChange(this);
-
-                for (const EntityAttribute& attribute : attributes) {
-                    const std::string& name = attribute.name();
-                    const std::string& value = attribute.value();
-
-                    removeAttributeFromIndex(name, value);
-                    removeLinks(name, value);
-                    m_entity.removeAttribute(name);
-                }
-            }
-        }
-
         bool AttributableNode::isAttributeNameMutable(const std::string& name) const {
             return doIsAttributeNameMutable(name);
         }
