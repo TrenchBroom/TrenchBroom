@@ -63,9 +63,7 @@ namespace TrenchBroom {
             EntityAttributeSnapshot attributeSnapshot(const std::string& name) const;
 
             bool canAddOrUpdateAttribute(const std::string& name, const std::string& value) const;
-
             bool canRenameAttribute(const std::string& name, const std::string& newName) const;
-
             bool canRemoveAttribute(const std::string& name) const;
 
             bool isAttributeNameMutable(const std::string& name) const;
