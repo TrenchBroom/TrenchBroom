@@ -1123,8 +1123,11 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(MapDocumentTest, "IssueGenerator.emptyAttribute") {
             Model::EntityNode* entityNode = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
-            entityNode->addOrUpdateAttribute("", "");
-            CHECK(entityNode->entity().hasAttribute(""));
+            
+            document->deselectAll();
+            document->select(entityNode);
+            document->setAttribute("", "");
+            REQUIRE(entityNode->entity().hasAttribute(""));
 
             auto issueGenerators = std::vector<Model::IssueGenerator*>{
                 new Model::EmptyAttributeNameIssueGenerator(),

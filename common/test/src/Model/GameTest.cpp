@@ -113,8 +113,9 @@ namespace TrenchBroom {
                 IO::Path("textures/test"),
             }), textureCollections);
 
-            auto worldspawn = EntityNode();
-            worldspawn.addOrUpdateAttribute("_tb_textures", "textures/test;textures/skies/hub1");
+            auto worldspawn = EntityNode(Entity({
+                {"_tb_textures", "textures/test;textures/skies/hub1"}
+            }));
 
             auto textureManager = Assets::TextureManager(0, 0, logger);
             game.loadTextureCollections(worldspawn, IO::Path(), textureManager, logger);

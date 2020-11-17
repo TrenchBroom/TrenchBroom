@@ -452,7 +452,9 @@ namespace TrenchBroom {
 
             for (Model::AttributableNode* node : attributableNodes) {
                 snapshot[node].push_back(node->attributeSnapshot(name));
-                node->addOrUpdateAttribute(name, value);
+                auto entity = node->entity();
+                entity.addOrUpdateAttribute(name, value);
+                node->setEntity(std::move(entity));
             }
 
             setEntityDefinitions(nodes);
@@ -516,7 +518,9 @@ namespace TrenchBroom {
                 else
                     intValue &= ~flagValue;
 
-                node->addOrUpdateAttribute(name, kdl::str_to_string(intValue));
+                auto entity = node->entity();
+                entity.addOrUpdateAttribute(name, kdl::str_to_string(intValue));
+                node->setEntity(std::move(entity));
             }
 
             setEntityDefinitions(nodes);
@@ -540,7 +544,10 @@ namespace TrenchBroom {
             for (Model::AttributableNode* node : attributableNodes) {
                 if (const auto* oldValue = node->entity().attribute(name)) {
                     snapshot[node].push_back(node->attributeSnapshot(name));
-                    node->addOrUpdateAttribute(name, Model::convertEntityColor(*oldValue, colorRange));
+
+                    auto entity = node->entity();
+                    entity.addOrUpdateAttribute(name, Model::convertEntityColor(*oldValue, colorRange));
+                    node->setEntity(std::move(entity));
                 }
             }
 
@@ -937,7 +944,11 @@ namespace TrenchBroom {
 
             // to avoid backslashes being misinterpreted as escape sequences
             const std::string formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
-            m_world->addOrUpdateAttribute(Model::AttributeNames::EntityDefinitions, formatted);
+
+            auto entity = m_world->entity();
+            entity.addOrUpdateAttribute(Model::AttributeNames::EntityDefinitions, formatted);
+            m_world->setEntity(std::move(entity));
+
             reloadEntityDefinitionsInternal();
         }
 
@@ -961,12 +972,14 @@ namespace TrenchBroom {
             unsetEntityDefinitions();
             clearEntityModels();
 
+            auto entity = m_world->entity();
             if (mods.empty()) {
-                m_world->removeAttribute(Model::AttributeNames::Mods);
+                entity.removeAttribute(Model::AttributeNames::Mods);
             } else {
                 const std::string newValue = kdl::str_join(mods, ";");
-                m_world->addOrUpdateAttribute(Model::AttributeNames::Mods, newValue);
+                entity.addOrUpdateAttribute(Model::AttributeNames::Mods, newValue);
             }
+            m_world->setEntity(std::move(entity));
 
             updateGameSearchPaths();
             setEntityDefinitions();

@@ -46,7 +46,9 @@ namespace TrenchBroom {
         }
 
         void GroupNode::setName(const std::string& name) {
-            addOrUpdateAttribute(AttributeNames::GroupName, name);
+            auto entity = m_entity;
+            entity.addOrUpdateAttribute(AttributeNames::GroupName, name);
+            setEntity(std::move(entity));
         }
 
         bool GroupNode::opened() const {
