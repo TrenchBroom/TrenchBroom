@@ -582,15 +582,16 @@ namespace TrenchBroom {
         }
 
         void GameImpl::writeLongAttribute(AttributableNode& node, const std::string& baseName, const std::string& value, const size_t maxLength) const {
-            node.removeNumberedAttribute(baseName);
-
             auto entity = node.entity();
+            entity.removeNumberedAttribute(baseName);
+
             std::stringstream nameStr;
             for (size_t i = 0; i <= value.size() / maxLength; ++i) {
                 nameStr.str("");
                 nameStr << baseName << i+1;
                 entity.addOrUpdateAttribute(nameStr.str(), value.substr(i * maxLength, maxLength));
             }
+
             node.setEntity(std::move(entity));
         }
 
