@@ -26,6 +26,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityModelManager.h"
 #include "Model/EditorContext.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Renderer/Camera.h"
 #include "Renderer/PrimType.h"
@@ -411,8 +412,8 @@ namespace TrenchBroom {
             return str;
         }
 
-        const Color& EntityRenderer::boundsColor(const Model::EntityNode* entity) const {
-            const Assets::EntityDefinition* definition = entity->definition();
+        const Color& EntityRenderer::boundsColor(const Model::EntityNode* entityNode) const {
+            const Assets::EntityDefinition* definition = entityNode->entity().definition();
             if (definition == nullptr) {
                 return m_boundsColor;
             } else {

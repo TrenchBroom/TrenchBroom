@@ -58,7 +58,6 @@ namespace TrenchBroom {
             const Entity& entity() const;
             void setEntity(Entity entity);
         public: // definition 
-            const Assets::EntityDefinition* definition() const;
             void setDefinition(Assets::EntityDefinition* definition);
         public: // attribute management
             const Assets::AttributeDefinition* attributeDefinition(const std::string& name) const;

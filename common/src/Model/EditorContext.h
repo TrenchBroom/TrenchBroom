@@ -59,7 +59,7 @@ namespace TrenchBroom {
             TagType::Type hiddenTags() const;
             void setHiddenTags(TagType::Type hiddenTags);
 
-            bool entityDefinitionHidden(const Model::AttributableNode* entity) const;
+            bool entityDefinitionHidden(const Model::AttributableNode* entityNode) const;
             bool entityDefinitionHidden(const Assets::EntityDefinition* definition) const;
             void setEntityDefinitionHidden(const Assets::EntityDefinition* definition, bool hidden);
 

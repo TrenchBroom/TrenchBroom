@@ -22,6 +22,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
 #include "Model/AttributableNode.h"
+#include "Model/Entity.h"
 #include "View/FlagsEditor.h"
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
@@ -98,7 +99,7 @@ namespace TrenchBroom {
                     QString label = defaultLabels[indexI];
                     QString tooltip = "";
 
-                    const Assets::FlagsAttributeDefinition* attrDef = Assets::EntityDefinition::safeGetFlagsAttributeDefinition(attributable->definition(), name());
+                    const Assets::FlagsAttributeDefinition* attrDef = Assets::EntityDefinition::safeGetFlagsAttributeDefinition(attributable->entity().definition(), name());
                     if (attrDef != nullptr) {
                         const int flag = static_cast<int>(1 << i);
                         const Assets::FlagsAttributeOption* flagDef = attrDef->option(flag);

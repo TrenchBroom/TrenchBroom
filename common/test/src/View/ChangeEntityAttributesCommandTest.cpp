@@ -19,6 +19,7 @@
 
 #include "Color.h"
 #include "Assets/EntityDefinition.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/WorldNode.h"
 #include "View/MapDocumentTest.h"
@@ -51,17 +52,17 @@ namespace TrenchBroom {
             entityNode->addOrUpdateAttribute("classname", "large_entity");
             
             document->addNode(entityNode, document->parentForNodes());
-            REQUIRE(entityNode->definition() == largeEntityDef);
+            REQUIRE(entityNode->entity().definition() == largeEntityDef);
             
             document->select(entityNode);
             REQUIRE(document->selectionBounds().size() == largeEntityDef->bounds().size());
             
             document->setAttribute("classname", "point_entity");
-            CHECK(entityNode->definition() == m_pointEntityDef);
+            CHECK(entityNode->entity().definition() == m_pointEntityDef);
             CHECK(document->selectionBounds().size() == m_pointEntityDef->bounds().size());
             
             document->removeAttribute("classname");
-            CHECK(entityNode->definition() == nullptr);
+            CHECK(entityNode->entity().definition() == nullptr);
             CHECK(document->selectionBounds().size() == Model::EntityNode::DefaultBounds.size());
             
             document->setAttribute("temp", "large_entity");
@@ -69,7 +70,7 @@ namespace TrenchBroom {
             CHECK(document->selectionBounds().size() == largeEntityDef->bounds().size());
             
             document->undoCommand();
-            CHECK(entityNode->definition() == nullptr);
+            CHECK(entityNode->entity().definition() == nullptr);
             CHECK(document->selectionBounds().size() == Model::EntityNode::DefaultBounds.size());
         }
     }
