@@ -26,6 +26,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
+#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
@@ -56,8 +57,8 @@ namespace TrenchBroom {
             }
         }
 
-        bool EditorContext::entityDefinitionHidden(const Model::AttributableNode* entity) const {
-            return entity != nullptr && entityDefinitionHidden(entity->definition());
+        bool EditorContext::entityDefinitionHidden(const Model::AttributableNode* entityNode) const {
+            return entityNode != nullptr && entityDefinitionHidden(entityNode->entity().definition());
         }
 
         bool EditorContext::entityDefinitionHidden(const Assets::EntityDefinition* definition) const {

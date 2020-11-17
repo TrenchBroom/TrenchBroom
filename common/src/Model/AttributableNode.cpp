@@ -36,8 +36,8 @@ namespace TrenchBroom {
 
             for (AttributableNode* attributable : attributables) {
                 if (definition == nullptr) {
-                    definition = attributable->definition();
-                } else if (definition != attributable->definition()) {
+                    definition = attributable->entity().definition();
+                } else if (definition != attributable->entity().definition()) {
                     definition = nullptr;
                     break;
                 }
@@ -108,10 +108,6 @@ namespace TrenchBroom {
             m_entity = std::move(entity);
         }
 
-        const Assets::EntityDefinition* AttributableNode::definition() const {
-            return m_entity.definition();
-        }
-
         void AttributableNode::setDefinition(Assets::EntityDefinition* definition) {
             if (m_entity.definition() == definition) {
                 return;
@@ -122,7 +118,8 @@ namespace TrenchBroom {
         }
 
         const Assets::AttributeDefinition* AttributableNode::attributeDefinition(const std::string& name) const {
-            return definition() == nullptr ? nullptr : definition()->attributeDefinition(name);
+            const auto* definition = m_entity.definition();
+            return definition == nullptr ? nullptr : definition->attributeDefinition(name);
         }
 
         std::vector<std::string> AttributableNode::attributeNames() const {
