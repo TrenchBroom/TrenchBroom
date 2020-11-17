@@ -45,11 +45,12 @@ namespace TrenchBroom {
         private:
             struct EntityInfo {
                 const Model::EntityNode* entity;
+                const Assets::Texture* sprite;
                 float size;
                 Color tintColor;
                 bool applyTint;
                 
-                EntityInfo(const Model::EntityNode* i_entity, float i_size, Color& i_tintColor, bool i_applyTint = false);
+                EntityInfo(const Model::EntityNode* i_entity, const Assets::Texture* i_sprite, float i_size, Color& i_tintColor, bool i_applyTint = false);
             };
 
             using EntityMap = std::map<Model::EntityNode*, EntityInfo>;

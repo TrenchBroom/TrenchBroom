@@ -35,8 +35,9 @@ namespace TrenchBroom::Renderer {
     const float EntitySpriteRenderer::DefaultMaxViewDistance = 1536.0f; //TODO: make these configurable in Preferences?
     const float EntitySpriteRenderer::DefaultMinZoomFactor = 0.5f;
 
-    EntitySpriteRenderer::EntityInfo::EntityInfo(const Model::EntityNode* i_entity, float i_size, Color& i_tintColor, bool i_applyTint) :
+    EntitySpriteRenderer::EntityInfo::EntityInfo(const Model::EntityNode* i_entity, const Assets::Texture* i_sprite, float i_size, Color& i_tintColor, bool i_applyTint) :
         entity(i_entity),
+        sprite(i_sprite),
         size(i_size),
         tintColor(i_tintColor),
         applyTint(i_applyTint) {}
@@ -88,7 +89,7 @@ namespace TrenchBroom::Renderer {
                 const auto info = it->second;
                 const auto newInfo = createEntityInfo(entity);
 
-                if (newInfo.size != info.size || newInfo.applyTint != info.applyTint || newInfo.tintColor != info.tintColor || newInfo.entity->sprite() != info.entity->sprite()) {
+                if (newInfo.size != info.size || newInfo.applyTint != info.applyTint || newInfo.tintColor != info.tintColor || newInfo.sprite != info.sprite) {
                     it->second = newInfo;
                     m_entitiesListChanged = true;
                 }
@@ -120,7 +121,7 @@ namespace TrenchBroom::Renderer {
             }
         }
 
-        const EntityInfo info(entity, size, tintColor, applyTint);
+        const EntityInfo info(entity, entity->sprite(), size, tintColor, applyTint);
         return info;
     }
 
@@ -129,14 +130,14 @@ namespace TrenchBroom::Renderer {
             m_entitiesByTexture.clear();
 
             for (const auto& source : m_entities) {
-                const auto target = m_entitiesByTexture.find(source.second.entity->sprite());
+                const auto target = m_entitiesByTexture.find(source.second.sprite);
 
                 if (target == std::end(m_entitiesByTexture)) {
                     std::vector<const EntityInfo*> infos;
-                    m_entitiesByTexture.insert(std::make_pair(source.second.entity->sprite(), infos));
+                    m_entitiesByTexture.insert(std::make_pair(source.second.sprite, infos));
                 }
 
-                m_entitiesByTexture[source.second.entity->sprite()].push_back(&source.second);
+                m_entitiesByTexture[source.second.sprite].push_back(&source.second);
             }
 
             m_entitiesListChanged = false;

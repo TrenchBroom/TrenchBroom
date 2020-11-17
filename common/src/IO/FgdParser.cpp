@@ -299,7 +299,8 @@ namespace TrenchBroom {
                         status.warn(token.line(), token.column(), "Found multiple model attributes");
                     }
                     classInfo.modelDefinition = parseModel(status);
-                } else if (kdl::ci::str_is_equal(typeName, "sprite")) {
+                } else if (kdl::ci::str_is_equal(typeName, "sprite") ||
+                           kdl::ci::str_is_equal(typeName, "iconsprite")) {
                     if (classInfo.spriteDefinition) {
                         status.warn(token.line(), token.column(), "Found multiple sprite attributes");
                     }

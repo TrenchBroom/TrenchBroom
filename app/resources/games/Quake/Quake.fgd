@@ -272,17 +272,17 @@
 	]
 ]
 
-@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname) sprite("light.png") =
+@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname) sprite({{ spawnflags & 1 -> "light_off.png", "light.png" }}) =
 	light : "Invisible light source"
 	[
 		spawnflags(Flags) = [ 1 : "Start off" : 0 ]
 	]
-@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname) sprite("light.png") =
+@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname) sprite({{ spawnflags & 1 -> "light_off.png", "light.png" }}) =
 	light_fluoro : "Fluorescent light"
 	[
 		spawnflags(Flags) = [ 1 : "Start off" : 0 ]
 	]
-@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname) sprite("light.png") =
+@PointClass size(-8 -8 -8, 8 8 8) base(Light, Target, Targetname) sprite({{ spawnflags & 1 -> "light_off.png", "light.png" }}) =
 	light_fluorospark : "Sparking fluorescent light"
 	[
 		spawnflags(Flags) = [ 1 : "Start off" : 0 ]

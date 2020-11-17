@@ -220,7 +220,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/EntityLinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EntityModelRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EntityRenderer.cpp
-		${COMMON_SOURCE_DIR}/Renderer/EntitySpriteRenderer.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/EntitySpriteRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/FaceRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/FontDescriptor.cpp
         ${COMMON_SOURCE_DIR}/Renderer/FontFactory.cpp
@@ -764,7 +764,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/EntityLinkRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/EntityModelRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/EntityRenderer.h
-		${COMMON_SOURCE_DIR}/Renderer/EntitySpriteRenderer.h
+        ${COMMON_SOURCE_DIR}/Renderer/EntitySpriteRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/FaceRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/FontDescriptor.h
         ${COMMON_SOURCE_DIR}/Renderer/FontFactory.h
