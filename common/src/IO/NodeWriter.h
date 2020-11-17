@@ -41,8 +41,6 @@ namespace TrenchBroom {
         class NodeWriter {
         private:
             using EntityBrushesMap = std::map<Model::EntityNode*, std::vector<Model::BrushNode*>>;
-            class CollectEntityBrushesStrategy;
-            class WriteNode;
 
             const Model::WorldNode& m_world;
             std::unique_ptr<NodeSerializer> m_serializer;

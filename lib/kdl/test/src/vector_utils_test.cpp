@@ -122,35 +122,12 @@ namespace kdl {
         ASSERT_EQ(false, vec_contains(vec({ 1, 2, 3 }), [](const auto& i) { return i == 4; }));
     }
 
-    template <typename T, typename... Args>
-    void test_append(const std::vector<T>& exp, std::vector<T> into, Args&&... args) {
-        vec_append(into, std::forward<Args>(args)...);
-        ASSERT_EQ(exp, into);
-    }
-
-    TEST_CASE("vector_utils_test.vec_append", "[vector_utils_test]") {
-        using vec = std::vector<int>;
-
-        test_append<int>({}, {});
-        test_append<int>({}, {}, vec{});
-        test_append<int>({ 1 }, { 1 });
-        test_append<int>({ 1, 2, 3 }, { 1 }, vec{ 2 }, vec{ 3 });
-    }
-
     template <typename T, typename... R>
     static auto makeVec(T&& t, R... r) {
         std::vector<T> result;
         result.push_back(std::move(t));
         (..., result.push_back(std::forward<R>(r)));
         return result;
-    }
-
-    TEST_CASE("vector_utils_test.vec_append_move", "[vector_utils_test]") {
-        auto v = makeVec(std::make_unique<int>(1));
-        vec_append(v, makeVec(std::make_unique<int>(2)));
-        
-        ASSERT_EQ(1, *v[0]);
-        ASSERT_EQ(2, *v[1]);
     }
 
     TEST_CASE("vector_utils_test.vec_concat", "[vector_utils_test]") {
@@ -160,6 +137,14 @@ namespace kdl {
         ASSERT_EQ(vec({}), vec_concat(vec({}), vec({})));
         ASSERT_EQ(vec({ 1 }), vec_concat(vec({ 1 })));
         ASSERT_EQ(vec({ 1, 2 }), vec_concat(vec({ 1 }), vec({ 2 })));
+    }
+
+    TEST_CASE("vector_utils_test.vec_concat_move", "[vector_utils_test]") {
+        auto v = makeVec(std::make_unique<int>(1));
+        v = vec_concat(std::move(v), makeVec(std::make_unique<int>(2)));
+        
+        ASSERT_EQ(1, *v[0]);
+        ASSERT_EQ(2, *v[1]);
     }
 
     TEST_CASE("vector_utils_test.vec_slice", "[vector_utils_test]") {
@@ -204,8 +189,10 @@ namespace kdl {
 
     template <typename T>
     void test_erase(const std::vector<T>& exp, std::vector<T> from, const T& x) {
-        vec_erase(from, x);
-        ASSERT_EQ(exp, from);
+        const auto originalFrom = from;
+        ASSERT_EQ(exp, vec_erase(from, x));
+        ASSERT_EQ(originalFrom, from);
+        ASSERT_EQ(exp, vec_erase(std::move(from), x));
     }
 
     TEST_CASE("vector_utils_test.vec_erase", "[vector_utils_test]") {
@@ -218,8 +205,10 @@ namespace kdl {
 
     template <typename T, typename P>
     void test_erase_if(const std::vector<T>& exp, std::vector<T> from, const P& pred) {
-        vec_erase_if(from, pred);
-        ASSERT_EQ(exp, from);
+        const auto originalFrom = from;
+        ASSERT_EQ(exp, vec_erase_if(from, pred));
+        ASSERT_EQ(originalFrom, from);
+        ASSERT_EQ(exp, vec_erase_if(std::move(from), pred));
     }
 
     TEST_CASE("vector_utils_test.vec_erase_if", "[vector_utils_test]") {
@@ -233,8 +222,10 @@ namespace kdl {
 
     template <typename T>
     void test_erase_at(const std::vector<T>& exp, std::vector<T> from, const std::size_t i) {
-        vec_erase_at(from, i);
-        ASSERT_EQ(exp, from);
+        const auto originalFrom = from;
+        ASSERT_EQ(exp, vec_erase_at(from, i));
+        ASSERT_EQ(originalFrom, from);
+        ASSERT_EQ(exp, vec_erase_at(std::move(from), i));
     }
 
     TEST_CASE("vector_utils_test.vec_erase_at", "[vector_utils_test]") {
@@ -245,8 +236,10 @@ namespace kdl {
 
     template <typename T>
     void test_erase_all(const std::vector<T>& exp, std::vector<T> from, const std::vector<T>& which) {
-        vec_erase_all(from, which);
-        ASSERT_EQ(exp, from);
+        const auto originalFrom = from;
+        ASSERT_EQ(exp, vec_erase_all(from, which));
+        ASSERT_EQ(originalFrom, from);
+        ASSERT_EQ(exp, vec_erase_all(std::move(from), which));
     }
 
     TEST_CASE("vector_utils_test.vec_erase_all", "[vector_utils_test]") {
@@ -260,16 +253,12 @@ namespace kdl {
 
     TEST_CASE("vector_utils_test.vec_sort", "[vector_utils_test]") {
         // just a smoke test since we're just forwarding to std::sort
-        auto v = std::vector<int>({ 2, 3, 2, 1 });
-        vec_sort(v);
-        ASSERT_EQ(std::vector<int>({ 1, 2, 2, 3 }), v);
+        ASSERT_EQ(std::vector<int>({ 1, 2, 2, 3 }), vec_sort(std::vector<int>({ 2, 3, 2, 1 })));
     }
 
     TEST_CASE("vector_utils_test.vec_sort_and_remove_duplicates", "[vector_utils_test]") {
         // just a smoke test since we're just forwarding to std::sort and std::unique
-        auto v = std::vector<int>({ 2, 3, 2, 1 });
-        vec_sort_and_remove_duplicates(v);
-        ASSERT_EQ(std::vector<int>({ 1, 2, 3 }), v);
+        ASSERT_EQ(std::vector<int>({ 1, 2, 3 }), vec_sort_and_remove_duplicates(std::vector<int>({ 2, 3, 2, 1 })));
     }
 
     TEST_CASE("vector_utils_test.vec_filter", "[vector_utils_test]") {
@@ -292,12 +281,15 @@ namespace kdl {
     };
 
     TEST_CASE("vector_utils_test.vec_filter_rvalue", "[vector_utils_test]") {
-        auto vec = std::vector<MoveOnly>{};
-        vec.emplace_back();
-        vec.emplace_back();
-        ASSERT_EQ(2u, vec_filter(std::move(vec), [](const auto&) { return true; }).size());
+        const auto makeVec = []() {
+            auto vec = std::vector<MoveOnly>{};
+            vec.emplace_back();
+            vec.emplace_back();
+            return vec;
+        };
 
-        ASSERT_EQ(1u, vec_filter(std::move(vec), [](const auto&, auto i) { return i % 2u == 1u; }).size());
+        ASSERT_EQ(2u, vec_filter(makeVec(), [](const auto&) { return true; }).size());
+        ASSERT_EQ(1u, vec_filter(makeVec(), [](const auto&, auto i) { return i % 2u == 1u; }).size());
     }
 
     TEST_CASE("vector_utils_test.vec_transform", "[vector_utils_test]") {

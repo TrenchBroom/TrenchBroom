@@ -264,18 +264,18 @@ namespace TrenchBroom {
 
         void TextureBrowserView::filterTextures(std::vector<const Assets::Texture*>& textures) const {
             if (m_hideUnused)
-                kdl::vec_erase_if(textures, MatchUsageCount());
+                textures = kdl::vec_erase_if(std::move(textures), MatchUsageCount());
             if (!m_filterText.empty())
-                kdl::vec_erase_if(textures, MatchName(m_filterText));
+                textures = kdl::vec_erase_if(std::move(textures), MatchName(m_filterText));
         }
 
         void TextureBrowserView::sortTextures(std::vector<const Assets::Texture*>& textures) const {
             switch (m_sortOrder) {
                 case TextureSortOrder::Name:
-                    kdl::vec_sort(textures, CompareByName());
+                    textures = kdl::vec_sort(std::move(textures), CompareByName());
                     break;
                 case TextureSortOrder::Usage:
-                    kdl::vec_sort(textures, CompareByUsageCount());
+                    textures = kdl::vec_sort(std::move(textures), CompareByUsageCount());
                     break;
             }
         }
@@ -505,8 +505,11 @@ namespace TrenchBroom {
                                     kdl::skip_iterator(std::begin(groupNameQuads), std::end(groupNameQuads), 1, 2),
                                     kdl::skip_iterator(std::begin(subTextColor), std::end(subTextColor), 0, 0));
 
-                                kdl::vec_append(stringVertices[cellData(cell).mainTitleFont], textureNameVertices);
-                                kdl::vec_append(stringVertices[cellData(cell).subTitleFont], groupNameVertices);
+                                auto& mainTitleVertices = stringVertices[cellData(cell).mainTitleFont];
+                                mainTitleVertices = kdl::vec_concat(std::move(mainTitleVertices), textureNameVertices);
+
+                                auto& subTitleVertices = stringVertices[cellData(cell).subTitleFont];
+                                subTitleVertices = kdl::vec_concat(std::move(subTitleVertices), groupNameVertices);
                             }
                         }
                     }

@@ -107,11 +107,11 @@ namespace TrenchBroom {
         }
 
         bool Expression::optimize() {
-            auto replacement = std::visit(kdl::overload {
+            auto replacement = std::visit(kdl::overload(
                 [](LiteralExpression& e) -> std::optional<LiteralExpression> { return e; },
                 [](VariableExpression&)  -> std::optional<LiteralExpression> { return std::nullopt; },
                 [](auto& e)              -> std::optional<LiteralExpression> { return e.optimize(); }
-            }, *m_expression);
+            ), *m_expression);
             
             if (replacement) {
                 *m_expression = std::move(*replacement);
@@ -180,14 +180,14 @@ namespace TrenchBroom {
         }
         
         size_t Expression::precedence() const {
-            return std::visit(kdl::overload {
+            return std::visit(kdl::overload(
                 [](const BinaryExpression& exp) -> size_t {
                     return exp.precedence();
                 },
                 [](const auto&) -> size_t {
                     return 13u;
                 }
-            }, *m_expression);
+            ), *m_expression);
         }
 
         LiteralExpression::LiteralExpression(Value value) :

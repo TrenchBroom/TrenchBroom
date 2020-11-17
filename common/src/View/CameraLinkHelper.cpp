@@ -50,7 +50,7 @@ namespace TrenchBroom {
 
         void CameraLinkHelper::removeCamera(Renderer::Camera* camera) {
             ensure(camera != nullptr, "camera is null");
-            kdl::vec_erase(m_cameras, camera);
+            m_cameras = kdl::vec_erase(std::move(m_cameras), camera);
             camera->cameraDidChangeNotifier.removeObserver(this, &CameraLinkHelper::cameraDidChange);
         }
 

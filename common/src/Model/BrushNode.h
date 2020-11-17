@@ -70,7 +70,8 @@ namespace TrenchBroom {
         public:
             BrushNode* clone(const vm::bbox3& worldBounds) const;
 
-            AttributableNode* entity() const;
+            AttributableNode* entity();
+            const AttributableNode* entity() const;
             
             const Brush& brush() const;
             void setBrush(Brush brush);
@@ -111,16 +112,13 @@ namespace TrenchBroom {
 
             std::optional<std::tuple<FloatType, size_t>> findFaceHit(const vm::ray3& ray) const;
 
-            Node* doGetContainer() const override;
-            LayerNode* doGetLayer() const override;
-            GroupNode* doGetGroup() const override;
+            Node* doGetContainer() override;
+            LayerNode* doGetLayer() override;
+            GroupNode* doGetGroup() override;
 
             kdl::result<void, TransformError> doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) override;
 
-            class Contains;
             bool doContains(const Node* node) const override;
-
-            class Intersects;
             bool doIntersects(const Node* node) const override;
         public: // renderer cache
             /**

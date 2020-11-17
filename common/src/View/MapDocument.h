@@ -355,7 +355,6 @@ namespace TrenchBroom {
             Model::GroupNode* groupSelection(const std::string& name);
             void mergeSelectedGroupsWithGroup(Model::GroupNode* group);
         private:
-            class MatchGroupableNodes;
             std::vector<Model::Node*> collectGroupableNodes(const std::vector<Model::Node*>& selectedNodes) const;
         public:
             void ungroupSelection();
@@ -512,16 +511,12 @@ namespace TrenchBroom {
             void loadTextures();
             void unloadTextures();
 
-            class SetTextures;
-            class UnsetTextures;
             void setTextures();
             void setTextures(const std::vector<Model::Node*>& nodes);
             void setTextures(const std::vector<Model::BrushFaceHandle>& faceHandles);
             void unsetTextures();
             void unsetTextures(const std::vector<Model::Node*>& nodes);
 
-            class SetEntityDefinitions;
-            class UnsetEntityDefinitions;
             void setEntityDefinitions();
             void setEntityDefinitions(const std::vector<Model::Node*>& nodes);
             void unsetEntityDefinitions();
@@ -569,14 +564,11 @@ namespace TrenchBroom {
             bool isRegisteredSmartTag(size_t index) const;
             const Model::SmartTag& smartTag(size_t index) const;
         private:
-            class InitializeNodeTagsVisitor;
-            class ClearNodeTagsVisitor;
             void initializeNodeTags(MapDocument* document);
             void initializeNodeTags(const std::vector<Model::Node*>& nodes);
             void clearNodeTags(const std::vector<Model::Node*>& nodes);
             void updateNodeTags(const std::vector<Model::Node*>& nodes);
 
-            class InitializeFaceTagsVisitor;
             void updateFaceTags(const std::vector<Model::BrushFaceHandle>& faces);
             void updateAllFaceTags();
         public: // document path

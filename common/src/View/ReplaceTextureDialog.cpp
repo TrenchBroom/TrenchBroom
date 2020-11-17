@@ -23,7 +23,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/CollectMatchingBrushFacesVisitor.h"
+#include "Model/ModelUtils.h"
 #include "Model/WorldNode.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
@@ -87,9 +87,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
             auto faces = document->allSelectedBrushFaces();
             if (faces.empty()) {
-                Model::CollectBrushFacesVisitor collect;
-                document->world()->acceptAndRecurse(collect);
-                faces = collect.faces();
+                faces = Model::collectBrushFaces(std::vector<Model::Node*>{document->world()});
             }
 
             return kdl::vec_filter(faces, [&](const auto& handle) { return handle.face().texture() == subject; });

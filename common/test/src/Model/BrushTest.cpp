@@ -53,14 +53,14 @@ namespace TrenchBroom {
     namespace Model {
         static bool canMoveBoundary(const Brush& brush, const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta) {
             return brush.moveBoundary(worldBounds, faceIndex, delta, false)
-                .visit(kdl::overload {
+                .visit(kdl::overload(
                     [&](const Brush& b) {
                         return worldBounds.contains(b.bounds());
                     },
                     [](const BrushError) {
                         return false;
-                    },
-                });
+                    }
+                ));
         }
 
         TEST_CASE("BrushTest.constructBrushWithFaces", "[BrushTest]") {
@@ -1518,10 +1518,10 @@ namespace TrenchBroom {
             const Brush newBrush = brush.moveVertices(worldBounds, vertexPositions, delta).value();
 
             auto movedVertexPositions = newBrush.findClosestVertexPositions(vertexPositions + delta);
-            kdl::vec_sort_and_remove_duplicates(movedVertexPositions);
+            movedVertexPositions = kdl::vec_sort_and_remove_duplicates(std::move(movedVertexPositions));
 
             auto expectedVertexPositions = vertexPositions + delta;
-            kdl::vec_sort_and_remove_duplicates(expectedVertexPositions);
+            expectedVertexPositions = kdl::vec_sort_and_remove_duplicates(std::move(expectedVertexPositions));
 
             ASSERT_EQ(expectedVertexPositions, movedVertexPositions);
         }

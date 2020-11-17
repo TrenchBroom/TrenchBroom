@@ -52,8 +52,6 @@ namespace TrenchBroom {
             void createGui();
             void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) override;
 
-            class CollectColorsVisitor;
-
             void updateColorRange(const std::vector<Model::AttributableNode*>& attributables);
             void updateColorHistory();
 

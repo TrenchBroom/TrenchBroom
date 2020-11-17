@@ -58,23 +58,49 @@ namespace TrenchBroom {
             WorldNode(MapFormat mapFormat);
             ~WorldNode() override;
         public: // layer management
-            LayerNode* defaultLayer() const;
+            LayerNode* defaultLayer();
+
+            const LayerNode* defaultLayer() const;
+
             /**
              * Returns defaultLayer() plus customLayers()
              */
-            std::vector<LayerNode*> allLayers() const;
+            std::vector<LayerNode*> allLayers();
+
+            /**
+             * Returns defaultLayer() plus customLayers()
+             */
+            std::vector<const LayerNode*> allLayers() const;
+
             /**
              * Returns the custom layers in file order
              */
-            std::vector<LayerNode*> customLayers() const;
+            std::vector<LayerNode*> customLayers();
+
+            /**
+             * Returns the custom layers in file order
+             */
+            std::vector<const LayerNode*> customLayers() const;
+
             /**
              * Returns defaultLayer() plus customLayers() ordered by LayerNode::sortIndex(). The default layer is always first.
              */
-            std::vector<LayerNode*> allLayersUserSorted() const;
+            std::vector<LayerNode*> allLayersUserSorted();
+
+            /**
+             * Returns defaultLayer() plus customLayers() ordered by LayerNode::sortIndex(). The default layer is always first.
+             */
+            std::vector<const LayerNode*> allLayersUserSorted() const;
+
             /**
              * Returns customLayers() ordered by LayerNode::sortIndex()
              */
-            std::vector<LayerNode*> customLayersUserSorted() const;
+            std::vector<LayerNode*> customLayersUserSorted();
+
+            /**
+             * Returns customLayers() ordered by LayerNode::sortIndex()
+             */
+            std::vector<const LayerNode*> customLayersUserSorted() const;
         private:
             void createDefaultLayer();
         public: // index
@@ -85,17 +111,11 @@ namespace TrenchBroom {
             std::vector<IssueQuickFix*> quickFixes(IssueType issueTypes) const;
             void registerIssueGenerator(IssueGenerator* issueGenerator);
             void unregisterAllIssueGenerators();
-        private:
-            class AddNodeToNodeTree;
-            class RemoveNodeFromNodeTree;
-            class UpdateNodeInNodeTree;
         public: // node tree bulk updating
-            class MatchTreeNodes;
             void disableNodeTreeUpdates();
             void enableNodeTreeUpdates();
             void rebuildNodeTree();
         private:
-            class InvalidateAllIssuesVisitor;
             void invalidateAllIssues();
         private: // implement Node interface
             const vm::bbox3& doGetLogicalBounds() const override;

@@ -467,7 +467,8 @@ namespace TrenchBroom {
                             kdl::skip_iterator(std::begin(quads), std::end(quads), 0, 2),
                             kdl::skip_iterator(std::begin(quads), std::end(quads), 1, 2),
                             kdl::skip_iterator(std::begin(textColor), std::end(textColor), 0, 0));
-                        kdl::vec_append(stringVertices[defaultDescriptor], titleVertices);
+                        auto& allTitleVertices = stringVertices[defaultDescriptor];
+                        allTitleVertices = kdl::vec_concat(std::move(allTitleVertices), titleVertices);
                     }
 
                     for (size_t j = 0; j < group.size(); ++j) {
@@ -485,7 +486,8 @@ namespace TrenchBroom {
                                     kdl::skip_iterator(std::begin(quads), std::end(quads), 0, 2),
                                     kdl::skip_iterator(std::begin(quads), std::end(quads), 1, 2),
                                     kdl::skip_iterator(std::begin(textColor), std::end(textColor), 0, 0));
-                                kdl::vec_append(stringVertices[cellData(cell).fontDescriptor], titleVertices);
+                                auto& allTitleVertices = stringVertices[cellData(cell).fontDescriptor];
+                                allTitleVertices = kdl::vec_concat(std::move(allTitleVertices), titleVertices);
                             }
                         }
                     }

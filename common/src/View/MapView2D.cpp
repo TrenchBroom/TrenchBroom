@@ -26,8 +26,9 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushError.h"
 #include "Model/BrushNode.h"
-#include "Model/CollectContainedNodesVisitor.h"
+#include "Model/EditorContext.h"
 #include "Model/HitAdapter.h"
+#include "Model/ModelUtils.h"
 #include "Model/PickResult.h"
 #include "Model/PointFile.h"
 #include "Renderer/Compass2D.h"
@@ -201,8 +202,8 @@ namespace TrenchBroom {
             const auto document = kdl::mem_lock(m_document);
             const vm::bbox3 tallBounds = document->worldBounds().expand(-1.0); // we can't make a brush that is exactly as large as worldBounds
 
-            const FloatType min = dot(tallBounds.min, vm::vec3(m_camera->direction()));
-            const FloatType max = dot(tallBounds.max, vm::vec3(m_camera->direction()));
+            const FloatType min = vm::dot(tallBounds.min, vm::vec3(m_camera->direction()));
+            const FloatType max = vm::dot(tallBounds.max, vm::vec3(m_camera->direction()));
 
             const vm::plane3 minPlane(min, vm::vec3(m_camera->direction()));
             const vm::plane3 maxPlane(max, vm::vec3(m_camera->direction()));
@@ -226,24 +227,24 @@ namespace TrenchBroom {
                 }
 
                 brushBuilder.createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName)
-                    .visit(kdl::overload {
+                    .visit(kdl::overload(
                         [&](Model::Brush&& b) {
                             tallBrushes.push_back(document->world()->createBrush(std::move(b)));
                         },
                         [&](const Model::BrushError e) {
                             m_logger->error() << "Could not create selection brush: " << e;
                         }
-                    });
+                    ));
             }
+
+            const auto nodesToSelect = kdl::vec_filter(
+                Model::collectContainedNodes(std::vector<Model::Node*>{document->world()}, tallBrushes), 
+                [&](const auto* node) { return document->editorContext().selectable(node); });
+            kdl::vec_clear_and_delete(tallBrushes);
 
             Transaction transaction(document, "Select Tall");
             document->deleteObjects();
-
-            Model::CollectContainedNodesVisitor<std::vector<Model::BrushNode*>::const_iterator> visitor(std::begin(tallBrushes), std::end(tallBrushes), document->editorContext());
-            document->world()->acceptAndRecurse(visitor);
-            document->select(visitor.nodes());
-
-            kdl::vec_clear_and_delete(tallBrushes);
+            document->select(nodesToSelect);
         }
 
         void MapView2D::doFocusCameraOnSelection(const bool animate) {

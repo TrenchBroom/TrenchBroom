@@ -185,14 +185,7 @@ namespace TrenchBroom {
 
         void ModEditor::updateAvailableMods() {
             auto document = kdl::mem_lock(m_document);
-            std::vector<std::string> availableMods = document->game()->availableMods();
-            kdl::sort(availableMods, kdl::ci::string_less());
-
-            m_availableMods.clear();
-            m_availableMods.reserve(availableMods.size());
-            for (size_t i = 0; i < availableMods.size(); ++i) {
-                m_availableMods.push_back(availableMods[i]);
-            }
+            m_availableMods = kdl::col_sort(document->game()->availableMods(), kdl::ci::string_less());
         }
 
         void ModEditor::updateMods() {
@@ -246,7 +239,7 @@ namespace TrenchBroom {
             std::vector<std::string> mods = document->mods();
             for (QListWidgetItem* item : selections) {
                 const std::string mod = item->text().toStdString();
-                kdl::vec_erase(mods, mod);
+                mods = kdl::vec_erase(std::move(mods), mod);
             }
             document->setMods(mods);
         }
