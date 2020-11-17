@@ -43,12 +43,14 @@ namespace TrenchBroom {
         TEST_CASE("EntityAttributeIndexTest.addAttributableNode", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
-            EntityNode* entity1 = new EntityNode();
-            entity1->addOrUpdateAttribute("test", "somevalue");
+            EntityNode* entity1 = new EntityNode({
+                {"test", "somevalue"}
+            });
 
-            EntityNode* entity2 = new EntityNode();
-            entity2->addOrUpdateAttribute("test", "somevalue");
-            entity2->addOrUpdateAttribute("other", "someothervalue");
+            EntityNode* entity2 = new EntityNode({
+                {"test", "somevalue"},
+                {"other", "someothervalue"}
+            });
 
             index.addAttributableNode(entity1);
             index.addAttributableNode(entity2);
@@ -71,12 +73,14 @@ namespace TrenchBroom {
         TEST_CASE("EntityAttributeIndexTest.removeAttributableNode", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
-            EntityNode* entity1 = new EntityNode();
-            entity1->addOrUpdateAttribute("test", "somevalue");
+            EntityNode* entity1 = new EntityNode({
+                {"test", "somevalue"}
+            });
 
-            EntityNode* entity2 = new EntityNode();
-            entity2->addOrUpdateAttribute("test", "somevalue");
-            entity2->addOrUpdateAttribute("other", "someothervalue");
+            EntityNode* entity2 = new EntityNode({
+                {"test", "somevalue"},
+                {"other", "someothervalue"}
+            });
 
             index.addAttributableNode(entity1);
             index.addAttributableNode(entity2);
@@ -94,16 +98,21 @@ namespace TrenchBroom {
         TEST_CASE("EntityAttributeIndexTest.addAttribute", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
-            EntityNode* entity1 = new EntityNode();
-            entity1->addOrUpdateAttribute("test", "somevalue");
+            EntityNode* entity1 = new EntityNode({
+                {"test", "somevalue"}
+            });
 
-            EntityNode* entity2 = new EntityNode();
-            entity2->addOrUpdateAttribute("test", "somevalue");
+            EntityNode* entity2 = new EntityNode({
+                {"test", "somevalue"},
+            });
 
             index.addAttributableNode(entity1);
             index.addAttributableNode(entity2);
 
-            entity2->addOrUpdateAttribute("other", "someothervalue");
+            entity2->setEntity(Entity({
+                {"test", "somevalue"},
+                {"other", "someothervalue"},
+            }));
             index.addAttribute(entity2, "other", "someothervalue");
 
             ASSERT_TRUE(findExactExact(index, "test", "notfound").empty());
@@ -124,12 +133,14 @@ namespace TrenchBroom {
         TEST_CASE("EntityAttributeIndexTest.removeAttribute", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
-            EntityNode* entity1 = new EntityNode();
-            entity1->addOrUpdateAttribute("test", "somevalue");
+            EntityNode* entity1 = new EntityNode({
+                {"test", "somevalue"}
+            });
 
-            EntityNode* entity2 = new EntityNode();
-            entity2->addOrUpdateAttribute("test", "somevalue");
-            entity2->addOrUpdateAttribute("other", "someothervalue");
+            EntityNode* entity2 = new EntityNode({
+                {"test", "somevalue"},
+                {"other", "someothervalue"}
+            });
 
             index.addAttributableNode(entity1);
             index.addAttributableNode(entity2);
@@ -150,9 +161,10 @@ namespace TrenchBroom {
         TEST_CASE("EntityAttributeIndexTest.addNumberedEntityAttribute", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
-            EntityNode* entity1 = new EntityNode();
-            entity1->addOrUpdateAttribute("test1", "somevalue");
-            entity1->addOrUpdateAttribute("test2", "somevalue");
+            EntityNode* entity1 = new EntityNode({
+                {"test1", "somevalue"},
+                {"test2", "somevalue"}
+            });
 
             index.addAttributableNode(entity1);
 
@@ -169,8 +181,9 @@ namespace TrenchBroom {
         TEST_CASE("EntityAttributeIndexTest.addRemoveFloatProperty", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
-            EntityNode* entity1 = new EntityNode();
-            entity1->addOrUpdateAttribute("delay", "3.5");
+            EntityNode* entity1 = new EntityNode({
+                {"delay", "3.5"}
+            });
 
             index.addAttributableNode(entity1);
 
@@ -186,12 +199,14 @@ namespace TrenchBroom {
         TEST_CASE("EntityAttributeIndexTest.allNames", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
-            EntityNode* entity1 = new EntityNode();
-            entity1->addOrUpdateAttribute("test", "somevalue");
+            EntityNode* entity1 = new EntityNode({
+                {"test", "somevalue"}
+            });
 
-            EntityNode* entity2 = new EntityNode();
-            entity2->addOrUpdateAttribute("test", "somevalue");
-            entity2->addOrUpdateAttribute("other", "someothervalue");
+            EntityNode* entity2 = new EntityNode({
+                {"test", "somevalue"},
+                {"other", "someothervalue"}
+            });
 
             index.addAttributableNode(entity1);
             index.addAttributableNode(entity2);
@@ -202,12 +217,14 @@ namespace TrenchBroom {
         TEST_CASE("EntityAttributeIndexTest.allValuesForNames", "[EntityAttributeIndexTest]") {
             AttributableNodeIndex index;
 
-            EntityNode* entity1 = new EntityNode();
-            entity1->addOrUpdateAttribute("test", "somevalue");
+            EntityNode* entity1 = new EntityNode({
+                {"test", "somevalue"}
+            });
 
-            EntityNode* entity2 = new EntityNode();
-            entity2->addOrUpdateAttribute("test", "somevalue2");
-            entity2->addOrUpdateAttribute("other", "someothervalue");
+            EntityNode* entity2 = new EntityNode({
+                {"test", "somevalue2"},
+                {"other", "someothervalue"}
+            });
 
             index.addAttributableNode(entity1);
             index.addAttributableNode(entity2);

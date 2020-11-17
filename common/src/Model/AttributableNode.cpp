@@ -131,23 +131,6 @@ namespace TrenchBroom {
             return isAttributeValueMutable(name);
         }
 
-        bool AttributableNode::addOrUpdateAttribute(const std::string& name, const std::string& value) {
-            const NotifyAttributeChange notifyChange(this);
-
-            const auto* oldValue = m_entity.attribute(name);
-            if (oldValue != nullptr) {
-                removeAttributeFromIndex(name, *oldValue);
-                removeLinks(name, *oldValue);
-            }
-
-            m_entity.addOrUpdateAttribute(name, value);
-
-            addAttributeToIndex(name, value);
-            addLinks(name, value);
-
-            return oldValue == nullptr;
-        }
-
         bool AttributableNode::canRenameAttribute(const std::string& name, const std::string& newName) const {
             return isAttributeNameMutable(name) && isAttributeNameMutable(newName);
         }
@@ -327,6 +310,9 @@ namespace TrenchBroom {
         }
 
         void AttributableNode::updateAttributeIndex(const std::string& oldName, const std::string& oldValue, const std::string& newName, const std::string& newValue) {
+            if (oldName == newName && oldValue == newValue) {
+                return;
+            }
             removeFromIndex(this, oldName, oldValue);
             addToIndex(this, newName, newValue);
         }
@@ -410,6 +396,9 @@ namespace TrenchBroom {
         }
 
         void AttributableNode::updateLinks(const std::string& oldName, const std::string& oldValue, const std::string& newName, const std::string& newValue) {
+            if (oldName == newName && oldValue == newValue) {
+                return;
+            }
             removeLinks(oldName, oldValue);
             addLinks(newName, newValue);
         }

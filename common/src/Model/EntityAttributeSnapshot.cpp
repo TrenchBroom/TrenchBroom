@@ -20,6 +20,7 @@
 #include "EntityAttributeSnapshot.h"
 
 #include "Model/AttributableNode.h"
+#include "Model/Entity.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -37,7 +38,9 @@ namespace TrenchBroom {
             if (!m_present) {
                 node->removeAttribute(m_name);
             } else {
-                node->addOrUpdateAttribute(m_name, m_value);
+                auto entity = node->entity();
+                entity.addOrUpdateAttribute(m_name, m_value);
+                node->setEntity(std::move(entity));
             }
         }
     }

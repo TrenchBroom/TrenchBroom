@@ -182,7 +182,10 @@ namespace TrenchBroom {
 
         void TestGame::doUpdateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const {
             const std::string value = kdl::str_join(IO::Path::asStrings(paths, "/"), ";");
-            node.addOrUpdateAttribute("wad", value);
+            
+            auto entity = node.entity();
+            entity.addOrUpdateAttribute("wad", value);
+            node.setEntity(std::move(entity));
         }
 
         void TestGame::doReloadShaders() {}

@@ -48,8 +48,9 @@ namespace TrenchBroom {
             Assets::PointEntityDefinition* largeEntityDef = new Assets::PointEntityDefinition("large_entity", Color(), vm::bbox3(64.0), "this is a point entity", {}, {});
             document->setEntityDefinitions(std::vector<Assets::EntityDefinition*>{ m_pointEntityDef, largeEntityDef });
 
-            Model::EntityNode* entityNode = new Model::EntityNode();
-            entityNode->addOrUpdateAttribute("classname", "large_entity");
+            Model::EntityNode* entityNode = new Model::EntityNode({
+                {"classname", "large_entity"}
+            });
             
             document->addNode(entityNode, document->parentForNodes());
             REQUIRE(entityNode->entity().definition() == largeEntityDef);
