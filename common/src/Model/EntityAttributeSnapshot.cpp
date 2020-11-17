@@ -35,13 +35,13 @@ namespace TrenchBroom {
         m_present(false) {}
 
         void EntityAttributeSnapshot::restore(AttributableNode* node) const {
+            auto entity = node->entity();
             if (!m_present) {
-                node->removeAttribute(m_name);
+                entity.removeAttribute(m_name);
             } else {
-                auto entity = node->entity();
                 entity.addOrUpdateAttribute(m_name, m_value);
-                node->setEntity(std::move(entity));
             }
+            node->setEntity(std::move(entity));
         }
     }
 }

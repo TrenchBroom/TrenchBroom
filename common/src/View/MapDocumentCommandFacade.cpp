@@ -482,7 +482,10 @@ namespace TrenchBroom {
 
             for (Model::AttributableNode* node : attributableNodes) {
                 snapshot[node].push_back(node->attributeSnapshot(name));
-                node->removeAttribute(name);
+
+                auto entity = node->entity();
+                entity.removeAttribute(name);
+                node->setEntity(std::move(entity));
             }
 
             setEntityDefinitions(nodes);

@@ -321,17 +321,19 @@ namespace TrenchBroom {
         }
 
         void MapReader::stripParentAttributes(Model::AttributableNode* attributable, const ParentInfo::Type parentType) {
+            auto entity = attributable->entity();
             switch (parentType) {
                 case ParentInfo::Type_Layer:
-                    attributable->removeAttribute(Model::AttributeNames::Layer);
+                    entity.removeAttribute(Model::AttributeNames::Layer);
                     break;
                 case ParentInfo::Type_Group:
-                    attributable->removeAttribute(Model::AttributeNames::Group);
+                    entity.removeAttribute(Model::AttributeNames::Group);
                     break;
                 case ParentInfo::Type_None:
                     break;
                 switchDefault();
             }
+            attributable->setEntity(std::move(entity));
         }
 
         /**
