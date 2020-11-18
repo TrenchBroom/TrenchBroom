@@ -59,8 +59,6 @@ namespace TrenchBroom {
             EntityNode();
             EntityNode(Entity entity);
 
-            bool brushEntity() const;
-            bool pointEntity() const;
             bool hasEntityDefinition() const;
             bool hasBrushEntityDefinition() const;
             bool hasPointEntityDefinition() const;

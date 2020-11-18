@@ -134,7 +134,7 @@ namespace TrenchBroom {
                 return true;
             }
 
-            if (entityNode->brushEntity()) {
+            if (!entityNode->entity().pointEntity()) {
                 if (!anyChildVisible(entityNode)) {
                     return false;
                 }
@@ -145,7 +145,7 @@ namespace TrenchBroom {
                 return false;
             }
 
-            if (entityNode->pointEntity() && !pref(Preferences::ShowPointEntities)) {
+            if (entityNode->entity().pointEntity() && !pref(Preferences::ShowPointEntities)) {
                 return false;
             }
 
