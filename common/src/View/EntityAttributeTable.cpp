@@ -24,10 +24,12 @@
 #include <QKeyEvent>
 #include <QKeySequence>
 
+#define TABLE_LOG(x)
+
 namespace TrenchBroom {
     namespace View {
         void EntityAttributeTable::finishEditing(QWidget* editor) {
-            qDebug() << "finish editing";
+            TABLE_LOG(qDebug() << "finish editing");
             commitData(editor);
             closeEditor(editor, QAbstractItemDelegate::EditNextItem);
         }
@@ -79,7 +81,7 @@ namespace TrenchBroom {
                     return true;
                 }
 
-                qDebug("not overriding shortcut key %d\n", keyEvent->key());
+                TABLE_LOG(qDebug("not overriding shortcut key %d\n", keyEvent->key()));
             }
             return QTableView::event(event);
         }
@@ -101,7 +103,7 @@ namespace TrenchBroom {
                 && state() != QAbstractItemView::EditingState) {
 
                 // open the editor
-                qDebug("opening editor...");
+                TABLE_LOG(qDebug("opening editor..."));
                 edit(currentIndex());
             } else {
                 QTableView::keyPressEvent(event);
