@@ -287,7 +287,10 @@ namespace TrenchBroom {
             layout->addLayout(toolBar, 0);
             setLayout(layout);
 
-            m_table->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked | QAbstractItemView::AnyKeyPressed);
+            // NOTE: Do not use QAbstractItemView::SelectedClicked.
+            // EntityAttributeTable::mousePressEvent() implements its own version.
+            // See: https://github.com/TrenchBroom/TrenchBroom/issues/3582
+            m_table->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::AnyKeyPressed);
         }
 
         void EntityAttributeGrid::bindObservers() {
