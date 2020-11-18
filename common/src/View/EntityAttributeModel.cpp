@@ -675,26 +675,6 @@ namespace TrenchBroom {
             return QVariant();
         }
 
-        bool EntityAttributeModel::InsertRow(const size_t pos) {
-            ensure(pos <= m_rows.size(), "insertion position out of bounds");
-
-            auto document = kdl::mem_lock(m_document);
-
-            const std::vector<Model::AttributableNode*> attributables = document->allSelectedAttributableNodes();
-            ensure(!attributables.empty(), "no attributable nodes selected");
-
-            const std::string newKey = AttributeRow::newAttributeNameForAttributableNodes(attributables);
-
-            const Transaction transaction(document);
-            document->setAttribute(newKey, "");
-
-            return true;
-        }
-
-        bool EntityAttributeModel::AppendRow() {
-            return InsertRow(m_rows.size());
-        }
-
         int EntityAttributeModel::rowForName(const std::string& name) const {
             for (size_t i = 0; i < m_rows.size(); ++i) {
                 if (m_rows[i].name() == name) {
