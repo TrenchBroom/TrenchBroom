@@ -62,14 +62,6 @@ namespace TrenchBroom {
         EntityNode::EntityNode(std::initializer_list<EntityAttribute> attributes) :
         EntityNode(Entity(std::move(attributes))) {}
 
-        bool EntityNode::brushEntity() const {
-            return hasChildren();
-        }
-
-        bool EntityNode::pointEntity() const {
-            return !brushEntity();
-        }
-
         bool EntityNode::hasEntityDefinition() const {
             return m_entity.definition() != nullptr;
         }

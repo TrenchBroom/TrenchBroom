@@ -60,8 +60,6 @@ namespace TrenchBroom {
             explicit EntityNode(Entity entity);
             explicit EntityNode(std::initializer_list<EntityAttribute> attributes);
 
-            bool brushEntity() const;
-            bool pointEntity() const;
             bool hasEntityDefinition() const;
             bool hasBrushEntityDefinition() const;
             bool hasPointEntityDefinition() const;
