@@ -32,7 +32,11 @@ namespace TrenchBroom {
          */
         class EntityAttributeTable : public QTableView {
             Q_OBJECT
+        private:
+            bool m_mousePressedOnSelectedCell;
         public:
+            explicit EntityAttributeTable(QWidget* parent = nullptr);
+
             static QString insertRowShortcutString();
             static QString removeRowShortcutString();
             void finishEditing(QWidget* editor);
@@ -40,7 +44,9 @@ namespace TrenchBroom {
             bool event(QEvent *event) override;
             void keyPressEvent(QKeyEvent* event) override;
             QStyleOptionViewItem viewOptions() const override;
-
+            void keyboardSearch(const QString& search) override;
+            void mousePressEvent(QMouseEvent* event) override;
+            void mouseReleaseEvent(QMouseEvent* event) override;
         signals:
             void addRowShortcutTriggered();
             void removeRowsShortcutTriggered();

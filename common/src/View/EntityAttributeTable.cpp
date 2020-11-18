@@ -28,6 +28,10 @@
 
 namespace TrenchBroom {
     namespace View {
+        EntityAttributeTable::EntityAttributeTable(QWidget* parent) :
+        QTableView(parent),
+        m_mousePressedOnSelectedCell(false) {}
+
         void EntityAttributeTable::finishEditing(QWidget* editor) {
             TABLE_LOG(qDebug() << "finish editing");
             commitData(editor);
@@ -120,6 +124,43 @@ namespace TrenchBroom {
             // pixmap in the QIcon and tries to draw the icon larger than its actual 12x12 size.
             options.decorationSize = QSize(12,12);
             return options;
+        }
+
+        /**
+         * Disable keyboard searching, it's undesirable for our use case.
+         * Keyboard search was causing selection navigation when typing with a disabled cell selected.
+         * See: https://github.com/TrenchBroom/TrenchBroom/issues/3582
+         */
+        void EntityAttributeTable::keyboardSearch(const QString& /* search */) {}
+
+        /**
+         * Implement our own version of the QAbstractItemView::SelectedClicked edit trigger.
+         * The Qt one has an undesirable delay during which keyboard input is ignored.
+         * See: https://github.com/TrenchBroom/TrenchBroom/issues/3582
+         */
+        void EntityAttributeTable::mousePressEvent(QMouseEvent* event) {
+            const QModelIndex modelIndex = indexAt(event->pos());
+            m_mousePressedOnSelectedCell = selectedIndexes().contains(modelIndex);
+
+            TABLE_LOG(qDebug() << "EntityAttributeTable::mousePressEvent m_mousePressedOnSelectedCell:"
+                               << m_mousePressedOnSelectedCell);
+
+            QTableView::mousePressEvent(event);
+        }
+
+        /**
+         * See mousePressEvent
+         */
+        void EntityAttributeTable::mouseReleaseEvent(QMouseEvent* event) {
+            QTableView::mouseReleaseEvent(event);
+
+            TABLE_LOG(qDebug() << "EntityAttributeTable::mouseReleaseEvent");
+
+            const QModelIndex modelIndex = indexAt(event->pos());
+            if (selectedIndexes().contains(modelIndex) && m_mousePressedOnSelectedCell) {
+                TABLE_LOG(qDebug() << "opening editor");
+                edit(modelIndex);
+            }
         }
     }
 }
