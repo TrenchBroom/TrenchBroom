@@ -42,6 +42,7 @@ namespace TrenchBroom {
             bool m_right;
             bool m_up;
             bool m_down;
+            bool m_shift;
 
             int64_t m_lastPollTime;
         public:

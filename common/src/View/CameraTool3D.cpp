@@ -161,7 +161,7 @@ namespace TrenchBroom {
 
         bool CameraTool3D::look(const InputState& inputState) const {
             return (inputState.mouseButtonsPressed(MouseButtons::MBRight) &&
-                    inputState.modifierKeysPressed(ModifierKeys::MKNone));
+                    inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare));
         }
 
         bool CameraTool3D::pan(const InputState& inputState) const {

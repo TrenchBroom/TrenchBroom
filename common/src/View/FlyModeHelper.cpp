@@ -44,6 +44,7 @@ namespace TrenchBroom {
         m_right(false),
         m_up(false),
         m_down(false),
+        m_shift(false),
         m_lastPollTime(msecsSinceReference()) {}
 
         void FlyModeHelper::pollAndUpdate() {
@@ -99,6 +100,9 @@ namespace TrenchBroom {
             if (eventMatchesShortcut(down, event)) {
                 m_down = true;
             }
+            if (event->modifiers().testFlag(Qt::ShiftModifier)) {
+                m_shift = true;
+            }
 
             if (anyKeyDown() && !wasAnyKeyDown) {
                 // Reset the last polling time, otherwise the view will jump!
@@ -138,6 +142,9 @@ namespace TrenchBroom {
             if (eventMatchesShortcut(down, event)) {
                 m_down = false;
             }
+            if (!event->modifiers().testFlag(Qt::ShiftModifier)) {
+                m_shift = false;
+            }
         }
 
         bool FlyModeHelper::anyKeyDown() const {
@@ -145,11 +152,11 @@ namespace TrenchBroom {
         }
 
         void FlyModeHelper::resetKeys() {
-            m_forward = m_backward = m_left = m_right = m_up = m_down = false;
+            m_forward = m_backward = m_left = m_right = m_up = m_down = m_shift = false;
         }
 
         vm::vec3f FlyModeHelper::moveDelta(const float time) {
-            const float dist = moveSpeed() * time;
+            const float dist = moveSpeed() * time * (m_shift ? 2.0f : 1.0f);
 
             vm::vec3f delta;
             if (m_forward) {
