@@ -39,9 +39,10 @@
 #include <kdl/vector_utils.h>
 #include <kdl/vector_set.h>
 
+#include <cassert>
 #include <iterator>
-#include <optional>
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -57,6 +58,46 @@
 
 namespace TrenchBroom {
     namespace View {
+        // helper functions
+        bool isAttributeNameMutable(const Model::Entity& entity, const std::string& name) {
+            assert(!Model::isGroup(entity.classname(), entity.attributes()));
+            assert(!Model::isLayer(entity.classname(), entity.attributes()));
+
+            if (Model::isWorldspawn(entity.classname(), entity.attributes())) {
+                return !(name == Model::AttributeNames::Classname
+                    || name == Model::AttributeNames::Mods
+                    || name == Model::AttributeNames::EntityDefinitions
+                    || name == Model::AttributeNames::Wad
+                    || name == Model::AttributeNames::Textures
+                    || name == Model::AttributeNames::SoftMapBounds
+                    || name == Model::AttributeNames::LayerColor
+                    || name == Model::AttributeNames::LayerLocked
+                    || name == Model::AttributeNames::LayerHidden
+                    || name == Model::AttributeNames::LayerOmitFromExport);
+            }
+
+            return true;
+        }
+
+        bool isAttributeValueMutable(const Model::Entity& entity, const std::string& name) {
+            assert(!Model::isGroup(entity.classname(), entity.attributes()));
+            assert(!Model::isLayer(entity.classname(), entity.attributes()));
+
+            if (Model::isWorldspawn(entity.classname(), entity.attributes())) {
+                return !(name == Model::AttributeNames::Mods
+                    || name == Model::AttributeNames::EntityDefinitions
+                    || name == Model::AttributeNames::Wad
+                    || name == Model::AttributeNames::Textures
+                    || name == Model::AttributeNames::SoftMapBounds
+                    || name == Model::AttributeNames::LayerColor
+                    || name == Model::AttributeNames::LayerLocked
+                    || name == Model::AttributeNames::LayerHidden
+                    || name == Model::AttributeNames::LayerOmitFromExport);
+            }
+
+            return true;
+        }
+
         // AttributeRow
 
         AttributeRow::AttributeRow() :
@@ -110,8 +151,8 @@ namespace TrenchBroom {
                 m_valueType = ValueType::Unset;
             }
 
-            m_nameMutable = node->isAttributeNameMutable(name);
-            m_valueMutable = node->isAttributeValueMutable(name);
+            m_nameMutable = isAttributeNameMutable(node->entity(), name);
+            m_valueMutable = isAttributeValueMutable(node->entity(), name);
             m_tooltip = (definition != nullptr ? definition->shortDescription() : "");
             if (m_tooltip.empty()) {
                 m_tooltip = "No description found";
@@ -139,8 +180,8 @@ namespace TrenchBroom {
                 }
             }
 
-            m_nameMutable = (m_nameMutable && other->isAttributeNameMutable(m_name));
-            m_valueMutable = (m_valueMutable && other->isAttributeValueMutable(m_name));
+            m_nameMutable = (m_nameMutable && isAttributeNameMutable(other->entity(), m_name));
+            m_valueMutable = (m_valueMutable && isAttributeValueMutable(other->entity(), m_name));
         }
 
         const std::string& AttributeRow::name() const {
@@ -741,7 +782,7 @@ namespace TrenchBroom {
             const std::string name = m_rows.at(rowIndex).name();
             for (const Model::AttributableNode* attributable : attributables) {
                 if (const auto* oldValue = attributable->entity().attribute(name)) {
-                    ensure(attributable->canAddOrUpdateAttribute(name, newValue), "tried to modify immutable attribute value"); // this should be guaranteed by the AttributeRow constructor
+                    ensure(isAttributeValueMutable(attributable->entity(), name), "tried to modify immutable attribute value"); // this should be guaranteed by the AttributeRow constructor
                     if (*oldValue != newValue) {
                         hasChange = true;
                     }
