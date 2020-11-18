@@ -60,13 +60,6 @@ namespace TrenchBroom {
             void setDefinition(Assets::EntityDefinition* definition);
         public: // attribute management
             EntityAttributeSnapshot attributeSnapshot(const std::string& name) const;
-
-            bool canAddOrUpdateAttribute(const std::string& name, const std::string& value) const;
-            bool canRenameAttribute(const std::string& name, const std::string& newName) const;
-            bool canRemoveAttribute(const std::string& name) const;
-
-            bool isAttributeNameMutable(const std::string& name) const;
-            bool isAttributeValueMutable(const std::string& name) const;
         private: // attribute management internals
             class NotifyAttributeChange {
             private:
@@ -152,8 +145,6 @@ namespace TrenchBroom {
             virtual void doAncestorDidChange() override;
         private: // subclassing interface
             virtual void doAttributesDidChange(const vm::bbox3& oldBounds) = 0;
-            virtual bool doIsAttributeNameMutable(const std::string& name) const = 0;
-            virtual bool doIsAttributeValueMutable(const std::string& name) const = 0;
             virtual vm::vec3 doGetLinkSourceAnchor() const = 0;
             virtual vm::vec3 doGetLinkTargetAnchor() const = 0;
         private: // hide copy constructor and assignment operator

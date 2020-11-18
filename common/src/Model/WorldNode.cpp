@@ -346,31 +346,6 @@ namespace TrenchBroom {
 
         void WorldNode::doAttributesDidChange(const vm::bbox3& /* oldBounds */) {}
 
-        bool WorldNode::doIsAttributeNameMutable(const std::string& name) const {
-            return !(name == AttributeNames::Classname
-                || name == AttributeNames::Mods
-                || name == AttributeNames::EntityDefinitions
-                || name == AttributeNames::Wad
-                || name == AttributeNames::Textures
-                || name == AttributeNames::SoftMapBounds
-                || name == AttributeNames::LayerColor
-                || name == AttributeNames::LayerLocked
-                || name == AttributeNames::LayerHidden
-                || name == AttributeNames::LayerOmitFromExport);
-        }
-
-        bool WorldNode::doIsAttributeValueMutable(const std::string& name) const {
-            return !(name == AttributeNames::Mods
-                || name == AttributeNames::EntityDefinitions
-                || name == AttributeNames::Wad
-                || name == AttributeNames::Textures
-                || name == AttributeNames::SoftMapBounds
-                || name == AttributeNames::LayerColor
-                || name == AttributeNames::LayerLocked
-                || name == AttributeNames::LayerHidden
-                || name == AttributeNames::LayerOmitFromExport);
-        }
-
         vm::vec3 WorldNode::doGetLinkSourceAnchor() const {
             return vm::vec3::zero();
         }

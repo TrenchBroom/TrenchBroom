@@ -296,14 +296,6 @@ namespace TrenchBroom {
             nodePhysicalBoundsDidChange(oldBounds);
         }
 
-        bool EntityNode::doIsAttributeNameMutable(const std::string& /* name */) const {
-            return true;
-        }
-
-        bool EntityNode::doIsAttributeValueMutable(const std::string& /* name */) const {
-            return true;
-        }
-
         vm::vec3 EntityNode::doGetLinkSourceAnchor() const {
             return logicalBounds().center();
         }
