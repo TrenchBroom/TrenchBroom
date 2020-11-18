@@ -37,6 +37,7 @@ namespace TrenchBroom {
 
     namespace Model {
         const Assets::EntityDefinition* selectEntityDefinition(const std::vector<AttributableNode*>& attributables);
+        const Assets::AttributeDefinition* attributeDefinition(const AttributableNode* node, const std::string& name);
         const Assets::AttributeDefinition* selectAttributeDefinition(const std::string& name, const std::vector<AttributableNode*>& attributables);
         std::string selectAttributeValue(const std::string& name, const std::vector<AttributableNode*>& attributables);
 
@@ -58,8 +59,6 @@ namespace TrenchBroom {
         public: // definition 
             void setDefinition(Assets::EntityDefinition* definition);
         public: // attribute management
-            const Assets::AttributeDefinition* attributeDefinition(const std::string& name) const;
-
             EntityAttributeSnapshot attributeSnapshot(const std::string& name) const;
 
             bool canAddOrUpdateAttribute(const std::string& name, const std::string& value) const;

@@ -46,6 +46,11 @@ namespace TrenchBroom {
             return definition;
         }
 
+        const Assets::AttributeDefinition* attributeDefinition(const AttributableNode* node, const std::string& name) {
+            const auto* definition = node->entity().definition();
+            return definition ? definition->attributeDefinition(name) : nullptr;
+        }
+
         const Assets::AttributeDefinition* selectAttributeDefinition(const std::string& name, const std::vector<AttributableNode*>& attributables) {
             std::vector<AttributableNode*>::const_iterator it = std::begin(attributables);
             std::vector<AttributableNode*>::const_iterator end = std::end(attributables);
@@ -53,13 +58,13 @@ namespace TrenchBroom {
                 return nullptr;
 
             const AttributableNode* attributable = *it;
-            const Assets::AttributeDefinition* definition = attributable->attributeDefinition(name);
+            const Assets::AttributeDefinition* definition = attributeDefinition(attributable, name);
             if (definition == nullptr)
                 return nullptr;
 
             while (++it != end) {
                 attributable = *it;
-                const Assets::AttributeDefinition* currentDefinition = attributable->attributeDefinition(name);
+                const Assets::AttributeDefinition* currentDefinition = attributeDefinition(attributable, name);
                 if (currentDefinition == nullptr)
                     return nullptr;
 
@@ -115,11 +120,6 @@ namespace TrenchBroom {
 
             const NotifyAttributeChange notifyChange(this);
             m_entity.setDefinition(definition);
-        }
-
-        const Assets::AttributeDefinition* AttributableNode::attributeDefinition(const std::string& name) const {
-            const auto* definition = m_entity.definition();
-            return definition == nullptr ? nullptr : definition->attributeDefinition(name);
         }
 
         EntityAttributeSnapshot AttributableNode::attributeSnapshot(const std::string& name) const {
