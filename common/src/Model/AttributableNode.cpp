@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const Assets::EntityDefinition* AttributableNode::selectEntityDefinition(const std::vector<AttributableNode*>& attributables) {
+        const Assets::EntityDefinition* selectEntityDefinition(const std::vector<AttributableNode*>& attributables) {
             const Assets::EntityDefinition* definition = nullptr;
 
             for (AttributableNode* attributable : attributables) {
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             return definition;
         }
 
-        const Assets::AttributeDefinition* AttributableNode::selectAttributeDefinition(const std::string& name, const std::vector<AttributableNode*>& attributables) {
+        const Assets::AttributeDefinition* selectAttributeDefinition(const std::string& name, const std::vector<AttributableNode*>& attributables) {
             std::vector<AttributableNode*>::const_iterator it = std::begin(attributables);
             std::vector<AttributableNode*>::const_iterator end = std::end(attributables);
             if (it == end)
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             return definition;
         }
 
-        std::string AttributableNode::selectAttributeValue(const std::string& name, const std::vector<AttributableNode*>& attributables) {
+        std::string selectAttributeValue(const std::string& name, const std::vector<AttributableNode*>& attributables) {
             std::vector<AttributableNode*>::const_iterator it = std::begin(attributables);
             std::vector<AttributableNode*>::const_iterator end = std::end(attributables);
             if (it == end)
