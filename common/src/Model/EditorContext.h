@@ -67,41 +67,41 @@ namespace TrenchBroom {
             void setBlockSelection(bool blockSelection);
         public:
             Model::GroupNode* currentGroup() const;
-            void pushGroup(Model::GroupNode* group);
+            void pushGroup(Model::GroupNode* groupNode);
             void popGroup();
         public:
             bool visible(const Model::Node* node) const;
-            bool visible(const Model::WorldNode* world) const;
-            bool visible(const Model::LayerNode* layer) const;
-            bool visible(const Model::GroupNode* group) const;
-            bool visible(const Model::EntityNode* entity) const;
-            bool visible(const Model::BrushNode* brush) const;
-            bool visible(const Model::BrushNode* brush, const Model::BrushFace& face) const;
+            bool visible(const Model::WorldNode* worldNode) const;
+            bool visible(const Model::LayerNode* layerNode) const;
+            bool visible(const Model::GroupNode* groupNode) const;
+            bool visible(const Model::EntityNode* entityNode) const;
+            bool visible(const Model::BrushNode* brushNode) const;
+            bool visible(const Model::BrushNode* brushNode, const Model::BrushFace& face) const;
         private:
             bool anyChildVisible(const Model::Node* node) const;
 
         public:
             bool editable(const Model::Node* node) const;
-            bool editable(const Model::BrushNode* brush, const Model::BrushFace& face) const;
+            bool editable(const Model::BrushNode* brushNode, const Model::BrushFace& face) const;
 
         private:
             class NodePickable;
         public:
             bool pickable(const Model::Node* node) const;
-            bool pickable(const Model::WorldNode* world) const;
-            bool pickable(const Model::LayerNode* layer) const;
-            bool pickable(const Model::GroupNode* group) const;
-            bool pickable(const Model::EntityNode* entity) const;
-            bool pickable(const Model::BrushNode* brush) const;
-            bool pickable(const Model::BrushNode* brush, const Model::BrushFace& face) const;
+            bool pickable(const Model::WorldNode* worldNode) const;
+            bool pickable(const Model::LayerNode* layerNode) const;
+            bool pickable(const Model::GroupNode* groupNode) const;
+            bool pickable(const Model::EntityNode* entityNode) const;
+            bool pickable(const Model::BrushNode* brushNode) const;
+            bool pickable(const Model::BrushNode* brushNode, const Model::BrushFace& face) const;
 
             bool selectable(const Model::Node* node) const;
-            bool selectable(const Model::WorldNode* world) const;
-            bool selectable(const Model::LayerNode* layer) const;
-            bool selectable(const Model::GroupNode* group) const;
-            bool selectable(const Model::EntityNode* entity) const;
-            bool selectable(const Model::BrushNode* brush) const;
-            bool selectable(const Model::BrushNode* brush, const Model::BrushFace& face) const;
+            bool selectable(const Model::WorldNode* worldNode) const;
+            bool selectable(const Model::LayerNode* layerNode) const;
+            bool selectable(const Model::GroupNode* groupNode) const;
+            bool selectable(const Model::EntityNode* entityNode) const;
+            bool selectable(const Model::BrushNode* brushNode) const;
+            bool selectable(const Model::BrushNode* brushNode, const Model::BrushFace& face) const;
 
             bool canChangeSelection() const;
             bool inOpenGroup(const Model::Object* object) const;
