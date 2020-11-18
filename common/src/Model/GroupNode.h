@@ -92,8 +92,6 @@ namespace TrenchBroom {
             void doAccept(ConstNodeVisitor& visitor) const override;
         private: // implement AttributableNode interface
             void doAttributesDidChange(const vm::bbox3& oldBounds) override;
-            bool doIsAttributeNameMutable(const std::string& name) const override;
-            bool doIsAttributeValueMutable(const std::string& name) const override;
             vm::vec3 doGetLinkSourceAnchor() const override;
             vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement methods inherited from Object

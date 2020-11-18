@@ -203,14 +203,6 @@ namespace TrenchBroom {
         void LayerNode::doAttributesDidChange(const vm::bbox3& /* oldBounds */) {
         }
 
-        bool LayerNode::doIsAttributeNameMutable(const std::string& /* name */) const {
-            return false;
-        }
-
-        bool LayerNode::doIsAttributeValueMutable(const std::string& /* name */) const {
-            return false;
-        }
-
         vm::vec3 LayerNode::doGetLinkSourceAnchor() const {
             return vm::vec3::zero();
         }

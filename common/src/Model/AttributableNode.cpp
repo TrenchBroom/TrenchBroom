@@ -127,26 +127,6 @@ namespace TrenchBroom {
             return value ? EntityAttributeSnapshot(name, *value) : EntityAttributeSnapshot(name);
         }
 
-        bool AttributableNode::canAddOrUpdateAttribute(const std::string& name, const std::string& /* value */) const {
-            return isAttributeValueMutable(name);
-        }
-
-        bool AttributableNode::canRenameAttribute(const std::string& name, const std::string& newName) const {
-            return isAttributeNameMutable(name) && isAttributeNameMutable(newName);
-        }
-
-        bool AttributableNode::canRemoveAttribute(const std::string& name) const {
-            return isAttributeNameMutable(name) && isAttributeValueMutable(name);
-        }
-
-        bool AttributableNode::isAttributeNameMutable(const std::string& name) const {
-            return doIsAttributeNameMutable(name);
-        }
-
-        bool AttributableNode::isAttributeValueMutable(const std::string& name) const {
-            return doIsAttributeValueMutable(name);
-        }
-
         AttributableNode::NotifyAttributeChange::NotifyAttributeChange(AttributableNode* node) :
         m_nodeChange(node),
         m_node(node),
