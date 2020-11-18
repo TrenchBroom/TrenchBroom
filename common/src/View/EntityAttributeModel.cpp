@@ -97,7 +97,7 @@ namespace TrenchBroom {
 
         AttributeRow::AttributeRow(const std::string& name, const Model::AttributableNode* node) :
         m_name(name) {
-            const Assets::AttributeDefinition* definition = node->attributeDefinition(name);
+            const Assets::AttributeDefinition* definition = Model::attributeDefinition(node, name);
 
             if (const auto* value = node->entity().attribute(name)) {
                 m_value = *value;

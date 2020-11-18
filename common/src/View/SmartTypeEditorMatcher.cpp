@@ -34,7 +34,7 @@ namespace TrenchBroom {
                 return false;
             }
             for (const auto* node : attributables) {
-                const auto* attrDef = node->attributeDefinition(name);
+                const auto* attrDef = Model::attributeDefinition(node, name);
                 if (attrDef == nullptr) {
                     return false;
                 }
