@@ -204,14 +204,6 @@ namespace TrenchBroom {
         void GroupNode::doAttributesDidChange(const vm::bbox3& /* oldBounds */) {
         }
 
-        bool GroupNode::doIsAttributeNameMutable(const std::string& /* name */) const {
-            return false;
-        }
-
-        bool GroupNode::doIsAttributeValueMutable(const std::string& /* name */) const {
-            return false;
-        }
-
         vm::vec3 GroupNode::doGetLinkSourceAnchor() const {
             return vm::vec3::zero();
         }
