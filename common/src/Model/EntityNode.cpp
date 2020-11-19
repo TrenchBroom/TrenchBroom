@@ -62,16 +62,12 @@ namespace TrenchBroom {
         EntityNode::EntityNode(std::initializer_list<EntityAttribute> attributes) :
         EntityNode(Entity(std::move(attributes))) {}
 
-        bool EntityNode::hasPointEntityDefinition() const {
-            return m_entity.definition() != nullptr && m_entity.definition()->type() == Assets::EntityDefinitionType::PointEntity;
-        }
-
         bool EntityNode::hasPointEntityModel() const {
-            return hasPointEntityDefinition() && modelFrame() != nullptr;
+            return modelFrame() != nullptr;
         }
 
         vm::bbox3 EntityNode::definitionBounds() const {
-            if (hasPointEntityDefinition()) {
+            if (m_entity.definition() && m_entity.definition()->type() == Assets::EntityDefinitionType::PointEntity) {
                 const Assets::EntityDefinition* def = m_entity.definition();
                 const auto definitionBounds = static_cast<const Assets::PointEntityDefinition*>(def)->bounds();
                 return definitionBounds.translate(origin());
@@ -121,12 +117,12 @@ namespace TrenchBroom {
         }
 
         Assets::ModelSpecification EntityNode::modelSpecification() const {
-            if (!hasPointEntityDefinition()) {
-                return Assets::ModelSpecification();
-            } else {
+            if (m_entity.definition() && m_entity.definition()->type() == Assets::EntityDefinitionType::PointEntity) {
                 const auto* pointDefinition = static_cast<const Assets::PointEntityDefinition*>(m_entity.definition());
                 const auto variableStore = EntityAttributesVariableStore(m_entity);
                 return pointDefinition->model(variableStore);
+            } else {
+                return Assets::ModelSpecification();
             }
         }
 
