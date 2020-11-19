@@ -59,10 +59,6 @@ namespace TrenchBroom {
         AttributableNode(std::move(entity)),
         Object() {}
 
-        bool EntityNode::hasBrushEntityDefinition() const {
-            return m_entity.definition() != nullptr && m_entity.definition()->type() == Assets::EntityDefinitionType::BrushEntity;
-        }
-
         bool EntityNode::hasPointEntityDefinition() const {
             return m_entity.definition() != nullptr && m_entity.definition()->type() == Assets::EntityDefinitionType::PointEntity;
         }
