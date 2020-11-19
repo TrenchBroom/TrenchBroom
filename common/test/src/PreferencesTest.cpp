@@ -523,7 +523,7 @@ namespace TrenchBroom {
     }
 
     TEST_CASE("PreferencesTest.testWxEntityShortcuts", "[PreferencesTest]") {
-        auto hellKnight = Assets::PointEntityDefinition("monster_hell_knight", Color(0,0,0), vm::bbox3(), "", {}, Assets::ModelDefinition());
+        auto hellKnight = Assets::PointEntityDefinition("monster_hell_knight", Color(0,0,0), vm::bbox3(), "", {}, Assets::ModelDefinition(), Assets::SpriteDefinition());
         const auto defs = std::vector<Assets::EntityDefinition*>{&hellKnight};
 
         const std::vector<std::unique_ptr<View::Action>> actions = View::ActionManager::instance().createEntityDefinitionActions(defs);
