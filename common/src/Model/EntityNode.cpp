@@ -84,12 +84,6 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityNode::setOrigin(const vm::vec3& origin) {
-            auto entity = m_entity;
-            entity.addOrUpdateAttribute(AttributeNames::Origin, kdl::str_to_string(vm::correct(origin)));
-            setEntity(std::move(entity));
-        }
-
         void EntityNode::applyRotation(const vm::mat4x4& transformation) {
             EntityRotationPolicy::applyRotation(this, transformation);
         }
@@ -293,18 +287,9 @@ namespace TrenchBroom {
                     }
                 }
             } else {
-                // node change is called by setOrigin already
-                const auto center = logicalBounds().center();
-                const auto offset = center - m_entity.origin();
-                const auto transformedCenter = transformation * center;
-                setOrigin(transformedCenter - offset);
-
-                // applying rotation has side effects (e.g. normalizing "angles")
-                // so only do it if there is actually some rotation.
-                const auto rotation = vm::strip_translation(transformation);
-                if (rotation != vm::mat4x4::identity()) {
-                    applyRotation(rotation);
-                }
+                auto entity = m_entity;
+                entity.transform(transformation);
+                setEntity(std::move(entity));
             }
 
             return kdl::result<void, TransformError>::success();
