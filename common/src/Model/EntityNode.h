@@ -63,7 +63,6 @@ namespace TrenchBroom {
             Assets::PitchType pitchType() const;
             FloatType area(vm::axis::type axis) const;
         private:
-            void setOrigin(const vm::vec3& origin);
             void applyRotation(const vm::mat4x4& transformation);
         public: // entity model
             Assets::ModelSpecification modelSpecification() const;
