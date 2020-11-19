@@ -59,8 +59,6 @@ namespace TrenchBroom {
             EntityNode();
             EntityNode(Entity entity);
 
-            bool hasPointEntityModel() const;
-
             vm::bbox3 definitionBounds() const;
 
             const vm::vec3& origin() const;
