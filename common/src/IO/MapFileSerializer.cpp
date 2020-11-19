@@ -28,7 +28,7 @@
 
 #include <fmt/format.h>
 
-#include <iterator> // for std::back_inserter
+#include <iterator> // for std::ostreambuf_iterator
 #include <memory>
 #include <sstream>
 
@@ -44,14 +44,14 @@ namespace TrenchBroom {
             size_t doWriteBrushFace(const Model::BrushFace& face) override {
                 writeFacePoints(face);
                 writeTextureInfo(face);
-                fmt::format_to(std::back_inserter(m_buffer), "\n");
+                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "\n");
                 return 1;
             }
         protected:
             void writeFacePoints(const Model::BrushFace& face) {
                 const Model::BrushFace::Points& points = face.points();
 
-                fmt::format_to(std::back_inserter(m_buffer), "( {} {} {} ) ( {} {} {} ) ( {} {} {} )",
+                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "( {} {} {} ) ( {} {} {} ) ( {} {} {} )",
                                points[0].x(),
                                points[0].y(),
                                points[0].z(),
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             void writeTextureInfo(const Model::BrushFace& face) {
                 const std::string& textureName = face.attributes().textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face.attributes().textureName();
 
-                fmt::format_to(std::back_inserter(m_buffer), " {} {} {} {} {} {}",
+                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), " {} {} {} {} {} {}",
                                textureName,
                                face.attributes().xOffset(),
                                face.attributes().yOffset(),
@@ -80,7 +80,7 @@ namespace TrenchBroom {
                 const vm::vec3 xAxis = face.textureXAxis();
                 const vm::vec3 yAxis = face.textureYAxis();
 
-                fmt::format_to(std::back_inserter(m_buffer), " {} [ {} {} {} {} ] [ {} {} {} {} ] {} {} {}",
+                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), " {} [ {} {} {} {} ] [ {} {} {} {} ] {} {} {}",
                                textureName,
 
                                xAxis.x(),
@@ -112,12 +112,12 @@ namespace TrenchBroom {
                 // This suggests the Radiants always output these, so it's probably a compatibility danger.
                 writeSurfaceAttributes(face);
 
-                fmt::format_to(std::back_inserter(m_buffer), "\n");
+                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "\n");
                 return 1;
             }
         protected:
             void writeSurfaceAttributes(const Model::BrushFace& face) {
-                fmt::format_to(std::back_inserter(m_buffer), " {} {} {}",
+                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), " {} {} {}",
                                face.attributes().surfaceContents(),
                                face.attributes().surfaceFlags(),
                                face.attributes().surfaceValue());
@@ -134,7 +134,7 @@ namespace TrenchBroom {
                 writeValveTextureInfo(face);
                 writeSurfaceAttributes(face);
 
-                fmt::format_to(std::back_inserter(m_buffer), "\n");
+                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "\n");
                 return 1;
             }
         };
@@ -158,12 +158,12 @@ namespace TrenchBroom {
                     writeSurfaceColor(face);
                 }
 
-                fmt::format_to(std::back_inserter(m_buffer), "\n");
+                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "\n");
                 return 1;
             }
         protected:
             void writeSurfaceColor(const Model::BrushFace& face) {
-                fmt::format_to(std::back_inserter(m_buffer), " {} {} {}",
+                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), " {} {} {}",
                                static_cast<int>(face.attributes().color().r()),
                                static_cast<int>(face.attributes().color().g()),
                                static_cast<int>(face.attributes().color().b()));
@@ -178,7 +178,7 @@ namespace TrenchBroom {
             size_t doWriteBrushFace(const Model::BrushFace& face) override {
                 writeFacePoints(face);
                 writeTextureInfo(face);
-                fmt::format_to(std::back_inserter(m_buffer), " 0\n"); // extra value written here
+                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), " 0\n"); // extra value written here
                 return 1;
             }
         };
@@ -191,7 +191,7 @@ namespace TrenchBroom {
             size_t doWriteBrushFace(const Model::BrushFace& face) override {
                 writeFacePoints(face);
                 writeValveTextureInfo(face);
-                fmt::format_to(std::back_inserter(m_buffer), "\n");
+                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "\n");
                 return 1;
             }
         };
@@ -222,53 +222,44 @@ namespace TrenchBroom {
 
         MapFileSerializer::MapFileSerializer(std::ostream& stream) :
         m_line(1),
-        m_stream(stream) {
-            // reserve double the FlushBufferSize, because we flush to the
-            // output stream once we've collected _more than_ FlushBufferSize bytes
-            // in m_buffer
-            m_buffer.reserve(FlushBufferSize * 2u);
-        }
+        m_stream(stream) {}
 
         void MapFileSerializer::doBeginFile() {}
-        void MapFileSerializer::doEndFile() {
-            flushBuffer();
-        }
+        void MapFileSerializer::doEndFile() {}
 
         void MapFileSerializer::doBeginEntity(const Model::Node* /* node */) {
-            fmt::format_to(std::back_inserter(m_buffer), "// entity {}\n", entityNo());
+            fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "// entity {}\n", entityNo());
             ++m_line;
             m_startLineStack.push_back(m_line);
-            fmt::format_to(std::back_inserter(m_buffer), "{{\n");
+            fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "{{\n");
             ++m_line;
         }
 
         void MapFileSerializer::doEndEntity(const Model::Node* node) {
-            fmt::format_to(std::back_inserter(m_buffer), "}}\n");
+            fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "}}\n");
             ++m_line;
             setFilePosition(node);
-            flushBufferIfNeeded();
         }
 
         void MapFileSerializer::doEntityAttribute(const Model::EntityAttribute& attribute) {
-            fmt::format_to(std::back_inserter(m_buffer), "\"{}\" \"{}\"\n",
+            fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "\"{}\" \"{}\"\n",
                            escapeEntityAttribute( attribute.name()),
                            escapeEntityAttribute(attribute.value()));
             ++m_line;
         }
 
         void MapFileSerializer::doBeginBrush(const Model::BrushNode* /* brush */) {
-            fmt::format_to(std::back_inserter(m_buffer), "// brush {}\n", brushNo());
+            fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "// brush {}\n", brushNo());
             ++m_line;
             m_startLineStack.push_back(m_line);
-            fmt::format_to(std::back_inserter(m_buffer), "{{\n");
+            fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "{{\n");
             ++m_line;
         }
 
         void MapFileSerializer::doEndBrush(const Model::BrushNode* brush) {
-            fmt::format_to(std::back_inserter(m_buffer), "}}\n");
+            fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "}}\n");
             ++m_line;
             setFilePosition(brush);
-            flushBufferIfNeeded();
         }
 
         void MapFileSerializer::doBrushFace(const Model::BrushFace& face) {
@@ -287,17 +278,6 @@ namespace TrenchBroom {
             const size_t result = m_startLineStack.back();
             m_startLineStack.pop_back();
             return result;
-        }
-
-        void MapFileSerializer::flushBufferIfNeeded() {
-            if (m_buffer.size() >= FlushBufferSize) {
-                flushBuffer();
-            }
-        }
-
-        void MapFileSerializer::flushBuffer() {
-            m_stream.write(m_buffer.data(), static_cast<std::streamsize>(m_buffer.size()));
-            m_buffer.clear();
         }
     }
 }
