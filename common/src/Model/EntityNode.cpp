@@ -62,16 +62,6 @@ namespace TrenchBroom {
         EntityNode::EntityNode(std::initializer_list<EntityAttribute> attributes) :
         EntityNode(Entity(std::move(attributes))) {}
 
-        vm::bbox3 EntityNode::definitionBounds() const {
-            if (m_entity.definition() && m_entity.definition()->type() == Assets::EntityDefinitionType::PointEntity) {
-                const Assets::EntityDefinition* def = m_entity.definition();
-                const auto definitionBounds = static_cast<const Assets::PointEntityDefinition*>(def)->bounds();
-                return definitionBounds.translate(origin());
-            } else {
-                return DefaultBounds.translate(origin());
-            }
-        }
-
         const vm::vec3& EntityNode::origin() const {
             return m_entity.origin();
         }
@@ -207,7 +197,7 @@ namespace TrenchBroom {
 
         void EntityNode::doPick(const vm::ray3& ray, PickResult& pickResult) {
             if (!hasChildren()) {
-                const vm::bbox3& myBounds = definitionBounds();
+                const vm::bbox3& myBounds = logicalBounds();
                 if (!myBounds.contains(ray.origin)) {
                     const FloatType distance = vm::intersect_ray_bbox(ray, myBounds);
                     if (!vm::is_nan(distance)) {
@@ -357,11 +347,14 @@ namespace TrenchBroom {
                 m_cachedBounds->logicalBounds = computeLogicalBounds(children(), vm::bbox3(0.0));
                 m_cachedBounds->physicalBounds = computePhysicalBounds(children(), vm::bbox3(0.0));
             } else {
-                m_cachedBounds->logicalBounds = definitionBounds();
+                const auto* definition = dynamic_cast<const Assets::PointEntityDefinition*>(m_entity.definition());
+                const auto definitionBounds = definition ? definition->bounds() : DefaultBounds;
+
+                m_cachedBounds->logicalBounds = definitionBounds.translate(m_entity.origin());
                 if (modelFrame() != nullptr) {
-                    m_cachedBounds->physicalBounds = vm::merge(definitionBounds(), m_cachedBounds->modelBounds);
+                    m_cachedBounds->physicalBounds = vm::merge(m_cachedBounds->logicalBounds, m_cachedBounds->modelBounds);
                 } else {
-                    m_cachedBounds->physicalBounds = definitionBounds();
+                    m_cachedBounds->physicalBounds = m_cachedBounds->logicalBounds;
                 }
             }
         }
