@@ -26,7 +26,6 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
-#include <cstring>
 #include <iostream>
 #include <streambuf>
 #include <string>
