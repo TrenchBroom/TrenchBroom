@@ -59,12 +59,8 @@ namespace TrenchBroom {
         AttributableNode(std::move(entity)),
         Object() {}
 
-        const vm::mat4x4& EntityNode::rotation() const {
-            return m_entity.rotation();
-        }
-
         const vm::mat4x4 EntityNode::modelTransformation() const {
-            return vm::translation_matrix(m_entity.origin()) * rotation();
+            return vm::translation_matrix(m_entity.origin()) * m_entity.rotation();
         }
 
         Assets::PitchType EntityNode::pitchType() const {
