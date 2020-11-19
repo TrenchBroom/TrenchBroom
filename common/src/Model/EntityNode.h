@@ -60,7 +60,6 @@ namespace TrenchBroom {
             explicit EntityNode(Entity entity);
             explicit EntityNode(std::initializer_list<EntityAttribute> attributes);
 
-            const vm::vec3& origin() const;
             const vm::mat4x4& rotation() const;
             const vm::mat4x4 modelTransformation() const;
             Assets::PitchType pitchType() const;
