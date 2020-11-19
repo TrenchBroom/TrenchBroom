@@ -59,7 +59,6 @@ namespace TrenchBroom {
             EntityNode();
             EntityNode(Entity entity);
 
-            Assets::PitchType pitchType() const;
             FloatType area(vm::axis::type axis) const;
         public: // entity model
             Assets::ModelSpecification modelSpecification() const;
