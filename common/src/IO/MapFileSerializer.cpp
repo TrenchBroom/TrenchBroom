@@ -34,8 +34,6 @@
 
 namespace TrenchBroom {
     namespace IO {
-        static constexpr size_t FlushBufferSize = 256u * 1024u;
-
         class QuakeFileSerializer : public MapFileSerializer {
         public:
             explicit QuakeFileSerializer(std::ostream& stream) :
