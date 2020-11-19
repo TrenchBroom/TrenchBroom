@@ -240,14 +240,14 @@ namespace TrenchBroom {
             renderService.setForegroundColor(m_angleColor);
 
             std::vector<vm::vec3f> vertices(3);
-            for (const auto* entity : m_entities) {
-                if (!m_showHiddenEntities && !m_editorContext.visible(entity)) {
+            for (const auto* entityNode : m_entities) {
+                if (!m_showHiddenEntities && !m_editorContext.visible(entityNode)) {
                     continue;
                 }
 
-                const auto rotation = vm::mat4x4f(entity->rotation());
+                const auto rotation = vm::mat4x4f(entityNode->entity().rotation());
                 const auto direction = rotation * vm::vec3f::pos_x();
-                const auto center = vm::vec3f(entity->logicalBounds().center());
+                const auto center = vm::vec3f(entityNode->logicalBounds().center());
 
                 const auto toCam = renderContext.camera().position() - center;
                 // only distance cull for perspective camera, since the 2D one is always very far from the level
