@@ -26,7 +26,6 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
-#include <cstring>
 #include <iostream>
 #include <streambuf>
 #include <string>
@@ -97,9 +96,9 @@ namespace TrenchBroom {
             return line.substr(expectedHeader.size());
         }
 
-        void writeGameComment(FILE* stream, const std::string& gameName, const std::string& mapFormat) {
-            std::fprintf(stream, "// Game: %s\n", gameName.c_str());
-            std::fprintf(stream, "// Format: %s\n", mapFormat.c_str());
+        void writeGameComment(std::ostream& stream, const std::string& gameName, const std::string& mapFormat) {
+            stream << "// Game: " << gameName << "\n"
+                   << "// Format: " << mapFormat << "\n";
         }
     }
 }
