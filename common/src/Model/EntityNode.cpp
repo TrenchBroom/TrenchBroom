@@ -62,10 +62,6 @@ namespace TrenchBroom {
         EntityNode::EntityNode(std::initializer_list<EntityAttribute> attributes) :
         EntityNode(Entity(std::move(attributes))) {}
 
-        Assets::PitchType EntityNode::pitchType() const {
-            return (modelFrame() != nullptr ? modelFrame()->pitchType() : Assets::PitchType::Normal);
-        }
-
         FloatType EntityNode::area(vm::axis::type axis) const {
             const vm::vec3 size = physicalBounds().size();
             switch (axis) {

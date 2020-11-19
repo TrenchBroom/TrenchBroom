@@ -60,7 +60,6 @@ namespace TrenchBroom {
             explicit EntityNode(Entity entity);
             explicit EntityNode(std::initializer_list<EntityAttribute> attributes);
 
-            Assets::PitchType pitchType() const;
             FloatType area(vm::axis::type axis) const;
         public: // entity model
             Assets::ModelSpecification modelSpecification() const;
