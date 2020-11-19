@@ -62,10 +62,6 @@ namespace TrenchBroom {
         EntityNode::EntityNode(std::initializer_list<EntityAttribute> attributes) :
         EntityNode(Entity(std::move(attributes))) {}
 
-        bool EntityNode::hasPointEntityModel() const {
-            return modelFrame() != nullptr;
-        }
-
         vm::bbox3 EntityNode::definitionBounds() const {
             if (m_entity.definition() && m_entity.definition()->type() == Assets::EntityDefinitionType::PointEntity) {
                 const Assets::EntityDefinition* def = m_entity.definition();
@@ -351,7 +347,7 @@ namespace TrenchBroom {
 
             m_cachedBounds = CachedBounds{};
 
-            if (hasPointEntityModel()) {
+            if (modelFrame() != nullptr) {
                 m_cachedBounds->modelBounds = vm::bbox3(modelFrame()->bounds()).transform(modelTransformation());
             } else {
                 m_cachedBounds->modelBounds = DefaultBounds.transform(modelTransformation());
@@ -362,7 +358,7 @@ namespace TrenchBroom {
                 m_cachedBounds->physicalBounds = computePhysicalBounds(children(), vm::bbox3(0.0));
             } else {
                 m_cachedBounds->logicalBounds = definitionBounds();
-                if (hasPointEntityModel()) {
+                if (modelFrame() != nullptr) {
                     m_cachedBounds->physicalBounds = vm::merge(definitionBounds(), m_cachedBounds->modelBounds);
                 } else {
                     m_cachedBounds->physicalBounds = definitionBounds();

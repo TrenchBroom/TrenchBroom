@@ -60,8 +60,6 @@ namespace TrenchBroom {
             explicit EntityNode(Entity entity);
             explicit EntityNode(std::initializer_list<EntityAttribute> attributes);
 
-            bool hasPointEntityModel() const;
-
             vm::bbox3 definitionBounds() const;
 
             const vm::vec3& origin() const;
