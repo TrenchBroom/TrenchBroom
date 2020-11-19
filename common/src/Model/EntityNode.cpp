@@ -59,10 +59,6 @@ namespace TrenchBroom {
         AttributableNode(std::move(entity)),
         Object() {}
 
-        const vm::mat4x4 EntityNode::modelTransformation() const {
-            return vm::translation_matrix(m_entity.origin()) * m_entity.rotation();
-        }
-
         Assets::PitchType EntityNode::pitchType() const {
             return (modelFrame() != nullptr ? modelFrame()->pitchType() : Assets::PitchType::Normal);
         }
@@ -189,7 +185,7 @@ namespace TrenchBroom {
                 // only if the bbox hit test failed do we hit test the model
                 if (modelFrame() != nullptr) {
                     // we transform the ray into the model's space
-                    const auto transform = modelTransformation();
+                    const auto transform = m_entity.modelTransformation();
                     const auto [invertible, inverse] = vm::invert(transform);
                     if (invertible) {
                         const auto transformedRay = vm::ray3f(ray.transform(inverse));
@@ -308,9 +304,9 @@ namespace TrenchBroom {
             m_cachedBounds = CachedBounds{};
 
             if (modelFrame() != nullptr) {
-                m_cachedBounds->modelBounds = vm::bbox3(modelFrame()->bounds()).transform(modelTransformation());
+                m_cachedBounds->modelBounds = vm::bbox3(modelFrame()->bounds()).transform(m_entity.modelTransformation());
             } else {
-                m_cachedBounds->modelBounds = DefaultBounds.transform(modelTransformation());
+                m_cachedBounds->modelBounds = DefaultBounds.transform(m_entity.modelTransformation());
             }
 
             if (hasChildren()) {
