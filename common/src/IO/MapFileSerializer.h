@@ -23,7 +23,7 @@
 #include "IO/NodeSerializer.h"
 #include "Model/MapFormat.h"
 
-#include <cstdio> // for FILE*
+#include <iosfwd>
 #include <memory>
 #include <vector>
 
@@ -41,11 +41,12 @@ namespace TrenchBroom {
             using LineStack = std::vector<size_t>;
             LineStack m_startLineStack;
             size_t m_line;
-            FILE* m_stream;
-        public:
-            static std::unique_ptr<NodeSerializer> create(Model::MapFormat format, FILE* stream);
         protected:
-            explicit MapFileSerializer(FILE* file);
+            std::ostream& m_stream;
+        public:
+            static std::unique_ptr<NodeSerializer> create(Model::MapFormat format, std::ostream& stream);
+        protected:
+            explicit MapFileSerializer(std::ostream& stream);
         private:
             void doBeginFile() override;
             void doEndFile() override;
@@ -60,7 +61,7 @@ namespace TrenchBroom {
             void setFilePosition(const Model::Node* node);
             size_t startLine();
         private:
-            virtual size_t doWriteBrushFace(FILE* stream, const Model::BrushFace& face) = 0;
+            virtual size_t doWriteBrushFace(const Model::BrushFace& face) = 0;
         };
     }
 }

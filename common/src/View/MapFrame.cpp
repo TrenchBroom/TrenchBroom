@@ -77,6 +77,7 @@
 #include <vecmath/vec_io.h>
 
 #include <cassert>
+#include <chrono>
 #include <iterator>
 #include <string>
 #include <vector>
@@ -769,8 +770,12 @@ namespace TrenchBroom {
         bool MapFrame::saveDocument() {
             try {
                 if (m_document->persistent()) {
+                    const auto startTime = std::chrono::high_resolution_clock::now();
                     m_document->saveDocument();
-                    logger().info() << "Saved " << m_document->path();
+                    const auto endTime = std::chrono::high_resolution_clock::now();
+
+                    logger().info() << "Saved " << m_document->path() << " in "
+                                    << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << "ms";
                     return true;
                 } else {
                     return saveDocumentAs();
@@ -796,8 +801,13 @@ namespace TrenchBroom {
                 }
 
                 const IO::Path path = IO::pathFromQString(newFileName);
+
+                const auto startTime = std::chrono::high_resolution_clock::now();
                 m_document->saveDocumentAs(path);
-                logger().info() << "Saved " << m_document->path();
+                const auto endTime = std::chrono::high_resolution_clock::now();
+
+                logger().info() << "Saved " << m_document->path() << " in "
+                                << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << "ms";
                 return true;
             } catch (const FileSystemException& e) {
                 QMessageBox::critical(this, "", e.what());
