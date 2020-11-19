@@ -81,10 +81,6 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityNode::applyRotation(const vm::mat4x4& transformation) {
-            EntityRotationPolicy::applyRotation(this, transformation);
-        }
-
         Assets::ModelSpecification EntityNode::modelSpecification() const {
             if (m_entity.definition() && m_entity.definition()->type() == Assets::EntityDefinitionType::PointEntity) {
                 const auto* pointDefinition = static_cast<const Assets::PointEntityDefinition*>(m_entity.definition());
