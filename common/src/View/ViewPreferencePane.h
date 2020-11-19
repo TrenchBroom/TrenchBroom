@@ -44,6 +44,10 @@ namespace TrenchBroom {
             ColorButton* m_edgeColorButton;
             QComboBox* m_themeCombo;
             QComboBox* m_textureBrowserIconSizeCombo;
+            ColorButton* m_browserBackgroundColorButton;
+            ColorButton* m_browserGroupBackgroundColorButton;
+            ColorButton* m_browserTextColorButton;
+            ColorButton* m_browserSubTextColorButton;
             QComboBox* m_rendererFontSizeCombo;
         public:
             explicit ViewPreferencePane(QWidget* parent = nullptr);
@@ -71,6 +75,10 @@ namespace TrenchBroom {
             void gridColorChanged(const QColor& color);
             void edgeColorChanged(const QColor& color);
             void themeChanged(int index);
+            void browserBackgroundColorChanged(const QColor& color);
+            void browserGroupBackgroundColorChanged(const QColor& color);
+            void browserTextColorChanged(const QColor& color);
+            void browserSubTextColorChanged(const QColor& color);
             void textureBrowserIconSizeChanged(int index);
             void rendererFontSizeChanged(const QString& text);
         };

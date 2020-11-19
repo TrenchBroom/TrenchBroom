@@ -216,11 +216,15 @@ namespace TrenchBroom {
         }
 
         void RenderView::clearBackground() {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const Color& backgroundColor = prefs.get(Preferences::BackgroundColor);
+            const auto backgroundColor = getBackgroundColor();
 
             glAssert(glClearColor(backgroundColor.r(), backgroundColor.g(), backgroundColor.b(), backgroundColor.a()));
             glAssert(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT))
+        }
+
+        const Color& RenderView::getBackgroundColor() {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            return prefs.get(Preferences::BackgroundColor);
         }
 
         void RenderView::renderFocusIndicator() {

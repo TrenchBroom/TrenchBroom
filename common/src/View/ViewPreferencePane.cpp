@@ -151,6 +151,15 @@ namespace TrenchBroom {
             m_textureBrowserIconSizeCombo->addItem("300%");
             m_textureBrowserIconSizeCombo->setToolTip("Sets the icon size in the texture browser.");
 
+            m_browserBackgroundColorButton = new ColorButton();
+            m_browserBackgroundColorButton->setToolTip("Sets the background color of texture / entity browsers and UV editor.");
+            m_browserGroupBackgroundColorButton = new ColorButton();
+            m_browserGroupBackgroundColorButton->setToolTip("Sets the background color of group titles in texture / entity browsers.");
+            m_browserTextColorButton = new ColorButton();
+            m_browserTextColorButton->setToolTip("Sets the text color of texture / entity browsers.");
+            m_browserSubTextColorButton = new ColorButton();
+            m_browserSubTextColorButton->setToolTip("Sets the text color of group titles in texture / entity browsers.");
+
             m_rendererFontSizeCombo = new QComboBox();
             m_rendererFontSizeCombo->setEditable(true);
             m_rendererFontSizeCombo->setToolTip("Sets the font size for various labels in the editing views.");
@@ -180,6 +189,10 @@ namespace TrenchBroom {
             layout->addRow("Edges", m_edgeColorButton);
 
             layout->addSection("Texture Browser");
+            layout->addRow("Text", m_browserTextColorButton);
+            layout->addRow("Background", m_browserBackgroundColorButton);
+            layout->addRow("Group text", m_browserSubTextColorButton);
+            layout->addRow("Group background", m_browserGroupBackgroundColorButton);
             layout->addRow("Icon size", m_textureBrowserIconSizeCombo);
 
             layout->addSection("Fonts");
@@ -203,6 +216,10 @@ namespace TrenchBroom {
             connect(m_themeCombo, QOverload<int>::of(&QComboBox::activated), this, &ViewPreferencePane::themeChanged);
             connect(m_textureModeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ViewPreferencePane::textureModeChanged);
             connect(m_textureBrowserIconSizeCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ViewPreferencePane::textureBrowserIconSizeChanged);
+            connect(m_browserBackgroundColorButton, &ColorButton::colorChanged, this, &ViewPreferencePane::browserBackgroundColorChanged);
+            connect(m_browserGroupBackgroundColorButton, &ColorButton::colorChanged, this, &ViewPreferencePane::browserGroupBackgroundColorChanged);
+            connect(m_browserTextColorButton, &ColorButton::colorChanged, this, &ViewPreferencePane::browserTextColorChanged);
+            connect(m_browserSubTextColorButton, &ColorButton::colorChanged, this, &ViewPreferencePane::browserSubTextColorChanged);
             connect(m_rendererFontSizeCombo, &QComboBox::currentTextChanged, this, &ViewPreferencePane::rendererFontSizeChanged);
         }
 
@@ -223,6 +240,10 @@ namespace TrenchBroom {
             prefs.resetToDefault(Preferences::GridColor2D);
             prefs.resetToDefault(Preferences::EdgeColor);
             prefs.resetToDefault(Preferences::Theme);
+            prefs.resetToDefault(Preferences::BrowserBackgroundColor);
+            prefs.resetToDefault(Preferences::BrowserGroupBackgroundColor);
+            prefs.resetToDefault(Preferences::BrowserTextColor);
+            prefs.resetToDefault(Preferences::BrowserSubTextColor);
             prefs.resetToDefault(Preferences::TextureBrowserIconSize);
             prefs.resetToDefault(Preferences::RendererFontSize);
         }
@@ -242,6 +263,11 @@ namespace TrenchBroom {
             m_gridColorButton->setColor(toQColor(pref(Preferences::GridColor2D)));
             m_edgeColorButton->setColor(toQColor(pref(Preferences::EdgeColor)));
             m_themeCombo->setCurrentIndex(findThemeIndex(pref(Preferences::Theme)));
+
+            m_browserBackgroundColorButton->setColor(toQColor(pref(Preferences::BrowserBackgroundColor)));
+            m_browserGroupBackgroundColorButton->setColor(toQColor(pref(Preferences::BrowserGroupBackgroundColor)));
+            m_browserTextColorButton->setColor(toQColor(pref(Preferences::BrowserTextColor)));
+            m_browserSubTextColorButton->setColor(toQColor(pref(Preferences::BrowserSubTextColor)));
 
             const auto textureBrowserIconSize = pref(Preferences::TextureBrowserIconSize);
             if (textureBrowserIconSize == 0.25f) {
@@ -347,6 +373,30 @@ namespace TrenchBroom {
         void ViewPreferencePane::themeChanged(int /*index*/) {
             auto& prefs = PreferenceManager::instance();
             prefs.set(Preferences::Theme, m_themeCombo->currentText());
+        }
+
+        void ViewPreferencePane::browserBackgroundColorChanged(const QColor& color) {
+            const auto value = Color(fromQColor(color), 1.0f);
+            auto& prefs = PreferenceManager::instance();
+            prefs.set(Preferences::BrowserBackgroundColor, value);
+        }
+
+        void ViewPreferencePane::browserGroupBackgroundColorChanged(const QColor& color) {
+            const auto value = Color(fromQColor(color), 1.0f);
+            auto& prefs = PreferenceManager::instance();
+            prefs.set(Preferences::BrowserGroupBackgroundColor, value);
+        }
+
+        void ViewPreferencePane::browserTextColorChanged(const QColor& color) {
+            const auto value = Color(fromQColor(color), 1.0f);
+            auto& prefs = PreferenceManager::instance();
+            prefs.set(Preferences::BrowserTextColor, value);
+        }
+
+        void ViewPreferencePane::browserSubTextColorChanged(const QColor& color) {
+            const auto value = Color(fromQColor(color), 1.0f);
+            auto& prefs = PreferenceManager::instance();
+            prefs.set(Preferences::BrowserSubTextColor, value);
         }
 
         void ViewPreferencePane::textureBrowserIconSizeChanged(const int index) {

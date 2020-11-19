@@ -134,6 +134,7 @@ namespace TrenchBroom {
         extern Preference<int> BrowserFontSize;
         extern Preference<Color> BrowserTextColor;
         extern Preference<Color> BrowserSubTextColor;
+        extern Preference<Color> BrowserBackgroundColor;
         extern Preference<Color> BrowserGroupBackgroundColor;
         extern Preference<float> TextureBrowserIconSize;
         extern Preference<Color> TextureBrowserDefaultColor;
