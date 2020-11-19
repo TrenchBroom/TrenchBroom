@@ -77,7 +77,7 @@ namespace TrenchBroom {
             Color m_angleColor;
             bool m_showHiddenEntities;
         public:
-            EntityRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, Assets::EntitySpriteManager& entitySpriteManager, const Model::EditorContext& editorContext);
+            EntityRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
 
             void setEntities(const std::vector<Model::EntityNode*>& entities);
             void invalidate();

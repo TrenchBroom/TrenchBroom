@@ -42,12 +42,10 @@ namespace TrenchBroom::Renderer {
         tintColor(i_tintColor),
         applyTint(i_applyTint) {}
 
-    EntitySpriteRenderer::EntitySpriteRenderer(Logger& logger, Assets::EntitySpriteManager& entitySpriteManager, const Model::EditorContext& editorContext) :
+    EntitySpriteRenderer::EntitySpriteRenderer(Logger& /*logger*/, const Model::EditorContext& editorContext) :
         m_entitiesListChanged(false),
         m_maxViewDistance(DefaultMaxViewDistance),
         m_minZoomFactor(DefaultMinZoomFactor),
-        m_logger(logger),
-        m_entitySpriteManager(entitySpriteManager),
         m_editorContext(editorContext),
         m_applyTinting(false),
         m_showHiddenEntities(false) {

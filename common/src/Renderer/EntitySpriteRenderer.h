@@ -67,9 +67,6 @@ namespace TrenchBroom {
             float m_maxViewDistance;
             float m_minZoomFactor;
 
-            Logger& m_logger;
-
-            Assets::EntitySpriteManager& m_entitySpriteManager;
             const Model::EditorContext& m_editorContext;
 
             VertexArray m_vertexArray;
@@ -81,7 +78,7 @@ namespace TrenchBroom {
 
             bool m_showHiddenEntities;
         public:
-            explicit EntitySpriteRenderer(Logger& logger, Assets::EntitySpriteManager& entitySpriteManager, const Model::EditorContext& editorContext);
+            explicit EntitySpriteRenderer(Logger& logger, const Model::EditorContext& editorContext);
             ~EntitySpriteRenderer() override;
 
             template <typename I>

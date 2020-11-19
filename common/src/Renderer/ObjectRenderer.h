@@ -52,9 +52,9 @@ namespace TrenchBroom {
             BrushRenderer m_brushRenderer;
         public:
             template <typename BrushFilterT>
-            ObjectRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, Assets::EntitySpriteManager& entitySpriteManager, const Model::EditorContext& editorContext, const BrushFilterT& brushFilter) :
+            ObjectRenderer(Logger& logger, Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext, const BrushFilterT& brushFilter) :
             m_groupRenderer(editorContext),
-            m_entityRenderer(logger, entityModelManager, entitySpriteManager, editorContext),
+            m_entityRenderer(logger, entityModelManager, editorContext),
             m_brushRenderer(brushFilter) {}
         public: // object management
             void setObjects(const std::vector<Model::GroupNode*>& groups, const std::vector<Model::EntityNode*>& entities, const std::vector<Model::BrushNode*>& brushes);

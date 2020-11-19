@@ -144,7 +144,6 @@ namespace TrenchBroom {
             return std::make_unique<ObjectRenderer>(
                 *kdl::mem_lock(document),
                 kdl::mem_lock(document)->entityModelManager(),
-                kdl::mem_lock(document)->entitySpriteManager(),
                 kdl::mem_lock(document)->editorContext(),
                 UnselectedBrushRendererFilter(kdl::mem_lock(document)->editorContext()));
         }
@@ -153,7 +152,6 @@ namespace TrenchBroom {
             return std::make_unique<ObjectRenderer>(
                 *kdl::mem_lock(document),
                 kdl::mem_lock(document)->entityModelManager(),
-                kdl::mem_lock(document)->entitySpriteManager(),
                 kdl::mem_lock(document)->editorContext(),
                 SelectedBrushRendererFilter(kdl::mem_lock(document)->editorContext()));
         }
@@ -162,7 +160,6 @@ namespace TrenchBroom {
             return std::make_unique<ObjectRenderer>(
                 *kdl::mem_lock(document),
                 kdl::mem_lock(document)->entityModelManager(),
-                kdl::mem_lock(document)->entitySpriteManager(),
                 kdl::mem_lock(document)->editorContext(),
                 LockedBrushRendererFilter(kdl::mem_lock(document)->editorContext()));
         }
