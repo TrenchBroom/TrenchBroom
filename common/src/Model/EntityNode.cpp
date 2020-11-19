@@ -59,16 +59,12 @@ namespace TrenchBroom {
         AttributableNode(std::move(entity)),
         Object() {}
 
-        const vm::vec3& EntityNode::origin() const {
-            return m_entity.origin();
-        }
-
         const vm::mat4x4& EntityNode::rotation() const {
             return m_entity.rotation();
         }
 
         const vm::mat4x4 EntityNode::modelTransformation() const {
-            return vm::translation_matrix(origin()) * rotation();
+            return vm::translation_matrix(m_entity.origin()) * rotation();
         }
 
         Assets::PitchType EntityNode::pitchType() const {
@@ -300,7 +296,7 @@ namespace TrenchBroom {
             } else {
                 // node change is called by setOrigin already
                 const auto center = logicalBounds().center();
-                const auto offset = center - origin();
+                const auto offset = center - m_entity.origin();
                 const auto transformedCenter = transformation * center;
                 setOrigin(transformedCenter - offset);
 

@@ -59,7 +59,6 @@ namespace TrenchBroom {
             EntityNode();
             EntityNode(Entity entity);
 
-            const vm::vec3& origin() const;
             const vm::mat4x4& rotation() const;
             const vm::mat4x4 modelTransformation() const;
             Assets::PitchType pitchType() const;
