@@ -691,7 +691,7 @@ namespace TrenchBroom {
             Model::EntityNode* ent1 = new Model::EntityNode();
             document->addNode(ent1, document->parentForNodes());
 
-            const auto origin = ent1->origin();
+            const auto origin = ent1->entity().origin();
             const auto bounds = ent1->logicalBounds();
 
             const auto rayOrigin = origin + vm::vec3(-32.0, bounds.size().y() / 2.0, bounds.size().z() / 2.0);
