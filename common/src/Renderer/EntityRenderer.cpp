@@ -347,18 +347,18 @@ namespace TrenchBroom {
                 BuildWireframeBoundsVertices pointEntityWireframeBoundsBuilder(pointEntityWireframeVertices);
                 BuildWireframeBoundsVertices brushEntityWireframeBoundsBuilder(brushEntityWireframeVertices);
 
-                for (const Model::EntityNode* entity : m_entities) {
-                    if (m_editorContext.visible(entity)) {
-                        const bool pointEntity = !entity->hasChildren();
+                for (const Model::EntityNode* entityNode : m_entities) {
+                    if (m_editorContext.visible(entityNode)) {
+                        const bool pointEntity = !entityNode->hasChildren();
                         if (pointEntity) {
-                            entity->logicalBounds().for_each_edge(pointEntityWireframeBoundsBuilder);
+                            entityNode->logicalBounds().for_each_edge(pointEntityWireframeBoundsBuilder);
                         } else {
-                            entity->logicalBounds().for_each_edge(brushEntityWireframeBoundsBuilder);
+                            entityNode->logicalBounds().for_each_edge(brushEntityWireframeBoundsBuilder);
                         }
 
-                        if (pointEntity && entity->modelFrame() == nullptr) {
-                            BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
-                            entity->logicalBounds().for_each_face(solidBoundsBuilder);
+                        if (pointEntity && entityNode->entity().model() == nullptr) {
+                            BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entityNode));
+                            entityNode->logicalBounds().for_each_face(solidBoundsBuilder);
                         }
                     }
                 }
@@ -373,21 +373,21 @@ namespace TrenchBroom {
                 pointEntityWireframeVertices.reserve(24 * m_entities.size());
                 brushEntityWireframeVertices.reserve(24 * m_entities.size());
 
-                for (const Model::EntityNode* entity : m_entities) {
-                    if (m_editorContext.visible(entity)) {
-                        const bool pointEntity = !entity->hasChildren();
+                for (const Model::EntityNode* entityNode : m_entities) {
+                    if (m_editorContext.visible(entityNode)) {
+                        const bool pointEntity = !entityNode->hasChildren();
 
-                        if (pointEntity && entity->modelFrame() == nullptr) {
-                            BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
-                            entity->logicalBounds().for_each_face(solidBoundsBuilder);
+                        if (pointEntity && entityNode->entity().model() == nullptr) {
+                            BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entityNode));
+                            entityNode->logicalBounds().for_each_face(solidBoundsBuilder);
                         } else {
-                            BuildColoredWireframeBoundsVertices pointEntityWireframeBoundsBuilder(pointEntityWireframeVertices, boundsColor(entity));
-                            BuildColoredWireframeBoundsVertices brushEntityWireframeBoundsBuilder(brushEntityWireframeVertices, boundsColor(entity));
+                            BuildColoredWireframeBoundsVertices pointEntityWireframeBoundsBuilder(pointEntityWireframeVertices, boundsColor(entityNode));
+                            BuildColoredWireframeBoundsVertices brushEntityWireframeBoundsBuilder(brushEntityWireframeVertices, boundsColor(entityNode));
 
                             if (pointEntity) {
-                                entity->logicalBounds().for_each_edge(pointEntityWireframeBoundsBuilder);
+                                entityNode->logicalBounds().for_each_edge(pointEntityWireframeBoundsBuilder);
                             } else {
-                                entity->logicalBounds().for_each_edge(brushEntityWireframeBoundsBuilder);
+                                entityNode->logicalBounds().for_each_edge(brushEntityWireframeBoundsBuilder);
                             }
                         }
                     }
