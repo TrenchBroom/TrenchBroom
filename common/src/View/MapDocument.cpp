@@ -2283,7 +2283,7 @@ namespace TrenchBroom {
                 [] (auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
                 [&](Model::EntityNode* entityNode)                  {
                     const auto modelSpec = Assets::safeGetModelSpecification(logger, entityNode->entity().classname(), [&]() {
-                        return entityNode->modelSpecification();
+                        return entityNode->entity().modelSpecification();
                     });
                     const auto* frame = manager.frame(modelSpec);
                     entityNode->setModelFrame(frame);
