@@ -62,7 +62,6 @@ namespace TrenchBroom {
             FloatType area(vm::axis::type axis) const;
         public: // entity model
             const vm::bbox3& modelBounds() const;
-            const Assets::EntityModelFrame* modelFrame() const;
             void setModelFrame(const Assets::EntityModelFrame* modelFrame);
         private: // implement Node interface
             const vm::bbox3& doGetLogicalBounds() const override;

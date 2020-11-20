@@ -78,10 +78,6 @@ namespace TrenchBroom {
             return m_cachedBounds->modelBounds;
         }
 
-        const Assets::EntityModelFrame* EntityNode::modelFrame() const {
-            return m_entity.model();
-        }
-
         void EntityNode::setModelFrame(const Assets::EntityModelFrame* modelFrame) {
             const auto oldBounds = physicalBounds();
             m_entity.setModel(modelFrame);
@@ -289,8 +285,9 @@ namespace TrenchBroom {
 
             m_cachedBounds = CachedBounds{};
 
-            if (modelFrame() != nullptr) {
-                m_cachedBounds->modelBounds = vm::bbox3(modelFrame()->bounds()).transform(m_entity.modelTransformation());
+            const bool hasModel = m_entity.model() != nullptr;
+            if (hasModel) {
+                m_cachedBounds->modelBounds = vm::bbox3(m_entity.model()->bounds()).transform(m_entity.modelTransformation());
             } else {
                 m_cachedBounds->modelBounds = DefaultBounds.transform(m_entity.modelTransformation());
             }
@@ -303,7 +300,7 @@ namespace TrenchBroom {
                 const auto definitionBounds = definition ? definition->bounds() : DefaultBounds;
 
                 m_cachedBounds->logicalBounds = definitionBounds.translate(m_entity.origin());
-                if (modelFrame() != nullptr) {
+                if (hasModel) {
                     m_cachedBounds->physicalBounds = vm::merge(m_cachedBounds->logicalBounds, m_cachedBounds->modelBounds);
                 } else {
                     m_cachedBounds->physicalBounds = m_cachedBounds->logicalBounds;
