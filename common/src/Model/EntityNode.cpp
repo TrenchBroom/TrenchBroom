@@ -76,16 +76,6 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::ModelSpecification EntityNode::modelSpecification() const {
-            if (m_entity.definition() && m_entity.definition()->type() == Assets::EntityDefinitionType::PointEntity) {
-                const auto* pointDefinition = static_cast<const Assets::PointEntityDefinition*>(m_entity.definition());
-                const auto variableStore = EntityAttributesVariableStore(m_entity);
-                return pointDefinition->model(variableStore);
-            } else {
-                return Assets::ModelSpecification();
-            }
-        }
-
         const vm::bbox3& EntityNode::modelBounds() const {
             validateBounds();
             return m_cachedBounds->modelBounds;
@@ -182,13 +172,13 @@ namespace TrenchBroom {
                 }
 
                 // only if the bbox hit test failed do we hit test the model
-                if (modelFrame() != nullptr) {
+                if (m_entity.model() != nullptr) {
                     // we transform the ray into the model's space
                     const auto transform = m_entity.modelTransformation();
                     const auto [invertible, inverse] = vm::invert(transform);
                     if (invertible) {
                         const auto transformedRay = vm::ray3f(ray.transform(inverse));
-                        const auto distance = modelFrame()->intersect(transformedRay);
+                        const auto distance = m_entity.model()->intersect(transformedRay);
                         if (!vm::is_nan(distance)) {
                             // transform back to world space
                             const auto transformedHitPoint = vm::vec3(point_at_distance(transformedRay, distance));

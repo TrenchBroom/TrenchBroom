@@ -62,7 +62,6 @@ namespace TrenchBroom {
 
             FloatType area(vm::axis::type axis) const;
         public: // entity model
-            Assets::ModelSpecification modelSpecification() const;
             const vm::bbox3& modelBounds() const;
             const Assets::EntityModelFrame* modelFrame() const;
             void setModelFrame(const Assets::EntityModelFrame* modelFrame);
