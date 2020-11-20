@@ -55,7 +55,7 @@ namespace TrenchBroom {
 
         void EntityModelRenderer::addEntity(Model::EntityNode* entityNode) {
             const auto modelSpec = Assets::safeGetModelSpecification(m_logger, entityNode->entity().classname(), [&]() {
-                return entityNode->modelSpecification();
+                return entityNode->entity().modelSpecification();
             });
 
             auto* renderer = m_entityModelManager.renderer(modelSpec);
@@ -66,7 +66,7 @@ namespace TrenchBroom {
 
         void EntityModelRenderer::updateEntity(Model::EntityNode* entityNode) {
             const auto modelSpec = Assets::safeGetModelSpecification(m_logger, entityNode->entity().classname(), [&]() {
-                return entityNode->modelSpecification();
+                return entityNode->entity().modelSpecification();
             });
 
             auto* renderer = m_entityModelManager.renderer(modelSpec);
