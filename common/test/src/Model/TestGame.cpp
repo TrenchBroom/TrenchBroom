@@ -102,7 +102,7 @@ namespace TrenchBroom {
         void TestGame::doWriteMap(WorldNode& world, const IO::Path& path) const {
             const auto mapFormatName = formatName(world.format());
 
-            std::ofstream file(path.asString());
+            std::ofstream file = openPathAsOutputStream(path);
             if (!file) {
                 throw FileSystemException("Cannot open file: " + path.asString());
             }

@@ -20,6 +20,7 @@
 #include "Exceptions.h"
 #include "FloatType.h"
 #include "Assets/Texture.h"
+#include "IO/IOUtils.h"
 #include "IO/DiskIO.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
@@ -2951,7 +2952,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Valve);
 
             const auto path = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Brush/curvetut-crash.map");
-            const std::string data = IO::Disk::readFile(path);
+            const std::string data = IO::Disk::readTextFile(path);
             REQUIRE(!data.empty());
 
             IO::TestParserStatus status;
@@ -3037,7 +3038,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Valve);
 
             const auto path = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Brush/weirdcurvemerge.map");
-            const std::string data = IO::Disk::readFile(path);
+            const std::string data = IO::Disk::readTextFile(path);
             REQUIRE(!data.empty());
 
             IO::TestParserStatus status;
@@ -3327,7 +3328,7 @@ namespace TrenchBroom {
 
 
             const auto subtrahendPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Brush/subtrahend.map");
-            std::ifstream stream(subtrahendPath.asString());
+            std::ifstream stream = openPathAsInputStream(subtrahendPath);
             std::stringstream subtrahendStr;
             subtrahendStr << stream.rdbuf();
 

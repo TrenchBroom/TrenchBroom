@@ -84,7 +84,7 @@ namespace TrenchBroom {
 
             for (const auto& game : games) {
                 const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/games/") + game + IO::Path("GameConfig.cfg");
-                const auto configStr = IO::Disk::readFile(configPath);
+                const auto configStr = IO::Disk::readTextFile(configPath);
                 auto configParser = IO::GameConfigParser(configStr, configPath);
                 auto config = configParser.parse();
 
@@ -97,7 +97,7 @@ namespace TrenchBroom {
 
         TEST_CASE("GameTest.loadQuake3Shaders", "[GameTest]") {
             const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/games//Quake3/GameConfig.cfg");
-            const auto configStr = IO::Disk::readFile(configPath);
+            const auto configStr = IO::Disk::readTextFile(configPath);
             auto configParser = IO::GameConfigParser(configStr, configPath);
             auto config = configParser.parse();
 
