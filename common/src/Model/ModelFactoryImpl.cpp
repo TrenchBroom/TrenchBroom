@@ -51,9 +51,9 @@ namespace TrenchBroom {
             return m_format;
         }
 
-        WorldNode* ModelFactoryImpl::doCreateWorld() const {
+        WorldNode* ModelFactoryImpl::doCreateWorld(Entity entity) const {
             assert(m_format != MapFormat::Unknown);
-            return new WorldNode(m_format);
+            return new WorldNode(std::move(entity), m_format);
         }
 
         LayerNode* ModelFactoryImpl::doCreateLayer(const std::string& name) const {

@@ -26,6 +26,7 @@
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushSnapshot.h"
+#include "Model/Entity.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/MapFormat.h"
@@ -66,7 +67,7 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
@@ -90,7 +91,7 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
@@ -196,7 +197,7 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Valve);
+            WorldNode world(Entity(), MapFormat::Valve);
 
             IO::TestParserStatus status;
 
@@ -218,7 +219,7 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
@@ -444,7 +445,7 @@ namespace TrenchBroom {
             // This brush is almost degenerate. It should be rejected by the map loader.
 
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
@@ -475,7 +476,7 @@ namespace TrenchBroom {
                               "}");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
@@ -525,7 +526,7 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
@@ -551,7 +552,7 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
@@ -561,7 +562,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushNodeTest.snapshotTextureTest", "[BrushNodeTest]") {
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
             const BrushBuilder builder(&world, worldBounds);
 
             BrushNode* cube = world.createBrush(builder.createCube(128.0, "testTexture").value());
@@ -645,7 +646,7 @@ namespace TrenchBroom {
                               "}\n");
 
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(Model::MapFormat::Valve);
+            WorldNode world(Entity(), MapFormat::Valve);
 
             IO::TestParserStatus status;
 
@@ -665,7 +666,7 @@ namespace TrenchBroom {
             // see https://github.com/TrenchBroom/TrenchBroom/pull/2372#issuecomment-432893836
 
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             const std::string data = R"(
 {
@@ -754,7 +755,7 @@ namespace TrenchBroom {
             // see https://github.com/TrenchBroom/TrenchBroom/issues/2491
 
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             const std::string data = R"(
             {
@@ -776,7 +777,7 @@ namespace TrenchBroom {
             // see https://github.com/TrenchBroom/TrenchBroom/issues/2686
 
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(Model::MapFormat::Valve);
+            WorldNode world(Entity(), MapFormat::Valve);
 
             const std::string data = R"(
 {

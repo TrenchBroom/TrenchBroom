@@ -35,7 +35,7 @@ namespace TrenchBroom {
     namespace Model {
         TEST_CASE("TaggingTest.testTagBrush", "[TaggingTest]") {
             const vm::bbox3 worldBounds{4096.0};
-            WorldNode world{MapFormat::Standard};
+            WorldNode world{Model::Entity{}, MapFormat::Standard};
 
             BrushBuilder builder{&world, worldBounds};
             BrushNode* brush = world.createBrush(builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom").value());
