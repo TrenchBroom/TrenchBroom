@@ -55,13 +55,10 @@ namespace TrenchBroom {
                 vm::bbox3 physicalBounds;
             };
             mutable std::optional<CachedBounds> m_cachedBounds;
-
-            mutable vm::vec3 m_cachedOrigin;
-            mutable vm::mat4x4 m_cachedRotation;
-
-            const Assets::EntityModelFrame* m_modelFrame;
         public:
             EntityNode();
+            explicit EntityNode(Entity entity);
+            explicit EntityNode(std::initializer_list<EntityAttribute> attributes);
 
             bool brushEntity() const;
             bool pointEntity() const;
@@ -78,7 +75,6 @@ namespace TrenchBroom {
             Assets::PitchType pitchType() const;
             FloatType area(vm::axis::type axis) const;
         private:
-            void cacheAttributes();
             void setOrigin(const vm::vec3& origin);
             void applyRotation(const vm::mat4x4& transformation);
         public: // entity model

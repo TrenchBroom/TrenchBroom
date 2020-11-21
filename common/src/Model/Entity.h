@@ -107,6 +107,7 @@ namespace TrenchBroom {
             const Assets::EntityModelFrame* model() const;
             void setModel(const Assets::EntityModelFrame* model);
 
+            Assets::ModelSpecification modelSpecification() const;
             const vm::mat4x4 modelTransformation() const;
 
             void addOrUpdateAttribute(std::string name, std::string value);
