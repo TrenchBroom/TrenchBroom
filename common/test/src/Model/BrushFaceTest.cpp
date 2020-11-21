@@ -27,6 +27,7 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
+#include "Model/Entity.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
@@ -464,7 +465,7 @@ namespace TrenchBroom {
         TEST_CASE("BrushFaceTest.testSetRotation_Paraxial", "[BrushFaceTest]") {
             const vm::bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             Brush cube = builder.createCube(128.0, "").value();
@@ -488,7 +489,7 @@ namespace TrenchBroom {
         TEST_CASE("BrushFaceTest.testTextureLock_Paraxial", "[BrushFaceTest]") {
             const vm::bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             Brush cube = builder.createCube(128.0, "").value();
@@ -507,7 +508,7 @@ namespace TrenchBroom {
         TEST_CASE("BrushFaceTest.testTextureLock_Parallel", "[BrushFaceTest]") {
             const vm::bbox3 worldBounds(8192.0);
             Assets::Texture texture("testTexture", 64, 64);
-            WorldNode world(MapFormat::Valve);
+            WorldNode world(Entity(), MapFormat::Valve);
 
             BrushBuilder builder(&world, worldBounds);
             Brush cube = builder.createCube(128.0, "").value();
@@ -538,7 +539,7 @@ namespace TrenchBroom {
                                       "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Valve);
+            WorldNode world(Entity(), MapFormat::Valve);
 
             IO::TestParserStatus status;
             std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status);
@@ -594,7 +595,7 @@ namespace TrenchBroom {
                                       "}\n");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Valve);
+            WorldNode world(Entity(), MapFormat::Valve);
 
             IO::TestParserStatus status;
 
@@ -655,7 +656,7 @@ namespace TrenchBroom {
 )");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Valve);
+            WorldNode world(Entity(), MapFormat::Valve);
 
             IO::TestParserStatus status;
 
@@ -677,8 +678,8 @@ namespace TrenchBroom {
         TEST_CASE("BrushFaceTest.formatConversion", "[BrushFaceTest]") {
             const vm::bbox3 worldBounds(4096.0);
 
-            WorldNode standardWorld(MapFormat::Standard);
-            WorldNode valveWorld(MapFormat::Valve);
+            WorldNode standardWorld(Model::Entity(), MapFormat::Standard);
+            WorldNode valveWorld(Model::Entity(), MapFormat::Valve);
 
             BrushBuilder standardBuilder(&standardWorld, worldBounds);
             BrushBuilder valveBuilder(&valveWorld, worldBounds);
@@ -732,7 +733,7 @@ namespace TrenchBroom {
 )");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
@@ -765,7 +766,7 @@ namespace TrenchBroom {
 )");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Entity(), MapFormat::Standard);
 
             IO::TestParserStatus status;
 
@@ -787,7 +788,7 @@ namespace TrenchBroom {
 )");
 
             const vm::bbox3 worldBounds(4096.0);
-            WorldNode world(MapFormat::Valve);
+            WorldNode world(Entity(), MapFormat::Valve);
 
             IO::TestParserStatus status;
 

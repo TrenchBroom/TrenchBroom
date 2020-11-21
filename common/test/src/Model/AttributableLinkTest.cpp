@@ -34,7 +34,7 @@
 namespace TrenchBroom {
     namespace Model {
         TEST_CASE("AttributableNodeLinkTest.testCreateLink", "[AttributableNodeLinkTest]") {
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity());
             EntityNode* target = world.createEntity(Model::Entity());
             world.defaultLayer()->addChild(source);
@@ -53,7 +53,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("AttributableNodeLinkTest.testCreateMultiSourceLink", "[AttributableNodeLinkTest]") {
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source1 = world.createEntity(Model::Entity());
             EntityNode* source2 = world.createEntity(Model::Entity());
             EntityNode* target = world.createEntity(Model::Entity());
@@ -81,7 +81,7 @@ namespace TrenchBroom {
 
 
         TEST_CASE("AttributableNodeLinkTest.testCreateMultiTargetLink", "[AttributableNodeLinkTest]") {
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity());
             EntityNode* target1 = world.createEntity(Model::Entity());
             EntityNode* target2 = world.createEntity(Model::Entity());
@@ -112,7 +112,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("AttributableNodeLinkTest.testLoadLink", "[AttributableNodeLinkTest]") {
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 {AttributeNames::Target, "target_name"}
             }));
@@ -133,7 +133,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("AttributableNodeLinkTest.testRemoveLinkByChangingSource", "[AttributableNodeLinkTest]") {
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 {AttributeNames::Target, "target_name"}
             }));
@@ -154,7 +154,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("AttributableNodeLinkTest.testRemoveLinkByChangingTarget", "[AttributableNodeLinkTest]") {
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 {AttributeNames::Target, "target_name"}
             }));
@@ -175,7 +175,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("AttributableNodeLinkTest.testRemoveLinkByRemovingSource", "[AttributableNodeLinkTest]") {
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 {AttributeNames::Target, "target_name"}
             }));
@@ -198,7 +198,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("AttributableNodeLinkTest.testRemoveLinkByRemovingTarget", "[AttributableNodeLinkTest]") {
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 {AttributeNames::Target, "target_name"}
             }));
@@ -221,7 +221,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("AttributableNodeLinkTest.testCreateKillLink", "[AttributableNodeLinkTest]") {
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity());
             EntityNode* target = world.createEntity(Model::Entity());
             world.defaultLayer()->addChild(source);
@@ -240,7 +240,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("AttributableNodeLinkTest.testLoadKillLink", "[AttributableNodeLinkTest]") {
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 {AttributeNames::Killtarget, "target_name"}
             }));
@@ -261,7 +261,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("AttributableNodeLinkTest.testRemoveKillLinkByChangingSource", "[AttributableNodeLinkTest]") {
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 {AttributeNames::Killtarget, "target_name"}
             }));
@@ -282,7 +282,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("AttributableNodeLinkTest.testRemoveKillLinkByChangingTarget", "[AttributableNodeLinkTest]") {
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 {AttributeNames::Killtarget, "target_name"}
             }));
@@ -303,7 +303,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("AttributableNodeLinkTest.testRemoveKillLinkByRemovingSource", "[AttributableNodeLinkTest]") {
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 {AttributeNames::Killtarget, "target_name"}
             }));
@@ -326,7 +326,7 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("AttributableNodeLinkTest.testRemoveKillLinkByRemovingTarget", "[AttributableNodeLinkTest]") {
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
                 {AttributeNames::Killtarget, "target_name"}
             }));

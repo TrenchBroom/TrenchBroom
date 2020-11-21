@@ -93,11 +93,11 @@ namespace TrenchBroom {
         }
 
         std::unique_ptr<WorldNode> TestGame::doNewMap(const MapFormat format, const vm::bbox3& /* worldBounds */, Logger& /* logger */) const {
-            return std::make_unique<WorldNode>(format);
+            return std::make_unique<WorldNode>(Entity(), format);
         }
 
         std::unique_ptr<WorldNode> TestGame::doLoadMap(const MapFormat format, const vm::bbox3& /* worldBounds */, const IO::Path& /* path */, Logger& /* logger */) const {
-            return std::make_unique<WorldNode>(format);
+            return std::make_unique<WorldNode>(Entity(), format);
         }
 
         void TestGame::doWriteMap(WorldNode& world, const IO::Path& path) const {

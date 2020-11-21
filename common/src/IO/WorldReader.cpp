@@ -89,7 +89,7 @@ namespace TrenchBroom {
         }
 
         Model::ModelFactory& WorldReader::initialize(const Model::MapFormat format) {
-            m_world = std::make_unique<Model::WorldNode>(format);
+            m_world = std::make_unique<Model::WorldNode>(Model::Entity(), format);
             m_world->disableNodeTreeUpdates();
             return *m_world;
         }

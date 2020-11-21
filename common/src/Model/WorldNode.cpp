@@ -44,15 +44,16 @@
 
 namespace TrenchBroom {
     namespace Model {
-        WorldNode::WorldNode(MapFormat mapFormat) :
+        WorldNode::WorldNode(Entity entity, MapFormat mapFormat) :
         m_factory(std::make_unique<ModelFactoryImpl>(mapFormat)),
         m_defaultLayer(nullptr),
         m_attributableIndex(std::make_unique<AttributableNodeIndex>()),
         m_issueGeneratorRegistry(std::make_unique<IssueGeneratorRegistry>()),
         m_nodeTree(std::make_unique<NodeTree>()),
         m_updateNodeTree(true) {
-            addOrUpdateAttribute(AttributeNames::Classname, AttributeValues::WorldspawnClassname);
-            m_entity.setPointEntity(false);
+            entity.addOrUpdateAttribute(AttributeNames::Classname, AttributeValues::WorldspawnClassname);
+            entity.setPointEntity(false);
+            setEntity(std::move(entity));
             createDefaultLayer();
         }
 
@@ -185,7 +186,7 @@ namespace TrenchBroom {
         }
 
         Node* WorldNode::doClone(const vm::bbox3& /* worldBounds */) const {
-            WorldNode* world = m_factory->createWorld();
+            WorldNode* world = m_factory->createWorld(Entity());
             cloneAttributes(world);
             return world;
         }
@@ -194,7 +195,7 @@ namespace TrenchBroom {
             const std::vector<Node*>& myChildren = children();
             assert(myChildren[0] == m_defaultLayer);
 
-            WorldNode* world = m_factory->createWorld();
+            WorldNode* world = m_factory->createWorld(Entity());
             cloneAttributes(world);
 
             world->defaultLayer()->addChildren(cloneRecursively(worldBounds, m_defaultLayer->children()));
@@ -369,8 +370,8 @@ namespace TrenchBroom {
             return m_factory->format();
         }
 
-        WorldNode* WorldNode::doCreateWorld() const {
-            return m_factory->createWorld();
+        WorldNode* WorldNode::doCreateWorld(Entity entity) const {
+            return m_factory->createWorld(std::move(entity));
         }
 
         LayerNode* WorldNode::doCreateLayer(const std::string& name) const {

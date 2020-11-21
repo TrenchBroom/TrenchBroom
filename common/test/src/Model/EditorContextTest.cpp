@@ -22,6 +22,7 @@
 #include "Preferences.h"
 #include "Model/BrushBuilder.h"
 #include "Model/EditorContext.h"
+#include "Model/Entity.h"
 #include "Model/LockState.h"
 #include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
@@ -45,7 +46,7 @@ namespace TrenchBroom {
 
             EditorContextTest() {
                 worldBounds = vm::bbox3d(8192.0);
-                world = new WorldNode(MapFormat::Standard);
+                world = new WorldNode(Model::Entity(), MapFormat::Standard);
             }
 
             virtual ~EditorContextTest() {

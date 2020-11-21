@@ -35,7 +35,7 @@ namespace TrenchBroom {
     namespace Model {
         TEST_CASE("BrushBuilderTest.createCube", "[BrushBuilderTest]") {
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Model::Entity(), MapFormat::Standard);
 
             BrushBuilder builder(&world, worldBounds);
             const Brush cube = builder.createCube(128.0, "someName").value();
@@ -52,7 +52,7 @@ namespace TrenchBroom {
 
         TEST_CASE("BrushBuilderTest.createCubeDefaults", "[BrushBuilderTest]") {
             const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(MapFormat::Standard);
+            WorldNode world(Model::Entity(), MapFormat::Standard);
 
             BrushFaceAttributes defaultAttribs("defaultTexture");
             defaultAttribs.setOffset(vm::vec2f(0.5f, 0.5f));
