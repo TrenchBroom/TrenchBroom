@@ -28,13 +28,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EntityAttributes;
+        class Entity;
 
         class EntityAttributesVariableStore : public EL::VariableStore {
         private:
-            const EntityAttributes& m_attributes;
+            const Entity& m_entity;
         public:
-            explicit EntityAttributesVariableStore(const EntityAttributes& attributes);
+            explicit EntityAttributesVariableStore(const Entity& entity);
         private:
             VariableStore* doClone() const override;
             size_t doGetSize() const override;

@@ -52,6 +52,7 @@ namespace TrenchBroom {
         m_nodeTree(std::make_unique<NodeTree>()),
         m_updateNodeTree(true) {
             addOrUpdateAttribute(AttributeNames::Classname, AttributeValues::WorldspawnClassname);
+            m_entity.setPointEntity(false);
             createDefaultLayer();
         }
 

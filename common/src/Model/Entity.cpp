@@ -121,6 +121,15 @@ namespace TrenchBroom {
             invalidateCachedAttributes();
         }
 
+        Assets::ModelSpecification Entity::modelSpecification() const {
+            if (const auto* pointDefinition = dynamic_cast<const Assets::PointEntityDefinition*>(m_definition.get())) {
+                const auto variableStore = EntityAttributesVariableStore(*this);
+                return pointDefinition->model(variableStore);
+            } else {
+                return Assets::ModelSpecification();
+            }
+        }
+
         const vm::mat4x4 Entity::modelTransformation() const {
             return vm::translation_matrix(origin() * rotation());
         }

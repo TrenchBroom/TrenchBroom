@@ -20,12 +20,12 @@
 #ifndef TrenchBroom_AttributableNode
 #define TrenchBroom_AttributableNode
 
+#include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 #include "Model/Node.h"
 
 #include <vecmath/bbox.h>
 
-#include <set>
 #include <string>
 #include <vector>
 
@@ -38,26 +38,27 @@ namespace TrenchBroom {
     namespace Model {
         class AttributableNode : public Node {
         public: // some helper methods
-            static Assets::EntityDefinition* selectEntityDefinition(const std::vector<AttributableNode*>& attributables);
+            static const Assets::EntityDefinition* selectEntityDefinition(const std::vector<AttributableNode*>& attributables);
             static const Assets::AttributeDefinition* selectAttributeDefinition(const std::string& name, const std::vector<AttributableNode*>& attributables);
             static std::string selectAttributeValue(const std::string& name, const std::vector<AttributableNode*>& attributables);
         protected:
             static const std::string DefaultAttributeValue;
 
-            Assets::EntityDefinition* m_definition;
-            EntityAttributes m_attributes;
+            AttributableNode(Entity entity);
+
+            Entity m_entity;
 
             std::vector<AttributableNode*> m_linkSources;
             std::vector<AttributableNode*> m_linkTargets;
             std::vector<AttributableNode*> m_killSources;
             std::vector<AttributableNode*> m_killTargets;
-
-            // cache the classname for faster access
-            std::string m_classname;
         public:
             virtual ~AttributableNode() override;
-        public: // definition
-            Assets::EntityDefinition* definition() const;
+        public: // entity access
+            const Entity& entity() const;
+            void setEntity(Entity entity);
+        public: // definition 
+            const Assets::EntityDefinition* definition() const;
             void setDefinition(Assets::EntityDefinition* definition);
         public: // attribute management
             const Assets::AttributeDefinition* attributeDefinition(const std::string& name) const;
@@ -77,7 +78,7 @@ namespace TrenchBroom {
             std::vector<EntityAttribute> numberedAttributes(const std::string& prefix) const;
 
             const std::string& attribute(const std::string& name, const std::string& defaultValue = DefaultAttributeValue) const;
-            const std::string& classname(const std::string& defaultClassname = AttributeValues::NoClassname) const;
+            const std::string& classname() const;
 
             EntityAttributeSnapshot attributeSnapshot(const std::string& name) const;
 
@@ -106,12 +107,13 @@ namespace TrenchBroom {
 
             void attributesWillChange();
             void attributesDidChange(const vm::bbox3& oldPhysicalBounds);
-
-            void updateClassname();
+        private: // bulk update after attribute changes
+            void updateIndexAndLinks(const std::vector<EntityAttribute>& newAttributes);
+            void updateAttributeIndex(const std::vector<EntityAttribute>& oldAttributes, const std::vector<EntityAttribute>& newAttributes);
+            void updateLinks(const std::vector<EntityAttribute>& oldAttributes, const std::vector<EntityAttribute>& newAttributes);
         private: // search index management
             void addAttributesToIndex();
             void removeAttributesFromIndex();
-            void updateAttributeIndex(const std::vector<EntityAttribute>& newAttributes);
 
             void addAttributeToIndex(const std::string& name, const std::string& value);
             void removeAttributeFromIndex(const std::string& name, const std::string& value);
@@ -130,6 +132,7 @@ namespace TrenchBroom {
             std::vector<std::string> findMissingKillTargets() const;
         private: // link management internals
             void findMissingTargets(const std::string& prefix, std::vector<std::string>& result) const;
+
 
             void addLinks(const std::string& name, const std::string& value);
             void removeLinks(const std::string& name, const std::string& value);
