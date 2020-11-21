@@ -34,8 +34,8 @@ namespace TrenchBroom {
             return doGetFormat();
         }
 
-        WorldNode* ModelFactory::createWorld() const {
-            return doCreateWorld();
+        WorldNode* ModelFactory::createWorld(Entity entity) const {
+            return doCreateWorld(std::move(entity));
         }
 
         LayerNode* ModelFactory::createLayer(const std::string& name) const {

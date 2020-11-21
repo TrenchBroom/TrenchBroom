@@ -22,8 +22,9 @@
 #include "Model/BrushNode.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
-#include "Model/WorldNode.h"
+#include "Model/Entity.h"
 #include "Model/MapFormat.h"
+#include "Model/WorldNode.h"
 #include "Renderer/BrushRenderer.h"
 
 #include <kdl/result.h>
@@ -56,7 +57,7 @@ namespace TrenchBroom {
 
             // make brushes, cycling through the textures for each face
             const vm::bbox3 worldBounds(4096.0);
-            Model::WorldNode world(Model::MapFormat::Standard);
+            Model::WorldNode world(Model::Entity(), Model::MapFormat::Standard);
 
             Model::BrushBuilder builder(&world, worldBounds);
 

@@ -153,24 +153,25 @@ namespace TrenchBroom {
             if (!initialMapFilePath.isEmpty() && IO::Disk::fileExists(initialMapFilePath)) {
                 return doLoadMap(format, worldBounds, initialMapFilePath, logger);
             } else {
-                auto world = std::make_unique<WorldNode>(format);
+                auto worldEntity = Model::Entity();
+                if (format == MapFormat::Valve || format == MapFormat::Quake2_Valve || format == MapFormat::Quake3_Valve) {
+                    worldEntity.addOrUpdateAttribute(AttributeNames::ValveVersion, "220");
+                }
 
-                const Model::BrushBuilder builder(world.get(), worldBounds, defaultFaceAttribs());
+                auto worldNode = std::make_unique<WorldNode>(std::move(worldEntity), format);
+
+                const Model::BrushBuilder builder(worldNode.get(), worldBounds, defaultFaceAttribs());
                 builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName).
                     visit(kdl::overload(
                         [&](Brush&& b) {
-                            world->defaultLayer()->addChild(world->createBrush(std::move(b)));
+                            worldNode->defaultLayer()->addChild(worldNode->createBrush(std::move(b)));
                         },
                         [&](const Model::BrushError e) {
                             logger.error() << "Could not create default brush: " << e;
                         }
                     ));
 
-                if (format == MapFormat::Valve || format == MapFormat::Quake2_Valve || format == MapFormat::Quake3_Valve) {
-                    world->addOrUpdateAttribute(AttributeNames::ValveVersion, "220");
-                }
-
-                return world;
+                return worldNode;
             }
         }
 
@@ -319,7 +320,9 @@ namespace TrenchBroom {
             }
 
             const auto value = kdl::str_join(IO::Path::asStrings(paths, "/"), ";");
-            node.addOrUpdateAttribute(attribute, value);
+            auto entity = node.entity();
+            entity.addOrUpdateAttribute(attribute, value);
+            node.setEntity(std::move(entity));
         }
 
         void GameImpl::doReloadShaders() {
@@ -581,12 +584,14 @@ namespace TrenchBroom {
         void GameImpl::writeLongAttribute(AttributableNode& node, const std::string& baseName, const std::string& value, const size_t maxLength) const {
             node.removeNumberedAttribute(baseName);
 
+            auto entity = node.entity();
             std::stringstream nameStr;
             for (size_t i = 0; i <= value.size() / maxLength; ++i) {
                 nameStr.str("");
                 nameStr << baseName << i+1;
-                node.addOrUpdateAttribute(nameStr.str(), value.substr(i * maxLength, maxLength));
+                entity.addOrUpdateAttribute(nameStr.str(), value.substr(i * maxLength, maxLength));
             }
+            node.setEntity(std::move(entity));
         }
 
         std::string GameImpl::readLongAttribute(const AttributableNode& node, const std::string& baseName) const {

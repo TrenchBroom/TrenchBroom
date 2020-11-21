@@ -18,13 +18,14 @@
  */
 
 #include "Exceptions.h"
-#include "View/Grid.h"
+#include "Assets/Texture.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
-#include "Assets/Texture.h"
+#include "Model/Entity.h"
 #include "Model/MapFormat.h"
 #include "Model/WorldNode.h"
+#include "View/Grid.h"
 
 #include <kdl/result.h>
 
@@ -194,7 +195,7 @@ namespace TrenchBroom {
 
         static Model::Brush makeCube128() {
             Assets::Texture texture("testTexture", 64, 64);
-            Model::WorldNode world(Model::MapFormat::Standard);
+            Model::WorldNode world(Model::Entity(), Model::MapFormat::Standard);
             Model::BrushBuilder builder(&world, worldBounds);
             return builder.createCube(128.0, "").value();
         }

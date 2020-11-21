@@ -46,7 +46,7 @@
 namespace TrenchBroom {
     namespace IO {
         TEST_CASE("NodeWriterTest.writeEmptyMap", "[NodeWriterTest]") {
-            Model::WorldNode map(Model::MapFormat::Standard);
+            Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
 
             std::stringstream str;
             NodeWriter writer(map, str);
@@ -60,9 +60,9 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("NodeWriterTest.writeWorldspawn", "[NodeWriterTest]") {
-            Model::WorldNode map(Model::MapFormat::Standard);
-            map.addOrUpdateAttribute("classname", "worldspawn");
-            map.addOrUpdateAttribute("message", "holy damn");
+            Model::WorldNode map(Model::Entity({
+                {"message", "holy damn"}
+            }), Model::MapFormat::Standard);
 
             std::stringstream str;
             NodeWriter writer(map, str);
@@ -71,14 +71,13 @@ namespace TrenchBroom {
             const std::string result = str.str();
             ASSERT_STREQ("// entity 0\n"
                          "{\n"
-                         "\"classname\" \"worldspawn\"\n"
                          "\"message\" \"holy damn\"\n"
+                         "\"classname\" \"worldspawn\"\n"
                          "}\n", result.c_str());
         }
 
         TEST_CASE("NodeWriterTest.writeDefaultLayerAttributes", "[NodeWriterTest]") {
-            Model::WorldNode map(Model::MapFormat::Standard);
-            map.addOrUpdateAttribute("classname", "worldspawn");
+            Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
             map.defaultLayer()->setLayerColor(Color(0.25f, 0.75f, 1.0f));
             map.defaultLayer()->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
             map.defaultLayer()->setLockState(Model::LockState::Lock_Locked);
@@ -105,8 +104,7 @@ R"(// entity 0
         TEST_CASE("NodeWriterTest.writeDaikatanaMap", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
-            Model::WorldNode map(Model::MapFormat::Daikatana);
-            map.addOrUpdateAttribute("classname", "worldspawn");
+            Model::WorldNode map(Model::Entity(), Model::MapFormat::Daikatana);
 
             Model::BrushBuilder builder(&map, worldBounds);
             Model::Brush brush1 = builder.createCube(64.0, "none").value();
@@ -157,8 +155,7 @@ R"(// entity 0
         TEST_CASE("NodeWriterTest.writeQuake2ValveMap", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
-            Model::WorldNode map(Model::MapFormat::Quake2_Valve);
-            map.addOrUpdateAttribute("classname", "worldspawn");
+            Model::WorldNode map(Model::Entity(), Model::MapFormat::Quake2_Valve);
 
             Model::BrushBuilder builder(&map, worldBounds);
             Model::Brush brush1 = builder.createCube(64.0, "none").value();
@@ -198,8 +195,7 @@ R"(// entity 0
         TEST_CASE("NodeWriterTest.writeQuake3ValveMap", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
-            Model::WorldNode map(Model::MapFormat::Quake3_Valve);
-            map.addOrUpdateAttribute("classname", "worldspawn");
+            Model::WorldNode map(Model::Entity(), Model::MapFormat::Quake3_Valve);
 
             Model::BrushBuilder builder(&map, worldBounds);
             Model::BrushNode* brush1 = map.createBrush(builder.createCube(64.0, "none").value());
@@ -232,8 +228,7 @@ R"(// entity 0
         TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInDefaultLayer", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
-            Model::WorldNode map(Model::MapFormat::Standard);
-            map.addOrUpdateAttribute("classname", "worldspawn");
+            Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
 
             Model::BrushBuilder builder(&map, worldBounds);
             Model::BrushNode* brushNode = map.createBrush(builder.createCube(64.0, "none").value());
@@ -265,8 +260,7 @@ R"(// entity 0
         TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInCustomLayer", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
-            Model::WorldNode map(Model::MapFormat::Standard);
-            map.addOrUpdateAttribute("classname", "worldspawn");
+            Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
 
             Model::LayerNode* layer = map.createLayer("Custom Layer");
             CHECK(layer->sortIndex() == Model::LayerNode::invalidSortIndex());
@@ -308,8 +302,7 @@ R"(// entity 0
         }
 
         TEST_CASE("NodeWriterTest.writeWorldspawnWithCustomLayerWithSortIndex", "[NodeWriterTest]") {
-            Model::WorldNode map(Model::MapFormat::Standard);
-            map.addOrUpdateAttribute("classname", "worldspawn");
+            Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
 
             Model::LayerNode* layer = map.createLayer("Custom Layer");
             layer->setSortIndex(1);
@@ -345,8 +338,7 @@ R"(// entity 0
         TEST_CASE("NodeWriterTest.writeMapWithGroupInDefaultLayer", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
-            Model::WorldNode map(Model::MapFormat::Standard);
-            map.addOrUpdateAttribute("classname", "worldspawn");
+            Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
 
             Model::GroupNode* group = map.createGroup("Group");
             map.defaultLayer()->addChild(group);
@@ -387,8 +379,7 @@ R"(// entity 0
         TEST_CASE("NodeWriterTest.writeMapWithGroupInCustomLayer", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
-            Model::WorldNode map(Model::MapFormat::Standard);
-            map.addOrUpdateAttribute("classname", "worldspawn");
+            Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
 
             Model::LayerNode* layer = map.createLayer("Custom Layer");
             map.addChild(layer);
@@ -440,8 +431,7 @@ R"(// entity 0
         TEST_CASE("NodeWriterTest.writeMapWithNestedGroupInCustomLayer", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
-            Model::WorldNode map(Model::MapFormat::Standard);
-            map.addOrUpdateAttribute("classname", "worldspawn");
+            Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
 
             Model::LayerNode* layer = map.createLayer("Custom Layer");
             map.addChild(layer);
@@ -504,7 +494,7 @@ R"(// entity 0
         TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
-            Model::WorldNode map(Model::MapFormat::Standard);
+            Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
             Model::BrushBuilder builder(&map, worldBounds);
 
             // default layer (omit from export)
@@ -580,8 +570,7 @@ R"(// entity 0
         }
 
         TEST_CASE("NodeWriterTest.writeMapWithInheritedLock", "[NodeWriterTest]") {
-            Model::WorldNode map(Model::MapFormat::Standard);
-            map.addOrUpdateAttribute("classname", "worldspawn");
+            Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
 
             Model::LayerNode* layer = map.createLayer("Custom Layer");
             map.addChild(layer);
@@ -617,8 +606,7 @@ R"(// entity 0
         TEST_CASE("NodeWriterTest.writeNodesWithNestedGroup", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
-            Model::WorldNode map(Model::MapFormat::Standard);
-            map.addOrUpdateAttribute("classname", "worldspawn");
+            Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
 
             Model::BrushBuilder builder(&map, worldBounds);
 
@@ -677,7 +665,7 @@ R"(// entity 0
         TEST_CASE("NodeWriterTest.writeFaces", "[NodeWriterTest]") {
             const vm::bbox3 worldBounds(8192.0);
 
-            Model::WorldNode map(Model::MapFormat::Standard);
+            Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
             Model::BrushBuilder builder(&map, worldBounds);
             Model::BrushNode* brushNode = map.createBrush(builder.createCube(64.0, "none").value());
 
@@ -701,9 +689,9 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
         }
 
         TEST_CASE("NodeWriterTest.writePropertiesWithQuotationMarks", "[NodeWriterTest]") {
-            Model::WorldNode map(Model::MapFormat::Standard);
-            map.addOrUpdateAttribute("classname", "worldspawn");
-            map.addOrUpdateAttribute("message", "\"holy damn\", he said");
+            Model::WorldNode map(Model::Entity({
+                {"message", "\"holy damn\", he said"}
+            }), Model::MapFormat::Standard);
 
             std::stringstream str;
             NodeWriter writer(map, str);
@@ -712,15 +700,15 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
             const std::string result = str.str();
             ASSERT_STREQ("// entity 0\n"
                          "{\n"
-                         "\"classname\" \"worldspawn\"\n"
                          "\"message\" \"\\\"holy damn\\\", he said\"\n"
+                         "\"classname\" \"worldspawn\"\n"
                          "}\n", result.c_str());
         }
 
         TEST_CASE("NodeWriterTest.writePropertiesWithEscapedQuotationMarks", "[NodeWriterTest]") {
-            Model::WorldNode map(Model::MapFormat::Standard);
-            map.addOrUpdateAttribute("classname", "worldspawn");
-            map.addOrUpdateAttribute("message", "\\\"holy damn\\\", he said");
+            Model::WorldNode map(Model::Entity({
+                {"message", "\\\"holy damn\\\", he said"}
+            }), Model::MapFormat::Standard);
 
             std::stringstream str;
             NodeWriter writer(map, str);
@@ -729,16 +717,16 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
             const std::string result = str.str();
             ASSERT_STREQ("// entity 0\n"
                          "{\n"
-                         "\"classname\" \"worldspawn\"\n"
                          "\"message\" \"\\\"holy damn\\\", he said\"\n"
+                         "\"classname\" \"worldspawn\"\n"
                          "}\n", result.c_str());
         }
 
         // https://github.com/TrenchBroom/TrenchBroom/issues/1739
         TEST_CASE("NodeWriterTest.writePropertiesWithNewlineEscapeSequence", "[NodeWriterTest]") {
-            Model::WorldNode map(Model::MapFormat::Standard);
-            map.addOrUpdateAttribute("classname", "worldspawn");
-            map.addOrUpdateAttribute("message", "holy damn\\nhe said");
+            Model::WorldNode map(Model::Entity({
+                {"message", "holy damn\\nhe said"}
+            }), Model::MapFormat::Standard);
 
             std::stringstream str;
             NodeWriter writer(map, str);
@@ -747,18 +735,18 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
             const std::string result = str.str();
             ASSERT_STREQ("// entity 0\n"
                          "{\n"
-                         "\"classname\" \"worldspawn\"\n"
                          "\"message\" \"holy damn\\nhe said\"\n"
+                         "\"classname\" \"worldspawn\"\n"
                          "}\n", result.c_str());
         }
 
         // https://github.com/TrenchBroom/TrenchBroom/issues/2556
         TEST_CASE("NodeWriterTest.writePropertiesWithTrailingBackslash", "[NodeWriterTest]") {
-            Model::WorldNode map(Model::MapFormat::Standard);
-            map.addOrUpdateAttribute("classname", "worldspawn");
-            map.addOrUpdateAttribute("message\\", "holy damn\\");
-            map.addOrUpdateAttribute("message2", "holy damn\\\\");
-            map.addOrUpdateAttribute("message3", "holy damn\\\\\\");
+            Model::WorldNode map(Model::Entity({
+                {"message\\", "holy damn\\"},
+                {"message2", "holy damn\\\\"},
+                {"message3", "holy damn\\\\\\"},
+            }), Model::MapFormat::Standard);
 
             std::stringstream str;
             NodeWriter writer(map, str);
@@ -767,10 +755,10 @@ R"(( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
             const std::string result = str.str();
             ASSERT_STREQ("// entity 0\n"
                          "{\n"
-                         "\"classname\" \"worldspawn\"\n"
                          "\"message\" \"holy damn\"\n"
                          "\"message2\" \"holy damn\\\\\"\n"
                          "\"message3\" \"holy damn\\\\\"\n"
+                         "\"classname\" \"worldspawn\"\n"
                          "}\n", result.c_str());
         }
     }

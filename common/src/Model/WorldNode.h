@@ -55,7 +55,7 @@ namespace TrenchBroom {
             std::unique_ptr<NodeTree> m_nodeTree;
             bool m_updateNodeTree;
         public:
-            WorldNode(MapFormat mapFormat);
+            WorldNode(Entity entity, MapFormat mapFormat);
             ~WorldNode() override;
         public: // layer management
             LayerNode* defaultLayer();
@@ -149,7 +149,7 @@ namespace TrenchBroom {
             vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement ModelFactory interface
             MapFormat doGetFormat() const override;
-            WorldNode* doCreateWorld() const override;
+            WorldNode* doCreateWorld(Entity entity) const override;
             LayerNode* doCreateLayer(const std::string& name) const override;
             GroupNode* doCreateGroup(const std::string& name) const override;
             EntityNode* doCreateEntity(Entity entity) const override;
