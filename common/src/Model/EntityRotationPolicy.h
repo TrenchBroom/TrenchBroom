@@ -27,7 +27,12 @@
 #include <string>
 
 namespace TrenchBroom {
+    namespace Assets {
+        enum class PitchType;
+    }
+
     namespace Model {
+        class Entity;
         class EntityNode;
 
         class EntityRotationPolicy {
@@ -54,9 +59,17 @@ namespace TrenchBroom {
             static vm::mat4x4 getRotation(const EntityNode* entity);
             static void applyRotation(EntityNode* entity, const vm::mat4x4& transformation);
             static std::string getAttribute(const EntityNode* entity);
+
+            static vm::mat4x4 getRotation(const Entity& entity);
+            static void applyRotation(Entity& entity, const vm::mat4x4& transformation);
+            static std::string getAttribute(const Entity& entity);
         private:
             static RotationInfo rotationInfo(const EntityNode* entity);
             static void setAngle(EntityNode* entity, const std::string& attribute, const vm::vec3& direction);
+
+            static RotationInfo rotationInfo(const Entity& entity);
+            static void setAngle(Entity& entity, const std::string& attribute, const vm::vec3& direction);
+
             static FloatType getAngle(vm::vec3 direction);
         public:
             /**
