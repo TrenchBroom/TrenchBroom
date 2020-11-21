@@ -50,6 +50,8 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Model/BrushTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/EditorContextTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/EntityNodeTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Model/EntityRotationPolicyTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Model/EntityTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/GameTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/NodeTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/PolyhedronTest.cpp"

@@ -116,6 +116,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/EmptyAttributeValueIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/EmptyBrushEntityIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/EmptyGroupIssueGenerator.cpp
+        ${COMMON_SOURCE_DIR}/Model/Entity.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityAttributes.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityAttributeSnapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityAttributesVariableStore.cpp
@@ -606,6 +607,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/EmptyAttributeValueIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/EmptyBrushEntityIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/EmptyGroupIssueGenerator.h
+        ${COMMON_SOURCE_DIR}/Model/Entity.h
         ${COMMON_SOURCE_DIR}/Model/EntityAttributes.h
         ${COMMON_SOURCE_DIR}/Model/EntityAttributeSnapshot.h
         ${COMMON_SOURCE_DIR}/Model/EntityAttributesVariableStore.h
