@@ -607,7 +607,11 @@ namespace TrenchBroom {
 
             Model::GroupNode* group = document->groupSelection("Group");
             ASSERT_EQ((std::vector<Model::Node*> {ent1}), group->children());
+            ASSERT_EQ((std::vector<Model::Node*> {brush1}), ent1->children());
             ASSERT_EQ((std::vector<Model::Node*> {group}), document->selectedNodes().nodes());
+            CHECK(document->selectedNodes().brushesRecursively() == std::vector<Model::BrushNode*>{brush1});
+            CHECK(document->selectedNodes().hasBrushesRecursively());
+            CHECK(!document->selectedNodes().hasBrushes());
 
             document->ungroupSelection();
             ASSERT_EQ((std::vector<Model::Node*> {brush1}), document->selectedNodes().nodes());
