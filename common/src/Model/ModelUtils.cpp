@@ -73,9 +73,8 @@ namespace TrenchBroom {
                 [](WorldNode*)                            -> GroupNode* { return nullptr; },
                 [](LayerNode*)                            -> GroupNode* { return nullptr; },
                 [](auto&& thisLambda, GroupNode* group)   -> GroupNode* {
-                    const std::optional<GroupNode*> parentResult = group->visitParent(thisLambda);
-                    if (parentResult && parentResult.value() != nullptr) {
-                        return parentResult.value();
+                    if (GroupNode* parentResult = group->visitParent(thisLambda).value_or(nullptr)) {
+                        return parentResult;
                     }
                     // we didn't find a result searching the parent chain, so either return
                     // this group (if it's closed) or nullptr to indicate no result
