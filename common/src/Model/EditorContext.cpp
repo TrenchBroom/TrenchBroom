@@ -107,7 +107,13 @@ namespace TrenchBroom {
         }
 
         bool EditorContext::visible(const Model::Node* node) const {
-            return node->accept([&](const auto* concreteNode) { return visible(concreteNode); });
+            return node->accept(kdl::overload(
+                [&](const WorldNode* world)   { return visible(world); },
+                [&](const LayerNode* layer)   { return visible(layer); },
+                [&](const GroupNode* group)   { return visible(group); },
+                [&](const EntityNode* entity) { return visible(entity); },
+                [&](const BrushNode* brush)   { return visible(brush); }
+            ));
         }
 
         bool EditorContext::visible(const Model::WorldNode* world) const {
@@ -197,7 +203,13 @@ namespace TrenchBroom {
         }
 
         bool EditorContext::pickable(const Model::Node* node) const {
-            return node->accept([&](const auto* concreteNode) { return pickable(concreteNode); });
+            return node->accept(kdl::overload(
+                [&](const WorldNode* world)   { return pickable(world); },
+                [&](const LayerNode* layer)   { return pickable(layer); },
+                [&](const GroupNode* group)   { return pickable(group); },
+                [&](const EntityNode* entity) { return pickable(entity); },
+                [&](const BrushNode* brush)   { return pickable(brush); }
+            ));
         }
 
         bool EditorContext::pickable(const Model::WorldNode* /* world */) const {
@@ -229,7 +241,13 @@ namespace TrenchBroom {
         }
 
         bool EditorContext::selectable(const Model::Node* node) const {
-            return node->accept([&](const auto* concreteNode) { return selectable(concreteNode); });
+            return node->accept(kdl::overload(
+                [&](const WorldNode* world)   { return selectable(world); },
+                [&](const LayerNode* layer)   { return selectable(layer); },
+                [&](const GroupNode* group)   { return selectable(group); },
+                [&](const EntityNode* entity) { return selectable(entity); },
+                [&](const BrushNode* brush)   { return selectable(brush); }
+            ));
         }
 
         bool EditorContext::selectable(const Model::WorldNode*) const {

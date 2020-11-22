@@ -1050,8 +1050,11 @@ namespace TrenchBroom {
                 moveToWorldAction->setEnabled(canMakeStructural());
 
                 const auto isEntity = newBrushParent->accept(kdl::overload(
+                    [](const Model::WorldNode*)  { return false; },
+                    [](const Model::LayerNode*)  { return false; },
+                    [](const Model::GroupNode*)  { return false; },
                     [](const Model::EntityNode*) { return true; },
-                    [](const auto*)              { return false; }
+                    [](const Model::BrushNode*)  { return false; }
                 ));
 
                 if (isEntity) {

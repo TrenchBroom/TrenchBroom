@@ -2433,11 +2433,23 @@ namespace TrenchBroom {
         }
 
         static auto makeInitializeNodeTagsVisitor(Model::TagManager& tagManager) {
-            return [&](auto&& thisLambda, auto* node) { node->initializeTags(tagManager); node->visitChildren(thisLambda); };
+            return kdl::overload(
+                [&](auto&& thisLambda, Model::WorldNode* world) { world->initializeTags(tagManager); world->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::LayerNode* layer) { layer->initializeTags(tagManager); layer->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::GroupNode* group) { group->initializeTags(tagManager); group->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::EntityNode* entity) { entity->initializeTags(tagManager); entity->visitChildren(thisLambda); },
+                [&](Model::BrushNode* brush) { brush->initializeTags(tagManager); }
+            );
         }
 
         static auto makeClearNodeTagsVisitor() {
-            return [](auto&& thisLambda, auto* node) { node->clearTags(); node->visitChildren(thisLambda); };
+            return kdl::overload(
+                [](auto&& thisLambda, Model::WorldNode* world) { world->clearTags(); world->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::LayerNode* layer) { layer->clearTags(); layer->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::GroupNode* group) { group->clearTags(); group->visitChildren(thisLambda); },
+                [](auto&& thisLambda, Model::EntityNode* entity) { entity->clearTags(); entity->visitChildren(thisLambda); },
+                [](Model::BrushNode* brush) { brush->clearTags(); }
+            );
         }
 
         void MapDocument::initializeNodeTags(MapDocument* document) {

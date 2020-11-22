@@ -70,8 +70,11 @@ namespace TrenchBroom {
         std::vector<LayerNode*> WorldNode::allLayers() {
             std::vector<LayerNode*> layers;
             visitChildren(kdl::overload(
+                [ ](WorldNode*) {},
                 [&](LayerNode* layer) { layers.push_back(layer); },
-                [](auto*) {}
+                [ ](GroupNode*) {},
+                [ ](EntityNode*) {},
+                [ ](BrushNode*) {}
             ));
             return layers;
         }
@@ -86,8 +89,11 @@ namespace TrenchBroom {
             const std::vector<Node*>& children = Node::children();
             for (auto it = std::next(std::begin(children)), end = std::end(children); it != end; ++it) {
                 (*it)->accept(kdl::overload(
+                    [] (WorldNode*)       {},
                     [&](LayerNode* layer) { layers.push_back(layer); },
-                    [](auto*) {}
+                    [] (GroupNode*)       {},
+                    [] (EntityNode*)      {},
+                    [] (BrushNode*)       {}
                 ));
             }
 
@@ -156,12 +162,19 @@ namespace TrenchBroom {
 
         void WorldNode::rebuildNodeTree() {
             auto nodes = std::vector<Model::Node*>{};
-            accept([&](auto&& thisLambda, auto* node) { 
-                if (node->shouldAddToSpacialIndex()) { 
-                    nodes.push_back(node); 
+            const auto addNode = [&](auto* node) {
+                if (node->shouldAddToSpacialIndex()) {
+                    nodes.push_back(node);
                 }
-                node->visitChildren(thisLambda);
-            });
+            };
+
+            accept(kdl::overload(
+                [&](auto&& thisLambda, WorldNode* world)   { addNode(world); world->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, LayerNode* layer)   { addNode(layer); layer->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, GroupNode* group)   { addNode(group); group->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, EntityNode* entity) { addNode(entity); entity->visitChildren(thisLambda); },
+                [&](BrushNode* brush)                      { addNode(brush); }
+            ));
 
             m_nodeTree->clearAndBuild(nodes, [](const auto* node){ return node->physicalBounds(); });
         }

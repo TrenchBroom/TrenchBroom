@@ -139,7 +139,10 @@ namespace TrenchBroom {
             beginEntity(node, attributes, parentAttributes);
 
             brushParent->visitChildren(kdl::overload(
-                [](const auto*) {},
+                [] (const Model::WorldNode*)   {},
+                [] (const Model::LayerNode*)   {},
+                [] (const Model::GroupNode*)   {},
+                [] (const Model::EntityNode*)  {},
                 [&](const Model::BrushNode* b) {
                     brush(b);
                 }

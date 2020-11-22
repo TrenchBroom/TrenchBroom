@@ -357,11 +357,14 @@ namespace TrenchBroom {
             std::map<Model::GroupNode*, std::string> oldNames;
             for (auto* node : nodes) {
                 node->accept(kdl::overload(
+                    [] (Model::WorldNode*) {},
+                    [] (Model::LayerNode*) {},
                     [&](Model::GroupNode* group) {
                         oldNames[group] = group->name();
                         group->setName(newName);
                     },
-                    [](const auto*) {}
+                    [] (Model::EntityNode*) {},
+                    [] (Model::BrushNode*) {}
                 ));
             }
 
@@ -377,12 +380,15 @@ namespace TrenchBroom {
 
             for (auto* node : nodes) {
                 node->accept(kdl::overload(
+                    [] (Model::WorldNode*) {},
+                    [] (Model::LayerNode*) {},
                     [&](Model::GroupNode* group) {
                         assert(newNames.count(group) == 1);
                         const std::string& newName = kdl::map_find_or_default(newNames, group, group->name());
                         group->setName(newName);
                     },
-                    [](const auto*) {}
+                    [] (Model::EntityNode*) {},
+                    [] (Model::BrushNode*) {}
                 ));
             }
         }

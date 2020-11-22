@@ -103,8 +103,11 @@ namespace TrenchBroom {
          */
         bool DuplicateNodesCommand::shouldCloneParentWhenCloningNode(const Model::Node* node) const {
             return node->parent()->accept(kdl::overload(
+                [] (const Model::WorldNode*)  { return false; },
+                [] (const Model::LayerNode*)  { return false; },
+                [] (const Model::GroupNode*)  { return false; },
                 [&](const Model::EntityNode*) { return true; },
-                [] (const auto*)              { return false; }
+                [] (const Model::BrushNode*)  { return false; }
             ));
         }
 
