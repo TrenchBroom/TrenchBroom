@@ -206,7 +206,7 @@ namespace TrenchBroom {
                                FaceAttribsConfig faceAttribsConfig,
                                std::vector<SmartTag> smartTags,
                                std::optional<vm::bbox3> softMapBounds,
-                               std::vector<CompilationToolDescription> compilationTools) :
+                               std::vector<CompilationTool> compilationTools) :
         m_name(std::move(name)),
         m_path(std::move(path)),
         m_icon(std::move(icon)),
@@ -270,7 +270,7 @@ namespace TrenchBroom {
             return m_softMapBounds;
         }
 
-        const std::vector<CompilationToolDescription>& GameConfig::compilationTools() const {
+        const std::vector<CompilationTool>& GameConfig::compilationTools() const {
             return m_compilationTools;
         }
 

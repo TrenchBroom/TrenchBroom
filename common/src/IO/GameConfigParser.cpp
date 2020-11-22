@@ -484,14 +484,14 @@ namespace TrenchBroom {
             return bounds;
         }
 
-        std::vector<Model::CompilationToolDescription> GameConfigParser::parseCompilationTools(const EL::Value& value) const {
+        std::vector<Model::CompilationTool> GameConfigParser::parseCompilationTools(const EL::Value& value) const {
             if (value.null()) {
                 return {};
             }
 
             expectType(value, EL::typeForName("Array"));
 
-            std::vector<Model::CompilationToolDescription> result;
+            std::vector<Model::CompilationTool> result;
             for (size_t i = 0; i < value.length(); ++i) {
                 expectStructure(
                         value[i],
@@ -502,7 +502,7 @@ namespace TrenchBroom {
 
                 const std::string name = value[i]["name"].stringValue();
 
-                result.push_back(Model::CompilationToolDescription{name});
+                result.push_back(Model::CompilationTool{name});
             }
 
             return result;

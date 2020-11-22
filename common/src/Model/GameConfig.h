@@ -148,7 +148,7 @@ namespace TrenchBroom {
             bool operator==(const FaceAttribsConfig& other) const;
         };
 
-        struct CompilationToolDescription {
+        struct CompilationTool {
             std::string name;
         };
 
@@ -170,7 +170,7 @@ namespace TrenchBroom {
             std::optional<vm::bbox3> m_softMapBounds;
             mutable bool m_compilationConfigParseFailed;
             mutable bool m_gameEngineConfigParseFailed;
-            std::vector<CompilationToolDescription> m_compilationTools;
+            std::vector<CompilationTool> m_compilationTools;
         public:
             GameConfig();
             GameConfig(
@@ -185,7 +185,7 @@ namespace TrenchBroom {
                 FaceAttribsConfig faceAttribsConfig,
                 std::vector<SmartTag> smartTags,
                 std::optional<vm::bbox3> softMapBounds,
-                std::vector<CompilationToolDescription> compilationTools);
+                std::vector<CompilationTool> compilationTools);
 
             const std::string& name() const;
             const IO::Path& path() const;
@@ -198,7 +198,7 @@ namespace TrenchBroom {
             const FaceAttribsConfig& faceAttribsConfig() const;
             const std::vector<SmartTag>& smartTags() const;
             const std::optional<vm::bbox3>& softMapBounds() const;
-            const std::vector<CompilationToolDescription>& compilationTools() const;
+            const std::vector<CompilationTool>& compilationTools() const;
 
             const CompilationConfig& compilationConfig() const;
             void setCompilationConfig(const CompilationConfig& compilationConfig);

@@ -39,7 +39,7 @@ namespace TrenchBroom {
         private:
             std::vector<SmartTag> m_smartTags;
             Model::BrushFaceAttributes m_defaultFaceAttributes;
-            std::vector<CompilationToolDescription> m_compilationTools;
+            std::vector<CompilationTool> m_compilationTools;
         public:
             TestGame();
         public:
@@ -90,7 +90,7 @@ namespace TrenchBroom {
             const FlagsConfig& doSurfaceFlags() const override;
             const FlagsConfig& doContentFlags() const override;
             const BrushFaceAttributes& doDefaultFaceAttribs() const override;
-            const std::vector<CompilationToolDescription> doCompilationTools() const override;
+            const std::vector<CompilationTool> doCompilationTools() const override;
 
             std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const override;
             std::unique_ptr<Assets::EntityModel> doInitializeModel(const IO::Path& path, Logger& logger) const override;

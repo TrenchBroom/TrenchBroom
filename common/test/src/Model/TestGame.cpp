@@ -229,7 +229,7 @@ namespace TrenchBroom {
             return m_defaultFaceAttributes;
         }
 
-        const std::vector<CompilationToolDescription>& TestGame::doCompilationTools() const {
+        const std::vector<CompilationTool>& TestGame::doCompilationTools() const {
             return m_compilationTools;
         }
 

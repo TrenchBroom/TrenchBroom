@@ -129,7 +129,7 @@ namespace TrenchBroom {
             const FlagsConfig& contentFlags() const;
             const BrushFaceAttributes& defaultFaceAttribs() const;
         public: // compilation tools
-            const std::vector<CompilationToolDescription>& compilationTools() const;
+            const std::vector<CompilationTool>& compilationTools() const;
         private: // subclassing interface
             virtual const std::string& doGameName() const = 0;
             virtual IO::Path doGamePath() const = 0;
@@ -176,7 +176,7 @@ namespace TrenchBroom {
             virtual const FlagsConfig& doContentFlags() const = 0;
             virtual const BrushFaceAttributes& doDefaultFaceAttribs() const = 0;
 
-            virtual const std::vector<CompilationToolDescription>& doCompilationTools() const = 0;
+            virtual const std::vector<CompilationTool>& doCompilationTools() const = 0;
         };
     }
 }
