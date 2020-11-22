@@ -53,6 +53,14 @@ namespace TrenchBroom {
             return m_editState == Edit_Open;
         }
 
+        bool GroupNode::hasOpenedDescendant() const {
+            return m_editState == Edit_DescendantOpen;
+        }
+
+        bool GroupNode::closed() const {
+            return m_editState == Edit_Closed;
+        }
+
         void GroupNode::open() {
             assert(m_editState == Edit_Closed);
             setEditState(Edit_Open);
@@ -82,10 +90,6 @@ namespace TrenchBroom {
 
         void GroupNode::closeAncestors() {
             setAncestorEditState(Edit_Closed);
-        }
-
-        bool GroupNode::hasOpenedDescendant() const {
-            return m_editState == Edit_DescendantOpen;
         }
 
         const std::string& GroupNode::doGetName() const {

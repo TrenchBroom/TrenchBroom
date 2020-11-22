@@ -53,6 +53,7 @@ namespace TrenchBroom {
 
             bool opened() const;
             bool hasOpenedDescendant() const;
+            bool closed() const;
             void open();
             void close();
         private:

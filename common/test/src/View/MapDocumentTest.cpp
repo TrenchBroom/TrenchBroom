@@ -569,6 +569,16 @@ namespace TrenchBroom {
             ASSERT_EQ(inner, innerEnt1->parent());
             ASSERT_EQ(inner, innerEnt2->parent());
 
+            CHECK(document->currentGroup() == nullptr);
+            CHECK(!outer->opened());
+            CHECK(!inner->opened());
+
+            CHECK(Model::findOutermostClosedGroup(innerEnt1) == outer);
+            CHECK(Model::findOutermostClosedGroup(outerEnt1) == outer);
+
+            CHECK(Model::findContainingGroup(innerEnt1) == inner);
+            CHECK(Model::findContainingGroup(outerEnt1) == outer);
+
             // open the outer group and ungroup the inner group
             document->openGroup(outer);
             document->select(inner);
