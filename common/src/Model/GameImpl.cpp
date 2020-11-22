@@ -577,7 +577,7 @@ namespace TrenchBroom {
             return m_config.faceAttribsConfig().defaults;
         }
 
-        const std::vector<CompilationToolDescription> GameImpl::doCompilationTools() const {
+        const std::vector<CompilationToolDescription>& GameImpl::doCompilationTools() const {
             return m_config.compilationTools();
         }
 

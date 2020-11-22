@@ -39,6 +39,7 @@ namespace TrenchBroom {
         private:
             std::vector<SmartTag> m_smartTags;
             Model::BrushFaceAttributes m_defaultFaceAttributes;
+            std::vector<CompilationToolDescription> m_compilationTools;
         public:
             TestGame();
         public:
