@@ -33,7 +33,9 @@ namespace TrenchBroom {
 
         class CompilationTask {
         protected:
-            CompilationTask();
+            bool m_enabled;
+        protected:
+            explicit CompilationTask(bool enabled);
         public:
             virtual ~CompilationTask();
 
@@ -41,6 +43,9 @@ namespace TrenchBroom {
             virtual void accept(ConstCompilationTaskVisitor& visitor) const = 0;
             virtual void accept(const CompilationTaskConstVisitor& visitor) = 0;
             virtual void accept(const ConstCompilationTaskConstVisitor& visitor) const = 0;
+
+            bool enabled() const;
+            void setEnabled(bool enabled);
 
             virtual CompilationTask* clone() const = 0;
             virtual bool operator==(const CompilationTask& other) const = 0;
@@ -53,7 +58,7 @@ namespace TrenchBroom {
         private:
             std::string m_targetSpec;
         public:
-            explicit CompilationExportMap(const std::string& targetSpec);
+            CompilationExportMap(bool enabled, const std::string& targetSpec);
 
             void accept(CompilationTaskVisitor& visitor) override;
             void accept(ConstCompilationTaskVisitor& visitor) const override;
@@ -75,7 +80,7 @@ namespace TrenchBroom {
             std::string m_sourceSpec;
             std::string m_targetSpec;
         public:
-            CompilationCopyFiles(const std::string& sourceSpec, const std::string& targetSpec);
+            CompilationCopyFiles(bool enabled, const std::string& sourceSpec, const std::string& targetSpec);
 
             void accept(CompilationTaskVisitor& visitor) override;
             void accept(ConstCompilationTaskVisitor& visitor) const override;
@@ -99,7 +104,7 @@ namespace TrenchBroom {
             std::string m_toolSpec;
             std::string m_parameterSpec;
         public:
-            CompilationRunTool(const std::string& toolSpec, const std::string& parameterSpec);
+            CompilationRunTool(bool enabled, const std::string& toolSpec, const std::string& parameterSpec);
 
             void accept(CompilationTaskVisitor& visitor) override;
             void accept(ConstCompilationTaskVisitor& visitor) const override;

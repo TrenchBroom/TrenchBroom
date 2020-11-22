@@ -241,15 +241,21 @@ namespace TrenchBroom {
             }
 
             void visit(const Model::CompilationExportMap& task) override {
-                appendRunner(std::make_unique<CompilationExportMapTaskRunner>(m_context, task));
+                if (task.enabled()) {
+                    appendRunner(std::make_unique<CompilationExportMapTaskRunner>(m_context, task));
+                }
             }
 
             void visit(const Model::CompilationCopyFiles& task) override {
-                appendRunner(std::make_unique<CompilationCopyFilesTaskRunner>(m_context, task));
+                if (task.enabled()) {
+                    appendRunner(std::make_unique<CompilationCopyFilesTaskRunner>(m_context, task));
+                }
             }
 
             void visit(const Model::CompilationRunTool& task) override {
-                appendRunner(std::make_unique<CompilationRunToolTaskRunner>(m_context, task));
+                if (task.enabled()) {
+                    appendRunner(std::make_unique<CompilationRunToolTaskRunner>(m_context, task));
+                }
             }
 
         private:
@@ -268,6 +274,10 @@ namespace TrenchBroom {
             assert(!running());
 
             m_currentTask = std::begin(m_taskRunners);
+            if (m_currentTask == std::end(m_taskRunners)) {
+                emit compilationEnded();
+                return;
+            }
             bindEvents(m_currentTask->get());
 
             emit compilationStarted();
