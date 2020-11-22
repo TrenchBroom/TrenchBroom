@@ -20,6 +20,7 @@
 #include "Exceptions.h"
 #include "FloatType.h"
 #include "Assets/Texture.h"
+#include "IO/IOUtils.h"
 #include "IO/DiskIO.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
@@ -53,14 +54,14 @@ namespace TrenchBroom {
     namespace Model {
         static bool canMoveBoundary(const Brush& brush, const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta) {
             return brush.moveBoundary(worldBounds, faceIndex, delta, false)
-                .visit(kdl::overload {
+                .visit(kdl::overload(
                     [&](const Brush& b) {
                         return worldBounds.contains(b.bounds());
                     },
                     [](const BrushError) {
                         return false;
-                    },
-                });
+                    }
+                ));
         }
 
         TEST_CASE("BrushTest.constructBrushWithFaces", "[BrushTest]") {
@@ -1518,10 +1519,10 @@ namespace TrenchBroom {
             const Brush newBrush = brush.moveVertices(worldBounds, vertexPositions, delta).value();
 
             auto movedVertexPositions = newBrush.findClosestVertexPositions(vertexPositions + delta);
-            kdl::vec_sort_and_remove_duplicates(movedVertexPositions);
+            movedVertexPositions = kdl::vec_sort_and_remove_duplicates(std::move(movedVertexPositions));
 
             auto expectedVertexPositions = vertexPositions + delta;
-            kdl::vec_sort_and_remove_duplicates(expectedVertexPositions);
+            expectedVertexPositions = kdl::vec_sort_and_remove_duplicates(std::move(expectedVertexPositions));
 
             ASSERT_EQ(expectedVertexPositions, movedVertexPositions);
         }
@@ -2951,7 +2952,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Valve);
 
             const auto path = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Brush/curvetut-crash.map");
-            const std::string data = IO::Disk::readFile(path);
+            const std::string data = IO::Disk::readTextFile(path);
             REQUIRE(!data.empty());
 
             IO::TestParserStatus status;
@@ -3037,7 +3038,7 @@ namespace TrenchBroom {
             WorldNode world(MapFormat::Valve);
 
             const auto path = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Brush/weirdcurvemerge.map");
-            const std::string data = IO::Disk::readFile(path);
+            const std::string data = IO::Disk::readTextFile(path);
             REQUIRE(!data.empty());
 
             IO::TestParserStatus status;
@@ -3327,7 +3328,7 @@ namespace TrenchBroom {
 
 
             const auto subtrahendPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Brush/subtrahend.map");
-            std::ifstream stream(subtrahendPath.asString());
+            std::ifstream stream = openPathAsInputStream(subtrahendPath);
             std::stringstream subtrahendStr;
             subtrahendStr << stream.rdbuf();
 

@@ -218,8 +218,8 @@ namespace TrenchBroom {
             }
 
             if (kdl::ci::str_is_equal(token.data(), "@include")) {
-                const auto includedClassInfos = parseInclude(status);
-                kdl::vec_append(classInfos, includedClassInfos);
+                auto includedClassInfos = parseInclude(status);
+                classInfos = kdl::vec_concat(classInfos, std::move(includedClassInfos));
             } else {
                 if (auto classInfo = parseClassInfo(status)) {
                     classInfos.push_back(std::move(*classInfo));

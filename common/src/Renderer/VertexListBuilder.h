@@ -163,7 +163,7 @@ namespace TrenchBroom {
 
                 const size_t index = currentIndex();
                 const size_t count = vertices.size();
-                kdl::vec_append(m_vertices, vertices);
+                m_vertices = kdl::vec_concat(std::move(m_vertices), vertices);
 
                 return Range(index, count);
             }

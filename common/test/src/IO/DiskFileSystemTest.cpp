@@ -30,16 +30,25 @@
 #include <algorithm>
 
 #include <QFileInfo>
+#include <QString>
 
 #include "Catch2.h"
 #include "GTestCompat.h"
 
 namespace TrenchBroom {
     namespace IO {
+        static std::string testDirNameUTF8() {
+            // have a non-ASCII character in the directory name to help catch
+            // filename encoding bugs
+            const auto hiraganaLetterSmallA = QString(static_cast<QChar>(0x3041));
+
+            return (QString::fromLatin1("fstest") + hiraganaLetterSmallA).toStdString();
+        }
+
         class FSTestEnvironment : public TestEnvironment {
         public:
-            explicit FSTestEnvironment(const std::string& dir = "fstest") :
-            TestEnvironment(dir) {
+            explicit FSTestEnvironment() :
+            TestEnvironment(testDirNameUTF8()) {
                 createTestEnvironment();
             }
         private:

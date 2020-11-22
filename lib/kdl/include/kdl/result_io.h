@@ -32,10 +32,10 @@ namespace kdl {
 
     template <typename... Errors>
     std::ostream& operator<<(std::ostream& str, const result<void, Errors...>& result) {
-        result.visit(kdl::overload {
+        result.visit(kdl::overload(
             [&]()              { str << "void"; },
             [&](const auto& e) { str << e; }
-        });
+        ));
         return str;
     }
 }

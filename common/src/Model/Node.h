@@ -22,6 +22,7 @@
 
 #include "FloatType.h"
 #include "Model/IssueType.h"
+#include "Model/NodeVisitor.h"
 #include "Model/Tag.h"
 
 #include <vecmath/forward.h>
@@ -306,193 +307,106 @@ namespace TrenchBroom {
             void clearIssues() const;
         public: // visitors
             /**
-             * Visit this node, and recursively visit its children
+             * Visit this node with the given lambda and return the lambda's return value or nothing
+             * if the lambda doesn't return anything.
+             *
+             * Passes a non-const pointer to this node to the lambda.
              */
-            template <class V>
-            void acceptAndRecurse(V& visitor) {
-                accept(visitor);
-                if (!visitor.recursionStopped() && !visitor.cancelled())
-                    recurse(visitor);
-            }
-
-            /**
-             * Visit this node, and recursively visit its children
-             */
-            template <class V>
-            void acceptAndRecurse(V& visitor) const {
-                accept(visitor);
-                if (!visitor.recursionStopped() && !visitor.cancelled())
-                    recurse(visitor);
-            }
-
-            /**
-             * For each node in the given range, visit it, and then recursively visit its children,
-             * until the visitor gets cancelled
-             */
-            template <typename I, typename V>
-            static void acceptAndRecurse(I cur, I end, V& visitor) {
-                while (cur != end && !visitor.cancelled()) {
-                    (*cur)->acceptAndRecurse(visitor);
-                    ++cur;
-                }
-            }
-
-            /**
-             * Visit this node, and recursively visit its parents
-             */
-            template <class V>
-            void acceptAndEscalate(V& visitor) {
-                accept(visitor);
-                if (!visitor.recursionStopped() && !visitor.cancelled())
-                    escalate(visitor);
-            }
-
-            /**
-             * Visit this node, and recursively visit its parents
-             */
-            template <class V>
-            void acceptAndEscalate(V& visitor) const {
-                accept(visitor);
-                if (!visitor.recursionStopped() && !visitor.cancelled())
-                    escalate(visitor);
-            }
-
-            /**
-             * For each node in the given range, visit it, and then recursively visit its parents,
-             * until the visitor gets cancelled
-             */
-            template <typename I, typename V>
-            static void acceptAndEscalate(I cur, I end, V& visitor) {
-                while (cur != end && !visitor.cancelled()) {
-                    (*cur)->acceptAndEscalate(visitor);
-                    ++cur;
-                }
-            }
-
-            /**
-             * Visit this node (not visiting parents or children)
-             */
-            template <class V>
-            void accept(V& visitor) {
+            template <typename L>
+            auto accept(const L& lambda) {
+                NodeLambdaVisitor<L> visitor(lambda);
                 doAccept(visitor);
+                return visitor.result();
             }
 
             /**
-             * Visit this node (not visiting parents or children)
+             * Visit this node with the given lambda and return the lambda's return value or nothing
+             * if the lambda doesn't return anything.
+             *
+             * Passes a const pointer to this node to the lambda.
              */
-            template <class V>
-            void accept(V& visitor) const {
+            template <typename L>
+            auto accept(const L& lambda) const {
+                ConstNodeLambdaVisitor<L> visitor(lambda);
                 doAccept(visitor);
+                return visitor.result();
             }
 
             /**
-             * For each node in the given range, visit it (not visiting parents or children),
-             * until the visitor gets cancelled
+             * Visit this node's parent with the given lambda and return the lambda's return value or
+             * nothing if the lambda doesn't return anything.
+             *
+             * If the lambda returns a value and not void, the value is wrapped in std::optional. If
+             * this node does not have a parent, then an empty optional is returned.
+             *
+             * Passes a non-const pointer to this node's parent to the lambda.
              */
-            template <typename I, typename V>
-            static void accept(I cur, I end, V& visitor) {
-                while (cur != end && !visitor.cancelled()) {
-                    (*cur)->accept(visitor);
-                    ++cur;
+            template <typename L>
+            auto visitParent(const L& lambda) {
+                if constexpr(NodeLambdaHasResult_v<L>) {
+                    using R = typename NodeLambdaVisitorResult<L>::R;
+                    if (auto* parent = this->parent()) {
+                        return std::optional<R>{parent->accept(lambda)};
+                    } else {
+                        return std::optional<R>{};
+                    }
+                } else {
+                    if (auto* parent = this->parent()) {
+                        parent->accept(lambda);
+                    }
+                }
+            }
+
+
+            /**
+             * Visit this node's parent with the given lambda and return the lambda's return value or
+             * nothing if the lambda doesn't return anything.
+             *
+             * If the lambda returns a value and not void, the value is wrapped in std::optional. If
+             * this node does not have a parent, then an empty optional is returned.
+             *
+             * Passes a const pointer to this node's parent to the lambda.
+             */
+            template <typename L>
+            auto visitParent(const L& lambda) const {
+                if constexpr(NodeLambdaHasResult_v<L>) {
+                    using R = typename NodeLambdaVisitorResult<L>::R;
+                    if (const auto* parent = this->parent()) {
+                        return std::optional<R>{parent->accept(lambda)};
+                    } else {
+                        return std::optional<R>{};
+                    }
+                } else {
+                    if (const auto* parent = this->parent()) {
+                        parent->accept(lambda);
+                    }
                 }
             }
 
             /**
-             * Recursively visit this node's children (but not visiting this)
+             * Visit every node in the given vector with the given lambda.
              */
-            template <class V>
-            void recurse(V& visitor) {
-                for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
-                    Node* node = *it;
-                    node->acceptAndRecurse(visitor);
+            template <typename N, typename L>
+            static void visitAll(const std::vector<N*>& nodes, const L& lambda) {
+                for (auto* node : nodes) {
+                    node->accept(lambda);
                 }
             }
 
             /**
-             * Recursively visit this node's children (but not visiting this)
+             * Visit all children of this node with the given lambda.
              */
-            template <class V>
-            void recurse(V& visitor) const {
-                for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
-                    Node* node = *it;
-                    node->acceptAndRecurse(visitor);
-                }
+            template <typename L>
+            void visitChildren(const L& lambda) {
+                visitAll(m_children, lambda);
             }
 
             /**
-             * For each node in the given range, recursively visit its children,
-             * until the visitor gets cancelled
+             * Visit all children of this node with the given lambda.
              */
-            template <typename I, typename V>
-            static void recurse(I cur, I end, V& visitor) {
-                while (cur != end) {
-                    (*cur)->recurse(visitor);
-                    ++cur;
-                }
-            }
-
-            /**
-             * Visit this node's children only
-             */
-            template <class V>
-            void iterate(V& visitor) {
-                for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
-                    Node* node = *it;
-                    node->accept(visitor);
-                }
-            }
-
-            /**
-             * Visit this node's children only
-             */
-            template <class V>
-            void iterate(V& visitor) const {
-                for (auto it = std::begin(m_children), end = std::end(m_children); it != end && !visitor.cancelled(); ++it) {
-                    Node* node = *it;
-                    node->accept(visitor);
-                }
-            }
-
-            /**
-             * For each node in the given range, visit its children (not visiting the node itself),
-             * until the visitor gets cancelled
-             */
-            template <typename I, typename V>
-            static void iterate(I cur, I end, V& visitor) {
-                while (cur != end && !visitor.cancelled()) {
-                    (*cur)->iterate(visitor);
-                    ++cur;
-                }
-            }
-
-            /**
-             * Recursively visit this node's parents (not visiting the node itself)
-             */
-            template <class V>
-            void escalate(V& visitor) {
-                if (parent() != nullptr && !visitor.cancelled())
-                    parent()->acceptAndEscalate(visitor);
-            }
-
-            /**
-             * Recursively visit this node's parents (not visiting the node itself)
-             */
-            template <class V>
-            void escalate(V& visitor) const {
-                if (parent() != nullptr && !visitor.cancelled())
-                    parent()->acceptAndEscalate(visitor);
-            }
-
-            /**
-             * For each node in the given range, recursively visit its parents (not visiting the node itself),
-             * until the visitor gets cancelled
-             */
-            template <typename I, typename V>
-            static void escalate(I cur, I end, V& visitor) {
-                while (cur != end && !visitor.cancelled()) {
-                    (*cur)->escalate(visitor);
-                    ++cur;
-                }
+            template <typename L>
+            void visitChildren(const L& lambda) const {
+                visitAll(m_children, lambda);
             }
         protected: // index management
             void findAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<AttributableNode*>& result) const;

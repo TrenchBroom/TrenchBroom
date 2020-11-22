@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
+#include "Exceptions.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/EntityModel.h"
 #include "IO/BrushFaceReader.h"
@@ -34,6 +34,7 @@
 
 #include <kdl/string_utils.h>
 
+#include <fstream>
 #include <memory>
 #include <vector>
 
@@ -101,10 +102,13 @@ namespace TrenchBroom {
         void TestGame::doWriteMap(WorldNode& world, const IO::Path& path) const {
             const auto mapFormatName = formatName(world.format());
 
-            IO::OpenFile open(path, true);
-            IO::writeGameComment(open.file, gameName(), mapFormatName);
+            std::ofstream file = openPathAsOutputStream(path);
+            if (!file) {
+                throw FileSystemException("Cannot open file: " + path.asString());
+            }
+            IO::writeGameComment(file, gameName(), mapFormatName);
 
-            IO::NodeWriter writer(world, open.file);
+            IO::NodeWriter writer(world, file);
             writer.writeMap();
         }
 

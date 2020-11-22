@@ -206,10 +206,12 @@ namespace TrenchBroom {
 
         class AssertCompilationCopyFilesVisitor : public Model::ConstCompilationTaskConstVisitor {
         private:
+            const bool& m_enabled;
             const std::string& m_sourceSpec;
             const std::string& m_targetSpec;
         public:
-            AssertCompilationCopyFilesVisitor(const std::string& sourceSpec, const std::string& targetSpec) :
+            AssertCompilationCopyFilesVisitor(const bool& enabled, const std::string& sourceSpec, const std::string& targetSpec) :
+            m_enabled(enabled),
             m_sourceSpec(sourceSpec),
             m_targetSpec(targetSpec) {}
 
@@ -220,6 +222,7 @@ namespace TrenchBroom {
             void visit(const Model::CompilationCopyFiles& task) const override {
                 ASSERT_EQ(m_sourceSpec, task.sourceSpec());
                 ASSERT_EQ(m_targetSpec, task.targetSpec());
+                CHECK(m_enabled == task.enabled());
             }
 
             void visit(const Model::CompilationRunTool& /* task */) const override {
@@ -276,7 +279,7 @@ namespace TrenchBroom {
             ASSERT_EQ(std::string("A profile"), profile->name());
             ASSERT_EQ(1u, profile->taskCount());
 
-            profile->task(0)->accept(AssertCompilationCopyFilesVisitor("the source", "the target"));
+            profile->task(0)->accept(AssertCompilationCopyFilesVisitor(true, "the source", "the target"));
         }
 
         TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneToolTaskWithMissingTool", "[CompilationConfigParserTest]") {
@@ -367,7 +370,8 @@ namespace TrenchBroom {
                                 "                 {\n"
                                 "                      'type':'copy',\n"
                                 "                      'source': 'the source',\n"
-                                "                      'target': 'the target'\n"
+                                "                      'target': 'the target',\n"
+                                "                      'enabled': false\n"
                                 "                 }\n"
                                 "             ]\n"
                                 "        }\n"
@@ -383,7 +387,7 @@ namespace TrenchBroom {
             ASSERT_EQ(2u, profile->taskCount());
 
             profile->task(0)->accept(AssertCompilationRunToolVisitor("tyrbsp.exe", "this and that"));
-            profile->task(1)->accept(AssertCompilationCopyFilesVisitor("the source", "the target"));
+            profile->task(1)->accept(AssertCompilationCopyFilesVisitor(false, "the source", "the target"));
         }
 
         TEST_CASE("CompilationConfigParserTest.parseError_1437_unescaped_backslashes", "[CompilationConfigParserTest]") {
@@ -412,7 +416,7 @@ namespace TrenchBroom {
             ASSERT_EQ(std::string("Full Compile"), profile->name());
             ASSERT_EQ(1u, profile->taskCount());
 
-            profile->task(0)->accept(AssertCompilationCopyFilesVisitor("${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp", "C:\\quake2\\chaos\\maps\\"));
+            profile->task(0)->accept(AssertCompilationCopyFilesVisitor(true, "${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp", "C:\\quake2\\chaos\\maps\\"));
         }
     }
 }

@@ -112,10 +112,25 @@ namespace TrenchBroom {
             connect(m_nameTxt, &QLineEdit::textChanged, this, &CompilationProfileEditor::nameChanged);
             connect(m_workDirTxt, &QLineEdit::textChanged, this, &CompilationProfileEditor::workDirChanged);
             connect(m_taskList, &ControlListBox::itemSelectionChanged, this, &CompilationProfileEditor::taskSelectionChanged);
+            connect(m_taskList, &CompilationTaskListBox::taskContextMenuRequested, this, [&](const QPoint& globalPos, Model::CompilationTask* task) {
+                const int index = static_cast<int>(m_profile->indexOfTask(task));
+
+                QMenu menu(this);
+                QAction* moveUpAction = menu.addAction(tr("Move Up"), this, [=](){ moveTaskUp(index); });
+                QAction* moveDownAction = menu.addAction(tr("Move Down"), this, [=](){ moveTaskDown(index); });
+                menu.addSeparator();
+                menu.addAction(tr("Duplicate"), this, [=](){ duplicateTask(index); });
+                menu.addAction(tr("Remove"), this, [=](){ removeTask(index); });
+
+                moveUpAction->setEnabled(index > 0);
+                moveDownAction->setEnabled(static_cast<size_t>(index + 1) < m_profile->taskCount());
+
+                menu.exec(globalPos);
+            });
             connect(m_addTaskButton, &QAbstractButton::clicked, this, &CompilationProfileEditor::addTask);
-            connect(m_removeTaskButton, &QAbstractButton::clicked, this, &CompilationProfileEditor::removeTask);
-            connect(m_moveTaskUpButton, &QAbstractButton::clicked, this, &CompilationProfileEditor::moveTaskUp);
-            connect(m_moveTaskDownButton, &QAbstractButton::clicked, this, &CompilationProfileEditor::moveTaskDown);
+            connect(m_removeTaskButton, &QAbstractButton::clicked, this, qOverload<>(&CompilationProfileEditor::removeTask));
+            connect(m_moveTaskUpButton, &QAbstractButton::clicked, this, qOverload<>(&CompilationProfileEditor::moveTaskUp));
+            connect(m_moveTaskDownButton, &QAbstractButton::clicked, this, qOverload<>(&CompilationProfileEditor::moveTaskDown));
 
             return containerPanel;
         }
@@ -147,11 +162,11 @@ namespace TrenchBroom {
             std::unique_ptr<Model::CompilationTask> task = nullptr;
             auto* chosenAction = menu.exec(QCursor::pos());
             if (chosenAction == exportMapAction) {
-                task = std::make_unique<Model::CompilationExportMap>("${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map");
+                task = std::make_unique<Model::CompilationExportMap>(true, "${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map");
             } else if (chosenAction == copyFilesAction) {
-                task = std::make_unique<Model::CompilationCopyFiles>("", "");
+                task = std::make_unique<Model::CompilationCopyFiles>(true, "", "");
             } else if (chosenAction == runToolAction) {
-                task = std::make_unique<Model::CompilationRunTool>("", "");
+                task = std::make_unique<Model::CompilationRunTool>(true, "", "");
             } else {
                 return;
             }
@@ -170,7 +185,10 @@ namespace TrenchBroom {
         }
 
         void CompilationProfileEditor::removeTask() {
-            const int index = m_taskList->currentRow();
+            removeTask(m_taskList->currentRow());
+        }
+
+        void CompilationProfileEditor::removeTask(const int index) {
             assert(index >= 0);
 
             if (m_profile->taskCount() == 1) {
@@ -190,9 +208,19 @@ namespace TrenchBroom {
             emit profileChanged();
         }
 
+        void CompilationProfileEditor::duplicateTask(const int index) {
+            Model::CompilationTask* task = m_profile->task(static_cast<size_t>(index));
+            m_profile->insertTask(static_cast<size_t>(index) + 1, std::unique_ptr<Model::CompilationTask>(task->clone()));
+            m_taskList->reloadTasks();
+            m_taskList->setCurrentRow(index + 1);
+            emit profileChanged();
+        }
 
         void CompilationProfileEditor::moveTaskUp() {
-            const int index = m_taskList->currentRow();
+            moveTaskUp(m_taskList->currentRow());
+        }
+
+        void CompilationProfileEditor::moveTaskUp(const int index) {
             assert(index > 0);
             m_profile->moveTaskUp(static_cast<size_t>(index));
             m_taskList->reloadTasks();
@@ -201,7 +229,10 @@ namespace TrenchBroom {
         }
 
         void CompilationProfileEditor::moveTaskDown() {
-            const int index = m_taskList->currentRow();
+            moveTaskDown(m_taskList->currentRow());
+        }
+
+        void CompilationProfileEditor::moveTaskDown(const int index) {
             assert(index >= 0 && index < static_cast<int>(m_profile->taskCount()) - 1);
             m_profile->moveTaskDown(static_cast<size_t>(index));
             m_taskList->reloadTasks();

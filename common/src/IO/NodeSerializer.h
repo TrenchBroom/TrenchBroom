@@ -39,10 +39,7 @@ namespace TrenchBroom {
 
     namespace IO {
         class NodeSerializer {
-        private:
-            class BrushSerializer;
         protected:
-            static const int FloatPrecision = 17;
             using ObjectNo = unsigned int;
         private:
             class IdManager {
@@ -99,8 +96,6 @@ namespace TrenchBroom {
             void brushFaces(const std::vector<Model::BrushFace>& faces);
         private:
             void brushFace(const Model::BrushFace& face);
-        private:
-            class GetParentAttributes;
         public:
             std::vector<Model::EntityAttribute> parentAttributes(const Model::Node* node);
         private:

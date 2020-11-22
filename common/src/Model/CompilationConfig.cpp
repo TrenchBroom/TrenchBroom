@@ -92,7 +92,7 @@ namespace TrenchBroom {
 
         void CompilationConfig::removeProfile(const size_t index) {
             assert(index < profileCount());
-            kdl::vec_erase_at(m_profiles, index);
+            m_profiles = kdl::vec_erase_at(std::move(m_profiles), index);
         }
     }
 }

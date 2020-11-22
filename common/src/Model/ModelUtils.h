@@ -20,29 +20,58 @@
 #ifndef TrenchBroom_ModelUtils
 #define TrenchBroom_ModelUtils
 
-#include "Model/CollectUniqueNodesVisitor.h"
+#include "FloatType.h"
 #include "Model/Node.h"
+
+#include <vecmath/bbox.h>
 
 #include <map>
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFaceHandle;
+        class EditorContext;
+        class LayerNode;
         class Node;
+
+        LayerNode* findContainingLayer(Node* node);
+
+        std::vector<LayerNode*> findContainingLayersUserSorted(const std::vector<Node*>& nodes);
+
+        GroupNode* findContainingGroup(Node* node);
+
+        /**
+         * Searches the ancestor chain of `node` for the outermost closed group and returns
+         * it if one is found, otherwise returns nullptr.
+         */
+        GroupNode* findOutermostClosedGroup(Node* node);
 
         std::vector<Node*> collectParents(const std::vector<Node*>& nodes);
         std::vector<Node*> collectParents(const std::map<Node*, std::vector<Node*>>& nodes);
 
-        template <typename I>
-        std::vector<Node*> collectParents(const I begin, const I end) {
-            CollectUniqueNodesVisitor visitor;
-            Node::escalate(begin, end, visitor);
-            return visitor.nodes();
-        }
-
         std::vector<Node*> collectChildren(const std::map<Node*, std::vector<Node*>>& nodes);
         std::vector<Node*> collectDescendants(const std::vector<Node*>& nodes);
         std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes);
+
+        std::vector<Node*> collectNodes(const std::vector<Node*>& nodes);
+
+        std::vector<Node*> collectTouchingNodes(const std::vector<Node*>& nodes, const std::vector<BrushNode*>& brushes);
+        std::vector<Node*> collectContainedNodes(const std::vector<Node*>& nodes, const std::vector<BrushNode*>& brushes);
+
+        std::vector<Node*> collectSelectedNodes(const std::vector<Node*>& nodes);
+
+        std::vector<Node*> collectSelectableNodes(const std::vector<Node*>& nodes, const EditorContext& editorContext);
+        
+        std::vector<BrushFaceHandle> collectBrushFaces(const std::vector<Node*>& nodes);
+        std::vector<BrushFaceHandle> collectSelectableBrushFaces(const std::vector<Node*>& nodes, const EditorContext& editorContext);
+
+        vm::bbox3 computeLogicalBounds(const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds = vm::bbox3());
+        vm::bbox3 computePhysicalBounds(const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds = vm::bbox3());
+
+        bool boundsContainNode(const vm::bbox3& bounds, const Node* node);
+        bool boundsIntersectNode(const vm::bbox3& bounds, const Node* node);
+
     }
 }
 

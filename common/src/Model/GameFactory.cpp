@@ -26,6 +26,7 @@
 #include "IO/CompilationConfigParser.h"
 #include "IO/CompilationConfigWriter.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/IOUtils.h"
 #include "IO/File.h"
 #include "IO/FileMatcher.h"
 #include "IO/GameConfigParser.h"
@@ -153,7 +154,7 @@ namespace TrenchBroom {
         }
 
         std::pair<std::string, MapFormat> GameFactory::detectGame(const IO::Path& path) const {
-            std::fstream stream(path.asString().c_str(), std::ios::in);
+            std::ifstream stream = openPathAsInputStream(path);
             if (!stream.is_open()) {
                 throw FileSystemException("Cannot open file: " + path.asString());
             }
@@ -209,7 +210,7 @@ namespace TrenchBroom {
                 }
             }
 
-            kdl::sort(m_names, kdl::cs::string_less());
+            m_names = kdl::col_sort(std::move(m_names), kdl::cs::string_less());
 
             if (!errors.empty()) {
                 throw errors;

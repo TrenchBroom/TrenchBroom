@@ -168,11 +168,10 @@ namespace TrenchBroom {
         std::vector<Path> FileSystem::_getDirectoryContents(const Path& directoryPath) const {
             auto result = doGetDirectoryContents(directoryPath);
             if (m_next) {
-                kdl::vec_append(result, m_next->_getDirectoryContents(directoryPath));
+                result = kdl::vec_concat(std::move(result), m_next->_getDirectoryContents(directoryPath));
             }
 
-            kdl::vec_sort_and_remove_duplicates(result);
-            return result;
+            return kdl::vec_sort_and_remove_duplicates(std::move(result));
         }
 
         std::shared_ptr<File> FileSystem::_openFile(const Path& path) const {

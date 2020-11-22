@@ -40,8 +40,6 @@ namespace TrenchBroom {
             static const size_t NumFlags = 24;
             static const size_t NumCols = 3;
 
-            class UpdateSpawnflag;
-
             QScrollArea* m_scrolledWindow;
             FlagsEditor* m_flagsEditor;
             bool m_ignoreUpdates;

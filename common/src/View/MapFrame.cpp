@@ -31,12 +31,12 @@
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
 #include "Model/ExportFormat.h"
-#include "Model/FindLayerVisitor.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
+#include "Model/ModelUtils.h"
 #include "Model/Node.h"
 #include "Model/WorldNode.h"
 #include "View/Actions.h"
@@ -69,6 +69,7 @@
 #include "View/QtUtils.h"
 #include "View/MapViewToolBox.h"
 
+#include <kdl/overload.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
 
@@ -76,6 +77,7 @@
 #include <vecmath/vec_io.h>
 
 #include <cassert>
+#include <chrono>
 #include <iterator>
 #include <string>
 #include <vector>
@@ -529,7 +531,7 @@ namespace TrenchBroom {
             }
 
             // get the layers of the selected nodes
-            const std::vector<Model::LayerNode*> selectedObjectLayers = Model::findLayersUserSorted(selectedNodes.nodes());
+            const std::vector<Model::LayerNode*> selectedObjectLayers = Model::findContainingLayersUserSorted(selectedNodes.nodes());
             QString layersDescription;
             if (selectedObjectLayers.size() == 1) {
                 Model::LayerNode* layer = selectedObjectLayers[0];
@@ -546,49 +548,45 @@ namespace TrenchBroom {
             }
 
             // count hidden objects
-            class CountHiddenNodesVisitor : public Model::ConstNodeVisitor {
-            private:
-                const Model::EditorContext& m_editorContext;
-            public:
-                size_t hiddenGroups = 0u;
-                size_t hiddenBrushes = 0u;
-                size_t hiddenEntities = 0u;
-            public:
-                explicit CountHiddenNodesVisitor(const Model::EditorContext& editorContext) : m_editorContext(editorContext) {}
-            private:
-                void doVisit(const Model::WorldNode*) override {}
-                void doVisit(const Model::LayerNode*) override {}
-                void doVisit(const Model::GroupNode* group) override {
-                    if (!m_editorContext.visible(group)) {
+            size_t hiddenGroups = 0u;
+            size_t hiddenEntities = 0u;
+            size_t hiddenBrushes = 0u;
+
+            const auto& editorContext = document->editorContext();
+            document->world()->accept(kdl::overload(
+                [](auto&& thisLambda, const Model::WorldNode* world) { world->visitChildren(thisLambda); },
+                [](auto&& thisLambda, const Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, const Model::GroupNode* group) { 
+                    if (!editorContext.visible(group)) {
                         ++hiddenGroups;
                     }
-                }
-                void doVisit(const Model::EntityNode* entity) override {
-                    if (!m_editorContext.visible(entity)) {
+                    group->visitChildren(thisLambda); 
+                },
+                [&](auto&& thisLambda, const Model::EntityNode* entity) { 
+                    if (!editorContext.visible(entity)) {
                         ++hiddenEntities;
                     }
-                }
-                void doVisit(const Model::BrushNode* brush) override {
-                    if (!m_editorContext.visible(brush)) {
+                    entity->visitChildren(thisLambda); 
+                },
+                [&](const Model::BrushNode* brush) {
+                    if (!editorContext.visible(brush)) {
                         ++hiddenBrushes;
                     }
-                }
-            };
-            auto visitor = CountHiddenNodesVisitor(document->editorContext());
-            document->world()->acceptAndRecurse(visitor);
+                 }
+            ));
 
             // print hidden objects
-            if (visitor.hiddenGroups > 0 || visitor.hiddenEntities > 0 || visitor.hiddenBrushes > 0) {
+            if (hiddenGroups > 0 || hiddenEntities > 0 || hiddenBrushes > 0) {
                 std::vector<std::string> hiddenDescriptors;
 
-                if (visitor.hiddenGroups > 0) {
-                    hiddenDescriptors.push_back(numberWithSuffix(visitor.hiddenGroups, "group", "groups"));
+                if (hiddenGroups > 0) {
+                    hiddenDescriptors.push_back(numberWithSuffix(hiddenGroups, "group", "groups"));
                 }
-                if (visitor.hiddenEntities > 0) {
-                    hiddenDescriptors.push_back(numberWithSuffix(visitor.hiddenEntities, "entity", "entities"));
+                if (hiddenEntities > 0) {
+                    hiddenDescriptors.push_back(numberWithSuffix(hiddenEntities, "entity", "entities"));
                 }
-                if (visitor.hiddenBrushes > 0) {
-                    hiddenDescriptors.push_back(numberWithSuffix(visitor.hiddenBrushes, "brush", "brushes"));
+                if (hiddenBrushes > 0) {
+                    hiddenDescriptors.push_back(numberWithSuffix(hiddenBrushes, "brush", "brushes"));
                 }
 
                 pipeSeparatedSections << QObject::tr("%1 hidden")
@@ -772,8 +770,12 @@ namespace TrenchBroom {
         bool MapFrame::saveDocument() {
             try {
                 if (m_document->persistent()) {
+                    const auto startTime = std::chrono::high_resolution_clock::now();
                     m_document->saveDocument();
-                    logger().info() << "Saved " << m_document->path();
+                    const auto endTime = std::chrono::high_resolution_clock::now();
+
+                    logger().info() << "Saved " << m_document->path() << " in "
+                                    << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << "ms";
                     return true;
                 } else {
                     return saveDocumentAs();
@@ -799,8 +801,13 @@ namespace TrenchBroom {
                 }
 
                 const IO::Path path = IO::pathFromQString(newFileName);
+
+                const auto startTime = std::chrono::high_resolution_clock::now();
                 m_document->saveDocumentAs(path);
-                logger().info() << "Saved " << m_document->path();
+                const auto endTime = std::chrono::high_resolution_clock::now();
+
+                logger().info() << "Saved " << m_document->path() << " in "
+                                << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << "ms";
                 return true;
             } catch (const FileSystemException& e) {
                 QMessageBox::critical(this, "", e.what());

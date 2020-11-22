@@ -21,15 +21,15 @@
 
 #include "Ensure.h"
 #include "Model/BrushNode.h"
-#include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/GroupNode.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityAttributes.h"
 #include "Model/IssueGenerator.h"
-#include "Model/NodeVisitor.h"
+#include "Model/ModelUtils.h"
 #include "Model/TagVisitor.h"
 #include "Model/WorldNode.h"
 
+#include <kdl/overload.h>
 #include <kdl/string_utils.h>
 
 #include <limits>
@@ -141,19 +141,14 @@ namespace TrenchBroom {
             return layer;
         }
 
-        class CanAddChildToLayer : public ConstNodeVisitor, public NodeQuery<bool> {
-        private:
-            void doVisit(const WorldNode*)  override { setResult(false); }
-            void doVisit(const LayerNode*)  override { setResult(false); }
-            void doVisit(const GroupNode*)  override { setResult(true); }
-            void doVisit(const EntityNode*) override { setResult(true); }
-            void doVisit(const BrushNode*)  override { setResult(true); }
-        };
-
         bool LayerNode::doCanAddChild(const Node* child) const {
-            CanAddChildToLayer visitor;
-            child->accept(visitor);
-            return visitor.result();
+            return child->accept(kdl::overload(
+                [](const WorldNode*)  { return false; },
+                [](const LayerNode*)  { return false; },
+                [](const GroupNode*)  { return true; },
+                [](const EntityNode*) { return true; },
+                [](const BrushNode*)  { return true; }
+            ));
         }
 
         bool LayerNode::doCanRemoveChild(const Node* /* child */) const {
@@ -219,14 +214,8 @@ namespace TrenchBroom {
         }
 
         void LayerNode::validateBounds() const {
-            ComputeNodeBoundsVisitor visitor(BoundsType::Logical, vm::bbox3(0.0));
-            iterate(visitor);
-            m_logicalBounds = visitor.bounds();
-
-            ComputeNodeBoundsVisitor physicalBoundsVisitor(BoundsType::Physical, vm::bbox3(0.0));
-            iterate(physicalBoundsVisitor);
-            m_physicalBounds = physicalBoundsVisitor.bounds();
-
+            m_logicalBounds = computeLogicalBounds(children(), vm::bbox3(0.0));
+            m_physicalBounds = computePhysicalBounds(children(), vm::bbox3(0.0));
             m_boundsValid = true;
         }
 

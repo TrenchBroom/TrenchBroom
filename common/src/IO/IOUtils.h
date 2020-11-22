@@ -24,11 +24,16 @@
 
 #include <cstdio> // for FILE
 #include <iosfwd>
+#include <fstream>
 #include <string>
 
 namespace TrenchBroom {
     namespace IO {
         class Path;
+
+        FILE* openPathAsFILE(const IO::Path& path, const std::string& mode);
+        std::ofstream openPathAsOutputStream(const IO::Path& path, std::ios::openmode mode = std::ios::out);
+        std::ifstream openPathAsInputStream(const IO::Path& path, std::ios::openmode mode = std::ios::in);
 
         class OpenFile {
         public:
@@ -46,7 +51,7 @@ namespace TrenchBroom {
         std::string readFormatComment(std::istream& stream);
         std::string readInfoComment(std::istream& stream, const std::string& name);
 
-        void writeGameComment(FILE* stream, const std::string& gameName, const std::string& mapFormat);
+        void writeGameComment(std::ostream& stream, const std::string& gameName, const std::string& mapFormat);
     }
 }
 

@@ -25,13 +25,12 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
-#include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
-#include "Model/FindGroupVisitor.h"
 #include "Model/GroupNode.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
+#include "Model/ModelUtils.h"
 #include "Model/Node.h"
 #include "Renderer/RenderContext.h"
 #include "View/InputState.h"
@@ -225,9 +224,7 @@ namespace TrenchBroom {
         }
 
         std::vector<Model::Node*> SelectionTool::collectSelectableChildren(const Model::EditorContext& editorContext, const Model::Node* node) const {
-            Model::CollectSelectableNodesVisitor collect(editorContext);
-            Model::Node::accept(std::begin(node->children()), std::end(node->children()), collect);
-            return collect.nodes();
+            return Model::collectSelectableNodes(node->children(), editorContext);
         }
 
         void SelectionTool::doMouseScroll(const InputState& inputState) {

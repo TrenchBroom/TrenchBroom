@@ -25,11 +25,9 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
-#include "Model/CollectMatchingIssuesVisitor.h"
 #include "Model/EmptyAttributeNameIssueGenerator.h"
 #include "Model/EmptyAttributeValueIssueGenerator.h"
 #include "Model/EntityNode.h"
-#include "Model/FindLayerVisitor.h"
 #include "Model/GroupNode.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
@@ -38,6 +36,7 @@
 #include "Model/LayerNode.h"
 #include "Model/LockState.h"
 #include "Model/MapFormat.h"
+#include "Model/ModelUtils.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
@@ -50,11 +49,17 @@
 #include "View/SelectionTool.h"
 
 #include <kdl/result.h>
-#include "kdl/vector_utils.h"
+#include <kdl/overload.h>
+#include <kdl/vector_utils.h>
 
 #include <vecmath/bbox.h>
-#include <vecmath/scalar.h>
+#include <vecmath/bbox_io.h>
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
+#include <vecmath/mat_io.h>
 #include <vecmath/ray.h>
+#include <vecmath/ray_io.h>
+#include <vecmath/scalar.h>
 
 #include "TestUtils.h"
 
@@ -564,6 +569,16 @@ namespace TrenchBroom {
             ASSERT_EQ(inner, innerEnt1->parent());
             ASSERT_EQ(inner, innerEnt2->parent());
 
+            CHECK(document->currentGroup() == nullptr);
+            CHECK(!outer->opened());
+            CHECK(!inner->opened());
+
+            CHECK(Model::findOutermostClosedGroup(innerEnt1) == outer);
+            CHECK(Model::findOutermostClosedGroup(outerEnt1) == outer);
+
+            CHECK(Model::findContainingGroup(innerEnt1) == inner);
+            CHECK(Model::findContainingGroup(outerEnt1) == outer);
+
             // open the outer group and ungroup the inner group
             document->openGroup(outer);
             document->select(inner);
@@ -602,7 +617,11 @@ namespace TrenchBroom {
 
             Model::GroupNode* group = document->groupSelection("Group");
             ASSERT_EQ((std::vector<Model::Node*> {ent1}), group->children());
+            ASSERT_EQ((std::vector<Model::Node*> {brush1}), ent1->children());
             ASSERT_EQ((std::vector<Model::Node*> {group}), document->selectedNodes().nodes());
+            CHECK(document->selectedNodes().brushesRecursively() == std::vector<Model::BrushNode*>{brush1});
+            CHECK(document->selectedNodes().hasBrushesRecursively());
+            CHECK(!document->selectedNodes().hasBrushes());
 
             document->ungroupSelection();
             ASSERT_EQ((std::vector<Model::Node*> {brush1}), document->selectedNodes().nodes());
@@ -924,8 +943,34 @@ namespace TrenchBroom {
             ASSERT_THROW(document->throwExceptionDuringCommand(), CommandProcessorException);
         }
 
-        // https://github.com/TrenchBroom/TrenchBroom/issues/2476
         TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.selectTouching") {
+            Model::BrushBuilder builder(document->world(), document->worldBounds());
+            Model::BrushNode* brush1 = document->world()->createBrush(builder.createCube(64.0, "none").value());
+            Model::BrushNode* brush2 = document->world()->createBrush(builder.createCube(64.0, "none").value());
+            Model::BrushNode* brush3 = document->world()->createBrush(builder.createCube(64.0, "none").value());
+
+            REQUIRE(brush2->transform(document->worldBounds(), vm::translation_matrix(vm::vec3(10.0, 0.0, 0.0)), false));
+            REQUIRE(brush3->transform(document->worldBounds(), vm::translation_matrix(vm::vec3(100.0, 0.0, 0.0)), false));
+
+            document->addNode(brush1, document->parentForNodes());
+            document->addNode(brush2, document->parentForNodes());
+            document->addNode(brush3, document->parentForNodes());
+
+            REQUIRE(brush1->intersects(brush2));
+            REQUIRE(brush2->intersects(brush1));
+
+            REQUIRE(!brush1->intersects(brush3));
+            REQUIRE(!brush3->intersects(brush1));
+
+            document->select(brush1);
+            document->selectTouching(false);
+
+            using Catch::Matchers::UnorderedEquals;
+            CHECK_THAT(document->selectedNodes().brushes(), UnorderedEquals(std::vector<Model::BrushNode*>{brush2}));
+        }
+
+        // https://github.com/TrenchBroom/TrenchBroom/issues/2476
+        TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.selectTouching_2476") {
             // delete default brush
             document->selectAllNodes();
             document->deleteObjects();
@@ -1092,10 +1137,15 @@ namespace TrenchBroom {
                 }
             };
 
-            auto visitor = Model::CollectMatchingIssuesVisitor<AcceptAllIssues>(issueGenerators, AcceptAllIssues());
-            document->world()->acceptAndRecurse(visitor);
+            auto issues = std::vector<Model::Issue*>{};
+            document->world()->accept(kdl::overload(
+                [&](auto&& thisLambda, Model::WorldNode* w)  { issues = kdl::vec_concat(std::move(issues), w->issues(issueGenerators)); w->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::LayerNode* l)  { issues = kdl::vec_concat(std::move(issues), l->issues(issueGenerators)); l->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::GroupNode* g)  { issues = kdl::vec_concat(std::move(issues), g->issues(issueGenerators)); g->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, Model::EntityNode* e) { issues = kdl::vec_concat(std::move(issues), e->issues(issueGenerators)); e->visitChildren(thisLambda); },
+                [&](Model::BrushNode* b)                     { issues = kdl::vec_concat(std::move(issues), b->issues(issueGenerators)); }
+            ));
 
-            std::vector<Model::Issue*> issues = visitor.issues();
             REQUIRE(2 == issues.size());
 
             Model::Issue* issue0 = issues.at(0);
@@ -1186,8 +1236,8 @@ namespace TrenchBroom {
             Model::GroupNode* newGroup = document->groupSelection("Group in Layer 1"); // the new group should stay in layer1
 
             CHECK(entity->parent() == newGroup);
-            CHECK(Model::findLayer(entity) == layer1);
-            CHECK(Model::findLayer(newGroup) == layer1);
+            CHECK(Model::findContainingLayer(entity) == layer1);
+            CHECK(Model::findContainingLayer(newGroup) == layer1);
             CHECK(document->currentLayer() == layer2);
         }
 

@@ -21,17 +21,11 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityModel.h"
-#include "Model/BoundsContainsNodeVisitor.h"
-#include "Model/BoundsIntersectsNodeVisitor.h"
 #include "Model/BrushNode.h"
-#include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/EntityRotationPolicy.h"
 #include "Model/EntitySnapshot.h"
-#include "Model/FindContainerVisitor.h"
-#include "Model/FindGroupVisitor.h"
-#include "Model/FindLayerVisitor.h"
 #include "Model/IssueGenerator.h"
-#include "Model/NodeVisitor.h"
+#include "Model/ModelUtils.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
 
@@ -195,19 +189,14 @@ namespace TrenchBroom {
             return new EntitySnapshot(this);
         }
 
-        class CanAddChildToEntity : public ConstNodeVisitor, public NodeQuery<bool> {
-        private:
-            void doVisit(const WorldNode*)  override   { setResult(false); }
-            void doVisit(const LayerNode*)  override   { setResult(false); }
-            void doVisit(const GroupNode*)  override   { setResult(true); }
-            void doVisit(const EntityNode*) override { setResult(true); }
-            void doVisit(const BrushNode*)  override   { setResult(true); }
-        };
-
         bool EntityNode::doCanAddChild(const Node* child) const {
-            CanAddChildToEntity visitor;
-            child->accept(visitor);
-            return visitor.result();
+            return child->accept(kdl::overload(
+                [](const WorldNode*)  { return false; },
+                [](const LayerNode*)  { return false; },
+                [](const GroupNode*)  { return false; },
+                [](const EntityNode*) { return false; },
+                [](const BrushNode*)  { return true;  }
+            ));
         }
 
         bool EntityNode::doCanRemoveChild(const Node* /* child */) const {
@@ -336,63 +325,35 @@ namespace TrenchBroom {
             return logicalBounds().center();
         }
 
-        Node* EntityNode::doGetContainer() const {
-            FindContainerVisitor visitor;
-            escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : nullptr;
+        Node* EntityNode::doGetContainer() {
+            return parent();
         }
 
-        LayerNode* EntityNode::doGetLayer() const {
-            FindLayerVisitor visitor;
-            escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : nullptr;
+        LayerNode* EntityNode::doGetLayer() {
+            return findContainingLayer(this);
         }
 
-        GroupNode* EntityNode::doGetGroup() const {
-            FindGroupVisitor visitor;
-            escalate(visitor);
-            return visitor.hasResult() ? visitor.result() : nullptr;
+        GroupNode* EntityNode::doGetGroup() {
+            return findContainingGroup(this);
         }
-
-        class TransformEntity : public NodeVisitor {
-        private:
-            const vm::bbox3& m_worldBounds;
-            const vm::mat4x4& m_transformation;
-            bool m_lockTextures;
-            std::optional<TransformError> m_error;
-        public:
-            TransformEntity(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, const bool lockTextures) :
-            m_worldBounds(worldBounds),
-            m_transformation(transformation),
-            m_lockTextures(lockTextures) {}
-
-            const std::optional<TransformError>& error() const {
-                return m_error;
-            }
-        private:
-            void doVisit(WorldNode*) override  {}
-            void doVisit(LayerNode*) override  {}
-            void doVisit(GroupNode*) override  {}
-            void doVisit(EntityNode*) override {}
-            void doVisit(BrushNode* brush) override {
-                brush->transform(m_worldBounds, m_transformation, m_lockTextures)
-                    .visit(kdl::overload {
-                        []() {},
-                        [&](TransformError&& e) {
-                            m_error = std::move(e);
-                            cancel();
-                        },
-                    });
-            }
-        };
 
         kdl::result<void, TransformError> EntityNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
             if (hasChildren()) {
                 const NotifyNodeChange nodeChange(this);
-                TransformEntity visitor(worldBounds, transformation, lockTextures);
-                iterate(visitor);
-                if (visitor.error()) {
-                    return kdl::result<void, TransformError>::error(*visitor.error());
+
+                for (auto* child : children()) {
+                    const auto result = child->accept(kdl::overload(
+                        [] (WorldNode*)  { return kdl::result<void, TransformError>::success(); },
+                        [] (LayerNode*)  { return kdl::result<void, TransformError>::success(); },
+                        [] (GroupNode*)  { return kdl::result<void, TransformError>::success(); },
+                        [] (EntityNode*) { return kdl::result<void, TransformError>::success(); },
+                        [&](BrushNode* brush) {
+                            return brush->transform(worldBounds, transformation, lockTextures);
+                        }
+                    ));
+                    if (!result.is_success()) {
+                        return result;
+                    }
                 }
             } else {
                 // node change is called by setOrigin already
@@ -413,17 +374,11 @@ namespace TrenchBroom {
         }
 
         bool EntityNode::doContains(const Node* node) const {
-            BoundsContainsNodeVisitor contains(logicalBounds());
-            node->accept(contains);
-            assert(contains.hasResult());
-            return contains.result();
+            return boundsContainNode(logicalBounds(), node);
         }
 
         bool EntityNode::doIntersects(const Node* node) const {
-            BoundsIntersectsNodeVisitor intersects(logicalBounds());
-            node->accept(intersects);
-            assert(intersects.hasResult());
-            return intersects.result();
+            return boundsIntersectNode(logicalBounds(), node);
         }
 
         void EntityNode::invalidateBounds() {
@@ -445,13 +400,8 @@ namespace TrenchBroom {
             }
 
             if (hasChildren()) {
-                ComputeNodeBoundsVisitor visitor(BoundsType::Logical, vm::bbox3(0.0));
-                iterate(visitor);
-                m_logicalBounds = visitor.bounds();
-
-                ComputeNodeBoundsVisitor physicalBoundsVisitor(BoundsType::Physical, vm::bbox3(0.0));
-                iterate(physicalBoundsVisitor);
-                m_physicalBounds = physicalBoundsVisitor.bounds();
+                m_logicalBounds = computeLogicalBounds(children(), vm::bbox3(0.0));
+                m_physicalBounds = computePhysicalBounds(children(), vm::bbox3(0.0));
             } else {
                 m_logicalBounds = m_definitionBounds;
                 if (hasPointEntityModel()) {

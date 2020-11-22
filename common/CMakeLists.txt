@@ -62,7 +62,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/MapFileSerializer.cpp
         ${COMMON_SOURCE_DIR}/IO/MapParser.cpp
         ${COMMON_SOURCE_DIR}/IO/MapReader.cpp
-        ${COMMON_SOURCE_DIR}/IO/MapStreamSerializer.cpp
         ${COMMON_SOURCE_DIR}/IO/Md2Parser.cpp
         ${COMMON_SOURCE_DIR}/IO/Md3Parser.cpp
         ${COMMON_SOURCE_DIR}/IO/MdlParser.cpp
@@ -93,14 +92,11 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/WalTextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/WorldReader.cpp
         ${COMMON_SOURCE_DIR}/IO/ZipFileSystem.cpp
-        ${COMMON_SOURCE_DIR}/Model/AssortNodesVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/AttributableNode.cpp
         ${COMMON_SOURCE_DIR}/Model/AttributableNodeIndex.cpp
         ${COMMON_SOURCE_DIR}/Model/AttributableNodeVariableStore.cpp
         ${COMMON_SOURCE_DIR}/Model/AttributeNameWithDoubleQuotationMarksIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/AttributeValueWithDoubleQuotationMarksIssueGenerator.cpp
-        ${COMMON_SOURCE_DIR}/Model/BoundsContainsNodeVisitor.cpp
-        ${COMMON_SOURCE_DIR}/Model/BoundsIntersectsNodeVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/Brush.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushBuilder.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushError.cpp
@@ -112,15 +108,10 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/BrushNode.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushSnapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/ChangeBrushFaceAttributesRequest.cpp
-        ${COMMON_SOURCE_DIR}/Model/CollectAttributableNodesVisitor.cpp
-        ${COMMON_SOURCE_DIR}/Model/CollectMatchingNodesVisitor.cpp
-        ${COMMON_SOURCE_DIR}/Model/CollectSelectableBrushFacesVisitor.cpp
-        ${COMMON_SOURCE_DIR}/Model/CollectSelectableNodesWithFilePositionVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/CompareHits.cpp
         ${COMMON_SOURCE_DIR}/Model/CompilationConfig.cpp
         ${COMMON_SOURCE_DIR}/Model/CompilationProfile.cpp
         ${COMMON_SOURCE_DIR}/Model/CompilationTask.cpp
-        ${COMMON_SOURCE_DIR}/Model/ComputeNodeBoundsVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/EditorContext.cpp
         ${COMMON_SOURCE_DIR}/Model/EmptyAttributeNameIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/EmptyAttributeValueIssueGenerator.cpp
@@ -133,9 +124,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/EntityNode.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityRotationPolicy.cpp
         ${COMMON_SOURCE_DIR}/Model/EntitySnapshot.cpp
-        ${COMMON_SOURCE_DIR}/Model/FindContainerVisitor.cpp
-        ${COMMON_SOURCE_DIR}/Model/FindGroupVisitor.cpp
-        ${COMMON_SOURCE_DIR}/Model/FindLayerVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/Game.cpp
         ${COMMON_SOURCE_DIR}/Model/GameConfig.cpp
         ${COMMON_SOURCE_DIR}/Model/GameEngineConfig.cpp
@@ -162,9 +150,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/LongAttributeValueIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/MapFacade.cpp
         ${COMMON_SOURCE_DIR}/Model/MapFormat.cpp
-        ${COMMON_SOURCE_DIR}/Model/MatchNodesByVisibility.cpp
-        ${COMMON_SOURCE_DIR}/Model/MatchSelectableNodes.cpp
-        ${COMMON_SOURCE_DIR}/Model/MergeNodesIntoWorldVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/MissingClassnameIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/MissingDefinitionIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/MissingModIssueGenerator.cpp
@@ -174,7 +159,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/ModelUtils.cpp
         ${COMMON_SOURCE_DIR}/Model/Node.cpp
         ${COMMON_SOURCE_DIR}/Model/NodeCollection.cpp
-        ${COMMON_SOURCE_DIR}/Model/NodePredicates.cpp
         ${COMMON_SOURCE_DIR}/Model/NodeSnapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/NodeVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/NonIntegerVerticesIssueGenerator.cpp
@@ -195,10 +179,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/TagManager.cpp
         ${COMMON_SOURCE_DIR}/Model/TagMatcher.cpp
         ${COMMON_SOURCE_DIR}/Model/TagVisitor.cpp
-        ${COMMON_SOURCE_DIR}/Model/TakeSnapshotVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/TransformEntityAttributesQuickFix.cpp
-        ${COMMON_SOURCE_DIR}/Model/TransformObjectVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/WorldNode.cpp
         ${COMMON_SOURCE_DIR}/RecoverableExceptions.cpp
@@ -566,7 +548,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/MapFileSerializer.h
         ${COMMON_SOURCE_DIR}/IO/MapParser.h
         ${COMMON_SOURCE_DIR}/IO/MapReader.h
-        ${COMMON_SOURCE_DIR}/IO/MapStreamSerializer.h
         ${COMMON_SOURCE_DIR}/IO/Md2Parser.h
         ${COMMON_SOURCE_DIR}/IO/Md3Parser.h
         ${COMMON_SOURCE_DIR}/IO/MdlParser.h
@@ -600,14 +581,11 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/WalTextureReader.h
         ${COMMON_SOURCE_DIR}/IO/WorldReader.h
         ${COMMON_SOURCE_DIR}/IO/ZipFileSystem.h
-        ${COMMON_SOURCE_DIR}/Model/AssortNodesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/AttributableNode.h
         ${COMMON_SOURCE_DIR}/Model/AttributableNodeIndex.h
         ${COMMON_SOURCE_DIR}/Model/AttributableNodeVariableStore.h
         ${COMMON_SOURCE_DIR}/Model/AttributeNameWithDoubleQuotationMarksIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/AttributeValueWithDoubleQuotationMarksIssueGenerator.h
-        ${COMMON_SOURCE_DIR}/Model/BoundsContainsNodeVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/BoundsIntersectsNodeVisitor.h
         ${COMMON_SOURCE_DIR}/Model/Brush.h
         ${COMMON_SOURCE_DIR}/Model/BrushBuilder.h
         ${COMMON_SOURCE_DIR}/Model/BrushError.h
@@ -620,24 +598,10 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/BrushNode.h
         ${COMMON_SOURCE_DIR}/Model/BrushSnapshot.h
         ${COMMON_SOURCE_DIR}/Model/ChangeBrushFaceAttributesRequest.h
-        ${COMMON_SOURCE_DIR}/Model/CollectAttributableNodesVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/CollectContainedNodesVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/CollectMatchingBrushFacesVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/CollectMatchingIssuesVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/CollectMatchingNodesVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/CollectNodesByVisibilityVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/CollectNodesVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/CollectSelectableBrushFacesVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/CollectSelectableNodesVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/CollectSelectableNodesWithFilePositionVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/CollectSelectedNodesVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/CollectTouchingNodesVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/CollectUniqueNodesVisitor.h
         ${COMMON_SOURCE_DIR}/Model/CompareHits.h
         ${COMMON_SOURCE_DIR}/Model/CompilationConfig.h
         ${COMMON_SOURCE_DIR}/Model/CompilationProfile.h
         ${COMMON_SOURCE_DIR}/Model/CompilationTask.h
-        ${COMMON_SOURCE_DIR}/Model/ComputeNodeBoundsVisitor.h
         ${COMMON_SOURCE_DIR}/Model/EditorContext.h
         ${COMMON_SOURCE_DIR}/Model/EmptyAttributeNameIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/EmptyAttributeValueIssueGenerator.h
@@ -651,10 +615,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/EntityRotationPolicy.h
         ${COMMON_SOURCE_DIR}/Model/EntitySnapshot.h
         ${COMMON_SOURCE_DIR}/Model/ExportFormat.h
-        ${COMMON_SOURCE_DIR}/Model/FindContainerVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/FindGroupVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/FindLayerVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/FindMatchingBrushFaceVisitor.h
         ${COMMON_SOURCE_DIR}/Model/Game.h
         ${COMMON_SOURCE_DIR}/Model/GameConfig.h
         ${COMMON_SOURCE_DIR}/Model/GameEngineConfig.h
@@ -684,10 +644,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/LongAttributeValueIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/MapFacade.h
         ${COMMON_SOURCE_DIR}/Model/MapFormat.h
-        ${COMMON_SOURCE_DIR}/Model/MatchNodesByVisibility.h
-        ${COMMON_SOURCE_DIR}/Model/MatchSelectableNodes.h
-        ${COMMON_SOURCE_DIR}/Model/MatchSelectedNodes.h
-        ${COMMON_SOURCE_DIR}/Model/MergeNodesIntoWorldVisitor.h
         ${COMMON_SOURCE_DIR}/Model/MissingClassnameIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/MissingDefinitionIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/MissingModIssueGenerator.h
@@ -697,7 +653,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/ModelUtils.h
         ${COMMON_SOURCE_DIR}/Model/Node.h
         ${COMMON_SOURCE_DIR}/Model/NodeCollection.h
-        ${COMMON_SOURCE_DIR}/Model/NodePredicates.h
         ${COMMON_SOURCE_DIR}/Model/NodeSnapshot.h
         ${COMMON_SOURCE_DIR}/Model/NodeVisitor.h
         ${COMMON_SOURCE_DIR}/Model/NonIntegerVerticesIssueGenerator.h
@@ -736,10 +691,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/TagMatcher.h
         ${COMMON_SOURCE_DIR}/Model/TagType.h
         ${COMMON_SOURCE_DIR}/Model/TagVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/TakeSnapshotVisitor.h
         ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.h
         ${COMMON_SOURCE_DIR}/Model/TransformEntityAttributesQuickFix.h
-        ${COMMON_SOURCE_DIR}/Model/TransformObjectVisitor.h
         ${COMMON_SOURCE_DIR}/Model/VisibilityState.h
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/WorldNode.h
@@ -1062,7 +1015,7 @@ add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_compile_features(common PRIVATE cxx_std_17)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
-target_link_libraries(common PUBLIC tinyxml2 kdl vecmath glew miniz freeimage freetype OpenGL::GL Qt5::Widgets Qt5::Svg)
+target_link_libraries(common PUBLIC tinyxml2 kdl vecmath glew miniz freeimage freetype OpenGL::GL Qt5::Widgets Qt5::Svg fmt::fmt)
 
 # use precompiled headers on CMake 3.16 or later
 if (NOT TB_SUPPRESS_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")

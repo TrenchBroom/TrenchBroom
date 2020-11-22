@@ -69,6 +69,7 @@
 
 #include <vecmath/vec_io.h>
 
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -156,14 +157,14 @@ namespace TrenchBroom {
 
                 const Model::BrushBuilder builder(world.get(), worldBounds, defaultFaceAttribs());
                 builder.createCuboid(vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName).
-                    visit(kdl::overload {
+                    visit(kdl::overload(
                         [&](Brush&& b) {
                             world->defaultLayer()->addChild(world->createBrush(std::move(b)));
                         },
                         [&](const Model::BrushError e) {
                             logger.error() << "Could not create default brush: " << e;
                         }
-                    });
+                    ));
 
                 if (format == MapFormat::Valve || format == MapFormat::Quake2_Valve || format == MapFormat::Quake3_Valve) {
                     world->addOrUpdateAttribute(AttributeNames::ValveVersion, "220");
@@ -184,10 +185,13 @@ namespace TrenchBroom {
         void GameImpl::doWriteMap(WorldNode& world, const IO::Path& path, const bool exporting) const {
             const auto mapFormatName = formatName(world.format());
 
-            IO::OpenFile open(path, true);
-            IO::writeGameComment(open.file, gameName(), mapFormatName);
+            std::ofstream file = openPathAsOutputStream(path);
+            if (!file) {
+                throw FileSystemException("Cannot open file: " + path.asString());
+            }
+            IO::writeGameComment(file, gameName(), mapFormatName);
 
-            IO::NodeWriter writer(world, open.file);
+            IO::NodeWriter writer(world, file);
             writer.setExporting(exporting);
             writer.writeMap();
         }

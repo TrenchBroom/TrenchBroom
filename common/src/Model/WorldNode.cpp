@@ -21,11 +21,9 @@
 
 #include "AABBTree.h"
 #include "Ensure.h"
-#include "Model/AssortNodesVisitor.h"
 #include "Model/AttributableNodeIndex.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
-#include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/IssueGenerator.h"
@@ -34,6 +32,7 @@
 #include "Model/ModelFactoryImpl.h"
 #include "Model/TagVisitor.h"
 
+#include <kdl/overload.h>
 #include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
@@ -58,34 +57,65 @@ namespace TrenchBroom {
 
         WorldNode::~WorldNode() = default;
 
-        LayerNode* WorldNode::defaultLayer() const {
+        LayerNode* WorldNode::defaultLayer() {
             ensure(m_defaultLayer != nullptr, "defaultLayer is null");
             return m_defaultLayer;
         }
 
-        std::vector<LayerNode*> WorldNode::allLayers() const {
-            CollectLayersVisitor visitor;
-            iterate(visitor);
-            return visitor.layers();
+        const LayerNode* WorldNode::defaultLayer() const {
+            ensure(m_defaultLayer != nullptr, "defaultLayer is null");
+            return m_defaultLayer;
         }
 
-        std::vector<LayerNode*> WorldNode::customLayers() const {
+        std::vector<LayerNode*> WorldNode::allLayers() {
+            std::vector<LayerNode*> layers;
+            visitChildren(kdl::overload(
+                [&](LayerNode* layer) { layers.push_back(layer); },
+                [](auto*) {}
+            ));
+            return layers;
+        }
+
+        std::vector<const LayerNode*> WorldNode::allLayers() const {
+            return kdl::vec_transform(const_cast<WorldNode*>(this)->allLayers(), [](const auto* l) { return l; });
+        }
+
+        std::vector<LayerNode*> WorldNode::customLayers() {
+            std::vector<LayerNode*> layers;
+
             const std::vector<Node*>& children = Node::children();
-            CollectLayersVisitor visitor;
-            accept(std::next(std::begin(children)), std::end(children), visitor);
-            return visitor.layers();
+            for (auto it = std::next(std::begin(children)), end = std::end(children); it != end; ++it) {
+                (*it)->accept(kdl::overload(
+                    [&](LayerNode* layer) { layers.push_back(layer); },
+                    [](auto*) {}
+                ));
+            }
+
+            return layers;
         }
 
-        std::vector<LayerNode*> WorldNode::allLayersUserSorted() const {
+        std::vector<const LayerNode*> WorldNode::customLayers() const {
+            return kdl::vec_transform(const_cast<WorldNode*>(this)->customLayers(), [](const auto* l) { return l; });
+        }
+
+        std::vector<LayerNode*> WorldNode::allLayersUserSorted() {
             std::vector<LayerNode*> result = allLayers();
             LayerNode::sortLayers(result);
             return result;
         }
 
-        std::vector<LayerNode*> WorldNode::customLayersUserSorted() const {
+        std::vector<const LayerNode*> WorldNode::allLayersUserSorted() const {
+            return kdl::vec_transform(const_cast<WorldNode*>(this)->allLayersUserSorted(), [](const auto* l) { return l; });
+        }
+
+        std::vector<LayerNode*> WorldNode::customLayersUserSorted() {
             std::vector<LayerNode*> result = customLayers();
             LayerNode::sortLayers(result);
             return result;
+        }
+
+        std::vector<const LayerNode*> WorldNode::customLayersUserSorted() const {
+            return kdl::vec_transform(const_cast<WorldNode*>(this)->customLayersUserSorted(), [](const auto* l) { return l; });
         }
 
         void WorldNode::createDefaultLayer() {
@@ -116,61 +146,6 @@ namespace TrenchBroom {
             invalidateAllIssues();
         }
 
-        class WorldNode::AddNodeToNodeTree : public NodeVisitor {
-        private:
-            NodeTree& m_nodeTree;
-        public:
-            explicit AddNodeToNodeTree(NodeTree& nodeTree) :
-            m_nodeTree(nodeTree) {}
-        private:
-            void doVisit(WorldNode*) override         {}
-            void doVisit(LayerNode*) override         {}
-            void doVisit(GroupNode*) override         {}
-            void doVisit(EntityNode* entity) override { m_nodeTree.insert(entity->physicalBounds(), entity); }
-            void doVisit(BrushNode* brush) override   { m_nodeTree.insert(brush->physicalBounds(), brush); }
-        };
-
-        class WorldNode::RemoveNodeFromNodeTree : public NodeVisitor {
-        private:
-            NodeTree& m_nodeTree;
-        public:
-            explicit RemoveNodeFromNodeTree(NodeTree& nodeTree) :
-            m_nodeTree(nodeTree) {}
-        private:
-            void doVisit(WorldNode*) override         {}
-            void doVisit(LayerNode*) override         {}
-            void doVisit(GroupNode*) override         {}
-            void doVisit(EntityNode* entity) override { doRemove(entity, entity->physicalBounds()); }
-            void doVisit(BrushNode* brush) override   { doRemove(brush, brush->physicalBounds()); }
-
-            void doRemove(Node* node, const vm::bbox3& bounds) {
-                if (!m_nodeTree.remove(node)) {
-                    auto str = std::stringstream();
-                    str << "Node not found with bounds " << bounds << ": " << node;
-                    throw NodeTreeException(str.str());
-                }
-            }
-        };
-
-        class WorldNode::UpdateNodeInNodeTree : public NodeVisitor {
-        private:
-            NodeTree& m_nodeTree;
-        public:
-            explicit UpdateNodeInNodeTree(NodeTree& nodeTree) :
-            m_nodeTree(nodeTree) {}
-        private:
-            void doVisit(WorldNode*) override         {}
-            void doVisit(LayerNode*) override         {}
-            void doVisit(GroupNode*) override         {}
-            void doVisit(EntityNode* entity) override { m_nodeTree.update(entity->physicalBounds(), entity); }
-            void doVisit(BrushNode* brush) override   { m_nodeTree.update(brush->physicalBounds(), brush); }
-        };
-
-        class WorldNode::MatchTreeNodes {
-        public:
-            bool operator()(const Model::Node* node) const   { return node->shouldAddToSpacialIndex(); }
-        };
-
         void WorldNode::disableNodeTreeUpdates() {
             m_updateNodeTree = false;
         }
@@ -180,28 +155,22 @@ namespace TrenchBroom {
         }
 
         void WorldNode::rebuildNodeTree() {
-            using CollectTreeNodes = CollectMatchingNodesVisitor<MatchTreeNodes>;
+            auto nodes = std::vector<Model::Node*>{};
+            accept([&](auto&& thisLambda, auto* node) { 
+                if (node->shouldAddToSpacialIndex()) { 
+                    nodes.push_back(node); 
+                }
+                node->visitChildren(thisLambda);
+            });
 
-            CollectTreeNodes collect;
-            acceptAndRecurse(collect);
-
-            m_nodeTree->clearAndBuild(collect.nodes(), [](const auto* node){ return node->physicalBounds(); });
+            m_nodeTree->clearAndBuild(nodes, [](const auto* node){ return node->physicalBounds(); });
         }
 
-        class WorldNode::InvalidateAllIssuesVisitor : public NodeVisitor {
-        private:
-            void doVisit(WorldNode* world) override   { invalidateIssues(world);  }
-            void doVisit(LayerNode* layer) override   { invalidateIssues(layer);  }
-            void doVisit(GroupNode* group) override   { invalidateIssues(group);  }
-            void doVisit(EntityNode* entity) override { invalidateIssues(entity); }
-            void doVisit(BrushNode* brush) override   { invalidateIssues(brush);  }
-
-            void invalidateIssues(Node* node) { node->invalidateIssues(); }
-        };
-
         void WorldNode::invalidateAllIssues() {
-            InvalidateAllIssuesVisitor visitor;
-            acceptAndRecurse(visitor);
+            accept([](auto&& thisLambda, Node* node) {
+                node->invalidateIssues();
+                node->visitChildren(thisLambda);
+            });
         }
 
         const vm::bbox3& WorldNode::doGetLogicalBounds() const {
@@ -239,39 +208,24 @@ namespace TrenchBroom {
             return world;
         }
 
-        class CanAddChildToWorld : public ConstNodeVisitor, public NodeQuery<bool> {
-        private:
-            void doVisit(const WorldNode*) override  { setResult(false); }
-            void doVisit(const LayerNode*) override  { setResult(true); }
-            void doVisit(const GroupNode*) override  { setResult(false); }
-            void doVisit(const EntityNode*) override { setResult(false); }
-            void doVisit(const BrushNode*) override  { setResult(false); }
-        };
-
         bool WorldNode::doCanAddChild(const Node* child) const {
-            CanAddChildToWorld visitor;
-            child->accept(visitor);
-            return visitor.result();
+            return child->accept(kdl::overload(
+                [](const WorldNode*)  { return false; },
+                [](const LayerNode*)  { return true;  },
+                [](const GroupNode*)  { return false; },
+                [](const EntityNode*) { return false; },
+                [](const BrushNode*)  { return false; }
+            ));
         }
 
-        class CanRemoveChildFromWorld : public ConstNodeVisitor, public NodeQuery<bool> {
-        private:
-            const WorldNode* m_this;
-        public:
-            explicit CanRemoveChildFromWorld(const WorldNode* i_this) :
-            m_this(i_this) {}
-        private:
-            void doVisit(const WorldNode*) override        { setResult(false); }
-            void doVisit(const LayerNode* layer) override  { setResult(layer != m_this->defaultLayer()); }
-            void doVisit(const GroupNode*) override        { setResult(false); }
-            void doVisit(const EntityNode*) override       { setResult(false); }
-            void doVisit(const BrushNode*) override        { setResult(false); }
-        };
-
         bool WorldNode::doCanRemoveChild(const Node* child) const {
-            CanRemoveChildFromWorld visitor(this);
-            child->accept(visitor);
-            return visitor.result();
+            return child->accept(kdl::overload(
+                [] (const WorldNode*)        { return false; },
+                [&](const LayerNode* layer)  { return (layer != defaultLayer()); },
+                [] (const GroupNode*)        { return false; },
+                [] (const EntityNode*)       { return false; },
+                [] (const BrushNode*)        { return false; }
+            ));
         }
 
         bool WorldNode::doRemoveIfEmpty() const {
@@ -287,22 +241,45 @@ namespace TrenchBroom {
             // In some cases, (e.g. if `node` is a Group), `node` will not be added to the spatial index, but some of its descendants may be.
             // We need to recursively search the `node` being connected and add it or any descendants that need to be added.
             if (m_updateNodeTree) {
-                AddNodeToNodeTree visitor(*m_nodeTree);
-                node->acceptAndRecurse(visitor);
+                node->accept(kdl::overload(
+                    [&](auto&& thisLambda, WorldNode* world)   { world->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, LayerNode* layer)   { layer->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, GroupNode* group)   { group->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, EntityNode* entity) { m_nodeTree->insert(entity->physicalBounds(), entity); entity->visitChildren(thisLambda); },
+                    [&](BrushNode* brush)                      { m_nodeTree->insert(brush->physicalBounds(), brush); }
+                ));
             }
         }
 
         void WorldNode::doDescendantWillBeRemoved(Node* node, const size_t /* depth */) {
             if (m_updateNodeTree) {
-                RemoveNodeFromNodeTree visitor(*m_nodeTree);
-                node->acceptAndRecurse(visitor);
+                const auto doRemove = [&](auto* nodeToRemove) {
+                if (!m_nodeTree->remove(nodeToRemove)) {
+                    auto str = std::stringstream();
+                    str << "Node not found with bounds " << nodeToRemove->physicalBounds() << ": " << nodeToRemove;
+                    throw NodeTreeException(str.str());
+                }
+                };
+
+                node->accept(kdl::overload(
+                    [&](auto&& thisLambda, WorldNode* world)   { world->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, LayerNode* layer)   { layer->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, GroupNode* group)   { group->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, EntityNode* entity) { doRemove(entity); entity->visitChildren(thisLambda); },
+                    [&](BrushNode* brush)                      { doRemove(brush); }
+                ));
             }
         }
 
         void WorldNode::doDescendantPhysicalBoundsDidChange(Node* node) {
             if (m_updateNodeTree) {
-                UpdateNodeInNodeTree visitor(*m_nodeTree);
-                node->accept(visitor);
+                node->accept(kdl::overload(
+                    [] (WorldNode*) {},
+                    [] (LayerNode*) {},
+                    [] (GroupNode*) {},
+                    [&](EntityNode* entity) { m_nodeTree->update(entity->physicalBounds(), entity); },
+                    [&](BrushNode* brush)   { m_nodeTree->update(brush->physicalBounds(), brush); }
+                ));
             }
         }
 
@@ -335,12 +312,12 @@ namespace TrenchBroom {
         }
 
         void WorldNode::doFindAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<Model::AttributableNode*>& result) const {
-            kdl::vec_append(result,
+            result = kdl::vec_concat(std::move(result), 
                 m_attributableIndex->findAttributableNodes(AttributableNodeIndexQuery::exact(name), value));
         }
 
         void WorldNode::doFindAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<Model::AttributableNode*>& result) const {
-            kdl::vec_append(result,
+            result = kdl::vec_concat(std::move(result), 
                 m_attributableIndex->findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix), value));
         }
 

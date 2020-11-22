@@ -37,7 +37,7 @@ namespace TrenchBroom {
 
         SmartAttributeEditorKeyMatcher::SmartAttributeEditorKeyMatcher(const std::initializer_list<std::string> patterns) :
         m_patterns(patterns) {
-            kdl::vec_sort_and_remove_duplicates(m_patterns);
+            m_patterns = kdl::vec_sort_and_remove_duplicates(std::move(m_patterns));
         }
 
         bool SmartAttributeEditorKeyMatcher::doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const {

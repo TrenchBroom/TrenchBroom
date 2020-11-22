@@ -56,6 +56,7 @@ namespace TrenchBroom {
 
             size_t taskCount() const;
             CompilationTask* task(size_t index) const;
+            size_t indexOfTask(CompilationTask* task) const;
 
             void addTask(std::unique_ptr<CompilationTask> task);
             void insertTask(size_t index, std::unique_ptr<CompilationTask> task);

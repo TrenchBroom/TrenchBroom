@@ -53,12 +53,13 @@ namespace TrenchBroom {
 
             bool opened() const;
             bool hasOpenedDescendant() const;
+            bool closed() const;
             void open();
             void close();
         private:
             void setEditState(EditState editState);
+            void setAncestorEditState(EditState editState);
 
-            class SetEditStateVisitor;
             void openAncestors();
             void closeAncestors();
         private: // implement methods inherited from Node
@@ -96,9 +97,9 @@ namespace TrenchBroom {
             vm::vec3 doGetLinkSourceAnchor() const override;
             vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement methods inherited from Object
-            Node* doGetContainer() const override;
-            LayerNode* doGetLayer() const override;
-            GroupNode* doGetGroup() const override;
+            Node* doGetContainer() override;
+            LayerNode* doGetLayer() override;
+            GroupNode* doGetGroup() override;
 
             kdl::result<void, TransformError> doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) override;
             bool doContains(const Node* node) const override;
