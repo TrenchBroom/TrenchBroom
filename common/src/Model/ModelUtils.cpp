@@ -72,7 +72,15 @@ namespace TrenchBroom {
             return node->visitParent(kdl::overload(
                 [](WorldNode*)                            -> GroupNode* { return nullptr; },
                 [](LayerNode*)                            -> GroupNode* { return nullptr; },
-                [](auto&& thisLambda, GroupNode* group)   -> GroupNode* { return !(group->opened() || group->hasOpenedDescendant()) ? group : group->visitParent(thisLambda).value_or(nullptr); },
+                [](auto&& thisLambda, GroupNode* group)   -> GroupNode* {
+                    const std::optional<GroupNode*> parentResult = group->visitParent(thisLambda);
+                    if (parentResult && parentResult.value() != nullptr) {
+                        return parentResult.value();
+                    }
+                    // we didn't find a result searching the parent chain, so either return
+                    // this group (if it's closed) or nullptr to indicate no result
+                    return group->closed() ? group : nullptr;
+                },
                 [](auto&& thisLambda, EntityNode* entity) -> GroupNode* { return entity->visitParent(thisLambda).value_or(nullptr); },
                 [](auto&& thisLambda, BrushNode* brush)   -> GroupNode* { return brush->visitParent(thisLambda).value_or(nullptr); }
             )).value_or(nullptr);
