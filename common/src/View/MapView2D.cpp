@@ -237,13 +237,15 @@ namespace TrenchBroom {
                     ));
             }
 
+            // delete the original selection brushes before searching for the objects to select
+            Transaction transaction(document, "Select Tall");
+            document->deleteObjects();
+
             const auto nodesToSelect = kdl::vec_filter(
                 Model::collectContainedNodes(std::vector<Model::Node*>{document->world()}, tallBrushes), 
                 [&](const auto* node) { return document->editorContext().selectable(node); });
             kdl::vec_clear_and_delete(tallBrushes);
 
-            Transaction transaction(document, "Select Tall");
-            document->deleteObjects();
             document->select(nodesToSelect);
         }
 
