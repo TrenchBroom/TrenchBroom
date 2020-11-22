@@ -838,8 +838,11 @@ namespace TrenchBroom {
                 const auto& nodes = entry.second;
                 for (auto* node : nodes) {
                     node->accept(kdl::overload(
-                        [&](Model::BrushNode* brush) { brushes.push_back(brush); },
-                        [](auto*) {}
+                        [] (const Model::WorldNode*)  {},
+                        [] (const Model::LayerNode*)  {},
+                        [] (const Model::GroupNode*)  {},
+                        [] (const Model::EntityNode*) {},
+                        [&](Model::BrushNode* brush) { brushes.push_back(brush); }
                     ));
                 }
             }

@@ -114,6 +114,9 @@ namespace TrenchBroom {
 
             template <typename N>
             void doVisit(N* node) {
+                constexpr bool invokableWithAnyPointerType = std::is_invocable_v<L, int*> || std::is_invocable_v<L, const L&, int*>;
+                static_assert(!invokableWithAnyPointerType, "Don't use auto* to generate node visitors, this can lead to hard to detect errors.");
+
                 constexpr bool invokableWithLambdaAndNode = std::is_invocable_v<L, const L&, N*>;
                 constexpr bool invokableWithNode = std::is_invocable_v<L, N*>;
 
@@ -151,6 +154,9 @@ namespace TrenchBroom {
 
             template <typename N>
             void doVisit(const N* node) {
+                constexpr bool invokableWithAnyPointerType = std::is_invocable_v<L, int*> || std::is_invocable_v<L, const L&, int*>;
+                static_assert(!invokableWithAnyPointerType, "Don't use auto* to generate node visitors, this can lead to hard to detect errors.");
+
                 constexpr bool invokableWithLambdaAndNode = std::is_invocable_v<L, const L&, const N*>;
                 constexpr bool invokableWithNode = std::is_invocable_v<L, const N*>;
 

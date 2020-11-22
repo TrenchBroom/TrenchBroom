@@ -79,8 +79,11 @@ namespace TrenchBroom {
 
         void GroupNode::setAncestorEditState(const EditState editState) {
             visitParent(kdl::overload(
-                [=](auto&& thisLambda, GroupNode* group) -> void { group->setEditState(editState); group->visitParent(thisLambda); },
-                [=](auto&& thisLambda, auto* node)       -> void { node->visitParent(thisLambda); }
+                [=](auto&& thisLambda, WorldNode* world)   -> void { world->visitParent(thisLambda); },
+                [=](auto&& thisLambda, LayerNode* layer)   -> void { layer->visitParent(thisLambda); },
+                [=](auto&& thisLambda, GroupNode* group)   -> void { group->setEditState(editState); group->visitParent(thisLambda); },
+                [=](auto&& thisLambda, EntityNode* entity) -> void { entity->visitParent(thisLambda); },
+                [=](auto&& thisLambda, BrushNode* brush)   -> void { brush->visitParent(thisLambda); }
             ));
         }
 

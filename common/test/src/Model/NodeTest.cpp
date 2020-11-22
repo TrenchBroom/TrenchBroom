@@ -572,7 +572,13 @@ namespace TrenchBroom {
 
             const auto collectRecursively = [](auto& node) {
                 auto result = std::vector<Node*>{};
-                node.accept([&](auto&& thisLambda, auto* n) { result.push_back(n); n->visitChildren(thisLambda); });
+                node.accept(kdl::overload(
+                    [&](auto&& thisLambda, WorldNode* w)  { result.push_back(w); w->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, LayerNode* l)  { result.push_back(l); l->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, GroupNode* g)  { result.push_back(g); g->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, EntityNode* e) { result.push_back(e); e->visitChildren(thisLambda); },
+                    [&](BrushNode* b)                     { result.push_back(b); }
+                ));
                 return result;
             };
 
@@ -595,6 +601,16 @@ namespace TrenchBroom {
             CHECK(EntityNode().visitParent(constNodeTestVisitor) == std::nullopt);
         }
 
+        static auto makeCollectVisitedNodesVisitor(std::vector<Node*>& visited) {
+            return kdl::overload(
+                [&](WorldNode* world)   { visited.push_back(world); },
+                [&](LayerNode* layer)   { visited.push_back(layer); },
+                [&](GroupNode* group)   { visited.push_back(group); },
+                [&](EntityNode* entity) { visited.push_back(entity); },
+                [&](BrushNode* brush)   { visited.push_back(brush); }
+            );
+        }
+
         TEST_CASE("NodeTest.visitAll", "[NodeTest]") {
             WorldNode world(MapFormat::Standard);
             LayerNode layer("name");
@@ -603,7 +619,7 @@ namespace TrenchBroom {
 
             const auto toVisit = std::vector<Node*>{&world, &layer, &group, &entity};
             auto visited = std::vector<Node*>{};
-            Node::visitAll(toVisit, [&](auto* node) { visited.push_back(node); });
+            Node::visitAll(toVisit, makeCollectVisitedNodesVisitor(visited));
 
             CHECK_THAT(visited, Catch::Equals(toVisit));
         }
@@ -619,19 +635,19 @@ namespace TrenchBroom {
 
             SECTION("Visit children of world node") {
                 auto visited = std::vector<Node*>{};
-                world.visitChildren([&](auto* node) { visited.push_back(node); });
+                world.visitChildren(makeCollectVisitedNodesVisitor(visited));
                 CHECK_THAT(visited, Catch::Equals(std::vector<Node*>{layer}));
             }
 
             SECTION("Visit children of layer node") {
                 auto visited = std::vector<Node*>{};
-                layer->visitChildren([&](auto* node) { visited.push_back(node); });
+                layer->visitChildren(makeCollectVisitedNodesVisitor(visited));
                 CHECK_THAT(visited, Catch::Equals(std::vector<Node*>{entity1, entity2}));
             }
 
             SECTION("Visit children of entity node") {
                 auto visited = std::vector<Node*>{};
-                entity1->visitChildren([&](auto* node) { visited.push_back(node); });
+                entity1->visitChildren(makeCollectVisitedNodesVisitor(visited));
                 CHECK_THAT(visited, Catch::Equals(std::vector<Node*>{}));
             }
         }

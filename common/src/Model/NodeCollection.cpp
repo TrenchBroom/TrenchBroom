@@ -93,17 +93,22 @@ namespace TrenchBroom {
         bool NodeCollection::hasBrushesRecursively() const {
             // This is just an optimization of `!brushesRecursively().empty()`
             // that stops after finding the first brush
+            const auto visitChildrenAndExitEarly = [](auto&& thisLambda, const auto* node) {
+                for (const auto* child : node->children()) {
+                    if (child->accept(thisLambda)) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+
             for (const auto* node : m_nodes) {
                 const auto hasBrush = node->accept(kdl::overload(
-                    [](auto&&, const BrushNode*) -> bool { return true; },
-                    [](auto&& thisLambda, const auto* other) -> bool {
-                        for (const auto* child : other->children()) {
-                            if (child->accept(thisLambda)) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    }
+                    [&](auto&& thisLambda, const WorldNode* world)   -> bool { return visitChildrenAndExitEarly(thisLambda, world); },
+                    [&](auto&& thisLambda, const LayerNode* layer)   -> bool { return visitChildrenAndExitEarly(thisLambda, layer); },
+                    [&](auto&& thisLambda, const GroupNode* group)   -> bool { return visitChildrenAndExitEarly(thisLambda, group); },
+                    [&](auto&& thisLambda, const EntityNode* entity) -> bool { return visitChildrenAndExitEarly(thisLambda, entity); },
+                    [](auto&&, const BrushNode*)                     -> bool { return true; }
                 ));
                 if (hasBrush) {
                     return true;
@@ -153,12 +158,11 @@ namespace TrenchBroom {
             auto brushes = std::vector<BrushNode*>{};
             for (auto* node : m_nodes) {
                 node->accept(kdl::overload(
-                    [&](auto&&, BrushNode* brush) -> void { brushes.push_back(brush); },
-                    [] (auto&& thisLambda, auto* other) -> void {
-                        for (auto* child : other->children()) {
-                            child->accept(thisLambda);
-                        }
-                    }
+                    [] (auto&& thisLambda, WorldNode* world)   { world->visitChildren(thisLambda); },
+                    [] (auto&& thisLambda, LayerNode* layer)   { layer->visitChildren(thisLambda); },
+                    [] (auto&& thisLambda, GroupNode* group)   { group->visitChildren(thisLambda); },
+                    [] (auto&& thisLambda, EntityNode* entity) { entity->visitChildren(thisLambda); },
+                    [&](BrushNode* brush)                      { brushes.push_back(brush); }
                 ));
             }
             return brushes;

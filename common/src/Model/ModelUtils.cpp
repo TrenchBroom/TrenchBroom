@@ -87,9 +87,13 @@ namespace TrenchBroom {
 
         static void collectWithParents(Node* node, std::vector<Node*>& result) {
             if (node != nullptr) {
-                node->accept(
-                    [&](auto&& thisLambda, auto* n) -> void { result.push_back(n); n->visitParent(thisLambda); }
-                );
+                node->accept(kdl::overload(
+                    [&](WorldNode* world)                      { result.push_back(world); },
+                    [&](auto&& thisLambda, LayerNode* layer)   { result.push_back(layer); layer->visitParent(thisLambda); },
+                    [&](auto&& thisLambda, GroupNode* group)   { result.push_back(group); group->visitParent(thisLambda); },
+                    [&](auto&& thisLambda, EntityNode* entity) { result.push_back(entity); entity->visitParent(thisLambda); },
+                    [&](auto&& thisLambda, BrushNode* brush)   { result.push_back(brush); brush->visitParent(thisLambda); }
+                ));
             }
         }
 
@@ -142,9 +146,13 @@ namespace TrenchBroom {
             auto allNodes = std::vector<Model::Node*>{};
 
             for (auto* node : nodes) {
-                node->accept(
-                    [&](auto&& thisLambda, auto* n) { allNodes.push_back(n); n->visitChildren(thisLambda); }
-                );
+                node->accept(kdl::overload(
+                    [&](auto&& thisLambda, WorldNode* world)   { allNodes.push_back(world); world->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, LayerNode* layer)   { allNodes.push_back(layer); layer->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, GroupNode* group)   { allNodes.push_back(group); group->visitChildren(thisLambda); },
+                    [&](auto&& thisLambda, EntityNode* entity) { allNodes.push_back(entity); entity->visitChildren(thisLambda); },
+                    [&](BrushNode* brush)                      { allNodes.push_back(brush); }
+                ));
             }
 
             return allNodes;

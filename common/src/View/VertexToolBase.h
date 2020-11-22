@@ -528,10 +528,13 @@ namespace TrenchBroom {
             void addHandles(const std::vector<Model::Node*>& nodes, VertexHandleManagerBaseT<HT>& handleManager) {
                 for (const auto* node : nodes) {
                     node->accept(kdl::overload(
+                        [] (const Model::WorldNode*)  {},
+                        [] (const Model::LayerNode*)  {},
+                        [] (const Model::GroupNode*)  {},
+                        [] (const Model::EntityNode*) {},
                         [&](const Model::BrushNode* brush) {
                             handleManager.addHandles(brush);
-                        },
-                        [](const auto*) {}
+                        }
                     ));
                 }
             }
@@ -540,10 +543,13 @@ namespace TrenchBroom {
             void removeHandles(const std::vector<Model::Node*>& nodes, VertexHandleManagerBaseT<HT>& handleManager) {
                 for (const auto* node : nodes) {
                     node->accept(kdl::overload(
+                        [] (const Model::WorldNode*)  {},
+                        [] (const Model::LayerNode*)  {},
+                        [] (const Model::GroupNode*)  {},
+                        [] (const Model::EntityNode*) {},
                         [&](const Model::BrushNode* brush) {
                             handleManager.removeHandles(brush);
-                        },
-                        [](const auto*) {}
+                        }
                     ));
                 }
             }
