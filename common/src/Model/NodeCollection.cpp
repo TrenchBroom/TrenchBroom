@@ -95,8 +95,8 @@ namespace TrenchBroom {
             // that stops after finding the first brush
             for (const auto* node : m_nodes) {
                 const auto hasBrush = node->accept(kdl::overload(
-                    [](BrushNode*) -> bool { return true; },
-                    [](auto&& thisLambda, auto* other) -> bool {
+                    [](auto&&, const BrushNode*) -> bool { return true; },
+                    [](auto&& thisLambda, const auto* other) -> bool {
                         for (const auto* child : other->children()) {
                             if (child->accept(thisLambda)) {
                                 return true;
@@ -153,7 +153,7 @@ namespace TrenchBroom {
             auto brushes = std::vector<BrushNode*>{};
             for (auto* node : m_nodes) {
                 node->accept(kdl::overload(
-                    [&](BrushNode* brush) -> void { brushes.push_back(brush); },
+                    [&](auto&&, BrushNode* brush) -> void { brushes.push_back(brush); },
                     [] (auto&& thisLambda, auto* other) -> void {
                         for (auto* child : other->children()) {
                             child->accept(thisLambda);

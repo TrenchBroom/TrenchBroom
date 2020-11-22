@@ -114,7 +114,13 @@ namespace TrenchBroom {
 
             template <typename N>
             void doVisit(N* node) {
-                if constexpr(std::is_invocable_v<L, const L&, N*>) {
+                constexpr bool invokableWithLambdaAndNode = std::is_invocable_v<L, const L&, N*>;
+                constexpr bool invokableWithNode = std::is_invocable_v<L, N*>;
+
+                static_assert(!(invokableWithNode && invokableWithLambdaAndNode),
+                              "Visitor implements both lambda and non-lambda overloads for the given node type");
+
+                if constexpr(invokableWithLambdaAndNode) {
                     if constexpr(NodeLambdaHasResult_v<L>) {
                         NodeLambdaVisitorResult<L>::setResult(m_lambda(m_lambda, node));
                     } else {
@@ -145,7 +151,13 @@ namespace TrenchBroom {
 
             template <typename N>
             void doVisit(const N* node) {
-                if constexpr(std::is_invocable_v<L, const L&, const N*>) {
+                constexpr bool invokableWithLambdaAndNode = std::is_invocable_v<L, const L&, const N*>;
+                constexpr bool invokableWithNode = std::is_invocable_v<L, const N*>;
+
+                static_assert(!(invokableWithNode && invokableWithLambdaAndNode),
+                              "Visitor implements both lambda and non-lambda overloads for the given node type");
+
+                if constexpr(invokableWithLambdaAndNode) {
                     if constexpr(NodeLambdaHasResult_v<L>) {
                         NodeLambdaVisitorResult<L>::setResult(m_lambda(m_lambda, node));
                     } else {
