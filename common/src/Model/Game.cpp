@@ -178,8 +178,8 @@ namespace TrenchBroom {
             return doDefaultFaceAttribs();
         }
 
-        const std::vector<CompilationToolDescription> Game::compilationToolDescriptions() const {
-            return doCompilationToolDescriptions();
+        const std::vector<CompilationToolDescription> Game::compilationTools() const {
+            return doCompilationTools();
         }
     }
 }

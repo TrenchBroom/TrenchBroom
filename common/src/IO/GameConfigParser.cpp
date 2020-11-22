@@ -80,7 +80,7 @@ namespace TrenchBroom {
             auto faceAttribsConfig = parseFaceAttribsConfig(root["faceattribs"]);
             auto tags = parseTags(root["tags"], faceAttribsConfig);
             auto softMapBounds = parseSoftMapBounds(root["softMapBounds"]);
-            auto compilationToolDescriptions = parseCompilationToolDescriptions(root["compilationToolDescriptions"]);
+            auto compilationTools = parseCompilationTools(root["compilationTools"]);
 
             return GameConfig(
                 std::move(name),
@@ -94,7 +94,7 @@ namespace TrenchBroom {
                 std::move(faceAttribsConfig),
                 std::move(tags),
                 std::move(softMapBounds),
-                std::move(compilationToolDescriptions));
+                std::move(compilationTools));
         }
 
         std::vector<Model::MapFormatConfig> GameConfigParser::parseMapFormatConfigs(const EL::Value& value) const {
@@ -484,7 +484,7 @@ namespace TrenchBroom {
             return bounds;
         }
 
-        std::vector<Model::CompilationToolDescription> GameConfigParser::parseCompilationToolDescriptions(const EL::Value& value) const {
+        std::vector<Model::CompilationToolDescription> GameConfigParser::parseCompilationTools(const EL::Value& value) const {
             if (value.null()) {
                 return {};
             }
