@@ -789,6 +789,57 @@ namespace TrenchBroom {
             select(faces);
         }
 
+        void MapDocument::selectTall(const vm::axis::type cameraAxis) {
+            const vm::vec3 cameraAbsDirection = vm::vec3::axis(cameraAxis);
+            const vm::bbox3 tallBounds = worldBounds().expand(-1.0); // we can't make a brush that is exactly as large as worldBounds
+
+            const FloatType min = vm::dot(tallBounds.min, cameraAbsDirection);
+            const FloatType max = vm::dot(tallBounds.max, cameraAbsDirection);
+
+            const vm::plane3 minPlane(min, cameraAbsDirection);
+            const vm::plane3 maxPlane(max, cameraAbsDirection);
+
+            const std::vector<Model::BrushNode*>& selectionBrushNodes = selectedNodes().brushes();
+            assert(!selectionBrushNodes.empty());
+
+            const Model::BrushBuilder brushBuilder(world(), worldBounds());
+            std::vector<Model::BrushNode*> tallBrushes;
+            tallBrushes.reserve(selectionBrushNodes.size());
+
+            for (const Model::BrushNode* selectionBrushNode : selectionBrushNodes) {
+                const Model::Brush& selectionBrush = selectionBrushNode->brush();
+                
+                std::vector<vm::vec3> tallVertices;
+                tallVertices.reserve(2 * selectionBrush.vertexCount());
+
+                for (const Model::BrushVertex* vertex : selectionBrush.vertices()) {
+                    tallVertices.push_back(minPlane.project_point(vertex->position()));
+                    tallVertices.push_back(maxPlane.project_point(vertex->position()));
+                }
+
+                brushBuilder.createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName)
+                    .visit(kdl::overload(
+                        [&](Model::Brush&& b) {
+                            tallBrushes.push_back(world()->createBrush(std::move(b)));
+                        },
+                        [&](const Model::BrushError e) {
+                            logger().error() << "Could not create selection brush: " << e;
+                        }
+                    ));
+            }
+
+            // delete the original selection brushes before searching for the objects to select
+            Transaction transaction(this, "Select Tall");
+            deleteObjects();
+
+            const auto nodesToSelect = kdl::vec_filter(
+                Model::collectContainedNodes(std::vector<Model::Node*>{world()}, tallBrushes), 
+                [&](const auto* node) { return editorContext().selectable(node); });
+            kdl::vec_clear_and_delete(tallBrushes);
+
+            select(nodesToSelect);
+        }
+
         void MapDocument::deselectAll() {
             if (hasSelection()) {
                 m_repeatStack->clearOnNextPush();
