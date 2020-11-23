@@ -306,11 +306,12 @@ namespace TrenchBroom {
                 return {};
             }
 
-            if (const auto* pathsValue = node.entity().attribute(property)) {
-                return IO::Path::asPaths(kdl::str_split(*pathsValue, ";"));
-            } else {
+            const auto* pathsValue = node.entity().attribute(property);
+            if (!pathsValue) {
                 return {};
             }
+            
+            return IO::Path::asPaths(kdl::str_split(*pathsValue, ";"));
         }
 
         void GameImpl::doUpdateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const {
