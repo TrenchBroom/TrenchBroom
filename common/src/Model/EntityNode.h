@@ -57,7 +57,7 @@ namespace TrenchBroom {
             mutable std::optional<CachedBounds> m_cachedBounds;
         public:
             EntityNode();
-            EntityNode(Entity entity);
+            explicit EntityNode(Entity entity);
 
             FloatType area(vm::axis::type axis) const;
         public: // entity model
