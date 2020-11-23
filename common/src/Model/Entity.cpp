@@ -131,7 +131,7 @@ namespace TrenchBroom {
         }
 
         const vm::mat4x4 Entity::modelTransformation() const {
-            return vm::translation_matrix(origin() * rotation());
+            return vm::translation_matrix(origin()) * rotation();
         }
 
         void Entity::addOrUpdateAttribute(std::string name, std::string value) {
