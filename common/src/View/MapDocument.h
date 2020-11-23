@@ -311,6 +311,7 @@ namespace TrenchBroom {
             void select(const Model::BrushFaceHandle& handle) override;
             void convertToFaceSelection() override;
             void selectFacesWithTexture(const Assets::Texture* texture);
+            void selectTall(vm::axis::type cameraAxis);
 
             void deselectAll() override;
             void deselect(Model::Node* node) override;
