@@ -60,7 +60,9 @@ namespace TrenchBroom {
                 EntityConfig(),
                 FaceAttribsConfig(),
                 std::vector<SmartTag>(),
-                std::nullopt);
+                std::nullopt, // soft map bounds
+                {} // compilation tools
+            );
             const auto gamePath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Game/Quake2");
             auto logger = NullLogger();
             GameImpl game(config, gamePath, logger);

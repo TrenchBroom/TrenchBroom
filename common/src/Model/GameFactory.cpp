@@ -123,6 +123,20 @@ namespace TrenchBroom {
             return pref.path() == prefPath;
         }
 
+        static Preference<IO::Path>& compilationToolPathPref(const std::string& gameName, const std::string& toolName) {
+            auto& prefs = PreferenceManager::instance();
+            auto& pref = prefs.dynamicPreference(IO::Path("Games") + IO::Path(gameName) + IO::Path("Tool Path") + IO::Path(toolName), IO::Path());
+            return pref;
+        }
+
+        IO::Path GameFactory::compilationToolPath(const std::string& gameName, const std::string& toolName) const {
+            return PreferenceManager::instance().get(compilationToolPathPref(gameName, toolName));
+        }
+
+        bool GameFactory::setCompilationToolPath(const std::string& gameName, const std::string& toolName, const IO::Path& gamePath) {
+            return PreferenceManager::instance().set(compilationToolPathPref(gameName, toolName), gamePath);
+        }
+
         GameConfig& GameFactory::gameConfig(const std::string& name) {
             const auto cIt = m_configs.find(name);
             if (cIt == std::end(m_configs)) {

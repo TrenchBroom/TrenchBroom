@@ -80,6 +80,7 @@ namespace TrenchBroom {
             auto faceAttribsConfig = parseFaceAttribsConfig(root["faceattribs"]);
             auto tags = parseTags(root["tags"], faceAttribsConfig);
             auto softMapBounds = parseSoftMapBounds(root["softMapBounds"]);
+            auto compilationTools = parseCompilationTools(root["compilationTools"]);
 
             return GameConfig(
                 std::move(name),
@@ -92,7 +93,8 @@ namespace TrenchBroom {
                 std::move(entityConfig),
                 std::move(faceAttribsConfig),
                 std::move(tags),
-                std::move(softMapBounds));
+                std::move(softMapBounds),
+                std::move(compilationTools));
         }
 
         std::vector<Model::MapFormatConfig> GameConfigParser::parseMapFormatConfigs(const EL::Value& value) const {
@@ -480,6 +482,30 @@ namespace TrenchBroom {
                 throw ParserException(value.line(), value.column(), "Can't parse soft map bounds '" + value.asString() + "'");
             }
             return bounds;
+        }
+
+        std::vector<Model::CompilationTool> GameConfigParser::parseCompilationTools(const EL::Value& value) const {
+            if (value.null()) {
+                return {};
+            }
+
+            expectType(value, EL::typeForName("Array"));
+
+            std::vector<Model::CompilationTool> result;
+            for (size_t i = 0; i < value.length(); ++i) {
+                expectStructure(
+                        value[i],
+                        "["
+                        "{'name': 'String'},"
+                        "{}"
+                        "]");
+
+                const std::string name = value[i]["name"].stringValue();
+
+                result.push_back(Model::CompilationTool{name});
+            }
+
+            return result;
         }
 
         std::optional<vm::bbox3> parseSoftMapBoundsString(const std::string& string) {

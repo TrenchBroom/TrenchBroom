@@ -577,6 +577,10 @@ namespace TrenchBroom {
             return m_config.faceAttribsConfig().defaults;
         }
 
+        const std::vector<CompilationTool>& GameImpl::doCompilationTools() const {
+            return m_config.compilationTools();
+        }
+
         void GameImpl::writeLongAttribute(AttributableNode& node, const std::string& baseName, const std::string& value, const size_t maxLength) const {
             node.removeNumberedAttribute(baseName);
 
