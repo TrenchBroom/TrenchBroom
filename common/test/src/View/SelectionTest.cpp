@@ -98,9 +98,9 @@ namespace TrenchBroom {
         }
         
         TEST_CASE_METHOD(SelectionTest, "SelectionTest.updateLastSelectionBounds") {
-            auto* entityNode = new Model::EntityNode(Model::Entity({
+            auto* entityNode = new Model::EntityNode({
                 {"classname", "point_entity"}
-            }));
+            });
             document->addNode(entityNode, document->parentForNodes());
             REQUIRE(!entityNode->logicalBounds().is_empty());
             
