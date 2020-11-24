@@ -140,14 +140,16 @@ namespace TrenchBroom {
         void ObjFileSerializer::doEndEntity(const Model::Node* /* node */) {}
         void ObjFileSerializer::doEntityAttribute(const Model::EntityAttribute& /* attribute */) {}
 
-        void ObjFileSerializer::doBeginBrush(const Model::BrushNode* /* brush */) {
+        void ObjFileSerializer::doBrush(const Model::BrushNode* brush) {
             m_currentObject.entityNo = entityNo();
             m_currentObject.brushNo = brushNo();
             // Vertex positions inserted from now on should get new indices
             m_vertices.clearIndices();
-        }
 
-        void ObjFileSerializer::doEndBrush(const Model::BrushNode* /* brush */) {
+            for (const Model::BrushFace& face : brush->brush().faces()) {
+                doBrushFace(face);
+            }
+
             m_objects.push_back(m_currentObject);
             m_currentObject.faces.clear();
         }

@@ -141,8 +141,7 @@ namespace TrenchBroom {
             void doEndEntity(const Model::Node* node) override;
             void doEntityAttribute(const Model::EntityAttribute& attribute) override;
 
-            void doBeginBrush(const Model::BrushNode* brush) override;
-            void doEndBrush(const Model::BrushNode* brush) override;
+            void doBrush(const Model::BrushNode* brush) override;
             void doBrushFace(const Model::BrushFace& face) override;
         };
     }

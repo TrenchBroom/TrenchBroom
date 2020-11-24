@@ -43,6 +43,7 @@ namespace TrenchBroom {
             LineStack m_startLineStack;
             size_t m_line;
             std::ostream& m_stream;
+            std::unordered_map<const Model::Node*, std::string> m_nodeToPrecomputedString;
         public:
             static std::unique_ptr<NodeSerializer> create(Model::MapFormat format, std::ostream& stream);
         protected:
@@ -56,8 +57,7 @@ namespace TrenchBroom {
             void doBeginEntity(const Model::Node* node) override;
             void doEndEntity(const Model::Node* node) override;
             void doEntityAttribute(const Model::EntityAttribute& attribute) override;
-            void doBeginBrush(const Model::BrushNode* brush) override;
-            void doEndBrush(const Model::BrushNode* brush) override;
+            void doBrush(const Model::BrushNode* brush) override;
             void doBrushFace(const Model::BrushFace& face) override;
         private:
             void setFilePosition(const Model::Node* node);

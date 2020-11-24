@@ -190,17 +190,7 @@ namespace TrenchBroom {
         }
 
         void NodeSerializer::brush(const Model::BrushNode* brushNode) {
-            beginBrush(brushNode);
-            brushFaces(brushNode->brush().faces());
-            endBrush(brushNode);
-        }
-
-        void NodeSerializer::beginBrush(const Model::BrushNode* brushNode) {
-            doBeginBrush(brushNode);
-        }
-
-        void NodeSerializer::endBrush(const Model::BrushNode* brushNode) {
-            doEndBrush(brushNode);
+            doBrush(brushNode);
             ++m_brushNo;
         }
 

@@ -90,9 +90,6 @@ namespace TrenchBroom {
 
             void brushes(const std::vector<Model::BrushNode*>& brushNodes);
             void brush(const Model::BrushNode* brushNode);
-
-            void beginBrush(const Model::BrushNode* brushNode);
-            void endBrush(const Model::BrushNode* brushNode);
         public:
             void brushFaces(const std::vector<Model::BrushFace>& faces);
         private:
@@ -112,8 +109,7 @@ namespace TrenchBroom {
             virtual void doEndEntity(const Model::Node* node) = 0;
             virtual void doEntityAttribute(const Model::EntityAttribute& attribute) = 0;
 
-            virtual void doBeginBrush(const Model::BrushNode* brushNode) = 0;
-            virtual void doEndBrush(const Model::BrushNode* brushNode) = 0;
+            virtual void doBrush(const Model::BrushNode* brushNode) = 0;
             virtual void doBrushFace(const Model::BrushFace& face) = 0;
         };
     }

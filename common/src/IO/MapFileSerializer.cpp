@@ -248,15 +248,17 @@ namespace TrenchBroom {
 
             std::vector<NodeString> result = QtConcurrent::blockingMapped<std::vector<NodeString>>(nodes, transform);
 
+            qDebug() << "threads" << QThread::idealThreadCount();
+
             // move strings into a map
-            std::unordered_map<const Model::Node*, std::string> nodeToPrecomputedString;
             for (auto& [node, string]: result) {
-                nodeToPrecomputedString[node] = string;
+                m_nodeToPrecomputedString[node] = std::move(string);
             }
-            
-            for (const auto& [node, name] : nodeToPrecomputedString) {
-                qDebug() << "node:" << node << "name:" << QString::fromStdString(name);
-            }
+
+            //
+            // for (const auto& [node, name] : m_nodeToPrecomputedString) {
+            //     qDebug() << "node:" << node << "name:" << QString::fromStdString(name);
+            // }
         }
 
         void MapFileSerializer::doBeginFile() {}
@@ -283,15 +285,17 @@ namespace TrenchBroom {
             ++m_line;
         }
 
-        void MapFileSerializer::doBeginBrush(const Model::BrushNode* /* brush */) {
+        void MapFileSerializer::doBrush(const Model::BrushNode* brush) {
             fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "// brush {}\n", brushNo());
             ++m_line;
             m_startLineStack.push_back(m_line);
             fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "{{\n");
             ++m_line;
-        }
 
-        void MapFileSerializer::doEndBrush(const Model::BrushNode* brush) {
+            // write pre-serialized brush faces
+            const std::string& preSerialized = m_nodeToPrecomputedString.at(brush);
+            m_stream << preSerialized;
+
             fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "}}\n");
             ++m_line;
             setFilePosition(brush);
