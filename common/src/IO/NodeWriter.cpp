@@ -74,7 +74,20 @@ namespace TrenchBroom {
             m_serializer->setExporting(exporting);
         }
 
+        static std::vector<const Model::Node*> gatherNodes(const Model::Node* node) {
+            std::vector<const Model::Node*> nodes;
+            node->accept(kdl::overload(
+                [&](auto&& thisLambda, const Model::WorldNode* world) { nodes.push_back(world); world->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, const Model::LayerNode* layer) { nodes.push_back(layer); layer->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, const Model::GroupNode* group) { nodes.push_back(group); group->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, const Model::EntityNode* entity) { nodes.push_back(entity); entity->visitChildren(thisLambda); },
+                [&](auto&& thisLambda, const Model::BrushNode* brush) { nodes.push_back(brush); brush->visitChildren(thisLambda); }
+            ));
+            return nodes;
+        }
+
         void NodeWriter::writeMap() {
+            m_serializer->precomputeNodes(gatherNodes(&m_world));
             m_serializer->beginFile();
             writeDefaultLayer();
             writeCustomLayers();

@@ -29,6 +29,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class Brush;
         class BrushNode;
         class BrushFace;
         class EntityAttribute;
@@ -46,6 +47,8 @@ namespace TrenchBroom {
             static std::unique_ptr<NodeSerializer> create(Model::MapFormat format, std::ostream& stream);
         protected:
             explicit MapFileSerializer(std::ostream& stream);
+        public:
+            void precomputeNodes(const std::vector<const Model::Node*>& nodes) override;
         private:
             void doBeginFile() override;
             void doEndFile() override;
@@ -59,8 +62,9 @@ namespace TrenchBroom {
         private:
             void setFilePosition(const Model::Node* node);
             size_t startLine();
-        private:
+        private: // threadsafe
             virtual void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const = 0;
+            std::string writeBrushFaces(const Model::Brush& brush) const;
         };
     }
 }

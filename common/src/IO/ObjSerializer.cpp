@@ -53,6 +53,9 @@ namespace TrenchBroom {
             ensure(m_mtlStream != nullptr, "mtl stream is null");
         }
 
+        void ObjFileSerializer::precomputeNodes(const std::vector<const Model::Node*>&) {
+        }
+
         void ObjFileSerializer::doBeginFile() {}
 
         void ObjFileSerializer::doEndFile() {

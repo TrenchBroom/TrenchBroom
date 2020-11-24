@@ -26,11 +26,21 @@
 #include "Model/BrushFace.h"
 #include "Model/EntityAttributes.h"
 
+#include <kdl/overload.h>
+
 #include <fmt/format.h>
 
 #include <iterator> // for std::ostreambuf_iterator
 #include <memory>
+#include <functional>
+#include <utility> // for std::pair
+#include <vector>
 #include <sstream>
+
+#include <QDebug>
+#include <QtConcurrent>
+#include <QMutex>
+#include <QMutexLocker>
 
 namespace TrenchBroom {
     namespace IO {
@@ -216,6 +226,39 @@ namespace TrenchBroom {
         m_line(1),
         m_stream(stream) {}
 
+        void MapFileSerializer::precomputeNodes(const std::vector<const Model::Node*>& nodes) {
+            qDebug() << "precomputing serialization for" << nodes.size() << "nodes";
+
+            using NodeString = std::pair<const Model::Node*, std::string>;
+
+            std::function<NodeString(const Model::Node*)> transform =
+                [&](const Model::Node* node) -> NodeString {
+                    std::string string;
+                    node->accept(kdl::overload(
+                         [&](const Model::WorldNode* world)   {},
+                         [&](const Model::LayerNode* layer)   {},
+                         [&](const Model::GroupNode* group)   {},
+                         [&](const Model::EntityNode* entity) {},
+                         [&](const Model::BrushNode* brush) {
+                             string = writeBrushFaces(brush->brush());
+                         }
+                     ));
+                    return NodeString(node, string);
+                };
+
+            std::vector<NodeString> result = QtConcurrent::blockingMapped<std::vector<NodeString>>(nodes, transform);
+
+            // move strings into a map
+            std::unordered_map<const Model::Node*, std::string> nodeToPrecomputedString;
+            for (auto& [node, string]: result) {
+                nodeToPrecomputedString[node] = string;
+            }
+            
+            for (const auto& [node, name] : nodeToPrecomputedString) {
+                qDebug() << "node:" << node << "name:" << QString::fromStdString(name);
+            }
+        }
+
         void MapFileSerializer::doBeginFile() {}
         void MapFileSerializer::doEndFile() {}
 
@@ -271,6 +314,17 @@ namespace TrenchBroom {
             const size_t result = m_startLineStack.back();
             m_startLineStack.pop_back();
             return result;
+        }
+
+        /**
+         * Threadsafe
+         */
+        std::string MapFileSerializer::writeBrushFaces(const Model::Brush& brush) const {
+            std::stringstream stream;
+            for (const Model::BrushFace& face : brush.faces()) {
+                doWriteBrushFace(stream, face);
+            }
+            return stream.str();
         }
     }
 }

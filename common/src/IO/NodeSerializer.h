@@ -70,6 +70,7 @@ namespace TrenchBroom {
             bool exporting() const;
             void setExporting(bool exporting);
         public:
+            virtual void precomputeNodes(const std::vector<const Model::Node*>& nodes) = 0;
             void beginFile();
             void endFile();
         public:
