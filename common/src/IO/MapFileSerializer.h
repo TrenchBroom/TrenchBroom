@@ -41,7 +41,6 @@ namespace TrenchBroom {
             using LineStack = std::vector<size_t>;
             LineStack m_startLineStack;
             size_t m_line;
-        protected:
             std::ostream& m_stream;
         public:
             static std::unique_ptr<NodeSerializer> create(Model::MapFormat format, std::ostream& stream);
@@ -61,7 +60,7 @@ namespace TrenchBroom {
             void setFilePosition(const Model::Node* node);
             size_t startLine();
         private:
-            virtual size_t doWriteBrushFace(const Model::BrushFace& face) = 0;
+            virtual void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const = 0;
         };
     }
 }

@@ -39,17 +39,16 @@ namespace TrenchBroom {
             explicit QuakeFileSerializer(std::ostream& stream) :
             MapFileSerializer(stream) {}
         private:
-            size_t doWriteBrushFace(const Model::BrushFace& face) override {
-                writeFacePoints(face);
-                writeTextureInfo(face);
-                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "\n");
-                return 1;
+            void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override {
+                writeFacePoints(stream, face);
+                writeTextureInfo(stream, face);
+                fmt::format_to(std::ostreambuf_iterator<char>(stream), "\n");
             }
         protected:
-            void writeFacePoints(const Model::BrushFace& face) {
+            void writeFacePoints(std::ostream& stream, const Model::BrushFace& face) const {
                 const Model::BrushFace::Points& points = face.points();
 
-                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "( {} {} {} ) ( {} {} {} ) ( {} {} {} )",
+                fmt::format_to(std::ostreambuf_iterator<char>(stream), "( {} {} {} ) ( {} {} {} ) ( {} {} {} )",
                                points[0].x(),
                                points[0].y(),
                                points[0].z(),
@@ -61,10 +60,10 @@ namespace TrenchBroom {
                                points[2].z());
             }
 
-            void writeTextureInfo(const Model::BrushFace& face) {
+            void writeTextureInfo(std::ostream& stream, const Model::BrushFace& face) const {
                 const std::string& textureName = face.attributes().textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face.attributes().textureName();
 
-                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), " {} {} {} {} {} {}",
+                fmt::format_to(std::ostreambuf_iterator<char>(stream), " {} {} {} {} {} {}",
                                textureName,
                                face.attributes().xOffset(),
                                face.attributes().yOffset(),
@@ -73,12 +72,12 @@ namespace TrenchBroom {
                                face.attributes().yScale());
             }
 
-            void writeValveTextureInfo(const Model::BrushFace& face) {
+            void writeValveTextureInfo(std::ostream& stream, const Model::BrushFace& face) const {
                 const std::string& textureName = face.attributes().textureName().empty() ? Model::BrushFaceAttributes::NoTextureName : face.attributes().textureName();
                 const vm::vec3 xAxis = face.textureXAxis();
                 const vm::vec3 yAxis = face.textureYAxis();
 
-                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), " {} [ {} {} {} {} ] [ {} {} {} {} ] {} {} {}",
+                fmt::format_to(std::ostreambuf_iterator<char>(stream), " {} [ {} {} {} {} ] [ {} {} {} {} ] {} {} {}",
                                textureName,
 
                                xAxis.x(),
@@ -102,20 +101,19 @@ namespace TrenchBroom {
             explicit Quake2FileSerializer(std::ostream& stream) :
             QuakeFileSerializer(stream) {}
         private:
-            size_t doWriteBrushFace(const Model::BrushFace& face) override {
-                writeFacePoints(face);
-                writeTextureInfo(face);
+            void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override {
+                writeFacePoints(stream, face);
+                writeTextureInfo(stream, face);
 
                 // Neverball's "mapc" doesn't like it if surface attributes aren't present.
                 // This suggests the Radiants always output these, so it's probably a compatibility danger.
-                writeSurfaceAttributes(face);
+                writeSurfaceAttributes(stream, face);
 
-                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "\n");
-                return 1;
+                fmt::format_to(std::ostreambuf_iterator<char>(stream), "\n");
             }
         protected:
-            void writeSurfaceAttributes(const Model::BrushFace& face) {
-                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), " {} {} {}",
+            void writeSurfaceAttributes(std::ostream& stream, const Model::BrushFace& face) const {
+                fmt::format_to(std::ostreambuf_iterator<char>(stream), " {} {} {}",
                                face.attributes().surfaceContents(),
                                face.attributes().surfaceFlags(),
                                face.attributes().surfaceValue());
@@ -127,13 +125,12 @@ namespace TrenchBroom {
             explicit Quake2ValveFileSerializer(std::ostream& stream) :
             Quake2FileSerializer(stream) {}
         private:
-            size_t doWriteBrushFace(const Model::BrushFace& face) override {
-                writeFacePoints(face);
-                writeValveTextureInfo(face);
-                writeSurfaceAttributes(face);
+            void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override {
+                writeFacePoints(stream, face);
+                writeValveTextureInfo(stream, face);
+                writeSurfaceAttributes(stream, face);
 
-                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "\n");
-                return 1;
+                fmt::format_to(std::ostreambuf_iterator<char>(stream), "\n");
             }
         };
 
@@ -145,23 +142,22 @@ namespace TrenchBroom {
             Quake2FileSerializer(stream),
             SurfaceColorFormat(" %d %d %d") {}
         private:
-            size_t doWriteBrushFace(const Model::BrushFace& face) override {
-                writeFacePoints(face);
-                writeTextureInfo(face);
+            void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override {
+                writeFacePoints(stream, face);
+                writeTextureInfo(stream, face);
 
                 if (face.attributes().hasSurfaceAttributes() || face.attributes().hasColor()) {
-                    writeSurfaceAttributes(face);
+                    writeSurfaceAttributes(stream, face);
                 }
                 if (face.attributes().hasColor()) {
-                    writeSurfaceColor(face);
+                    writeSurfaceColor(stream, face);
                 }
 
-                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "\n");
-                return 1;
+                fmt::format_to(std::ostreambuf_iterator<char>(stream), "\n");
             }
         protected:
-            void writeSurfaceColor(const Model::BrushFace& face) {
-                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), " {} {} {}",
+            void writeSurfaceColor(std::ostream& stream, const Model::BrushFace& face) const {
+                fmt::format_to(std::ostreambuf_iterator<char>(stream), " {} {} {}",
                                static_cast<int>(face.attributes().color().r()),
                                static_cast<int>(face.attributes().color().g()),
                                static_cast<int>(face.attributes().color().b()));
@@ -173,11 +169,10 @@ namespace TrenchBroom {
             explicit Hexen2FileSerializer(std::ostream& stream):
             QuakeFileSerializer(stream) {}
         private:
-            size_t doWriteBrushFace(const Model::BrushFace& face) override {
-                writeFacePoints(face);
-                writeTextureInfo(face);
-                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), " 0\n"); // extra value written here
-                return 1;
+            void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override {
+                writeFacePoints(stream, face);
+                writeTextureInfo(stream, face);
+                fmt::format_to(std::ostreambuf_iterator<char>(stream), " 0\n"); // extra value written here
             }
         };
 
@@ -186,11 +181,10 @@ namespace TrenchBroom {
             explicit ValveFileSerializer(std::ostream& stream) :
             QuakeFileSerializer(stream) {}
         private:
-            size_t doWriteBrushFace(const Model::BrushFace& face) override {
-                writeFacePoints(face);
-                writeValveTextureInfo(face);
-                fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "\n");
-                return 1;
+            void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override {
+                writeFacePoints(stream, face);
+                writeValveTextureInfo(stream, face);
+                fmt::format_to(std::ostreambuf_iterator<char>(stream), "\n");
             }
         };
 
@@ -261,7 +255,8 @@ namespace TrenchBroom {
         }
 
         void MapFileSerializer::doBrushFace(const Model::BrushFace& face) {
-            const size_t lines = doWriteBrushFace(face);
+            const size_t lines = 1u;
+            doWriteBrushFace(m_stream, face);
             face.setFilePosition(m_line, lines);
             m_line += lines;
         }
