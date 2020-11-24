@@ -24,6 +24,7 @@
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "View/BorderLine.h"
+#include "View/ColorsPreferencePane.h"
 #include "View/GamesPreferencePane.h"
 #include "View/KeyboardPreferencePane.h"
 #include "View/MousePreferencePane.h"
@@ -37,6 +38,7 @@
 #include <QPushButton>
 #include <QStackedWidget>
 #include <QToolBar>
+#include <QToolButton>
 
 namespace TrenchBroom {
     namespace View {
@@ -70,20 +72,28 @@ namespace TrenchBroom {
         void PreferenceDialog::createGui() {
             const auto gamesImage    = IO::loadSVGIcon(IO::Path("GeneralPreferences.svg"));
             const auto viewImage     = IO::loadSVGIcon(IO::Path("ViewPreferences.svg"));
+            const auto colorsImage   = IO::loadSVGIcon(IO::Path("ColorPreferences.svg"));
             const auto mouseImage    = IO::loadSVGIcon(IO::Path("MousePreferences.svg"));
             const auto keyboardImage = IO::loadSVGIcon(IO::Path("KeyboardPreferences.svg"));
 
             m_toolBar = new QToolBar();
             m_toolBar->setFloatable(false);
             m_toolBar->setMovable(false);
+            m_toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
             m_toolBar->addAction(gamesImage, "Games", [this](){ switchToPane(PrefPane_Games); });
             m_toolBar->addAction(viewImage, "View", [this](){ switchToPane(PrefPane_View); });
+            m_toolBar->addAction(colorsImage, "Colors", [this](){ switchToPane(PrefPane_Colors); });
             m_toolBar->addAction(mouseImage, "Mouse", [this](){ switchToPane(PrefPane_Mouse); });
             m_toolBar->addAction(keyboardImage, "Keyboard", [this](){ switchToPane(PrefPane_Keyboard); });
+
+            foreach (auto *button, m_toolBar->findChildren<QToolButton*>()) {
+                button->installEventFilter(this);
+            }
 
             m_stackedWidget = new QStackedWidget();
             m_stackedWidget->addWidget(new GamesPreferencePane());
             m_stackedWidget->addWidget(new ViewPreferencePane());
+            m_stackedWidget->addWidget(new ColorsPreferencePane());
             m_stackedWidget->addWidget(new MousePreferencePane());
             m_stackedWidget->addWidget(new KeyboardPreferencePane(m_document.get()));
 
@@ -143,6 +153,14 @@ namespace TrenchBroom {
 
         void PreferenceDialog::resetToDefaults() {
             currentPane()->resetToDefaults();
+        }
+
+        // Don't display tooltips for pane switcher buttons...
+        bool PreferenceDialog::eventFilter(QObject* o, QEvent* e) {
+            if (e->type() == QEvent::ToolTip) {
+                return true;
+            }
+            return QDialog::eventFilter(o, e);
         }
     }
 }

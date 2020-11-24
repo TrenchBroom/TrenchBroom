@@ -59,12 +59,7 @@ namespace TrenchBroom {
         extern Preference<Color> CompassBackgroundOutlineColor;
         extern Preference<Color> CompassAxisOutlineColor;
 
-        extern Preference<Color> CameraFrustumColor;
-
         extern Preference<Color> DefaultGroupColor;
-
-        extern Preference<Color> TutorialOverlayTextColor;
-        extern Preference<Color> TutorialOverlayBackgroundColor;
 
         extern Preference<Color> FaceColor;
         extern Preference<Color> SelectedFaceColor;
@@ -72,7 +67,7 @@ namespace TrenchBroom {
         extern Preference<float> TransparentFaceAlpha;
         extern Preference<Color> EdgeColor;
         extern Preference<Color> SelectedEdgeColor;
-        extern Preference<Color> OccludedSelectedEdgeColor;
+        extern Preference<float> OccludedSelectedEdgeAlpha;
         extern Preference<Color> LockedEdgeColor;
         extern Preference<Color> UndefinedEntityColor;
 
@@ -81,7 +76,7 @@ namespace TrenchBroom {
         extern Preference<Color> InfoOverlayTextColor;
         extern Preference<Color> GroupInfoOverlayTextColor;
         extern Preference<Color> InfoOverlayBackgroundColor;
-        extern Preference<Color> WeakInfoOverlayBackgroundColor;
+        extern Preference<float> WeakInfoOverlayBackgroundAlpha;
         extern Preference<Color> SelectedInfoOverlayTextColor;
         extern Preference<Color> SelectedInfoOverlayBackgroundColor;
         extern Preference<Color> LockedInfoOverlayTextColor;
@@ -90,33 +85,22 @@ namespace TrenchBroom {
         extern Preference<float> HandleRadius;
         extern Preference<float> MaximumHandleDistance;
         extern Preference<Color> HandleColor;
-        extern Preference<Color> OccludedHandleColor;
         extern Preference<Color> SelectedHandleColor;
-        extern Preference<Color> OccludedSelectedHandleColor;
 
         extern Preference<Color> ClipHandleColor;
         extern Preference<Color> ClipFaceColor;
 
         extern Preference<Color> ResizeHandleColor;
         extern Preference<float> RotateHandleRadius;
-        extern Preference<Color> RotateHandleColor;
 
         extern Preference<Color> ScaleHandleColor;
         extern Preference<Color> ScaleFillColor;
         extern Preference<Color> ScaleOutlineColor;
-        extern Preference<Color> ScaleOutlineDimColor;
+        extern Preference<float> ScaleOutlineDimAlpha;
         extern Preference<Color> ShearFillColor;
         extern Preference<Color> ShearOutlineColor;
 
-        extern Preference<Color> MoveTraceColor;
-        extern Preference<Color> OccludedMoveTraceColor;
-
-        extern Preference<Color> MoveIndicatorOutlineColor;
-        extern Preference<Color> MoveIndicatorFillColor;
-
         extern Preference<Color> AngleIndicatorColor;
-
-        extern Preference<Color> TextureSeamColor;
 
         extern Preference<float> Brightness;
         extern Preference<float> GridAlpha;
@@ -134,6 +118,7 @@ namespace TrenchBroom {
         extern Preference<int> BrowserFontSize;
         extern Preference<Color> BrowserTextColor;
         extern Preference<Color> BrowserSubTextColor;
+        extern Preference<Color> BrowserBackgroundColor;
         extern Preference<Color> BrowserGroupBackgroundColor;
         extern Preference<float> TextureBrowserIconSize;
         extern Preference<Color> TextureBrowserDefaultColor;

@@ -289,7 +289,7 @@ namespace TrenchBroom {
 
             RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
-            renderService.setBackgroundColor(pref(Preferences::WeakInfoOverlayBackgroundColor));
+            renderService.setBackgroundColor(Color(pref(Preferences::InfoOverlayBackgroundColor), pref(Preferences::WeakInfoOverlayBackgroundAlpha)));
             renderService.setShowOccludedObjects();
 
             const Camera& camera = renderContext.camera();
@@ -311,7 +311,7 @@ namespace TrenchBroom {
 
             RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
-            renderService.setBackgroundColor(pref(Preferences::WeakInfoOverlayBackgroundColor));
+            renderService.setBackgroundColor(Color(pref(Preferences::InfoOverlayBackgroundColor), pref(Preferences::WeakInfoOverlayBackgroundAlpha)));
             renderService.setShowOccludedObjects();
 
             const vm::vec3 boundsSize = correct(m_bounds.size());
@@ -329,7 +329,7 @@ namespace TrenchBroom {
 
             RenderService renderService(renderContext, renderBatch);
             renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
-            renderService.setBackgroundColor(pref(Preferences::WeakInfoOverlayBackgroundColor));
+            renderService.setBackgroundColor(Color(pref(Preferences::InfoOverlayBackgroundColor), pref(Preferences::WeakInfoOverlayBackgroundAlpha)));
             renderService.setShowOccludedObjects();
 
             buffer << "Min: " << vm::correct(m_bounds.min);

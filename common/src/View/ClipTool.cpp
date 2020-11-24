@@ -543,7 +543,7 @@ namespace TrenchBroom {
             m_remainingBrushRenderer->setEdgeColor(pref(Preferences::SelectedEdgeColor));
             m_remainingBrushRenderer->setShowEdges(true);
             m_remainingBrushRenderer->setShowOccludedEdges(true);
-            m_remainingBrushRenderer->setOccludedEdgeColor(pref(Preferences::OccludedSelectedEdgeColor));
+            m_remainingBrushRenderer->setOccludedEdgeColor(Color(pref(Preferences::SelectedEdgeColor), pref(Preferences::OccludedSelectedEdgeAlpha)));
             m_remainingBrushRenderer->setTint(true);
             m_remainingBrushRenderer->setTintColor(pref(Preferences::SelectedFaceColor));
             m_remainingBrushRenderer->render(renderContext, renderBatch);

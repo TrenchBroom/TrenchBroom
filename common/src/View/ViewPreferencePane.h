@@ -27,7 +27,6 @@ class QComboBox;
 
 namespace TrenchBroom {
     namespace View {
-        class ColorButton;
         class SliderWithLabel;
 
         class ViewPreferencePane : public PreferencePane {
@@ -39,9 +38,6 @@ namespace TrenchBroom {
             SliderWithLabel* m_fovSlider;
             QCheckBox* m_showAxes;
             QComboBox* m_textureModeCombo;
-            ColorButton* m_backgroundColorButton;
-            ColorButton* m_gridColorButton;
-            ColorButton* m_edgeColorButton;
             QComboBox* m_themeCombo;
             QComboBox* m_textureBrowserIconSizeCombo;
             QComboBox* m_rendererFontSizeCombo;
@@ -67,9 +63,6 @@ namespace TrenchBroom {
             void fovChanged(int value);
             void showAxesChanged(int state);
             void textureModeChanged(int index);
-            void backgroundColorChanged(const QColor& color);
-            void gridColorChanged(const QColor& color);
-            void edgeColorChanged(const QColor& color);
             void themeChanged(int index);
             void textureBrowserIconSizeChanged(int index);
             void rendererFontSizeChanged(const QString& text);
