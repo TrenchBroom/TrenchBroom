@@ -59,6 +59,9 @@ namespace TrenchBroom {
         AttributableNode(std::move(entity)),
         Object() {}
 
+        EntityNode::EntityNode(std::initializer_list<EntityAttribute> attributes) :
+        EntityNode(Entity(std::move(attributes))) {}
+
         FloatType EntityNode::area(vm::axis::type axis) const {
             const vm::vec3 size = physicalBounds().size();
             switch (axis) {
