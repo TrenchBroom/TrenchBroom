@@ -27,6 +27,7 @@
 #include "Model/EntityAttributes.h"
 
 #include <kdl/overload.h>
+#include <kdl/vector_utils.h>
 
 #include <fmt/format.h>
 
@@ -36,11 +37,14 @@
 #include <utility> // for std::pair
 #include <vector>
 #include <sstream>
+#include <algorithm>
+#include <execution>
 
 #include <QDebug>
 #include <QtConcurrent>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QElapsedTimer>
 
 namespace TrenchBroom {
     namespace IO {
@@ -229,6 +233,11 @@ namespace TrenchBroom {
         void MapFileSerializer::precomputeNodes(const std::vector<const Model::Node*>& nodes) {
             qDebug() << "precomputing serialization for" << nodes.size() << "nodes";
 
+            QElapsedTimer timer;
+            timer.start();
+
+            ensure(m_nodeToPrecomputedString.empty(), "reused serializer");
+
             using NodeString = std::pair<const Model::Node*, std::string>;
 
             std::function<NodeString(const Model::Node*)> transform =
@@ -243,17 +252,28 @@ namespace TrenchBroom {
                              string = writeBrushFaces(brush->brush());
                          }
                      ));
-                    return NodeString(node, string);
+                    return NodeString(node, std::move(string));
                 };
 
-            std::vector<NodeString> result = QtConcurrent::blockingMapped<std::vector<NodeString>>(nodes, transform);
+            //std::vector<NodeString> result = QtConcurrent::blockingMapped<std::vector<NodeString>>(nodes, transform);
+            //std::vector<NodeString> result = kdl::vec_transform(nodes, transform);
 
-            qDebug() << "threads" << QThread::idealThreadCount();
+            std::vector<NodeString> result;
+            result.resize(nodes.size());
+            std::transform(std::execution::par_unseq,
+               std::cbegin(nodes), std::cend(nodes),
+               std::begin(result),
+               transform);
+
+            qDebug() << "end of blocking map " << timer.elapsed();
+            
 
             // move strings into a map
             for (auto& [node, string]: result) {
                 m_nodeToPrecomputedString[node] = std::move(string);
             }
+
+            qDebug() << "precomputeNodes took " << timer.elapsed() << "ms with threads:" << QThread::idealThreadCount();
 
             //
             // for (const auto& [node, name] : m_nodeToPrecomputedString) {
