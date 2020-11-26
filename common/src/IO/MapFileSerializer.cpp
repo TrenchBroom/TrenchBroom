@@ -40,6 +40,10 @@
 #include <algorithm>
 #include <execution>
 
+#include <thread>
+#include <future>
+#include <atomic>
+
 #include <QDebug>
 #include <QtConcurrent>
 #include <QMutex>
@@ -230,8 +234,75 @@ namespace TrenchBroom {
         m_line(1),
         m_stream(stream) {}
 
+        template<class T, class L>
+        auto parallelTransform(const std::vector<T>& input, L&& transform) {
+            using ResultType = decltype(transform(std::declval<const T&>()));
+
+            std::vector<ResultType> result;
+            result.resize(input.size());
+
+            unsigned int numThreads = std::thread::hardware_concurrency();
+            if (numThreads == 0) {
+                numThreads = 1;
+            }
+
+            std::atomic<size_t> nextIndex(0);
+
+            std::vector<std::future<void>> threads;
+            threads.resize(numThreads);
+
+            for (unsigned int i = 0; i < numThreads; ++i) {
+                threads[i] = std::async(std::launch::async, [&]() {
+                    while (true) {
+                        const size_t ourIndex = std::atomic_fetch_add(&nextIndex, 1);
+                        if (ourIndex >= input.size()) {
+                            break;
+                        }
+                        result[ourIndex] = transform(input[ourIndex]);
+                    }
+                });
+            }
+
+            for (unsigned int i = 0; i < numThreads; ++i) {
+                threads[i].wait();
+            }
+
+            return result;
+        }
+
+
         void MapFileSerializer::precomputeNodes(const std::vector<const Model::Node*>& nodes) {
             qDebug() << "precomputing serialization for" << nodes.size() << "nodes";
+
+
+            int worlds=0;
+            int layers=0;
+            int groups=0;
+            int ents=0;
+            int brushes=0;
+
+            std::vector<const Model::BrushNode*> brushNodes;
+            brushNodes.reserve(nodes.size());
+
+            for (auto* n : nodes) {
+                n->accept(kdl::overload(
+                         [&](const Model::WorldNode* world)   {worlds++;},
+                         [&](const Model::LayerNode* layer)   {layers++;},
+                         [&](const Model::GroupNode* group)   {groups++;},
+                         [&](const Model::EntityNode* entity) {ents++;},
+                         [&](const Model::BrushNode* brush) {
+                             brushes++;
+                             brushNodes.push_back(brush);
+                         }
+                     ));
+            }
+
+            qDebug() << "precomputing serialization for"
+                     << worlds << "worlds"
+                    << layers << "layers"
+                    << groups << "groups"
+                    << ents << "ents"
+                    << brushes << "brushes";
 
             QElapsedTimer timer;
             timer.start();
@@ -240,30 +311,22 @@ namespace TrenchBroom {
 
             using NodeString = std::pair<const Model::Node*, std::string>;
 
-            std::function<NodeString(const Model::Node*)> transform =
-                [&](const Model::Node* node) -> NodeString {
-                    std::string string;
-                    node->accept(kdl::overload(
-                         [&](const Model::WorldNode* world)   {},
-                         [&](const Model::LayerNode* layer)   {},
-                         [&](const Model::GroupNode* group)   {},
-                         [&](const Model::EntityNode* entity) {},
-                         [&](const Model::BrushNode* brush) {
-                             string = writeBrushFaces(brush->brush());
-                         }
-                     ));
+            std::function<NodeString(const Model::BrushNode*)> transform =
+                [&](const Model::BrushNode* node) -> NodeString {
+                    std::string string = writeBrushFaces(node->brush());
                     return NodeString(node, std::move(string));
                 };
 
-            //std::vector<NodeString> result = QtConcurrent::blockingMapped<std::vector<NodeString>>(nodes, transform);
+            //std::vector<NodeString> result = QtConcurrent::blockingMapped<std::vector<NodeString>>(brushNodes, transform);
             //std::vector<NodeString> result = kdl::vec_transform(nodes, transform);
+            std::vector<NodeString> result = parallelTransform(brushNodes, transform);
 
-            std::vector<NodeString> result;
-            result.resize(nodes.size());
-            std::transform(std::execution::par_unseq,
-               std::cbegin(nodes), std::cend(nodes),
-               std::begin(result),
-               transform);
+            //std::vector<NodeString> result;
+            //result.resize(nodes.size());
+            //std::transform(std::execution::par_unseq,
+            //   std::cbegin(nodes), std::cend(nodes),
+            //   std::begin(result),
+            //   transform);
 
             qDebug() << "end of blocking map " << timer.elapsed();
             
