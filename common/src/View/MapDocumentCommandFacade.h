@@ -102,7 +102,6 @@ namespace TrenchBroom {
             void performRotateTextures(float angle);
             void performShearTextures(const vm::vec2f& factors);
             void performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot& coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
-            void performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
         public: // vertices
             bool performSnapVertices(FloatType snapTo);
             std::vector<vm::vec3> performMoveVertices(const std::map<Model::BrushNode*, std::vector<vm::vec3>>& vertices, const vm::vec3& delta);

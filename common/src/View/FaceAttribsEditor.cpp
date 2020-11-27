@@ -384,6 +384,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &FaceAttribsEditor::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &FaceAttribsEditor::documentWasLoaded);
+            document->nodesDidChangeNotifier.addObserver(this, &FaceAttribsEditor::nodesDidChange);
             document->brushFacesDidChangeNotifier.addObserver(this, &FaceAttribsEditor::brushFacesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &FaceAttribsEditor::selectionDidChange);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
@@ -395,6 +396,7 @@ namespace TrenchBroom {
                 auto document = kdl::mem_lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasLoaded);
+                document->nodesDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::nodesDidChange);
                 document->brushFacesDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::brushFacesDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::selectionDidChange);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
@@ -407,6 +409,10 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::documentWasLoaded(MapDocument*) {
+            updateControls();
+        }
+
+        void FaceAttribsEditor::nodesDidChange(const std::vector<Model::Node*>&) {
             updateControls();
         }
 
