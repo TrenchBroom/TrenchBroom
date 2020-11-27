@@ -53,7 +53,7 @@ namespace TrenchBroom::View {
 
         m_table->setSelectionMode(QAbstractItemView::SelectionMode::NoSelection);
 
-        auto* searchBox = createSearchBox();
+        QLineEdit* searchBox = createSearchBox();
         makeSmall(searchBox);
 
         auto* infoLabel = new QLabel(tr("Double-click a color to begin editing it."));
