@@ -118,7 +118,6 @@ set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 find_package(OpenGL REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Svg REQUIRED)
-find_package(Qt5Concurrent REQUIRED)
 
 # Find threads lib, needed to work around a gtest bug, see: https://stackoverflow.com/questions/21116622/undefined-reference-to-pthread-key-create-linker-error
 # The googletest target links to this
