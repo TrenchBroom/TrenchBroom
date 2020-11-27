@@ -25,6 +25,10 @@
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityAttributes.h"
+#include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
+#include "Model/WorldNode.h"
 
 #include <kdl/overload.h>
 #include <kdl/vector_utils.h>
@@ -286,11 +290,19 @@ namespace TrenchBroom {
 
             for (auto* n : nodes) {
                 n->accept(kdl::overload(
-                         [&](const Model::WorldNode* world)   {worlds++;},
-                         [&](const Model::LayerNode* layer)   {layers++;},
-                         [&](const Model::GroupNode* group)   {groups++;},
-                         [&](const Model::EntityNode* entity) {ents++;},
-                         [&](const Model::BrushNode* brush) {
+                         [&](auto&& thisLambda, const Model::WorldNode* world)   {worlds++;
+                                world->visitChildren(thisLambda);
+                            },
+                         [&](auto&& thisLambda, const Model::LayerNode* layer)   {layers++;
+                                layer->visitChildren(thisLambda);
+                            },
+                         [&](auto&& thisLambda, const Model::GroupNode* group)   {groups++;
+                            group->visitChildren(thisLambda);
+                            },
+                         [&](auto&& thisLambda, const Model::EntityNode* entity) {ents++;
+                            entity->visitChildren(thisLambda);
+                            },
+                         [&](auto&& thisLambda, const Model::BrushNode* brush) {
                              brushes++;
                              brushNodes.push_back(brush);
                          }
