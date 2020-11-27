@@ -49,10 +49,10 @@
 #include <atomic>
 
 #include <QDebug>
-#include <QtConcurrent>
 #include <QMutex>
 #include <QMutexLocker>
 #include <QElapsedTimer>
+#include <QThread>
 
 namespace TrenchBroom {
     namespace IO {
@@ -302,7 +302,7 @@ namespace TrenchBroom {
                          [&](auto&& thisLambda, const Model::EntityNode* entity) {ents++;
                             entity->visitChildren(thisLambda);
                             },
-                         [&](auto&& thisLambda, const Model::BrushNode* brush) {
+                         [&](const Model::BrushNode* brush) {
                              brushes++;
                              brushNodes.push_back(brush);
                          }
