@@ -567,13 +567,6 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
         }
 
-        void MapDocumentCommandFacade::performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) {
-            if (request.evaluate(allSelectedBrushFaces())) {
-                setTextures(allSelectedBrushFaces());
-                brushFacesDidChangeNotifier(allSelectedBrushFaces());
-            }
-        }
-
         bool MapDocumentCommandFacade::performSnapVertices(const FloatType snapTo) {
             const std::vector<Model::BrushNode*> brushNodes = m_selectedNodes.brushesRecursively();
 

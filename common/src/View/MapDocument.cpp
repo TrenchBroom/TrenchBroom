@@ -82,7 +82,6 @@
 #include "View/AddBrushVerticesCommand.h"
 #include "View/AddRemoveNodesCommand.h"
 #include "View/Actions.h"
-#include "View/ChangeBrushFaceAttributesCommand.h"
 #include "View/ChangeEntityAttributesCommand.h"
 #include "View/UpdateEntitySpawnflagCommand.h"
 #include "View/ConvertEntityColorCommand.h"
@@ -2005,8 +2004,10 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) {
-            const auto result = executeAndStore(ChangeBrushFaceAttributesCommand::command(request));
-            return result->success();
+            return applyAndSwap(*this, request.name(), allSelectedBrushFaces(), [&](Model::BrushFace& brushFace) {
+                request.evaluate(brushFace);
+                return true;
+            });
         }
 
         bool MapDocument::copyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot& coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle) {
