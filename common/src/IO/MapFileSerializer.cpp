@@ -30,6 +30,7 @@
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
 
+#include <kdl/parallel.h>
 #include <kdl/overload.h>
 #include <kdl/vector_utils.h>
 
@@ -41,11 +42,6 @@
 #include <utility> // for std::pair
 #include <vector>
 #include <sstream>
-#include <algorithm>
-
-#include <thread>
-#include <future>
-#include <atomic>
 
 #include <QDebug>
 #include <QMutex>
@@ -237,43 +233,6 @@ namespace TrenchBroom {
         m_line(1),
         m_stream(stream) {}
 
-        template<class T, class L>
-        auto parallelTransform(const std::vector<T>& input, L&& transform) {
-            using ResultType = decltype(transform(std::declval<const T&>()));
-
-            std::vector<ResultType> result;
-            result.resize(input.size());
-
-            unsigned int numThreads = std::thread::hardware_concurrency();
-            if (numThreads == 0) {
-                numThreads = 1;
-            }
-
-            std::atomic<size_t> nextIndex(0);
-
-            std::vector<std::future<void>> threads;
-            threads.resize(numThreads);
-
-            for (unsigned int i = 0; i < numThreads; ++i) {
-                threads[i] = std::async(std::launch::async, [&]() {
-                    while (true) {
-                        const size_t ourIndex = std::atomic_fetch_add(&nextIndex, static_cast<size_t>(1));
-                        if (ourIndex >= input.size()) {
-                            break;
-                        }
-                        result[ourIndex] = transform(input[ourIndex]);
-                    }
-                });
-            }
-
-            for (unsigned int i = 0; i < numThreads; ++i) {
-                threads[i].wait();
-            }
-
-            return result;
-        }
-
-
         void MapFileSerializer::precomputeNodes(const std::vector<const Model::Node*>& nodes) {
             qDebug() << "precomputing serialization for" << nodes.size() << "nodes";
 
@@ -329,8 +288,8 @@ namespace TrenchBroom {
                 };
 
             //std::vector<NodeString> result = QtConcurrent::blockingMapped<std::vector<NodeString>>(brushNodes, transform);
-            //std::vector<NodeString> result = kdl::vec_transform(nodes, transform);
-            std::vector<NodeString> result = parallelTransform(brushNodes, transform);
+            //std::vector<NodeString> result = kdl::vec_transform(brushNodes, transform);
+            std::vector<NodeString> result = kdl::vec_parallel_transform(brushNodes, transform);
 
             //std::vector<NodeString> result;
             //result.resize(nodes.size());
