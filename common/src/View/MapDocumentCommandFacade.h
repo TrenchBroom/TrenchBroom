@@ -86,9 +86,6 @@ namespace TrenchBroom {
         public:
             void performPushGroup(Model::GroupNode* group);
             void performPopGroup();
-        public: // entity attributes
-            using EntityAttributeSnapshotMap = std::map<Model::AttributableNode*, std::vector<Model::EntityAttributeSnapshot>>;
-            void restoreAttributes(const EntityAttributeSnapshotMap& attributes);
         public: // brush face attributes
             void performMoveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
             void performRotateTextures(float angle);
