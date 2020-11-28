@@ -70,6 +70,15 @@ namespace TrenchBroom {
             bool exporting() const;
             void setExporting(bool exporting);
         public:
+            /**
+             * Prepares to serialize the given nodes and all of their children.
+             *
+             * The rootNodes parameter allows subclasses to optionally precompute the
+             * serializations of all nodes in parallel.
+             *
+             * Any nodes serialized after calling beginFile() must have either been
+             * in the rootNodes vector or be a descendant of one of these nodes.
+             */
             void beginFile(const std::vector<const Model::Node*>& rootNodes);
             void endFile();
         public:

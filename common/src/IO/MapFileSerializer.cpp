@@ -288,8 +288,10 @@ namespace TrenchBroom {
             ++m_line;
 
             // write pre-serialized brush faces
-            const std::string& preSerialized = m_nodeToPrecomputedString.at(brush);
-            m_stream << preSerialized;
+            auto it = m_nodeToPrecomputedString.find(brush);
+            ensure(it != std::end(m_nodeToPrecomputedString), "attempted to serialize a brush which was not passed to doBeginFile");
+            const std::string& precomputedString = it->second;
+            m_stream << precomputedString;
 
             fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "}}\n");
             ++m_line;
