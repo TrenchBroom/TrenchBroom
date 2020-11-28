@@ -70,8 +70,7 @@ namespace TrenchBroom {
             bool exporting() const;
             void setExporting(bool exporting);
         public:
-            virtual void precomputeNodes(const std::vector<const Model::Node*>& nodes) = 0;
-            void beginFile();
+            void beginFile(const std::vector<const Model::Node*>& rootNodes);
             void endFile();
         public:
             void defaultLayer(const Model::WorldNode& world);
@@ -102,7 +101,7 @@ namespace TrenchBroom {
         protected:
             std::string escapeEntityAttribute(const std::string& str) const;
         private:
-            virtual void doBeginFile() = 0;
+            virtual void doBeginFile(const std::vector<const Model::Node*>& nodes) = 0;
             virtual void doEndFile() = 0;
 
             virtual void doBeginEntity(const Model::Node* node) = 0;

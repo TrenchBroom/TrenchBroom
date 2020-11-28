@@ -43,12 +43,6 @@
 #include <vector>
 #include <sstream>
 
-#include <QDebug>
-#include <QMutex>
-#include <QMutexLocker>
-#include <QElapsedTimer>
-#include <QThread>
-
 namespace TrenchBroom {
     namespace IO {
         class QuakeFileSerializer : public MapFileSerializer {
@@ -233,88 +227,36 @@ namespace TrenchBroom {
         m_line(1),
         m_stream(stream) {}
 
-        void MapFileSerializer::precomputeNodes(const std::vector<const Model::Node*>& nodes) {
-            qDebug() << "precomputing serialization for" << nodes.size() << "nodes";
+        void MapFileSerializer::doBeginFile(const std::vector<const Model::Node*>& rootNodes) {
+            ensure(m_nodeToPrecomputedString.empty(), "MapFileSerializer may not be reused");
 
-
-            int worlds=0;
-            int layers=0;
-            int groups=0;
-            int ents=0;
-            int brushes=0;
-
+            // collect brushes
             std::vector<const Model::BrushNode*> brushNodes;
-            brushNodes.reserve(nodes.size());
+            brushNodes.reserve(rootNodes.size());
 
-            for (auto* n : nodes) {
-                n->accept(kdl::overload(
-                         [&](auto&& thisLambda, const Model::WorldNode* world)   {worlds++;
-                                world->visitChildren(thisLambda);
-                            },
-                         [&](auto&& thisLambda, const Model::LayerNode* layer)   {layers++;
-                                layer->visitChildren(thisLambda);
-                            },
-                         [&](auto&& thisLambda, const Model::GroupNode* group)   {groups++;
-                            group->visitChildren(thisLambda);
-                            },
-                         [&](auto&& thisLambda, const Model::EntityNode* entity) {ents++;
-                            entity->visitChildren(thisLambda);
-                            },
-                         [&](const Model::BrushNode* brush) {
-                             brushes++;
-                             brushNodes.push_back(brush);
-                         }
-                     ));
-            }
+            Model::Node::visitAll(rootNodes, kdl::overload(
+                [](auto&& thisLambda, const Model::WorldNode* world) { world->visitChildren(thisLambda); },
+                [](auto&& thisLambda, const Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
+                [](auto&& thisLambda, const Model::GroupNode* group) { group->visitChildren(thisLambda); },
+                [](auto&& thisLambda, const Model::EntityNode* entity) { entity->visitChildren(thisLambda); },
+                [&](const Model::BrushNode* brush) {
+                    brushNodes.push_back(brush);
+                }
+            ));
 
-            qDebug() << "precomputing serialization for"
-                     << worlds << "worlds"
-                    << layers << "layers"
-                    << groups << "groups"
-                    << ents << "ents"
-                    << brushes << "brushes";
-
-            QElapsedTimer timer;
-            timer.start();
-
-            ensure(m_nodeToPrecomputedString.empty(), "reused serializer");
-
+            // serialize brushes to strings in parallel
             using NodeString = std::pair<const Model::Node*, std::string>;
-
-            std::function<NodeString(const Model::BrushNode*)> transform =
+            std::vector<NodeString> result = kdl::vec_parallel_transform(brushNodes,
                 [&](const Model::BrushNode* node) -> NodeString {
                     std::string string = writeBrushFaces(node->brush());
                     return NodeString(node, std::move(string));
-                };
-
-            //std::vector<NodeString> result = QtConcurrent::blockingMapped<std::vector<NodeString>>(brushNodes, transform);
-            //std::vector<NodeString> result = kdl::vec_transform(brushNodes, transform);
-            std::vector<NodeString> result = kdl::vec_parallel_transform(brushNodes, transform);
-
-            //std::vector<NodeString> result;
-            //result.resize(nodes.size());
-            //std::transform(std::execution::par_unseq,
-            //   std::cbegin(nodes), std::cend(nodes),
-            //   std::begin(result),
-            //   transform);
-
-            qDebug() << "end of blocking map " << timer.elapsed();
-            
+                });
 
             // move strings into a map
             for (auto& [node, string]: result) {
                 m_nodeToPrecomputedString[node] = std::move(string);
             }
-
-            qDebug() << "precomputeNodes took " << timer.elapsed() << "ms with threads:" << QThread::idealThreadCount();
-
-            //
-            // for (const auto& [node, name] : m_nodeToPrecomputedString) {
-            //     qDebug() << "node:" << node << "name:" << QString::fromStdString(name);
-            // }
         }
-
-        void MapFileSerializer::doBeginFile() {}
         void MapFileSerializer::doEndFile() {}
 
         void MapFileSerializer::doBeginEntity(const Model::Node* /* node */) {

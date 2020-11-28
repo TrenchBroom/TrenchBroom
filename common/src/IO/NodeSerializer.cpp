@@ -75,10 +75,10 @@ namespace TrenchBroom {
             m_exporting = exporting;
         }
 
-        void NodeSerializer::beginFile() {
+        void NodeSerializer::beginFile(const std::vector<const Model::Node*>& rootNodes) {
             m_entityNo = 0;
             m_brushNo = 0;
-            doBeginFile();
+            doBeginFile(rootNodes);
         }
 
         void NodeSerializer::endFile() {

@@ -48,10 +48,8 @@ namespace TrenchBroom {
             static std::unique_ptr<NodeSerializer> create(Model::MapFormat format, std::ostream& stream);
         protected:
             explicit MapFileSerializer(std::ostream& stream);
-        public:
-            void precomputeNodes(const std::vector<const Model::Node*>& nodes) override;
         private:
-            void doBeginFile() override;
+            void doBeginFile(const std::vector<const Model::Node*>& rootNodes) override;
             void doEndFile() override;
 
             void doBeginEntity(const Model::Node* node) override;

@@ -76,8 +76,7 @@ namespace TrenchBroom {
         }
 
         void NodeWriter::writeMap() {
-            m_serializer->precomputeNodes(std::vector<const Model::Node*>{&m_world});
-            m_serializer->beginFile();
+            m_serializer->beginFile(std::vector<const Model::Node*>{&m_world});
             writeDefaultLayer();
             writeCustomLayers();
             m_serializer->endFile();
@@ -106,8 +105,7 @@ namespace TrenchBroom {
         }
 
         void NodeWriter::writeNodes(const std::vector<Model::Node*>& nodes) {
-            m_serializer->precomputeNodes(kdl::vec_element_cast<const Model::Node*>(nodes));
-            m_serializer->beginFile();
+            m_serializer->beginFile(kdl::vec_element_cast<const Model::Node*>(nodes));
 
             // Assort nodes according to their type and, in case of brushes, whether they are entity or world brushes.
             std::vector<Model::Node*> groups;
@@ -153,7 +151,7 @@ namespace TrenchBroom {
         }
 
         void NodeWriter::writeBrushFaces(const std::vector<Model::BrushFace>& faces) {
-            m_serializer->beginFile();
+            m_serializer->beginFile(std::vector<const Model::Node*>{});
             m_serializer->brushFaces(faces);
             m_serializer->endFile();
         }

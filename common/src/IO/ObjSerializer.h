@@ -123,10 +123,8 @@ namespace TrenchBroom {
             ObjectList m_objects;
         public:
             explicit ObjFileSerializer(const Path& path);
-        public:
-            void precomputeNodes(const std::vector<const Model::Node*>& nodes) override;
         private:
-            void doBeginFile() override;
+            void doBeginFile(const std::vector<const Model::Node*>& rootNodes) override;
             void doEndFile() override;
 
             void writeMtlFile();
