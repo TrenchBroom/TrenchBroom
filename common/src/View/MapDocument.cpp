@@ -83,7 +83,6 @@
 #include "View/AddBrushVerticesCommand.h"
 #include "View/AddRemoveNodesCommand.h"
 #include "View/Actions.h"
-#include "View/UpdateEntitySpawnflagCommand.h"
 #include "View/ConvertEntityColorCommand.h"
 #include "View/CurrentGroupCommand.h"
 #include "View/DuplicateNodesCommand.h"
@@ -1968,8 +1967,19 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::updateSpawnflag(const std::string& name, const size_t flagIndex, const bool setFlag) {
-            const auto result = executeAndStore(UpdateEntitySpawnflagCommand::update(name, flagIndex, setFlag));
-            return result->success();
+            return applyAndSwap(*this, setFlag ? "Set Spawnflag" : "Unset Spawnflag", m_selectedNodes.nodes(), kdl::overload(
+                [&](Model::Entity& entity) {
+                    const auto* strValue = entity.attribute(name);
+                    int intValue = strValue ? kdl::str_to_int(*strValue).value_or(0) : 0;
+                    const int flagValue = (1 << flagIndex);
+
+                    intValue = setFlag ? intValue | flagValue : intValue & ~flagValue;
+                    entity.addOrUpdateAttribute(name, kdl::str_to_string(intValue));
+                    
+                    return true;
+                },
+                [] (Model::Brush&) { return true; }
+            ));
         }
 
         bool MapDocument::resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {

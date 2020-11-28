@@ -389,43 +389,6 @@ namespace TrenchBroom {
             groupWasClosedNotifier(previousGroup);
         }
 
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performUpdateSpawnflag(const std::string& name, const size_t flagIndex, const bool setFlag) {
-            const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
-            const std::vector<Model::Node*> nodes(attributableNodes.begin(), attributableNodes.end());
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-            const std::vector<Model::Node*> descendants = collectDescendants(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
-
-            MapDocumentCommandFacade::EntityAttributeSnapshotMap snapshot;
-
-            std::vector<Model::AttributableNode*>::const_iterator it, end;
-            for (it = attributableNodes.begin(), end = attributableNodes.end(); it != end; ++it) {
-                Model::AttributableNode* node = *it;
-                snapshot[node].push_back(node->attributeSnapshot(name));
-
-                const auto* strValue = node->entity().attribute(name);
-                int intValue = strValue ? kdl::str_to_int(*strValue).value_or(0) : 0;
-                const int flagValue = (1 << flagIndex);
-
-                if (setFlag)
-                    intValue |= flagValue;
-                else
-                    intValue &= ~flagValue;
-
-                auto entity = node->entity();
-                entity.addOrUpdateAttribute(name, kdl::str_to_string(intValue));
-                node->setEntity(std::move(entity));
-            }
-
-            setEntityDefinitions(nodes);
-            setEntityModels(nodes);
-
-            return snapshot;
-        }
-
         MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performConvertColorRange(const std::string& name, Assets::ColorRange::Type colorRange) {
             const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
             const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
