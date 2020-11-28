@@ -38,7 +38,6 @@
 
 #include <iterator> // for std::ostreambuf_iterator
 #include <memory>
-#include <functional>
 #include <utility> // for std::pair
 #include <vector>
 #include <sstream>
