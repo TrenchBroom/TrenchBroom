@@ -1349,7 +1349,7 @@ namespace TrenchBroom {
                 {layer, Model::NodeContents(std::move(layerEntity))}, 
                 {neighbour, Model::NodeContents(std::move(neighbourEntity))}
             });
-            
+
             return true;
         }
 
@@ -1512,12 +1512,13 @@ namespace TrenchBroom {
         }
 
         void MapDocument::setOmitLayerFromExport(Model::LayerNode* layer, const bool omitFromExport) {
+            auto entity = layer->entity();
             if (omitFromExport) {
-                Transaction transaction(this, "Omit Layer From Export");
-                executeAndStore(ChangeEntityAttributesCommand::setForNodes({ layer }, Model::AttributeNames::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue));
+                entity.addOrUpdateAttribute(Model::AttributeNames::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue);
+                swapNodeContents("Omit Layer From Export", {{layer, Model::NodeContents(std::move(entity))}});
             } else {
-                Transaction transaction(this, "Include Layer In Export");
-                executeAndStore(ChangeEntityAttributesCommand::removeForNodes({ layer }, Model::AttributeNames::LayerOmitFromExport));
+                entity.removeAttribute(Model::AttributeNames::LayerOmitFromExport);
+                swapNodeContents("Include Layer In Export", {{layer, Model::NodeContents(std::move(entity))}});
             }
         }
 
