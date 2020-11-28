@@ -906,7 +906,7 @@ The text field for content flags will display "multi" if the currently selected 
 
 The surface flags text field will also display "multi" if the selected faces have different sets of surface flags, but this is not necessarily a situation that needs to be corrected. It is often valid to have different surface flags on different faces of a brush.
 
-#### Keyboard Shortcuts {#keyboard_shortcuts}
+#### Keyboard Shortcuts
 
 In the 3D viewport, you can change the offset and angle of the currently selected brush faces using the following keyboard shortcuts:
 
