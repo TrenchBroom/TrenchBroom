@@ -42,7 +42,6 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
-#include <execution>
 
 #include <thread>
 #include <future>
