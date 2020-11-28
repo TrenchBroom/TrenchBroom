@@ -20,6 +20,7 @@
 #include "View/MapDocument.h"
 
 #include "Exceptions.h"
+#include "Model/EntityAttributes.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/AssetUtils.h"
@@ -1338,8 +1339,17 @@ namespace TrenchBroom {
             const int neighbourSortIndex = neighbour->sortIndex();
 
             // Swap the sort indices of `layer` and `neighbour`
-            executeAndStore(ChangeEntityAttributesCommand::setForNodes({ layer },     Model::AttributeNames::LayerSortIndex, std::to_string(neighbourSortIndex)));
-            executeAndStore(ChangeEntityAttributesCommand::setForNodes({ neighbour }, Model::AttributeNames::LayerSortIndex, std::to_string(ourSortIndex)));
+            auto layerEntity = layer->entity();
+            auto neighbourEntity = neighbour->entity();
+
+            layerEntity.addOrUpdateAttribute(Model::AttributeNames::LayerSortIndex, std::to_string(neighbourSortIndex));
+            neighbourEntity.addOrUpdateAttribute(Model::AttributeNames::LayerSortIndex, std::to_string(ourSortIndex));
+
+            swapNodeContents("Swap Layer Positions", {
+                {layer, Model::NodeContents(std::move(layerEntity))}, 
+                {neighbour, Model::NodeContents(std::move(neighbourEntity))}
+            });
+            
             return true;
         }
 
