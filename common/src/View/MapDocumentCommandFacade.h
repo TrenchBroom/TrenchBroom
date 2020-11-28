@@ -88,7 +88,6 @@ namespace TrenchBroom {
             void performPopGroup();
         public: // entity attributes
             using EntityAttributeSnapshotMap = std::map<Model::AttributableNode*, std::vector<Model::EntityAttributeSnapshot>>;
-            EntityAttributeSnapshotMap performConvertColorRange(const std::string& name, Assets::ColorRange::Type colorRange);
             void restoreAttributes(const EntityAttributeSnapshotMap& attributes);
         public: // brush face attributes
             void performMoveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);

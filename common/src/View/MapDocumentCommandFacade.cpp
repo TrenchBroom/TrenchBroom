@@ -389,31 +389,6 @@ namespace TrenchBroom {
             groupWasClosedNotifier(previousGroup);
         }
 
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performConvertColorRange(const std::string& name, Assets::ColorRange::Type colorRange) {
-            const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
-            const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-            const std::vector<Model::Node*> descendants = collectDescendants(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
-
-            MapDocumentCommandFacade::EntityAttributeSnapshotMap snapshot;
-
-            for (Model::AttributableNode* node : attributableNodes) {
-                if (const auto* oldValue = node->entity().attribute(name)) {
-                    snapshot[node].push_back(node->attributeSnapshot(name));
-
-                    auto entity = node->entity();
-                    entity.addOrUpdateAttribute(name, Model::convertEntityColor(*oldValue, colorRange));
-                    node->setEntity(std::move(entity));
-                }
-            }
-
-            return snapshot;
-        }
-               
         void MapDocumentCommandFacade::restoreAttributes(const MapDocumentCommandFacade::EntityAttributeSnapshotMap& attributes) {
             const std::vector<Model::AttributableNode*> attributableNodes = kdl::map_keys(attributes);
             const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));

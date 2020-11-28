@@ -83,7 +83,6 @@
 #include "View/AddBrushVerticesCommand.h"
 #include "View/AddRemoveNodesCommand.h"
 #include "View/Actions.h"
-#include "View/ConvertEntityColorCommand.h"
 #include "View/CurrentGroupCommand.h"
 #include "View/DuplicateNodesCommand.h"
 #include "View/EntityDefinitionFileCommand.h"
@@ -1962,8 +1961,15 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::convertEntityColorRange(const std::string& name, Assets::ColorRange::Type range) {
-            const auto result = executeAndStore(ConvertEntityColorCommand::convert(name, range));
-            return result->success();
+            return applyAndSwap(*this, "Convert Color", allSelectedAttributableNodes(), kdl::overload(
+                [&](Model::Entity& entity) { 
+                    if (const auto* oldValue = entity.attribute(name)) {
+                        entity.addOrUpdateAttribute(name, Model::convertEntityColor(*oldValue, range));
+                    }
+                    return true;
+                },
+                [] (Model::Brush&) { return true; }
+            ));
         }
 
         bool MapDocument::updateSpawnflag(const std::string& name, const size_t flagIndex, const bool setFlag) {
