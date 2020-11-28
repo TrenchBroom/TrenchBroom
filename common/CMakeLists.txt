@@ -260,7 +260,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/CameraTool2D.cpp
         ${COMMON_SOURCE_DIR}/View/CameraTool3D.cpp
         ${COMMON_SOURCE_DIR}/View/CellView.cpp
-        ${COMMON_SOURCE_DIR}/View/ChangeEntityAttributesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/ChoosePathTypeDialog.cpp
         ${COMMON_SOURCE_DIR}/View/ClickableLabel.cpp
         ${COMMON_SOURCE_DIR}/View/ClipTool.cpp
@@ -775,7 +774,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/CameraTool3D.h
         ${COMMON_SOURCE_DIR}/View/CellLayout.h
         ${COMMON_SOURCE_DIR}/View/CellView.h
-        ${COMMON_SOURCE_DIR}/View/ChangeEntityAttributesCommand.h
         ${COMMON_SOURCE_DIR}/View/ChoosePathTypeDialog.h
         ${COMMON_SOURCE_DIR}/View/ClickableLabel.h
         ${COMMON_SOURCE_DIR}/View/ClipTool.h

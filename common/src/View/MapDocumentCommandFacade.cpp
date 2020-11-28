@@ -389,67 +389,6 @@ namespace TrenchBroom {
             groupWasClosedNotifier(previousGroup);
         }
 
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performSetAttribute(const std::string& name, const std::string& value) {
-            const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
-            return performSetAttributeForNodes(attributableNodes, name, value);
-        }
-
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performSetAttributeForNodes(const std::vector<Model::AttributableNode*>& attributableNodes, const std::string& name, const std::string& value) {            
-            const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-            const std::vector<Model::Node*> descendants = collectDescendants(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
-
-            MapDocumentCommandFacade::EntityAttributeSnapshotMap snapshot;
-
-            for (Model::AttributableNode* node : attributableNodes) {
-                snapshot[node].push_back(node->attributeSnapshot(name));
-                auto entity = node->entity();
-                entity.addOrUpdateAttribute(name, value);
-                node->setEntity(std::move(entity));
-            }
-
-            setEntityDefinitions(nodes);
-            setEntityModels(nodes);
-            invalidateSelectionBounds();
-
-            return snapshot;
-        }
-
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performRemoveAttribute(const std::string& name) {
-            const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
-            return performRemoveAttributeForNodes(attributableNodes, name);
-        }
-
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performRemoveAttributeForNodes(const std::vector<Model::AttributableNode*>& attributableNodes, const std::string& name) {            
-            const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-            const std::vector<Model::Node*> descendants = collectDescendants(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
-
-            MapDocumentCommandFacade::EntityAttributeSnapshotMap snapshot;
-
-            for (Model::AttributableNode* node : attributableNodes) {
-                snapshot[node].push_back(node->attributeSnapshot(name));
-
-                auto entity = node->entity();
-                entity.removeAttribute(name);
-                node->setEntity(std::move(entity));
-            }
-
-            setEntityDefinitions(nodes);
-            setEntityModels(nodes);
-            invalidateSelectionBounds();
-
-            return snapshot;
-        }
-
         MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performUpdateSpawnflag(const std::string& name, const size_t flagIndex, const bool setFlag) {
             const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
             const std::vector<Model::Node*> nodes(attributableNodes.begin(), attributableNodes.end());
@@ -512,37 +451,6 @@ namespace TrenchBroom {
             return snapshot;
         }
                
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performRenameAttribute(const std::string& oldName, const std::string& newName) {
-            const std::vector<Model::AttributableNode*> attributableNodes = allSelectedAttributableNodes();
-            return performRenameAttributeForNodes(attributableNodes, oldName, newName);
-        }
-
-        MapDocumentCommandFacade::EntityAttributeSnapshotMap MapDocumentCommandFacade::performRenameAttributeForNodes(const std::vector<Model::AttributableNode*>& attributableNodes, const std::string& oldName, const std::string& newName) {
-            const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-            const std::vector<Model::Node*> descendants = collectDescendants(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
-
-            MapDocumentCommandFacade::EntityAttributeSnapshotMap snapshot;
-            for (Model::AttributableNode* node : attributableNodes) {
-                snapshot[node].push_back(node->attributeSnapshot(oldName));
-                snapshot[node].push_back(node->attributeSnapshot(newName));
-
-                auto entity = node->entity();
-                entity.renameAttribute(oldName, newName);
-                node->setEntity(std::move(entity));
-            }
-
-            setEntityDefinitions(nodes);
-            setEntityModels(nodes);
-            invalidateSelectionBounds();
-
-            return snapshot;
-        }
-
         void MapDocumentCommandFacade::restoreAttributes(const MapDocumentCommandFacade::EntityAttributeSnapshotMap& attributes) {
             const std::vector<Model::AttributableNode*> attributableNodes = kdl::map_keys(attributes);
             const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
