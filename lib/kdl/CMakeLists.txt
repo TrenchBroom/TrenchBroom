@@ -15,6 +15,7 @@ target_include_directories(kdl INTERFACE
         $<BUILD_INTERFACE:${KDL_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:kdl/include/kdl>)
 
+# parallel.h uses <thread>, etc., which requires this on Linux
 find_package(Threads REQUIRED)
 target_link_libraries(kdl INTERFACE Threads::Threads)
 
