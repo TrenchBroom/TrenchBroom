@@ -193,6 +193,8 @@ Right        #action(Controls/Camera/Move right)
 Up           #action(Controls/Camera/Move up)
 Down         #action(Controls/Camera/Move down)
 
+To adjust the movement speed of the these keyboard shortcuts, you can either go the [preferences](#mouse_input) and adjust the corresponding slider, or you can turn the mouse wheel while holding the right mouse button in the 3D view.
+
 ### Orbiting
 
 The camera orbit mode allows you to rotate the camera about a selectable point. To get an idea as to what this means, imagine that you define a point in the map by clicking on a brush. The point where you clicked will be the center of your camera orbit. Now image a sphere whose center is the point where you just clicked and whose radius is the distance between the camera and the point. Orbiting will move the camera on the surface of that sphere while adjusting the camera's direction so that you keep looking at the same point. Visually, this is the same as rotating the entire map about the orbit center. Of course, you are not actually rotating anything - only the camera's position and direction are modified. Note that, since up and down are always fixed, you cannot cross the north and south poles of the orbit sphere.

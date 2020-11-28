@@ -50,6 +50,7 @@ namespace TrenchBroom {
             const Tool* doGetTool() const override;
 
             void doMouseScroll(const InputState& inputState) override;
+            void doMouseUp(const InputState& inputState) override;
             bool doStartMouseDrag(const InputState& inputState) override;
             bool doMouseDrag(const InputState& inputState) override;
             void doEndMouseDrag(const InputState& inputState) override;
@@ -59,6 +60,7 @@ namespace TrenchBroom {
             bool look(const InputState& inputState) const;
             bool pan(const InputState& inputState) const;
             bool orbit(const InputState& inputState) const;
+            bool adjustFlySpeed(const InputState& inputState) const;
 
             float lookSpeedH() const;
             float lookSpeedV() const;
