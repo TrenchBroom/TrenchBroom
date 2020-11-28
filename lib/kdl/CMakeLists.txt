@@ -15,7 +15,8 @@ target_include_directories(kdl INTERFACE
         $<BUILD_INTERFACE:${KDL_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:kdl/include/kdl>)
 
-target_link_libraries(kdl INTERFACE)
+find_package(Threads REQUIRED)
+target_link_libraries(kdl INTERFACE Threads::Threads)
 
 target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/binary_relation.h"
