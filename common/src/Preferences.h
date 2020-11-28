@@ -154,6 +154,8 @@ namespace TrenchBroom {
 
         extern Preference<float> CameraFov;
 
+        static constexpr auto MinCameraFlyMoveSpeed = 0.1f;
+        static constexpr auto MaxCameraFlyMoveSpeed = 10.0f;
         extern Preference<float> CameraFlyMoveSpeed;
 
         extern Preference<bool> Link2DCameras;
