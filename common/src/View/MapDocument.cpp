@@ -83,7 +83,6 @@
 #include "View/AddBrushVerticesCommand.h"
 #include "View/AddRemoveNodesCommand.h"
 #include "View/Actions.h"
-#include "View/ChangeEntityAttributesCommand.h"
 #include "View/UpdateEntitySpawnflagCommand.h"
 #include "View/ConvertEntityColorCommand.h"
 #include "View/CurrentGroupCommand.h"
@@ -2562,22 +2561,24 @@ namespace TrenchBroom {
          * Note if bounds.source is SoftMapBoundsType::Game, bounds.bounds is ignored.
          */
         void MapDocument::setSoftMapBounds(const Model::Game::SoftMapBounds& bounds) {
+            auto entity = world()->entity();
             switch (bounds.source) {
                 case Model::Game::SoftMapBoundsType::Map:
                     if (!bounds.bounds.has_value()) {
                         // Set the worldspawn key AttributeNames::SoftMaxMapSize's value to the empty string
                         // to indicate that we are overriding the Game's bounds with unlimited.
-                        executeAndStore(ChangeEntityAttributesCommand::setForNodes({world()}, Model::AttributeNames::SoftMapBounds, Model::AttributeValues::NoSoftMapBounds));
+                        entity.addOrUpdateAttribute(Model::AttributeNames::SoftMapBounds, Model::AttributeValues::NoSoftMapBounds);
                     } else {
-                        executeAndStore(ChangeEntityAttributesCommand::setForNodes({world()}, Model::AttributeNames::SoftMapBounds, IO::serializeSoftMapBoundsString(*bounds.bounds)));
+                        entity.addOrUpdateAttribute(Model::AttributeNames::SoftMapBounds, IO::serializeSoftMapBoundsString(*bounds.bounds));
                     }
                     break;
                 case Model::Game::SoftMapBoundsType::Game:
                     // Unset the map's setting
-                    executeAndStore(ChangeEntityAttributesCommand::removeForNodes({world()}, Model::AttributeNames::SoftMapBounds));
+                    entity.removeAttribute(Model::AttributeNames::SoftMapBounds);
                     break;
                 switchDefault()
             }
+            swapNodeContents("Set Soft Map Bounds", {{world(), Model::NodeContents(std::move(entity))}});
         }
 
         Model::Game::SoftMapBounds MapDocument::softMapBounds() const {
