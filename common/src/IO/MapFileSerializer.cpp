@@ -258,7 +258,7 @@ namespace TrenchBroom {
             for (unsigned int i = 0; i < numThreads; ++i) {
                 threads[i] = std::async(std::launch::async, [&]() {
                     while (true) {
-                        const size_t ourIndex = std::atomic_fetch_add(&nextIndex, 1);
+                        const size_t ourIndex = std::atomic_fetch_add(&nextIndex, static_cast<size_t>(1));
                         if (ourIndex >= input.size()) {
                             break;
                         }
