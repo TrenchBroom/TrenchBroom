@@ -389,30 +389,6 @@ namespace TrenchBroom {
             groupWasClosedNotifier(previousGroup);
         }
 
-        void MapDocumentCommandFacade::restoreAttributes(const MapDocumentCommandFacade::EntityAttributeSnapshotMap& attributes) {
-            const std::vector<Model::AttributableNode*> attributableNodes = kdl::map_keys(attributes);
-            const std::vector<Model::Node*> nodes(std::begin(attributableNodes), std::end(attributableNodes));
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-            const std::vector<Model::Node*> descendants = collectDescendants(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
-
-            for (const auto& entry : attributes) {
-                auto* node = entry.first;
-
-                const auto& snapshots = entry.second;
-                for (const auto& snapshot : snapshots) {
-                    snapshot.restore(node);
-                }
-            }
-
-            setEntityDefinitions(nodes);
-            setEntityModels(nodes);
-            invalidateSelectionBounds();
-        }
-
         bool MapDocumentCommandFacade::performSnapVertices(const FloatType snapTo) {
             const std::vector<Model::BrushNode*> brushNodes = m_selectedNodes.brushesRecursively();
 
