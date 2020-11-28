@@ -28,6 +28,7 @@
 #include "View/QtUtils.h"
 
 #include <QCheckBox>
+#include <QLabel>
 
 #include <algorithm>
 
@@ -88,7 +89,7 @@ namespace TrenchBroom {
             m_downKeyEditor = new KeySequenceEdit(1);
             m_downKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
-            m_flyMoveSpeedSlider = new SliderWithLabel(256, 512);
+            m_flyMoveSpeedSlider = new SliderWithLabel(0, 100);
             m_flyMoveSpeedSlider->setMaximumWidth(400);
 
             auto* layout = new FormWithSectionsLayout();
@@ -122,6 +123,7 @@ namespace TrenchBroom {
             layout->addRow("Up", m_upKeyEditor);
             layout->addRow("Down", m_downKeyEditor);
             layout->addRow("Speed", m_flyMoveSpeedSlider);
+            layout->addRow("", makeInfo(new QLabel("Turn mouse wheel while holding right mouse button in 3D view to adjust speed on the fly.")));
 
             setLayout(layout);
             setMinimumWidth(400);
@@ -204,7 +206,7 @@ namespace TrenchBroom {
             m_upKeyEditor->setKeySequence(pref(Preferences::CameraFlyUp()));
             m_downKeyEditor->setKeySequence(pref(Preferences::CameraFlyDown()));
 
-            m_flyMoveSpeedSlider->setRatio(pref(Preferences::CameraFlyMoveSpeed));
+            m_flyMoveSpeedSlider->setRatio(pref(Preferences::CameraFlyMoveSpeed) / Preferences::MaxCameraFlyMoveSpeed);
         }
 
         bool MousePreferencePane::doValidate() {
@@ -302,7 +304,7 @@ namespace TrenchBroom {
         }
 
         void MousePreferencePane::flyMoveSpeedChanged(const int /* value */) {
-            const auto ratio = m_flyMoveSpeedSlider->ratio();
+            const auto ratio = Preferences::MaxCameraFlyMoveSpeed * m_flyMoveSpeedSlider->ratio();
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraFlyMoveSpeed, ratio);
         }
