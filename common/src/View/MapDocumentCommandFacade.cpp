@@ -922,6 +922,8 @@ namespace TrenchBroom {
                 restoreNodesAndLogErrors();
 
                 setTextures(m_selectedNodes.nodes());
+                setEntityDefinitions(m_selectedNodes.nodes());
+                setEntityModels(m_selectedNodes.nodes());
                 invalidateSelectionBounds();
             }
 
