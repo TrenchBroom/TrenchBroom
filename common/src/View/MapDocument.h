@@ -578,6 +578,8 @@ namespace TrenchBroom {
         private: // observers
             void bindObservers();
             void unbindObservers();
+            void textureCollectionsWillChange();
+            void textureCollectionsDidChange();
             void preferenceDidChange(const IO::Path& path);
             void commandDone(Command* command);
             void commandUndone(UndoableCommand* command);
