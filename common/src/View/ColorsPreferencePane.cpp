@@ -23,6 +23,8 @@
 #include "View/QtUtils.h"
 
 #include <QHeaderView>
+#include <QLabel>
+#include <QLineEdit>
 #include <QSortFilterProxyModel>
 #include <QTableView>
 
@@ -83,7 +85,7 @@ namespace TrenchBroom::View {
         });
 
         connect(m_table, &QTableView::doubleClicked, this, [&](const QModelIndex& index) {
-            m_model->pickColor(index);
+            m_model->pickColor(m_proxy->mapToSource(index));
         });
     }
 

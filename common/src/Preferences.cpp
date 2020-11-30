@@ -80,13 +80,13 @@ namespace TrenchBroom {
         Preference<Color> SelectionBoundsColor(IO::Path("Renderer/Selection bounds"), Color(1.0f, 0.0f, 0.0f, 0.5f));
 
         Preference<Color> InfoOverlayTextColor(IO::Path("Renderer/Info overlay text"), Color(1.0f, 1.0f, 1.0f, 1.0f));
-        Preference<Color> GroupInfoOverlayTextColor(IO::Path("Renderer/Group info overlay text"), Color(0.7f,  0.4f,  1.0f,  1.0f));
         Preference<Color> InfoOverlayBackgroundColor(IO::Path("Renderer/Info overlay background"), Color(0.0f, 0.0f, 0.0f, 0.6f));
         Preference<float> WeakInfoOverlayBackgroundAlpha(IO::Path("Renderer/Weak info overlay background alpha"), 0.3f);
         Preference<Color> SelectedInfoOverlayTextColor(IO::Path("Renderer/Selected info overlay text"), Color(1.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> SelectedInfoOverlayBackgroundColor(IO::Path("Renderer/Selected info overlay background"), Color(1.0f, 0.0f, 0.0f, 0.6f));
         Preference<Color> LockedInfoOverlayTextColor(IO::Path("Renderer/Locked info overlay text"), Color(0.35f, 0.35f, 0.6f,  1.0f));
         Preference<Color> LockedInfoOverlayBackgroundColor(IO::Path("Renderer/Locked info overlay background"), Color(0.0f, 0.0f, 0.0f, 0.6f));
+        Preference<Color> GroupInfoOverlayTextColor(IO::Path("Renderer/Group info overlay text"), Color(0.7f, 0.4f, 1.0f, 1.0f));
 
         Preference<float> HandleRadius(IO::Path("Controls/Handle radius"), 3.0f);
         Preference<float> MaximumHandleDistance(IO::Path("Controls/Maximum handle distance"), 1000.0f);
@@ -131,7 +131,7 @@ namespace TrenchBroom {
         Preference<Color> BrowserBackgroundColor(IO::Path("Any browser/Background"), Color(0.14f, 0.14f, 0.14f, 1.0f));
         Preference<Color> BrowserGroupBackgroundColor(IO::Path("Any browser/Group background"), Color(0.8f, 0.8f, 0.8f, 0.8f));
         Preference<float> TextureBrowserIconSize(IO::Path("Texture Browser/Icon size"), 1.0f);
-        Preference<Color> TextureBrowserDefaultColor(IO::Path("Texture Browser/Default texture border"), Color(0.0f, 0.0f, 0.0f, 0.5f));
+        Preference<Color> TextureBrowserDefaultColor(IO::Path("Texture Browser/Texture border"), Color(0.0f, 0.0f, 0.0f, 0.5f));
         Preference<Color> TextureBrowserSelectedColor(IO::Path("Texture Browser/Selected texture border"), Color(1.0f, 0.0f, 0.0f, 1.0f));
         Preference<Color> TextureBrowserUsedColor(IO::Path("Texture Browser/Used texture border"), Color(1.0f, 0.7f, 0.0f, 1.0f));
 
