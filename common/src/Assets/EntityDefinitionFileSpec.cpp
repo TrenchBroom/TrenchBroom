@@ -62,16 +62,24 @@ namespace TrenchBroom {
             return EntityDefinitionFileSpec();
         }
 
-        bool EntityDefinitionFileSpec::operator<(const EntityDefinitionFileSpec& rhs) const {
-            if (m_type < rhs.m_type)
+        bool operator<(const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs) {
+            if (lhs.m_type < rhs.m_type) {
                 return true;
-            if (m_type > rhs.m_type)
+            } 
+            
+            if (lhs.m_type > rhs.m_type) {
                 return false;
-            return m_path < rhs.m_path;
+            }
+
+            return lhs.m_path < rhs.m_path;
         }
 
-        bool EntityDefinitionFileSpec::operator==(const EntityDefinitionFileSpec& rhs) const {
-            return m_type == rhs.m_type && m_path == rhs.m_path;
+        bool operator==(const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs) {
+            return lhs.m_type == rhs.m_type && lhs.m_path == rhs.m_path;
+        }
+
+        bool operator!=(const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs) {
+            return !(lhs == rhs);
         }
 
         bool EntityDefinitionFileSpec::valid() const {
