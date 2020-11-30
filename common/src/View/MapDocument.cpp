@@ -2758,6 +2758,9 @@ namespace TrenchBroom {
             textureCollectionsWillChangeNotifier.addObserver(this, &MapDocument::textureCollectionsWillChange);
             textureCollectionsDidChangeNotifier.addObserver(this, &MapDocument::textureCollectionsDidChange);
 
+            entityDefinitionsWillChangeNotifier.addObserver(this, &MapDocument::entityDefinitionsWillChange);
+            entityDefinitionsDidChangeNotifier.addObserver(this, &MapDocument::entityDefinitionsDidChange);
+
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapDocument::preferenceDidChange);
             m_editorContext->editorContextDidChangeNotifier.addObserver(editorContextDidChangeNotifier);
@@ -2778,6 +2781,9 @@ namespace TrenchBroom {
         void MapDocument::unbindObservers() {
             textureCollectionsWillChangeNotifier.removeObserver(this, &MapDocument::textureCollectionsWillChange);
             textureCollectionsDidChangeNotifier.removeObserver(this, &MapDocument::textureCollectionsDidChange);
+
+            entityDefinitionsWillChangeNotifier.removeObserver(this, &MapDocument::entityDefinitionsWillChange);
+            entityDefinitionsDidChangeNotifier.removeObserver(this, &MapDocument::entityDefinitionsDidChange);
 
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapDocument::preferenceDidChange);
@@ -2803,6 +2809,17 @@ namespace TrenchBroom {
         void MapDocument::textureCollectionsDidChange() {
             loadTextures();
             setTextures();
+        }
+
+        void MapDocument::entityDefinitionsWillChange() {
+            unloadEntityDefinitions();
+            clearEntityModels();
+        }
+
+        void MapDocument::entityDefinitionsDidChange() {
+            loadEntityDefinitions();
+            setEntityDefinitions();
+            setEntityModels();
         }
 
         void MapDocument::preferenceDidChange(const IO::Path& path) {

@@ -632,8 +632,6 @@ namespace TrenchBroom {
             auto entity = m_world->entity();
             entity.addOrUpdateAttribute(Model::AttributeNames::EntityDefinitions, formatted);
             m_world->setEntity(std::move(entity));
-
-            reloadEntityDefinitionsInternal();
         }
 
         void MapDocumentCommandFacade::performSetTextureCollections(const std::vector<IO::Path>& paths) {
@@ -643,7 +641,7 @@ namespace TrenchBroom {
 
             auto entity = m_world->entity();
             m_game->updateTextureCollections(entity, paths);
-            m_world->setEntity(entity);
+            m_world->setEntity(std::move(entity));
         }
 
         void MapDocumentCommandFacade::performSetMods(const std::vector<std::string>& mods) {

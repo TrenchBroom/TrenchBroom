@@ -580,6 +580,8 @@ namespace TrenchBroom {
             void unbindObservers();
             void textureCollectionsWillChange();
             void textureCollectionsDidChange();
+            void entityDefinitionsWillChange();
+            void entityDefinitionsDidChange();
             void preferenceDidChange(const IO::Path& path);
             void commandDone(Command* command);
             void commandUndone(UndoableCommand* command);
