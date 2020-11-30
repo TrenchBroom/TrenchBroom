@@ -72,7 +72,7 @@ namespace TrenchBroom {
             return {vm::bbox3()};
         }
 
-        Game::SoftMapBounds TestGame::doExtractSoftMapBounds(const AttributableNode&) const {
+        Game::SoftMapBounds TestGame::doExtractSoftMapBounds(const Entity&) const {
             return {Game::SoftMapBoundsType::Game, vm::bbox3()};
         }
 
@@ -140,8 +140,8 @@ namespace TrenchBroom {
             return TexturePackageType::File;
         }
 
-        void TestGame::doLoadTextureCollections(AttributableNode& node, const IO::Path& /* documentPath */, Assets::TextureManager& textureManager, Logger& logger) const {
-            const std::vector<IO::Path> paths = extractTextureCollections(node);
+        void TestGame::doLoadTextureCollections(const Entity& entity, const IO::Path& /* documentPath */, Assets::TextureManager& textureManager, Logger& logger) const {
+            const std::vector<IO::Path> paths = extractTextureCollections(entity);
 
             const IO::Path root = IO::Disk::getCurrentWorkingDir();
             const std::vector<IO::Path> fileSearchPaths{ root };
@@ -172,20 +172,18 @@ namespace TrenchBroom {
             return std::vector<IO::Path>();
         }
 
-        std::vector<IO::Path> TestGame::doExtractTextureCollections(const AttributableNode& node) const {
-            if (const auto* pathsValue = node.entity().attribute("wad")) {
+        std::vector<IO::Path> TestGame::doExtractTextureCollections(const Entity& entity) const {
+            if (const auto* pathsValue = entity.attribute("wad")) {
                 return IO::Path::asPaths(kdl::str_split(*pathsValue, ";"));
             } else {
                 return {};
             }
         }
 
-        void TestGame::doUpdateTextureCollections(AttributableNode& node, const std::vector<IO::Path>& paths) const {
+        void TestGame::doUpdateTextureCollections(Entity& entity, const std::vector<IO::Path>& paths) const {
             const std::string value = kdl::str_join(IO::Path::asStrings(paths, "/"), ";");
             
-            auto entity = node.entity();
             entity.addOrUpdateAttribute("wad", value);
-            node.setEntity(std::move(entity));
         }
 
         void TestGame::doReloadShaders() {}
@@ -198,7 +196,7 @@ namespace TrenchBroom {
             return std::vector<Assets::EntityDefinitionFileSpec>();
         }
 
-        Assets::EntityDefinitionFileSpec TestGame::doExtractEntityDefinitionFile(const AttributableNode& /* node */) const {
+        Assets::EntityDefinitionFileSpec TestGame::doExtractEntityDefinitionFile(const Entity& /* entity */) const {
             return Assets::EntityDefinitionFileSpec();
         }
 
@@ -210,7 +208,7 @@ namespace TrenchBroom {
             return {};
         }
 
-        std::vector<std::string> TestGame::doExtractEnabledMods(const AttributableNode& /* node */) const {
+        std::vector<std::string> TestGame::doExtractEnabledMods(const Entity& /* entity */) const {
             return {};
         }
 

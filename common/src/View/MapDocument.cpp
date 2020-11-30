@@ -2268,7 +2268,7 @@ namespace TrenchBroom {
 
         Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const {
             if (m_world != nullptr) {
-                return m_game->extractEntityDefinitionFile(*m_world);
+                return m_game->extractEntityDefinitionFile(m_world->entity());
             } else {
                 return Assets::EntityDefinitionFileSpec();
             }
@@ -2287,7 +2287,7 @@ namespace TrenchBroom {
         }
 
         std::vector<IO::Path> MapDocument::enabledTextureCollections() const {
-            return m_game->extractTextureCollections(*m_world);
+            return m_game->extractTextureCollections(m_world->entity());
         }
 
         std::vector<IO::Path> MapDocument::availableTextureCollections() const {
@@ -2371,7 +2371,7 @@ namespace TrenchBroom {
         void MapDocument::loadTextures() {
             try {
                 const IO::Path docDir = m_path.isEmpty() ? IO::Path() : m_path.deleteLastComponent();
-                m_game->loadTextureCollections(*m_world, docDir, *m_textureManager, logger());
+                m_game->loadTextureCollections(m_world->entity(), docDir, *m_textureManager, logger());
             } catch (const Exception& e) {
                 error(e.what());
             }
@@ -2562,7 +2562,7 @@ namespace TrenchBroom {
         }
 
         std::vector<std::string> MapDocument::mods() const {
-            return m_game->extractEnabledMods(*m_world);
+            return m_game->extractEnabledMods(m_world->entity());
         }
 
         void MapDocument::setMods(const std::vector<std::string>& mods) {
@@ -2601,7 +2601,7 @@ namespace TrenchBroom {
             if (!m_world) {
                 return {Model::Game::SoftMapBoundsType::Game, std::nullopt};
             }
-            return m_game->extractSoftMapBounds(*m_world);
+            return m_game->extractSoftMapBounds(m_world->entity());
         }
 
         void MapDocument::setIssueHidden(Model::Issue* issue, const bool hidden) {
