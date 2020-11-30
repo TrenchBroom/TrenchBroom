@@ -649,10 +649,6 @@ namespace TrenchBroom {
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             Notifier<>::NotifyBeforeAndAfter notifyMods(modsWillChangeNotifier, modsDidChangeNotifier);
 
-            unsetEntityModels();
-            unsetEntityDefinitions();
-            clearEntityModels();
-
             auto entity = m_world->entity();
             if (mods.empty()) {
                 entity.removeAttribute(Model::AttributeNames::Mods);
@@ -661,10 +657,6 @@ namespace TrenchBroom {
                 entity.addOrUpdateAttribute(Model::AttributeNames::Mods, newValue);
             }
             m_world->setEntity(std::move(entity));
-
-            updateGameSearchPaths();
-            setEntityDefinitions();
-            setEntityModels();
         }
 
         void MapDocumentCommandFacade::doSetIssueHidden(Model::Issue* issue, const bool hidden) {

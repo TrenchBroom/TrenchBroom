@@ -2761,6 +2761,9 @@ namespace TrenchBroom {
             entityDefinitionsWillChangeNotifier.addObserver(this, &MapDocument::entityDefinitionsWillChange);
             entityDefinitionsDidChangeNotifier.addObserver(this, &MapDocument::entityDefinitionsDidChange);
 
+            modsWillChangeNotifier.addObserver(this, &MapDocument::modsWillChange);
+            modsDidChangeNotifier.addObserver(this, &MapDocument::modsDidChange);
+
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapDocument::preferenceDidChange);
             m_editorContext->editorContextDidChangeNotifier.addObserver(editorContextDidChangeNotifier);
@@ -2784,6 +2787,9 @@ namespace TrenchBroom {
 
             entityDefinitionsWillChangeNotifier.removeObserver(this, &MapDocument::entityDefinitionsWillChange);
             entityDefinitionsDidChangeNotifier.removeObserver(this, &MapDocument::entityDefinitionsDidChange);
+
+            modsWillChangeNotifier.removeObserver(this, &MapDocument::modsWillChange);
+            modsDidChangeNotifier.removeObserver(this, &MapDocument::modsDidChange);
 
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapDocument::preferenceDidChange);
@@ -2818,6 +2824,18 @@ namespace TrenchBroom {
 
         void MapDocument::entityDefinitionsDidChange() {
             loadEntityDefinitions();
+            setEntityDefinitions();
+            setEntityModels();
+        }
+
+        void MapDocument::modsWillChange() {
+            unsetEntityModels();
+            unsetEntityDefinitions();
+            clearEntityModels();
+        }
+
+        void MapDocument::modsDidChange() {
+            updateGameSearchPaths();
             setEntityDefinitions();
             setEntityModels();
         }
