@@ -641,7 +641,10 @@ namespace TrenchBroom {
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             Notifier<>::NotifyBeforeAndAfter notifyTextureCollections(textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
 
-            m_game->updateTextureCollections(*m_world, paths);
+            auto entity = m_world->entity();
+            m_game->updateTextureCollections(entity, paths);
+            m_world->setEntity(entity);
+            
             unsetTextures();
             loadTextures();
             setTextures();

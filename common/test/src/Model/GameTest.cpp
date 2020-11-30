@@ -115,7 +115,7 @@ namespace TrenchBroom {
                 IO::Path("textures/test"),
             }), textureCollections);
 
-            auto worldspawn = EntityNode({
+            auto worldspawn = Entity({
                 {"_tb_textures", "textures/test;textures/skies/hub1"}
             });
 
