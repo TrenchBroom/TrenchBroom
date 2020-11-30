@@ -624,7 +624,7 @@ namespace TrenchBroom {
         void MapDocumentCommandFacade::performSetEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec) {
             const std::vector<Model::Node*> nodes(1, m_world.get());
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<>::NotifyAfter notifyEntityDefinitions(entityDefinitionsDidChangeNotifier);
+            Notifier<>::NotifyBeforeAndAfter notifyEntityDefinitions(entityDefinitionsWillChangeNotifier, entityDefinitionsDidChangeNotifier);
 
             // to avoid backslashes being misinterpreted as escape sequences
             const std::string formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
@@ -653,7 +653,7 @@ namespace TrenchBroom {
         void MapDocumentCommandFacade::performSetMods(const std::vector<std::string>& mods) {
             const std::vector<Model::Node*> nodes(1, m_world.get());
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<>::NotifyAfter notifyMods(modsDidChangeNotifier);
+            Notifier<>::NotifyBeforeAndAfter notifyMods(modsWillChangeNotifier, modsDidChangeNotifier);
 
             unsetEntityModels();
             unsetEntityDefinitions();
