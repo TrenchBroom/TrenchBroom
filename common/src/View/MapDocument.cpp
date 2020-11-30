@@ -2755,6 +2755,9 @@ namespace TrenchBroom {
         }
 
         void MapDocument::bindObservers() {
+            textureCollectionsWillChangeNotifier.addObserver(this, &MapDocument::textureCollectionsWillChange);
+            textureCollectionsDidChangeNotifier.addObserver(this, &MapDocument::textureCollectionsDidChange);
+
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapDocument::preferenceDidChange);
             m_editorContext->editorContextDidChangeNotifier.addObserver(editorContextDidChangeNotifier);
@@ -2773,6 +2776,9 @@ namespace TrenchBroom {
         }
 
         void MapDocument::unbindObservers() {
+            textureCollectionsWillChangeNotifier.removeObserver(this, &MapDocument::textureCollectionsWillChange);
+            textureCollectionsDidChangeNotifier.removeObserver(this, &MapDocument::textureCollectionsDidChange);
+
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapDocument::preferenceDidChange);
             m_editorContext->editorContextDidChangeNotifier.removeObserver(editorContextDidChangeNotifier);
@@ -2788,6 +2794,15 @@ namespace TrenchBroom {
             brushFacesDidChangeNotifier.removeObserver(this, &MapDocument::updateFaceTags);
             modsDidChangeNotifier.removeObserver(this, &MapDocument::updateAllFaceTags);
             textureCollectionsDidChangeNotifier.removeObserver(this, &MapDocument::updateAllFaceTags);
+        }
+
+        void MapDocument::textureCollectionsWillChange() {
+            unsetTextures();
+        }
+
+        void MapDocument::textureCollectionsDidChange() {
+            loadTextures();
+            setTextures();
         }
 
         void MapDocument::preferenceDidChange(const IO::Path& path) {
