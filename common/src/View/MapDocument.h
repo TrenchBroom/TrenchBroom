@@ -582,6 +582,8 @@ namespace TrenchBroom {
             void textureCollectionsDidChange();
             void entityDefinitionsWillChange();
             void entityDefinitionsDidChange();
+            void modsWillChange();
+            void modsDidChange();
             void preferenceDidChange(const IO::Path& path);
             void commandDone(Command* command);
             void commandUndone(UndoableCommand* command);
