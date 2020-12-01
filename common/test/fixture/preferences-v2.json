@@ -27,7 +27,7 @@
     "Renderer/Editing views background": "0.321569 0.0470588 0.141176 1",
     "Renderer/Brush edge": "0.921569 0.666667 0.45098 1",
     "Renderer/Font size": 14,
-    "Renderer/Grid alpha": 0.22,
+    "Renderer/Grid/Alpha": 0.22,
     "Renderer/Show axes": false,
     "Renderer/Texture mode mag filter": 9729,
     "Renderer/Texture mode min filter": 9987,

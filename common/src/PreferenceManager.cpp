@@ -588,6 +588,12 @@ namespace TrenchBroom {
     }
 
     std::map<IO::Path, QJsonValue> migrateV1ToV2(const std::map<IO::Path, QJsonValue>& v1Prefs) {
+        static auto prefPathRemap = std::map<IO::Path, IO::Path> { // <v1 pref path, v2 pref path>
+            { IO::Path("Renderer/Colors/Edges"),        IO::Path("Renderer/Brush edge") },
+            { IO::Path("Renderer/Colors/Background"),   IO::Path("Renderer/Editing views background") },
+            { IO::Path("Rendere/Grid/Color2D"),         IO::Path("Renderer/Grid color (2D views)") },
+        };
+
         auto& map = Preferences::staticPreferencesMap();
         auto& actionsMap = View::ActionManager::instance().actionsMap();
         auto& dynaimcPrefPatterns = Preferences::dynaimcPreferencePatterns();
@@ -597,7 +603,16 @@ namespace TrenchBroom {
 
         std::map<IO::Path, QJsonValue> result;
 
-        for (auto [key, val] : v1Prefs) {
+        for (auto [v1key, val] : v1Prefs) {
+            // Match v1 preference names with v2 ones
+            const auto remap = prefPathRemap.find(v1key);
+
+            IO::Path key;
+            if (remap != prefPathRemap.end()) {
+                key = remap->second;
+            } else {
+                key = v1key;
+            }
 
             // try Preferences::staticPreferencesMap()
             {

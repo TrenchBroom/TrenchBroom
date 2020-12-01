@@ -109,7 +109,7 @@ namespace TrenchBroom {
         Preference<Color> AngleIndicatorColor(IO::Path("Renderer/Angle indicator"), Color(1.0f, 1.0f, 1.0f, 1.0f));
 
         Preference<float> Brightness(IO::Path("Renderer/Brightness"), 1.4f);
-        Preference<float> GridAlpha(IO::Path("Renderer/Grid alpha"), 0.5f);
+        Preference<float> GridAlpha(IO::Path("Renderer/Grid/Alpha"), 0.5f);
         Preference<Color> GridColor2D(IO::Path("Renderer/Grid color (2D views)"), Color(0.8f, 0.8f, 0.8f, 1.0f));
 
         Preference<int> TextureMinFilter(IO::Path("Renderer/Texture mode min filter"), 0x2700);
