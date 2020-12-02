@@ -223,11 +223,14 @@ namespace TrenchBroom {
             /**
              * Creates a new instance and immediately notifies the given notifier with the given parameters
              *
+             * @param notify controls whether or not the notifications should be sent
              * @param before the notifier to notify
              * @param a the arguments to pass to the notifier
              */
-            explicit NotifyBefore(N& before, A... a) {
-                before(a...);
+            explicit NotifyBefore(const bool notify, N& before, A... a) {
+                if (notify) {
+                    before(a...);
+                }
             }
         };
 
@@ -248,12 +251,17 @@ namespace TrenchBroom {
             template <typename T>
             class Holder : public BaseHolder {
             private:
+                bool m_notify;
                 T m_func;
             public:
-                explicit Holder(T&& func) : m_func(std::move(func)) {}
+                explicit Holder(const bool notify, T&& func) : 
+                m_notify(notify),
+                m_func(std::move(func)) {}
 
                 void apply() override {
-                    m_func();
+                    if (m_notify) {
+                        m_func();
+                    }
                 }
             };
 
@@ -262,19 +270,20 @@ namespace TrenchBroom {
             /**
              * Creates a new instance to notify the given notifier. The given arguments are passed to the notifier.
              *
+             * @param notify controls whether or not the notifications should be sent
              * @param after the notifier to notify
              * @param a the arguments to pass to the notifier
              */
-            explicit NotifyAfter(N& after, A... a) :
-            m_after(createLambda(after, std::move(a)...)) {}
+            explicit NotifyAfter(const bool notify, N& after, A... a) :
+            m_after(createLambda(notify, after, std::move(a)...)) {}
 
             virtual ~NotifyAfter() {
                 m_after->apply();
             }
         private:
-            static std::unique_ptr<BaseHolder> createLambda(N& after, A... a) {
+            static std::unique_ptr<BaseHolder> createLambda(const bool notify, N& after, A... a) {
                 auto lambda = [&]() { after(a...); };
-                return std::make_unique<Holder<decltype(lambda)>>(std::move(lambda));
+                return std::make_unique<Holder<decltype(lambda)>>(notify, std::move(lambda));
             }
         };
 
@@ -287,13 +296,24 @@ namespace TrenchBroom {
             /**
              * Creates a new instance that notifies the given notifiers.
              *
+             * @param notify controls whether or not the notifications should be sent
+             * @param before the notifier to notify immediately
+             * @param after the notifier to notify later when this object is destroyed
+             * @param a the arguments to pass to either notifier
+             */
+            NotifyBeforeAndAfter(const bool notify, N& before, N& after, A... a) :
+            NotifyBefore(notify, before, a...),
+            NotifyAfter(notify, after, a...) {}
+
+            /**
+             * Creates a new instance that notifies the given notifiers.
+             *
              * @param before the notifier to notify immediately
              * @param after the notifier to notify later when this object is destroyed
              * @param a the arguments to pass to either notifier
              */
             NotifyBeforeAndAfter(N& before, N& after, A... a) :
-            NotifyBefore(before, a...),
-            NotifyAfter(after, a...) {}
+            NotifyBeforeAndAfter(true, before, after, std::forward<A>(a)...) {}
         };
 
         /**
