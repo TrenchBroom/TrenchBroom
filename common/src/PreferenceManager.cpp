@@ -284,6 +284,10 @@ namespace TrenchBroom {
     }
 
     void PreferenceManager::saveChanges() {
+        if (m_unsavedPreferences.empty()) {
+            return;
+        }
+
         for (auto* pref : m_unsavedPreferences) {
             savePreferenceToCache(pref);
             preferenceDidChangeNotifier(pref->path());
