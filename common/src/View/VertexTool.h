@@ -44,7 +44,6 @@ namespace TrenchBroom {
         class Grid;
         class Lasso;
         class Selection;
-        class VertexCommand;
 
         class VertexTool : public VertexToolBase<vm::vec3> {
         private:
@@ -94,9 +93,6 @@ namespace TrenchBroom {
         private:
             void addHandles(const std::vector<Model::Node*>& nodes) override;
             void removeHandles(const std::vector<Model::Node*>& nodes) override;
-
-            void addHandles(VertexCommand* command) override;
-            void removeHandles(VertexCommand* command) override;
 
             void addHandles(BrushVertexCommandBase* command) override;
             void removeHandles(BrushVertexCommandBase* command) override;
