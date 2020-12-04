@@ -88,7 +88,6 @@
 #include "View/DuplicateNodesCommand.h"
 #include "View/Grid.h"
 #include "View/MapTextEncoding.h"
-#include "View/MoveBrushEdgesCommand.h"
 #include "View/MoveBrushFacesCommand.h"
 #include "View/PasteType.h"
 #include "View/RemoveBrushEdgesCommand.h"
@@ -2167,11 +2166,6 @@ namespace TrenchBroom {
             }
 
             return false;
-        }
-
-        bool MapDocument::moveEdges(const std::map<vm::segment3, std::vector<Model::BrushNode*>>& edges, const vm::vec3& delta) {
-            const auto result = executeAndStore(MoveBrushEdgesCommand::move(edges, delta));
-            return result->success();
         }
 
         bool MapDocument::moveFaces(const std::map<vm::polygon3, std::vector<Model::BrushNode*>>& faces, const vm::vec3& delta) {

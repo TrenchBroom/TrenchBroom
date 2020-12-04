@@ -36,7 +36,6 @@
 #include "View/BrushVertexCommands.h"
 #include "View/Lasso.h"
 #include "View/MapDocument.h"
-#include "View/MoveBrushEdgesCommand.h"
 #include "View/MoveBrushFacesCommand.h"
 #include "View/RemoveBrushEdgesCommand.h"
 #include "View/RemoveBrushFacesCommand.h"
@@ -488,7 +487,6 @@ namespace TrenchBroom {
                 return command->isType(
                         RemoveBrushEdgesCommand::Type,
                         RemoveBrushFacesCommand::Type,
-                        MoveBrushEdgesCommand::Type,
                         MoveBrushFacesCommand::Type
                 );
             }
