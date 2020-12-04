@@ -465,31 +465,6 @@ namespace TrenchBroom {
             return true;
         }
 
-        void MapDocumentCommandFacade::performRemoveVertices(const std::map<Model::BrushNode*, std::vector<vm::vec3>>& vertices) {
-            const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            for (const auto& entry : vertices) {
-                Model::BrushNode* brushNode = entry.first;
-                const std::vector<vm::vec3>& positions = entry.second;
-                
-                brushNode->brush().removeVertices(m_worldBounds, positions)
-                    .visit(kdl::overload(
-                        [&](Model::Brush&& brush) {
-                            brushNode->setBrush(std::move(brush));
-                        },
-                        [&](const Model::BrushError e) {
-                            error() << "Could not remove vertex: " << e;
-                        }
-                    ));
-            }
-
-            invalidateSelectionBounds();
-        }
-
         void MapDocumentCommandFacade::restoreSnapshot(Model::Snapshot* snapshot) {
             const auto restoreNodesAndLogErrors = [&]() {
                 snapshot->restoreNodes(m_worldBounds).

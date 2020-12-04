@@ -440,7 +440,6 @@ namespace TrenchBroom {
 
             bool addVertex(const vm::vec3& vertexPosition);
             bool removeVertices(const std::string& commandName, std::vector<vm::vec3> vertexPositions);
-            bool removeFaces(const std::map<vm::polygon3, std::vector<Model::BrushNode*>>& faces);
         public: // debug commands
             void printVertices();
             bool throwExceptionDuringCommand();
