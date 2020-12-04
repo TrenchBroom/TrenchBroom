@@ -377,7 +377,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/PreferencePane.cpp
         ${COMMON_SOURCE_DIR}/View/RecentDocumentListBox.cpp
         ${COMMON_SOURCE_DIR}/View/RecentDocuments.cpp
-        ${COMMON_SOURCE_DIR}/View/RemoveBrushEdgesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/RemoveBrushElementsCommand.cpp
         ${COMMON_SOURCE_DIR}/View/RemoveBrushFacesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/RenderView.cpp
@@ -884,7 +883,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/PreferencePane.h
         ${COMMON_SOURCE_DIR}/View/RecentDocumentListBox.h
         ${COMMON_SOURCE_DIR}/View/RecentDocuments.h
-        ${COMMON_SOURCE_DIR}/View/RemoveBrushEdgesCommand.h
         ${COMMON_SOURCE_DIR}/View/RemoveBrushElementsCommand.h
         ${COMMON_SOURCE_DIR}/View/RemoveBrushFacesCommand.h
         ${COMMON_SOURCE_DIR}/View/RenderView.h
