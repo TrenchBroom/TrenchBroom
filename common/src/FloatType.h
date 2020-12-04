@@ -39,5 +39,3 @@ namespace vm {
 
     using C = constants<FloatType>;
 }
-
-#endif

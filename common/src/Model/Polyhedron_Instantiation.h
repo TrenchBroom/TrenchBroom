@@ -42,5 +42,3 @@ namespace TrenchBroom {
         extern template class Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;
     }
 }
-
-#endif

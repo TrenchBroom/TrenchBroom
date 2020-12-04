@@ -198,5 +198,3 @@ namespace TrenchBroom {
 #endif
     };
 }
-
-#endif

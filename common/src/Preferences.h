@@ -217,5 +217,3 @@ namespace TrenchBroom {
         const std::vector<DynamicPreferencePatternBase*>& dynaimcPreferencePatterns();
     }
 }
-
-#endif

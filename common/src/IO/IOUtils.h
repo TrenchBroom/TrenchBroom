@@ -53,5 +53,3 @@ namespace TrenchBroom {
         void writeGameComment(std::ostream& stream, const std::string& gameName, const std::string& mapFormat);
     }
 }
-
-#endif

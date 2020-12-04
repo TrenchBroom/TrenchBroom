@@ -69,5 +69,3 @@ namespace TrenchBroom {
 
     template <typename T> GLenum glType() { return GLEnum<T>::Value; }
 }
-
-#endif

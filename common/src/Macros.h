@@ -45,5 +45,3 @@
 #define deleteCopy(classname) public: classname(const classname& other) = delete; classname& operator=(const classname& other) = delete;
 #define deleteMove(classname) public: classname(classname&& other) = delete; classname& operator=(classname&& other) = delete;
 #define deleteCopyAndMove(classname) public: classname(const classname& other) = delete; classname(classname&& other) noexcept = delete; classname& operator=(const classname& other) = delete; classname& operator=(classname&& other) = delete;
-
-#endif
