@@ -2139,6 +2139,35 @@ namespace TrenchBroom {
             return result->success();
         }
 
+        bool MapDocument::addVertex(const vm::vec3& vertexPosition) {
+            auto newNodes = applyToNodeContents(m_selectedNodes.nodes(), kdl::overload(
+                [] (Model::Entity&) { return true; },
+                [&](Model::Brush& originalBrush) {
+                    if (!originalBrush.canAddVertex(m_worldBounds, vertexPosition)) {
+                        return false;
+                    }
+
+                    return originalBrush.addVertex(m_worldBounds, vertexPosition)
+                        .visit(kdl::overload(
+                            [&](Model::Brush&& newBrush) -> bool {
+                                originalBrush = std::move(newBrush);
+                                return true;
+                            },
+                            [&](const Model::BrushError e) -> bool {
+                                error() << "Could not add brush vertex: " << e;
+                                return false;
+                            }
+                        ));
+                }
+            ));
+
+            if (newNodes) {
+                return executeAndStore(std::make_unique<BrushVertexCommand>("Add Brush Vertex", std::move(*newNodes), std::vector<vm::vec3>{}, std::vector<vm::vec3>{vertexPosition}))->success();
+            }
+
+            return false;
+        }
+
         bool MapDocument::addVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices) {
             const auto result = executeAndStore(AddBrushVerticesCommand::add(vertices));
             return result->success();

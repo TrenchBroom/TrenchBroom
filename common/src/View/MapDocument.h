@@ -438,6 +438,7 @@ namespace TrenchBroom {
             bool moveEdges(const std::map<vm::segment3, std::vector<Model::BrushNode*>>& edges, const vm::vec3& delta) override;
             bool moveFaces(const std::map<vm::polygon3, std::vector<Model::BrushNode*>>& faces, const vm::vec3& delta) override;
 
+            bool addVertex(const vm::vec3& vertexPosition);
             bool addVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices);
             bool removeVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices);
             bool removeEdges(const std::map<vm::segment3, std::vector<Model::BrushNode*>>& edges);
