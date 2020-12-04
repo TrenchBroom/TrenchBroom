@@ -142,8 +142,8 @@ namespace TrenchBroom {
                 }
 
                 if (!brushes.empty()) {
-                    const std::map<vm::vec3, std::vector<Model::BrushNode*>> vertices { std::make_pair(m_dragHandlePosition + delta, brushes) };
-                    if (document->addVertices(vertices)) {
+                    const auto newVertexPosition = m_dragHandlePosition + delta;
+                    if (document->addVertex(newVertexPosition)) {
                         m_mode = Mode_Move;
                         m_edgeHandles->deselectAll();
                         m_faceHandles->deselectAll();
