@@ -38,7 +38,6 @@
 #include "View/MapDocument.h"
 #include "View/MoveBrushEdgesCommand.h"
 #include "View/MoveBrushFacesCommand.h"
-#include "View/RemoveBrushVerticesCommand.h"
 #include "View/RemoveBrushEdgesCommand.h"
 #include "View/RemoveBrushFacesCommand.h"
 #include "View/Selection.h"
@@ -487,7 +486,6 @@ namespace TrenchBroom {
 
             bool isVertexCommand(const Command* command) const {
                 return command->isType(
-                        RemoveBrushVerticesCommand::Type,
                         RemoveBrushEdgesCommand::Type,
                         RemoveBrushFacesCommand::Type,
                         MoveBrushEdgesCommand::Type,

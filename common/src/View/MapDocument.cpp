@@ -93,7 +93,6 @@
 #include "View/PasteType.h"
 #include "View/RemoveBrushEdgesCommand.h"
 #include "View/RemoveBrushFacesCommand.h"
-#include "View/RemoveBrushVerticesCommand.h"
 #include "View/ReparentNodesCommand.h"
 #include "View/RepeatStack.h"
 #include "View/SelectionCommand.h"
@@ -2199,11 +2198,6 @@ namespace TrenchBroom {
             }
 
             return false;
-        }
-
-        bool MapDocument::removeVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices) {
-            const auto result = executeAndStore(RemoveBrushVerticesCommand::remove(vertices));
-            return result->success();
         }
 
         bool MapDocument::removeEdges(const std::map<vm::segment3, std::vector<Model::BrushNode*>>& edges) {
