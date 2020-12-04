@@ -65,10 +65,12 @@ namespace TrenchBroom {
 
         void EdgeTool::removeSelection() {
             const auto handles = m_edgeHandles->selectedHandles();
-            const auto brushMap = buildBrushMap(*m_edgeHandles, std::begin(handles), std::end(handles));
+            auto vertexPositions = std::vector<vm::vec3>{};
+            vertexPositions.reserve(2 * vertexPositions.size());
+            vm::segment3::get_vertices(std::begin(handles), std::end(handles), std::back_inserter(vertexPositions));
 
-            Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Remove Edge", "Remove Edges"));
-            kdl::mem_lock(m_document)->removeEdges(brushMap);
+            const auto commandName = kdl::str_plural(handles.size(), "Remove Brush Edge", "Remove Brush Edges");
+            kdl::mem_lock(m_document)->removeVertices(commandName, std::move(vertexPositions));
         }
     }
 }
