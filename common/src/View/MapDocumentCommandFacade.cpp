@@ -465,36 +465,6 @@ namespace TrenchBroom {
             return true;
         }
 
-        std::vector<vm::vec3> MapDocumentCommandFacade::performMoveVertices(const std::map<Model::BrushNode*, std::vector<vm::vec3>>& vertices, const vm::vec3& delta) {
-            const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            std::vector<vm::vec3> newVertexPositions;
-            for (const auto& entry : vertices) {
-                Model::BrushNode* brushNode = entry.first;
-                const std::vector<vm::vec3>& oldPositions = entry.second;
-                
-                brushNode->brush().moveVertices(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock))
-                    .visit(kdl::overload(
-                        [&](Model::Brush&& brush) {
-                            auto newPositions = brush.findClosestVertexPositions(oldPositions + delta);
-                            newVertexPositions = kdl::vec_concat(std::move(newVertexPositions), std::move(newPositions));
-                            brushNode->setBrush(std::move(brush));
-                        },
-                        [&](const Model::BrushError e) {
-                            error() << "Could not move vertices: " << e;
-                        }
-                    ));
-            }
-
-            invalidateSelectionBounds();
-
-            return kdl::vec_sort_and_remove_duplicates(std::move(newVertexPositions));
-        }
-
         std::vector<vm::segment3> MapDocumentCommandFacade::performMoveEdges(const std::map<Model::BrushNode*, std::vector<vm::segment3>>& edges, const vm::vec3& delta) {
             const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
             const std::vector<Model::Node*> parents = collectParents(nodes);

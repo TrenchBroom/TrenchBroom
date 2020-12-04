@@ -91,7 +91,6 @@
 #include "View/MapTextEncoding.h"
 #include "View/MoveBrushEdgesCommand.h"
 #include "View/MoveBrushFacesCommand.h"
-#include "View/MoveBrushVerticesCommand.h"
 #include "View/PasteType.h"
 #include "View/RemoveBrushEdgesCommand.h"
 #include "View/RemoveBrushFacesCommand.h"
@@ -2128,14 +2127,6 @@ namespace TrenchBroom {
             }
 
             return MoveVerticesResult(false, false);
-        }
-
-        MapDocument::MoveVerticesResult MapDocument::moveVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices, const vm::vec3& delta) {
-            const auto result = executeAndStore(MoveBrushVerticesCommand::move(vertices, delta));
-            const auto* moveVerticesResult = dynamic_cast<MoveBrushVerticesCommandResult*>(result.get());
-            ensure(moveVerticesResult != nullptr, "command processor returned unexpected command result type");
-
-            return MoveVerticesResult(moveVerticesResult->success(), moveVerticesResult->hasRemainingVertices());
         }
 
         bool MapDocument::moveEdges(const std::map<vm::segment3, std::vector<Model::BrushNode*>>& edges, const vm::vec3& delta) {
