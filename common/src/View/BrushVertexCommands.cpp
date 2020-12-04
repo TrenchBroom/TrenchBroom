@@ -137,5 +137,36 @@ namespace TrenchBroom {
         void BrushEdgeCommand::selectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const {
             manager.select(std::begin(m_oldEdgePositions), std::end(m_oldEdgePositions));
         }
+
+        const Command::CommandType BrushFaceCommand::Type = Command::freeType();
+
+        BrushFaceCommand::BrushFaceCommand(const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes, std::vector<vm::polygon3> oldFacePositions, std::vector<vm::polygon3> newFacePositions) :
+        BrushVertexCommandBase(name, std::move(nodes)),
+        m_oldFacePositions(std::move(oldFacePositions)),
+        m_newFacePositions(std::move(newFacePositions)) {}
+        
+        bool BrushFaceCommand::doCollateWith(UndoableCommand* command) {
+            BrushFaceCommand* other = static_cast<BrushFaceCommand*>(command);
+            
+            if (m_newFacePositions != other->m_oldFacePositions) {
+                return false;
+            }
+
+            if (!SwapNodeContentsCommand::doCollateWith(command)) {
+                return false;
+            }
+            
+            m_newFacePositions = std::move(other->m_newFacePositions);
+
+            return true;
+        }
+
+        void BrushFaceCommand::selectNewHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const {
+            manager.select(std::begin(m_newFacePositions), std::end(m_newFacePositions));
+        }
+
+        void BrushFaceCommand::selectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const {
+            manager.select(std::begin(m_oldFacePositions), std::end(m_oldFacePositions));
+        }
     }
 }

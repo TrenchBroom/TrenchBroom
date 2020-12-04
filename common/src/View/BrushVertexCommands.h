@@ -23,6 +23,7 @@
 #include "View/SwapNodeContentsCommand.h"
 
 #include <vecmath/forward.h>
+#include <vecmath/polygon.h>
 #include <vecmath/segment.h>
 #include <vecmath/vec.h>
 
@@ -98,6 +99,23 @@ namespace TrenchBroom {
             void selectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const override;
 
             deleteCopyAndMove(BrushEdgeCommand)
+        };
+
+        class BrushFaceCommand : public BrushVertexCommandBase {
+        public:
+            static const CommandType Type;
+        private:
+            std::vector<vm::polygon3> m_oldFacePositions;
+            std::vector<vm::polygon3> m_newFacePositions;
+        public:
+            BrushFaceCommand(const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes, std::vector<vm::polygon3> oldFacePositions, std::vector<vm::polygon3> newFacePositions);
+        private:
+            bool doCollateWith(UndoableCommand* command) override;
+
+            void selectNewHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const override;
+            void selectOldHandlePositions(VertexHandleManagerBaseT<vm::polygon3>& manager) const override;
+
+            deleteCopyAndMove(BrushFaceCommand)
         };
     }
 }
