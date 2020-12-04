@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_COLLECTION_UTILS_H
-#define KDL_COLLECTION_UTILS_H
+#pragma once
 
 #include <algorithm> // for std::remove
 #include <functional> // for std::less

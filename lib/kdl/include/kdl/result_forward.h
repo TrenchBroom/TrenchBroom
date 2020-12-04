@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef result_forward_h
-#define result_forward_h
+#pragma once
 
 namespace kdl {
     /**

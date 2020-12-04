@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_VECTOR_SET_H
-#define KDL_VECTOR_SET_H
+#pragma once
 
 #include "set_adapter.h"
 #include "vector_set_forward.h"

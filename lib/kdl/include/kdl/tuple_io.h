@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_TUPLE_IO_H
-#define KDL_TUPLE_IO_H
+#pragma once
 
 #include <iostream>
 #include <tuple>
