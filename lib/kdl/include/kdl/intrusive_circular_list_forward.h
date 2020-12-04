@@ -22,4 +22,4 @@ namespace kdl {
     template <typename T, typename GetLink> class intrusive_circular_list;
 }
 
-#endif //TRENCHBROOM_INTRUSIVE_CIRCULAR_LIST_FORWARD_H
+

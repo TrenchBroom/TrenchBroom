@@ -25,4 +25,4 @@ namespace kdl {
     class [[nodiscard]] result;
 }
 
-#endif /* result_forward_h */
+

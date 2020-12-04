@@ -381,4 +381,4 @@ namespace kdl {
     }
 }
 
-#endif //KDL_STRING_UTILS_H
+
