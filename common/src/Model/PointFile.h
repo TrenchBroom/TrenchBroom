@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_PointFile
-#define TrenchBroom_PointFile
+#pragma once
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>

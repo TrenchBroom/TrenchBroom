@@ -17,8 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_SmartAttributeEditor
-#define TrenchBroom_SmartAttributeEditor
+#pragma once
 
 #include <memory>
 #include <string>

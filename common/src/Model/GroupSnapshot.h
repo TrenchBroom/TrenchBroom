@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_GroupSnapshot
-#define TrenchBroom_GroupSnapshot
+#pragma once
 
 #include "FloatType.h"
 #include "Model/NodeSnapshot.h"

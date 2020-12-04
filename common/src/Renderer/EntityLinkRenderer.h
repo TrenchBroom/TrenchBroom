@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityLinkRenderer
-#define TrenchBroom_EntityLinkRenderer
+#pragma once
 
 #include "Color.h"
 #include "Renderer/GLVertex.h"

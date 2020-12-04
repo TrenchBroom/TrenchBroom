@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Quake3ShaderTextureReader_h
-#define Quake3ShaderTextureReader_h
+#pragma once
 
 #include "IO/TextureReader.h"
 

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_BrushFaceAttributes
-#define TrenchBroom_BrushFaceAttributes
+#pragma once
 
 #include "Color.h"
 

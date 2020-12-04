@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Value_h
-#define Value_h
+#pragma once
 
 #include "EL/Types.h"
 

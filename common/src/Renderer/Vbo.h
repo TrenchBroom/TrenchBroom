@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Vbo
-#define TrenchBroom_Vbo
+#pragma once
 
 #include "Renderer/VboManager.h"
 

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FormWithSectionsLayout_h
-#define FormWithSectionsLayout_h
+#pragma once
 
 #include <QFormLayout>
 

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IdMipTextureReader_h
-#define IdMipTextureReader_h
+#pragma once
 
 #include "Assets/Palette.h"
 #include "IO/MipTextureReader.h"

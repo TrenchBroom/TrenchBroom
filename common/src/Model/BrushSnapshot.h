@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_BrushSnapshot
-#define TrenchBroom_BrushSnapshot
+#pragma once
 
 #include "Model/NodeSnapshot.h"
 

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_POLYHEDRON_IO_H
-#define TRENCHBROOM_POLYHEDRON_IO_H
+#pragma once
 
 #include "Polyhedron.h"
 #include <kdl/intrusive_circular_list.h>

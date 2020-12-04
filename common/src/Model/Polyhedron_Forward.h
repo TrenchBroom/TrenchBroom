@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_POLYHEDRON_FORWARD_H
-#define TRENCHBROOM_POLYHEDRON_FORWARD_H
+#pragma once
 
 #include <kdl/intrusive_circular_list_forward.h>
 

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CreateComplexBrushTool
-#define TrenchBroom_CreateComplexBrushTool
+#pragma once
 
 #include "Model/Polyhedron3.h"
 #include "View/CreateBrushToolBase.h"

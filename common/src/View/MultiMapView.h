@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MultiMapView
-#define TrenchBroom_MultiMapView
+#pragma once
 
 #include "View/MapViewContainer.h"
 

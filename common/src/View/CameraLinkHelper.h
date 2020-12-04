@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CameraLinkHelper
-#define TrenchBroom_CameraLinkHelper
+#pragma once
 
 #include <vector>
 

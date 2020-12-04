@@ -18,8 +18,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ScaleObjectsTool
-#define TrenchBroom_ScaleObjectsTool
+#pragma once
 
 #include "FloatType.h"
 #include "Model/Hit.h"

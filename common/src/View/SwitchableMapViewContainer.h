@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_SwitchableMapViewContainer
-#define TrenchBroom_SwitchableMapViewContainer
+#pragma once
 
 #include <QWidget>
 

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CameraTool3D
-#define TrenchBroom_CameraTool3D
+#pragma once
 
 #include "View/Tool.h"
 #include "View/ToolController.h"

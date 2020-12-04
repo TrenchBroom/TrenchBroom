@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CellLayout_h
-#define TrenchBroom_CellLayout_h
+#pragma once
 
 #include "Ensure.h"
 #include "Macros.h"

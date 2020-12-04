@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_RemoveBrushFacesCommand
-#define TrenchBroom_RemoveBrushFacesCommand
+#pragma once
 
 #include "Macros.h"
 #include "View/RemoveBrushElementsCommand.h"

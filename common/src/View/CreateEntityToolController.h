@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CreateEntityToolController
-#define TrenchBroom_CreateEntityToolController
+#pragma once
 
 #include "View/ToolController.h"
 

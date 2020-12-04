@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Tool
-#define TrenchBroom_Tool
+#pragma once
 
 #include "Notifier.h"
 

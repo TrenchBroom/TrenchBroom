@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EntityAttributesVariableStore_h
-#define EntityAttributesVariableStore_h
+#pragma once
 
 #include "Macros.h"
 #include "EL/VariableStore.h"

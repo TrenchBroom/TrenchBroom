@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ResourceUtils
-#define TrenchBroom_ResourceUtils
+#pragma once
 
 #include <memory>
 #include <string>

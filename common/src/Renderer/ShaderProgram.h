@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ShaderProgram
-#define TrenchBroom_ShaderProgram
+#pragma once
 
 #include "Renderer/GL.h"
 

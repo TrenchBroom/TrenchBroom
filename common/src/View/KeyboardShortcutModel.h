@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_KEYBOARDSHORTCUTMODEL_H
-#define TRENCHBROOM_KEYBOARDSHORTCUTMODEL_H
+#pragma once
 
 #include "IO/Path.h"
 

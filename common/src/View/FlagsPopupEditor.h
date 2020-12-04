@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FlagsPopupEditor
-#define TrenchBroom_FlagsPopupEditor
+#pragma once
 
 #include <QWidget>
 

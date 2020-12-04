@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_QtUtils
-#define TrenchBroom_QtUtils
+#pragma once
 
 #undef CursorShape
 

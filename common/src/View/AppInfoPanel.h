@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_AppInfoPanel
-#define TrenchBroom_AppInfoPanel
+#pragma once
 
 #include <QWidget>
 

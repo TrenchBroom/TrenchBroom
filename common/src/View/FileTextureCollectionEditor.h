@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FileTextureCollectionEditor
-#define TrenchBroom_FileTextureCollectionEditor
+#pragma once
 
 #include <memory>
 

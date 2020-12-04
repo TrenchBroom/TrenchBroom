@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ELExceptions_h
-#define ELExceptions_h
+#pragma once
 
 #include "Exceptions.h"
 

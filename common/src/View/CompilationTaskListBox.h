@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CompilationTaskList_h
-#define CompilationTaskList_h
+#pragma once
 
 #include "View/ControlListBox.h"
 

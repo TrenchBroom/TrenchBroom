@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityBrowser
-#define TrenchBroom_EntityBrowser
+#pragma once
 
 #include <memory>
 

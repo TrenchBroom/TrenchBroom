@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CompilationConfigParser_h
-#define CompilationConfigParser_h
+#pragma once
 
 #include "Macros.h"
 #include "EL/EL_Forward.h"

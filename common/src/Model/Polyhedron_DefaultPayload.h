@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Polyhedron_DefaultPayload_h
-#define Polyhedron_DefaultPayload_h
+#pragma once
 
 namespace TrenchBroom {
     namespace Model {

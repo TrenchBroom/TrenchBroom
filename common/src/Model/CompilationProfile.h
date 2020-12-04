@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CompilationProfile_h
-#define CompilationProfile_h
+#pragma once
 
 #include "Macros.h"
 

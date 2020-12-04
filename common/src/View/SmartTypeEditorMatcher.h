@@ -17,8 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_SmartTypeEditorMatcher
-#define TrenchBroom_SmartTypeEditorMatcher
+#pragma once
 
 #include "View/SmartAttributeEditorMatcher.h"
 

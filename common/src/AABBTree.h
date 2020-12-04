@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_AABBTREE_H
-#define TRENCHBROOM_AABBTREE_H
+#pragma once
 
 #include "Exceptions.h"
 

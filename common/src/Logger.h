@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Logger
-#define TrenchBroom_Logger
+#pragma once
 
 #include <sstream>
 #include <string>

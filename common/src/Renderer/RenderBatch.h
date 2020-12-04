@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_RenderBatch
-#define TrenchBroom_RenderBatch
+#pragma once
 
 #include <vector>
 

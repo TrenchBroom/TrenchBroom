@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Face
-#define TrenchBroom_Face
+#pragma once
 
 #include "FloatType.h"
 #include "Macros.h"

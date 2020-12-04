@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_PrimitiveRenderer
-#define TrenchBroom_PrimitiveRenderer
+#pragma once
 
 #include "Color.h"
 #include "Renderer/Renderable.h"

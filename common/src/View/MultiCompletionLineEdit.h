@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_MULTICOMPLETIONLINEEDIT_H
-#define TRENCHBROOM_MULTICOMPLETIONLINEEDIT_H
+#pragma once
 
 #include <QLineEdit>
 #include <QRegularExpression>

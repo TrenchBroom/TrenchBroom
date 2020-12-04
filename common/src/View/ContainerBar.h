@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ContainerBar
-#define TrenchBroom_ContainerBar
+#pragma once
 
 #include "View/BorderPanel.h"
 

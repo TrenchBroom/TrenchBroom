@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_ENTPARSER_H
-#define TRENCHBROOM_ENTPARSER_H
+#pragma once
 
 #include "Color.h"
 #include "FloatType.h"

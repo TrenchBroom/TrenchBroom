@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AddBrushVerticesCommand_h
-#define AddBrushVerticesCommand_h
+#pragma once
 
 #include "Macros.h"
 #include "View/VertexCommand.h"

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FaceRenderer
-#define TrenchBroom_FaceRenderer
+#pragma once
 
 #include "Color.h"
 #include "Renderer/Renderable.h"

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_RenderContext
-#define TrenchBroom_RenderContext
+#pragma once
 
 #include "FloatType.h"
 #include "Renderer/Transformation.h"

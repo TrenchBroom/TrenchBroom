@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_LayerListBox
-#define TrenchBroom_LayerListBox
+#pragma once
 
 #include "View/ControlListBox.h"
 

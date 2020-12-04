@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Lasso
-#define TrenchBroom_Lasso
+#pragma once
 
 #include "FloatType.h"
 

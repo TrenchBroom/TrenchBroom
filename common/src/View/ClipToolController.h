@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ClipToolController
-#define TrenchBroom_ClipToolController
+#pragma once
 
 #include "FloatType.h"
 #include "View/ToolController.h"

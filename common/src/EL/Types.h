@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Types_h
-#define Types_h
+#pragma once
 
 #include "EL/EL_Forward.h"
 

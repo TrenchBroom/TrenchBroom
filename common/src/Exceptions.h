@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Exceptions_h
-#define TrenchBroom_Exceptions_h
+#pragma once
 
 #include <exception>
 #include <string>

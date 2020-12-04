@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MoveBrushFacesCommand
-#define TrenchBroom_MoveBrushFacesCommand
+#pragma once
 
 #include "FloatType.h"
 #include "Macros.h"

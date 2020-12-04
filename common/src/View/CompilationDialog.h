@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CompilationDialog_h
-#define CompilationDialog_h
+#pragma once
 
 #include "View/CompilationRun.h"
 

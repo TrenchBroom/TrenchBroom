@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CreateComplexBrushToolController3D
-#define TrenchBroom_CreateComplexBrushToolController3D
+#pragma once
 
 #include "View/ToolController.h"
 

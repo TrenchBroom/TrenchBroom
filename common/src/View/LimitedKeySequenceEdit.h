@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_LIMITEDKEYSEQUENCEEDIT_H
-#define TRENCHBROOM_LIMITEDKEYSEQUENCEEDIT_H
+#pragma once
 
 #include <QKeySequenceEdit>
 

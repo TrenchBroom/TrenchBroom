@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_WorldReader
-#define TrenchBroom_WorldReader
+#pragma once
 
 #include "IO/MapReader.h"
 

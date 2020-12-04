@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EdgeToolController_h
-#define EdgeToolController_h
+#pragma once
 
 #include "View/VertexToolControllerBase.h"
 

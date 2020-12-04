@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapView3D
-#define TrenchBroom_MapView3D
+#pragma once
 
 #include "View/MapViewBase.h"
 

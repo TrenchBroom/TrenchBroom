@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_MD3PARSER_H
-#define TRENCHBROOM_MD3PARSER_H
+#pragma once
 
 #include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"

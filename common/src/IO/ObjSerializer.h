@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ObjSerializer_h
-#define ObjSerializer_h
+#pragma once
 
 #include "FloatType.h"
 #include "IO/NodeSerializer.h"

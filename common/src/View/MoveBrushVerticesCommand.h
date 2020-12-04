@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MoveBrushVerticesCommand
-#define TrenchBroom_MoveBrushVerticesCommand
+#pragma once
 
 #include "Macros.h"
 #include "View/VertexCommand.h"
