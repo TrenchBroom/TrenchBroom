@@ -2127,6 +2127,48 @@ namespace TrenchBroom {
             return MoveVerticesResult(false, false);
         }
 
+        bool MapDocument::moveEdges(std::vector<vm::segment3> edgePositions, const vm::vec3& delta) {
+            auto newEdgePositions = std::vector<vm::segment3>{};
+            auto newNodes = applyToNodeContents(m_selectedNodes.nodes(), kdl::overload(
+                [] (Model::Entity&) { return true; },
+                [&](Model::Brush& originalBrush) {
+                    const auto edgesToMove = kdl::vec_filter(edgePositions, [&](const auto& edge) { return originalBrush.hasEdge(edge); });
+                    if (edgesToMove.empty()) {
+                        return true;
+                    }
+
+                    if (!originalBrush.canMoveEdges(m_worldBounds, edgesToMove, delta)) {
+                        return false;
+                    }
+
+                    return originalBrush.moveEdges(m_worldBounds, edgesToMove, delta, pref(Preferences::UVLock))
+                        .visit(kdl::overload(
+                            [&](Model::Brush&& newBrush) -> bool {
+                                auto newPositions = newBrush.findClosestEdgePositions(kdl::vec_transform(edgesToMove, [&](const auto& edge) {
+                                    return edge.translate(delta);
+                                }));
+                                newEdgePositions = kdl::vec_concat(std::move(newEdgePositions), std::move(newPositions));
+                                originalBrush = std::move(newBrush);
+                                return true;
+                            },
+                            [&](const Model::BrushError e) -> bool {
+                                error() << "Could not move brush edges: " << e;
+                                return false;
+                            }
+                        ));
+                }
+            ));
+
+            if (newNodes) {
+                kdl::vec_sort_and_remove_duplicates(newEdgePositions);
+
+                const auto commandName = kdl::str_plural(edgePositions.size(), "Move Brush Edge", "Move Brush Edges");
+                return executeAndStore(std::make_unique<BrushEdgeCommand>(commandName, std::move(*newNodes), std::move(edgePositions), std::move(newEdgePositions)))->success();
+            }
+
+            return false;
+        }
+
         bool MapDocument::moveEdges(const std::map<vm::segment3, std::vector<Model::BrushNode*>>& edges, const vm::vec3& delta) {
             const auto result = executeAndStore(MoveBrushEdgesCommand::move(edges, delta));
             return result->success();
