@@ -49,9 +49,8 @@ namespace TrenchBroom {
         FaceTool::MoveResult FaceTool::move(const vm::vec3& delta) {
             auto document = kdl::mem_lock(m_document);
 
-            const auto handles = m_faceHandles->selectedHandles();
-            const auto brushMap = buildBrushMap(*m_faceHandles, std::begin(handles), std::end(handles));
-            if (document->moveFaces(brushMap, delta)) {
+            auto handles = m_faceHandles->selectedHandles();
+            if (document->moveFaces(std::move(handles), delta)) {
                 m_dragHandlePosition = m_dragHandlePosition.translate(delta);
                 return MR_Continue;
             }

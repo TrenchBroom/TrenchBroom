@@ -356,14 +356,8 @@ namespace TrenchBroom {
                 return true;
             }
 
-            std::map<vm::polygon3, std::vector<Model::BrushNode*>> brushMap;
-            for (const auto& handle : dragFaces()) {
-                auto* brush = handle.node();
-                auto& face = handle.face();
-                brushMap[face.polygon()] = { brush };
-            }
-
-            if (document->moveFaces(brushMap, delta)) {
+            auto facesToMove = kdl::vec_transform(dragFaces(), [](const auto& handle) { return handle.face().polygon(); });
+            if (document->moveFaces(std::move(facesToMove), delta)) {
                 m_lastPoint = m_lastPoint + delta;
                 m_totalDelta = m_totalDelta + delta;
             }
