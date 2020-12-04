@@ -2167,6 +2167,40 @@ namespace TrenchBroom {
             return false;
         }
 
+        bool MapDocument::removeVertices(const std::string& commandName, std::vector<vm::vec3> vertexPositions) {
+            auto newNodes = applyToNodeContents(m_selectedNodes.nodes(), kdl::overload(
+                [] (Model::Entity&) { return true; },
+                [&](Model::Brush& originalBrush) {
+                    const auto verticesToRemove = kdl::vec_filter(vertexPositions, [&](const auto& vertex) { return originalBrush.hasVertex(vertex); });
+                    if (verticesToRemove.empty()) {
+                        return true;
+                    }
+
+                    if (!originalBrush.canRemoveVertices(m_worldBounds, verticesToRemove)) {
+                        return false;
+                    }
+
+                    return originalBrush.removeVertices(m_worldBounds, verticesToRemove)
+                        .visit(kdl::overload(
+                            [&](Model::Brush&& newBrush) -> bool {
+                                originalBrush = std::move(newBrush);
+                                return true;
+                            },
+                            [&](const Model::BrushError e) -> bool {
+                                error() << "Could not remove brush vertices: " << e;
+                                return false;
+                            }
+                        ));
+                }
+            ));
+
+            if (newNodes) {
+                return executeAndStore(std::make_unique<BrushVertexCommand>(commandName, std::move(*newNodes), std::move(vertexPositions), std::vector<vm::vec3>{}))->success();
+            }
+
+            return false;
+        }
+
         bool MapDocument::removeVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices) {
             const auto result = executeAndStore(RemoveBrushVerticesCommand::remove(vertices));
             return result->success();
