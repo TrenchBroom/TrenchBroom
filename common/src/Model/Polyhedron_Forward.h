@@ -48,4 +48,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_POLYHEDRON_FORWARD_H
+

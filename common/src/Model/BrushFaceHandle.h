@@ -83,4 +83,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* BrushFaceHandle_hpp */
+

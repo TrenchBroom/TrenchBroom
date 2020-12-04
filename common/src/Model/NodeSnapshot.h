@@ -40,4 +40,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_NodeSnapshot) */
+

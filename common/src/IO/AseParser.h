@@ -166,4 +166,4 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_ASEPARSER_H
+

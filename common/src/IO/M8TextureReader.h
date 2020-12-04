@@ -40,4 +40,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* M8TextureReader_h */
+

@@ -86,4 +86,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_GameConfigParser) */
+

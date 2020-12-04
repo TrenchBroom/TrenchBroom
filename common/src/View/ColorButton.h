@@ -53,4 +53,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_COLORBUTTON_H
+

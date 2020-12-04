@@ -68,4 +68,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* CompilationDialog_h */
+

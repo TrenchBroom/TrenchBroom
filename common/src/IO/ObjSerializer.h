@@ -145,4 +145,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* ObjSerializer_h */
+

@@ -55,4 +55,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_ZIPFILESYSTEM_H
+

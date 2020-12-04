@@ -86,4 +86,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* CompilationProfileEditor_h */
+

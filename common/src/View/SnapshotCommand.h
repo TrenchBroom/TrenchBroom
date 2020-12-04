@@ -53,4 +53,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_SNAPSHOTCOMMAND_H
+

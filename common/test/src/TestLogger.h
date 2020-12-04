@@ -38,4 +38,4 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_TESTLOGGER_H
+

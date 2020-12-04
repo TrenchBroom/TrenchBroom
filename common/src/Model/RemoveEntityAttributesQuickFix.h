@@ -32,4 +32,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* RemoveEntityAttributesQuickFix_h */
+

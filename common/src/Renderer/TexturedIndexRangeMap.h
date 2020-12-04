@@ -181,4 +181,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* TexturedIndexRangeMap_h */
+

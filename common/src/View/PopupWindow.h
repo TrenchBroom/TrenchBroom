@@ -39,4 +39,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* PopupWindow_h */
+

@@ -54,4 +54,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* EvaluationContext_h */
+

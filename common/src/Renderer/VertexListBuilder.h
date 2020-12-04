@@ -178,4 +178,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* VertexListBuilder_h */
+

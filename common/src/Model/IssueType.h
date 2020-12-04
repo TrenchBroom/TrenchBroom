@@ -25,4 +25,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_ISSUETYPE_H
+

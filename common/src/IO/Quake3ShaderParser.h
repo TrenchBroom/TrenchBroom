@@ -79,4 +79,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_Q3SHADERPARSER_H
+

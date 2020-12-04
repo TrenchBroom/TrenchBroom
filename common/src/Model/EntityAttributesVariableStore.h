@@ -47,4 +47,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* EntityAttributesVariableStore_h */
+

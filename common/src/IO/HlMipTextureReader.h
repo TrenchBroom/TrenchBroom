@@ -37,4 +37,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* HlMipTextureReader_h */
+

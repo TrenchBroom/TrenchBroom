@@ -30,4 +30,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* Polyhedron_DefaultPayload_h */
+

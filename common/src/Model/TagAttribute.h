@@ -29,4 +29,4 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_TAGATTRIBUTE_H
+

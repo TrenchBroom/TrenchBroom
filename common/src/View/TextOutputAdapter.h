@@ -58,4 +58,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* TextCtrlOutputAdapter_h */
+

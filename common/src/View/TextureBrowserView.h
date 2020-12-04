@@ -126,4 +126,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_TextureBrowserView) */
+

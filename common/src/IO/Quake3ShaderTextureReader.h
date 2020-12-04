@@ -57,4 +57,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* Quake3ShaderTextureReader_h */
+

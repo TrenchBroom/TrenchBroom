@@ -73,4 +73,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* TextureCollectionLoader_h */
+

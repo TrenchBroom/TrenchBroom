@@ -108,4 +108,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Parser) */
+

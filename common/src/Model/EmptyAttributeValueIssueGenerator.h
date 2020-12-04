@@ -37,4 +37,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* EmptyAttributeValueIssueGenerator_h */
+
