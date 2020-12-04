@@ -465,38 +465,6 @@ namespace TrenchBroom {
             return true;
         }
 
-        std::vector<vm::polygon3> MapDocumentCommandFacade::performMoveFaces(const std::map<Model::BrushNode*, std::vector<vm::polygon3>>& faces, const vm::vec3& delta) {
-            const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            std::vector<vm::polygon3> newFacePositions;
-            for (const auto& entry : faces) {
-                Model::BrushNode* brushNode = entry.first;
-                const std::vector<vm::polygon3>& oldPositions = entry.second;
-                
-                brushNode->brush().moveFaces(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock))
-                    .visit(kdl::overload(
-                        [&](Model::Brush&& brush) {
-                            auto newPositions = brush.findClosestFacePositions(kdl::vec_transform(oldPositions, [&](const auto& f) {
-                                return f.translate(delta);
-                            }));
-                            newFacePositions = kdl::vec_concat(std::move(newFacePositions), std::move(newPositions));
-                            brushNode->setBrush(std::move(brush));
-                        },
-                        [&](const Model::BrushError e) {
-                            error() << "Could not move faces: " << e;
-                        }
-                    ));
-            }
-
-            invalidateSelectionBounds();
-
-            return kdl::vec_sort_and_remove_duplicates(std::move(newFacePositions));
-        }
-
         void MapDocumentCommandFacade::performRemoveVertices(const std::map<Model::BrushNode*, std::vector<vm::vec3>>& vertices) {
             const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
             const std::vector<Model::Node*> parents = collectParents(nodes);

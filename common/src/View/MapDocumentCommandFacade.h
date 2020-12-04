@@ -93,7 +93,6 @@ namespace TrenchBroom {
             void performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot& coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
         public: // vertices
             bool performSnapVertices(FloatType snapTo);
-            std::vector<vm::polygon3> performMoveFaces(const std::map<Model::BrushNode*, std::vector<vm::polygon3>>& faces, const vm::vec3& delta);
             void performRemoveVertices(const std::map<Model::BrushNode*, std::vector<vm::vec3>>& vertices);
         public: // snapshots and restoration
             void restoreSnapshot(Model::Snapshot* snapshot);
