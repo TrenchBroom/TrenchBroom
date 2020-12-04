@@ -63,10 +63,11 @@ namespace TrenchBroom {
 
         void FaceTool::removeSelection() {
             const auto handles = m_faceHandles->selectedHandles();
-            const auto brushMap = buildBrushMap(*m_faceHandles, std::begin(handles), std::end(handles));
+            auto vertexPositions = std::vector<vm::vec3>{};
+            vm::polygon3::get_vertices(std::begin(handles), std::end(handles), std::back_inserter(vertexPositions));
 
-            Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Remove Face", "Remove Faces"));
-            kdl::mem_lock(m_document)->removeFaces(brushMap);
+            const auto commandName = kdl::str_plural(handles.size(), "Remove Brush Face", "Remove Brush Faces");
+            kdl::mem_lock(m_document)->removeVertices(commandName, std::move(vertexPositions));
         }
     }
 }
