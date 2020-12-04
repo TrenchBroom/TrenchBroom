@@ -114,10 +114,8 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
 
             if (m_mode == Mode_Move) {
-                const auto handles = m_vertexHandles->selectedHandles();
-                const auto brushMap = buildBrushMap(*m_vertexHandles, std::begin(handles), std::end(handles));
-
-                const MapDocument::MoveVerticesResult result = document->moveVertices(brushMap, delta);
+                auto handles = m_vertexHandles->selectedHandles();
+                const auto result = document->moveVertices(std::move(handles), delta);
                 if (result.success) {
                     if (!result.hasRemainingVertices) {
                         return MR_Cancel;
