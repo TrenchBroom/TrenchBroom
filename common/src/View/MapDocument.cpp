@@ -104,12 +104,12 @@
 #include "View/SnapBrushVerticesCommand.h"
 #include "View/SwapNodeContentsCommand.h"
 #include "View/ViewEffectsService.h"
-#include "kdl/string_format.h"
 
 #include <kdl/collection_utils.h>
 #include <kdl/map_utils.h>
 #include <kdl/memory_utils.h>
 #include <kdl/overload.h>
+#include "kdl/string_format.h"
 #include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
