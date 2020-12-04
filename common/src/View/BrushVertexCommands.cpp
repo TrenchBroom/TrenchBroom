@@ -106,5 +106,36 @@ namespace TrenchBroom {
         void BrushVertexCommand::selectOldHandlePositions(VertexHandleManagerBaseT<vm::vec3>& manager) const {
             manager.select(std::begin(m_oldVertexPositions), std::end(m_oldVertexPositions));
         }
+
+        const Command::CommandType BrushEdgeCommand::Type = Command::freeType();
+
+        BrushEdgeCommand::BrushEdgeCommand(const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes, std::vector<vm::segment3> oldEdgePositions, std::vector<vm::segment3> newEdgePositions) :
+        BrushVertexCommandBase(name, std::move(nodes)),
+        m_oldEdgePositions(std::move(oldEdgePositions)),
+        m_newEdgePositions(std::move(newEdgePositions)) {}
+        
+        bool BrushEdgeCommand::doCollateWith(UndoableCommand* command) {
+            BrushEdgeCommand* other = static_cast<BrushEdgeCommand*>(command);
+            
+            if (m_newEdgePositions != other->m_oldEdgePositions) {
+                return false;
+            }
+
+            if (!SwapNodeContentsCommand::doCollateWith(command)) {
+                return false;
+            }
+            
+            m_newEdgePositions = std::move(other->m_newEdgePositions);
+
+            return true;
+        }
+
+        void BrushEdgeCommand::selectNewHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const {
+            manager.select(std::begin(m_newEdgePositions), std::end(m_newEdgePositions));
+        }
+
+        void BrushEdgeCommand::selectOldHandlePositions(VertexHandleManagerBaseT<vm::segment3>& manager) const {
+            manager.select(std::begin(m_oldEdgePositions), std::end(m_oldEdgePositions));
+        }
     }
 }
