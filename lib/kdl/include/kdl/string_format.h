@@ -326,4 +326,4 @@ namespace kdl {
     }
 }
 
-#endif //KDL_STRING_FORMAT_H
+

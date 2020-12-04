@@ -859,4 +859,4 @@ namespace kdl {
     }
 }
 
-#endif //KDL_VECTOR_UTILS_H
+
