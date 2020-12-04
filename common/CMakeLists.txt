@@ -364,7 +364,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/MapViewToolBox.cpp
         ${COMMON_SOURCE_DIR}/View/ModEditor.cpp
         ${COMMON_SOURCE_DIR}/View/MousePreferencePane.cpp
-        ${COMMON_SOURCE_DIR}/View/MoveBrushFacesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/MoveObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/View/MoveObjectsToolController.cpp
         ${COMMON_SOURCE_DIR}/View/MoveObjectsToolPage.cpp
@@ -870,7 +869,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/MapViewToolBox.h
         ${COMMON_SOURCE_DIR}/View/ModEditor.h
         ${COMMON_SOURCE_DIR}/View/MousePreferencePane.h
-        ${COMMON_SOURCE_DIR}/View/MoveBrushFacesCommand.h
         ${COMMON_SOURCE_DIR}/View/MoveObjectsTool.h
         ${COMMON_SOURCE_DIR}/View/MoveObjectsToolController.h
         ${COMMON_SOURCE_DIR}/View/MoveObjectsToolPage.h
