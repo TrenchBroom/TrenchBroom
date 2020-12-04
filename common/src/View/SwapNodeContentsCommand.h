@@ -39,7 +39,7 @@ namespace TrenchBroom {
         class SwapNodeContentsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-        private:
+        protected:
             std::vector<std::pair<Model::Node*, Model::NodeContents>> m_nodes;
         public:
             SwapNodeContentsCommand(const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes);
