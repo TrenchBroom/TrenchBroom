@@ -38,7 +38,6 @@
 #include "View/MapDocument.h"
 #include "View/Selection.h"
 #include "View/Tool.h"
-#include "View/VertexCommand.h"
 #include "View/VertexHandleManager.h"
 
 #include <kdl/memory_utils.h>
@@ -442,12 +441,7 @@ namespace TrenchBroom {
             }
 
             void commandDoOrUndo(Command* command) {
-                if (isVertexCommand(command)) {
-                    auto* vertexCommand = static_cast<VertexCommand*>(command);
-                    deselectHandles();
-                    removeHandles(vertexCommand);
-                    ++m_ignoreChangeNotifications;
-                } else if (auto* vertexCommand = dynamic_cast<BrushVertexCommand*>(command)) {
+                if (auto* vertexCommand = dynamic_cast<BrushVertexCommandBase*>(command)) {
                     deselectHandles();
                     removeHandles(vertexCommand);
                     ++m_ignoreChangeNotifications;
@@ -455,12 +449,7 @@ namespace TrenchBroom {
             }
 
             void commandDoneOrUndoFailed(Command* command) {
-                if (isVertexCommand(command)) {
-                    auto* vertexCommand = static_cast<VertexCommand*>(command);
-                    addHandles(vertexCommand);
-                    selectNewHandlePositions(vertexCommand);
-                    --m_ignoreChangeNotifications;
-                } else if (auto* vertexCommand = dynamic_cast<BrushVertexCommand*>(command)) {
+                if (auto* vertexCommand = dynamic_cast<BrushVertexCommandBase*>(command)) {
                     addHandles(vertexCommand);
                     selectNewHandlePositions(vertexCommand);
                     --m_ignoreChangeNotifications;
@@ -468,20 +457,11 @@ namespace TrenchBroom {
             }
 
             void commandDoFailedOrUndone(Command* command) {
-                if (isVertexCommand(command)) {
-                    auto* vertexCommand = static_cast<VertexCommand*>(command);
-                    addHandles(vertexCommand);
-                    selectOldHandlePositions(vertexCommand);
-                    --m_ignoreChangeNotifications;
-                } else if (auto* vertexCommand = dynamic_cast<BrushVertexCommand*>(command)) {
+                if (auto* vertexCommand = dynamic_cast<BrushVertexCommandBase*>(command)) {
                     addHandles(vertexCommand);
                     selectOldHandlePositions(vertexCommand);
                     --m_ignoreChangeNotifications;
                 }
-            }
-
-            bool isVertexCommand(const Command*) const {
-                return true;
             }
 
             void selectionDidChange(const Selection& selection) {
@@ -501,24 +481,8 @@ namespace TrenchBroom {
                 }
             }
         protected:
-            virtual void addHandles(VertexCommand* command) {
-                command->addHandles(handleManager());
-            }
-
-            virtual void removeHandles(VertexCommand* command) {
-                command->removeHandles(handleManager());
-            }
-
             virtual void deselectHandles() {
                 handleManager().deselectAll();
-            }
-
-            virtual void selectNewHandlePositions(VertexCommand* command) {
-                command->selectNewHandlePositions(handleManager());
-            }
-
-            virtual void selectOldHandlePositions(VertexCommand* command) {
-                command->selectOldHandlePositions(handleManager());
             }
 
             virtual void addHandles(BrushVertexCommandBase* command) {
