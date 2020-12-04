@@ -199,11 +199,9 @@ namespace TrenchBroom {
         void VertexTool::removeSelection() {
             assert(canRemoveSelection());
 
-            const auto handles = m_vertexHandles->selectedHandles();
-            const auto brushMap = buildBrushMap(*m_vertexHandles, std::begin(handles), std::end(handles));
-
-            Transaction transaction(m_document, kdl::str_plural(handleManager().selectedHandleCount(), "Remove Vertex", "Remove Vertices"));
-            kdl::mem_lock(m_document)->removeVertices(brushMap);
+            auto handles = m_vertexHandles->selectedHandles();
+            const auto commandName = kdl::str_plural(handles.size(), "Remove Brush Vertex", "Remove Brush Vertices");
+            kdl::mem_lock(m_document)->removeVertices(commandName, std::move(handles));
         }
 
         void VertexTool::renderGuide(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch, const vm::vec3& position) const {
