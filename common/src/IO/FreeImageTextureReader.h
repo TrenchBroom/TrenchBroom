@@ -40,4 +40,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif // FREEIMAGETEXTUREREADER_H
+

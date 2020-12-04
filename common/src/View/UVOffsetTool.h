@@ -53,4 +53,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_UVOffsetTool) */
+

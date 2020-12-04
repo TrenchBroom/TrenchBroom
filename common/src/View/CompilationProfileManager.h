@@ -79,4 +79,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* CompilationProfileManager_h */
+

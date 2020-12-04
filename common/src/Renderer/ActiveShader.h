@@ -43,4 +43,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_ACTIVESHADER_H
+

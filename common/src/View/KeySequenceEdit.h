@@ -50,4 +50,4 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_KEYSEQUENCEEDIT_H
+

@@ -81,4 +81,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* DirectoryTextureCollectionEditor_h */
+

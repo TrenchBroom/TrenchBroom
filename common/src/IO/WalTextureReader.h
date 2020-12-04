@@ -48,4 +48,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* WalTextureReader_h */
+

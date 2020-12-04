@@ -56,4 +56,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_MULTICOMPLETIONLINEEDIT_H
+

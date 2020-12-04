@@ -65,4 +65,4 @@ namespace TrenchBroom {
 // Allow storing this class in a QVariant
 Q_DECLARE_METATYPE(TrenchBroom::Assets::EntityDefinitionFileSpec)
 
-#endif /* defined(TrenchBroom_EntityDefinitionFileSpec) */
+

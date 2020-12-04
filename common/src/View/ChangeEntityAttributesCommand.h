@@ -85,4 +85,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ChangeEntityAttributesCommand) */
+

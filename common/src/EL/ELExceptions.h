@@ -65,4 +65,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* ELExceptions_h */
+

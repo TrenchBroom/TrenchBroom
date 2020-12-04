@@ -87,5 +87,5 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ScaleObjectsToolController) */
+
 

@@ -148,4 +148,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* CompilationRunner_h */
+

@@ -82,5 +82,5 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ShearObjectsToolController) */
+
 

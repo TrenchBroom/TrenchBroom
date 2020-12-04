@@ -72,4 +72,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_CameraTool3D) */
+

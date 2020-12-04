@@ -39,4 +39,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ShaderConfig) */
+

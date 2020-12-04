@@ -43,4 +43,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_EntityModelLoader) */
+

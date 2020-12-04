@@ -66,4 +66,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* CompilationVariables_h */
+

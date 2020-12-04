@@ -111,4 +111,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_TAGMANAGER_H
+
