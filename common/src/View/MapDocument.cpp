@@ -2168,6 +2168,48 @@ namespace TrenchBroom {
             return false;
         }
 
+        bool MapDocument::moveFaces(std::vector<vm::polygon3> facePositions, const vm::vec3& delta) {
+            auto newFacePositions = std::vector<vm::polygon3>{};
+            auto newNodes = applyToNodeContents(m_selectedNodes.nodes(), kdl::overload(
+                [] (Model::Entity&) { return true; },
+                [&](Model::Brush& originalBrush) {
+                    const auto facesToMove = kdl::vec_filter(facePositions, [&](const auto& face) { return originalBrush.hasFace(face); });
+                    if (facesToMove.empty()) {
+                        return true;
+                    }
+
+                    if (!originalBrush.canMoveFaces(m_worldBounds, facesToMove, delta)) {
+                        return false;
+                    }
+
+                    return originalBrush.moveFaces(m_worldBounds, facesToMove, delta, pref(Preferences::UVLock))
+                        .visit(kdl::overload(
+                            [&](Model::Brush&& newBrush) -> bool {
+                                auto newPositions = newBrush.findClosestFacePositions(kdl::vec_transform(facesToMove, [&](const auto& face) {
+                                    return face.translate(delta);
+                                }));
+                                newFacePositions = kdl::vec_concat(std::move(newFacePositions), std::move(newPositions));
+                                originalBrush = std::move(newBrush);
+                                return true;
+                            },
+                            [&](const Model::BrushError e) -> bool {
+                                error() << "Could not move brush faces: " << e;
+                                return false;
+                            }
+                        ));
+                }
+            ));
+
+            if (newNodes) {
+                kdl::vec_sort_and_remove_duplicates(newFacePositions);
+
+                const auto commandName = kdl::str_plural(facePositions.size(), "Move Brush Face", "Move Brush Faces");
+                return executeAndStore(std::make_unique<BrushFaceCommand>(commandName, std::move(*newNodes), std::move(facePositions), std::move(newFacePositions)))->success();
+            }
+
+            return false;
+        }
+
         bool MapDocument::moveFaces(const std::map<vm::polygon3, std::vector<Model::BrushNode*>>& faces, const vm::vec3& delta) {
             const auto result = executeAndStore(MoveBrushFacesCommand::move(faces, delta));
             return result->success();
