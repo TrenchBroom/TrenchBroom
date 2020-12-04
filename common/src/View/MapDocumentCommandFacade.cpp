@@ -528,32 +528,6 @@ namespace TrenchBroom {
             return kdl::vec_sort_and_remove_duplicates(std::move(newFacePositions));
         }
 
-        void MapDocumentCommandFacade::performAddVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices) {
-            const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            for (const auto& entry : vertices) {
-                const vm::vec3& position = entry.first;
-                const std::vector<Model::BrushNode*>& brushNodes = entry.second;
-                for (Model::BrushNode* brushNode : brushNodes) {
-                    brushNode->brush().addVertex(m_worldBounds, position)
-                        .visit(kdl::overload(
-                            [&](Model::Brush&& brush) {
-                                brushNode->setBrush(std::move(brush));
-                            },
-                            [&](const Model::BrushError e) {
-                                error() << "Could not add vertex: " << e;
-                            }
-                        ));
-                }
-            }
-
-            invalidateSelectionBounds();
-        }
-
         void MapDocumentCommandFacade::performRemoveVertices(const std::map<Model::BrushNode*, std::vector<vm::vec3>>& vertices) {
             const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
             const std::vector<Model::Node*> parents = collectParents(nodes);

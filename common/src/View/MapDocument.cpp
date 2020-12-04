@@ -81,7 +81,6 @@
 #include "Model/TagManager.h"
 #include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
-#include "View/AddBrushVerticesCommand.h"
 #include "View/AddRemoveNodesCommand.h"
 #include "View/Actions.h"
 #include "View/BrushVertexCommands.h"
@@ -2166,11 +2165,6 @@ namespace TrenchBroom {
             }
 
             return false;
-        }
-
-        bool MapDocument::addVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices) {
-            const auto result = executeAndStore(AddBrushVerticesCommand::add(vertices));
-            return result->success();
         }
 
         bool MapDocument::removeVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices) {

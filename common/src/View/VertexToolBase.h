@@ -33,7 +33,6 @@
 #include "Model/WorldNode.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderService.h"
-#include "View/AddBrushVerticesCommand.h"
 #include "View/BrushVertexCommands.h"
 #include "View/Lasso.h"
 #include "View/MapDocument.h"
@@ -488,7 +487,6 @@ namespace TrenchBroom {
 
             bool isVertexCommand(const Command* command) const {
                 return command->isType(
-                        AddBrushVerticesCommand::Type,
                         RemoveBrushVerticesCommand::Type,
                         RemoveBrushEdgesCommand::Type,
                         RemoveBrushFacesCommand::Type,
