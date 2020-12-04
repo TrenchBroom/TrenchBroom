@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_GLOB_INDEX_H
-#define KDL_GLOB_INDEX_H
+#pragma once
 
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>

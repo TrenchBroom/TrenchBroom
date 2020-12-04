@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef result_combine_h
-#define result_combine_h
+#pragma once
 
 #include "kdl/meta_utils.h"
 #include "kdl/overload.h"

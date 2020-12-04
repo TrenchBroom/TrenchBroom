@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_TEST_UTILS_H
-#define KDL_TEST_UTILS_H
+#pragma once
 
 namespace kdl {
     struct deletable {
