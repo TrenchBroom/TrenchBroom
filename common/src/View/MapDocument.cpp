@@ -131,7 +131,7 @@
 namespace TrenchBroom {
     namespace View {
         /**
-         * Applies the given lambda to a copy of the contents of each of the given nodes and swaps the node contents if the given lambda succeeds for all node contents.
+         * Applies the given lambda to a copy of the contents of each of the given nodes and returns a vector of pairs of the original node and the modified contents.
          *
          * The lambda L needs two overloads:
          * - bool operator()(Model::Entity&);
@@ -139,11 +139,10 @@ namespace TrenchBroom {
          *
          * The given node contents should be modified in place and the lambda should return true if it was applied successfully and false otherwise.
          *
-         * Returns true if the given lambda could be applied successfully to all node contents and false otherwise. If the lambda fails, then no
-         * node contents will be swapped, and the original nodes remain unmodified.
-         */
+         * Returns a vector of pairs which map each node to its modified contents if the lambda succeeded for every given node, or an empty optional otherwise.
+         */        
         template <typename N, typename L>
-        static bool applyAndSwap(MapDocument& document, const std::string& commandName, const std::vector<N*>& nodes, L lambda) {
+        static std::optional<std::vector<std::pair<Model::Node*, Model::NodeContents>>> applyToNodeContents(const std::vector<N*>& nodes, L lambda) {
             auto newNodes = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
             newNodes.reserve(nodes.size());
 
@@ -161,11 +160,29 @@ namespace TrenchBroom {
                 return std::make_pair(node, Model::NodeContents(std::move(nodeContents)));
             });
 
-            if (success) {
-                document.swapNodeContents(commandName, std::move(newNodes));
+            return success ? std::make_optional(newNodes) : std::nullopt;
+        }
+
+        /**
+         * Applies the given lambda to a copy of the contents of each of the given nodes and swaps the node contents if the given lambda succeeds for all node contents.
+         *
+         * The lambda L needs two overloads:
+         * - bool operator()(Model::Entity&);
+         * - bool operator()(Model::Brush&);
+         *
+         * The given node contents should be modified in place and the lambda should return true if it was applied successfully and false otherwise.
+         *
+         * Returns true if the given lambda could be applied successfully to all node contents and false otherwise. If the lambda fails, then no
+         * node contents will be swapped, and the original nodes remain unmodified.
+         */
+        template <typename N, typename L>
+        static bool applyAndSwap(MapDocument& document, const std::string& commandName, const std::vector<N*>& nodes, L lambda) {
+            if (auto newNodes = applyToNodeContents(nodes, std::move(lambda))) {
+                document.swapNodeContents(commandName, std::move(*newNodes));
+                return true;
             }
 
-            return success;
+            return false;
         }
 
         /**
