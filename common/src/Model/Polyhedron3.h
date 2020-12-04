@@ -29,5 +29,3 @@ namespace TrenchBroom {
         using Polyhedron3 = Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
     }
 }
-
-#endif

@@ -73,5 +73,3 @@ namespace TrenchBroom {
         VertsAndNormals cone3D(float radius, float length, size_t segments);
     }
 }
-
-#endif

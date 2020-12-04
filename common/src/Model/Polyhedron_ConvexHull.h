@@ -852,5 +852,3 @@ namespace TrenchBroom {
         }
     }
 }
-
-#endif

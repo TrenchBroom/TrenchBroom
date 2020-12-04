@@ -36,5 +36,3 @@ namespace TrenchBroom {
         ColorRange::Type detectColorRange(const std::vector<std::string>& components);
     }
 }
-
-#endif

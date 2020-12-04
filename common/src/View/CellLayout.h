@@ -809,5 +809,3 @@ namespace TrenchBroom {
         };
     }
 }
-
-#endif

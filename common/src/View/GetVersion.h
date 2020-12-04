@@ -28,5 +28,3 @@ namespace TrenchBroom {
         QString getBuildType();
     }
 }
-
-#endif

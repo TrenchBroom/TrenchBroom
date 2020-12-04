@@ -37,4 +37,3 @@ inline void PrintTo(const QJsonValue& value, std::ostream* ostream) {
              << qUtf8Printable(asVariant.toString()) << ")";
 }
 
-#endif

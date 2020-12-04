@@ -415,4 +415,3 @@ namespace TrenchBroom {
         };
     }
 }
-#endif

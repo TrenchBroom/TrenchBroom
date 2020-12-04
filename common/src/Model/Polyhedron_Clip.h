@@ -412,5 +412,3 @@ namespace TrenchBroom {
         }
     }
 }
-
-#endif

@@ -39,5 +39,3 @@ namespace TrenchBroom {
         using BrushHalfEdgeList = Polyhedron_HalfEdgeList<FloatType, BrushFacePayload, BrushVertexPayload>;
     }
 }
-
-#endif

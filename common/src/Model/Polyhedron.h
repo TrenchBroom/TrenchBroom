@@ -2147,5 +2147,3 @@ namespace TrenchBroom {
         };
     }
 }
-
-#endif

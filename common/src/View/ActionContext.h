@@ -54,5 +54,3 @@ namespace TrenchBroom {
         static const size_t NumActionViews = 2;
     }
 }
-
-#endif

@@ -106,5 +106,3 @@ namespace TrenchBroom {
         using Exception::Exception;
     };
 }
-
-#endif

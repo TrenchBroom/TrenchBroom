@@ -464,5 +464,3 @@ m_link(this)
         }
     }
 }
-
-#endif
