@@ -254,6 +254,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/Autosaver.cpp
         ${COMMON_SOURCE_DIR}/View/BorderLine.cpp
         ${COMMON_SOURCE_DIR}/View/BorderPanel.cpp
+        ${COMMON_SOURCE_DIR}/View/BrushVertexCommands.cpp
         ${COMMON_SOURCE_DIR}/View/CachingLogger.cpp
         ${COMMON_SOURCE_DIR}/View/CameraAnimation.cpp
         ${COMMON_SOURCE_DIR}/View/CameraLinkHelper.cpp
@@ -762,6 +763,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/Autosaver.h
         ${COMMON_SOURCE_DIR}/View/BorderLine.h
         ${COMMON_SOURCE_DIR}/View/BorderPanel.h
+        ${COMMON_SOURCE_DIR}/View/BrushVertexCommands.h
         ${COMMON_SOURCE_DIR}/View/CachingLogger.h
         ${COMMON_SOURCE_DIR}/View/CameraAnimation.h
         ${COMMON_SOURCE_DIR}/View/CameraLinkHelper.h
