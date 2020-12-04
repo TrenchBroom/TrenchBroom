@@ -51,9 +51,8 @@ namespace TrenchBroom {
         EdgeTool::MoveResult EdgeTool::move(const vm::vec3& delta) {
             auto document = kdl::mem_lock(m_document);
 
-            const auto handles = m_edgeHandles->selectedHandles();
-            const auto brushMap = buildBrushMap(*m_edgeHandles, std::begin(handles), std::end(handles));
-            if (document->moveEdges(brushMap, delta)) {
+            auto handles = m_edgeHandles->selectedHandles();
+            if (document->moveEdges(std::move(handles), delta)) {
                 m_dragHandlePosition = translate(m_dragHandlePosition, delta);
                 return MR_Continue;
             }
