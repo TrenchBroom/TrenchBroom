@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VertexListBuilder_h
-#define VertexListBuilder_h
+#pragma once
 
 #include <kdl/vector_utils.h>
 

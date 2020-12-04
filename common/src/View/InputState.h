@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_InputState
-#define TrenchBroom_InputState
+#pragma once
 
 #include "FloatType.h"
 #include "Model/PickResult.h"

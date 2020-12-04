@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_VertexSpec
-#define TrenchBroom_VertexSpec
+#pragma once
 
 #include "Renderer/GLVertexAttributeType.h"
 #include "Renderer/GLVertex.h"

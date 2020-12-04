@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapDocumentCommandFacade
-#define TrenchBroom_MapDocumentCommandFacade
+#pragma once
 
 #include "FloatType.h"
 #include "View/MapDocument.h"

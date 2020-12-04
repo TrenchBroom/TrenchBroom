@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Font
-#define TrenchBroom_Font
+#pragma once
 
 #include "Macros.h"
 

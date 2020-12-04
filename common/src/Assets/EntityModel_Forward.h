@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_ENTITYMODEL_FORWARD_H
-#define TRENCHBROOM_ENTITYMODEL_FORWARD_H
+#pragma once
 
 #include "Renderer/GLVertexType.h"
 

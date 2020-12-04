@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EmptyGroupIssueGenerator
-#define TrenchBroom_EmptyGroupIssueGenerator
+#pragma once
 
 #include "Model/IssueGenerator.h"
 

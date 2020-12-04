@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ThreePaneMapView
-#define TrenchBroom_ThreePaneMapView
+#pragma once
 
 #include "View/CameraLinkHelper.h"
 #include "View/MultiMapView.h"

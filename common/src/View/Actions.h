@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_ACTIONS_H
-#define TRENCHBROOM_ACTIONS_H
+#pragma once
 
 #include "Macros.h"
 #include "Ensure.h"

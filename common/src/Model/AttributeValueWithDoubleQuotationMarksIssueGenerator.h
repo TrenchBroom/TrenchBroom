@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AttributeValueWithDoubleQuotationMarksIssueGenerator_h
-#define AttributeValueWithDoubleQuotationMarksIssueGenerator_h
+#pragma once
 
 #include "Model/IssueGenerator.h"
 

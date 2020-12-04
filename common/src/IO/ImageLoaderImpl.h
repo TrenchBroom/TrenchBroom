@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ImageLoaderImpl
-#define TrenchBroom_ImageLoaderImpl
+#pragma once
 
 #include "IO/ImageLoader.h"
 

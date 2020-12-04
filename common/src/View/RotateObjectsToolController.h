@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_RotateObjectsToolController
-#define TrenchBroom_RotateObjectsToolController
+#pragma once
 
 #include "View/RotateObjectsHandle.h"
 #include "View/ToolController.h"

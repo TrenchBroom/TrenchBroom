@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TestGame_h
-#define TestGame_h
+#pragma once
 
 #include "Model/BrushFaceAttributes.h"
 #include "Model/Game.h"

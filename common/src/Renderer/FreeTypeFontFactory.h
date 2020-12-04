@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FreeTypeFontFactory
-#define TrenchBroom_FreeTypeFontFactory
+#pragma once
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

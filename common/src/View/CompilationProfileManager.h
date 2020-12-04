@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CompilationProfileManager_h
-#define CompilationProfileManager_h
+#pragma once
 
 #include "Model/CompilationConfig.h"
 

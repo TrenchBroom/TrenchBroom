@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Preferences_h
-#define TrenchBroom_Preferences_h
+#pragma once
 
 #include "Color.h"
 #include "Preference.h"

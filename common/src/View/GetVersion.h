@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_GetVersion_h
-#define TrenchBroom_GetVersion_h
+#pragma once
 
 #include <QString>
 

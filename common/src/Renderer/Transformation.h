@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Transformation
-#define TrenchBroom_Transformation
+#pragma once
 
 #include <vecmath/forward.h>
 #include <vecmath/mat.h>

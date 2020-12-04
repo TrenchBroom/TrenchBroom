@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_GameListBox
-#define TrenchBroom_GameListBox
+#pragma once
 
 #include "View/ImageListBox.h"
 

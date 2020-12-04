@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_ASEPARSER_H
-#define TRENCHBROOM_ASEPARSER_H
+#pragma once
 
 #include "IO/EntityModelParser.h"
 #include "IO/Parser.h"

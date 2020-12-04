@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapViewBase
-#define TrenchBroom_MapViewBase
+#pragma once
 
 #include "View/ActionContext.h"
 #include "View/CameraLinkHelper.h"

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_MAPVIEWACTIVATIONTRACKER_H
-#define TRENCHBROOM_MAPVIEWACTIVATIONTRACKER_H
+#pragma once
 
 #include <QObject>
 

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FlyModeHelper
-#define TrenchBroom_FlyModeHelper
+#pragma once
 
 #include <vecmath/forward.h>
 

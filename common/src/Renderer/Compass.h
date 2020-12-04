@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Compass
-#define TrenchBroom_Compass
+#pragma once
 
 #include "Renderer/IndexRangeRenderer.h"
 #include "Renderer/Renderable.h"

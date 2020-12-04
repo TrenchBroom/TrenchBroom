@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ParserStatus
-#define TrenchBroom_ParserStatus
+#pragma once
 
 #include <string>
 

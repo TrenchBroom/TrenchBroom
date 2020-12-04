@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_TESTENVIRONMENT_H
-#define TRENCHBROOM_TESTENVIRONMENT_H
+#pragma once
 
 #include "IO/Path.h"
 

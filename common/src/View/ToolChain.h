@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ToolChain
-#define TrenchBroom_ToolChain
+#pragma once
 
 #include <string>
 

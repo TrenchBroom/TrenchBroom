@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TexturedIndexRangeMap_h
-#define TexturedIndexRangeMap_h
+#pragma once
 
 #include "Renderer/IndexRangeMap.h"
 

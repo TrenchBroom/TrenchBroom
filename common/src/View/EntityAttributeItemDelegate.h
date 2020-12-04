@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_ENTITYATTRIBUTEITEMDELEGATE_H
-#define TRENCHBROOM_ENTITYATTRIBUTEITEMDELEGATE_H
+#pragma once
 
 #include <QStyledItemDelegate>
 

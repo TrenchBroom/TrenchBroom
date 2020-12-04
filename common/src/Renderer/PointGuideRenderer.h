@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_PointGuideRenderer
-#define TrenchBroom_PointGuideRenderer
+#pragma once
 
 #include "Color.h"
 #include "FloatType.h"

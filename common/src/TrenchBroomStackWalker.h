@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroomStackWalker_h
-#define TrenchBroomStackWalker_h
+#pragma once
 
 #include <string>
 

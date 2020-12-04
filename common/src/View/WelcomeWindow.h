@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_WelcomeFrame
-#define TrenchBroom_WelcomeFrame
+#pragma once
 
 #include <QMainWindow>
 

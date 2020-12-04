@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Circle
-#define TrenchBroom_Circle
+#pragma once
 
 #include "Renderer/VertexArray.h"
 

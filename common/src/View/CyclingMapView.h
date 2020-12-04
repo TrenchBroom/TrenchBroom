@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CyclingMapView
-#define TrenchBroom_CyclingMapView
+#pragma once
 
 #include "FloatType.h"
 #include "View/CameraLinkHelper.h"

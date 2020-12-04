@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapViewToolBox
-#define TrenchBroom_MapViewToolBox
+#pragma once
 
 #include "FloatType.h"
 #include "View/ToolBox.h"

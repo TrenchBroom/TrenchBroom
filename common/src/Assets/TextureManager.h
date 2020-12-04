@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TextureManager
-#define TrenchBroom_TextureManager
+#pragma once
 
 #include "Assets/TextureCollection.h"
 

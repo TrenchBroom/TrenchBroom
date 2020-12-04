@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FaceInspector
-#define TrenchBroom_FaceInspector
+#pragma once
 
 #include "View/TabBook.h"
 

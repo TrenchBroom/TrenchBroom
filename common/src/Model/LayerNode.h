@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_LayerNode
-#define TrenchBroom_LayerNode
+#pragma once
 
 #include "Color.h"
 #include "FloatType.h"

@@ -17,8 +17,7 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TrenchBroom_SpinControl
-#define TrenchBroom_SpinControl
+#pragma once
 
 #include <QDoubleSpinBox>
 

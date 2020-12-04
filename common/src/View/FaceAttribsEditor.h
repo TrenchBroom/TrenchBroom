@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FaceAttribsEditor
-#define TrenchBroom_FaceAttribsEditor
+#pragma once
 
 #include <QWidget>
 

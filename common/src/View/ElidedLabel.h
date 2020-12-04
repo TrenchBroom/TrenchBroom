@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_ELIDEDLABEL_H
-#define TRENCHBROOM_ELIDEDLABEL_H
+#pragma once
 
 #include <QString>
 #include <QWidget>

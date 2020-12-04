@@ -18,8 +18,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ShearObjectsTool
-#define TrenchBroom_ShearObjectsTool
+#pragma once
 
 #include "FloatType.h"
 #include "Model/Hit.h"

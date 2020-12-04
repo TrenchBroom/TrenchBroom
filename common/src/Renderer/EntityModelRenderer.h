@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityModelRenderer
-#define TrenchBroom_EntityModelRenderer
+#pragma once
 
 #include "Color.h"
 #include "Renderer/Renderable.h"

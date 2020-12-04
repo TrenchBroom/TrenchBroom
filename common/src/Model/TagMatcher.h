@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_TAGMATCHER_H
-#define TRENCHBROOM_TAGMATCHER_H
+#pragma once
 
 #include "Assets/Texture.h"
 #include "Model/Tag.h"

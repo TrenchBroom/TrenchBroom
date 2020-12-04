@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapFormat
-#define TrenchBroom_MapFormat
+#pragma once
 
 #include <string>
 #include <vector>

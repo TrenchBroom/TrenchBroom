@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EditorContext
-#define TrenchBroom_EditorContext
+#pragma once
 
 #include "Notifier.h"
 #include "Model/TagType.h"

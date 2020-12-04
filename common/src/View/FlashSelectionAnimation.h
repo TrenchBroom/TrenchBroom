@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FlashSelectionAnimation
-#define TrenchBroom_FlashSelectionAnimation
+#pragma once
 
 #include "View/Animation.h"
 

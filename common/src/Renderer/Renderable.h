@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Renderable
-#define TrenchBroom_Renderable
+#pragma once
 
 #include "Macros.h"
 

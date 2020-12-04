@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_GameDialog
-#define TrenchBroom_GameDialog
+#pragma once
 
 #include "Model/MapFormat.h"
 

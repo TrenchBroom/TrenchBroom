@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_QtPrettyPrinters_h
-#define TrenchBroom_QtPrettyPrinters_h
+#pragma once
 
 #include <QString>
 #include <QJsonValue>

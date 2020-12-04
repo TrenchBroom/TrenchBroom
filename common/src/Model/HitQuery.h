@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_HitQuery
-#define TrenchBroom_HitQuery
+#pragma once
 
 #include "FloatType.h"
 #include "Model/HitType.h"

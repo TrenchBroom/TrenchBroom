@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_FILE_H
-#define TRENCHBROOM_FILE_H
+#pragma once
 
 #include "IO/Path.h"
 #include "IO/Reader.h"

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_AddRemoveNodesCommand
-#define TrenchBroom_AddRemoveNodesCommand
+#pragma once
 
 #include "Macros.h"
 #include "View/DocumentCommand.h"

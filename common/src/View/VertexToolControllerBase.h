@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VertexToolControllerBase_h
-#define VertexToolControllerBase_h
+#pragma once
 
 #include "Model/HitQuery.h"
 #include "Model/HitType.h"

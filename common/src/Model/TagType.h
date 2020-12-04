@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_TAGTYPE_H
-#define TRENCHBROOM_TAGTYPE_H
+#pragma once
 
 #include <cstdint>
 

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityAttributeSnapshot
-#define TrenchBroom_EntityAttributeSnapshot
+#pragma once
 
 #include <string>
 

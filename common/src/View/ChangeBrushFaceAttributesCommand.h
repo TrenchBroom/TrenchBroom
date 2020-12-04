@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ChangeBrushFaceAttributesCommand
-#define TrenchBroom_ChangeBrushFaceAttributesCommand
+#pragma once
 
 #include "Macros.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"

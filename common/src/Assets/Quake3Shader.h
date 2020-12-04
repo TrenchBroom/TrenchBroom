@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_QUAKE3SHADER_H
-#define TRENCHBROOM_QUAKE3SHADER_H
+#pragma once
 
 #include "IO/Path.h"
 

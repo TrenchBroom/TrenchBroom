@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_GL_h
-#define TrenchBroom_GL_h
+#pragma once
 
 #include <string>
 #include <vector>

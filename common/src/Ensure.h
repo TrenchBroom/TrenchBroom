@@ -17,8 +17,7 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TrenchBroom_Ensure_h
-#define TrenchBroom_Ensure_h
+#pragma once
 
 namespace TrenchBroom {
     [[noreturn]] void ensureFailed(const char* file, int line, const char* condition, const char* message);

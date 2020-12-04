@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CompilationRun_h
-#define CompilationRun_h
+#pragma once
 
 #include <QObject>
 

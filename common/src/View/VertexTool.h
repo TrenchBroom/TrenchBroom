@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VertexTool_h
-#define VertexTool_h
+#pragma once
 
 #include "Renderer/PointGuideRenderer.h"
 #include "View/VertexToolBase.h"

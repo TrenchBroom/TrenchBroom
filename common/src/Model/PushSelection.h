@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PushSelection_h
-#define PushSelection_h
+#pragma once
 
 #include "Model/BrushFaceHandle.h"
 

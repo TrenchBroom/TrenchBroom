@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CompareHits
-#define TrenchBroom_CompareHits
+#pragma once
 
 #include "FloatType.h"
 

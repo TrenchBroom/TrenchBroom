@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MapDocumentTest_h
-#define MapDocumentTest_h
+#pragma once
 
 #include "Model/MapFormat.h"
 #include "View/MapDocument.h"

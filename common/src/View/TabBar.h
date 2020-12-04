@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TabBar
-#define TrenchBroom_TabBar
+#pragma once
 
 #include "View/ContainerBar.h"
 

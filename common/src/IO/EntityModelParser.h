@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityModelParser
-#define TrenchBroom_EntityModelParser
+#pragma once
 
 #include <memory>
 

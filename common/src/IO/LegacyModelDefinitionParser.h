@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LegacyModelDefinitionParser_h
-#define LegacyModelDefinitionParser_h
+#pragma once
 
 #include "EL/EL_Forward.h"
 #include "IO/Tokenizer.h"

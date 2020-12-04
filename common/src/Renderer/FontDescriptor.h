@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FontDescriptor
-#define TrenchBroom_FontDescriptor
+#pragma once
 
 #include "IO/Path.h"
 

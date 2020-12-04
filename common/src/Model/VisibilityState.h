@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_VISIBILITYSTATE_H
-#define TRENCHBROOM_VISIBILITYSTATE_H
+#pragma once
 
 namespace TrenchBroom {
     namespace Model {

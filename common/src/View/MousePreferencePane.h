@@ -17,8 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MousePreferencePane
-#define TrenchBroom_MousePreferencePane
+#pragma once
 
 #include "View/PreferencePane.h"
 
