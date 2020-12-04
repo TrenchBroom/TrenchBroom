@@ -465,37 +465,6 @@ namespace TrenchBroom {
             return true;
         }
 
-        std::vector<vm::segment3> MapDocumentCommandFacade::performMoveEdges(const std::map<Model::BrushNode*, std::vector<vm::segment3>>& edges, const vm::vec3& delta) {
-            const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            std::vector<vm::segment3> newEdgePositions;
-            for (const auto& entry : edges) {
-                Model::BrushNode* brushNode = entry.first;
-                const std::vector<vm::segment3>& oldPositions = entry.second;
-                brushNode->brush().moveEdges(m_worldBounds, oldPositions, delta, pref(Preferences::UVLock))
-                    .visit(kdl::overload(
-                        [&](Model::Brush&& brush) {
-                            auto newPositions = brush.findClosestEdgePositions(kdl::vec_transform(oldPositions, [&](const auto& s) {
-                                return s.translate(delta);
-                            }));
-                            newEdgePositions = kdl::vec_concat(std::move(newEdgePositions), std::move(newPositions));
-                            brushNode->setBrush(std::move(brush));
-                        },
-                        [&](const Model::BrushError e) {
-                            error() << "Couild not move edges: " << e;
-                        }
-                    ));
-            }
-
-            invalidateSelectionBounds();
-
-            return kdl::vec_sort_and_remove_duplicates(std::move(newEdgePositions));
-        }
-
         std::vector<vm::polygon3> MapDocumentCommandFacade::performMoveFaces(const std::map<Model::BrushNode*, std::vector<vm::polygon3>>& faces, const vm::vec3& delta) {
             const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
             const std::vector<Model::Node*> parents = collectParents(nodes);
