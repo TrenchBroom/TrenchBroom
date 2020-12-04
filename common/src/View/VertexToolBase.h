@@ -36,7 +36,6 @@
 #include "View/BrushVertexCommands.h"
 #include "View/Lasso.h"
 #include "View/MapDocument.h"
-#include "View/RemoveBrushEdgesCommand.h"
 #include "View/RemoveBrushFacesCommand.h"
 #include "View/Selection.h"
 #include "View/Tool.h"
@@ -484,7 +483,6 @@ namespace TrenchBroom {
 
             bool isVertexCommand(const Command* command) const {
                 return command->isType(
-                        RemoveBrushEdgesCommand::Type,
                         RemoveBrushFacesCommand::Type
                 );
             }
