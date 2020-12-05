@@ -147,9 +147,9 @@ namespace TrenchBroom {
         EXPECT_FLOAT_EQ(0.925f, static_cast<float>(getValue(v2, IO::Path("Renderer/Brightness")).toDouble()));
         EXPECT_EQ(QJsonValue(false), getValue(v2, IO::Path("Renderer/Show axes")));
         EXPECT_FLOAT_EQ(0.22f, static_cast<float>(getValue(v2, IO::Path("Renderer/Grid/Alpha")).toDouble()));
-        EXPECT_EQ(QJsonValue("0.921569 0.666667 0.45098 1"), getValue(v2, IO::Path("Renderer/Brush edge")));
-        EXPECT_EQ(QJsonValue("0.321569 0.0470588 0.141176 1"), getValue(v2, IO::Path("Renderer/Editing views background")));
-        EXPECT_EQ(QJsonValue("0.290196 0.643137 0.486275 1"), getValue(v2, IO::Path("Renderer/Grid color (2D views)")));
+        EXPECT_EQ(QJsonValue("0.921569 0.666667 0.45098 1"), getValue(v2, IO::Path("Renderer/Colors/Edges")));
+        EXPECT_EQ(QJsonValue("0.321569 0.0470588 0.141176 1"), getValue(v2, IO::Path("Renderer/Colors/Background")));
+        EXPECT_EQ(QJsonValue("0.290196 0.643137 0.486275 1"), getValue(v2, IO::Path("Rendere/Grid/Color2D")));
         EXPECT_EQ(QJsonValue(2), getValue(v2, IO::Path("Views/Map view layout")));
         EXPECT_EQ(QJsonValue("/home/ericwa/Quake Dev"), getValue(v2, IO::Path("Games/Quake/Path")));
         EXPECT_EQ(QJsonValue("/home/ericwa/foo=bar"), getValue(v2, IO::Path("Games/Generic/Path")));
