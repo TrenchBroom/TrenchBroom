@@ -55,4 +55,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* BoundsGuideRenderer_h */

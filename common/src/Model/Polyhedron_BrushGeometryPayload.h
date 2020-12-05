@@ -45,4 +45,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* Polyhedron_BrushGeometryPayload_h */

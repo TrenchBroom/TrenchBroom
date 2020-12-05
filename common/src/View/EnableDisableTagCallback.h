@@ -41,4 +41,4 @@ namespace TrenchBroom {
 }
 
 
-
+#endif //TRENCHBROOM_ENABLEDISABLETAGCALLBACK_H

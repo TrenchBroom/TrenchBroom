@@ -43,4 +43,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* FormWithSectionsLayout_hpp */

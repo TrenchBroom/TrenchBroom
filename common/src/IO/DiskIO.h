@@ -120,4 +120,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* DiskIO_h */

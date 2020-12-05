@@ -33,4 +33,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif //TRENCHBROOM_HITTYPE_H

@@ -51,4 +51,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif //TRENCHBROOM_TEXTUREBUFFER_H

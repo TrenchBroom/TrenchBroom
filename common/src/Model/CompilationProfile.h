@@ -74,4 +74,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* CompilationProfile_h */

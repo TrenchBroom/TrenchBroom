@@ -180,4 +180,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* defined(TrenchBroom_Game) */

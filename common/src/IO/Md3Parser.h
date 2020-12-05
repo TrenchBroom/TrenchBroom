@@ -73,4 +73,4 @@ namespace TrenchBroom {
 }
 
 
-
+#endif //TRENCHBROOM_MD3PARSER_H

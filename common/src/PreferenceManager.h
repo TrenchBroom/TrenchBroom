@@ -252,4 +252,4 @@ namespace TrenchBroom {
     bool migrateSettingsFromV1IfPathDoesNotExist(const QString& destinationPath);
 }
 
-
+#endif /* defined(TrenchBroom_PreferenceManager) */

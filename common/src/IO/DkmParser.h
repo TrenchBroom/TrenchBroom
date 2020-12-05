@@ -111,4 +111,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* defined(TrenchBroom_DkmParser) */

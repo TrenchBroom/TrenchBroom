@@ -98,4 +98,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* TestGame_h */

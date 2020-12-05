@@ -172,4 +172,4 @@ namespace TrenchBroom {
 }
 
 
-
+#endif //TRENCHBROOM_MAPVIEWACTIVATIONTRACKER_H

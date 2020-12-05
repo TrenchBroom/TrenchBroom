@@ -135,4 +135,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* defined(TrenchBroom_StandardMapParser) */

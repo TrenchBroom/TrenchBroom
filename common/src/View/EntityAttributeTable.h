@@ -54,4 +54,4 @@ namespace TrenchBroom {
 }
 
 
-
+#endif //TRENCHBROOM_ENTITYATTRIBUTETABLE_H

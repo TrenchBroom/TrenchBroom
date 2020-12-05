@@ -48,4 +48,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* GameEngineConfigWriter_h */

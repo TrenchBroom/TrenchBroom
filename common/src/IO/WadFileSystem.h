@@ -43,4 +43,4 @@ namespace TrenchBroom {
 }
 
 
-
+#endif /* WadFileSystem_h */

@@ -430,4 +430,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* Polyhedron_Queries_h */

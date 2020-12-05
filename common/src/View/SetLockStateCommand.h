@@ -60,4 +60,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* defined(TrenchBroom_SetLockStateCommand) */

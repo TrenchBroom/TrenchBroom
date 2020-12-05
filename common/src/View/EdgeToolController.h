@@ -35,4 +35,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* EdgeToolController_h */

@@ -58,4 +58,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* defined(TrenchBroom_PerspectiveCamera) */

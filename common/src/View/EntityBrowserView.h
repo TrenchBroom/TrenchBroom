@@ -124,4 +124,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* defined(TrenchBroom_EntityBrowserView) */

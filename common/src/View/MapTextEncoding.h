@@ -29,4 +29,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif //TRENCHBROOM_MAPTEXTENCODING_H

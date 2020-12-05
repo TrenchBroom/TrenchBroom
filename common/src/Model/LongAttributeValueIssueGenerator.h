@@ -38,4 +38,4 @@ namespace TrenchBroom {
         };
     }
 }
-
+#endif /* LongAttributeValueIssueGenerator_h */

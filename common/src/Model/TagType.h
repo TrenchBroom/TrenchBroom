@@ -32,4 +32,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif //TRENCHBROOM_TAGTYPE_H

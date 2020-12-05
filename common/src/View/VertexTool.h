@@ -102,4 +102,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* VertexTool_h */

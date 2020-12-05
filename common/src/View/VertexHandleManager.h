@@ -658,4 +658,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* VertexHandleManager_h */

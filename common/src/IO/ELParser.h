@@ -141,4 +141,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* ELParser_h */

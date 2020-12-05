@@ -49,4 +49,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* GameEngineDialog_h */

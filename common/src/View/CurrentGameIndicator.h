@@ -33,4 +33,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* CurrentGameIndicator_h */

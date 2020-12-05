@@ -75,4 +75,4 @@ namespace TrenchBroom {
 }
 
 
-
+#endif //TRENCHBROOM_MAINMENUBUILDER_H

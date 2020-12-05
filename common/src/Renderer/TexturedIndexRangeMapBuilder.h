@@ -251,4 +251,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* TexturedIndexRangeBuilder_h */

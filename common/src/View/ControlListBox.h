@@ -113,4 +113,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* ControlListBox_h */

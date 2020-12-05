@@ -78,4 +78,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* TexturedIndexRangeRenderer_h */

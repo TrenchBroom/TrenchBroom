@@ -56,4 +56,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* MipTextureReader_h */

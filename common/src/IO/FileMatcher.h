@@ -68,4 +68,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* FileMatcher_h */

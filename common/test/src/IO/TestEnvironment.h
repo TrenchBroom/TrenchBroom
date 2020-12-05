@@ -50,4 +50,4 @@ namespace TrenchBroom {
 }
 
 
-
+#endif //TRENCHBROOM_TESTENVIRONMENT_H

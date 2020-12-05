@@ -50,4 +50,4 @@ namespace TrenchBroom {
     }
 }
 
-
+#endif /* AddBrushVerticesCommand_h */

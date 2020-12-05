@@ -40,4 +40,4 @@ TB_NOINLINE static void timeLambda(L&& lambda, const std::string& message) {
 }
 
 
-
+#endif //TRENCHBROOM_BENCHMARKUTILS_H
