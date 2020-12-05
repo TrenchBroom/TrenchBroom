@@ -423,48 +423,6 @@ namespace TrenchBroom {
             groupWasClosedNotifier(previousGroup);
         }
 
-        bool MapDocumentCommandFacade::performSnapVertices(const FloatType snapTo) {
-            const std::vector<Model::BrushNode*> brushNodes = m_selectedNodes.brushesRecursively();
-
-            const std::vector<Model::Node*> nodes(std::begin(brushNodes), std::end(brushNodes));
-            const std::vector<Model::Node*> parents = collectParents(nodes);
-
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-            size_t succeededBrushCount = 0;
-            size_t failedBrushCount = 0;
-
-            for (Model::BrushNode* brushNode : brushNodes) {
-                if (brushNode->brush().canSnapVertices(m_worldBounds, snapTo)) {
-                    brushNode->brush().snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock))
-                        .visit(kdl::overload(
-                            [&](Model::Brush&& brush) {
-                                brushNode->setBrush(std::move(brush));
-                                succeededBrushCount += 1;
-                            },
-                            [&](const Model::BrushError e) {
-                                error() << "Could not snap vertices: " << e;
-                                failedBrushCount += 1;
-                            }
-                        ));
-                } else {
-                    failedBrushCount += 1;
-                }
-            }
-
-            invalidateSelectionBounds();
-
-            if (succeededBrushCount > 0) {
-                info(kdl::str_to_string("Snapped vertices of ", succeededBrushCount, " ", kdl::str_plural(succeededBrushCount, "brush", "brushes")));
-            }
-            if (failedBrushCount > 0) {
-                info(kdl::str_to_string("Failed to snap vertices of ", failedBrushCount, " ", kdl::str_plural(failedBrushCount, "brush", "brushes")));
-            }
-
-            return true;
-        }
-
         void MapDocumentCommandFacade::restoreSnapshot(Model::Snapshot* snapshot) {
             const auto restoreNodesAndLogErrors = [&]() {
                 snapshot->restoreNodes(m_worldBounds).

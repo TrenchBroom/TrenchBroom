@@ -408,7 +408,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/SmartColorEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartFlagsEditor.cpp
-        ${COMMON_SOURCE_DIR}/View/SnapBrushVerticesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SnapshotCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SpinControl.cpp
         ${COMMON_SOURCE_DIR}/View/Splitter.cpp
@@ -911,7 +910,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/SmartColorEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartFlagsEditor.h
-        ${COMMON_SOURCE_DIR}/View/SnapBrushVerticesCommand.h
         ${COMMON_SOURCE_DIR}/View/SnapshotCommand.h
         ${COMMON_SOURCE_DIR}/View/SpinControl.h
         ${COMMON_SOURCE_DIR}/View/Splitter.h
