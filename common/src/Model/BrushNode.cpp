@@ -98,14 +98,18 @@ namespace TrenchBroom {
             return m_brush;
         }
         
-        void BrushNode::setBrush(Brush brush) {
+        Brush BrushNode::setBrush(Brush brush) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
-            m_brush = std::move(brush);
+
+            using std::swap;
+            swap(m_brush, brush);
             
             updateSelectedFaceCount();
             invalidateIssues();
             invalidateVertexCache();
+
+            return brush;
         }
 
         bool BrushNode::hasSelectedFaces() const {

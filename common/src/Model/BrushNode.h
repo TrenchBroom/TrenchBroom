@@ -73,7 +73,7 @@ namespace TrenchBroom {
             const AttributableNode* entity() const;
             
             const Brush& brush() const;
-            void setBrush(Brush brush);
+            Brush setBrush(Brush brush);
 
             bool hasSelectedFaces() const;
             void selectFace(size_t faceIndex);
