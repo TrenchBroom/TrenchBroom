@@ -57,4 +57,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* FaceTool_h */

@@ -77,4 +77,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* AssetReference_h */

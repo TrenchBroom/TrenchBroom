@@ -155,4 +155,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* IndexRangeMap_h */

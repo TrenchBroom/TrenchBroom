@@ -98,4 +98,3 @@ namespace TrenchBroom {
 
 
 
-#endif //TRENCHBROOM_ENTPARSER_H

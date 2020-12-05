@@ -28,4 +28,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_EXPORTFORMAT_H

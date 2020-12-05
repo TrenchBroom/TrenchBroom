@@ -37,4 +37,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_MissingClassnameIssueGenerator) */

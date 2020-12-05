@@ -472,4 +472,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Node) */

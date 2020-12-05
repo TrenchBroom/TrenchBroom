@@ -33,4 +33,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_EL_FORWARD_H

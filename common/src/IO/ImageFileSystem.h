@@ -120,4 +120,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* ImageFileSystem_h */

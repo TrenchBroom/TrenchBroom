@@ -37,4 +37,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* Interpolator_h */

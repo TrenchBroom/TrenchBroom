@@ -457,4 +457,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* Polyhedron_Matcher_h */

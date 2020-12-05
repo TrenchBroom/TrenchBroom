@@ -364,4 +364,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_ACTIONS_H

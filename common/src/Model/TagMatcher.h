@@ -158,4 +158,3 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_TAGMATCHER_H

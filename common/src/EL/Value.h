@@ -166,4 +166,3 @@ namespace TrenchBroom {
         Value operator>>(const Value& lhs, const Value& rhs);
     }
 }
-#endif /* Value_h */

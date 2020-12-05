@@ -49,4 +49,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* EntityDefinitionTestUtils_h */

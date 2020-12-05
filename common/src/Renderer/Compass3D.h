@@ -30,4 +30,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Compass3D) */

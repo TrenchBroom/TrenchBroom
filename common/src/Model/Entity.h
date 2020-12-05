@@ -150,5 +150,3 @@ namespace TrenchBroom {
         bool operator!=(const Entity& lhs, const Entity& rhs);
     }
  }
- 
- #endif

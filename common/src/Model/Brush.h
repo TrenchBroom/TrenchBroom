@@ -267,4 +267,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Brush) */

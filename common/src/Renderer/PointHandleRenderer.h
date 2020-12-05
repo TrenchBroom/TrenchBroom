@@ -57,4 +57,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_PointHandleRenderer) */

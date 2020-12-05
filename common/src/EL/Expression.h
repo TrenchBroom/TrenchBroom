@@ -225,4 +225,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* Expression_h */

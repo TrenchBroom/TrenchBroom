@@ -34,4 +34,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_KEYBOARDSHORTCUTITEMDELEGATE_H

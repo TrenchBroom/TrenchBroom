@@ -48,4 +48,3 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_SLIDERWITHLABEL_H

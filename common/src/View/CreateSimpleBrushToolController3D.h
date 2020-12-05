@@ -60,4 +60,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_CreateBrushToolController3D) */

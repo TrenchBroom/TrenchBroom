@@ -68,4 +68,3 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_QUAKE3SHADERFILESYSTEM_H

@@ -82,4 +82,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* VariableStore_h */

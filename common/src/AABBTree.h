@@ -703,4 +703,3 @@ namespace TrenchBroom {
     };
 }
 
-#endif //TRENCHBROOM_AABBTREE_H

@@ -30,5 +30,3 @@ namespace TrenchBroom {
         static std::string getStackTrace();
     };
 }
-
-#endif

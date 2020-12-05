@@ -55,4 +55,3 @@ namespace TrenchBroom {
 }
 
 
-#endif /* CompilationContext_h */

@@ -200,4 +200,3 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_FILE_H

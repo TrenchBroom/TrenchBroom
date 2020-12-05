@@ -56,4 +56,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_FrameManager) */

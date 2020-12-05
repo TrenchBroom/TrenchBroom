@@ -49,4 +49,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_ELIDEDLABEL_H

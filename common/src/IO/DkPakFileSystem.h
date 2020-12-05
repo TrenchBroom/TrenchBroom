@@ -45,4 +45,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* DkPakFileSystem_h */

@@ -271,4 +271,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* Polyhedron_CSG_h */

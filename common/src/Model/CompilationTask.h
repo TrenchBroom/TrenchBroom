@@ -160,4 +160,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* CompilationTask_h */

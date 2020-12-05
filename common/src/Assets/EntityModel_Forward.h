@@ -38,4 +38,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_ENTITYMODEL_FORWARD_H

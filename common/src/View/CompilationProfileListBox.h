@@ -63,4 +63,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* CompilationProfileListBox_h */

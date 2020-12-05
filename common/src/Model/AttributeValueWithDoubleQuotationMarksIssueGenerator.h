@@ -35,4 +35,3 @@ namespace TrenchBroom {
         };
     }
 }
-#endif /* AttributeValueWithDoubleQuotationMarksIssueGenerator_h */

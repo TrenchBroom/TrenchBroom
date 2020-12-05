@@ -47,4 +47,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_ENTITYATTRIBUTEITEMDELEGATE_H

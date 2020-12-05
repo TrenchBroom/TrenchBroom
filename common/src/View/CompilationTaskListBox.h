@@ -133,4 +133,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* CompilationTaskList_h */

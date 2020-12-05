@@ -61,4 +61,3 @@ namespace TrenchBroom {
 }
 
 
-#endif /* defined(TrenchBroom_Font) */

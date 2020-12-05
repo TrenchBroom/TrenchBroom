@@ -51,4 +51,3 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_SPLITTER_H

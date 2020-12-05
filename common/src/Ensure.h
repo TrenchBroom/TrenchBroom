@@ -29,4 +29,3 @@ namespace TrenchBroom {
 
 #define ensure(condition, message) do { if (!(condition)) { TrenchBroom::ensureFailed(__FILE__, __LINE__, stringification2(condition), message); } } while (false)
 
-#endif /* defined(TrenchBroom_Ensure) */

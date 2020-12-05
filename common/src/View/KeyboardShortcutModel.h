@@ -84,4 +84,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_KEYBOARDSHORTCUTMODEL_H

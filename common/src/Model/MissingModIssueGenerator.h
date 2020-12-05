@@ -44,4 +44,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* MissingModIssueGenerator_h */

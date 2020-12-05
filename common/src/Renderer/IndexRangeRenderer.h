@@ -46,4 +46,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* IndexRangeRenderer_h */

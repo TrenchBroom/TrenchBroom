@@ -68,4 +68,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* MapDocumentTest_h */

@@ -57,4 +57,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_GAMEFILESYSTEM_H

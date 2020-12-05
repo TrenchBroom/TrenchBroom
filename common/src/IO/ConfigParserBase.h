@@ -46,4 +46,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* ConfigParserBase_h */

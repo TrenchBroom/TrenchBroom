@@ -199,4 +199,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Face) */

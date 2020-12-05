@@ -344,4 +344,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* BrushRenderer_h */

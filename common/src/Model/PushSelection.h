@@ -52,4 +52,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* PushSelection_h */

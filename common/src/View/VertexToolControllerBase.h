@@ -342,4 +342,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* VertexToolControllerBase_h */

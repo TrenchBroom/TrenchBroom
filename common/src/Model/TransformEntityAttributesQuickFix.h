@@ -41,4 +41,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* TransformEntityAttributesQuickFix_h */

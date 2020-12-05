@@ -404,4 +404,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_TAG_H

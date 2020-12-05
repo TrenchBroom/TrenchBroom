@@ -237,4 +237,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* IndexRangeBuilder_h */

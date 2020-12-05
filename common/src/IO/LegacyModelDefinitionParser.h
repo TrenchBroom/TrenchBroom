@@ -75,4 +75,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* LegacyModelDefinitionParser_h */

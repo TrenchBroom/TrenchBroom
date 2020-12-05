@@ -561,4 +561,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* Reader_h */

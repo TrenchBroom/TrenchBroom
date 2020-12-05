@@ -42,4 +42,3 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_LIMITEDKEYSEQUENCEEDIT_H

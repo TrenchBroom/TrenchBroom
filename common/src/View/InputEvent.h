@@ -410,4 +410,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* InputEvent_hpp */

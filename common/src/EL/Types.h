@@ -51,4 +51,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* Types_h */

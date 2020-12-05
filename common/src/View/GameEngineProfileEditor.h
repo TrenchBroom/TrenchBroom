@@ -64,4 +64,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* GameEngineProfileEditor_h */

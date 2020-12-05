@@ -71,4 +71,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* LaunchGameEngineDialog_h */

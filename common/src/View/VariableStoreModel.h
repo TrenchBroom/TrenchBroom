@@ -49,4 +49,3 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_VARIABLESTOREMODEL_H

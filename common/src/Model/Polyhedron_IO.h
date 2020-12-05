@@ -81,4 +81,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_POLYHEDRON_IO_H

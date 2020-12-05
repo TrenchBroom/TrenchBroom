@@ -27,4 +27,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_IDTYPE_H

@@ -56,4 +56,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_PRIMTYPE_H

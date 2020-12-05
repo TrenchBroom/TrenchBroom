@@ -72,4 +72,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* BrushFaceReference_h */

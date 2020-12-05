@@ -40,4 +40,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* IdMipTextureReader_h */

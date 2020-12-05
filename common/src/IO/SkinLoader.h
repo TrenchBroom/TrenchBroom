@@ -40,4 +40,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_SKINLOADER_H

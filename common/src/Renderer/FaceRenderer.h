@@ -75,4 +75,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_FaceRenderer) */

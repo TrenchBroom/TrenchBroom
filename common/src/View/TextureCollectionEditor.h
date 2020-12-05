@@ -42,4 +42,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* TextureCollectionEditor_h */

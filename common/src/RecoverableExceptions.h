@@ -46,4 +46,3 @@ namespace TrenchBroom {
     };
 }
 
-#endif //TRENCHBROOM_RECOVERABLEEXCEPTIONS_H
