@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GameEngineConfig_h
-#define GameEngineConfig_h
+#pragma once
 
 #include <memory>
 #include <string>
@@ -52,4 +51,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* GameEngineConfig_h */

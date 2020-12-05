@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ConfigParserBase_h
-#define ConfigParserBase_h
+#pragma once
 
 #include "EL/EL_Forward.h"
 #include "IO/ELParser.h"
@@ -47,4 +46,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* ConfigParserBase_h */

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TexturedIndexRangeRenderer_h
-#define TexturedIndexRangeRenderer_h
+#pragma once
 
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/VertexArray.h"
@@ -79,4 +78,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* TexturedIndexRangeRenderer_h */

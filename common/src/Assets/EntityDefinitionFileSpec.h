@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityDefinitionFileSpec
-#define TrenchBroom_EntityDefinitionFileSpec
+#pragma once
 
 #include "IO/Path.h"
 
@@ -66,4 +65,3 @@ namespace TrenchBroom {
 // Allow storing this class in a QVariant
 Q_DECLARE_METATYPE(TrenchBroom::Assets::EntityDefinitionFileSpec)
 
-#endif /* defined(TrenchBroom_EntityDefinitionFileSpec) */

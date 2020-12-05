@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Polyhedron_h
-#define TrenchBroom_Polyhedron_h
+#pragma once
 
 #include "Allocator.h"
 
@@ -2148,5 +2147,3 @@ namespace TrenchBroom {
         };
     }
 }
-
-#endif

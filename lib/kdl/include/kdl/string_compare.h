@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_STRING_COMPARE_H
-#define KDL_STRING_COMPARE_H
+#pragma once
 
 #include "string_compare_detail.h"
 
@@ -259,4 +258,3 @@ namespace kdl {
     }
 }
 
-#endif //KDL_STRING_COMPARE_H

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TextureBrowserView
-#define TrenchBroom_TextureBrowserView
+#pragma once
 
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/GLVertexType.h"
@@ -127,4 +126,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_TextureBrowserView) */

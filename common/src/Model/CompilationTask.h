@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CompilationTask_h
-#define CompilationTask_h
+#pragma once
 
 #include "Macros.h"
 
@@ -161,4 +160,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* CompilationTask_h */

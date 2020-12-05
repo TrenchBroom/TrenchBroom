@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WalTextureReader_h
-#define WalTextureReader_h
+#pragma once
 
 #include "Assets/Palette.h"
 #include "Assets/TextureBuffer.h"
@@ -49,4 +48,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* WalTextureReader_h */

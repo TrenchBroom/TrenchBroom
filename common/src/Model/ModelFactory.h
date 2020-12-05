@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ModelFactory
-#define TrenchBroom_ModelFactory
+#pragma once
 
 #include "FloatType.h"
 
@@ -96,4 +95,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ModelFactory) */

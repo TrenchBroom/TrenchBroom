@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityDefinitionParser_h
-#define TrenchBroom_EntityDefinitionParser_h
+#pragma once
 
 #include "Color.h"
 
@@ -61,5 +60,3 @@ namespace TrenchBroom {
         };
     }
 }
-
-#endif

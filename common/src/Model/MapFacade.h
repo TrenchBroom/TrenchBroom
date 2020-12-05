@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapFacade
-#define TrenchBroom_MapFacade
+#pragma once
 
 #include "FloatType.h"
 #include "Model/BrushFaceHandle.h"
@@ -169,4 +168,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_MapFacade) */

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Game
-#define TrenchBroom_Game
+#pragma once
 
 #include "FloatType.h"
 #include "IO/EntityDefinitionLoader.h"
@@ -181,4 +180,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Game) */

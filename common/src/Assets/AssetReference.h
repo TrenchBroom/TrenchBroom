@@ -19,8 +19,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include <utility>
 
-#ifndef AssetReference_h
-#define AssetReference_h
+#pragma once
 
 namespace TrenchBroom {
     namespace Assets {
@@ -78,4 +77,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* AssetReference_h */

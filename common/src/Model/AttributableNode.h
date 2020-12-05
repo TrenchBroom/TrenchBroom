@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_AttributableNode
-#define TrenchBroom_AttributableNode
+#pragma once
 
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
@@ -157,4 +156,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_AttributableNode) */

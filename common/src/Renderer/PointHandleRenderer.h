@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_PointHandleRenderer
-#define TrenchBroom_PointHandleRenderer
+#pragma once
 
 #include "Color.h"
 #include "Renderer/Circle.h"
@@ -58,4 +57,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_PointHandleRenderer) */

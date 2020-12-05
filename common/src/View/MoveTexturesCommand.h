@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MoveTexturesCommand
-#define TrenchBroom_MoveTexturesCommand
+#pragma once
 
 #include "Macros.h"
 #include "FloatType.h"
@@ -54,4 +53,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_MoveTexturesCommand) */

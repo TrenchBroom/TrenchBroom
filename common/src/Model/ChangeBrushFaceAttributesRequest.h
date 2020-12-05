@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ChangeBrushFaceAttributesRequest
-#define TrenchBroom_ChangeBrushFaceAttributesRequest
+#pragma once
 
 #include "Color.h"
 
@@ -155,4 +154,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ChangeBrushFaceAttributesRequest) */

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EmptyAttributeValueIssueGenerator_h
-#define EmptyAttributeValueIssueGenerator_h
+#pragma once
 
 #include "Model/IssueGenerator.h"
 
@@ -38,4 +37,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* EmptyAttributeValueIssueGenerator_h */

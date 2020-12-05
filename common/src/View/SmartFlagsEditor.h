@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_SmartFlagsEditor
-#define TrenchBroom_SmartFlagsEditor
+#pragma once
 
 #include "View/SmartAttributeEditor.h"
 
@@ -59,4 +58,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_SmartFlagsEditor) */

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityAttributeGrid
-#define TrenchBroom_EntityAttributeGrid
+#pragma once
 
 #include <memory>
 #include <string>
@@ -100,4 +99,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_EntityAttributeGrid) */

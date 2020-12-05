@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ChangeEntityAttributesCommand
-#define TrenchBroom_ChangeEntityAttributesCommand
+#pragma once
 
 #include "Macros.h"
 #include "View/DocumentCommand.h"
@@ -86,4 +85,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ChangeEntityAttributesCommand) */

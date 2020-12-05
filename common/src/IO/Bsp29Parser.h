@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Bsp29Parser
-#define TrenchBroom_Bsp29Parser
+#pragma once
 
 #include "Assets/TextureCollection.h"
 #include "IO/EntityModelParser.h"
@@ -89,4 +88,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Bsp29Parser) */

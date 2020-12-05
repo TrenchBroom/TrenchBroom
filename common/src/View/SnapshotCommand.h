@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_SNAPSHOTCOMMAND_H
-#define TRENCHBROOM_SNAPSHOTCOMMAND_H
+#pragma once
 
 #include "Macros.h"
 #include "View/DocumentCommand.h"
@@ -54,4 +53,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_SNAPSHOTCOMMAND_H

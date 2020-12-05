@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapReader
-#define TrenchBroom_MapReader
+#pragma once
 
 #include "FloatType.h"
 #include "IO/StandardMapParser.h"
@@ -158,4 +157,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_MapReader) */

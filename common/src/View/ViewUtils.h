@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ViewUtils
-#define TrenchBroom_ViewUtils
+#pragma once
 
 #include <memory>
 #include <string>
@@ -45,4 +44,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ViewUtils) */

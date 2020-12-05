@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityProperties
-#define TrenchBroom_EntityProperties
+#pragma once
 
 #include <iosfwd>
 #include <string>
@@ -148,4 +147,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_EntityProperties) */

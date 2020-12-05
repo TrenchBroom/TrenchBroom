@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapFrame
-#define TrenchBroom_MapFrame
+#pragma once
 
 #include "Model/MapFormat.h"
 #include "View/Selection.h"
@@ -387,4 +386,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_MapFrame) */

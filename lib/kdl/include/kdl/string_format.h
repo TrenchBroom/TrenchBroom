@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_STRING_FORMAT_H
-#define KDL_STRING_FORMAT_H
+#pragma once
 
 #include <cassert>
 #include <sstream>
@@ -327,4 +326,3 @@ namespace kdl {
     }
 }
 
-#endif //KDL_STRING_FORMAT_H

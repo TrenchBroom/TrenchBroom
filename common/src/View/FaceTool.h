@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef FaceTool_h
-#define FaceTool_h
+#pragma once
 
 #include "FloatType.h"
 #include "View/VertexToolBase.h"
@@ -58,4 +57,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* FaceTool_h */

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_RecentDocumentListBox
-#define TrenchBroom_RecentDocumentListBox
+#pragma once
 
 #include "View/ImageListBox.h"
 
@@ -52,4 +51,3 @@ namespace TrenchBroom {
 }
 
 
-#endif /* defined(TrenchBroom_RecentDocumentListBox) */

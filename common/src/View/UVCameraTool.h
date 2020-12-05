@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_UVCameraTool
-#define TrenchBroom_UVCameraTool
+#pragma once
 
 #include "View/Tool.h"
 #include "View/ToolController.h"
@@ -49,4 +48,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_UVCameraTool) */

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapParser_h
-#define TrenchBroom_MapParser_h
+#pragma once
 
 #include "FloatType.h"
 #include "Model/MapFormat.h"
@@ -91,5 +90,3 @@ namespace TrenchBroom {
         };
     }
 }
-
-#endif

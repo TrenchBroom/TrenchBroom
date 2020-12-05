@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LongAttributeValueIssueGenerator_h
-#define LongAttributeValueIssueGenerator_h
+#pragma once
 
 #include "Model/IssueGenerator.h"
 
@@ -39,4 +38,3 @@ namespace TrenchBroom {
         };
     }
 }
-#endif /* LongAttributeValueIssueGenerator_h */

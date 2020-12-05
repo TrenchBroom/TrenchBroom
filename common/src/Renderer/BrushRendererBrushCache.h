@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_BrushRendererBrushCache
-#define TrenchBroom_BrushRendererBrushCache
+#pragma once
 
 #include "Renderer/GLVertexType.h"
 
@@ -95,4 +94,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_BrushRendererBrushCache) */

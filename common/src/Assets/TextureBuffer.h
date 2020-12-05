@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_TEXTUREBUFFER_H
-#define TRENCHBROOM_TEXTUREBUFFER_H
+#pragma once
 
 #include "Renderer/GL.h"
 
@@ -52,4 +51,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif //TRENCHBROOM_TEXTUREBUFFER_H

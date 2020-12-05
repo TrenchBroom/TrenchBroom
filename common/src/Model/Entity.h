@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Entity
-#define TrenchBroom_Entity
+#pragma once
 
 #include "FloatType.h"
 #include "Assets/AssetReference.h"
@@ -151,5 +150,3 @@ namespace TrenchBroom {
         bool operator!=(const Entity& lhs, const Entity& rhs);
     }
  }
- 
- #endif

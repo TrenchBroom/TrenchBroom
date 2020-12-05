@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AttributeNameWithDoubleQuotationMarksIssueGenerator_h
-#define AttributeNameWithDoubleQuotationMarksIssueGenerator_h
+#pragma once
 
 #include "Model/IssueGenerator.h"
 
@@ -36,4 +35,3 @@ namespace TrenchBroom {
         };
     }
 }
-#endif /* AttributeNameWithDoubleQuotationMarksIssueGenerator_h */

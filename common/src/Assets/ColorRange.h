@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ColorRange_h
-#define TrenchBroom_ColorRange_h
+#pragma once
 
 #include <string>
 #include <vector>
@@ -37,5 +36,3 @@ namespace TrenchBroom {
         ColorRange::Type detectColorRange(const std::vector<std::string>& components);
     }
 }
-
-#endif

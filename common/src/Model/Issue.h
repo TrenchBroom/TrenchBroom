@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Issue
-#define TrenchBroom_Issue
+#pragma once
 
 #include "Model/IssueType.h"
 
@@ -85,4 +84,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Issue) */

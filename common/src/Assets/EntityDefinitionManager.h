@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityDefinitionManager
-#define TrenchBroom_EntityDefinitionManager
+#pragma once
 
 #include "Notifier.h"
 
@@ -75,4 +74,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_EntityDefinitionManager) */

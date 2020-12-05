@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Notifier_h
-#define TrenchBroom_Notifier_h
+#pragma once
 
 #include <kdl/set_temp.h>
 
@@ -362,5 +361,3 @@ namespace TrenchBroom {
         }
     };
 }
-
-#endif

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_PickResult
-#define TrenchBroom_PickResult
+#pragma once
 
 #include "Macros.h"
 #include "Model/Hit.h"
@@ -64,4 +63,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_PickResult) */

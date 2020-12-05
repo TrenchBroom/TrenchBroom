@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Allocator_h
-#define TrenchBroom_Allocator_h
+#pragma once
 
 #include <cassert>
 #include <stack>
@@ -199,5 +198,3 @@ namespace TrenchBroom {
 #endif
     };
 }
-
-#endif

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_RemoveBrushElementsCommand
-#define TrenchBroom_RemoveBrushElementsCommand
+#pragma once
 
 #include "Macros.h"
 #include "View/VertexCommand.h"
@@ -45,4 +44,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_RemoveBrushElementsCommand) */

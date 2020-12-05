@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_FrameManager
-#define TrenchBroom_FrameManager
+#pragma once
 
 #include <QObject>
 
@@ -57,4 +56,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_FrameManager) */

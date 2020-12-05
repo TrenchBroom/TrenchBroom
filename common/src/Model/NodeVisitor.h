@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_NodeVisitor
-#define TrenchBroom_NodeVisitor
+#pragma once
 
 #include <optional>
 
@@ -181,4 +180,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_NodeVisitor) */

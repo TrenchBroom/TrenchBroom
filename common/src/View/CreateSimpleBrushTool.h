@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_CreateSimpleBrushTool
-#define TrenchBroom_CreateSimpleBrushTool
+#pragma once
 
 #include "FloatType.h"
 #include "View/CreateBrushToolBase.h"
@@ -37,4 +36,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_CreateSimpleBrushTool) */

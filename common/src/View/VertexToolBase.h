@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VertexToolBase_h
-#define VertexToolBase_h
+#pragma once
 
 #include "Exceptions.h"
 #include "FloatType.h"
@@ -565,4 +564,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* VertexToolBase_h */

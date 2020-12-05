@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_SKIP_ITERATOR_H
-#define KDL_SKIP_ITERATOR_H
+#pragma once
 
 #include <iterator>
 
@@ -102,4 +101,3 @@ namespace kdl {
     skip_iterator(I cur, I end, typename I::difference_type offset,  typename I::difference_type stride) -> skip_iterator<I>;
 }
 
-#endif //KDL_SKIP_ITERATOR_H

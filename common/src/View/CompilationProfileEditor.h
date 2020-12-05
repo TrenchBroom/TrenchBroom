@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CompilationProfileEditor_h
-#define CompilationProfileEditor_h
+#pragma once
 
 #include <QWidget>
 
@@ -87,4 +86,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* CompilationProfileEditor_h */

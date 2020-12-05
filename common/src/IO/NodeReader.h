@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_NodeReader
-#define TrenchBroom_NodeReader
+#pragma once
 
 #include "IO/MapReader.h"
 
@@ -55,4 +54,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_NodeReader) */

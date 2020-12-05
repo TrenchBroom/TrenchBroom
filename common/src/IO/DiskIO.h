@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DiskIO_h
-#define DiskIO_h
+#pragma once
 
 #include "IO/Path.h"
 
@@ -121,4 +120,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* DiskIO_h */

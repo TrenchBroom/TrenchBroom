@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TrenchBroom_h
-#define TrenchBroom_TrenchBroom_h
+#pragma once
 
 #include <vecmath/constants.h>
 #include <vecmath/forward.h>
@@ -40,5 +39,3 @@ namespace vm {
 
     using C = constants<FloatType>;
 }
-
-#endif

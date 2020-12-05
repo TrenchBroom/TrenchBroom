@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TextCtrlOutputAdapter_h
-#define TextCtrlOutputAdapter_h
+#pragma once
 
 #include <QString>
 #include <QTextCursor>
@@ -59,4 +58,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* TextCtrlOutputAdapter_h */

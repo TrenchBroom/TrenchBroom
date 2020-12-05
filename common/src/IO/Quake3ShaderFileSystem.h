@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_QUAKE3SHADERFILESYSTEM_H
-#define TRENCHBROOM_QUAKE3SHADERFILESYSTEM_H
+#pragma once
 
 #include "IO/ImageFileSystem.h"
 
@@ -69,4 +68,3 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_QUAKE3SHADERFILESYSTEM_H

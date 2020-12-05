@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GameEngineProfileManager_h
-#define GameEngineProfileManager_h
+#pragma once
 
 #include "Model/GameEngineConfig.h"
 
@@ -58,4 +57,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* GameEngineProfileManager_h */

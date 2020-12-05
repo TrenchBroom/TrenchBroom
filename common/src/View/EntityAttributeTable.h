@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_ENTITYATTRIBUTETABLE_H
-#define TRENCHBROOM_ENTITYATTRIBUTETABLE_H
+#pragma once
 
 #include <QString>
 #include <QTableView>
@@ -55,4 +54,3 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_ENTITYATTRIBUTETABLE_H

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityDefinitionFileCommand
-#define TrenchBroom_EntityDefinitionFileCommand
+#pragma once
 
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "View/DocumentCommand.h"
@@ -49,4 +48,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_EntityDefinitionFileCommand) */

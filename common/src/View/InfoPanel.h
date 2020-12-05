@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_InfoPanel
-#define TrenchBroom_InfoPanel
+#pragma once
 
 #include <memory>
 
@@ -46,4 +45,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_InfoPanel) */

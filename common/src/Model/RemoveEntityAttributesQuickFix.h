@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RemoveEntityAttributesQuickFix_h
-#define RemoveEntityAttributesQuickFix_h
+#pragma once
 
 #include "Model/IssueQuickFix.h"
 
@@ -33,4 +32,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* RemoveEntityAttributesQuickFix_h */

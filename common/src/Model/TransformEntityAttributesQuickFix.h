@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TransformEntityAttributesQuickFix_h
-#define TransformEntityAttributesQuickFix_h
+#pragma once
 
 #include "Model/IssueQuickFix.h"
 
@@ -42,4 +41,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* TransformEntityAttributesQuickFix_h */

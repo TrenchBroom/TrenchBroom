@@ -15,8 +15,7 @@
  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_INTRUSIVE_CIRCULAR_LIST_H
-#define KDL_INTRUSIVE_CIRCULAR_LIST_H
+#pragma once
 
 #include <cstddef>
 #include <utility>
@@ -727,4 +726,3 @@ namespace kdl {
     };
 }
 
-#endif //KDL_INTRUSIVE_CIRCULAR_LIST_H

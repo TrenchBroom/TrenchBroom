@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapView
-#define TrenchBroom_MapView
+#pragma once
 
 #include "FloatType.h"
 #include "View/ViewEffectsService.h"
@@ -89,4 +88,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_MapView) */

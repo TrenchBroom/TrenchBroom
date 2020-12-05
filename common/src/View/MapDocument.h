@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapDocument
-#define TrenchBroom_MapDocument
+#pragma once
 
 #include "FloatType.h"
 #include "Notifier.h"
@@ -596,4 +595,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_MapDocument) */

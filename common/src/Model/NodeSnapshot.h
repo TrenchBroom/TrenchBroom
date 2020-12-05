@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_NodeSnapshot
-#define TrenchBroom_NodeSnapshot
+#pragma once
 
 #include "FloatType.h"
 #include "Model/Snapshot.h"
@@ -41,4 +40,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_NodeSnapshot) */

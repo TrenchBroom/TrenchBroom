@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_BrushGeometry_h
-#define TrenchBroom_BrushGeometry_h
+#pragma once
 
 #include "FloatType.h"
 
@@ -40,5 +39,3 @@ namespace TrenchBroom {
         using BrushHalfEdgeList = Polyhedron_HalfEdgeList<FloatType, BrushFacePayload, BrushVertexPayload>;
     }
 }
-
-#endif

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_VARIABLESTOREMODEL_H
-#define TRENCHBROOM_VARIABLESTOREMODEL_H
+#pragma once
 
 #include <memory>
 #include <string>
@@ -50,4 +49,3 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_VARIABLESTOREMODEL_H

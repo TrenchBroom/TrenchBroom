@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityRenderer
-#define TrenchBroom_EntityRenderer
+#pragma once
 
 #include "Color.h"
 #include "Renderer/EdgeRenderer.h"
@@ -124,4 +123,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_EntityRenderer) */

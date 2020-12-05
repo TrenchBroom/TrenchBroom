@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_BrushRenderer
-#define TrenchBroom_BrushRenderer
+#pragma once
 
 #include "Color.h"
 #include "Model/BrushGeometry.h"
@@ -299,4 +298,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_BrushRenderer) */

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_Node
-#define TrenchBroom_Node
+#pragma once
 
 #include "FloatType.h"
 #include "Model/IssueType.h"
@@ -473,4 +472,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_Node) */

@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_IOUtils_h
-#define TrenchBroom_IOUtils_h
+#pragma once
 
 #include "Macros.h"
 
@@ -54,5 +53,3 @@ namespace TrenchBroom {
         void writeGameComment(std::ostream& stream, const std::string& gameName, const std::string& mapFormat);
     }
 }
-
-#endif

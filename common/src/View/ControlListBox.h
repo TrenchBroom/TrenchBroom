@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ControlListBox_h
-#define ControlListBox_h
+#pragma once
 
 #include <QWidget>
 
@@ -114,4 +113,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* ControlListBox_h */

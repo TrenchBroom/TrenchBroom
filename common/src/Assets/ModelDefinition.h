@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_ModelDefinition
-#define TrenchBroom_ModelDefinition
+#pragma once
 
 #include "EL/Expression.h"
 #include "IO/Path.h"
@@ -86,4 +85,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_ModelDefinition) */

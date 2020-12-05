@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_NodeSerializer
-#define TrenchBroom_NodeSerializer
+#pragma once
 
 #include "Model/IdType.h"
 
@@ -118,4 +117,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_NodeSerializer) */

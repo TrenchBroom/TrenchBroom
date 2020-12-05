@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Catch2_h
-#define Catch2_h
+#pragma once
 
 // The catch2 header must be included only when all stream insertion
 // operators used in assertions are visible. We add this new wrapper header
@@ -38,4 +37,3 @@
 
 #include <catch2/catch.hpp>
 
-#endif /* Catch2_h */

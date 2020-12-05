@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRENCHBROOM_SLIDERWITHLABEL_H
-#define TRENCHBROOM_SLIDERWITHLABEL_H
+#pragma once
 
 #include <QWidget>
 
@@ -49,4 +48,3 @@ namespace TrenchBroom {
 }
 
 
-#endif //TRENCHBROOM_SLIDERWITHLABEL_H

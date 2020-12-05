@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_EntityDefinition
-#define TrenchBroom_EntityDefinition
+#pragma once
 
 #include "Color.h"
 #include "FloatType.h"
@@ -114,4 +113,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_EntityDefinition) */

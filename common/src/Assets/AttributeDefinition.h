@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_AttributeDefinition
-#define TrenchBroom_AttributeDefinition
+#pragma once
 
 #include "Ensure.h"
 
@@ -188,4 +187,3 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(TrenchBroom_AttributeDefinition) */
