@@ -31,7 +31,6 @@
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
-#include "Model/NodeSnapshot.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/Polyhedron.h"

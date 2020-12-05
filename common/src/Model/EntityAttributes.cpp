@@ -20,7 +20,6 @@
 #include "EntityAttributes.h"
 
 #include "Assets/EntityDefinition.h"
-#include "Model/EntityAttributeSnapshot.h"
 
 #include <kdl/string_compare.h>
 #include <kdl/vector_set.h>
@@ -282,15 +281,6 @@ namespace TrenchBroom {
                 }
             }
             return false;
-        }
-
-        EntityAttributeSnapshot EntityAttributes::snapshot(const std::string& name) const {
-            for (const auto& attribute : m_attributes) {
-                if (attribute.hasName(name)) {
-                    return EntityAttributeSnapshot(attribute.name(), attribute.value());
-                }
-            }
-            return EntityAttributeSnapshot(name);
         }
 
         std::vector<std::string> EntityAttributes::names() const {

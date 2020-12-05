@@ -57,8 +57,6 @@ namespace TrenchBroom {
             Entity setEntity(Entity entity);
         public: // definition 
             void setDefinition(Assets::EntityDefinition* definition);
-        public: // attribute management
-            EntityAttributeSnapshot attributeSnapshot(const std::string& name) const;
         private: // attribute management internals
             class NotifyAttributeChange {
             private:

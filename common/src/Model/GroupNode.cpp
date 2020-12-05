@@ -22,7 +22,6 @@
 #include "FloatType.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
-#include "Model/GroupSnapshot.h"
 #include "Model/IssueGenerator.h"
 #include "Model/LayerNode.h"
 #include "Model/ModelUtils.h"
@@ -121,10 +120,6 @@ namespace TrenchBroom {
             GroupNode* group = new GroupNode(doGetName());
             cloneAttributes(group);
             return group;
-        }
-
-        NodeSnapshot* GroupNode::doTakeSnapshot() {
-            return new GroupSnapshot(this);
         }
 
         bool GroupNode::doCanAddChild(const Node* child) const {

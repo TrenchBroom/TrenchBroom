@@ -32,9 +32,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EntityAttributeSnapshot;
         enum class LockState;
-        class Snapshot;
         enum class VisibilityState;
     }
 
@@ -91,8 +89,6 @@ namespace TrenchBroom {
             void performRotateTextures(float angle);
             void performShearTextures(const vm::vec2f& factors);
             void performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot& coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
-        public: // snapshots and restoration
-            void restoreSnapshot(Model::Snapshot* snapshot);
         public: // entity definition file management
             void performSetEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
         public: // texture collection management

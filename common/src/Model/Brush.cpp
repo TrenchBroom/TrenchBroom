@@ -221,7 +221,7 @@ namespace TrenchBroom {
 
                     auto snapshot = source.takeTexCoordSystemSnapshot();
                     if (snapshot != nullptr) {
-                        destination.copyTexCoordSystemFromFace(*snapshot, source.attributes().takeSnapshot(), source.boundary(), WrapStyle::Projection);
+                        destination.copyTexCoordSystemFromFace(*snapshot, source.attributes(), source.boundary(), WrapStyle::Projection);
                     }
                 }
             }
@@ -236,7 +236,7 @@ namespace TrenchBroom {
 
                     auto snapshot = source.takeTexCoordSystemSnapshot();
                     if (snapshot != nullptr) {
-                        destination.copyTexCoordSystemFromFace(*snapshot, source.attributes().takeSnapshot(), destination.boundary(), WrapStyle::Projection);
+                        destination.copyTexCoordSystemFromFace(*snapshot, source.attributes(), destination.boundary(), WrapStyle::Projection);
                     }
                 }
             }
@@ -787,7 +787,7 @@ namespace TrenchBroom {
                         rightFace.setAttributes(leftClone.attributes());
                         if (snapshot) {
                             // Note, the wrap style doesn't matter because the source and destination faces should have the same plane
-                            rightFace.copyTexCoordSystemFromFace(*snapshot, leftClone.attributes().takeSnapshot(),
+                            rightFace.copyTexCoordSystemFromFace(*snapshot, leftClone.attributes(),
                                 leftClone.boundary(), WrapStyle::Rotation);
                         }
                         rightFace.resetTexCoordSystemCache();

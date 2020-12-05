@@ -82,8 +82,6 @@ namespace TrenchBroom {
             void updateFaceTags(size_t faceIndex, TagManager& tagManager);
             
             void setFaceTexture(size_t faceIndex, Assets::Texture* texture);
-            
-            using Node::takeSnapshot;
         private:
             void updateSelectedFaceCount();
         private: // implement Node interface
@@ -92,7 +90,6 @@ namespace TrenchBroom {
             const vm::bbox3& doGetPhysicalBounds() const override;
 
             Node* doClone(const vm::bbox3& worldBounds) const override;
-            NodeSnapshot* doTakeSnapshot() override;
 
             bool doCanAddChild(const Node* child) const override;
             bool doCanRemoveChild(const Node* child) const override;

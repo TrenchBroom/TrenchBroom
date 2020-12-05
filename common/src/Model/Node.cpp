@@ -75,10 +75,6 @@ namespace TrenchBroom {
             return doCloneRecursively(worldBounds);
         }
 
-        NodeSnapshot* Node::takeSnapshot() {
-            return doTakeSnapshot();
-        }
-
         void Node::cloneAttributes(Node* node) const {
             node->setVisibilityState(m_visibilityState);
             node->setLockState(m_lockState);
@@ -656,10 +652,6 @@ namespace TrenchBroom {
             Node* clone = Node::clone(worldBounds);
             clone->addChildren(Node::cloneRecursively(worldBounds, children()));
             return clone;
-        }
-
-        NodeSnapshot* Node::doTakeSnapshot() {
-            return nullptr;
         }
 
         void Node::doChildWillBeAdded(Node* /* node */) {}

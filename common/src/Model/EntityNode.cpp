@@ -24,7 +24,6 @@
 #include "Model/BrushNode.h"
 #include "Model/EntityAttributesVariableStore.h"
 #include "Model/EntityRotationPolicy.h"
-#include "Model/EntitySnapshot.h"
 #include "Model/IssueGenerator.h"
 #include "Model/ModelUtils.h"
 #include "Model/PickResult.h"
@@ -101,10 +100,6 @@ namespace TrenchBroom {
             auto* entity = new EntityNode(m_entity);
             cloneAttributes(entity);
             return entity;
-        }
-
-        NodeSnapshot* EntityNode::doTakeSnapshot() {
-            return new EntitySnapshot(this);
         }
 
         bool EntityNode::doCanAddChild(const Node* child) const {

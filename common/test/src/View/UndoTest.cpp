@@ -38,9 +38,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        class SnapshotTest : public MapDocumentTest {};
+        class UndoTest : public MapDocumentTest {};
 
-        TEST_CASE_METHOD(SnapshotTest, "SnapshotTest.setTexturesAfterRestore", "[SnapshotTest]") {
+        TEST_CASE_METHOD(UndoTest, "UndoTest.setTexturesAfterRestore", "[UndoTest]") {
             document->setEnabledTextureCollections(std::vector<IO::Path>{ IO::Path("fixture/test/IO/Wad/cr8_czg.wad") });
 
             Model::BrushNode* brushNode = createBrushNode("coffin1");
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             }
         }
 
-        TEST_CASE_METHOD(SnapshotTest, "SnapshotTest.undoRotation", "[SnapshotTest]") {
+        TEST_CASE_METHOD(UndoTest, "UndoTest.undoRotation", "[UndoTest]") {
             auto* entityNode = new Model::EntityNode({
                 {Model::AttributeNames::Classname, "test"}
             });
