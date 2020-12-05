@@ -28,7 +28,6 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushGeometry.h"
-#include "Model/BrushSnapshot.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/IssueGenerator.h"
@@ -74,10 +73,6 @@ namespace TrenchBroom {
 
         BrushNode* BrushNode::clone(const vm::bbox3& worldBounds) const {
             return static_cast<BrushNode*>(Node::clone(worldBounds));
-        }
-
-        NodeSnapshot* BrushNode::doTakeSnapshot() {
-            return new BrushSnapshot(this);
         }
 
         const AttributableNode* BrushNode::entity() const {

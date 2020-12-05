@@ -104,7 +104,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/BrushFacePredicates.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushFaceReference.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushNode.cpp
-        ${COMMON_SOURCE_DIR}/Model/BrushSnapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/ChangeBrushFaceAttributesRequest.cpp
         ${COMMON_SOURCE_DIR}/Model/CompareHits.cpp
         ${COMMON_SOURCE_DIR}/Model/CompilationConfig.cpp
@@ -117,12 +116,10 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/EmptyGroupIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/Entity.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityAttributes.cpp
-        ${COMMON_SOURCE_DIR}/Model/EntityAttributeSnapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityAttributesVariableStore.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityColor.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityNode.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityRotationPolicy.cpp
-        ${COMMON_SOURCE_DIR}/Model/EntitySnapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/Game.cpp
         ${COMMON_SOURCE_DIR}/Model/GameConfig.cpp
         ${COMMON_SOURCE_DIR}/Model/GameEngineConfig.cpp
@@ -131,7 +128,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/GameFileSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/GameImpl.cpp
         ${COMMON_SOURCE_DIR}/Model/GroupNode.cpp
-        ${COMMON_SOURCE_DIR}/Model/GroupSnapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/Hit.cpp
         ${COMMON_SOURCE_DIR}/Model/HitAdapter.cpp
         ${COMMON_SOURCE_DIR}/Model/HitFilter.cpp
@@ -159,7 +155,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/Node.cpp
         ${COMMON_SOURCE_DIR}/Model/NodeCollection.cpp
         ${COMMON_SOURCE_DIR}/Model/NodeContents.cpp
-        ${COMMON_SOURCE_DIR}/Model/NodeSnapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/NodeVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/NonIntegerVerticesIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/Object.cpp
@@ -172,7 +167,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/PortalFile.cpp
         ${COMMON_SOURCE_DIR}/Model/PushSelection.cpp
         ${COMMON_SOURCE_DIR}/Model/RemoveEntityAttributesQuickFix.cpp
-        ${COMMON_SOURCE_DIR}/Model/Snapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/SoftMapBoundsIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/Tag.cpp
         ${COMMON_SOURCE_DIR}/Model/TagAttribute.cpp
@@ -408,7 +402,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/SmartColorEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartFlagsEditor.cpp
-        ${COMMON_SOURCE_DIR}/View/SnapshotCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SpinControl.cpp
         ${COMMON_SOURCE_DIR}/View/Splitter.cpp
         ${COMMON_SOURCE_DIR}/View/SwapNodeContentsCommand.cpp
@@ -574,7 +567,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/BrushFaceReference.h
         ${COMMON_SOURCE_DIR}/Model/BrushGeometry.h
         ${COMMON_SOURCE_DIR}/Model/BrushNode.h
-        ${COMMON_SOURCE_DIR}/Model/BrushSnapshot.h
         ${COMMON_SOURCE_DIR}/Model/ChangeBrushFaceAttributesRequest.h
         ${COMMON_SOURCE_DIR}/Model/CompareHits.h
         ${COMMON_SOURCE_DIR}/Model/CompilationConfig.h
@@ -587,12 +579,10 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/EmptyGroupIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/Entity.h
         ${COMMON_SOURCE_DIR}/Model/EntityAttributes.h
-        ${COMMON_SOURCE_DIR}/Model/EntityAttributeSnapshot.h
         ${COMMON_SOURCE_DIR}/Model/EntityAttributesVariableStore.h
         ${COMMON_SOURCE_DIR}/Model/EntityColor.h
         ${COMMON_SOURCE_DIR}/Model/EntityNode.h
         ${COMMON_SOURCE_DIR}/Model/EntityRotationPolicy.h
-        ${COMMON_SOURCE_DIR}/Model/EntitySnapshot.h
         ${COMMON_SOURCE_DIR}/Model/ExportFormat.h
         ${COMMON_SOURCE_DIR}/Model/Game.h
         ${COMMON_SOURCE_DIR}/Model/GameConfig.h
@@ -602,7 +592,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/GameFileSystem.h
         ${COMMON_SOURCE_DIR}/Model/GameImpl.h
         ${COMMON_SOURCE_DIR}/Model/GroupNode.h
-        ${COMMON_SOURCE_DIR}/Model/GroupSnapshot.h
         ${COMMON_SOURCE_DIR}/Model/Hit.h
         ${COMMON_SOURCE_DIR}/Model/HitAdapter.h
         ${COMMON_SOURCE_DIR}/Model/HitFilter.h
@@ -633,7 +622,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/Node.h
         ${COMMON_SOURCE_DIR}/Model/NodeCollection.h
         ${COMMON_SOURCE_DIR}/Model/NodeContents.h
-        ${COMMON_SOURCE_DIR}/Model/NodeSnapshot.h
         ${COMMON_SOURCE_DIR}/Model/NodeVisitor.h
         ${COMMON_SOURCE_DIR}/Model/NonIntegerVerticesIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/Object.h
@@ -663,7 +651,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/PortalFile.h
         ${COMMON_SOURCE_DIR}/Model/PushSelection.h
         ${COMMON_SOURCE_DIR}/Model/RemoveEntityAttributesQuickFix.h
-        ${COMMON_SOURCE_DIR}/Model/Snapshot.h
         ${COMMON_SOURCE_DIR}/Model/SoftMapBoundsIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/Tag.h
         ${COMMON_SOURCE_DIR}/Model/TagAttribute.h
@@ -910,7 +897,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/SmartColorEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartFlagsEditor.h
-        ${COMMON_SOURCE_DIR}/View/SnapshotCommand.h
         ${COMMON_SOURCE_DIR}/View/SpinControl.h
         ${COMMON_SOURCE_DIR}/View/Splitter.h
         ${COMMON_SOURCE_DIR}/View/SwapNodeContentsCommand.h

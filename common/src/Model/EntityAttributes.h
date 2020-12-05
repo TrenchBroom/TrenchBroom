@@ -72,8 +72,6 @@ namespace TrenchBroom {
 
         bool isNumberedAttribute(std::string_view prefix, std::string_view name);
 
-        class EntityAttributeSnapshot;
-
         class EntityAttribute {
         private:
             std::string m_name;
@@ -131,8 +129,6 @@ namespace TrenchBroom {
             bool hasAttribute(const std::string& name, const std::string& value) const;
             bool hasAttributeWithPrefix(const std::string& prefix, const std::string& value) const;
             bool hasNumberedAttribute(const std::string& prefix, const std::string& value) const;
-
-            EntityAttributeSnapshot snapshot(const std::string& name) const;
         public:
             std::vector<std::string> names() const;
             const std::string* attribute(const std::string& name) const;

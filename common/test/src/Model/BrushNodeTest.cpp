@@ -25,7 +25,6 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
-#include "Model/BrushSnapshot.h"
 #include "Model/Entity.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
@@ -558,49 +557,6 @@ namespace TrenchBroom {
 
             std::vector<Node*> nodes = IO::NodeReader::read(data, world, worldBounds, status); // assertion failure
             kdl::vec_clear_and_delete(nodes);
-        }
-
-        TEST_CASE("BrushNodeTest.snapshotTextureTest", "[BrushNodeTest]") {
-            const vm::bbox3 worldBounds(8192.0);
-            WorldNode world(Entity(), MapFormat::Standard);
-            const BrushBuilder builder(&world, worldBounds);
-
-            BrushNode* cube = world.createBrush(builder.createCube(128.0, "testTexture").value());
-            BrushSnapshot* snapshot = nullptr;
-
-            // Temporarily set a texture on `cube`, take a snapshot, then clear the texture
-            {
-                Assets::Texture texture("testTexture", 64, 64);
-                for (size_t i = 0u; i < cube->brush().faceCount(); ++i) {
-                    cube->setFaceTexture(i, &texture);
-                }
-                ASSERT_EQ(6U, texture.usageCount());
-
-                snapshot = dynamic_cast<BrushSnapshot*>(cube->takeSnapshot());
-                ASSERT_NE(nullptr, snapshot);
-                ASSERT_EQ(6U, texture.usageCount());
-
-                for (size_t i = 0u; i < cube->brush().faceCount(); ++i) {
-                    cube->setFaceTexture(i, nullptr);
-                }
-                ASSERT_EQ(0U, texture.usageCount());
-            }
-
-            // Check all textures are cleared
-            for (const BrushFace& face : cube->brush().faces()) {
-                EXPECT_EQ(nullptr, face.texture());
-            }
-
-            CHECK(snapshot->restore(worldBounds).is_success());
-
-            // Check just the texture names are restored
-            for (const BrushFace& face : cube->brush().faces()) {
-                EXPECT_EQ("testTexture", face.attributes().textureName());
-                EXPECT_EQ(nullptr, face.texture());
-            }
-
-            delete snapshot;
-            delete cube;
         }
 
         // https://github.com/TrenchBroom/TrenchBroom/issues/1893

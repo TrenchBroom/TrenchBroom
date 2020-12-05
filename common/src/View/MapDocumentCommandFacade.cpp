@@ -32,13 +32,11 @@
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
-#include "Model/EntityAttributeSnapshot.h"
 #include "Model/Game.h"
 #include "Model/GroupNode.h"
 #include "Model/Issue.h"
 #include "Model/LayerNode.h"
 #include "Model/ModelUtils.h"
-#include "Model/Snapshot.h"
 #include "Model/WorldNode.h"
 #include "View/CommandProcessor.h"
 #include "View/UndoableCommand.h"
@@ -421,52 +419,6 @@ namespace TrenchBroom {
             Model::GroupNode* previousGroup = m_editorContext->currentGroup();
             m_editorContext->popGroup();
             groupWasClosedNotifier(previousGroup);
-        }
-
-        void MapDocumentCommandFacade::restoreSnapshot(Model::Snapshot* snapshot) {
-            const auto restoreNodesAndLogErrors = [&]() {
-                snapshot->restoreNodes(m_worldBounds).
-                    visit(kdl::overload(
-                        []() {},
-                        [&](const Model::SnapshotErrors& errors) {
-                            for (const auto& e : errors) {
-                                error() << kdl::str_to_string(e);
-                            }
-                        }
-                    ));
-            };
-        
-            if (!m_selectedNodes.empty()) {
-                const std::vector<Model::Node*>& nodes = m_selectedNodes.nodes();
-                const std::vector<Model::Node*> parents = collectParents(nodes);
-
-                Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-                Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-
-                restoreNodesAndLogErrors();
-
-                setTextures(m_selectedNodes.nodes());
-                setEntityDefinitions(m_selectedNodes.nodes());
-                setEntityModels(m_selectedNodes.nodes());
-                invalidateSelectionBounds();
-            }
-
-            const auto& faceHandles = selectedBrushFaces();
-            if (!faceHandles.empty()) {
-                restoreNodesAndLogErrors();
-
-                // Restoring the snapshots will invalidate all texture pointers on the BrushNode,
-                // since the snapshot has a whole brush granularity, so we need to call
-                // setTextures on the whole node.
-                kdl::vector_set<Model::Node*> nodes;
-                nodes.reserve(faceHandles.size());
-                for (const auto& faceHandle : faceHandles) {
-                    nodes.insert(faceHandle.node());
-                }
-
-                setTextures(nodes.release_data());
-                brushFacesDidChangeNotifier(faceHandles);
-            }
         }
 
         void MapDocumentCommandFacade::doSetIssueHidden(Model::Issue* issue, const bool hidden) {

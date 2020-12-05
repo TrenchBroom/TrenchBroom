@@ -86,18 +86,6 @@ namespace TrenchBroom {
             swap(lhs.m_color, rhs.m_color);
         }
 
-        BrushFaceAttributes BrushFaceAttributes::takeSnapshot() const {
-            BrushFaceAttributes result(m_textureName);
-            result.m_offset = m_offset;
-            result.m_scale = m_scale;
-            result.m_rotation = m_rotation;
-            result.m_surfaceContents = m_surfaceContents;
-            result.m_surfaceFlags = m_surfaceFlags;
-            result.m_surfaceValue = m_surfaceValue;
-            result.m_color = m_color;
-            return result;
-        }
-
         const std::string& BrushFaceAttributes::textureName() const {
             return m_textureName;
         }

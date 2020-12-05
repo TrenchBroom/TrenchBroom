@@ -37,7 +37,6 @@ namespace TrenchBroom {
         class Issue;
         class IssueGenerator;
         enum class LockState;
-        class NodeSnapshot;
         class NodeVisitor;
         class PickResult;
         enum class VisibilityState;
@@ -87,7 +86,6 @@ namespace TrenchBroom {
         public: // cloning and snapshots
             Node* clone(const vm::bbox3& worldBounds) const;
             Node* cloneRecursively(const vm::bbox3& worldBounds) const;
-            NodeSnapshot* takeSnapshot();
         protected:
             void cloneAttributes(Node* node) const;
 
@@ -420,7 +418,6 @@ namespace TrenchBroom {
 
             virtual Node* doClone(const vm::bbox3& worldBounds) const = 0;
             virtual Node* doCloneRecursively(const vm::bbox3& worldBounds) const;
-            virtual NodeSnapshot* doTakeSnapshot();
 
             virtual bool doCanAddChild(const Node* child) const = 0;
             virtual bool doCanRemoveChild(const Node* child) const = 0;
