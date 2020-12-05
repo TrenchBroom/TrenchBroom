@@ -54,7 +54,7 @@ namespace TrenchBroom {
             virtual ~AttributableNode() override;
         public: // entity access
             const Entity& entity() const;
-            void setEntity(Entity entity);
+            Entity setEntity(Entity entity);
         public: // definition 
             void setDefinition(Assets::EntityDefinition* definition);
         public: // attribute management
