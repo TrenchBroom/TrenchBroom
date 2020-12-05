@@ -176,4 +176,4 @@ namespace kdl {
     transform_adapter(const C& container, L lambda) -> transform_adapter<C, L>;
 }
 
-
+#endif //KDL_TRANSFORM_RANGE_H

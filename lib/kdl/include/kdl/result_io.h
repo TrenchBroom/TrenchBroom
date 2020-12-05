@@ -39,4 +39,4 @@ namespace kdl {
     }
 }
 
-
+#endif /* result_io_h */

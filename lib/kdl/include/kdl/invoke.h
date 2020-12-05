@@ -54,4 +54,4 @@ namespace kdl {
     invoke_later(const LL& lambda_now) -> invoke_later<LL>;
 }
 
-
+#endif //KDL_INVOKE_H

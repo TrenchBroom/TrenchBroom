@@ -483,4 +483,4 @@ namespace kdl {
     };
 }
 
-
+#endif //KDL_BINARY_RELATION_H

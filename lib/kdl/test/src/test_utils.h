@@ -26,4 +26,4 @@ namespace kdl {
     };
 }
 
-
+#endif //KDL_TEST_UTILS_H

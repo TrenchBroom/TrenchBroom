@@ -25,4 +25,4 @@ namespace kdl {
     class vector_set;
 }
 
-
+#endif //KDL_VECTOR_SET_FORWARD_H

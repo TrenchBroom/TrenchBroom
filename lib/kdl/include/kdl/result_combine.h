@@ -137,4 +137,4 @@ namespace kdl {
     }
 }
 
-
+#endif /* result_combine_h */

@@ -726,4 +726,4 @@ namespace kdl {
     };
 }
 
-
+#endif //KDL_INTRUSIVE_CIRCULAR_LIST_H
