@@ -253,4 +253,3 @@ namespace kdl {
     }
 }
 
-#endif //KDL_COLLECTION_UTILS_H

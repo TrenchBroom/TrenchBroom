@@ -38,5 +38,3 @@ namespace kdl {
         return str;
     }
 }
-
-#endif /* result_io_h */

@@ -21,4 +21,3 @@ namespace kdl {
     template <typename V> class compact_trie;
 }
 
-#endif //KDL_COMPACT_TRIE_FORWARD_H

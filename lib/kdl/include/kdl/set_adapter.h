@@ -935,4 +935,3 @@ namespace kdl {
     }
 }
 
-#endif //KDL_SET_ADAPTER_H

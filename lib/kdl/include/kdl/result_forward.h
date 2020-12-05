@@ -24,5 +24,3 @@ namespace kdl {
     template <typename Value, typename... Errors>
     class [[nodiscard]] result;
 }
-
-#endif /* result_forward_h */

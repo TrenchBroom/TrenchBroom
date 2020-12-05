@@ -153,4 +153,3 @@ namespace kdl {
     }
 }
 
-#endif //KDL_ZIP_ITERATOR_H

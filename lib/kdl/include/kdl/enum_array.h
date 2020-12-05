@@ -190,4 +190,3 @@ namespace kdl {
     };
 }
 
-#endif //KDL_ENUM_ARRAY_H

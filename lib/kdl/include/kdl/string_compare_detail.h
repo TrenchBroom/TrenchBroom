@@ -229,4 +229,3 @@ namespace kdl {
     }
 }
 
-#endif //KDL_STRING_COMPARE_DETAIL_H

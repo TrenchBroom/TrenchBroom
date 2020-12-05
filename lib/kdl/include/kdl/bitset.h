@@ -47,5 +47,3 @@ namespace kdl {
         }
     };
 }
-
-#endif

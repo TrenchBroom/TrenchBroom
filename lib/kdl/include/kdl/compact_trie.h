@@ -707,4 +707,3 @@ namespace kdl {
     };
 }
 
-#endif //KDL_GLOB_INDEX_H

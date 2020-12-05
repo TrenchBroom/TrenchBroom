@@ -159,4 +159,3 @@ namespace kdl {
     dec_temp(T& value) -> dec_temp<T>;
 }
 
-#endif //KDL_SET_TEMP_H

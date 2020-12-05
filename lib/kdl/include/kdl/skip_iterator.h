@@ -101,4 +101,3 @@ namespace kdl {
     skip_iterator(I cur, I end, typename I::difference_type offset,  typename I::difference_type stride) -> skip_iterator<I>;
 }
 
-#endif //KDL_SKIP_ITERATOR_H
