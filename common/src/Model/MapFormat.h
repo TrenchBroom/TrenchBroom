@@ -1,5 +1,6 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2020 Robert Beckebans (Doom 3 support)
 
  This file is part of TrenchBroom.
 
@@ -64,7 +65,11 @@ namespace TrenchBroom {
             /**
              * Quake 3 with brush primitives, also allows Quake 2 brushes
              */
-            Quake3
+            Quake3,
+            /**
+             * Doom 3 with brush primitives but using normalized planes instead of 3 points
+             */
+            Doom3
         };
 
         /**

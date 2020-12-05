@@ -1,5 +1,6 @@
 /*
  Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2020 Robert Beckebans (Doom 3 support)
 
  This file is part of TrenchBroom.
 
@@ -134,8 +135,8 @@ namespace TrenchBroom {
             return Token(QuakeMapToken::Eof, nullptr, nullptr, length(), line(), column());
         }
 
-        const std::string StandardMapParser::BrushPrimitiveId = "brushDef";
-        const std::string StandardMapParser::PatchId = "patchDef2";
+        std::string StandardMapParser::BrushPrimitiveId = "brushDef";
+        std::string StandardMapParser::PatchId = "patchDef2";
 
         StandardMapParser::StandardMapParser(std::string_view str, const Model::MapFormat sourceMapFormat, const Model::MapFormat targetMapFormat) :
         m_tokenizer(QuakeMapTokenizer(std::move(str))),
@@ -150,6 +151,14 @@ namespace TrenchBroom {
 
         void StandardMapParser::parseEntities(ParserStatus& status) {
             auto token = m_tokenizer.peekToken();
+
+            if(format==Model::MapFormat::Doom3) {
+                // Version 2
+                expect(QuakeMapToken::String, token);
+                m_tokenizer.discardLine();
+                token = m_tokenizer.peekToken();
+            }
+
             while (token.type() != QuakeMapToken::Eof) {
                 expect(QuakeMapToken::OBrace, token);
                 parseEntity(status);
@@ -255,8 +264,14 @@ namespace TrenchBroom {
 
             const auto startLine = token.line();
 
+            if (m_sourceMapFormat == Model::MapFormat::Doom3) {
+                StandardMapParser::BrushPrimitiveId = "brushDef3";
+                StandardMapParser::PatchId = "patchDef3";
+            }
+
             token = m_tokenizer.peekToken();
-            if (m_sourceMapFormat == Model::MapFormat::Quake3) {
+            if (m_sourceMapFormat == Model::MapFormat::Quake3 || 
+                m_sourceMapFormat == Model::MapFormat::Doom3) {
                 // We expect either a brush primitive, a patch or a regular brush.
                 expect(QuakeMapToken::String | QuakeMapToken::OParenthesis, token);
                 if (token.hasType(QuakeMapToken::String)) {
@@ -361,6 +376,9 @@ namespace TrenchBroom {
                     } else {
                         parseQuake2Face(status);
                     }
+                    break;
+                case Model::MapFormat::Doom3:
+                    parseDoom3PrimitiveFace(status);
                     break;
                 case Model::MapFormat::Unknown:
                     // cannot happen
@@ -518,6 +536,33 @@ namespace TrenchBroom {
             auto attribs = Model::BrushFaceAttributes(textureName);
 
             // Quake 2 extra info is optional
+            if (!check(QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof, m_tokenizer.peekToken())) {
+                attribs.setSurfaceContents(parseInteger());
+                attribs.setSurfaceFlags(parseInteger());
+                attribs.setSurfaceValue(parseFloat());
+            }
+
+            // TODO 2427: create a brush face
+            // brushFace(line, p1, p2, p3, attribs, texX, texY, status);
+        }
+
+        void StandardMapParser::parseDoom3PrimitiveFace(ParserStatus& status) {
+            /* const auto line = */ m_tokenizer.line();
+
+            // parse plane equation
+            const auto planeEq = correct(parseFloatVector<4>(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
+
+            expect(QuakeMapToken::OParenthesis, m_tokenizer.nextToken());
+
+            const auto [texX, texY] = parsePrimitiveTextureAxes(status);
+            expect(QuakeMapToken::CParenthesis, m_tokenizer.nextToken());
+
+            const auto textureName = parseTextureName(status);
+
+            // TODO 2427: what to set for offset, rotation, scale?!
+            auto attribs = Model::BrushFaceAttributes(textureName);
+
+            // Quake 2 extra info is unused in Doom 3 and got removed in Quake 4
             if (!check(QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof, m_tokenizer.peekToken())) {
                 attribs.setSurfaceContents(parseInteger());
                 attribs.setSurfaceFlags(parseInteger());
