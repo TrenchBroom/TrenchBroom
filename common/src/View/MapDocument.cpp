@@ -95,7 +95,6 @@
 #include "View/SetLockStateCommand.h"
 #include "View/SetCurrentLayerCommand.h"
 #include "View/SetVisibilityCommand.h"
-#include "View/SnapBrushVerticesCommand.h"
 #include "View/SwapNodeContentsCommand.h"
 #include "View/ViewEffectsService.h"
 
@@ -2074,8 +2073,39 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::snapVertices(const FloatType snapTo) {
-            const auto result = executeAndStore(SnapBrushVerticesCommand::snap(snapTo));
-            return result->success();
+            size_t succeededBrushCount = 0;
+            size_t failedBrushCount = 0;
+
+            applyAndSwap(*this, "Snap Brush Vertices", m_selectedNodes.brushesRecursively(), kdl::overload(
+                [] (Model::Entity&) { return true; },
+                [&](Model::Brush& originalBrush) {
+                    if (originalBrush.canSnapVertices(m_worldBounds, snapTo)) {
+                        originalBrush.snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock))
+                            .visit(kdl::overload(
+                                [&](Model::Brush&& newBrush) {
+                                    originalBrush = std::move(newBrush);
+                                    succeededBrushCount += 1;
+                                },
+                                [&](const Model::BrushError e) {
+                                    error() << "Could not snap vertices: " << e;
+                                    failedBrushCount += 1;
+                                }
+                            ));
+                    } else {
+                        failedBrushCount += 1;
+                    }
+                    return true;
+                }
+            ));
+
+            if (succeededBrushCount > 0) {
+                info(kdl::str_to_string("Snapped vertices of ", succeededBrushCount, " ", kdl::str_plural(succeededBrushCount, "brush", "brushes")));
+            }
+            if (failedBrushCount > 0) {
+                info(kdl::str_to_string("Failed to snap vertices of ", failedBrushCount, " ", kdl::str_plural(failedBrushCount, "brush", "brushes")));
+            }
+
+            return true;
         }
 
         MapDocument::MoveVerticesResult MapDocument::moveVertices(std::vector<vm::vec3> vertexPositions, const vm::vec3& delta) {
