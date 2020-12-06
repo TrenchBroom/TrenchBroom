@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Assets/EntityDefinition.h"
 #include "Model/BrushError.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityRotationPolicy.h"
@@ -27,7 +28,10 @@
 
 #include <kdl/result.h>
 
+#include <vecmath/bbox.h>
+#include <vecmath/bbox_io.h>
 #include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 #include <vecmath/mat_ext.h>
 
 #include <memory>
@@ -35,9 +39,20 @@
 
 #include "Catch2.h"
 #include "GTestCompat.h"
+#include "vecmath/util.h"
 
 namespace TrenchBroom {
     namespace Model {
+        TEST_CASE("EntityNodeTest.area") {
+            auto definition = Assets::PointEntityDefinition("some_name", Color(), vm::bbox3(vm::vec3::zero(), vm::vec3(1.0, 2.0, 3.0)), "", {}, {});
+            auto entityNode = EntityNode{};
+            entityNode.setDefinition(&definition);
+
+            CHECK(entityNode.area(vm::axis::x) == 6.0);
+            CHECK(entityNode.area(vm::axis::y) == 3.0);
+            CHECK(entityNode.area(vm::axis::z) == 2.0);
+        }
+
         static const std::string TestClassname = "something";
 
         class EntityNodeTest {

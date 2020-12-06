@@ -70,7 +70,7 @@ namespace TrenchBroom {
                 case vm::axis::y:
                     return size.x() * size.z();
                 case vm::axis::z:
-                    return size.y() * size.z();
+                    return size.x() * size.y();
                 default:
                     return 0.0;
             }
