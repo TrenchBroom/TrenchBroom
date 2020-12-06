@@ -107,6 +107,12 @@ get_build_platform(APP_PLATFORM_NAME)
 
 macro(configure_app_target APP_TARGET_NAME SHOULD_BUILD_MANUAL)
     target_link_libraries(${APP_TARGET_NAME} common) # common already comes with all its dependencies, no need to repeat them here
+    # Xcode "new build system" does't allow custom commands to be depended on by two unrelated targets
+    # In this case, ${INDEX_OUTPUT_PATH} is depended on by TrenchBroom and GenerateManual
+    # so we must make TrenchBroom depend on GenerateManual (see #3608)
+    if (${SHOULD_BUILD_MANUAL})
+        add_dependencies(${APP_TARGET_NAME} GenerateManual)
+    endif()
     set_compiler_config(${APP_TARGET_NAME})
 
     set_target_properties(${APP_TARGET_NAME} PROPERTIES AUTORCC TRUE)
