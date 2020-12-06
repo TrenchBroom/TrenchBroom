@@ -329,14 +329,13 @@ namespace TrenchBroom {
                         parseFace(status, primitive);
                         break;
                     case QuakeMapToken::CBrace:
-                        // TODO 2427: handle brush primitives
                         if (!primitive) {
                             if (!beginBrushCalled) {
                                 onBeginBrush(startLine, status);
                             }
                             onEndBrush(startLine, token.line() - startLine, status);
                         } else {
-                            status.warn(startLine, "Skipping brush primitive: currently not supported");
+                            endBrush(startLine, token.line() - startLine, extraAttributes, status);
                         }
                         return;
                     default: {
@@ -547,10 +546,30 @@ namespace TrenchBroom {
         }
 
         void StandardMapParser::parseDoom3PrimitiveFace(ParserStatus& status) {
-            /* const auto line = */ m_tokenizer.line();
+            const auto line = m_tokenizer.line();
 
             // parse plane equation
             const auto planeEq = correct(parseFloatVector<4>(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
+
+            // create p1, p2, p3
+            auto forward = planeEq.xyz();
+            auto p1 = forward * -planeEq[3];
+
+            // create tangents right,up similar as in Quake's MakeNormalVectors
+            auto right = forward;
+            right[1] = -forward[0];
+            right[2] = forward[1];
+            right[0] = forward[2];
+
+            auto d = dot( right, forward );
+            right = right + ( -d * forward );
+            right = normalize( right );
+            
+            auto up = cross( right, forward );
+
+            // offset p1 by tangents to have 3 points in a plane
+            auto p2 = p1 + right;
+            auto p3 = p1 + up;
 
             expect(QuakeMapToken::OParenthesis, m_tokenizer.nextToken());
 
@@ -574,7 +593,7 @@ namespace TrenchBroom {
             }
 
             // TODO 2427: create a brush face
-            // brushFace(line, p1, p2, p3, attribs, texX, texY, status);
+            valveBrushFace(line, m_format, p1, p2, p3, attribs, texX, texY, status);
         }
 
         void StandardMapParser::parsePatch(ParserStatus& status, const size_t startLine) {
