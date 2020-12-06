@@ -38,6 +38,21 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        /**
+         * Interface for stream-based serialization of a map, with public functions to
+         * write different types of nodes to the output stream.
+         *
+         * The usage flow looks like:
+         *
+         * - construct a NodeSerializer
+         * - call setExporting() to configure whether to write "omit from export" layers
+         * - call beginFile() with all of the nodes that will be later serialized
+         *   so subclasses can parallelize precomputing the serialization
+         * - call e.g defaultLayer() to write that layer to the output
+         * - call endFile()
+         *
+         * You may not reuse the NodeSerializer after that point.
+         */
         class NodeSerializer {
         protected:
             using ObjectNo = unsigned int;
@@ -72,6 +87,7 @@ namespace TrenchBroom {
         public:
             /**
              * Prepares to serialize the given nodes and all of their children.
+             * The order is ignored.
              *
              * The rootNodes parameter allows subclasses to optionally precompute the
              * serializations of all nodes in parallel.

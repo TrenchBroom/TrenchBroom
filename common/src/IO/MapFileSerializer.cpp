@@ -30,8 +30,8 @@
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
 
-#include <kdl/parallel.h>
 #include <kdl/overload.h>
+#include <kdl/parallel.h>
 #include <kdl/vector_utils.h>
 
 #include <fmt/format.h>

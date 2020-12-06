@@ -76,7 +76,7 @@ namespace TrenchBroom {
         }
 
         void NodeWriter::writeMap() {
-            m_serializer->beginFile(std::vector<const Model::Node*>{&m_world});
+            m_serializer->beginFile({&m_world});
             writeDefaultLayer();
             writeCustomLayers();
             m_serializer->endFile();
@@ -151,7 +151,7 @@ namespace TrenchBroom {
         }
 
         void NodeWriter::writeBrushFaces(const std::vector<Model::BrushFace>& faces) {
-            m_serializer->beginFile(std::vector<const Model::Node*>{});
+            m_serializer->beginFile({});
             m_serializer->brushFaces(faces);
             m_serializer->endFile();
         }
