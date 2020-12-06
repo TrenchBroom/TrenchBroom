@@ -557,7 +557,11 @@ namespace TrenchBroom {
             const auto [texX, texY] = parsePrimitiveTextureAxes(status);
             expect(QuakeMapToken::CParenthesis, m_tokenizer.nextToken());
 
-            const auto textureName = parseTextureName(status);
+            auto token = m_tokenizer.nextToken();
+            assert(token.type() == QuakeMapToken::String);
+            const auto textureName = token.data();
+
+            //const auto textureName = parseTextureName(status);
 
             // TODO 2427: what to set for offset, rotation, scale?!
             auto attribs = Model::BrushFaceAttributes(textureName);
