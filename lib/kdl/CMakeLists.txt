@@ -15,7 +15,9 @@ target_include_directories(kdl INTERFACE
         $<BUILD_INTERFACE:${KDL_INCLUDE_DIR}>
         $<INSTALL_INTERFACE:kdl/include/kdl>)
 
-target_link_libraries(kdl INTERFACE)
+# parallel.h uses <thread>, etc., which requires this on Linux
+find_package(Threads REQUIRED)
+target_link_libraries(kdl INTERFACE Threads::Threads)
 
 target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/binary_relation.h"
@@ -36,6 +38,7 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/meta_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/opt_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/overload.h"
+    "${KDL_INCLUDE_DIR}/kdl/parallel.h"
     "${KDL_INCLUDE_DIR}/kdl/set_adapter.h"
     "${KDL_INCLUDE_DIR}/kdl/set_temp.h"
     "${KDL_INCLUDE_DIR}/kdl/skip_iterator.h"

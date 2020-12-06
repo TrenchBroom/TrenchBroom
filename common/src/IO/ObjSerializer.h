@@ -123,7 +123,7 @@ namespace TrenchBroom {
         public:
             explicit ObjFileSerializer(const Path& path);
         private:
-            void doBeginFile() override;
+            void doBeginFile(const std::vector<const Model::Node*>& rootNodes) override;
             void doEndFile() override;
 
             void writeMtlFile();
@@ -138,8 +138,7 @@ namespace TrenchBroom {
             void doEndEntity(const Model::Node* node) override;
             void doEntityAttribute(const Model::EntityAttribute& attribute) override;
 
-            void doBeginBrush(const Model::BrushNode* brush) override;
-            void doEndBrush(const Model::BrushNode* brush) override;
+            void doBrush(const Model::BrushNode* brush) override;
             void doBrushFace(const Model::BrushFace& face) override;
         };
     }

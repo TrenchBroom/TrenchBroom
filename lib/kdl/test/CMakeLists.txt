@@ -6,6 +6,7 @@ target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/compact_trie_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/invoke_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/intrusive_circular_list_test.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/parallel_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/map_utils_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/meta_utils_test.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/result_test.cpp"

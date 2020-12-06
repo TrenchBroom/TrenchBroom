@@ -37,6 +37,21 @@ namespace TrenchBroom {
     }
 
     namespace IO {
+        /**
+         * Interface for stream-based serialization of a map, with public functions to
+         * write different types of nodes to the output stream.
+         *
+         * The usage flow looks like:
+         *
+         * - construct a NodeSerializer
+         * - call setExporting() to configure whether to write "omit from export" layers
+         * - call beginFile() with all of the nodes that will be later serialized
+         *   so subclasses can parallelize precomputing the serialization
+         * - call e.g defaultLayer() to write that layer to the output
+         * - call endFile()
+         *
+         * You may not reuse the NodeSerializer after that point.
+         */
         class NodeSerializer {
         protected:
             using ObjectNo = unsigned int;
@@ -69,7 +84,17 @@ namespace TrenchBroom {
             bool exporting() const;
             void setExporting(bool exporting);
         public:
-            void beginFile();
+            /**
+             * Prepares to serialize the given nodes and all of their children.
+             * The order is ignored.
+             *
+             * The rootNodes parameter allows subclasses to optionally precompute the
+             * serializations of all nodes in parallel.
+             *
+             * Any nodes serialized after calling beginFile() must have either been
+             * in the rootNodes vector or be a descendant of one of these nodes.
+             */
+            void beginFile(const std::vector<const Model::Node*>& rootNodes);
             void endFile();
         public:
             void defaultLayer(const Model::WorldNode& world);
@@ -88,9 +113,6 @@ namespace TrenchBroom {
 
             void brushes(const std::vector<Model::BrushNode*>& brushNodes);
             void brush(const Model::BrushNode* brushNode);
-
-            void beginBrush(const Model::BrushNode* brushNode);
-            void endBrush(const Model::BrushNode* brushNode);
         public:
             void brushFaces(const std::vector<Model::BrushFace>& faces);
         private:
@@ -103,15 +125,14 @@ namespace TrenchBroom {
         protected:
             std::string escapeEntityAttribute(const std::string& str) const;
         private:
-            virtual void doBeginFile() = 0;
+            virtual void doBeginFile(const std::vector<const Model::Node*>& nodes) = 0;
             virtual void doEndFile() = 0;
 
             virtual void doBeginEntity(const Model::Node* node) = 0;
             virtual void doEndEntity(const Model::Node* node) = 0;
             virtual void doEntityAttribute(const Model::EntityAttribute& attribute) = 0;
 
-            virtual void doBeginBrush(const Model::BrushNode* brushNode) = 0;
-            virtual void doEndBrush(const Model::BrushNode* brushNode) = 0;
+            virtual void doBrush(const Model::BrushNode* brushNode) = 0;
             virtual void doBrushFace(const Model::BrushFace& face) = 0;
         };
     }

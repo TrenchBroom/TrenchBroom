@@ -75,10 +75,10 @@ namespace TrenchBroom {
             m_exporting = exporting;
         }
 
-        void NodeSerializer::beginFile() {
+        void NodeSerializer::beginFile(const std::vector<const Model::Node*>& rootNodes) {
             m_entityNo = 0;
             m_brushNo = 0;
-            doBeginFile();
+            doBeginFile(rootNodes);
         }
 
         void NodeSerializer::endFile() {
@@ -191,17 +191,7 @@ namespace TrenchBroom {
         }
 
         void NodeSerializer::brush(const Model::BrushNode* brushNode) {
-            beginBrush(brushNode);
-            brushFaces(brushNode->brush().faces());
-            endBrush(brushNode);
-        }
-
-        void NodeSerializer::beginBrush(const Model::BrushNode* brushNode) {
-            doBeginBrush(brushNode);
-        }
-
-        void NodeSerializer::endBrush(const Model::BrushNode* brushNode) {
-            doEndBrush(brushNode);
+            doBrush(brushNode);
             ++m_brushNo;
         }
 
