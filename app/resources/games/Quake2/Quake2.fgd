@@ -35,7 +35,7 @@
 		2048 : "Not in Deathmatch" : 0
 	]
 ]
-
+@baseclass = Angle [ angle(integer) : "Direction" ]
 @baseclass = Targetname [ targetname(target_source) : "Name" ]
 @baseclass = Target [ target(target_destination) : "Target" ]
 
@@ -146,7 +146,7 @@
 
 // 0221 - updated "sounds" information
 // 0221 - added "killtarget"
-@SolidClass base(Appearflags, Targetname, Target) color(0 128 204) = func_door : "Door"
+@SolidClass base(Angle, Appearflags, Targetname, Target) color(0 128 204) = func_door : "Door"
 [
 	spawnflags(Flags) =
 	[
@@ -228,7 +228,7 @@
 // 0221 - added "_minlight" key (even tho you dont want it to stand out)
 // 0221 - added "message" key
 // 0221 - removed "team" key
-@SolidClass base(Appearflags, Targetname) color(0 128 204) = func_door_secret : "Secret Door"
+@SolidClass base(Angle, Appearflags, Targetname) color(0 128 204) = func_door_secret : "Secret Door"
 [
 	spawnflags(Flags) =
 	[
