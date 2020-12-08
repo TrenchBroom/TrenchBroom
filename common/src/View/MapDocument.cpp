@@ -84,6 +84,7 @@
 #include "View/AddBrushVerticesCommand.h"
 #include "View/AddRemoveNodesCommand.h"
 #include "View/Actions.h"
+#include "View/BrushVertexCommands.h"
 #include "View/CurrentGroupCommand.h"
 #include "View/DuplicateNodesCommand.h"
 #include "View/Grid.h"
@@ -2082,6 +2083,51 @@ namespace TrenchBroom {
         bool MapDocument::snapVertices(const FloatType snapTo) {
             const auto result = executeAndStore(SnapBrushVerticesCommand::snap(snapTo));
             return result->success();
+        }
+
+        MapDocument::MoveVerticesResult MapDocument::moveVertices(std::vector<vm::vec3> vertexPositions, const vm::vec3& delta) {
+            auto newVertexPositions = std::vector<vm::vec3>{};
+            auto newNodes = applyToNodeContents(m_selectedNodes.nodes(), kdl::overload(
+                [] (Model::Entity&) { return true; },
+                [&](Model::Brush& originalBrush) {
+                    const auto verticesToMove = kdl::vec_filter(vertexPositions, [&](const auto& vertex) { return originalBrush.hasVertex(vertex); });
+                    if (verticesToMove.empty()) {
+                        return true;
+                    }
+
+                    if (!originalBrush.canMoveVertices(m_worldBounds, verticesToMove, delta)) {
+                        return false;
+                    }
+
+                    return originalBrush.moveVertices(m_worldBounds, verticesToMove, delta, pref(Preferences::UVLock))
+                        .visit(kdl::overload(
+                            [&](Model::Brush&& newBrush) -> bool {
+                                auto newPositions = newBrush.findClosestVertexPositions(verticesToMove + delta);
+                                newVertexPositions = kdl::vec_concat(std::move(newVertexPositions), std::move(newPositions));
+                                originalBrush = std::move(newBrush);
+                                return true;
+                            },
+                            [&](const Model::BrushError e) -> bool {
+                                error() << "Could not move brush vertices: " << e;
+                                return false;
+                            }
+                        ));
+                }
+            ));
+
+            if (newNodes) {
+                kdl::vec_sort_and_remove_duplicates(newVertexPositions);
+
+                const auto commandName = kdl::str_plural(vertexPositions.size(), "Move Brush Vertex", "Move Brush Vertices");
+                const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(commandName, std::move(*newNodes), std::move(vertexPositions), std::move(newVertexPositions)));
+
+                const auto* moveVerticesResult = dynamic_cast<BrushVertexCommandResult*>(result.get());
+                ensure(moveVerticesResult != nullptr, "command processor returned unexpected command result type");
+
+                return MoveVerticesResult(moveVerticesResult->success(), moveVerticesResult->hasRemainingVertices());
+            }
+
+            return MoveVerticesResult(false, false);
         }
 
         MapDocument::MoveVerticesResult MapDocument::moveVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices, const vm::vec3& delta) {
