@@ -19,6 +19,7 @@
 
 #include "MapReader.h"
 
+#include "Ensure.h"
 #include "IO/ParserStatus.h"
 #include "Model/BrushError.h"
 #include "Model/BrushFace.h"
@@ -358,13 +359,18 @@ namespace TrenchBroom {
         void MapReader::resolveBrushes(ParserStatus& status) {
             using BrushResults = std::vector<std::optional<kdl::result<Model::Brush, Model::BrushError>>>;
 
-            BrushResults brushResults = kdl::vec_parallel_transform(m_brushes, [&](const BrushInfo& brushInfo) {
-                // FIXME: avoid copying faces
-                return std::make_optional(Model::Brush::create(m_worldBounds, brushInfo.faces));
+            // default-initialize the std::optionals
+            BrushResults brushResults;
+            brushResults.resize(m_brushes.size());
+
+            kdl::parallel_for(m_brushes.size(), [&](const size_t i) {
+                BrushInfo& brushInfo = m_brushes[i];
+                brushResults[i] = std::make_optional(Model::Brush::create(m_worldBounds, std::move(brushInfo.faces)));
             });
 
             for (size_t i = 0; i < brushResults.size(); ++i) {
-                createBrush(*brushResults[i], m_brushes[i], status);
+                ensure(m_brushes[i].faces.empty(), "faces should have been moved from");
+                createBrush(std::move(*brushResults[i]), m_brushes[i], status);
             }
         }
 

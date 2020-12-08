@@ -25,6 +25,49 @@
 #include <vector>
 
 namespace kdl {
+    template<class L>
+    void parallel_for(const size_t count, L&& lambda) {
+        size_t numThreads = static_cast<size_t>(std::thread::hardware_concurrency());
+        if (numThreads == 0) {
+            numThreads = 1;
+        }
+
+        std::atomic<size_t> nextIndex(0);
+
+        std::vector<std::future<void>> threads;
+        threads.resize(numThreads);
+
+        for (size_t i = 0; i < numThreads; ++i) {
+            threads[i] = std::async(std::launch::async, [&]() {
+                while (true) {
+                    const size_t ourIndex = std::atomic_fetch_add(&nextIndex, static_cast<size_t>(1));
+                    if (ourIndex >= count) {
+                        break;
+                    }
+                    lambda(ourIndex);
+                }
+            });
+        }
+
+        for (size_t i = 0; i < numThreads; ++i) {
+            threads[i].wait();
+        }
+    }
+
+    //template<class T, class L>
+    //void vec_parallel_do(const std::vector<T>& input, L&& lambda) {
+    //    vec_parallel_for(input.size(), [&](const size_t index) {
+    //        lambda(input[index]);
+    //    });
+    //}
+
+    //template<class T, class L>
+    //void vec_parallel_do(std::vector<T>& input, L&& lambda) {
+    //    vec_parallel_for(input.size(), [&](const size_t index) {
+    //        lambda(input[index]);
+    //    });
+    //}
+
     /**
      * Applies the given lambda to each element of the input (passing elements as const lvalue references),
      * and returns a vector of the resulting values, in their original order.
@@ -47,31 +90,9 @@ namespace kdl {
         std::vector<ResultType> result;
         result.resize(input.size());
 
-        size_t numThreads = static_cast<size_t>(std::thread::hardware_concurrency());
-        if (numThreads == 0) {
-            numThreads = 1;
-        }
-
-        std::atomic<size_t> nextIndex(0);
-
-        std::vector<std::future<void>> threads;
-        threads.resize(numThreads);
-
-        for (size_t i = 0; i < numThreads; ++i) {
-            threads[i] = std::async(std::launch::async, [&]() {
-                while (true) {
-                    const size_t ourIndex = std::atomic_fetch_add(&nextIndex, static_cast<size_t>(1));
-                    if (ourIndex >= input.size()) {
-                        break;
-                    }
-                    result[ourIndex] = transform(input[ourIndex]);
-                }
-            });
-        }
-
-        for (size_t i = 0; i < numThreads; ++i) {
-            threads[i].wait();
-        }
+        parallel_for(input.size(), [&](const size_t index) {
+            result[index] = transform(input[index]);
+        });
 
         return result;
     }
