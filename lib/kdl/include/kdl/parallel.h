@@ -26,7 +26,7 @@
 
 namespace kdl {
     /**
-     * Runs the given lambda `count` times, passing it indices 0 through `count - 1`.
+     * Runs the given lambda `count` times, passing it indices `0` through `count - 1`.
      *
      * Lambda is executed in parallel, using the number of threads returned by std::thread::hardware_concurrency().
      *

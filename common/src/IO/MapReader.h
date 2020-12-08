@@ -105,7 +105,7 @@ namespace TrenchBroom {
                 size_t lineCount;
                 ExtraAttributes extraAttributes;
             };
-            std::vector<BrushInfo> m_brushes;
+            std::vector<BrushInfo> m_brushInfos;
 
             LayerMap m_layers;
             GroupMap m_groups;
@@ -143,7 +143,7 @@ namespace TrenchBroom {
             void createLayer(size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
             void createGroup(size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
             void createEntity(size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
-            void createBrush(kdl::result<Model::Brush, Model::BrushError> brush, const BrushInfo& brushInfo, ParserStatus& status);
+            void createBrush(kdl::result<Model::Brush, Model::BrushError> brush, Model::Node* parent, size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status);
 
             ParentInfo::Type storeNode(Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, ParserStatus& status);
             void stripParentAttributes(Model::AttributableNode* attributable, ParentInfo::Type parentType);

@@ -131,8 +131,8 @@ namespace TrenchBroom {
             assert(m_faces.empty());
         }
 
-        void MapReader::onEndBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) {
-            m_brushes.push_back(BrushInfo{m_brushParent, std::move(m_faces), startLine, lineCount, extraAttributes});
+        void MapReader::onEndBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
+            m_brushInfos.push_back(BrushInfo{m_brushParent, std::move(m_faces), startLine, lineCount, extraAttributes});
         }
 
         void MapReader::onStandardBrushFace(const size_t line, const Model::MapFormat /* format */, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status) {
@@ -264,22 +264,22 @@ namespace TrenchBroom {
             m_brushParent = entity;
         }
 
-        void MapReader::createBrush(kdl::result<Model::Brush, Model::BrushError> brush, const BrushInfo& brushInfo, ParserStatus& status) {
+        void MapReader::createBrush(kdl::result<Model::Brush, Model::BrushError> brush, Model::Node* parent, const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             std::move(brush)
                 .and_then(
                     [&](Model::Brush&& b) {
                         Model::BrushNode* brushNode = m_factory->createBrush(std::move(b));
-                        setFilePosition(brushNode, brushInfo.startLine, brushInfo.lineCount);
-                        setExtraAttributes(brushNode, brushInfo.extraAttributes);
+                        setFilePosition(brushNode, startLine, lineCount);
+                        setExtraAttributes(brushNode, extraAttributes);
                         
-                        onBrush(brushInfo.parent, brushNode, status);
+                        onBrush(parent, brushNode, status);
                         m_faces.clear();
                         
                         return kdl::void_result;
                     }
                 ).handle_errors(
                     [&](const Model::BrushError e) {
-                        status.error(brushInfo.startLine, kdl::str_to_string("Skipping brush: ", e));
+                        status.error(startLine, kdl::str_to_string("Skipping brush: ", e));
                         m_faces.clear();
                     }
                 );
@@ -357,21 +357,27 @@ namespace TrenchBroom {
         }
 
         void MapReader::resolveBrushes(ParserStatus& status) {
+            // Temporary vector type to store the results of creating the Brush objects in parallel.
+            // The std::optional wrapper is just so we can default-initialize the vector to the
+            // right size.
             using BrushResults = std::vector<std::optional<kdl::result<Model::Brush, Model::BrushError>>>;
 
-            // default-initialize the std::optionals
             BrushResults brushResults;
-            brushResults.resize(m_brushes.size());
+            brushResults.resize(m_brushInfos.size());
 
-            kdl::parallel_for(m_brushes.size(), [&](const size_t i) {
-                BrushInfo& brushInfo = m_brushes[i];
+            // In parallel, create Brush objects (moving faces out of m_brushInfos)
+            kdl::parallel_for(m_brushInfos.size(), [&](const size_t i) {
+                BrushInfo& brushInfo = m_brushInfos[i];
                 brushResults[i] = std::make_optional(Model::Brush::create(m_worldBounds, std::move(brushInfo.faces)));
             });
 
+            // Finally move the Brushes into BrushNodes
             for (size_t i = 0; i < brushResults.size(); ++i) {
-                ensure(m_brushes[i].faces.empty(), "faces should have been moved from");
-                createBrush(std::move(*brushResults[i]), m_brushes[i], status);
+                BrushInfo& brushInfo = m_brushInfos[i];
+                createBrush(std::move(*brushResults[i]), brushInfo.parent, brushInfo.startLine, brushInfo.lineCount, brushInfo.extraAttributes, status);
             }
+
+            m_brushInfos.clear();
         }
 
         Model::Node* MapReader::resolveParent(const ParentInfo& parentInfo) const {
