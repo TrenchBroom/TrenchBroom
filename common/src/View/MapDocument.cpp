@@ -1660,57 +1660,32 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::translateObjects(const vm::vec3& delta) {
-            const auto result = executeAndStore(TransformObjectsCommand::translate(delta, pref(Preferences::TextureLock)));
-            if (result->success()) {
-                m_repeatStack->push([=]() { this->translateObjects(delta); });
-                return true;
-            }
-            return false;
+            return transformObjects("Translate Objects", vm::translation_matrix(delta));
         }
 
         bool MapDocument::rotateObjects(const vm::vec3& center, const vm::vec3& axis, const FloatType angle) {
-            const auto result = executeAndStore(TransformObjectsCommand::rotate(center, axis, angle, pref(Preferences::TextureLock)));
-            if (result->success()) {
-                m_repeatStack->push([=]() { this->rotateObjects(center, axis, angle); });
-                return true;
-            }
-            return false;
+            const auto transformation = vm::translation_matrix(center) * vm::rotation_matrix(axis, angle) * vm::translation_matrix(-center);
+            return transformObjects("Rotate Objects", transformation);
         }
 
         bool MapDocument::scaleObjects(const vm::bbox3& oldBBox, const vm::bbox3& newBBox) {
-            const auto result = executeAndStore(TransformObjectsCommand::scale(oldBBox, newBBox, pref(Preferences::TextureLock)));
-            if (result->success()) {
-                m_repeatStack->push([=]() { this->scaleObjects(oldBBox, newBBox); });
-                return true;
-            }
-            return false;
+            const auto transformation = vm::scale_bbox_matrix(oldBBox, newBBox);
+            return transformObjects("Scale Objects", transformation);
         }
 
         bool MapDocument::scaleObjects(const vm::vec3& center, const vm::vec3& scaleFactors) {
-            const auto result = executeAndStore(TransformObjectsCommand::scale(center, scaleFactors, pref(Preferences::TextureLock)));
-            if (result->success()) {
-                m_repeatStack->push([=]() { this->scaleObjects(center, scaleFactors); });
-                return true;
-            }
-            return false;
+            const auto transformation = vm::translation_matrix(center) * vm::scaling_matrix(scaleFactors) * vm::translation_matrix(-center);
+            return transformObjects("Scale Objects", transformation);
         }
 
         bool MapDocument::shearObjects(const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta) {
-            const auto result = executeAndStore(TransformObjectsCommand::shearBBox(box, sideToShear, delta,  pref(Preferences::TextureLock)));
-            if (result->success()) {
-                m_repeatStack->push([=]() { this->shearObjects(box, sideToShear, delta); });
-                return true;
-            }
-            return false;
+            const auto transformation = vm::shear_bbox_matrix(box, sideToShear, delta);
+            return transformObjects("Scale Objects", transformation);
         }
 
         bool MapDocument::flipObjects(const vm::vec3& center, const vm::axis::type axis) {
-            const auto result = executeAndStore(TransformObjectsCommand::flip(center, axis, pref(Preferences::TextureLock)));
-            if (result->success()) {
-                m_repeatStack->push([=]() { this->flipObjects(center, axis); });
-                return true;
-            }
-            return false;
+            const auto transformation = vm::translation_matrix(center) * vm::mirror_matrix<FloatType>(axis) * vm::translation_matrix(-center);
+            return transformObjects("Flip Objects", transformation);
         }
 
         bool MapDocument::createBrush(const std::vector<vm::vec3>& points) {
