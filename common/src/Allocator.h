@@ -24,7 +24,7 @@
 #include <vector>
 
 // Undefine this to prevent false positives when looking for memory leaks.
-#define TB_ENABLE_ALLOCATOR 1
+//#define TB_ENABLE_ALLOCATOR 1
 
 namespace TrenchBroom {
     template <class T, size_t PoolSize = 64, size_t BlocksPerChunk = 256>
