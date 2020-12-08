@@ -35,6 +35,7 @@
 
 #include <kdl/map_utils.h>
 #include <kdl/overload.h>
+#include <kdl/parallel.h>
 #include <kdl/result.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
@@ -79,12 +80,14 @@ namespace TrenchBroom {
         void MapReader::readEntities(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
             parseEntities(format, status);
+            resolveBrushes(status);
             resolveNodes(status);
         }
 
         void MapReader::readBrushes(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
             m_worldBounds = worldBounds;
             parseBrushes(format, status);
+            resolveBrushes(status);
         }
 
         void MapReader::readBrushFaces(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status) {
@@ -128,7 +131,7 @@ namespace TrenchBroom {
         }
 
         void MapReader::onEndBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) {
-            createBrush(startLine, lineCount, extraAttributes, status);
+            m_brushes.push_back(BrushInfo{m_brushParent, std::move(m_faces), startLine, lineCount, extraAttributes});
         }
 
         void MapReader::onStandardBrushFace(const size_t line, const Model::MapFormat /* format */, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status) {
@@ -260,22 +263,22 @@ namespace TrenchBroom {
             m_brushParent = entity;
         }
 
-        void MapReader::createBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) {
-            Model::Brush::create(m_worldBounds, std::move(m_faces))
+        void MapReader::createBrush(kdl::result<Model::Brush, Model::BrushError> brush, const BrushInfo& brushInfo, ParserStatus& status) {
+            std::move(brush)
                 .and_then(
                     [&](Model::Brush&& b) {
                         Model::BrushNode* brushNode = m_factory->createBrush(std::move(b));
-                        setFilePosition(brushNode, startLine, lineCount);
-                        setExtraAttributes(brushNode, extraAttributes);
+                        setFilePosition(brushNode, brushInfo.startLine, brushInfo.lineCount);
+                        setExtraAttributes(brushNode, brushInfo.extraAttributes);
                         
-                        onBrush(m_brushParent, brushNode, status);
+                        onBrush(brushInfo.parent, brushNode, status);
                         m_faces.clear();
                         
                         return kdl::void_result;
                     }
                 ).handle_errors(
                     [&](const Model::BrushError e) {
-                        status.error(startLine, kdl::str_to_string("Skipping brush: ", e));
+                        status.error(brushInfo.startLine, kdl::str_to_string("Skipping brush: ", e));
                         m_faces.clear();
                     }
                 );
@@ -349,6 +352,19 @@ namespace TrenchBroom {
                     onUnresolvedNode(info, node, status);
                 else
                     onNode(parent, node, status);
+            }
+        }
+
+        void MapReader::resolveBrushes(ParserStatus& status) {
+            using BrushResults = std::vector<std::optional<kdl::result<Model::Brush, Model::BrushError>>>;
+
+            BrushResults brushResults = kdl::vec_parallel_transform(m_brushes, [&](const BrushInfo& brushInfo) {
+                // FIXME: avoid copying faces
+                return std::make_optional(Model::Brush::create(m_worldBounds, brushInfo.faces));
+            });
+
+            for (size_t i = 0; i < brushResults.size(); ++i) {
+                createBrush(*brushResults[i], m_brushes[i], status);
             }
         }
 

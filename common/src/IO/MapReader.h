@@ -21,8 +21,11 @@
 
 #include "FloatType.h"
 #include "IO/StandardMapParser.h"
+#include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/IdType.h"
+
+#include <kdl/result.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/bbox.h>
@@ -95,6 +98,15 @@ namespace TrenchBroom {
             Model::Node* m_currentNode;
             std::vector<Model::BrushFace> m_faces;
 
+            struct BrushInfo {
+                Model::Node* parent;
+                std::vector<Model::BrushFace> faces;
+                size_t startLine;
+                size_t lineCount;
+                ExtraAttributes extraAttributes;
+            };
+            std::vector<BrushInfo> m_brushes;
+
             LayerMap m_layers;
             GroupMap m_groups;
             NodeParentList m_unresolvedNodes;
@@ -131,13 +143,15 @@ namespace TrenchBroom {
             void createLayer(size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
             void createGroup(size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
             void createEntity(size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
-            void createBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status);
+            void createBrush(kdl::result<Model::Brush, Model::BrushError> brush, const BrushInfo& brushInfo, ParserStatus& status);
 
             ParentInfo::Type storeNode(Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, ParserStatus& status);
             void stripParentAttributes(Model::AttributableNode* attributable, ParentInfo::Type parentType);
 
             void resolveNodes(ParserStatus& status);
             Model::Node* resolveParent(const ParentInfo& parentInfo) const;
+
+            void resolveBrushes(ParserStatus& status);
 
             EntityType entityType(const std::vector<Model::EntityAttribute>& attributes) const;
 
