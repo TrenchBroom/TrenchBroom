@@ -267,6 +267,31 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
         }
 
+        static auto notifySpecialWorldAttributes(const Model::Game& game, const std::vector<std::pair<Model::Node*, Model::NodeContents>>& nodesToSwap) {
+            for (const auto& [node, contents] : nodesToSwap) {
+                if (const auto* worldNode = dynamic_cast<const Model::WorldNode*>(node)) {
+                    const auto& oldEntity = worldNode->entity();
+                    const auto& newEntity = std::get<Model::Entity>(contents.get());
+
+                    const auto oldTextureCollections = game.extractTextureCollections(oldEntity);
+                    const auto newTextureCollections = game.extractTextureCollections(newEntity);
+                    const bool notifyTextureCollectionChange = oldTextureCollections != newTextureCollections;
+
+                    const auto oldEntityDefinitionSpec = game.extractEntityDefinitionFile(oldEntity);
+                    const auto newEntityDefinitionSpec = game.extractEntityDefinitionFile(newEntity);
+                    const bool notifyEntityDefinitionsChange = oldEntityDefinitionSpec != newEntityDefinitionSpec;
+
+                    const auto oldMods = game.extractEnabledMods(oldEntity);
+                    const auto newMods = game.extractEnabledMods(newEntity);
+                    const bool notifyModsChange = oldMods != newMods;
+                    
+                    return std::make_tuple(notifyTextureCollectionChange, notifyEntityDefinitionsChange, notifyModsChange);
+                }
+            }
+
+            return std::make_tuple(false, false, false);
+        }
+
         void MapDocumentCommandFacade::performSwapNodeContents(std::vector<std::pair<Model::Node*, Model::NodeContents>>& nodesToSwap) {
             const auto nodes = kdl::vec_transform(nodesToSwap, [](const auto& pair) { return pair.first; });
             const auto parents = collectParents(nodes);
@@ -275,6 +300,11 @@ namespace TrenchBroom {
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
+
+            const auto [notifyTextureCollectionChange, notifyEntityDefinitionsChange, notifyModsChange] = notifySpecialWorldAttributes(*game(), nodesToSwap);
+            Notifier<>::NotifyBeforeAndAfter notifyTextureCollections(notifyTextureCollectionChange, textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
+            Notifier<>::NotifyBeforeAndAfter notifyEntityDefinitions(notifyEntityDefinitionsChange, entityDefinitionsWillChangeNotifier, entityDefinitionsDidChangeNotifier);
+            Notifier<>::NotifyBeforeAndAfter notifyMods(notifyModsChange, modsWillChangeNotifier, modsDidChangeNotifier);
 
             for (auto& pair : nodesToSwap) {
                 auto* node = pair.first;
@@ -289,9 +319,13 @@ namespace TrenchBroom {
                 ));
             }
 
-            setEntityDefinitions(nodes);
-            setEntityModels(nodes);
-            setTextures(nodes);
+            if (!notifyEntityDefinitionsChange && !notifyModsChange) {
+                setEntityDefinitions(nodes);
+                setEntityModels(nodes);
+            }
+            if (!notifyTextureCollectionChange) {
+                setTextures(nodes);
+            }
 
             invalidateSelectionBounds();
         }
@@ -619,44 +653,6 @@ namespace TrenchBroom {
                 setTextures(nodes.release_data());
                 brushFacesDidChangeNotifier(faceHandles);
             }
-        }
-
-        void MapDocumentCommandFacade::performSetEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec) {
-            const std::vector<Model::Node*> nodes(1, m_world.get());
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<>::NotifyBeforeAndAfter notifyEntityDefinitions(entityDefinitionsWillChangeNotifier, entityDefinitionsDidChangeNotifier);
-
-            // to avoid backslashes being misinterpreted as escape sequences
-            const std::string formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
-
-            auto entity = m_world->entity();
-            entity.addOrUpdateAttribute(Model::AttributeNames::EntityDefinitions, formatted);
-            m_world->setEntity(std::move(entity));
-        }
-
-        void MapDocumentCommandFacade::performSetTextureCollections(const std::vector<IO::Path>& paths) {
-            const std::vector<Model::Node*> nodes(1, m_world.get());
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<>::NotifyBeforeAndAfter notifyTextureCollections(textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
-
-            auto entity = m_world->entity();
-            m_game->updateTextureCollections(entity, paths);
-            m_world->setEntity(std::move(entity));
-        }
-
-        void MapDocumentCommandFacade::performSetMods(const std::vector<std::string>& mods) {
-            const std::vector<Model::Node*> nodes(1, m_world.get());
-            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            Notifier<>::NotifyBeforeAndAfter notifyMods(modsWillChangeNotifier, modsDidChangeNotifier);
-
-            auto entity = m_world->entity();
-            if (mods.empty()) {
-                entity.removeAttribute(Model::AttributeNames::Mods);
-            } else {
-                const std::string newValue = kdl::str_join(mods, ";");
-                entity.addOrUpdateAttribute(Model::AttributeNames::Mods, newValue);
-            }
-            m_world->setEntity(std::move(entity));
         }
 
         void MapDocumentCommandFacade::doSetIssueHidden(Model::Issue* issue, const bool hidden) {

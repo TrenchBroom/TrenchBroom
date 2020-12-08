@@ -36,6 +36,7 @@ namespace TrenchBroom {
              */
             explicit NodeContents(std::variant<Entity, Brush> contents);
 
+            const std::variant<Entity, Brush>& get() const;
             std::variant<Entity, Brush>& get();
         };
     }

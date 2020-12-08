@@ -40,6 +40,10 @@ namespace TrenchBroom {
             ), m_contents);
         }
 
+        const std::variant<Entity, Brush>& NodeContents::get() const {
+            return m_contents;
+        }
+
         std::variant<Entity, Brush>& NodeContents::get() {
             return m_contents;
         }

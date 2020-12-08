@@ -25,6 +25,7 @@
 #include "Preferences.h"
 #include "Assets/AssetUtils.h"
 #include "Assets/EntityDefinition.h"
+#include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModelManager.h"
@@ -85,7 +86,6 @@
 #include "View/Actions.h"
 #include "View/CurrentGroupCommand.h"
 #include "View/DuplicateNodesCommand.h"
-#include "View/EntityDefinitionFileCommand.h"
 #include "View/Grid.h"
 #include "View/MapTextEncoding.h"
 #include "View/MoveBrushEdgesCommand.h"
@@ -100,8 +100,6 @@
 #include "View/SelectionCommand.h"
 #include "View/SetLockStateCommand.h"
 #include "View/SetCurrentLayerCommand.h"
-#include "View/SetModsCommand.h"
-#include "View/SetTextureCollectionsCommand.h"
 #include "View/SetVisibilityCommand.h"
 #include "View/SnapBrushVerticesCommand.h"
 #include "View/SwapNodeContentsCommand.h"
@@ -2279,7 +2277,12 @@ namespace TrenchBroom {
         }
 
         void MapDocument::setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec) {
-            executeAndStore(EntityDefinitionFileCommand::set(spec));
+            // to avoid backslashes being misinterpreted as escape sequences
+            const std::string formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
+
+            auto entity = m_world->entity();
+            entity.addOrUpdateAttribute(Model::AttributeNames::EntityDefinitions, formatted);
+            swapNodeContents("Set Entity Definitions", {{world(), Model::NodeContents(std::move(entity))}});
         }
 
         void MapDocument::setEntityDefinitions(const std::vector<Assets::EntityDefinition*>& definitions) {
@@ -2295,7 +2298,9 @@ namespace TrenchBroom {
         }
 
         void MapDocument::setEnabledTextureCollections(const std::vector<IO::Path>& paths) {
-            executeAndStore(SetTextureCollectionsCommand::set(paths));
+            auto entity = m_world->entity();
+            m_game->updateTextureCollections(entity, paths);
+            swapNodeContents("Set Texture Collections", {{world(), Model::NodeContents(std::move(entity))}});
         }
 
         void MapDocument::reloadTextureCollections() {
@@ -2566,7 +2571,14 @@ namespace TrenchBroom {
         }
 
         void MapDocument::setMods(const std::vector<std::string>& mods) {
-            executeAndStore(SetModsCommand::set(mods));
+            auto entity = m_world->entity();
+            if (mods.empty()) {
+                entity.removeAttribute(Model::AttributeNames::Mods);
+            } else {
+                const std::string newValue = kdl::str_join(mods, ";");
+                entity.addOrUpdateAttribute(Model::AttributeNames::Mods, newValue);
+            }
+            swapNodeContents("Set Enabled Mods", {{world(), Model::NodeContents(std::move(entity))}});
         }
 
         std::string MapDocument::defaultMod() const {
