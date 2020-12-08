@@ -25,6 +25,18 @@
 #include <vector>
 
 namespace kdl {
+    /**
+     * Runs the given lambda `count` times, passing it indices 0 through `count - 1`.
+     *
+     * Lambda is executed in parallel, using the number of threads returned by std::thread::hardware_concurrency().
+     *
+     * Because the threads are spawned with std::async(std::launch::async, ...) and no thread pool is used,
+     * there is a relatively large overhead and this should only be used on large/slow to process data sets.
+     *
+     * @tparam L type of lambda
+     * @param count the maximum value (exclusive) to pass to lambda
+     * @param lambda the lambda to run
+     */
     template<class L>
     void parallel_for(const size_t count, L&& lambda) {
         size_t numThreads = static_cast<size_t>(std::thread::hardware_concurrency());
@@ -53,20 +65,6 @@ namespace kdl {
             threads[i].wait();
         }
     }
-
-    //template<class T, class L>
-    //void vec_parallel_do(const std::vector<T>& input, L&& lambda) {
-    //    vec_parallel_for(input.size(), [&](const size_t index) {
-    //        lambda(input[index]);
-    //    });
-    //}
-
-    //template<class T, class L>
-    //void vec_parallel_do(std::vector<T>& input, L&& lambda) {
-    //    vec_parallel_for(input.size(), [&](const size_t index) {
-    //        lambda(input[index]);
-    //    });
-    //}
 
     /**
      * Applies the given lambda to each element of the input (passing elements as const lvalue references),
