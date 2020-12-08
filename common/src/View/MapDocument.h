@@ -25,6 +25,7 @@
 #include "Model/Game.h"
 #include "Model/MapFacade.h"
 #include "Model/NodeCollection.h"
+#include "Model/NodeContents.h"
 #include "View/CachingLogger.h"
 
 #include <vecmath/forward.h>
@@ -51,10 +52,12 @@ namespace TrenchBroom {
     }
 
     namespace Model {
+        class Brush;
         class BrushFace;
         class BrushFaceHandle;
         class BrushFaceAttributes;
         class EditorContext;
+        class Entity;
         enum class ExportFormat;
         class Game;
         class Issue;
@@ -391,6 +394,8 @@ namespace TrenchBroom {
             void downgradeShownToInherit(const std::vector<Model::Node*>& nodes);
             void downgradeUnlockedToInherit(const std::vector<Model::Node*>& nodes);
         public: // modifying objects, declared in MapFacade interface
+            void swapNodeContents(const std::string& commandName, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap);
+
             bool translateObjects(const vm::vec3& delta) override;
             bool rotateObjects(const vm::vec3& center, const vm::vec3& axis, FloatType angle) override;
             bool scaleObjects(const vm::bbox3& oldBBox, const vm::bbox3& newBBox) override;
