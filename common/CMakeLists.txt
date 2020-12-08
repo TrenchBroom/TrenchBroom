@@ -309,7 +309,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/EntityBrowser.cpp
         ${COMMON_SOURCE_DIR}/View/EntityBrowserView.cpp
         ${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.cpp
-        ${COMMON_SOURCE_DIR}/View/EntityDefinitionFileCommand.cpp
         ${COMMON_SOURCE_DIR}/View/EntityInspector.cpp
         ${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.cpp
         ${COMMON_SOURCE_DIR}/View/FaceInspector.cpp
@@ -404,8 +403,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/SetBrushFaceAttributesTool.cpp
         ${COMMON_SOURCE_DIR}/View/SetCurrentLayerCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SetLockStateCommand.cpp
-        ${COMMON_SOURCE_DIR}/View/SetModsCommand.cpp
-        ${COMMON_SOURCE_DIR}/View/SetTextureCollectionsCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SetVisibilityCommand.cpp
         ${COMMON_SOURCE_DIR}/View/ShearObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.cpp
@@ -820,7 +817,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/EntityBrowser.h
         ${COMMON_SOURCE_DIR}/View/EntityBrowserView.h
         ${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.h
-        ${COMMON_SOURCE_DIR}/View/EntityDefinitionFileCommand.h
         ${COMMON_SOURCE_DIR}/View/EntityInspector.h
         ${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.h
         ${COMMON_SOURCE_DIR}/View/FaceInspector.h
@@ -918,8 +914,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/SetBrushFaceAttributesTool.h
         ${COMMON_SOURCE_DIR}/View/SetCurrentLayerCommand.h
         ${COMMON_SOURCE_DIR}/View/SetLockStateCommand.h
-        ${COMMON_SOURCE_DIR}/View/SetModsCommand.h
-        ${COMMON_SOURCE_DIR}/View/SetTextureCollectionsCommand.h
         ${COMMON_SOURCE_DIR}/View/SetVisibilityCommand.h
         ${COMMON_SOURCE_DIR}/View/ShearObjectsTool.h
         ${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.h
