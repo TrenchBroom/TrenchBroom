@@ -559,8 +559,7 @@ namespace TrenchBroom {
             SECTION("No modification to brush") {
             }
             SECTION("Vertex manipulation") {
-                const auto verticesToMove = std::map<vm::vec3, std::vector<Model::BrushNode*>>{ { vm::vec3::fill(16.0), { brushNodeWithTags } } };
-                const auto result = document->moveVertices(verticesToMove, vm::vec3::fill(1.0));
+                const auto result = document->moveVertices({vm::vec3::fill(16.0)}, vm::vec3::fill(1.0));
                 REQUIRE(result.success);
                 REQUIRE(result.hasRemainingVertices);
             }
