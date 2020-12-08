@@ -40,6 +40,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class BrushVertexCommandBase;
         class Grid;
         class Lasso;
         class Selection;
@@ -96,6 +97,9 @@ namespace TrenchBroom {
 
             void addHandles(VertexCommand* command) override;
             void removeHandles(VertexCommand* command) override;
+
+            void addHandles(BrushVertexCommandBase* command) override;
+            void removeHandles(BrushVertexCommandBase* command) override;
         private: // General helper methods
             void resetModeAfterDeselection();
         };

@@ -34,6 +34,7 @@
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderService.h"
 #include "View/AddBrushVerticesCommand.h"
+#include "View/BrushVertexCommands.h"
 #include "View/Lasso.h"
 #include "View/MapDocument.h"
 #include "View/MoveBrushVerticesCommand.h"
@@ -453,6 +454,10 @@ namespace TrenchBroom {
                     deselectHandles();
                     removeHandles(vertexCommand);
                     ++m_ignoreChangeNotifications;
+                } else if (auto* vertexCommand = dynamic_cast<BrushVertexCommand*>(command)) {
+                    deselectHandles();
+                    removeHandles(vertexCommand);
+                    ++m_ignoreChangeNotifications;
                 }
             }
 
@@ -462,12 +467,20 @@ namespace TrenchBroom {
                     addHandles(vertexCommand);
                     selectNewHandlePositions(vertexCommand);
                     --m_ignoreChangeNotifications;
+                } else if (auto* vertexCommand = dynamic_cast<BrushVertexCommand*>(command)) {
+                    addHandles(vertexCommand);
+                    selectNewHandlePositions(vertexCommand);
+                    --m_ignoreChangeNotifications;
                 }
             }
 
             void commandDoFailedOrUndone(Command* command) {
                 if (isVertexCommand(command)) {
                     auto* vertexCommand = static_cast<VertexCommand*>(command);
+                    addHandles(vertexCommand);
+                    selectOldHandlePositions(vertexCommand);
+                    --m_ignoreChangeNotifications;
+                } else if (auto* vertexCommand = dynamic_cast<BrushVertexCommand*>(command)) {
                     addHandles(vertexCommand);
                     selectOldHandlePositions(vertexCommand);
                     --m_ignoreChangeNotifications;
@@ -520,6 +533,22 @@ namespace TrenchBroom {
             }
 
             virtual void selectOldHandlePositions(VertexCommand* command) {
+                command->selectOldHandlePositions(handleManager());
+            }
+
+            virtual void addHandles(BrushVertexCommandBase* command) {
+                command->addHandles(handleManager());
+            }
+
+            virtual void removeHandles(BrushVertexCommandBase* command) {
+                command->removeHandles(handleManager());
+            }
+
+            virtual void selectNewHandlePositions(BrushVertexCommandBase* command) {
+                command->selectNewHandlePositions(handleManager());
+            }
+
+            virtual void selectOldHandlePositions(BrushVertexCommandBase* command) {
                 command->selectOldHandlePositions(handleManager());
             }
 

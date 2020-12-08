@@ -24,6 +24,7 @@
 #include "Preferences.h"
 #include "Model/BrushNode.h"
 #include "Renderer/RenderBatch.h"
+#include "View/BrushVertexCommands.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/VertexCommand.h"
@@ -254,6 +255,18 @@ namespace TrenchBroom {
         }
 
         void VertexTool::removeHandles(VertexCommand* command) {
+            command->removeHandles(*m_vertexHandles);
+            command->removeHandles(*m_edgeHandles);
+            command->removeHandles(*m_faceHandles);
+        }
+
+        void VertexTool::addHandles(BrushVertexCommandBase* command) {
+            command->addHandles(*m_vertexHandles);
+            command->addHandles(*m_edgeHandles);
+            command->addHandles(*m_faceHandles);
+        }
+
+        void VertexTool::removeHandles(BrushVertexCommandBase* command) {
             command->removeHandles(*m_vertexHandles);
             command->removeHandles(*m_edgeHandles);
             command->removeHandles(*m_faceHandles);
