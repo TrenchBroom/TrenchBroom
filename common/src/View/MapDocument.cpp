@@ -111,6 +111,7 @@
 #include "View/SetVisibilityCommand.h"
 #include "View/ShearTexturesCommand.h"
 #include "View/SnapBrushVerticesCommand.h"
+#include "View/SwapNodeContentsCommand.h"
 #include "View/TransformObjectsCommand.h"
 #include "View/ViewEffectsService.h"
 
@@ -1521,6 +1522,10 @@ namespace TrenchBroom {
                 }
             }
             resetLock(nodesToReset);
+        }
+
+        void MapDocument::swapNodeContents(const std::string& commandName, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap) {
+            executeAndStore(std::make_unique<SwapNodeContentsCommand>(commandName, std::move(nodesToSwap)));
         }
 
         bool MapDocument::translateObjects(const vm::vec3& delta) {

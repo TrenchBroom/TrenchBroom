@@ -36,6 +36,7 @@
 #include "Model/Game.h"
 #include "Model/GroupNode.h"
 #include "Model/Issue.h"
+#include "Model/LayerNode.h"
 #include "Model/ModelUtils.h"
 #include "Model/Snapshot.h"
 #include "Model/WorldNode.h"
@@ -262,6 +263,35 @@ namespace TrenchBroom {
                 unsetTextures(children);
                 parent->removeChildren(std::begin(children), std::end(children));
             }
+
+            invalidateSelectionBounds();
+        }
+
+        void MapDocumentCommandFacade::performSwapNodeContents(std::vector<std::pair<Model::Node*, Model::NodeContents>>& nodesToSwap) {
+            const auto nodes = kdl::vec_transform(nodesToSwap, [](const auto& pair) { return pair.first; });
+            const auto parents = collectParents(nodes);
+            const auto descendants = collectDescendants(nodes);
+
+            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            Notifier<const std::vector<Model::Node*>&>::NotifyBeforeAndAfter notifyDescendants(nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
+
+            for (auto& pair : nodesToSwap) {
+                auto* node = pair.first;
+                auto& contents = pair.second.get();
+
+                pair.second = node->accept(kdl::overload(
+                    [&](Model::WorldNode* worldNode)   -> Model::NodeContents { return Model::NodeContents(worldNode->setEntity(std::get<Model::Entity>(std::move(contents)))); },
+                    [&](Model::LayerNode* layerNode)   -> Model::NodeContents { return Model::NodeContents(layerNode->setEntity(std::get<Model::Entity>(std::move(contents)))); },
+                    [&](Model::GroupNode* groupNode)   -> Model::NodeContents { return Model::NodeContents(groupNode->setEntity(std::get<Model::Entity>(std::move(contents)))); },
+                    [&](Model::EntityNode* entityNode) -> Model::NodeContents { return Model::NodeContents(entityNode->setEntity(std::get<Model::Entity>(std::move(contents)))); },
+                    [&](Model::BrushNode* brushNode)   -> Model::NodeContents { return Model::NodeContents(brushNode->setBrush(std::get<Model::Brush>(std::move(contents)))); }
+                ));
+            }
+
+            setEntityDefinitions(nodes);
+            setEntityModels(nodes);
+            setTextures(nodes);
 
             invalidateSelectionBounds();
         }
