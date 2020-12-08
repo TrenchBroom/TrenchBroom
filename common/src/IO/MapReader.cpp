@@ -19,7 +19,6 @@
 
 #include "MapReader.h"
 
-#include "Ensure.h"
 #include "IO/ParserStatus.h"
 #include "Model/BrushError.h"
 #include "Model/BrushFace.h"
