@@ -407,22 +407,18 @@ namespace TrenchBroom {
                 const auto dragFaceIndex = dragFaceHandle.faceIndex();
                 const auto newDragFaceNormal = oldBrush.face(dragFaceIndex).boundary().normal;
 
-                const bool success = oldBrush.moveBoundary(worldBounds, dragFaceIndex, delta, lockTextures)
-                    .and_then(
-                        [&](Model::Brush newBrush) {
-                            auto clipFace = oldBrush.face(dragFaceIndex);
-                            clipFace.invert();
-
-                            return newBrush.clip(worldBounds, std::move(clipFace))
-                                .and_then(
-                                    [&]() {
-                                        auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
-                                        newNodes[brushNode->parent()].push_back(newBrushNode);
-                                        newDragHandles.emplace_back(newBrushNode, newDragFaceNormal);
-                                        return kdl::void_result;
-                                    });
-                        }
-                    ).handle_errors(
+                auto newBrush = oldBrush;
+                const bool success = newBrush.moveBoundary(worldBounds, dragFaceIndex, delta, lockTextures)
+                    .and_then([&]() {
+                        auto clipFace = oldBrush.face(dragFaceIndex);
+                        clipFace.invert();
+                        return newBrush.clip(worldBounds, std::move(clipFace));
+                    }).and_then([&]() {
+                        auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
+                        newNodes[brushNode->parent()].push_back(newBrushNode);
+                        newDragHandles.emplace_back(newBrushNode, newDragFaceNormal);
+                        return kdl::void_result;
+                    }).handle_errors(
                         [&](const Model::BrushError e) {
                             document->error() << "Could not extrude brush: " << e;
                         }

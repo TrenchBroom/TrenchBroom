@@ -53,11 +53,11 @@
 
 namespace TrenchBroom {
     namespace Model {
-        static bool canMoveBoundary(const Brush& brush, const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta) {
+        static bool canMoveBoundary(Brush brush, const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta) {
             return brush.moveBoundary(worldBounds, faceIndex, delta, false)
                 .visit(kdl::overload(
-                    [&](const Brush& b) {
-                        return worldBounds.contains(b.bounds());
+                    [&]() {
+                        return worldBounds.contains(brush.bounds());
                     },
                     [](const BrushError) {
                         return false;
@@ -446,7 +446,7 @@ namespace TrenchBroom {
             CHECK(canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, +1.0)));
             CHECK(canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, -5.0)));
 
-            brush = brush.moveBoundary(worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, 1.0), false).value();
+            CHECK(brush.moveBoundary(worldBounds, *topFaceIndex, vm::vec3(0.0, 0.0, 1.0), false).is_success());
             CHECK(worldBounds.contains(brush.bounds()));
             
             CHECK(brush.faces().size() == 6u);

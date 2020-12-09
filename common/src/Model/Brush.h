@@ -95,17 +95,17 @@ namespace TrenchBroom {
             /**
              * Translates a face by the given delta.
              *
-             * The face is only translated if the resulting brush has the same number of faces as this brush. If the
-             * resulting brush becomes invalid, an error is returned.
+             * The face is only translated if the brush has the same number of faces as this brush. If the
+             * brush becomes invalid, an error is returned.
              *
              * @param worldBounds the world bounds
              * @param faceIndex the index of the face to translate
              * @param delta the vector by which to translate the face
              * @param lockTexture whether textures should be locked
              *
-             * @return a result containing either the resulting brush or an error
+             * @return a void result or an error
              */
-            kdl::result<Brush, BrushError> moveBoundary(const vm::bbox3& worldBounds, size_t faceIndex, const vm::vec3& delta, bool lockTexture) const;
+            kdl::result<void, BrushError> moveBoundary(const vm::bbox3& worldBounds, size_t faceIndex, const vm::vec3& delta, bool lockTexture);
 
             /**
              * Moves all faces by `delta` units along their normals; negative values shrink the brush. If the resulting
