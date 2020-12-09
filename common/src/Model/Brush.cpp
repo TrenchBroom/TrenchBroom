@@ -261,16 +261,15 @@ namespace TrenchBroom {
                 });
         }
 
-        kdl::result<Brush, BrushError> Brush::expand(const vm::bbox3& worldBounds, const FloatType delta, const bool lockTexture) const {
-            auto faces = m_faces;
-            for (auto& face : faces) {
+        kdl::result<void, BrushError> Brush::expand(const vm::bbox3& worldBounds, const FloatType delta, const bool lockTexture) {
+            for (auto& face : m_faces) {
                 const vm::vec3 moveAmount = face.boundary().normal * delta;
                 if (!face.transform(vm::translation_matrix(moveAmount), lockTexture)) {
-                    return kdl::result<Brush, BrushError>::error(BrushError::InvalidFace);
+                    return kdl::result<void, BrushError>::error(BrushError::InvalidFace);
                 }
             }
 
-            return Brush::create(worldBounds, std::move(faces));
+            return updateGeometryFromFaces(worldBounds);
         }
 
         size_t Brush::vertexCount() const {
