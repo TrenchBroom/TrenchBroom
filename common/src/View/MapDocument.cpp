@@ -1877,13 +1877,13 @@ namespace TrenchBroom {
             std::vector<Model::Node*> toRemove;
 
             for (Model::BrushNode* brushNode : brushNodes) {
-                const Model::Brush& brush = brushNode->brush();
+                const auto& originalBrush = brushNode->brush();
+                Model::Brush shrunkenBrush = originalBrush;
 
-                // make an shrunken copy of brush
-                brush.expand(m_worldBounds, -1.0 * static_cast<FloatType>(m_grid->actualSize()), true)
+                shrunkenBrush.expand(m_worldBounds, -1.0 * static_cast<FloatType>(m_grid->actualSize()), true)
                     .and_then(
-                        [&](const Model::Brush& shrunken) {
-                            return brush.subtract(*m_world, m_worldBounds, currentTextureName(), shrunken);
+                        [&]() {
+                            return originalBrush.subtract(*m_world, m_worldBounds, currentTextureName(), shrunkenBrush);
                         }
                     ).visit(kdl::overload(
                         [&](const std::vector<Model::Brush>& fragments) {

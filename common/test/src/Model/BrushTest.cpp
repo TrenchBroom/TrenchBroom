@@ -473,9 +473,7 @@ namespace TrenchBroom {
             const BrushBuilder builder(&world, worldBounds);
 
             Brush brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture").value();
-            const auto expandResult = brush1.expand(worldBounds, 6, true);
-            CHECK(expandResult.is_success());
-            brush1 = expandResult.value();
+            CHECK(brush1.expand(worldBounds, 6, true).is_success());
 
             const vm::bbox3 expandedBBox(vm::vec3(-70, -70, -70), vm::vec3(70, 70, 70));
             
@@ -489,9 +487,7 @@ namespace TrenchBroom {
             const BrushBuilder builder(&world, worldBounds);
 
             Brush brush1 = builder.createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture").value();
-            const auto expandResult = brush1.expand(worldBounds, -32, true);
-            CHECK(expandResult.is_success());
-            brush1 = expandResult.value();
+            CHECK(brush1.expand(worldBounds, -32, true).is_success());
 
             const vm::bbox3 expandedBBox(vm::vec3(-32, -32, -32), vm::vec3(32, 32, 32));
 
