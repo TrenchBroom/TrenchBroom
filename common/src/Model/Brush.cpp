@@ -247,18 +247,17 @@ namespace TrenchBroom {
             return updateGeometryFromFaces(worldBounds);
         }
 
-        kdl::result<Brush, BrushError> Brush::moveBoundary(const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta, const bool lockTexture) const {
+        kdl::result<void, BrushError> Brush::moveBoundary(const vm::bbox3& worldBounds, const size_t faceIndex, const vm::vec3& delta, const bool lockTexture) {
             assert(faceIndex < faceCount());
 
-            auto newFaces = m_faces;
-            
-            return newFaces[faceIndex].transform(vm::translation_matrix(delta), lockTexture)
+            const auto originalFaceCount = faceCount();
+            return m_faces[faceIndex].transform(vm::translation_matrix(delta), lockTexture)
                 .and_then([&]() {
-                        return Brush::create(worldBounds, newFaces);
-                }).and_then([&](Brush&& b){
-                    return b.faceCount() != faceCount()
-                        ? kdl::result<Brush, BrushError>::error(BrushError::InvalidBrush)
-                        : kdl::result<Brush, BrushError>::success(std::move(b));
+                    return updateGeometryFromFaces(worldBounds);
+                }).and_then([&]() {
+                    return faceCount() == originalFaceCount
+                        ? kdl::result<void, BrushError>::success()
+                        : kdl::result<void, BrushError>::error(BrushError::InvalidBrush);
                 });
         }
 

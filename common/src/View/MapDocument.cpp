@@ -1994,22 +1994,17 @@ namespace TrenchBroom {
         bool MapDocument::resizeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) {
             return applyAndSwap(*this, "Resize Brushes", m_selectedNodes.nodes(), kdl::overload(
                 [] (Model::Entity&)      { return true; },
-                [&](Model::Brush& originalBrush) {
-                    const auto faceIndex = originalBrush.findFace(faces);
+                [&](Model::Brush& brush) {
+                    const auto faceIndex = brush.findFace(faces);
                     if (!faceIndex) {
                         // we allow resizing only some of the brushes
                         return true;
                     }
 
-                    return originalBrush.moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
+                    return brush.moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
                         .visit(kdl::overload(
-                            [&](Model::Brush&& newBrush) -> bool {
-                                if (m_worldBounds.contains(newBrush.bounds())) {
-                                    originalBrush = std::move(newBrush);
-                                    return true;
-                                } else {
-                                    return false;
-                                }
+                            [&]() -> bool {
+                                return m_worldBounds.contains(brush.bounds());
                             },
                             [&](const Model::BrushError e) -> bool {
                                 error() << "Could not resize brush: " << e;
