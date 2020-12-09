@@ -409,17 +409,18 @@ namespace TrenchBroom {
 
                 const bool success = oldBrush.moveBoundary(worldBounds, dragFaceIndex, delta, lockTextures)
                     .and_then(
-                        [&](const Model::Brush& newBrush) {
+                        [&](Model::Brush newBrush) {
                             auto clipFace = oldBrush.face(dragFaceIndex);
                             clipFace.invert();
-                            return newBrush.clip(worldBounds, std::move(clipFace));
-                        }
-                    ).and_then(
-                        [&](Model::Brush&& newBrush) {
-                            auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
-                            newNodes[brushNode->parent()].push_back(newBrushNode);
-                            newDragHandles.emplace_back(newBrushNode, newDragFaceNormal);
-                            return kdl::void_result;
+
+                            return newBrush.clip(worldBounds, std::move(clipFace))
+                                .and_then(
+                                    [&]() {
+                                        auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
+                                        newNodes[brushNode->parent()].push_back(newBrushNode);
+                                        newDragHandles.emplace_back(newBrushNode, newDragFaceNormal);
+                                        return kdl::void_result;
+                                    });
                         }
                     ).handle_errors(
                         [&](const Model::BrushError e) {
@@ -466,33 +467,27 @@ namespace TrenchBroom {
                 const auto& dragFace = dragFaceHandle.face();
                 auto* brushNode = dragFaceHandle.node();
 
-                const auto& brush = brushNode->brush();
-                const auto newDragFaceIndex = brush.findFace(dragFace.boundary());
+                auto newBrush = brushNode->brush();
+                const auto newDragFaceIndex = newBrush.findFace(dragFace.boundary());
                 if (!newDragFaceIndex) {
                     kdl::map_clear_and_delete(newNodes);
                     return false;
                 }
 
-                auto clipFace = brush.face(*newDragFaceIndex);
+                auto clipFace = newBrush.face(*newDragFaceIndex);
                 clipFace.invert();
                 
                 const bool success = clipFace.transform(vm::translation_matrix(delta), lockTextures)
-                    .and_then(
-                        [&]() {
-                            return brush.clip(worldBounds, std::move(clipFace));
-                        }
-                    ).and_then(
-                        [&](Model::Brush&& newBrush) {
-                            auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
-                            newNodes[brushNode->parent()].push_back(newBrushNode);
-                            newDragHandles.emplace_back(newBrushNode, clipFace.boundary().normal);
-                            return kdl::void_result;
-                        }
-                    ).handle_errors(
-                        [&](const Model::BrushError e) {
-                            document->error() << "Could not extrude inwards: " << e;
-                        }
-                    );
+                    .and_then([&]() {
+                        return newBrush.clip(worldBounds, std::move(clipFace));
+                    }).and_then([&]() {
+                        auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
+                        newNodes[brushNode->parent()].push_back(newBrushNode);
+                        newDragHandles.emplace_back(newBrushNode, clipFace.boundary().normal);
+                        return kdl::void_result;
+                    }).handle_errors([&](const Model::BrushError e) {
+                        document->error() << "Could not extrude inwards: " << e;
+                    });
 
                 if (!success) {
                     kdl::map_clear_and_delete(newNodes);
