@@ -411,7 +411,7 @@ namespace TrenchBroom {
                 vm::vec3(8.0, 0.0, 0.0),
                 vm::vec3(8.0, 0.0, 1.0),
                 vm::vec3(8.0, 1.0, 0.0));
-            brush = brush.clip(worldBounds, clip).value();
+            CHECK(brush.clip(worldBounds, clip).is_success());
 
             CHECK(brush.faceCount() == 6u);
             CHECK(brush.findFace(left.boundary()));
