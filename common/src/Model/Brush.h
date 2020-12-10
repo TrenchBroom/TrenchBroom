@@ -226,16 +226,16 @@ namespace TrenchBroom {
             kdl::result<void, BrushError> intersect(const vm::bbox3& worldBounds, const Brush& brush);
 
             /**
-             * Applies the given transformation to this brush and returns the resulting brush.
+             * Applies the given transformation to this brush.
              *
-             * If the resulting brush is invalid, an error is returned.
+             * If the brush becomes invalid, an error is returned.
              *
              * @param worldBounds the world bounds
              * @param transformation the transformation to apply
              * @param lockTextures whether textures should be locked
-             * @return the transformed brush or an error if the operation fails
+             * @return a void result or an error if the operation fails
              */
-            kdl::result<Brush, BrushError> transform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) const;
+            kdl::result<void, BrushError> transform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures);
         public:
             bool contains(const vm::bbox3& bounds) const;
             bool contains(const Brush& brush) const;
