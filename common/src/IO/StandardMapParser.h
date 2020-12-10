@@ -72,7 +72,8 @@ namespace TrenchBroom {
             using PropertyKeys = kdl::vector_set<std::string>;
 
             static std::string BrushPrimitiveId;
-            static std::string PatchId;
+            static std::string PatchId2;
+			static std::string PatchId3;
 
             QuakeMapTokenizer m_tokenizer;
         protected:
@@ -114,7 +115,9 @@ namespace TrenchBroom {
             void parsePrimitiveFace(ParserStatus& status);
             void parseDoom3PrimitiveFace(ParserStatus& status);
 
-            void parsePatch(ParserStatus& status, size_t startLine);
+            void parseQuake3Patch(ParserStatus& status, size_t startLine);
+            void parseDoom3Patch2(ParserStatus& status, size_t startLine);
+			void parseDoom3Patch3(ParserStatus& status, size_t startLine);
 
             std::tuple<vm::vec3, vm::vec3, vm::vec3> parseFacePoints(ParserStatus& status);
             std::string parseTextureName(ParserStatus& status);
