@@ -112,8 +112,6 @@ namespace TrenchBroom {
             LayerNode* doGetLayer() override;
             GroupNode* doGetGroup() override;
 
-            kdl::result<void, TransformError> doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) override;
-
             bool doContains(const Node* node) const override;
             bool doIntersects(const Node* node) const override;
         public: // renderer cache

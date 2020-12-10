@@ -232,25 +232,6 @@ namespace TrenchBroom {
             return findContainingGroup(this);
         }
 
-        kdl::result<void, TransformError> BrushNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
-            const NotifyNodeChange nodeChange(this);
-            const NotifyPhysicalBoundsChange boundsChange(this);
-
-            return m_brush.transform(worldBounds, transformation, lockTextures)
-                .visit(kdl::overload(
-                    [&](Brush&& brush) {
-                        m_brush = std::move(brush);
-                        invalidateIssues();
-                        invalidateVertexCache();
-
-                        return kdl::result<void, TransformError>::success();
-                    },
-                    [](const BrushError e) {
-                        return kdl::result<void, TransformError>::error(TransformError{kdl::str_to_string(e)});
-                    }
-                ));
-        }
-
         bool BrushNode::doContains(const Node* node) const {
             return node->accept(kdl::overload(
                 [](const WorldNode*)          { return false; },

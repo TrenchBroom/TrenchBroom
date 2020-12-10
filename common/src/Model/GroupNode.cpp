@@ -222,33 +222,6 @@ namespace TrenchBroom {
             return findContainingGroup(this);
         }
 
-        kdl::result<void, TransformError> GroupNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, const bool lockTextures) {
-            for (auto* child : children()) {
-                auto result = child->accept(kdl::overload(
-                    [](Model::WorldNode*) {
-                        return kdl::result<void, Model::TransformError>::success();
-                    },
-                    [](Model::LayerNode*) {
-                        return kdl::result<void, Model::TransformError>::success();
-                    },
-                    [&](Model::GroupNode* group) {
-                        return group->transform(worldBounds, transformation, lockTextures);
-                    },
-                    [&](Model::EntityNode* entity) {
-                        return entity->transform(worldBounds, transformation, lockTextures);
-                    },
-                    [&](Model::BrushNode* brush) {
-                        return brush->transform(worldBounds, transformation, lockTextures);
-                    }
-                ));
-                if (result.is_error()) {
-                    return result;
-                }
-            }
-
-            return kdl::result<void, TransformError>::success();
-        }
-
         bool GroupNode::doContains(const Node* node) const {
             return boundsContainNode(logicalBounds(), node);
         }
