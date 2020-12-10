@@ -32,6 +32,7 @@
 
 #include <map>
 #include <string_view>
+#include <variant>
 #include <vector>
 
 namespace TrenchBroom {
@@ -94,19 +95,44 @@ namespace TrenchBroom {
             vm::bbox3 m_worldBounds;
             Model::ModelFactory* m_factory;
 
+        private: // data populated in response to MapParser callbacks
+            enum class FaceType {
+                Standard, Valve
+            };
+            struct FaceInfo {
+                FaceType type;
+                size_t line;
+                vm::vec3 point1;
+                vm::vec3 point2;
+                vm::vec3 point3;
+                Model::BrushFaceAttributes attribs;
+                vm::vec3 texAxisX;
+                vm::vec3 texAxisY;
+            };
             Model::Node* m_brushParent;
             Model::Node* m_currentNode;
             std::vector<Model::BrushFace> m_faces;
 
             struct BrushInfo {
-                Model::Node* parent;
-                std::vector<Model::BrushFace> faces;
+                /**
+                 * index of the entity in m_entityInfos that this brush belongs to
+                 */
+                size_t entityNum;
+                std::vector<FaceInfo> faces;
                 size_t startLine;
                 size_t lineCount;
                 ExtraAttributes extraAttributes;
             };
+            using LoadedBrush = std::variant<std::unique_ptr<Model::BrushNode>, Model::BrushError>;
+            struct EntityInfo {
+                size_t startLine;
+                size_t lineCount;
+                std::vector<Model::EntityAttribute> attributes;
+                ExtraAttributes extraAttributes;
+            };
+            std::vector<EntityInfo> m_entityInfos;
             std::vector<BrushInfo> m_brushInfos;
-
+        private: // state used in processing m_objects
             LayerMap m_layers;
             GroupMap m_groups;
             NodeParentList m_unresolvedNodes;
@@ -151,14 +177,14 @@ namespace TrenchBroom {
             void resolveNodes(ParserStatus& status);
             Model::Node* resolveParent(const ParentInfo& parentInfo) const;
 
-            void resolveBrushes(ParserStatus& status);
+            static std::vector<LoadedBrush> resolveBrushes(std::vector<BrushInfo> brushInfos);
 
             EntityType entityType(const std::vector<Model::EntityAttribute>& attributes) const;
 
             void setFilePosition(Model::Node* node, size_t startLine, size_t lineCount);
         protected:
             void setExtraAttributes(Model::Node* node, const ExtraAttributes& extraAttributes);
-        private: // subclassing interface
+        private: // subclassing interface - these will be called in the order that nodes should be inserted
             virtual Model::ModelFactory& initialize(Model::MapFormat format) = 0;
             virtual Model::Node* onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) = 0;
             virtual void onWorldspawnFilePosition(size_t startLine, size_t lineCount, ParserStatus& status) = 0;

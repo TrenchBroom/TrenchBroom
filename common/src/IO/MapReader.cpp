@@ -95,9 +95,49 @@ namespace TrenchBroom {
             parseBrushFaces(format, status);
         }
 
+        // implement MapParser interface
+
         void MapReader::onFormatSet(const Model::MapFormat format) {
             m_factory = &initialize(format);
         }
+
+        void MapReader::onBeginEntity(const size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+            m_entityInfos.push_back(EntityInfo{0, 0, attributes, extraAttributes});
+        }
+
+        void MapReader::onEndEntity(const size_t startLine, const size_t lineCount, ParserStatus& status) {
+            EntityInfo& entity = m_entityInfos.back();
+            entity.startLine = startLine;
+            entity.lineCount = lineCount;
+        }
+
+        void MapReader::onBeginBrush(const size_t /* line */, ParserStatus& /* status */) {
+            m_brushInfos.push_back(BrushInfo{m_entityInfos.size(), {}, 0, 0, {}});
+        }
+
+        void MapReader::onEndBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
+            BrushInfo& brush = m_brushInfos.back();
+            brush.startLine = startLine;
+            brush.lineCount = lineCount;
+            brush.extraAttributes = extraAttributes;
+        }
+
+        void MapReader::onStandardBrushFace(const size_t line, const Model::MapFormat /* format */, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status) {
+            if (m_brushInfos.empty()) {
+                // support use case of parsing loose faces
+                onBeginBrush(line, status);
+            }
+
+            BrushInfo& brush = m_brushInfos.back();
+            brush.faces.push_back(FaceInfo{FaceType::Standard, line, point1, point2, point3, attribs, vm::vec3::zero(), vm::vec3::zero()});
+        }
+
+        void MapReader::onValveBrushFace(const size_t line, const Model::MapFormat /* format */, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& /* status */) {
+            BrushInfo& brush = m_brushInfos.back();
+            brush.faces.push_back(FaceInfo{FaceType::Valve, line, point1, point2, point3, attribs, texAxisX, texAxisY});
+        }
+
+        // helper methods
 
         void MapReader::onBeginEntity(const size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             const EntityType type = entityType(attributes);
