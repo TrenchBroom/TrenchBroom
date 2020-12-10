@@ -2071,16 +2071,13 @@ namespace TrenchBroom {
                 [&](Model::Brush& originalBrush) {
                     if (originalBrush.canSnapVertices(m_worldBounds, snapTo)) {
                         originalBrush.snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock))
-                            .visit(kdl::overload(
-                                [&](Model::Brush&& newBrush) {
-                                    originalBrush = std::move(newBrush);
-                                    succeededBrushCount += 1;
-                                },
-                                [&](const Model::BrushError e) {
-                                    error() << "Could not snap vertices: " << e;
-                                    failedBrushCount += 1;
-                                }
-                            ));
+                            .and_then([&]() {
+                                succeededBrushCount += 1;
+                                return kdl::void_result;
+                            }).handle_errors([&](const Model::BrushError e) {
+                                error() << "Could not snap vertices: " << e;
+                                failedBrushCount += 1;
+                            });
                     } else {
                         failedBrushCount += 1;
                     }
@@ -2102,30 +2099,25 @@ namespace TrenchBroom {
             auto newVertexPositions = std::vector<vm::vec3>{};
             auto newNodes = applyToNodeContents(m_selectedNodes.nodes(), kdl::overload(
                 [] (Model::Entity&) { return true; },
-                [&](Model::Brush& originalBrush) {
-                    const auto verticesToMove = kdl::vec_filter(vertexPositions, [&](const auto& vertex) { return originalBrush.hasVertex(vertex); });
+                [&](Model::Brush& brush) {
+                    const auto verticesToMove = kdl::vec_filter(vertexPositions, [&](const auto& vertex) { return brush.hasVertex(vertex); });
                     if (verticesToMove.empty()) {
                         return true;
                     }
 
-                    if (!originalBrush.canMoveVertices(m_worldBounds, verticesToMove, delta)) {
+                    if (!brush.canMoveVertices(m_worldBounds, verticesToMove, delta)) {
                         return false;
                     }
 
-                    return originalBrush.moveVertices(m_worldBounds, verticesToMove, delta, pref(Preferences::UVLock))
-                        .visit(kdl::overload(
-                            [&](Model::Brush&& newBrush) -> bool {
-                                auto newPositions = newBrush.findClosestVertexPositions(verticesToMove + delta);
-                                newVertexPositions = kdl::vec_concat(std::move(newVertexPositions), std::move(newPositions));
-                                originalBrush = std::move(newBrush);
-                                return true;
-                            },
-                            [&](const Model::BrushError e) -> bool {
-                                error() << "Could not move brush vertices: " << e;
-                                return false;
-                            }
-                        ));
-                }
+                    return brush.moveVertices(m_worldBounds, verticesToMove, delta, pref(Preferences::UVLock))
+                        .and_then([&]() {
+                            auto newPositions = brush.findClosestVertexPositions(verticesToMove + delta);
+                            newVertexPositions = kdl::vec_concat(std::move(newVertexPositions), std::move(newPositions));
+                            return kdl::void_result;
+                        }).handle_errors([&](const Model::BrushError e) {
+                            error() << "Could not move brush vertices: " << e;
+                        });
+               }
             ));
 
             if (newNodes) {
@@ -2147,31 +2139,26 @@ namespace TrenchBroom {
             auto newEdgePositions = std::vector<vm::segment3>{};
             auto newNodes = applyToNodeContents(m_selectedNodes.nodes(), kdl::overload(
                 [] (Model::Entity&) { return true; },
-                [&](Model::Brush& originalBrush) {
-                    const auto edgesToMove = kdl::vec_filter(edgePositions, [&](const auto& edge) { return originalBrush.hasEdge(edge); });
+                [&](Model::Brush& brush) {
+                    const auto edgesToMove = kdl::vec_filter(edgePositions, [&](const auto& edge) { return brush.hasEdge(edge); });
                     if (edgesToMove.empty()) {
                         return true;
                     }
 
-                    if (!originalBrush.canMoveEdges(m_worldBounds, edgesToMove, delta)) {
+                    if (!brush.canMoveEdges(m_worldBounds, edgesToMove, delta)) {
                         return false;
                     }
 
-                    return originalBrush.moveEdges(m_worldBounds, edgesToMove, delta, pref(Preferences::UVLock))
-                        .visit(kdl::overload(
-                            [&](Model::Brush&& newBrush) -> bool {
-                                auto newPositions = newBrush.findClosestEdgePositions(kdl::vec_transform(edgesToMove, [&](const auto& edge) {
-                                    return edge.translate(delta);
-                                }));
-                                newEdgePositions = kdl::vec_concat(std::move(newEdgePositions), std::move(newPositions));
-                                originalBrush = std::move(newBrush);
-                                return true;
-                            },
-                            [&](const Model::BrushError e) -> bool {
-                                error() << "Could not move brush edges: " << e;
-                                return false;
-                            }
-                        ));
+                    return brush.moveEdges(m_worldBounds, edgesToMove, delta, pref(Preferences::UVLock))
+                        .and_then([&]() {
+                            auto newPositions = brush.findClosestEdgePositions(kdl::vec_transform(edgesToMove, [&](const auto& edge) {
+                                return edge.translate(delta);
+                            }));
+                            newEdgePositions = kdl::vec_concat(std::move(newEdgePositions), std::move(newPositions));
+                            return kdl::void_result;
+                        }).handle_errors([&](const Model::BrushError e) {
+                            error() << "Could not move brush edges: " << e;
+                        });
                 }
             ));
 
@@ -2189,31 +2176,26 @@ namespace TrenchBroom {
             auto newFacePositions = std::vector<vm::polygon3>{};
             auto newNodes = applyToNodeContents(m_selectedNodes.nodes(), kdl::overload(
                 [] (Model::Entity&) { return true; },
-                [&](Model::Brush& originalBrush) {
-                    const auto facesToMove = kdl::vec_filter(facePositions, [&](const auto& face) { return originalBrush.hasFace(face); });
+                [&](Model::Brush& brush) {
+                    const auto facesToMove = kdl::vec_filter(facePositions, [&](const auto& face) { return brush.hasFace(face); });
                     if (facesToMove.empty()) {
                         return true;
                     }
 
-                    if (!originalBrush.canMoveFaces(m_worldBounds, facesToMove, delta)) {
+                    if (!brush.canMoveFaces(m_worldBounds, facesToMove, delta)) {
                         return false;
                     }
 
-                    return originalBrush.moveFaces(m_worldBounds, facesToMove, delta, pref(Preferences::UVLock))
-                        .visit(kdl::overload(
-                            [&](Model::Brush&& newBrush) -> bool {
-                                auto newPositions = newBrush.findClosestFacePositions(kdl::vec_transform(facesToMove, [&](const auto& face) {
-                                    return face.translate(delta);
-                                }));
-                                newFacePositions = kdl::vec_concat(std::move(newFacePositions), std::move(newPositions));
-                                originalBrush = std::move(newBrush);
-                                return true;
-                            },
-                            [&](const Model::BrushError e) -> bool {
-                                error() << "Could not move brush faces: " << e;
-                                return false;
-                            }
-                        ));
+                    return brush.moveFaces(m_worldBounds, facesToMove, delta, pref(Preferences::UVLock))
+                        .and_then([&]() {
+                            auto newPositions = brush.findClosestFacePositions(kdl::vec_transform(facesToMove, [&](const auto& face) {
+                                return face.translate(delta);
+                            }));
+                            newFacePositions = kdl::vec_concat(std::move(newFacePositions), std::move(newPositions));
+                            return kdl::void_result;
+                        }).handle_errors([&](const Model::BrushError e) {
+                            error() << "Could not move brush faces: " << e;
+                        });
                 }
             ));
 
@@ -2230,22 +2212,15 @@ namespace TrenchBroom {
         bool MapDocument::addVertex(const vm::vec3& vertexPosition) {
             auto newNodes = applyToNodeContents(m_selectedNodes.nodes(), kdl::overload(
                 [] (Model::Entity&) { return true; },
-                [&](Model::Brush& originalBrush) {
-                    if (!originalBrush.canAddVertex(m_worldBounds, vertexPosition)) {
+                [&](Model::Brush& brush) {
+                    if (!brush.canAddVertex(m_worldBounds, vertexPosition)) {
                         return false;
                     }
 
-                    return originalBrush.addVertex(m_worldBounds, vertexPosition)
-                        .visit(kdl::overload(
-                            [&](Model::Brush&& newBrush) -> bool {
-                                originalBrush = std::move(newBrush);
-                                return true;
-                            },
-                            [&](const Model::BrushError e) -> bool {
-                                error() << "Could not add brush vertex: " << e;
-                                return false;
-                            }
-                        ));
+                    return brush.addVertex(m_worldBounds, vertexPosition)
+                        .handle_errors([&](const Model::BrushError e) {
+                            error() << "Could not add brush vertex: " << e;
+                        });
                 }
             ));
 
@@ -2259,27 +2234,20 @@ namespace TrenchBroom {
         bool MapDocument::removeVertices(const std::string& commandName, std::vector<vm::vec3> vertexPositions) {
             auto newNodes = applyToNodeContents(m_selectedNodes.nodes(), kdl::overload(
                 [] (Model::Entity&) { return true; },
-                [&](Model::Brush& originalBrush) {
-                    const auto verticesToRemove = kdl::vec_filter(vertexPositions, [&](const auto& vertex) { return originalBrush.hasVertex(vertex); });
+                [&](Model::Brush& brush) {
+                    const auto verticesToRemove = kdl::vec_filter(vertexPositions, [&](const auto& vertex) { return brush.hasVertex(vertex); });
                     if (verticesToRemove.empty()) {
                         return true;
                     }
 
-                    if (!originalBrush.canRemoveVertices(m_worldBounds, verticesToRemove)) {
+                    if (!brush.canRemoveVertices(m_worldBounds, verticesToRemove)) {
                         return false;
                     }
 
-                    return originalBrush.removeVertices(m_worldBounds, verticesToRemove)
-                        .visit(kdl::overload(
-                            [&](Model::Brush&& newBrush) -> bool {
-                                originalBrush = std::move(newBrush);
-                                return true;
-                            },
-                            [&](const Model::BrushError e) -> bool {
-                                error() << "Could not remove brush vertices: " << e;
-                                return false;
-                            }
-                        ));
+                    return brush.removeVertices(m_worldBounds, verticesToRemove)
+                        .handle_errors([&](const Model::BrushError e) {
+                            error() << "Could not remove brush vertices: " << e;
+                        });
                 }
             ));
 
