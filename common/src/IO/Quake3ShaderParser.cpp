@@ -107,8 +107,25 @@ namespace TrenchBroom {
 
         std::vector<Assets::Quake3Shader> Quake3ShaderParser::parse(ParserStatus& status) {
             std::vector<Assets::Quake3Shader> result;
+
+            const std::string tableId = "table";
+            const std::string materialId = "material";
+
             while (!m_tokenizer.peekToken(Quake3ShaderToken::Eol).hasType(Quake3ShaderToken::Eof)) {
                 Assets::Quake3Shader shader;
+
+                // RB: Doom 3 materials can have table and material keywords
+                const auto token = expect(Quake3ShaderToken::String, m_tokenizer.peekToken(Quake3ShaderToken::Eol));
+                const auto pathStr = token.data();
+                
+                if (token.data() == tableId ) {
+                   m_tokenizer.discardLine();
+                   continue;
+                } else if (token.data() == materialId ) {
+                   m_tokenizer.nextToken();
+                   continue;
+                }
+
                 parseTexture(shader, status);
                 parseBody(shader, status);
                 result.push_back(shader);
@@ -162,6 +179,11 @@ namespace TrenchBroom {
             const auto key = token.data();
             if (key == "qer_editorimage") {
                 token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
+
+                // RB: FIXME remove
+                //if( token.data() == "textures/base_wall/lfwall13f3") {
+                //    shader.editorImage = Path(token.data());
+                //}
                 shader.editorImage = Path(token.data());
             } else if (key == "q3map_lightimage") {
                 token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());

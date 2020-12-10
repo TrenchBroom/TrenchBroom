@@ -53,7 +53,22 @@ namespace TrenchBroom {
             auto result = std::vector<Assets::Quake3Shader>();
 
             if (next().directoryExists(m_shaderSearchPath)) {
-                const auto paths = next().findItems(m_shaderSearchPath, FileExtensionMatcher("shader"));
+                auto paths = next().findItems(m_shaderSearchPath, FileExtensionMatcher("shader"));
+                for (const auto& path : paths) {
+                    const auto file = next().openFile(path);
+                    auto bufferedReader = file->reader().buffer();
+
+                    try {
+                        Quake3ShaderParser parser(bufferedReader.stringView());
+                        SimpleParserStatus status(m_logger, file->path().asString());
+                        result = kdl::vec_concat(std::move(result), parser.parse(status));
+                    } catch (const ParserException& e) {
+                        m_logger.warn() << "Skipping malformed shader file " << path << ": " << e.what();
+                    }
+                }
+
+                // RB: ugly but do the same with Doom 3 materials
+                paths = next().findItems(m_shaderSearchPath, FileExtensionMatcher("mtr"));
                 for (const auto& path : paths) {
                     const auto file = next().openFile(path);
                     auto bufferedReader = file->reader().buffer();

@@ -21,6 +21,7 @@
 #include "StandardMapParser.h"
 
 #include "IO/ParserStatus.h"
+#include "IO/Path.h" // RB
 #include "Model/BrushFace.h"
 #include "Model/EntityProperties.h"
 
@@ -578,11 +579,7 @@ namespace TrenchBroom {
             const auto [texX, texY] = parsePrimitiveTextureAxes(status);
             expect(QuakeMapToken::CParenthesis, m_tokenizer.nextToken());
 
-            auto token = m_tokenizer.nextToken();
-            assert(token.type() == QuakeMapToken::String);
-            const auto textureName = token.data();
-
-            //const auto textureName = parseTextureName(status);
+            const auto textureName = parseDoom3TextureName(status);
 
             // TODO 2427: what to set for offset, rotation, scale?!
             auto attribs = Model::BrushFaceAttributes(textureName);
@@ -665,12 +662,7 @@ namespace TrenchBroom {
             expect(PatchId2, token);
             expect(QuakeMapToken::OBrace, m_tokenizer.nextToken());
 
-            //parseTextureName(status);
-
-            // "textures/object/paperdec1" or whatever quoted string
-            token = m_tokenizer.nextToken();
-            assert(token.type() == QuakeMapToken::String);
-            const auto textureName = token.data();
+            parseDoom3TextureName(status);
 
             expect(QuakeMapToken::OParenthesis, m_tokenizer.nextToken());
 
@@ -713,12 +705,7 @@ namespace TrenchBroom {
             expect(PatchId3, token);
             expect(QuakeMapToken::OBrace, m_tokenizer.nextToken());
 
-            //parseTextureName(status);
-
-            // "textures/object/paperdec1" or whatever quoted string
-            token = m_tokenizer.nextToken();
-            assert(token.type() == QuakeMapToken::String);
-            const auto textureName = token.data();
+            parseDoom3TextureName(status);
 
             expect(QuakeMapToken::OParenthesis, m_tokenizer.nextToken());
 
@@ -786,6 +773,23 @@ namespace TrenchBroom {
         std::string StandardMapParser::parseTextureName(ParserStatus& /* status */) {
             const auto [textureName, wasQuoted] = m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace());
             return wasQuoted ? kdl::str_unescape(textureName, "\"\\") : std::string(textureName);
+        }
+
+        std::string StandardMapParser::parseDoom3TextureName(ParserStatus& /* status */) {
+            
+            // "textures/base_wall/lfwall13f3" or whatever quoted string
+            auto token = m_tokenizer.nextToken();
+            assert(token.type() == QuakeMapToken::String);
+            const auto textureName = token.data();
+
+            // HACK: remove textures/
+            // would be better to avoid this and fix the texture lookup somewhere else
+            Path texturePath(textureName);
+            texturePath = texturePath.deleteFirstComponent();
+
+            const auto shortName = texturePath.asString("/");
+
+            return shortName;
         }
 
         std::tuple<vm::vec3, float, vm::vec3, float> StandardMapParser::parseValveTextureAxes(ParserStatus& /* status */) {
