@@ -1648,18 +1648,11 @@ namespace TrenchBroom {
                     entity.transform(transformation);
                     return true;
                 },
-                [&](Model::Brush& oldBrush)   {
-                    return oldBrush.transform(m_worldBounds, transformation, pref(Preferences::TextureLock))
-                        .visit(kdl::overload(
-                            [&](auto&& newBrush) {
-                                oldBrush = std::move(newBrush);
-                                return true;
-                            },
-                            [&](Model::BrushError e) {
-                                error() << "Could not transform brush: " << e;
-                                return false;
-                            }
-                        ));
+                [&](Model::Brush& brush)   {
+                    return brush.transform(m_worldBounds, transformation, pref(Preferences::TextureLock))
+                        .handle_errors([&](const Model::BrushError e) {
+                            error() << "Could not transform brush: " << e;
+                        });
                 }
             ));
 

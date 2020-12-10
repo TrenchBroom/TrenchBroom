@@ -878,15 +878,14 @@ namespace TrenchBroom {
             return updateGeometryFromFaces(worldBounds);
         }
 
-        kdl::result<Brush, BrushError> Brush::transform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, const bool lockTextures) const {
-            auto faces = m_faces;
-            for (auto& face : faces) {
+        kdl::result<void, BrushError> Brush::transform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, const bool lockTextures) {
+            for (auto& face : m_faces) {
                 if (const auto transformResult = face.transform(transformation, lockTextures); !transformResult) {
-                    return kdl::result<Brush, BrushError>::error(BrushError::InvalidFace);
+                    return kdl::result<void, BrushError>::error(BrushError::InvalidFace);
                 }
             }
             
-            return Brush::create(worldBounds, std::move(faces));
+            return updateGeometryFromFaces(worldBounds);
         }
 
         bool Brush::contains(const vm::bbox3& bounds) const {

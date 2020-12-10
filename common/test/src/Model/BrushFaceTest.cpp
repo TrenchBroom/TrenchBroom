@@ -695,7 +695,8 @@ namespace TrenchBroom {
                     }).value();
 
             auto testTransform = [&](const vm::mat4x4& transform){
-                const Brush standardCube = startingCube.transform(worldBounds, transform, true).value();
+                auto standardCube = startingCube;
+                REQUIRE(standardCube.transform(worldBounds, transform, true).is_success());
                 CHECK(dynamic_cast<const ParaxialTexCoordSystem*>(&standardCube.face(0).texCoordSystem()));
 
                 const Brush valveCube = standardCube.convertToParallel();

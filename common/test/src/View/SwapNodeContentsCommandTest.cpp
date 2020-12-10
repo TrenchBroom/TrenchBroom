@@ -55,7 +55,8 @@ namespace TrenchBroom {
             document->addNode(brushNode, document->parentForNodes());
             
             const auto originalBrush = brushNode->brush();
-            const auto modifiedBrush = brushNode->brush().transform(document->worldBounds(), vm::translation_matrix(vm::vec3(16, 0, 0)), false).value();
+            auto modifiedBrush = originalBrush;
+            REQUIRE(modifiedBrush.transform(document->worldBounds(), vm::translation_matrix(vm::vec3(16, 0, 0)), false).is_success());
 
             auto nodesToSwap = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
             nodesToSwap.emplace_back(brushNode, modifiedBrush);
@@ -78,7 +79,8 @@ namespace TrenchBroom {
             document->addNode(brushNode, document->parentForNodes());
             
             const auto& originalBrush = brushNode->brush();
-            auto modifiedBrush = originalBrush.transform(document->worldBounds(), vm::translation_matrix(vm::vec3(16, 0, 0)), false).value();
+            auto modifiedBrush = originalBrush;
+            REQUIRE(modifiedBrush.transform(document->worldBounds(), vm::translation_matrix(vm::vec3(16, 0, 0)), false).is_success());
 
             auto nodesToSwap = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
             nodesToSwap.emplace_back(brushNode, std::move(modifiedBrush));
