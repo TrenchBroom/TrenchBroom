@@ -1838,16 +1838,9 @@ namespace TrenchBroom {
                 Model::BrushNode* brushNode = *it;
                 const Model::Brush& brush = brushNode->brush();
                 valid = intersection.intersect(m_worldBounds, brush)
-                    .visit(kdl::overload(
-                        [&](Model::Brush&& b) {
-                            intersection = std::move(b);
-                            return true;
-                        },
-                        [&](const Model::BrushError e) {
-                            error() << "Could not intersect brushes: " << e;
-                            return false;
-                        }
-                    ));
+                    .handle_errors([&](const Model::BrushError e) {
+                        error() << "Could not intersect brushes: " << e;
+                    });
             }
 
             const std::vector<Model::Node*> toRemove(std::begin(brushes), std::end(brushes));

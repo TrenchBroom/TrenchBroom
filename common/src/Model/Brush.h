@@ -215,15 +215,15 @@ namespace TrenchBroom {
             kdl::result<std::vector<Brush>, BrushError> subtract(const ModelFactory& factory, const vm::bbox3& worldBounds, const std::string& defaultTextureName, const Brush& subtrahend) const;
 
             /**
-             * Intersects this brush with the given brush and returns the resulting brush.
+             * Intersects this brush with the given brush.
              *
              * If the resulting brush is invalid, an error is returned.
              *
              * @param worldBounds the world bounds
              * @param brush the brush to intersect this brush with
-             * @return the intersection brush or an error if the operation fails
+             * @return a void result or an error if the operation fails
              */
-            kdl::result<Brush, BrushError> intersect(const vm::bbox3& worldBounds, const Brush& brush) const;
+            kdl::result<void, BrushError> intersect(const vm::bbox3& worldBounds, const Brush& brush);
 
             /**
              * Applies the given transformation to this brush and returns the resulting brush.
