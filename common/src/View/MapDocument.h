@@ -369,7 +369,7 @@ namespace TrenchBroom {
             void renameLayer(Model::LayerNode* layer, const std::string& name);
         private:
             enum class MoveDirection { Up, Down };
-            bool moveLayerByOne(Model::LayerNode* layer, MoveDirection direction);
+            bool moveLayerByOne(Model::LayerNode* layerNode, MoveDirection direction);
         public:
             void moveLayer(Model::LayerNode* layer, int offset);
             bool canMoveLayer(Model::LayerNode* layer, int offset) const;
@@ -379,7 +379,7 @@ namespace TrenchBroom {
             bool canHideLayers(const std::vector<Model::LayerNode*>& layers) const;
             void isolateLayers(const std::vector<Model::LayerNode*>& layers);
             bool canIsolateLayers(const std::vector<Model::LayerNode*>& layers) const;
-            void setOmitLayerFromExport(Model::LayerNode* layer, bool omitFromExport);
+            void setOmitLayerFromExport(Model::LayerNode* layerNode, bool omitFromExport);
         public: // modifying transient node attributes, declared in MapFacade interface
             void isolate();
             void hide(std::vector<Model::Node*> nodes) override; // Don't take the nodes by reference!

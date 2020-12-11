@@ -310,7 +310,7 @@ namespace TrenchBroom {
 
                 pair.second = node->accept(kdl::overload(
                     [&](Model::WorldNode* worldNode)   -> Model::NodeContents { return Model::NodeContents(worldNode->setEntity(std::get<Model::Entity>(std::move(contents)))); },
-                    [&](Model::LayerNode* layerNode)   -> Model::NodeContents { return Model::NodeContents(layerNode->setEntity(std::get<Model::Entity>(std::move(contents)))); },
+                    [&](Model::LayerNode* layerNode)   -> Model::NodeContents { return Model::NodeContents(layerNode->setLayer(std::get<Model::Layer>(std::move(contents)))); },
                     [&](Model::GroupNode* groupNode)   -> Model::NodeContents { return Model::NodeContents(groupNode->setEntity(std::get<Model::Entity>(std::move(contents)))); },
                     [&](Model::EntityNode* entityNode) -> Model::NodeContents { return Model::NodeContents(entityNode->setEntity(std::get<Model::Entity>(std::move(contents)))); },
                     [&](Model::BrushNode* brushNode)   -> Model::NodeContents { return Model::NodeContents(brushNode->setBrush(std::get<Model::Brush>(std::move(contents)))); }

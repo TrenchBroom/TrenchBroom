@@ -144,10 +144,10 @@ namespace TrenchBroom {
             CHECK(worldNode->entity().hasAttribute("message"));
             CHECK(*worldNode->entity().attribute("message") == "yay");
 
-            CHECK(!defaultLayer->layerColor().has_value());
+            CHECK(!defaultLayer->layer().color().has_value());
             CHECK(!defaultLayer->locked());
             CHECK(!defaultLayer->hidden());
-            CHECK(!defaultLayer->omitFromExport());
+            CHECK(!defaultLayer->layer().omitFromExport());
         }
 
         TEST_CASE("WorldReaderTest.parseDefaultLayerAttributes", "[WorldReaderTest]") {
@@ -173,11 +173,10 @@ namespace TrenchBroom {
             auto* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().at(0));
             REQUIRE(defaultLayer != nullptr);
 
-            REQUIRE(defaultLayer->layerColor().has_value());
-            CHECK(defaultLayer->layerColor().value() == Color(0.0f, 1.0f, 0.0f));
+            CHECK(defaultLayer->layer().color().value() == Color(0.0f, 1.0f, 0.0f));
             CHECK(defaultLayer->locked());
             CHECK(defaultLayer->hidden());
-            CHECK(defaultLayer->omitFromExport());
+            CHECK(defaultLayer->layer().omitFromExport());
         }
 
         TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneMoreEntity", "[WorldReaderTest]") {
@@ -206,12 +205,12 @@ namespace TrenchBroom {
             CHECK(*worldNode->entity().attribute("message") == "yay");
 
             ASSERT_EQ(1u, worldNode->childCount());
-            Model::LayerNode* defaultLayer = dynamic_cast<Model::LayerNode*>(worldNode->children().front());
-            ASSERT_NE(nullptr, defaultLayer);
-            ASSERT_EQ(1u, defaultLayer->childCount());
-            ASSERT_EQ(Model::LayerNode::defaultLayerSortIndex(), defaultLayer->sortIndex());
+            Model::LayerNode* defaultLayerNode = dynamic_cast<Model::LayerNode*>(worldNode->children().front());
+            ASSERT_NE(nullptr, defaultLayerNode);
+            ASSERT_EQ(1u, defaultLayerNode->childCount());
+            ASSERT_EQ(Model::Layer::defaultLayerSortIndex(),  defaultLayerNode->layer().sortIndex());
 
-            Model::EntityNode* entityNode = static_cast<Model::EntityNode*>(defaultLayer->children().front());
+            Model::EntityNode* entityNode = static_cast<Model::EntityNode*>(defaultLayerNode->children().front());
             CHECK(entityNode->entity().hasAttribute("classname"));
             CHECK(*entityNode->entity().attribute("classname") == "info_player_deathmatch");
             CHECK(entityNode->entity().hasAttribute("origin"));
@@ -720,18 +719,18 @@ namespace TrenchBroom {
 
             ASSERT_EQ(2u, world->childCount());
 
-            Model::LayerNode* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().at(0));
-            Model::LayerNode* myLayer      = dynamic_cast<Model::LayerNode*>(world->children().at(1));
-            ASSERT_NE(nullptr, defaultLayer);
-            ASSERT_NE(nullptr, myLayer);
+            Model::LayerNode* defaultLayerNode = dynamic_cast<Model::LayerNode*>(world->children().at(0));
+            Model::LayerNode* myLayerNode      = dynamic_cast<Model::LayerNode*>(world->children().at(1));
+            ASSERT_NE(nullptr, defaultLayerNode);
+            ASSERT_NE(nullptr, myLayerNode);
 
-            CHECK(defaultLayer->sortIndex() == Model::LayerNode::defaultLayerSortIndex());
-            CHECK(myLayer->sortIndex()      == 0); // The layer didn't have a sort index (saved in an older version of TB), so it's assigned 0           
+            CHECK(defaultLayerNode->layer().sortIndex() == Model::Layer::defaultLayerSortIndex());
+            CHECK(myLayerNode->layer().sortIndex() == 0); // The layer didn't have a sort index (saved in an older version of TB), so it's assigned 0           
 
-            ASSERT_EQ(2u, defaultLayer->childCount());
-            ASSERT_EQ(1u, myLayer->childCount());
-            CHECK(!myLayer->hidden());
-            CHECK(!myLayer->locked());
+            ASSERT_EQ(2u, defaultLayerNode->childCount());
+            ASSERT_EQ(1u, myLayerNode->childCount());
+            CHECK(!myLayerNode->hidden());
+            CHECK(!myLayerNode->locked());
         }
 
         TEST_CASE("WorldReaderTest.parseLayersWithReverseSort", "[WorldReaderTest]") {
@@ -766,29 +765,29 @@ namespace TrenchBroom {
             REQUIRE(world->childCount() == 3u);
 
             // NOTE: They are listed in world->children() in file order, not sort index order
-            auto* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().at(0));
-            auto* sort1     = dynamic_cast<Model::LayerNode*>(world->children().at(1));
-            auto* sort0     = dynamic_cast<Model::LayerNode*>(world->children().at(2));
+            auto* defaultLayerNode = dynamic_cast<Model::LayerNode*>(world->children().at(0));
+            auto* sortNode1        = dynamic_cast<Model::LayerNode*>(world->children().at(1));
+            auto* sortNode0        = dynamic_cast<Model::LayerNode*>(world->children().at(2));
 
-            REQUIRE(defaultLayer != nullptr);
-            REQUIRE(sort0 != nullptr);
-            REQUIRE(sort1 != nullptr);            
+            REQUIRE(defaultLayerNode != nullptr);
+            REQUIRE(sortNode0 != nullptr);
+            REQUIRE(sortNode1 != nullptr);            
 
-            CHECK(sort0->name() == "Sort Index 0");
-            CHECK(sort1->name() == "Sort Index 1");
+            CHECK(sortNode0->name() == "Sort Index 0");
+            CHECK(sortNode1->name() == "Sort Index 1");
 
-            CHECK(defaultLayer->sortIndex() == Model::LayerNode::defaultLayerSortIndex());
-            CHECK(sort0->sortIndex()     == 0);
-            CHECK(sort1->sortIndex()     == 1);            
+            CHECK(defaultLayerNode->layer().sortIndex() == Model::Layer::defaultLayerSortIndex());
+            CHECK(sortNode0->layer().sortIndex()        == 0);
+            CHECK(sortNode1->layer().sortIndex()        == 1);            
 
-            CHECK(sort0->hidden());
-            CHECK(!sort1->hidden());
+            CHECK(sortNode0->hidden());
+            CHECK(!sortNode1->hidden());
 
-            CHECK(!sort0->locked());
-            CHECK(sort1->locked());
+            CHECK(!sortNode0->locked());
+            CHECK(sortNode1->locked());
 
-            CHECK(sort0->omitFromExport());
-            CHECK(!sort1->omitFromExport());
+            CHECK(sortNode0->layer().omitFromExport());
+            CHECK(!sortNode1->layer().omitFromExport());
         }
 
         TEST_CASE("WorldReaderTest.parseLayersWithReversedSortIndicesWithGaps", "[WorldReaderTest]") {
@@ -827,25 +826,25 @@ namespace TrenchBroom {
             ASSERT_EQ(4u, world->childCount());
 
             // NOTE: They are listed in world->children() in file order, not sort index order
-            auto* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().at(0));
-            auto* sort5        = dynamic_cast<Model::LayerNode*>(world->children().at(1));
-            auto* sort3        = dynamic_cast<Model::LayerNode*>(world->children().at(2));
-            auto* sort1        = dynamic_cast<Model::LayerNode*>(world->children().at(3));            
+            auto* defaultLayerNode = dynamic_cast<Model::LayerNode*>(world->children().at(0));
+            auto* sortNode5        = dynamic_cast<Model::LayerNode*>(world->children().at(1));
+            auto* sortNode3        = dynamic_cast<Model::LayerNode*>(world->children().at(2));
+            auto* sortNode1        = dynamic_cast<Model::LayerNode*>(world->children().at(3));            
           
-            REQUIRE(nullptr != defaultLayer);
-            REQUIRE(nullptr != sort1);
-            REQUIRE(nullptr != sort3);
-            REQUIRE(nullptr != sort5);
+            REQUIRE(nullptr != defaultLayerNode);
+            REQUIRE(nullptr != sortNode1);
+            REQUIRE(nullptr != sortNode3);
+            REQUIRE(nullptr != sortNode5);
 
-            CHECK(sort1->name() == "Sort Index 1");
-            CHECK(sort3->name() == "Sort Index 3");
-            CHECK(sort5->name() == "Sort Index 5");
+            CHECK(sortNode1->name() == "Sort Index 1");
+            CHECK(sortNode3->name() == "Sort Index 3");
+            CHECK(sortNode5->name() == "Sort Index 5");
 
-            CHECK(defaultLayer->sortIndex() == Model::LayerNode::defaultLayerSortIndex());
+            CHECK(defaultLayerNode->layer().sortIndex() == Model::Layer::defaultLayerSortIndex());
             // We allow gaps in sort indices so they remain 1, 3, 5
-            CHECK(sort1->sortIndex()        == 1);
-            CHECK(sort3->sortIndex()        == 3);
-            CHECK(sort5->sortIndex()        == 5);
+            CHECK(sortNode1->layer().sortIndex() == 1);
+            CHECK(sortNode3->layer().sortIndex() == 3);
+            CHECK(sortNode5->layer().sortIndex() == 5);
         }
 
         TEST_CASE("WorldReaderTest.parseLayersWithSortIndicesWithGapsAndDuplicates", "[WorldReaderTest]") {
@@ -905,36 +904,36 @@ namespace TrenchBroom {
             ASSERT_EQ(7u, world->childCount());
 
             // NOTE: They are listed in world->children() in file order, not sort index order
-            auto* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().at(0));
-            auto* sortMinusOne = dynamic_cast<Model::LayerNode*>(world->children().at(1));
-            auto* sort8        = dynamic_cast<Model::LayerNode*>(world->children().at(2));
-            auto* sort8second  = dynamic_cast<Model::LayerNode*>(world->children().at(3));
-            auto* sort10       = dynamic_cast<Model::LayerNode*>(world->children().at(4));
-            auto* sort10second = dynamic_cast<Model::LayerNode*>(world->children().at(5));
-            auto* sort12       = dynamic_cast<Model::LayerNode*>(world->children().at(6));            
+            auto* defaultLayerNode = dynamic_cast<Model::LayerNode*>(world->children().at(0));
+            auto* sortMinusOneNode = dynamic_cast<Model::LayerNode*>(world->children().at(1));
+            auto* sortNode8        = dynamic_cast<Model::LayerNode*>(world->children().at(2));
+            auto* sortNode8second  = dynamic_cast<Model::LayerNode*>(world->children().at(3));
+            auto* sortNode10       = dynamic_cast<Model::LayerNode*>(world->children().at(4));
+            auto* sortNode10second = dynamic_cast<Model::LayerNode*>(world->children().at(5));
+            auto* sortNode12       = dynamic_cast<Model::LayerNode*>(world->children().at(6));            
           
-            REQUIRE(nullptr != defaultLayer);
-            REQUIRE(nullptr != sortMinusOne);
-            REQUIRE(nullptr != sort8);
-            REQUIRE(nullptr != sort8second);
-            REQUIRE(nullptr != sort10);
-            REQUIRE(nullptr != sort10second);
-            REQUIRE(nullptr != sort12);
+            REQUIRE(nullptr != defaultLayerNode);
+            REQUIRE(nullptr != sortMinusOneNode);
+            REQUIRE(nullptr != sortNode8);
+            REQUIRE(nullptr != sortNode8second);
+            REQUIRE(nullptr != sortNode10);
+            REQUIRE(nullptr != sortNode10second);
+            REQUIRE(nullptr != sortNode12);
 
-            CHECK(sortMinusOne->name() == "Sort Index -1");
-            CHECK(sort8->name()        == "Sort Index 8");
-            CHECK(sort8second->name()  == "Sort Index 8 (second)");
-            CHECK(sort10->name()       == "Sort Index 10");
-            CHECK(sort10second->name() == "Sort Index 10 (second)");
-            CHECK(sort12->name()       == "Sort Index 12");
+            CHECK(sortMinusOneNode->name() == "Sort Index -1");
+            CHECK(sortNode8->name()        == "Sort Index 8");
+            CHECK(sortNode8second->name()  == "Sort Index 8 (second)");
+            CHECK(sortNode10->name()       == "Sort Index 10");
+            CHECK(sortNode10second->name() == "Sort Index 10 (second)");
+            CHECK(sortNode12->name()       == "Sort Index 12");
 
-            CHECK(defaultLayer->sortIndex() == Model::LayerNode::defaultLayerSortIndex());
-            CHECK(sortMinusOne->sortIndex() == 13); // This one was invalid so it got moved to the end
-            CHECK(sort8->sortIndex()        == 8);
-            CHECK(sort8second->sortIndex()  == 14); // This one was invalid so it got moved to the end
-            CHECK(sort10->sortIndex()       == 10);
-            CHECK(sort10second->sortIndex() == 15); // This one was invalid so it got moved to the end
-            CHECK(sort12->sortIndex()       == 12);
+            CHECK(defaultLayerNode->layer().sortIndex() == Model::Layer::defaultLayerSortIndex());
+            CHECK(sortMinusOneNode->layer().sortIndex() == 13); // This one was invalid so it got moved to the end
+            CHECK(sortNode8->layer().sortIndex()        == 8);
+            CHECK(sortNode8second->layer().sortIndex()  == 14); // This one was invalid so it got moved to the end
+            CHECK(sortNode10->layer().sortIndex()       == 10);
+            CHECK(sortNode10second->layer().sortIndex() == 15); // This one was invalid so it got moved to the end
+            CHECK(sortNode12->layer().sortIndex()       == 12);
         }
 
         TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithLayer", "[WorldReaderTest]") {
