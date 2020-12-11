@@ -39,95 +39,37 @@
 
 namespace TrenchBroom {
     namespace Model {
-        LayerNode::LayerNode(const std::string& name) :
-        m_boundsValid(false) {
-            setName(name);
+        LayerNode::LayerNode(const bool defaultLayer, std::string name) :
+        m_layer(defaultLayer, std::move(name)),
+        m_boundsValid(false) {}
+
+        LayerNode::LayerNode(std::string name) :
+        LayerNode(false, std::move(name)) {}
+
+        const Layer& LayerNode::layer() const {
+            return m_layer;
         }
 
-        void LayerNode::setName(const std::string& name) {
-            auto entity = m_entity;
-            entity.addOrUpdateAttribute(AttributeNames::LayerName, name);
-            setEntity(std::move(entity));
+        Layer LayerNode::setLayer(Layer layer) {
+            ensure(layer.defaultLayer() == m_layer.defaultLayer(), "Set same layer type");
+
+            using std::swap;
+            swap(m_layer, layer);
+            return layer;
         }
 
         bool LayerNode::isDefaultLayer() const {
-            Model::Node* parentNode = parent();
-            if (parentNode == nullptr) {
-                return false;
-            }
-            Model::WorldNode* world = dynamic_cast<Model::WorldNode*>(parentNode);
-            ensure(world != nullptr, "layer parent must be WorldNode");
-            return world->defaultLayer() == this;
-        }
-
-        int LayerNode::invalidSortIndex() {
-            return std::numeric_limits<int>::max();
-        }
-
-        int LayerNode::defaultLayerSortIndex() {
-            return -1;
-        }
-
-        int LayerNode::sortIndex() const {
-            if (isDefaultLayer()) {
-                return defaultLayerSortIndex();
-            }
-
-            if (const auto* indexString = entity().attribute(AttributeNames::LayerSortIndex)) {
-                return kdl::str_to_int(*indexString).value_or(invalidSortIndex());
-            } else {
-                return invalidSortIndex();
-            }
-        }
-
-        std::optional<Color> LayerNode::layerColor() const {
-            if (const auto* string = entity().attribute(AttributeNames::LayerColor); string && Color::canParse(*string)) {
-                return { Color::parse(*string) };
-            } else {
-                return std::nullopt;
-            }
-        }
-
-        void LayerNode::setLayerColor(const Color& color) {
-            auto entity = m_entity;
-            entity.addOrUpdateAttribute(AttributeNames::LayerColor, color.toString());
-            setEntity(std::move(entity));
-        }
-
-        bool LayerNode::omitFromExport() const {
-            return entity().hasAttribute(AttributeNames::LayerOmitFromExport, AttributeValues::LayerOmitFromExportValue);
-        }
-
-        void LayerNode::setOmitFromExport(const bool omitFromExport) {
-            auto entity = m_entity;
-            if (omitFromExport) {
-                entity.addOrUpdateAttribute(AttributeNames::LayerOmitFromExport, AttributeValues::LayerOmitFromExportValue);
-            } else {
-                entity.removeAttribute(AttributeNames::LayerOmitFromExport);
-            }
-            setEntity(std::move(entity));
-        }
-
-        void LayerNode::setSortIndex(int index) {
-            if (isDefaultLayer()) {
-                return;
-            }
-            
-            auto entity = m_entity;
-            entity.addOrUpdateAttribute(AttributeNames::LayerSortIndex, std::to_string(index));
-            setEntity(std::move(entity));
+            return m_layer.defaultLayer();
         }
 
         void LayerNode::sortLayers(std::vector<LayerNode*>& layers)  {
             std::stable_sort(layers.begin(), layers.end(), [](LayerNode* a, LayerNode* b) {
-                return a->sortIndex() < b->sortIndex();
+                return a->layer().sortIndex() < b->layer().sortIndex();
             });
         }
 
         const std::string& LayerNode::doGetName() const {
-            static const auto NoName = std::string("");
-            const auto* value = entity().attribute(AttributeNames::LayerName);
-            return value ? *value : NoName;
+            return layer().name();
         }
 
         const vm::bbox3& LayerNode::doGetLogicalBounds() const {
@@ -145,7 +87,7 @@ namespace TrenchBroom {
         }
 
         Node* LayerNode::doClone(const vm::bbox3&) const {
-            LayerNode* layer = new LayerNode(doGetName());
+            LayerNode* layer = new LayerNode(isDefaultLayer(), doGetName());
             cloneAttributes(layer);
             return layer;
         }
@@ -197,17 +139,6 @@ namespace TrenchBroom {
 
         void LayerNode::doAccept(ConstNodeVisitor& visitor) const {
             visitor.visit(this);
-        }
-
-        void LayerNode::doAttributesDidChange(const vm::bbox3& /* oldBounds */) {
-        }
-
-        vm::vec3 LayerNode::doGetLinkSourceAnchor() const {
-            return vm::vec3::zero();
-        }
-
-        vm::vec3 LayerNode::doGetLinkTargetAnchor() const {
-            return vm::vec3::zero();
         }
 
         void LayerNode::invalidateBounds() {

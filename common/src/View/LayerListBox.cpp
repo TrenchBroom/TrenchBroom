@@ -126,7 +126,7 @@ namespace TrenchBroom {
             m_activeButton->setChecked(document->currentLayer() == m_layer);
             m_lockButton->setChecked(m_layer->locked());
             m_hiddenButton->setChecked(m_layer->hidden());
-            m_omitFromExportButton->setVisible(m_layer->omitFromExport());
+            m_omitFromExportButton->setVisible(m_layer->layer().omitFromExport());
         }
 
         Model::LayerNode* LayerListBoxWidget::layer() const {

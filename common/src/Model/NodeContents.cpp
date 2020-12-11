@@ -25,9 +25,10 @@
 
 namespace TrenchBroom {
     namespace Model {
-        NodeContents::NodeContents(std::variant<Entity, Brush> contents) :
+        NodeContents::NodeContents(std::variant<Layer, Entity, Brush> contents) :
         m_contents(std::move(contents)) {
             std::visit(kdl::overload(
+                [](Layer&) {},
                 [](Entity& entity) {
                     entity.setDefinition(nullptr);
                     entity.setModel(nullptr);
@@ -40,11 +41,11 @@ namespace TrenchBroom {
             ), m_contents);
         }
 
-        const std::variant<Entity, Brush>& NodeContents::get() const {
+        const std::variant<Layer, Entity, Brush>& NodeContents::get() const {
             return m_contents;
         }
 
-        std::variant<Entity, Brush>& NodeContents::get() {
+        std::variant<Layer, Entity, Brush>& NodeContents::get() {
             return m_contents;
         }
     }

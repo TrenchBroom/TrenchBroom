@@ -75,27 +75,27 @@ namespace TrenchBroom {
             return document->currentLayer() != layer;
         }
 
-        void LayerEditor::onLayerRightClick(Model::LayerNode* layer) {
+        void LayerEditor::onLayerRightClick(Model::LayerNode* layerNode) {
             auto document = kdl::mem_lock(m_document);
 
             QMenu popupMenu;
-            QAction* makeActiveAction = popupMenu.addAction(tr("Make active layer"), this, [this, layer](){
-                onSetCurrentLayer(layer);
+            QAction* makeActiveAction = popupMenu.addAction(tr("Make active layer"), this, [this, layerNode](){
+                onSetCurrentLayer(layerNode);
             });
             QAction* moveSelectionToLayerAction = popupMenu.addAction(tr("Move selection to layer"), this, &LayerEditor::onMoveSelectionToLayer);
             popupMenu.addAction(tr("Select all in layer"), this, &LayerEditor::onSelectAllInLayer);
             popupMenu.addSeparator();
-            QAction* toggleLayerVisibleAction = popupMenu.addAction(layer->hidden() ? tr("Show layer") : tr("Hide layer"), this, [this, layer](){
-                toggleLayerVisible(layer);
+            QAction* toggleLayerVisibleAction = popupMenu.addAction(layerNode->hidden() ? tr("Show layer") : tr("Hide layer"), this, [this, layerNode](){
+                toggleLayerVisible(layerNode);
             });
-            QAction* isolateLayerAction       = popupMenu.addAction(tr("Isolate layer"), this, [this, layer](){
-                isolateLayer(layer);
+            QAction* isolateLayerAction       = popupMenu.addAction(tr("Isolate layer"), this, [this, layerNode](){
+                isolateLayer(layerNode);
             });
-            QAction* toggleLayerLockedAction = popupMenu.addAction(layer->locked() ? tr("Unlock layer") : tr("Lock layer"), this, [this, layer](){
-                toggleLayerLocked(layer);
+            QAction* toggleLayerLockedAction = popupMenu.addAction(layerNode->locked() ? tr("Unlock layer") : tr("Lock layer"), this, [this, layerNode](){
+                toggleLayerLocked(layerNode);
             });
-            QAction* toggleLayerOmitFromExportAction = popupMenu.addAction(tr("Omit From Export"), this, [this, layer](){
-                toggleOmitLayerFromExport(layer);
+            QAction* toggleLayerOmitFromExportAction = popupMenu.addAction(tr("Omit From Export"), this, [this, layerNode](){
+                toggleOmitLayerFromExport(layerNode);
             });
             popupMenu.addSeparator();
             QAction* showAllLayersAction = popupMenu.addAction(tr("Show All Layers"), this, &LayerEditor::onShowAllLayers);
@@ -107,12 +107,12 @@ namespace TrenchBroom {
             QAction* renameLayerAction = popupMenu.addAction(tr("Rename layer"), this, &LayerEditor::onRenameLayer);
             QAction* removeLayerAction = popupMenu.addAction(tr("Remove layer"), this, &LayerEditor::onRemoveLayer);
 
-            makeActiveAction->setEnabled(canSetCurrentLayer(layer));
+            makeActiveAction->setEnabled(canSetCurrentLayer(layerNode));
             moveSelectionToLayerAction->setEnabled(canMoveSelectionToLayer());
             toggleLayerVisibleAction->setEnabled(canToggleLayerVisible());
-            isolateLayerAction->setEnabled(document->canIsolateLayers({layer}));
+            isolateLayerAction->setEnabled(document->canIsolateLayers({layerNode}));
             toggleLayerOmitFromExportAction->setCheckable(true);
-            toggleLayerOmitFromExportAction->setChecked(layer->omitFromExport());
+            toggleLayerOmitFromExportAction->setChecked(layerNode->layer().omitFromExport());
 
             toggleLayerLockedAction->setEnabled(canToggleLayerLocked());
             showAllLayersAction->setEnabled(canShowAllLayers());
@@ -155,9 +155,9 @@ namespace TrenchBroom {
             }
         }
 
-        void LayerEditor::toggleOmitLayerFromExport(Model::LayerNode* layer) {
-            ensure(layer != nullptr, "layer is null");
-            kdl::mem_lock(m_document)->setOmitLayerFromExport(layer, !layer->omitFromExport());
+        void LayerEditor::toggleOmitLayerFromExport(Model::LayerNode* layerNode) {
+            ensure(layerNode != nullptr, "layer is null");
+            kdl::mem_lock(m_document)->setOmitLayerFromExport(layerNode, !layerNode->layer().omitFromExport());
         }
 
         void LayerEditor::isolateLayer(Model::LayerNode* layer) {
@@ -199,20 +199,23 @@ namespace TrenchBroom {
             if (!name.empty()) {
                 auto document = kdl::mem_lock(m_document);
                 auto* world = document->world();
-                auto* layer = world->createLayer(name);
+                auto* layerNode = world->createLayer(name);
+                auto layer = layerNode->layer();
 
                 // Sort it at the bottom of the list
                 const std::vector<Model::LayerNode*> customLayers = world->customLayersUserSorted();
                 if (customLayers.empty()) {
-                    layer->setSortIndex(0);
+                    layer.setSortIndex(0);
                 } else {
-                    layer->setSortIndex(customLayers.back()->sortIndex() + 1);
+                    layer.setSortIndex(customLayers.back()->layer().sortIndex() + 1);
                 }
 
-                Transaction transaction(document, "Create Layer " + layer->name());
-                document->addNode(layer, world);
-                document->setCurrentLayer(layer);
-                m_layerList->setSelectedLayer(layer);
+                layerNode->setLayer(std::move(layer));
+
+                Transaction transaction(document, "Create Layer " + layerNode->name());
+                document->addNode(layerNode, world);
+                document->setCurrentLayer(layerNode);
+                m_layerList->setSelectedLayer(layerNode);
             }
         }
 

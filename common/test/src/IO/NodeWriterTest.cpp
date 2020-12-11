@@ -78,10 +78,13 @@ namespace TrenchBroom {
 
         TEST_CASE("NodeWriterTest.writeDefaultLayerAttributes", "[NodeWriterTest]") {
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
-            map.defaultLayer()->setLayerColor(Color(0.25f, 0.75f, 1.0f));
             map.defaultLayer()->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
             map.defaultLayer()->setLockState(Model::LockState::Lock_Locked);
-            map.defaultLayer()->setOmitFromExport(true);
+
+            auto layer = map.defaultLayer()->layer();
+            layer.setColor(Color(0.25f, 0.75f, 1.0f));
+            layer.setOmitFromExport(true);
+            map.defaultLayer()->setLayer(std::move(layer));
 
             std::stringstream str;
             NodeWriter writer(map, str);
@@ -92,7 +95,7 @@ namespace TrenchBroom {
 R"(// entity 0
 {
 "classname" "worldspawn"
-"_tb_layer_color" "0.25 0.75 1"
+"_tb_layer_color" "0.25 0.75 1 1"
 "_tb_layer_locked" "1"
 "_tb_layer_hidden" "1"
 "_tb_layer_omit_from_export" "1"
@@ -262,14 +265,18 @@ R"(// entity 0
 
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
 
-            Model::LayerNode* layer = map.createLayer("Custom Layer");
-            CHECK(layer->sortIndex() == Model::LayerNode::invalidSortIndex());
-            layer->setSortIndex(0);
-            map.addChild(layer);
+            Model::LayerNode* layerNode = map.createLayer("Custom Layer");
+            Model::Layer layer = layerNode->layer();
+            
+            REQUIRE(layer.sortIndex() == Model::Layer::invalidSortIndex());
+            layer.setSortIndex(0);
+            layerNode->setLayer(std::move(layer));
+
+            map.addChild(layerNode);
 
             Model::BrushBuilder builder(&map, worldBounds);
             Model::BrushNode* brushNode = map.createBrush(builder.createCube(64.0, "none").value());
-            layer->addChild(brushNode);
+            layerNode->addChild(brushNode);
 
             std::stringstream str;
             NodeWriter writer(map, str);
@@ -304,12 +311,16 @@ R"(// entity 0
         TEST_CASE("NodeWriterTest.writeWorldspawnWithCustomLayerWithSortIndex", "[NodeWriterTest]") {
             Model::WorldNode map(Model::Entity(), Model::MapFormat::Standard);
 
-            Model::LayerNode* layer = map.createLayer("Custom Layer");
-            layer->setSortIndex(1);
-            layer->setLockState(Model::LockState::Lock_Locked);
-            layer->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
-            layer->setOmitFromExport(true);
-            map.addChild(layer);
+            Model::LayerNode* layerNode = map.createLayer("Custom Layer");
+            layerNode->setLockState(Model::LockState::Lock_Locked);
+            layerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
+
+            Model::Layer layer = layerNode->layer();
+            layer.setSortIndex(1);
+            layer.setOmitFromExport(true);
+            layerNode->setLayer(std::move(layer));
+
+            map.addChild(layerNode);
 
             std::stringstream str;
             NodeWriter writer(map, str);
@@ -498,7 +509,9 @@ R"(// entity 0
             Model::BrushBuilder builder(&map, worldBounds);
 
             // default layer (omit from export)
-            map.defaultLayer()->setOmitFromExport(true);
+            auto defaultLayer = map.defaultLayer()->layer();
+            defaultLayer.setOmitFromExport(true);
+            map.defaultLayer()->setLayer(std::move(defaultLayer));
 
             auto* defaultLayerPointEntity = map.createEntity(Model::Entity({
                 {"classname", "defaultLayerPointEntity"}
@@ -509,29 +522,32 @@ R"(// entity 0
             map.defaultLayer()->addChild(defaultLayerBrush);
 
             // layer1 (omit from export)
-            auto* layer1 = map.createLayer("Custom Layer 1");
-            map.addChild(layer1);
-            layer1->setOmitFromExport(true);
+            auto* layerNode1 = map.createLayer("Custom Layer 1");
+            auto layer1 = layerNode1->layer();
+            layer1.setOmitFromExport(true);
+            layerNode1->setLayer(std::move(layer1));
+
+            map.addChild(layerNode1);
 
             auto* layer1PointEntity = map.createEntity(Model::Entity({
                 {"classname", "layer1PointEntity"}
             }));
-            layer1->addChild(layer1PointEntity);
+            layerNode1->addChild(layer1PointEntity);
 
             auto* layer1Brush = map.createBrush(builder.createCube(64.0, "layer1Texture").value());
-            layer1->addChild(layer1Brush);
+            layerNode1->addChild(layer1Brush);
 
             // layer2
-            auto* layer2 = map.createLayer("Custom Layer 2");
-            map.addChild(layer2);
+            auto* layerNode2 = map.createLayer("Custom Layer 2");
+            map.addChild(layerNode2);
 
             auto* layer2PointEntity = map.createEntity(Model::Entity({
                 {"classname", "layer2PointEntity"}
             }));
-            layer2->addChild(layer2PointEntity);
+            layerNode2->addChild(layer2PointEntity);
 
             auto* layer2Brush = map.createBrush(builder.createCube(64.0, "layer2Texture").value());
-            layer2->addChild(layer2Brush);
+            layerNode2->addChild(layer2Brush);
 
             std::stringstream str;
             NodeWriter writer(map, str);

@@ -86,7 +86,7 @@ namespace TrenchBroom {
         void NodeWriter::writeDefaultLayer() {
             m_serializer->defaultLayer(m_world);
 
-            if (!(m_serializer->exporting() && m_world.defaultLayer()->omitFromExport())) {
+            if (!(m_serializer->exporting() && m_world.defaultLayer()->layer().omitFromExport())) {
                 doWriteNodes(*m_serializer, m_world.defaultLayer()->children());
             }
         }
@@ -98,10 +98,10 @@ namespace TrenchBroom {
             }
         }
 
-        void NodeWriter::writeCustomLayer(const Model::LayerNode* layer) {
-            if (!(m_serializer->exporting() && layer->omitFromExport())) {
-                m_serializer->customLayer(layer);
-                doWriteNodes(*m_serializer, layer->children(), layer);
+        void NodeWriter::writeCustomLayer(const Model::LayerNode* layerNode) {
+            if (!(m_serializer->exporting() && layerNode->layer().omitFromExport())) {
+                m_serializer->customLayer(layerNode);
+                doWriteNodes(*m_serializer, layerNode->children(), layerNode);
             }
         }
 

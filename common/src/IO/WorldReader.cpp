@@ -20,6 +20,7 @@
 #include "WorldReader.h"
 
 #include "IO/ParserStatus.h"
+#include "Color.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
@@ -62,29 +63,32 @@ namespace TrenchBroom {
             std::vector<Model::LayerNode*> invalidLayers;
             std::vector<Model::LayerNode*> validLayers;
             kdl::vector_set<int> usedIndices;
-            for (auto* layer : customLayers) {
+            for (auto* layerNode : customLayers) {
                 // Check for a totally invalid index
-                if (layer->sortIndex() < 0  || layer->sortIndex() == Model::LayerNode::invalidSortIndex()) {
-                    invalidLayers.push_back(layer);
+                const auto sortIndex = layerNode->layer().sortIndex();
+                if (sortIndex < 0  || sortIndex == Model::Layer::invalidSortIndex()) {
+                    invalidLayers.push_back(layerNode);
                     continue;
                 }
 
                 // Check for an index that has already been used
-                const bool wasInserted = usedIndices.insert(layer->sortIndex()).second;
+                const bool wasInserted = usedIndices.insert(sortIndex).second;
                 if (!wasInserted) {
-                    invalidLayers.push_back(layer);
+                    invalidLayers.push_back(layerNode);
                     continue;
                 }
 
-                validLayers.push_back(layer);
+                validLayers.push_back(layerNode);
             }
 
             assert(invalidLayers.size() + validLayers.size() == customLayers.size());
 
             // Renumber the invalid layers
-            int nextValidLayerIndex = (validLayers.empty() ? 0 : (validLayers.back()->sortIndex() + 1));            
-            for (auto* layer : invalidLayers) {
-                layer->setSortIndex(nextValidLayerIndex++);
+            int nextValidLayerIndex = (validLayers.empty() ? 0 : (validLayers.back()->layer().sortIndex() + 1));            
+            for (auto* layerNode : invalidLayers) {
+                auto layer = layerNode->layer();
+                layer.setSortIndex(nextValidLayerIndex++);
+                layerNode->setLayer(std::move(layer));
             }
         }
 
@@ -101,11 +105,14 @@ namespace TrenchBroom {
             // handle default layer attributes, which are stored in worldspawn
             auto* defaultLayerNode = m_world->defaultLayer();
             for (const Model::EntityAttribute& attribute : attributes) {
-                if (attribute.name() == Model::AttributeNames::LayerColor
-                    || attribute.name() == Model::AttributeNames::LayerOmitFromExport) {
-                    auto defaultLayerEntity = defaultLayerNode->entity();
-                    defaultLayerEntity.addOrUpdateAttribute(attribute.name(), attribute.value());
-                    defaultLayerNode->setEntity(std::move(defaultLayerEntity));
+                if (attribute.name() == Model::AttributeNames::LayerColor && Color::canParse(attribute.value())) {
+                    auto defaultLayer = defaultLayerNode->layer();
+                    defaultLayer.setColor(Color::parse(attribute.value()));
+                    defaultLayerNode->setLayer(std::move(defaultLayer));
+                } else if (attribute.hasNameAndValue(Model::AttributeNames::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue)) {
+                    auto defaultLayer = defaultLayerNode->layer();
+                    defaultLayer.setOmitFromExport(true);
+                    defaultLayerNode->setLayer(std::move(defaultLayer));
                 } else if (attribute.hasNameAndValue(Model::AttributeNames::LayerLocked, Model::AttributeValues::LayerLockedValue)) {
                     defaultLayerNode->setLockState(Model::LockState::Lock_Locked);
                 } else if (attribute.hasNameAndValue(Model::AttributeNames::LayerHidden, Model::AttributeValues::LayerHiddenValue)) {
