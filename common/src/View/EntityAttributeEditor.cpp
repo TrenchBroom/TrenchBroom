@@ -112,7 +112,7 @@ namespace TrenchBroom {
             const QString bullet = QString(" ") % QChar(0x2022) % QString(" ");
 
             switch (definition.type()) {
-                case Assets::AttributeDefinitionType::ChoiceAttribute: {
+                case Assets::PropertyDefinitionType::ChoiceProperty: {
                     const auto& choiceDef = dynamic_cast<const Assets::ChoiceAttributeDefinition&>(definition);
 
                     QString result;
@@ -126,7 +126,7 @@ namespace TrenchBroom {
                     }
                     return result;
                 }
-                case Assets::AttributeDefinitionType::FlagsAttribute: {
+                case Assets::PropertyDefinitionType::FlagsProperty: {
                     const auto& flagsDef = dynamic_cast<const Assets::FlagsAttributeDefinition&>(definition);
 
                     // The options are not necessarily sorted by value, so we sort the descriptions here by inserting
@@ -150,12 +150,12 @@ namespace TrenchBroom {
                     }
                     return result;
                 }
-                case Assets::AttributeDefinitionType::StringAttribute:
-                case Assets::AttributeDefinitionType::BooleanAttribute:
-                case Assets::AttributeDefinitionType::IntegerAttribute:
-                case Assets::AttributeDefinitionType::FloatAttribute:
-                case Assets::AttributeDefinitionType::TargetSourceAttribute:
-                case Assets::AttributeDefinitionType::TargetDestinationAttribute:
+                case Assets::PropertyDefinitionType::StringProperty:
+                case Assets::PropertyDefinitionType::BooleanProperty:
+                case Assets::PropertyDefinitionType::IntegerProperty:
+                case Assets::PropertyDefinitionType::FloatProperty:
+                case Assets::PropertyDefinitionType::TargetSourceProperty:
+                case Assets::PropertyDefinitionType::TargetDestinationProperty:
                     return QString();
                 switchDefault()
             }

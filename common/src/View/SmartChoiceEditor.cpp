@@ -88,7 +88,7 @@ namespace TrenchBroom {
             m_comboBox->clear();
 
             const auto* attrDef = Model::selectAttributeDefinition(name(), attributables);
-            if (attrDef == nullptr || attrDef->type() != Assets::AttributeDefinitionType::ChoiceAttribute) {
+            if (attrDef == nullptr || attrDef->type() != Assets::PropertyDefinitionType::ChoiceProperty) {
                 m_comboBox->setDisabled(true);
             } else {
                 m_comboBox->setDisabled(false);

@@ -26,7 +26,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        enum class AttributeDefinitionType;
+        enum class PropertyDefinitionType;
     }
     
     namespace Model {
@@ -40,9 +40,9 @@ namespace TrenchBroom {
          */
         class SmartTypeEditorMatcher : public SmartAttributeEditorMatcher {
         private:
-            Assets::AttributeDefinitionType m_type;
+            Assets::PropertyDefinitionType m_type;
         public:
-            SmartTypeEditorMatcher(Assets::AttributeDefinitionType type);
+            SmartTypeEditorMatcher(Assets::PropertyDefinitionType type);
         private:
             bool doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const override;
         };
@@ -53,9 +53,9 @@ namespace TrenchBroom {
          */
         class SmartTypeWithSameDefinitionEditorMatcher : public SmartAttributeEditorMatcher {
         private:
-            Assets::AttributeDefinitionType m_type;
+            Assets::PropertyDefinitionType m_type;
         public:
-            SmartTypeWithSameDefinitionEditorMatcher(Assets::AttributeDefinitionType type);
+            SmartTypeWithSameDefinitionEditorMatcher(Assets::PropertyDefinitionType type);
         private:
             bool doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const override;
         };

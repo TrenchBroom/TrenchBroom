@@ -45,8 +45,8 @@ namespace TrenchBroom {
             assert(inheritingClassAttribute.name() == superClassAttribute.name());
         
             // for now, only merge spawnflags
-            if (superClassAttribute.type() == Assets::AttributeDefinitionType::FlagsAttribute &&
-                inheritingClassAttribute.type() == Assets::AttributeDefinitionType::FlagsAttribute &&
+            if (superClassAttribute.type() == Assets::PropertyDefinitionType::FlagsProperty &&
+                inheritingClassAttribute.type() == Assets::PropertyDefinitionType::FlagsProperty &&
                 superClassAttribute.name() == Model::AttributeNames::Spawnflags &&
                 inheritingClassAttribute.name() == Model::AttributeNames::Spawnflags) {
 

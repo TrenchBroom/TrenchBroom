@@ -189,7 +189,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, attributes.size()); // spawnflags
 
             const auto attribute = attributes[0];
-            ASSERT_EQ(Assets::AttributeDefinitionType::FlagsAttribute, attribute->type());
+            ASSERT_EQ(Assets::PropertyDefinitionType::FlagsProperty, attribute->type());
 
             const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
             ASSERT_TRUE(spawnflags != nullptr);
@@ -236,7 +236,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, attributes.size()); // spawnflags
 
             const auto attribute = attributes[0];
-            ASSERT_EQ(Assets::AttributeDefinitionType::FlagsAttribute, attribute->type());
+            ASSERT_EQ(Assets::PropertyDefinitionType::FlagsProperty, attribute->type());
 
             const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
             ASSERT_TRUE(spawnflags != nullptr);
@@ -288,7 +288,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, attributes.size()); // spawnflags
 
             const auto attribute = attributes[0];
-            ASSERT_EQ(Assets::AttributeDefinitionType::FlagsAttribute, attribute->type());
+            ASSERT_EQ(Assets::PropertyDefinitionType::FlagsProperty, attribute->type());
 
             const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
             ASSERT_TRUE(spawnflags != nullptr);
@@ -362,12 +362,12 @@ namespace TrenchBroom {
             const auto* styleAttribute = definition->attributeDefinition("style");
             CHECK(styleAttribute != nullptr);
             CHECK(styleAttribute->name() == "style");
-            CHECK(styleAttribute->type() == Assets::AttributeDefinitionType::ChoiceAttribute);
+            CHECK(styleAttribute->type() == Assets::PropertyDefinitionType::ChoiceProperty);
 
             const auto* spawnflagsAttribute = definition->attributeDefinition(Model::AttributeNames::Spawnflags);
             CHECK(spawnflagsAttribute != nullptr);
             CHECK(spawnflagsAttribute->name() == Model::AttributeNames::Spawnflags);
-            CHECK(spawnflagsAttribute->type() == Assets::AttributeDefinitionType::FlagsAttribute);
+            CHECK(spawnflagsAttribute->type() == Assets::PropertyDefinitionType::FlagsProperty);
 
             const Assets::ChoiceAttributeDefinition* choice = static_cast<const Assets::ChoiceAttributeDefinition*>(styleAttribute);
             CHECK(choice->options().size() == 12u);

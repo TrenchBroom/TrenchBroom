@@ -180,7 +180,7 @@ namespace TrenchBroom {
             CHECK(classInfo.attributes.size() == 1u);
             
             const auto attribute = classInfo.attributes.front();
-            CHECK(attribute->type() == Assets::AttributeDefinitionType::FlagsAttribute);
+            CHECK(attribute->type() == Assets::PropertyDefinitionType::FlagsProperty);
             
             const auto& flagsAttribute = static_cast<const Assets::FlagsAttributeDefinition&>(*attribute.get());
             CHECK(flagsAttribute.name() == Model::AttributeNames::Spawnflags);

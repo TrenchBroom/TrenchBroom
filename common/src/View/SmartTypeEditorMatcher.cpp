@@ -26,7 +26,7 @@ namespace TrenchBroom {
     namespace View {
         // SmartTypeEditorMatcher
 
-        SmartTypeEditorMatcher::SmartTypeEditorMatcher(const Assets::AttributeDefinitionType type) :
+        SmartTypeEditorMatcher::SmartTypeEditorMatcher(const Assets::PropertyDefinitionType type) :
         m_type(type) {}
 
         bool SmartTypeEditorMatcher::doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const {
@@ -47,7 +47,7 @@ namespace TrenchBroom {
 
         // SmartTypeWithSameDefinitionEditorMatcher
 
-        SmartTypeWithSameDefinitionEditorMatcher::SmartTypeWithSameDefinitionEditorMatcher(const Assets::AttributeDefinitionType type) :
+        SmartTypeWithSameDefinitionEditorMatcher::SmartTypeWithSameDefinitionEditorMatcher(const Assets::PropertyDefinitionType type) :
         m_type(type) {}
 
         bool SmartTypeWithSameDefinitionEditorMatcher::doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const {

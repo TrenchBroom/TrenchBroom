@@ -288,14 +288,14 @@ namespace TrenchBroom {
 
         void EntParser::parseTargetAttribute(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
             auto factory = [](const std::string& name, const std::string& shortDesc, const std::string& longDesc) {
-                return std::make_shared<Assets::AttributeDefinition>(name, Assets::AttributeDefinitionType::TargetDestinationAttribute, shortDesc, longDesc, false);
+                return std::make_shared<Assets::AttributeDefinition>(name, Assets::PropertyDefinitionType::TargetDestinationProperty, shortDesc, longDesc, false);
             };
             parseAttributeDefinition(element, factory, attributeDefinitions, status);
         }
 
         void EntParser::parseTargetNameAttribute(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
             auto factory = [](const std::string& name, const std::string& shortDesc, const std::string& longDesc) {
-                return std::make_shared<Assets::AttributeDefinition>(name, Assets::AttributeDefinitionType::TargetSourceAttribute, shortDesc, longDesc, false);
+                return std::make_shared<Assets::AttributeDefinition>(name, Assets::PropertyDefinitionType::TargetSourceProperty, shortDesc, longDesc, false);
             };
             parseAttributeDefinition(element, factory, attributeDefinitions, status);
         }

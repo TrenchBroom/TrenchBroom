@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        AttributeDefinition::AttributeDefinition(const std::string& name, const AttributeDefinitionType type, const std::string& shortDescription, const std::string& longDescription, const bool readOnly) :
+        AttributeDefinition::AttributeDefinition(const std::string& name, const PropertyDefinitionType type, const std::string& shortDescription, const std::string& longDescription, const bool readOnly) :
         m_name(name),
         m_type(type),
         m_shortDescription(shortDescription),
@@ -41,7 +41,7 @@ namespace TrenchBroom {
             return m_name;
         }
 
-        AttributeDefinitionType AttributeDefinition::type() const {
+        PropertyDefinitionType AttributeDefinition::type() const {
             return m_type;
         }
 
@@ -72,13 +72,13 @@ namespace TrenchBroom {
 
         std::string AttributeDefinition::defaultValue(const AttributeDefinition& definition) {
             switch (definition.type()) {
-                case AttributeDefinitionType::StringAttribute: {
+                case PropertyDefinitionType::StringProperty: {
                     const auto& stringDef = static_cast<const StringAttributeDefinition&>(definition);
                     if (!stringDef.hasDefaultValue())
                         return "";
                     return stringDef.defaultValue();
                 }
-                case AttributeDefinitionType::BooleanAttribute: {
+                case PropertyDefinitionType::BooleanProperty: {
                     const auto& boolDef = static_cast<const BooleanAttributeDefinition&>(definition);
                     if (!boolDef.hasDefaultValue())
                         return "";
@@ -86,7 +86,7 @@ namespace TrenchBroom {
                     str << boolDef.defaultValue();
                     return str.str();
                 }
-                case AttributeDefinitionType::IntegerAttribute: {
+                case PropertyDefinitionType::IntegerProperty: {
                     const auto& intDef = static_cast<const IntegerAttributeDefinition&>(definition);
                     if (!intDef.hasDefaultValue())
                         return "";
@@ -94,7 +94,7 @@ namespace TrenchBroom {
                     str << intDef.defaultValue();
                     return str.str();
                 }
-                case AttributeDefinitionType::FloatAttribute: {
+                case PropertyDefinitionType::FloatProperty: {
                     const auto& floatDef = static_cast<const FloatAttributeDefinition&>(definition);
                     if (!floatDef.hasDefaultValue())
                         return "";
@@ -102,7 +102,7 @@ namespace TrenchBroom {
                     str << floatDef.defaultValue();
                     return str.str();
                 }
-                case AttributeDefinitionType::ChoiceAttribute: {
+                case PropertyDefinitionType::ChoiceProperty: {
                     const auto& choiceDef = static_cast<const ChoiceAttributeDefinition&>(definition);
                     if (!choiceDef.hasDefaultValue())
                         return "";
@@ -110,14 +110,14 @@ namespace TrenchBroom {
                     str << choiceDef.defaultValue();
                     return str.str();
                 }
-                case AttributeDefinitionType::FlagsAttribute: {
+                case PropertyDefinitionType::FlagsProperty: {
                     const auto& flagsDef = static_cast<const FlagsAttributeDefinition&>(definition);
                     std::stringstream str;
                     str << flagsDef.defaultValue();
                     return str.str();
                 }
-                case AttributeDefinitionType::TargetSourceAttribute:
-                case AttributeDefinitionType::TargetDestinationAttribute:
+                case PropertyDefinitionType::TargetSourceProperty:
+                case PropertyDefinitionType::TargetDestinationProperty:
                     return "";
                 switchDefault()
             }
@@ -132,28 +132,28 @@ namespace TrenchBroom {
         }
 
         StringAttributeDefinition::StringAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, std::optional<std::string> defaultValue) :
-        AttributeDefinitionWithDefaultValue(name, AttributeDefinitionType::StringAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
+        AttributeDefinitionWithDefaultValue(name, PropertyDefinitionType::StringProperty, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
         AttributeDefinition* StringAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
             return new StringAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
 
         BooleanAttributeDefinition::BooleanAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, std::optional<bool> defaultValue) :
-        AttributeDefinitionWithDefaultValue(name, AttributeDefinitionType::BooleanAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
+        AttributeDefinitionWithDefaultValue(name, PropertyDefinitionType::BooleanProperty, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
         AttributeDefinition* BooleanAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
             return new BooleanAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
 
         IntegerAttributeDefinition::IntegerAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, std::optional<int> defaultValue) :
-        AttributeDefinitionWithDefaultValue(name, AttributeDefinitionType::IntegerAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
+        AttributeDefinitionWithDefaultValue(name, PropertyDefinitionType::IntegerProperty, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
         AttributeDefinition* IntegerAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
             return new IntegerAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
 
         FloatAttributeDefinition::FloatAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, std::optional<float> defaultValue) :
-        AttributeDefinitionWithDefaultValue(name, AttributeDefinitionType::FloatAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
+        AttributeDefinitionWithDefaultValue(name, PropertyDefinitionType::FloatProperty, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
         AttributeDefinition* FloatAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
             return new FloatAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
@@ -172,7 +172,7 @@ namespace TrenchBroom {
         }
 
         ChoiceAttributeDefinition::ChoiceAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const ChoiceAttributeOption::List& options, const bool readOnly, std::optional<std::string> defaultValue) :
-        AttributeDefinitionWithDefaultValue(name, AttributeDefinitionType::ChoiceAttribute, shortDescription, longDescription, readOnly, std::move(defaultValue)),
+        AttributeDefinitionWithDefaultValue(name, PropertyDefinitionType::ChoiceProperty, shortDescription, longDescription, readOnly, std::move(defaultValue)),
         m_options(options) {}
 
         const ChoiceAttributeOption::List& ChoiceAttributeDefinition::options() const {
@@ -246,7 +246,7 @@ namespace TrenchBroom {
         }
 
         FlagsAttributeDefinition::FlagsAttributeDefinition(const std::string& name) :
-        AttributeDefinition(name, AttributeDefinitionType::FlagsAttribute, "", "", false) {}
+        AttributeDefinition(name, PropertyDefinitionType::FlagsProperty, "", "", false) {}
 
         int FlagsAttributeDefinition::defaultValue() const {
             int value = 0;
