@@ -35,11 +35,11 @@ namespace TrenchBroom {
     namespace Model {
         class GroupNode : public AttributableNode, public Object {
         private:
-            typedef enum {
-                Edit_Open,
-                Edit_Closed,
-                Edit_DescendantOpen
-            } EditState;
+            enum class EditState {
+                Open,
+                Closed,
+                DescendantOpen
+            };
 
             EditState m_editState;
             mutable vm::bbox3 m_logicalBounds;

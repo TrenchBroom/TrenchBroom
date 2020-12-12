@@ -39,7 +39,7 @@
 namespace TrenchBroom {
     namespace Model {
         GroupNode::GroupNode(const std::string& name) :
-        m_editState(Edit_Closed),
+        m_editState(EditState::Closed),
         m_boundsValid(false) {
             setName(name);
         }
@@ -51,26 +51,26 @@ namespace TrenchBroom {
         }
 
         bool GroupNode::opened() const {
-            return m_editState == Edit_Open;
+            return m_editState == EditState::Open;
         }
 
         bool GroupNode::hasOpenedDescendant() const {
-            return m_editState == Edit_DescendantOpen;
+            return m_editState == EditState::DescendantOpen;
         }
 
         bool GroupNode::closed() const {
-            return m_editState == Edit_Closed;
+            return m_editState == EditState::Closed;
         }
 
         void GroupNode::open() {
-            assert(m_editState == Edit_Closed);
-            setEditState(Edit_Open);
+            assert(m_editState == EditState::Closed);
+            setEditState(EditState::Open);
             openAncestors();
         }
 
         void GroupNode::close() {
-            assert(m_editState == Edit_Open);
-            setEditState(Edit_Closed);
+            assert(m_editState == EditState::Open);
+            setEditState(EditState::Closed);
             closeAncestors();
         }
 
@@ -89,11 +89,11 @@ namespace TrenchBroom {
         }
 
         void GroupNode::openAncestors() {
-            setAncestorEditState(Edit_DescendantOpen);
+            setAncestorEditState(EditState::DescendantOpen);
         }
 
         void GroupNode::closeAncestors() {
-            setAncestorEditState(Edit_Closed);
+            setAncestorEditState(EditState::Closed);
         }
 
         const std::string& GroupNode::doGetName() const {
