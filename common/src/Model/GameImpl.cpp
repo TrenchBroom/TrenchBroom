@@ -137,7 +137,7 @@ namespace TrenchBroom {
                 return {SoftMapBoundsType::Game, doSoftMapBounds()};
             }
 
-            if (const auto* mapValue = entity.attribute(PropertyKeys::SoftMapBounds); mapValue && *mapValue != AttributeValues::NoSoftMapBounds) {
+            if (const auto* mapValue = entity.attribute(PropertyKeys::SoftMapBounds); mapValue && *mapValue != PropertyValues::NoSoftMapBounds) {
                 return {SoftMapBoundsType::Map, IO::parseSoftMapBoundsString(*mapValue)};
             } else {
                 return {SoftMapBoundsType::Map, std::nullopt};

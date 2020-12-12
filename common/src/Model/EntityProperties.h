@@ -56,7 +56,7 @@ namespace TrenchBroom {
             extern const std::string SoftMapBounds;
         }
 
-        namespace AttributeValues {
+        namespace PropertyValues {
             extern const std::string WorldspawnClassname;
             extern const std::string NoClassname;
             extern const std::string LayerClassname;
@@ -108,7 +108,7 @@ namespace TrenchBroom {
         bool isLayer(const std::string& classname, const std::vector<EntityAttribute>& attributes);
         bool isGroup(const std::string& classname, const std::vector<EntityAttribute>& attributes);
         bool isWorldspawn(const std::string& classname, const std::vector<EntityAttribute>& attributes);
-        const std::string& findAttribute(const std::vector<EntityAttribute>& attributes, const std::string& name, const std::string& defaultValue = AttributeValues::DefaultValue);
+        const std::string& findAttribute(const std::vector<EntityAttribute>& attributes, const std::string& name, const std::string& defaultValue = PropertyValues::DefaultValue);
 
         class EntityAttributes {
         private:

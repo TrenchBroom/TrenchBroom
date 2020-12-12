@@ -2763,7 +2763,7 @@ namespace TrenchBroom {
                     if (!bounds.bounds.has_value()) {
                         // Set the worldspawn key AttributeNames::SoftMaxMapSize's value to the empty string
                         // to indicate that we are overriding the Game's bounds with unlimited.
-                        entity.addOrUpdateAttribute(Model::PropertyKeys::SoftMapBounds, Model::AttributeValues::NoSoftMapBounds);
+                        entity.addOrUpdateAttribute(Model::PropertyKeys::SoftMapBounds, Model::PropertyValues::NoSoftMapBounds);
                     } else {
                         entity.addOrUpdateAttribute(Model::PropertyKeys::SoftMapBounds, IO::serializeSoftMapBoundsString(*bounds.bounds));
                     }

@@ -103,19 +103,19 @@ namespace TrenchBroom {
             }
 
             if (defaultLayerNode->lockState() == Model::LockState::Lock_Locked) {
-                worldEntity.addOrUpdateAttribute(Model::PropertyKeys::LayerLocked, Model::AttributeValues::LayerLockedValue);
+                worldEntity.addOrUpdateAttribute(Model::PropertyKeys::LayerLocked, Model::PropertyValues::LayerLockedValue);
             } else {
                 worldEntity.removeAttribute(Model::PropertyKeys::LayerLocked);
             }
 
             if (defaultLayerNode->hidden()) {
-                worldEntity.addOrUpdateAttribute(Model::PropertyKeys::LayerHidden, Model::AttributeValues::LayerHiddenValue);
+                worldEntity.addOrUpdateAttribute(Model::PropertyKeys::LayerHidden, Model::PropertyValues::LayerHiddenValue);
             } else {
                 worldEntity.removeAttribute(Model::PropertyKeys::LayerHidden);
             }
 
             if (defaultLayer.omitFromExport()) {
-                worldEntity.addOrUpdateAttribute(Model::PropertyKeys::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue);
+                worldEntity.addOrUpdateAttribute(Model::PropertyKeys::LayerOmitFromExport, Model::PropertyValues::LayerOmitFromExportValue);
             } else {
                 worldEntity.removeAttribute(Model::PropertyKeys::LayerOmitFromExport);
             }
@@ -226,8 +226,8 @@ namespace TrenchBroom {
 
         std::vector<Model::EntityAttribute> NodeSerializer::layerAttributes(const Model::LayerNode* layerNode) {
             std::vector<Model::EntityAttribute> result = {
-                Model::EntityAttribute(Model::PropertyKeys::Classname, Model::AttributeValues::LayerClassname),
-                Model::EntityAttribute(Model::PropertyKeys::GroupType, Model::AttributeValues::GroupTypeLayer),
+                Model::EntityAttribute(Model::PropertyKeys::Classname, Model::PropertyValues::LayerClassname),
+                Model::EntityAttribute(Model::PropertyKeys::GroupType, Model::PropertyValues::GroupTypeLayer),
                 Model::EntityAttribute(Model::PropertyKeys::LayerName, layerNode->name()),
                 Model::EntityAttribute(Model::PropertyKeys::LayerId, m_layerIds.getId(layerNode)),
             };
@@ -237,21 +237,21 @@ namespace TrenchBroom {
                 result.push_back(Model::EntityAttribute(Model::PropertyKeys::LayerSortIndex, kdl::str_to_string(layer.sortIndex())));
             }
             if (layerNode->lockState() == Model::LockState::Lock_Locked) {
-                result.push_back(Model::EntityAttribute(Model::PropertyKeys::LayerLocked, Model::AttributeValues::LayerLockedValue));
+                result.push_back(Model::EntityAttribute(Model::PropertyKeys::LayerLocked, Model::PropertyValues::LayerLockedValue));
             }
             if (layerNode->hidden()) {
-                result.push_back(Model::EntityAttribute(Model::PropertyKeys::LayerHidden, Model::AttributeValues::LayerHiddenValue));
+                result.push_back(Model::EntityAttribute(Model::PropertyKeys::LayerHidden, Model::PropertyValues::LayerHiddenValue));
             }
             if (layer.omitFromExport()) {
-                result.push_back(Model::EntityAttribute(Model::PropertyKeys::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue));
+                result.push_back(Model::EntityAttribute(Model::PropertyKeys::LayerOmitFromExport, Model::PropertyValues::LayerOmitFromExportValue));
             }
             return result;
         }
 
         std::vector<Model::EntityAttribute> NodeSerializer::groupAttributes(const Model::GroupNode* group) {
             return {
-                Model::EntityAttribute(Model::PropertyKeys::Classname, Model::AttributeValues::GroupClassname),
-                Model::EntityAttribute(Model::PropertyKeys::GroupType, Model::AttributeValues::GroupTypeGroup),
+                Model::EntityAttribute(Model::PropertyKeys::Classname, Model::PropertyValues::GroupClassname),
+                Model::EntityAttribute(Model::PropertyKeys::GroupType, Model::PropertyValues::GroupTypeGroup),
                 Model::EntityAttribute(Model::PropertyKeys::GroupName, group->name()),
                 Model::EntityAttribute(Model::PropertyKeys::GroupId, m_groupIds.getId(group)),
             };

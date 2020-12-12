@@ -109,13 +109,13 @@ namespace TrenchBroom {
                     auto defaultLayer = defaultLayerNode->layer();
                     defaultLayer.setColor(Color::parse(attribute.value()));
                     defaultLayerNode->setLayer(std::move(defaultLayer));
-                } else if (attribute.hasNameAndValue(Model::PropertyKeys::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue)) {
+                } else if (attribute.hasNameAndValue(Model::PropertyKeys::LayerOmitFromExport, Model::PropertyValues::LayerOmitFromExportValue)) {
                     auto defaultLayer = defaultLayerNode->layer();
                     defaultLayer.setOmitFromExport(true);
                     defaultLayerNode->setLayer(std::move(defaultLayer));
-                } else if (attribute.hasNameAndValue(Model::PropertyKeys::LayerLocked, Model::AttributeValues::LayerLockedValue)) {
+                } else if (attribute.hasNameAndValue(Model::PropertyKeys::LayerLocked, Model::PropertyValues::LayerLockedValue)) {
                     defaultLayerNode->setLockState(Model::LockState::Lock_Locked);
-                } else if (attribute.hasNameAndValue(Model::PropertyKeys::LayerHidden, Model::AttributeValues::LayerHiddenValue)) {
+                } else if (attribute.hasNameAndValue(Model::PropertyKeys::LayerHidden, Model::PropertyValues::LayerHiddenValue)) {
                     defaultLayerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
                 }
             }

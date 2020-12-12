@@ -103,7 +103,7 @@ namespace TrenchBroom {
         void MissingModIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
             assert(node != nullptr);
 
-            if (node->entity().classname() != AttributeValues::WorldspawnClassname) {
+            if (node->entity().classname() != PropertyValues::WorldspawnClassname) {
                 return;
             }
 

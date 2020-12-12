@@ -198,7 +198,7 @@ namespace TrenchBroom {
 
             // determine the type of rotation to apply to this entity
             const auto classname = entity.classname();
-            if (classname != AttributeValues::NoClassname) {
+            if (classname != PropertyValues::NoClassname) {
                 if (kdl::cs::str_is_prefix(classname, "light")) {
                     if (entity.hasAttribute(PropertyKeys::Mangle)) {
                         // spotlight without a target, update mangle

@@ -248,13 +248,13 @@ namespace TrenchBroom {
                 layer.setSortIndex(*layerSortIndex);
             }
             
-            if (findAttribute(attributes, Model::PropertyKeys::LayerLocked) == Model::AttributeValues::LayerLockedValue) {
+            if (findAttribute(attributes, Model::PropertyKeys::LayerLocked) == Model::PropertyValues::LayerLockedValue) {
                 layerNode->setLockState(Model::LockState::Lock_Locked);
             }
-            if (findAttribute(attributes, Model::PropertyKeys::LayerHidden) == Model::AttributeValues::LayerHiddenValue) {
+            if (findAttribute(attributes, Model::PropertyKeys::LayerHidden) == Model::PropertyValues::LayerHiddenValue) {
                 layerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
             }
-            if (findAttribute(attributes, Model::PropertyKeys::LayerOmitFromExport) == Model::AttributeValues::LayerOmitFromExportValue) {
+            if (findAttribute(attributes, Model::PropertyKeys::LayerOmitFromExport) == Model::PropertyValues::LayerOmitFromExportValue) {
                 layer.setOmitFromExport(true);
             }
 

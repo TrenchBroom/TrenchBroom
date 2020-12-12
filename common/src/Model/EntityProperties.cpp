@@ -61,7 +61,7 @@ namespace TrenchBroom {
             const std::string SoftMapBounds     = "_tb_soft_map_bounds";
         }
 
-        namespace AttributeValues {
+        namespace PropertyValues {
             const std::string WorldspawnClassname = "worldspawn";
             const std::string NoClassname         = "undefined";
             const std::string LayerClassname      = "func_group";
@@ -168,25 +168,25 @@ namespace TrenchBroom {
         }
 
         bool isLayer(const std::string& classname, const std::vector<EntityAttribute>& attributes) {
-            if (classname != AttributeValues::LayerClassname) {
+            if (classname != PropertyValues::LayerClassname) {
                 return false;
             } else {
                 const std::string& groupType = findAttribute(attributes, PropertyKeys::GroupType);
-                return groupType == AttributeValues::GroupTypeLayer;
+                return groupType == PropertyValues::GroupTypeLayer;
             }
         }
 
         bool isGroup(const std::string& classname, const std::vector<EntityAttribute>& attributes) {
-            if (classname != AttributeValues::GroupClassname) {
+            if (classname != PropertyValues::GroupClassname) {
                 return false;
             } else {
                 const std::string& groupType = findAttribute(attributes, PropertyKeys::GroupType);
-                return groupType == AttributeValues::GroupTypeGroup;
+                return groupType == PropertyValues::GroupTypeGroup;
             }
         }
 
         bool isWorldspawn(const std::string& classname, const std::vector<EntityAttribute>& /* attributes */) {
-            return classname == AttributeValues::WorldspawnClassname;
+            return classname == PropertyValues::WorldspawnClassname;
         }
 
         const std::string& findAttribute(const std::vector<EntityAttribute>& attributes, const std::string& name, const std::string& defaultValue) {

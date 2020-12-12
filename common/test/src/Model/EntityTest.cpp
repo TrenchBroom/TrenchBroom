@@ -38,7 +38,7 @@ namespace TrenchBroom {
         TEST_CASE("EntityTest.defaults") {
             Entity entity;
 
-            CHECK(entity.classname() == AttributeValues::NoClassname);
+            CHECK(entity.classname() == PropertyValues::NoClassname);
             CHECK(entity.pointEntity());
             CHECK(entity.origin() == vm::vec3::zero());
             CHECK(entity.rotation() == vm::mat4x4::identity());
@@ -173,7 +173,7 @@ namespace TrenchBroom {
             REQUIRE(!entity.hasAttribute(PropertyKeys::Classname));
 
             SECTION("Entities without a classname attribute return a default name") {
-                CHECK(entity.classname() == AttributeValues::NoClassname);
+                CHECK(entity.classname() == PropertyValues::NoClassname);
             }
 
             entity.addOrUpdateAttribute(PropertyKeys::Classname, "testclass");
@@ -199,7 +199,7 @@ namespace TrenchBroom {
 
         TEST_CASE("EntityTest.setClassname") {
             Entity entity;
-            REQUIRE(entity.classname() == AttributeValues::NoClassname);
+            REQUIRE(entity.classname() == PropertyValues::NoClassname);
 
             entity.setClassname("testclass");
             CHECK(*entity.attribute(PropertyKeys::Classname) == "testclass");

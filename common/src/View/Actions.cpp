@@ -277,7 +277,7 @@ namespace TrenchBroom {
                     },
                     [](ActionExecutionContext& context) { return context.hasDocument(); }
                 ));
-                if (definition->name() != Model::AttributeValues::WorldspawnClassname) {
+                if (definition->name() != Model::PropertyValues::WorldspawnClassname) {
                     result.push_back(makeAction(
                         IO::Path("Entities/" + definition->name() + "/Create"),
                         QObject::tr("Create %1").arg(QString::fromStdString(definition->name())),
