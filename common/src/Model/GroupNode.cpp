@@ -218,7 +218,7 @@ namespace TrenchBroom {
             return findContainingLayer(this);
         }
 
-        GroupNode* GroupNode::doGetGroup() {
+        GroupNode* GroupNode::doGetContainingGroup() {
             return findContainingGroup(this);
         }
 
