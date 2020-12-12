@@ -34,12 +34,12 @@ namespace TrenchBroom {
             return const_cast<Object*>(this)->container();
         }
 
-        LayerNode* Object::layer() {
-            return doGetLayer();
+        LayerNode* Object::containingLayer() {
+            return doGetContainingLayer();
         }
 
-        const LayerNode* Object::layer() const {
-            return const_cast<Object*>(this)->layer();
+        const LayerNode* Object::containingLayer() const {
+            return const_cast<Object*>(this)->containingLayer();
         }
 
         GroupNode* Object::group() {
