@@ -378,7 +378,7 @@ namespace TrenchBroom {
                     auto& handler = it->second;
                     try {
                         handler();
-                    } catch (const MalformedAseException& e) {
+                    } catch (const MalformedAseException&) {
                         return; // continue parsing at the current directive
                     }
                 } else {
