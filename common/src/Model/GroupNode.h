@@ -94,7 +94,7 @@ namespace TrenchBroom {
             vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement methods inherited from Object
             Node* doGetContainer() override;
-            LayerNode* doGetLayer() override;
+            LayerNode* doGetContainingLayer() override;
             GroupNode* doGetGroup() override;
 
             bool doContains(const Node* node) const override;

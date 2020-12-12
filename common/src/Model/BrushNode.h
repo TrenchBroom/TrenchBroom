@@ -109,7 +109,7 @@ namespace TrenchBroom {
             std::optional<std::tuple<FloatType, size_t>> findFaceHit(const vm::ray3& ray) const;
 
             Node* doGetContainer() override;
-            LayerNode* doGetLayer() override;
+            LayerNode* doGetContainingLayer() override;
             GroupNode* doGetGroup() override;
 
             bool doContains(const Node* node) const override;
