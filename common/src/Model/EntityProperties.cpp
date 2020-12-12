@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        namespace AttributeNames {
+        namespace PropertyKeys {
             const std::string Classname         = "classname";
             const std::string Origin            = "origin";
             const std::string Wad               = "wad";
@@ -171,7 +171,7 @@ namespace TrenchBroom {
             if (classname != AttributeValues::LayerClassname) {
                 return false;
             } else {
-                const std::string& groupType = findAttribute(attributes, AttributeNames::GroupType);
+                const std::string& groupType = findAttribute(attributes, PropertyKeys::GroupType);
                 return groupType == AttributeValues::GroupTypeLayer;
             }
         }
@@ -180,7 +180,7 @@ namespace TrenchBroom {
             if (classname != AttributeValues::GroupClassname) {
                 return false;
             } else {
-                const std::string& groupType = findAttribute(attributes, AttributeNames::GroupType);
+                const std::string& groupType = findAttribute(attributes, PropertyKeys::GroupType);
                 return groupType == AttributeValues::GroupTypeGroup;
             }
         }

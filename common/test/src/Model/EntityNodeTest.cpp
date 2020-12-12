@@ -64,7 +64,7 @@ namespace TrenchBroom {
             EntityNodeTest() {
                 m_worldBounds = vm::bbox3d(8192.0);
                 m_entity = new EntityNode({
-                    {AttributeNames::Classname, TestClassname}
+                    { PropertyKeys::Classname, TestClassname}
                 });
                 m_world = new WorldNode(Model::Entity(), MapFormat::Standard);
             }

@@ -41,11 +41,11 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(target);
 
             source->setEntity(Entity({
-                {AttributeNames::Target, "target_name"}
+                { PropertyKeys::Target, "target_name"}
             }));
 
             target->setEntity(Entity({
-                {AttributeNames::Targetname, "target_name"}
+                { PropertyKeys::Targetname, "target_name"}
             }));
 
             const std::vector<AttributableNode*>& targets = source->linkTargets();
@@ -67,15 +67,15 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(target);
 
             source1->setEntity(Entity({
-                {AttributeNames::Target, "target_name"}
+                { PropertyKeys::Target, "target_name"}
             }));
 
             source2->setEntity(Entity({
-                {AttributeNames::Target, "target_name"}
+                { PropertyKeys::Target, "target_name"}
             }));
 
             target->setEntity(Entity({
-                {AttributeNames::Targetname, "target_name"}
+                { PropertyKeys::Targetname, "target_name"}
             }));
 
             const std::vector<AttributableNode*>& targets1 = source1->linkTargets();
@@ -103,18 +103,18 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(target2);
 
             source->setEntity(Entity({
-                {AttributeNames::Target + "1", "target_name1"},
-                {AttributeNames::Target + "2", "target_name2"}
+                { PropertyKeys::Target + "1", "target_name1"},
+                { PropertyKeys::Target + "2", "target_name2"}
             }));
 
             // here we need to query for all entities having a numbered "target" property,
             // not just those having a "target" property
             target1->setEntity(Entity({
-                {AttributeNames::Targetname, "target_name1"}
+                { PropertyKeys::Targetname, "target_name1"}
             }));
 
             target2->setEntity(Entity({
-                {AttributeNames::Targetname, "target_name2"}
+                { PropertyKeys::Targetname, "target_name2"}
             }));
 
             const std::vector<AttributableNode*>& targets = source->linkTargets();
@@ -134,10 +134,10 @@ namespace TrenchBroom {
         TEST_CASE("AttributableNodeLinkTest.testLoadLink", "[AttributableNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
-                {AttributeNames::Target, "target_name"}
+                { PropertyKeys::Target, "target_name"}
             }));
             EntityNode* target = world.createEntity(Model::Entity({
-                {AttributeNames::Targetname, "target_name"}
+                { PropertyKeys::Targetname, "target_name"}
             }));
 
             world.defaultLayer()->addChild(source);
@@ -155,17 +155,17 @@ namespace TrenchBroom {
         TEST_CASE("AttributableNodeLinkTest.testRemoveLinkByChangingSource", "[AttributableNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
-                {AttributeNames::Target, "target_name"}
+                { PropertyKeys::Target, "target_name"}
             }));
             EntityNode* target = world.createEntity(Model::Entity({
-                {AttributeNames::Targetname, "target_name"}
+                { PropertyKeys::Targetname, "target_name"}
             }));
 
             world.defaultLayer()->addChild(source);
             world.defaultLayer()->addChild(target);
 
             source->setEntity(Entity({
-                {AttributeNames::Target, "other_name"}
+                { PropertyKeys::Target, "other_name"}
             }));
 
             const std::vector<AttributableNode*>& targets = source->linkTargets();
@@ -178,17 +178,17 @@ namespace TrenchBroom {
         TEST_CASE("AttributableNodeLinkTest.testRemoveLinkByChangingTarget", "[AttributableNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
-                {AttributeNames::Target, "target_name"}
+                { PropertyKeys::Target, "target_name"}
             }));
             EntityNode* target = world.createEntity(Model::Entity({
-                {AttributeNames::Targetname, "target_name"}
+                { PropertyKeys::Targetname, "target_name"}
             }));
 
             world.defaultLayer()->addChild(source);
             world.defaultLayer()->addChild(target);
 
             target->setEntity(Entity({
-                {AttributeNames::Targetname, "other_name"}
+                { PropertyKeys::Targetname, "other_name"}
             }));
 
             const std::vector<AttributableNode*>& targets = source->linkTargets();
@@ -201,10 +201,10 @@ namespace TrenchBroom {
         TEST_CASE("AttributableNodeLinkTest.testRemoveLinkByRemovingSource", "[AttributableNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
-                {AttributeNames::Target, "target_name"}
+                { PropertyKeys::Target, "target_name"}
             }));
             EntityNode* target = world.createEntity(Model::Entity({
-                {AttributeNames::Targetname, "target_name"}
+                { PropertyKeys::Targetname, "target_name"}
             }));
 
             world.defaultLayer()->addChild(source);
@@ -224,10 +224,10 @@ namespace TrenchBroom {
         TEST_CASE("AttributableNodeLinkTest.testRemoveLinkByRemovingTarget", "[AttributableNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
-                {AttributeNames::Target, "target_name"}
+                { PropertyKeys::Target, "target_name"}
             }));
             EntityNode* target = world.createEntity(Model::Entity({
-                {AttributeNames::Targetname, "target_name"}
+                { PropertyKeys::Targetname, "target_name"}
             }));
 
             world.defaultLayer()->addChild(source);
@@ -252,11 +252,11 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(target);
 
             source->setEntity(Entity({
-                {AttributeNames::Killtarget, "target_name"}
+                { PropertyKeys::Killtarget, "target_name"}
             }));
 
             target->setEntity(Entity({
-                {AttributeNames::Targetname, "target_name"}
+                { PropertyKeys::Targetname, "target_name"}
             }));
 
             const std::vector<AttributableNode*>& targets = source->killTargets();
@@ -271,10 +271,10 @@ namespace TrenchBroom {
         TEST_CASE("AttributableNodeLinkTest.testLoadKillLink", "[AttributableNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
-                {AttributeNames::Killtarget, "target_name"}
+                { PropertyKeys::Killtarget, "target_name"}
             }));
             EntityNode* target = world.createEntity(Model::Entity({
-                {AttributeNames::Targetname, "target_name"}
+                { PropertyKeys::Targetname, "target_name"}
             }));
 
             world.defaultLayer()->addChild(source);
@@ -292,17 +292,17 @@ namespace TrenchBroom {
         TEST_CASE("AttributableNodeLinkTest.testRemoveKillLinkByChangingSource", "[AttributableNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
-                {AttributeNames::Killtarget, "target_name"}
+                { PropertyKeys::Killtarget, "target_name"}
             }));
             EntityNode* target = world.createEntity(Model::Entity({
-                {AttributeNames::Targetname, "target_name"}
+                { PropertyKeys::Targetname, "target_name"}
             }));
 
             world.defaultLayer()->addChild(source);
             world.defaultLayer()->addChild(target);
 
             source->setEntity(Entity({
-                {AttributeNames::Killtarget, "other_name"}
+                { PropertyKeys::Killtarget, "other_name"}
             }));
 
             const std::vector<AttributableNode*>& targets = source->killTargets();
@@ -315,17 +315,17 @@ namespace TrenchBroom {
         TEST_CASE("AttributableNodeLinkTest.testRemoveKillLinkByChangingTarget", "[AttributableNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
-                {AttributeNames::Killtarget, "target_name"}
+                { PropertyKeys::Killtarget, "target_name"}
             }));
             EntityNode* target = world.createEntity(Model::Entity({
-                {AttributeNames::Targetname, "target_name"}
+                { PropertyKeys::Targetname, "target_name"}
             }));
 
             world.defaultLayer()->addChild(source);
             world.defaultLayer()->addChild(target);
 
             target->setEntity(Entity({
-                {AttributeNames::Targetname, "other_name"}
+                { PropertyKeys::Targetname, "other_name"}
             }));
 
             const std::vector<AttributableNode*>& targets = source->killTargets();
@@ -338,10 +338,10 @@ namespace TrenchBroom {
         TEST_CASE("AttributableNodeLinkTest.testRemoveKillLinkByRemovingSource", "[AttributableNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
-                {AttributeNames::Killtarget, "target_name"}
+                { PropertyKeys::Killtarget, "target_name"}
             }));
             EntityNode* target = world.createEntity(Model::Entity({
-                {AttributeNames::Targetname, "target_name"}
+                { PropertyKeys::Targetname, "target_name"}
             }));
 
             world.defaultLayer()->addChild(source);
@@ -361,10 +361,10 @@ namespace TrenchBroom {
         TEST_CASE("AttributableNodeLinkTest.testRemoveKillLinkByRemovingTarget", "[AttributableNodeLinkTest]") {
             WorldNode world(Model::Entity(), MapFormat::Standard);
             EntityNode* source = world.createEntity(Model::Entity({
-                {AttributeNames::Killtarget, "target_name"}
+                { PropertyKeys::Killtarget, "target_name"}
             }));
             EntityNode* target = world.createEntity(Model::Entity({
-                {AttributeNames::Targetname, "target_name"}
+                { PropertyKeys::Targetname, "target_name"}
             }));
 
             world.defaultLayer()->addChild(source);

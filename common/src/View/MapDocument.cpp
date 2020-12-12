@@ -1151,7 +1151,7 @@ namespace TrenchBroom {
             ensure(definition != nullptr, "definition is null");
 
             auto* entity = m_world->createEntity(Model::Entity({
-                {Model::AttributeNames::Classname, definition->name()}
+                {Model::PropertyKeys::Classname, definition->name()}
             }));
 
             std::stringstream name;
@@ -1189,7 +1189,7 @@ namespace TrenchBroom {
                 }
             }
 
-            entity.addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
+            entity.addOrUpdateAttribute(Model::PropertyKeys::Classname, definition->name());
             auto* entityNode = m_world->createEntity(std::move(entity));
 
             std::stringstream name;
@@ -2449,7 +2449,7 @@ namespace TrenchBroom {
             const std::string formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
 
             auto entity = m_world->entity();
-            entity.addOrUpdateAttribute(Model::AttributeNames::EntityDefinitions, formatted);
+            entity.addOrUpdateAttribute(Model::PropertyKeys::EntityDefinitions, formatted);
             swapNodeContents("Set Entity Definitions", {{world(), Model::NodeContents(std::move(entity))}});
         }
 
@@ -2741,10 +2741,10 @@ namespace TrenchBroom {
         void MapDocument::setMods(const std::vector<std::string>& mods) {
             auto entity = m_world->entity();
             if (mods.empty()) {
-                entity.removeAttribute(Model::AttributeNames::Mods);
+                entity.removeAttribute(Model::PropertyKeys::Mods);
             } else {
                 const std::string newValue = kdl::str_join(mods, ";");
-                entity.addOrUpdateAttribute(Model::AttributeNames::Mods, newValue);
+                entity.addOrUpdateAttribute(Model::PropertyKeys::Mods, newValue);
             }
             swapNodeContents("Set Enabled Mods", {{world(), Model::NodeContents(std::move(entity))}});
         }
@@ -2763,14 +2763,14 @@ namespace TrenchBroom {
                     if (!bounds.bounds.has_value()) {
                         // Set the worldspawn key AttributeNames::SoftMaxMapSize's value to the empty string
                         // to indicate that we are overriding the Game's bounds with unlimited.
-                        entity.addOrUpdateAttribute(Model::AttributeNames::SoftMapBounds, Model::AttributeValues::NoSoftMapBounds);
+                        entity.addOrUpdateAttribute(Model::PropertyKeys::SoftMapBounds, Model::AttributeValues::NoSoftMapBounds);
                     } else {
-                        entity.addOrUpdateAttribute(Model::AttributeNames::SoftMapBounds, IO::serializeSoftMapBoundsString(*bounds.bounds));
+                        entity.addOrUpdateAttribute(Model::PropertyKeys::SoftMapBounds, IO::serializeSoftMapBoundsString(*bounds.bounds));
                     }
                     break;
                 case Model::Game::SoftMapBoundsType::Game:
                     // Unset the map's setting
-                    entity.removeAttribute(Model::AttributeNames::SoftMapBounds);
+                    entity.removeAttribute(Model::PropertyKeys::SoftMapBounds);
                     break;
                 switchDefault()
             }

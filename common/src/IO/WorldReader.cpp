@@ -105,17 +105,17 @@ namespace TrenchBroom {
             // handle default layer attributes, which are stored in worldspawn
             auto* defaultLayerNode = m_world->defaultLayer();
             for (const Model::EntityAttribute& attribute : attributes) {
-                if (attribute.name() == Model::AttributeNames::LayerColor && Color::canParse(attribute.value())) {
+                if (attribute.name() == Model::PropertyKeys::LayerColor && Color::canParse(attribute.value())) {
                     auto defaultLayer = defaultLayerNode->layer();
                     defaultLayer.setColor(Color::parse(attribute.value()));
                     defaultLayerNode->setLayer(std::move(defaultLayer));
-                } else if (attribute.hasNameAndValue(Model::AttributeNames::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue)) {
+                } else if (attribute.hasNameAndValue(Model::PropertyKeys::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue)) {
                     auto defaultLayer = defaultLayerNode->layer();
                     defaultLayer.setOmitFromExport(true);
                     defaultLayerNode->setLayer(std::move(defaultLayer));
-                } else if (attribute.hasNameAndValue(Model::AttributeNames::LayerLocked, Model::AttributeValues::LayerLockedValue)) {
+                } else if (attribute.hasNameAndValue(Model::PropertyKeys::LayerLocked, Model::AttributeValues::LayerLockedValue)) {
                     defaultLayerNode->setLockState(Model::LockState::Lock_Locked);
-                } else if (attribute.hasNameAndValue(Model::AttributeNames::LayerHidden, Model::AttributeValues::LayerHiddenValue)) {
+                } else if (attribute.hasNameAndValue(Model::PropertyKeys::LayerHidden, Model::AttributeValues::LayerHiddenValue)) {
                     defaultLayerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
                 }
             }

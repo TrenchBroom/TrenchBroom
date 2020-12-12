@@ -64,16 +64,16 @@ namespace TrenchBroom {
             assert(!Model::isLayer(entity.classname(), entity.attributes()));
 
             if (Model::isWorldspawn(entity.classname(), entity.attributes())) {
-                return !(name == Model::AttributeNames::Classname
-                    || name == Model::AttributeNames::Mods
-                    || name == Model::AttributeNames::EntityDefinitions
-                    || name == Model::AttributeNames::Wad
-                    || name == Model::AttributeNames::Textures
-                    || name == Model::AttributeNames::SoftMapBounds
-                    || name == Model::AttributeNames::LayerColor
-                    || name == Model::AttributeNames::LayerLocked
-                    || name == Model::AttributeNames::LayerHidden
-                    || name == Model::AttributeNames::LayerOmitFromExport);
+                return !(name == Model::PropertyKeys::Classname
+                    || name == Model::PropertyKeys::Mods
+                    || name == Model::PropertyKeys::EntityDefinitions
+                    || name == Model::PropertyKeys::Wad
+                    || name == Model::PropertyKeys::Textures
+                    || name == Model::PropertyKeys::SoftMapBounds
+                    || name == Model::PropertyKeys::LayerColor
+                    || name == Model::PropertyKeys::LayerLocked
+                    || name == Model::PropertyKeys::LayerHidden
+                    || name == Model::PropertyKeys::LayerOmitFromExport);
             }
 
             return true;
@@ -84,15 +84,15 @@ namespace TrenchBroom {
             assert(!Model::isLayer(entity.classname(), entity.attributes()));
 
             if (Model::isWorldspawn(entity.classname(), entity.attributes())) {
-                return !(name == Model::AttributeNames::Mods
-                    || name == Model::AttributeNames::EntityDefinitions
-                    || name == Model::AttributeNames::Wad
-                    || name == Model::AttributeNames::Textures
-                    || name == Model::AttributeNames::SoftMapBounds
-                    || name == Model::AttributeNames::LayerColor
-                    || name == Model::AttributeNames::LayerLocked
-                    || name == Model::AttributeNames::LayerHidden
-                    || name == Model::AttributeNames::LayerOmitFromExport);
+                return !(name == Model::PropertyKeys::Mods
+                    || name == Model::PropertyKeys::EntityDefinitions
+                    || name == Model::PropertyKeys::Wad
+                    || name == Model::PropertyKeys::Textures
+                    || name == Model::PropertyKeys::SoftMapBounds
+                    || name == Model::PropertyKeys::LayerColor
+                    || name == Model::PropertyKeys::LayerLocked
+                    || name == Model::PropertyKeys::LayerHidden
+                    || name == Model::PropertyKeys::LayerOmitFromExport);
             }
 
             return true;
@@ -462,12 +462,12 @@ namespace TrenchBroom {
             if (index.column() == 0) {
                 result = getAllAttributeNames();
             } else if (index.column() == 1) {
-                if (name == Model::AttributeNames::Target ||
-                    name == Model::AttributeNames::Killtarget) {
-                    result = getAllValuesForAttributeNames({ Model::AttributeNames::Targetname });
-                } else if (name == Model::AttributeNames::Targetname) {
-                    result = getAllValuesForAttributeNames({ Model::AttributeNames::Target, Model::AttributeNames::Killtarget });
-                } else if (name == Model::AttributeNames::Classname) {
+                if (name == Model::PropertyKeys::Target ||
+                    name == Model::PropertyKeys::Killtarget) {
+                    result = getAllValuesForAttributeNames({ Model::PropertyKeys::Targetname });
+                } else if (name == Model::PropertyKeys::Targetname) {
+                    result = getAllValuesForAttributeNames({ Model::PropertyKeys::Target, Model::PropertyKeys::Killtarget });
+                } else if (name == Model::PropertyKeys::Classname) {
                     result = getAllClassnames();
                 }
             }
@@ -533,7 +533,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
 
             // start with currently used classnames
-            auto result = getAllValuesForAttributeNames({ Model::AttributeNames::Classname });
+            auto result = getAllValuesForAttributeNames({ Model::PropertyKeys::Classname });
             auto resultSet = kdl::wrap_set(result);
 
             // add keys from all loaded entity definitions

@@ -226,7 +226,7 @@ namespace TrenchBroom {
         }
 
         DefParser::AttributeDefinitionPtr DefParser::parseSpawnflags(ParserStatus& /* status */) {
-            auto definition = std::make_shared<Assets::FlagsPropertyDefinition>(Model::AttributeNames::Spawnflags);
+            auto definition = std::make_shared<Assets::FlagsPropertyDefinition>(Model::PropertyKeys::Spawnflags);
             size_t numOptions = 0;
 
             Token token = m_tokenizer.peekToken();

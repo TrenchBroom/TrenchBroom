@@ -150,7 +150,7 @@ namespace TrenchBroom {
         void EntParser::parseSpawnflags(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status) {
             const auto* flagElement = element.FirstChildElement("flag");
             if (flagElement != nullptr) {
-                auto result = std::make_shared<Assets::FlagsPropertyDefinition>(Model::AttributeNames::Spawnflags);
+                auto result = std::make_shared<Assets::FlagsPropertyDefinition>(Model::PropertyKeys::Spawnflags);
                 do {
                     const auto bit = parseSize(*flagElement, "bit", status);
                     if (!bit.has_value()) {

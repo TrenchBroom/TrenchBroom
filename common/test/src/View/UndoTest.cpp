@@ -88,7 +88,7 @@ namespace TrenchBroom {
 
         TEST_CASE_METHOD(UndoTest, "UndoTest.undoRotation", "[UndoTest]") {
             auto* entityNode = new Model::EntityNode({
-                {Model::AttributeNames::Classname, "test"}
+                {Model::PropertyKeys::Classname, "test"}
             });
 
             document->addNode(entityNode, document->parentForNodes());            

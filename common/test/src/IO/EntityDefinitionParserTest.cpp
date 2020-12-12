@@ -156,11 +156,11 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("resolveInheritance.mergeSpawnflagsSimpleInheritance", "[resolveInheritance]") {
-            auto a1 = std::make_shared<Assets::FlagsPropertyDefinition>(Model::AttributeNames::Spawnflags);
+            auto a1 = std::make_shared<Assets::FlagsPropertyDefinition>(Model::PropertyKeys::Spawnflags);
             a1->addOption(1 << 1, "a1_1", "", true);
             a1->addOption(1 << 2, "a1_2", "", false);
             
-            auto a2 = std::make_shared<Assets::FlagsPropertyDefinition>(Model::AttributeNames::Spawnflags);
+            auto a2 = std::make_shared<Assets::FlagsPropertyDefinition>(Model::PropertyKeys::Spawnflags);
             a2->addOption(1 << 2, "a2_2", "", true);
             a2->addOption(1 << 4, "a2_4", "", false);
         
@@ -183,7 +183,7 @@ namespace TrenchBroom {
             CHECK(attribute->type() == Assets::PropertyDefinitionType::FlagsProperty);
             
             const auto& flagsAttribute = static_cast<const Assets::FlagsPropertyDefinition&>(*attribute.get());
-            CHECK(flagsAttribute.name() == Model::AttributeNames::Spawnflags);
+            CHECK(flagsAttribute.name() == Model::PropertyKeys::Spawnflags);
             
             const auto& options = flagsAttribute.options();
             CHECK_THAT(options, Catch::Equals(std::vector<Assets::FlagsPropertyOption>({

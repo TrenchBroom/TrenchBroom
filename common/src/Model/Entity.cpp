@@ -224,7 +224,7 @@ namespace TrenchBroom {
         }
 
         void Entity::setClassname(const std::string& classname) {
-            addOrUpdateAttribute(AttributeNames::Classname, classname);
+            addOrUpdateAttribute(PropertyKeys::Classname, classname);
         }
 
         const vm::vec3& Entity::origin() const {
@@ -233,7 +233,7 @@ namespace TrenchBroom {
         }
 
         void Entity::setOrigin(const vm::vec3& origin) {
-            addOrUpdateAttribute(AttributeNames::Origin, kdl::str_to_string(vm::correct(origin)));
+            addOrUpdateAttribute(PropertyKeys::Origin, kdl::str_to_string(vm::correct(origin)));
         }
 
         const vm::mat4x4& Entity::rotation() const {
@@ -280,8 +280,8 @@ namespace TrenchBroom {
         
         void Entity::validateCachedAttributes() const {
             if (!m_cachedAttributes.has_value()) {
-                const auto* classnameValue = attribute(AttributeNames::Classname);
-                const auto* originValue = attribute(AttributeNames::Origin);
+                const auto* classnameValue = attribute(PropertyKeys::Classname);
+                const auto* originValue = attribute(PropertyKeys::Origin);
 
                 // order is important here because EntityRotationPolicy::getRotation accesses classname
                 m_cachedAttributes = CachedAttributes{};

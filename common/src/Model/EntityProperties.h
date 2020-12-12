@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        namespace AttributeNames {
+        namespace PropertyKeys {
             extern const std::string Classname;
             extern const std::string Origin;
             extern const std::string Wad;

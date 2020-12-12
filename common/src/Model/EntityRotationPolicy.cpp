@@ -200,18 +200,18 @@ namespace TrenchBroom {
             const auto classname = entity.classname();
             if (classname != AttributeValues::NoClassname) {
                 if (kdl::cs::str_is_prefix(classname, "light")) {
-                    if (entity.hasAttribute(AttributeNames::Mangle)) {
+                    if (entity.hasAttribute(PropertyKeys::Mangle)) {
                         // spotlight without a target, update mangle
                         type = RotationType::Mangle;
-                        attribute = AttributeNames::Mangle;
-                    } else if (!entity.hasAttribute(AttributeNames::Target)) {
+                        attribute = PropertyKeys::Mangle;
+                    } else if (!entity.hasAttribute(PropertyKeys::Target)) {
                         // not a spotlight, but might have a rotatable model, so change angle or angles
-                        if (entity.hasAttribute(AttributeNames::Angles)) {
+                        if (entity.hasAttribute(PropertyKeys::Angles)) {
                             type = eulerType;
-                            attribute = AttributeNames::Angles;
+                            attribute = PropertyKeys::Angles;
                         } else {
                             type = RotationType::Angle;
-                            attribute = AttributeNames::Angle;
+                            attribute = PropertyKeys::Angle;
                         }
                     } else {
                         // spotlight with target, don't modify
@@ -221,15 +221,15 @@ namespace TrenchBroom {
 
                     if (!entity.pointEntity()) {
                         // brush entity
-                        if (entity.hasAttribute(AttributeNames::Angles)) {
+                        if (entity.hasAttribute(PropertyKeys::Angles)) {
                             type = eulerType;
-                            attribute = AttributeNames::Angles;
-                        } else if (entity.hasAttribute(AttributeNames::Mangle)) {
+                            attribute = PropertyKeys::Angles;
+                        } else if (entity.hasAttribute(PropertyKeys::Mangle)) {
                             type = eulerType;
-                            attribute = AttributeNames::Mangle;
-                        } else if (entity.hasAttribute(AttributeNames::Angle)) {
+                            attribute = PropertyKeys::Mangle;
+                        } else if (entity.hasAttribute(PropertyKeys::Angle)) {
                             type = RotationType::AngleUpDown;
-                            attribute = AttributeNames::Angle;
+                            attribute = PropertyKeys::Angle;
                         }
                     } else {
                         // point entity
@@ -241,15 +241,15 @@ namespace TrenchBroom {
                             usage = RotationUsage::BlockRotation;
                         }
 
-                        if (entity.hasAttribute(AttributeNames::Angles)) {
+                        if (entity.hasAttribute(PropertyKeys::Angles)) {
                             type = eulerType;
-                            attribute = AttributeNames::Angles;
-                        } else if (entity.hasAttribute(AttributeNames::Mangle)) {
+                            attribute = PropertyKeys::Angles;
+                        } else if (entity.hasAttribute(PropertyKeys::Mangle)) {
                             type = eulerType;
-                            attribute = AttributeNames::Mangle;
+                            attribute = PropertyKeys::Mangle;
                         } else {
                             type = RotationType::AngleUpDown;
-                            attribute = AttributeNames::Angle;
+                            attribute = PropertyKeys::Angle;
                         }
                     }
                 }

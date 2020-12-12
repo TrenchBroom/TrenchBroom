@@ -97,27 +97,27 @@ namespace TrenchBroom {
             const Model::LayerNode* defaultLayerNode = world.defaultLayer();
             const Model::Layer& defaultLayer = defaultLayerNode->layer();
             if (defaultLayer.color()) {
-                worldEntity.addOrUpdateAttribute(Model::AttributeNames::LayerColor, kdl::str_to_string(*defaultLayer.color()));
+                worldEntity.addOrUpdateAttribute(Model::PropertyKeys::LayerColor, kdl::str_to_string(*defaultLayer.color()));
             } else {
-                worldEntity.removeAttribute(Model::AttributeNames::LayerColor);
+                worldEntity.removeAttribute(Model::PropertyKeys::LayerColor);
             }
 
             if (defaultLayerNode->lockState() == Model::LockState::Lock_Locked) {
-                worldEntity.addOrUpdateAttribute(Model::AttributeNames::LayerLocked, Model::AttributeValues::LayerLockedValue);
+                worldEntity.addOrUpdateAttribute(Model::PropertyKeys::LayerLocked, Model::AttributeValues::LayerLockedValue);
             } else {
-                worldEntity.removeAttribute(Model::AttributeNames::LayerLocked);
+                worldEntity.removeAttribute(Model::PropertyKeys::LayerLocked);
             }
 
             if (defaultLayerNode->hidden()) {
-                worldEntity.addOrUpdateAttribute(Model::AttributeNames::LayerHidden, Model::AttributeValues::LayerHiddenValue);
+                worldEntity.addOrUpdateAttribute(Model::PropertyKeys::LayerHidden, Model::AttributeValues::LayerHiddenValue);
             } else {
-                worldEntity.removeAttribute(Model::AttributeNames::LayerHidden);
+                worldEntity.removeAttribute(Model::PropertyKeys::LayerHidden);
             }
 
             if (defaultLayer.omitFromExport()) {
-                worldEntity.addOrUpdateAttribute(Model::AttributeNames::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue);
+                worldEntity.addOrUpdateAttribute(Model::PropertyKeys::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue);
             } else {
-                worldEntity.removeAttribute(Model::AttributeNames::LayerOmitFromExport);
+                worldEntity.removeAttribute(Model::PropertyKeys::LayerOmitFromExport);
             }
 
             if (m_exporting && defaultLayer.omitFromExport()) {
@@ -215,8 +215,8 @@ namespace TrenchBroom {
             auto attributes = std::vector<Model::EntityAttribute>{};
             node->accept(kdl::overload(
                 [](const Model::WorldNode*) {},
-                [&](const Model::LayerNode* layer) { attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Layer, m_layerIds.getId(layer))); },
-                [&](const Model::GroupNode* group) { attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Group, m_groupIds.getId(group))); },
+                [&](const Model::LayerNode* layer) { attributes.push_back(Model::EntityAttribute(Model::PropertyKeys::Layer, m_layerIds.getId(layer))); },
+                [&](const Model::GroupNode* group) { attributes.push_back(Model::EntityAttribute(Model::PropertyKeys::Group, m_groupIds.getId(group))); },
                 [](const Model::EntityNode*) {},
                 [](const Model::BrushNode*) {}
             ));
@@ -226,34 +226,34 @@ namespace TrenchBroom {
 
         std::vector<Model::EntityAttribute> NodeSerializer::layerAttributes(const Model::LayerNode* layerNode) {
             std::vector<Model::EntityAttribute> result = {
-                Model::EntityAttribute(Model::AttributeNames::Classname, Model::AttributeValues::LayerClassname),
-                Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeLayer),
-                Model::EntityAttribute(Model::AttributeNames::LayerName, layerNode->name()),
-                Model::EntityAttribute(Model::AttributeNames::LayerId, m_layerIds.getId(layerNode)),
+                Model::EntityAttribute(Model::PropertyKeys::Classname, Model::AttributeValues::LayerClassname),
+                Model::EntityAttribute(Model::PropertyKeys::GroupType, Model::AttributeValues::GroupTypeLayer),
+                Model::EntityAttribute(Model::PropertyKeys::LayerName, layerNode->name()),
+                Model::EntityAttribute(Model::PropertyKeys::LayerId, m_layerIds.getId(layerNode)),
             };
 
             const auto& layer = layerNode->layer();
             if (layer.hasSortIndex()) {
-                result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerSortIndex, kdl::str_to_string(layer.sortIndex())));
+                result.push_back(Model::EntityAttribute(Model::PropertyKeys::LayerSortIndex, kdl::str_to_string(layer.sortIndex())));
             }
             if (layerNode->lockState() == Model::LockState::Lock_Locked) {
-                result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerLocked, Model::AttributeValues::LayerLockedValue));
+                result.push_back(Model::EntityAttribute(Model::PropertyKeys::LayerLocked, Model::AttributeValues::LayerLockedValue));
             }
             if (layerNode->hidden()) {
-                result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerHidden, Model::AttributeValues::LayerHiddenValue));
+                result.push_back(Model::EntityAttribute(Model::PropertyKeys::LayerHidden, Model::AttributeValues::LayerHiddenValue));
             }
             if (layer.omitFromExport()) {
-                result.push_back(Model::EntityAttribute(Model::AttributeNames::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue));
+                result.push_back(Model::EntityAttribute(Model::PropertyKeys::LayerOmitFromExport, Model::AttributeValues::LayerOmitFromExportValue));
             }
             return result;
         }
 
         std::vector<Model::EntityAttribute> NodeSerializer::groupAttributes(const Model::GroupNode* group) {
             return {
-                Model::EntityAttribute(Model::AttributeNames::Classname, Model::AttributeValues::GroupClassname),
-                Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeGroup),
-                Model::EntityAttribute(Model::AttributeNames::GroupName, group->name()),
-                Model::EntityAttribute(Model::AttributeNames::GroupId, m_groupIds.getId(group)),
+                Model::EntityAttribute(Model::PropertyKeys::Classname, Model::AttributeValues::GroupClassname),
+                Model::EntityAttribute(Model::PropertyKeys::GroupType, Model::AttributeValues::GroupTypeGroup),
+                Model::EntityAttribute(Model::PropertyKeys::GroupName, group->name()),
+                Model::EntityAttribute(Model::PropertyKeys::GroupId, m_groupIds.getId(group)),
             };
         }
 

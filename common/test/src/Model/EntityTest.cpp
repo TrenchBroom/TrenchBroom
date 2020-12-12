@@ -170,29 +170,29 @@ namespace TrenchBroom {
 
         TEST_CASE("EntityTest.classname") {
             Entity entity;
-            REQUIRE(!entity.hasAttribute(AttributeNames::Classname));
+            REQUIRE(!entity.hasAttribute(PropertyKeys::Classname));
 
             SECTION("Entities without a classname attribute return a default name") {
                 CHECK(entity.classname() == AttributeValues::NoClassname);
             }
 
-            entity.addOrUpdateAttribute(AttributeNames::Classname, "testclass");
+            entity.addOrUpdateAttribute(PropertyKeys::Classname, "testclass");
             SECTION("Entities with a classname attribute return the value") {
-                CHECK(*entity.attribute(AttributeNames::Classname) == "testclass");
+                CHECK(*entity.attribute(PropertyKeys::Classname) == "testclass");
                 CHECK(entity.classname() == "testclass");
             }
 
             SECTION("addOrUpdateAttribute updates cached classname attribute") {
-                entity.addOrUpdateAttribute(AttributeNames::Classname, "newclass");
-                CHECK(*entity.attribute(AttributeNames::Classname) == "newclass");
+                entity.addOrUpdateAttribute(PropertyKeys::Classname, "newclass");
+                CHECK(*entity.attribute(PropertyKeys::Classname) == "newclass");
                 CHECK(entity.classname() == "newclass");
             }
 
             SECTION("setAttributes updates cached classname attribute") {
                 entity.setAttributes({
-                    EntityAttribute(AttributeNames::Classname, "newclass")
+                    EntityAttribute(PropertyKeys::Classname, "newclass")
                 });
-                CHECK(*entity.attribute(AttributeNames::Classname) == "newclass");
+                CHECK(*entity.attribute(PropertyKeys::Classname) == "newclass");
                 CHECK(entity.classname() == "newclass");
             }
         }
@@ -202,41 +202,41 @@ namespace TrenchBroom {
             REQUIRE(entity.classname() == AttributeValues::NoClassname);
 
             entity.setClassname("testclass");
-            CHECK(*entity.attribute(AttributeNames::Classname) == "testclass");
+            CHECK(*entity.attribute(PropertyKeys::Classname) == "testclass");
             CHECK(entity.classname() == "testclass");
 
             SECTION("Updates cached classname attribute") {
                 entity.setClassname("otherclass");
-                CHECK(*entity.attribute(AttributeNames::Classname) == "otherclass");
+                CHECK(*entity.attribute(PropertyKeys::Classname) == "otherclass");
                 CHECK(entity.classname() == "otherclass");
             }
         }
 
         TEST_CASE("EntityTest.origin") {
             Entity entity;
-            REQUIRE(!entity.hasAttribute(AttributeNames::Origin));
+            REQUIRE(!entity.hasAttribute(PropertyKeys::Origin));
 
             SECTION("Entities without an origin attribute return 0,0,0") {
                 CHECK(entity.origin() == vm::vec3::zero());
             }
 
-            entity.addOrUpdateAttribute(AttributeNames::Origin, "1 2 3");
+            entity.addOrUpdateAttribute(PropertyKeys::Origin, "1 2 3");
             SECTION("Entities with an origin attribute return the value") {
-                CHECK(*entity.attribute(AttributeNames::Origin) == "1 2 3");
+                CHECK(*entity.attribute(PropertyKeys::Origin) == "1 2 3");
                 CHECK(entity.origin() == vm::vec3(1, 2, 3));
             }
 
             SECTION("addOrUpdateAttribute updates cached classname attribute") {
-                entity.addOrUpdateAttribute(AttributeNames::Origin, "1 2 3");
-                CHECK(*entity.attribute(AttributeNames::Origin) == "1 2 3");
+                entity.addOrUpdateAttribute(PropertyKeys::Origin, "1 2 3");
+                CHECK(*entity.attribute(PropertyKeys::Origin) == "1 2 3");
                 CHECK(entity.origin() == vm::vec3(1, 2, 3));
             }
 
             SECTION("setAttributes updates cached classname attribute") {
                 entity.setAttributes({
-                    EntityAttribute(AttributeNames::Origin, "3 4 5")
+                    EntityAttribute(PropertyKeys::Origin, "3 4 5")
                 });
-                CHECK(*entity.attribute(AttributeNames::Origin) == "3 4 5");
+                CHECK(*entity.attribute(PropertyKeys::Origin) == "3 4 5");
                 CHECK(entity.origin() == vm::vec3(3, 4, 5));
             }
         }
@@ -246,12 +246,12 @@ namespace TrenchBroom {
             REQUIRE(entity.origin() == vm::vec3::zero());
 
             entity.setOrigin(vm::vec3(1, 2, 3));
-            CHECK(*entity.attribute(AttributeNames::Origin) == "1 2 3");
+            CHECK(*entity.attribute(PropertyKeys::Origin) == "1 2 3");
             CHECK(entity.origin() == vm::vec3(1, 2, 3));
 
             SECTION("Updates cached origin attribute") {
                 entity.setOrigin(vm::vec3(3, 4, 5));
-                CHECK(*entity.attribute(AttributeNames::Origin) == "3 4 5");
+                CHECK(*entity.attribute(PropertyKeys::Origin) == "3 4 5");
                 CHECK(entity.origin() == vm::vec3(3, 4, 5));
             }
         }

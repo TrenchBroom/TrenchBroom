@@ -98,7 +98,7 @@ namespace TrenchBroom {
             constexpr auto Classname = "point_entity";
 
             auto* entityNode = new Model::EntityNode({
-                {Model::AttributeNames::Classname, Classname}
+                {Model::PropertyKeys::Classname, Classname}
             });
 
             document->addNode(entityNode, document->parentForNodes());
