@@ -23,7 +23,7 @@
 #include "Model/BrushNode.h"
 #include "Model/GroupNode.h"
 #include "Model/EntityNode.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 #include "Model/IssueGenerator.h"
 #include "Model/ModelUtils.h"
 #include "Model/TagVisitor.h"

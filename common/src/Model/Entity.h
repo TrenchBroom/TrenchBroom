@@ -21,7 +21,7 @@
 
 #include "FloatType.h"
 #include "Assets/AssetReference.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/mat.h>

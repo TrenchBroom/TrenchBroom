@@ -21,7 +21,7 @@
 
 #include "IO/ParserStatus.h"
 #include "Model/BrushFace.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 
 #include <kdl/invoke.h>
 #include <kdl/vector_set.h>

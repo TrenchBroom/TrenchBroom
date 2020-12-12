@@ -22,7 +22,7 @@
 #include "Macros.h"
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 
 #include <kdl/compact_trie.h>
 #include <kdl/vector_utils.h>

@@ -21,7 +21,7 @@
 #include "Model/BrushError.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityRotationPolicy.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 #include "Model/MapFormat.h"
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"

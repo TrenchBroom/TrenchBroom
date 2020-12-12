@@ -23,7 +23,7 @@
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 #include "Model/LayerNode.h"
 #include "Model/ModelFactory.h"
 #include "Model/WorldNode.h"

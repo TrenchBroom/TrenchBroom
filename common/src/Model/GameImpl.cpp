@@ -55,7 +55,7 @@
 #include "Model/BrushError.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 #include "Model/ExportFormat.h"
 #include "Model/GameConfig.h"
 #include "Model/LayerNode.h"

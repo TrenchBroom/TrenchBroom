@@ -19,7 +19,7 @@
 
 #include "MapInspector.h"
 
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 #include "Model/WorldNode.h"
 #include "View/BorderLine.h"
 #include "View/ClickableLabel.h"

@@ -20,7 +20,7 @@
 #include "View/MapDocument.h"
 
 #include "Exceptions.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/AssetUtils.h"

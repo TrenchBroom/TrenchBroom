@@ -22,7 +22,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/GroupNode.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 #include "Model/LayerNode.h"
 #include "Model/LockState.h"
 #include "Model/WorldNode.h"

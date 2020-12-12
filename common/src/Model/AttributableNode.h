@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Model/Entity.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 #include "Model/Node.h"
 
 #include <vecmath/bbox.h>

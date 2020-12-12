@@ -20,7 +20,7 @@
 #include "EntityAttributeGrid.h"
 
 #include "Macros.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 #include "View/BorderLine.h"
 #include "View/EntityAttributeItemDelegate.h"
 #include "View/EntityAttributeModel.h"

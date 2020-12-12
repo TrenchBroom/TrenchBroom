@@ -25,7 +25,7 @@
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 #include "Model/MapFormat.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"

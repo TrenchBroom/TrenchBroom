@@ -30,7 +30,7 @@
 #include "Model/BrushFace.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 #include "Model/GroupNode.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"

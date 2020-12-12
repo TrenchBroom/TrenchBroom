@@ -20,7 +20,7 @@
 #include "FloatType.h"
 #include "Assets/EntityDefinition.h"
 #include "Model/Entity.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 
 #include <vecmath/approx.h>
 #include <vecmath/bbox.h>

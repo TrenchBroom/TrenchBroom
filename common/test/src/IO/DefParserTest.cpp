@@ -27,7 +27,7 @@
 #include "IO/FileMatcher.h"
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>

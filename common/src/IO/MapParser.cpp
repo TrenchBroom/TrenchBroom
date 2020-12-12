@@ -20,7 +20,7 @@
 #include "MapParser.h"
 
 #include "Exceptions.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 
 #include <list>
 

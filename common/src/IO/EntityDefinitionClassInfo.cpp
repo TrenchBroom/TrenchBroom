@@ -21,7 +21,7 @@
 
 #include "Macros.h"
 #include "Assets/PropertyDefinition.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityProperties.h"
 
 #include <kdl/opt_utils.h>
 #include <kdl/vector_utils.h>

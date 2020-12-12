@@ -22,8 +22,8 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityModel.h"
 #include "Assets/ModelDefinition.h"
-#include "Model/EntityAttributes.h"
 #include "Model/EntityAttributesVariableStore.h"
+#include "Model/EntityProperties.h"
 #include "Model/EntityRotationPolicy.h"
 
 #include <kdl/string_utils.h>
