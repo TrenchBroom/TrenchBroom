@@ -939,7 +939,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/ViewUtils.h
         ${COMMON_SOURCE_DIR}/View/WelcomeWindow.h
         ${COMMON_SOURCE_DIR}/View/QtUtils.h
-        ${COMMON_SOURCE_DIR}/Allocator.h
         ${COMMON_SOURCE_DIR}/Color.h
         ${COMMON_SOURCE_DIR}/Ensure.h
         ${COMMON_SOURCE_DIR}/Exceptions.h
