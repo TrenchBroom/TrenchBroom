@@ -127,6 +127,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/GameFactory.cpp
         ${COMMON_SOURCE_DIR}/Model/GameFileSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/GameImpl.cpp
+        ${COMMON_SOURCE_DIR}/Model/Group.cpp
         ${COMMON_SOURCE_DIR}/Model/GroupNode.cpp
         ${COMMON_SOURCE_DIR}/Model/Hit.cpp
         ${COMMON_SOURCE_DIR}/Model/HitAdapter.cpp
@@ -592,6 +593,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/GameFactory.h
         ${COMMON_SOURCE_DIR}/Model/GameFileSystem.h
         ${COMMON_SOURCE_DIR}/Model/GameImpl.h
+        ${COMMON_SOURCE_DIR}/Model/Group.h
         ${COMMON_SOURCE_DIR}/Model/GroupNode.h
         ${COMMON_SOURCE_DIR}/Model/Hit.h
         ${COMMON_SOURCE_DIR}/Model/HitAdapter.h
