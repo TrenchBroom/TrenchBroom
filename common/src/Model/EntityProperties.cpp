@@ -75,10 +75,10 @@ namespace TrenchBroom {
             const std::string LayerOmitFromExportValue = "1";
         }
 
-        bool isNumberedAttribute(const std::string_view prefix, const std::string_view name) {
+        bool isNumberedProperty(std::string_view prefix, std::string_view key) {
             // %* matches 0 or more digits
             const std::string pattern = std::string(prefix) + "%*";
-            return kdl::cs::str_matches_glob(name, pattern);
+            return kdl::cs::str_matches_glob(key, pattern);
         }
 
         EntityAttribute::EntityAttribute() = default;
@@ -123,7 +123,7 @@ namespace TrenchBroom {
         }
 
         bool EntityAttribute::hasNumberedPrefix(const std::string_view prefix) const {
-            return isNumberedAttribute(prefix, m_name);
+            return isNumberedProperty(prefix, m_name);
         }
 
         bool EntityAttribute::hasNumberedPrefixAndValue(const std::string_view prefix, const std::string_view value) const {

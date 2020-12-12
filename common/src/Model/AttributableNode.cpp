@@ -305,9 +305,9 @@ namespace TrenchBroom {
         }
 
         void AttributableNode::addLinks(const std::string& name, const std::string& value) {
-            if (isNumberedAttribute(PropertyKeys::Target, name)) {
+            if (isNumberedProperty(PropertyKeys::Target, name)) {
                 addLinkTargets(value);
-            } else if (isNumberedAttribute(PropertyKeys::Killtarget, name)) {
+            } else if (isNumberedProperty(PropertyKeys::Killtarget, name)) {
                 addKillTargets(value);
             } else if (name == PropertyKeys::Targetname) {
                 addAllLinkSources(value);
@@ -316,9 +316,9 @@ namespace TrenchBroom {
         }
 
         void AttributableNode::removeLinks(const std::string& name, const std::string& value) {
-            if (isNumberedAttribute(PropertyKeys::Target, name)) {
+            if (isNumberedProperty(PropertyKeys::Target, name)) {
                 removeLinkTargets(value);
-            } else if (isNumberedAttribute(PropertyKeys::Killtarget, name)) {
+            } else if (isNumberedProperty(PropertyKeys::Killtarget, name)) {
                 removeKillTargets(value);
             } else if (name == PropertyKeys::Targetname) {
                 removeAllLinkSources();

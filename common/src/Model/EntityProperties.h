@@ -70,7 +70,7 @@ namespace TrenchBroom {
             extern const std::string LayerOmitFromExportValue;
         }
 
-        bool isNumberedAttribute(std::string_view prefix, std::string_view name);
+        bool isNumberedProperty(std::string_view prefix, std::string_view key);
 
         class EntityAttribute {
         private:
