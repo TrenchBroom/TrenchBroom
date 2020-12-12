@@ -21,7 +21,6 @@
 
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
-#include "Model/EntityAttributeSnapshot.h"
 
 #include <kdl/collection_utils.h>
 #include <kdl/vector_utils.h>
@@ -107,10 +106,13 @@ namespace TrenchBroom {
             return m_entity;
         }
 
-        void AttributableNode::setEntity(Entity entity) {
+        Entity AttributableNode::setEntity(Entity entity) {
             const NotifyAttributeChange notifyChange(this);
             updateIndexAndLinks(entity.attributes());
-            m_entity = std::move(entity);
+
+            using std::swap;
+            swap(m_entity, entity);
+            return entity;
         }
 
         void AttributableNode::setDefinition(Assets::EntityDefinition* definition) {
@@ -120,11 +122,6 @@ namespace TrenchBroom {
 
             const NotifyAttributeChange notifyChange(this);
             m_entity.setDefinition(definition);
-        }
-
-        EntityAttributeSnapshot AttributableNode::attributeSnapshot(const std::string& name) const {
-            const auto* value = m_entity.attribute(name);
-            return value ? EntityAttributeSnapshot(name, *value) : EntityAttributeSnapshot(name);
         }
 
         AttributableNode::NotifyAttributeChange::NotifyAttributeChange(AttributableNode* node) :

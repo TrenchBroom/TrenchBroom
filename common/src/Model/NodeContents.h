@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2020 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,16 +17,27 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NodeSnapshot.h"
+#pragma once
 
-#include <kdl/result.h>
+#include "Model/Brush.h"
+#include "Model/Entity.h"
+
+#include <variant>
 
 namespace TrenchBroom {
     namespace Model {
-        NodeSnapshot::~NodeSnapshot() {}
+        class NodeContents {
+        private:
+            std::variant<Entity, Brush> m_contents;
+        public:
+            /** Unsets cached and derived information of the given objects, i.e.
+             *  - for entities, unsets the entity definition and the model
+             *  - for brushes, unsets the textures
+             */
+            explicit NodeContents(std::variant<Entity, Brush> contents);
 
-        kdl::result<void, SnapshotErrors> NodeSnapshot::restore(const vm::bbox3& worldBounds) {
-            return doRestore(worldBounds);
-        }
+            const std::variant<Entity, Brush>& get() const;
+            std::variant<Entity, Brush>& get();
+        };
     }
 }

@@ -56,8 +56,6 @@ namespace TrenchBroom {
             friend bool operator==(const BrushFaceAttributes& lhs, const BrushFaceAttributes& rhs);
             friend void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs);
 
-            BrushFaceAttributes takeSnapshot() const;
-
             const std::string& textureName() const;
 
             const vm::vec2f& offset() const;

@@ -93,6 +93,7 @@ namespace TrenchBroom {
 
             const std::string name() const;
             bool evaluate(const std::vector<BrushFaceHandle>& faceHandles) const;
+            bool evaluate(BrushFace& brushFace) const;
 
             void resetAll(const BrushFaceAttributes& defaultFaceAttributes);
 

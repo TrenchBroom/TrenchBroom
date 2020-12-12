@@ -104,7 +104,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/BrushFacePredicates.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushFaceReference.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushNode.cpp
-        ${COMMON_SOURCE_DIR}/Model/BrushSnapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/ChangeBrushFaceAttributesRequest.cpp
         ${COMMON_SOURCE_DIR}/Model/CompareHits.cpp
         ${COMMON_SOURCE_DIR}/Model/CompilationConfig.cpp
@@ -117,12 +116,10 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/EmptyGroupIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/Entity.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityAttributes.cpp
-        ${COMMON_SOURCE_DIR}/Model/EntityAttributeSnapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityAttributesVariableStore.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityColor.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityNode.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityRotationPolicy.cpp
-        ${COMMON_SOURCE_DIR}/Model/EntitySnapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/Game.cpp
         ${COMMON_SOURCE_DIR}/Model/GameConfig.cpp
         ${COMMON_SOURCE_DIR}/Model/GameEngineConfig.cpp
@@ -131,7 +128,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/GameFileSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/GameImpl.cpp
         ${COMMON_SOURCE_DIR}/Model/GroupNode.cpp
-        ${COMMON_SOURCE_DIR}/Model/GroupSnapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/Hit.cpp
         ${COMMON_SOURCE_DIR}/Model/HitAdapter.cpp
         ${COMMON_SOURCE_DIR}/Model/HitFilter.cpp
@@ -158,7 +154,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/ModelUtils.cpp
         ${COMMON_SOURCE_DIR}/Model/Node.cpp
         ${COMMON_SOURCE_DIR}/Model/NodeCollection.cpp
-        ${COMMON_SOURCE_DIR}/Model/NodeSnapshot.cpp
+        ${COMMON_SOURCE_DIR}/Model/NodeContents.cpp
         ${COMMON_SOURCE_DIR}/Model/NodeVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/NonIntegerVerticesIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/Object.cpp
@@ -171,7 +167,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/PortalFile.cpp
         ${COMMON_SOURCE_DIR}/Model/PushSelection.cpp
         ${COMMON_SOURCE_DIR}/Model/RemoveEntityAttributesQuickFix.cpp
-        ${COMMON_SOURCE_DIR}/Model/Snapshot.cpp
         ${COMMON_SOURCE_DIR}/Model/SoftMapBoundsIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/Tag.cpp
         ${COMMON_SOURCE_DIR}/Model/TagAttribute.cpp
@@ -246,21 +241,19 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/AboutDialog.cpp
         ${COMMON_SOURCE_DIR}/View/ActionContext.cpp
         ${COMMON_SOURCE_DIR}/View/Actions.cpp
-        ${COMMON_SOURCE_DIR}/View/AddBrushVerticesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/AddRemoveNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/Animation.cpp
         ${COMMON_SOURCE_DIR}/View/AppInfoPanel.cpp
         ${COMMON_SOURCE_DIR}/View/Autosaver.cpp
         ${COMMON_SOURCE_DIR}/View/BorderLine.cpp
         ${COMMON_SOURCE_DIR}/View/BorderPanel.cpp
+        ${COMMON_SOURCE_DIR}/View/BrushVertexCommands.cpp
         ${COMMON_SOURCE_DIR}/View/CachingLogger.cpp
         ${COMMON_SOURCE_DIR}/View/CameraAnimation.cpp
         ${COMMON_SOURCE_DIR}/View/CameraLinkHelper.cpp
         ${COMMON_SOURCE_DIR}/View/CameraTool2D.cpp
         ${COMMON_SOURCE_DIR}/View/CameraTool3D.cpp
         ${COMMON_SOURCE_DIR}/View/CellView.cpp
-        ${COMMON_SOURCE_DIR}/View/ChangeBrushFaceAttributesCommand.cpp
-        ${COMMON_SOURCE_DIR}/View/ChangeEntityAttributesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/ChoosePathTypeDialog.cpp
         ${COMMON_SOURCE_DIR}/View/ClickableLabel.cpp
         ${COMMON_SOURCE_DIR}/View/ClipTool.cpp
@@ -283,8 +276,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/ContainerBar.cpp
         ${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
         ${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
-        ${COMMON_SOURCE_DIR}/View/ConvertEntityColorCommand.cpp
-        ${COMMON_SOURCE_DIR}/View/CopyTexCoordSystemFromFaceCommand.cpp
         ${COMMON_SOURCE_DIR}/View/CrashDialog.cpp
         ${COMMON_SOURCE_DIR}/View/CreateBrushToolBase.cpp
         ${COMMON_SOURCE_DIR}/View/CreateComplexBrushTool.cpp
@@ -312,7 +303,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/EntityBrowser.cpp
         ${COMMON_SOURCE_DIR}/View/EntityBrowserView.cpp
         ${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.cpp
-        ${COMMON_SOURCE_DIR}/View/EntityDefinitionFileCommand.cpp
         ${COMMON_SOURCE_DIR}/View/EntityInspector.cpp
         ${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.cpp
         ${COMMON_SOURCE_DIR}/View/FaceInspector.cpp
@@ -368,13 +358,9 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/MapViewToolBox.cpp
         ${COMMON_SOURCE_DIR}/View/ModEditor.cpp
         ${COMMON_SOURCE_DIR}/View/MousePreferencePane.cpp
-        ${COMMON_SOURCE_DIR}/View/MoveBrushEdgesCommand.cpp
-        ${COMMON_SOURCE_DIR}/View/MoveBrushFacesCommand.cpp
-        ${COMMON_SOURCE_DIR}/View/MoveBrushVerticesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/MoveObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/View/MoveObjectsToolController.cpp
         ${COMMON_SOURCE_DIR}/View/MoveObjectsToolPage.cpp
-        ${COMMON_SOURCE_DIR}/View/MoveTexturesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/MultiCompletionLineEdit.cpp
         ${COMMON_SOURCE_DIR}/View/MultiMapView.cpp
         ${COMMON_SOURCE_DIR}/View/OnePaneMapView.cpp
@@ -385,22 +371,16 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/PreferencePane.cpp
         ${COMMON_SOURCE_DIR}/View/RecentDocumentListBox.cpp
         ${COMMON_SOURCE_DIR}/View/RecentDocuments.cpp
-        ${COMMON_SOURCE_DIR}/View/RemoveBrushEdgesCommand.cpp
-        ${COMMON_SOURCE_DIR}/View/RemoveBrushElementsCommand.cpp
-        ${COMMON_SOURCE_DIR}/View/RemoveBrushFacesCommand.cpp
-        ${COMMON_SOURCE_DIR}/View/RemoveBrushVerticesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/RenderView.cpp
         ${COMMON_SOURCE_DIR}/View/ReparentNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/RepeatStack.cpp
         ${COMMON_SOURCE_DIR}/View/ReplaceTextureDialog.cpp
-        ${COMMON_SOURCE_DIR}/View/ResizeBrushesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/ResizeBrushesTool.cpp
         ${COMMON_SOURCE_DIR}/View/ResizeBrushesToolController.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsHandle.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolController.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolPage.cpp
-        ${COMMON_SOURCE_DIR}/View/RotateTexturesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/ScaleObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/View/ScaleObjectsToolController.cpp
         ${COMMON_SOURCE_DIR}/View/ScaleObjectsToolPage.cpp
@@ -410,12 +390,9 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/SetBrushFaceAttributesTool.cpp
         ${COMMON_SOURCE_DIR}/View/SetCurrentLayerCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SetLockStateCommand.cpp
-        ${COMMON_SOURCE_DIR}/View/SetModsCommand.cpp
-        ${COMMON_SOURCE_DIR}/View/SetTextureCollectionsCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SetVisibilityCommand.cpp
         ${COMMON_SOURCE_DIR}/View/ShearObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.cpp
-        ${COMMON_SOURCE_DIR}/View/ShearTexturesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SliderWithLabel.cpp
         ${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.cpp
@@ -425,10 +402,9 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/SmartColorEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartFlagsEditor.cpp
-        ${COMMON_SOURCE_DIR}/View/SnapBrushVerticesCommand.cpp
-        ${COMMON_SOURCE_DIR}/View/SnapshotCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SpinControl.cpp
         ${COMMON_SOURCE_DIR}/View/Splitter.cpp
+        ${COMMON_SOURCE_DIR}/View/SwapNodeContentsCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SwitchableMapViewContainer.cpp
         ${COMMON_SOURCE_DIR}/View/TabBar.cpp
         ${COMMON_SOURCE_DIR}/View/TabBook.cpp
@@ -444,10 +420,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/ToolBoxConnector.cpp
         ${COMMON_SOURCE_DIR}/View/ToolChain.cpp
         ${COMMON_SOURCE_DIR}/View/ToolController.cpp
-        ${COMMON_SOURCE_DIR}/View/TransformObjectsCommand.cpp
         ${COMMON_SOURCE_DIR}/View/TwoPaneMapView.cpp
         ${COMMON_SOURCE_DIR}/View/UndoableCommand.cpp
-        ${COMMON_SOURCE_DIR}/View/UpdateEntitySpawnflagCommand.cpp
         ${COMMON_SOURCE_DIR}/View/UVCameraTool.cpp
         ${COMMON_SOURCE_DIR}/View/UVEditor.cpp
         ${COMMON_SOURCE_DIR}/View/UVOffsetTool.cpp
@@ -458,7 +432,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/UVView.cpp
         ${COMMON_SOURCE_DIR}/View/UVViewHelper.cpp
         ${COMMON_SOURCE_DIR}/View/VariableStoreModel.cpp
-        ${COMMON_SOURCE_DIR}/View/VertexCommand.cpp
         ${COMMON_SOURCE_DIR}/View/VertexHandleManager.cpp
         ${COMMON_SOURCE_DIR}/View/VertexTool.cpp
         ${COMMON_SOURCE_DIR}/View/VertexToolController.cpp
@@ -594,7 +567,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/BrushFaceReference.h
         ${COMMON_SOURCE_DIR}/Model/BrushGeometry.h
         ${COMMON_SOURCE_DIR}/Model/BrushNode.h
-        ${COMMON_SOURCE_DIR}/Model/BrushSnapshot.h
         ${COMMON_SOURCE_DIR}/Model/ChangeBrushFaceAttributesRequest.h
         ${COMMON_SOURCE_DIR}/Model/CompareHits.h
         ${COMMON_SOURCE_DIR}/Model/CompilationConfig.h
@@ -607,12 +579,10 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/EmptyGroupIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/Entity.h
         ${COMMON_SOURCE_DIR}/Model/EntityAttributes.h
-        ${COMMON_SOURCE_DIR}/Model/EntityAttributeSnapshot.h
         ${COMMON_SOURCE_DIR}/Model/EntityAttributesVariableStore.h
         ${COMMON_SOURCE_DIR}/Model/EntityColor.h
         ${COMMON_SOURCE_DIR}/Model/EntityNode.h
         ${COMMON_SOURCE_DIR}/Model/EntityRotationPolicy.h
-        ${COMMON_SOURCE_DIR}/Model/EntitySnapshot.h
         ${COMMON_SOURCE_DIR}/Model/ExportFormat.h
         ${COMMON_SOURCE_DIR}/Model/Game.h
         ${COMMON_SOURCE_DIR}/Model/GameConfig.h
@@ -622,7 +592,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/GameFileSystem.h
         ${COMMON_SOURCE_DIR}/Model/GameImpl.h
         ${COMMON_SOURCE_DIR}/Model/GroupNode.h
-        ${COMMON_SOURCE_DIR}/Model/GroupSnapshot.h
         ${COMMON_SOURCE_DIR}/Model/Hit.h
         ${COMMON_SOURCE_DIR}/Model/HitAdapter.h
         ${COMMON_SOURCE_DIR}/Model/HitFilter.h
@@ -652,7 +621,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/ModelUtils.h
         ${COMMON_SOURCE_DIR}/Model/Node.h
         ${COMMON_SOURCE_DIR}/Model/NodeCollection.h
-        ${COMMON_SOURCE_DIR}/Model/NodeSnapshot.h
+        ${COMMON_SOURCE_DIR}/Model/NodeContents.h
         ${COMMON_SOURCE_DIR}/Model/NodeVisitor.h
         ${COMMON_SOURCE_DIR}/Model/NonIntegerVerticesIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/Object.h
@@ -682,7 +651,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/PortalFile.h
         ${COMMON_SOURCE_DIR}/Model/PushSelection.h
         ${COMMON_SOURCE_DIR}/Model/RemoveEntityAttributesQuickFix.h
-        ${COMMON_SOURCE_DIR}/Model/Snapshot.h
         ${COMMON_SOURCE_DIR}/Model/SoftMapBoundsIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/Tag.h
         ${COMMON_SOURCE_DIR}/Model/TagAttribute.h
@@ -765,13 +733,13 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/AboutDialog.h
         ${COMMON_SOURCE_DIR}/View/ActionContext.h
         ${COMMON_SOURCE_DIR}/View/Actions.h
-        ${COMMON_SOURCE_DIR}/View/AddBrushVerticesCommand.h
         ${COMMON_SOURCE_DIR}/View/AddRemoveNodesCommand.h
         ${COMMON_SOURCE_DIR}/View/Animation.h
         ${COMMON_SOURCE_DIR}/View/AppInfoPanel.h
         ${COMMON_SOURCE_DIR}/View/Autosaver.h
         ${COMMON_SOURCE_DIR}/View/BorderLine.h
         ${COMMON_SOURCE_DIR}/View/BorderPanel.h
+        ${COMMON_SOURCE_DIR}/View/BrushVertexCommands.h
         ${COMMON_SOURCE_DIR}/View/CachingLogger.h
         ${COMMON_SOURCE_DIR}/View/CameraAnimation.h
         ${COMMON_SOURCE_DIR}/View/CameraLinkHelper.h
@@ -779,8 +747,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/CameraTool3D.h
         ${COMMON_SOURCE_DIR}/View/CellLayout.h
         ${COMMON_SOURCE_DIR}/View/CellView.h
-        ${COMMON_SOURCE_DIR}/View/ChangeBrushFaceAttributesCommand.h
-        ${COMMON_SOURCE_DIR}/View/ChangeEntityAttributesCommand.h
         ${COMMON_SOURCE_DIR}/View/ChoosePathTypeDialog.h
         ${COMMON_SOURCE_DIR}/View/ClickableLabel.h
         ${COMMON_SOURCE_DIR}/View/ClipTool.h
@@ -802,8 +768,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/Console.h
         ${COMMON_SOURCE_DIR}/View/ContainerBar.h
         ${COMMON_SOURCE_DIR}/View/ControlListBox.h
-        ${COMMON_SOURCE_DIR}/View/ConvertEntityColorCommand.h
-        ${COMMON_SOURCE_DIR}/View/CopyTexCoordSystemFromFaceCommand.h
         ${COMMON_SOURCE_DIR}/View/CrashDialog.h
         ${COMMON_SOURCE_DIR}/View/CreateBrushToolBase.h
         ${COMMON_SOURCE_DIR}/View/CreateComplexBrushTool.h
@@ -831,7 +795,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/EntityBrowser.h
         ${COMMON_SOURCE_DIR}/View/EntityBrowserView.h
         ${COMMON_SOURCE_DIR}/View/EntityDefinitionFileChooser.h
-        ${COMMON_SOURCE_DIR}/View/EntityDefinitionFileCommand.h
         ${COMMON_SOURCE_DIR}/View/EntityInspector.h
         ${COMMON_SOURCE_DIR}/View/FaceAttribsEditor.h
         ${COMMON_SOURCE_DIR}/View/FaceInspector.h
@@ -888,13 +851,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/MapViewToolBox.h
         ${COMMON_SOURCE_DIR}/View/ModEditor.h
         ${COMMON_SOURCE_DIR}/View/MousePreferencePane.h
-        ${COMMON_SOURCE_DIR}/View/MoveBrushEdgesCommand.h
-        ${COMMON_SOURCE_DIR}/View/MoveBrushFacesCommand.h
-        ${COMMON_SOURCE_DIR}/View/MoveBrushVerticesCommand.h
         ${COMMON_SOURCE_DIR}/View/MoveObjectsTool.h
         ${COMMON_SOURCE_DIR}/View/MoveObjectsToolController.h
         ${COMMON_SOURCE_DIR}/View/MoveObjectsToolPage.h
-        ${COMMON_SOURCE_DIR}/View/MoveTexturesCommand.h
         ${COMMON_SOURCE_DIR}/View/MoveToolController.h
         ${COMMON_SOURCE_DIR}/View/MultiCompletionLineEdit.h
         ${COMMON_SOURCE_DIR}/View/MultiMapView.h
@@ -907,22 +866,16 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/PreferencePane.h
         ${COMMON_SOURCE_DIR}/View/RecentDocumentListBox.h
         ${COMMON_SOURCE_DIR}/View/RecentDocuments.h
-        ${COMMON_SOURCE_DIR}/View/RemoveBrushEdgesCommand.h
-        ${COMMON_SOURCE_DIR}/View/RemoveBrushElementsCommand.h
-        ${COMMON_SOURCE_DIR}/View/RemoveBrushFacesCommand.h
-        ${COMMON_SOURCE_DIR}/View/RemoveBrushVerticesCommand.h
         ${COMMON_SOURCE_DIR}/View/RenderView.h
         ${COMMON_SOURCE_DIR}/View/ReparentNodesCommand.h
         ${COMMON_SOURCE_DIR}/View/RepeatStack.h
         ${COMMON_SOURCE_DIR}/View/ReplaceTextureDialog.h
-        ${COMMON_SOURCE_DIR}/View/ResizeBrushesCommand.h
         ${COMMON_SOURCE_DIR}/View/ResizeBrushesTool.h
         ${COMMON_SOURCE_DIR}/View/ResizeBrushesToolController.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsHandle.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsTool.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolController.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolPage.h
-        ${COMMON_SOURCE_DIR}/View/RotateTexturesCommand.h
         ${COMMON_SOURCE_DIR}/View/ScaleObjectsTool.h
         ${COMMON_SOURCE_DIR}/View/ScaleObjectsToolController.h
         ${COMMON_SOURCE_DIR}/View/ScaleObjectsToolPage.h
@@ -932,12 +885,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/SetBrushFaceAttributesTool.h
         ${COMMON_SOURCE_DIR}/View/SetCurrentLayerCommand.h
         ${COMMON_SOURCE_DIR}/View/SetLockStateCommand.h
-        ${COMMON_SOURCE_DIR}/View/SetModsCommand.h
-        ${COMMON_SOURCE_DIR}/View/SetTextureCollectionsCommand.h
         ${COMMON_SOURCE_DIR}/View/SetVisibilityCommand.h
         ${COMMON_SOURCE_DIR}/View/ShearObjectsTool.h
         ${COMMON_SOURCE_DIR}/View/ShearObjectsToolController.h
-        ${COMMON_SOURCE_DIR}/View/ShearTexturesCommand.h
         ${COMMON_SOURCE_DIR}/View/SliderWithLabel.h
         ${COMMON_SOURCE_DIR}/View/SmartAttributeEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartAttributeEditorManager.h
@@ -947,10 +897,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/SmartColorEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartDefaultAttributeEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartFlagsEditor.h
-        ${COMMON_SOURCE_DIR}/View/SnapBrushVerticesCommand.h
-        ${COMMON_SOURCE_DIR}/View/SnapshotCommand.h
         ${COMMON_SOURCE_DIR}/View/SpinControl.h
         ${COMMON_SOURCE_DIR}/View/Splitter.h
+        ${COMMON_SOURCE_DIR}/View/SwapNodeContentsCommand.h
         ${COMMON_SOURCE_DIR}/View/SwitchableMapViewContainer.h
         ${COMMON_SOURCE_DIR}/View/TabBar.h
         ${COMMON_SOURCE_DIR}/View/TabBook.h
@@ -966,10 +915,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/ToolBoxConnector.h
         ${COMMON_SOURCE_DIR}/View/ToolChain.h
         ${COMMON_SOURCE_DIR}/View/ToolController.h
-        ${COMMON_SOURCE_DIR}/View/TransformObjectsCommand.h
         ${COMMON_SOURCE_DIR}/View/TwoPaneMapView.h
         ${COMMON_SOURCE_DIR}/View/UndoableCommand.h
-        ${COMMON_SOURCE_DIR}/View/UpdateEntitySpawnflagCommand.h
         ${COMMON_SOURCE_DIR}/View/UVCameraTool.h
         ${COMMON_SOURCE_DIR}/View/UVEditor.h
         ${COMMON_SOURCE_DIR}/View/UVOffsetTool.h
@@ -980,7 +927,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/UVView.h
         ${COMMON_SOURCE_DIR}/View/UVViewHelper.h
         ${COMMON_SOURCE_DIR}/View/VariableStoreModel.h
-        ${COMMON_SOURCE_DIR}/View/VertexCommand.h
         ${COMMON_SOURCE_DIR}/View/VertexHandleManager.h
         ${COMMON_SOURCE_DIR}/View/VertexTool.h
         ${COMMON_SOURCE_DIR}/View/VertexToolBase.h

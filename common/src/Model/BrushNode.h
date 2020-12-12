@@ -73,7 +73,7 @@ namespace TrenchBroom {
             const AttributableNode* entity() const;
             
             const Brush& brush() const;
-            void setBrush(Brush brush);
+            Brush setBrush(Brush brush);
 
             bool hasSelectedFaces() const;
             void selectFace(size_t faceIndex);
@@ -82,8 +82,6 @@ namespace TrenchBroom {
             void updateFaceTags(size_t faceIndex, TagManager& tagManager);
             
             void setFaceTexture(size_t faceIndex, Assets::Texture* texture);
-            
-            using Node::takeSnapshot;
         private:
             void updateSelectedFaceCount();
         private: // implement Node interface
@@ -92,7 +90,6 @@ namespace TrenchBroom {
             const vm::bbox3& doGetPhysicalBounds() const override;
 
             Node* doClone(const vm::bbox3& worldBounds) const override;
-            NodeSnapshot* doTakeSnapshot() override;
 
             bool doCanAddChild(const Node* child) const override;
             bool doCanRemoveChild(const Node* child) const override;
@@ -114,8 +111,6 @@ namespace TrenchBroom {
             Node* doGetContainer() override;
             LayerNode* doGetLayer() override;
             GroupNode* doGetGroup() override;
-
-            kdl::result<void, TransformError> doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) override;
 
             bool doContains(const Node* node) const override;
             bool doIntersects(const Node* node) const override;

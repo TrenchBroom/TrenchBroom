@@ -25,6 +25,7 @@
 #include "Model/Game.h"
 #include "Model/MapFacade.h"
 #include "Model/NodeCollection.h"
+#include "Model/NodeContents.h"
 #include "View/CachingLogger.h"
 
 #include <vecmath/forward.h>
@@ -51,10 +52,12 @@ namespace TrenchBroom {
     }
 
     namespace Model {
+        class Brush;
         class BrushFace;
         class BrushFaceHandle;
         class BrushFaceAttributes;
         class EditorContext;
+        class Entity;
         enum class ExportFormat;
         class Game;
         class Issue;
@@ -173,7 +176,10 @@ namespace TrenchBroom {
             
             Notifier<> textureUsageCountsDidChangeNotifier;
 
+            Notifier<> entityDefinitionsWillChangeNotifier;
             Notifier<> entityDefinitionsDidChangeNotifier;
+            
+            Notifier<> modsWillChangeNotifier;
             Notifier<> modsDidChangeNotifier;
 
             Notifier<> pointFileWasLoadedNotifier;
@@ -391,6 +397,9 @@ namespace TrenchBroom {
             void downgradeShownToInherit(const std::vector<Model::Node*>& nodes);
             void downgradeUnlockedToInherit(const std::vector<Model::Node*>& nodes);
         public: // modifying objects, declared in MapFacade interface
+            void swapNodeContents(const std::string& commandName, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap);
+            bool transformObjects(const std::string& commandName, const vm::mat4x4& transformation);
+
             bool translateObjects(const vm::vec3& delta) override;
             bool rotateObjects(const vm::vec3& center, const vm::vec3& axis, FloatType angle) override;
             bool scaleObjects(const vm::bbox3& oldBBox, const vm::bbox3& newBBox) override;
@@ -425,14 +434,12 @@ namespace TrenchBroom {
         public: // modifying vertices, declared in MapFacade interface
             bool snapVertices(FloatType snapTo) override;
 
-            MoveVerticesResult moveVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices, const vm::vec3& delta) override;
-            bool moveEdges(const std::map<vm::segment3, std::vector<Model::BrushNode*>>& edges, const vm::vec3& delta) override;
-            bool moveFaces(const std::map<vm::polygon3, std::vector<Model::BrushNode*>>& faces, const vm::vec3& delta) override;
+            MoveVerticesResult moveVertices(std::vector<vm::vec3> vertexPositions, const vm::vec3& delta) override;
+            bool moveEdges(std::vector<vm::segment3> edgePositions, const vm::vec3& delta) override;
+            bool moveFaces(std::vector<vm::polygon3> facePositions, const vm::vec3& delta) override;
 
-            bool addVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices);
-            bool removeVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices);
-            bool removeEdges(const std::map<vm::segment3, std::vector<Model::BrushNode*>>& edges);
-            bool removeFaces(const std::map<vm::polygon3, std::vector<Model::BrushNode*>>& faces);
+            bool addVertex(const vm::vec3& vertexPosition);
+            bool removeVertices(const std::string& commandName, std::vector<vm::vec3> vertexPositions);
         public: // debug commands
             void printVertices();
             bool throwExceptionDuringCommand();
@@ -519,8 +526,6 @@ namespace TrenchBroom {
 
             void clearEntityModels();
 
-            class SetEntityModels;
-            class UnsetEntityModels;
             void setEntityModels();
             void setEntityModels(const std::vector<Model::Node*>& nodes);
             void unsetEntityModels();
@@ -571,6 +576,12 @@ namespace TrenchBroom {
         private: // observers
             void bindObservers();
             void unbindObservers();
+            void textureCollectionsWillChange();
+            void textureCollectionsDidChange();
+            void entityDefinitionsWillChange();
+            void entityDefinitionsDidChange();
+            void modsWillChange();
+            void modsDidChange();
             void preferenceDidChange(const IO::Path& path);
             void commandDone(Command* command);
             void commandUndone(UndoableCommand* command);

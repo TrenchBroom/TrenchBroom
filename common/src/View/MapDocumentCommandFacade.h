@@ -20,6 +20,7 @@
 #pragma once
 
 #include "FloatType.h"
+#include "Model/NodeContents.h"
 #include "View/MapDocument.h"
 
 #include <vecmath/forward.h>
@@ -31,9 +32,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EntityAttributeSnapshot;
         enum class LockState;
-        class Snapshot;
         enum class VisibilityState;
     }
 
@@ -72,6 +71,8 @@ namespace TrenchBroom {
         public: // adding and removing nodes
             void performAddNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
             void performRemoveNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
+        public: // swapping node contents
+            void performSwapNodeContents(std::vector<std::pair<Model::Node*, Model::NodeContents>>& nodesToSwap);
         public: // Node Visibility
             std::map<Model::Node*, Model::VisibilityState> setVisibilityState(const std::vector<Model::Node*>& nodes, Model::VisibilityState visibilityState);
             std::map<Model::Node*, Model::VisibilityState> setVisibilityEnsured(const std::vector<Model::Node*>& nodes);
@@ -81,57 +82,13 @@ namespace TrenchBroom {
         public: // layers
             using MapDocument::performSetCurrentLayer;
         public:
-            std::map<Model::GroupNode*, std::string> performRenameGroups(const std::string& newName);
-            void performUndoRenameGroups(const std::map<Model::GroupNode*, std::string>& newNames);
-
             void performPushGroup(Model::GroupNode* group);
             void performPopGroup();
-        public: // transformation
-            /**
-             * @return true if the transform was applied, false if can't be applied
-             * to everything in the selection, in which case it's the caller's responsibility to restore the modified
-             * nodes.
-             */
-            bool performTransform(const vm::mat4x4& transform, bool lockTextures);
-        public: // entity attributes
-            using EntityAttributeSnapshotMap = std::map<Model::AttributableNode*, std::vector<Model::EntityAttributeSnapshot>>;
-            EntityAttributeSnapshotMap performSetAttribute(const std::string& name, const std::string& value);
-            EntityAttributeSnapshotMap performSetAttributeForNodes(const std::vector<Model::AttributableNode*>& nodes, const std::string& name, const std::string& value);
-            EntityAttributeSnapshotMap performRemoveAttribute(const std::string& name);
-            EntityAttributeSnapshotMap performRemoveAttributeForNodes(const std::vector<Model::AttributableNode*>& nodes, const std::string& name);
-            EntityAttributeSnapshotMap performUpdateSpawnflag(const std::string& name, const size_t flagIndex, const bool setFlag);
-            EntityAttributeSnapshotMap performConvertColorRange(const std::string& name, Assets::ColorRange::Type colorRange);
-            EntityAttributeSnapshotMap performRenameAttribute(const std::string& oldName, const std::string& newName);
-            EntityAttributeSnapshotMap performRenameAttributeForNodes(const std::vector<Model::AttributableNode*>& nodes, const std::string& oldName, const std::string& newName);
-            void restoreAttributes(const EntityAttributeSnapshotMap& attributes);
-        public: // brush resizing
-            /**
-             * Resize the currently selected brushes by translating faces that match the given polygons by the given
-             * delta.
-             *
-             * Returns the new polygons of the translated faces or an empty optional if the operation fails for any of
-             * the selected faces. If the operation fails, no brushes will be modified.
-             *
-             * @param polygons the polygons describing the faces to be translated
-             * @param delta the delta vector by which the faces should be translated
-             * @return the new polygons or an empty optional if the operation fails
-             */
-            std::optional<std::vector<vm::polygon3>> performResizeBrushes(const std::vector<vm::polygon3>& polygons, const vm::vec3& delta);
         public: // brush face attributes
             void performMoveTextures(const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta);
             void performRotateTextures(float angle);
             void performShearTextures(const vm::vec2f& factors);
             void performCopyTexCoordSystemFromFace(const Model::TexCoordSystemSnapshot& coordSystemSnapshot, const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane, const Model::WrapStyle wrapStyle);
-            void performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
-        public: // vertices
-            bool performSnapVertices(FloatType snapTo);
-            std::vector<vm::vec3> performMoveVertices(const std::map<Model::BrushNode*, std::vector<vm::vec3>>& vertices, const vm::vec3& delta);
-            std::vector<vm::segment3> performMoveEdges(const std::map<Model::BrushNode*, std::vector<vm::segment3>>& edges, const vm::vec3& delta);
-            std::vector<vm::polygon3> performMoveFaces(const std::map<Model::BrushNode*, std::vector<vm::polygon3>>& faces, const vm::vec3& delta);
-            void performAddVertices(const std::map<vm::vec3, std::vector<Model::BrushNode*>>& vertices);
-            void performRemoveVertices(const std::map<Model::BrushNode*, std::vector<vm::vec3>>& vertices);
-        public: // snapshots and restoration
-            void restoreSnapshot(Model::Snapshot* snapshot);
         public: // entity definition file management
             void performSetEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
         public: // texture collection management

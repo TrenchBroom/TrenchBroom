@@ -28,7 +28,6 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushGeometry.h"
-#include "Model/BrushSnapshot.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/IssueGenerator.h"
@@ -76,10 +75,6 @@ namespace TrenchBroom {
             return static_cast<BrushNode*>(Node::clone(worldBounds));
         }
 
-        NodeSnapshot* BrushNode::doTakeSnapshot() {
-            return new BrushSnapshot(this);
-        }
-
         const AttributableNode* BrushNode::entity() const {
             return visitParent(kdl::overload(
                 [](const WorldNode* world)                    -> const AttributableNode* { return world; },
@@ -98,14 +93,18 @@ namespace TrenchBroom {
             return m_brush;
         }
         
-        void BrushNode::setBrush(Brush brush) {
+        Brush BrushNode::setBrush(Brush brush) {
             const NotifyNodeChange nodeChange(this);
             const NotifyPhysicalBoundsChange boundsChange(this);
-            m_brush = std::move(brush);
+
+            using std::swap;
+            swap(m_brush, brush);
             
             updateSelectedFaceCount();
             invalidateIssues();
             invalidateVertexCache();
+
+            return brush;
         }
 
         bool BrushNode::hasSelectedFaces() const {
@@ -231,25 +230,6 @@ namespace TrenchBroom {
 
         GroupNode* BrushNode::doGetGroup() {
             return findContainingGroup(this);
-        }
-
-        kdl::result<void, TransformError> BrushNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
-            const NotifyNodeChange nodeChange(this);
-            const NotifyPhysicalBoundsChange boundsChange(this);
-
-            return m_brush.transform(worldBounds, transformation, lockTextures)
-                .visit(kdl::overload(
-                    [&](Brush&& brush) {
-                        m_brush = std::move(brush);
-                        invalidateIssues();
-                        invalidateVertexCache();
-
-                        return kdl::result<void, TransformError>::success();
-                    },
-                    [](const BrushError e) {
-                        return kdl::result<void, TransformError>::error(TransformError{kdl::str_to_string(e)});
-                    }
-                ));
         }
 
         bool BrushNode::doContains(const Node* node) const {

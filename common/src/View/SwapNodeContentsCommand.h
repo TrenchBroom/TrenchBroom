@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2020 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -20,33 +20,37 @@
 #pragma once
 
 #include "Macros.h"
-#include "View/VertexCommand.h"
+#include "Model/NodeContents.h"
+#include "View/DocumentCommand.h"
 
 #include <memory>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace TrenchBroom {
-    namespace View {
-        class MapDocument;
+    namespace Model {
+        class Brush;
+        class Entity;
+        class Node;
+    }
 
-        class AddBrushVerticesCommand : public VertexCommand {
+    namespace View {
+        class SwapNodeContentsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-        private:
-            VertexToBrushesMap m_vertices;
+        protected:
+            std::vector<std::pair<Model::Node*, Model::NodeContents>> m_nodes;
         public:
-            static std::unique_ptr<AddBrushVerticesCommand> add(const VertexToBrushesMap& vertices);
+            SwapNodeContentsCommand(const std::string& name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes);
+            ~SwapNodeContentsCommand();
 
-            AddBrushVerticesCommand(CommandType type, const std::string& name, const std::vector<Model::BrushNode*>& brushes, const VertexToBrushesMap& vertices);
-        private:
-            bool doCanDoVertexOperation(const MapDocument* document) const override;
-            bool doVertexOperation(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+            std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
 
             bool doCollateWith(UndoableCommand* command) override;
 
-            deleteCopyAndMove(AddBrushVerticesCommand)
+            deleteCopyAndMove(SwapNodeContentsCommand)
         };
     }
 }
-

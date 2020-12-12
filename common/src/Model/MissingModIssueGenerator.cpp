@@ -112,7 +112,7 @@ namespace TrenchBroom {
             }
 
             auto game = kdl::mem_lock(m_game);
-            const std::vector<std::string> mods = game->extractEnabledMods(*node);
+            const std::vector<std::string> mods = game->extractEnabledMods(node->entity());
 
             if (mods == m_lastMods) {
                 return;

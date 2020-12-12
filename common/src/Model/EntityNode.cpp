@@ -24,7 +24,6 @@
 #include "Model/BrushNode.h"
 #include "Model/EntityAttributesVariableStore.h"
 #include "Model/EntityRotationPolicy.h"
-#include "Model/EntitySnapshot.h"
 #include "Model/IssueGenerator.h"
 #include "Model/ModelUtils.h"
 #include "Model/PickResult.h"
@@ -101,10 +100,6 @@ namespace TrenchBroom {
             auto* entity = new EntityNode(m_entity);
             cloneAttributes(entity);
             return entity;
-        }
-
-        NodeSnapshot* EntityNode::doTakeSnapshot() {
-            return new EntitySnapshot(this);
         }
 
         bool EntityNode::doCanAddChild(const Node* child) const {
@@ -240,33 +235,6 @@ namespace TrenchBroom {
 
         GroupNode* EntityNode::doGetGroup() {
             return findContainingGroup(this);
-        }
-
-        kdl::result<void, TransformError> EntityNode::doTransform(const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures) {
-            if (hasChildren()) {
-                const NotifyNodeChange nodeChange(this);
-
-                for (auto* child : children()) {
-                    const auto result = child->accept(kdl::overload(
-                        [] (WorldNode*)  { return kdl::result<void, TransformError>::success(); },
-                        [] (LayerNode*)  { return kdl::result<void, TransformError>::success(); },
-                        [] (GroupNode*)  { return kdl::result<void, TransformError>::success(); },
-                        [] (EntityNode*) { return kdl::result<void, TransformError>::success(); },
-                        [&](BrushNode* brush) {
-                            return brush->transform(worldBounds, transformation, lockTextures);
-                        }
-                    ));
-                    if (!result.is_success()) {
-                        return result;
-                    }
-                }
-            } else {
-                auto entity = m_entity;
-                entity.transform(transformation);
-                setEntity(std::move(entity));
-            }
-
-            return kdl::result<void, TransformError>::success();
         }
 
         bool EntityNode::doContains(const Node* node) const {

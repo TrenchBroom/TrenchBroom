@@ -35,13 +35,13 @@
 
 namespace TrenchBroom {
     namespace View {
-        class ChangeEntityAttributesCommandTest : public MapDocumentTest {
+        class SetEntityAttributesTest : public MapDocumentTest {
         public:
-            ChangeEntityAttributesCommandTest() :
+            SetEntityAttributesTest() :
             MapDocumentTest(Model::MapFormat::Valve) {}
         };
 
-        TEST_CASE_METHOD(ChangeEntityAttributesCommandTest, "ChangeEntityAttributesCommandTest.changeClassname") {
+        TEST_CASE_METHOD(SetEntityAttributesTest, "SetEntityAttributesTest.changeClassname") {
             // need to recreate these because document->setEntityDefinitions will delete the old ones
             m_pointEntityDef = new Assets::PointEntityDefinition("point_entity", Color(), vm::bbox3(16.0), "this is a point entity", {}, {});
 
@@ -55,6 +55,7 @@ namespace TrenchBroom {
             document->addNode(entityNode, document->parentForNodes());
             REQUIRE(entityNode->entity().definition() == largeEntityDef);
             
+            document->deselectAll();            
             document->select(entityNode);
             REQUIRE(document->selectionBounds().size() == largeEntityDef->bounds().size());
             
@@ -66,9 +67,13 @@ namespace TrenchBroom {
             CHECK(entityNode->entity().definition() == nullptr);
             CHECK(document->selectionBounds().size() == Model::EntityNode::DefaultBounds.size());
             
-            document->setAttribute("temp", "large_entity");
-            document->renameAttribute("temp", "classname");
-            CHECK(document->selectionBounds().size() == largeEntityDef->bounds().size());
+            {
+                Transaction transaction(document); // we only want to undo the following changes later
+                document->setAttribute("temp", "large_entity");
+                document->renameAttribute("temp", "classname");
+                CHECK(entityNode->entity().definition() == largeEntityDef);
+                CHECK(document->selectionBounds().size() == largeEntityDef->bounds().size());
+            }
             
             document->undoCommand();
             CHECK(entityNode->entity().definition() == nullptr);
