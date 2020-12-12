@@ -167,6 +167,13 @@ namespace TrenchBroom {
             for (EntityInfo& info : m_entityInfos) {
                 createNode(info, status);
             }
+
+            // handle the case of parsing no entities, but a list of brushes (NodeReader)
+            if (m_entityInfos.empty()) {
+                for (LoadedBrush& loadedBrush : m_loadedBrushes) {
+                    createBrush(std::move(loadedBrush.brush), nullptr, loadedBrush.startLine, loadedBrush.lineCount, std::move(loadedBrush.extraAttributes), status);
+                }
+            }
         }
 
         void MapReader::createNode(EntityInfo& info, ParserStatus& status) {
