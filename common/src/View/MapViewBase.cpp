@@ -987,7 +987,7 @@ namespace TrenchBroom {
             }
             mergeGroupAction->setEnabled(canMergeGroups());
 
-            QAction* renameAction = menu.addAction(tr("Rename"), mapFrame, &MapFrame::renameSelectedGroups);
+            QAction* renameAction = menu.addAction(tr("Rename Groups"), mapFrame, &MapFrame::renameSelectedGroups);
             renameAction->setEnabled(mapFrame->canRenameSelectedGroups());
 
             if (newGroup != nullptr && newGroup != currentGroup) {
