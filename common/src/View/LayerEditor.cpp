@@ -104,8 +104,8 @@ namespace TrenchBroom {
             QAction* unlockAllLayersAction = popupMenu.addAction(tr("Unlock All Layers"), this, &LayerEditor::onUnlockAllLayers);
             QAction* lockAllLayersAction = popupMenu.addAction(tr("Lock All Layers"), this, &LayerEditor::onLockAllLayers);
             popupMenu.addSeparator();
-            QAction* renameLayerAction = popupMenu.addAction(tr("Rename layer"), this, &LayerEditor::onRenameLayer);
-            QAction* removeLayerAction = popupMenu.addAction(tr("Remove layer"), this, &LayerEditor::onRemoveLayer);
+            QAction* renameLayerAction = popupMenu.addAction(tr("Rename Layer"), this, &LayerEditor::onRenameLayer);
+            QAction* removeLayerAction = popupMenu.addAction(tr("Remove Layer"), this, &LayerEditor::onRemoveLayer);
 
             makeActiveAction->setEnabled(canSetCurrentLayer(layerNode));
             moveSelectionToLayerAction->setEnabled(canMoveSelectionToLayer());
