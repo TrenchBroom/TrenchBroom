@@ -96,43 +96,33 @@ namespace TrenchBroom {
             Model::ModelFactory* m_factory;
 
         private: // data populated in response to MapParser callbacks
-            enum class FaceType {
-                Standard, Valve
-            };
-            struct FaceInfo {
-                FaceType type;
-                size_t line;
-                vm::vec3 point1;
-                vm::vec3 point2;
-                vm::vec3 point3;
-                Model::BrushFaceAttributes attribs;
-                vm::vec3 texAxisX;
-                vm::vec3 texAxisY;
-            };
-            Model::Node* m_brushParent;
-            Model::Node* m_currentNode;
-            std::vector<Model::BrushFace> m_faces;
-
             struct BrushInfo {
-                /**
-                 * index of the entity in m_entityInfos that this brush belongs to
-                 */
-                size_t entityNum;
-                std::vector<FaceInfo> faces;
+                std::vector<Model::BrushFace> faces;
                 size_t startLine;
                 size_t lineCount;
                 ExtraAttributes extraAttributes;
             };
-            using LoadedBrush = std::variant<std::unique_ptr<Model::BrushNode>, Model::BrushError>;
             struct EntityInfo {
                 size_t startLine;
                 size_t lineCount;
                 std::vector<Model::EntityAttribute> attributes;
                 ExtraAttributes extraAttributes;
+                size_t brushesBegin;
+                size_t brushesEnd;
             };
             std::vector<EntityInfo> m_entityInfos;
             std::vector<BrushInfo> m_brushInfos;
+        private: // data populated by resolveBrushes
+            struct LoadedBrush {
+                kdl::result<Model::Brush, Model::BrushError> brush;
+                ExtraAttributes extraAttributes;
+                size_t startLine;
+                size_t lineCount;
+            };
+            std::vector<LoadedBrush> m_loadedBrushes;
         private: // state used in processing m_objects
+            Model::Node* m_brushParent;
+            Model::Node* m_currentNode;
             LayerMap m_layers;
             GroupMap m_groups;
             NodeParentList m_unresolvedNodes;
@@ -166,6 +156,8 @@ namespace TrenchBroom {
             void onStandardBrushFace(size_t line, Model::MapFormat format, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, ParserStatus& status) override;
             void onValveBrushFace(size_t line, Model::MapFormat format, const vm::vec3& point1, const vm::vec3& point2, const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX, const vm::vec3& texAxisY, ParserStatus& status) override;
         private: // helper methods
+            void createNodes(ParserStatus& status);
+            void createNode(EntityInfo& info, ParserStatus& status);
             void createLayer(size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
             void createGroup(size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
             void createEntity(size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
@@ -177,7 +169,7 @@ namespace TrenchBroom {
             void resolveNodes(ParserStatus& status);
             Model::Node* resolveParent(const ParentInfo& parentInfo) const;
 
-            static std::vector<LoadedBrush> resolveBrushes(std::vector<BrushInfo> brushInfos);
+            void loadBrushes(ParserStatus& status);
 
             EntityType entityType(const std::vector<Model::EntityAttribute>& attributes) const;
 
