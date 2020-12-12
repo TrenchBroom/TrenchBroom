@@ -51,7 +51,7 @@ namespace TrenchBroom {
             return str;
         }
 
-        bool addAttribute(std::vector<std::shared_ptr<Assets::AttributeDefinition>>& attributes, std::shared_ptr<Assets::AttributeDefinition> attribute) {
+        bool addAttribute(std::vector<std::shared_ptr<Assets::PropertyDefinition>>& attributes, std::shared_ptr<Assets::PropertyDefinition> attribute) {
             assert(attribute != nullptr);
             if (kdl::vec_contains(attributes, [&](const auto& a) { return a->name() == attribute->name(); })) {
                 return false;

@@ -30,7 +30,7 @@ class QSplitter;
 
 namespace TrenchBroom {
     namespace Assets {
-        class AttributeDefinition;
+        class PropertyDefinition;
         class EntityDefinition;
     }
 
@@ -76,7 +76,7 @@ namespace TrenchBroom {
              * Returns a description of the options for ChoiceAttributeOption and FlagsAttributeDefinition,
              * other subclasses return an empty string.
              */
-            static QString optionDescriptions(const Assets::AttributeDefinition& definition);
+            static QString optionDescriptions(const Assets::PropertyDefinition& definition);
 
             void updateDocumentation(const std::string& attributeName);
             void createGui(std::weak_ptr<MapDocument> document);

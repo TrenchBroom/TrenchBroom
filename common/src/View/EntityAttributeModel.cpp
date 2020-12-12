@@ -138,13 +138,13 @@ namespace TrenchBroom {
 
         AttributeRow::AttributeRow(const std::string& name, const Model::AttributableNode* node) :
         m_name(name) {
-            const Assets::AttributeDefinition* definition = Model::attributeDefinition(node, name);
+            const Assets::PropertyDefinition* definition = Model::attributeDefinition(node, name);
 
             if (const auto* value = node->entity().attribute(name)) {
                 m_value = *value;
                 m_valueType = ValueType::SingleValue;
             } else if (definition != nullptr) {
-                m_value = Assets::AttributeDefinition::defaultValue(*definition);
+                m_value = Assets::PropertyDefinition::defaultValue(*definition);
                 m_valueType = ValueType::Unset;
             } else {
                 // this is the case when the name is coming from another entity

@@ -83,11 +83,11 @@ namespace TrenchBroom {
             usageCountDidChangeNotifier();
         }
 
-        const FlagsAttributeDefinition* EntityDefinition::spawnflags() const {
+        const FlagsPropertyDefinition* EntityDefinition::spawnflags() const {
             for (const auto& attributeDefinition : m_attributeDefinitions) {
                 if (attributeDefinition->type() == PropertyDefinitionType::FlagsProperty &&
                     attributeDefinition->name() == Model::AttributeNames::Spawnflags) {
-                    return static_cast<FlagsAttributeDefinition*>(attributeDefinition.get());
+                    return static_cast<FlagsPropertyDefinition*>(attributeDefinition.get());
                 }
             }
             return nullptr;
@@ -97,7 +97,7 @@ namespace TrenchBroom {
             return m_attributeDefinitions;
         }
 
-        const AttributeDefinition* EntityDefinition::attributeDefinition(const std::string& attributeKey) const {
+        const PropertyDefinition* EntityDefinition::attributeDefinition(const std::string& attributeKey) const {
             for (const auto& attributeDefinition : m_attributeDefinitions) {
                 if (attributeDefinition->name() == attributeKey) {
                     return attributeDefinition.get();
@@ -106,20 +106,20 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        const AttributeDefinition* EntityDefinition::safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const std::string& attributeName) {
+        const PropertyDefinition* EntityDefinition::safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const std::string& attributeName) {
             if (entityDefinition == nullptr)
                 return nullptr;
             return entityDefinition->attributeDefinition(attributeName);
         }
 
-        const FlagsAttributeDefinition* EntityDefinition::safeGetFlagsAttributeDefinition(const EntityDefinition* entityDefinition, const std::string& attributeName) {
+        const FlagsPropertyDefinition* EntityDefinition::safeGetFlagsAttributeDefinition(const EntityDefinition* entityDefinition, const std::string& attributeName) {
             if (entityDefinition == nullptr)
                 return nullptr;
-            const AttributeDefinition* attributeDefinition = entityDefinition->attributeDefinition(attributeName);
+            const PropertyDefinition* attributeDefinition = entityDefinition->attributeDefinition(attributeName);
             if (attributeDefinition == nullptr || attributeDefinition->type() != PropertyDefinitionType::FlagsProperty) {
                 return nullptr;
             }
-            return static_cast<const FlagsAttributeDefinition*>(attributeDefinition);
+            return static_cast<const FlagsPropertyDefinition*>(attributeDefinition);
         }
 
         std::vector<EntityDefinition*> EntityDefinition::filterAndSort(const std::vector<EntityDefinition*>& definitions, const EntityDefinitionType type, const EntityDefinitionSortOrder order) {

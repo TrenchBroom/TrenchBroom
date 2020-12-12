@@ -411,7 +411,7 @@ namespace TrenchBroom {
                 const auto typeName = token.data();
                 token = expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
 
-                std::shared_ptr<Assets::AttributeDefinition> attribute;
+                std::shared_ptr<Assets::PropertyDefinition> attribute;
                 if (kdl::ci::str_is_equal(typeName, "target_source")) {
                     attribute = parseTargetSourceAttribute(status, attributeName);
                 } else if (kdl::ci::str_is_equal(typeName, "target_destination")) {
@@ -448,7 +448,7 @@ namespace TrenchBroom {
             const auto shortDescription = parseAttributeDescription(status);
             parseDefaultStringValue(status);
             const auto longDescription = parseAttributeDescription(status);
-            return std::make_shared<Assets::AttributeDefinition>(name, Assets::PropertyDefinitionType::TargetSourceProperty, shortDescription, longDescription, readOnly);
+            return std::make_shared<Assets::PropertyDefinition>(name, Assets::PropertyDefinitionType::TargetSourceProperty, shortDescription, longDescription, readOnly);
         }
 
         FgdParser::AttributeDefinitionPtr FgdParser::parseTargetDestinationAttribute(ParserStatus& status, const std::string& name) {
@@ -456,7 +456,7 @@ namespace TrenchBroom {
             const auto shortDescription = parseAttributeDescription(status);
             parseDefaultStringValue(status);
             const auto longDescription = parseAttributeDescription(status);
-            return std::make_shared<Assets::AttributeDefinition>(name, Assets::PropertyDefinitionType::TargetDestinationProperty, shortDescription, longDescription, readOnly);
+            return std::make_shared<Assets::PropertyDefinition>(name, Assets::PropertyDefinitionType::TargetDestinationProperty, shortDescription, longDescription, readOnly);
         }
 
         FgdParser::AttributeDefinitionPtr FgdParser::parseStringAttribute(ParserStatus& status, const std::string& name) {
@@ -464,7 +464,7 @@ namespace TrenchBroom {
             const auto shortDescription = parseAttributeDescription(status);
             const auto defaultValue = parseDefaultStringValue(status);
             const auto longDescription = parseAttributeDescription(status);
-            return std::make_shared<Assets::StringAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
+            return std::make_shared<Assets::StringPropertyDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
         }
 
         FgdParser::AttributeDefinitionPtr FgdParser::parseIntegerAttribute(ParserStatus& status, const std::string& name) {
@@ -472,7 +472,7 @@ namespace TrenchBroom {
             const auto shortDescription = parseAttributeDescription(status);
             const auto defaultValue = parseDefaultIntegerValue(status);
             const auto longDescription = parseAttributeDescription(status);
-            return std::make_shared<Assets::IntegerAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
+            return std::make_shared<Assets::IntegerPropertyDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
         }
 
         FgdParser::AttributeDefinitionPtr FgdParser::parseFloatAttribute(ParserStatus& status, const std::string& name) {
@@ -480,7 +480,7 @@ namespace TrenchBroom {
             const auto shortDescription = parseAttributeDescription(status);
             const auto defaultValue = parseDefaultFloatValue(status);
             const auto longDescription = parseAttributeDescription(status);
-            return std::make_shared<Assets::FloatAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
+            return std::make_shared<Assets::FloatPropertyDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
         }
 
         FgdParser::AttributeDefinitionPtr FgdParser::parseChoicesAttribute(ParserStatus& status, const std::string& name) {
@@ -494,7 +494,7 @@ namespace TrenchBroom {
 
             auto token = expect(status, FgdToken::Integer | FgdToken::Decimal | FgdToken::String | FgdToken::CBracket, m_tokenizer.nextToken());
 
-            Assets::ChoiceAttributeOption::List options;
+            Assets::ChoicePropertyOption::List options;
             while (token.type() != FgdToken::CBracket) {
                 const auto value = token.data();
                 expect(status, FgdToken::Colon, m_tokenizer.nextToken());
@@ -504,7 +504,7 @@ namespace TrenchBroom {
                 token = expect(status, FgdToken::Integer | FgdToken::Decimal | FgdToken::String | FgdToken::CBracket, m_tokenizer.nextToken());
             }
 
-            return std::make_shared<Assets::ChoiceAttributeDefinition>(name, shortDescription, longDescription, options, readOnly, defaultValue);
+            return std::make_shared<Assets::ChoicePropertyDefinition>(name, shortDescription, longDescription, options, readOnly, defaultValue);
         }
 
         FgdParser::AttributeDefinitionPtr FgdParser::parseFlagsAttribute(ParserStatus& status, const std::string& name) {
@@ -515,7 +515,7 @@ namespace TrenchBroom {
 
             auto token = expect(status, FgdToken::Integer | FgdToken::CBracket, m_tokenizer.nextToken());
 
-            auto definition = std::make_shared<Assets::FlagsAttributeDefinition>(name);
+            auto definition = std::make_shared<Assets::FlagsPropertyDefinition>(name);
 
             while (token.type() != FgdToken::CBracket) {
                 const auto value = token.toInteger<int>();
@@ -548,7 +548,7 @@ namespace TrenchBroom {
             const auto shortDescription = parseAttributeDescription(status);
             const auto defaultValue = parseDefaultStringValue(status);
             const auto longDescription = parseAttributeDescription(status);
-            return std::make_shared<Assets::UnknownAttributeDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
+            return std::make_shared<Assets::UnknownPropertyDefinition>(name, shortDescription, longDescription, readOnly, defaultValue);
         }
 
         bool FgdParser::parseReadOnlyFlag(ParserStatus& /* status */) {

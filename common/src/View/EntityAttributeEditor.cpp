@@ -108,12 +108,12 @@ namespace TrenchBroom {
             updateMinimumSize();
         }
 
-        QString EntityAttributeEditor::optionDescriptions(const Assets::AttributeDefinition& definition) {
+        QString EntityAttributeEditor::optionDescriptions(const Assets::PropertyDefinition& definition) {
             const QString bullet = QString(" ") % QChar(0x2022) % QString(" ");
 
             switch (definition.type()) {
                 case Assets::PropertyDefinitionType::ChoiceProperty: {
-                    const auto& choiceDef = dynamic_cast<const Assets::ChoiceAttributeDefinition&>(definition);
+                    const auto& choiceDef = dynamic_cast<const Assets::ChoicePropertyDefinition&>(definition);
 
                     QString result;
                     QTextStream stream(&result);
@@ -127,7 +127,7 @@ namespace TrenchBroom {
                     return result;
                 }
                 case Assets::PropertyDefinitionType::FlagsProperty: {
-                    const auto& flagsDef = dynamic_cast<const Assets::FlagsAttributeDefinition&>(definition);
+                    const auto& flagsDef = dynamic_cast<const Assets::FlagsPropertyDefinition&>(definition);
 
                     // The options are not necessarily sorted by value, so we sort the descriptions here by inserting
                     // into a map sorted by the flag value.
@@ -174,7 +174,7 @@ namespace TrenchBroom {
 
             if (entityDefinition != nullptr) {
                 // add attribute documentation, if available
-                const Assets::AttributeDefinition* attributeDefinition = entityDefinition->attributeDefinition(attributeName);
+                const Assets::PropertyDefinition* attributeDefinition = entityDefinition->attributeDefinition(attributeName);
                 if (attributeDefinition != nullptr) {
                     const QString optionsDescription = optionDescriptions(*attributeDefinition);
 

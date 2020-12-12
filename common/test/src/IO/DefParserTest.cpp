@@ -191,11 +191,11 @@ namespace TrenchBroom {
             const auto attribute = attributes[0];
             ASSERT_EQ(Assets::PropertyDefinitionType::FlagsProperty, attribute->type());
 
-            const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
+            const Assets::FlagsPropertyDefinition* spawnflags = definition->spawnflags();
             ASSERT_TRUE(spawnflags != nullptr);
             ASSERT_EQ(0, spawnflags->defaultValue());
 
-            const Assets::FlagsAttributeOption::List& options = spawnflags->options();
+            const Assets::FlagsPropertyOption::List& options = spawnflags->options();
             ASSERT_EQ(2u, options.size());
             ASSERT_EQ(1, options[0].value());
 
@@ -238,11 +238,11 @@ namespace TrenchBroom {
             const auto attribute = attributes[0];
             ASSERT_EQ(Assets::PropertyDefinitionType::FlagsProperty, attribute->type());
 
-            const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
+            const Assets::FlagsPropertyDefinition* spawnflags = definition->spawnflags();
             ASSERT_TRUE(spawnflags != nullptr);
             ASSERT_EQ(0, spawnflags->defaultValue());
 
-            const Assets::FlagsAttributeOption::List& options = spawnflags->options();
+            const Assets::FlagsPropertyOption::List& options = spawnflags->options();
             ASSERT_EQ(5u, options.size());
 
             ASSERT_EQ(std::string(""), options[0].shortDescription());
@@ -290,11 +290,11 @@ namespace TrenchBroom {
             const auto attribute = attributes[0];
             ASSERT_EQ(Assets::PropertyDefinitionType::FlagsProperty, attribute->type());
 
-            const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
+            const Assets::FlagsPropertyDefinition* spawnflags = definition->spawnflags();
             ASSERT_TRUE(spawnflags != nullptr);
             ASSERT_EQ(0, spawnflags->defaultValue());
 
-            const Assets::FlagsAttributeOption::List& options = spawnflags->options();
+            const Assets::FlagsPropertyOption::List& options = spawnflags->options();
             ASSERT_EQ(4u, options.size());
 
             ASSERT_EQ(std::string("SUSPENDED"), options[0].shortDescription());
@@ -369,7 +369,7 @@ namespace TrenchBroom {
             CHECK(spawnflagsAttribute->name() == Model::AttributeNames::Spawnflags);
             CHECK(spawnflagsAttribute->type() == Assets::PropertyDefinitionType::FlagsProperty);
 
-            const Assets::ChoiceAttributeDefinition* choice = static_cast<const Assets::ChoiceAttributeDefinition*>(styleAttribute);
+            const Assets::ChoicePropertyDefinition* choice = static_cast<const Assets::ChoicePropertyDefinition*>(styleAttribute);
             CHECK(choice->options().size() == 12u);
 
             kdl::vec_clear_and_delete(definitions);

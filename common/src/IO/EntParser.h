@@ -48,7 +48,7 @@ namespace TrenchBroom {
 
         class EntParser : public EntityDefinitionParser {
         private:
-            using AttributeFactory = std::function<std::shared_ptr<Assets::AttributeDefinition>(const std::string&, const std::string&, const std::string&)>;
+            using AttributeFactory = std::function<std::shared_ptr<Assets::PropertyDefinition>(const std::string&, const std::string&, const std::string&)>;
 
             const char* m_begin;
             const char* m_end;
@@ -75,7 +75,7 @@ namespace TrenchBroom {
             void parseTargetAttribute(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
             void parseTargetNameAttribute(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
 
-            void parseDeclaredAttributeDefinition(const tinyxml2::XMLElement& element, const std::shared_ptr<Assets::AttributeDefinition>& attributeDeclaration, AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
+            void parseDeclaredAttributeDefinition(const tinyxml2::XMLElement& element, const std::shared_ptr<Assets::PropertyDefinition>& attributeDeclaration, AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
             void parseAttributeDefinition(const tinyxml2::XMLElement& element, AttributeFactory factory, AttributeDefinitionList& attributeDefinitions, ParserStatus& status);
 
             void parseAttributeDeclaration(const tinyxml2::XMLElement& element, AttributeDefinitionList& attributeDeclarations, ParserStatus& status);

@@ -28,36 +28,36 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        AttributeDefinition::AttributeDefinition(const std::string& name, const PropertyDefinitionType type, const std::string& shortDescription, const std::string& longDescription, const bool readOnly) :
+        PropertyDefinition::PropertyDefinition(const std::string& name, const PropertyDefinitionType type, const std::string& shortDescription, const std::string& longDescription, const bool readOnly) :
         m_name(name),
         m_type(type),
         m_shortDescription(shortDescription),
         m_longDescription(longDescription),
         m_readOnly(readOnly) {}
 
-        AttributeDefinition::~AttributeDefinition() = default;
+        PropertyDefinition::~PropertyDefinition() = default;
 
-        const std::string& AttributeDefinition::name() const {
+        const std::string& PropertyDefinition::name() const {
             return m_name;
         }
 
-        PropertyDefinitionType AttributeDefinition::type() const {
+        PropertyDefinitionType PropertyDefinition::type() const {
             return m_type;
         }
 
-        const std::string& AttributeDefinition::shortDescription() const {
+        const std::string& PropertyDefinition::shortDescription() const {
             return m_shortDescription;
         }
 
-        const std::string& AttributeDefinition::longDescription() const {
+        const std::string& PropertyDefinition::longDescription() const {
             return m_longDescription;
         }
 
-        bool AttributeDefinition::readOnly() const {
+        bool PropertyDefinition::readOnly() const {
             return m_readOnly;
         }
 
-        bool AttributeDefinition::equals(const AttributeDefinition* other) const {
+        bool PropertyDefinition::equals(const PropertyDefinition* other) const {
             ensure(other != nullptr, "other is null");
             if (type() != other->type())
                 return false;
@@ -66,20 +66,20 @@ namespace TrenchBroom {
             return doEquals(other);
         }
 
-        bool AttributeDefinition::doEquals(const AttributeDefinition* /* other */) const {
+        bool PropertyDefinition::doEquals(const PropertyDefinition* /* other */) const {
             return true;
         }
 
-        std::string AttributeDefinition::defaultValue(const AttributeDefinition& definition) {
+        std::string PropertyDefinition::defaultValue(const PropertyDefinition& definition) {
             switch (definition.type()) {
                 case PropertyDefinitionType::StringProperty: {
-                    const auto& stringDef = static_cast<const StringAttributeDefinition&>(definition);
+                    const auto& stringDef = static_cast<const StringPropertyDefinition&>(definition);
                     if (!stringDef.hasDefaultValue())
                         return "";
                     return stringDef.defaultValue();
                 }
                 case PropertyDefinitionType::BooleanProperty: {
-                    const auto& boolDef = static_cast<const BooleanAttributeDefinition&>(definition);
+                    const auto& boolDef = static_cast<const BooleanPropertyDefinition&>(definition);
                     if (!boolDef.hasDefaultValue())
                         return "";
                     std::stringstream str;
@@ -87,7 +87,7 @@ namespace TrenchBroom {
                     return str.str();
                 }
                 case PropertyDefinitionType::IntegerProperty: {
-                    const auto& intDef = static_cast<const IntegerAttributeDefinition&>(definition);
+                    const auto& intDef = static_cast<const IntegerPropertyDefinition&>(definition);
                     if (!intDef.hasDefaultValue())
                         return "";
                     std::stringstream str;
@@ -95,7 +95,7 @@ namespace TrenchBroom {
                     return str.str();
                 }
                 case PropertyDefinitionType::FloatProperty: {
-                    const auto& floatDef = static_cast<const FloatAttributeDefinition&>(definition);
+                    const auto& floatDef = static_cast<const FloatPropertyDefinition&>(definition);
                     if (!floatDef.hasDefaultValue())
                         return "";
                     std::stringstream str;
@@ -103,7 +103,7 @@ namespace TrenchBroom {
                     return str.str();
                 }
                 case PropertyDefinitionType::ChoiceProperty: {
-                    const auto& choiceDef = static_cast<const ChoiceAttributeDefinition&>(definition);
+                    const auto& choiceDef = static_cast<const ChoicePropertyDefinition&>(definition);
                     if (!choiceDef.hasDefaultValue())
                         return "";
                     std::stringstream str;
@@ -111,7 +111,7 @@ namespace TrenchBroom {
                     return str.str();
                 }
                 case PropertyDefinitionType::FlagsProperty: {
-                    const auto& flagsDef = static_cast<const FlagsAttributeDefinition&>(definition);
+                    const auto& flagsDef = static_cast<const FlagsPropertyDefinition&>(definition);
                     std::stringstream str;
                     str << flagsDef.defaultValue();
                     return str.str();
@@ -123,121 +123,121 @@ namespace TrenchBroom {
             }
         }
 
-        AttributeDefinition* AttributeDefinition::clone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
+        PropertyDefinition* PropertyDefinition::clone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
             return doClone(name, shortDescription, longDescription, readOnly);
         }
 
-        AttributeDefinition* AttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
-            return new AttributeDefinition(name, type(), shortDescription, longDescription, readOnly);
+        PropertyDefinition* PropertyDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
+            return new PropertyDefinition(name, type(), shortDescription, longDescription, readOnly);
         }
 
-        StringAttributeDefinition::StringAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, std::optional<std::string> defaultValue) :
-        AttributeDefinitionWithDefaultValue(name, PropertyDefinitionType::StringProperty, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
+        StringPropertyDefinition::StringPropertyDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, std::optional<std::string> defaultValue) :
+            PropertyDefinitionWithDefaultValue(name, PropertyDefinitionType::StringProperty, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
-        AttributeDefinition* StringAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
-            return new StringAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
+        PropertyDefinition* StringPropertyDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
+            return new StringPropertyDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
 
-        BooleanAttributeDefinition::BooleanAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, std::optional<bool> defaultValue) :
-        AttributeDefinitionWithDefaultValue(name, PropertyDefinitionType::BooleanProperty, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
+        BooleanPropertyDefinition::BooleanPropertyDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, std::optional<bool> defaultValue) :
+            PropertyDefinitionWithDefaultValue(name, PropertyDefinitionType::BooleanProperty, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
-        AttributeDefinition* BooleanAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
-            return new BooleanAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
+        PropertyDefinition* BooleanPropertyDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
+            return new BooleanPropertyDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
 
-        IntegerAttributeDefinition::IntegerAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, std::optional<int> defaultValue) :
-        AttributeDefinitionWithDefaultValue(name, PropertyDefinitionType::IntegerProperty, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
+        IntegerPropertyDefinition::IntegerPropertyDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, std::optional<int> defaultValue) :
+            PropertyDefinitionWithDefaultValue(name, PropertyDefinitionType::IntegerProperty, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
-        AttributeDefinition* IntegerAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
-            return new IntegerAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
+        PropertyDefinition* IntegerPropertyDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
+            return new IntegerPropertyDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
 
-        FloatAttributeDefinition::FloatAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, std::optional<float> defaultValue) :
-        AttributeDefinitionWithDefaultValue(name, PropertyDefinitionType::FloatProperty, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
+        FloatPropertyDefinition::FloatPropertyDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, std::optional<float> defaultValue) :
+            PropertyDefinitionWithDefaultValue(name, PropertyDefinitionType::FloatProperty, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
-        AttributeDefinition* FloatAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
-            return new FloatAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
+        PropertyDefinition* FloatPropertyDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
+            return new FloatPropertyDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
 
-        ChoiceAttributeOption::ChoiceAttributeOption(const std::string& value, const std::string& description) :
+        ChoicePropertyOption::ChoicePropertyOption(const std::string& value, const std::string& description) :
         m_value(value),
         m_description(description) {}
 
-        const std::string& ChoiceAttributeOption::value() const {
+        const std::string& ChoicePropertyOption::value() const {
             return m_value;
         }
 
-        const std::string& ChoiceAttributeOption::description() const {
+        const std::string& ChoicePropertyOption::description() const {
             return m_description;
         }
 
-        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const ChoiceAttributeOption::List& options, const bool readOnly, std::optional<std::string> defaultValue) :
-        AttributeDefinitionWithDefaultValue(name, PropertyDefinitionType::ChoiceProperty, shortDescription, longDescription, readOnly, std::move(defaultValue)),
-        m_options(options) {}
+        ChoicePropertyDefinition::ChoicePropertyDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const ChoicePropertyOption::List& options, const bool readOnly, std::optional<std::string> defaultValue) :
+            PropertyDefinitionWithDefaultValue(name, PropertyDefinitionType::ChoiceProperty, shortDescription, longDescription, readOnly, std::move(defaultValue)),
+            m_options(options) {}
 
-        const ChoiceAttributeOption::List& ChoiceAttributeDefinition::options() const {
+        const ChoicePropertyOption::List& ChoicePropertyDefinition::options() const {
             return m_options;
         }
 
-        bool operator==(const ChoiceAttributeOption& lhs, const ChoiceAttributeOption& rhs) {
+        bool operator==(const ChoicePropertyOption& lhs, const ChoicePropertyOption& rhs) {
             return lhs.value() == rhs.value()
                 && lhs.description() == rhs.description();
         }
         
-        bool operator!=(const ChoiceAttributeOption& lhs, const ChoiceAttributeOption& rhs) {
+        bool operator!=(const ChoicePropertyOption& lhs, const ChoicePropertyOption& rhs) {
             return !(lhs == rhs);
         }
 
-        std::ostream& operator<<(std::ostream& str, const ChoiceAttributeOption& opt) {
-            str << "ChoiceAttributeOption{"
+        std::ostream& operator<<(std::ostream& str, const ChoicePropertyOption& opt) {
+            str << "ChoicePropertyOption{"
                 << "value: " << opt.value() << ", "
                 << "description: '" << opt.description() << "}";
             return str;
         }
 
-        bool ChoiceAttributeDefinition::doEquals(const AttributeDefinition* other) const {
-            return options() == static_cast<const ChoiceAttributeDefinition*>(other)->options();
+        bool ChoicePropertyDefinition::doEquals(const PropertyDefinition* other) const {
+            return options() == static_cast<const ChoicePropertyDefinition*>(other)->options();
         }
 
-        AttributeDefinition* ChoiceAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
-            return new ChoiceAttributeDefinition(name, shortDescription, longDescription, options(), readOnly, m_defaultValue);
+        PropertyDefinition* ChoicePropertyDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
+            return new ChoicePropertyDefinition(name, shortDescription, longDescription, options(), readOnly, m_defaultValue);
         }
 
-        FlagsAttributeOption::FlagsAttributeOption(const int value, const std::string& shortDescription, const std::string& longDescription, const bool isDefault) :
+        FlagsPropertyOption::FlagsPropertyOption(const int value, const std::string& shortDescription, const std::string& longDescription, const bool isDefault) :
         m_value(value),
         m_shortDescription(shortDescription),
         m_longDescription(longDescription),
         m_isDefault(isDefault) {}
 
-        int FlagsAttributeOption::value() const {
+        int FlagsPropertyOption::value() const {
             return m_value;
         }
 
-        const std::string& FlagsAttributeOption::shortDescription() const {
+        const std::string& FlagsPropertyOption::shortDescription() const {
             return m_shortDescription;
         }
 
-        const std::string& FlagsAttributeOption::longDescription() const {
+        const std::string& FlagsPropertyOption::longDescription() const {
             return m_longDescription;
         }
 
-        bool FlagsAttributeOption::isDefault() const {
+        bool FlagsPropertyOption::isDefault() const {
             return m_isDefault;
         }
 
-        bool operator==(const FlagsAttributeOption& lhs, const FlagsAttributeOption& rhs) {
+        bool operator==(const FlagsPropertyOption& lhs, const FlagsPropertyOption& rhs) {
             return lhs.value() == rhs.value()
                 && lhs.shortDescription() == rhs.shortDescription()
                 && lhs.longDescription() == rhs.longDescription()
                 && lhs.isDefault() == rhs.isDefault();
         }
         
-        bool operator!=(const FlagsAttributeOption& lhs, const FlagsAttributeOption& rhs) {
+        bool operator!=(const FlagsPropertyOption& lhs, const FlagsPropertyOption& rhs) {
             return !(lhs == rhs);
         }
 
-        std::ostream& operator<<(std::ostream& str, const FlagsAttributeOption& opt) {
-            str << "FlagAttributeOption{"
+        std::ostream& operator<<(std::ostream& str, const FlagsPropertyOption& opt) {
+            str << "FlagPropertyOption{"
                 << "value: " << opt.value() << ", "
                 << "shortDescription: '" << opt.shortDescription() << "', "
                 << "longDescription: '" << opt.longDescription() << "', "
@@ -245,23 +245,23 @@ namespace TrenchBroom {
             return str;
         }
 
-        FlagsAttributeDefinition::FlagsAttributeDefinition(const std::string& name) :
-        AttributeDefinition(name, PropertyDefinitionType::FlagsProperty, "", "", false) {}
+        FlagsPropertyDefinition::FlagsPropertyDefinition(const std::string& name) :
+            PropertyDefinition(name, PropertyDefinitionType::FlagsProperty, "", "", false) {}
 
-        int FlagsAttributeDefinition::defaultValue() const {
+        int FlagsPropertyDefinition::defaultValue() const {
             int value = 0;
-            for (const FlagsAttributeOption& option : m_options) {
+            for (const FlagsPropertyOption& option : m_options) {
                 if (option.isDefault())
                     value |= option.value();
             }
             return value;
         }
 
-        const FlagsAttributeOption::List& FlagsAttributeDefinition::options() const {
+        const FlagsPropertyOption::List& FlagsPropertyDefinition::options() const {
             return m_options;
         }
 
-        const FlagsAttributeOption* FlagsAttributeDefinition::option(const int value) const {
+        const FlagsPropertyOption* FlagsPropertyDefinition::option(const int value) const {
             for (const auto& option : m_options) {
                 if (option.value() == value) {
                     return &option;
@@ -270,28 +270,28 @@ namespace TrenchBroom {
             return nullptr;
         }
 
-        void FlagsAttributeDefinition::addOption(const int value, const std::string& shortDescription, const std::string& longDescription, const bool isDefault) {
-            m_options.push_back(FlagsAttributeOption(value, shortDescription, longDescription, isDefault));
+        void FlagsPropertyDefinition::addOption(const int value, const std::string& shortDescription, const std::string& longDescription, const bool isDefault) {
+            m_options.push_back(FlagsPropertyOption(value, shortDescription, longDescription, isDefault));
         }
 
-        bool FlagsAttributeDefinition::doEquals(const AttributeDefinition* other) const {
-            return options() == static_cast<const FlagsAttributeDefinition*>(other)->options();
+        bool FlagsPropertyDefinition::doEquals(const PropertyDefinition* other) const {
+            return options() == static_cast<const FlagsPropertyDefinition*>(other)->options();
         }
 
-        AttributeDefinition* FlagsAttributeDefinition::doClone(const std::string& name, const std::string& /* shortDescription */, const std::string& /* longDescription */, bool /* readOnly */) const {
-            auto result = std::make_unique<FlagsAttributeDefinition>(name);
+        PropertyDefinition* FlagsPropertyDefinition::doClone(const std::string& name, const std::string& /* shortDescription */, const std::string& /* longDescription */, bool /* readOnly */) const {
+            auto result = std::make_unique<FlagsPropertyDefinition>(name);
             for (const auto& option : options()) {
                 result->addOption(option.value(), option.shortDescription(), option.longDescription(), option.isDefault());
             }
             return result.release();
         }
 
-        UnknownAttributeDefinition::UnknownAttributeDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, std::optional<std::string> defaultValue) :
-        StringAttributeDefinition(name, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
+        UnknownPropertyDefinition::UnknownPropertyDefinition(const std::string& name, const std::string& shortDescription, const std::string& longDescription, const bool readOnly, std::optional<std::string> defaultValue) :
+            StringPropertyDefinition(name, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
 
 
-        AttributeDefinition* UnknownAttributeDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
-            return new UnknownAttributeDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
+        PropertyDefinition* UnknownPropertyDefinition::doClone(const std::string& name, const std::string& shortDescription, const std::string& longDescription, bool readOnly) const {
+            return new UnknownPropertyDefinition(name, shortDescription, longDescription, readOnly, m_defaultValue);
         }
     }
 }

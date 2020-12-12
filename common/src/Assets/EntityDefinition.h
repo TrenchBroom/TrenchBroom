@@ -36,9 +36,9 @@ namespace TrenchBroom {
     }
 
     namespace Assets {
-        class AttributeDefinition;
-        class FlagsAttributeDefinition;
-        class FlagsAttributeOption;
+        class PropertyDefinition;
+        class FlagsPropertyDefinition;
+        class FlagsPropertyOption;
 
         enum class EntityDefinitionType {
             PointEntity,
@@ -52,7 +52,7 @@ namespace TrenchBroom {
 
         class EntityDefinition {
         protected:
-            using AttributeDefinitionPtr = std::shared_ptr<AttributeDefinition>;
+            using AttributeDefinitionPtr = std::shared_ptr<PropertyDefinition>;
             using AttributeDefinitionList = std::vector<AttributeDefinitionPtr>;
         private:
             size_t m_index;
@@ -79,12 +79,12 @@ namespace TrenchBroom {
             void incUsageCount();
             void decUsageCount();
 
-            const FlagsAttributeDefinition* spawnflags() const;
+            const FlagsPropertyDefinition* spawnflags() const;
             const AttributeDefinitionList& attributeDefinitions() const;
-            const AttributeDefinition* attributeDefinition(const std::string& attributeKey) const;
+            const PropertyDefinition* attributeDefinition(const std::string& attributeKey) const;
 
-            static const AttributeDefinition* safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const std::string& attributeName);
-            static const FlagsAttributeDefinition* safeGetFlagsAttributeDefinition(const EntityDefinition* entityDefinition, const std::string& attributeName);
+            static const PropertyDefinition* safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const std::string& attributeName);
+            static const FlagsPropertyDefinition* safeGetFlagsAttributeDefinition(const EntityDefinition* entityDefinition, const std::string& attributeName);
 
             static std::vector<EntityDefinition*> filterAndSort(const std::vector<EntityDefinition*>& definitions, EntityDefinitionType type, EntityDefinitionSortOrder prder = EntityDefinitionSortOrder::Name);
         protected:

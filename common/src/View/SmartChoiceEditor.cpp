@@ -92,10 +92,10 @@ namespace TrenchBroom {
                 m_comboBox->setDisabled(true);
             } else {
                 m_comboBox->setDisabled(false);
-                const auto* choiceDef = static_cast<const Assets::ChoiceAttributeDefinition*>(attrDef);
+                const auto* choiceDef = static_cast<const Assets::ChoicePropertyDefinition*>(attrDef);
                 const auto& options = choiceDef->options();
 
-                for (const Assets::ChoiceAttributeOption& option : options) {
+                for (const Assets::ChoicePropertyOption& option : options) {
                     m_comboBox->addItem(mapStringToUnicode(document()->encoding(), option.value() + " : " + option.description()));
                 }
 

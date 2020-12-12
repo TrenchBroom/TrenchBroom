@@ -41,7 +41,7 @@ namespace TrenchBroom {
         
         EntityDefinitionParser::~EntityDefinitionParser() {}
         
-        static std::shared_ptr<Assets::AttributeDefinition> mergeAttributes(const Assets::AttributeDefinition& inheritingClassAttribute, const Assets::AttributeDefinition& superClassAttribute) {
+        static std::shared_ptr<Assets::PropertyDefinition> mergeAttributes(const Assets::PropertyDefinition& inheritingClassAttribute, const Assets::PropertyDefinition& superClassAttribute) {
             assert(inheritingClassAttribute.name() == superClassAttribute.name());
         
             // for now, only merge spawnflags
@@ -51,10 +51,10 @@ namespace TrenchBroom {
                 inheritingClassAttribute.name() == Model::AttributeNames::Spawnflags) {
 
                 const auto& name = inheritingClassAttribute.name();
-                auto result = std::make_shared<Assets::FlagsAttributeDefinition>(name);
+                auto result = std::make_shared<Assets::FlagsPropertyDefinition>(name);
                 
-                const auto& baseclassFlags = static_cast<const Assets::FlagsAttributeDefinition&>(superClassAttribute);
-                const auto& classFlags     = static_cast<const Assets::FlagsAttributeDefinition&>(inheritingClassAttribute);
+                const auto& baseclassFlags = static_cast<const Assets::FlagsPropertyDefinition&>(superClassAttribute);
+                const auto& classFlags     = static_cast<const Assets::FlagsPropertyDefinition&>(inheritingClassAttribute);
 
                 for (int i = 0; i < 24; ++i) {
                     const auto* baseclassFlag = baseclassFlags.option(static_cast<int>(1 << i));

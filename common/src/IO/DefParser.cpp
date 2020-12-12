@@ -226,7 +226,7 @@ namespace TrenchBroom {
         }
 
         DefParser::AttributeDefinitionPtr DefParser::parseSpawnflags(ParserStatus& /* status */) {
-            auto definition = std::make_shared<Assets::FlagsAttributeDefinition>(Model::AttributeNames::Spawnflags);
+            auto definition = std::make_shared<Assets::FlagsPropertyDefinition>(Model::AttributeNames::Spawnflags);
             size_t numOptions = 0;
 
             Token token = m_tokenizer.peekToken();
@@ -299,7 +299,7 @@ namespace TrenchBroom {
             Token token = expect(status, DefToken::QuotedString, m_tokenizer.nextToken());
             const std::string attributeName = token.data();
 
-            Assets::ChoiceAttributeOption::List options;
+            Assets::ChoicePropertyOption::List options;
             expect(status, DefToken::OParenthesis, nextTokenIgnoringNewlines());
             token = nextTokenIgnoringNewlines();
             while (token.type() == DefToken::OParenthesis) {
@@ -309,7 +309,7 @@ namespace TrenchBroom {
                 expect(status, DefToken::Comma, nextTokenIgnoringNewlines());
                 token = expect(status, DefToken::QuotedString, nextTokenIgnoringNewlines());
                 const std::string value = token.data();
-                options.push_back(Assets::ChoiceAttributeOption(name, value));
+                options.push_back(Assets::ChoicePropertyOption(name, value));
 
                 expect(status, DefToken::CParenthesis, nextTokenIgnoringNewlines());
                 token = nextTokenIgnoringNewlines();
@@ -317,7 +317,7 @@ namespace TrenchBroom {
 
             expect(status, DefToken::CParenthesis, token);
 
-            return DefParser::AttributeDefinitionPtr(new Assets::ChoiceAttributeDefinition(attributeName, "", "", options, false));
+            return DefParser::AttributeDefinitionPtr(new Assets::ChoicePropertyDefinition(attributeName, "", "", options, false));
         }
 
         Assets::ModelDefinition DefParser::parseModel(ParserStatus& status) {

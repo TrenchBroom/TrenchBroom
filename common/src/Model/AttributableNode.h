@@ -30,14 +30,14 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        class AttributeDefinition;
+        class PropertyDefinition;
         class EntityDefinition;
     }
 
     namespace Model {
         const Assets::EntityDefinition* selectEntityDefinition(const std::vector<AttributableNode*>& attributables);
-        const Assets::AttributeDefinition* attributeDefinition(const AttributableNode* node, const std::string& name);
-        const Assets::AttributeDefinition* selectAttributeDefinition(const std::string& name, const std::vector<AttributableNode*>& attributables);
+        const Assets::PropertyDefinition* attributeDefinition(const AttributableNode* node, const std::string& name);
+        const Assets::PropertyDefinition* selectAttributeDefinition(const std::string& name, const std::vector<AttributableNode*>& attributables);
         std::string selectAttributeValue(const std::string& name, const std::vector<AttributableNode*>& attributables);
 
         class AttributableNode : public Node {

@@ -33,7 +33,7 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        class AttributeDefinition;
+        class PropertyDefinition;
     }
 
     namespace IO {
@@ -56,11 +56,11 @@ namespace TrenchBroom {
             std::optional<vm::bbox3> size;
             std::optional<Assets::ModelDefinition> modelDefinition;
 
-            std::vector<std::shared_ptr<Assets::AttributeDefinition>> attributes;
+            std::vector<std::shared_ptr<Assets::PropertyDefinition>> attributes;
             std::vector<std::string> superClasses;
         };
 
-        bool addAttribute(std::vector<std::shared_ptr<Assets::AttributeDefinition>>& attributes, std::shared_ptr<Assets::AttributeDefinition> attribute);
+        bool addAttribute(std::vector<std::shared_ptr<Assets::PropertyDefinition>>& attributes, std::shared_ptr<Assets::PropertyDefinition> attribute);
 
         bool operator==(const EntityDefinitionClassInfo& lhs, const EntityDefinitionClassInfo& rhs);
         bool operator!=(const EntityDefinitionClassInfo& lhs, const EntityDefinitionClassInfo& rhs);

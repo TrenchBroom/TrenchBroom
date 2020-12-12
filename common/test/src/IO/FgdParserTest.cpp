@@ -344,21 +344,21 @@ namespace TrenchBroom {
 
             ASSERT_EQ(2u, definition->attributeDefinitions().size());
 
-            const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("message");
+            const Assets::PropertyDefinition* attribute1 = definition->attributeDefinition("message");
             ASSERT_TRUE(attribute1 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::StringProperty, attribute1->type());
 
-            const Assets::StringAttributeDefinition* stringAttribute1 = static_cast<const Assets::StringAttributeDefinition*>(attribute1);
+            const Assets::StringPropertyDefinition* stringAttribute1 = static_cast<const Assets::StringPropertyDefinition*>(attribute1);
             ASSERT_EQ(std::string("message"), stringAttribute1->name());
             ASSERT_EQ(std::string("Text on entering the world"), stringAttribute1->shortDescription());
             ASSERT_EQ(std::string("Long description 1"), stringAttribute1->longDescription());
             ASSERT_FALSE(stringAttribute1->hasDefaultValue());
 
-            const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("message2");
+            const Assets::PropertyDefinition* attribute2 = definition->attributeDefinition("message2");
             ASSERT_TRUE(attribute2 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::StringProperty, attribute2->type());
 
-            const Assets::StringAttributeDefinition* stringAttribute2 = static_cast<const Assets::StringAttributeDefinition*>(attribute2);
+            const Assets::StringPropertyDefinition* stringAttribute2 = static_cast<const Assets::StringPropertyDefinition*>(attribute2);
             ASSERT_EQ(std::string("message2"), stringAttribute2->name());
             ASSERT_EQ(std::string("With a default value"), stringAttribute2->shortDescription());
             ASSERT_EQ(std::string("Long description 2"), stringAttribute2->longDescription());
@@ -394,22 +394,22 @@ namespace TrenchBroom {
 
             ASSERT_EQ(2u, definition->attributeDefinitions().size());
 
-            const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("name");
+            const Assets::PropertyDefinition* attribute1 = definition->attributeDefinition("name");
             ASSERT_TRUE(attribute1 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::StringProperty, attribute1->type());
 
-            const Assets::StringAttributeDefinition* stringAttribute1 = static_cast<const Assets::StringAttributeDefinition*>(attribute1);
+            const Assets::StringPropertyDefinition* stringAttribute1 = static_cast<const Assets::StringPropertyDefinition*>(attribute1);
             ASSERT_EQ(std::string("name"), stringAttribute1->name());
             ASSERT_EQ(std::string("Description"), stringAttribute1->shortDescription());
             ASSERT_EQ(std::string(), stringAttribute1->longDescription());
             ASSERT_TRUE(stringAttribute1->hasDefaultValue());
             ASSERT_EQ(std::string("3"), stringAttribute1->defaultValue());
 
-            const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("other");
+            const Assets::PropertyDefinition* attribute2 = definition->attributeDefinition("other");
             ASSERT_TRUE(attribute2 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::StringProperty, attribute2->type());
 
-            const Assets::StringAttributeDefinition* stringAttribute2 = static_cast<const Assets::StringAttributeDefinition*>(attribute2);
+            const Assets::StringPropertyDefinition* stringAttribute2 = static_cast<const Assets::StringPropertyDefinition*>(attribute2);
             ASSERT_EQ(std::string("other"), stringAttribute2->name());
             ASSERT_EQ(std::string(), stringAttribute2->shortDescription());
             ASSERT_EQ(std::string(), stringAttribute2->longDescription());
@@ -442,21 +442,21 @@ namespace TrenchBroom {
 
             ASSERT_EQ(2u, definition->attributeDefinitions().size());
 
-            const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("sounds");
+            const Assets::PropertyDefinition* attribute1 = definition->attributeDefinition("sounds");
             ASSERT_TRUE(attribute1 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::IntegerProperty, attribute1->type());
 
-            const Assets::IntegerAttributeDefinition* intAttribute1 = static_cast<const Assets::IntegerAttributeDefinition*>(attribute1);
+            const Assets::IntegerPropertyDefinition* intAttribute1 = static_cast<const Assets::IntegerPropertyDefinition*>(attribute1);
             ASSERT_EQ(std::string("sounds"), intAttribute1->name());
             ASSERT_EQ(std::string("CD track to play"), intAttribute1->shortDescription());
             ASSERT_EQ(std::string("Longer description"), intAttribute1->longDescription());
             ASSERT_FALSE(intAttribute1->hasDefaultValue());
 
-            const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("sounds2");
+            const Assets::PropertyDefinition* attribute2 = definition->attributeDefinition("sounds2");
             ASSERT_TRUE(attribute2 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::IntegerProperty, attribute2->type());
 
-            const Assets::IntegerAttributeDefinition* intAttribute2 = static_cast<const Assets::IntegerAttributeDefinition*>(attribute2);
+            const Assets::IntegerPropertyDefinition* intAttribute2 = static_cast<const Assets::IntegerPropertyDefinition*>(attribute2);
             ASSERT_EQ(std::string("sounds2"), intAttribute2->name());
             ASSERT_EQ(std::string("CD track to play with default"), intAttribute2->shortDescription());
             ASSERT_EQ(std::string("Longer description"), intAttribute2->longDescription());
@@ -484,10 +484,10 @@ namespace TrenchBroom {
             Assets::EntityDefinition* definition = definitions[0];
             ASSERT_EQ(2u, definition->attributeDefinitions().size());
 
-            const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("sounds");
+            const Assets::PropertyDefinition* attribute1 = definition->attributeDefinition("sounds");
             ASSERT_TRUE(attribute1->readOnly());
 
-            const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("sounds2");
+            const Assets::PropertyDefinition* attribute2 = definition->attributeDefinition("sounds2");
             ASSERT_FALSE(attribute2->readOnly());
 
             kdl::vec_clear_and_delete(definitions);
@@ -516,21 +516,21 @@ namespace TrenchBroom {
 
             ASSERT_EQ(2u, definition->attributeDefinitions().size());
 
-            const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("test");
+            const Assets::PropertyDefinition* attribute1 = definition->attributeDefinition("test");
             ASSERT_TRUE(attribute1 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::FloatProperty, attribute1->type());
 
-            const Assets::FloatAttributeDefinition* floatAttribute1 = static_cast<const Assets::FloatAttributeDefinition*>(attribute1);
+            const Assets::FloatPropertyDefinition* floatAttribute1 = static_cast<const Assets::FloatPropertyDefinition*>(attribute1);
             ASSERT_EQ(std::string("test"), floatAttribute1->name());
             ASSERT_EQ(std::string("Some test attribute"), floatAttribute1->shortDescription());
             ASSERT_EQ(std::string("Longer description 1"), floatAttribute1->longDescription());
             ASSERT_FALSE(floatAttribute1->hasDefaultValue());
 
-            const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("test2");
+            const Assets::PropertyDefinition* attribute2 = definition->attributeDefinition("test2");
             ASSERT_TRUE(attribute2 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::FloatProperty, attribute2->type());
 
-            const Assets::FloatAttributeDefinition* floatAttribute2 = static_cast<const Assets::FloatAttributeDefinition*>(attribute2);
+            const Assets::FloatPropertyDefinition* floatAttribute2 = static_cast<const Assets::FloatPropertyDefinition*>(attribute2);
             ASSERT_EQ(std::string("test2"), floatAttribute2->name());
             ASSERT_EQ(std::string("Some test attribute with default"), floatAttribute2->shortDescription());
             ASSERT_EQ(std::string("Longer description 2"), floatAttribute2->longDescription());
@@ -591,17 +591,17 @@ namespace TrenchBroom {
 
             ASSERT_EQ(5u, definition->attributeDefinitions().size());
 
-            const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("worldtype");
+            const Assets::PropertyDefinition* attribute1 = definition->attributeDefinition("worldtype");
             ASSERT_TRUE(attribute1 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::ChoiceProperty, attribute1->type());
 
-            const Assets::ChoiceAttributeDefinition* choiceAttribute1 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute1);
+            const Assets::ChoicePropertyDefinition* choiceAttribute1 = static_cast<const Assets::ChoicePropertyDefinition*>(attribute1);
             ASSERT_EQ(std::string("worldtype"), choiceAttribute1->name());
             ASSERT_EQ(std::string("Ambience"), choiceAttribute1->shortDescription());
             ASSERT_EQ(std::string("Long description 1"), choiceAttribute1->longDescription());
             ASSERT_FALSE(choiceAttribute1->hasDefaultValue());
 
-            const Assets::ChoiceAttributeOption::List& options1 = choiceAttribute1->options();
+            const Assets::ChoicePropertyOption::List& options1 = choiceAttribute1->options();
             ASSERT_EQ(3u, options1.size());
             ASSERT_EQ(std::string("0"), options1[0].value());
             ASSERT_EQ(std::string("Medieval"), options1[0].description());
@@ -610,33 +610,33 @@ namespace TrenchBroom {
             ASSERT_EQ(std::string("2"), options1[2].value());
             ASSERT_EQ(std::string("Base"), options1[2].description());
 
-            const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("worldtype2");
+            const Assets::PropertyDefinition* attribute2 = definition->attributeDefinition("worldtype2");
             ASSERT_TRUE(attribute2 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::ChoiceProperty, attribute2->type());
 
-            const Assets::ChoiceAttributeDefinition* choiceAttribute2 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute2);
+            const Assets::ChoicePropertyDefinition* choiceAttribute2 = static_cast<const Assets::ChoicePropertyDefinition*>(attribute2);
             ASSERT_EQ(std::string("worldtype2"), choiceAttribute2->name());
             ASSERT_EQ(std::string("Ambience with default"), choiceAttribute2->shortDescription());
             ASSERT_EQ(std::string("Long description 2"), choiceAttribute2->longDescription());
             ASSERT_TRUE(choiceAttribute2->hasDefaultValue());
             ASSERT_EQ("1", choiceAttribute2->defaultValue());
 
-            const Assets::ChoiceAttributeOption::List& options2 = choiceAttribute2->options();
+            const Assets::ChoicePropertyOption::List& options2 = choiceAttribute2->options();
             ASSERT_EQ(2u, options2.size());
             ASSERT_EQ(std::string("0"), options2[0].value());
             ASSERT_EQ(std::string("Medieval"), options2[0].description());
             ASSERT_EQ(std::string("1"), options2[1].value());
             ASSERT_EQ(std::string("Metal (runic)"), options2[1].description());
 
-            const Assets::AttributeDefinition* attribute3 = definition->attributeDefinition("puzzle_id");
-            const Assets::ChoiceAttributeDefinition* choiceAttribute3 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute3);
+            const Assets::PropertyDefinition* attribute3 = definition->attributeDefinition("puzzle_id");
+            const Assets::ChoicePropertyDefinition* choiceAttribute3 = static_cast<const Assets::ChoicePropertyDefinition*>(attribute3);
             ASSERT_EQ(std::string("puzzle_id"), choiceAttribute3->name());
             ASSERT_EQ(std::string("Puzzle id"), choiceAttribute3->shortDescription());
             ASSERT_EQ(std::string(""), choiceAttribute3->longDescription());
             ASSERT_TRUE(choiceAttribute3->hasDefaultValue());
             ASSERT_EQ("cskey", choiceAttribute3->defaultValue());
 
-            const Assets::ChoiceAttributeOption::List& options3 = choiceAttribute3->options();
+            const Assets::ChoicePropertyOption::List& options3 = choiceAttribute3->options();
             ASSERT_EQ(3u, options3.size());
             ASSERT_EQ(std::string("keep3"), options3[0].value());
             ASSERT_EQ(std::string("Mill key"), options3[0].description());
@@ -645,15 +645,15 @@ namespace TrenchBroom {
             ASSERT_EQ(std::string("scrol"), options3[2].value());
             ASSERT_EQ(std::string("Disrupt Magic Scroll"), options3[2].description());
 
-            const Assets::AttributeDefinition* attribute4 = definition->attributeDefinition("floaty");
-            const Assets::ChoiceAttributeDefinition* choiceAttribute4 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute4);
+            const Assets::PropertyDefinition* attribute4 = definition->attributeDefinition("floaty");
+            const Assets::ChoicePropertyDefinition* choiceAttribute4 = static_cast<const Assets::ChoicePropertyDefinition*>(attribute4);
             ASSERT_EQ(std::string("floaty"), choiceAttribute4->name());
             ASSERT_EQ(std::string("Floaty"), choiceAttribute4->shortDescription());
             ASSERT_EQ(std::string(""), choiceAttribute4->longDescription());
             ASSERT_TRUE(choiceAttribute4->hasDefaultValue());
             ASSERT_EQ("2.3", choiceAttribute4->defaultValue());
 
-            const Assets::ChoiceAttributeOption::List& options4 = choiceAttribute4->options();
+            const Assets::ChoicePropertyOption::List& options4 = choiceAttribute4->options();
             ASSERT_EQ(3u, options4.size());
             ASSERT_EQ(std::string("1.0"), options4[0].value());
             ASSERT_EQ(std::string("Something"), options4[0].description());
@@ -662,15 +662,15 @@ namespace TrenchBroom {
             ASSERT_EQ(std::string("0.1"), options4[2].value());
             ASSERT_EQ(std::string("Yet more"), options4[2].description());
 
-            const Assets::AttributeDefinition* attribute5 = definition->attributeDefinition("negative");
-            const Assets::ChoiceAttributeDefinition* choiceAttribute5 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute5);
+            const Assets::PropertyDefinition* attribute5 = definition->attributeDefinition("negative");
+            const Assets::ChoicePropertyDefinition* choiceAttribute5 = static_cast<const Assets::ChoicePropertyDefinition*>(attribute5);
             ASSERT_EQ(std::string("negative"), choiceAttribute5->name());
             ASSERT_EQ(std::string("Negative values"), choiceAttribute5->shortDescription());
             ASSERT_EQ(std::string(""), choiceAttribute5->longDescription());
             ASSERT_TRUE(choiceAttribute5->hasDefaultValue());
             ASSERT_EQ("-1", choiceAttribute5->defaultValue());
 
-            const Assets::ChoiceAttributeOption::List& options5 = choiceAttribute5->options();
+            const Assets::ChoicePropertyOption::List& options5 = choiceAttribute5->options();
             ASSERT_EQ(3u, options5.size());
             ASSERT_EQ(std::string("-2"), options5[0].value());
             ASSERT_EQ(std::string("Something"), options5[0].description());
@@ -710,16 +710,16 @@ namespace TrenchBroom {
 
             ASSERT_EQ(1u, definition->attributeDefinitions().size());
 
-            const Assets::AttributeDefinition* attribute = definition->attributeDefinition("spawnflags");
+            const Assets::PropertyDefinition* attribute = definition->attributeDefinition("spawnflags");
             ASSERT_TRUE(attribute != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::FlagsProperty, attribute->type());
 
-            const Assets::FlagsAttributeDefinition* flagsAttribute = static_cast<const Assets::FlagsAttributeDefinition*>(attribute);
+            const Assets::FlagsPropertyDefinition* flagsAttribute = static_cast<const Assets::FlagsPropertyDefinition*>(attribute);
             ASSERT_EQ(std::string("spawnflags"), flagsAttribute->name());
             ASSERT_EQ(std::string(""), flagsAttribute->shortDescription());
             ASSERT_EQ(2560, flagsAttribute->defaultValue());
 
-            const Assets::FlagsAttributeOption::List& options = flagsAttribute->options();
+            const Assets::FlagsPropertyOption::List& options = flagsAttribute->options();
             ASSERT_EQ(4u, options.size());
             ASSERT_EQ(256, options[0].value());
             ASSERT_EQ(std::string("Not on Easy"), options[0].shortDescription());

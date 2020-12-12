@@ -135,10 +135,10 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("resolveInheritance.inheritAttributes", "[resolveInheritance]") {
-            const auto a1_1 = std::make_shared<Assets::StringAttributeDefinition>("a1", "", "", false);
-            const auto a1_2 = std::make_shared<Assets::StringAttributeDefinition>("a1", "", "", false);
-            const auto a2 = std::make_shared<Assets::StringAttributeDefinition>("a2", "", "", false);
-            const auto a3 = std::make_shared<Assets::StringAttributeDefinition>("a3", "", "", false);
+            const auto a1_1 = std::make_shared<Assets::StringPropertyDefinition>("a1", "", "", false);
+            const auto a1_2 = std::make_shared<Assets::StringPropertyDefinition>("a1", "", "", false);
+            const auto a2 = std::make_shared<Assets::StringPropertyDefinition>("a2", "", "", false);
+            const auto a3 = std::make_shared<Assets::StringPropertyDefinition>("a3", "", "", false);
         
             const auto input = std::vector<EntityDefinitionClassInfo>({
                 //type                                   l  c  name     description   color         size          modelDef      attributes      superclasses
@@ -156,11 +156,11 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("resolveInheritance.mergeSpawnflagsSimpleInheritance", "[resolveInheritance]") {
-            auto a1 = std::make_shared<Assets::FlagsAttributeDefinition>(Model::AttributeNames::Spawnflags);
+            auto a1 = std::make_shared<Assets::FlagsPropertyDefinition>(Model::AttributeNames::Spawnflags);
             a1->addOption(1 << 1, "a1_1", "", true);
             a1->addOption(1 << 2, "a1_2", "", false);
             
-            auto a2 = std::make_shared<Assets::FlagsAttributeDefinition>(Model::AttributeNames::Spawnflags);
+            auto a2 = std::make_shared<Assets::FlagsPropertyDefinition>(Model::AttributeNames::Spawnflags);
             a2->addOption(1 << 2, "a2_2", "", true);
             a2->addOption(1 << 4, "a2_4", "", false);
         
@@ -182,11 +182,11 @@ namespace TrenchBroom {
             const auto attribute = classInfo.attributes.front();
             CHECK(attribute->type() == Assets::PropertyDefinitionType::FlagsProperty);
             
-            const auto& flagsAttribute = static_cast<const Assets::FlagsAttributeDefinition&>(*attribute.get());
+            const auto& flagsAttribute = static_cast<const Assets::FlagsPropertyDefinition&>(*attribute.get());
             CHECK(flagsAttribute.name() == Model::AttributeNames::Spawnflags);
             
             const auto& options = flagsAttribute.options();
-            CHECK_THAT(options, Catch::Equals(std::vector<Assets::FlagsAttributeOption>({
+            CHECK_THAT(options, Catch::Equals(std::vector<Assets::FlagsPropertyOption>({
                 { 1 << 1, "a1_1", "", true },
                 { 1 << 2, "a2_2", "", true },
                 { 1 << 4, "a2_4", "", false },
@@ -194,10 +194,10 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("resolveInheritance.multipleBaseClasses", "[resolveInheritance]") {
-            const auto a1_1 = std::make_shared<Assets::StringAttributeDefinition>("a1", "", "", false);
-            const auto a1_2 = std::make_shared<Assets::StringAttributeDefinition>("a1", "", "", false);
-            const auto a2 = std::make_shared<Assets::StringAttributeDefinition>("a2", "", "", false);
-            const auto a3 = std::make_shared<Assets::StringAttributeDefinition>("a3", "", "", false);
+            const auto a1_1 = std::make_shared<Assets::StringPropertyDefinition>("a1", "", "", false);
+            const auto a1_2 = std::make_shared<Assets::StringPropertyDefinition>("a1", "", "", false);
+            const auto a2 = std::make_shared<Assets::StringPropertyDefinition>("a2", "", "", false);
+            const auto a3 = std::make_shared<Assets::StringPropertyDefinition>("a3", "", "", false);
 
             const auto base1ModelDef = Assets::ModelDefinition(EL::Expression(EL::LiteralExpression(EL::Value("abc")), 0, 0));
             const auto base2ModelDef = Assets::ModelDefinition(EL::Expression(EL::LiteralExpression(EL::Value("def")), 0, 0));
@@ -223,10 +223,10 @@ namespace TrenchBroom {
         }
 
         TEST_CASE("resolveInheritance.diamondInheritance", "[resolveInheritance]") {
-            const auto a1 = std::make_shared<Assets::StringAttributeDefinition>("a1", "", "", false);
-            const auto a2_1 = std::make_shared<Assets::StringAttributeDefinition>("a2_1", "", "", false);
-            const auto a2_2 = std::make_shared<Assets::StringAttributeDefinition>("a2_2", "", "", false);
-            const auto a3 = std::make_shared<Assets::StringAttributeDefinition>("a3", "", "", false);
+            const auto a1 = std::make_shared<Assets::StringPropertyDefinition>("a1", "", "", false);
+            const auto a2_1 = std::make_shared<Assets::StringPropertyDefinition>("a2_1", "", "", false);
+            const auto a2_2 = std::make_shared<Assets::StringPropertyDefinition>("a2_2", "", "", false);
+            const auto a3 = std::make_shared<Assets::StringPropertyDefinition>("a3", "", "", false);
 
             const auto input = std::vector<EntityDefinitionClassInfo>({
                 //type                                   l  c  name       description    color         size              modelDef      attributes      superclasses
