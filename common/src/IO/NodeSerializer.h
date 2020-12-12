@@ -29,7 +29,7 @@ namespace TrenchBroom {
     namespace Model {
         class BrushNode;
         class BrushFace;
-        class EntityAttribute;
+        class EntityProperty;
         class GroupNode;
         class LayerNode;
         class Node;
@@ -99,17 +99,17 @@ namespace TrenchBroom {
         public:
             void defaultLayer(const Model::WorldNode& world);
             void customLayer(const Model::LayerNode* layer);
-            void group(const Model::GroupNode* group, const std::vector<Model::EntityAttribute>& parentAttributes);
+            void group(const Model::GroupNode* group, const std::vector<Model::EntityProperty>& parentAttributes);
 
-            void entity(const Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& parentAttributes, const Model::Node* brushParent);
-            void entity(const Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& parentAttributes, const std::vector<Model::BrushNode*>& entityBrushes);
+            void entity(const Model::Node* node, const std::vector<Model::EntityProperty>& attributes, const std::vector<Model::EntityProperty>& parentAttributes, const Model::Node* brushParent);
+            void entity(const Model::Node* node, const std::vector<Model::EntityProperty>& attributes, const std::vector<Model::EntityProperty>& parentAttributes, const std::vector<Model::BrushNode*>& entityBrushes);
         private:
-            void beginEntity(const Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& extraAttributes);
+            void beginEntity(const Model::Node* node, const std::vector<Model::EntityProperty>& attributes, const std::vector<Model::EntityProperty>& extraAttributes);
             void beginEntity(const Model::Node* node);
             void endEntity(const Model::Node* node);
 
-            void entityAttributes(const std::vector<Model::EntityAttribute>& attributes);
-            void entityAttribute(const Model::EntityAttribute& attribute);
+            void entityAttributes(const std::vector<Model::EntityProperty>& attributes);
+            void entityAttribute(const Model::EntityProperty& attribute);
 
             void brushes(const std::vector<Model::BrushNode*>& brushNodes);
             void brush(const Model::BrushNode* brushNode);
@@ -118,10 +118,10 @@ namespace TrenchBroom {
         private:
             void brushFace(const Model::BrushFace& face);
         public:
-            std::vector<Model::EntityAttribute> parentAttributes(const Model::Node* node);
+            std::vector<Model::EntityProperty> parentAttributes(const Model::Node* node);
         private:
-            std::vector<Model::EntityAttribute> layerAttributes(const Model::LayerNode* layer);
-            std::vector<Model::EntityAttribute> groupAttributes(const Model::GroupNode* group);
+            std::vector<Model::EntityProperty> layerAttributes(const Model::LayerNode* layer);
+            std::vector<Model::EntityProperty> groupAttributes(const Model::GroupNode* group);
         protected:
             std::string escapeEntityAttribute(const std::string& str) const;
         private:
@@ -130,7 +130,7 @@ namespace TrenchBroom {
 
             virtual void doBeginEntity(const Model::Node* node) = 0;
             virtual void doEndEntity(const Model::Node* node) = 0;
-            virtual void doEntityAttribute(const Model::EntityAttribute& attribute) = 0;
+            virtual void doEntityAttribute(const Model::EntityProperty& attribute) = 0;
 
             virtual void doBrush(const Model::BrushNode* brushNode) = 0;
             virtual void doBrushFace(const Model::BrushFace& face) = 0;

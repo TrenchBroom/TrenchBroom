@@ -56,7 +56,7 @@ namespace TrenchBroom {
             onFormatSet(format);
         }
 
-        void MapParser::beginEntity(const size_t line, const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+        void MapParser::beginEntity(const size_t line, const std::vector<Model::EntityProperty>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             onBeginEntity(line, attributes, extraAttributes, status);
         }
 

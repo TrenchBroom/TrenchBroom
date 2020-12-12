@@ -45,17 +45,17 @@ namespace TrenchBroom {
         m_pointEntity(true),
         m_model(nullptr) {}
 
-        Entity::Entity(std::vector<EntityAttribute> attributes) :
+        Entity::Entity(std::vector<EntityProperty> attributes) :
         m_attributes(std::move(attributes)),
         m_pointEntity(true),
         m_model(nullptr) {}
 
-        Entity::Entity(std::initializer_list<EntityAttribute> attributes) :
+        Entity::Entity(std::initializer_list<EntityProperty> attributes) :
         m_attributes(attributes),
         m_pointEntity(true),
         m_model(nullptr) {}
 
-        const std::vector<EntityAttribute>& Entity::attributes() const {
+        const std::vector<EntityProperty>& Entity::attributes() const {
             return m_attributes;
         }
 
@@ -67,7 +67,7 @@ namespace TrenchBroom {
 
         Entity::~Entity() = default;
 
-        void Entity::setAttributes(std::vector<EntityAttribute> attributes) {
+        void Entity::setAttributes(std::vector<EntityProperty> attributes) {
             m_attributes = std::move(attributes);
             invalidateCachedAttributes();
         }
@@ -155,8 +155,8 @@ namespace TrenchBroom {
                 if (newIt != std::end(m_attributes)) {
                     m_attributes.erase(newIt);
                 }
-                
-                oldIt->setName(std::move(newName));
+
+                oldIt->setKey(std::move(newName));
                 invalidateCachedAttributes();
             }
         }
@@ -214,7 +214,7 @@ namespace TrenchBroom {
         }
 
         std::vector<std::string> Entity::attributeNames() const {
-            return kdl::vec_transform(m_attributes, [](const auto& attribute) { return attribute.name(); });
+            return kdl::vec_transform(m_attributes, [](const auto& attribute) { return attribute.key(); });
         }
 
 
@@ -241,15 +241,15 @@ namespace TrenchBroom {
             return m_cachedAttributes->rotation;
         }
 
-        std::vector<EntityAttribute> Entity::attributeWithName(const std::string& name) const {
-            return kdl::vec_filter(m_attributes, [&](const auto& attribute) { return attribute.hasName(name); });
+        std::vector<EntityProperty> Entity::attributeWithName(const std::string& name) const {
+            return kdl::vec_filter(m_attributes, [&](const auto& attribute) { return attribute.hasKey(name); });
         }
 
-        std::vector<EntityAttribute> Entity::attributesWithPrefix(const std::string& prefix) const {
+        std::vector<EntityProperty> Entity::attributesWithPrefix(const std::string& prefix) const {
             return kdl::vec_filter(m_attributes, [&](const auto& attribute) { return attribute.hasPrefix(prefix); });
         }
 
-        std::vector<EntityAttribute> Entity::numberedAttributes(const std::string& prefix) const {
+        std::vector<EntityProperty> Entity::numberedAttributes(const std::string& prefix) const {
             return kdl::vec_filter(m_attributes, [&](const auto& attribute) { return attribute.hasNumberedPrefix(prefix); });
         }
 
@@ -291,12 +291,12 @@ namespace TrenchBroom {
             }
         }
 
-        std::vector<EntityAttribute>::const_iterator Entity::findAttribute(const std::string& name) const {
-            return std::find_if(std::begin(m_attributes), std::end(m_attributes), [&](const auto& attribute) { return attribute.hasName(name); });
+        std::vector<EntityProperty>::const_iterator Entity::findAttribute(const std::string& name) const {
+            return std::find_if(std::begin(m_attributes), std::end(m_attributes), [&](const auto& attribute) { return attribute.hasKey(name); });
         }
 
-        std::vector<EntityAttribute>::iterator Entity::findAttribute(const std::string& name) {
-            return std::find_if(std::begin(m_attributes), std::end(m_attributes), [&](const auto& attribute) { return attribute.hasName(name); });
+        std::vector<EntityProperty>::iterator Entity::findAttribute(const std::string& name) {
+            return std::find_if(std::begin(m_attributes), std::end(m_attributes), [&](const auto& attribute) { return attribute.hasKey(name); });
         }
 
         bool operator==(const Entity& lhs, const Entity& rhs) {

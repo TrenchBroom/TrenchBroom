@@ -134,11 +134,11 @@ namespace TrenchBroom {
             }
         }
 
-        void NodeSerializer::group(const Model::GroupNode* group, const std::vector<Model::EntityAttribute>& parentAttributes) {
+        void NodeSerializer::group(const Model::GroupNode* group, const std::vector<Model::EntityProperty>& parentAttributes) {
             entity(group, groupAttributes(group), parentAttributes, group);
         }
 
-        void NodeSerializer::entity(const Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& parentAttributes, const Model::Node* brushParent) {
+        void NodeSerializer::entity(const Model::Node* node, const std::vector<Model::EntityProperty>& attributes, const std::vector<Model::EntityProperty>& parentAttributes, const Model::Node* brushParent) {
             beginEntity(node, attributes, parentAttributes);
 
             brushParent->visitChildren(kdl::overload(
@@ -154,13 +154,13 @@ namespace TrenchBroom {
             endEntity(node);
         }
 
-        void NodeSerializer::entity(const Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& parentAttributes, const std::vector<Model::BrushNode*>& entityBrushes) {
+        void NodeSerializer::entity(const Model::Node* node, const std::vector<Model::EntityProperty>& attributes, const std::vector<Model::EntityProperty>& parentAttributes, const std::vector<Model::BrushNode*>& entityBrushes) {
             beginEntity(node, attributes, parentAttributes);
             brushes(entityBrushes);
             endEntity(node);
         }
 
-        void NodeSerializer::beginEntity(const Model::Node* node, const std::vector<Model::EntityAttribute>& attributes, const std::vector<Model::EntityAttribute>& extraAttributes) {
+        void NodeSerializer::beginEntity(const Model::Node* node, const std::vector<Model::EntityProperty>& attributes, const std::vector<Model::EntityProperty>& extraAttributes) {
             beginEntity(node);
             entityAttributes(attributes);
             entityAttributes(extraAttributes);
@@ -176,13 +176,13 @@ namespace TrenchBroom {
             ++m_entityNo;
         }
 
-        void NodeSerializer::entityAttributes(const std::vector<Model::EntityAttribute>& attributes) {
+        void NodeSerializer::entityAttributes(const std::vector<Model::EntityProperty>& attributes) {
             for (const auto& attribute : attributes) {
                 entityAttribute(attribute);
             }
         }
 
-        void NodeSerializer::entityAttribute(const Model::EntityAttribute& attribute) {
+        void NodeSerializer::entityAttribute(const Model::EntityProperty& attribute) {
             doEntityAttribute(attribute);
         }
 
@@ -207,16 +207,16 @@ namespace TrenchBroom {
             doBrushFace(face);
         }
 
-        std::vector<Model::EntityAttribute> NodeSerializer::parentAttributes(const Model::Node* node) {
+        std::vector<Model::EntityProperty> NodeSerializer::parentAttributes(const Model::Node* node) {
             if (node == nullptr) {
-                return std::vector<Model::EntityAttribute>{};
+                return std::vector<Model::EntityProperty>{};
             }
 
-            auto attributes = std::vector<Model::EntityAttribute>{};
+            auto attributes = std::vector<Model::EntityProperty>{};
             node->accept(kdl::overload(
                 [](const Model::WorldNode*) {},
-                [&](const Model::LayerNode* layer) { attributes.push_back(Model::EntityAttribute(Model::PropertyKeys::Layer, m_layerIds.getId(layer))); },
-                [&](const Model::GroupNode* group) { attributes.push_back(Model::EntityAttribute(Model::PropertyKeys::Group, m_groupIds.getId(group))); },
+                [&](const Model::LayerNode* layer) { attributes.push_back(Model::EntityProperty(Model::PropertyKeys::Layer, m_layerIds.getId(layer))); },
+                [&](const Model::GroupNode* group) { attributes.push_back(Model::EntityProperty(Model::PropertyKeys::Group, m_groupIds.getId(group))); },
                 [](const Model::EntityNode*) {},
                 [](const Model::BrushNode*) {}
             ));
@@ -224,36 +224,36 @@ namespace TrenchBroom {
             return attributes;
         }
 
-        std::vector<Model::EntityAttribute> NodeSerializer::layerAttributes(const Model::LayerNode* layerNode) {
-            std::vector<Model::EntityAttribute> result = {
-                Model::EntityAttribute(Model::PropertyKeys::Classname, Model::PropertyValues::LayerClassname),
-                Model::EntityAttribute(Model::PropertyKeys::GroupType, Model::PropertyValues::GroupTypeLayer),
-                Model::EntityAttribute(Model::PropertyKeys::LayerName, layerNode->name()),
-                Model::EntityAttribute(Model::PropertyKeys::LayerId, m_layerIds.getId(layerNode)),
+        std::vector<Model::EntityProperty> NodeSerializer::layerAttributes(const Model::LayerNode* layerNode) {
+            std::vector<Model::EntityProperty> result = {
+                Model::EntityProperty(Model::PropertyKeys::Classname, Model::PropertyValues::LayerClassname),
+                Model::EntityProperty(Model::PropertyKeys::GroupType, Model::PropertyValues::GroupTypeLayer),
+                Model::EntityProperty(Model::PropertyKeys::LayerName, layerNode->name()),
+                Model::EntityProperty(Model::PropertyKeys::LayerId, m_layerIds.getId(layerNode)),
             };
 
             const auto& layer = layerNode->layer();
             if (layer.hasSortIndex()) {
-                result.push_back(Model::EntityAttribute(Model::PropertyKeys::LayerSortIndex, kdl::str_to_string(layer.sortIndex())));
+                result.push_back(Model::EntityProperty(Model::PropertyKeys::LayerSortIndex, kdl::str_to_string(layer.sortIndex())));
             }
             if (layerNode->lockState() == Model::LockState::Lock_Locked) {
-                result.push_back(Model::EntityAttribute(Model::PropertyKeys::LayerLocked, Model::PropertyValues::LayerLockedValue));
+                result.push_back(Model::EntityProperty(Model::PropertyKeys::LayerLocked, Model::PropertyValues::LayerLockedValue));
             }
             if (layerNode->hidden()) {
-                result.push_back(Model::EntityAttribute(Model::PropertyKeys::LayerHidden, Model::PropertyValues::LayerHiddenValue));
+                result.push_back(Model::EntityProperty(Model::PropertyKeys::LayerHidden, Model::PropertyValues::LayerHiddenValue));
             }
             if (layer.omitFromExport()) {
-                result.push_back(Model::EntityAttribute(Model::PropertyKeys::LayerOmitFromExport, Model::PropertyValues::LayerOmitFromExportValue));
+                result.push_back(Model::EntityProperty(Model::PropertyKeys::LayerOmitFromExport, Model::PropertyValues::LayerOmitFromExportValue));
             }
             return result;
         }
 
-        std::vector<Model::EntityAttribute> NodeSerializer::groupAttributes(const Model::GroupNode* group) {
+        std::vector<Model::EntityProperty> NodeSerializer::groupAttributes(const Model::GroupNode* group) {
             return {
-                Model::EntityAttribute(Model::PropertyKeys::Classname, Model::PropertyValues::GroupClassname),
-                Model::EntityAttribute(Model::PropertyKeys::GroupType, Model::PropertyValues::GroupTypeGroup),
-                Model::EntityAttribute(Model::PropertyKeys::GroupName, group->name()),
-                Model::EntityAttribute(Model::PropertyKeys::GroupId, m_groupIds.getId(group)),
+                Model::EntityProperty(Model::PropertyKeys::Classname, Model::PropertyValues::GroupClassname),
+                Model::EntityProperty(Model::PropertyKeys::GroupType, Model::PropertyValues::GroupTypeGroup),
+                Model::EntityProperty(Model::PropertyKeys::GroupName, group->name()),
+                Model::EntityProperty(Model::PropertyKeys::GroupId, m_groupIds.getId(group)),
             };
         }
 

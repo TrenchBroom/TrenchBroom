@@ -81,273 +81,273 @@ namespace TrenchBroom {
             return kdl::cs::str_matches_glob(key, pattern);
         }
 
-        EntityAttribute::EntityAttribute() = default;
+        EntityProperty::EntityProperty() = default;
 
-        EntityAttribute::EntityAttribute(const std::string& name, const std::string& value) :
-        m_name(name),
+        EntityProperty::EntityProperty(const std::string& key, const std::string& value) :
+        m_key(key),
         m_value(value) {}
 
-        int EntityAttribute::compare(const EntityAttribute& rhs) const {
-            const int nameCmp = m_name.compare(rhs.m_name);
-            if (nameCmp != 0)
-                return nameCmp;
+        int EntityProperty::compare(const EntityProperty& rhs) const {
+            const int keyCmp = m_key.compare(rhs.m_key);
+            if (keyCmp != 0)
+                return keyCmp;
             return m_value.compare(rhs.m_value);
         }
 
-        const std::string& EntityAttribute::name() const {
-            return m_name;
+        const std::string& EntityProperty::key() const {
+            return m_key;
         }
 
-        const std::string& EntityAttribute::value() const {
+        const std::string& EntityProperty::value() const {
             return m_value;
         }
 
-        bool EntityAttribute::hasName(const std::string_view name) const {
-            return kdl::cs::str_is_equal(m_name, name);
+        bool EntityProperty::hasKey(std::string_view key) const {
+            return kdl::cs::str_is_equal(m_key, key);
         }
 
-        bool EntityAttribute::hasValue(const std::string_view value) const {
+        bool EntityProperty::hasValue(const std::string_view value) const {
             return kdl::cs::str_is_equal(m_value, value);
         }
 
-        bool EntityAttribute::hasNameAndValue(const std::string_view name, const std::string_view value) const {
-            return hasName(name) && hasValue(value);
+        bool EntityProperty::hasKeyAndValue(std::string_view key, std::string_view value) const {
+            return hasKey(key) && hasValue(value);
         }
 
-        bool EntityAttribute::hasPrefix(const std::string_view prefix) const {
-            return kdl::cs::str_is_prefix(m_name, prefix);
+        bool EntityProperty::hasPrefix(const std::string_view prefix) const {
+            return kdl::cs::str_is_prefix(m_key, prefix);
         }
 
-        bool EntityAttribute::hasPrefixAndValue(const std::string_view prefix, const std::string_view value) const {
+        bool EntityProperty::hasPrefixAndValue(const std::string_view prefix, const std::string_view value) const {
             return hasPrefix(prefix) && hasValue(value);
         }
 
-        bool EntityAttribute::hasNumberedPrefix(const std::string_view prefix) const {
-            return isNumberedProperty(prefix, m_name);
+        bool EntityProperty::hasNumberedPrefix(const std::string_view prefix) const {
+            return isNumberedProperty(prefix, m_key);
         }
 
-        bool EntityAttribute::hasNumberedPrefixAndValue(const std::string_view prefix, const std::string_view value) const {
+        bool EntityProperty::hasNumberedPrefixAndValue(const std::string_view prefix, const std::string_view value) const {
             return hasNumberedPrefix(prefix) && hasValue(value);
         }
 
-        void EntityAttribute::setName(const std::string& name) {
-            m_name = name;
+        void EntityProperty::setKey(const std::string& key) {
+            m_key = key;
         }
 
-        void EntityAttribute::setValue(const std::string& value) {
+        void EntityProperty::setValue(const std::string& value) {
             m_value = value;
         }
 
-        bool operator<(const EntityAttribute& lhs, const EntityAttribute& rhs) {
+        bool operator<(const EntityProperty& lhs, const EntityProperty& rhs) {
             return lhs.compare(rhs) < 0;
         }
 
-        bool operator<=(const EntityAttribute& lhs, const EntityAttribute& rhs) {
+        bool operator<=(const EntityProperty& lhs, const EntityProperty& rhs) {
             return lhs.compare(rhs) <= 0;
         }
 
-        bool operator>(const EntityAttribute& lhs, const EntityAttribute& rhs) {
+        bool operator>(const EntityProperty& lhs, const EntityProperty& rhs) {
             return lhs.compare(rhs) > 0;
         }
 
-        bool operator>=(const EntityAttribute& lhs, const EntityAttribute& rhs) {
+        bool operator>=(const EntityProperty& lhs, const EntityProperty& rhs) {
             return lhs.compare(rhs) >= 0;
         }
 
-        bool operator==(const EntityAttribute& lhs, const EntityAttribute& rhs) {
+        bool operator==(const EntityProperty& lhs, const EntityProperty& rhs) {
             return lhs.compare(rhs) == 0;
         }
 
-        bool operator!=(const EntityAttribute& lhs, const EntityAttribute& rhs) {
+        bool operator!=(const EntityProperty& lhs, const EntityProperty& rhs) {
             return lhs.compare(rhs) != 0;
         }
 
-        std::ostream& operator<<(std::ostream& str, const EntityAttribute& attr) {
-            str << "{ name: " << attr.name() << ", value: " << attr.value() << " }";
+        std::ostream& operator<<(std::ostream& str, const EntityProperty& prop) {
+            str << "{ key: " << prop.key() << ", value: " << prop.value() << " }";
             return str;
         }
 
-        bool isLayer(const std::string& classname, const std::vector<EntityAttribute>& attributes) {
+        bool isLayer(const std::string& classname, const std::vector<EntityProperty>& properties) {
             if (classname != PropertyValues::LayerClassname) {
                 return false;
             } else {
-                const std::string& groupType = findAttribute(attributes, PropertyKeys::GroupType);
+                const std::string& groupType = findProperty(properties, PropertyKeys::GroupType);
                 return groupType == PropertyValues::GroupTypeLayer;
             }
         }
 
-        bool isGroup(const std::string& classname, const std::vector<EntityAttribute>& attributes) {
+        bool isGroup(const std::string& classname, const std::vector<EntityProperty>& properties) {
             if (classname != PropertyValues::GroupClassname) {
                 return false;
             } else {
-                const std::string& groupType = findAttribute(attributes, PropertyKeys::GroupType);
+                const std::string& groupType = findProperty(properties, PropertyKeys::GroupType);
                 return groupType == PropertyValues::GroupTypeGroup;
             }
         }
 
-        bool isWorldspawn(const std::string& classname, const std::vector<EntityAttribute>& /* attributes */) {
+        bool isWorldspawn(const std::string& classname, const std::vector<EntityProperty>& /* properties */) {
             return classname == PropertyValues::WorldspawnClassname;
         }
 
-        const std::string& findAttribute(const std::vector<EntityAttribute>& attributes, const std::string& name, const std::string& defaultValue) {
-            for (const EntityAttribute& attribute : attributes) {
-                if (name == attribute.name()) {
-                    return attribute.value();
+        const std::string& findProperty(const std::vector<EntityProperty>& properties, const std::string& key, const std::string& defaultValue) {
+            for (const EntityProperty& property : properties) {
+                if (key == property.key()) {
+                    return property.value();
                 }
             }
             return defaultValue;
         }
 
-        // EntityAttributes
-        EntityAttributes::EntityAttributes() = default;
+        // EntityProperties
+        EntityProperties::EntityProperties() = default;
 
-        EntityAttributes::EntityAttributes(std::vector<EntityAttribute> attributes) :
-        m_attributes(std::move(attributes)) {}
+        EntityProperties::EntityProperties(std::vector<EntityProperty> properties) :
+            m_properties(std::move(properties)) {}
 
-        std::vector<EntityAttribute> EntityAttributes::releaseAttributes() {
-            return std::move(m_attributes);
+        std::vector<EntityProperty> EntityProperties::releaseProperties() {
+            return std::move(m_properties);
         }
 
-        const std::vector<EntityAttribute>& EntityAttributes::attributes() const {
-            return m_attributes;
+        const std::vector<EntityProperty>& EntityProperties::properties() const {
+            return m_properties;
         }
 
-        void EntityAttributes::setAttributes(const std::vector<EntityAttribute>& attributes) {
-            m_attributes.clear();
+        void EntityProperties::setProperties(const std::vector<EntityProperty>& properties) {
+            m_properties.clear();
 
-            // ensure that there are no duplicate names
-            kdl::vector_set<std::string> names(attributes.size());
-            for (const auto& attribute : attributes) {
-                if (names.insert(attribute.name()).second) {
-                    m_attributes.push_back(attribute);
+            // ensure that there are no duplicate keys
+            kdl::vector_set<std::string> keys(properties.size());
+            for (const auto& property : properties) {
+                if (keys.insert(property.key()).second) {
+                    m_properties.push_back(property);
                 }
             }
         }
 
-        const EntityAttribute& EntityAttributes::addOrUpdateAttribute(const std::string& name, const std::string& value) {
-            auto it = findAttribute(name);
-            if (it != std::end(m_attributes)) {
+        const EntityProperty& EntityProperties::addOrUpdateProperty(const std::string& key, const std::string& value) {
+            auto it = findProperty(key);
+            if (it != std::end(m_properties)) {
                 it->setValue(value);
                 return *it;
             } else {
-                m_attributes.push_back(EntityAttribute(name, value));
-                return m_attributes.back();
+                m_properties.push_back(EntityProperty(key, value));
+                return m_properties.back();
             }
         }
 
-        void EntityAttributes::renameAttribute(const std::string& name, const std::string& newName) {
-            if (!hasAttribute(name)) {
+        void EntityProperties::renameProperty(const std::string& key, const std::string& newKey) {
+            if (!hasProperty(key)) {
                 return;
             }
 
-            const std::string value = *attribute(name);
-            removeAttribute(name);
-            addOrUpdateAttribute(newName, value);
+            const std::string value = *properties(key);
+            removeProperty(key);
+            addOrUpdateProperty(newKey, value);
         }
 
-        void EntityAttributes::removeAttribute(const std::string& name) {
-            auto it = findAttribute(name);
-            if (it != std::end(m_attributes)) {
-                m_attributes.erase(it);
+        void EntityProperties::removeProperty(const std::string& key) {
+            auto it = findProperty(key);
+            if (it != std::end(m_properties)) {
+                m_properties.erase(it);
             }
         }
 
-        bool EntityAttributes::hasAttribute(const std::string& name) const {
-            return findAttribute(name) != std::end(m_attributes);
+        bool EntityProperties::hasProperty(const std::string& key) const {
+            return findProperty(key) != std::end(m_properties);
         }
 
-        bool EntityAttributes::hasAttribute(const std::string& name, const std::string& value) const {
-            for (const auto& attribute : m_attributes) {
-                if (attribute.hasNameAndValue(name, value)) {
+        bool EntityProperties::hasProperty(const std::string& key, const std::string& value) const {
+            for (const auto& property : m_properties) {
+                if (property.hasKeyAndValue(key, value)) {
                     return true;
                 }
             }
             return false;
         }
 
-        bool EntityAttributes::hasAttributeWithPrefix(const std::string& prefix, const std::string& value) const {
-            for (const auto& attribute : m_attributes) {
-                if (attribute.hasPrefixAndValue(prefix, value)) {
+        bool EntityProperties::hasPropertyWithPrefix(const std::string& prefix, const std::string& value) const {
+            for (const auto& property : m_properties) {
+                if (property.hasPrefixAndValue(prefix, value)) {
                     return true;
                 }
             }
             return false;
         }
 
-        bool EntityAttributes::hasNumberedAttribute(const std::string& prefix, const std::string& value) const {
-            for (const auto& attribute : m_attributes) {
-                if (attribute.hasNumberedPrefixAndValue(prefix, value)) {
+        bool EntityProperties::hasNumberedProperty(const std::string& prefix, const std::string& value) const {
+            for (const auto& property : m_properties) {
+                if (property.hasNumberedPrefixAndValue(prefix, value)) {
                     return true;
                 }
             }
             return false;
         }
 
-        std::vector<std::string> EntityAttributes::names() const {
+        std::vector<std::string> EntityProperties::keys() const {
             std::vector<std::string> result;
-            result.reserve(m_attributes.size());
+            result.reserve(m_properties.size());
 
-            for (const EntityAttribute& attribute : m_attributes) {
-                result.push_back(attribute.name());
+            for (const EntityProperty& property : m_properties) {
+                result.push_back(property.key());
             }
             return result;
         }
 
-        const std::string* EntityAttributes::attribute(const std::string& name) const {
-            auto it = findAttribute(name);
-            if (it == std::end(m_attributes)) {
+        const std::string* EntityProperties::properties(const std::string& key) const {
+            auto it = findProperty(key);
+            if (it == std::end(m_properties)) {
                 return nullptr;
             } else {
                 return &it->value();
             }
         }
 
-        std::vector<EntityAttribute> EntityAttributes::attributeWithName(const std::string& name) const {
-            std::vector<EntityAttribute> result;
-            for (const auto& attribute : m_attributes) {
-                if (attribute.hasName(name)) {
-                    result.push_back(attribute);
+        std::vector<EntityProperty> EntityProperties::propertiesWithKey(const std::string& key) const {
+            std::vector<EntityProperty> result;
+            for (const auto& property : m_properties) {
+                if (property.hasKey(key)) {
+                    result.push_back(property);
                 }
             }
             return result;
         }
 
-        std::vector<EntityAttribute> EntityAttributes::attributesWithPrefix(const std::string& prefix) const {
-            std::vector<EntityAttribute> result;
-            for (const auto& attribute : m_attributes) {
-                if (attribute.hasPrefix(prefix)) {
-                    result.push_back(attribute);
+        std::vector<EntityProperty> EntityProperties::propertiesWithPrefix(const std::string& prefix) const {
+            std::vector<EntityProperty> result;
+            for (const auto& property : m_properties) {
+                if (property.hasPrefix(prefix)) {
+                    result.push_back(property);
                 }
             }
             return result;
         }
 
-        std::vector<EntityAttribute> EntityAttributes::numberedAttributes(const std::string& prefix) const {
-            std::vector<EntityAttribute> result;
-            for (const auto& attribute : m_attributes) {
-                if (attribute.hasNumberedPrefix(prefix)) {
-                    result.push_back(attribute);
+        std::vector<EntityProperty> EntityProperties::numberedProperties(const std::string& prefix) const {
+            std::vector<EntityProperty> result;
+            for (const auto& property : m_properties) {
+                if (property.hasNumberedPrefix(prefix)) {
+                    result.push_back(property);
                 }
             }
             return result;
         }
 
-        std::vector<EntityAttribute>::const_iterator EntityAttributes::findAttribute(const std::string& name) const {
-            for (auto it = std::begin(m_attributes), end = std::end(m_attributes); it != end; ++it) {
-                if (it->hasName(name)) {
+        std::vector<EntityProperty>::const_iterator EntityProperties::findProperty(const std::string& key) const {
+            for (auto it = std::begin(m_properties), end = std::end(m_properties); it != end; ++it) {
+                if (it->hasKey(key)) {
                     return it;
                 }
             }
-            return std::end(m_attributes);
+            return std::end(m_properties);
         }
 
-        std::vector<EntityAttribute>::iterator EntityAttributes::findAttribute(const std::string& name) {
-            for (auto it = std::begin(m_attributes), end = std::end(m_attributes); it != end; ++it) {
-                if (it->hasName(name)) {
+        std::vector<EntityProperty>::iterator EntityProperties::findProperty(const std::string& key) {
+            for (auto it = std::begin(m_properties), end = std::end(m_properties); it != end; ++it) {
+                if (it->hasKey(key)) {
                     return it;
                 }
             }
-            return std::end(m_attributes);
+            return std::end(m_properties);
         }
     }
 }

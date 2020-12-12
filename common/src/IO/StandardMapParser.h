@@ -92,7 +92,7 @@ namespace TrenchBroom {
             void setFormat(Model::MapFormat format);
 
             void parseEntity(ParserStatus& status);
-            void parseEntityAttribute(std::vector<Model::EntityAttribute>& attributes, AttributeNames& names, ParserStatus& status);
+            void parseEntityAttribute(std::vector<Model::EntityProperty>& attributes, AttributeNames& names, ParserStatus& status);
 
             void parseBrushOrBrushPrimitiveOrPatch(ParserStatus& status);
             void parseBrushPrimitive(ParserStatus& status, size_t startLine);

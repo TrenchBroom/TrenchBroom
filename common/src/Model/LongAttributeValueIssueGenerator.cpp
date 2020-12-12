@@ -90,8 +90,8 @@ namespace TrenchBroom {
         }
 
         void LongAttributeValueIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
-            for (const EntityAttribute& attribute : node->entity().attributes()) {
-                const auto& attributeName = attribute.name();
+            for (const EntityProperty& attribute : node->entity().attributes()) {
+                const auto& attributeName = attribute.key();
                 const auto& attributeValue = attribute.value();
                 if (attributeValue.size() >= m_maxLength) {
                     issues.push_back(new LongAttributeValueIssue(node, attributeName));

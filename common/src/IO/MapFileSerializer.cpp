@@ -272,9 +272,9 @@ namespace TrenchBroom {
             setFilePosition(node);
         }
 
-        void MapFileSerializer::doEntityAttribute(const Model::EntityAttribute& attribute) {
+        void MapFileSerializer::doEntityAttribute(const Model::EntityProperty& attribute) {
             fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "\"{}\" \"{}\"\n",
-                           escapeEntityAttribute( attribute.name()),
+                           escapeEntityAttribute(attribute.key()),
                            escapeEntityAttribute(attribute.value()));
             ++m_line;
         }

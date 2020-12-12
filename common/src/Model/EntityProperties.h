@@ -72,73 +72,73 @@ namespace TrenchBroom {
 
         bool isNumberedProperty(std::string_view prefix, std::string_view key);
 
-        class EntityAttribute {
+        class EntityProperty {
         private:
-            std::string m_name;
+            std::string m_key;
             std::string m_value;
         public:
-            EntityAttribute();
-            EntityAttribute(const std::string& name, const std::string& value);
+            EntityProperty();
+            EntityProperty(const std::string& key, const std::string& value);
             
-            int compare(const EntityAttribute& rhs) const;
+            int compare(const EntityProperty& rhs) const;
 
-            const std::string& name() const;
+            const std::string& key() const;
             const std::string& value() const;
 
-            bool hasName(std::string_view name) const;
+            bool hasKey(std::string_view key) const;
             bool hasValue(std::string_view value) const;
-            bool hasNameAndValue(std::string_view name, std::string_view value) const;
+            bool hasKeyAndValue(std::string_view key, std::string_view value) const;
             bool hasPrefix(std::string_view prefix) const;
             bool hasPrefixAndValue(std::string_view prefix, std::string_view value) const;
             bool hasNumberedPrefix(std::string_view prefix) const;
             bool hasNumberedPrefixAndValue(std::string_view prefix, std::string_view value) const;
 
-            void setName(const std::string& name);
+            void setKey(const std::string& key);
             void setValue(const std::string& value);
         };
 
-        bool operator<(const EntityAttribute& lhs, const EntityAttribute& rhs);
-        bool operator<=(const EntityAttribute& lhs, const EntityAttribute& rhs);
-        bool operator>(const EntityAttribute& lhs, const EntityAttribute& rhs);
-        bool operator>=(const EntityAttribute& lhs, const EntityAttribute& rhs);
-        bool operator==(const EntityAttribute& lhs, const EntityAttribute& rhs);
-        bool operator!=(const EntityAttribute& lhs, const EntityAttribute& rhs);
-        std::ostream& operator<<(std::ostream& str, const EntityAttribute& attr);
+        bool operator<(const EntityProperty& lhs, const EntityProperty& rhs);
+        bool operator<=(const EntityProperty& lhs, const EntityProperty& rhs);
+        bool operator>(const EntityProperty& lhs, const EntityProperty& rhs);
+        bool operator>=(const EntityProperty& lhs, const EntityProperty& rhs);
+        bool operator==(const EntityProperty& lhs, const EntityProperty& rhs);
+        bool operator!=(const EntityProperty& lhs, const EntityProperty& rhs);
+        std::ostream& operator<<(std::ostream& str, const EntityProperty& prop);
 
-        bool isLayer(const std::string& classname, const std::vector<EntityAttribute>& attributes);
-        bool isGroup(const std::string& classname, const std::vector<EntityAttribute>& attributes);
-        bool isWorldspawn(const std::string& classname, const std::vector<EntityAttribute>& attributes);
-        const std::string& findAttribute(const std::vector<EntityAttribute>& attributes, const std::string& name, const std::string& defaultValue = PropertyValues::DefaultValue);
+        bool isLayer(const std::string& classname, const std::vector<EntityProperty>& properties);
+        bool isGroup(const std::string& classname, const std::vector<EntityProperty>& properties);
+        bool isWorldspawn(const std::string& classname, const std::vector<EntityProperty>& properties);
+        const std::string& findProperty(const std::vector<EntityProperty>& properties, const std::string& key, const std::string& defaultValue = PropertyValues::DefaultValue);
 
-        class EntityAttributes {
+        class EntityProperties {
         private:
-            std::vector<EntityAttribute> m_attributes;
+            std::vector<EntityProperty> m_properties;
         public:
-            EntityAttributes();
-            explicit EntityAttributes(std::vector<EntityAttribute> attributes);
+            EntityProperties();
+            explicit EntityProperties(std::vector<EntityProperty> properties);
 
-            std::vector<EntityAttribute> releaseAttributes();
-            const std::vector<EntityAttribute>& attributes() const;
-            void setAttributes(const std::vector<EntityAttribute>& attributes);
+            std::vector<EntityProperty> releaseProperties();
+            const std::vector<EntityProperty>& properties() const;
+            void setProperties(const std::vector<EntityProperty>& properties);
 
-            const EntityAttribute& addOrUpdateAttribute(const std::string& name, const std::string& value);
-            void renameAttribute(const std::string& name, const std::string& newName);
-            void removeAttribute(const std::string& name);
+            const EntityProperty& addOrUpdateProperty(const std::string& key, const std::string& value);
+            void renameProperty(const std::string& key, const std::string& newKey);
+            void removeProperty(const std::string& key);
 
-            bool hasAttribute(const std::string& name) const;
-            bool hasAttribute(const std::string& name, const std::string& value) const;
-            bool hasAttributeWithPrefix(const std::string& prefix, const std::string& value) const;
-            bool hasNumberedAttribute(const std::string& prefix, const std::string& value) const;
+            bool hasProperty(const std::string& key) const;
+            bool hasProperty(const std::string& key, const std::string& value) const;
+            bool hasPropertyWithPrefix(const std::string& prefix, const std::string& value) const;
+            bool hasNumberedProperty(const std::string& prefix, const std::string& value) const;
         public:
-            std::vector<std::string> names() const;
-            const std::string* attribute(const std::string& name) const;
+            std::vector<std::string> keys() const;
+            const std::string* properties(const std::string& key) const;
 
-            std::vector<EntityAttribute> attributeWithName(const std::string& name) const;
-            std::vector<EntityAttribute> attributesWithPrefix(const std::string& prefix) const;
-            std::vector<EntityAttribute> numberedAttributes(const std::string& prefix) const;
+            std::vector<EntityProperty> propertiesWithKey(const std::string& key) const;
+            std::vector<EntityProperty> propertiesWithPrefix(const std::string& prefix) const;
+            std::vector<EntityProperty> numberedProperties(const std::string& prefix) const;
         private:
-            std::vector<EntityAttribute>::const_iterator findAttribute(const std::string& name) const;
-            std::vector<EntityAttribute>::iterator findAttribute(const std::string& name);
+            std::vector<EntityProperty>::const_iterator findProperty(const std::string& key) const;
+            std::vector<EntityProperty>::iterator findProperty(const std::string& key);
         };
     }
 }

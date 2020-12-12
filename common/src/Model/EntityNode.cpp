@@ -58,7 +58,7 @@ namespace TrenchBroom {
         AttributableNode(std::move(entity)),
         Object() {}
 
-        EntityNode::EntityNode(std::initializer_list<EntityAttribute> attributes) :
+        EntityNode::EntityNode(std::initializer_list<EntityProperty> attributes) :
         EntityNode(Entity(std::move(attributes))) {}
 
         FloatType EntityNode::area(vm::axis::type axis) const {

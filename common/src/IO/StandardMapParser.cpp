@@ -251,7 +251,7 @@ namespace TrenchBroom {
 
             auto beginEntityCalled = false;
 
-            auto attributes = std::vector<Model::EntityAttribute>();
+            auto attributes = std::vector<Model::EntityProperty>();
             auto attributeNames = AttributeNames();
 
             auto extraAttributes = ExtraAttributes();
@@ -289,7 +289,7 @@ namespace TrenchBroom {
             }
         }
 
-        void StandardMapParser::parseEntityAttribute(std::vector<Model::EntityAttribute>& attributes, AttributeNames& names, ParserStatus& status) {
+        void StandardMapParser::parseEntityAttribute(std::vector<Model::EntityProperty>& attributes, AttributeNames& names, ParserStatus& status) {
             auto token = m_tokenizer.nextToken();
             assert(token.type() == QuakeMapToken::String);
             const auto name = token.data();
@@ -301,7 +301,7 @@ namespace TrenchBroom {
             const auto value = token.data();
 
             if (names.count(name) == 0) {
-                attributes.push_back(Model::EntityAttribute(name, value));
+                attributes.push_back(Model::EntityProperty(name, value));
                 names.insert(name);
             } else {
                 status.warn(line, column, "Ignoring duplicate entity property '" + name + "'");

@@ -57,7 +57,7 @@ namespace TrenchBroom {
         public:
             EntityNode();
             explicit EntityNode(Entity entity);
-            explicit EntityNode(std::initializer_list<EntityAttribute> attributes);
+            explicit EntityNode(std::initializer_list<EntityProperty> attributes);
 
             FloatType area(vm::axis::type axis) const;
         public: // entity model

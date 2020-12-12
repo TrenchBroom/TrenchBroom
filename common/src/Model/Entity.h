@@ -58,7 +58,7 @@ namespace TrenchBroom {
         public:
             static const vm::bbox3 DefaultBounds;
         private:
-            std::vector<EntityAttribute> m_attributes;
+            std::vector<EntityProperty> m_attributes;
 
             /**
              * Specifies whether this entity has children or not. This does not necessarily correspond to the
@@ -81,8 +81,8 @@ namespace TrenchBroom {
             mutable std::optional<CachedAttributes> m_cachedAttributes;
         public:
             Entity();
-            explicit Entity(std::vector<EntityAttribute> attributes);
-            explicit Entity(std::initializer_list<EntityAttribute> attributes);
+            explicit Entity(std::vector<EntityProperty> attributes);
+            explicit Entity(std::initializer_list<EntityProperty> attributes);
 
             Entity(const Entity& other);
             Entity(Entity&& other);
@@ -92,8 +92,8 @@ namespace TrenchBroom {
 
             ~Entity();
 
-            const std::vector<EntityAttribute>& attributes() const;
-            void setAttributes(std::vector<EntityAttribute> attributes);
+            const std::vector<EntityProperty>& attributes() const;
+            void setAttributes(std::vector<EntityProperty> attributes);
 
             bool pointEntity() const;
             void setPointEntity(bool pointEntity);
@@ -131,9 +131,9 @@ namespace TrenchBroom {
 
             const vm::mat4x4& rotation() const;
 
-            std::vector<EntityAttribute> attributeWithName(const std::string& name) const;
-            std::vector<EntityAttribute> attributesWithPrefix(const std::string& prefix) const;
-            std::vector<EntityAttribute> numberedAttributes(const std::string& prefix) const;
+            std::vector<EntityProperty> attributeWithName(const std::string& name) const;
+            std::vector<EntityProperty> attributesWithPrefix(const std::string& prefix) const;
+            std::vector<EntityProperty> numberedAttributes(const std::string& prefix) const;
 
             void transform(const vm::mat4x4& transformation);
         private:
@@ -142,8 +142,8 @@ namespace TrenchBroom {
             void invalidateCachedAttributes();
             void validateCachedAttributes() const;
 
-            std::vector<EntityAttribute>::const_iterator findAttribute(const std::string& name) const;
-            std::vector<EntityAttribute>::iterator findAttribute(const std::string& name);
+            std::vector<EntityProperty>::const_iterator findAttribute(const std::string& name) const;
+            std::vector<EntityProperty>::iterator findAttribute(const std::string& name);
         };
 
         bool operator==(const Entity& lhs, const Entity& rhs);

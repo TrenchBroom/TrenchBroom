@@ -142,7 +142,7 @@ namespace TrenchBroom {
             doAttributesDidChange(oldPhysicalBounds);
         }
 
-        void AttributableNode::updateIndexAndLinks(const std::vector<EntityAttribute>& newAttributes) {
+        void AttributableNode::updateIndexAndLinks(const std::vector<EntityProperty>& newAttributes) {
             const auto oldSorted = kdl::vec_sort(m_entity.attributes());
             const auto newSorted = kdl::vec_sort(newAttributes);
 
@@ -150,86 +150,86 @@ namespace TrenchBroom {
             updateLinks(oldSorted, newSorted);
         }
 
-        void AttributableNode::updateAttributeIndex(const std::vector<EntityAttribute>& oldAttributes, const std::vector<EntityAttribute>& newAttributes) {
+        void AttributableNode::updateAttributeIndex(const std::vector<EntityProperty>& oldAttributes, const std::vector<EntityProperty>& newAttributes) {
             auto oldIt = std::begin(oldAttributes);
             auto oldEnd = std::end(oldAttributes);
             auto newIt = std::begin(newAttributes);
             auto newEnd = std::end(newAttributes);
 
             while (oldIt != oldEnd && newIt != newEnd) {
-                const EntityAttribute& oldAttr = *oldIt;
-                const EntityAttribute& newAttr = *newIt;
+                const EntityProperty& oldAttr = *oldIt;
+                const EntityProperty& newAttr = *newIt;
 
                 const int cmp = oldAttr.compare(newAttr);
                 if (cmp < 0) {
-                    removeAttributeFromIndex(oldAttr.name(), oldAttr.value());
+                    removeAttributeFromIndex(oldAttr.key(), oldAttr.value());
                     ++oldIt;
                 } else if (cmp > 0) {
-                    addAttributeToIndex(newAttr.name(), newAttr.value());
+                    addAttributeToIndex(newAttr.key(), newAttr.value());
                     ++newIt;
                 } else {
-                    updateAttributeIndex(oldAttr.name(), oldAttr.value(), newAttr.name(), newAttr.value());
+                    updateAttributeIndex(oldAttr.key(), oldAttr.value(), newAttr.key(), newAttr.value());
                     ++oldIt; ++newIt;
                 }
             }
 
             while (oldIt != oldEnd) {
-                const EntityAttribute& oldAttr = *oldIt;
-                removeAttributeFromIndex(oldAttr.name(), oldAttr.value());
+                const EntityProperty& oldAttr = *oldIt;
+                removeAttributeFromIndex(oldAttr.key(), oldAttr.value());
                 ++oldIt;
             }
 
             while (newIt != newEnd) {
-                const EntityAttribute& newAttr = *newIt;
-                addAttributeToIndex(newAttr.name(), newAttr.value());
+                const EntityProperty& newAttr = *newIt;
+                addAttributeToIndex(newAttr.key(), newAttr.value());
                 ++newIt;
             }
         }
 
-        void AttributableNode::updateLinks(const std::vector<EntityAttribute>& oldAttributes, const std::vector<EntityAttribute>& newAttributes) {
+        void AttributableNode::updateLinks(const std::vector<EntityProperty>& oldAttributes, const std::vector<EntityProperty>& newAttributes) {
             auto oldIt = std::begin(oldAttributes);
             auto oldEnd = std::end(oldAttributes);
             auto newIt = std::begin(newAttributes);
             auto newEnd = std::end(newAttributes);
 
             while (oldIt != oldEnd && newIt != newEnd) {
-                const EntityAttribute& oldAttr = *oldIt;
-                const EntityAttribute& newAttr = *newIt;
+                const EntityProperty& oldAttr = *oldIt;
+                const EntityProperty& newAttr = *newIt;
 
                 const int cmp = oldAttr.compare(newAttr);
                 if (cmp < 0) {
-                    removeLinks(oldAttr.name(), oldAttr.value());
+                    removeLinks(oldAttr.key(), oldAttr.value());
                     ++oldIt;
                 } else if (cmp > 0) {
-                    addLinks(newAttr.name(), newAttr.value());
+                    addLinks(newAttr.key(), newAttr.value());
                     ++newIt;
                 } else {
-                    updateLinks(oldAttr.name(), oldAttr.value(), newAttr.name(), newAttr.value());
+                    updateLinks(oldAttr.key(), oldAttr.value(), newAttr.key(), newAttr.value());
                     ++oldIt; ++newIt;
                 }
             }
 
             while (oldIt != oldEnd) {
-                const EntityAttribute& oldAttr = *oldIt;
-                removeLinks(oldAttr.name(), oldAttr.value());
+                const EntityProperty& oldAttr = *oldIt;
+                removeLinks(oldAttr.key(), oldAttr.value());
                 ++oldIt;
             }
 
             while (newIt != newEnd) {
-                const EntityAttribute& newAttr = *newIt;
-                addLinks(newAttr.name(), newAttr.value());
+                const EntityProperty& newAttr = *newIt;
+                addLinks(newAttr.key(), newAttr.value());
                 ++newIt;
             }
         }
         
         void AttributableNode::addAttributesToIndex() {
-            for (const EntityAttribute& attribute : m_entity.attributes())
-                addAttributeToIndex(attribute.name(), attribute.value());
+            for (const EntityProperty& attribute : m_entity.attributes())
+                addAttributeToIndex(attribute.key(), attribute.value());
         }
 
         void AttributableNode::removeAttributesFromIndex() {
-            for (const EntityAttribute& attribute : m_entity.attributes())
-                removeAttributeFromIndex(attribute.name(), attribute.value());
+            for (const EntityProperty& attribute : m_entity.attributes())
+                removeAttributeFromIndex(attribute.key(), attribute.value());
         }
 
         void AttributableNode::addAttributeToIndex(const std::string& name, const std::string& value) {
@@ -291,15 +291,15 @@ namespace TrenchBroom {
         }
 
         void AttributableNode::findMissingTargets(const std::string& prefix, std::vector<std::string>& result) const {
-            for (const EntityAttribute& attribute : m_entity.numberedAttributes(prefix)) {
+            for (const EntityProperty& attribute : m_entity.numberedAttributes(prefix)) {
                 const std::string& targetname = attribute.value();
                 if (targetname.empty()) {
-                    result.push_back(attribute.name());
+                    result.push_back(attribute.key());
                 } else {
                     std::vector<AttributableNode*> linkTargets;
                     findAttributableNodesWithAttribute(PropertyKeys::Targetname, targetname, linkTargets);
                     if (linkTargets.empty())
-                        result.push_back(attribute.name());
+                        result.push_back(attribute.key());
                 }
             }
         }
@@ -397,7 +397,7 @@ namespace TrenchBroom {
         }
 
         void AttributableNode::addAllLinkTargets() {
-            for (const EntityAttribute& attribute : m_entity.numberedAttributes(PropertyKeys::Target)) {
+            for (const EntityProperty& attribute : m_entity.numberedAttributes(PropertyKeys::Target)) {
                 const std::string& targetname = attribute.value();
                 if (!targetname.empty()) {
                     std::vector<AttributableNode*> linkTargets;
@@ -416,7 +416,7 @@ namespace TrenchBroom {
         }
 
         void AttributableNode::addAllKillTargets() {
-            for (const EntityAttribute& attribute : m_entity.numberedAttributes(PropertyKeys::Killtarget)) {
+            for (const EntityProperty& attribute : m_entity.numberedAttributes(PropertyKeys::Killtarget)) {
                 const std::string& targetname = attribute.value();
                 if (!targetname.empty()) {
                     std::vector<AttributableNode*> killTargets;

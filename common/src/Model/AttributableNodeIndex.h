@@ -29,7 +29,7 @@
 namespace TrenchBroom {
     namespace Model {
         class AttributableNode;
-        class EntityAttribute;
+        class EntityProperty;
 
         using AttributableNodeStringIndex = kdl::compact_trie<AttributableNode*>;
 
@@ -52,7 +52,7 @@ namespace TrenchBroom {
 
             std::set<AttributableNode*> execute(const AttributableNodeStringIndex& index) const;
             bool execute(const AttributableNode* node, const std::string& value) const;
-            std::vector<Model::EntityAttribute> execute(const AttributableNode* node) const;
+            std::vector<Model::EntityProperty> execute(const AttributableNode* node) const;
         private:
             explicit AttributableNodeIndexQuery(Type type, const std::string& pattern = "");
         };

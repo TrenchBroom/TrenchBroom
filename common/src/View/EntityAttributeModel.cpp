@@ -249,8 +249,8 @@ namespace TrenchBroom {
                 }
 
                 // Add explicitly set attributes
-                for (const Model::EntityAttribute& attribute : node->entity().attributes()) {
-                    result.insert(attribute.name());
+                for (const Model::EntityProperty& attribute : node->entity().attributes()) {
+                    result.insert(attribute.key());
                 }
 
                 // Add default attributes from the entity definition

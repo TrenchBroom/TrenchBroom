@@ -68,8 +68,8 @@ namespace TrenchBroom {
         }
 
         void AttributeValueWithDoubleQuotationMarksIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
-            for (const EntityAttribute& attribute : node->entity().attributes()) {
-                const std::string& attributeName = attribute.name();
+            for (const EntityProperty& attribute : node->entity().attributes()) {
+                const std::string& attributeName = attribute.key();
                 const std::string& attributeValue = attribute.value();
                 if (attributeValue.find('"') != std::string::npos) {
                     issues.push_back(new AttributeValueWithDoubleQuotationMarksIssue(node, attributeName));

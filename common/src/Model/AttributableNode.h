@@ -71,9 +71,9 @@ namespace TrenchBroom {
             void attributesWillChange();
             void attributesDidChange(const vm::bbox3& oldPhysicalBounds);
         private: // bulk update after attribute changes
-            void updateIndexAndLinks(const std::vector<EntityAttribute>& newAttributes);
-            void updateAttributeIndex(const std::vector<EntityAttribute>& oldAttributes, const std::vector<EntityAttribute>& newAttributes);
-            void updateLinks(const std::vector<EntityAttribute>& oldAttributes, const std::vector<EntityAttribute>& newAttributes);
+            void updateIndexAndLinks(const std::vector<EntityProperty>& newAttributes);
+            void updateAttributeIndex(const std::vector<EntityProperty>& oldAttributes, const std::vector<EntityProperty>& newAttributes);
+            void updateLinks(const std::vector<EntityProperty>& oldAttributes, const std::vector<EntityProperty>& newAttributes);
         private: // search index management
             void addAttributesToIndex();
             void removeAttributesFromIndex();

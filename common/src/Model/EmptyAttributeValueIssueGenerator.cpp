@@ -83,9 +83,9 @@ namespace TrenchBroom {
         }
 
         void EmptyAttributeValueIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
-            for (const EntityAttribute& attribute : node->entity().attributes()) {
+            for (const EntityProperty& attribute : node->entity().attributes()) {
                 if (attribute.value().empty())
-                    issues.push_back(new EmptyAttributeValueIssue(node, attribute.name()));
+                    issues.push_back(new EmptyAttributeValueIssue(node, attribute.key()));
             }
         }
     }

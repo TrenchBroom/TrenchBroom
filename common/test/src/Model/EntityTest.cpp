@@ -117,13 +117,13 @@ namespace TrenchBroom {
             Entity entity;
             CHECK(!entity.hasAttribute("value"));
             
-            entity.setAttributes({EntityAttribute("name", "value")});
+            entity.setAttributes({ EntityProperty("name", "value")});
             CHECK(entity.hasAttribute("name"));
         }
 
         TEST_CASE("EntityTest.originUpdateWithSetAttributes") {
             Entity entity;
-            entity.setAttributes({EntityAttribute("origin", "10 20 30")});
+            entity.setAttributes({ EntityProperty("origin", "10 20 30")});
 
             CHECK(entity.origin() == vm::vec3(10, 20, 30));
         }
@@ -131,8 +131,8 @@ namespace TrenchBroom {
         TEST_CASE("EntityTest.hasAttributeWithPrefix") {
             Entity entity;
             entity.setAttributes({
-                EntityAttribute("somename", "somevalue"),
-                EntityAttribute("someothername", "someothervalue"),
+                EntityProperty("somename", "somevalue"),
+                EntityProperty("someothername", "someothervalue"),
             });
 
             CHECK(entity.hasAttributeWithPrefix("somename", "somevalue"));
@@ -146,9 +146,9 @@ namespace TrenchBroom {
         TEST_CASE("EntityTest.hasNumberedAttribute") {
             Entity entity;
             entity.setAttributes({
-                EntityAttribute("target", "value"),
-                EntityAttribute("target1", "value1"),
-                EntityAttribute("target2", "value2"),
+                EntityProperty("target", "value"),
+                EntityProperty("target1", "value1"),
+                EntityProperty("target2", "value2"),
             });
 
             CHECK(entity.hasNumberedAttribute("target", "value"));
@@ -190,7 +190,7 @@ namespace TrenchBroom {
 
             SECTION("setAttributes updates cached classname attribute") {
                 entity.setAttributes({
-                    EntityAttribute(PropertyKeys::Classname, "newclass")
+                    EntityProperty(PropertyKeys::Classname, "newclass")
                 });
                 CHECK(*entity.attribute(PropertyKeys::Classname) == "newclass");
                 CHECK(entity.classname() == "newclass");
@@ -234,7 +234,7 @@ namespace TrenchBroom {
 
             SECTION("setAttributes updates cached classname attribute") {
                 entity.setAttributes({
-                    EntityAttribute(PropertyKeys::Origin, "3 4 5")
+                    EntityProperty(PropertyKeys::Origin, "3 4 5")
                 });
                 CHECK(*entity.attribute(PropertyKeys::Origin) == "3 4 5");
                 CHECK(entity.origin() == vm::vec3(3, 4, 5));

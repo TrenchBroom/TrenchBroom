@@ -98,24 +98,26 @@ namespace TrenchBroom {
             return *m_world;
         }
 
-        Model::Node* WorldReader::onWorldspawn(const std::vector<Model::EntityAttribute>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
+        Model::Node* WorldReader::onWorldspawn(const std::vector<Model::EntityProperty>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
             m_world->setEntity(Model::Entity(attributes));
             setExtraAttributes(m_world.get(), extraAttributes);
 
             // handle default layer attributes, which are stored in worldspawn
             auto* defaultLayerNode = m_world->defaultLayer();
-            for (const Model::EntityAttribute& attribute : attributes) {
-                if (attribute.name() == Model::PropertyKeys::LayerColor && Color::canParse(attribute.value())) {
+            for (const Model::EntityProperty& attribute : attributes) {
+                if (attribute.key() == Model::PropertyKeys::LayerColor && Color::canParse(attribute.value())) {
                     auto defaultLayer = defaultLayerNode->layer();
                     defaultLayer.setColor(Color::parse(attribute.value()));
                     defaultLayerNode->setLayer(std::move(defaultLayer));
-                } else if (attribute.hasNameAndValue(Model::PropertyKeys::LayerOmitFromExport, Model::PropertyValues::LayerOmitFromExportValue)) {
+                } else if (attribute.hasKeyAndValue(Model::PropertyKeys::LayerOmitFromExport, Model::PropertyValues::LayerOmitFromExportValue)) {
                     auto defaultLayer = defaultLayerNode->layer();
                     defaultLayer.setOmitFromExport(true);
                     defaultLayerNode->setLayer(std::move(defaultLayer));
-                } else if (attribute.hasNameAndValue(Model::PropertyKeys::LayerLocked, Model::PropertyValues::LayerLockedValue)) {
+                } else if (attribute.hasKeyAndValue(Model::PropertyKeys::LayerLocked,
+                    Model::PropertyValues::LayerLockedValue)) {
                     defaultLayerNode->setLockState(Model::LockState::Lock_Locked);
-                } else if (attribute.hasNameAndValue(Model::PropertyKeys::LayerHidden, Model::PropertyValues::LayerHiddenValue)) {
+                } else if (attribute.hasKeyAndValue(Model::PropertyKeys::LayerHidden,
+                    Model::PropertyValues::LayerHiddenValue)) {
                     defaultLayerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
                 }
             }
