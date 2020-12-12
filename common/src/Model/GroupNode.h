@@ -21,7 +21,8 @@
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Model/AttributableNode.h"
+#include "Model/Group.h"
+#include "Model/Node.h"
 #include "Model/Object.h"
 
 #include <kdl/result_forward.h>
@@ -33,7 +34,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class GroupNode : public AttributableNode, public Object {
+        class GroupNode : public Node, public Object {
         private:
             enum class EditState {
                 Open,
@@ -41,14 +42,16 @@ namespace TrenchBroom {
                 DescendantOpen
             };
 
+            Group m_group;
             EditState m_editState;
             mutable vm::bbox3 m_logicalBounds;
             mutable vm::bbox3 m_physicalBounds;
             mutable bool m_boundsValid;
         public:
-            GroupNode(const std::string& name);
+            GroupNode(std::string name);
 
-            void setName(const std::string& name);
+            const Group& group() const;
+            Group setGroup(Group group);
 
             bool opened() const;
             bool hasOpenedDescendant() const;
@@ -88,10 +91,6 @@ namespace TrenchBroom {
             void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
-        private: // implement AttributableNode interface
-            void doAttributesDidChange(const vm::bbox3& oldBounds) override;
-            vm::vec3 doGetLinkSourceAnchor() const override;
-            vm::vec3 doGetLinkTargetAnchor() const override;
         private: // implement methods inherited from Object
             Node* doGetContainer() override;
             LayerNode* doGetContainingLayer() override;
