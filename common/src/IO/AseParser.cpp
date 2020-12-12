@@ -38,6 +38,15 @@
 
 namespace TrenchBroom {
     namespace IO {
+        namespace {
+            // To be thrown in case we detect a missing closing brace in a block.
+            // See https://github.com/TrenchBroom/TrenchBroom/issues/3627
+            class MalformedAseException : public ParserException {
+            public:
+                using ParserException::ParserException;
+            };
+        };
+
         AseTokenizer::AseTokenizer(std::string_view str) :
         Tokenizer(std::move(str), "", 0) {}
 
@@ -143,7 +152,8 @@ namespace TrenchBroom {
 
             parseBlock({
                 { "MATERIAL_COUNT", std::bind(&AseParser::parseMaterialListMaterialCount, this, std::ref(logger), std::ref(paths)) },
-                { "MATERIAL", std::bind(&AseParser::parseMaterialListMaterial, this, std::ref(logger), std::ref(paths)) }
+                { "MATERIAL", std::bind(&AseParser::parseMaterialListMaterial, this, std::ref(logger), std::ref(paths)) },
+                { "GEOMOBJECT", std::bind(&AseParser::parseMaterialListGeomObject, this, std::ref(logger)) }
             });
         }
 
@@ -193,6 +203,13 @@ namespace TrenchBroom {
             expectDirective("BITMAP");
             const auto token = expect(AseToken::String, m_tokenizer.nextToken());
             path = Path(token.data());
+        }
+
+        void AseParser::parseMaterialListGeomObject(Logger& logger) {
+            // Due to a broken ASE exporter, some ASE files are missing the closing brace: https://github.com/DarklightGames/io_export_ase/issues/6
+            // If we run into a GEOMOBJECT directive while parsing a material list, we throw an exception that is caught in parseBlock.
+            logger.warn() << "At line " << m_tokenizer.line() << ", column " << m_tokenizer.column() << ": Malformed ASE file (missing closing brace of *MATERIAL_LIST)";
+            throw MalformedAseException();
         }
 
         void AseParser::parseGeomObject(Logger& logger, GeomObject& geomObject, const std::vector<Path>& materialPaths) {
@@ -359,7 +376,11 @@ namespace TrenchBroom {
                 const auto it = handlers.find(token.data());
                 if (it != std::end(handlers)) {
                     auto& handler = it->second;
-                    handler();
+                    try {
+                        handler();
+                    } catch (const MalformedAseException& e) {
+                        return; // continue parsing at the current directive
+                    }
                 } else {
                     skipDirective();
                 }

@@ -213,6 +213,35 @@ namespace TrenchBroom {
             ASSERT_NO_THROW(parser.loadFrame(0, *model, logger));
             ASSERT_TRUE(model->frame(0)->loaded());
         }
+
+        TEST_CASE("AseParserTest.parseFailure_3627", "[AseParserTest]") {
+            // Handle missing closing brace of MATERIAL_LIST block, see https://github.com/DarklightGames/io_export_ase/issues/6
+            NullLogger logger;
+
+            const auto defaultAssetsPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets");
+            std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(defaultAssetsPath);
+            
+            const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Ase/missing_closing_brace");
+            fs = std::make_shared<DiskFileSystem>(fs, basePath); 
+
+            const auto shaderSearchPath = Path("scripts");
+            const auto textureSearchPaths = std::vector<Path> { Path("models") };
+            fs = std::make_shared<Quake3ShaderFileSystem>(fs, shaderSearchPath, textureSearchPaths, logger);
+
+            const auto aseFile = fs->openFile(Path("player.ase"));
+            auto reader = aseFile->reader().buffer();
+            AseParser parser("player", reader.stringView(), *fs);
+
+            const auto checkModel = [&]() {
+                auto model = parser.initializeModel(logger);
+                ASSERT_NE(nullptr, model);
+
+                ASSERT_NO_THROW(parser.loadFrame(0, *model, logger));
+                ASSERT_TRUE(model->frame(0)->loaded());
+            };
+
+            CHECK_NOTHROW(checkModel());
+        }
     }
 }
 
