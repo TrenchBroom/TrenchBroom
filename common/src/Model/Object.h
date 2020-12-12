@@ -39,18 +39,18 @@ namespace TrenchBroom {
             LayerNode* containingLayer();
             const LayerNode* containingLayer() const;
 
-            GroupNode* group();
-            const GroupNode* group() const;
+            GroupNode* containingGroup();
+            const GroupNode* containingGroup() const;
 
-            bool grouped() const;
-            bool groupOpened() const;
+            bool containedInGroup() const;
+            bool containingGroupOpened() const;
 
             bool contains(const Node* object) const;
             bool intersects(const Node* object) const;
         private: // subclassing interface
             virtual Node* doGetContainer() = 0;
             virtual LayerNode* doGetContainingLayer() = 0;
-            virtual GroupNode* doGetGroup() = 0;
+            virtual GroupNode* doGetContainingGroup() = 0;
 
             virtual bool doContains(const Node* node) const = 0;
             virtual bool doIntersects(const Node* node) const = 0;

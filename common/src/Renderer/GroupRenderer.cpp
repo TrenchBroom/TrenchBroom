@@ -213,7 +213,7 @@ namespace TrenchBroom {
 
         bool GroupRenderer::shouldRenderGroup(const Model::GroupNode* group) const {
             const auto& currentGroup = m_editorContext.currentGroup();
-            const auto* parentGroup = group->group();
+            const auto* parentGroup = group->containingGroup();
             return parentGroup == currentGroup && m_editorContext.visible(group);
         }
 

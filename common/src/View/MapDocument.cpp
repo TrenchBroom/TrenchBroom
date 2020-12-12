@@ -1408,14 +1408,14 @@ namespace TrenchBroom {
                     [&](Model::GroupNode* group) {
                         assert(group->selected());
 
-                        if (!group->grouped()) {
+                        if (!group->containedInGroup()) {
                             nodesToMove.push_back(group);
                             nodesToSelect.push_back(group);
                         }
                     },
                     [&](Model::EntityNode* entity) {
                         assert(entity->selected());
-                        if (!entity->grouped()) {
+                        if (!entity->containedInGroup()) {
                             nodesToMove.push_back(entity);
                             nodesToSelect.push_back(entity);
                         }
@@ -1423,7 +1423,7 @@ namespace TrenchBroom {
                     [&](Model::BrushNode* brush) {
                         assert(brush->selected());
 
-                        if (!brush->grouped()) {
+                        if (!brush->containedInGroup()) {
                             auto* entity = brush->entity();
                             if (entity == m_world.get()) {
                                 nodesToMove.push_back(brush);

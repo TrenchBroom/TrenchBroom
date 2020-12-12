@@ -472,7 +472,7 @@ namespace TrenchBroom {
 
             // open groups
             std::vector<Model::GroupNode*> groups;
-            for (Model::GroupNode* group = document->currentGroup(); group != nullptr; group = group->group()) {
+            for (Model::GroupNode* group = document->currentGroup(); group != nullptr; group = group->containingGroup()) {
                 groups.push_back(group);
             }
             if (!groups.empty()) {

@@ -215,7 +215,7 @@ namespace TrenchBroom {
 
                 for (const Model::EntityNode* entity : m_entities) {
                     if (m_showHiddenEntities || m_editorContext.visible(entity)) {
-                        if (entity->group() == nullptr || entity->group() == m_editorContext.currentGroup()) {
+                        if (entity->containingGroup() == nullptr || entity->containingGroup() == m_editorContext.currentGroup()) {
                             if (m_showOccludedOverlays)
                                 renderService.setShowOccludedObjects();
                             else
