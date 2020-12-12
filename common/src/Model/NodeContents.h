@@ -21,6 +21,7 @@
 
 #include "Model/Brush.h"
 #include "Model/Entity.h"
+#include "Model/Group.h"
 #include "Model/Layer.h"
 
 #include <variant>
@@ -29,16 +30,16 @@ namespace TrenchBroom {
     namespace Model {
         class NodeContents {
         private:
-            std::variant<Layer, Entity, Brush> m_contents;
+            std::variant<Layer, Group, Entity, Brush> m_contents;
         public:
             /** Unsets cached and derived information of the given objects, i.e.
              *  - for entities, unsets the entity definition and the model
              *  - for brushes, unsets the textures
              */
-            explicit NodeContents(std::variant<Layer, Entity, Brush> contents);
+            explicit NodeContents(std::variant<Layer, Group, Entity, Brush> contents);
 
-            const std::variant<Layer, Entity, Brush>& get() const;
-            std::variant<Layer, Entity, Brush>& get();
+            const std::variant<Layer, Group, Entity, Brush>& get() const;
+            std::variant<Layer, Group, Entity, Brush>& get();
         };
     }
 }
