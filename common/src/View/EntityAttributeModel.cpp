@@ -59,7 +59,7 @@
 namespace TrenchBroom {
     namespace View {
         // helper functions
-        bool isAttributeNameMutable(const Model::Entity& entity, const std::string& name) {
+        static bool isAttributeNameMutable(const Model::Entity& entity, const std::string& name) {
             assert(!Model::isGroup(entity.classname(), entity.attributes()));
             assert(!Model::isLayer(entity.classname(), entity.attributes()));
 
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool isAttributeValueMutable(const Model::Entity& entity, const std::string& name) {
+        static bool isAttributeValueMutable(const Model::Entity& entity, const std::string& name) {
             assert(!Model::isGroup(entity.classname(), entity.attributes()));
             assert(!Model::isLayer(entity.classname(), entity.attributes()));
 
