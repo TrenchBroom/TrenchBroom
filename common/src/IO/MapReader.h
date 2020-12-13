@@ -31,6 +31,7 @@
 #include <vecmath/bbox.h>
 
 #include <map>
+#include <optional>
 #include <string_view>
 #include <vector>
 
@@ -113,7 +114,8 @@ namespace TrenchBroom {
             std::vector<BrushInfo> m_brushInfos;
         private: // data populated by loadBrushes
             struct LoadedBrush {
-                kdl::result<Model::Brush, Model::BrushError> brush;
+                // optional wrapper is just to let this struct be default-constructible
+                std::optional<kdl::result<Model::Brush, Model::BrushError>> brush;
                 ExtraAttributes extraAttributes;
                 size_t startLine;
                 size_t lineCount;

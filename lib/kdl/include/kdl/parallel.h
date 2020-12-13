@@ -67,7 +67,7 @@ namespace kdl {
     }
 
     /**
-     * Applies the given lambda to each element of the input (passing elements as const lvalue references),
+     * Applies the given lambda to each element of the input (passing elements as rvalue references),
      * and returns a vector of the resulting values, in their original order.
      * 
      * The lambda is executed in parallel, using the number of threads returned by std::thread::hardware_concurrency().
@@ -78,18 +78,18 @@ namespace kdl {
      * @tparam T the type of the vector elements
      * @tparam L the type of the lambda to apply
      * @param input the vector
-     * @param transform the lambda to apply, must be of type `auto(const T&)`
+     * @param transform the lambda to apply, must be of type `auto(T&&)`
      * @return a vector containing the transformed values
      */
     template<class T, class L>
-    auto vec_parallel_transform(const std::vector<T>& input, L&& transform) {
-        using ResultType = decltype(transform(std::declval<const T&>()));
+    auto vec_parallel_transform(std::vector<T> input, L&& transform) {
+        using ResultType = decltype(transform(std::declval<T&&>()));
 
         std::vector<ResultType> result;
         result.resize(input.size());
 
         parallel_for(input.size(), [&](const size_t index) {
-            result[index] = transform(input[index]);
+            result[index] = transform(std::move(input[index]));
         });
 
         return result;

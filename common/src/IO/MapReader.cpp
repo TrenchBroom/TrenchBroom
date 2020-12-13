@@ -172,7 +172,7 @@ namespace TrenchBroom {
             // handle the case of parsing no entities, but a list of brushes (NodeReader)
             if (m_entityInfos.empty()) {
                 for (LoadedBrush& loadedBrush : m_loadedBrushes) {
-                    createBrush(std::move(loadedBrush.brush), nullptr, loadedBrush.startLine, loadedBrush.lineCount, std::move(loadedBrush.extraAttributes), status);
+                    createBrush(std::move(*loadedBrush.brush), nullptr, loadedBrush.startLine, loadedBrush.lineCount, std::move(loadedBrush.extraAttributes), status);
                 }
             }
         }
@@ -203,7 +203,7 @@ namespace TrenchBroom {
             // add brushes
             for (size_t i = info.brushesBegin; i < info.brushesEnd; ++i) {
                 LoadedBrush& loadedBrush = m_loadedBrushes.at(i);
-                createBrush(std::move(loadedBrush.brush), m_brushParent, loadedBrush.startLine, loadedBrush.lineCount, std::move(loadedBrush.extraAttributes), status);
+                createBrush(std::move(*loadedBrush.brush), m_brushParent, loadedBrush.startLine, loadedBrush.lineCount, std::move(loadedBrush.extraAttributes), status);
             }
 
             // cleanup
@@ -412,26 +412,17 @@ namespace TrenchBroom {
         void MapReader::loadBrushes(ParserStatus& /* status */) {
             assert(m_loadedBrushes.empty());
 
-            // initialize m_loadedBrushes to the correct size
-            m_loadedBrushes.clear();
-            m_loadedBrushes.reserve(m_brushInfos.size());
-            const auto emptyBrush = kdl::result<Model::Brush, Model::BrushError>::error(Model::BrushError::EmptyBrush);
-            for (size_t i = 0; i < m_brushInfos.size(); ++i) {
-                m_loadedBrushes.push_back(LoadedBrush{emptyBrush, {}, 0, 0});
-            }
-
             // In parallel, create Brush objects (moving faces out of m_brushInfos)
-            kdl::parallel_for(m_brushInfos.size(), [&](const size_t i) {
-                BrushInfo& brushInfo = m_brushInfos[i];
-                LoadedBrush& result = m_loadedBrushes[i];
-
-                result.brush = Model::Brush::create(m_worldBounds, std::move(brushInfo.faces));
+            m_loadedBrushes = kdl::vec_parallel_transform(std::move(m_brushInfos), [&](BrushInfo&& brushInfo) {
+                LoadedBrush result;
+                result.brush = std::make_optional(Model::Brush::create(m_worldBounds, std::move(brushInfo.faces)));
                 result.extraAttributes = std::move(brushInfo.extraAttributes);
                 result.startLine = brushInfo.startLine;
                 result.lineCount = brushInfo.lineCount;
+                return result;
             });
 
-            m_brushInfos.clear();
+            assert(m_brushInfos.empty());
         }
 
         Model::Node* MapReader::resolveParent(const ParentInfo& parentInfo) const {

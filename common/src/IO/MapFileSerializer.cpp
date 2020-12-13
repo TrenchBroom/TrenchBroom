@@ -245,7 +245,7 @@ namespace TrenchBroom {
 
             // serialize brushes to strings in parallel
             using NodeString = std::pair<const Model::Node*, std::string>;
-            std::vector<NodeString> result = kdl::vec_parallel_transform(brushNodes,
+            std::vector<NodeString> result = kdl::vec_parallel_transform(std::move(brushNodes),
                 [&](const Model::BrushNode* node) -> NodeString {
                     std::string string = writeBrushFaces(node->brush());
                     return NodeString(node, std::move(string));
