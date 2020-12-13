@@ -209,15 +209,15 @@ namespace TrenchBroom {
 
                 token = m_tokenizer.peekToken();
                 if (token.hasType(DefToken::Word | DefToken::Minus)) {
-                    if (!addAttribute(classInfo.attributes, parseSpawnflags(status))) {
-                        status.warn(token.line(), token.column(), "Skipping duplicate spawnflags attribute definition");
+                    if (!addPropertyDefinition(classInfo.propertyDefinitions, parseSpawnflags(status))) {
+                        status.warn(token.line(), token.column(), "Skipping duplicate spawnflags property definition");
                     }
                 }
             }
 
             expect(status, DefToken::Newline, m_tokenizer.nextToken());
 
-            parseAttributes(status, classInfo);
+            parseProperties(status, classInfo);
             classInfo.description = kdl::str_trim(parseDescription());
 
             expect(status, DefToken::CDefinition, m_tokenizer.nextToken());
@@ -225,7 +225,7 @@ namespace TrenchBroom {
             return classInfo;
         }
 
-        DefParser::AttributeDefinitionPtr DefParser::parseSpawnflags(ParserStatus& /* status */) {
+        DefParser::PropertyDefinitionPtr DefParser::parseSpawnflags(ParserStatus& /* status */) {
             auto definition = std::make_shared<Assets::FlagsPropertyDefinition>(Model::PropertyKeys::Spawnflags);
             size_t numOptions = 0;
 
@@ -241,14 +241,14 @@ namespace TrenchBroom {
             return definition;
         }
 
-        void DefParser::parseAttributes(ParserStatus& status, EntityDefinitionClassInfo& classInfo) {
+        void DefParser::parseProperties(ParserStatus& status, EntityDefinitionClassInfo& classInfo) {
             if (m_tokenizer.peekToken().type() == DefToken::OBrace) {
                 m_tokenizer.nextToken();
-                while (parseAttribute(status, classInfo));
+                while (parseProperty(status, classInfo));
             }
         }
 
-        bool DefParser::parseAttribute(ParserStatus& status, EntityDefinitionClassInfo& classInfo) {
+        bool DefParser::parseProperty(ParserStatus& status, EntityDefinitionClassInfo& classInfo) {
             Token token = expect(status, DefToken::Word | DefToken::CBrace, nextTokenIgnoringNewlines());
             if (token.type() != DefToken::Word)
                 return false;
@@ -258,35 +258,35 @@ namespace TrenchBroom {
 
             std::string typeName = token.data();
             if (typeName == "default") {
-                // ignore these attributes
-                parseDefaultAttribute(status);
+                // ignore these properties
+                parseDefaultProperty(status);
             } else if (typeName == "base") {
-                classInfo.superClasses.push_back(parseBaseAttribute(status));
+                classInfo.superClasses.push_back(parseBaseProperty(status));
             } else if (typeName == "choice") {
-                auto attribute = parseChoiceAttribute(status);
-                if (!addAttribute(classInfo.attributes, attribute)) {
-                    status.warn(line, column, "Skipping duplicate attribute definition: " + attribute->name());
+                auto propertyDefinition = parseChoicePropertyDefinition(status);
+                if (!addPropertyDefinition(classInfo.propertyDefinitions, propertyDefinition)) {
+                    status.warn(line, column, "Skipping duplicate property definition: " + propertyDefinition->name());
                 }
             } else if (typeName == "model") {
-                classInfo.modelDefinition = parseModel(status);
+                classInfo.modelDefinition = parseModelDefinition(status);
             }
 
             expect(status, DefToken::Semicolon, nextTokenIgnoringNewlines());
             return true;
         }
 
-        void DefParser::parseDefaultAttribute(ParserStatus& status) {
+        void DefParser::parseDefaultProperty(ParserStatus& status) {
             // Token token;
             expect(status, DefToken::OParenthesis, nextTokenIgnoringNewlines());
             expect(status, DefToken::QuotedString, nextTokenIgnoringNewlines());
-            // const std::string attributeName = token.data();
+            // const std::string propertyName = token.data();
             expect(status, DefToken::Comma, nextTokenIgnoringNewlines());
             expect(status, DefToken::QuotedString, nextTokenIgnoringNewlines());
-            // const std::string attributeValue = token.data();
+            // const std::string propertyValue = token.data();
             expect(status, DefToken::CParenthesis, nextTokenIgnoringNewlines());
         }
 
-        std::string DefParser::parseBaseAttribute(ParserStatus& status) {
+        std::string DefParser::parseBaseProperty(ParserStatus& status) {
             expect(status, DefToken::OParenthesis, nextTokenIgnoringNewlines());
             Token token = expect(status, DefToken::QuotedString, nextTokenIgnoringNewlines());
             const std::string basename = token.data();
@@ -295,9 +295,9 @@ namespace TrenchBroom {
             return basename;
         }
 
-        DefParser::AttributeDefinitionPtr DefParser::parseChoiceAttribute(ParserStatus& status) {
+        DefParser::PropertyDefinitionPtr DefParser::parseChoicePropertyDefinition(ParserStatus& status) {
             Token token = expect(status, DefToken::QuotedString, m_tokenizer.nextToken());
-            const std::string attributeName = token.data();
+            const std::string propertyKey = token.data();
 
             Assets::ChoicePropertyOption::List options;
             expect(status, DefToken::OParenthesis, nextTokenIgnoringNewlines());
@@ -317,10 +317,10 @@ namespace TrenchBroom {
 
             expect(status, DefToken::CParenthesis, token);
 
-            return DefParser::AttributeDefinitionPtr(new Assets::ChoicePropertyDefinition(attributeName, "", "", options, false));
+            return DefParser::PropertyDefinitionPtr(new Assets::ChoicePropertyDefinition(propertyKey, "", "", options, false));
         }
 
-        Assets::ModelDefinition DefParser::parseModel(ParserStatus& status) {
+        Assets::ModelDefinition DefParser::parseModelDefinition(ParserStatus& status) {
             expect(status, DefToken::OParenthesis, m_tokenizer.nextToken());
 
             const auto snapshot = m_tokenizer.snapshot();

@@ -177,9 +177,9 @@ namespace TrenchBroom {
             CHECK(output.size() == 1u);
             
             const auto& classInfo = output.front();
-            CHECK(classInfo.attributes.size() == 1u);
+            CHECK(classInfo.propertyDefinitions.size() == 1u);
             
-            const auto attribute = classInfo.attributes.front();
+            const auto attribute = classInfo.propertyDefinitions.front();
             CHECK(attribute->type() == Assets::PropertyDefinitionType::FlagsProperty);
             
             const auto& flagsAttribute = static_cast<const Assets::FlagsPropertyDefinition&>(*attribute.get());

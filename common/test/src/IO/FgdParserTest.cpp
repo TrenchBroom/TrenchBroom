@@ -192,7 +192,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST_CASE("FgdParserTest.parseBaseClass", "[FgdParserTest]") {
+        TEST_CASE("FgdParserTest.parseBaseProperty", "[FgdParserTest]") {
             const std::string file =
             "@baseclass = Appearflags [\n"
             "	spawnflags(Flags) =\n"
@@ -321,7 +321,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST_CASE("FgdParserTest.parseStringAttribute", "[FgdParserTest]") {
+        TEST_CASE("FgdParserTest.parseStringPropertyDefinition", "[FgdParserTest]") {
             const std::string file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
@@ -419,7 +419,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST_CASE("FgdParserTest.parseIntegerAttribute", "[FgdParserTest]") {
+        TEST_CASE("FgdParserTest.parseIntegerPropertyDefinition", "[FgdParserTest]") {
             const std::string file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
@@ -493,7 +493,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST_CASE("FgdParserTest.parseFloatAttribute", "[FgdParserTest]") {
+        TEST_CASE("FgdParserTest.parseFloatPropertyDefinition", "[FgdParserTest]") {
             const std::string file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
@@ -540,7 +540,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST_CASE("FgdParserTest.parseChoiceAttribute", "[FgdParserTest]") {
+        TEST_CASE("FgdParserTest.parseChoicePropertyDefinition", "[FgdParserTest]") {
             const std::string file = R"%(
             @PointClass = info_notnull : "Wildcard entity" // I love you\n
 [
@@ -682,7 +682,7 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(definitions);
         }
 
-        TEST_CASE("FgdParserTest.parseFlagsAttribute", "[FgdParserTest]") {
+        TEST_CASE("FgdParserTest.parseFlagsPropertyDefinition", "[FgdParserTest]") {
             const std::string file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"

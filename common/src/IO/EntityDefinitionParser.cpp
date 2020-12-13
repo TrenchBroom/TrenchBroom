@@ -92,11 +92,11 @@ namespace TrenchBroom {
                 inheritingClass.size = superClass.size;
             }
 
-            for (const auto& attribute : superClass.attributes) {
-                auto it = std::find_if(std::begin(inheritingClass.attributes), std::end(inheritingClass.attributes),
+            for (const auto& attribute : superClass.propertyDefinitions) {
+                auto it = std::find_if(std::begin(inheritingClass.propertyDefinitions), std::end(inheritingClass.propertyDefinitions),
                     [&](const auto& a) { return a->name() == attribute->name(); });
-                if (it == std::end(inheritingClass.attributes)) {
-                    inheritingClass.attributes.push_back(attribute);
+                if (it == std::end(inheritingClass.propertyDefinitions)) {
+                    inheritingClass.propertyDefinitions.push_back(attribute);
                 } else {
                     auto mergedAttribute = mergeAttributes(**it, *attribute);
                     if (mergedAttribute != nullptr) {
@@ -312,7 +312,7 @@ namespace TrenchBroom {
             const auto color = classInfo.color.value_or(m_defaultEntityColor);
             const auto size = classInfo.size.value_or(DefaultSize);
             auto description = classInfo.description.value_or("");
-            auto& attributes = classInfo.attributes;
+            auto& attributes = classInfo.propertyDefinitions;
             auto modelDefinition = classInfo.modelDefinition.value_or(Assets::ModelDefinition());
             
             switch (classInfo.type) {

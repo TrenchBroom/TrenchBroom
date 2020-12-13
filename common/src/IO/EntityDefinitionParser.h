@@ -44,9 +44,9 @@ namespace TrenchBroom {
             Color m_defaultEntityColor;
         protected:
             using EntityDefinitionList = std::vector<Assets::EntityDefinition*>;
-            using AttributeDefinitionPtr = std::shared_ptr<Assets::PropertyDefinition>;
-            using AttributeDefinitionList = std::vector<AttributeDefinitionPtr>;
-            using AttributeDefinitionMap = std::unordered_map<std::string, AttributeDefinitionPtr>;
+            using PropertyDefinitionPtr = std::shared_ptr<Assets::PropertyDefinition>;
+            using PropertyDefinitionList = std::vector<PropertyDefinitionPtr>;
+            using PropertyDefinitionMap = std::unordered_map<std::string, PropertyDefinitionPtr>;
         public:
             EntityDefinitionParser(const Color& defaultEntityColor);
             virtual ~EntityDefinitionParser();

@@ -56,11 +56,11 @@ namespace TrenchBroom {
             std::optional<vm::bbox3> size;
             std::optional<Assets::ModelDefinition> modelDefinition;
 
-            std::vector<std::shared_ptr<Assets::PropertyDefinition>> attributes;
+            std::vector<std::shared_ptr<Assets::PropertyDefinition>> propertyDefinitions;
             std::vector<std::string> superClasses;
         };
 
-        bool addAttribute(std::vector<std::shared_ptr<Assets::PropertyDefinition>>& attributes, std::shared_ptr<Assets::PropertyDefinition> attribute);
+        bool addPropertyDefinition(std::vector<std::shared_ptr<Assets::PropertyDefinition>>& propertyDefinitions, std::shared_ptr<Assets::PropertyDefinition> propertyDefinition);
 
         bool operator==(const EntityDefinitionClassInfo& lhs, const EntityDefinitionClassInfo& rhs);
         bool operator!=(const EntityDefinitionClassInfo& lhs, const EntityDefinitionClassInfo& rhs);
