@@ -38,9 +38,9 @@ namespace TrenchBroom {
     namespace IO {
         static void doWriteNodes(NodeSerializer& serializer, const std::vector<Model::Node*>& nodes, const Model::Node* parent = nullptr) {
             auto parentStack = std::vector<const Model::Node*>{ parent };
-            const auto parentAttributes = [&]() {
+            const auto parentProperties = [&]() {
                 assert(!parentStack.empty());
-                return serializer.parentAttributes(parentStack.back());
+                return serializer.parentProperties(parentStack.back());
             };
 
             for (const auto* node : nodes) {
@@ -48,14 +48,14 @@ namespace TrenchBroom {
                     [] (const Model::WorldNode*) {},
                     [] (const Model::LayerNode*) {},
                     [&](auto&& thisLambda, const Model::GroupNode* group) {
-                        serializer.group(group, parentAttributes());
+                        serializer.group(group, parentProperties());
 
                         parentStack.push_back(group);
                         group->visitChildren(thisLambda);
                         parentStack.pop_back();
                     },
                     [&](const Model::EntityNode* entityNode) {
-                        serializer.entity(entityNode, entityNode->entity().properties(), parentAttributes(), entityNode);
+                        serializer.entity(entityNode, entityNode->entity().properties(), parentProperties(), entityNode);
                     },
                     [] (const Model::BrushNode*) {}
                 ));

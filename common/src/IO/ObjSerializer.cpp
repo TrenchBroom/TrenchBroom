@@ -135,7 +135,7 @@ namespace TrenchBroom {
 
         void ObjFileSerializer::doBeginEntity(const Model::Node* /* node */) {}
         void ObjFileSerializer::doEndEntity(const Model::Node* /* node */) {}
-        void ObjFileSerializer::doEntityAttribute(const Model::EntityProperty& /* attribute */) {}
+        void ObjFileSerializer::doEntityProperty(const Model::EntityProperty& /* property */) {}
 
         void ObjFileSerializer::doBrush(const Model::BrushNode* brush) {
             m_currentObject.entityNo = entityNo();
