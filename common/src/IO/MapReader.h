@@ -111,7 +111,7 @@ namespace TrenchBroom {
             };
             std::vector<EntityInfo> m_entityInfos;
             std::vector<BrushInfo> m_brushInfos;
-        private: // data populated by resolveBrushes
+        private: // data populated by loadBrushes
             struct LoadedBrush {
                 kdl::result<Model::Brush, Model::BrushError> brush;
                 ExtraAttributes extraAttributes;
@@ -119,7 +119,7 @@ namespace TrenchBroom {
                 size_t lineCount;
             };
             std::vector<LoadedBrush> m_loadedBrushes;
-        private: // state used in processing m_objects
+        private:
             Model::Node* m_brushParent;
             Model::Node* m_currentNode;
             LayerMap m_layers;

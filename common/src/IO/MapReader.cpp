@@ -41,6 +41,7 @@
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
+#include <cassert>
 #include <map>
 #include <string>
 #include <vector>
@@ -158,7 +159,7 @@ namespace TrenchBroom {
                     }
                 ));
         }
-    
+
         // helper methods
 
         void MapReader::createNodes(ParserStatus& status) {
@@ -405,7 +406,12 @@ namespace TrenchBroom {
             }
         }
 
+        /**
+         * Transforms m_brushInfos into m_loadedBrushes (leaving m_brushInfos empty).
+         */
         void MapReader::loadBrushes(ParserStatus& /* status */) {
+            assert(m_loadedBrushes.empty());
+
             // initialize m_loadedBrushes to the correct size
             m_loadedBrushes.clear();
             m_loadedBrushes.reserve(m_brushInfos.size());
