@@ -45,7 +45,7 @@ namespace TrenchBroom {
             public:
                 using ParserException::ParserException;
             };
-        };
+        }
 
         AseTokenizer::AseTokenizer(std::string_view str) :
         Tokenizer(std::move(str), "", 0) {}
