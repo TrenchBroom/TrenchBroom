@@ -301,7 +301,7 @@ namespace TrenchBroom {
         }
 
         std::vector<IO::Path> GameImpl::doExtractTextureCollections(const Entity& entity) const {
-            const auto& property = m_config.textureConfig().attribute;
+            const auto& property = m_config.textureConfig().property;
             if (property.empty()) {
                 return {};
             }
@@ -315,7 +315,7 @@ namespace TrenchBroom {
         }
 
         void GameImpl::doUpdateTextureCollections(Entity& entity, const std::vector<IO::Path>& paths) const {
-            const auto& attribute = m_config.textureConfig().attribute;
+            const auto& attribute = m_config.textureConfig().property;
             if (attribute.empty()) {
                 return;
             }

@@ -165,11 +165,11 @@ namespace TrenchBroom {
             const Model::TexturePackageConfig packageConfig = parseTexturePackageConfig(value["package"]);
             const Model::PackageFormatConfig formatConfig = parsePackageFormatConfig(value["format"]);
             const Path palette(value["palette"].stringValue());
-            const std::string attribute = value["attribute"].stringValue();
+            const std::string property = value["attribute"].stringValue();
             const Path shaderSearchPath(value["shaderSearchPath"].stringValue());
             const std::vector<std::string> excludes = std::vector<std::string>(value["excludes"].asStringList());
 
-            return Model::TextureConfig(packageConfig, formatConfig, palette, attribute, shaderSearchPath, excludes);
+            return Model::TextureConfig(packageConfig, formatConfig, palette, property, shaderSearchPath, excludes);
         }
 
         Model::TexturePackageConfig GameConfigParser::parseTexturePackageConfig(const EL::Value& value) const {
