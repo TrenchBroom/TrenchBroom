@@ -257,7 +257,7 @@ namespace TrenchBroom {
                 if (showDefaultRows) {
                     const Assets::EntityDefinition* entityDefinition = node->entity().definition();
                     if (entityDefinition != nullptr) {
-                       for (auto attributeDefinition : entityDefinition->attributeDefinitions()) {
+                       for (auto attributeDefinition : entityDefinition->propertyDefinitions()) {
                            result.insert(attributeDefinition->name());
                        }
                     }
@@ -500,7 +500,7 @@ namespace TrenchBroom {
 
             // also add keys from all loaded entity definitions
             for (const auto* entityDefinition : document->entityDefinitionManager().definitions()) {
-                for (const auto& attributeDefinition : entityDefinition->attributeDefinitions()) {
+                for (const auto& attributeDefinition : entityDefinition->propertyDefinitions()) {
                     result.insert(attributeDefinition->name());
                 }
             }

@@ -156,7 +156,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(std::string("World entity"), definition->description());
 
-            const auto& attributes = definition->attributeDefinitions();
+            const auto& attributes = definition->propertyDefinitions();
             ASSERT_EQ(6u, attributes.size());
 
             kdl::vec_clear_and_delete(definitions);
@@ -186,7 +186,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(std::string("Wildcard entity"), definition->description());
 
-            const auto& attributes = definition->attributeDefinitions();
+            const auto& attributes = definition->propertyDefinitions();
             ASSERT_EQ(5u, attributes.size());
 
             kdl::vec_clear_and_delete(definitions);
@@ -251,7 +251,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(std::string("Wildcard entity"), definition->description());
 
-            const auto& attributes = definition->attributeDefinitions();
+            const auto& attributes = definition->propertyDefinitions();
             ASSERT_EQ(9u, attributes.size());
 
             kdl::vec_clear_and_delete(definitions);
@@ -277,7 +277,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(std::string("Wildcard entity"), definition->description());
 
-            const auto& attributes = definition->attributeDefinitions();
+            const auto& attributes = definition->propertyDefinitions();
             ASSERT_EQ(1u, attributes.size());
 
             auto attribute = attributes[0];
@@ -309,7 +309,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(std::string("Wildcard entity"), definition->description());
 
-            const auto& attributes = definition->attributeDefinitions();
+            const auto& attributes = definition->propertyDefinitions();
             ASSERT_EQ(1u, attributes.size());
 
             auto attribute = attributes[0];
@@ -342,9 +342,9 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(std::string("Wildcard entity"), definition->description());
 
-            ASSERT_EQ(2u, definition->attributeDefinitions().size());
+            ASSERT_EQ(2u, definition->propertyDefinitions().size());
 
-            const Assets::PropertyDefinition* attribute1 = definition->attributeDefinition("message");
+            const Assets::PropertyDefinition* attribute1 = definition->propertyDefinition("message");
             ASSERT_TRUE(attribute1 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::StringProperty, attribute1->type());
 
@@ -354,7 +354,7 @@ namespace TrenchBroom {
             ASSERT_EQ(std::string("Long description 1"), stringAttribute1->longDescription());
             ASSERT_FALSE(stringAttribute1->hasDefaultValue());
 
-            const Assets::PropertyDefinition* attribute2 = definition->attributeDefinition("message2");
+            const Assets::PropertyDefinition* attribute2 = definition->propertyDefinition("message2");
             ASSERT_TRUE(attribute2 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::StringProperty, attribute2->type());
 
@@ -392,9 +392,9 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(std::string("Wildcard entity"), definition->description());
 
-            ASSERT_EQ(2u, definition->attributeDefinitions().size());
+            ASSERT_EQ(2u, definition->propertyDefinitions().size());
 
-            const Assets::PropertyDefinition* attribute1 = definition->attributeDefinition("name");
+            const Assets::PropertyDefinition* attribute1 = definition->propertyDefinition("name");
             ASSERT_TRUE(attribute1 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::StringProperty, attribute1->type());
 
@@ -405,7 +405,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(stringAttribute1->hasDefaultValue());
             ASSERT_EQ(std::string("3"), stringAttribute1->defaultValue());
 
-            const Assets::PropertyDefinition* attribute2 = definition->attributeDefinition("other");
+            const Assets::PropertyDefinition* attribute2 = definition->propertyDefinition("other");
             ASSERT_TRUE(attribute2 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::StringProperty, attribute2->type());
 
@@ -440,9 +440,9 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(std::string("Wildcard entity"), definition->description());
 
-            ASSERT_EQ(2u, definition->attributeDefinitions().size());
+            ASSERT_EQ(2u, definition->propertyDefinitions().size());
 
-            const Assets::PropertyDefinition* attribute1 = definition->attributeDefinition("sounds");
+            const Assets::PropertyDefinition* attribute1 = definition->propertyDefinition("sounds");
             ASSERT_TRUE(attribute1 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::IntegerProperty, attribute1->type());
 
@@ -452,7 +452,7 @@ namespace TrenchBroom {
             ASSERT_EQ(std::string("Longer description"), intAttribute1->longDescription());
             ASSERT_FALSE(intAttribute1->hasDefaultValue());
 
-            const Assets::PropertyDefinition* attribute2 = definition->attributeDefinition("sounds2");
+            const Assets::PropertyDefinition* attribute2 = definition->propertyDefinition("sounds2");
             ASSERT_TRUE(attribute2 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::IntegerProperty, attribute2->type());
 
@@ -482,12 +482,12 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(2u, definition->attributeDefinitions().size());
+            ASSERT_EQ(2u, definition->propertyDefinitions().size());
 
-            const Assets::PropertyDefinition* attribute1 = definition->attributeDefinition("sounds");
+            const Assets::PropertyDefinition* attribute1 = definition->propertyDefinition("sounds");
             ASSERT_TRUE(attribute1->readOnly());
 
-            const Assets::PropertyDefinition* attribute2 = definition->attributeDefinition("sounds2");
+            const Assets::PropertyDefinition* attribute2 = definition->propertyDefinition("sounds2");
             ASSERT_FALSE(attribute2->readOnly());
 
             kdl::vec_clear_and_delete(definitions);
@@ -514,9 +514,9 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(std::string("Wildcard entity"), definition->description());
 
-            ASSERT_EQ(2u, definition->attributeDefinitions().size());
+            ASSERT_EQ(2u, definition->propertyDefinitions().size());
 
-            const Assets::PropertyDefinition* attribute1 = definition->attributeDefinition("test");
+            const Assets::PropertyDefinition* attribute1 = definition->propertyDefinition("test");
             ASSERT_TRUE(attribute1 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::FloatProperty, attribute1->type());
 
@@ -526,7 +526,7 @@ namespace TrenchBroom {
             ASSERT_EQ(std::string("Longer description 1"), floatAttribute1->longDescription());
             ASSERT_FALSE(floatAttribute1->hasDefaultValue());
 
-            const Assets::PropertyDefinition* attribute2 = definition->attributeDefinition("test2");
+            const Assets::PropertyDefinition* attribute2 = definition->propertyDefinition("test2");
             ASSERT_TRUE(attribute2 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::FloatProperty, attribute2->type());
 
@@ -589,9 +589,9 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(std::string("Wildcard entity"), definition->description());
 
-            ASSERT_EQ(5u, definition->attributeDefinitions().size());
+            ASSERT_EQ(5u, definition->propertyDefinitions().size());
 
-            const Assets::PropertyDefinition* attribute1 = definition->attributeDefinition("worldtype");
+            const Assets::PropertyDefinition* attribute1 = definition->propertyDefinition("worldtype");
             ASSERT_TRUE(attribute1 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::ChoiceProperty, attribute1->type());
 
@@ -610,7 +610,7 @@ namespace TrenchBroom {
             ASSERT_EQ(std::string("2"), options1[2].value());
             ASSERT_EQ(std::string("Base"), options1[2].description());
 
-            const Assets::PropertyDefinition* attribute2 = definition->attributeDefinition("worldtype2");
+            const Assets::PropertyDefinition* attribute2 = definition->propertyDefinition("worldtype2");
             ASSERT_TRUE(attribute2 != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::ChoiceProperty, attribute2->type());
 
@@ -628,7 +628,7 @@ namespace TrenchBroom {
             ASSERT_EQ(std::string("1"), options2[1].value());
             ASSERT_EQ(std::string("Metal (runic)"), options2[1].description());
 
-            const Assets::PropertyDefinition* attribute3 = definition->attributeDefinition("puzzle_id");
+            const Assets::PropertyDefinition* attribute3 = definition->propertyDefinition("puzzle_id");
             const Assets::ChoicePropertyDefinition* choiceAttribute3 = static_cast<const Assets::ChoicePropertyDefinition*>(attribute3);
             ASSERT_EQ(std::string("puzzle_id"), choiceAttribute3->name());
             ASSERT_EQ(std::string("Puzzle id"), choiceAttribute3->shortDescription());
@@ -645,7 +645,7 @@ namespace TrenchBroom {
             ASSERT_EQ(std::string("scrol"), options3[2].value());
             ASSERT_EQ(std::string("Disrupt Magic Scroll"), options3[2].description());
 
-            const Assets::PropertyDefinition* attribute4 = definition->attributeDefinition("floaty");
+            const Assets::PropertyDefinition* attribute4 = definition->propertyDefinition("floaty");
             const Assets::ChoicePropertyDefinition* choiceAttribute4 = static_cast<const Assets::ChoicePropertyDefinition*>(attribute4);
             ASSERT_EQ(std::string("floaty"), choiceAttribute4->name());
             ASSERT_EQ(std::string("Floaty"), choiceAttribute4->shortDescription());
@@ -662,7 +662,7 @@ namespace TrenchBroom {
             ASSERT_EQ(std::string("0.1"), options4[2].value());
             ASSERT_EQ(std::string("Yet more"), options4[2].description());
 
-            const Assets::PropertyDefinition* attribute5 = definition->attributeDefinition("negative");
+            const Assets::PropertyDefinition* attribute5 = definition->propertyDefinition("negative");
             const Assets::ChoicePropertyDefinition* choiceAttribute5 = static_cast<const Assets::ChoicePropertyDefinition*>(attribute5);
             ASSERT_EQ(std::string("negative"), choiceAttribute5->name());
             ASSERT_EQ(std::string("Negative values"), choiceAttribute5->shortDescription());
@@ -708,9 +708,9 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(std::string("Wildcard entity"), definition->description());
 
-            ASSERT_EQ(1u, definition->attributeDefinitions().size());
+            ASSERT_EQ(1u, definition->propertyDefinitions().size());
 
-            const Assets::PropertyDefinition* attribute = definition->attributeDefinition("spawnflags");
+            const Assets::PropertyDefinition* attribute = definition->propertyDefinition("spawnflags");
             ASSERT_TRUE(attribute != nullptr);
             ASSERT_EQ(Assets::PropertyDefinitionType::FlagsProperty, attribute->type());
 

@@ -52,15 +52,15 @@ namespace TrenchBroom {
 
         class EntityDefinition {
         protected:
-            using AttributeDefinitionPtr = std::shared_ptr<PropertyDefinition>;
-            using AttributeDefinitionList = std::vector<AttributeDefinitionPtr>;
+            using PropertyDefinitionPtr = std::shared_ptr<PropertyDefinition>;
+            using PropertyDefinitionList = std::vector<PropertyDefinitionPtr>;
         private:
             size_t m_index;
             std::string m_name;
             Color m_color;
             std::string m_description;
             size_t m_usageCount;
-            AttributeDefinitionList m_attributeDefinitions;
+            PropertyDefinitionList m_propertyDefinitions;
         public:
             Notifier<> usageCountDidChangeNotifier;
         public:
@@ -80,15 +80,15 @@ namespace TrenchBroom {
             void decUsageCount();
 
             const FlagsPropertyDefinition* spawnflags() const;
-            const AttributeDefinitionList& attributeDefinitions() const;
-            const PropertyDefinition* attributeDefinition(const std::string& attributeKey) const;
+            const PropertyDefinitionList& propertyDefinitions() const;
+            const PropertyDefinition* propertyDefinition(const std::string& propertyKey) const;
 
-            static const PropertyDefinition* safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const std::string& attributeName);
-            static const FlagsPropertyDefinition* safeGetFlagsAttributeDefinition(const EntityDefinition* entityDefinition, const std::string& attributeName);
+            static const PropertyDefinition* safeGetPropertyDefinition(const EntityDefinition* entityDefinition, const std::string& propertyKey);
+            static const FlagsPropertyDefinition* safeGetFlagsPropertyDefinition(const EntityDefinition* entityDefinition, const std::string& propertyKey);
 
             static std::vector<EntityDefinition*> filterAndSort(const std::vector<EntityDefinition*>& definitions, EntityDefinitionType type, EntityDefinitionSortOrder prder = EntityDefinitionSortOrder::Name);
         protected:
-            EntityDefinition(const std::string& name, const Color& color, const std::string& description, const AttributeDefinitionList& attributeDefinitions);
+            EntityDefinition(const std::string& name, const Color& color, const std::string& description, const PropertyDefinitionList& propertyDefinitions);
         };
 
         class PointEntityDefinition : public EntityDefinition {
@@ -96,7 +96,7 @@ namespace TrenchBroom {
             vm::bbox3 m_bounds;
             ModelDefinition m_modelDefinition;
         public:
-            PointEntityDefinition(const std::string& name, const Color& color, const vm::bbox3& bounds, const std::string& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition);
+            PointEntityDefinition(const std::string& name, const Color& color, const vm::bbox3& bounds, const std::string& description, const PropertyDefinitionList& propertyDefinitions, const ModelDefinition& modelDefinition);
 
             EntityDefinitionType type() const override;
             const vm::bbox3& bounds() const;
@@ -107,7 +107,7 @@ namespace TrenchBroom {
 
         class BrushEntityDefinition : public EntityDefinition {
         public:
-            BrushEntityDefinition(const std::string& name, const Color& color, const std::string& description, const AttributeDefinitionList& attributeDefinitions);
+            BrushEntityDefinition(const std::string& name, const Color& color, const std::string& description, const PropertyDefinitionList& propertyDefinitions);
             EntityDefinitionType type() const override;
         };
     }

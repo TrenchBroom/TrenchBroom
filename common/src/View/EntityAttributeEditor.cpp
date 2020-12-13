@@ -174,7 +174,8 @@ namespace TrenchBroom {
 
             if (entityDefinition != nullptr) {
                 // add attribute documentation, if available
-                const Assets::PropertyDefinition* attributeDefinition = entityDefinition->attributeDefinition(attributeName);
+                const Assets::PropertyDefinition* attributeDefinition = entityDefinition->propertyDefinition(
+                    attributeName);
                 if (attributeDefinition != nullptr) {
                     const QString optionsDescription = optionDescriptions(*attributeDefinition);
 

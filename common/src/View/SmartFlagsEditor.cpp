@@ -100,7 +100,8 @@ namespace TrenchBroom {
                     QString label = defaultLabels[indexI];
                     QString tooltip = "";
 
-                    const Assets::FlagsPropertyDefinition* attrDef = Assets::EntityDefinition::safeGetFlagsAttributeDefinition(attributable->entity().definition(), name());
+                    const Assets::FlagsPropertyDefinition* attrDef = Assets::EntityDefinition::safeGetFlagsPropertyDefinition(
+                        attributable->entity().definition(), name());
                     if (attrDef != nullptr) {
                         const int flag = static_cast<int>(1 << i);
                         const Assets::FlagsPropertyOption* flagDef = attrDef->option(flag);

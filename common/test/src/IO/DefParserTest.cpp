@@ -156,7 +156,7 @@ namespace TrenchBroom {
                              "Set sounds to the cd track to play. "
                              "\"worldtype\"	type of world"), definition->description());
 
-            const auto& attributes = definition->attributeDefinitions();
+            const auto& attributes = definition->propertyDefinitions();
             ASSERT_EQ(1u, attributes.size());
 
             kdl::vec_clear_and_delete(definitions);
@@ -185,7 +185,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(vm::vec3(-16.0, -16.0, -24.0), pointDefinition->bounds().min);
             ASSERT_VEC_EQ(vm::vec3(16.0, 16.0, 32.0), pointDefinition->bounds().max);
 
-            const auto& attributes = definition->attributeDefinitions();
+            const auto& attributes = definition->propertyDefinitions();
             ASSERT_EQ(1u, attributes.size()); // spawnflags
 
             const auto attribute = attributes[0];
@@ -232,7 +232,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(vm::vec3(-16.0, -16.0, -16.0), pointDefinition->bounds().min);
             ASSERT_VEC_EQ(vm::vec3(16.0, 16.0, 16.0), pointDefinition->bounds().max);
 
-            const auto& attributes = definition->attributeDefinitions();
+            const auto& attributes = definition->propertyDefinitions();
             ASSERT_EQ(1u, attributes.size()); // spawnflags
 
             const auto attribute = attributes[0];
@@ -284,7 +284,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(Color(0.3f, 0.3f, 1.0f, 1.0f), definition->color());
             ASSERT_EQ(std::string("some desc"), definition->description());
 
-            const auto& attributes = definition->attributeDefinitions();
+            const auto& attributes = definition->propertyDefinitions();
             ASSERT_EQ(1u, attributes.size()); // spawnflags
 
             const auto attribute = attributes[0];
@@ -357,14 +357,14 @@ namespace TrenchBroom {
             CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
             CHECK(definition->name() == "light");
 
-            CHECK(definition->attributeDefinitions().size() == 2u);
+            CHECK(definition->propertyDefinitions().size() == 2u);
 
-            const auto* styleAttribute = definition->attributeDefinition("style");
+            const auto* styleAttribute = definition->propertyDefinition("style");
             CHECK(styleAttribute != nullptr);
             CHECK(styleAttribute->name() == "style");
             CHECK(styleAttribute->type() == Assets::PropertyDefinitionType::ChoiceProperty);
 
-            const auto* spawnflagsAttribute = definition->attributeDefinition(Model::PropertyKeys::Spawnflags);
+            const auto* spawnflagsAttribute = definition->propertyDefinition(Model::PropertyKeys::Spawnflags);
             CHECK(spawnflagsAttribute != nullptr);
             CHECK(spawnflagsAttribute->name() == Model::PropertyKeys::Spawnflags);
             CHECK(spawnflagsAttribute->type() == Assets::PropertyDefinitionType::FlagsProperty);

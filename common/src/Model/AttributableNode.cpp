@@ -47,7 +47,7 @@ namespace TrenchBroom {
 
         const Assets::PropertyDefinition* attributeDefinition(const AttributableNode* node, const std::string& name) {
             const auto* definition = node->entity().definition();
-            return definition ? definition->attributeDefinition(name) : nullptr;
+            return definition ? definition->propertyDefinition(name) : nullptr;
         }
 
         const Assets::PropertyDefinition* selectAttributeDefinition(const std::string& name, const std::vector<AttributableNode*>& attributables) {

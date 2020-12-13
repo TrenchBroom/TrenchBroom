@@ -84,42 +84,42 @@ namespace TrenchBroom {
         }
 
         const FlagsPropertyDefinition* EntityDefinition::spawnflags() const {
-            for (const auto& attributeDefinition : m_attributeDefinitions) {
-                if (attributeDefinition->type() == PropertyDefinitionType::FlagsProperty &&
-                    attributeDefinition->name() == Model::PropertyKeys::Spawnflags) {
-                    return static_cast<FlagsPropertyDefinition*>(attributeDefinition.get());
+            for (const auto& propertyDefinition : m_propertyDefinitions) {
+                if (propertyDefinition->type() == PropertyDefinitionType::FlagsProperty &&
+                    propertyDefinition->name() == Model::PropertyKeys::Spawnflags) {
+                    return static_cast<FlagsPropertyDefinition*>(propertyDefinition.get());
                 }
             }
             return nullptr;
         }
 
-        const EntityDefinition::AttributeDefinitionList& EntityDefinition::attributeDefinitions() const {
-            return m_attributeDefinitions;
+        const EntityDefinition::PropertyDefinitionList& EntityDefinition::propertyDefinitions() const {
+            return m_propertyDefinitions;
         }
 
-        const PropertyDefinition* EntityDefinition::attributeDefinition(const std::string& attributeKey) const {
-            for (const auto& attributeDefinition : m_attributeDefinitions) {
-                if (attributeDefinition->name() == attributeKey) {
-                    return attributeDefinition.get();
+        const PropertyDefinition* EntityDefinition::propertyDefinition(const std::string& propertyKey) const {
+            for (const auto& propertyDefinition : m_propertyDefinitions) {
+                if (propertyDefinition->name() == propertyKey) {
+                    return propertyDefinition.get();
                 }
             }
             return nullptr;
         }
 
-        const PropertyDefinition* EntityDefinition::safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const std::string& attributeName) {
+        const PropertyDefinition* EntityDefinition::safeGetPropertyDefinition(const EntityDefinition* entityDefinition, const std::string& propertyKey) {
             if (entityDefinition == nullptr)
                 return nullptr;
-            return entityDefinition->attributeDefinition(attributeName);
+            return entityDefinition->propertyDefinition(propertyKey);
         }
 
-        const FlagsPropertyDefinition* EntityDefinition::safeGetFlagsAttributeDefinition(const EntityDefinition* entityDefinition, const std::string& attributeName) {
+        const FlagsPropertyDefinition* EntityDefinition::safeGetFlagsPropertyDefinition(const EntityDefinition* entityDefinition, const std::string& propertyKey) {
             if (entityDefinition == nullptr)
                 return nullptr;
-            const PropertyDefinition* attributeDefinition = entityDefinition->attributeDefinition(attributeName);
-            if (attributeDefinition == nullptr || attributeDefinition->type() != PropertyDefinitionType::FlagsProperty) {
+            const PropertyDefinition* propertyDefinition = entityDefinition->propertyDefinition(propertyKey);
+            if (propertyDefinition == nullptr || propertyDefinition->type() != PropertyDefinitionType::FlagsProperty) {
                 return nullptr;
             }
-            return static_cast<const FlagsPropertyDefinition*>(attributeDefinition);
+            return static_cast<const FlagsPropertyDefinition*>(propertyDefinition);
         }
 
         std::vector<EntityDefinition*> EntityDefinition::filterAndSort(const std::vector<EntityDefinition*>& definitions, const EntityDefinitionType type, const EntityDefinitionSortOrder order) {
@@ -154,16 +154,16 @@ namespace TrenchBroom {
             return result;
         }
 
-        EntityDefinition::EntityDefinition(const std::string& name, const Color& color, const std::string& description, const AttributeDefinitionList& attributeDefinitions) :
-        m_index(0),
-        m_name(name),
-        m_color(color),
-        m_description(description),
-        m_usageCount(0),
-        m_attributeDefinitions(attributeDefinitions) {}
+        EntityDefinition::EntityDefinition(const std::string& name, const Color& color, const std::string& description, const PropertyDefinitionList& propertyDefinitions) :
+            m_index(0),
+            m_name(name),
+            m_color(color),
+            m_description(description),
+            m_usageCount(0),
+            m_propertyDefinitions(propertyDefinitions) {}
 
-        PointEntityDefinition::PointEntityDefinition(const std::string& name, const Color& color, const vm::bbox3& bounds, const std::string& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinition& modelDefinition) :
-        EntityDefinition(name, color, description, attributeDefinitions),
+        PointEntityDefinition::PointEntityDefinition(const std::string& name, const Color& color, const vm::bbox3& bounds, const std::string& description, const PropertyDefinitionList& propertyDefinitions, const ModelDefinition& modelDefinition) :
+        EntityDefinition(name, color, description, propertyDefinitions),
         m_bounds(bounds),
         m_modelDefinition(modelDefinition) {}
 
@@ -187,8 +187,8 @@ namespace TrenchBroom {
             return m_modelDefinition;
         }
 
-        BrushEntityDefinition::BrushEntityDefinition(const std::string& name, const Color& color, const std::string& description, const AttributeDefinitionList& attributeDefinitions) :
-        EntityDefinition(name, color, description, attributeDefinitions) {}
+        BrushEntityDefinition::BrushEntityDefinition(const std::string& name, const Color& color, const std::string& description, const PropertyDefinitionList& propertyDefinitions) :
+        EntityDefinition(name, color, description, propertyDefinitions) {}
 
         EntityDefinitionType BrushEntityDefinition::type() const {
             return EntityDefinitionType::BrushEntity;

@@ -173,9 +173,9 @@ Updated: 2011-03-02
             ASSERT_TRUE(vm::is_equal(vm::bbox3(vm::vec3(-4.0, -4.0, -4.0), vm::vec3(+4.0, +4.0, +4.0)), pointDefinition->bounds(), 0.01));
 
             UNSCOPED_INFO("Expected three attribute definitions");
-            ASSERT_EQ(3u, pointDefinition->attributeDefinitions().size());
+            ASSERT_EQ(3u, pointDefinition->propertyDefinitions().size());
 
-            const auto* angleDefinition = pointDefinition->attributeDefinition("angle");
+            const auto* angleDefinition = pointDefinition->propertyDefinition("angle");
             UNSCOPED_INFO("Missing attribute definition for 'angle' key");
             ASSERT_NE(nullptr, angleDefinition);
 
@@ -191,7 +191,7 @@ Updated: 2011-03-02
             UNSCOPED_INFO("Expected attribute definition's long description to match element text");
             ASSERT_EQ("Rotation angle of the sky surfaces.", angleDefinition->longDescription());
 
-            const auto* anglesDefinition = pointDefinition->attributeDefinition("angles");
+            const auto* anglesDefinition = pointDefinition->propertyDefinition("angles");
             UNSCOPED_INFO("Missing attribute definition for 'angles' key");
             ASSERT_NE(nullptr, anglesDefinition);
             
@@ -207,7 +207,8 @@ Updated: 2011-03-02
             UNSCOPED_INFO("Expected attribute definition's long description to match element text");
             ASSERT_EQ("Individual control of PITCH, YAW, and ROLL (default 0 0 0).", anglesDefinition->longDescription());
 
-            const auto* scaleDefinition = dynamic_cast<const Assets::FloatPropertyDefinition*>(pointDefinition->attributeDefinition("_scale"));
+            const auto* scaleDefinition = dynamic_cast<const Assets::FloatPropertyDefinition*>(pointDefinition->propertyDefinition(
+                "_scale"));
             UNSCOPED_INFO("Missing attribute definition for '_scale' key");
             ASSERT_NE(nullptr, scaleDefinition);
 
@@ -281,7 +282,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
             ASSERT_TRUE(vm::is_equal(Color(0.0f, 0.4f, 1.0f), brushDefinition->color(), 0.01f));
 
             UNSCOPED_INFO("Expected seven attribute definitions");
-            ASSERT_EQ(7u, brushDefinition->attributeDefinitions().size());
+            ASSERT_EQ(7u, brushDefinition->propertyDefinitions().size());
             assertAttributeDefinition("noise", Assets::PropertyDefinitionType::StringProperty, brushDefinition);
             assertAttributeDefinition("model2", Assets::PropertyDefinitionType::StringProperty, brushDefinition);
             assertAttributeDefinition("color", Assets::PropertyDefinitionType::StringProperty, brushDefinition);
@@ -344,9 +345,10 @@ Target this entity with a misc_model to have the model attached to the entity (s
             ASSERT_NE(nullptr, pointDefinition);
 
             UNSCOPED_INFO("Expected one attribute definitions");
-            ASSERT_EQ(1u, pointDefinition->attributeDefinitions().size());
+            ASSERT_EQ(1u, pointDefinition->propertyDefinitions().size());
 
-            const auto* colorIndexDefinition = dynamic_cast<const Assets::ChoicePropertyDefinition*>(pointDefinition->attributeDefinition("count"));
+            const auto* colorIndexDefinition = dynamic_cast<const Assets::ChoicePropertyDefinition*>(pointDefinition->propertyDefinition(
+                "count"));
             UNSCOPED_INFO("Missing attribute definition for 'count' key");
             ASSERT_NE(nullptr, colorIndexDefinition);
 
@@ -406,9 +408,10 @@ Target this entity with a misc_model to have the model attached to the entity (s
             ASSERT_NE(nullptr, pointDefinition);
 
             UNSCOPED_INFO("Expected one attribute definitions");
-            ASSERT_EQ(1u, pointDefinition->attributeDefinitions().size());
+            ASSERT_EQ(1u, pointDefinition->propertyDefinitions().size());
 
-            const auto* scaleDefinition = dynamic_cast<const Assets::StringPropertyDefinition*>(pointDefinition->attributeDefinition("_scale"));
+            const auto* scaleDefinition = dynamic_cast<const Assets::StringPropertyDefinition*>(pointDefinition->propertyDefinition(
+                "_scale"));
             UNSCOPED_INFO("Missing attribute definition for '_scale' key");
             ASSERT_NE(nullptr, scaleDefinition);
             UNSCOPED_INFO("Expected angles attribute definition to be of Float type");
@@ -473,7 +476,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
         }
 
         void assertAttributeDefinition(const std::string& name, const Assets::PropertyDefinitionType expectedType, const Assets::EntityDefinition* entityDefinition) {
-            const auto* attrDefinition = entityDefinition->attributeDefinition(name);
+            const auto* attrDefinition = entityDefinition->propertyDefinition(name);
             UNSCOPED_INFO("Missing attribute definition for '" + name + "' key");
             ASSERT_NE(nullptr, attrDefinition);
 
