@@ -53,12 +53,6 @@ m_link(this)
         }
 
         template <typename T, typename FP, typename VP>
-        Polyhedron_HalfEdge<T,FP,VP>::~Polyhedron_HalfEdge() {
-            if (m_origin->leaving() == this)
-                m_origin->setLeaving(nullptr);
-        }
-
-        template <typename T, typename FP, typename VP>
         typename Polyhedron_HalfEdge<T,FP,VP>::Vertex* Polyhedron_HalfEdge<T,FP,VP>::origin() const {
             return m_origin;
         }

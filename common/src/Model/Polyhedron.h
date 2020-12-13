@@ -514,12 +514,6 @@ namespace TrenchBroom {
             Polyhedron_HalfEdge(Vertex* origin);
         public:
             /**
-             * The destructor resets the leaving half edge of its origin vertex to null if this is the leading half
-             * edge of the origin vertex.
-             */
-            ~Polyhedron_HalfEdge();
-        public:
-            /**
              * Returns the origin vertex of this half edge.
              */
             Vertex* origin() const;
