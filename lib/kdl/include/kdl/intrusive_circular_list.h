@@ -18,7 +18,10 @@
 #pragma once
 
 #include <cassert>
-#include <cstddef>
+#include <cstddef> // for ptrdiff_t
+#include <initializer_list>
+#include <iterator> // for std::forward_iterator_tag
+#include <type_traits> // for std::is_pointer
 #include <utility>
 
 namespace kdl {
