@@ -112,7 +112,7 @@ namespace TrenchBroom {
             struct EntityInfo {
                 size_t startLine;
                 size_t lineCount;
-                std::vector<Model::EntityProperty> attributes;
+                std::vector<Model::EntityProperty> properties;
                 ExtraAttributes extraAttributes;
                 size_t brushesBegin;
                 size_t brushesEnd;
@@ -156,7 +156,7 @@ namespace TrenchBroom {
             void readBrushFaces(Model::MapFormat format, const vm::bbox3& worldBounds, ParserStatus& status);
         private: // implement MapParser interface
             void onFormatSet(Model::MapFormat format) override;
-            void onBeginEntity(size_t line, const std::vector<Model::EntityProperty>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
+            void onBeginEntity(size_t line, const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
             void onEndEntity(size_t startLine, size_t lineCount, ParserStatus& status) override;
             void onBeginBrush(size_t line, ParserStatus& status) override;
             void onEndBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status) override;
@@ -165,26 +165,26 @@ namespace TrenchBroom {
         private: // helper methods
             void createNodes(ParserStatus& status);
             void createNode(EntityInfo& info, std::vector<LoadedBrush>& brushes, ParserStatus& status);
-            void createLayer(size_t line, const std::vector<Model::EntityProperty>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
-            void createGroup(size_t line, const std::vector<Model::EntityProperty>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
-            void createEntity(size_t line, const std::vector<Model::EntityProperty>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status);
+            void createLayer(size_t line, const std::vector<Model::EntityProperty>& propeties, const ExtraAttributes& extraAttributes, ParserStatus& status);
+            void createGroup(size_t line, const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& status);
+            void createEntity(size_t line, const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& status);
             void createBrush(kdl::result<Model::Brush, Model::BrushError> brush, Model::Node* parent, size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status);
 
-            ParentInfo::Type storeNode(Model::Node* node, const std::vector<Model::EntityProperty>& attributes, ParserStatus& status);
-            void stripParentAttributes(Model::EntityNodeBase* attributable, ParentInfo::Type parentType);
+            ParentInfo::Type storeNode(Model::Node* node, const std::vector<Model::EntityProperty>& properties, ParserStatus& status);
+            void stripParentProperties(Model::EntityNodeBase* node, ParentInfo::Type parentType);
 
             void resolveNodes(ParserStatus& status);
             std::vector<LoadedBrush> loadBrushes(ParserStatus& status);
             Model::Node* resolveParent(const ParentInfo& parentInfo) const;
 
-            EntityType entityType(const std::vector<Model::EntityProperty>& attributes) const;
+            EntityType entityType(const std::vector<Model::EntityProperty>& properties) const;
 
             void setFilePosition(Model::Node* node, size_t startLine, size_t lineCount);
         protected:
             void setExtraAttributes(Model::Node* node, const ExtraAttributes& extraAttributes);
         private: // subclassing interface - these will be called in the order that nodes should be inserted
             virtual Model::ModelFactory& initialize(Model::MapFormat format) = 0;
-            virtual Model::Node* onWorldspawn(const std::vector<Model::EntityProperty>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) = 0;
+            virtual Model::Node* onWorldspawn(const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& status) = 0;
             virtual void onWorldspawnFilePosition(size_t startLine, size_t lineCount, ParserStatus& status) = 0;
             virtual void onLayer(Model::LayerNode* layer, ParserStatus& status) = 0;
             virtual void onNode(Model::Node* parent, Model::Node* node, ParserStatus& status) = 0;

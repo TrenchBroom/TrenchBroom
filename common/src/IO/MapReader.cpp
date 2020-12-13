@@ -102,10 +102,10 @@ namespace TrenchBroom {
             m_factory = &initialize(format);
         }
 
-        void MapReader::onBeginEntity(const size_t /* line */, const std::vector<Model::EntityProperty>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
+        void MapReader::onBeginEntity(const size_t /* line */, const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& /* status */) {
             const size_t brushesBegin = m_brushInfos.size();
 
-            m_entityInfos.push_back(EntityInfo{0, 0, attributes, extraAttributes, brushesBegin, brushesBegin});
+            m_entityInfos.push_back(EntityInfo{ 0, 0, properties, extraAttributes, brushesBegin, brushesBegin});
         }
 
         void MapReader::onEndEntity(const size_t startLine, const size_t lineCount, ParserStatus& /* status */) {
@@ -178,25 +178,25 @@ namespace TrenchBroom {
         }
 
         void MapReader::createNode(EntityInfo& info, std::vector<LoadedBrush>& loadedBrushes, ParserStatus& status) {
-            const auto& attributes = info.attributes;
+            const auto& properties = info.properties;
             const auto& extraAttributes = info.extraAttributes;
             const size_t line = info.startLine;
             const size_t startLine = info.startLine;
             const size_t lineCount = info.lineCount;
 
-            const EntityType type = entityType(attributes);
+            const EntityType type = entityType(properties);
             switch (type) {
                 case EntityType_Layer:
-                    createLayer(line, attributes, extraAttributes, status);
+                    createLayer(line, properties, extraAttributes, status);
                     break;
                 case EntityType_Group:
-                    createGroup(line, attributes, extraAttributes, status);
+                    createGroup(line, properties, extraAttributes, status);
                     break;
                 case EntityType_Worldspawn:
-                    m_brushParent = onWorldspawn(attributes, extraAttributes, status);
+                    m_brushParent = onWorldspawn(properties, extraAttributes, status);
                     break;
                 case EntityType_Default:
-                    createEntity(line, attributes, extraAttributes, status);
+                    createEntity(line, properties, extraAttributes, status);
                     break;
             }
 
@@ -215,14 +215,14 @@ namespace TrenchBroom {
             m_brushParent = nullptr;
         }
 
-        void MapReader::createLayer(const size_t line, const std::vector<Model::EntityProperty>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
-            const std::string& name = findProperty(attributes, Model::PropertyKeys::LayerName);
+        void MapReader::createLayer(const size_t line, const std::vector<Model::EntityProperty>& propeties, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+            const std::string& name = findProperty(propeties, Model::PropertyKeys::LayerName);
             if (kdl::str_is_blank(name)) {
                 status.error(line, "Skipping layer entity: missing name");
                 return;
             }
 
-            const std::string& idStr = findProperty(attributes, Model::PropertyKeys::LayerId);
+            const std::string& idStr = findProperty(propeties, Model::PropertyKeys::LayerId);
             if (kdl::str_is_blank(idStr)) {
                 status.error(line, "Skipping layer entity: missing id");
                 return;
@@ -244,17 +244,17 @@ namespace TrenchBroom {
             Model::Layer layer = layerNode->layer();
 
             // This is optional (not present on maps saved in TB 2020.1 and earlier)
-            if (const auto layerSortIndex = kdl::str_to_int(findProperty(attributes, Model::PropertyKeys::LayerSortIndex))) {
+            if (const auto layerSortIndex = kdl::str_to_int(findProperty(propeties, Model::PropertyKeys::LayerSortIndex))) {
                 layer.setSortIndex(*layerSortIndex);
             }
             
-            if (findProperty(attributes, Model::PropertyKeys::LayerLocked) == Model::PropertyValues::LayerLockedValue) {
+            if (findProperty(propeties, Model::PropertyKeys::LayerLocked) == Model::PropertyValues::LayerLockedValue) {
                 layerNode->setLockState(Model::LockState::Lock_Locked);
             }
-            if (findProperty(attributes, Model::PropertyKeys::LayerHidden) == Model::PropertyValues::LayerHiddenValue) {
+            if (findProperty(propeties, Model::PropertyKeys::LayerHidden) == Model::PropertyValues::LayerHiddenValue) {
                 layerNode->setVisibilityState(Model::VisibilityState::Visibility_Hidden);
             }
-            if (findProperty(attributes, Model::PropertyKeys::LayerOmitFromExport) == Model::PropertyValues::LayerOmitFromExportValue) {
+            if (findProperty(propeties, Model::PropertyKeys::LayerOmitFromExport) == Model::PropertyValues::LayerOmitFromExportValue) {
                 layer.setOmitFromExport(true);
             }
 
@@ -269,14 +269,14 @@ namespace TrenchBroom {
             m_brushParent = layerNode;
         }
 
-        void MapReader::createGroup(const size_t line, const std::vector<Model::EntityProperty>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
-            const std::string& name = findProperty(attributes, Model::PropertyKeys::GroupName);
+        void MapReader::createGroup(const size_t line, const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+            const std::string& name = findProperty(properties, Model::PropertyKeys::GroupName);
             if (kdl::str_is_blank(name)) {
                 status.error(line, "Skipping group entity: missing name");
                 return;
             }
 
-            const std::string& idStr = findProperty(attributes, Model::PropertyKeys::GroupId);
+            const std::string& idStr = findProperty(properties, Model::PropertyKeys::GroupId);
             if (kdl::str_is_blank(idStr)) {
                 status.error(line, "Skipping group entity: missing id");
                 return;
@@ -297,20 +297,20 @@ namespace TrenchBroom {
             Model::GroupNode* group = m_factory->createGroup(name);
             setExtraAttributes(group, extraAttributes);
 
-            storeNode(group, attributes, status);
+            storeNode(group, properties, status);
             m_groups.insert(std::make_pair(groupId, group));
 
             m_currentNode = group;
             m_brushParent = group;
         }
 
-        void MapReader::createEntity(const size_t /* line */, const std::vector<Model::EntityProperty>& attributes, const ExtraAttributes& extraAttributes, ParserStatus& status) {
+        void MapReader::createEntity(const size_t /* line */, const std::vector<Model::EntityProperty>& properties, const ExtraAttributes& extraAttributes, ParserStatus& status) {
             Model::EntityNode* entity = m_factory->createEntity(Model::Entity());
-            entity->setEntity(Model::Entity(attributes));
+            entity->setEntity(Model::Entity(properties));
             setExtraAttributes(entity, extraAttributes);
 
-            const ParentInfo::Type parentType = storeNode(entity, attributes, status);
-            stripParentAttributes(entity, parentType);
+            const ParentInfo::Type parentType = storeNode(entity, properties, status);
+            stripParentProperties(entity, parentType);
 
             m_currentNode = entity;
             m_brushParent = entity;
@@ -335,8 +335,8 @@ namespace TrenchBroom {
                 );
         }
 
-        MapReader::ParentInfo::Type MapReader::storeNode(Model::Node* node, const std::vector<Model::EntityProperty>& attributes, ParserStatus& status) {
-            const std::string& layerIdStr = findProperty(attributes, Model::PropertyKeys::Layer);
+        MapReader::ParentInfo::Type MapReader::storeNode(Model::Node* node, const std::vector<Model::EntityProperty>& properties, ParserStatus& status) {
+            const std::string& layerIdStr = findProperty(properties, Model::PropertyKeys::Layer);
             if (!kdl::str_is_blank(layerIdStr)) {
                 const long rawId = std::atol(layerIdStr.c_str());
                 if (rawId > 0) {
@@ -352,7 +352,7 @@ namespace TrenchBroom {
 
                 status.warn(node->lineNumber(), kdl::str_to_string("Entity has invalid parent id '", layerIdStr, "'"));
             } else {
-                const std::string& groupIdStr = findProperty(attributes, Model::PropertyKeys::Group);
+                const std::string& groupIdStr = findProperty(properties, Model::PropertyKeys::Group);
                 if (!kdl::str_is_blank(groupIdStr)) {
                     const long rawId = std::atol(groupIdStr.c_str());
                     if (rawId > 0) {
@@ -374,8 +374,8 @@ namespace TrenchBroom {
             return ParentInfo::Type_None;
         }
 
-        void MapReader::stripParentAttributes(Model::EntityNodeBase* attributable, const ParentInfo::Type parentType) {
-            auto entity = attributable->entity();
+        void MapReader::stripParentProperties(Model::EntityNodeBase* node, ParentInfo::Type parentType) {
+            auto entity = node->entity();
             switch (parentType) {
                 case ParentInfo::Type_Layer:
                     entity.removeProperty(Model::PropertyKeys::Layer);
@@ -387,7 +387,7 @@ namespace TrenchBroom {
                     break;
                 switchDefault();
             }
-            attributable->setEntity(std::move(entity));
+            node->setEntity(std::move(entity));
         }
 
         /**
@@ -434,13 +434,13 @@ namespace TrenchBroom {
             return kdl::map_find_or_default(m_groups, groupId, static_cast<Model::GroupNode*>(nullptr));
         }
 
-        MapReader::EntityType MapReader::entityType(const std::vector<Model::EntityProperty>& attributes) const {
-            const std::string& classname = findProperty(attributes, Model::PropertyKeys::Classname);
-            if (isLayer(classname, attributes))
+        MapReader::EntityType MapReader::entityType(const std::vector<Model::EntityProperty>& properties) const {
+            const std::string& classname = findProperty(properties, Model::PropertyKeys::Classname);
+            if (isLayer(classname, properties))
                 return EntityType_Layer;
-            if (isGroup(classname, attributes))
+            if (isGroup(classname, properties))
                 return EntityType_Group;
-            if (isWorldspawn(classname, attributes))
+            if (isWorldspawn(classname, properties))
                 return EntityType_Worldspawn;
             return EntityType_Default;
         }

@@ -69,7 +69,7 @@ namespace TrenchBroom {
         class StandardMapParser : public MapParser, public Parser<QuakeMapToken::Type> {
         private:
             using Token = QuakeMapTokenizer::Token;
-            using AttributeNames = kdl::vector_set<std::string>;
+            using PropertyKeys = kdl::vector_set<std::string>;
 
             static const std::string BrushPrimitiveId;
             static const std::string PatchId;
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             void setFormat(Model::MapFormat format);
 
             void parseEntity(ParserStatus& status);
-            void parseEntityAttribute(std::vector<Model::EntityProperty>& attributes, AttributeNames& names, ParserStatus& status);
+            void parseEntityProperty(std::vector<Model::EntityProperty>& properties, PropertyKeys& keys, ParserStatus& status);
 
             void parseBrushOrBrushPrimitiveOrPatch(ParserStatus& status);
             void parseBrushPrimitive(ParserStatus& status, size_t startLine);
