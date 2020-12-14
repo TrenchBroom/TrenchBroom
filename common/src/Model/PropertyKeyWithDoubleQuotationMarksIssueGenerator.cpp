@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AttributeNameWithDoubleQuotationMarksIssueGenerator.h"
+#include "PropertyKeyWithDoubleQuotationMarksIssueGenerator.h"
 
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
