@@ -40,7 +40,7 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            LinkTargetIssue(AttributableNode* node, const std::string& name) :
+            LinkTargetIssue(EntityNodeBase* node, const std::string& name) :
             Issue(node),
             m_name(name) {}
 
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             }
 
             std::string doGetDescription() const override {
-                const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
+                const EntityNodeBase* attributableNode = static_cast<EntityNodeBase*>(node());
                 return attributableNode->name() + " has missing target for key '" + m_name + "'";
             }
         };
@@ -83,12 +83,12 @@ namespace TrenchBroom {
             addQuickFix(new LinkTargetIssueQuickFix());
         }
 
-        void LinkTargetIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+        void LinkTargetIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
             processKeys(node, node->findMissingLinkTargets(), issues);
             processKeys(node, node->findMissingKillTargets(), issues);
         }
 
-        void LinkTargetIssueGenerator::processKeys(AttributableNode* node, const std::vector<std::string>& names, IssueList& issues) const {
+        void LinkTargetIssueGenerator::processKeys(EntityNodeBase* node, const std::vector<std::string>& names, IssueList& issues) const {
             issues.reserve(issues.size() + names.size());
             for (const std::string& name : names) {
                 issues.push_back(new LinkTargetIssue(node, name));

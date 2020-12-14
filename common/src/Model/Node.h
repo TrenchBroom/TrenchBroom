@@ -32,7 +32,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class AttributableNode;
+        class EntityNodeBase;
         class ConstNodeVisitor;
         class Issue;
         class IssueGenerator;
@@ -406,11 +406,11 @@ namespace TrenchBroom {
                 visitAll(m_children, lambda);
             }
         protected: // index management
-            void findAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<AttributableNode*>& result) const;
-            void findAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<AttributableNode*>& result) const;
+            void findAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<EntityNodeBase*>& result) const;
+            void findAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<EntityNodeBase*>& result) const;
 
-            void addToIndex(AttributableNode* attributable, const std::string& name, const std::string& value);
-            void removeFromIndex(AttributableNode* attributable, const std::string& name, const std::string& value);
+            void addToIndex(EntityNodeBase* attributable, const std::string& name, const std::string& value);
+            void removeFromIndex(EntityNodeBase* attributable, const std::string& name, const std::string& value);
         private: // subclassing interface
             virtual const std::string& doGetName() const = 0;
             virtual const vm::bbox3& doGetLogicalBounds() const = 0;
@@ -460,11 +460,11 @@ namespace TrenchBroom {
             virtual void doAccept(NodeVisitor& visitor) = 0;
             virtual void doAccept(ConstNodeVisitor& visitor) const = 0;
 
-            virtual void doFindAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<AttributableNode*>& result) const;
-            virtual void doFindAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<AttributableNode*>& result) const;
+            virtual void doFindAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<EntityNodeBase*>& result) const;
+            virtual void doFindAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<EntityNodeBase*>& result) const;
 
-            virtual void doAddToIndex(AttributableNode* attributable, const std::string& name, const std::string& value);
-            virtual void doRemoveFromIndex(AttributableNode* attributable, const std::string& name, const std::string& value);
+            virtual void doAddToIndex(EntityNodeBase* attributable, const std::string& name, const std::string& value);
+            virtual void doRemoveFromIndex(EntityNodeBase* attributable, const std::string& name, const std::string& value);
         };
     }
 }

@@ -46,7 +46,7 @@ namespace TrenchBroom {
             std::string m_mod;
             std::string m_message;
         public:
-            MissingModIssue(AttributableNode* node, const std::string& mod, const std::string& message) :
+            MissingModIssue(EntityNodeBase* node, const std::string& mod, const std::string& message) :
             Issue(node),
             m_mod(mod),
             m_message(message) {}
@@ -100,7 +100,7 @@ namespace TrenchBroom {
             addQuickFix(new MissingModIssueQuickFix());
         }
 
-        void MissingModIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+        void MissingModIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
             assert(node != nullptr);
 
             if (node->entity().classname() != PropertyValues::WorldspawnClassname) {

@@ -77,7 +77,7 @@ namespace TrenchBroom {
             virtual bool hasSelectedBrushFaces() const = 0;
             virtual bool hasAnySelectedBrushFaces() const = 0;
 
-            virtual std::vector<AttributableNode*> allSelectedAttributableNodes() const = 0;
+            virtual std::vector<EntityNodeBase*> allSelectedAttributableNodes() const = 0;
             virtual const NodeCollection& selectedNodes() const = 0;
             virtual std::vector<BrushFaceHandle> allSelectedBrushFaces() const = 0;
             virtual std::vector<BrushFaceHandle> selectedBrushFaces() const = 0;

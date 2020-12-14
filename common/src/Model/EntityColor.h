@@ -32,9 +32,9 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class AttributableNode;
+        class EntityNodeBase;
 
-        Assets::ColorRange::Type detectColorRange(const std::string& name, const std::vector<AttributableNode*>& attributables);
+        Assets::ColorRange::Type detectColorRange(const std::string& name, const std::vector<EntityNodeBase*>& attributables);
 
         const std::string convertEntityColor(const std::string& str, Assets::ColorRange::Type colorRange);
         Color parseEntityColor(const std::string& str);

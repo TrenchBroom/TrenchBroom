@@ -107,8 +107,8 @@ namespace TrenchBroom {
             const BrushFaceAttributes& doDefaultFaceAttribs() const override;
             const std::vector<CompilationTool>& doCompilationTools() const override;
         private:
-            void writeLongAttribute(AttributableNode& node, const std::string& baseName, const std::string& value, size_t maxLength) const;
-            std::string readLongAttribute(const AttributableNode& node, const std::string& baseName) const;
+            void writeLongAttribute(EntityNodeBase& node, const std::string& baseName, const std::string& value, size_t maxLength) const;
+            std::string readLongAttribute(const EntityNodeBase& node, const std::string& baseName) const;
         };
     }
 }

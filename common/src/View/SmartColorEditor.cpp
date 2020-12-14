@@ -98,7 +98,7 @@ namespace TrenchBroom {
             connect(m_colorHistory, &ColorTable::colorTableSelected, this, &SmartColorEditor::colorTableSelected);
         }
 
-        void SmartColorEditor::doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) {
+        void SmartColorEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>& attributables) {
             ensure(m_floatRadio != nullptr, "floatRadio is null");
             ensure(m_byteRadio != nullptr, "byteRadio is null");
             ensure(m_colorPicker != nullptr, "colorPicker is null");
@@ -108,7 +108,7 @@ namespace TrenchBroom {
             updateColorHistory();
         }
 
-        void SmartColorEditor::updateColorRange(const std::vector<Model::AttributableNode*>& attributables) {
+        void SmartColorEditor::updateColorRange(const std::vector<Model::EntityNodeBase*>& attributables) {
             const auto range = detectColorRange(name(), attributables);
             if (range == Assets::ColorRange::Float) {
                 m_floatRadio->setChecked(true);

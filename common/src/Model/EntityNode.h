@@ -43,7 +43,7 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class EntityNode : public AttributableNode, public Object {
+        class EntityNode : public EntityNodeBase, public Object {
         public:
             static const HitType::Type EntityHitType;
             static const vm::bbox3 DefaultBounds;

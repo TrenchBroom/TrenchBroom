@@ -51,12 +51,12 @@ namespace TrenchBroom {
         const vm::bbox3 EntityNode::DefaultBounds(8.0);
 
         EntityNode::EntityNode() :
-        AttributableNode(),
-        Object() {}
+            EntityNodeBase(),
+            Object() {}
 
         EntityNode::EntityNode(Entity entity) :
-        AttributableNode(std::move(entity)),
-        Object() {}
+            EntityNodeBase(std::move(entity)),
+            Object() {}
 
         EntityNode::EntityNode(std::initializer_list<EntityProperty> attributes) :
         EntityNode(Entity(std::move(attributes))) {}

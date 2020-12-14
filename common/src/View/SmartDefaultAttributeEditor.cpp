@@ -26,6 +26,6 @@ namespace TrenchBroom {
         SmartDefaultAttributeEditor::SmartDefaultAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent) :
         SmartAttributeEditor(document, parent) {}
 
-        void SmartDefaultAttributeEditor::doUpdateVisual(const std::vector<Model::AttributableNode*>& /* attributables */) {}
+        void SmartDefaultAttributeEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>& /* attributables */) {}
     }
 }

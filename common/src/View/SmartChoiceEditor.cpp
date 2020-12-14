@@ -81,7 +81,7 @@ namespace TrenchBroom {
             setLayout(layout);
         }
 
-        void SmartChoiceEditor::doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) {
+        void SmartChoiceEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>& attributables) {
             ensure(m_comboBox != nullptr, "comboBox is null");
 
             const kdl::set_temp ignoreTextChanged(m_ignoreEditTextChanged);

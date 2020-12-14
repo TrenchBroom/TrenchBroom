@@ -35,23 +35,23 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        const Assets::EntityDefinition* selectEntityDefinition(const std::vector<AttributableNode*>& attributables);
-        const Assets::PropertyDefinition* attributeDefinition(const AttributableNode* node, const std::string& name);
-        const Assets::PropertyDefinition* selectAttributeDefinition(const std::string& name, const std::vector<AttributableNode*>& attributables);
-        std::string selectAttributeValue(const std::string& name, const std::vector<AttributableNode*>& attributables);
+        const Assets::EntityDefinition* selectEntityDefinition(const std::vector<EntityNodeBase*>& attributables);
+        const Assets::PropertyDefinition* attributeDefinition(const EntityNodeBase* node, const std::string& name);
+        const Assets::PropertyDefinition* selectAttributeDefinition(const std::string& name, const std::vector<EntityNodeBase*>& attributables);
+        std::string selectAttributeValue(const std::string& name, const std::vector<EntityNodeBase*>& attributables);
 
-        class AttributableNode : public Node {
+        class EntityNodeBase : public Node {
         protected:
-            AttributableNode(Entity entity);
+            EntityNodeBase(Entity entity);
 
             Entity m_entity;
 
-            std::vector<AttributableNode*> m_linkSources;
-            std::vector<AttributableNode*> m_linkTargets;
-            std::vector<AttributableNode*> m_killSources;
-            std::vector<AttributableNode*> m_killTargets;
+            std::vector<EntityNodeBase*> m_linkSources;
+            std::vector<EntityNodeBase*> m_linkTargets;
+            std::vector<EntityNodeBase*> m_killSources;
+            std::vector<EntityNodeBase*> m_killTargets;
         public:
-            virtual ~AttributableNode() override;
+            virtual ~EntityNodeBase() override;
         public: // entity access
             const Entity& entity() const;
             Entity setEntity(Entity entity);
@@ -61,10 +61,10 @@ namespace TrenchBroom {
             class NotifyAttributeChange {
             private:
                 NotifyNodeChange m_nodeChange;
-                AttributableNode* m_node;
+                EntityNodeBase* m_node;
                 vm::bbox3 m_oldPhysicalBounds;
             public:
-                NotifyAttributeChange(AttributableNode* node);
+                NotifyAttributeChange(EntityNodeBase* node);
                 ~NotifyAttributeChange();
             };
 
@@ -82,10 +82,10 @@ namespace TrenchBroom {
             void removeAttributeFromIndex(const std::string& name, const std::string& value);
             void updateAttributeIndex(const std::string& oldName, const std::string& oldValue, const std::string& newName, const std::string& newValue);
         public: // link management
-            const std::vector<AttributableNode*>& linkSources() const;
-            const std::vector<AttributableNode*>& linkTargets() const;
-            const std::vector<AttributableNode*>& killSources() const;
-            const std::vector<AttributableNode*>& killTargets() const;
+            const std::vector<EntityNodeBase*>& linkSources() const;
+            const std::vector<EntityNodeBase*>& linkTargets() const;
+            const std::vector<EntityNodeBase*>& killSources() const;
+            const std::vector<EntityNodeBase*>& killTargets() const;
 
             vm::vec3 linkSourceAnchor() const;
             vm::vec3 linkTargetAnchor() const;
@@ -112,10 +112,10 @@ namespace TrenchBroom {
             void addAllKillSources(const std::string& targetname);
             void addAllKillTargets();
 
-            void addLinkTargets(const std::vector<AttributableNode*>& targets);
-            void addKillTargets(const std::vector<AttributableNode*>& targets);
-            void addLinkSources(const std::vector<AttributableNode*>& sources);
-            void addKillSources(const std::vector<AttributableNode*>& sources);
+            void addLinkTargets(const std::vector<EntityNodeBase*>& targets);
+            void addKillTargets(const std::vector<EntityNodeBase*>& targets);
+            void addLinkSources(const std::vector<EntityNodeBase*>& sources);
+            void addKillSources(const std::vector<EntityNodeBase*>& sources);
 
             void removeAllLinkSources();
             void removeAllLinkTargets();
@@ -125,17 +125,17 @@ namespace TrenchBroom {
             void removeAllLinks();
             void addAllLinks();
 
-            void addLinkSource(AttributableNode* attributable);
-            void addLinkTarget(AttributableNode* attributable);
-            void addKillSource(AttributableNode* attributable);
-            void addKillTarget(AttributableNode* attributable);
+            void addLinkSource(EntityNodeBase* attributable);
+            void addLinkTarget(EntityNodeBase* attributable);
+            void addKillSource(EntityNodeBase* attributable);
+            void addKillTarget(EntityNodeBase* attributable);
 
-            void removeLinkSource(AttributableNode* attributable);
-            void removeLinkTarget(AttributableNode* attributable);
-            void removeKillSource(AttributableNode* attributable);
-            void removeKillTarget(AttributableNode* attributable);
+            void removeLinkSource(EntityNodeBase* attributable);
+            void removeLinkTarget(EntityNodeBase* attributable);
+            void removeKillSource(EntityNodeBase* attributable);
+            void removeKillTarget(EntityNodeBase* attributable);
         protected:
-            AttributableNode();
+            EntityNodeBase();
         private: // implemenation of node interface
             const std::string& doGetName() const override;
             virtual void doAncestorWillChange() override;
@@ -145,12 +145,12 @@ namespace TrenchBroom {
             virtual vm::vec3 doGetLinkSourceAnchor() const = 0;
             virtual vm::vec3 doGetLinkTargetAnchor() const = 0;
         private: // hide copy constructor and assignment operator
-            AttributableNode(const AttributableNode&);
-            AttributableNode& operator=(const AttributableNode&);
+            EntityNodeBase(const EntityNodeBase&);
+            EntityNodeBase& operator=(const EntityNodeBase&);
         };
 
-        bool operator==(const AttributableNode& lhs, const AttributableNode& rhs);
-        bool operator!=(const AttributableNode& lhs, const AttributableNode& rhs);
+        bool operator==(const EntityNodeBase& lhs, const EntityNodeBase& rhs);
+        bool operator!=(const EntityNodeBase& lhs, const EntityNodeBase& rhs);
     }
 }
 

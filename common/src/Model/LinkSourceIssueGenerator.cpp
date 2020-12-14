@@ -35,7 +35,7 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            explicit LinkSourceIssue(AttributableNode* node) :
+            explicit LinkSourceIssue(EntityNodeBase* node) :
             Issue(node) {}
 
             IssueType doGetType() const override {
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             }
 
             std::string doGetDescription() const override {
-                const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
+                const EntityNodeBase* attributableNode = static_cast<EntityNodeBase*>(node());
                 return attributableNode->name() + " has unused targetname key";
             }
         };
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             addQuickFix(new LinkSourceIssueQuickFix());
         }
 
-        void LinkSourceIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+        void LinkSourceIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
             if (node->hasMissingSources())
                 issues.push_back(new LinkSourceIssue(node));
         }

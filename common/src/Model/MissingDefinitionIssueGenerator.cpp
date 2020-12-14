@@ -35,7 +35,7 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            explicit MissingDefinitionIssue(AttributableNode* node) :
+            explicit MissingDefinitionIssue(EntityNodeBase* node) :
             Issue(node) {}
         private:
             IssueType doGetType() const override {
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             }
 
             std::string doGetDescription() const override {
-                const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
+                const EntityNodeBase* attributableNode = static_cast<EntityNodeBase*>(node());
                 return attributableNode->name() + " not found in entity definitions";
             }
         };
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             addQuickFix(new MissingDefinitionIssueQuickFix());
         }
 
-        void MissingDefinitionIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+        void MissingDefinitionIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
             if (node->entity().definition() == nullptr)
                 issues.push_back(new MissingDefinitionIssue(node));
         }

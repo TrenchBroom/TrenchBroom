@@ -49,9 +49,9 @@ namespace TrenchBroom {
             explicit SmartColorEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
             void createGui();
-            void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) override;
+            void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& attributables) override;
 
-            void updateColorRange(const std::vector<Model::AttributableNode*>& attributables);
+            void updateColorRange(const std::vector<Model::EntityNodeBase*>& attributables);
             void updateColorHistory();
 
             void setColor(const QColor& wxColor) const;

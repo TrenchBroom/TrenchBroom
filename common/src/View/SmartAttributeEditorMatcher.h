@@ -25,16 +25,16 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class AttributableNode;
+        class EntityNodeBase;
     }
 
     namespace View {
         class SmartAttributeEditorMatcher {
         public:
             virtual ~SmartAttributeEditorMatcher();
-            bool matches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const;
+            bool matches(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const;
         private:
-            virtual bool doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const = 0;
+            virtual bool doMatches(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const = 0;
         };
 
         class SmartAttributeEditorKeyMatcher : public SmartAttributeEditorMatcher {
@@ -44,12 +44,12 @@ namespace TrenchBroom {
             SmartAttributeEditorKeyMatcher(const std::string& pattern);
             SmartAttributeEditorKeyMatcher(std::initializer_list<std::string> patterns);
         private:
-            bool doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const override;
+            bool doMatches(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const override;
         };
 
         class SmartAttributeEditorDefaultMatcher : public SmartAttributeEditorMatcher {
         private:
-            bool doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const override;
+            bool doMatches(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const override;
         };
     }
 }

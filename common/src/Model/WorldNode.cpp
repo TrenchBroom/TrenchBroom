@@ -326,21 +326,21 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
 
-        void WorldNode::doFindAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<Model::AttributableNode*>& result) const {
+        void WorldNode::doFindAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<Model::EntityNodeBase*>& result) const {
             result = kdl::vec_concat(std::move(result), 
                 m_attributableIndex->findAttributableNodes(AttributableNodeIndexQuery::exact(name), value));
         }
 
-        void WorldNode::doFindAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<Model::AttributableNode*>& result) const {
+        void WorldNode::doFindAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<Model::EntityNodeBase*>& result) const {
             result = kdl::vec_concat(std::move(result), 
                 m_attributableIndex->findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix), value));
         }
 
-        void WorldNode::doAddToIndex(AttributableNode* attributable, const std::string& name, const std::string& value) {
+        void WorldNode::doAddToIndex(EntityNodeBase* attributable, const std::string& name, const std::string& value) {
             m_attributableIndex->addAttribute(attributable, name, value);
         }
 
-        void WorldNode::doRemoveFromIndex(AttributableNode* attributable, const std::string& name, const std::string& value) {
+        void WorldNode::doRemoveFromIndex(EntityNodeBase* attributable, const std::string& name, const std::string& value) {
             m_attributableIndex->removeAttribute(attributable, name, value);
         }
 

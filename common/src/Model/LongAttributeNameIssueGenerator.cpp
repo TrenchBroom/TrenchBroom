@@ -37,7 +37,7 @@ namespace TrenchBroom {
         private:
             const std::string m_attributeName;
         public:
-            LongAttributeNameIssue(AttributableNode* node, const std::string& attributeName) :
+            LongAttributeNameIssue(EntityNodeBase* node, const std::string& attributeName) :
             AttributeIssue(node),
             m_attributeName(attributeName) {}
 
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             addQuickFix(new RemoveEntityAttributesQuickFix(LongAttributeNameIssue::Type));
         }
 
-        void LongAttributeNameIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+        void LongAttributeNameIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
             for (const EntityProperty& attribute : node->entity().attributes()) {
                 const std::string& attributeName = attribute.key();
                 if (attributeName.size() >= m_maxLength) {

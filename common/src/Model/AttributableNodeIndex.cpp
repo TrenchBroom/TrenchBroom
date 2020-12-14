@@ -49,8 +49,8 @@ namespace TrenchBroom {
             return AttributableNodeIndexQuery(Type_Any);
         }
 
-        std::set<AttributableNode*> AttributableNodeIndexQuery::execute(const AttributableNodeStringIndex& index) const {
-            std::set<AttributableNode*> result;
+        std::set<EntityNodeBase*> AttributableNodeIndexQuery::execute(const AttributableNodeStringIndex& index) const {
+            std::set<EntityNodeBase*> result;
             switch (m_type) {
                 case Type_Exact:
                     index.find_matches(m_pattern, std::inserter(result, std::end(result)));
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        bool AttributableNodeIndexQuery::execute(const AttributableNode* node, const std::string& value) const {
+        bool AttributableNodeIndexQuery::execute(const EntityNodeBase* node, const std::string& value) const {
             switch (m_type) {
                 case Type_Exact:
                     return node->entity().hasAttribute(m_pattern, value);
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             }
         }
 
-        std::vector<Model::EntityProperty> AttributableNodeIndexQuery::execute(const AttributableNode* node) const {
+        std::vector<Model::EntityProperty> AttributableNodeIndexQuery::execute(const EntityNodeBase* node) const {
             const auto& entity = node->entity();
             switch (m_type) {
                 case Type_Exact:
@@ -107,40 +107,40 @@ namespace TrenchBroom {
 
         AttributableNodeIndex::~AttributableNodeIndex() = default;
 
-        void AttributableNodeIndex::addAttributableNode(AttributableNode* attributable) {
+        void AttributableNodeIndex::addAttributableNode(EntityNodeBase* attributable) {
             for (const EntityProperty& attribute : attributable->entity().attributes())
                 addAttribute(attributable, attribute.key(), attribute.value());
         }
 
-        void AttributableNodeIndex::removeAttributableNode(AttributableNode* attributable) {
+        void AttributableNodeIndex::removeAttributableNode(EntityNodeBase* attributable) {
             for (const EntityProperty& attribute : attributable->entity().attributes())
                 removeAttribute(attributable, attribute.key(), attribute.value());
         }
 
-        void AttributableNodeIndex::addAttribute(AttributableNode* attributable, const std::string& name, const std::string& value) {
+        void AttributableNodeIndex::addAttribute(EntityNodeBase* attributable, const std::string& name, const std::string& value) {
             m_nameIndex->insert(name, attributable);
             m_valueIndex->insert(value, attributable);
         }
 
-        void AttributableNodeIndex::removeAttribute(AttributableNode* attributable, const std::string& name, const std::string& value) {
+        void AttributableNodeIndex::removeAttribute(EntityNodeBase* attributable, const std::string& name, const std::string& value) {
             m_nameIndex->remove(name, attributable);
             m_valueIndex->remove(value, attributable);
         }
 
-        std::vector<AttributableNode*> AttributableNodeIndex::findAttributableNodes(const AttributableNodeIndexQuery& nameQuery, const std::string& value) const {
-            const std::set<AttributableNode*> nameResult = nameQuery.execute(*m_nameIndex);
+        std::vector<EntityNodeBase*> AttributableNodeIndex::findAttributableNodes(const AttributableNodeIndexQuery& nameQuery, const std::string& value) const {
+            const std::set<EntityNodeBase*> nameResult = nameQuery.execute(*m_nameIndex);
 
-            std::set<AttributableNode*> valueResult;
+            std::set<EntityNodeBase*> valueResult;
             m_valueIndex->find_matches(value, std::inserter(valueResult, std::end(valueResult)));
             if (nameResult.empty() || valueResult.empty()) {
                 return {};
             }
 
-            std::vector<AttributableNode*> result = kdl::set_intersection(nameResult, valueResult);
+            std::vector<EntityNodeBase*> result = kdl::set_intersection(nameResult, valueResult);
 
             auto it = std::begin(result);
             while (it != std::end(result)) {
-                const AttributableNode* node = *it;
+                const EntityNodeBase* node = *it;
                 if (!nameQuery.execute(node, value))
                     it = result.erase(it);
                 else
@@ -159,7 +159,7 @@ namespace TrenchBroom {
         std::vector<std::string> AttributableNodeIndex::allValuesForNames(const AttributableNodeIndexQuery& keyQuery) const {
             std::vector<std::string> result;
 
-            const std::set<AttributableNode*> nameResult = keyQuery.execute(*m_nameIndex);
+            const std::set<EntityNodeBase*> nameResult = keyQuery.execute(*m_nameIndex);
             for (const auto node : nameResult) {
                 const auto matchingAttributes = keyQuery.execute(node);
                 for (const auto& attribute : matchingAttributes) {

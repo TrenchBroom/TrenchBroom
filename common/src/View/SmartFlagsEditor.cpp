@@ -65,7 +65,7 @@ namespace TrenchBroom {
             setLayout(layout);
         }
 
-        void SmartFlagsEditor::doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) {
+        void SmartFlagsEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>& attributables) {
             assert(!attributables.empty());
             if (m_ignoreUpdates)
                 return;
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             m_flagsEditor->setFlagValue(set, mixed);
         }
 
-        void SmartFlagsEditor::getFlags(const std::vector<Model::AttributableNode*>& attributables, QStringList& labels, QStringList& tooltips) const {
+        void SmartFlagsEditor::getFlags(const std::vector<Model::EntityNodeBase*>& attributables, QStringList& labels, QStringList& tooltips) const {
             QStringList defaultLabels;
 
             // Initialize the labels and tooltips.
@@ -95,7 +95,7 @@ namespace TrenchBroom {
 
             for (size_t i = 0; i < NumFlags; ++i) {
                 bool firstPass = true;
-                for (const Model::AttributableNode* attributable : attributables) {
+                for (const Model::EntityNodeBase* attributable : attributables) {
                     const int indexI = static_cast<int>(i);
                     QString label = defaultLabels[indexI];
                     QString tooltip = "";
@@ -125,7 +125,7 @@ namespace TrenchBroom {
             }
         }
 
-        void SmartFlagsEditor::getFlagValues(const std::vector<Model::AttributableNode*>& attributables, int& setFlags, int& mixedFlags) const {
+        void SmartFlagsEditor::getFlagValues(const std::vector<Model::EntityNodeBase*>& attributables, int& setFlags, int& mixedFlags) const {
             if (attributables.empty()) {
                 setFlags = 0;
                 mixedFlags = 0;
@@ -141,7 +141,7 @@ namespace TrenchBroom {
                 combineFlags(NumFlags, getFlagValue(*it), setFlags, mixedFlags);
         }
 
-        int SmartFlagsEditor::getFlagValue(const Model::AttributableNode* attributable) const {
+        int SmartFlagsEditor::getFlagValue(const Model::EntityNodeBase* attributable) const {
             if (const auto* value = attributable->entity().attribute(name())) {
                 return kdl::str_to_int(*value).value_or(0);
             } else {
@@ -150,7 +150,7 @@ namespace TrenchBroom {
         }
 
         void SmartFlagsEditor::flagChanged(const size_t index, const int /* value */, const int /* setFlag */, const int /* mixedFlag */) {
-            const std::vector<Model::AttributableNode*>& toUpdate = attributables();
+            const std::vector<Model::EntityNodeBase*>& toUpdate = attributables();
             if (toUpdate.empty())
                 return;
 

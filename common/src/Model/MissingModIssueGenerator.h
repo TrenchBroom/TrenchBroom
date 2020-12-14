@@ -39,7 +39,7 @@ namespace TrenchBroom {
         public:
             MissingModIssueGenerator(std::weak_ptr<Game> game);
         private:
-            void doGenerate(AttributableNode* node, IssueList& issues) const override;
+            void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
         };
     }
 }

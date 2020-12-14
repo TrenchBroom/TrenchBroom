@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace View {
         SmartAttributeEditorMatcher::~SmartAttributeEditorMatcher() {}
 
-        bool SmartAttributeEditorMatcher::matches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const {
+        bool SmartAttributeEditorMatcher::matches(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const {
             return doMatches(name, attributables);
         }
 
@@ -40,7 +40,7 @@ namespace TrenchBroom {
             m_patterns = kdl::vec_sort_and_remove_duplicates(std::move(m_patterns));
         }
 
-        bool SmartAttributeEditorKeyMatcher::doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const {
+        bool SmartAttributeEditorKeyMatcher::doMatches(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const {
             if (attributables.empty()) {
                 return false;
             }
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        bool SmartAttributeEditorDefaultMatcher::doMatches(const std::string& /* name */, const std::vector<Model::AttributableNode*>& /* attributables */) const {
+        bool SmartAttributeEditorDefaultMatcher::doMatches(const std::string& /* name */, const std::vector<Model::EntityNodeBase*>& /* attributables */) const {
             return true;
         }
     }

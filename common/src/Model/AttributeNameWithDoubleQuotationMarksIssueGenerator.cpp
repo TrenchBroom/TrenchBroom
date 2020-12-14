@@ -39,7 +39,7 @@ namespace TrenchBroom {
         private:
             const std::string m_attributeName;
         public:
-            AttributeNameWithDoubleQuotationMarksIssue(AttributableNode* node, const std::string& attributeName) :
+            AttributeNameWithDoubleQuotationMarksIssue(EntityNodeBase* node, const std::string& attributeName) :
             AttributeIssue(node),
             m_attributeName(attributeName) {}
 
@@ -67,7 +67,7 @@ namespace TrenchBroom {
                                                               [] (const std::string& value) { return value; }));
         }
 
-        void AttributeNameWithDoubleQuotationMarksIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+        void AttributeNameWithDoubleQuotationMarksIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
             for (const EntityProperty& attribute : node->entity().attributes()) {
                 const std::string& attributeName = attribute.key();
                 if (attributeName.find('"') != std::string::npos) {

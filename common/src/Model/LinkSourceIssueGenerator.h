@@ -32,7 +32,7 @@ namespace TrenchBroom {
         public:
             LinkSourceIssueGenerator();
         private:
-            void doGenerate(AttributableNode* node, IssueList& issues) const override;
+            void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
         };
     }
 }

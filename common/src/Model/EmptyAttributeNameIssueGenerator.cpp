@@ -34,7 +34,7 @@ namespace TrenchBroom {
         public:
             static const IssueType Type;
         public:
-            explicit EmptyAttributeNameIssue(AttributableNode* node) :
+            explicit EmptyAttributeNameIssue(EntityNodeBase* node) :
             Issue(node) {}
 
             IssueType doGetType() const override {
@@ -42,7 +42,7 @@ namespace TrenchBroom {
             }
 
             std::string doGetDescription() const override {
-                const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
+                const EntityNodeBase* attributableNode = static_cast<EntityNodeBase*>(node());
                 return attributableNode->name() + " has a property with an empty name.";
             }
         };
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             addQuickFix(new EmptyAttributeNameIssueQuickFix());
         }
 
-        void EmptyAttributeNameIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+        void EmptyAttributeNameIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
             if (node->entity().hasAttribute(""))
                 issues.push_back(new EmptyAttributeNameIssue(node));
         }

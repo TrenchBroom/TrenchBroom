@@ -134,7 +134,7 @@ namespace TrenchBroom {
 
         const std::string& AttributeIssue::attributeValue() const {
             static const auto NoValue = std::string("");
-            const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
+            const EntityNodeBase* attributableNode = static_cast<EntityNodeBase*>(node());
             const auto* value = attributableNode->entity().attribute(attributeName());
             return value ? *value : NoValue;
         }

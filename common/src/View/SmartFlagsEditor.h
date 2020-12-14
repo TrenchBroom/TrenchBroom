@@ -46,12 +46,12 @@ namespace TrenchBroom {
             explicit SmartFlagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
         private:
             void createGui();
-            void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) override;
+            void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& attributables) override;
             void resetScrollPos();
 
-            void getFlags(const std::vector<Model::AttributableNode*>& attributables, QStringList& labels, QStringList& tooltips) const;
-            void getFlagValues(const std::vector<Model::AttributableNode*>& attributables, int& setFlags, int& mixedFlags) const;
-            int getFlagValue(const Model::AttributableNode* attributable) const;
+            void getFlags(const std::vector<Model::EntityNodeBase*>& attributables, QStringList& labels, QStringList& tooltips) const;
+            void getFlagValues(const std::vector<Model::EntityNodeBase*>& attributables, int& setFlags, int& mixedFlags) const;
+            int getFlagValue(const Model::EntityNodeBase* attributable) const;
 
             void flagChanged(size_t index, int value, int setFlag, int mixedFlag);
         };

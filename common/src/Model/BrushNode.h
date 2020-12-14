@@ -69,8 +69,8 @@ namespace TrenchBroom {
         public:
             BrushNode* clone(const vm::bbox3& worldBounds) const;
 
-            AttributableNode* entity();
-            const AttributableNode* entity() const;
+            EntityNodeBase* entity();
+            const EntityNodeBase* entity() const;
             
             const Brush& brush() const;
             Brush setBrush(Brush brush);

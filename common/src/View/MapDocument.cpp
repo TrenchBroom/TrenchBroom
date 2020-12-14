@@ -682,12 +682,12 @@ namespace TrenchBroom {
             return hasSelectedBrushFaces() || selectedNodes().hasBrushes();
         }
 
-        std::vector<Model::AttributableNode*> MapDocument::allSelectedAttributableNodes() const {
+        std::vector<Model::EntityNodeBase*> MapDocument::allSelectedAttributableNodes() const {
             if (!hasSelection()) {
-                return std::vector<Model::AttributableNode*>({ m_world.get() });
+                return std::vector<Model::EntityNodeBase*>({ m_world.get() });
             }
 
-            std::vector<Model::AttributableNode*> nodes;
+            std::vector<Model::EntityNodeBase*> nodes;
             for (auto* node : m_selectedNodes) {
                 node->accept(kdl::overload(
                     [&](auto&& thisLambda, Model::WorldNode* world) { nodes.push_back(world); world->visitChildren(thisLambda); },

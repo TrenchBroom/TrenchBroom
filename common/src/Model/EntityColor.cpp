@@ -35,11 +35,11 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Assets::ColorRange::Type detectColorRange(const std::string& name, const std::vector<AttributableNode*>& attributables) {
+        Assets::ColorRange::Type detectColorRange(const std::string& name, const std::vector<EntityNodeBase*>& attributables) {
             auto result = Assets::ColorRange::Unset;
             for (auto* attributable : attributables) {
                 attributable->accept(kdl::overload(
-                    [&](const AttributableNode* node) {
+                    [&](const EntityNodeBase* node) {
                         if (const auto* value = node->entity().attribute(name)) {
                             const auto range = Assets::detectColorRange(*value);
                             if (result == Assets::ColorRange::Unset) {

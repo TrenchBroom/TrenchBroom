@@ -30,7 +30,7 @@ namespace TrenchBroom {
     }
     
     namespace Model {
-        class AttributableNode;
+        class EntityNodeBase;
     }
 
     namespace View {
@@ -44,7 +44,7 @@ namespace TrenchBroom {
         public:
             SmartTypeEditorMatcher(Assets::PropertyDefinitionType type);
         private:
-            bool doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const override;
+            bool doMatches(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const override;
         };
 
         /**
@@ -57,7 +57,7 @@ namespace TrenchBroom {
         public:
             SmartTypeWithSameDefinitionEditorMatcher(Assets::PropertyDefinitionType type);
         private:
-            bool doMatches(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const override;
+            bool doMatches(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const override;
         };
     }
 }

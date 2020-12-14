@@ -31,7 +31,7 @@ namespace TrenchBroom {
         public:
             AttributeValueWithDoubleQuotationMarksIssueGenerator();
         private:
-            void doGenerate(AttributableNode* node, IssueList& issues) const override;
+            void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
         };
     }
 }

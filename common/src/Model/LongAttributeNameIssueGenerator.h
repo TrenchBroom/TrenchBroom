@@ -33,7 +33,7 @@ namespace TrenchBroom {
         public:
             LongAttributeNameIssueGenerator(size_t maxLength);
         private:
-            void doGenerate(AttributableNode* node, IssueList& issues) const override;
+            void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
         };
     }
 }

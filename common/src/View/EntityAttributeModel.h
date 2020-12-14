@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class AttributableNode;
+        class EntityNodeBase;
     }
 
     namespace View {
@@ -71,10 +71,10 @@ namespace TrenchBroom {
             std::string m_tooltip;
         public:
             AttributeRow();
-            AttributeRow(const std::string& name, const Model::AttributableNode* node);
+            AttributeRow(const std::string& name, const Model::EntityNodeBase* node);
             bool operator==(const AttributeRow& other) const;
             bool operator<(const AttributeRow& other) const;
-            void merge(const Model::AttributableNode* other);
+            void merge(const Model::EntityNodeBase* other);
 
             const std::string& name() const;
             std::string value() const;
@@ -85,13 +85,13 @@ namespace TrenchBroom {
             bool multi() const;
             bool subset() const;
 
-            static AttributeRow rowForAttributableNodes(const std::string& key, const std::vector<Model::AttributableNode*>& attributables);
-            static std::vector<std::string> allKeys(const std::vector<Model::AttributableNode*>& attributables, bool showDefaultRows);
-            static std::map<std::string, AttributeRow> rowsForAttributableNodes(const std::vector<Model::AttributableNode*>& attributables, bool showDefaultRows);
+            static AttributeRow rowForAttributableNodes(const std::string& key, const std::vector<Model::EntityNodeBase*>& attributables);
+            static std::vector<std::string> allKeys(const std::vector<Model::EntityNodeBase*>& attributables, bool showDefaultRows);
+            static std::map<std::string, AttributeRow> rowsForAttributableNodes(const std::vector<Model::EntityNodeBase*>& attributables, bool showDefaultRows);
             /**
              * Suggests a new, unused attribute name of the form "property X".
              */
-            static std::string newAttributeNameForAttributableNodes(const std::vector<Model::AttributableNode*>& attributables);
+            static std::string newAttributeNameForAttributableNodes(const std::vector<Model::EntityNodeBase*>& attributables);
         };
 
         /**
@@ -148,8 +148,8 @@ namespace TrenchBroom {
         private: // helpers
             int rowForName(const std::string& name) const;
             bool hasRowWithAttributeName(const std::string& name) const;
-            bool renameAttribute(const size_t rowIndex, const std::string& newName, const std::vector<Model::AttributableNode*>& attributables);
-            bool updateAttribute(const size_t rowIndex, const std::string& newValue, const std::vector<Model::AttributableNode*>& attributables);
+            bool renameAttribute(const size_t rowIndex, const std::string& newName, const std::vector<Model::EntityNodeBase*>& attributables);
+            bool updateAttribute(const size_t rowIndex, const std::string& newValue, const std::vector<Model::EntityNodeBase*>& attributables);
 
         public: // EntityAttributeGrid helpers
             std::string attributeName(int row) const;

@@ -75,18 +75,18 @@ namespace TrenchBroom {
             return static_cast<BrushNode*>(Node::clone(worldBounds));
         }
 
-        const AttributableNode* BrushNode::entity() const {
+        const EntityNodeBase* BrushNode::entity() const {
             return visitParent(kdl::overload(
-                [](const WorldNode* world)                    -> const AttributableNode* { return world; },
-                [](const EntityNode* entity)                  -> const AttributableNode* { return entity; },
-                [](auto&& thisLambda, const LayerNode* layer) -> const AttributableNode* { return layer->visitParent(thisLambda).value_or(nullptr); },
-                [](auto&& thisLambda, const GroupNode* group) -> const AttributableNode* { return group->visitParent(thisLambda).value_or(nullptr); },
-                [](auto&& thisLambda, const BrushNode* brush) -> const AttributableNode* { return brush->visitParent(thisLambda).value_or(nullptr); }
+                [](const WorldNode* world)                    -> const EntityNodeBase* { return world; },
+                [](const EntityNode* entity)                  -> const EntityNodeBase* { return entity; },
+                [](auto&& thisLambda, const LayerNode* layer) -> const EntityNodeBase* { return layer->visitParent(thisLambda).value_or(nullptr); },
+                [](auto&& thisLambda, const GroupNode* group) -> const EntityNodeBase* { return group->visitParent(thisLambda).value_or(nullptr); },
+                [](auto&& thisLambda, const BrushNode* brush) -> const EntityNodeBase* { return brush->visitParent(thisLambda).value_or(nullptr); }
             )).value_or(nullptr);
         }
 
-        AttributableNode* BrushNode::entity() {
-            return const_cast<AttributableNode*>(const_cast<const BrushNode*>(this)->entity());
+        EntityNodeBase* BrushNode::entity() {
+            return const_cast<EntityNodeBase*>(const_cast<const BrushNode*>(this)->entity());
         }
 
         const Brush& BrushNode::brush() const {

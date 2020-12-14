@@ -28,10 +28,10 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class AttributableNode;
+        class EntityNodeBase;
         class EntityProperty;
 
-        using AttributableNodeStringIndex = kdl::compact_trie<AttributableNode*>;
+        using AttributableNodeStringIndex = kdl::compact_trie<EntityNodeBase*>;
 
         class AttributableNodeIndexQuery {
         public:
@@ -50,9 +50,9 @@ namespace TrenchBroom {
             static AttributableNodeIndexQuery numbered(const std::string& pattern);
             static AttributableNodeIndexQuery any();
 
-            std::set<AttributableNode*> execute(const AttributableNodeStringIndex& index) const;
-            bool execute(const AttributableNode* node, const std::string& value) const;
-            std::vector<Model::EntityProperty> execute(const AttributableNode* node) const;
+            std::set<EntityNodeBase*> execute(const AttributableNodeStringIndex& index) const;
+            bool execute(const EntityNodeBase* node, const std::string& value) const;
+            std::vector<Model::EntityProperty> execute(const EntityNodeBase* node) const;
         private:
             explicit AttributableNodeIndexQuery(Type type, const std::string& pattern = "");
         };
@@ -65,13 +65,13 @@ namespace TrenchBroom {
             AttributableNodeIndex();
             ~AttributableNodeIndex();
 
-            void addAttributableNode(AttributableNode* attributable);
-            void removeAttributableNode(AttributableNode* attributable);
+            void addAttributableNode(EntityNodeBase* attributable);
+            void removeAttributableNode(EntityNodeBase* attributable);
 
-            void addAttribute(AttributableNode* attributable, const std::string& name, const std::string& value);
-            void removeAttribute(AttributableNode* attributable, const std::string& name, const std::string& value);
+            void addAttribute(EntityNodeBase* attributable, const std::string& name, const std::string& value);
+            void removeAttribute(EntityNodeBase* attributable, const std::string& name, const std::string& value);
 
-            std::vector<AttributableNode*> findAttributableNodes(const AttributableNodeIndexQuery& keyQuery, const std::string& value) const;
+            std::vector<EntityNodeBase*> findAttributableNodes(const AttributableNodeIndexQuery& keyQuery, const std::string& value) const;
             std::vector<std::string> allNames() const;
             std::vector<std::string> allValuesForNames(const AttributableNodeIndexQuery& keyQuery) const;
         };

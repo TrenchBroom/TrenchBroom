@@ -37,7 +37,7 @@ namespace TrenchBroom {
         private:
             std::string m_attributeName;
         public:
-            EmptyAttributeValueIssue(AttributableNode* node, const std::string& attributeName) :
+            EmptyAttributeValueIssue(EntityNodeBase* node, const std::string& attributeName) :
             Issue(node),
             m_attributeName(attributeName) {}
 
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             }
 
             std::string doGetDescription() const override {
-                const AttributableNode* attributableNode = static_cast<AttributableNode*>(node());
+                const EntityNodeBase* attributableNode = static_cast<EntityNodeBase*>(node());
                 return "Attribute '" + m_attributeName + "' of " + attributableNode->name() + " has an empty value.";
             }
 
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             addQuickFix(new EmptyAttributeValueIssueQuickFix());
         }
 
-        void EmptyAttributeValueIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+        void EmptyAttributeValueIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
             for (const EntityProperty& attribute : node->entity().attributes()) {
                 if (attribute.value().empty())
                     issues.push_back(new EmptyAttributeValueIssue(node, attribute.key()));

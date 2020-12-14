@@ -27,7 +27,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class AttributableNode;
+        class EntityNodeBase;
     }
 
     namespace View {
@@ -39,7 +39,7 @@ namespace TrenchBroom {
             std::weak_ptr<MapDocument> m_document;
 
             std::string m_name;
-            std::vector<Model::AttributableNode*> m_attributables;
+            std::vector<Model::EntityNodeBase*> m_attributables;
             bool m_active;
         public:
             explicit SmartAttributeEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
@@ -48,15 +48,15 @@ namespace TrenchBroom {
             bool usesName(const std::string& name) const;
 
             void activate(const std::string& name);
-            void update(const std::vector<Model::AttributableNode*>& attributables);
+            void update(const std::vector<Model::EntityNodeBase*>& attributables);
             void deactivate();
         protected:
             std::shared_ptr<MapDocument> document() const;
             const std::string& name() const;
-            const std::vector<Model::AttributableNode*> attributables() const;
+            const std::vector<Model::EntityNodeBase*> attributables() const;
             void addOrUpdateAttribute(const std::string& value);
         private:
-            virtual void doUpdateVisual(const std::vector<Model::AttributableNode*>& attributables) = 0;
+            virtual void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& attributables) = 0;
         };
     }
 }

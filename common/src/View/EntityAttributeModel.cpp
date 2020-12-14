@@ -136,7 +136,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        AttributeRow::AttributeRow(const std::string& name, const Model::AttributableNode* node) :
+        AttributeRow::AttributeRow(const std::string& name, const Model::EntityNodeBase* node) :
         m_name(name) {
             const Assets::PropertyDefinition* definition = Model::attributeDefinition(node, name);
 
@@ -159,7 +159,7 @@ namespace TrenchBroom {
             }
         }
 
-        void AttributeRow::merge(const Model::AttributableNode* other) {
+        void AttributeRow::merge(const Model::EntityNodeBase* other) {
             const auto* otherValue = other->entity().attribute(m_name);
 
             // State transitions
@@ -219,11 +219,11 @@ namespace TrenchBroom {
             return m_valueType == ValueType::SingleValueAndUnset;
         }
 
-        AttributeRow AttributeRow::rowForAttributableNodes(const std::string& key, const std::vector<Model::AttributableNode*>& attributables) {
+        AttributeRow AttributeRow::rowForAttributableNodes(const std::string& key, const std::vector<Model::EntityNodeBase*>& attributables) {
             ensure(attributables.size() > 0, "rowForAttributableNodes requries a non-empty node list");
 
             std::optional<AttributeRow> result;
-            for (const Model::AttributableNode* node : attributables) {
+            for (const Model::EntityNodeBase* node : attributables) {
                 // this happens at startup when the world is still null
                 if (node == nullptr) {
                     continue;
@@ -240,9 +240,9 @@ namespace TrenchBroom {
             return result.value();
         }
 
-        std::vector<std::string> AttributeRow::allKeys(const std::vector<Model::AttributableNode*>& attributables, const bool showDefaultRows) {
+        std::vector<std::string> AttributeRow::allKeys(const std::vector<Model::EntityNodeBase*>& attributables, const bool showDefaultRows) {
             kdl::vector_set<std::string> result;
-            for (const Model::AttributableNode* node : attributables) {
+            for (const Model::EntityNodeBase* node : attributables) {
                 // this happens at startup when the world is still null
                 if (node == nullptr) {
                     continue;
@@ -266,7 +266,7 @@ namespace TrenchBroom {
             return result.release_data();
         }
 
-        std::map<std::string, AttributeRow> AttributeRow::rowsForAttributableNodes(const std::vector<Model::AttributableNode*>& attributables, const bool showDefaultRows) {
+        std::map<std::string, AttributeRow> AttributeRow::rowsForAttributableNodes(const std::vector<Model::EntityNodeBase*>& attributables, const bool showDefaultRows) {
             std::map<std::string, AttributeRow> result;
             for (const std::string& key : allKeys(attributables, showDefaultRows)) {
                 result[key] = rowForAttributableNodes(key, attributables);
@@ -274,7 +274,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        std::string AttributeRow::newAttributeNameForAttributableNodes(const std::vector<Model::AttributableNode*>& attributables) {
+        std::string AttributeRow::newAttributeNameForAttributableNodes(const std::vector<Model::EntityNodeBase*>& attributables) {
             const std::map<std::string, AttributeRow> rows = rowsForAttributableNodes(attributables, true);
 
             for (int i = 1; ; ++i) {
@@ -676,7 +676,7 @@ namespace TrenchBroom {
             auto document = kdl::mem_lock(m_document);
 
             const size_t rowIndex = static_cast<size_t>(index.row());
-            const std::vector<Model::AttributableNode*> attributables = document->allSelectedAttributableNodes();
+            const std::vector<Model::EntityNodeBase*> attributables = document->allSelectedAttributableNodes();
             if (attributables.empty()) {
                 return false;
             }
@@ -741,7 +741,7 @@ namespace TrenchBroom {
             return rowForAttributeName(name) != -1;
         }
 
-        bool EntityAttributeModel::renameAttribute(const size_t rowIndex, const std::string& newName, const std::vector<Model::AttributableNode*>& /* attributables */) {
+        bool EntityAttributeModel::renameAttribute(const size_t rowIndex, const std::string& newName, const std::vector<Model::EntityNodeBase*>& /* attributables */) {
             ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
             auto document = kdl::mem_lock(m_document);
@@ -775,12 +775,12 @@ namespace TrenchBroom {
             return document->renameAttribute(oldName, newName);
         }
 
-        bool EntityAttributeModel::updateAttribute(const size_t rowIndex, const std::string& newValue, const std::vector<Model::AttributableNode*>& attributables) {
+        bool EntityAttributeModel::updateAttribute(const size_t rowIndex, const std::string& newValue, const std::vector<Model::EntityNodeBase*>& attributables) {
             ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
             bool hasChange = false;
             const std::string name = m_rows.at(rowIndex).name();
-            for (const Model::AttributableNode* attributable : attributables) {
+            for (const Model::EntityNodeBase* attributable : attributables) {
                 if (const auto* oldValue = attributable->entity().attribute(name)) {
                     ensure(isAttributeValueMutable(attributable->entity(), name), "tried to modify immutable attribute value"); // this should be guaranteed by the AttributeRow constructor
                     if (*oldValue != newValue) {

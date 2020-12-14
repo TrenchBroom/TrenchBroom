@@ -43,7 +43,7 @@ namespace TrenchBroom {
             m_active = true;
         }
 
-        void SmartAttributeEditor::update(const std::vector<Model::AttributableNode*>& attributables) {
+        void SmartAttributeEditor::update(const std::vector<Model::EntityNodeBase*>& attributables) {
             m_attributables = attributables;
             doUpdateVisual(m_attributables);
         }
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             return m_name;
         }
 
-        const std::vector<Model::AttributableNode*> SmartAttributeEditor::attributables() const {
+        const std::vector<Model::EntityNodeBase*> SmartAttributeEditor::attributables() const {
             return m_attributables;
         }
 

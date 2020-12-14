@@ -39,7 +39,7 @@ namespace TrenchBroom {
         private:
             const std::string m_attributeName;
         public:
-            AttributeValueWithDoubleQuotationMarksIssue(AttributableNode* node, const std::string& attributeName) :
+            AttributeValueWithDoubleQuotationMarksIssue(EntityNodeBase* node, const std::string& attributeName) :
             AttributeIssue(node),
             m_attributeName(attributeName) {}
 
@@ -67,7 +67,7 @@ namespace TrenchBroom {
                                                               [] (const std::string& value) { return kdl::str_replace_every(value, "\"", "'"); }));
         }
 
-        void AttributeValueWithDoubleQuotationMarksIssueGenerator::doGenerate(AttributableNode* node, IssueList& issues) const {
+        void AttributeValueWithDoubleQuotationMarksIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
             for (const EntityProperty& attribute : node->entity().attributes()) {
                 const std::string& attributeName = attribute.key();
                 const std::string& attributeValue = attribute.value();

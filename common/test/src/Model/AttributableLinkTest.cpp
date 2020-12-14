@@ -48,11 +48,11 @@ namespace TrenchBroom {
                 { PropertyKeys::Targetname, "target_name"}
             }));
 
-            const std::vector<AttributableNode*>& targets = source->linkTargets();
+            const std::vector<EntityNodeBase*>& targets = source->linkTargets();
             ASSERT_EQ(1u, targets.size());
             ASSERT_EQ(target, targets.front());
 
-            const std::vector<AttributableNode*>& sources = target->linkSources();
+            const std::vector<EntityNodeBase*>& sources = target->linkSources();
             ASSERT_EQ(1u, sources.size());
             ASSERT_EQ(source, sources.front());
         }
@@ -78,15 +78,15 @@ namespace TrenchBroom {
                 { PropertyKeys::Targetname, "target_name"}
             }));
 
-            const std::vector<AttributableNode*>& targets1 = source1->linkTargets();
+            const std::vector<EntityNodeBase*>& targets1 = source1->linkTargets();
             ASSERT_EQ(1u, targets1.size());
             ASSERT_EQ(target, targets1.front());
 
-            const std::vector<AttributableNode*>& targets2 = source2->linkTargets();
+            const std::vector<EntityNodeBase*>& targets2 = source2->linkTargets();
             ASSERT_EQ(1u, targets2.size());
             ASSERT_EQ(target, targets2.front());
 
-            const std::vector<AttributableNode*>& sources = target->linkSources();
+            const std::vector<EntityNodeBase*>& sources = target->linkSources();
             ASSERT_EQ(2u, sources.size());
             ASSERT_TRUE(kdl::vec_contains(sources, source1));
             ASSERT_TRUE(kdl::vec_contains(sources, source2));
@@ -117,16 +117,16 @@ namespace TrenchBroom {
                 { PropertyKeys::Targetname, "target_name2"}
             }));
 
-            const std::vector<AttributableNode*>& targets = source->linkTargets();
+            const std::vector<EntityNodeBase*>& targets = source->linkTargets();
             ASSERT_EQ(2u, targets.size());
             ASSERT_TRUE(kdl::vec_contains(targets, target1));
             ASSERT_TRUE(kdl::vec_contains(targets, target2));
 
-            const std::vector<AttributableNode*>& sources1 = target1->linkSources();
+            const std::vector<EntityNodeBase*>& sources1 = target1->linkSources();
             ASSERT_EQ(1u, sources1.size());
             ASSERT_EQ(source, sources1.front());
 
-            const std::vector<AttributableNode*>& sources2 = target2->linkSources();
+            const std::vector<EntityNodeBase*>& sources2 = target2->linkSources();
             ASSERT_EQ(1u, sources2.size());
             ASSERT_EQ(source, sources2.front());
         }
@@ -143,11 +143,11 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(source);
             world.defaultLayer()->addChild(target);
 
-            const std::vector<AttributableNode*>& targets = source->linkTargets();
+            const std::vector<EntityNodeBase*>& targets = source->linkTargets();
             ASSERT_EQ(1u, targets.size());
             ASSERT_EQ(target, targets.front());
 
-            const std::vector<AttributableNode*>& sources = target->linkSources();
+            const std::vector<EntityNodeBase*>& sources = target->linkSources();
             ASSERT_EQ(1u, sources.size());
             ASSERT_EQ(source, sources.front());
         }
@@ -168,10 +168,10 @@ namespace TrenchBroom {
                 { PropertyKeys::Target, "other_name"}
             }));
 
-            const std::vector<AttributableNode*>& targets = source->linkTargets();
+            const std::vector<EntityNodeBase*>& targets = source->linkTargets();
             ASSERT_TRUE(targets.empty());
 
-            const std::vector<AttributableNode*>& sources = target->linkSources();
+            const std::vector<EntityNodeBase*>& sources = target->linkSources();
             ASSERT_TRUE(sources.empty());
         }
 
@@ -191,10 +191,10 @@ namespace TrenchBroom {
                 { PropertyKeys::Targetname, "other_name"}
             }));
 
-            const std::vector<AttributableNode*>& targets = source->linkTargets();
+            const std::vector<EntityNodeBase*>& targets = source->linkTargets();
             ASSERT_TRUE(targets.empty());
 
-            const std::vector<AttributableNode*>& sources = target->linkSources();
+            const std::vector<EntityNodeBase*>& sources = target->linkSources();
             ASSERT_TRUE(sources.empty());
         }
 
@@ -212,10 +212,10 @@ namespace TrenchBroom {
 
             world.defaultLayer()->removeChild(source);
 
-            const std::vector<AttributableNode*>& targets = source->linkTargets();
+            const std::vector<EntityNodeBase*>& targets = source->linkTargets();
             ASSERT_TRUE(targets.empty());
 
-            const std::vector<AttributableNode*>& sources = target->linkSources();
+            const std::vector<EntityNodeBase*>& sources = target->linkSources();
             ASSERT_TRUE(sources.empty());
 
             delete source;
@@ -235,10 +235,10 @@ namespace TrenchBroom {
 
             world.defaultLayer()->removeChild(target);
 
-            const std::vector<AttributableNode*>& targets = source->linkTargets();
+            const std::vector<EntityNodeBase*>& targets = source->linkTargets();
             ASSERT_TRUE(targets.empty());
 
-            const std::vector<AttributableNode*>& sources = target->linkSources();
+            const std::vector<EntityNodeBase*>& sources = target->linkSources();
             ASSERT_TRUE(sources.empty());
 
             delete target;
@@ -259,11 +259,11 @@ namespace TrenchBroom {
                 { PropertyKeys::Targetname, "target_name"}
             }));
 
-            const std::vector<AttributableNode*>& targets = source->killTargets();
+            const std::vector<EntityNodeBase*>& targets = source->killTargets();
             ASSERT_EQ(1u, targets.size());
             ASSERT_EQ(target, targets.front());
 
-            const std::vector<AttributableNode*>& sources = target->killSources();
+            const std::vector<EntityNodeBase*>& sources = target->killSources();
             ASSERT_EQ(1u, sources.size());
             ASSERT_EQ(source, sources.front());
         }
@@ -280,11 +280,11 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(source);
             world.defaultLayer()->addChild(target);
 
-            const std::vector<AttributableNode*>& targets = source->killTargets();
+            const std::vector<EntityNodeBase*>& targets = source->killTargets();
             ASSERT_EQ(1u, targets.size());
             ASSERT_EQ(target, targets.front());
 
-            const std::vector<AttributableNode*>& sources = target->killSources();
+            const std::vector<EntityNodeBase*>& sources = target->killSources();
             ASSERT_EQ(1u, sources.size());
             ASSERT_EQ(source, sources.front());
         }
@@ -305,10 +305,10 @@ namespace TrenchBroom {
                 { PropertyKeys::Killtarget, "other_name"}
             }));
 
-            const std::vector<AttributableNode*>& targets = source->killTargets();
+            const std::vector<EntityNodeBase*>& targets = source->killTargets();
             ASSERT_TRUE(targets.empty());
 
-            const std::vector<AttributableNode*>& sources = target->killSources();
+            const std::vector<EntityNodeBase*>& sources = target->killSources();
             ASSERT_TRUE(sources.empty());
         }
 
@@ -328,10 +328,10 @@ namespace TrenchBroom {
                 { PropertyKeys::Targetname, "other_name"}
             }));
 
-            const std::vector<AttributableNode*>& targets = source->killTargets();
+            const std::vector<EntityNodeBase*>& targets = source->killTargets();
             ASSERT_TRUE(targets.empty());
 
-            const std::vector<AttributableNode*>& sources = target->killSources();
+            const std::vector<EntityNodeBase*>& sources = target->killSources();
             ASSERT_TRUE(sources.empty());
         }
 
@@ -349,10 +349,10 @@ namespace TrenchBroom {
 
             world.defaultLayer()->removeChild(source);
 
-            const std::vector<AttributableNode*>& targets = source->killTargets();
+            const std::vector<EntityNodeBase*>& targets = source->killTargets();
             ASSERT_TRUE(targets.empty());
 
-            const std::vector<AttributableNode*>& sources = target->killSources();
+            const std::vector<EntityNodeBase*>& sources = target->killSources();
             ASSERT_TRUE(sources.empty());
 
             delete source;
@@ -372,10 +372,10 @@ namespace TrenchBroom {
 
             world.defaultLayer()->removeChild(target);
 
-            const std::vector<AttributableNode*>& targets = source->killTargets();
+            const std::vector<EntityNodeBase*>& targets = source->killTargets();
             ASSERT_TRUE(targets.empty());
 
-            const std::vector<AttributableNode*>& sources = target->killSources();
+            const std::vector<EntityNodeBase*>& sources = target->killSources();
             ASSERT_TRUE(sources.empty());
 
             delete target;

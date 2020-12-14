@@ -44,7 +44,7 @@ namespace TrenchBroom {
     }
 
     namespace Model {
-        class AttributableNode;
+        class EntityNodeBase;
         class BrushFace;
         class BrushFaceAttributes;
         class CompilationConfig;

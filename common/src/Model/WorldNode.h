@@ -43,7 +43,7 @@ namespace TrenchBroom {
         class IssueQuickFix;
         class PickResult;
 
-        class WorldNode : public AttributableNode, public ModelFactory {
+        class WorldNode : public EntityNodeBase, public ModelFactory {
         private:
             std::unique_ptr<ModelFactory> m_factory;
             LayerNode* m_defaultLayer;
@@ -136,10 +136,10 @@ namespace TrenchBroom {
             void doGenerateIssues(const IssueGenerator* generator, std::vector<Issue*>& issues) override;
             void doAccept(NodeVisitor& visitor) override;
             void doAccept(ConstNodeVisitor& visitor) const override;
-            void doFindAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<AttributableNode*>& result) const override;
-            void doFindAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<AttributableNode*>& result) const override;
-            void doAddToIndex(AttributableNode* attributable, const std::string& name, const std::string& value) override;
-            void doRemoveFromIndex(AttributableNode* attributable, const std::string& name, const std::string& value) override;
+            void doFindAttributableNodesWithAttribute(const std::string& name, const std::string& value, std::vector<EntityNodeBase*>& result) const override;
+            void doFindAttributableNodesWithNumberedAttribute(const std::string& prefix, const std::string& value, std::vector<EntityNodeBase*>& result) const override;
+            void doAddToIndex(EntityNodeBase* attributable, const std::string& name, const std::string& value) override;
+            void doRemoveFromIndex(EntityNodeBase* attributable, const std::string& name, const std::string& value) override;
         private: // implement AttributableNode interface
             void doAttributesDidChange(const vm::bbox3& oldBounds) override;
             vm::vec3 doGetLinkSourceAnchor() const override;

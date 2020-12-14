@@ -374,7 +374,7 @@ namespace TrenchBroom {
             return ParentInfo::Type_None;
         }
 
-        void MapReader::stripParentAttributes(Model::AttributableNode* attributable, const ParentInfo::Type parentType) {
+        void MapReader::stripParentAttributes(Model::EntityNodeBase* attributable, const ParentInfo::Type parentType) {
             auto entity = attributable->entity();
             switch (parentType) {
                 case ParentInfo::Type_Layer:

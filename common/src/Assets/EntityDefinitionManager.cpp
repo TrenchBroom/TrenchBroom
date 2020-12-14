@@ -59,9 +59,9 @@ namespace TrenchBroom {
             kdl::vec_clear_and_delete(m_definitions);
         }
 
-        EntityDefinition* EntityDefinitionManager::definition(const Model::AttributableNode* attributable) const {
-            ensure(attributable != nullptr, "attributable is null");
-            return definition(attributable->entity().classname());
+        EntityDefinition* EntityDefinitionManager::definition(const Model::EntityNodeBase* node) const {
+            ensure(node != nullptr, "node is null");
+            return definition(node->entity().classname());
         }
 
         EntityDefinition* EntityDefinitionManager::definition(const std::string& classname) const {

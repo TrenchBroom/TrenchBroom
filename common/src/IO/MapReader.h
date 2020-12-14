@@ -37,7 +37,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class AttributableNode;
+        class EntityNodeBase;
         class BrushNode;
         class EntityProperty;
         class GroupNode;
@@ -171,7 +171,7 @@ namespace TrenchBroom {
             void createBrush(kdl::result<Model::Brush, Model::BrushError> brush, Model::Node* parent, size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes, ParserStatus& status);
 
             ParentInfo::Type storeNode(Model::Node* node, const std::vector<Model::EntityProperty>& attributes, ParserStatus& status);
-            void stripParentAttributes(Model::AttributableNode* attributable, ParentInfo::Type parentType);
+            void stripParentAttributes(Model::EntityNodeBase* attributable, ParentInfo::Type parentType);
 
             void resolveNodes(ParserStatus& status);
             std::vector<LoadedBrush> loadBrushes(ParserStatus& status);

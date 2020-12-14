@@ -51,7 +51,7 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
-        void SmartAttributeEditorManager::switchEditor(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) {
+        void SmartAttributeEditorManager::switchEditor(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) {
             EditorPtr editor = selectEditor(name, attributables);
             activateEditor(editor, name);
             updateEditor();
@@ -109,7 +109,7 @@ namespace TrenchBroom {
             switchEditor(m_name, document->allSelectedAttributableNodes());
         }
 
-        SmartAttributeEditorManager::EditorPtr SmartAttributeEditorManager::selectEditor(const std::string& name, const std::vector<Model::AttributableNode*>& attributables) const {
+        SmartAttributeEditorManager::EditorPtr SmartAttributeEditorManager::selectEditor(const std::string& name, const std::vector<Model::EntityNodeBase*>& attributables) const {
             for (const auto& entry : m_editors) {
                 const MatcherPtr matcher = entry.first;
                 if (matcher->matches(name, attributables))
