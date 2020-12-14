@@ -18,9 +18,9 @@
  */
 
 #include "TestUtils.h"
-#include "Model/AttributableNodeIndex.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityNodeBase.h"
+#include "Model/EntityNodeIndex.h"
 
 #include <kdl/vector_utils.h>
 

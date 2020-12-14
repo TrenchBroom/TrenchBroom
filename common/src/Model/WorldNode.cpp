@@ -21,10 +21,10 @@
 
 #include "AABBTree.h"
 #include "Ensure.h"
-#include "Model/AttributableNodeIndex.h"
 #include "Model/BrushNode.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityNode.h"
+#include "Model/EntityNodeIndex.h"
 #include "Model/GroupNode.h"
 #include "Model/IssueGenerator.h"
 #include "Model/IssueGeneratorRegistry.h"

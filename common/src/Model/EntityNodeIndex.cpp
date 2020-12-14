@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AttributableNodeIndex.h"
+#include "EntityNodeIndex.h"
 
 #include "Macros.h"
 #include "Model/Entity.h"
