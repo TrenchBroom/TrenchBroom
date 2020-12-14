@@ -2809,7 +2809,7 @@ namespace TrenchBroom {
             m_world->registerIssueGenerator(new Model::LongAttributeNameIssueGenerator(m_game->maxPropertyLength()));
             m_world->registerIssueGenerator(new Model::LongAttributeValueIssueGenerator(m_game->maxPropertyLength()));
             m_world->registerIssueGenerator(new Model::PropertyKeyWithDoubleQuotationMarksIssueGenerator());
-            m_world->registerIssueGenerator(new Model::AttributeValueWithDoubleQuotationMarksIssueGenerator());
+            m_world->registerIssueGenerator(new Model::PropertyValueWithDoubleQuotationMarksIssueGenerator());
             m_world->registerIssueGenerator(new Model::InvalidTextureScaleIssueGenerator());
         }
 

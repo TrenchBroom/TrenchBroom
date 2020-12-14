@@ -33,18 +33,18 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class AttributeValueWithDoubleQuotationMarksIssueGenerator::AttributeValueWithDoubleQuotationMarksIssue : public AttributeIssue {
+        class PropertyValueWithDoubleQuotationMarksIssueGenerator::PropertyValueWithDoubleQuotationMarksIssue : public AttributeIssue {
         public:
             static const IssueType Type;
         private:
-            const std::string m_attributeName;
+            const std::string m_propertyKey;
         public:
-            AttributeValueWithDoubleQuotationMarksIssue(EntityNodeBase* node, const std::string& attributeName) :
+            PropertyValueWithDoubleQuotationMarksIssue(EntityNodeBase* node, const std::string& propertyKey) :
             AttributeIssue(node),
-            m_attributeName(attributeName) {}
+            m_propertyKey(propertyKey) {}
 
             const std::string& attributeName() const override {
-                return m_attributeName;
+                return m_propertyKey;
             }
         private:
             IssueType doGetType() const override {
@@ -52,27 +52,27 @@ namespace TrenchBroom {
             }
 
             std::string doGetDescription() const override {
-                return "The value of entity property '" + m_attributeName + "' contains double quotation marks. This may cause errors during compilation or in the game.";
+                return "The value of entity property '" + m_propertyKey + "' contains double quotation marks. This may cause errors during compilation or in the game.";
             }
         };
 
-        const IssueType AttributeValueWithDoubleQuotationMarksIssueGenerator::AttributeValueWithDoubleQuotationMarksIssue::Type = Issue::freeType();
+        const IssueType PropertyValueWithDoubleQuotationMarksIssueGenerator::PropertyValueWithDoubleQuotationMarksIssue::Type = Issue::freeType();
 
-        AttributeValueWithDoubleQuotationMarksIssueGenerator::AttributeValueWithDoubleQuotationMarksIssueGenerator() :
-        IssueGenerator(AttributeValueWithDoubleQuotationMarksIssue::Type, "Invalid entity property values") {
-            addQuickFix(new RemoveEntityAttributesQuickFix(AttributeValueWithDoubleQuotationMarksIssue::Type));
-            addQuickFix(new TransformEntityAttributesQuickFix(AttributeValueWithDoubleQuotationMarksIssue::Type,
+        PropertyValueWithDoubleQuotationMarksIssueGenerator::PropertyValueWithDoubleQuotationMarksIssueGenerator() :
+        IssueGenerator(PropertyValueWithDoubleQuotationMarksIssue::Type, "Invalid entity property values") {
+            addQuickFix(new RemoveEntityAttributesQuickFix(PropertyValueWithDoubleQuotationMarksIssue::Type));
+            addQuickFix(new TransformEntityAttributesQuickFix(PropertyValueWithDoubleQuotationMarksIssue::Type,
                                                               "Replace \" with '",
-                                                              [] (const std::string& name)   { return name; },
+                                                              [] (const std::string& key)   { return key; },
                                                               [] (const std::string& value) { return kdl::str_replace_every(value, "\"", "'"); }));
         }
 
-        void AttributeValueWithDoubleQuotationMarksIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
-            for (const EntityProperty& attribute : node->entity().attributes()) {
-                const std::string& attributeName = attribute.key();
-                const std::string& attributeValue = attribute.value();
-                if (attributeValue.find('"') != std::string::npos) {
-                    issues.push_back(new AttributeValueWithDoubleQuotationMarksIssue(node, attributeName));
+        void PropertyValueWithDoubleQuotationMarksIssueGenerator::doGenerate(EntityNodeBase* node, IssueList& issues) const {
+            for (const EntityProperty& property : node->entity().attributes()) {
+                const std::string& propertyKey = property.key();
+                const std::string& propertyValue = property.value();
+                if (propertyValue.find('"') != std::string::npos) {
+                    issues.push_back(new PropertyValueWithDoubleQuotationMarksIssue(node, propertyKey));
                 }
             }
         }

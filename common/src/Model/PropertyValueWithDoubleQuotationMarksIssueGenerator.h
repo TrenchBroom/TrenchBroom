@@ -25,11 +25,11 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class AttributeValueWithDoubleQuotationMarksIssueGenerator : public IssueGenerator {
+        class PropertyValueWithDoubleQuotationMarksIssueGenerator : public IssueGenerator {
         private:
-            class AttributeValueWithDoubleQuotationMarksIssue;
+            class PropertyValueWithDoubleQuotationMarksIssue;
         public:
-            AttributeValueWithDoubleQuotationMarksIssueGenerator();
+            PropertyValueWithDoubleQuotationMarksIssueGenerator();
         private:
             void doGenerate(EntityNodeBase* node, IssueList& issues) const override;
         };
