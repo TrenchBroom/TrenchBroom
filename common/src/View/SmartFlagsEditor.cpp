@@ -21,8 +21,8 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
-#include "Model/AttributableNode.h"
 #include "Model/Entity.h"
+#include "Model/EntityNodeBase.h"
 #include "View/FlagsEditor.h"
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"

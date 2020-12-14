@@ -21,10 +21,10 @@
 
 #include "Color.h"
 #include "Assets/ColorRange.h"
-#include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityColor.h"
 #include "Model/EntityNode.h"
+#include "Model/EntityNodeBase.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"

@@ -23,8 +23,8 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "IO/EntityDefinitionLoader.h"
-#include "Model/AttributableNode.h"
 #include "Model/Entity.h"
+#include "Model/EntityNodeBase.h"
 #include "Model/EntityProperties.h"
 
 #include <kdl/vector_utils.h>

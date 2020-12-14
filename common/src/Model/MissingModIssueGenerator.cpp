@@ -20,8 +20,8 @@
 #include "MissingModIssueGenerator.h"
 
 #include "IO/Path.h"
-#include "Model/AttributableNode.h"
 #include "Model/Entity.h"
+#include "Model/EntityNodeBase.h"
 #include "Model/EntityProperties.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"

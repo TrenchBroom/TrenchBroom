@@ -19,7 +19,7 @@
 
 #include "SmartChoiceEditor.h"
 #include "Assets/PropertyDefinition.h"
-#include "Model/AttributableNode.h"
+#include "Model/EntityNodeBase.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"

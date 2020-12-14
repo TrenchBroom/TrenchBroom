@@ -20,9 +20,9 @@
 #include "EntityColor.h"
 
 #include "Color.h"
-#include "Model/AttributableNode.h"
 #include "Assets/ColorRange.h"
 #include "Model/EntityNode.h"
+#include "Model/EntityNodeBase.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/overload.h>

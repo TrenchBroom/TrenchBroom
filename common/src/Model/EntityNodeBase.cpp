@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AttributableNode.h"
+#include "EntityNodeBase.h"
 
 #include "Assets/PropertyDefinition.h"
 #include "Assets/EntityDefinition.h"

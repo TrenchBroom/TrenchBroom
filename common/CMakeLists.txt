@@ -91,7 +91,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/WalTextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/WorldReader.cpp
         ${COMMON_SOURCE_DIR}/IO/ZipFileSystem.cpp
-        ${COMMON_SOURCE_DIR}/Model/AttributableNode.cpp
         ${COMMON_SOURCE_DIR}/Model/AttributableNodeIndex.cpp
         ${COMMON_SOURCE_DIR}/Model/AttributeNameWithDoubleQuotationMarksIssueGenerator.cpp
         ${COMMON_SOURCE_DIR}/Model/AttributeValueWithDoubleQuotationMarksIssueGenerator.cpp
@@ -118,6 +117,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/EntityAttributesVariableStore.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityColor.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityNode.cpp
+        ${COMMON_SOURCE_DIR}/Model/EntityNodeBase.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityProperties.cpp
         ${COMMON_SOURCE_DIR}/Model/EntityRotationPolicy.cpp
         ${COMMON_SOURCE_DIR}/Model/Game.cpp
@@ -555,7 +555,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/WalTextureReader.h
         ${COMMON_SOURCE_DIR}/IO/WorldReader.h
         ${COMMON_SOURCE_DIR}/IO/ZipFileSystem.h
-        ${COMMON_SOURCE_DIR}/Model/AttributableNode.h
         ${COMMON_SOURCE_DIR}/Model/AttributableNodeIndex.h
         ${COMMON_SOURCE_DIR}/Model/AttributeNameWithDoubleQuotationMarksIssueGenerator.h
         ${COMMON_SOURCE_DIR}/Model/AttributeValueWithDoubleQuotationMarksIssueGenerator.h
@@ -583,6 +582,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/EntityAttributesVariableStore.h
         ${COMMON_SOURCE_DIR}/Model/EntityColor.h
         ${COMMON_SOURCE_DIR}/Model/EntityNode.h
+        ${COMMON_SOURCE_DIR}/Model/EntityNodeBase.h
         ${COMMON_SOURCE_DIR}/Model/EntityProperties.h
         ${COMMON_SOURCE_DIR}/Model/EntityRotationPolicy.h
         ${COMMON_SOURCE_DIR}/Model/ExportFormat.h

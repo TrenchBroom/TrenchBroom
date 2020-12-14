@@ -21,7 +21,7 @@
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Model/AttributableNode.h"
+#include "Model/EntityNodeBase.h"
 #include "Model/HitType.h"
 #include "Model/Object.h"
 

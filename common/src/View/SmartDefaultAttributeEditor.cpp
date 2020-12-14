@@ -19,7 +19,7 @@
 
 #include "SmartDefaultAttributeEditor.h"
 
-#include "Model/AttributableNode.h"
+#include "Model/EntityNodeBase.h"
 
 namespace TrenchBroom {
     namespace View {

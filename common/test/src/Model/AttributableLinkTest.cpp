@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
+#include "Model/EntityNodeBase.h"
 #include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
 #include "Model/WorldNode.h"
